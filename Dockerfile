@@ -1,17 +1,6 @@
-FROM ruby:2.6.3-slim
+FROM leikir/ruby-bundler-node-yarn-and-extras:ruby-2.6.3-node-10.16.0-slim
 
 MAINTAINER Yann Hourdel "yann@hourdel.fr"
-
-RUN apt-get update \
-  && apt-get install -qq -y --no-install-recommends \
-    apt-transport-https \
-    build-essential \
-    curl \
-    git-core \
-    gnupg \
-    libcurl4-openssl-dev \
-    libpq-dev \
-    netcat
 
 ENV INSTALL_PATH /rails
 RUN mkdir -p $INSTALL_PATH
@@ -23,6 +12,13 @@ WORKDIR $INSTALL_PATH
 # are made.
 COPY Gemfile Gemfile.lock ./
 RUN bundle install
+
+# Copy the package.json as well as the yarn.lock and install
+# the node modules. This is a separate step so the dependencies
+# will be cached unless changes to one of those two files
+# are made.
+COPY package.json yarn.lock ./
+RUN yarn install
 
 # Copy the main application.
 COPY . .
