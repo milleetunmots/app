@@ -17,6 +17,11 @@ services:
       - ./docker/data/postgres/lib/data:/var/lib/postgresql/data
     restart: always
 
+  mailcatcher:
+    image: schickling/mailcatcher
+    ports:
+      - 1080:1080
+
   rails:
     build: .
     volumes:
@@ -26,3 +31,5 @@ services:
       - 3000:3000
     environment:
       DATABASE_URL: postgres://rails:rails@postgres:5432/rails
+      MAILCATCHER_SMTP_ADDRESS: mailcatcher
+      MAILCATCHER_SMTP_PORT: 1025
