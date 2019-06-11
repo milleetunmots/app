@@ -1,0 +1,20 @@
+# GIT
+.git
+
+# Docker
+Dockerfile*
+.dockerignore
+docker
+docker-compose.yml
+docker-compose.override.yml
+
+# Dev
+.circleci
+.codeclimate.yml
+tmp
+
+# Other
+**/.DS_Store
+**/.editorconfig
+**/.idea
+**/README.md
