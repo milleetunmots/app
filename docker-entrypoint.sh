@@ -19,6 +19,6 @@ done
 
 sleep 2
 echo "Running migrations..."
-# bundle exec rails db:migrate
+bundle exec rails db:migrate
 echo "$@"
 eval "$@"
