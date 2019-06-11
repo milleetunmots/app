@@ -6,19 +6,19 @@ ENV INSTALL_PATH /rails
 RUN mkdir -p $INSTALL_PATH
 WORKDIR $INSTALL_PATH
 
-# Copy the Gemfile as well as the Gemfile.lock and install
-# the RubyGems. This is a separate step so the dependencies
-# will be cached unless changes to one of those two files
-# are made.
-COPY Gemfile Gemfile.lock ./
-RUN bundle install
-
 # Copy the package.json as well as the yarn.lock and install
 # the node modules. This is a separate step so the dependencies
 # will be cached unless changes to one of those two files
 # are made.
 COPY package.json yarn.lock ./
 RUN yarn install
+
+# Copy the Gemfile as well as the Gemfile.lock and install
+# the RubyGems. This is a separate step so the dependencies
+# will be cached unless changes to one of those two files
+# are made.
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
 
 # Copy the main application.
 COPY . .
