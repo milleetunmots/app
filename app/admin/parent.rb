@@ -20,7 +20,9 @@ ActiveAdmin.register Parent do
     actions
   end
 
-  filter :gender
+  filter :gender,
+         as: :check_boxes,
+         collection: Hash[Parent::GENDERS.map{|v| [Parent.human_attribute_name("gender.#{v}"),v]}]
   filter :first_name
   filter :last_name
   filter :phone_number
@@ -29,6 +31,7 @@ ActiveAdmin.register Parent do
   filter :postal_code
   filter :city_name
   filter :created_at
+  filter :updated_at
 
   form do |f|
     f.inputs do

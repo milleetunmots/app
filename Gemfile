@@ -66,3 +66,6 @@ gem 'phonelib'
 # other translations
 gem 'rails-i18n'
 gem 'devise-i18n'
+
+# JS
+gem 'select2-rails'

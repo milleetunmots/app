@@ -20,17 +20,20 @@ ActiveAdmin.register Child do
     actions
   end
 
-  filter :gender
+  filter :gender,
+         as: :check_boxes,
+         collection: Hash[Child::GENDERS.map{|v| [Child.human_attribute_name("gender.#{v}"),v]}]
   filter :first_name
   filter :last_name
   filter :birthdate
   filter :created_at
+  filter :updated_at
 
   form do |f|
     f.inputs do
-      f.input :parent1, collection: Parent.all.map(&:decorate)
+      f.input :parent1, collection: Parent.all.map(&:decorate), input_html: { data: { select2: {} } }
       f.input :should_contact_parent1
-      f.input :parent2, collection: Parent.all.map(&:decorate)
+      f.input :parent2, collection: Parent.all.map(&:decorate), input_html: { data: { select2: {} } }
       f.input :should_contact_parent2
       f.input :gender,
               as: :radio,

@@ -251,6 +251,8 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
+    select2-rails (4.0.3)
+      thor (~> 0.14)
     selenium-webdriver (3.142.3)
       childprocess (>= 0.5, < 2.0)
       rubyzip (~> 1.2, >= 1.2.2)
@@ -321,6 +323,7 @@ DEPENDENCIES
   rails (~> 6.0.0.rc1)
   rails-i18n
   sass-rails (~> 5)
+  select2-rails
   selenium-webdriver
   spring
   spring-watcher-listen (~> 2.0.0)
