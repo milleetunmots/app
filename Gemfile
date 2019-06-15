@@ -62,4 +62,7 @@ gem 'arctic_admin'
 
 # phones
 gem 'phonelib'
+
+# other translations
 gem 'rails-i18n'
+gem 'devise-i18n'

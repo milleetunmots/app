@@ -48,7 +48,9 @@ ActiveAdmin.register Child do
   show do
     attributes_table do
       row :parent1
+      row :should_contact_parent1
       row :parent2
+      row :should_contact_parent2
       row :first_name
       row :last_name
       row :birthdate

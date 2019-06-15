@@ -109,6 +109,8 @@ GEM
       railties (>= 4.1.0, < 6.0)
       responders
       warden (~> 1.2.3)
+    devise-i18n (1.8.0)
+      devise (>= 4.6)
     draper (3.1.0)
       actionpack (>= 5.0)
       activemodel (>= 5.0)
@@ -309,6 +311,7 @@ DEPENDENCIES
   cancancan
   capybara (>= 2.15)
   devise
+  devise-i18n
   draper
   jbuilder (~> 2.5)
   listen (>= 3.0.5, < 3.2)

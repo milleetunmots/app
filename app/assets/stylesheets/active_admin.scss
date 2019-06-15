@@ -10,8 +10,11 @@
 // For ArcticAdmin customization, also use variables here:
 // $primary-color: #2dbb43;
 
-$rose: #FB6E9E;
-$blue: #7EB7EF;
+$blue: #A0CED9;
+$green: #ADF7B6;
+$rose: #FFC09F;
+$yellow: #FFEE93;
+$grey: #CACACA;
 
 // Active Admin's got SASS!
 @import "active_admin/mixins";
@@ -29,6 +32,13 @@ $blue: #7EB7EF;
   }
   &.rose {
     background-color: $rose;
+  }
+
+  &.no {
+    background-color: $grey;
+  }
+  &.yes {
+    background-color: $green;
   }
 }
 

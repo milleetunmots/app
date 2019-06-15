@@ -8,6 +8,7 @@ ActiveAdmin.register Parent do
     column :gender
     column :first_name
     column :last_name
+    column :children
     column :phone_number
     column :email
     column :created_at do |model|
@@ -47,5 +48,21 @@ ActiveAdmin.register Parent do
   permit_params :gender, :first_name, :last_name,
                 :phone_number, :email, :address,
                 :postal_code, :city_name
+
+  show do
+    attributes_table do
+      row :gender
+      row :first_name
+      row :last_name
+      row :phone_number
+      row :email
+      row :address
+      row :postal_code
+      row :city_name
+      row :created_at
+      row :updated_at
+      row :children
+    end
+  end
 
 end

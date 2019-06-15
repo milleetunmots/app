@@ -1,12 +1,26 @@
 class ParentDecorator < BaseDecorator
 
+  def admin_link
+    h.link_to name, [:admin, model], class: GENDER_COLORS[model.gender.to_sym]
+  end
+
+  def children
+    arbre do
+      ul do
+        model.children.decorate.each do |child|
+          li child.admin_link
+        end
+      end
+    end
+  end
+
   def email
     h.mail_to model.email
   end
 
   GENDER_COLORS = {
-    m: :green,
-    f: :blue
+    m: :blue,
+    f: :rose
   }
 
   def gender
@@ -24,4 +38,9 @@ class ParentDecorator < BaseDecorator
     phone.national
   end
 
+  private
+
+  def child(child)
+    h.link_to child.decorate.name, [:admin, child], class: ChildDecorator::GENDER_COLORS[child.gender.to_sym]
+  end
 end

@@ -1,5 +1,9 @@
 class ChildDecorator < BaseDecorator
 
+  def admin_link
+    h.link_to name, [:admin, model], class: GENDER_COLORS[model.gender.to_sym]
+  end
+
   def age
     years = ((Time.zone.now - model.birthdate.to_time) / 1.year.seconds)
     if years < 2
@@ -32,21 +36,31 @@ class ChildDecorator < BaseDecorator
   end
 
   def parent1
-    parent model.parent1, model.should_contact_parent1?
+    parent model.parent1
   end
 
   def parent2
-    parent model.parent2, model.should_contact_parent2?
+    parent model.parent2
   end
+
+  # def should_contact_parent1
+  #   should_contact_parent model.should_contact_parent1?
+  # end
+
+  # def should_contact_parent2
+  #   should_contact_parent model.should_contact_parent2?
+  # end
 
   private
 
-  def parent(parent, should_contact_parent)
+  def parent(parent)
     return nil unless parent
-    h.link_to [:admin, parent], class: GENDER_COLORS[parent.gender.to_sym] do
-      text = parent.decorate.name
-      text += " ✉" if should_contact_parent
-      text
+    parent.decorate.admin_link
+  end
+
+  def should_contact_parent(should_contact_parent)
+    arbre do
+      status_tag should_contact_parent
     end
   end
 

@@ -32,6 +32,7 @@ fr:
         m: Garçon
       parent:
         address: Adresse
+        children: Enfant(s)
         city_name: Ville
         created_at: Ajout
         email: Email

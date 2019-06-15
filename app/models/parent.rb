@@ -24,6 +24,10 @@ class Parent < ApplicationRecord
             format: { with: REGEX_VALID_EMAIL },
             uniqueness: { case_sensitive: false }
 
+  def children
+    Child.where(parent1: self).or(Child.where(parent2: self))
+  end
+
   private
 
   def format_phone_number
