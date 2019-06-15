@@ -13,7 +13,11 @@ WORKDIR $INSTALL_PATH
 COPY package.json yarn.lock ./
 RUN yarn install
 
-# Copy the Gemfile as well as the Gemfile.lock and install
+# Temporary trick to fasten rebuilds when changing dependencies
+COPY docker/rails/Gemfile docker/rails/Gemfile.lock ./
+RUN bundle install
+
+# Now copy the real Gemfile as well as the Gemfile.lock and install
 # the RubyGems. This is a separate step so the dependencies
 # will be cached unless changes to one of those two files
 # are made.
