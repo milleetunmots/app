@@ -8,12 +8,15 @@ ActiveAdmin.register Child do
     column :gender
     column :first_name
     column :last_name
-    column :birthdate
-    column :age
-    column :parent1
-    column :parent2
-    column :created_at
-    column :updated_at
+    column :age, sortable: :birthdate
+    column :parent1, sortable: :parent1_id
+    column :parent2, sortable: :parent2_id
+    column :created_at do |model|
+      l model.created_at.to_date, format: :default
+    end
+    column :updated_at do |model|
+      l model.updated_at.to_date, format: :default
+    end
     actions
   end
 

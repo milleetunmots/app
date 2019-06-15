@@ -8,7 +8,12 @@ ActiveAdmin.register AdminUser do
     column :email
     column :current_sign_in_at
     column :sign_in_count
-    column :created_at
+    column :created_at do |model|
+      l model.created_at.to_date, format: :default
+    end
+    column :updated_at do |model|
+      l model.updated_at.to_date, format: :default
+    end
     actions
   end
 

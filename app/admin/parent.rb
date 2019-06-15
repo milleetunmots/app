@@ -10,8 +10,12 @@ ActiveAdmin.register Parent do
     column :last_name
     column :phone_number
     column :email
-    column :created_at
-    column :updated_at
+    column :created_at do |model|
+      l model.created_at.to_date, format: :default
+    end
+    column :updated_at do |model|
+      l model.updated_at.to_date, format: :default
+    end
     actions
   end
 
