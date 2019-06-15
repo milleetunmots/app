@@ -1,0 +1,51 @@
+fr:
+  activerecord:
+    models:
+      admin_user: Administrateur
+      child: Enfant
+      parent: Parent
+    attributes:
+      admin_user:
+        created_at: Ajout
+        current_sign_in_at: Session en cours
+        email: Email
+        id: "#"
+        password: Mot de passe
+        password_confirmation: Confirmation du mot de passe
+        sign_in_count: Connexions
+        updated_at: Modification
+      child:
+        age: Age
+        birthdate: Date de naissance
+        created_at: Ajout
+        first_name: Prénom
+        gender: Sexe
+        id: "#"
+        last_name: Nom
+        parent1: Parent 1
+        parent2: Parent 2
+        updated_at: Modification
+      child/gender:
+        f: Fille
+        m: Garçon
+      parent:
+        address: Adresse
+        city_name: Ville
+        created_at: Ajout
+        email: Email
+        first_name: Prénom
+        gender: Sexe
+        id: "#"
+        last_name: Nom
+        phone_number: Téléphone
+        postal_code: Code postal
+        updated_at: Modification
+      parent/gender:
+        f: Femme
+        m: Homme
+    errors:
+      models:
+        parent:
+          attributes:
+            phone_number:
+              invalid: Numéro de téléphone non valide

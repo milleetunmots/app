@@ -1,0 +1,4 @@
+fr:
+  child_age:
+    months: "%{months} mois"
+    years: "%{years} ans"

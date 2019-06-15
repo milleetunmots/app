@@ -10,6 +10,9 @@
 // For ArcticAdmin customization, also use variables here:
 // $primary-color: #2dbb43;
 
+$rose: #FB6E9E;
+$blue: #7EB7EF;
+
 // Active Admin's got SASS!
 @import "active_admin/mixins";
 // do not @import "active_admin/base";
@@ -19,3 +22,21 @@
 // For example, to change the default status-tag color:
 //
 //   .status_tag { background: #6090DB; }
+
+.status_tag {
+  &.blue {
+    background-color: $blue;
+  }
+  &.rose {
+    background-color: $rose;
+  }
+}
+
+a {
+  &.blue {
+    color: $blue;
+  }
+  &.rose {
+    color: $rose;
+  }
+}

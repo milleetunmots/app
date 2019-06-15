@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_11_224328) do
+ActiveRecord::Schema.define(version: 2019_06_15_162015) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -32,4 +32,32 @@ ActiveRecord::Schema.define(version: 2019_06_11_224328) do
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
 
+  create_table "children", force: :cascade do |t|
+    t.bigint "parent1_id", null: false
+    t.bigint "parent2_id"
+    t.string "first_name", null: false
+    t.string "last_name", null: false
+    t.date "birthdate", null: false
+    t.string "gender", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["parent1_id"], name: "index_children_on_parent1_id"
+    t.index ["parent2_id"], name: "index_children_on_parent2_id"
+  end
+
+  create_table "parents", force: :cascade do |t|
+    t.string "gender", null: false
+    t.string "first_name", null: false
+    t.string "last_name", null: false
+    t.string "phone_number", null: false
+    t.string "email", null: false
+    t.string "address", null: false
+    t.string "postal_code", null: false
+    t.string "city_name", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  add_foreign_key "children", "parents", column: "parent1_id"
+  add_foreign_key "children", "parents", column: "parent2_id"
 end

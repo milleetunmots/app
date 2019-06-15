@@ -56,4 +56,10 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 # ADMIN
 gem 'activeadmin'
 gem 'devise'
+gem 'cancancan'
+gem 'draper'
 gem 'arctic_admin'
+
+# phones
+gem 'phonelib'
+gem 'rails-i18n'
