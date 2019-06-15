@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_15_162015) do
+ActiveRecord::Schema.define(version: 2019_06_15_210905) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,6 +41,8 @@ ActiveRecord::Schema.define(version: 2019_06_15_162015) do
     t.string "gender", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "should_contact_parent1", default: false, null: false
+    t.boolean "should_contact_parent2", default: false, null: false
     t.index ["parent1_id"], name: "index_children_on_parent1_id"
     t.index ["parent2_id"], name: "index_children_on_parent2_id"
   end

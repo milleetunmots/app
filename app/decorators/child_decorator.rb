@@ -32,18 +32,22 @@ class ChildDecorator < BaseDecorator
   end
 
   def parent1
-    parent model.parent1
+    parent model.parent1, model.should_contact_parent1?
   end
 
   def parent2
-    parent model.parent2
+    parent model.parent2, model.should_contact_parent2?
   end
 
   private
 
-  def parent(parent)
+  def parent(parent, should_contact_parent)
     return nil unless parent
-    h.link_to parent.decorate.name, [:admin, parent], class: GENDER_COLORS[parent.gender.to_sym]
+    h.link_to [:admin, parent], class: GENDER_COLORS[parent.gender.to_sym] do
+      text = parent.decorate.name
+      text += " ✉" if should_contact_parent
+      text
+    end
   end
 
 end

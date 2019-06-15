@@ -29,7 +29,9 @@ ActiveAdmin.register Child do
   form do |f|
     f.inputs do
       f.input :parent1, collection: Parent.all.map(&:decorate)
+      f.input :should_contact_parent1
       f.input :parent2, collection: Parent.all.map(&:decorate)
+      f.input :should_contact_parent2
       f.input :gender,
               as: :radio,
               collection: Hash[Child::GENDERS.map{|v| [Child.human_attribute_name("gender.#{v}"),v]}]
@@ -40,6 +42,7 @@ ActiveAdmin.register Child do
     f.actions
   end
   permit_params :parent1_id, :parent2_id,
+                :should_contact_parent1, :should_contact_parent2,
                 :gender, :first_name, :last_name, :birthdate
 
   show do
