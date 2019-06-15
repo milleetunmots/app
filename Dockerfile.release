@@ -3,6 +3,8 @@ FROM leikir/ruby-bundler-node-yarn-and-extras:ruby-2.6.3-node-10.16.0-slim
 MAINTAINER Yann Hourdel "yann@hourdel.fr"
 
 ENV INSTALL_PATH /rails
+ENV RAILS_ENV production
+ENV RACK_ENV production
 RUN mkdir -p $INSTALL_PATH
 WORKDIR $INSTALL_PATH
 
@@ -13,16 +15,29 @@ WORKDIR $INSTALL_PATH
 COPY package.json yarn.lock ./
 RUN yarn install
 
-# Temporary trick to fasten rebuilds when changing dependencies
-COPY docker/rails/Gemfile docker/rails/Gemfile.lock ./
-RUN bundle install
-
-# Now copy the real Gemfile as well as the Gemfile.lock and install
+# Copy the Gemfile as well as the Gemfile.lock and install
 # the RubyGems. This is a separate step so the dependencies
 # will be cached unless changes to one of those two files
 # are made.
 COPY Gemfile Gemfile.lock ./
-RUN bundle install
+RUN bundle install --without development test --jobs 20 --retry 5
+
+# Copy the main application.
+COPY . .
+RUN rm -rf  \
+  .rspec \
+  .rubocop.yml \
+  .ruby-version \
+  coverage \
+  docker-entrypoint.sh \
+  log \
+  spec \
+  swagger
+
+# Precompile Rails assets
+RUN env
+RUN bundle exec rake DATABASE_URL=nulldb://null assets:precompile
+RUN rm -rf app/assets lib/assets vendor/assets tmp
 
 # Expose port 3000 to the Docker host, so we can access it
 # from the outside.
@@ -34,11 +49,11 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 # Create a user with limited rights to run the app
-RUN groupadd -g 2000 rails \
-  && useradd -ms /bin/bash -u 2001 -g rails rails
+RUN groupadd -g 2000 appuser \
+  && useradd -ms /bin/bash -u 2001 -g appuser appuser
 # Give right to write on tmp
-RUN mkdir tmp && chown rails tmp
-USER rails
+RUN mkdir tmp && chown appuser tmp
+USER appuser
 
 # The main command to run when the container starts. Also
 # tell the Rails dev server to bind to all interfaces by

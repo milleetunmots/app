@@ -1,0 +1,101 @@
+# This is the configuration used to check the rubocop source code.
+
+# uncomment the following line if you get blocked by rubocop
+#inherit_from: .rubocop_todo.yml
+
+AllCops:
+  TargetRubyVersion: 2.6.0
+  TargetRailsVersion: 5.1.4
+  Exclude:
+    - 'vendor/**/*'
+    - 'spec/fixtures/**/*'
+    - 'tmp/**/*'
+    - 'db/**/*'
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  EnforcedStyle: never
+
+Layout/EmptyLinesAroundClassBody:
+  EnforcedStyle: beginning_only
+
+Layout/IndentHeredoc:
+  EnforcedStyle: powerpack
+
+Lint/AmbiguousBlockAssociation:
+  Exclude:
+    - 'spec/**/*.rb'
+
+Lint/UselessAccessModifier:
+  MethodCreatingMethods:
+    - 'def_matcher'
+    - 'def_node_matcher'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - 'spec/**/*.rb'
+
+Metrics/ModuleLength:
+  Exclude:
+    - 'spec/**/*.rb'
+
+Metrics/AbcSize:
+  # The ABC size is a calculated magnitude, so this number can be an Integer or
+  # a Float.
+  Max: 20
+
+Metrics/ClassLength:
+  CountComments: false  # count full line comments?
+  Max: 500
+
+Metrics/ModuleLength:
+  CountComments: false  # count full line comments?
+  Max: 500
+
+Metrics/LineLength:
+  Max: 100
+  # To make it possible to copy or click on URIs in the code, we allow lines
+  # containing a URI to be longer than Max.
+  AllowHeredoc: true
+  AllowURI: true
+  URISchemes:
+    - http
+    - https
+  # The IgnoreCopDirectives option causes the LineLength rule to ignore cop
+  # directives like '# rubocop: enable ...' when calculating a line's length.
+  IgnoreCopDirectives: false
+  # The IgnoredPatterns option is a list of !ruby/regexp and/or string
+  # elements. Strings will be converted to Regexp objects. A line that matches
+  # any regular expression listed in this option will be ignored by LineLength.
+  IgnoredPatterns: []
+
+Metrics/MethodLength:
+  CountComments: false  # count full line comments?
+  Max: 80
+
+Metrics/BlockLength:
+  CountComments: false  # count full line comments?
+  Max: 55
+  ExcludedMethods: []
+
+Metrics/PerceivedComplexity:
+  Max: 10
+
+Style/PercentLiteralDelimiters:
+  PreferredDelimiters:
+    '%w': ()
+    '%W': ()
+
+Documentation:
+  Enabled: false
+
+Style/Lambda:
+  Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'

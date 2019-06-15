@@ -43,25 +43,11 @@ class ChildDecorator < BaseDecorator
     parent model.parent2
   end
 
-  # def should_contact_parent1
-  #   should_contact_parent model.should_contact_parent1?
-  # end
-
-  # def should_contact_parent2
-  #   should_contact_parent model.should_contact_parent2?
-  # end
-
   private
 
   def parent(parent)
     return nil unless parent
     parent.decorate.admin_link
-  end
-
-  def should_contact_parent(should_contact_parent)
-    arbre do
-      status_tag should_contact_parent
-    end
   end
 
 end
