@@ -2,6 +2,12 @@ ActiveAdmin.register Child do
 
   decorate_with ChildDecorator
 
+  # ---------------------------------------------------------------------------
+  # INDEX
+  # ---------------------------------------------------------------------------
+
+  includes :parent1, :parent2
+
   index do
     selectable_column
     id_column
@@ -20,6 +26,14 @@ ActiveAdmin.register Child do
     actions
   end
 
+  scope :all, default: true
+  scope :months_between_0_and_3, group: :months
+  scope :months_between_3_and_6, group: :months
+  scope :months_between_6_and_12, group: :months
+  scope :months_between_12_and_18, group: :months
+  scope :months_between_18_and_24, group: :months
+  scope :months_more_than_24, group: :months
+
   filter :gender,
          as: :check_boxes,
          collection: Hash[Child::GENDERS.map{|v| [Child.human_attribute_name("gender.#{v}"),v]}]
@@ -31,6 +45,10 @@ ActiveAdmin.register Child do
          filters: [:equals, :gteq, :lt]
   filter :created_at
   filter :updated_at
+
+  # ---------------------------------------------------------------------------
+  # FORM
+  # ---------------------------------------------------------------------------
 
   form do |f|
     f.inputs do
@@ -47,9 +65,14 @@ ActiveAdmin.register Child do
     end
     f.actions
   end
+
   permit_params :parent1_id, :parent2_id,
                 :should_contact_parent1, :should_contact_parent2,
                 :gender, :first_name, :last_name, :birthdate
+
+  # ---------------------------------------------------------------------------
+  # SHOW
+  # ---------------------------------------------------------------------------
 
   show do
     attributes_table do

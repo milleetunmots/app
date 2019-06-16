@@ -20,22 +20,55 @@ class Child < ApplicationRecord
     end
   end
 
-  # allow to search by age (in months)
+  # ---------------------------------------------------------------------------
+  # search by age (in months)
+  # ---------------------------------------------------------------------------
 
-  def self.months_gteq(months)
+  def self.months_gteq(x)
     # >= x months
     # means a birthdate at the most equal to x months ago
-    where('birthdate <= ?', Time.zone.today - months.to_i.months)
+    where('birthdate <= ?', Time.zone.today - x.to_i.months)
   end
-  def self.months_lt(months)
+
+  def self.months_lt(x)
     # < x months
     # means being at most 1 day less than x months old
     # which means a birthdate strictly greater than exactly x months ago
-    where('birthdate > ?', Time.zone.today - months.to_i.months)
+    where('birthdate > ?', Time.zone.today - x.to_i.months)
   end
-  def self.months_equals(months)
-    months_gteq(months).merge(months_lt(months.to_i + 1))
+
+  def self.months_equals(x)
+    months_gteq(x).merge(months_lt(x.to_i + 1))
   end
+
+  def self.months_between(x, y)
+    months_gteq(x).merge(months_lt(y))
+  end
+
+  def self.months_between_0_and_3
+    months_between(0, 3)
+  end
+
+  def self.months_between_3_and_6
+    months_between(3, 6)
+  end
+
+  def self.months_between_6_and_12
+    months_between(6, 12)
+  end
+
+  def self.months_between_12_and_18
+    months_between(12, 18)
+  end
+
+  def self.months_between_18_and_24
+    months_between(18, 24)
+  end
+
+  def self.months_more_than_24
+    months_gteq(24)
+  end
+
   def self.ransackable_scopes(auth_object = nil)
     %i(months_equals months_gteq months_lt)
   end

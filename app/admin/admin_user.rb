@@ -2,6 +2,10 @@ ActiveAdmin.register AdminUser do
 
   decorate_with AdminUserDecorator
 
+  # ---------------------------------------------------------------------------
+  # INDEX
+  # ---------------------------------------------------------------------------
+
   index do
     selectable_column
     id_column
@@ -22,6 +26,10 @@ ActiveAdmin.register AdminUser do
   filter :sign_in_count
   filter :created_at
 
+  # ---------------------------------------------------------------------------
+  # FORM
+  # ---------------------------------------------------------------------------
+
   form do |f|
     f.inputs do
       f.input :email
@@ -30,6 +38,7 @@ ActiveAdmin.register AdminUser do
     end
     f.actions
   end
+
   permit_params :email, :password, :password_confirmation
 
 end

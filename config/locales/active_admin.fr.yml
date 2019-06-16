@@ -4,3 +4,11 @@ fr:
       predicates:
         gteq: Au moins
         lt: Moins de
+    scopes:
+      all: Tous
+      months_between_0_and_3: 0-3 mois
+      months_between_3_and_6: 3-6 mois
+      months_between_6_and_12: 6-12 mois
+      months_between_12_and_18: 12-18 mois
+      months_between_18_and_24: 18-24 mois
+      months_more_than_24: 24+ mois

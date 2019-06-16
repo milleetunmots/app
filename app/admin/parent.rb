@@ -2,6 +2,10 @@ ActiveAdmin.register Parent do
 
   decorate_with ParentDecorator
 
+  # ---------------------------------------------------------------------------
+  # INDEX
+  # ---------------------------------------------------------------------------
+
   index do
     selectable_column
     id_column
@@ -33,6 +37,10 @@ ActiveAdmin.register Parent do
   filter :created_at
   filter :updated_at
 
+  # ---------------------------------------------------------------------------
+  # FORM
+  # ---------------------------------------------------------------------------
+
   form do |f|
     f.inputs do
       f.input :gender,
@@ -48,9 +56,14 @@ ActiveAdmin.register Parent do
     end
     f.actions
   end
+
   permit_params :gender, :first_name, :last_name,
                 :phone_number, :email, :address,
                 :postal_code, :city_name
+
+  # ---------------------------------------------------------------------------
+  # SHOW
+  # ---------------------------------------------------------------------------
 
   show do
     attributes_table do
