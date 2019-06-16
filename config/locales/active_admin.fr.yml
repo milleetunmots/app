@@ -1,0 +1,6 @@
+fr:
+  active_admin:
+    filters:
+      predicates:
+        gteq: Au moins
+        lt: Moins de

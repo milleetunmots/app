@@ -22,6 +22,7 @@ fr:
         gender: Sexe
         id: "#"
         last_name: Nom
+        months: Age (en mois)
         parent1: Parent 1
         parent2: Parent 2
         should_contact_parent1: Contacter parent 1 ?

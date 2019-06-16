@@ -26,6 +26,9 @@ ActiveAdmin.register Child do
   filter :first_name
   filter :last_name
   filter :birthdate
+  filter :months,
+         as: :numeric,
+         filters: [:equals, :gteq, :lt]
   filter :created_at
   filter :updated_at
 

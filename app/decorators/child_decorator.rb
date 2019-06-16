@@ -5,11 +5,12 @@ class ChildDecorator < BaseDecorator
   end
 
   def age
-    years = ((Time.zone.now - model.birthdate.to_time) / 1.year.seconds)
-    if years < 2
-      return h.t 'child_age.months', months: (years*12).floor
+    months = model.months
+    if months < 24
+      h.t 'child_age.months', months: months
+    else
+      h.t 'child_age.years', years: (months / 12).floor
     end
-    h.t 'child_age.years', years: years.floor
   end
 
   def birthdate
