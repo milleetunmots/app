@@ -20,5 +20,12 @@ done
 sleep 2
 echo "Running migrations..."
 bundle exec rails db:migrate
+
+echo "Running yarn install to update yarn.lock"
+yarn install
+
+echo "Running bundle install to update Gemfile.lock"
+bundle install
+
 echo "$@"
 eval "$@"
