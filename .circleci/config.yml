@@ -4,7 +4,7 @@ jobs:
   test:
     working_directory: ~/rails
     docker:
-      - image: circleci/ruby:2.6.3
+      - image: leikir/ruby-bundler-node-yarn:ruby-2.6.3-node-10.16.0-slim
         environment:
           BUNDLE_JOBS: 3
           BUNDLE_RETRY: 3
