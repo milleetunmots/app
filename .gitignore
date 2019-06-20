@@ -24,8 +24,9 @@
 yarn-debug.log*
 .yarn-integrity
 
-# Ignore generated coverage
+# Ignore generated results
 /coverage/*
+/test_results
 
 # Ignore rspec persistence file
 /spec/examples.txt
