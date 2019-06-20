@@ -1,0 +1,126 @@
+version: 2
+
+jobs:
+  test:
+    working_directory: ~/rails
+    docker:
+      - image: circleci/ruby:2.6.3
+        environment:
+          BUNDLE_JOBS: 3
+          BUNDLE_RETRY: 3
+          BUNDLE_PATH: vendor/bundle
+          RAILS_ENV: test
+    steps:
+      - checkout
+
+      # Which version of bundler?
+      - run:
+          name: Which bundler?
+          command: bundle -v
+
+      # Restore bundle cache
+      - restore_cache:
+          keys:
+            - rails-bundle-{{ checksum "Gemfile.lock" }}
+            - rails-bundle-
+
+      - run:
+          name: Bundle Install
+          command: bundle check || bundle install
+
+      # Store bundle cache
+      - save_cache:
+          key: rails-bundle-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
+      # TODO: restore this when tests exist
+      # - run:
+      #     name: Setup Code Climate test-reporter
+      #     command: |
+      #       curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+      #       chmod +x ./cc-test-reporter
+
+      # TODO: restore this when tests exist
+      # - run:
+      #     name: Run backend tests
+      #     command: |
+      #       bundle exec rspec --profile 10 \
+      #                         --format RspecJunitFormatter \
+      #                         --out test_results/rspec.xml \
+      #                         --format progress \
+      #                         $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
+
+      # TODO: restore this when tests exist
+      # - run:
+      #     name: Format and upload coverage result to Code Climate
+      #     command: |
+      #       ./cc-test-reporter format-coverage -t simplecov -o coverage/codeclimate.json
+      #       ./cc-test-reporter upload-coverage
+
+      # TODO: restore this when tests exist
+      # - store_test_results:
+      #     path: test_results
+
+  # For now building is done with an automated build on Docker Hub
+  # build:
+  #   working_directory: ~/rails
+  #   docker:
+  #     - image: docker:17.05.0-ce-git
+  #   steps:
+  #     - checkout
+  #     - setup_remote_docker
+  #     - restore_cache:
+  #         keys:
+  #           - v1-{{ .Branch }}
+  #         paths:
+  #           - /caches/app.tar
+  #     - run:
+  #         name: Load Docker image layer cache
+  #         command: |
+  #           set +o pipefail
+  #           docker load -i /caches/app.tar | true
+  #     - run:
+  #         name: Build application Docker image
+  #         command: |
+  #           docker build --cache-from=app -f Dockerfile.release -t app .
+  #     - run:
+  #         name: Save Docker image layer cache
+  #         command: |
+  #           mkdir -p /caches
+  #           docker save -o /caches/app.tar app
+  #     - save_cache:
+  #         key: v1-{{ .Branch }}-{{ epoch }}
+  #         paths:
+  #           - /caches/app.tar
+  #     - deploy:
+  #         name: Push application Docker image
+  #         command: |
+  #             export LOCAL_IMAGE_NAME=app
+  #             export HUB_IMAGE_NAME=milleetunmots/app
+  #             export CIRCLE_BRANCH_OR_TAG=$(echo $CIRCLE_BRANCH$CIRCLE_TAG | sed 's#/#_#g')
+  #             docker tag $LOCAL_IMAGE_NAME $HUB_IMAGE_NAME:$CIRCLE_SHA1
+  #             docker tag $LOCAL_IMAGE_NAME $HUB_IMAGE_NAME:$CIRCLE_BRANCH_OR_TAG
+  #             docker push $HUB_IMAGE_NAME:$CIRCLE_SHA1
+  #             docker push $HUB_IMAGE_NAME:$CIRCLE_BRANCH_OR_TAG
+
+workflows:
+  version: 2
+
+  commit:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /^v.*/
+      # - build:
+      #     requires:
+      #       - test
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
+      #           - develop
+      #           - /build\/.*/
+      #       tags:
+      #         only: /^v.*/
