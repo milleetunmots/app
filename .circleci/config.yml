@@ -73,13 +73,13 @@ jobs:
       - run:
           name: Trigger Docker Hub branch build
           command: |
-            [ -z "$CIRCLE_BRANCH" ] && curl -H "Content-Type: application/json" --data '{"source_type": "Branch", "source_name": "$(echo $CIRCLE_BRANCH | sed 's#/#_#g')"}' -X POST "$DOCKER_HUB_TRIGGER_URL"
+            [[ ! -z "$CIRCLE_BRANCH" ]] && curl -H "Content-Type: application/json" --data "{\"source_type\": \"Branch\", \"source_name\": \"$(echo $CIRCLE_BRANCH | sed 's#/#_#g')\"}" -X POST "$DOCKER_HUB_TRIGGER_URL" || echo "Not a branch push"
 
       # Tag build
       - run:
           name: Trigger Docker Hub tag build
           command: |
-            [ -z "$CIRCLE_TAG" ] && curl -H "Content-Type: application/json" --data '{"source_type": "Tag", "source_name": "$(echo $CIRCLE_TAG | sed 's#/#_#g')"}' -X POST "$DOCKER_HUB_TRIGGER_URL"
+            [[ ! -z "$CIRCLE_TAG" ]] && curl -H "Content-Type: application/json" --data "{\"source_type\": \"Tag\", \"source_name\": \"$(echo $CIRCLE_TAG | sed 's#/#_#g')\"}" -X POST "$DOCKER_HUB_TRIGGER_URL" || echo "Not a tag push"
 
 workflows:
   version: 2
