@@ -10,6 +10,10 @@ docker
 docker-compose.yml
 docker-compose.override.yml
 
+# Rails
+/config/database.yml
+/config/master.key
+
 # Dev
 .byebug_history
 .circleci
