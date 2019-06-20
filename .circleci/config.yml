@@ -35,33 +35,29 @@ jobs:
           paths:
             - vendor/bundle
 
-      # TODO: restore this when tests exist
-      # - run:
-      #     name: Setup Code Climate test-reporter
-      #     command: |
-      #       curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-      #       chmod +x ./cc-test-reporter
+      - run:
+          name: Setup Code Climate test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
 
-      # TODO: restore this when tests exist
-      # - run:
-      #     name: Run backend tests
-      #     command: |
-      #       bundle exec rspec --profile 10 \
-      #                         --format RspecJunitFormatter \
-      #                         --out test_results/rspec.xml \
-      #                         --format progress \
-      #                         $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
+      - run:
+          name: Run backend tests
+          command: |
+            bundle exec rspec --profile 10 \
+                              --format RspecJunitFormatter \
+                              --out test_results/rspec.xml \
+                              --format progress \
+                              $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
 
-      # TODO: restore this when tests exist
-      # - run:
-      #     name: Format and upload coverage result to Code Climate
-      #     command: |
-      #       ./cc-test-reporter format-coverage -t simplecov -o coverage/codeclimate.json
-      #       ./cc-test-reporter upload-coverage
+      - run:
+          name: Format and upload coverage result to Code Climate
+          command: |
+            ./cc-test-reporter format-coverage -t simplecov -o coverage/codeclimate.json
+            ./cc-test-reporter upload-coverage
 
-      # TODO: restore this when tests exist
-      # - store_test_results:
-      #     path: test_results
+      - store_test_results:
+          path: test_results
 
   # Trigger build on Docker Hub
   build:
