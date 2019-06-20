@@ -30,30 +30,40 @@ RUN rm -rf  \
   .ruby-version \
   coverage \
   docker-entrypoint.sh \
+  docker-entrypoint.release.sh \
   log \
   spec \
   swagger
 
 # Precompile Rails assets
-RUN env
 RUN bundle exec rake DATABASE_URL=nulldb://null assets:precompile
-RUN rm -rf app/assets lib/assets vendor/assets tmp
+RUN rm -rf \
+  .browserslistrc \
+  babel.config.js \
+  package.json \
+  postcss.config.js \
+  yarn.lock \
+  app/assets \
+  lib/assets \
+  node_modules \
+  vendor/assets \
+  tmp
 
 # Expose port 3000 to the Docker host, so we can access it
 # from the outside.
 EXPOSE 3000
 
 # An entrypoint to run migrations and so on
-COPY docker-entrypoint.sh /usr/local/bin/
+COPY docker-entrypoint.release.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 # Create a user with limited rights to run the app
-RUN groupadd -g 2000 appuser \
-  && useradd -ms /bin/bash -u 2001 -g appuser appuser
+RUN groupadd -g 2000 rails \
+  && useradd -ms /bin/bash -u 2001 -g rails rails
 # Give right to write on tmp
-RUN mkdir tmp && chown appuser tmp
-USER appuser
+RUN mkdir tmp && chown rails:rails tmp
+USER rails
 
 # The main command to run when the container starts. Also
 # tell the Rails dev server to bind to all interfaces by

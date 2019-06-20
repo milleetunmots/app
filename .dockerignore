@@ -1,5 +1,6 @@
 # GIT
 .git
+.gitignore
 
 # Docker
 Dockerfile*
@@ -10,6 +11,7 @@ docker-compose.yml
 docker-compose.override.yml
 
 # Dev
+.byebug_history
 .circleci
 .codeclimate.yml
 tmp

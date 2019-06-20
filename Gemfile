@@ -69,3 +69,7 @@ gem 'devise-i18n'
 
 # JS
 gem 'select2-rails'
+
+group :production do
+  gem 'activerecord-nulldb-adapter'
+end
