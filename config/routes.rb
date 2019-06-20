@@ -4,6 +4,6 @@ Rails.application.routes.draw do
 
   ActiveAdmin.routes(self)
 
-  root to: "application#status"
+  root to: redirect('/admin')
 
 end
