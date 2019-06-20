@@ -1,4 +1,4 @@
-if Rails.env.production?
+if Rails.env.production? && !ENV['ASSETS_PRECOMPILE']
   ENV['SMTP_ADDRESS'] || raise('Error: No SMTP_ADDRESS provided')
   ENV['SMTP_PORT'] || raise('Error: No SMTP_PORT provided')
   ENV['SMTP_USERNAME'] || raise('Error: No SMTP_USERNAME provided')
