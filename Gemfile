@@ -70,6 +70,9 @@ gem 'devise-i18n'
 # JS
 gem 'select2-rails'
 
+# errors tracking
+gem 'rollbar'
+
 group :production do
   gem 'activerecord-nulldb-adapter'
 end

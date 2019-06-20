@@ -174,6 +174,7 @@ GEM
     mini_portile2 (2.4.0)
     minitest (5.11.3)
     msgpack (1.2.10)
+    multi_json (1.13.1)
     nio4r (2.3.1)
     nokogiri (1.10.3)
       mini_portile2 (~> 2.4.0)
@@ -231,6 +232,8 @@ GEM
     responders (2.4.1)
       actionpack (>= 4.2.0, < 6.0)
       railties (>= 4.2.0, < 6.0)
+    rollbar (2.20.2)
+      multi_json
     ruby_dep (1.5.0)
     rubyzip (1.2.3)
     sass (3.7.4)
@@ -325,6 +328,7 @@ DEPENDENCIES
   puma (~> 3.11)
   rails (~> 6.0.0.rc1)
   rails-i18n
+  rollbar
   sass-rails (~> 5)
   select2-rails
   selenium-webdriver
