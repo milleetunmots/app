@@ -38,6 +38,24 @@ class ParentDecorator < BaseDecorator
     phone.national
   end
 
+  def icon_class
+    model.gender.to_sym == :m ? :male : :female
+  end
+
+  def as_autocomplete_result
+    h.content_tag :div do
+      (
+        h.content_tag :div, class: :name do
+          name
+        end
+      ) + (
+        h.content_tag :div, class: :email do
+          email
+        end
+      )
+    end
+  end
+
   private
 
   def child(child)

@@ -28,6 +28,13 @@ class Parent < ApplicationRecord
     Child.where(parent1: self).or(Child.where(parent2: self))
   end
 
+  # ---------------------------------------------------------------------------
+  # global search
+  # ---------------------------------------------------------------------------
+
+  include PgSearch
+  multisearchable against: %i(first_name last_name phone_number email)
+
   private
 
   def format_phone_number

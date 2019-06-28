@@ -73,4 +73,11 @@ class Child < ApplicationRecord
     %i(months_equals months_gteq months_lt)
   end
 
+  # ---------------------------------------------------------------------------
+  # global search
+  # ---------------------------------------------------------------------------
+
+  include PgSearch
+  multisearchable against: %i(first_name last_name)
+
 end
