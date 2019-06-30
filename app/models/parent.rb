@@ -33,7 +33,7 @@ class Parent < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   include PgSearch
-  multisearchable against: %i(first_name last_name phone_number email)
+  multisearchable against: %i(first_name last_name phone_number_national email)
 
   private
 
@@ -42,6 +42,7 @@ class Parent < ApplicationRecord
     if attribute_present?('phone_number')
       phone = Phonelib.parse(phone_number)
       self.phone_number = phone.e164
+      self.phone_number_national = phone.national(false)
     end
   end
 end

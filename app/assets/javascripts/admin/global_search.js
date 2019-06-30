@@ -1,7 +1,7 @@
 (function($) {
 
   var generateInput = function() {
-    return $('<select id="global_search_input"><option>Toto</option></select>');
+    return $('<select id="global_search_input">');
   };
 
   var formatResult = function(result) {
@@ -16,12 +16,14 @@
   var configure = function($input) {
     $input.select2({
       width: '400px',
-      placeholder: 'Select an option',
+      placeholder: 'Recherche globale',
       ajax: {
         url: '/admin/search',
-        dataType: 'json'
+        dataType: 'json',
+        delay: 250
       },
-      templateResult: formatResult
+      templateResult: formatResult,
+      minimumInputLength: 3
     });
 
     $input.on('select2:select', function (e) {

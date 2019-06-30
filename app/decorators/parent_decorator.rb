@@ -43,14 +43,22 @@ class ParentDecorator < BaseDecorator
   end
 
   def as_autocomplete_result
-    h.content_tag :div do
+    h.content_tag :div, class: "parent #{model.gender.to_sym == :m ? :male : :female}" do
       (
         h.content_tag :div, class: :name do
           name
         end
       ) + (
-        h.content_tag :div, class: :email do
-          email
+        h.content_tag :div do
+          (
+            h.content_tag :span, class: :email do
+              model.email
+            end
+          ) + (
+            h.content_tag :span, class: 'phone-number' do
+              phone_number
+            end
+          )
         end
       )
     end

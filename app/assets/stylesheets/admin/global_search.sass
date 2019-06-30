@@ -3,6 +3,8 @@
 #header
   ul#utility_nav
     li.menu_item#global_search
+      text-align: left
+
       select
 
 #global_search_input
@@ -20,3 +22,15 @@
 
       .name
         font-weight: bold
+
+      .male
+        .name
+          color: $rose
+      .female
+        .name
+          color: $blue
+
+      &.search-result-parent
+        .phone-number
+          &:before
+            content: ' - '
