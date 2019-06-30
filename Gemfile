@@ -79,6 +79,10 @@ gem 'rollbar'
 # global search
 gem 'pg_search'
 
+# auditing
+gem 'paper_trail'
+
 group :production do
+  # for assets compilation
   gem 'activerecord-nulldb-adapter'
 end
