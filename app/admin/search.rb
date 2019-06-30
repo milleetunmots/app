@@ -1,4 +1,5 @@
 ActiveAdmin.register_page "Search" do
+  menu false
 
   controller do
     def index
