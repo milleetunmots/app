@@ -10,10 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_16_013017) do
+ActiveRecord::Schema.define(version: 2019_06_30_114656) do
 
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_trgm"
   enable_extension "plpgsql"
+  enable_extension "unaccent"
 
   create_table "admin_users", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -60,6 +62,24 @@ ActiveRecord::Schema.define(version: 2019_06_16_013017) do
     t.string "city_name", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "phone_number_national"
+    t.index ["address"], name: "index_parents_on_address"
+    t.index ["city_name"], name: "index_parents_on_city_name"
+    t.index ["email"], name: "index_parents_on_email"
+    t.index ["first_name"], name: "index_parents_on_first_name"
+    t.index ["gender"], name: "index_parents_on_gender"
+    t.index ["last_name"], name: "index_parents_on_last_name"
+    t.index ["phone_number_national"], name: "index_parents_on_phone_number_national"
+    t.index ["postal_code"], name: "index_parents_on_postal_code"
+  end
+
+  create_table "pg_search_documents", force: :cascade do |t|
+    t.text "content"
+    t.string "searchable_type"
+    t.bigint "searchable_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["searchable_type", "searchable_id"], name: "index_pg_search_documents_on_searchable_type_and_searchable_id"
   end
 
   add_foreign_key "children", "parents", column: "parent1_id"

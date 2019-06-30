@@ -44,6 +44,24 @@ class ChildDecorator < BaseDecorator
     parent model.parent2
   end
 
+  def icon_class
+    :baby
+  end
+
+  def as_autocomplete_result
+    h.content_tag :div, class: "child #{model.gender.to_sym == :m ? :male : :female}" do
+      (
+        h.content_tag :div, class: :name do
+          name
+        end
+      ) + (
+        h.content_tag :div, class: :age do
+          age
+        end
+      )
+    end
+  end
+
   private
 
   def parent(parent)

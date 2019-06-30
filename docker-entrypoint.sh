@@ -23,5 +23,9 @@ yarn install
 echo "Running bundle install to update Gemfile.lock"
 bundle install
 
+echo "Rebuild indexes"
+bundle exec rails pg_search:multisearch:rebuild[Child]
+bundle exec rails pg_search:multisearch:rebuild[Parent]
+
 echo "$@"
 eval "$@"

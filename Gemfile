@@ -76,6 +76,9 @@ gem 'select2-rails'
 # errors tracking
 gem 'rollbar'
 
+# global search
+gem 'pg_search'
+
 group :production do
   gem 'activerecord-nulldb-adapter'
 end
