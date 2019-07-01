@@ -2,6 +2,8 @@ ActiveAdmin.register AdminUser do
 
   decorate_with AdminUserDecorator
 
+  has_paper_trail
+
   # ---------------------------------------------------------------------------
   # INDEX
   # ---------------------------------------------------------------------------
