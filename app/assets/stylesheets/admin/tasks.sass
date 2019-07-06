@@ -1,0 +1,26 @@
+@import variables
+
+ul.aat-ul
+  li
+    margin-top: 5px
+
+    &.aat-task
+      .aat-related-title
+        .aat-related
+
+        .aat-related + .aat-title
+          &:before
+            content: ' - '
+
+      .aat-due-date-assignee
+        font-size: 80%
+
+        .aat-due-date
+          margin-right: 10px
+
+        .aat-assignee
+          display: inline-block
+
+      &.aat-past
+        .aat-due-date
+          color: $error

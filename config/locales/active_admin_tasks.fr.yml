@@ -1,0 +1,8 @@
+fr:
+  active_admin:
+    tasks:
+      dashboard:
+        title: À faire
+      sidebar:
+        title: Tâches
+        add_link: Ajouter une tâche

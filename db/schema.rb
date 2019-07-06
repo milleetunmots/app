@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_06_135146) do
+ActiveRecord::Schema.define(version: 2019_07_06_221539) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -30,6 +30,7 @@ ActiveRecord::Schema.define(version: 2019_07_06_135146) do
     t.inet "last_sign_in_ip"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "name"
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
@@ -82,6 +83,26 @@ ActiveRecord::Schema.define(version: 2019_07_06_135146) do
     t.index ["searchable_type", "searchable_id"], name: "index_pg_search_documents_on_searchable_type_and_searchable_id"
   end
 
+  create_table "tasks", force: :cascade do |t|
+    t.bigint "reporter_id"
+    t.bigint "assignee_id"
+    t.string "related_type"
+    t.bigint "related_id"
+    t.string "title", null: false
+    t.text "description"
+    t.date "due_date"
+    t.date "done_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["assignee_id"], name: "index_tasks_on_assignee_id"
+    t.index ["description"], name: "index_tasks_on_description"
+    t.index ["done_at"], name: "index_tasks_on_done_at"
+    t.index ["due_date"], name: "index_tasks_on_due_date"
+    t.index ["related_type", "related_id"], name: "index_tasks_on_related_type_and_related_id"
+    t.index ["reporter_id"], name: "index_tasks_on_reporter_id"
+    t.index ["title"], name: "index_tasks_on_title"
+  end
+
   create_table "versions", force: :cascade do |t|
     t.string "item_type", null: false
     t.bigint "item_id", null: false
@@ -95,4 +116,6 @@ ActiveRecord::Schema.define(version: 2019_07_06_135146) do
 
   add_foreign_key "children", "parents", column: "parent1_id"
   add_foreign_key "children", "parents", column: "parent2_id"
+  add_foreign_key "tasks", "admin_users", column: "assignee_id"
+  add_foreign_key "tasks", "admin_users", column: "reporter_id"
 end

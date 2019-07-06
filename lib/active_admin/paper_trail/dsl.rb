@@ -19,7 +19,9 @@ module ActiveAdmin
       def has_paper_trail
 
         # add versions timeline sidebar on show page
-        sidebar I18n.t('active_admin.paper_trail.sidebar.title'), partial: 'layouts/active_admin/paper_trail/version', only: :show
+        sidebar I18n.t('active_admin.paper_trail.sidebar.title'),
+                partial: 'layouts/active_admin/paper_trail/version',
+                only: :show
 
         controller do
           # build a @versions variable for the sidebar

@@ -3,6 +3,7 @@ ActiveAdmin.register Parent do
   decorate_with ParentDecorator
 
   has_paper_trail
+  has_tasks
 
   # ---------------------------------------------------------------------------
   # INDEX

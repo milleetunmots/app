@@ -1,0 +1,29 @@
+<li class="aat-task <%= 'aat-past' if task.due_date && task.due_date <= Date.today %>">
+  <div class="aat-related-title">
+    <span class="fa-li"><i class="far fa-square"></i></span>
+    <% if (!defined?(show_related) || show_related) && task.related %>
+      <span class="aat-related">
+        <%= task.related.decorate.admin_link %>
+      </span>
+    <% end %>
+    <span class="aat-title">
+      <%= link_to task.title, [:admin, task] %>
+    </span>
+  </div>
+  <% if task.due_date || task.assignee %>
+    <div class="aat-due-date-assignee">
+      <% if task.due_date %>
+        <span class="aat-due-date">
+          <i class="far fa-clock fa-fw"></i>
+          <%= l task.due_date, format: :default %>
+        </span>
+      <% end %>
+      <% if task.assignee %>
+        <span class="aat-assignee">
+          <i class="fas fa-user-circle fa-fw"></i>
+          <%= auto_link task.assignee %>
+        </span>
+      <% end %>
+    </div>
+  <% end %>
+</li>

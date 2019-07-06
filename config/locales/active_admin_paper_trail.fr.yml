@@ -7,7 +7,7 @@ fr:
           item: Élément
           type: Type
           modified_at: Modifié le
-          whodunnit: Utilisateur
+          whodunnit: Par
       history:
         created_at: "Date"
         object_changes: "Modifications"
