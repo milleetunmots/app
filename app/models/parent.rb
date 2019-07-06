@@ -45,4 +45,11 @@ class Parent < ApplicationRecord
       self.phone_number_national = phone.national(false)
     end
   end
+
+  # ---------------------------------------------------------------------------
+  # versions history
+  # ---------------------------------------------------------------------------
+
+  has_paper_trail skip: [:phone_number_national]
+
 end

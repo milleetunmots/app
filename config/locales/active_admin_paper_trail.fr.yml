@@ -8,9 +8,15 @@ fr:
           type: Type
           modified_at: Modifié le
           whodunnit: Utilisateur
+      history:
+        created_at: "Date"
+        object_changes: "Modifications"
+        title: Historique des versions
+        whodunnit: "Auteur"
       sidebar:
         title: Historique
         version_number: "Révision :"
         created_at: "Créée :"
         whodunnit: "Par :"
         current_version: "&laquo; Revenir à la dernière version"
+        history_link: Historique des révisions

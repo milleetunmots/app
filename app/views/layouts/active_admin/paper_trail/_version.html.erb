@@ -55,4 +55,8 @@
       <%= link_to t('active_admin.paper_trail.sidebar.current_version').html_safe %>
     </div>
   <% end %>
+
+  <div class="pt-history-link">
+    <%= link_to t('active_admin.paper_trail.sidebar.history_link'), [:history, :admin, resource], class: 'button' %>
+  </div>
 </div>
