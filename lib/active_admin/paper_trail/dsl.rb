@@ -37,6 +37,11 @@ module ActiveAdmin
           @versions = @versions.reorder(id: :desc)
           render 'layouts/active_admin/paper_trail/history'
         end
+
+        action_item :show, only: :history do
+          link_to I18n.t('active_admin.paper_trail.history.show_link'), [:admin, resource]
+        end
+
       end
 
     end

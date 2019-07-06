@@ -11,6 +11,7 @@ fr:
       history:
         created_at: "Date"
         object_changes: "Modifications"
+        show_link: Retour
         title: Historique des versions
         whodunnit: "Auteur"
       sidebar:
