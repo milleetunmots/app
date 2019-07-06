@@ -1,0 +1,62 @@
+<% current_version = (params[:version] || @versions.length).to_i %>
+<% versions_count = @versions.length %>
+<% whodunnit_id, whodunnit_email = @versions[current_version - 1].whodunnit.split(':') %>
+<% whodunnit = AdminUser.where(id: whodunnit_id).first %>
+
+<div class="pt-version">
+  <div class="pt-version-number">
+    <span class="pt-nav-links">
+      <% if current_version < versions_count %>
+        <% if current_version == versions_count - 1 %>
+          <%= link_to "&larr;".html_safe %>
+        <% else %>
+          <%= link_to "&larr;".html_safe, {version: current_version + 1} %>
+        <% end %>
+      <% end %>
+      <% if current_version > 1 %>
+        <%= link_to "&rarr;".html_safe, {version: current_version - 1} %>
+      <% else %>
+        <span class="pt-empty-nav-link"></span>
+      <% end %>
+    </span>
+    <span class="pt-label">
+      <%= t('active_admin.paper_trail.sidebar.version_number') %>
+    </span>
+    <span class="pt-value">
+      <%= current_version %> / <%= versions_count %>
+    </span>
+  </div>
+
+  <div class="pt-details">
+    <div class="pt-created-at">
+      <span class="pt-label">
+        <%= t('active_admin.paper_trail.sidebar.created_at') %>
+      </span>
+      <span class="pt-value">
+        <%= l(@versions[current_version - 1].created_at, format: :short) %>
+      </span>
+    </div>
+    <div class="pt-whodunnit">
+      <span class="pt-label">
+        <%= t('active_admin.paper_trail.sidebar.whodunnit') %>
+      </span>
+      <span class="pt-value">
+        <% if whodunnit %>
+          <%= link_to whodunnit_email, [:admin, whodunnit] %>
+        <% else %>
+          <%= whodunnit_email %>
+        <% end %>
+      </span>
+    </div>
+  </div>
+
+  <% if current_version < versions_count %>
+    <div class="pt-go-back">
+      <%= link_to t('active_admin.paper_trail.sidebar.current_version').html_safe %>
+    </div>
+  <% end %>
+
+  <div class="pt-history-link">
+    <%= link_to t('active_admin.paper_trail.sidebar.history_link'), [:history, :admin, resource], class: 'button' %>
+  </div>
+</div>

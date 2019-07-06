@@ -80,4 +80,10 @@ class Child < ApplicationRecord
   include PgSearch
   multisearchable against: %i(first_name last_name)
 
+  # ---------------------------------------------------------------------------
+  # versions history
+  # ---------------------------------------------------------------------------
+
+  has_paper_trail
+
 end
