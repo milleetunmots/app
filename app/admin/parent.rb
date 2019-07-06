@@ -50,7 +50,8 @@ ActiveAdmin.register Parent do
               collection: Hash[Parent::GENDERS.map{|v| [Parent.human_attribute_name("gender.#{v}"),v]}]
       f.input :first_name
       f.input :last_name
-      f.input :phone_number
+      f.input :phone_number,
+              input_html: { value: f.object.decorate.phone_number }
       f.input :email
       f.input :address
       f.input :postal_code
