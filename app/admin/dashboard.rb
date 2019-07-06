@@ -13,15 +13,15 @@ ActiveAdmin.register_page "Dashboard" do
               end
             end
             column I18n.t("active_admin.paper_trail.dashboard.columns.type") do |v|
-              v.item_type.underscore.humanize
+              v.item_type.constantize.model_name.human
             end
             column I18n.t("active_admin.paper_trail.dashboard.columns.modified_at") do |v|
-              l v.created_at, format: :default
+              l v.created_at, format: :short
             end
             column I18n.t("active_admin.paper_trail.dashboard.columns.whodunnit") do |v|
               id, email = v.whodunnit.split(':')
               if admin = AdminUser.where(id: id).first
-                link_to admin.try(:email), [:admin, admin]
+                auto_link admin
               else
                 email
               end
