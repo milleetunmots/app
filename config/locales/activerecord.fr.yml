@@ -4,12 +4,14 @@ fr:
       admin_user: Administrateur
       child: Enfant
       parent: Parent
+      task: Tâche
     attributes:
       admin_user:
         created_at: Ajout
         current_sign_in_at: Session en cours
         email: Email
         id: "#"
+        name: Nom
         password: Mot de passe
         password_confirmation: Confirmation du mot de passe
         sign_in_count: Connexions
@@ -47,6 +49,18 @@ fr:
       parent/gender:
         f: Femme
         m: Homme
+      task:
+        assignee: Assigné à
+        created_at: Ajout
+        description: Description
+        done_at: Résolution
+        due_date: Date limite
+        id: "#"
+        is_done: Terminée
+        related: Élément concerné
+        reporter: Ajoutée par
+        title: Intitulé
+        updated_at: Modification
     errors:
       models:
         parent:

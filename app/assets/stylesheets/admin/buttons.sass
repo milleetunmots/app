@@ -1,0 +1,17 @@
+@import variables
+
+.button, #title_bar #titlebar_right .action_item a
+  &.blue
+    background-color: $blue
+    color: $black
+  &.green
+    background-color: $green
+    color: $black
+  &.red
+    background-color: $status-tag-background-error-color
+  &.yellow
+    background-color: $yellow
+    color: $black
+
+#title_bar #titlebar_right .action_item a[data-method="delete"][data-confirm]
+  background-color: $status-tag-background-error-color

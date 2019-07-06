@@ -1,0 +1,9 @@
+panel I18n.t("active_admin.tasks.dashboard.title") do
+
+  ul class: 'fa-ul aat-ul' do
+    Task.todo.order(:due_date).includes(:related).limit(20).each do |task|
+      render 'active_admin/tasks/task_li', task: task
+    end
+  end
+
+end

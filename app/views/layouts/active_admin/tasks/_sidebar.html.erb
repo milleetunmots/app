@@ -1,0 +1,11 @@
+<ul class="fa-ul aat-ul">
+  <% Task.relating(resource).todo.each do |task| %>
+    <%= render 'active_admin/tasks/task_li', task: task, show_related: false %>
+  <% end %>
+  <li>
+    <%= link_to url_for_new_task(resource), class: :blue do %>
+      <span class="fa-li"><i class="fas fa-plus"></i></span>
+      <%= t('active_admin.tasks.sidebar.add_link') %>
+    <% end %>
+  </li>
+</ul>
