@@ -39,7 +39,7 @@ ActiveAdmin.register Child do
 
   filter :gender,
          as: :check_boxes,
-         collection: Hash[Child::GENDERS.map{|v| [Child.human_attribute_name("gender.#{v}"),v]}]
+         collection: proc { child_gender_select_collection }
   filter :first_name
   filter :last_name
   filter :birthdate
@@ -55,13 +55,17 @@ ActiveAdmin.register Child do
 
   form do |f|
     f.inputs do
-      f.input :parent1, collection: Parent.all.map(&:decorate), input_html: { data: { select2: {} } }
+      f.input :parent1,
+              collection: child_parent_select_collection,
+              input_html: { data: { select2: {} } }
       f.input :should_contact_parent1
-      f.input :parent2, collection: Parent.all.map(&:decorate), input_html: { data: { select2: {} } }
+      f.input :parent2,
+              collection: child_parent_select_collection,
+              input_html: { data: { select2: {} } }
       f.input :should_contact_parent2
       f.input :gender,
               as: :radio,
-              collection: Hash[Child::GENDERS.map{|v| [Child.human_attribute_name("gender.#{v}"),v]}]
+              collection: child_gender_select_collection
       f.input :first_name
       f.input :last_name
       f.input :birthdate, as: :datepicker
@@ -95,12 +99,12 @@ ActiveAdmin.register Child do
 
   action_item :show_support,
               only: :show,
-              if: proc{ resource.child_support } do
+              if: proc { resource.child_support } do
     link_to I18n.t('child.show_support_link'), [:admin, resource.child_support]
   end
   action_item :create_support,
               only: :show,
-              if: proc{ !resource.child_support } do
+              if: proc { !resource.child_support } do
     link_to I18n.t('child.create_support_link'), [:create_support, :admin, resource]
   end
   member_action :create_support do

@@ -29,13 +29,13 @@ ActiveAdmin.register ChildSupport do
 
   filter :call1_parent_progress,
          as: :check_boxes,
-         collection: Hash[ChildSupport::PARENT_PROGRESS.map{|v| [ChildSupport.human_attribute_name("call1_parent_progress.#{v}"), v]}]
+         collection: proc { child_support_call1_parent_progress_select_collection }
   filter :call2_program_investment,
          as: :check_boxes,
-         collection: Hash[ChildSupport::PROGRAM_INVESTMENT.map{|v| [ChildSupport.human_attribute_name("call2_program_investment.#{v}"), v]}]
+         collection: proc { child_support_call2_program_investment_select_collection }
   filter :call3_program_investment,
          as: :check_boxes,
-         collection: Hash[ChildSupport::PROGRAM_INVESTMENT.map{|v| [ChildSupport.human_attribute_name("call3_program_investment.#{v}"), v]}]
+         collection: proc { child_support_call3_program_investment_select_collection }
   filter :created_at
   filter :updated_at
 
@@ -103,7 +103,7 @@ ActiveAdmin.register ChildSupport do
               f.input :call1_parent_actions, input_html: { rows: 5 }
               f.input :call1_parent_progress,
                       as: :radio,
-                      collection: Hash[ChildSupport::PARENT_PROGRESS.map{|v| [ChildSupport.human_attribute_name("call1_parent_progress.#{v}"),v]}]
+                      collection: child_support_call1_parent_progress_select_collection
             end
             column do
               f.input :call1_language_development, input_html: { rows: 5 }
@@ -121,7 +121,7 @@ ActiveAdmin.register ChildSupport do
             column do
               f.input :call2_program_investment,
                       as: :radio,
-                      collection: Hash[ChildSupport::PROGRAM_INVESTMENT.map{|v| [ChildSupport.human_attribute_name("call2_program_investment.#{v}"),v]}]
+                      collection: child_support_call2_program_investment_select_collection
               f.input :call2_goals, input_html: { rows: 5 }
               f.input :call2_notes, input_html: { rows: 5 }
             end
@@ -137,7 +137,7 @@ ActiveAdmin.register ChildSupport do
             column do
               f.input :call3_program_investment,
                       as: :radio,
-                      collection: Hash[ChildSupport::PROGRAM_INVESTMENT.map{|v| [ChildSupport.human_attribute_name("call3_program_investment.#{v}"),v]}]
+                      collection: child_support_call3_program_investment_select_collection
               f.input :call3_goals, input_html: { rows: 5 }
               f.input :call3_notes, input_html: { rows: 5 }
             end

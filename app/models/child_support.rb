@@ -1,13 +1,13 @@
 class ChildSupport < ApplicationRecord
 
   PARENT_PROGRESS = %w[
-    1_low,
-    2_medium,
+    1_low
+    2_medium
     3_high
   ].freeze
   PROGRAM_INVESTMENT = %w[
-    1_low,
-    2_medium,
+    1_low
+    2_medium
     3_high
   ].freeze
 
