@@ -1,7 +1,13 @@
 class ChildDecorator < BaseDecorator
 
-  def admin_link
-    h.link_to name, [:admin, model], class: GENDER_COLORS[model.gender.to_sym]
+  def admin_link(options = {})
+    with_icon = options.delete(:with_icon)
+
+    txt = name
+    if with_icon
+      txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + txt
+    end
+    h.link_to txt, [:admin, model], { class: GENDER_COLORS[model.gender.to_sym] }.merge(options)
   end
 
   def age

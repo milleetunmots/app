@@ -3,6 +3,7 @@ fr:
     models:
       admin_user: Administrateur
       child: Enfant
+      child_support: Accompagnement
       parent: Parent
       task: Tâche
     attributes:
@@ -19,6 +20,7 @@ fr:
       child:
         age: Age
         birthdate: Date de naissance
+        child_support: Accompagnement
         created_at: Ajout
         first_name: Prénom
         gender: Sexe
@@ -33,6 +35,40 @@ fr:
       child/gender:
         f: Fille
         m: Garçon
+      child_support:
+        id: "#"
+        call1_language_development: "Développement langagier de l'enfant"
+        call1_notes: Remarques diverses
+        call1_parent_actions: Pratiques parentales
+        call1_parent_progress: "Note d'avancement du parent"
+        call2_content_usage: Usage de nos contenus
+        call2_goals: Mini-objectifs
+        call2_language_development: Développement du langage (pratiques du parent, questions, conseils…)
+        call2_notes: Remarques diverses
+        call2_program_investment: "Note d'investissement dans le programme"
+        call2_technical_information: Informations techniques
+        call3_content_usage: Usage de nos contenus
+        call3_goals: Mini-objectifs
+        call3_language_development: Développement du langage (pratiques du parent, questions, conseils…)
+        call3_notes: Remarques diverses
+        call3_program_investment: "Note d'investissement dans le programme"
+        call3_technical_information: Informations techniques
+        children: Enfants
+        created_at: Ajout
+        important_information: Infos importantes
+        updated_at: Modification
+      child_support/call1_parent_progress:
+        1_low: "n'a pas conscience de son impact sur le développement de l'enfant"
+        2_medium: "sait qu'il faut parler à l’enfant mais n'applique pas forcément au quotidien"
+        3_high: "chante, parle, joue, regarde des livres avec son enfant"
+      child_support/call2_program_investment:
+        1_low: "faible"
+        2_medium: "modéré"
+        3_high: "important"
+      child_support/call3_program_investment:
+        1_low: "faible"
+        2_medium: "modéré"
+        3_high: "important"
       parent:
         address: Adresse
         children: Enfant(s)

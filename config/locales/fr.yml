@@ -1,4 +1,9 @@
 fr:
+  child:
+    create_support_link: Créer l'accompagnement
+    show_support_link: Voir l'accompagnement
   child_age:
     months: "%{months} mois"
     years: "%{years} ans"
+  should_be_contacted: À contacter
+  should_not_be_contacted: Ne pas contacter

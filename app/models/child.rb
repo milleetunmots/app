@@ -2,6 +2,7 @@ class Child < ApplicationRecord
 
   GENDERS = %w[m f]
 
+  belongs_to :child_support, optional: true
   belongs_to :parent1, class_name: :Parent
   belongs_to :parent2, class_name: :Parent, optional: true
 

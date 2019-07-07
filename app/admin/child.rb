@@ -93,4 +93,21 @@ ActiveAdmin.register Child do
     end
   end
 
+  action_item :show_support,
+              only: :show,
+              if: proc{ resource.child_support } do
+    link_to I18n.t('child.show_support_link'), [:admin, resource.child_support]
+  end
+  action_item :create_support,
+              only: :show,
+              if: proc{ !resource.child_support } do
+    link_to I18n.t('child.create_support_link'), [:create_support, :admin, resource]
+  end
+  member_action :create_support do
+    child_support = ChildSupport.create!
+    resource.child_support_id = child_support.id
+    resource.save!
+    redirect_to [:edit, :admin, child_support]
+  end
+
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_06_221539) do
+ActiveRecord::Schema.define(version: 2019_07_07_142352) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -35,6 +35,31 @@ ActiveRecord::Schema.define(version: 2019_07_06_221539) do
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
 
+  create_table "child_supports", force: :cascade do |t|
+    t.text "important_information"
+    t.text "call1_parent_actions"
+    t.text "call1_language_development"
+    t.string "call1_parent_progress"
+    t.text "call1_notes"
+    t.text "call2_technical_information"
+    t.text "call2_content_usage"
+    t.string "call2_program_investment"
+    t.text "call2_language_development"
+    t.text "call2_goals"
+    t.text "call2_notes"
+    t.text "call3_technical_information"
+    t.text "call3_content_usage"
+    t.string "call3_program_investment"
+    t.text "call3_language_development"
+    t.text "call3_goals"
+    t.text "call3_notes"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
+    t.index ["call2_program_investment"], name: "index_child_supports_on_call2_program_investment"
+    t.index ["call3_program_investment"], name: "index_child_supports_on_call3_program_investment"
+  end
+
   create_table "children", force: :cascade do |t|
     t.bigint "parent1_id", null: false
     t.bigint "parent2_id"
@@ -46,7 +71,9 @@ ActiveRecord::Schema.define(version: 2019_07_06_221539) do
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "should_contact_parent1", default: false, null: false
     t.boolean "should_contact_parent2", default: false, null: false
+    t.bigint "child_support_id"
     t.index ["birthdate"], name: "index_children_on_birthdate"
+    t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["gender"], name: "index_children_on_gender"
     t.index ["parent1_id"], name: "index_children_on_parent1_id"
     t.index ["parent2_id"], name: "index_children_on_parent2_id"
