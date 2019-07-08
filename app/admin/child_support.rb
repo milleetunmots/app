@@ -15,9 +15,15 @@ ActiveAdmin.register ChildSupport do
     selectable_column
     id_column
     column :children
-    column :call1_parent_progress
-    column :call2_program_investment
-    column :call3_program_investment
+    column :call1_parent_progress do |model|
+      model.call1_parent_progress_index
+    end
+    column :call2_program_investment do |model|
+      model.call2_program_investment_index
+    end
+    column :call3_program_investment do |model|
+      model.call3_program_investment_index
+    end
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -28,14 +34,17 @@ ActiveAdmin.register ChildSupport do
   end
 
   filter :call1_parent_progress,
-         as: :check_boxes,
-         collection: proc { child_support_call1_parent_progress_select_collection }
+         as: :select,
+         collection: proc { child_support_call1_parent_progress_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
   filter :call2_program_investment,
-         as: :check_boxes,
-         collection: proc { child_support_call2_program_investment_select_collection }
+         as: :select,
+         collection: proc { child_support_call2_program_investment_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
   filter :call3_program_investment,
-         as: :check_boxes,
-         collection: proc { child_support_call3_program_investment_select_collection }
+         as: :select,
+         collection: proc { child_support_call3_program_investment_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
   filter :created_at
   filter :updated_at
 

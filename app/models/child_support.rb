@@ -39,6 +39,16 @@ class ChildSupport < ApplicationRecord
            :should_contact_parent2,
            to: :first_child
 
+  def call1_parent_progress_index
+    (call1_parent_progress || '').split('_').first&.to_i
+  end
+  def call2_program_investment_index
+    (call2_program_investment || '').split('_').first&.to_i
+  end
+  def call3_program_investment_index
+    (call3_program_investment || '').split('_').first&.to_i
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------

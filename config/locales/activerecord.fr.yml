@@ -58,17 +58,17 @@ fr:
         important_information: Infos importantes
         updated_at: Modification
       child_support/call1_parent_progress:
-        1_low: "n'a pas conscience de son impact sur le développement de l'enfant"
-        2_medium: "sait qu'il faut parler à l’enfant mais n'applique pas forcément au quotidien"
-        3_high: "chante, parle, joue, regarde des livres avec son enfant"
+        1_low: "1 : n'a pas conscience de son impact sur le développement de l'enfant"
+        2_medium: "2 : sait qu'il faut parler à l’enfant mais n'applique pas forcément au quotidien"
+        3_high: "3 : chante, parle, joue, regarde des livres avec son enfant"
       child_support/call2_program_investment:
-        1_low: "faible"
-        2_medium: "modéré"
-        3_high: "important"
+        1_low: "1 : faible"
+        2_medium: "2 : modéré"
+        3_high: "3 : important"
       child_support/call3_program_investment:
-        1_low: "faible"
-        2_medium: "modéré"
-        3_high: "important"
+        1_low: "1 : faible"
+        2_medium: "2 : modéré"
+        3_high: "3 : important"
       parent:
         address: Adresse
         children: Enfant(s)
