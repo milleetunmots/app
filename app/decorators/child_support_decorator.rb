@@ -4,6 +4,10 @@ class ChildSupportDecorator < BaseDecorator
     h.auto_link model
   end
 
+  def display_name
+    first_child&.decorate&.name
+  end
+
   def children
     arbre do
       ul do

@@ -82,7 +82,8 @@ class ChildSupport < ApplicationRecord
            :parent2,
            :should_contact_parent1,
            :should_contact_parent2,
-           to: :first_child
+           to: :first_child,
+           allow_nil: true
 
   def call1_parent_progress_index
     (call1_parent_progress || '').split('_').first&.to_i

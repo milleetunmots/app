@@ -5,6 +5,8 @@ ActiveAdmin.register ChildSupport do
   has_paper_trail
   has_tasks
 
+  actions :all, except: [:new]
+
   # ---------------------------------------------------------------------------
   # INDEX
   # ---------------------------------------------------------------------------
