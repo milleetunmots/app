@@ -1,3 +1,34 @@
+# == Schema Information
+#
+# Table name: children
+#
+#  id                     :bigint           not null, primary key
+#  birthdate              :date             not null
+#  first_name             :string           not null
+#  gender                 :string           not null
+#  last_name              :string           not null
+#  should_contact_parent1 :boolean          default(FALSE), not null
+#  should_contact_parent2 :boolean          default(FALSE), not null
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  child_support_id       :bigint
+#  parent1_id             :bigint           not null
+#  parent2_id             :bigint
+#
+# Indexes
+#
+#  index_children_on_birthdate         (birthdate)
+#  index_children_on_child_support_id  (child_support_id)
+#  index_children_on_gender            (gender)
+#  index_children_on_parent1_id        (parent1_id)
+#  index_children_on_parent2_id        (parent2_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (parent1_id => parents.id)
+#  fk_rails_...  (parent2_id => parents.id)
+#
+
 class Child < ApplicationRecord
 
   GENDERS = %w[m f].freeze

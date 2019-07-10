@@ -1,3 +1,32 @@
+# == Schema Information
+#
+# Table name: parents
+#
+#  id                    :bigint           not null, primary key
+#  address               :string           not null
+#  city_name             :string           not null
+#  email                 :string           not null
+#  first_name            :string           not null
+#  gender                :string           not null
+#  last_name             :string           not null
+#  phone_number          :string           not null
+#  phone_number_national :string
+#  postal_code           :string           not null
+#  created_at            :datetime         not null
+#  updated_at            :datetime         not null
+#
+# Indexes
+#
+#  index_parents_on_address                (address)
+#  index_parents_on_city_name              (city_name)
+#  index_parents_on_email                  (email)
+#  index_parents_on_first_name             (first_name)
+#  index_parents_on_gender                 (gender)
+#  index_parents_on_last_name              (last_name)
+#  index_parents_on_phone_number_national  (phone_number_national)
+#  index_parents_on_postal_code            (postal_code)
+#
+
 class Parent < ApplicationRecord
 
   GENDERS = %w[m f].freeze
