@@ -9,7 +9,7 @@ ActiveAdmin.register Child do
   # INDEX
   # ---------------------------------------------------------------------------
 
-  includes :parent1, :parent2
+  includes :parent1, :parent2, :child_support
 
   index do
     selectable_column
@@ -20,6 +20,9 @@ ActiveAdmin.register Child do
     column :age, sortable: :birthdate
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
+    column :child_support do |model|
+      model.child_support_status
+    end
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -30,6 +33,7 @@ ActiveAdmin.register Child do
   end
 
   scope :all, default: true
+
   scope :months_between_0_and_3, group: :months
   scope :months_between_3_and_6, group: :months
   scope :months_between_6_and_12, group: :months
@@ -37,9 +41,12 @@ ActiveAdmin.register Child do
   scope :months_between_18_and_24, group: :months
   scope :months_more_than_24, group: :months
 
+  scope :with_support, group: :support
+  scope :without_support, group: :support
+
   filter :gender,
          as: :check_boxes,
-         collection: Hash[Child::GENDERS.map{|v| [Child.human_attribute_name("gender.#{v}"),v]}]
+         collection: proc { child_gender_select_collection }
   filter :first_name
   filter :last_name
   filter :birthdate
@@ -55,13 +62,17 @@ ActiveAdmin.register Child do
 
   form do |f|
     f.inputs do
-      f.input :parent1, collection: Parent.all.map(&:decorate), input_html: { data: { select2: {} } }
+      f.input :parent1,
+              collection: child_parent_select_collection,
+              input_html: { data: { select2: {} } }
       f.input :should_contact_parent1
-      f.input :parent2, collection: Parent.all.map(&:decorate), input_html: { data: { select2: {} } }
+      f.input :parent2,
+              collection: child_parent_select_collection,
+              input_html: { data: { select2: {} } }
       f.input :should_contact_parent2
       f.input :gender,
               as: :radio,
-              collection: Hash[Child::GENDERS.map{|v| [Child.human_attribute_name("gender.#{v}"),v]}]
+              collection: child_gender_select_collection
       f.input :first_name
       f.input :last_name
       f.input :birthdate, as: :datepicker
@@ -90,6 +101,25 @@ ActiveAdmin.register Child do
       row :gender
       row :created_at
       row :updated_at
+    end
+  end
+
+  action_item :show_support,
+              only: :show,
+              if: proc { resource.child_support } do
+    link_to I18n.t('child.show_support_link'), [:admin, resource.child_support]
+  end
+  action_item :create_support,
+              only: :show,
+              if: proc { !resource.child_support } do
+    link_to I18n.t('child.create_support_link'), [:create_support, :admin, resource]
+  end
+  member_action :create_support do
+    if already_existing_child_support = resource.child_support
+      redirect_to [:admin, already_existing_child_support], notice: I18n.t('child.support_already_existed')
+    else
+      resource.create_support!
+      redirect_to [:edit, :admin, resource.child_support]
     end
   end
 

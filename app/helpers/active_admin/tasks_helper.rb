@@ -1,4 +1,5 @@
 module ActiveAdmin::TasksHelper
+
   def url_for_new_task(resource)
     new_admin_task_path(
       task: {
@@ -7,4 +8,5 @@ module ActiveAdmin::TasksHelper
       }
     )
   end
+
 end

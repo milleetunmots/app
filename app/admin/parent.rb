@@ -29,7 +29,7 @@ ActiveAdmin.register Parent do
 
   filter :gender,
          as: :check_boxes,
-         collection: Hash[Parent::GENDERS.map{|v| [Parent.human_attribute_name("gender.#{v}"),v]}]
+         collection: proc { parent_gender_select_collection }
   filter :first_name
   filter :last_name
   filter :phone_number
@@ -48,7 +48,7 @@ ActiveAdmin.register Parent do
     f.inputs do
       f.input :gender,
               as: :radio,
-              collection: Hash[Parent::GENDERS.map{|v| [Parent.human_attribute_name("gender.#{v}"),v]}]
+              collection: parent_gender_select_collection
       f.input :first_name
       f.input :last_name
       f.input :phone_number,

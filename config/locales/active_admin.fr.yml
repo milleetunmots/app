@@ -1,9 +1,20 @@
 fr:
   active_admin:
+    edit_model: Modifier
+    delete_model: Supprimer
     filters:
       predicates:
         gteq: Au moins
         lt: Moins de
+    resources:
+      admin_user:
+        new_model: Nouvel administrateur
+      child:
+        new_model: Nouvel enfant
+      parent:
+        new_model: Nouveau parent
+      task:
+        new_model: Nouvelle tâche
     scopes:
       all: Tous
       done: Fait
@@ -14,3 +25,5 @@ fr:
       months_between_18_and_24: 18-24 mois
       months_more_than_24: 24+ mois
       todo: À faire
+      with_support: Suivis
+      without_support: Non suivis
