@@ -1,0 +1,8 @@
+fr:
+  formtastic:
+    actions:
+      create: Valider
+      update: Valider
+      # child_support:
+      #   create: Créer ce suivi
+      #   update: Mettre à jour ce suivi
