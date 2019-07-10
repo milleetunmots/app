@@ -108,10 +108,12 @@ ActiveAdmin.register Child do
     link_to I18n.t('child.create_support_link'), [:create_support, :admin, resource]
   end
   member_action :create_support do
-    child_support = ChildSupport.create!
-    resource.child_support_id = child_support.id
-    resource.save!
-    redirect_to [:edit, :admin, child_support]
+    if already_existing_child_support = resource.child_support
+      redirect_to [:admin, already_existing_child_support], notice: I18n.t('child.support_already_existed')
+    else
+      resource.create_support!
+      redirect_to [:edit, :admin, resource.child_support]
+    end
   end
 
 end

@@ -11,7 +11,8 @@ class ChildSupport < ApplicationRecord
     3_high
   ].freeze
 
-  has_many :children
+  has_many :children,
+           dependent: :nullify
 
   validates :call1_parent_progress,
             inclusion: {

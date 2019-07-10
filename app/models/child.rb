@@ -11,6 +11,20 @@ class Child < ApplicationRecord
   validates :last_name, presence: true
   validates :birthdate, presence: true
 
+  # ---------------------------------------------------------------------------
+  # other relations
+  # ---------------------------------------------------------------------------
+
+  # we do not call this 'siblings' because real siblings may have only
+  # one parent in common
+  def strict_siblings
+    self.class.where(parent1_id: parent1_id, parent2_id: parent2_id).where.not(id: id)
+  end
+
+  # ---------------------------------------------------------------------------
+  # helpers
+  # ---------------------------------------------------------------------------
+
   # computes an (integer) number of months old
   def months
     diff = Time.zone.today.month + Time.zone.today.year * 12 - (birthdate.month + birthdate.year * 12)
@@ -18,6 +32,26 @@ class Child < ApplicationRecord
       diff - 1
     else
       diff
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # support
+  # ---------------------------------------------------------------------------
+
+  def create_support!
+    # 1- create support
+    child_support = ChildSupport.create!
+
+    # 2- use it on current child
+    self.child_support_id = child_support.id
+    self.save(validate: false)
+
+    # 3- also update all strict siblings
+    # nb: we do this one by one to trigger paper_trail
+    strict_siblings.without_support.each do |child|
+      child.child_support_id = child_support.id
+      child.save(validate: false)
     end
   end
 
@@ -72,6 +106,18 @@ class Child < ApplicationRecord
 
   def self.ransackable_scopes(auth_object = nil)
     %i(months_equals months_gteq months_lt)
+  end
+
+  # ---------------------------------------------------------------------------
+  # other scopes
+  # ---------------------------------------------------------------------------
+
+  def self.with_support
+    joins(:child_support)
+  end
+
+  def self.without_support
+    left_outer_joins(:child_support).where(child_supports: {id: nil})
   end
 
   # ---------------------------------------------------------------------------
