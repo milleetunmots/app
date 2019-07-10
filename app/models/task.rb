@@ -1,10 +1,22 @@
 class Task < ApplicationRecord
 
+  # ---------------------------------------------------------------------------
+  # relations
+  # ---------------------------------------------------------------------------
+
   belongs_to :reporter, class_name: :AdminUser, optional: true
   belongs_to :assignee, class_name: :AdminUser, optional: true
   belongs_to :related, polymorphic: true, optional: true
 
+  # ---------------------------------------------------------------------------
+  # validations
+  # ---------------------------------------------------------------------------
+
   validates :title, presence: true
+
+  # ---------------------------------------------------------------------------
+  # scopes
+  # ---------------------------------------------------------------------------
 
   scope :todo, -> { where(done_at: nil) }
   scope :done, -> { where.not(done_at: nil) }

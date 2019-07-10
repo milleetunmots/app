@@ -1,6 +1,6 @@
 class Parent < ApplicationRecord
 
-  GENDERS = %w[m f]
+  GENDERS = %w[m f].freeze
   REGEX_VALID_EMAIL = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
 
   # ---------------------------------------------------------------------------

@@ -1,25 +1,29 @@
 class Child < ApplicationRecord
 
-  GENDERS = %w[m f]
+  GENDERS = %w[m f].freeze
+
+  # ---------------------------------------------------------------------------
+  # relations
+  # ---------------------------------------------------------------------------
 
   belongs_to :child_support, optional: true
   belongs_to :parent1, class_name: :Parent
   belongs_to :parent2, class_name: :Parent, optional: true
-
-  validates :gender, presence: true, inclusion: { in: GENDERS }
-  validates :first_name, presence: true
-  validates :last_name, presence: true
-  validates :birthdate, presence: true
-
-  # ---------------------------------------------------------------------------
-  # other relations
-  # ---------------------------------------------------------------------------
 
   # we do not call this 'siblings' because real siblings may have only
   # one parent in common
   def strict_siblings
     self.class.where(parent1_id: parent1_id, parent2_id: parent2_id).where.not(id: id)
   end
+
+  # ---------------------------------------------------------------------------
+  # validations
+  # ---------------------------------------------------------------------------
+
+  validates :gender, presence: true, inclusion: { in: GENDERS }
+  validates :first_name, presence: true
+  validates :last_name, presence: true
+  validates :birthdate, presence: true
 
   # ---------------------------------------------------------------------------
   # helpers
@@ -112,9 +116,7 @@ class Child < ApplicationRecord
   # other scopes
   # ---------------------------------------------------------------------------
 
-  def self.with_support
-    joins(:child_support)
-  end
+  scope :with_support, -> { joins(:child_support) }
 
   def self.without_support
     left_outer_joins(:child_support).where(child_supports: {id: nil})

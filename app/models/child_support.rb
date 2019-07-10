@@ -11,8 +11,20 @@ class ChildSupport < ApplicationRecord
     3_high
   ].freeze
 
+  # ---------------------------------------------------------------------------
+  # relations
+  # ---------------------------------------------------------------------------
+
   has_many :children,
            dependent: :nullify
+
+  def first_child
+    children.first
+  end
+
+  # ---------------------------------------------------------------------------
+  # validations
+  # ---------------------------------------------------------------------------
 
   validates :call1_parent_progress,
             inclusion: {
@@ -30,9 +42,9 @@ class ChildSupport < ApplicationRecord
               allow_blank: true
             }
 
-  def first_child
-    children.first
-  end
+  # ---------------------------------------------------------------------------
+  # helpers
+  # ---------------------------------------------------------------------------
 
   delegate :parent1,
            :parent2,
