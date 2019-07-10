@@ -1,0 +1,17 @@
+div class: 'card card-parent' do
+  (
+    div parent.admin_link(with_icon: true, target: '_blank')
+  ) + (
+    div parent.phone_number
+  ) + (
+    div parent.email
+  ) + (
+    div class: 'should-be-contacted' do
+      if should_contact_parent
+        status_tag 'yes', label: t('should_be_contacted')
+      else
+        status_tag 'no', label: t('should_not_be_contacted')
+      end
+    end
+  )
+end

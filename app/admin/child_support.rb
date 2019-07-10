@@ -59,7 +59,6 @@ ActiveAdmin.register ChildSupport do
           # parents & children
           columns do
             # parents
-
             [
               [f.object.parent1, f.object.should_contact_parent1],
               [f.object.parent2, f.object.should_contact_parent2]
@@ -69,21 +68,7 @@ ActiveAdmin.register ChildSupport do
               should_contact_parent = p[1]
 
               column do
-                (
-                  div parent.admin_link(with_icon: true, target: '_blank')
-                ) + (
-                  div parent.phone_number
-                ) + (
-                  div parent.email
-                ) + (
-                  div style: "margin-top: 5px" do
-                    if should_contact_parent
-                      status_tag 'yes', label: t('should_be_contacted')
-                    else
-                      status_tag 'no', label: t('should_not_be_contacted')
-                    end
-                  end
-                )
+                render 'parent', parent: parent, should_contact_parent: should_contact_parent
               end
             end
             column do
@@ -91,11 +76,7 @@ ActiveAdmin.register ChildSupport do
               f.object.children.each do |c|
                 child = c.decorate
 
-                (
-                  div child.admin_link(with_icon: true, target: '_blank')
-                ) + (
-                  div child.age
-                )
+                render 'child', child: child
               end
             end
           end
@@ -171,20 +152,37 @@ ActiveAdmin.register ChildSupport do
   # SHOW
   # ---------------------------------------------------------------------------
 
-  # show do
-  #   attributes_table do
-  #     row :parent1
-  #     row :should_contact_parent1
-  #     row :parent2
-  #     row :should_contact_parent2
-  #     row :first_name
-  #     row :last_name
-  #     row :birthdate
-  #     row :age
-  #     row :gender
-  #     row :created_at
-  #     row :updated_at
-  #   end
-  # end
+  show do
+    attributes_table title: 'Basics' do
+      row :parent1
+      row :parent2
+      row :children
+      row :important_information
+      row :created_at
+      row :updated_at
+    end
+    attributes_table title: 'Call 1' do
+      row :call1_parent_actions
+      row :call1_parent_progress
+      row :call1_language_development
+      row :call1_notes
+    end
+    attributes_table title: 'Call 2' do
+      row :call2_technical_information
+      row :call2_content_usage
+      row :call2_program_investment
+      row :call2_language_development
+      row :call2_goals
+      row :call2_notes
+    end
+    attributes_table title: 'Call 3' do
+      row :call3_technical_information
+      row :call3_content_usage
+      row :call3_program_investment
+      row :call3_language_development
+      row :call3_goals
+      row :call3_notes
+    end
+  end
 
 end
