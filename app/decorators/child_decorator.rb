@@ -68,6 +68,18 @@ class ChildDecorator < BaseDecorator
     end
   end
 
+  def child_support_status
+    arbre do
+      if child_support = model.child_support
+        a href: h.auto_url_for(child_support) do
+          status_tag h.t('yes'), class: 'green'
+        end
+      else
+        status_tag h.t('no')
+      end
+    end
+  end
+
   private
 
   def parent(parent)

@@ -1,10 +1,12 @@
 fr:
   child:
-    create_support_link: Créer l'accompagnement
-    show_support_link: Voir l'accompagnement
-    support_already_existed: Cet accompagnement est déjà en cours
+    create_support_link: Créer le suivi
+    show_support_link: Voir le suivi
+    support_already_existed: Suivi déjà en cours
   child_age:
     months: "%{months} mois"
     years: "%{years} ans"
+  'no': Non
   should_be_contacted: À contacter
   should_not_be_contacted: Ne pas contacter
+  'yes': Oui

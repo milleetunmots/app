@@ -3,7 +3,7 @@ fr:
     models:
       admin_user: Administrateur
       child: Enfant
-      child_support: Accompagnement
+      child_support: Suivi
       parent: Parent
       task: Tâche
     attributes:
@@ -20,7 +20,7 @@ fr:
       child:
         age: Age
         birthdate: Date de naissance
-        child_support: Accompagnement
+        child_support: Suivi
         created_at: Ajout
         first_name: Prénom
         gender: Sexe

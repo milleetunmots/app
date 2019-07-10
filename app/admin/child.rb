@@ -9,7 +9,7 @@ ActiveAdmin.register Child do
   # INDEX
   # ---------------------------------------------------------------------------
 
-  includes :parent1, :parent2
+  includes :parent1, :parent2, :child_support
 
   index do
     selectable_column
@@ -20,6 +20,9 @@ ActiveAdmin.register Child do
     column :age, sortable: :birthdate
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
+    column :child_support do |model|
+      model.child_support_status
+    end
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -30,12 +33,16 @@ ActiveAdmin.register Child do
   end
 
   scope :all, default: true
+
   scope :months_between_0_and_3, group: :months
   scope :months_between_3_and_6, group: :months
   scope :months_between_6_and_12, group: :months
   scope :months_between_12_and_18, group: :months
   scope :months_between_18_and_24, group: :months
   scope :months_more_than_24, group: :months
+
+  scope :with_support, group: :support
+  scope :without_support, group: :support
 
   filter :gender,
          as: :check_boxes,
