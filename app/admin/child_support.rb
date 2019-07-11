@@ -122,12 +122,12 @@ ActiveAdmin.register ChildSupport do
                           I18n.t('child_support.default.call2_content_usage')
                         )
                       }
-              f.input :call2_language_development, input_html: { rows: 8, style: 'width: 70%' }
-            end
-            column do
               f.input :call2_program_investment,
                       as: :radio,
                       collection: child_support_call2_program_investment_select_collection
+            end
+            column do
+              f.input :call2_language_development, input_html: { rows: 8, style: 'width: 70%' }
               f.input :call2_goals, input_html: { rows: 8, style: 'width: 70%' }
               f.input :call2_notes, input_html: { rows: 8, style: 'width: 70%' }
             end
@@ -145,12 +145,12 @@ ActiveAdmin.register ChildSupport do
                           I18n.t('child_support.default.call3_content_usage')
                         )
                       }
-              f.input :call3_language_development, input_html: { rows: 8, style: 'width: 70%' }
-            end
-            column do
               f.input :call3_program_investment,
                       as: :radio,
                       collection: child_support_call3_program_investment_select_collection
+            end
+            column do
+              f.input :call3_language_development, input_html: { rows: 8, style: 'width: 70%' }
               f.input :call3_goals, input_html: { rows: 8, style: 'width: 70%' }
               f.input :call3_notes, input_html: { rows: 8, style: 'width: 70%' }
             end
