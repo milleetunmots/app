@@ -94,7 +94,8 @@ ActiveAdmin.register ChildSupport do
             column do
               f.input :call1_parent_actions,
                       input_html: {
-                        rows: 5,
+                        rows: 8,
+                        style: 'width: 70%',
                         value: f.object.call1_parent_actions.presence || (
                           I18n.t('child_support.default.call1_parent_actions')
                         )
@@ -104,52 +105,54 @@ ActiveAdmin.register ChildSupport do
                       collection: child_support_call1_parent_progress_select_collection
             end
             column do
-              f.input :call1_language_development, input_html: { rows: 5 }
-              f.input :call1_notes, input_html: { rows: 5 }
+              f.input :call1_language_development, input_html: { rows: 8, style: 'width: 70%' }
+              f.input :call1_notes, input_html: { rows: 8, style: 'width: 70%' }
             end
           end
         end
         tab I18n.t('child_support.call2') do
           columns do
             column do
-              f.input :call2_technical_information, input_html: { rows: 5 }
+              f.input :call2_technical_information, input_html: { rows: 8, style: 'width: 70%' }
               f.input :call2_content_usage,
                       input_html: {
-                        rows: 5,
+                        rows: 8,
+                        style: 'width: 70%',
                         value: f.object.call2_content_usage.presence || (
                           I18n.t('child_support.default.call2_content_usage')
                         )
                       }
-              f.input :call2_language_development, input_html: { rows: 5 }
+              f.input :call2_language_development, input_html: { rows: 8, style: 'width: 70%' }
             end
             column do
               f.input :call2_program_investment,
                       as: :radio,
                       collection: child_support_call2_program_investment_select_collection
-              f.input :call2_goals, input_html: { rows: 5 }
-              f.input :call2_notes, input_html: { rows: 5 }
+              f.input :call2_goals, input_html: { rows: 8, style: 'width: 70%' }
+              f.input :call2_notes, input_html: { rows: 8, style: 'width: 70%' }
             end
           end
         end
         tab I18n.t('child_support.call3') do
           columns do
             column do
-              f.input :call3_technical_information, input_html: { rows: 5 }
+              f.input :call3_technical_information, input_html: { rows: 8, style: 'width: 70%' }
               f.input :call3_content_usage,
                       input_html: {
-                        rows: 5,
+                        rows: 8,
+                        style: 'width: 70%',
                         value: f.object.call3_content_usage.presence || (
                           I18n.t('child_support.default.call3_content_usage')
                         )
                       }
-              f.input :call3_language_development, input_html: { rows: 5 }
+              f.input :call3_language_development, input_html: { rows: 8, style: 'width: 70%' }
             end
             column do
               f.input :call3_program_investment,
                       as: :radio,
                       collection: child_support_call3_program_investment_select_collection
-              f.input :call3_goals, input_html: { rows: 5 }
-              f.input :call3_notes, input_html: { rows: 5 }
+              f.input :call3_goals, input_html: { rows: 8, style: 'width: 70%' }
+              f.input :call3_notes, input_html: { rows: 8, style: 'width: 70%' }
             end
           end
         end
