@@ -24,6 +24,14 @@ ActiveAdmin.register Task do
     actions
   end
 
+  config.sort_order = 'default_asc'
+  order_by(:default) do |order_clause|
+    if order_clause.order == 'desc'
+      'done_at ASC, due_date DESC'
+    else
+      'done_at DESC, due_date'
+    end
+  end
   order_by(:related) do |order_clause|
     if order_clause.order == 'desc'
       'related_type DESC, related_id DESC'
@@ -32,9 +40,12 @@ ActiveAdmin.register Task do
     end
   end
 
-  scope :todo, default: true
-  scope :done
-  scope :all
+  scope(:mine, default: true, group: :assignee) { |scope| scope.assigned_to(current_admin_user) }
+  scope :all, group: :assignee
+
+  # scope :todo
+  # scope :done
+  # scope :all
 
   filter :title
   filter :assignee,
