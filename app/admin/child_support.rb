@@ -89,7 +89,7 @@ ActiveAdmin.register ChildSupport do
         end
       end
       tabs do
-        tab :call1 do
+        tab I18n.t('child_support.call1') do
           columns do
             column do
               f.input :call1_parent_actions, input_html: { rows: 5 }
@@ -103,7 +103,7 @@ ActiveAdmin.register ChildSupport do
             end
           end
         end
-        tab :call2 do
+        tab I18n.t('child_support.call2') do
           columns do
             column do
               f.input :call2_technical_information, input_html: { rows: 5 }
@@ -119,7 +119,7 @@ ActiveAdmin.register ChildSupport do
             end
           end
         end
-        tab :call3 do
+        tab I18n.t('child_support.call3') do
           columns do
             column do
               f.input :call3_technical_information, input_html: { rows: 5 }
@@ -155,7 +155,7 @@ ActiveAdmin.register ChildSupport do
   # ---------------------------------------------------------------------------
 
   show do
-    attributes_table title: 'Basics' do
+    attributes_table title: I18n.t('child_support.base') do
       row :parent1
       row :parent2
       row :children
@@ -163,13 +163,13 @@ ActiveAdmin.register ChildSupport do
       row :created_at
       row :updated_at
     end
-    attributes_table title: 'Call 1' do
+    attributes_table title: I18n.t('child_support.call1') do
       row :call1_parent_actions
       row :call1_parent_progress
       row :call1_language_development
       row :call1_notes
     end
-    attributes_table title: 'Call 2' do
+    attributes_table title: I18n.t('child_support.call2') do
       row :call2_technical_information
       row :call2_content_usage
       row :call2_program_investment
@@ -177,7 +177,7 @@ ActiveAdmin.register ChildSupport do
       row :call2_goals
       row :call2_notes
     end
-    attributes_table title: 'Call 3' do
+    attributes_table title: I18n.t('child_support.call3') do
       row :call3_technical_information
       row :call3_content_usage
       row :call3_program_investment

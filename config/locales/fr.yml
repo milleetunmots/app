@@ -6,5 +6,10 @@ fr:
   child_age:
     months: "%{months} mois"
     years: "%{years} ans"
+  child_support:
+    base: Informations
+    call1: Appel 1
+    call2: Appel 2
+    call3: Appel 3
   should_be_contacted: À contacter
   should_not_be_contacted: Ne pas contacter
