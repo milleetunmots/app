@@ -64,6 +64,19 @@ ActiveAdmin.register Task do
   form do |f|
     f.semantic_errors
     f.inputs do
+      if related = f.object.related&.decorate
+        li class: :input do
+          label I18n.t('activerecord.attributes.task.related'), class: :label
+          div style: "padding-top: 6px" do
+            if related.respond_to?(:admin_link)
+              related.admin_link
+            else
+              auto_link related
+            end
+          end
+        end
+      end
+
       f.input :related_type, as: :hidden
       f.input :related_id, as: :hidden
 
