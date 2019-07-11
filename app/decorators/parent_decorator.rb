@@ -44,6 +44,16 @@ class ParentDecorator < BaseDecorator
     phone.national
   end
 
+  def full_address
+    [
+      address,
+      [
+        postal_code,
+        city_name
+      ].join(' ')
+    ].join('<br/>').html_safe
+  end
+
   def icon_class
     model.gender.to_sym == :m ? :male : :female
   end

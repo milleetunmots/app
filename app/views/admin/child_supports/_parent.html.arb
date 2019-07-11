@@ -4,7 +4,7 @@ div class: 'card card-parent' do
   ) + (
     div parent.phone_number
   ) + (
-    div parent.email
+    div parent.full_address
   ) + (
     div class: 'should-be-contacted' do
       if should_contact_parent
