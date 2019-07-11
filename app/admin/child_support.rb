@@ -92,7 +92,13 @@ ActiveAdmin.register ChildSupport do
         tab I18n.t('child_support.call1') do
           columns do
             column do
-              f.input :call1_parent_actions, input_html: { rows: 5 }
+              f.input :call1_parent_actions,
+                      input_html: {
+                        rows: 5,
+                        value: f.object.call1_parent_actions.presence || (
+                          I18n.t('child_support.default.call1_parent_actions')
+                        )
+                      }
               f.input :call1_parent_progress,
                       as: :radio,
                       collection: child_support_call1_parent_progress_select_collection
@@ -107,7 +113,13 @@ ActiveAdmin.register ChildSupport do
           columns do
             column do
               f.input :call2_technical_information, input_html: { rows: 5 }
-              f.input :call2_content_usage, input_html: { rows: 5 }
+              f.input :call2_content_usage,
+                      input_html: {
+                        rows: 5,
+                        value: f.object.call2_content_usage.presence || (
+                          I18n.t('child_support.default.call2_content_usage')
+                        )
+                      }
               f.input :call2_language_development, input_html: { rows: 5 }
             end
             column do
@@ -123,7 +135,13 @@ ActiveAdmin.register ChildSupport do
           columns do
             column do
               f.input :call3_technical_information, input_html: { rows: 5 }
-              f.input :call3_content_usage, input_html: { rows: 5 }
+              f.input :call3_content_usage,
+                      input_html: {
+                        rows: 5,
+                        value: f.object.call3_content_usage.presence || (
+                          I18n.t('child_support.default.call3_content_usage')
+                        )
+                      }
               f.input :call3_language_development, input_html: { rows: 5 }
             end
             column do

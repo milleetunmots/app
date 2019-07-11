@@ -11,5 +11,9 @@ fr:
     call1: Appel 1
     call2: Appel 2
     call3: Appel 3
+    default:
+      call1_parent_actions: "Livres :\nChansons :\nJeux :\nSorties :"
+      call2_content_usage: "Livre\nSMS/Vidéo\nJeux\nChansons"
+      call3_content_usage: "Livre\nSMS/Vidéo\nJeux\nChansons"
   should_be_contacted: À contacter
   should_not_be_contacted: Ne pas contacter
