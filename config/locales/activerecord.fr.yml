@@ -58,6 +58,7 @@ fr:
         important_information: Infos importantes
         parent1: Parent 1
         parent2: Parent 2
+        should_be_read: À lire par l'équipe
         supporter: Responsable
         updated_at: Modification
       child_support/call1_parent_progress:

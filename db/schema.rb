@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_11_214043) do
+ActiveRecord::Schema.define(version: 2019_07_11_230059) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -56,9 +56,11 @@ ActiveRecord::Schema.define(version: 2019_07_11_214043) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "supporter_id"
+    t.boolean "should_be_read"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call2_program_investment"], name: "index_child_supports_on_call2_program_investment"
     t.index ["call3_program_investment"], name: "index_child_supports_on_call3_program_investment"
+    t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
     t.index ["supporter_id"], name: "index_child_supports_on_supporter_id"
   end
 

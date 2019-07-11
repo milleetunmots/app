@@ -18,6 +18,7 @@ ActiveAdmin.register ChildSupport do
     id_column
     column :children
     column :supporter, sortable: :supporter_id
+    column :should_be_read
     column :call1_parent_progress do |model|
       model.call1_parent_progress_index
     end
@@ -39,7 +40,7 @@ ActiveAdmin.register ChildSupport do
   scope(:mine, default: true) { |scope| scope.where(supporter: current_admin_user) }
   scope :all
 
-
+  filter :should_be_read
   filter :call1_parent_progress,
          as: :select,
          collection: proc { child_support_call1_parent_progress_select_collection },
@@ -61,10 +62,10 @@ ActiveAdmin.register ChildSupport do
 
   form do |f|
     f.inputs do
-      f.input :supporter,
-              input_html: { data: { select2: {} } }
       columns do
         column do
+          f.input :supporter,
+                  input_html: { data: { select2: {} } }
           # parents & children
           columns do
             # parents
@@ -93,6 +94,7 @@ ActiveAdmin.register ChildSupport do
         column do
           f.label :important_information
           f.input :important_information, label: false, input_html: { rows: 5, style: 'width: 100%' }
+          f.input :should_be_read
         end
       end
       tabs do
@@ -168,7 +170,7 @@ ActiveAdmin.register ChildSupport do
     f.actions
   end
 
-  permit_params :important_information, :supporter_id,
+  permit_params :important_information, :supporter_id, :should_be_read,
                 :call1_parent_actions, :call1_parent_progress,
                 :call1_language_development, :call1_notes,
                 :call2_technical_information, :call2_content_usage,
@@ -189,6 +191,7 @@ ActiveAdmin.register ChildSupport do
       row :parent2
       row :children
       row :important_information
+      row :should_be_read
       row :created_at
       row :updated_at
     end

@@ -20,6 +20,7 @@
 #  call3_program_investment    :string
 #  call3_technical_information :text
 #  important_information       :text
+#  should_be_read              :boolean
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
 #  supporter_id                :bigint
@@ -29,6 +30,7 @@
 #  index_child_supports_on_call1_parent_progress     (call1_parent_progress)
 #  index_child_supports_on_call2_program_investment  (call2_program_investment)
 #  index_child_supports_on_call3_program_investment  (call3_program_investment)
+#  index_child_supports_on_should_be_read            (should_be_read)
 #  index_child_supports_on_supporter_id              (supporter_id)
 #
 # Foreign Keys
