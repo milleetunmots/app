@@ -58,6 +58,7 @@ fr:
         important_information: Infos importantes
         parent1: Parent 1
         parent2: Parent 2
+        supporter: Responsable
         updated_at: Modification
       child_support/call1_parent_progress:
         1_low: "1 : n'a pas conscience de son impact sur le développement de l'enfant"

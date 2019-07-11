@@ -22,12 +22,18 @@
 #  important_information       :text
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
+#  supporter_id                :bigint
 #
 # Indexes
 #
 #  index_child_supports_on_call1_parent_progress     (call1_parent_progress)
 #  index_child_supports_on_call2_program_investment  (call2_program_investment)
 #  index_child_supports_on_call3_program_investment  (call3_program_investment)
+#  index_child_supports_on_supporter_id              (supporter_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (supporter_id => admin_users.id)
 #
 
 class ChildSupport < ApplicationRecord
@@ -47,6 +53,7 @@ class ChildSupport < ApplicationRecord
   # relations
   # ---------------------------------------------------------------------------
 
+  belongs_to :supporter, class_name: :AdminUser
   has_many :children,
            dependent: :nullify
 

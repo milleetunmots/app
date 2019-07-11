@@ -18,6 +18,7 @@ fr:
     scopes:
       all: Tous
       done: Fait
+      mine: Sous ma responsabilité
       months_between_0_and_3: 0-3 mois
       months_between_3_and_6: 3-6 mois
       months_between_6_and_12: 6-12 mois

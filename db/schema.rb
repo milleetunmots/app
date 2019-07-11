@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_07_142352) do
+ActiveRecord::Schema.define(version: 2019_07_11_214043) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -55,9 +55,11 @@ ActiveRecord::Schema.define(version: 2019_07_07_142352) do
     t.text "call3_notes"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "supporter_id"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call2_program_investment"], name: "index_child_supports_on_call2_program_investment"
     t.index ["call3_program_investment"], name: "index_child_supports_on_call3_program_investment"
+    t.index ["supporter_id"], name: "index_child_supports_on_supporter_id"
   end
 
   create_table "children", force: :cascade do |t|
@@ -141,6 +143,7 @@ ActiveRecord::Schema.define(version: 2019_07_07_142352) do
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
+  add_foreign_key "child_supports", "admin_users", column: "supporter_id"
   add_foreign_key "children", "parents", column: "parent1_id"
   add_foreign_key "children", "parents", column: "parent2_id"
   add_foreign_key "tasks", "admin_users", column: "assignee_id"

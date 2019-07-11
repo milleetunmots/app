@@ -11,12 +11,13 @@ ActiveAdmin.register ChildSupport do
   # INDEX
   # ---------------------------------------------------------------------------
 
-  includes :children
+  includes :children, :supporter
 
   index do
     selectable_column
     id_column
     column :children
+    column :supporter, sortable: :supporter_id
     column :call1_parent_progress do |model|
       model.call1_parent_progress_index
     end
@@ -34,6 +35,10 @@ ActiveAdmin.register ChildSupport do
     end
     actions
   end
+
+  scope(:mine, default: true) { |scope| scope.where(supporter: current_admin_user) }
+  scope :all
+
 
   filter :call1_parent_progress,
          as: :select,
@@ -56,6 +61,8 @@ ActiveAdmin.register ChildSupport do
 
   form do |f|
     f.inputs do
+      f.input :supporter,
+              input_html: { data: { select2: {} } }
       columns do
         column do
           # parents & children
@@ -161,7 +168,7 @@ ActiveAdmin.register ChildSupport do
     f.actions
   end
 
-  permit_params :important_information,
+  permit_params :important_information, :supporter_id,
                 :call1_parent_actions, :call1_parent_progress,
                 :call1_language_development, :call1_notes,
                 :call2_technical_information, :call2_content_usage,
@@ -177,6 +184,7 @@ ActiveAdmin.register ChildSupport do
 
   show do
     attributes_table title: I18n.t('child_support.base') do
+      row :supporter
       row :parent1
       row :parent2
       row :children
