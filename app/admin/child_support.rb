@@ -37,7 +37,7 @@ ActiveAdmin.register ChildSupport do
     actions
   end
 
-  scope(:mine, default: true) { |scope| scope.where(supporter: current_admin_user) }
+  scope(:mine, default: true) { |scope| scope.supported_by(current_admin_user) }
   scope :all
 
   filter :should_be_read
