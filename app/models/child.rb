@@ -74,9 +74,9 @@ class Child < ApplicationRecord
   # support
   # ---------------------------------------------------------------------------
 
-  def create_support!
+  def create_support!(child_support_attributes)
     # 1- create support
-    child_support = ChildSupport.create!
+    child_support = ChildSupport.create!(child_support_attributes)
 
     # 2- use it on current child
     self.child_support_id = child_support.id
