@@ -118,7 +118,7 @@ ActiveAdmin.register Child do
     if already_existing_child_support = resource.child_support
       redirect_to [:admin, already_existing_child_support], notice: I18n.t('child.support_already_existed')
     else
-      resource.create_support!
+      resource.create_support!(supporter: current_admin_user)
       redirect_to [:edit, :admin, resource.child_support]
     end
   end
