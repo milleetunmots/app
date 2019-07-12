@@ -3,6 +3,8 @@ fr:
     tasks:
       dashboard:
         title: À faire
+        mine: Par moi
+        others: Par d'autres
       sidebar:
         title: Tâches
         add_link: Ajouter une tâche

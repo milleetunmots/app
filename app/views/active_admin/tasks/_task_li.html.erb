@@ -18,7 +18,7 @@
           <%= l task.due_date, format: :default %>
         </span>
       <% end %>
-      <% if task.assignee %>
+      <% if (!defined?(show_assignee) || show_assignee) && task.assignee %>
         <span class="aat-assignee">
           <i class="fas fa-user-circle fa-fw"></i>
           <%= auto_link task.assignee %>

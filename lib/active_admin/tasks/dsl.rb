@@ -23,6 +23,12 @@ module ActiveAdmin
                 partial: 'layouts/active_admin/tasks/sidebar',
                 only: :show
 
+        action_item :task, only: :edit do
+          link_to I18n.t('active_admin.tasks.sidebar.add_link'),
+                  url_for_new_task(resource.decorate),
+                  target: '_blank'
+        end
+
       end
 
     end

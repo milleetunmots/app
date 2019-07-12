@@ -53,6 +53,8 @@ class Task < ApplicationRecord
   scope :todo, -> { where(done_at: nil) }
   scope :done, -> { where.not(done_at: nil) }
   scope :relating, ->(model) { where(related: model) }
+  scope :assigned_to, ->(model) { where(assignee: model) }
+  scope :not_assigned_to, ->(model) { where.not(assignee: model) }
 
   # ---------------------------------------------------------------------------
   # DONE

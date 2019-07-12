@@ -1,9 +1,20 @@
-panel I18n.t("active_admin.tasks.dashboard.title") do
+default_scope = Task.todo.order(:due_date).includes(:related).limit(20)
 
-  ul class: 'fa-ul aat-ul' do
-    Task.todo.order(:due_date).includes(:related).limit(20).each do |task|
-      render 'active_admin/tasks/task_li', task: task
+panel I18n.t('active_admin.tasks.dashboard.title') do
+  tabs do
+    tab I18n.t('active_admin.tasks.dashboard.mine') do
+      ul class: 'fa-ul aat-ul' do
+        default_scope.assigned_to(current_admin_user).each do |task|
+          render 'active_admin/tasks/task_li', task: task, show_assignee: false
+        end
+      end
+    end
+    tab I18n.t('active_admin.tasks.dashboard.others') do
+      ul class: 'fa-ul aat-ul' do
+        default_scope.not_assigned_to(current_admin_user).each do |task|
+          render 'active_admin/tasks/task_li', task: task
+        end
+      end
     end
   end
-
 end
