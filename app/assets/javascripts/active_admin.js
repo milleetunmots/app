@@ -1,3 +1,5 @@
+//= require rails-ujs
+
 // do not require active_admin/base
 //= require arctic_admin/base
 

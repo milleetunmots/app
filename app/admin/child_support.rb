@@ -66,7 +66,7 @@ ActiveAdmin.register ChildSupport do
   # FORM
   # ---------------------------------------------------------------------------
 
-  form do |f|
+  form(remote: true) do |f|
     f.inputs do
       columns do
         column do
