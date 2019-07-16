@@ -56,6 +56,19 @@ ActiveAdmin.register Child do
   filter :created_at
   filter :updated_at
 
+  batch_action :create_support, form: -> {
+    {
+      I18n.t('activerecord.attributes.child_support.supporter') => AdminUser.pluck(:name, :id)
+    }
+  } do |ids, inputs|
+    batch_action_collection.find(ids).each do |child|
+      next if already_existing_child_support = child.child_support
+      supporter_id = inputs[I18n.t('activerecord.attributes.child_support.supporter')]
+      child.create_support!(supporter_id: supporter_id)
+    end
+    redirect_to collection_path, notice: I18n.t('child.supports_created')
+  end
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------

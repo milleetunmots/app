@@ -1,5 +1,9 @@
 fr:
   active_admin:
+    batch_actions:
+      default_confirmation: Action groupée
+      labels:
+        create_support: Créer le suivi pour
     edit_model: Modifier
     delete_model: Supprimer
     filters:
