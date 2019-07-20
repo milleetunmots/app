@@ -139,10 +139,6 @@ class Child < ApplicationRecord
     months_gteq(24)
   end
 
-  def self.ransackable_scopes(auth_object = nil)
-    %i(months_equals months_gteq months_lt)
-  end
-
   # ---------------------------------------------------------------------------
   # other scopes
   # ---------------------------------------------------------------------------
@@ -152,6 +148,37 @@ class Child < ApplicationRecord
   def self.without_support
     left_outer_joins(:child_support).where(child_supports: {id: nil})
   end
+
+  def self.postal_code_contains(v)
+    where(parent1: Parent.ransack(postal_code_contains: v).result)
+  end
+
+  def self.postal_code_ends_with(v)
+    where(parent1: Parent.ransack(postal_code_ends_with: v).result)
+  end
+
+  def self.postal_code_equals(v)
+    where(parent1: Parent.ransack(postal_code_equals: v).result)
+  end
+
+  def self.postal_code_starts_with(v)
+    where(parent1: Parent.ransack(postal_code_starts_with: v).result)
+  end
+
+  # ---------------------------------------------------------------------------
+  # ransack
+  # ---------------------------------------------------------------------------
+
+  def self.ransackable_scopes(auth_object = nil)
+    %i(months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with)
+  end
+
+  # ---------------------------------------------------------------------------
+  # helpers
+  # ---------------------------------------------------------------------------
+
+  delegate :postal_code,
+           to: :parent1
 
   # ---------------------------------------------------------------------------
   # global search

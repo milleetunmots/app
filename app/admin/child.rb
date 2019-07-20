@@ -20,6 +20,7 @@ ActiveAdmin.register Child do
     column :age, sortable: :birthdate
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
+    column :postal_code
     column :child_support do |model|
       model.child_support_status
     end
@@ -49,6 +50,8 @@ ActiveAdmin.register Child do
          collection: proc { child_gender_select_collection }
   filter :first_name
   filter :last_name
+  filter :postal_code,
+         as: :string
   filter :birthdate
   filter :months,
          as: :numeric,
