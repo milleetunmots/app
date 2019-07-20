@@ -2,7 +2,7 @@ panel I18n.t("active_admin.paper_trail.dashboard.title") do
 
   versions = PaperTrail::Version.order('id desc').includes(:item).limit(20)
 
-  admin_user_ids = versions.map { |v| v.whodunnit.split(':').first }
+  admin_user_ids = versions.map { |v| v.whodunnit&.split(':')&.first }
   admins = Hash[AdminUser.where(id: admin_user_ids).map { |a| [a.id, a] }]
 
   table_for versions do
@@ -18,7 +18,7 @@ panel I18n.t("active_admin.paper_trail.dashboard.title") do
       l version.created_at, format: :short
     end
     column I18n.t("active_admin.paper_trail.dashboard.columns.whodunnit") do |version|
-      admin_user_id, admin_user_email = version.whodunnit.split(':')
+      admin_user_id, admin_user_email = version.whodunnit&.split(':')
       if admin = admins[admin_user_id.to_i]
         auto_link admin
       else
