@@ -45,16 +45,25 @@ ActiveAdmin.register ChildSupport do
   filter :supporter,
          input_html: { data: { select2: {} } }
   filter :call1_status
+  filter :call1_parent_progress_present,
+         as: :boolean,
+         label: proc { I18n.t('child_support.call1_parent_progress_present') }
   filter :call1_parent_progress,
          as: :select,
          collection: proc { child_support_call1_parent_progress_select_collection },
          input_html: { multiple: true, data: { select2: {} } }
   filter :call2_status
+  filter :call2_program_investment_present,
+         as: :boolean,
+         label: proc { I18n.t('child_support.call2_program_investment_present') }
   filter :call2_program_investment,
          as: :select,
          collection: proc { child_support_call2_program_investment_select_collection },
          input_html: { multiple: true, data: { select2: {} } }
   filter :call3_status
+  filter :call3_program_investment_present,
+         as: :boolean,
+         label: proc { I18n.t('child_support.call3_program_investment_present') }
   filter :call3_program_investment,
          as: :select,
          collection: proc { child_support_call3_program_investment_select_collection },

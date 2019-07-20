@@ -1,14 +1,12 @@
 module ActiveAdmin::ChildrenHelper
 
   def child_gender_select_collection
-    Hash[
-      Child::GENDERS.map do |v|
-        [
-          Child.human_attribute_name("gender.#{v}"),
-          v
-        ]
-      end
-    ]
+    Child::GENDERS.map do |v|
+      [
+        Child.human_attribute_name("gender.#{v}"),
+        v
+      ]
+    end
   end
 
   def child_parent_select_collection

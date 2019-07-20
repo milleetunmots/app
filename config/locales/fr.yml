@@ -12,6 +12,9 @@ fr:
     call1: Appel 1
     call2: Appel 2
     call3: Appel 3
+    call1_parent_progress_present: Note appel 1 présente
+    call2_program_investment_present: Note appel 2 présente
+    call3_program_investment_present: Note appel 3 présente
     default:
       call1_parent_actions: "Livres :\nChansons :\nJeux :\nSorties :"
       call2_content_usage: "Livre\nSMS/Vidéo\nJeux\nChansons"

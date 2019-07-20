@@ -98,6 +98,30 @@ class ChildSupport < ApplicationRecord
 
   scope :supported_by, ->(model) { where(supporter: model) }
 
+  def self.call1_parent_progress_present(bool)
+    if bool
+      where(call1_parent_progress: PARENT_PROGRESS)
+    else
+      where.not(call1_parent_progress: PARENT_PROGRESS)
+    end
+  end
+
+  def self.call2_program_investment_present(bool)
+    if bool
+      where(call2_program_investment: PROGRAM_INVESTMENT)
+    else
+      where.not(call2_program_investment: PROGRAM_INVESTMENT)
+    end
+  end
+
+  def self.call3_program_investment_present(bool)
+    if bool
+      where(call3_program_investment: PROGRAM_INVESTMENT)
+    else
+      where.not(call3_program_investment: PROGRAM_INVESTMENT)
+    end
+  end
+
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
