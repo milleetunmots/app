@@ -37,28 +37,34 @@ fr:
         m: Garçon
       child_support:
         id: "#"
+        call1_duration: Durée de l'appel 1
         call1_status: Statut de l'appel 1
+        call1_status_details: Détails du statut de l'appel 1
         call1_language_development: "Développement langagier de l'enfant"
         call1_notes: Remarques diverses
         call1_parent_actions: Pratiques parentales
         call1_parent_progress: "Note d'avancement du parent"
+        call2_duration: Durée de l'appel 2
         call2_status: Statut de l'appel 2
+        call2_status_details: Détails du statut de l'appel 2
         call2_content_usage: Usage de nos contenus
         call2_goals: Mini-objectifs
-        call2_language_development: Développement du langage (pratiques du parent, questions, conseils…)
+        call2_language_development: "Développement langagier de l'enfant"
         call2_notes: Remarques diverses
         call2_program_investment: "Note d'investissement dans le programme"
         call2_technical_information: Informations techniques
+        call3_duration: Durée de l'appel 3
         call3_status: Statut de l'appel 3
+        call3_status_details: Détails du statut de l'appel 3
         call3_content_usage: Usage de nos contenus
         call3_goals: Mini-objectifs
-        call3_language_development: Développement du langage (pratiques du parent, questions, conseils…)
+        call3_language_development: "Développement langagier de l'enfant"
         call3_notes: Remarques diverses
         call3_program_investment: "Note d'investissement dans le programme"
         call3_technical_information: Informations techniques
         children: Enfants
         created_at: Ajout
-        important_information: Infos importantes
+        important_information: Infos importantes (langue maternelle, présence du père, ...)
         parent1: Parent 1
         parent2: Parent 2
         should_be_read: À lire par l'équipe

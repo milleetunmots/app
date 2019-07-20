@@ -105,7 +105,15 @@ ActiveAdmin.register ChildSupport do
       end
       tabs do
         tab I18n.t('child_support.call1') do
-          f.input :call1_status
+          columns do
+            column do
+              f.input :call1_status, input_html: { style: 'width: 70%' }
+              f.input :call1_duration, input_html: { style: 'width: 70%' }
+            end
+            column do
+              f.input :call1_status_details, input_html: { rows: 5, style: 'width: 70%' }
+            end
+          end
           columns do
             column do
               f.input :call1_parent_actions,
@@ -127,7 +135,15 @@ ActiveAdmin.register ChildSupport do
           end
         end
         tab I18n.t('child_support.call2') do
-          f.input :call2_status
+          columns do
+            column do
+              f.input :call2_status, input_html: { style: 'width: 70%' }
+              f.input :call2_duration, input_html: { style: 'width: 70%' }
+            end
+            column do
+              f.input :call2_status_details, input_html: { rows: 5, style: 'width: 70%' }
+            end
+          end
           columns do
             column do
               f.input :call2_technical_information, input_html: { rows: 8, style: 'width: 70%' }
@@ -151,7 +167,15 @@ ActiveAdmin.register ChildSupport do
           end
         end
         tab I18n.t('child_support.call3') do
-          f.input :call3_status
+          columns do
+            column do
+              f.input :call3_status, input_html: { style: 'width: 70%' }
+              f.input :call3_duration, input_html: { style: 'width: 70%' }
+            end
+            column do
+              f.input :call3_status_details, input_html: { rows: 5, style: 'width: 70%' }
+            end
+          end
           columns do
             column do
               f.input :call3_technical_information, input_html: { rows: 8, style: 'width: 70%' }
@@ -180,14 +204,14 @@ ActiveAdmin.register ChildSupport do
   end
 
   permit_params :important_information, :supporter_id, :should_be_read,
-                :call1_status,
+                :call1_duration, :call1_status, :call1_status_details,
                 :call1_parent_actions, :call1_parent_progress,
                 :call1_language_development, :call1_notes,
-                :call2_status,
+                :call2_duration, :call2_status, :call2_status_details,
                 :call2_technical_information, :call2_content_usage,
                 :call2_program_investment, :call2_language_development,
                 :call2_goals, :call2_notes,
-                :call3_status,
+                :call3_duration, :call3_status, :call3_status_details,
                 :call3_technical_information, :call3_content_usage,
                 :call3_program_investment, :call3_language_development,
                 :call3_goals, :call3_notes
@@ -209,6 +233,8 @@ ActiveAdmin.register ChildSupport do
     end
     attributes_table title: I18n.t('child_support.call1') do
       row :call1_status
+      row :call1_status_details
+      row :call1_duration
       row :call1_parent_actions
       row :call1_parent_progress
       row :call1_language_development
@@ -216,6 +242,8 @@ ActiveAdmin.register ChildSupport do
     end
     attributes_table title: I18n.t('child_support.call2') do
       row :call2_status
+      row :call2_status_details
+      row :call2_duration
       row :call2_technical_information
       row :call2_content_usage
       row :call2_program_investment
@@ -225,6 +253,8 @@ ActiveAdmin.register ChildSupport do
     end
     attributes_table title: I18n.t('child_support.call3') do
       row :call3_status
+      row :call3_status_details
+      row :call3_duration
       row :call3_technical_information
       row :call3_content_usage
       row :call3_program_investment
