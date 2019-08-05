@@ -3,7 +3,7 @@
 # Table name: child_supports
 #
 #  id                          :bigint           not null, primary key
-#  call1_duration              :string
+#  call1_duration              :integer
 #  call1_language_development  :text
 #  call1_notes                 :text
 #  call1_parent_actions        :text
@@ -11,7 +11,7 @@
 #  call1_status                :string
 #  call1_status_details        :text
 #  call2_content_usage         :text
-#  call2_duration              :string
+#  call2_duration              :integer
 #  call2_goals                 :text
 #  call2_language_development  :text
 #  call2_notes                 :text
@@ -20,7 +20,7 @@
 #  call2_status_details        :text
 #  call2_technical_information :text
 #  call3_content_usage         :text
-#  call3_duration              :string
+#  call3_duration              :integer
 #  call3_goals                 :text
 #  call3_language_development  :text
 #  call3_notes                 :text

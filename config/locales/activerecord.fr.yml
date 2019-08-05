@@ -38,14 +38,14 @@ fr:
         m: Garçon
       child_support:
         id: "#"
-        call1_duration: Durée de l'appel 1
+        call1_duration: Durée de l'appel 1 (en minutes)
         call1_status: Statut de l'appel 1
         call1_status_details: Suivi de l'appel 1
         call1_language_development: "Développement langagier de l'enfant"
         call1_notes: Remarques diverses
         call1_parent_actions: Pratiques parentales
         call1_parent_progress: "Note d'avancement du parent"
-        call2_duration: Durée de l'appel 2
+        call2_duration: Durée de l'appel 2 (en minutes)
         call2_status: Statut de l'appel 2
         call2_status_details: Suivi de l'appel 2
         call2_content_usage: Usage de nos contenus
@@ -54,7 +54,7 @@ fr:
         call2_notes: Remarques diverses
         call2_program_investment: "Note d'investissement dans le programme"
         call2_technical_information: Informations techniques
-        call3_duration: Durée de l'appel 3
+        call3_duration: Durée de l'appel 3 (en minutes)
         call3_status: Statut de l'appel 3
         call3_status_details: Suivi de l'appel 3
         call3_content_usage: Usage de nos contenus
