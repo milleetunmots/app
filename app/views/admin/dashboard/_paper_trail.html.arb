@@ -1,4 +1,4 @@
-panel I18n.t("active_admin.paper_trail.dashboard.title") do
+panel I18n.t("active_admin.paper_trail.dashboard.title"), id: 'active_admin-paper_trail-dashboard' do
 
   versions = PaperTrail::Version.order('id desc').includes(:item).limit(20)
 

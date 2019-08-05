@@ -1,6 +1,6 @@
 default_scope = Task.todo.order(:due_date).includes(:related).limit(20)
 
-panel I18n.t('active_admin.tasks.dashboard.title') do
+panel I18n.t('active_admin.tasks.dashboard.title'), id: 'active_admin-tasks-dashboard' do
   tabs do
     tab I18n.t('active_admin.tasks.dashboard.mine') do
       ul class: 'fa-ul aat-ul' do
