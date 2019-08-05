@@ -85,15 +85,19 @@ ActiveAdmin.register ChildSupport do
           columns do
             # parents
             [
-              [f.object.parent1, f.object.should_contact_parent1],
-              [f.object.parent2, f.object.should_contact_parent2]
+              [:parent1, f.object.parent1, f.object.should_contact_parent1, f.object.parent1_is_ambassador?],
+              [:parent2, f.object.parent2, f.object.should_contact_parent2, f.object.parent2_is_ambassador?]
             ].each do |p|
-              next if p[0].nil?
-              parent = p[0].decorate
-              should_contact_parent = p[1]
+              next if p[1].nil?
+              parent = p[1].decorate
+              should_contact_parent = p[2]
+              parent_is_ambassador = p[3]
 
               column do
-                render 'parent', parent: parent, should_contact_parent: should_contact_parent
+                render 'parent',
+                       parent: parent,
+                       should_contact_parent: should_contact_parent,
+                       parent_is_ambassador: parent_is_ambassador
               end
             end
             column do

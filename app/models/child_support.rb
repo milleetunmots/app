@@ -130,6 +130,8 @@ class ChildSupport < ApplicationRecord
            :parent2,
            :should_contact_parent1,
            :should_contact_parent2,
+           :parent1_is_ambassador?,
+           :parent2_is_ambassador?,
            to: :first_child,
            allow_nil: true
 
