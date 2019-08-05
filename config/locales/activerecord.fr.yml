@@ -40,14 +40,14 @@ fr:
         id: "#"
         call1_duration: Durée de l'appel 1
         call1_status: Statut de l'appel 1
-        call1_status_details: Détails du statut de l'appel 1
+        call1_status_details: Suivi de l'appel 1
         call1_language_development: "Développement langagier de l'enfant"
         call1_notes: Remarques diverses
         call1_parent_actions: Pratiques parentales
         call1_parent_progress: "Note d'avancement du parent"
         call2_duration: Durée de l'appel 2
         call2_status: Statut de l'appel 2
-        call2_status_details: Détails du statut de l'appel 2
+        call2_status_details: Suivi de l'appel 2
         call2_content_usage: Usage de nos contenus
         call2_goals: Mini-objectifs
         call2_language_development: "Développement langagier de l'enfant"
@@ -56,7 +56,7 @@ fr:
         call2_technical_information: Informations techniques
         call3_duration: Durée de l'appel 3
         call3_status: Statut de l'appel 3
-        call3_status_details: Détails du statut de l'appel 3
+        call3_status_details: Suivi de l'appel 3
         call3_content_usage: Usage de nos contenus
         call3_goals: Mini-objectifs
         call3_language_development: "Développement langagier de l'enfant"
