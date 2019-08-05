@@ -90,6 +90,7 @@ fr:
         created_at: Ajout
         email: Email
         first_name: Prénom
+        is_ambassador: Parent ambassadeur
         gender: Sexe
         id: "#"
         last_name: Nom
