@@ -74,6 +74,7 @@ gem 'devise-i18n'
 
 # JS
 gem 'select2-rails'
+gem 'toastr-rails'
 
 # errors tracking
 gem 'rollbar'

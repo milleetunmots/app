@@ -13,5 +13,11 @@ div class: 'card card-parent' do
         status_tag 'no', label: t('should_not_be_contacted')
       end
     end
+  ) + (
+    div class: 'is-ambassador' do
+      if parent_is_ambassador
+        status_tag 'yes', label: t('is_ambassador')
+      end
+    end
   )
 end

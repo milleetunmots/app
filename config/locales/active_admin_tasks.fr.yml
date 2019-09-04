@@ -5,6 +5,12 @@ fr:
         title: À faire
         mine: Par moi
         others: Par d'autres
+      quick:
+        link: Ajout rapide d'une tâche
+        error: Impossible d'ajouter la tâche
+        prompt: Intitulé de la tâche
+        success: Tâche ajoutée
       sidebar:
         title: Tâches
         add_link: Ajouter une tâche
+

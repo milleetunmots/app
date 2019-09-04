@@ -18,6 +18,7 @@ ActiveAdmin.register Parent do
     column :children
     column :phone_number
     column :email
+    column :is_ambassador
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -37,6 +38,7 @@ ActiveAdmin.register Parent do
   filter :address
   filter :postal_code
   filter :city_name
+  filter :is_ambassador
   filter :created_at
   filter :updated_at
 
@@ -57,13 +59,15 @@ ActiveAdmin.register Parent do
       f.input :address
       f.input :postal_code
       f.input :city_name
+      f.input :is_ambassador
     end
     f.actions
   end
 
   permit_params :gender, :first_name, :last_name,
                 :phone_number, :email, :address,
-                :postal_code, :city_name
+                :postal_code, :city_name,
+                :is_ambassador
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -82,6 +86,7 @@ ActiveAdmin.register Parent do
       row :created_at
       row :updated_at
       row :children
+      row :is_ambassador
     end
   end
 

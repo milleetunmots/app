@@ -180,6 +180,15 @@ class Child < ApplicationRecord
   delegate :postal_code,
            to: :parent1
 
+  delegate :is_ambassador?,
+           to: :parent1,
+           prefix: true
+
+  delegate :is_ambassador?,
+           to: :parent2,
+           prefix: true,
+           allow_nil: true
+
   # ---------------------------------------------------------------------------
   # global search
   # ---------------------------------------------------------------------------
