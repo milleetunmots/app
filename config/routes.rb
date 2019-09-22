@@ -4,6 +4,8 @@ Rails.application.routes.draw do
 
   ActiveAdmin.routes(self)
 
+  resources :children, only: [:new, :create]
+
   root to: redirect('/admin')
 
 end
