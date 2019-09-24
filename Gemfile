@@ -60,7 +60,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 # ADMIN
 gem 'activeadmin'
-gem 'devise'
+gem 'devise', '~> 4.7.1'
 gem 'cancancan'
 gem 'draper'
 gem 'arctic_admin'
