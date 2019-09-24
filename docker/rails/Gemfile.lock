@@ -54,9 +54,15 @@ GEM
       globalid (>= 0.3.6)
     activemodel (6.0.0.rc1)
       activesupport (= 6.0.0.rc1)
+    activemodel-serializers-xml (1.0.2)
+      activemodel (> 5.x)
+      activesupport (> 5.x)
+      builder (~> 3.1)
     activerecord (6.0.0.rc1)
       activemodel (= 6.0.0.rc1)
       activesupport (= 6.0.0.rc1)
+    activerecord-nulldb-adapter (0.3.9)
+      activerecord (>= 2.0.0)
     activestorage (6.0.0.rc1)
       actionpack (= 6.0.0.rc1)
       activejob (= 6.0.0.rc1)
@@ -70,6 +76,9 @@ GEM
       zeitwerk (~> 2.1, >= 2.1.4)
     addressable (2.6.0)
       public_suffix (>= 2.0.2, < 4.0)
+    annotate (2.7.5)
+      activerecord (>= 3.2, < 7.0)
+      rake (>= 10.4, < 13.0)
     arbre (1.2.1)
       activesupport (>= 3.0.0)
     arctic_admin (3.0.0)
@@ -86,6 +95,7 @@ GEM
       msgpack (~> 1.0)
     builder (3.2.3)
     byebug (11.0.1)
+    cancancan (3.0.1)
     capybara (3.23.0)
       addressable
       mini_mime (>= 0.1.3)
@@ -98,12 +108,22 @@ GEM
       rake (< 13.0)
     concurrent-ruby (1.1.5)
     crass (1.0.4)
-    devise (4.6.2)
+    devise (4.7.1)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
-      railties (>= 4.1.0, < 6.0)
+      railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
+    devise-i18n (1.8.0)
+      devise (>= 4.6)
+    diff-lcs (1.3)
+    docile (1.3.2)
+    draper (3.1.0)
+      actionpack (>= 5.0)
+      activemodel (>= 5.0)
+      activemodel-serializers-xml (>= 1.0)
+      activesupport (>= 5.0)
+      request_store (>= 1.0)
     erubi (1.8.0)
     execjs (2.7.0)
     ffi (1.11.1)
@@ -130,6 +150,7 @@ GEM
       rails-dom-testing (>= 1, < 3)
       railties (>= 4.2.0)
       thor (>= 0.14, < 2.0)
+    json (2.2.0)
     kaminari (1.1.1)
       activesupport (>= 4.1.0)
       kaminari-actionview (= 1.1.1)
@@ -157,13 +178,20 @@ GEM
     mimemagic (0.3.3)
     mini_mime (1.0.1)
     mini_portile2 (2.4.0)
-    minitest (5.11.3)
+    minitest (5.12.0)
     msgpack (1.2.10)
+    multi_json (1.13.1)
     nio4r (2.3.1)
     nokogiri (1.10.4)
       mini_portile2 (~> 2.4.0)
     orm_adapter (0.5.0)
+    paper_trail (10.3.0)
+      activerecord (>= 4.2, < 6.1)
+      request_store (~> 1.1)
     pg (1.1.4)
+    pg_search (2.2.0)
+      activerecord (>= 4.2)
+      activesupport (>= 4.2)
     phonelib (0.6.35)
     public_suffix (3.1.0)
     puma (3.12.1)
@@ -190,15 +218,18 @@ GEM
     rails-dom-testing (2.0.3)
       activesupport (>= 4.2.0)
       nokogiri (>= 1.6)
-    rails-html-sanitizer (1.0.4)
+    rails-html-sanitizer (1.2.0)
       loofah (~> 2.2, >= 2.2.2)
+    rails-i18n (5.1.3)
+      i18n (>= 0.7, < 2)
+      railties (>= 5.0, < 6)
     railties (6.0.0.rc1)
       actionpack (= 6.0.0.rc1)
       activesupport (= 6.0.0.rc1)
       method_source
       rake (>= 0.8.7)
       thor (>= 0.20.3, < 2.0)
-    rake (12.3.2)
+    rake (12.3.3)
     ransack (2.1.1)
       actionpack (>= 5.0)
       activerecord (>= 5.0)
@@ -208,9 +239,32 @@ GEM
     rb-inotify (0.10.0)
       ffi (~> 1.0)
     regexp_parser (1.5.1)
+    request_store (1.4.1)
+      rack (>= 1.4)
     responders (2.4.1)
       actionpack (>= 4.2.0, < 6.0)
       railties (>= 4.2.0, < 6.0)
+    rollbar (2.20.2)
+      multi_json
+    rspec-core (3.8.1)
+      rspec-support (~> 3.8.0)
+    rspec-expectations (3.8.4)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.8.0)
+    rspec-mocks (3.8.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.8.0)
+    rspec-rails (3.8.2)
+      actionpack (>= 3.0)
+      activesupport (>= 3.0)
+      railties (>= 3.0)
+      rspec-core (~> 3.8.0)
+      rspec-expectations (~> 3.8.0)
+      rspec-mocks (~> 3.8.0)
+      rspec-support (~> 3.8.0)
+    rspec-support (3.8.2)
+    rspec_junit_formatter (0.4.1)
+      rspec-core (>= 2, < 4, != 2.12.0)
     ruby_dep (1.5.0)
     rubyzip (1.2.3)
     sass (3.7.4)
@@ -233,9 +287,16 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
+    select2-rails (4.0.3)
+      thor (~> 0.14)
     selenium-webdriver (3.142.3)
       childprocess (>= 0.5, < 2.0)
       rubyzip (~> 1.2, >= 1.2.2)
+    simplecov (0.16.1)
+      docile (~> 1.1)
+      json (>= 1.8, < 3)
+      simplecov-html (~> 0.10.0)
+    simplecov-html (0.10.2)
     spring (2.0.2)
       activesupport (>= 4.2)
     spring-watcher-listen (2.0.1)
@@ -255,6 +316,8 @@ GEM
     thor (0.20.3)
     thread_safe (0.3.6)
     tilt (2.0.9)
+    toastr-rails (1.0.3)
+      railties (>= 3.1.0)
     turbolinks (5.2.0)
       turbolinks-source (~> 5.2)
     turbolinks-source (5.2.0)
@@ -280,28 +343,42 @@ GEM
     websocket-extensions (0.1.4)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    zeitwerk (2.1.6)
+    zeitwerk (2.1.10)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   activeadmin
+  activerecord-nulldb-adapter
+  annotate
   arctic_admin
   bootsnap (>= 1.4.2)
   byebug
+  cancancan
   capybara (>= 2.15)
-  devise
+  devise (~> 4.7.1)
+  devise-i18n
+  draper
   jbuilder (~> 2.5)
   listen (>= 3.0.5, < 3.2)
+  paper_trail
   pg (>= 0.18, < 2.0)
+  pg_search
   phonelib
   puma (~> 3.11)
   rails (~> 6.0.0.rc1)
+  rails-i18n
+  rollbar
+  rspec-rails
+  rspec_junit_formatter
   sass-rails (~> 5)
+  select2-rails
   selenium-webdriver
+  simplecov
   spring
   spring-watcher-listen (~> 2.0.0)
+  toastr-rails
   turbolinks (~> 5)
   tzinfo-data
   web-console (>= 3.3.0)
