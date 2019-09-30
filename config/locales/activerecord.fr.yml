@@ -30,6 +30,7 @@ fr:
         parent1: Parent 1
         parent2: Parent 2
         postal_code: Code postal
+        registered_by: Professionnel effectuant l'inscription
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?
         updated_at: Modification

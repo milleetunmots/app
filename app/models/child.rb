@@ -7,6 +7,7 @@
 #  first_name             :string           not null
 #  gender                 :string           not null
 #  last_name              :string           not null
+#  registered_by          :string
 #  should_contact_parent1 :boolean          default(FALSE), not null
 #  should_contact_parent2 :boolean          default(FALSE), not null
 #  created_at             :datetime         not null

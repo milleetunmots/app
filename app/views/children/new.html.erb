@@ -8,6 +8,12 @@
       <%= f.button :button, 'Annuler', type: 'reset', class: 'btn-outline-secondary float-left' %>
       <h1>Inscription</h1>
 
+      <div class="row justify-content-sm-center">
+        <div class="col-sm-6">
+          <%= f.input :registered_by %>
+        </div>
+      </div>
+
       <div class="row">
         <div class="col-sm">
           <h2>Enfant</h2>
@@ -23,7 +29,7 @@
           <% end %>
         </div>
         <div class="col-sm">
-          <div class="float-right">
+          <div class="float-right" style="margin-top: 30px;">
             <%= f.input :parent2_absent, as: :boolean, label: 'Absent' %>
           </div>
           <h2>

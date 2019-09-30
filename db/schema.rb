@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_30_231740) do
+ActiveRecord::Schema.define(version: 2019_09_30_232851) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -88,6 +88,7 @@ ActiveRecord::Schema.define(version: 2019_09_30_231740) do
     t.boolean "should_contact_parent1", default: false, null: false
     t.boolean "should_contact_parent2", default: false, null: false
     t.bigint "child_support_id"
+    t.string "registered_by"
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["gender"], name: "index_children_on_gender"
