@@ -22,4 +22,13 @@ module ActiveAdmin::ChildSupportsHelper
     child_support_call2_program_investment_select_collection
   end
 
+  def child_support_call1_reading_frequency_select_collection
+    ChildSupport::READING_FREQUENCY.reverse.map do |v|
+      [
+        ChildSupport.human_attribute_name("call1_reading_frequency.#{v}"),
+        v
+      ]
+    end
+  end
+
 end

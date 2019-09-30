@@ -3,11 +3,13 @@
 # Table name: child_supports
 #
 #  id                          :bigint           not null, primary key
+#  call1_books_quantity        :integer
 #  call1_duration              :integer
 #  call1_language_development  :text
 #  call1_notes                 :text
 #  call1_parent_actions        :text
 #  call1_parent_progress       :string
+#  call1_reading_frequency     :string
 #  call1_status                :string
 #  call1_status_details        :text
 #  call2_content_usage         :text
@@ -37,6 +39,7 @@
 # Indexes
 #
 #  index_child_supports_on_call1_parent_progress     (call1_parent_progress)
+#  index_child_supports_on_call1_reading_frequency   (call1_reading_frequency)
 #  index_child_supports_on_call2_program_investment  (call2_program_investment)
 #  index_child_supports_on_call3_program_investment  (call3_program_investment)
 #  index_child_supports_on_should_be_read            (should_be_read)
@@ -59,6 +62,12 @@ class ChildSupport < ApplicationRecord
     2_medium
     3_high
   ].freeze
+  READING_FREQUENCY = %w[
+    1_rarely
+    2_weekly
+    3_frequently
+    4_daily
+  ].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -67,10 +76,11 @@ class ChildSupport < ApplicationRecord
   belongs_to :supporter, class_name: :AdminUser
   has_many :children,
            dependent: :nullify
+  has_one :first_child, class_name: :Child
+  has_one :parent1, through: :first_child
+  has_one :parent2, through: :first_child
 
-  def first_child
-    children.first
-  end
+  accepts_nested_attributes_for :first_child
 
   # ---------------------------------------------------------------------------
   # validations

@@ -60,6 +60,7 @@ ActiveAdmin.register Parent do
       f.input :postal_code
       f.input :city_name
       f.input :is_ambassador
+      f.input :job
     end
     f.actions
   end
@@ -67,7 +68,7 @@ ActiveAdmin.register Parent do
   permit_params :gender, :first_name, :last_name,
                 :phone_number, :email, :address,
                 :postal_code, :city_name,
-                :is_ambassador
+                :is_ambassador, :job
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -87,6 +88,7 @@ ActiveAdmin.register Parent do
       row :updated_at
       row :children
       row :is_ambassador
+      row :job
     end
   end
 

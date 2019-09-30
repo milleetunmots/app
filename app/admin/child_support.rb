@@ -45,6 +45,7 @@ ActiveAdmin.register ChildSupport do
   filter :supporter,
          input_html: { data: { select2: {} } }
   filter :call1_status
+  filter :call1_duration
   filter :call1_parent_progress_present,
          as: :boolean,
          label: proc { I18n.t('child_support.call1_parent_progress_present') }
@@ -52,7 +53,13 @@ ActiveAdmin.register ChildSupport do
          as: :select,
          collection: proc { child_support_call1_parent_progress_select_collection },
          input_html: { multiple: true, data: { select2: {} } }
+  filter :call1_books_quantity
+  filter :call1_reading_frequency,
+         as: :select,
+         collection: proc { child_support_call1_reading_frequency_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
   filter :call2_status
+  filter :call2_duration
   filter :call2_program_investment_present,
          as: :boolean,
          label: proc { I18n.t('child_support.call2_program_investment_present') }
@@ -61,6 +68,7 @@ ActiveAdmin.register ChildSupport do
          collection: proc { child_support_call2_program_investment_select_collection },
          input_html: { multiple: true, data: { select2: {} } }
   filter :call3_status
+  filter :call3_duration
   filter :call3_program_investment_present,
          as: :boolean,
          label: proc { I18n.t('child_support.call3_program_investment_present') }
@@ -140,6 +148,10 @@ ActiveAdmin.register ChildSupport do
               f.input :call1_parent_progress,
                       as: :radio,
                       collection: child_support_call1_parent_progress_select_collection
+              f.input :call1_books_quantity, input_html: { style: 'width: 70%' }
+              f.input :call1_reading_frequency,
+                      as: :radio,
+                      collection: child_support_call1_reading_frequency_select_collection
             end
             column do
               f.input :call1_language_development, input_html: { rows: 8, style: 'width: 70%' }
@@ -211,15 +223,33 @@ ActiveAdmin.register ChildSupport do
             end
           end
         end
+        %i(parent1 parent2).each do |k|
+          if f.object.first_child.send(k)
+            tab I18n.t("child_support.#{k}") do
+              f.semantic_fields_for :first_child do |first_child_f|
+                first_child_f.semantic_fields_for k do |parent_f|
+                  parent_f.input :is_ambassador
+                  parent_f.input :job
+                end
+              end
+            end
+          end
+        end
       end
     end
     f.actions
   end
 
+  parent_attributes = %i(
+    id
+    gender first_name last_name phone_number email address postal_code city_name
+    is_ambassador job
+  )
   permit_params :important_information, :supporter_id, :should_be_read,
                 :call1_duration, :call1_status, :call1_status_details,
                 :call1_parent_actions, :call1_parent_progress,
                 :call1_language_development, :call1_notes,
+                :call1_books_quantity, :call1_reading_frequency,
                 :call2_duration, :call2_status, :call2_status_details,
                 :call2_technical_information, :call2_content_usage,
                 :call2_program_investment, :call2_language_development,
@@ -227,7 +257,14 @@ ActiveAdmin.register ChildSupport do
                 :call3_duration, :call3_status, :call3_status_details,
                 :call3_technical_information, :call3_content_usage,
                 :call3_program_investment, :call3_language_development,
-                :call3_goals, :call3_notes
+                :call3_goals, :call3_notes,
+                first_child_attributes: [
+                  :id,
+                  {
+                    parent1_attributes: parent_attributes,
+                    parent2_attributes: parent_attributes
+                  }
+                ]
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -251,6 +288,8 @@ ActiveAdmin.register ChildSupport do
       row :call1_parent_actions
       row :call1_parent_progress
       row :call1_language_development
+      row :call1_books_quantity
+      row :call1_reading_frequency
       row :call1_notes
     end
     attributes_table title: I18n.t('child_support.call2') do

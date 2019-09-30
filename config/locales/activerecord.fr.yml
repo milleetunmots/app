@@ -38,6 +38,7 @@ fr:
         m: Garçon
       child_support:
         id: "#"
+        call1_books_quantity: Nombre de livres dans le foyer
         call1_duration: Durée de l'appel 1 (en minutes)
         call1_status: Statut de l'appel 1
         call1_status_details: Suivi de l'appel 1
@@ -45,6 +46,7 @@ fr:
         call1_notes: Remarques diverses
         call1_parent_actions: Pratiques parentales
         call1_parent_progress: "Note d'avancement du parent"
+        call1_reading_frequency: Fréquence de lecture
         call2_duration: Durée de l'appel 2 (en minutes)
         call2_status: Statut de l'appel 2
         call2_status_details: Suivi de l'appel 2
@@ -75,6 +77,11 @@ fr:
         1_low: "1 : n'a pas conscience de son impact sur le développement de l'enfant"
         2_medium: "2 : sait qu'il faut parler à l’enfant mais n'applique pas forcément au quotidien"
         3_high: "3 : chante, parle, joue, regarde des livres avec son enfant"
+      child_support/call1_reading_frequency:
+        1_rarely: "Plus rarement"
+        2_weekly: "1 fois par semaine"
+        3_frequently: "2-3 fois par semaine"
+        4_daily: "Tous les soirs"
       child_support/call2_program_investment:
         1_low: "1 : faible"
         2_medium: "2 : modéré"
@@ -91,6 +98,7 @@ fr:
         email: Email
         first_name: Prénom
         is_ambassador: Parent ambassadeur
+        job: Métier
         gender: Sexe
         id: "#"
         last_name: Nom
