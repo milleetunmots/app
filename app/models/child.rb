@@ -205,4 +205,10 @@ class Child < ApplicationRecord
 
   has_paper_trail
 
+  # ---------------------------------------------------------------------------
+  # other attributes
+  # ---------------------------------------------------------------------------
+
+  attr_accessor :parent2_absent
+
 end

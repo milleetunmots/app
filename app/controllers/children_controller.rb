@@ -7,12 +7,15 @@ class ChildrenController < ApplicationController
   end
 
   def create
-    @child = Child.new(child_params)
+    attributes = child_params
+    attributes.merge!(parent2_params) unless params[:child][:parent2_absent]
+    @child = Child.new(attributes)
     if @child.save
       flash[:success] = 'Inscription effectuée'
       redirect_to action: :new
     else
       flash.now[:error] = 'Inscription refusée'
+      @child.build_parent2 if params[:child][:parent2_absent]
       render action: :new
     end
   end
@@ -20,11 +23,17 @@ class ChildrenController < ApplicationController
   private
 
   def child_params
-    parent_params = %i(first_name last_name email phone_number gender address postal_code city_name)
-    params.require(:child).permit(:gender, :first_name, :last_name, :birthdate,
-                                  parent1_attributes: parent_params,
-                                  parent2_attributes: parent_params
+    params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :parent2_absent,
+                                  parent1_attributes: parent_params
                                  )
+  end
+
+  def parent2_params
+    params.require(:child).permit(parent2_attributes: parent_params)
+  end
+
+  def parent_params
+    %i(first_name last_name email phone_number gender address postal_code city_name)
   end
 
 end

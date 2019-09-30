@@ -4,11 +4,9 @@
 
     <%= simple_form_for @child do |f| %>
 
-      <h1>
-        <%= f.button :submit, 'Valider', class: 'btn-primary float-right' %>
-        <%= f.button :button, 'Annuler', type: 'reset', class: 'btn-outline-secondary float-left' %>
-        Inscription
-      </h1>
+      <%= f.button :submit, 'Valider', class: 'btn-primary float-right' %>
+      <%= f.button :button, 'Annuler', type: 'reset', class: 'btn-outline-secondary float-left' %>
+      <h1>Inscription</h1>
 
       <div class="row">
         <div class="col-sm">
@@ -25,7 +23,12 @@
           <% end %>
         </div>
         <div class="col-sm">
-          <h2>Parent 2</h2>
+          <div class="float-right">
+            <%= f.input :parent2_absent, as: :boolean, label: 'Absent' %>
+          </div>
+          <h2>
+            Parent 2
+          </h2>
           <%= f.simple_fields_for :parent2 do |parent2_f| %>
             <%= render 'parent_form', f: parent2_f %>
           <% end %>
