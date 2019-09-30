@@ -76,6 +76,9 @@ gem 'devise-i18n'
 gem 'select2-rails'
 gem 'toastr-rails'
 
+# Theming
+gem 'bootstrap', '~> 4.3.1'
+
 # errors tracking
 gem 'rollbar'
 
