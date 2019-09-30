@@ -66,6 +66,12 @@ class ChildSupportDecorator < BaseDecorator
     end
   end
 
+  def call1_reading_frequency
+    if v = model.call1_reading_frequency
+      ChildSupport.human_attribute_name("call1_reading_frequency.#{v}")
+    end
+  end
+
   def call2_technical_information
     h.content_tag :div, model.call2_technical_information, class: 'free-text'
   end

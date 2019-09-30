@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_05_130149) do
+ActiveRecord::Schema.define(version: 2019_09_30_134215) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -66,7 +66,10 @@ ActiveRecord::Schema.define(version: 2019_08_05_130149) do
     t.integer "call1_duration"
     t.integer "call2_duration"
     t.integer "call3_duration"
+    t.integer "call1_books_quantity"
+    t.string "call1_reading_frequency"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
+    t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
     t.index ["call2_program_investment"], name: "index_child_supports_on_call2_program_investment"
     t.index ["call3_program_investment"], name: "index_child_supports_on_call3_program_investment"
     t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
@@ -105,12 +108,14 @@ ActiveRecord::Schema.define(version: 2019_08_05_130149) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "phone_number_national"
     t.boolean "is_ambassador"
+    t.string "job"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["email"], name: "index_parents_on_email"
     t.index ["first_name"], name: "index_parents_on_first_name"
     t.index ["gender"], name: "index_parents_on_gender"
     t.index ["is_ambassador"], name: "index_parents_on_is_ambassador"
+    t.index ["job"], name: "index_parents_on_job"
     t.index ["last_name"], name: "index_parents_on_last_name"
     t.index ["phone_number_national"], name: "index_parents_on_phone_number_national"
     t.index ["postal_code"], name: "index_parents_on_postal_code"
