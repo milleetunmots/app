@@ -125,31 +125,6 @@ ActiveAdmin.register ChildSupport do
         end
       end
       tabs do
-        tab I18n.t('child_support.parents') do
-          columns do
-            %i(parent1 parent2).each do |k|
-              column do
-                f.semantic_fields_for :first_child do |first_child_f|
-                  first_child_f.semantic_fields_for k do |parent_f|
-                    parent_f.input :gender,
-                            as: :radio,
-                            collection: parent_gender_select_collection
-                    parent_f.input :first_name
-                    parent_f.input :last_name
-                    parent_f.input :phone_number,
-                            input_html: { value: parent_f.object.decorate.phone_number }
-                    parent_f.input :email
-                    parent_f.input :address
-                    parent_f.input :postal_code
-                    parent_f.input :city_name
-                    parent_f.input :is_ambassador
-                    parent_f.input :job
-                  end
-                end
-              end
-            end
-          end
-        end
         tab I18n.t('child_support.call1') do
           columns do
             column do
@@ -245,6 +220,18 @@ ActiveAdmin.register ChildSupport do
               f.input :call3_language_development, input_html: { rows: 8, style: 'width: 70%' }
               f.input :call3_goals, input_html: { rows: 8, style: 'width: 70%' }
               f.input :call3_notes, input_html: { rows: 8, style: 'width: 70%' }
+            end
+          end
+        end
+        %i(parent1 parent2).each do |k|
+          if f.object.first_child.send(k)
+            tab I18n.t("child_support.#{k}") do
+              f.semantic_fields_for :first_child do |first_child_f|
+                first_child_f.semantic_fields_for k do |parent_f|
+                  parent_f.input :is_ambassador
+                  parent_f.input :job
+                end
+              end
             end
           end
         end
