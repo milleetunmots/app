@@ -5,7 +5,7 @@
 #  id                    :bigint           not null, primary key
 #  address               :string           not null
 #  city_name             :string           not null
-#  email                 :string           not null
+#  email                 :string
 #  first_name            :string           not null
 #  gender                :string           not null
 #  is_ambassador         :boolean
