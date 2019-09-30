@@ -19,6 +19,7 @@ fr:
       call1_parent_actions: "Livres :\nChansons :\nJeux :\nSorties :"
       call2_content_usage: "Livre\nSMS/Vidéo\nJeux\nChansons"
       call3_content_usage: "Livre\nSMS/Vidéo\nJeux\nChansons"
+    parents: Parents
   is_ambassador: Ambassadeur
   should_be_contacted: À contacter
   should_not_be_contacted: Ne pas contacter

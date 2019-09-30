@@ -76,10 +76,11 @@ class ChildSupport < ApplicationRecord
   belongs_to :supporter, class_name: :AdminUser
   has_many :children,
            dependent: :nullify
+  has_one :first_child, class_name: :Child
+  has_one :parent1, through: :first_child
+  has_one :parent2, through: :first_child
 
-  def first_child
-    children.first
-  end
+  accepts_nested_attributes_for :first_child
 
   # ---------------------------------------------------------------------------
   # validations

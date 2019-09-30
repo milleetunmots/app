@@ -125,6 +125,31 @@ ActiveAdmin.register ChildSupport do
         end
       end
       tabs do
+        tab I18n.t('child_support.parents') do
+          columns do
+            %i(parent1 parent2).each do |k|
+              column do
+                f.semantic_fields_for :first_child do |first_child_f|
+                  first_child_f.semantic_fields_for k do |parent_f|
+                    parent_f.input :gender,
+                            as: :radio,
+                            collection: parent_gender_select_collection
+                    parent_f.input :first_name
+                    parent_f.input :last_name
+                    parent_f.input :phone_number,
+                            input_html: { value: parent_f.object.decorate.phone_number }
+                    parent_f.input :email
+                    parent_f.input :address
+                    parent_f.input :postal_code
+                    parent_f.input :city_name
+                    parent_f.input :is_ambassador
+                    parent_f.input :job
+                  end
+                end
+              end
+            end
+          end
+        end
         tab I18n.t('child_support.call1') do
           columns do
             column do
@@ -228,6 +253,11 @@ ActiveAdmin.register ChildSupport do
     f.actions
   end
 
+  parent_attributes = %i(
+    id
+    gender first_name last_name phone_number email address postal_code city_name
+    is_ambassador job
+  )
   permit_params :important_information, :supporter_id, :should_be_read,
                 :call1_duration, :call1_status, :call1_status_details,
                 :call1_parent_actions, :call1_parent_progress,
@@ -240,7 +270,14 @@ ActiveAdmin.register ChildSupport do
                 :call3_duration, :call3_status, :call3_status_details,
                 :call3_technical_information, :call3_content_usage,
                 :call3_program_investment, :call3_language_development,
-                :call3_goals, :call3_notes
+                :call3_goals, :call3_notes,
+                first_child_attributes: [
+                  :id,
+                  {
+                    parent1_attributes: parent_attributes,
+                    parent2_attributes: parent_attributes
+                  }
+                ]
 
   # ---------------------------------------------------------------------------
   # SHOW
