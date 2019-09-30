@@ -73,9 +73,8 @@ class Parent < ApplicationRecord
             presence: true,
             uniqueness: true
   validates :email,
-            presence: true,
-            format: { with: REGEX_VALID_EMAIL },
-            uniqueness: { case_sensitive: false }
+            format: { with: REGEX_VALID_EMAIL, allow_blank: true },
+            uniqueness: { case_sensitive: false, allow_blank: true }
 
   # ---------------------------------------------------------------------------
   # global search
