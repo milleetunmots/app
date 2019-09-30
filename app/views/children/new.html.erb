@@ -29,9 +29,11 @@
           <h2>
             Parent 2
           </h2>
-          <%= f.simple_fields_for :parent2 do |parent2_f| %>
-            <%= render 'parent_form', f: parent2_f %>
-          <% end %>
+          <div id="parent2-fields">
+            <%= f.simple_fields_for :parent2 do |parent2_f| %>
+              <%= render 'parent_form', f: parent2_f %>
+            <% end %>
+          </div>
         </div>
       </div>
 

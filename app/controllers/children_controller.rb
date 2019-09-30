@@ -8,14 +8,16 @@ class ChildrenController < ApplicationController
 
   def create
     attributes = child_params
-    attributes.merge!(parent2_params) unless params[:child][:parent2_absent]
+    attributes.merge!(parent2_params) unless attributes[:parent2_absent] == '1'
     @child = Child.new(attributes)
     if @child.save
       flash[:success] = 'Inscription effectuée'
       redirect_to action: :new
     else
       flash.now[:error] = 'Inscription refusée'
-      @child.build_parent2 if params[:child][:parent2_absent]
+      if @child.parent2_absent == '1'
+        @child.build_parent2
+      end
       render action: :new
     end
   end

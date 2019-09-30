@@ -1,14 +1,15 @@
 (function($) {
 
   var onToggleNoParent2 = function() {
-    console.log('toggle noParent2');
+    var isAbsent = $(this).is(':checked');
+    $('#parent2-fields').toggle(!isAbsent);
   };
 
   var init = function() {
-    console.log('init new children')
-    $(document).on('change', 'input#noParent2', onToggleNoParent2);
+    onToggleNoParent2.apply($('input[type="checkbox"][name="child[parent2_absent]"]')[0]);
+    $(document).on('change', 'input[type="checkbox"][name="child[parent2_absent]"]', onToggleNoParent2);
   };
 
-  init();
+  $(document).ready(init);
 
 })(jQuery);
