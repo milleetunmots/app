@@ -77,6 +77,7 @@ gem 'select2-rails'
 gem 'toastr-rails'
 
 # Theming
+gem 'simple_form'
 gem 'bootstrap', '~> 4.3.1'
 
 # errors tracking

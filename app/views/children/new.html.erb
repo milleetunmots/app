@@ -1,38 +1,40 @@
-<h1>Inscription</h1>
+<div id="inscription">
 
-<%= semantic_form_for @child do |f| %>
+  <div class="container" id="inscription-content">
 
-  <%= @child.errors.full_messages %>
+    <%= simple_form_for @child do |f| %>
 
-  <div class="container">
-    <div class="row">
-      <div class="col-sm">
-        <h2>Enfant</h2>
-        <%= f.inputs do %>
-          <%= f.input :gender, as: :radio, collection: child_gender_select_collection %>
+      <h1>
+        <%= f.button :submit, 'Valider', class: 'btn-primary float-right' %>
+        <%= f.button :button, 'Annuler', type: 'reset', class: 'btn-outline-secondary float-left' %>
+        Inscription
+      </h1>
+
+      <div class="row">
+        <div class="col-sm">
+          <h2>Enfant</h2>
+          <%= f.input :gender, as: :radio_buttons, collection: child_gender_select_collection, wrapper: :vertical_collection_inline %>
           <%= f.input :first_name %>
           <%= f.input :last_name %>
-          <%= f.input :birthdate %>
-        <% end %>
+          <%= f.input :birthdate, start_year: Date.today.year - 10, end_year: Date.today.year %>
+        </div>
+        <div class="col-sm">
+          <h2>Parent 1</h2>
+          <%= f.simple_fields_for :parent1 do |parent1_f| %>
+            <%= render 'parent_form', f: parent1_f %>
+          <% end %>
+        </div>
+        <div class="col-sm">
+          <h2>Parent 2</h2>
+          <%= f.simple_fields_for :parent2 do |parent2_f| %>
+            <%= render 'parent_form', f: parent2_f %>
+          <% end %>
+        </div>
       </div>
-      <div class="col-sm">
-        <h2>Parent 1</h2>
-        <%= f.semantic_fields_for :parent1 do |parent1_f| %>
-          <%= render 'parent_form', f: parent1_f %>
-        <% end %>
-      </div>
-      <div class="col-sm">
-        <h2>Parent 2</h2>
-        <%= f.semantic_fields_for :parent2 do |parent2_f| %>
-          <%= render 'parent_form', f: parent2_f %>
-        <% end %>
-      </div>
-    </div>
+
+
+    <% end %>
+
   </div>
 
-  <%= f.actions do %>
-    <%= f.action :submit, :as => :button %>
-    <%= f.action :cancel, :as => :link %>
-  <% end %>
-
-<% end %>
+</div>
