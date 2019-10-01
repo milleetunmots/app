@@ -1,6 +1,7 @@
 fr:
   child:
     create_support_link: Créer le suivi
+    new_import_link: Import CSV
     show_support_link: Voir le suivi
     support_already_existed: Suivi déjà en cours
     supports_created: Suivis créés

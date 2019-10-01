@@ -1,0 +1,24 @@
+<% if @errors %>
+
+  <ul>
+    <% @errors.each do |error| %>
+      <li>
+        - Ligne <%= error[0] %>&nbsp;:
+        <ul>
+          <% error[1].each do |e| %>
+            <li>&nbsp;&nbsp;- <%= e %></li>
+          <% end %>
+        </ul>
+      </li>
+    <% end %>
+  </ul>
+
+<% end %>
+
+<%= form_tag(@import_action, multipart: true) do %>
+
+  <%= file_field :import, :csv_file, accept: 'text/csv' %>
+
+  <%= submit_tag 'Importer' %>
+
+<% end %>

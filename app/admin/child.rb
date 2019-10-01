@@ -139,4 +139,31 @@ ActiveAdmin.register Child do
     end
   end
 
+
+
+  # ---------------------------------------------------------------------------
+  # IMPORT
+  # ---------------------------------------------------------------------------
+
+  action_item :new_import,
+              only: :index do
+    link_to I18n.t('child.new_import_link'), [:new_import, :admin, :children]
+  end
+  collection_action :new_import do
+    @import_action = perform_import_admin_children_path
+  end
+  collection_action :perform_import, method: :post do
+    @csv_file = params[:import][:csv_file]
+
+    service = ChildrenImportService.new(csv_file: @csv_file).call
+
+    if service.errors.empty?
+      redirect_to admin_children_path, notice: 'Import terminé'
+    else
+      @import_action = perform_import_admin_children_path
+      @errors = service.errors
+      render :new_import
+    end
+  end
+
 end
