@@ -14,7 +14,6 @@ class ChildrenImportService
       puts row.inspect
 
       attributes = {
-        gender: 'm',
         registered_by: row["NOM Prénom du professionnel effectuant l'inscription"],
         first_name: row["Prénom de l'enfant"],
         last_name: row["NOM de l'enfant"],

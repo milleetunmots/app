@@ -5,7 +5,7 @@
 #  id                     :bigint           not null, primary key
 #  birthdate              :date             not null
 #  first_name             :string           not null
-#  gender                 :string           not null
+#  gender                 :string
 #  last_name              :string           not null
 #  registered_by          :string
 #  should_contact_parent1 :boolean          default(FALSE), not null
@@ -55,7 +55,7 @@ class Child < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  validates :gender, presence: true, inclusion: { in: GENDERS }
+  validates :gender, inclusion: { in: GENDERS, allow_blank: true }
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :birthdate, presence: true

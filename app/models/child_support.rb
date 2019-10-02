@@ -56,6 +56,7 @@ class ChildSupport < ApplicationRecord
     1_low
     2_medium
     3_high
+    4_excellent
   ].freeze
   PROGRAM_INVESTMENT = %w[
     1_low

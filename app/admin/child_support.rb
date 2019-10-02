@@ -235,6 +235,15 @@ ActiveAdmin.register ChildSupport do
             end
           end
         end
+        tab f.object.first_child.decorate.name do
+          f.semantic_fields_for :first_child do |first_child_f|
+            first_child_f.input :gender,
+                                as: :radio,
+                                collection: child_gender_select_collection
+            first_child_f.input :should_contact_parent1
+            first_child_f.input :should_contact_parent2
+          end
+        end
       end
     end
     f.actions
@@ -260,6 +269,7 @@ ActiveAdmin.register ChildSupport do
                 :call3_goals, :call3_notes,
                 first_child_attributes: [
                   :id,
+                  :gender, :should_contact_parent1, :should_contact_parent2,
                   {
                     parent1_attributes: parent_attributes,
                     parent2_attributes: parent_attributes

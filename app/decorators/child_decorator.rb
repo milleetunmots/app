@@ -7,7 +7,7 @@ class ChildDecorator < BaseDecorator
     if with_icon
       txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + txt
     end
-    h.link_to txt, [:admin, model], { class: GENDER_COLORS[model.gender.to_sym] }.merge(options)
+    h.link_to txt, [:admin, model], { class: GENDER_COLORS[safe_gender.to_sym] }.merge(options)
   end
 
   def age
@@ -29,12 +29,22 @@ class ChildDecorator < BaseDecorator
 
   GENDER_COLORS = {
     m: :blue,
-    f: :rose
+    f: :rose,
+    x: :grey
   }
+  GENDER_CLASSES = {
+    m: :male,
+    f: :female,
+    x: :unknown
+  }
+
+  def safe_gender
+    model.gender || 'x'
+  end
 
   def gender
     arbre do
-      status_tag Child.human_attribute_name("gender.#{model.gender}"), class: GENDER_COLORS[model.gender.to_sym]
+      status_tag Child.human_attribute_name("gender.#{safe_gender}"), class: GENDER_COLORS[safe_gender.to_sym]
     end
   end
 
@@ -55,7 +65,7 @@ class ChildDecorator < BaseDecorator
   end
 
   def as_autocomplete_result
-    h.content_tag :div, class: "child #{model.gender.to_sym == :m ? :male : :female}" do
+    h.content_tag :div, class: "child #{GENDER_CLASSES[safe_gender.to_sym]}" do
       (
         h.content_tag :div, class: :name do
           name

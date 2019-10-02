@@ -21,7 +21,8 @@ class ChildSupportDecorator < BaseDecorator
   PROGRESS_COLORS = {
     1 => :red,
     2 => :yellow,
-    3 => :green
+    3 => :green,
+    4 => :blue
   }
 
   def call1_parent_progress_index

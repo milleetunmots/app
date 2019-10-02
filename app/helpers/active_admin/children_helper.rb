@@ -1,7 +1,12 @@
 module ActiveAdmin::ChildrenHelper
 
   def child_gender_select_collection
-    Child::GENDERS.map do |v|
+    [
+      [
+        Child.human_attribute_name('gender.x'),
+        ''
+      ]
+    ] + Child::GENDERS.map do |v|
       [
         Child.human_attribute_name("gender.#{v}"),
         v

@@ -37,6 +37,7 @@ fr:
       child/gender:
         f: Fille
         m: Garçon
+        x: Inconnu
       child_support:
         id: "#"
         call1_books_quantity: Nombre de livres dans le foyer
@@ -78,6 +79,7 @@ fr:
         1_low: "1 : n'a pas conscience de son impact sur le développement de l'enfant"
         2_medium: "2 : sait qu'il faut parler à l’enfant mais n'applique pas forcément au quotidien"
         3_high: "3 : chante, parle, joue, regarde des livres avec son enfant"
+        4_excellent: "4 : intégration des pratiques au quotidien"
       child_support/call1_reading_frequency:
         1_rarely: "Plus rarement"
         2_weekly: "1 fois par semaine"
@@ -109,6 +111,7 @@ fr:
       parent/gender:
         f: Femme
         m: Homme
+        x: Inconnu
       task:
         assignee: Assigné à
         created_at: Ajout
