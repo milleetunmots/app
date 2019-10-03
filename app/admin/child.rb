@@ -115,6 +115,7 @@ ActiveAdmin.register Child do
       row :birthdate
       row :age
       row :gender
+      row :registered_by
       row :created_at
       row :updated_at
     end
@@ -155,7 +156,7 @@ ActiveAdmin.register Child do
   collection_action :perform_import, method: :post do
     @csv_file = params[:import][:csv_file]
 
-    service = ChildrenImportService.new(csv_file: @csv_file).call
+    service = ChildrenImportService.new(csv_file: @csv_file, current_admin_user: current_admin_user).call
 
     if service.errors.empty?
       redirect_to admin_children_path, notice: 'Import terminé'

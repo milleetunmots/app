@@ -72,8 +72,7 @@ class Parent < ApplicationRecord
               types: :mobile,
               countries: :fr
             },
-            presence: true,
-            uniqueness: true
+            presence: true
   validates :email,
             format: { with: REGEX_VALID_EMAIL, allow_blank: true },
             uniqueness: { case_sensitive: false, allow_blank: true }
