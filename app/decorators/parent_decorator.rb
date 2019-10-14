@@ -31,8 +31,12 @@ class ParentDecorator < BaseDecorator
 
   def gender
     arbre do
-      status_tag Parent.human_attribute_name("gender.#{model.gender}"), class: GENDER_COLORS[model.gender.to_sym]
+      status_tag gender_text, class: GENDER_COLORS[model.gender.to_sym]
     end
+  end
+
+  def gender_text
+    Parent.human_attribute_name("gender.#{model.gender}")
   end
 
   def name

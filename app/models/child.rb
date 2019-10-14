@@ -182,6 +182,21 @@ class Child < ApplicationRecord
   # helpers
   # ---------------------------------------------------------------------------
 
+  delegate :first_name,
+           :last_name,
+           :gender,
+           :phone_number_national,
+           to: :parent1,
+           prefix: true
+
+  delegate :first_name,
+           :last_name,
+           :gender,
+           :phone_number_national,
+           to: :parent2,
+           prefix: true,
+           allow_nil: true
+
   delegate :postal_code,
            to: :parent1
 

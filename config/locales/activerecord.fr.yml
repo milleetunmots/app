@@ -28,7 +28,15 @@ fr:
         last_name: Nom
         months: Age (en mois)
         parent1: Parent 1
+        parent1_first_name: Prénom du parent 1
+        parent1_gender: Sexe du parent 1
+        parent1_last_name: Nom du parent 1
+        parent1_phone_number_national: Numéro du parent 1
         parent2: Parent 2
+        parent2_first_name: Prénom du parent 2
+        parent2_gender: Sexe du parent 2
+        parent2_last_name: Nom du parent 2
+        parent2_phone_number_national: Numéro du parent 2
         postal_code: Code postal
         registered_by: Professionnel effectuant l'inscription
         should_contact_parent1: Contacter parent 1 ?

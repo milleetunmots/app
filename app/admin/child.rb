@@ -167,4 +167,30 @@ ActiveAdmin.register Child do
     end
   end
 
+  # ---------------------------------------------------------------------------
+  # CSV EXPORT
+  # ---------------------------------------------------------------------------
+
+  csv col_sep: ';' do
+    column :id
+    column :first_name
+    column :last_name
+    column :birthdate
+    column :age
+    column(:gender) { |child| child.gender_text }
+    column(:parent1_gender) { |child| Parent.human_attribute_name("gender.#{child.parent1_gender}") }
+    column(:parent1_first_name) { |child| child.parent1_first_name }
+    column(:parent1_last_name) { |child| child.parent1_last_name }
+    column(:parent1_phone_number_national) { |child| child.parent1_phone_number_national }
+    column :should_contact_parent1
+    column(:parent2_gender) { |child| child.parent2_gender && Parent.human_attribute_name("gender.#{child.parent2_gender}") }
+    column(:parent2_first_name) { |child| child.parent2_first_name }
+    column(:parent2_last_name) { |child| child.parent2_last_name }
+    column(:parent2_phone_number_national) { |child| child.parent2_phone_number_national }
+    column :should_contact_parent2
+    column :registered_by
+    column :created_at
+    column :updated_at
+  end
+
 end
