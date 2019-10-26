@@ -18,9 +18,11 @@ fr:
         sign_in_count: Connexions
         updated_at: Modification
       child:
+        address: Adresse
         age: Age
         birthdate: Date de naissance
         child_support: Suivi
+        city_name: Ville
         created_at: Ajout
         first_name: Prénom
         gender: Sexe

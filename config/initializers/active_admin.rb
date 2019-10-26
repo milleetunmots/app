@@ -223,7 +223,10 @@ ActiveAdmin.setup do |config|
   # == CSV options
 
   # Set the CSV builder separator
-  config.csv_options = { col_sep: ';' }
+  config.csv_options = {
+    byte_order_mark: "\xEF\xBB\xBF",
+    col_sep: ';'
+  }
 
   # Force the use of quotes
   # config.csv_options = { force_quotes: true }

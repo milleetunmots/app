@@ -171,6 +171,7 @@ ActiveAdmin.register Child do
   # CSV EXPORT
   # ---------------------------------------------------------------------------
 
+  #
   csv do
     column :id
     column :first_name
@@ -178,6 +179,9 @@ ActiveAdmin.register Child do
     column :birthdate
     column :age
     column(:gender) { |child| child.gender_text }
+    column :address
+    column :city_name
+    column :postal_code
     column(:parent1_gender) { |child| Parent.human_attribute_name("gender.#{child.parent1_gender}") }
     column(:parent1_first_name) { |child| child.parent1_first_name }
     column(:parent1_last_name) { |child| child.parent1_last_name }

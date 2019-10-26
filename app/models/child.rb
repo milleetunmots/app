@@ -197,7 +197,9 @@ class Child < ApplicationRecord
            prefix: true,
            allow_nil: true
 
-  delegate :postal_code,
+  delegate :address,
+           :city_name,
+           :postal_code,
            to: :parent1
 
   delegate :is_ambassador?,
