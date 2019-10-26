@@ -281,48 +281,58 @@ ActiveAdmin.register ChildSupport do
   # ---------------------------------------------------------------------------
 
   show do
-    attributes_table title: I18n.t('child_support.base') do
-      row :supporter
-      row :parent1
-      row :parent2
-      row :children
-      row :important_information
-      row :should_be_read
-      row :created_at
-      row :updated_at
-    end
-    attributes_table title: I18n.t('child_support.call1') do
-      row :call1_status
-      row :call1_status_details
-      row :call1_duration
-      row :call1_parent_actions
-      row :call1_parent_progress
-      row :call1_language_development
-      row :call1_books_quantity
-      row :call1_reading_frequency
-      row :call1_notes
-    end
-    attributes_table title: I18n.t('child_support.call2') do
-      row :call2_status
-      row :call2_status_details
-      row :call2_duration
-      row :call2_technical_information
-      row :call2_content_usage
-      row :call2_program_investment
-      row :call2_language_development
-      row :call2_goals
-      row :call2_notes
-    end
-    attributes_table title: I18n.t('child_support.call3') do
-      row :call3_status
-      row :call3_status_details
-      row :call3_duration
-      row :call3_technical_information
-      row :call3_content_usage
-      row :call3_program_investment
-      row :call3_language_development
-      row :call3_goals
-      row :call3_notes
+    tabs do
+      tab I18n.t('child_support.base') do
+        attributes_table title: I18n.t('child_support.base') do
+          row :supporter
+          row :parent1
+          row :parent2
+          row :children
+          row :important_information
+          row :should_be_read
+          row :created_at
+          row :updated_at
+        end
+      end
+      tab I18n.t('child_support.call1') do
+        attributes_table title: I18n.t('child_support.call1') do
+          row :call1_status
+          row :call1_status_details
+          row :call1_duration
+          row :call1_parent_actions
+          row :call1_parent_progress
+          row :call1_language_development
+          row :call1_books_quantity
+          row :call1_reading_frequency
+          row :call1_notes
+        end
+      end
+      tab I18n.t('child_support.call2') do
+        attributes_table title: I18n.t('child_support.call2') do
+          row :call2_status
+          row :call2_status_details
+          row :call2_duration
+          row :call2_technical_information
+          row :call2_content_usage
+          row :call2_program_investment
+          row :call2_language_development
+          row :call2_goals
+          row :call2_notes
+        end
+      end
+      tab I18n.t('child_support.call3') do
+        attributes_table title: I18n.t('child_support.call3') do
+          row :call3_status
+          row :call3_status_details
+          row :call3_duration
+          row :call3_technical_information
+          row :call3_content_usage
+          row :call3_program_investment
+          row :call3_language_development
+          row :call3_goals
+          row :call3_notes
+        end
+      end
     end
   end
 
