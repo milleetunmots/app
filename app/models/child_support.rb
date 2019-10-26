@@ -137,14 +137,27 @@ class ChildSupport < ApplicationRecord
   # helpers
   # ---------------------------------------------------------------------------
 
-  delegate :parent1,
-           :parent2,
+  delegate :address,
+           :city_name,
+           :parent1_first_name,
+           :parent1_gender,
+           :parent1_is_ambassador?,
+           :parent1_last_name,
+           :parent1_phone_number_national,
+           :parent2_first_name,
+           :parent2_gender,
+           :parent2_is_ambassador?,
+           :parent2_last_name,
+           :parent2_phone_number_national,
+           :postal_code,
            :should_contact_parent1,
            :should_contact_parent2,
-           :parent1_is_ambassador?,
-           :parent2_is_ambassador?,
            to: :first_child,
            allow_nil: true
+
+  delegate :name,
+           to: :supporter,
+           prefix: true
 
   def call1_parent_progress_index
     (call1_parent_progress || '').split('_').first&.to_i

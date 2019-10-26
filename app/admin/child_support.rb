@@ -336,4 +336,66 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
+  csv do
+    column :id
+    column(:supporter) { |cs| cs.supporter_name }
+
+    column(:parent1_gender) { |cs| Parent.human_attribute_name("gender.#{cs.parent1_gender}") }
+    column :parent1_first_name
+    column :parent1_last_name
+    column :parent1_phone_number_national
+    column :should_contact_parent1
+    column :address
+    column :city_name
+    column :postal_code
+
+    column(:parent2_gender) { |cs| cs.parent2_gender && Parent.human_attribute_name("gender.#{cs.parent2_gender}") }
+    column :parent2_first_name
+    column :parent2_last_name
+    column :parent2_phone_number_national
+    column :should_contact_parent2
+
+    column :children_first_names
+    column :children_last_names
+    column :children_birthdates
+    column :children_ages
+    column(:children_genders) { |cs| cs.children_gender_texts }
+
+    column(:important_information) { |cs| cs.important_information_text }
+    column :should_be_read
+
+    column :call1_status
+    column :call1_status_details
+    column :call1_duration
+    column(:call1_parent_actions) { |cs| cs.call1_parent_actions_text }
+    column :call1_parent_progress
+    column(:call1_language_development) { |cs| cs.call1_language_development_text }
+    column :call1_books_quantity
+    column :call1_reading_frequency
+    column(:call1_notes) { |cs| cs.call1_notes_text }
+
+    column :call2_status
+    column :call2_status_details
+    column :call2_duration
+    column(:call2_technical_information) { |cs| cs.call2_technical_information_text }
+    column(:call2_content_usage) { |cs| cs.call2_content_usage_text }
+    column :call2_program_investment
+    column(:call2_language_development) { |cs| cs.call2_language_development_text }
+    column(:call2_goals) { |cs| cs.call2_goals_text }
+    column(:call2_notes) { |cs| cs.call2_notes_text }
+
+    column :call3_status
+    column :call3_status_details
+    column :call3_duration
+    column(:call3_technical_information) { |cs| cs.call3_technical_information_text }
+    column(:call3_content_usage) { |cs| cs.call3_content_usage_text }
+    column :call3_program_investment
+    column(:call3_language_development) { |cs| cs.call3_language_development_text }
+    column(:call3_goals) { |cs| cs.call3_goals_text }
+    column(:call3_notes) { |cs| cs.call3_notes_text }
+
+    column :created_at
+    column :updated_at
+  end
+
 end

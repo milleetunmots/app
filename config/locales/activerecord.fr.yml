@@ -49,7 +49,7 @@ fr:
         m: Garçon
         x: Inconnu
       child_support:
-        id: "#"
+        address: Adresse
         call1_books_quantity: Nombre de livres dans le foyer
         call1_duration: Durée de l'appel 1 (en minutes)
         call1_status: Statut de l'appel 1
@@ -77,12 +77,30 @@ fr:
         call3_notes: Remarques diverses
         call3_program_investment: "Note d'investissement dans le programme"
         call3_technical_information: Informations techniques
+        city_name: Ville
         children: Enfants
+        children_first_names: Prénom des enfants
+        children_last_names: Nom des enfants
+        children_birthdates: Date de naissance des enfants
+        children_ages: Age des enfants
+        children_genders: Sexe des enfants
         created_at: Ajout
+        id: "#"
         important_information: Infos importantes (langue maternelle, présence du père, ...)
         parent1: Parent 1
+        parent1_first_name: Prénom du parent 1
+        parent1_gender: Sexe du parent 1
+        parent1_last_name: Nom du parent 1
+        parent1_phone_number_national: Numéro du parent 1
         parent2: Parent 2
+        parent2_first_name: Prénom du parent 2
+        parent2_gender: Sexe du parent 2
+        parent2_last_name: Nom du parent 2
+        parent2_phone_number_national: Numéro du parent 2
+        postal_code: Code postal
         should_be_read: À lire par l'équipe
+        should_contact_parent1: Contacter parent 1 ?
+        should_contact_parent2: Contacter parent 2 ?
         supporter: Responsable
         updated_at: Modification
       child_support/call1_parent_progress:
