@@ -12,7 +12,9 @@ class ChildSupportDecorator < BaseDecorator
     arbre do
       ul do
         model.children.decorate.each do |child|
-          li child.admin_link
+          li do
+            child.admin_link + ' (' + child.age + ')'
+          end
         end
       end
     end
