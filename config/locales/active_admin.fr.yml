@@ -23,12 +23,10 @@ fr:
       all: Tous
       done: Fait
       mine: Sous ma responsabilité
-      months_between_0_and_3: 0-3 mois
-      months_between_3_and_6: 3-6 mois
-      months_between_6_and_12: 6-12 mois
-      months_between_12_and_18: 12-18 mois
-      months_between_18_and_24: 18-24 mois
-      months_more_than_24: 24+ mois
+      months_between_0_and_12: 0-1 an
+      months_between_12_and_24: 1-2 ans
+      months_between_24_and_36: 2-3 ans
+      months_more_than_36: 3+ ans
       todo: À faire
       with_support: Suivis
       without_support: Non suivis

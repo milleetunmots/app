@@ -120,28 +120,20 @@ class Child < ApplicationRecord
     months_gteq(x).merge(months_lt(y))
   end
 
-  def self.months_between_0_and_3
-    months_between(0, 3)
+  def self.months_between_0_and_12
+    months_between(0, 12)
   end
 
-  def self.months_between_3_and_6
-    months_between(3, 6)
+  def self.months_between_12_and_24
+    months_between(12, 24)
   end
 
-  def self.months_between_6_and_12
-    months_between(6, 12)
+  def self.months_between_24_and_36
+    months_between(24, 36)
   end
 
-  def self.months_between_12_and_18
-    months_between(12, 18)
-  end
-
-  def self.months_between_18_and_24
-    months_between(18, 24)
-  end
-
-  def self.months_more_than_24
-    months_gteq(24)
+  def self.months_more_than_36
+    months_gteq(36)
   end
 
   # ---------------------------------------------------------------------------
