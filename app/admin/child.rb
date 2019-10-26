@@ -171,7 +171,7 @@ ActiveAdmin.register Child do
   # CSV EXPORT
   # ---------------------------------------------------------------------------
 
-  csv col_sep: ';' do
+  csv do
     column :id
     column :first_name
     column :last_name

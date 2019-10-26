@@ -221,10 +221,10 @@ ActiveAdmin.setup do |config|
   #   config.register_javascript 'my_javascript.js'
 
   # == CSV options
-  #
+
   # Set the CSV builder separator
-  # config.csv_options = { col_sep: ';' }
-  #
+  config.csv_options = { col_sep: ';' }
+
   # Force the use of quotes
   # config.csv_options = { force_quotes: true }
 
