@@ -6,11 +6,27 @@
 
       <%= f.button :submit, 'Valider', class: 'btn-primary float-right' %>
       <%= f.button :button, 'Annuler', type: 'reset', class: 'btn-outline-secondary float-left' %>
-      <h1>Inscription</h1>
+      <h1>
+        Recevez des livres et des idées pour éveiller votre enfant
+      </h1>
 
       <div class="row justify-content-sm-center">
-        <div class="col-sm-6">
-          <%= f.input :registered_by %>
+        <div class="col-sm-9">
+          <p class="text-center" id="description">
+            <b>Votre enfant a entre 0 et 24 mois ?</b><br/>
+            Inscrivez-vous pour recevoir gratuitement 3 SMS par semaine avec des idées de jeux et conseils pour éveiller le langage de votre enfant, et des livres adaptés à son âge. Ça dure 6 mois et vous pourrez arrêter à n'importe quel moment.
+          </p>
+        </div>
+      </div>
+
+      <div class="row justify-content-sm-center">
+        <div class="col-sm-4">
+          <%= f.input :registration_source, collection: child_registration_source_select_collection %>
+        </div>
+        <div class="col-sm-4">
+          <div id="child-registration-source-details-field">
+            <%= f.input :registration_source_details %>
+          </div>
         </div>
       </div>
 

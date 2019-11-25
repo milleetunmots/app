@@ -18,4 +18,13 @@ module ActiveAdmin::ChildrenHelper
     Parent.all.map(&:decorate)
   end
 
+  def child_registration_source_select_collection
+    Child::REGISTRATION_SOURCES.map do |v|
+      [
+        Child.human_attribute_name("registration_source.#{v}"),
+        v
+      ]
+    end
+  end
+
 end

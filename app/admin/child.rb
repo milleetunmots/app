@@ -113,7 +113,8 @@ ActiveAdmin.register Child do
       row :birthdate
       row :age
       row :gender
-      row :registered_by
+      row :registration_source
+      row :registration_source_details
       row :created_at
       row :updated_at
     end
@@ -190,7 +191,8 @@ ActiveAdmin.register Child do
     column(:parent2_last_name) { |child| child.parent2_last_name }
     column(:parent2_phone_number_national) { |child| child.parent2_phone_number_national }
     column :should_contact_parent2
-    column :registered_by
+    column :registration_source
+    column :registration_source_details
     column :created_at
     column :updated_at
   end

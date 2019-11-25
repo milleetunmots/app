@@ -17,7 +17,8 @@ class ChildrenImportService
 
         # base
         attributes = {
-          registered_by: row['registered_by']&.strip,
+          registration_source: row['registration_source']&.strip,
+          registration_source_details: row['registration_source_details']&.strip,
           first_name: row['first_name']&.strip,
           last_name: row['last_name']&.strip,
           birthdate: Date.parse(row['birthdate']&.strip)
