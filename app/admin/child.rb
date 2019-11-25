@@ -45,7 +45,7 @@ ActiveAdmin.register Child do
 
   filter :gender,
          as: :check_boxes,
-         collection: proc { child_gender_select_collection }
+         collection: proc { child_gender_select_collection(with_unknown: true) }
   filter :first_name
   filter :last_name
   filter :postal_code,
@@ -86,7 +86,7 @@ ActiveAdmin.register Child do
       f.input :should_contact_parent2
       f.input :gender,
               as: :radio,
-              collection: child_gender_select_collection
+              collection: child_gender_select_collection(with_unknown: true)
       f.input :first_name
       f.input :last_name
       f.input :birthdate, as: :datepicker

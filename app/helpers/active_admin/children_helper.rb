@@ -1,12 +1,16 @@
 module ActiveAdmin::ChildrenHelper
 
-  def child_gender_select_collection
-    [
+  def child_gender_select_collection(with_unknown: false)
+    if with_unknown
       [
-        Child.human_attribute_name('gender.x'),
-        ''
+        [
+          Child.human_attribute_name('gender.x'),
+          ''
+        ]
       ]
-    ] + Child::GENDERS.map do |v|
+    else
+      []
+    end + Child::GENDERS.map do |v|
       [
         Child.human_attribute_name("gender.#{v}"),
         v
