@@ -14,6 +14,7 @@
 #  phone_number          :string           not null
 #  phone_number_national :string
 #  postal_code           :string           not null
+#  terms_accepted_at     :datetime
 #  created_at            :datetime         not null
 #  updated_at            :datetime         not null
 #
@@ -76,6 +77,7 @@ class Parent < ApplicationRecord
   validates :email,
             format: { with: REGEX_VALID_EMAIL, allow_blank: true },
             uniqueness: { case_sensitive: false, allow_blank: true }
+  validates :terms_accepted_at, presence: true
 
   # ---------------------------------------------------------------------------
   # global search

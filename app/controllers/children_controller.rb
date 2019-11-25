@@ -35,7 +35,7 @@ class ChildrenController < ApplicationController
   end
 
   def parent_params
-    %i(first_name last_name email phone_number gender address postal_code city_name)
+    %i(first_name last_name email phone_number gender address postal_code city_name terms_accepted_at)
   end
 
 end

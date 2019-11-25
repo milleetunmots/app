@@ -144,6 +144,7 @@ fr:
         last_name: Nom
         phone_number: Téléphone
         postal_code: Code postal
+        terms_accepted_at: Acceptation des conditions d'utilisation
         updated_at: Modification
       parent/gender:
         f: Femme
