@@ -6,6 +6,8 @@ Rails.application.routes.draw do
 
   resources :children, only: [:new, :create]
 
+  get 'inscription', to: 'children#new'
+
   root to: redirect('/admin')
 
 end
