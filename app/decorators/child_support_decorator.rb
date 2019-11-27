@@ -51,12 +51,12 @@ class ChildSupportDecorator < BaseDecorator
     progress model.call1_parent_progress_index
   end
 
-  def call2_program_investment_index
-    progress model.call2_program_investment_index
+  def call2_parent_progress_index
+    progress model.call2_parent_progress_index
   end
 
-  def call3_program_investment_index
-    progress model.call3_program_investment_index
+  def call3_parent_progress_index
+    progress model.call3_parent_progress_index
   end
 
   def parent1
@@ -127,6 +127,18 @@ class ChildSupportDecorator < BaseDecorator
     h.content_tag :div, call2_content_usage_text, class: 'free-text'
   end
 
+  def call2_language_awareness
+    if v = model.call2_language_awareness
+      ChildSupport.human_attribute_name("call2_language_awareness.#{v}")
+    end
+  end
+
+  def call2_parent_progress
+    if v = model.call2_parent_progress
+      ChildSupport.human_attribute_name("call2_parent_progress.#{v}")
+    end
+  end
+
   def call2_program_investment
     if v = model.call2_program_investment
       ChildSupport.human_attribute_name("call2_program_investment.#{v}")
@@ -171,6 +183,18 @@ class ChildSupportDecorator < BaseDecorator
 
   def call3_content_usage
     h.content_tag :div, call3_content_usage_text, class: 'free-text'
+  end
+
+  def call3_language_awareness
+    if v = model.call3_language_awareness
+      ChildSupport.human_attribute_name("call3_language_awareness.#{v}")
+    end
+  end
+
+  def call3_parent_progress
+    if v = model.call3_parent_progress
+      ChildSupport.human_attribute_name("call3_parent_progress.#{v}")
+    end
   end
 
   def call3_program_investment

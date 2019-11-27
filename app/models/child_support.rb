@@ -15,8 +15,10 @@
 #  call2_content_usage         :text
 #  call2_duration              :integer
 #  call2_goals                 :text
+#  call2_language_awareness    :string
 #  call2_language_development  :text
 #  call2_notes                 :text
+#  call2_parent_progress       :string
 #  call2_program_investment    :string
 #  call2_status                :string
 #  call2_status_details        :text
@@ -24,8 +26,10 @@
 #  call3_content_usage         :text
 #  call3_duration              :integer
 #  call3_goals                 :text
+#  call3_language_awareness    :string
 #  call3_language_development  :text
 #  call3_notes                 :text
+#  call3_parent_progress       :string
 #  call3_program_investment    :string
 #  call3_status                :string
 #  call3_status_details        :text
@@ -40,7 +44,11 @@
 #
 #  index_child_supports_on_call1_parent_progress     (call1_parent_progress)
 #  index_child_supports_on_call1_reading_frequency   (call1_reading_frequency)
+#  index_child_supports_on_call2_language_awareness  (call2_language_awareness)
+#  index_child_supports_on_call2_parent_progress     (call2_parent_progress)
 #  index_child_supports_on_call2_program_investment  (call2_program_investment)
+#  index_child_supports_on_call3_language_awareness  (call3_language_awareness)
+#  index_child_supports_on_call3_parent_progress     (call3_parent_progress)
 #  index_child_supports_on_call3_program_investment  (call3_program_investment)
 #  index_child_supports_on_should_be_read            (should_be_read)
 #  index_child_supports_on_supporter_id              (supporter_id)
@@ -52,6 +60,10 @@
 
 class ChildSupport < ApplicationRecord
 
+  LANGUAGE_AWARENESS = %w[
+    1_none
+    2_awareness
+  ].freeze
   PARENT_PROGRESS = %w[
     1_low
     2_medium
@@ -92,9 +104,29 @@ class ChildSupport < ApplicationRecord
               in: PARENT_PROGRESS,
               allow_blank: true
             }
+  validates :call2_language_awareness,
+            inclusion: {
+              in: LANGUAGE_AWARENESS,
+              allow_blank: true
+            }
+  validates :call2_parent_progress,
+            inclusion: {
+              in: PARENT_PROGRESS,
+              allow_blank: true
+            }
   validates :call2_program_investment,
             inclusion: {
               in: PROGRAM_INVESTMENT,
+              allow_blank: true
+            }
+  validates :call3_language_awareness,
+            inclusion: {
+              in: LANGUAGE_AWARENESS,
+              allow_blank: true
+            }
+  validates :call3_parent_progress,
+            inclusion: {
+              in: PARENT_PROGRESS,
               allow_blank: true
             }
   validates :call3_program_investment,
@@ -162,11 +194,11 @@ class ChildSupport < ApplicationRecord
   def call1_parent_progress_index
     (call1_parent_progress || '').split('_').first&.to_i
   end
-  def call2_program_investment_index
-    (call2_program_investment || '').split('_').first&.to_i
+  def call2_parent_progress_index
+    (call2_parent_progress || '').split('_').first&.to_i
   end
-  def call3_program_investment_index
-    (call3_program_investment || '').split('_').first&.to_i
+  def call3_parent_progress_index
+    (call3_parent_progress || '').split('_').first&.to_i
   end
 
   # ---------------------------------------------------------------------------
