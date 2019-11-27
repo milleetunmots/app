@@ -39,6 +39,7 @@ ActiveAdmin.register Parent do
   filter :postal_code
   filter :city_name
   filter :is_ambassador
+  filter :terms_accepted_at
   filter :created_at
   filter :updated_at
 
@@ -61,6 +62,7 @@ ActiveAdmin.register Parent do
       f.input :city_name
       f.input :is_ambassador
       f.input :job
+      f.input :terms_accepted_at, as: :datepicker
     end
     f.actions
   end
@@ -68,7 +70,7 @@ ActiveAdmin.register Parent do
   permit_params :gender, :first_name, :last_name,
                 :phone_number, :email, :address,
                 :postal_code, :city_name,
-                :is_ambassador, :job
+                :is_ambassador, :job, :terms_accepted_at
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -89,6 +91,7 @@ ActiveAdmin.register Parent do
       row :children
       row :is_ambassador
       row :job
+      row :terms_accepted_at
     end
   end
 

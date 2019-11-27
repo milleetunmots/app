@@ -31,4 +31,8 @@ module ActiveAdmin::ChildrenHelper
     end
   end
 
+  def child_registration_source_details_suggestions
+    Child.pluck(:registration_source_details).uniq.compact.sort
+  end
+
 end

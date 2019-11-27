@@ -38,10 +38,16 @@
         </div>
       </div>
 
+      <div class="row justify-content-sm-center accepted-fields">
+        <div class="col-sm-8">
+          <%= f.error_notification message: f.object.errors.full_messages.join('<br/>') %>
+        </div>
+      </div>
+
       <div class="row accepted-fields">
         <div class="col-sm-4">
           <h2>Enfant</h2>
-          <%= f.input :gender, as: :radio_buttons, collection: child_gender_select_collection, wrapper: :vertical_collection_inline %>
+          <%= f.input :gender, as: :radio_buttons, collection: child_gender_select_collection, wrapper: :vertical_collection_inline, required: true %>
           <%= f.input :first_name %>
           <%= f.input :last_name %>
           <%= f.input :birthdate, start_year: Date.today.year - 10, end_year: Date.today.year %>
@@ -60,7 +66,6 @@
                 <%= parent1_f.input :first_name, required: false %>
                 <%= parent1_f.input :last_name, required: false %>
                 <%= parent1_f.input :phone_number, required: false %>
-                <%= parent1_f.input :gender, as: :hidden, input_html: { value: 'f' } %>
               <% end %>
             </div>
             <div class="col-sm-6">
@@ -72,7 +77,6 @@
                   <%= parent2_f.input :first_name, required: false %>
                   <%= parent2_f.input :last_name, required: false %>
                   <%= parent2_f.input :phone_number, required: false %>
-                  <%= parent2_f.input :gender, as: :hidden, input_html: { value: 'm' } %>
                 <% end %>
               </div>
             </div>

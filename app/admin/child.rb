@@ -54,6 +54,14 @@ ActiveAdmin.register Child do
   filter :months,
          as: :numeric,
          filters: [:equals, :gteq, :lt]
+  filter :registration_source,
+         as: :select,
+         collection: proc { child_registration_source_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
+  filter :registration_source_details,
+         as: :select,
+         collection: proc { child_registration_source_details_suggestions },
+         input_html: { multiple: true, data: { select2: {} } }
   filter :created_at
   filter :updated_at
 
@@ -181,18 +189,22 @@ ActiveAdmin.register Child do
     column :address
     column :city_name
     column :postal_code
+
     column(:parent1_gender) { |child| Parent.human_attribute_name("gender.#{child.parent1_gender}") }
     column(:parent1_first_name) { |child| child.parent1_first_name }
     column(:parent1_last_name) { |child| child.parent1_last_name }
     column(:parent1_phone_number_national) { |child| child.parent1_phone_number_national }
     column :should_contact_parent1
+
     column(:parent2_gender) { |child| child.parent2_gender && Parent.human_attribute_name("gender.#{child.parent2_gender}") }
     column(:parent2_first_name) { |child| child.parent2_first_name }
     column(:parent2_last_name) { |child| child.parent2_last_name }
     column(:parent2_phone_number_national) { |child| child.parent2_phone_number_national }
     column :should_contact_parent2
-    column :registration_source
+
+    column(:registration_source) { |child| child.registration_source && Child.human_attribute_name("registration_source.#{child.registration_source}") }
     column :registration_source_details
+
     column :created_at
     column :updated_at
   end
