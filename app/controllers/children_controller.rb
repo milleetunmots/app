@@ -4,10 +4,18 @@ class ChildrenController < ApplicationController
     @child = Child.new
     @child.build_parent1
     @child.build_parent2
+    @child.build_child_support
   end
 
   def create
     attributes = child_params
+
+    # ChildSupport
+
+    child_support_attributes = child_support_params
+    attributes[:child_support_attributes] = child_support_attributes unless child_support_attributes[:important_information].blank?
+
+    # Parents
 
     parent1_attributes = parent1_params
     mother_attributes = mother_params.merge(
@@ -48,12 +56,15 @@ class ChildrenController < ApplicationController
       attributes[:parent1_attributes] = parent1_attributes.merge(father_attributes)
     end
 
+    # Base
+
     @child = Child.new(attributes)
     if @child.save
       redirect_to created_child_path
     else
       flash.now[:error] = 'Inscription refusée'
       @child.build_parent2 if @child.parent2.nil?
+      @child.build_child_support if @child.child_support.nil?
       render action: :new
     end
   end
@@ -66,6 +77,10 @@ class ChildrenController < ApplicationController
 
   def child_params
     params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details)
+  end
+
+  def child_support_params
+    params.require(:child).permit(child_support_attributes: %i(important_information))[:child_support_attributes]
   end
 
   def parent1_params
