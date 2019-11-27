@@ -23,10 +23,10 @@ ActiveAdmin.register ChildSupport do
       [model.call1_status, model.call1_parent_progress_index].join(' ').html_safe
     end
     column I18n.t('child_support.call2') do |model|
-      [model.call2_status, model.call2_program_investment_index].join(' ').html_safe
+      [model.call2_status, model.call2_parent_progress_index].join(' ').html_safe
     end
     column I18n.t('child_support.call3') do |model|
-      [model.call3_status, model.call3_program_investment_index].join(' ').html_safe
+      [model.call3_status, model.call3_parent_progress_index].join(' ').html_safe
     end
     column :created_at do |model|
       l model.created_at.to_date, format: :default
@@ -60,18 +60,34 @@ ActiveAdmin.register ChildSupport do
          input_html: { multiple: true, data: { select2: {} } }
   filter :call2_status
   filter :call2_duration
-  filter :call2_program_investment_present,
+  filter :call2_parent_progress_present,
          as: :boolean,
-         label: proc { I18n.t('child_support.call2_program_investment_present') }
+         label: proc { I18n.t('child_support.call2_parent_progress_present') }
+  filter :call2_parent_progress,
+         as: :select,
+         collection: proc { child_support_call2_parent_progress_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
+  filter :call2_language_awareness,
+         as: :select,
+         collection: proc { child_support_call2_language_awareness_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
   filter :call2_program_investment,
          as: :select,
          collection: proc { child_support_call2_program_investment_select_collection },
          input_html: { multiple: true, data: { select2: {} } }
   filter :call3_status
   filter :call3_duration
-  filter :call3_program_investment_present,
+  filter :call3_parent_progress_present,
          as: :boolean,
-         label: proc { I18n.t('child_support.call3_program_investment_present') }
+         label: proc { I18n.t('child_support.call3_parent_progress_present') }
+  filter :call3_parent_progress,
+         as: :select,
+         collection: proc { child_support_call3_parent_progress_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
+  filter :call3_language_awareness,
+         as: :select,
+         collection: proc { child_support_call3_language_awareness_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
   filter :call3_program_investment,
          as: :select,
          collection: proc { child_support_call3_program_investment_select_collection },
@@ -180,6 +196,12 @@ ActiveAdmin.register ChildSupport do
                           I18n.t('child_support.default.call2_content_usage')
                         )
                       }
+              f.input :call2_language_awareness,
+                      as: :radio,
+                      collection: child_support_call2_language_awareness_select_collection
+              f.input :call2_parent_progress,
+                      as: :radio,
+                      collection: child_support_call2_parent_progress_select_collection
               f.input :call2_program_investment,
                       as: :radio,
                       collection: child_support_call2_program_investment_select_collection
@@ -212,6 +234,12 @@ ActiveAdmin.register ChildSupport do
                           I18n.t('child_support.default.call3_content_usage')
                         )
                       }
+              f.input :call3_language_awareness,
+                      as: :radio,
+                      collection: child_support_call3_language_awareness_select_collection
+              f.input :call3_parent_progress,
+                      as: :radio,
+                      collection: child_support_call3_parent_progress_select_collection
               f.input :call3_program_investment,
                       as: :radio,
                       collection: child_support_call3_program_investment_select_collection
@@ -262,10 +290,12 @@ ActiveAdmin.register ChildSupport do
                 :call2_duration, :call2_status, :call2_status_details,
                 :call2_technical_information, :call2_content_usage,
                 :call2_program_investment, :call2_language_development,
+                :call2_language_awareness, :call2_parent_progress,
                 :call2_goals, :call2_notes,
                 :call3_duration, :call3_status, :call3_status_details,
                 :call3_technical_information, :call3_content_usage,
                 :call3_program_investment, :call3_language_development,
+                :call3_language_awareness, :call3_parent_progress,
                 :call3_goals, :call3_notes,
                 first_child_attributes: [
                   :id,
@@ -314,6 +344,8 @@ ActiveAdmin.register ChildSupport do
           row :call2_duration
           row :call2_technical_information
           row :call2_content_usage
+          row :call2_language_awareness
+          row :call2_parent_progress
           row :call2_program_investment
           row :call2_language_development
           row :call2_goals
@@ -327,6 +359,8 @@ ActiveAdmin.register ChildSupport do
           row :call3_duration
           row :call3_technical_information
           row :call3_content_usage
+          row :call3_language_awareness
+          row :call3_parent_progress
           row :call3_program_investment
           row :call3_language_development
           row :call3_goals
@@ -379,6 +413,8 @@ ActiveAdmin.register ChildSupport do
     column :call2_duration
     column(:call2_technical_information) { |cs| cs.call2_technical_information_text }
     column(:call2_content_usage) { |cs| cs.call2_content_usage_text }
+    column :call2_language_awareness
+    column :call2_parent_progress
     column :call2_program_investment
     column(:call2_language_development) { |cs| cs.call2_language_development_text }
     column(:call2_goals) { |cs| cs.call2_goals_text }
@@ -389,6 +425,8 @@ ActiveAdmin.register ChildSupport do
     column :call3_duration
     column(:call3_technical_information) { |cs| cs.call3_technical_information_text }
     column(:call3_content_usage) { |cs| cs.call3_content_usage_text }
+    column :call3_language_awareness
+    column :call3_parent_progress
     column :call3_program_investment
     column(:call3_language_development) { |cs| cs.call3_language_development_text }
     column(:call3_goals) { |cs| cs.call3_goals_text }
