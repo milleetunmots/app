@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_25_171841) do
+ActiveRecord::Schema.define(version: 2019_11_27_121810) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -68,9 +68,17 @@ ActiveRecord::Schema.define(version: 2019_11_25_171841) do
     t.integer "call3_duration"
     t.integer "call1_books_quantity"
     t.string "call1_reading_frequency"
+    t.string "call2_language_awareness"
+    t.string "call2_parent_progress"
+    t.string "call3_language_awareness"
+    t.string "call3_parent_progress"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
+    t.index ["call2_language_awareness"], name: "index_child_supports_on_call2_language_awareness"
+    t.index ["call2_parent_progress"], name: "index_child_supports_on_call2_parent_progress"
     t.index ["call2_program_investment"], name: "index_child_supports_on_call2_program_investment"
+    t.index ["call3_language_awareness"], name: "index_child_supports_on_call3_language_awareness"
+    t.index ["call3_parent_progress"], name: "index_child_supports_on_call3_parent_progress"
     t.index ["call3_program_investment"], name: "index_child_supports_on_call3_program_investment"
     t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
     t.index ["supporter_id"], name: "index_child_supports_on_supporter_id"

@@ -73,8 +73,10 @@ fr:
         call2_status_details: Suivi de l'appel 2
         call2_content_usage: Usage de nos contenus
         call2_goals: Mini-objectifs
+        call2_language_awareness: Conscience langagière
         call2_language_development: "Développement langagier de l'enfant"
         call2_notes: Remarques diverses
+        call2_parent_progress: "Note d'avancement du parent"
         call2_program_investment: "Note d'investissement dans le programme"
         call2_technical_information: Informations techniques
         call3_duration: Durée de l'appel 3 (en minutes)
@@ -82,8 +84,10 @@ fr:
         call3_status_details: Suivi de l'appel 3
         call3_content_usage: Usage de nos contenus
         call3_goals: Mini-objectifs
+        call3_language_awareness: Conscience langagière
         call3_language_development: "Développement langagier de l'enfant"
         call3_notes: Remarques diverses
+        call3_parent_progress: "Note d'avancement du parent"
         call3_program_investment: "Note d'investissement dans le programme"
         call3_technical_information: Informations techniques
         city_name: Ville
@@ -113,23 +117,39 @@ fr:
         supporter: Responsable
         updated_at: Modification
       child_support/call1_parent_progress:
-        1_low: "1 : n'a pas conscience de son impact sur le développement de l'enfant"
-        2_medium: "2 : sait qu'il faut parler à l’enfant mais n'applique pas forcément au quotidien"
-        3_high: "3 : chante, parle, joue, regarde des livres avec son enfant"
-        4_excellent: "4 : intégration des pratiques au quotidien"
+        1_low: Minimum
+        2_medium: Intermédiaire
+        3_high: Avancé
+        4_excellent: Très avancé
       child_support/call1_reading_frequency:
-        1_rarely: "Plus rarement"
-        2_weekly: "1 fois par semaine"
-        3_frequently: "2-3 fois par semaine"
-        4_daily: "Tous les soirs"
+        1_rarely: Plus rarement
+        2_weekly: 1 fois par semaine
+        3_frequently: 2-3 fois par semaine
+        4_daily: Tous les soirs
+      child_support/call2_language_awareness:
+        1_none: "N'a pas conscience de son impact"
+        2_awareness: A conscience de son impact
+      child_support/call2_parent_progress:
+        1_low: Minimum
+        2_medium: Intermédiaire
+        3_high: Avancé
+        4_excellent: Très avancé
       child_support/call2_program_investment:
-        1_low: "1 : faible"
-        2_medium: "2 : modéré"
-        3_high: "3 : important"
+        1_low: Faible
+        2_medium: Modéré
+        3_high: Important
+      child_support/call3_language_awareness:
+        1_none: "N'a pas conscience de son impact"
+        2_awareness: A conscience de son impact
+      child_support/call3_parent_progress:
+        1_low: Minimum
+        2_medium: Intermédiaire
+        3_high: Avancé
+        4_excellent: Très avancé
       child_support/call3_program_investment:
-        1_low: "1 : faible"
-        2_medium: "2 : modéré"
-        3_high: "3 : important"
+        1_low: Faible
+        2_medium: Modéré
+        3_high: Important
       parent:
         address: Adresse
         children: Enfant(s)
