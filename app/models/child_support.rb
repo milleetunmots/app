@@ -86,7 +86,9 @@ class ChildSupport < ApplicationRecord
   # relations
   # ---------------------------------------------------------------------------
 
-  belongs_to :supporter, class_name: :AdminUser
+  belongs_to :supporter,
+             class_name: :AdminUser,
+             optional: true
   has_many :children,
            dependent: :nullify
   has_one :first_child, class_name: :Child
@@ -189,7 +191,8 @@ class ChildSupport < ApplicationRecord
 
   delegate :name,
            to: :supporter,
-           prefix: true
+           prefix: true,
+           allow_nil: true
 
   def call1_parent_progress_index
     (call1_parent_progress || '').split('_').first&.to_i

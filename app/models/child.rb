@@ -89,7 +89,7 @@ class Child < ApplicationRecord
   # support
   # ---------------------------------------------------------------------------
 
-  def create_support!(child_support_attributes)
+  def create_support!(child_support_attributes = {})
     # 1- create support
     child_support = ChildSupport.create!(child_support_attributes)
 

@@ -2,9 +2,8 @@ class ChildrenImportService
 
   attr_reader :errors
 
-  def initialize(csv_file:, current_admin_user:)
+  def initialize(csv_file:)
     @csv_file = csv_file
-    @current_admin_user = current_admin_user
     @errors = []
   end
 
@@ -62,7 +61,6 @@ class ChildrenImportService
         child_support_important_information = row['child_support_important_information']&.strip
         if child_support_important_information
           attributes[:child_support_attributes] = {
-            supporter_id: @current_admin_user.id,
             important_information: child_support_important_information
           }
         end

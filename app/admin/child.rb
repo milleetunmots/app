@@ -142,7 +142,7 @@ ActiveAdmin.register Child do
     if already_existing_child_support = resource.child_support
       redirect_to [:admin, already_existing_child_support], notice: I18n.t('child.support_already_existed')
     else
-      resource.create_support!(supporter: current_admin_user)
+      resource.create_support!
       redirect_to [:edit, :admin, resource.child_support]
     end
   end
@@ -163,7 +163,7 @@ ActiveAdmin.register Child do
   collection_action :perform_import, method: :post do
     @csv_file = params[:import][:csv_file]
 
-    service = ChildrenImportService.new(csv_file: @csv_file, current_admin_user: current_admin_user).call
+    service = ChildrenImportService.new(csv_file: @csv_file).call
 
     if service.errors.empty?
       redirect_to admin_children_path, notice: 'Import terminé'
