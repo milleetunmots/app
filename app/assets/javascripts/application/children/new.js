@@ -2,7 +2,7 @@
 
   var onToggleTerms = function() {
     var hasAccepted = $(this).is(':checked');
-    $('.accepted-fields').toggle(hasAccepted);
+    $('.accepted-fields').toggleClass('hidden', !hasAccepted);
   };
 
   var onChangeRegistrationSource = function() {
