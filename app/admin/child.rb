@@ -45,7 +45,7 @@ ActiveAdmin.register Child do
 
   filter :gender,
          as: :check_boxes,
-         collection: proc { child_gender_select_collection }
+         collection: proc { child_gender_select_collection(with_unknown: true) }
   filter :first_name
   filter :last_name
   filter :postal_code,
@@ -54,6 +54,14 @@ ActiveAdmin.register Child do
   filter :months,
          as: :numeric,
          filters: [:equals, :gteq, :lt]
+  filter :registration_source,
+         as: :select,
+         collection: proc { child_registration_source_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
+  filter :registration_source_details,
+         as: :select,
+         collection: proc { child_registration_source_details_suggestions },
+         input_html: { multiple: true, data: { select2: {} } }
   filter :created_at
   filter :updated_at
 
@@ -86,7 +94,7 @@ ActiveAdmin.register Child do
       f.input :should_contact_parent2
       f.input :gender,
               as: :radio,
-              collection: child_gender_select_collection
+              collection: child_gender_select_collection(with_unknown: true)
       f.input :first_name
       f.input :last_name
       f.input :birthdate, as: :datepicker
@@ -113,7 +121,8 @@ ActiveAdmin.register Child do
       row :birthdate
       row :age
       row :gender
-      row :registered_by
+      row :registration_source
+      row :registration_source_details
       row :created_at
       row :updated_at
     end
@@ -133,7 +142,7 @@ ActiveAdmin.register Child do
     if already_existing_child_support = resource.child_support
       redirect_to [:admin, already_existing_child_support], notice: I18n.t('child.support_already_existed')
     else
-      resource.create_support!(supporter: current_admin_user)
+      resource.create_support!
       redirect_to [:edit, :admin, resource.child_support]
     end
   end
@@ -154,7 +163,7 @@ ActiveAdmin.register Child do
   collection_action :perform_import, method: :post do
     @csv_file = params[:import][:csv_file]
 
-    service = ChildrenImportService.new(csv_file: @csv_file, current_admin_user: current_admin_user).call
+    service = ChildrenImportService.new(csv_file: @csv_file).call
 
     if service.errors.empty?
       redirect_to admin_children_path, notice: 'Import terminé'
@@ -180,17 +189,22 @@ ActiveAdmin.register Child do
     column :address
     column :city_name
     column :postal_code
+
     column(:parent1_gender) { |child| Parent.human_attribute_name("gender.#{child.parent1_gender}") }
     column(:parent1_first_name) { |child| child.parent1_first_name }
     column(:parent1_last_name) { |child| child.parent1_last_name }
     column(:parent1_phone_number_national) { |child| child.parent1_phone_number_national }
     column :should_contact_parent1
+
     column(:parent2_gender) { |child| child.parent2_gender && Parent.human_attribute_name("gender.#{child.parent2_gender}") }
     column(:parent2_first_name) { |child| child.parent2_first_name }
     column(:parent2_last_name) { |child| child.parent2_last_name }
     column(:parent2_phone_number_national) { |child| child.parent2_phone_number_national }
     column :should_contact_parent2
-    column :registered_by
+
+    column(:registration_source) { |child| child.registration_source && Child.human_attribute_name("registration_source.#{child.registration_source}") }
+    column :registration_source_details
+
     column :created_at
     column :updated_at
   end

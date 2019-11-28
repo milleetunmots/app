@@ -6,39 +6,95 @@
 
       <%= f.button :submit, 'Valider', class: 'btn-primary float-right' %>
       <%= f.button :button, 'Annuler', type: 'reset', class: 'btn-outline-secondary float-left' %>
-      <h1>Inscription</h1>
+      <h1>
+        Recevez des livres et des idées pour éveiller votre enfant
+      </h1>
 
       <div class="row justify-content-sm-center">
-        <div class="col-sm-6">
-          <%= f.input :registered_by %>
+        <div class="col-sm-9">
+          <p class="text-center" id="description">
+            <b>Votre enfant a entre 0 et 24 mois ?</b><br/>
+            Inscrivez-vous pour recevoir gratuitement 3 SMS par semaine avec des idées de jeux et conseils pour éveiller le langage de votre enfant, et des livres adaptés à son âge. Ça dure 6 mois et vous pourrez arrêter à n'importe quel moment.
+          </p>
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-sm">
-          <h2>Enfant</h2>
-          <%= f.input :gender, as: :radio_buttons, collection: child_gender_select_collection, wrapper: :vertical_collection_inline %>
-          <%= f.input :first_name %>
-          <%= f.input :last_name %>
-          <%= f.input :birthdate, start_year: Date.today.year - 10, end_year: Date.today.year %>
-        </div>
-        <div class="col-sm">
-          <h2>Parent 1</h2>
+      <div class="row justify-content-sm-center">
+        <div class="col-sm-8">
           <%= f.simple_fields_for :parent1 do |parent1_f| %>
-            <%= render 'parent_form', f: parent1_f %>
+            <%= parent1_f.input :terms_accepted_at, as: :boolean, label: "Je donne mon accord pour que mes données soient gardées par 1001mots", checked_value: Time.now %>
           <% end %>
         </div>
-        <div class="col-sm">
-          <div class="float-right" style="margin-top: 30px;">
-            <%= f.input :parent2_absent, as: :boolean, label: 'Absent' %>
+      </div>
+
+      <div class="row justify-content-sm-center accepted-fields">
+        <div class="col-sm-4">
+          <%= f.input :registration_source, collection: child_registration_source_select_collection %>
+        </div>
+        <div class="col-sm-4">
+          <div id="child-registration-source-details-field">
+            <%= f.input :registration_source_details %>
           </div>
-          <h2>
-            Parent 2
-          </h2>
-          <div id="parent2-fields">
-            <%= f.simple_fields_for :parent2 do |parent2_f| %>
-              <%= render 'parent_form', f: parent2_f %>
-            <% end %>
+        </div>
+      </div>
+
+      <div class="row justify-content-sm-center accepted-fields">
+        <div class="col-sm-8">
+          <%= f.error_notification message: f.object.errors.full_messages.join('<br/>') %>
+        </div>
+      </div>
+
+      <div class="row accepted-fields">
+        <div class="col-sm-4">
+          <h2>Enfant(s)</h2>
+
+          <div class="child-fields">
+            <%= render 'child_form', f: f %>
+          </div>
+
+          <% @child.siblings.each_with_index do |sibling, i| %>
+            <div class="child-fields-container <%= 'hidden' unless sibling.gender %>">
+              <div class="separator"></div>
+              <div class="add-child-btn-container">
+                <%= link_to '+ Ajouter un enfant', '#', class: 'btn btn-primary add-child-btn' %>
+              </div>
+              <div class="child-fields">
+                <%= link_to '- Annuler', '#', class: 'btn btn-danger float-right rm-child-btn' %>
+                <%= f.simple_fields_for "siblings[#{i}]", sibling  do |sibling_f| %>
+                  <%= render 'child_form', f: sibling_f %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <div class="col-sm-8">
+          <h2>Parents qui recevront les SMS</h2>
+          <%= f.simple_fields_for :parent1 do |parent1_f| %>
+            <%= parent1_f.input :address %>
+            <%= parent1_f.input :postal_code %>
+            <%= parent1_f.input :city_name %>
+          <% end %>
+          <div class="row">
+            <div class="col-sm-6">
+              <h3>Mère</h3>
+              <%= f.simple_fields_for :parent1 do |parent1_f| %>
+                <%= parent1_f.input :first_name, required: false %>
+                <%= parent1_f.input :last_name, required: false %>
+                <%= parent1_f.input :phone_number, required: false %>
+              <% end %>
+            </div>
+            <div class="col-sm-6">
+              <h3>
+                Père
+              </h3>
+              <div id="parent2-fields">
+                <%= f.simple_fields_for :parent2 do |parent2_f| %>
+                  <%= parent2_f.input :first_name, required: false %>
+                  <%= parent2_f.input :last_name, required: false %>
+                  <%= parent2_f.input :phone_number, required: false %>
+                <% end %>
+              </div>
+            </div>
           </div>
         </div>
       </div>

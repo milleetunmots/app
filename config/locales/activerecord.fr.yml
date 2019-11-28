@@ -40,7 +40,8 @@ fr:
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
         postal_code: Code postal
-        registered_by: Professionnel effectuant l'inscription
+        registration_source: Comment nous avez-vous connu ?
+        registration_source_details: 'Précisez le nom :'
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?
         updated_at: Modification
@@ -48,6 +49,14 @@ fr:
         f: Fille
         m: Garçon
         x: Inconnu
+      child/registration_source:
+        friends: Par des amis
+        nursery: Crèche
+        other: Autre
+        pmi: PMI
+        resubscribing: J'ai déjà reçu les SMS et je réinscris un enfant
+        therapist: Mon orthophoniste
+        unknown: Inconnue
       child_support:
         address: Adresse
         call1_books_quantity: Nombre de livres dans le foyer
@@ -155,6 +164,7 @@ fr:
         last_name: Nom
         phone_number: Téléphone
         postal_code: Code postal
+        terms_accepted_at: Acceptation des conditions d'utilisation
         updated_at: Modification
       parent/gender:
         f: Femme

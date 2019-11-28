@@ -2,19 +2,20 @@
 #
 # Table name: children
 #
-#  id                     :bigint           not null, primary key
-#  birthdate              :date             not null
-#  first_name             :string           not null
-#  gender                 :string
-#  last_name              :string           not null
-#  registered_by          :string
-#  should_contact_parent1 :boolean          default(FALSE), not null
-#  should_contact_parent2 :boolean          default(FALSE), not null
-#  created_at             :datetime         not null
-#  updated_at             :datetime         not null
-#  child_support_id       :bigint
-#  parent1_id             :bigint           not null
-#  parent2_id             :bigint
+#  id                          :bigint           not null, primary key
+#  birthdate                   :date             not null
+#  first_name                  :string           not null
+#  gender                      :string
+#  last_name                   :string           not null
+#  registration_source         :string
+#  registration_source_details :string
+#  should_contact_parent1      :boolean          default(FALSE), not null
+#  should_contact_parent2      :boolean          default(FALSE), not null
+#  created_at                  :datetime         not null
+#  updated_at                  :datetime         not null
+#  child_support_id            :bigint
+#  parent1_id                  :bigint           not null
+#  parent2_id                  :bigint
 #
 # Indexes
 #
@@ -33,6 +34,14 @@
 class Child < ApplicationRecord
 
   GENDERS = %w[m f].freeze
+  REGISTRATION_SOURCES = %w[
+    friends
+    nursery
+    other
+    pmi
+    resubscribing
+    therapist
+  ].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -41,6 +50,8 @@ class Child < ApplicationRecord
   belongs_to :child_support, optional: true
   belongs_to :parent1, class_name: :Parent
   belongs_to :parent2, class_name: :Parent, optional: true
+
+  has_many :siblings, class_name: :Child, primary_key: :parent1_id, foreign_key: :parent1_id
 
   # we do not call this 'siblings' because real siblings may have only
   # one parent in common
@@ -60,6 +71,7 @@ class Child < ApplicationRecord
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :birthdate, presence: true
+  validates :registration_source, inclusion: { in: REGISTRATION_SOURCES, allow_blank: true }
 
   # ---------------------------------------------------------------------------
   # helpers
@@ -79,7 +91,7 @@ class Child < ApplicationRecord
   # support
   # ---------------------------------------------------------------------------
 
-  def create_support!(child_support_attributes)
+  def create_support!(child_support_attributes = {})
     # 1- create support
     child_support = ChildSupport.create!(child_support_attributes)
 

@@ -4,7 +4,9 @@ Rails.application.routes.draw do
 
   ActiveAdmin.routes(self)
 
-  resources :children, only: [:new, :create]
+  get 'inscription', to: 'children#new', as: :new_child
+  post 'inscription', to: 'children#create', as: :children
+  get 'inscrit', to: 'children#created', as: :created_child
 
   root to: redirect('/admin')
 

@@ -96,7 +96,8 @@ ActiveRecord::Schema.define(version: 2019_11_27_121810) do
     t.boolean "should_contact_parent1", default: false, null: false
     t.boolean "should_contact_parent2", default: false, null: false
     t.bigint "child_support_id"
-    t.string "registered_by"
+    t.string "registration_source_details"
+    t.string "registration_source"
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["gender"], name: "index_children_on_gender"
@@ -118,6 +119,7 @@ ActiveRecord::Schema.define(version: 2019_11_27_121810) do
     t.string "phone_number_national"
     t.boolean "is_ambassador"
     t.string "job"
+    t.datetime "terms_accepted_at"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["email"], name: "index_parents_on_email"

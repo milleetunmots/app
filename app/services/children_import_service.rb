@@ -2,9 +2,8 @@ class ChildrenImportService
 
   attr_reader :errors
 
-  def initialize(csv_file:, current_admin_user:)
+  def initialize(csv_file:)
     @csv_file = csv_file
-    @current_admin_user = current_admin_user
     @errors = []
   end
 
@@ -17,7 +16,8 @@ class ChildrenImportService
 
         # base
         attributes = {
-          registered_by: row['registered_by']&.strip,
+          registration_source: row['registration_source']&.strip,
+          registration_source_details: row['registration_source_details']&.strip,
           first_name: row['first_name']&.strip,
           last_name: row['last_name']&.strip,
           birthdate: Date.parse(row['birthdate']&.strip)
@@ -61,7 +61,6 @@ class ChildrenImportService
         child_support_important_information = row['child_support_important_information']&.strip
         if child_support_important_information
           attributes[:child_support_attributes] = {
-            supporter_id: @current_admin_user.id,
             important_information: child_support_important_information
           }
         end
