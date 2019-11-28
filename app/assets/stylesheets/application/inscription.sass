@@ -1,6 +1,7 @@
 #inscription, #inscription-success
   background-image: url(https://1001mots.org/wp-content/uploads/2018/04/1001mots-Marle%CC%80ne_Schiappa_E%CC%81veil_langagier.jpg)
   background-repeat: no-repeat
+  background-attachment: fixed
   background-position: 50% 50%
   background-size: cover
   padding: 50px
@@ -26,7 +27,30 @@
 
     .accepted-fields
       &.hidden
-        visibility: hidden
+        display: none
+
+    .child-fields-container
+      .separator
+        border-top: 1px solid black
+        margin: 50px 100px
+
+      .add-child-btn-container
+        margin-top: 50px
+        text-align: center
+        display: none
+
+      &.hidden
+        .separator
+          display: none
+
+        .add-child-btn-container
+          display: block
+
+        .form-group
+          display: none
+
+      &.hidden ~ .child-fields-container
+        display: none
 
 #inscription-success
   #inscription-success-content

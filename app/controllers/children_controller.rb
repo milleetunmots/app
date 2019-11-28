@@ -1,19 +1,26 @@
 class ChildrenController < ApplicationController
 
+  SIBLINGS_COUNT = 3
+
   def new
     @child = Child.new
     @child.build_parent1
     @child.build_parent2
     @child.build_child_support
+    until @child.siblings.size >= SIBLINGS_COUNT do
+      @child.siblings.build
+    end
+    @child.siblings.each do |sibling|
+      sibling.build_child_support
+    end
   end
 
   def create
     attributes = child_params
 
-    # ChildSupport
+    # Siblings
 
-    child_support_attributes = child_support_params
-    attributes[:child_support_attributes] = child_support_attributes unless child_support_attributes[:important_information].blank?
+    siblings_attributes = siblings_params
 
     # Parents
 
@@ -38,6 +45,14 @@ class ChildrenController < ApplicationController
         parent1_attributes: parent1_attributes.merge(mother_attributes),
         parent2_attributes: father_attributes
       ))
+      @child.build_child_support if @child.child_support.nil?
+      @child.siblings.build(siblings_attributes)
+      until @child.siblings.size >= SIBLINGS_COUNT do
+        @child.siblings.build
+      end
+      @child.siblings.each do |sibling|
+        sibling.build_child_support if sibling.child_support.nil?
+      end
       @child.errors.add(:base, :invalid_parents, message: 'Infos des parents non valides')
       # @child.build_parent2 if @child.parent2.nil?
       render action: :new and return
@@ -60,11 +75,26 @@ class ChildrenController < ApplicationController
 
     @child = Child.new(attributes)
     if @child.save
+      siblings_attributes.each do |sibling_attributes|
+        Child.create!(sibling_attributes.merge(
+          registration_source: @child.registration_source,
+          registration_source_details: @child.registration_source_details,
+          parent1: @child.parent1,
+          parent2: @child.parent2
+        ))
+      end
       redirect_to created_child_path
     else
       flash.now[:error] = 'Inscription refusée'
       @child.build_parent2 if @child.parent2.nil?
       @child.build_child_support if @child.child_support.nil?
+      @child.siblings.build(siblings_attributes)
+      until @child.siblings.size >= SIBLINGS_COUNT do
+        @child.siblings.build
+      end
+      @child.siblings.each do |sibling|
+        sibling.build_child_support if sibling.child_support.nil?
+      end
       render action: :new
     end
   end
@@ -76,11 +106,9 @@ class ChildrenController < ApplicationController
   private
 
   def child_params
-    params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details)
-  end
-
-  def child_support_params
-    params.require(:child).permit(child_support_attributes: %i(important_information))[:child_support_attributes]
+    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, child_support_attributes: %i(important_information))
+    result.delete(:child_support_attributes) if result[:child_support_attributes][:important_information].blank?
+    result
   end
 
   def parent1_params
@@ -93,6 +121,14 @@ class ChildrenController < ApplicationController
 
   def father_params
     params.require(:child).permit(parent2_attributes: %i(first_name last_name phone_number))[:parent2_attributes]
+  end
+
+  def siblings_params
+    result = params.require(:child).permit(siblings: [[:gender, :first_name, :last_name, :birthdate, child_support_attributes: %i(important_information)]])[:siblings]&.values || []
+    result.each do |sibling_params|
+      sibling_params.delete(:child_support_attributes) if sibling_params[:child_support_attributes][:important_information].blank?
+    end
+    result
   end
 
 end

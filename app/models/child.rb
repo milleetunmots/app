@@ -51,6 +51,8 @@ class Child < ApplicationRecord
   belongs_to :parent1, class_name: :Parent
   belongs_to :parent2, class_name: :Parent, optional: true
 
+  has_many :siblings, class_name: :Child, primary_key: :parent1_id, foreign_key: :parent1_id
+
   # we do not call this 'siblings' because real siblings may have only
   # one parent in common
   def strict_siblings
