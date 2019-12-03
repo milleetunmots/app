@@ -1,7 +1,10 @@
 <%= f.input :gender, as: :radio_buttons, collection: child_gender_select_collection, wrapper: :vertical_collection_inline, required: true %>
 <%= f.input :first_name %>
 <%= f.input :last_name %>
-<%= f.input :birthdate, start_year: Date.today.year - 10, end_year: Date.today.year %>
-<%= f.simple_fields_for :child_support do |child_support_f| %>
-  <%= child_support_f.input :important_information, label: 'Commentaires', input_html: { rows: 5 } %>
+<%= f.input :birthdate, start_year: Date.today.year - 3, end_year: Date.today.year %>
+
+<% if defined?(with_support) && with_support %>
+  <%= f.simple_fields_for :child_support do |child_support_f| %>
+    <%= child_support_f.input :important_information, label: 'Commentaires', input_html: { rows: 5 } %>
+  <% end %>
 <% end %>

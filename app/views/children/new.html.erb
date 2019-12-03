@@ -49,14 +49,14 @@
           <h2>Enfant(s)</h2>
 
           <div class="child-fields">
-            <%= render 'child_form', f: f %>
+            <%= render 'child_form', f: f, with_support: true %>
           </div>
 
           <% @child.siblings.each_with_index do |sibling, i| %>
             <div class="child-fields-container <%= 'hidden' unless sibling.gender %>">
               <div class="separator"></div>
               <div class="add-child-btn-container">
-                <%= link_to '+ Ajouter un enfant', '#', class: 'btn btn-primary add-child-btn' %>
+                <%= link_to '+ Ajouter un autre enfant', '#', class: 'btn btn-primary add-child-btn' %>
               </div>
               <div class="child-fields">
                 <%= link_to '- Annuler', '#', class: 'btn btn-danger float-right rm-child-btn' %>
@@ -69,11 +69,6 @@
         </div>
         <div class="col-sm-8">
           <h2>Parents qui recevront les SMS</h2>
-          <%= f.simple_fields_for :parent1 do |parent1_f| %>
-            <%= parent1_f.input :address %>
-            <%= parent1_f.input :postal_code %>
-            <%= parent1_f.input :city_name %>
-          <% end %>
           <div class="row">
             <div class="col-sm-6">
               <h3>Mère</h3>
@@ -96,9 +91,24 @@
               </div>
             </div>
           </div>
+          <h3>Adresse pour l'envoi des livres</h3>
+          <%= f.simple_fields_for :parent1 do |parent1_f| %>
+            <%= parent1_f.input :letterbox_name %>
+            <%= parent1_f.input :address %>
+            <%= parent1_f.input :postal_code %>
+            <%= parent1_f.input :city_name %>
+          <% end %>
         </div>
       </div>
 
+      <div class="row">
+        <div class="col-sm text-left">
+          <%= f.button :button, 'Annuler', type: 'reset', class: 'btn-outline-secondary' %>
+        </div>
+        <div class="col-sm text-right">
+          <%= f.button :submit, 'Valider', class: 'btn-primary' %>
+        </div>
+      </div>
 
     <% end %>
 
