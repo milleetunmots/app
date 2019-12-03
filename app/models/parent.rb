@@ -11,6 +11,7 @@
 #  is_ambassador         :boolean
 #  job                   :string
 #  last_name             :string           not null
+#  letterbox_name        :string
 #  phone_number          :string           not null
 #  phone_number_national :string
 #  postal_code           :string           not null
@@ -64,6 +65,7 @@ class Parent < ApplicationRecord
   validates :gender, presence: true, inclusion: { in: GENDERS }
   validates :first_name, presence: true
   validates :last_name, presence: true
+  validates :letterbox_name, presence: true
   validates :address, presence: true
   validates :city_name, presence: true
   validates :postal_code, presence: true

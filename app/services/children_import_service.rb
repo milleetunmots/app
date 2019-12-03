@@ -37,6 +37,7 @@ class ChildrenImportService
             first_name: parent1_first_name,
             last_name: parent1_last_name,
             phone_number: parent1_phone_number,
+            letterbox_name: row['parent1_letterbox_name']&.strip,
             address: row['parent1_address']&.strip,
             city_name: row['parent1_city_name']&.strip,
             postal_code: row['parent1_postal_code']&.strip
@@ -50,6 +51,7 @@ class ChildrenImportService
               first_name: row['parent2_first_name']&.strip,
               last_name: row['parent2_last_name']&.strip,
               phone_number: format_phone_number(row['parent2_phone_number']&.strip) || parent1_phone_number,
+              letterbox_name: attributes[:parent1_attributes][:letterbox_name],
               address: attributes[:parent1_attributes][:address],
               city_name: attributes[:parent1_attributes][:city_name],
               postal_code: attributes[:parent1_attributes][:postal_code]

@@ -98,13 +98,18 @@ ActiveAdmin.register Child do
       f.input :first_name
       f.input :last_name
       f.input :birthdate, as: :datepicker
+      f.input :registration_source,
+              collection: child_registration_source_select_collection,
+              input_html: { data: { select2: {} } }
+      f.input :registration_source_details
     end
     f.actions
   end
 
   permit_params :parent1_id, :parent2_id,
                 :should_contact_parent1, :should_contact_parent2,
-                :gender, :first_name, :last_name, :birthdate
+                :gender, :first_name, :last_name, :birthdate,
+                :registration_source, :registration_source_details
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -186,6 +191,7 @@ ActiveAdmin.register Child do
     column :birthdate
     column :age
     column(:gender) { |child| child.gender_text }
+    column :letterbox_name
     column :address
     column :city_name
     column :postal_code

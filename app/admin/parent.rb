@@ -35,6 +35,7 @@ ActiveAdmin.register Parent do
   filter :last_name
   filter :phone_number
   filter :email
+  filter :letterbox_name
   filter :address
   filter :postal_code
   filter :city_name
@@ -57,6 +58,7 @@ ActiveAdmin.register Parent do
       f.input :phone_number,
               input_html: { value: f.object.decorate.phone_number }
       f.input :email
+      f.input :letterbox_name
       f.input :address
       f.input :postal_code
       f.input :city_name
@@ -68,8 +70,8 @@ ActiveAdmin.register Parent do
   end
 
   permit_params :gender, :first_name, :last_name,
-                :phone_number, :email, :address,
-                :postal_code, :city_name,
+                :phone_number, :email, :letterbox_name,
+                :address, :postal_code, :city_name,
                 :is_ambassador, :job, :terms_accepted_at
 
   # ---------------------------------------------------------------------------
@@ -83,6 +85,7 @@ ActiveAdmin.register Parent do
       row :last_name
       row :phone_number
       row :email
+      row :letterbox_name
       row :address
       row :postal_code
       row :city_name

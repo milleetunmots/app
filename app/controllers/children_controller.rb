@@ -80,7 +80,8 @@ class ChildrenController < ApplicationController
           registration_source: @child.registration_source,
           registration_source_details: @child.registration_source_details,
           parent1: @child.parent1,
-          parent2: @child.parent2
+          parent2: @child.parent2,
+          child_support: @child.child_support
         ))
       end
       redirect_to created_child_path
@@ -112,7 +113,7 @@ class ChildrenController < ApplicationController
   end
 
   def parent1_params
-    params.require(:child).permit(parent1_attributes: %i(address postal_code city_name))[:parent1_attributes]
+    params.require(:child).permit(parent1_attributes: %i(letterbox_name address postal_code city_name))[:parent1_attributes]
   end
 
   def mother_params
@@ -124,11 +125,9 @@ class ChildrenController < ApplicationController
   end
 
   def siblings_params
-    result = params.require(:child).permit(siblings: [[:gender, :first_name, :last_name, :birthdate, child_support_attributes: %i(important_information)]])[:siblings]&.values || []
-    result.each do |sibling_params|
-      sibling_params.delete(:child_support_attributes) if sibling_params[:child_support_attributes][:important_information].blank?
-    end
-    result
+    params.require(:child).permit(siblings: [
+      [:gender, :first_name, :last_name, :birthdate]
+    ])[:siblings]&.values || []
   end
 
 end

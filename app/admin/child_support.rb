@@ -100,6 +100,7 @@ ActiveAdmin.register ChildSupport do
   # ---------------------------------------------------------------------------
 
   form(remote: true) do |f|
+    f.semantic_errors *f.object.errors.keys
     f.inputs do
       columns do
         column do
@@ -256,6 +257,12 @@ ActiveAdmin.register ChildSupport do
             tab I18n.t("child_support.#{k}") do
               f.semantic_fields_for :first_child do |first_child_f|
                 first_child_f.semantic_fields_for k do |parent_f|
+                  parent_f.input :phone_number
+                  parent_f.input :email
+                  parent_f.input :letterbox_name
+                  parent_f.input :address
+                  parent_f.input :postal_code
+                  parent_f.input :city_name
                   parent_f.input :is_ambassador
                   parent_f.input :job
                 end
@@ -270,6 +277,10 @@ ActiveAdmin.register ChildSupport do
                                 collection: child_gender_select_collection(with_unknown: true)
             first_child_f.input :should_contact_parent1
             first_child_f.input :should_contact_parent2
+            first_child_f.input :registration_source,
+                                collection: child_registration_source_select_collection,
+                                input_html: { data: { select2: {} } }
+            first_child_f.input :registration_source_details
           end
         end
       end
@@ -279,7 +290,7 @@ ActiveAdmin.register ChildSupport do
 
   parent_attributes = %i(
     id
-    gender first_name last_name phone_number email address postal_code city_name
+    gender first_name last_name phone_number email letterbox_name address postal_code city_name
     is_ambassador job
   )
   permit_params :important_information, :supporter_id, :should_be_read,
@@ -300,6 +311,7 @@ ActiveAdmin.register ChildSupport do
                 first_child_attributes: [
                   :id,
                   :gender, :should_contact_parent1, :should_contact_parent2,
+                  :registration_source, :registration_source_details,
                   {
                     parent1_attributes: parent_attributes,
                     parent2_attributes: parent_attributes
@@ -379,6 +391,7 @@ ActiveAdmin.register ChildSupport do
     column :parent1_last_name
     column :parent1_phone_number_national
     column :should_contact_parent1
+    column :letterbox_name
     column :address
     column :city_name
     column :postal_code
