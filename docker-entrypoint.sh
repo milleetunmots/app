@@ -3,6 +3,12 @@ set -euo pipefail
 
 rm -rf tmp
 
+echo "Running yarn install to update yarn.lock"
+yarn install
+
+echo "Running bundle install to update Gemfile.lock"
+bundle install
+
 # parse DATABASE_URL
 proto="$(echo $DATABASE_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
 url="$(echo ${DATABASE_URL/$proto/})"
@@ -16,12 +22,6 @@ dockerize -wait tcp://$host:$port -timeout 1m
 
 echo "Running migrations..."
 bundle exec rails db:migrate
-
-echo "Running yarn install to update yarn.lock"
-yarn install
-
-echo "Running bundle install to update Gemfile.lock"
-bundle install
 
 echo "Rebuild indexes"
 bundle exec rails pg_search:multisearch:rebuild[Child]
