@@ -50,6 +50,7 @@ class ParentDecorator < BaseDecorator
 
   def full_address
     [
+      letterbox_name,
       address,
       [
         postal_code,

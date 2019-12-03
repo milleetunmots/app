@@ -64,6 +64,12 @@ class ChildDecorator < BaseDecorator
     parent model.parent2
   end
 
+  def registration_source
+    if v = model.registration_source
+      Child.human_attribute_name("registration_source.#{v}")
+    end
+  end
+
   def icon_class
     :baby
   end

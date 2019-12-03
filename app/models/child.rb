@@ -35,12 +35,12 @@ class Child < ApplicationRecord
 
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[
-    friends
-    nursery
-    other
     pmi
-    resubscribing
+    friends
     therapist
+    nursery
+    resubscribing
+    other
   ].freeze
 
   # ---------------------------------------------------------------------------
@@ -71,7 +71,7 @@ class Child < ApplicationRecord
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :birthdate, presence: true
-  validates :registration_source, inclusion: { in: REGISTRATION_SOURCES, allow_blank: true }
+  validates :registration_source, inclusion: { in: REGISTRATION_SOURCES }
 
   # ---------------------------------------------------------------------------
   # helpers
@@ -203,6 +203,7 @@ class Child < ApplicationRecord
 
   delegate :address,
            :city_name,
+           :letterbox_name,
            :postal_code,
            to: :parent1
 
