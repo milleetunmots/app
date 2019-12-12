@@ -3,6 +3,7 @@ fr:
     batch_actions:
       default_confirmation: Action groupée
       labels:
+        add_to_group: Ajouter à une cohorte
         create_support: Créer le suivi pour
     edit_model: Modifier
     delete_model: Supprimer
@@ -22,11 +23,15 @@ fr:
     scopes:
       all: Tous
       done: Fait
+      ended: Terminées
       mine: Sous ma responsabilité
       months_between_0_and_12: 0-1 an
       months_between_12_and_24: 1-2 ans
       months_between_24_and_36: 2-3 ans
       months_more_than_36: 3+ ans
+      not_ended: En cours
       todo: À faire
+      with_current_not_ended_group: Dans une cohorte en cours
       with_support: Suivis
+      without_current_not_ended_group: Sans cohorte en cours
       without_support: Non suivis

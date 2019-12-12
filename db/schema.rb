@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_03_152011) do
+ActiveRecord::Schema.define(version: 2019_12_12_004750) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -103,6 +103,27 @@ ActiveRecord::Schema.define(version: 2019_12_03_152011) do
     t.index ["gender"], name: "index_children_on_gender"
     t.index ["parent1_id"], name: "index_children_on_parent1_id"
     t.index ["parent2_id"], name: "index_children_on_parent2_id"
+  end
+
+  create_table "children_groups", force: :cascade do |t|
+    t.bigint "child_id"
+    t.bigint "group_id"
+    t.date "quit_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["child_id"], name: "index_children_groups_on_child_id"
+    t.index ["group_id"], name: "index_children_groups_on_group_id"
+    t.index ["quit_at"], name: "index_children_groups_on_quit_at"
+  end
+
+  create_table "groups", force: :cascade do |t|
+    t.string "name"
+    t.date "started_at"
+    t.date "ended_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["ended_at"], name: "index_groups_on_ended_at"
+    t.index ["started_at"], name: "index_groups_on_started_at"
   end
 
   create_table "parents", force: :cascade do |t|

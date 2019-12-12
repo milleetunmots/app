@@ -51,6 +51,17 @@ class Child < ApplicationRecord
   belongs_to :parent1, class_name: :Parent
   belongs_to :parent2, class_name: :Parent, optional: true
 
+  has_and_belongs_to_many :groups
+
+  has_many :children_groups
+
+  has_one :current_not_ended_children_group,
+          -> { not_quit.for_not_ended_group },
+          class_name: :ChildrenGroup
+  has_one :current_not_ended_group,
+          through: :current_not_ended_children_group,
+          source: :group
+
   has_many :siblings, class_name: :Child, primary_key: :parent1_id, foreign_key: :parent1_id
 
   # we do not call this 'siblings' because real siblings may have only
@@ -105,6 +116,14 @@ class Child < ApplicationRecord
       child.child_support_id = child_support.id
       child.save(validate: false)
     end
+  end
+
+  # ---------------------------------------------------------------------------
+  # group
+  # ---------------------------------------------------------------------------
+
+  def quit_current_not_ended_group!
+    current_not_ended_children_group.update_attribute :quit_at, Date.today
   end
 
   # ---------------------------------------------------------------------------
@@ -174,6 +193,14 @@ class Child < ApplicationRecord
     where(parent1: Parent.ransack(postal_code_starts_with: v).result)
   end
 
+  def self.with_current_not_ended_group
+    where(id: ChildrenGroup.not_quit.for_not_ended_group.select(:child_id))
+  end
+
+  def self.without_current_not_ended_group
+    where.not(id: ChildrenGroup.not_quit.for_not_ended_group.select(:child_id))
+  end
+
   # ---------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
@@ -228,11 +255,5 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   has_paper_trail
-
-  # ---------------------------------------------------------------------------
-  # other attributes
-  # ---------------------------------------------------------------------------
-
-  attr_accessor :parent2_absent
 
 end
