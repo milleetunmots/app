@@ -4,6 +4,7 @@ fr:
       admin_user: Administrateur
       child: Enfant
       child_support: Suivi
+      group: Cohorte
       parent: Parent
       task: Tâche
     attributes:
@@ -24,8 +25,10 @@ fr:
         child_support: Suivi
         city_name: Ville
         created_at: Ajout
+        current_not_ended_group: Cohorte
         first_name: Prénom
         gender: Sexe
+        groups: Cohortes
         id: "#"
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres
@@ -152,6 +155,13 @@ fr:
         1_low: Faible
         2_medium: Modéré
         3_high: Important
+      children_group:
+        quit_at: Date de sortie
+      group:
+        children: Enfants
+        ended_at: Date de fin
+        name: Nom
+        started_at: Date de début
       parent:
         address: Adresse
         children: Enfant(s)

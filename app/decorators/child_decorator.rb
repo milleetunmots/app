@@ -64,6 +64,20 @@ class ChildDecorator < BaseDecorator
     parent model.parent2
   end
 
+  def groups
+    arbre do
+      ul do
+        model.children_groups.each do |children_group|
+          li children_group.decorate.admin_link
+        end
+      end
+    end
+  end
+
+  def current_not_ended_group
+    model.current_not_ended_group&.decorate&.admin_link
+  end
+
   def registration_source
     if v = model.registration_source
       Child.human_attribute_name("registration_source.#{v}")
