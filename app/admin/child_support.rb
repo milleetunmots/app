@@ -43,6 +43,10 @@ ActiveAdmin.register ChildSupport do
          as: :select,
          collection: proc { child_group_select_collection },
          input_html: { multiple: true, data: { select2: {} } }
+  filter :registration_sources,
+         as: :select,
+         collection: proc { child_registration_source_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
   filter :should_be_read,
          input_html: { data: { select2: { width: '100%' } } }
   filter :supporter,

@@ -171,12 +171,16 @@ class ChildSupport < ApplicationRecord
     where(id: Child.where(group_id: v).select('DISTINCT child_support_id'))
   end
 
+  def self.registration_sources_in(*v)
+    where(id: Child.where(registration_source: v).select('DISTINCT child_support_id'))
+  end
+
   # ---------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    %i(groups_in)
+    %i(groups_in registration_sources_in)
   end
 
   # ---------------------------------------------------------------------------
