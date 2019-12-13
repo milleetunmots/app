@@ -227,6 +227,30 @@ class ChildSupportDecorator < BaseDecorator
     h.content_tag :div, call3_notes_text, class: 'free-text'
   end
 
+  def groups
+    arbre do
+      ul do
+        model.children.decorate.each do |child|
+          li do
+            child.group
+          end
+        end
+      end
+    end
+  end
+
+  def registration_sources
+    arbre do
+      ul do
+        model.children.decorate.each do |child|
+          li do
+            child.registration_source
+          end
+        end
+      end
+    end
+  end
+
   # def parent1_card
   #   parent_card model.parent1, model.should_contact_parent1
   # end

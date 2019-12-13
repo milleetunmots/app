@@ -103,6 +103,7 @@ fr:
         children_ages: Age des enfants
         children_genders: Sexe des enfants
         created_at: Ajout
+        groups: Cohortes
         id: "#"
         important_information: Infos importantes (langue maternelle, présence du père, ...)
         letterbox_name: Nom sur la boîte aux lettres
@@ -117,6 +118,7 @@ fr:
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
         postal_code: Code postal
+        registration_sources: Origines
         should_be_read: À lire par l'équipe
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?

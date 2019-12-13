@@ -28,11 +28,10 @@ ActiveAdmin.register ChildSupport do
     column I18n.t('child_support.call3') do |model|
       [model.call3_status, model.call3_parent_progress_index].join(' ').html_safe
     end
+    column :groups
+    column :registration_sources
     column :created_at do |model|
       l model.created_at.to_date, format: :default
-    end
-    column :updated_at do |model|
-      l model.updated_at.to_date, format: :default
     end
     actions
   end
