@@ -14,9 +14,12 @@ ActiveAdmin.register Child do
   index do
     selectable_column
     id_column
-    column :gender
-    column :first_name
-    column :last_name
+    column :first_name do |model|
+      model.admin_link(label: model.first_name)
+    end
+    column :last_name do |model|
+      model.admin_link(label: model.last_name)
+    end
     column :age, sortable: :birthdate
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
