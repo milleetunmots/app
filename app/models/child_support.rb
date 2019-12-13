@@ -167,6 +167,18 @@ class ChildSupport < ApplicationRecord
     end
   end
 
+  def self.groups_in(*v)
+    where(id: Child.where(group_id: v).select('DISTINCT child_support_id'))
+  end
+
+  # ---------------------------------------------------------------------------
+  # ransack
+  # ---------------------------------------------------------------------------
+
+  def self.ransackable_scopes(auth_object = nil)
+    %i(groups_in)
+  end
+
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
