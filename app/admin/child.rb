@@ -21,10 +21,10 @@ ActiveAdmin.register Child do
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
     column :postal_code
-    column :child_support do |model|
+    column :child_support, sortable: :child_support_id do |model|
       model.child_support_status
     end
-    column :group
+    column :group, sortable: :group_id
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -101,6 +101,11 @@ ActiveAdmin.register Child do
       )
       redirect_to collection_path, notice: 'Enfants ajoutés à la cohorte'
     end
+  end
+
+  batch_action :quit_group do |ids|
+    batch_action_collection.where(id: ids).update_all(has_quit_group: true)
+    redirect_to collection_path, notice: 'Modification effectuée'
   end
 
   # ---------------------------------------------------------------------------
