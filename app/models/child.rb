@@ -6,6 +6,7 @@
 #  birthdate                   :date             not null
 #  first_name                  :string           not null
 #  gender                      :string
+#  has_quit_group              :boolean
 #  last_name                   :string           not null
 #  registration_source         :string
 #  registration_source_details :string
@@ -14,6 +15,7 @@
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
 #  child_support_id            :bigint
+#  group_id                    :bigint
 #  parent1_id                  :bigint           not null
 #  parent2_id                  :bigint
 #
@@ -22,6 +24,7 @@
 #  index_children_on_birthdate         (birthdate)
 #  index_children_on_child_support_id  (child_support_id)
 #  index_children_on_gender            (gender)
+#  index_children_on_group_id          (group_id)
 #  index_children_on_parent1_id        (parent1_id)
 #  index_children_on_parent2_id        (parent2_id)
 #
@@ -50,17 +53,7 @@ class Child < ApplicationRecord
   belongs_to :child_support, optional: true
   belongs_to :parent1, class_name: :Parent
   belongs_to :parent2, class_name: :Parent, optional: true
-
-  has_and_belongs_to_many :groups
-
-  has_many :children_groups
-
-  has_one :current_not_ended_children_group,
-          -> { not_quit.for_not_ended_group },
-          class_name: :ChildrenGroup
-  has_one :current_not_ended_group,
-          through: :current_not_ended_children_group,
-          source: :group
+  belongs_to :group, optional: true
 
   has_many :siblings, class_name: :Child, primary_key: :parent1_id, foreign_key: :parent1_id
 
@@ -116,14 +109,6 @@ class Child < ApplicationRecord
       child.child_support_id = child_support.id
       child.save(validate: false)
     end
-  end
-
-  # ---------------------------------------------------------------------------
-  # group
-  # ---------------------------------------------------------------------------
-
-  def quit_current_not_ended_group!
-    current_not_ended_children_group.update_attribute :quit_at, Date.today
   end
 
   # ---------------------------------------------------------------------------
@@ -193,13 +178,8 @@ class Child < ApplicationRecord
     where(parent1: Parent.ransack(postal_code_starts_with: v).result)
   end
 
-  def self.with_current_not_ended_group
-    where(id: ChildrenGroup.not_quit.for_not_ended_group.select(:child_id))
-  end
-
-  def self.without_current_not_ended_group
-    where.not(id: ChildrenGroup.not_quit.for_not_ended_group.select(:child_id))
-  end
+  scope :with_group, -> { where.not(group_id: nil) }
+  scope :without_group, -> { where(group_id: nil) }
 
   # ---------------------------------------------------------------------------
   # ransack
@@ -240,6 +220,11 @@ class Child < ApplicationRecord
 
   delegate :is_ambassador?,
            to: :parent2,
+           prefix: true,
+           allow_nil: true
+
+  delegate :name,
+           to: :group,
            prefix: true,
            allow_nil: true
 

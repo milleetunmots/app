@@ -25,10 +25,11 @@ fr:
         child_support: Suivi
         city_name: Ville
         created_at: Ajout
-        current_not_ended_group: Cohorte
         first_name: Prénom
         gender: Sexe
-        groups: Cohortes
+        group: Cohorte
+        group_name: Nom de la cohorte
+        has_quit_group: Cohorte en pause
         id: "#"
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres
@@ -155,8 +156,6 @@ fr:
         1_low: Faible
         2_medium: Modéré
         3_high: Important
-      children_group:
-        quit_at: Date de sortie
       group:
         children: Enfants
         ended_at: Date de fin

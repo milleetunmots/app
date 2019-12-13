@@ -21,7 +21,15 @@ class Group < ApplicationRecord
   # relations
   # ---------------------------------------------------------------------------
 
-  has_and_belongs_to_many :children
+  has_many :children, dependent: :nullify
+
+  # ---------------------------------------------------------------------------
+  # validations
+  # ---------------------------------------------------------------------------
+
+  validates :name,
+            presence: true,
+            uniqueness: { case_sensitive: false }
 
   # ---------------------------------------------------------------------------
   # scopes

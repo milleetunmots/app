@@ -64,18 +64,12 @@ class ChildDecorator < BaseDecorator
     parent model.parent2
   end
 
-  def groups
-    arbre do
-      ul do
-        model.children_groups.each do |children_group|
-          li children_group.decorate.admin_link
-        end
-      end
+  def group
+    options = {}
+    if model.has_quit_group?
+      options[:class] = 'quit'
     end
-  end
-
-  def current_not_ended_group
-    model.current_not_ended_group&.decorate&.admin_link
+    model.group&.decorate&.admin_link(options)
   end
 
   def registration_source
