@@ -28,11 +28,10 @@ ActiveAdmin.register ChildSupport do
     column I18n.t('child_support.call3') do |model|
       [model.call3_status, model.call3_parent_progress_index].join(' ').html_safe
     end
+    column :groups
+    column :registration_sources
     column :created_at do |model|
       l model.created_at.to_date, format: :default
-    end
-    column :updated_at do |model|
-      l model.updated_at.to_date, format: :default
     end
     actions
   end
@@ -40,6 +39,14 @@ ActiveAdmin.register ChildSupport do
   scope(:mine, default: true) { |scope| scope.supported_by(current_admin_user) }
   scope :all
 
+  filter :groups,
+         as: :select,
+         collection: proc { child_group_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
+  filter :registration_sources,
+         as: :select,
+         collection: proc { child_registration_source_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
   filter :should_be_read,
          input_html: { data: { select2: { width: '100%' } } }
   filter :supporter,

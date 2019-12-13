@@ -18,6 +18,10 @@ module ActiveAdmin::ChildrenHelper
     end
   end
 
+  def child_group_select_collection
+    Group.order(:name).map(&:decorate)
+  end
+
   def child_parent_select_collection
     Parent.all.map(&:decorate)
   end

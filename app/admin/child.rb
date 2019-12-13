@@ -9,22 +9,25 @@ ActiveAdmin.register Child do
   # INDEX
   # ---------------------------------------------------------------------------
 
-  includes :parent1, :parent2, :child_support, :current_not_ended_group
+  includes :parent1, :parent2, :child_support, :group
 
   index do
     selectable_column
     id_column
-    column :gender
-    column :first_name
-    column :last_name
+    column :first_name do |model|
+      model.admin_link(label: model.first_name)
+    end
+    column :last_name do |model|
+      model.admin_link(label: model.last_name)
+    end
     column :age, sortable: :birthdate
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
     column :postal_code
-    column :child_support do |model|
+    column :child_support, sortable: :child_support_id do |model|
       model.child_support_status
     end
-    column :current_not_ended_group
+    column :group, sortable: :group_id
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -36,6 +39,9 @@ ActiveAdmin.register Child do
 
   scope :all, default: true
 
+  scope :without_group, group: :group
+  scope :with_group, group: :group
+
   scope :months_between_0_and_12, group: :months
   scope :months_between_12_and_24, group: :months
   scope :months_between_24_and_36, group: :months
@@ -43,9 +49,6 @@ ActiveAdmin.register Child do
 
   scope :with_support, group: :support
   scope :without_support, group: :support
-
-  scope :without_current_not_ended_group, group: :group
-  scope :with_current_not_ended_group, group: :group
 
   filter :gender,
          as: :check_boxes,
@@ -66,8 +69,9 @@ ActiveAdmin.register Child do
          as: :select,
          collection: proc { child_registration_source_details_suggestions },
          input_html: { multiple: true, data: { select2: {} } }
-  filter :groups,
+  filter :group,
          input_html: { multiple: true, data: { select2: {} } }
+  filter :has_quit_group
   filter :created_at
   filter :updated_at
 
@@ -86,19 +90,25 @@ ActiveAdmin.register Child do
 
   batch_action :add_to_group, form: -> {
     {
-      I18n.t('activerecord.attributes.group.name') => Group.not_ended.pluck(:name, :id)
+      I18n.t('activerecord.attributes.group.name') => Group.not_ended.order(:name).pluck(:name, :id)
     }
   } do |ids, inputs|
-    if batch_action_collection.with_current_not_ended_group.any?
+    if batch_action_collection.where(id: ids).with_group.any?
       flash[:error] = 'Certains enfants sont déjà dans une cohorte'
       redirect_to request.referer
     else
       group = Group.find(inputs[I18n.t('activerecord.attributes.group.name')])
-      batch_action_collection.find(ids).each do |child|
-        ChildrenGroup.create!(child: child, group: group)
-      end
+      batch_action_collection.where(id: ids).update_all(
+        group_id: group.id,
+        has_quit_group: false # just in case
+      )
       redirect_to collection_path, notice: 'Enfants ajoutés à la cohorte'
     end
+  end
+
+  batch_action :quit_group do |ids|
+    batch_action_collection.where(id: ids).update_all(has_quit_group: true)
+    redirect_to collection_path, notice: 'Modification effectuée'
   end
 
   # ---------------------------------------------------------------------------
@@ -125,11 +135,15 @@ ActiveAdmin.register Child do
               collection: child_registration_source_select_collection,
               input_html: { data: { select2: {} } }
       f.input :registration_source_details
+      f.input :group,
+              collection: child_group_select_collection,
+              input_html: { data: { select2: {} } }
+      f.input :has_quit_group
     end
     f.actions
   end
 
-  permit_params :parent1_id, :parent2_id,
+  permit_params :parent1_id, :parent2_id, :group_id, :has_quit_group,
                 :should_contact_parent1, :should_contact_parent2,
                 :gender, :first_name, :last_name, :birthdate,
                 :registration_source, :registration_source_details
@@ -151,7 +165,8 @@ ActiveAdmin.register Child do
       row :gender
       row :registration_source
       row :registration_source_details
-      row :groups
+      row :group
+      row :has_quit_group
       row :created_at
       row :updated_at
     end
@@ -177,11 +192,11 @@ ActiveAdmin.register Child do
   end
   action_item :quit_group,
               only: :show,
-              if: proc { resource.current_not_ended_group } do
+              if: proc { resource.group && !resource.has_quit_group? } do
     link_to 'Quitter la cohorte', [:quit_group, :admin, resource]
   end
   member_action :quit_group do
-    resource.quit_current_not_ended_group!
+    resource.update_attribute :has_quit_group, true
     redirect_to [:admin, resource]
   end
 
@@ -241,6 +256,9 @@ ActiveAdmin.register Child do
 
     column(:registration_source) { |child| child.registration_source && Child.human_attribute_name("registration_source.#{child.registration_source}") }
     column :registration_source_details
+
+    column(:group_name) { |child| child.group_name }
+    column :has_quit_group
 
     column :created_at
     column :updated_at

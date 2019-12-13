@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_12_004750) do
+ActiveRecord::Schema.define(version: 2019_12_13_112612) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -98,22 +98,14 @@ ActiveRecord::Schema.define(version: 2019_12_12_004750) do
     t.bigint "child_support_id"
     t.string "registration_source_details"
     t.string "registration_source"
+    t.bigint "group_id"
+    t.boolean "has_quit_group"
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["gender"], name: "index_children_on_gender"
+    t.index ["group_id"], name: "index_children_on_group_id"
     t.index ["parent1_id"], name: "index_children_on_parent1_id"
     t.index ["parent2_id"], name: "index_children_on_parent2_id"
-  end
-
-  create_table "children_groups", force: :cascade do |t|
-    t.bigint "child_id"
-    t.bigint "group_id"
-    t.date "quit_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["child_id"], name: "index_children_groups_on_child_id"
-    t.index ["group_id"], name: "index_children_groups_on_group_id"
-    t.index ["quit_at"], name: "index_children_groups_on_quit_at"
   end
 
   create_table "groups", force: :cascade do |t|

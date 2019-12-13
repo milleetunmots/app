@@ -5,6 +5,7 @@ fr:
       labels:
         add_to_group: Ajouter à une cohorte
         create_support: Créer le suivi pour
+        quit_group: Mettre en pause la cohorte pour
     edit_model: Modifier
     delete_model: Supprimer
     filters:
@@ -31,7 +32,7 @@ fr:
       months_more_than_36: 3+ ans
       not_ended: En cours
       todo: À faire
-      with_current_not_ended_group: Dans une cohorte en cours
+      with_group: Dans une cohorte
       with_support: Suivis
-      without_current_not_ended_group: Sans cohorte en cours
+      without_group: Sans cohorte
       without_support: Non suivis
