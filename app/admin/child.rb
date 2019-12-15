@@ -245,7 +245,6 @@ ActiveAdmin.register Child do
   # CSV EXPORT
   # ---------------------------------------------------------------------------
 
-  #
   csv do
     column :id
     column :first_name

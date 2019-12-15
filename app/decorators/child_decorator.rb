@@ -108,6 +108,16 @@ class ChildDecorator < BaseDecorator
     end
   end
 
+  def phone_number_national
+    if model.should_contact_parent1?
+      model.parent1.phone_number_national
+    elsif model.should_contact_parent2?
+      model.parent2.phone_number_national
+    else
+      nil
+    end
+  end
+
   private
 
   def parent(parent)

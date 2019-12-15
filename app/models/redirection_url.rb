@@ -56,4 +56,28 @@ class RedirectionUrl < ApplicationRecord
 
   scope :with_visits, -> { where("redirection_url_visits_count > 0") }
 
+  # ---------------------------------------------------------------------------
+  # helpers
+  # ---------------------------------------------------------------------------
+
+  delegate :name,
+           :target_url,
+           to: :redirection_target,
+           prefix: true
+
+  delegate :address,
+           :birthdate,
+           :city_name,
+           :first_name,
+           :gender,
+           :group_name,
+           :has_quit_group,
+           :last_name,
+           :letterbox_name,
+           :postal_code,
+           :registration_source,
+           :registration_source_details,
+           to: :owner,
+           prefix: true
+
 end
