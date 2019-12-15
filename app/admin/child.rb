@@ -278,6 +278,12 @@ ActiveAdmin.register Child do
     column(:group_name) { |child| child.group_name }
     column :has_quit_group
 
+    column :redirection_urls_count
+    column :redirection_url_visits_count
+    column :redirection_url_unique_visits_count
+    column :redirection_unique_visit_rate
+    column :redirection_visit_rate
+
     column :created_at
     column :updated_at
   end

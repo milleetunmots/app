@@ -48,7 +48,6 @@ class RedirectionUrl < ApplicationRecord
   after_destroy :update_relation_counters!
 
   def update_relation_counters!
-    puts "UPDATE RELATION COUNTERS"
     redirection_target.update_counters!
     owner.update_counters!
   end
