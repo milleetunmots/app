@@ -53,7 +53,7 @@ ActiveAdmin.register RedirectionTarget do
     attributes_table do
       row :name
       row :target_url
-      row :redirection_urls_count
+      row :redirection_urls
       row :redirection_url_visits_count
       row :redirection_url_unique_visits_count
       row :unique_visit_rate

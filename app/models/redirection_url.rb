@@ -48,6 +48,8 @@ class RedirectionUrl < ApplicationRecord
     redirection_target.update_counters!
   end
 
+  after_destroy :update_redirection_target_counters!
+
   # ---------------------------------------------------------------------------
   # scopes
   # ---------------------------------------------------------------------------

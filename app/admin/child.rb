@@ -124,7 +124,7 @@ ActiveAdmin.register Child do
       latest_parent1_id = child.parent1_id
       RedirectionUrl.create!(redirection_target: redirection_target, owner: child)
     end
-    redirect_to request.referer, notice: 'Redirections créées'
+    redirect_to redirection_target.decorate.redirection_urls_path, notice: 'URL courtes créées'
   end
 
   # ---------------------------------------------------------------------------

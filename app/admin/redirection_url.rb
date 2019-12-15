@@ -1,6 +1,8 @@
 ActiveAdmin.register RedirectionUrl do
   menu parent: 'Redirection'
 
+  actions :all, except: [:edit, :update]
+
   decorate_with RedirectionUrlDecorator
 
   # ---------------------------------------------------------------------------
@@ -20,24 +22,11 @@ ActiveAdmin.register RedirectionUrl do
     actions
   end
 
-  filter :redirection_target
+  filter :redirection_target,
+         input_html: { multiple: true, data: { select2: {} } }
   filter :redirection_url_visits_count
   filter :created_at
   filter :updated_at
-
-  # ---------------------------------------------------------------------------
-  # FORM
-  # ---------------------------------------------------------------------------
-
-  form do |f|
-    f.inputs do
-      f.input :redirection_target
-      f.input :owner
-    end
-    f.actions
-  end
-
-  permit_params :redirection_target_id, :owner_type, :owner_id
 
   # ---------------------------------------------------------------------------
   # SHOW
