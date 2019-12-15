@@ -4,6 +4,7 @@ fr:
       default_confirmation: Action groupée
       labels:
         add_to_group: Ajouter à une cohorte
+        create_redirection_url: Créer une URL courte pour
         create_support: Créer le suivi pour
         quit_group: Mettre en pause la cohorte pour
     edit_model: Modifier

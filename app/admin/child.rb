@@ -28,11 +28,9 @@ ActiveAdmin.register Child do
       model.child_support_status
     end
     column :group, sortable: :group_id
+    column :redirection_unique_visits
     column :created_at do |model|
       l model.created_at.to_date, format: :default
-    end
-    column :updated_at do |model|
-      l model.updated_at.to_date, format: :default
     end
     actions
   end
@@ -72,6 +70,11 @@ ActiveAdmin.register Child do
   filter :group,
          input_html: { multiple: true, data: { select2: {} } }
   filter :has_quit_group
+  filter :redirection_urls_count
+  filter :redirection_url_visits_count
+  filter :redirection_url_unique_visits_count
+  filter :redirection_unique_visit_rate
+  filter :redirection_visit_rate
   filter :created_at
   filter :updated_at
 
@@ -90,25 +93,53 @@ ActiveAdmin.register Child do
 
   batch_action :add_to_group, form: -> {
     {
-      I18n.t('activerecord.attributes.group.name') => Group.not_ended.order(:name).pluck(:name, :id)
+      I18n.t('activerecord.models.group') => Group.not_ended.order(:name).pluck(:name, :id)
     }
   } do |ids, inputs|
     if batch_action_collection.where(id: ids).with_group.any?
       flash[:error] = 'Certains enfants sont déjà dans une cohorte'
       redirect_to request.referer
     else
-      group = Group.find(inputs[I18n.t('activerecord.attributes.group.name')])
+      group = Group.find(inputs[I18n.t('activerecord.models.group')])
       batch_action_collection.where(id: ids).update_all(
         group_id: group.id,
         has_quit_group: false # just in case
       )
-      redirect_to collection_path, notice: 'Enfants ajoutés à la cohorte'
+      redirect_to request.referer, notice: 'Enfants ajoutés à la cohorte'
     end
   end
 
   batch_action :quit_group do |ids|
     batch_action_collection.where(id: ids).update_all(has_quit_group: true)
-    redirect_to collection_path, notice: 'Modification effectuée'
+    redirect_to request.referer, notice: 'Modification effectuée'
+  end
+
+  batch_action :create_redirection_url, form: -> {
+    {
+      I18n.t('activerecord.models.redirection_target') => RedirectionTarget.order(:name).pluck(:name, :id)
+    }
+  } do |ids, inputs|
+    children = batch_action_collection.where(id: ids)
+
+    if children.without_parent_to_contact.any?
+      flash[:error] = "Certains enfants n'ont aucun parent à contacter"
+      redirect_to request.referer
+    else
+      redirection_target = RedirectionTarget.find(inputs[I18n.t('activerecord.models.redirection_target')])
+
+      latest_parent_id = nil
+      children.order(:parent_to_contact_id).each do |child|
+        next if latest_parent_id == child.parent_to_contact_id
+        latest_parent_id = child.parent_to_contact_id
+
+        RedirectionUrl.create!(
+          redirection_target: redirection_target,
+          parent_id: child.parent_to_contact_id,
+          child: child
+        )
+      end
+      redirect_to redirection_target.decorate.redirection_urls_path, notice: 'URL courtes créées'
+    end
   end
 
   # ---------------------------------------------------------------------------
@@ -167,6 +198,11 @@ ActiveAdmin.register Child do
       row :registration_source_details
       row :group
       row :has_quit_group
+      row :redirection_urls_count
+      row :redirection_url_visits_count
+      row :redirection_url_unique_visits_count
+      row :redirection_unique_visit_rate
+      row :redirection_visit_rate
       row :created_at
       row :updated_at
     end
@@ -229,7 +265,6 @@ ActiveAdmin.register Child do
   # CSV EXPORT
   # ---------------------------------------------------------------------------
 
-  #
   csv do
     column :id
     column :first_name
@@ -259,6 +294,12 @@ ActiveAdmin.register Child do
 
     column(:group_name) { |child| child.group_name }
     column :has_quit_group
+
+    column :redirection_urls_count
+    column :redirection_url_visits_count
+    column :redirection_url_unique_visits_count
+    column :redirection_unique_visit_rate
+    column :redirection_visit_rate
 
     column :created_at
     column :updated_at

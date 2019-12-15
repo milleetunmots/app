@@ -6,6 +6,8 @@ fr:
       child_support: Suivi
       group: Cohorte
       parent: Parent
+      redirection_target: URL cible
+      redirection_url: URL courte
       task: Tâche
     attributes:
       admin_user:
@@ -45,6 +47,12 @@ fr:
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
         postal_code: Code postal
+        redirection_unique_visit_rate: "Taux de visites uniques d'URL courtes"
+        redirection_unique_visits: URL visitées
+        redirection_url_unique_visits_count: "Visites uniques d'URL courtes"
+        redirection_url_visits_count: "Visites d'URL courtes"
+        redirection_urls_count: URL courtes
+        redirection_visit_rate: "Taux de visites d'URL courtes"
         registration_source: Comment nous avez-vous connu ?
         registration_source_details: 'Précisez le nom :'
         should_contact_parent1: Contacter parent 1 ?
@@ -178,12 +186,58 @@ fr:
         letterbox_name: Nom sur la boîte aux lettres
         phone_number: Téléphone
         postal_code: Code postal
+        redirection_unique_visit_rate: "Taux de visites uniques d'URL courtes"
+        redirection_unique_visits: URL visitées
+        redirection_url_unique_visits_count: "Visites uniques d'URL courtes"
+        redirection_url_visits_count: "Visites d'URL courtes"
+        redirection_urls_count: URL courtes
+        redirection_visit_rate: "Taux de visites d'URL courtes"
         terms_accepted_at: Acceptation des conditions d'utilisation
         updated_at: Modification
       parent/gender:
         f: Femme
         m: Homme
         x: Inconnu
+      redirection_target:
+        id: "#"
+        created_at: Ajout
+        name: Nom
+        redirection_urls_count: URL courtes
+        redirection_url_unique_visits_count: Visites uniques
+        redirection_url_visits_count: Visites
+        target_url: Lien cible
+        unique_visit_rate: Taux de visites uniques
+        updated_at: Modification
+        visit_rate: Taux de visites
+      redirection_url:
+        id: "#"
+        child: Enfant
+        child_age: "Age de l'enfant"
+        child_birthdate: "Date de naissance de l'enfant"
+        child_first_name: "Prénom de l'enfant"
+        child_gender: "Sexe de l'enfant"
+        child_group_name: Cohorte
+        child_has_quit_group: Cohorte en pause
+        child_last_name: "Nom de l'enfant"
+        child_registration_source: Origine
+        child_registration_source_details: "Précisions sur l'origine"
+        created_at: Ajout
+        parent: Parent
+        parent_address: Adresse
+        parent_city_name: Ville
+        parent_gender: Sexe du parent
+        parent_first_name: Prénom du parent
+        parent_last_name: Nom du parent
+        parent_letterbox_name: Nom sur la boîte aux lettres
+        parent_phone_number_national: Numéro du parent
+        parent_postal_code: Code postal
+        redirection_target: URL cible
+        redirection_target_name: Nom de l'URL cible
+        redirection_target_target_url: Lien cible
+        redirection_url_visits_count: Visites
+        security_code: Sécurité
+        updated_at: Modification
+        visit_url: Lien court
       task:
         assignee: Assigné à
         created_at: Ajout

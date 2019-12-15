@@ -19,6 +19,7 @@ ActiveAdmin.register Parent do
     column :phone_number
     column :email
     column :is_ambassador
+    column :redirection_unique_visits
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -95,6 +96,11 @@ ActiveAdmin.register Parent do
       row :is_ambassador
       row :job
       row :terms_accepted_at
+      row :redirection_urls_count
+      row :redirection_url_visits_count
+      row :redirection_url_unique_visits_count
+      row :redirection_unique_visit_rate
+      row :redirection_visit_rate
     end
   end
 
