@@ -117,7 +117,11 @@ ActiveAdmin.register Child do
     }
   } do |ids, inputs|
     redirection_target = RedirectionTarget.find(inputs[I18n.t('activerecord.models.redirection_target')])
-    batch_action_collection.find(ids).each do |child|
+
+    latest_parent1_id = nil
+    batch_action_collection.order(:parent1_id).find(ids).each do |child|
+      next if latest_parent1_id == child.parent1_id
+      latest_parent1_id = child.parent1_id
       RedirectionUrl.create!(redirection_target: redirection_target, owner: child)
     end
     redirect_to request.referer, notice: 'Redirections créées'
