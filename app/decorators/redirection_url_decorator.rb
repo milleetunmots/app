@@ -1,23 +1,27 @@
 class RedirectionUrlDecorator < BaseDecorator
 
+  def decorated_owner
+    @decorated_owner ||= model&.owner&.decorate
+  end
+
   def owner
-    model&.owner&.decorate&.admin_link
+    decorated_owner&.admin_link
   end
 
   def owner_age
-    model&.owner&.decorate&.age
+    decorated_owner&.age
   end
 
   def owner_gender_text
-    model&.owner&.decorate&.gender_text
+    decorated_owner&.gender_text
   end
 
   def owner_phone_number_national
-    model&.owner&.decorate&.phone_number_national
+    decorated_owner&.phone_number_national
   end
 
   def owner_registration_source
-    model&.owner&.decorate&.registration_source
+    decorated_owner&.registration_source
   end
 
   def visit_url
