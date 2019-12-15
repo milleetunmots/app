@@ -28,11 +28,9 @@ ActiveAdmin.register Child do
       model.child_support_status
     end
     column :group, sortable: :group_id
+    column :redirection_unique_visits
     column :created_at do |model|
       l model.created_at.to_date, format: :default
-    end
-    column :updated_at do |model|
-      l model.updated_at.to_date, format: :default
     end
     actions
   end
@@ -183,6 +181,11 @@ ActiveAdmin.register Child do
       row :registration_source_details
       row :group
       row :has_quit_group
+      row :redirection_urls_count
+      row :redirection_url_visits_count
+      row :redirection_url_unique_visits_count
+      row :redirection_unique_visit_rate
+      row :redirection_visit_rate
       row :created_at
       row :updated_at
     end

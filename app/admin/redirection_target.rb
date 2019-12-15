@@ -14,8 +14,12 @@ ActiveAdmin.register RedirectionTarget do
     selectable_column
     id_column
     column :name
-    column :target_url
-    column :redirection_urls_count
+    column :target_url do |model|
+      model.target_link
+    end
+    column :redirection_urls do |model|
+      model.redirection_urls_link
+    end
     column :redirection_url_unique_visits_count
     column :unique_visit_rate
     column :redirection_url_visits_count
@@ -52,8 +56,12 @@ ActiveAdmin.register RedirectionTarget do
   show do
     attributes_table do
       row :name
-      row :target_url
-      row :redirection_urls
+      row :target_url do |model|
+        model.target_link
+      end
+      row :redirection_urls do |model|
+        model.redirection_urls_link
+      end
       row :redirection_url_visits_count
       row :redirection_url_unique_visits_count
       row :unique_visit_rate

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_14_203909) do
+ActiveRecord::Schema.define(version: 2019_12_15_150950) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -100,6 +100,11 @@ ActiveRecord::Schema.define(version: 2019_12_14_203909) do
     t.string "registration_source"
     t.bigint "group_id"
     t.boolean "has_quit_group"
+    t.integer "redirection_urls_count"
+    t.integer "redirection_url_visits_count"
+    t.integer "redirection_url_unique_visits_count"
+    t.float "redirection_unique_visit_rate"
+    t.float "redirection_visit_rate"
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["gender"], name: "index_children_on_gender"

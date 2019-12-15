@@ -23,7 +23,7 @@ class RedirectionUrl < ApplicationRecord
   # relations
   # ---------------------------------------------------------------------------
 
-  belongs_to :redirection_target, counter_cache: true
+  belongs_to :redirection_target
   belongs_to :owner, polymorphic: true
 
   has_many :redirection_url_visits, dependent: :destroy
@@ -43,12 +43,16 @@ class RedirectionUrl < ApplicationRecord
     self.security_code = SecureRandom.hex(2)
   end
 
-  after_touch :update_redirection_target_counters!
-  def update_redirection_target_counters!
+  after_touch :update_relation_counters!
+  after_save :update_relation_counters!
+  after_destroy :update_relation_counters!
+
+  def update_relation_counters!
+    puts "UPDATE RELATION COUNTERS"
     redirection_target.update_counters!
+    owner.update_counters!
   end
 
-  after_destroy :update_redirection_target_counters!
 
   # ---------------------------------------------------------------------------
   # scopes

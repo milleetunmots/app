@@ -2,22 +2,27 @@
 #
 # Table name: children
 #
-#  id                          :bigint           not null, primary key
-#  birthdate                   :date             not null
-#  first_name                  :string           not null
-#  gender                      :string
-#  has_quit_group              :boolean
-#  last_name                   :string           not null
-#  registration_source         :string
-#  registration_source_details :string
-#  should_contact_parent1      :boolean          default(FALSE), not null
-#  should_contact_parent2      :boolean          default(FALSE), not null
-#  created_at                  :datetime         not null
-#  updated_at                  :datetime         not null
-#  child_support_id            :bigint
-#  group_id                    :bigint
-#  parent1_id                  :bigint           not null
-#  parent2_id                  :bigint
+#  id                                  :bigint           not null, primary key
+#  birthdate                           :date             not null
+#  first_name                          :string           not null
+#  gender                              :string
+#  has_quit_group                      :boolean
+#  last_name                           :string           not null
+#  redirection_unique_visit_rate       :float
+#  redirection_url_unique_visits_count :integer
+#  redirection_url_visits_count        :integer
+#  redirection_urls_count              :integer
+#  redirection_visit_rate              :float
+#  registration_source                 :string
+#  registration_source_details         :string
+#  should_contact_parent1              :boolean          default(FALSE), not null
+#  should_contact_parent2              :boolean          default(FALSE), not null
+#  created_at                          :datetime         not null
+#  updated_at                          :datetime         not null
+#  child_support_id                    :bigint
+#  group_id                            :bigint
+#  parent1_id                          :bigint           not null
+#  parent2_id                          :bigint
 #
 # Indexes
 #
@@ -55,6 +60,7 @@ class Child < ApplicationRecord
   belongs_to :parent2, class_name: :Parent, optional: true
   belongs_to :group, optional: true
 
+  has_many :redirection_urls, as: :owner, dependent: :destroy
   has_many :siblings, class_name: :Child, primary_key: :parent1_id, foreign_key: :parent1_id
 
   # we do not call this 'siblings' because real siblings may have only
@@ -227,6 +233,24 @@ class Child < ApplicationRecord
            to: :group,
            prefix: true,
            allow_nil: true
+
+  def update_counters!
+    self.redirection_urls_count = redirection_urls.count
+
+    if self.redirection_urls_count.zero?
+      self.redirection_url_unique_visits_count = 0
+      self.redirection_unique_visit_rate = 0
+      self.redirection_url_visits_count = 0
+      self.redirection_visit_rate = 0
+    else
+      self.redirection_url_unique_visits_count = redirection_urls.with_visits.count
+      self.redirection_unique_visit_rate = redirection_url_unique_visits_count / redirection_urls_count.to_f
+      self.redirection_url_visits_count = redirection_urls.sum(:redirection_url_visits_count)
+      self.redirection_visit_rate = redirection_url_visits_count / redirection_urls_count.to_f
+    end
+
+    save!
+  end
 
   # ---------------------------------------------------------------------------
   # global search

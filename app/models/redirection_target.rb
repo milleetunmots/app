@@ -33,13 +33,19 @@ class RedirectionTarget < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def update_counters!
-    return true if redirection_urls_count.zero?
+    self.redirection_urls_count = redirection_urls.count
 
-    self.redirection_url_unique_visits_count = redirection_urls.with_visits.count
-    self.unique_visit_rate = redirection_url_unique_visits_count / redirection_urls_count.to_f
-
-    self.redirection_url_visits_count = redirection_urls.sum(:redirection_url_visits_count)
-    self.visit_rate = redirection_url_visits_count / redirection_urls_count.to_f
+    if self.redirection_urls_count.zero?
+      self.redirection_url_unique_visits_count = 0
+      self.unique_visit_rate = 0
+      self.redirection_url_visits_count = 0
+      self.visit_rate = 0
+    else
+      self.redirection_url_unique_visits_count = redirection_urls.with_visits.count
+      self.unique_visit_rate = redirection_url_unique_visits_count / redirection_urls_count.to_f
+      self.redirection_url_visits_count = redirection_urls.sum(:redirection_url_visits_count)
+      self.visit_rate = redirection_url_visits_count / redirection_urls_count.to_f
+    end
 
     save!
   end
