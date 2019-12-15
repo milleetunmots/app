@@ -70,6 +70,11 @@ ActiveAdmin.register Child do
   filter :group,
          input_html: { multiple: true, data: { select2: {} } }
   filter :has_quit_group
+  filter :redirection_urls_count
+  filter :redirection_url_visits_count
+  filter :redirection_url_unique_visits_count
+  filter :redirection_unique_visit_rate
+  filter :redirection_visit_rate
   filter :created_at
   filter :updated_at
 
@@ -114,15 +119,27 @@ ActiveAdmin.register Child do
       I18n.t('activerecord.models.redirection_target') => RedirectionTarget.order(:name).pluck(:name, :id)
     }
   } do |ids, inputs|
-    redirection_target = RedirectionTarget.find(inputs[I18n.t('activerecord.models.redirection_target')])
+    children = batch_action_collection.where(id: ids)
 
-    latest_parent1_id = nil
-    batch_action_collection.order(:parent1_id).find(ids).each do |child|
-      next if latest_parent1_id == child.parent1_id
-      latest_parent1_id = child.parent1_id
-      RedirectionUrl.create!(redirection_target: redirection_target, owner: child)
+    if children.without_parent_to_contact.any?
+      flash[:error] = "Certains enfants n'ont aucun parent à contacter"
+      redirect_to request.referer
+    else
+      redirection_target = RedirectionTarget.find(inputs[I18n.t('activerecord.models.redirection_target')])
+
+      latest_parent_id = nil
+      children.order(:parent_to_contact_id).each do |child|
+        next if latest_parent_id == child.parent_to_contact_id
+        latest_parent_id = child.parent_to_contact_id
+
+        RedirectionUrl.create!(
+          redirection_target: redirection_target,
+          parent_id: child.parent_to_contact_id,
+          child: child
+        )
+      end
+      redirect_to redirection_target.decorate.redirection_urls_path, notice: 'URL courtes créées'
     end
-    redirect_to redirection_target.decorate.redirection_urls_path, notice: 'URL courtes créées'
   end
 
   # ---------------------------------------------------------------------------

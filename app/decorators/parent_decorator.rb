@@ -7,7 +7,8 @@ class ParentDecorator < BaseDecorator
     if with_icon
       txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + txt
     end
-    h.link_to txt, [:admin, model], { class: GENDER_COLORS[model.gender.to_sym] }.merge(options)
+    options[:class] = [options[:class], GENDER_COLORS[model.gender.to_sym]].compact.join(' ')
+    h.link_to txt, [:admin, model], options
   end
 
   def children
@@ -83,6 +84,30 @@ class ParentDecorator < BaseDecorator
         end
       )
     end
+  end
+
+  def redirection_urls_count
+    model.redirection_urls_count || 0
+  end
+
+  def redirection_visit_rate
+    return nil if redirection_urls_count.zero?
+    h.number_to_percentage(model.redirection_visit_rate * 100, precision: 0)
+  end
+
+  def redirection_unique_visit_rate
+    return nil if redirection_urls_count.zero?
+    h.number_to_percentage(model.redirection_unique_visit_rate * 100, precision: 0)
+  end
+
+  def redirection_visits
+    return nil if redirection_urls_count.zero?
+    "#{model.redirection_url_visits_count} (#{redirection_visit_rate})"
+  end
+
+  def redirection_unique_visits
+    return nil if redirection_urls_count.zero?
+    "#{model.redirection_url_unique_visits_count}/#{redirection_urls_count} (#{redirection_unique_visit_rate})"
   end
 
   private

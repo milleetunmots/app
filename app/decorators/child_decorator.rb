@@ -108,16 +108,6 @@ class ChildDecorator < BaseDecorator
     end
   end
 
-  def phone_number_national
-    if model.should_contact_parent1?
-      model.parent1.phone_number_national
-    elsif model.should_contact_parent2?
-      model.parent2.phone_number_national
-    else
-      nil
-    end
-  end
-
   def redirection_urls_count
     model.redirection_urls_count || 0
   end
@@ -146,7 +136,11 @@ class ChildDecorator < BaseDecorator
 
   def parent(parent)
     return nil unless parent
-    parent.decorate.admin_link
+    options = {}
+    if model.parent_to_contact_id == parent.id
+      options[:class] = 'txt-underline'
+    end
+    parent.decorate.admin_link(options)
   end
 
 end

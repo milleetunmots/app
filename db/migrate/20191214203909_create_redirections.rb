@@ -15,7 +15,8 @@ class CreateRedirections < ActiveRecord::Migration[6.0]
 
     create_table :redirection_urls do |t|
       t.belongs_to :redirection_target
-      t.belongs_to :owner, polymorphic: true
+      t.belongs_to :parent
+      t.belongs_to :child
 
       t.string :security_code
 
@@ -29,5 +30,17 @@ class CreateRedirections < ActiveRecord::Migration[6.0]
 
       t.datetime :occurred_at
     end
+
+    add_column :parents, :redirection_urls_count, :integer
+    add_column :parents, :redirection_url_visits_count, :integer
+    add_column :parents, :redirection_url_unique_visits_count, :integer
+    add_column :parents, :redirection_unique_visit_rate, :float
+    add_column :parents, :redirection_visit_rate, :float
+
+    add_column :children, :redirection_urls_count, :integer
+    add_column :children, :redirection_url_visits_count, :integer
+    add_column :children, :redirection_url_unique_visits_count, :integer
+    add_column :children, :redirection_unique_visit_rate, :float
+    add_column :children, :redirection_visit_rate, :float
   end
 end

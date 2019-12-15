@@ -1,27 +1,27 @@
 class RedirectionUrlDecorator < BaseDecorator
 
-  def decorated_owner
-    @decorated_owner ||= model&.owner&.decorate
+  def parent_link
+    decorated_parent&.admin_link
   end
 
-  def owner
-    decorated_owner&.admin_link
+  def parent_gender
+    decorated_parent&.gender_text
   end
 
-  def owner_age
-    decorated_owner&.age
+  def child_link
+    decorated_child&.admin_link
   end
 
-  def owner_gender_text
-    decorated_owner&.gender_text
+  def child_age
+    decorated_child&.age
   end
 
-  def owner_phone_number_national
-    decorated_owner&.phone_number_national
+  def child_gender
+    decorated_child&.gender_text
   end
 
-  def owner_registration_source
-    decorated_owner&.registration_source
+  def child_registration_source
+    decorated_child&.registration_source
   end
 
   def visit_url
@@ -31,6 +31,16 @@ class RedirectionUrlDecorator < BaseDecorator
   def visit_link
     txt = visit_url + '&nbsp;' + h.content_tag(:i, '', class: 'fas fa-external-link-alt')
     h.link_to txt.html_safe, visit_url, target: '_blank'
+  end
+
+  private
+
+  def decorated_parent
+    @decorated_parent ||= model&.parent&.decorate
+  end
+
+  def decorated_child
+    @decorated_child ||= model&.child&.decorate
   end
 
 end

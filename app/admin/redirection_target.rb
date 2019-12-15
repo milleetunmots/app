@@ -1,10 +1,8 @@
 ActiveAdmin.register RedirectionTarget do
+
   menu parent: 'Redirection'
 
   decorate_with RedirectionTargetDecorator
-
-  has_paper_trail
-  has_tasks
 
   # ---------------------------------------------------------------------------
   # INDEX

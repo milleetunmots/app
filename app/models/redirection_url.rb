@@ -3,18 +3,19 @@
 # Table name: redirection_urls
 #
 #  id                           :bigint           not null, primary key
-#  owner_type                   :string
 #  redirection_url_visits_count :integer
 #  security_code                :string
 #  created_at                   :datetime         not null
 #  updated_at                   :datetime         not null
-#  owner_id                     :bigint
+#  child_id                     :bigint
+#  parent_id                    :bigint
 #  redirection_target_id        :bigint
 #
 # Indexes
 #
-#  index_redirection_urls_on_owner_type_and_owner_id  (owner_type,owner_id)
-#  index_redirection_urls_on_redirection_target_id    (redirection_target_id)
+#  index_redirection_urls_on_child_id               (child_id)
+#  index_redirection_urls_on_parent_id              (parent_id)
+#  index_redirection_urls_on_redirection_target_id  (redirection_target_id)
 #
 
 class RedirectionUrl < ApplicationRecord
@@ -24,7 +25,8 @@ class RedirectionUrl < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   belongs_to :redirection_target
-  belongs_to :owner, polymorphic: true
+  belongs_to :parent
+  belongs_to :child
 
   has_many :redirection_url_visits, dependent: :destroy
 
@@ -49,9 +51,9 @@ class RedirectionUrl < ApplicationRecord
 
   def update_relation_counters!
     redirection_target.update_counters!
-    owner.update_counters!
+    parent.update_counters!
+    child.update_counters!
   end
-
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -69,18 +71,25 @@ class RedirectionUrl < ApplicationRecord
            prefix: true
 
   delegate :address,
-           :birthdate,
            :city_name,
            :first_name,
-           :gender,
+           # :gender,
+           :last_name,
+           :letterbox_name,
+           :phone_number_national,
+           :postal_code,
+           to: :parent,
+           prefix: true
+
+  delegate :birthdate,
+           :first_name,
+           # :gender,
            :group_name,
            :has_quit_group,
            :last_name,
-           :letterbox_name,
-           :postal_code,
            :registration_source,
            :registration_source_details,
-           to: :owner,
+           to: :child,
            prefix: true
 
 end

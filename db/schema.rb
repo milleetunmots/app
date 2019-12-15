@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_15_150950) do
+ActiveRecord::Schema.define(version: 2019_12_15_172648) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -105,12 +105,14 @@ ActiveRecord::Schema.define(version: 2019_12_15_150950) do
     t.integer "redirection_url_unique_visits_count"
     t.float "redirection_unique_visit_rate"
     t.float "redirection_visit_rate"
+    t.integer "parent_to_contact_id"
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["gender"], name: "index_children_on_gender"
     t.index ["group_id"], name: "index_children_on_group_id"
     t.index ["parent1_id"], name: "index_children_on_parent1_id"
     t.index ["parent2_id"], name: "index_children_on_parent2_id"
+    t.index ["parent_to_contact_id"], name: "index_children_on_parent_to_contact_id"
   end
 
   create_table "groups", force: :cascade do |t|
@@ -139,6 +141,11 @@ ActiveRecord::Schema.define(version: 2019_12_15_150950) do
     t.string "job"
     t.datetime "terms_accepted_at"
     t.string "letterbox_name"
+    t.integer "redirection_urls_count"
+    t.integer "redirection_url_visits_count"
+    t.integer "redirection_url_unique_visits_count"
+    t.float "redirection_unique_visit_rate"
+    t.float "redirection_visit_rate"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["email"], name: "index_parents_on_email"
@@ -180,13 +187,14 @@ ActiveRecord::Schema.define(version: 2019_12_15_150950) do
 
   create_table "redirection_urls", force: :cascade do |t|
     t.bigint "redirection_target_id"
-    t.string "owner_type"
-    t.bigint "owner_id"
+    t.bigint "parent_id"
+    t.bigint "child_id"
     t.string "security_code"
     t.integer "redirection_url_visits_count"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["owner_type", "owner_id"], name: "index_redirection_urls_on_owner_type_and_owner_id"
+    t.index ["child_id"], name: "index_redirection_urls_on_child_id"
+    t.index ["parent_id"], name: "index_redirection_urls_on_parent_id"
     t.index ["redirection_target_id"], name: "index_redirection_urls_on_redirection_target_id"
   end
 

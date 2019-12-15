@@ -2,22 +2,27 @@
 #
 # Table name: parents
 #
-#  id                    :bigint           not null, primary key
-#  address               :string           not null
-#  city_name             :string           not null
-#  email                 :string
-#  first_name            :string           not null
-#  gender                :string           not null
-#  is_ambassador         :boolean
-#  job                   :string
-#  last_name             :string           not null
-#  letterbox_name        :string
-#  phone_number          :string           not null
-#  phone_number_national :string
-#  postal_code           :string           not null
-#  terms_accepted_at     :datetime
-#  created_at            :datetime         not null
-#  updated_at            :datetime         not null
+#  id                                  :bigint           not null, primary key
+#  address                             :string           not null
+#  city_name                           :string           not null
+#  email                               :string
+#  first_name                          :string           not null
+#  gender                              :string           not null
+#  is_ambassador                       :boolean
+#  job                                 :string
+#  last_name                           :string           not null
+#  letterbox_name                      :string
+#  phone_number                        :string           not null
+#  phone_number_national               :string
+#  postal_code                         :string           not null
+#  redirection_unique_visit_rate       :float
+#  redirection_url_unique_visits_count :integer
+#  redirection_url_visits_count        :integer
+#  redirection_urls_count              :integer
+#  redirection_visit_rate              :float
+#  terms_accepted_at                   :datetime
+#  created_at                          :datetime         not null
+#  updated_at                          :datetime         not null
 #
 # Indexes
 #
@@ -56,6 +61,8 @@ class Parent < ApplicationRecord
     parent1_children.or(parent2_children)
   end
 
+  has_many :redirection_urls, dependent: :destroy
+
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
@@ -80,6 +87,28 @@ class Parent < ApplicationRecord
             format: { with: REGEX_VALID_EMAIL, allow_blank: true },
             uniqueness: { case_sensitive: false, allow_blank: true }
   validates :terms_accepted_at, presence: true
+
+  # ---------------------------------------------------------------------------
+  # helpers
+  # ---------------------------------------------------------------------------
+
+  def update_counters!
+    self.redirection_urls_count = redirection_urls.count
+
+    if self.redirection_urls_count.zero?
+      self.redirection_url_unique_visits_count = 0
+      self.redirection_unique_visit_rate = 0
+      self.redirection_url_visits_count = 0
+      self.redirection_visit_rate = 0
+    else
+      self.redirection_url_unique_visits_count = redirection_urls.with_visits.count
+      self.redirection_unique_visit_rate = redirection_url_unique_visits_count / redirection_urls_count.to_f
+      self.redirection_url_visits_count = redirection_urls.sum(:redirection_url_visits_count)
+      self.redirection_visit_rate = redirection_url_visits_count / redirection_urls_count.to_f
+    end
+
+    save!
+  end
 
   # ---------------------------------------------------------------------------
   # global search
