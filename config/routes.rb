@@ -8,6 +8,8 @@ Rails.application.routes.draw do
   post 'inscription', to: 'children#create', as: :children
   get 'inscrit', to: 'children#created', as: :created_child
 
+  get 'r/:id/:security_code', to: 'redirection#visit', as: :visit_redirection
+
   root to: redirect('/admin')
 
 end

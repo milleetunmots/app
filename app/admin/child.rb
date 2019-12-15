@@ -90,25 +90,37 @@ ActiveAdmin.register Child do
 
   batch_action :add_to_group, form: -> {
     {
-      I18n.t('activerecord.attributes.group.name') => Group.not_ended.order(:name).pluck(:name, :id)
+      I18n.t('activerecord.models.group') => Group.not_ended.order(:name).pluck(:name, :id)
     }
   } do |ids, inputs|
     if batch_action_collection.where(id: ids).with_group.any?
       flash[:error] = 'Certains enfants sont déjà dans une cohorte'
       redirect_to request.referer
     else
-      group = Group.find(inputs[I18n.t('activerecord.attributes.group.name')])
+      group = Group.find(inputs[I18n.t('activerecord.models.group')])
       batch_action_collection.where(id: ids).update_all(
         group_id: group.id,
         has_quit_group: false # just in case
       )
-      redirect_to collection_path, notice: 'Enfants ajoutés à la cohorte'
+      redirect_to request.referer, notice: 'Enfants ajoutés à la cohorte'
     end
   end
 
   batch_action :quit_group do |ids|
     batch_action_collection.where(id: ids).update_all(has_quit_group: true)
-    redirect_to collection_path, notice: 'Modification effectuée'
+    redirect_to request.referer, notice: 'Modification effectuée'
+  end
+
+  batch_action :create_redirection_url, form: -> {
+    {
+      I18n.t('activerecord.models.redirection_target') => RedirectionTarget.order(:name).pluck(:name, :id)
+    }
+  } do |ids, inputs|
+    redirection_target = RedirectionTarget.find(inputs[I18n.t('activerecord.models.redirection_target')])
+    batch_action_collection.find(ids).each do |child|
+      RedirectionUrl.create!(redirection_target: redirection_target, owner: child)
+    end
+    redirect_to request.referer, notice: 'Redirections créées'
   end
 
   # ---------------------------------------------------------------------------

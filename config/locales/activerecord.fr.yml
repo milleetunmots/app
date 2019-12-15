@@ -6,6 +6,8 @@ fr:
       child_support: Suivi
       group: Cohorte
       parent: Parent
+      redirection_target: URL cible
+      redirection_url: URL courte
       task: Tâche
     attributes:
       admin_user:
@@ -184,6 +186,25 @@ fr:
         f: Femme
         m: Homme
         x: Inconnu
+      redirection_target:
+        id: "#"
+        created_at: Ajout
+        name: Nom
+        redirection_urls_count: URL courtes
+        redirection_url_unique_visits_count: Visites uniques
+        redirection_url_visits_count: Visites
+        target_url: URL cible
+        unique_visit_rate: Taux de visites uniques
+        updated_at: Modification
+        visit_rate: Taux de visites
+      redirection_url:
+        id: "#"
+        created_at: Ajout
+        owner: Destinataire
+        redirection_target: URL cible
+        redirection_url_visits_count: Visites
+        updated_at: Modification
+        visit_url: URL
       task:
         assignee: Assigné à
         created_at: Ajout

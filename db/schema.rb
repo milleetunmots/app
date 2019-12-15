@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_13_112612) do
+ActiveRecord::Schema.define(version: 2019_12_14_203909) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -153,6 +153,36 @@ ActiveRecord::Schema.define(version: 2019_12_13_112612) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["searchable_type", "searchable_id"], name: "index_pg_search_documents_on_searchable_type_and_searchable_id"
+  end
+
+  create_table "redirection_targets", force: :cascade do |t|
+    t.string "name"
+    t.string "target_url", null: false
+    t.integer "redirection_urls_count"
+    t.integer "redirection_url_visits_count"
+    t.integer "redirection_url_unique_visits_count"
+    t.float "unique_visit_rate"
+    t.float "visit_rate"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "redirection_url_visits", force: :cascade do |t|
+    t.bigint "redirection_url_id"
+    t.datetime "occurred_at"
+    t.index ["redirection_url_id"], name: "index_redirection_url_visits_on_redirection_url_id"
+  end
+
+  create_table "redirection_urls", force: :cascade do |t|
+    t.bigint "redirection_target_id"
+    t.string "owner_type"
+    t.bigint "owner_id"
+    t.string "security_code"
+    t.integer "redirection_url_visits_count"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["owner_type", "owner_id"], name: "index_redirection_urls_on_owner_type_and_owner_id"
+    t.index ["redirection_target_id"], name: "index_redirection_urls_on_redirection_target_id"
   end
 
   create_table "tasks", force: :cascade do |t|
