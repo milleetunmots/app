@@ -50,10 +50,4 @@ class RedirectionTarget < ApplicationRecord
     save!
   end
 
-  # ---------------------------------------------------------------------------
-  # versions history
-  # ---------------------------------------------------------------------------
-
-  has_paper_trail
-
 end
