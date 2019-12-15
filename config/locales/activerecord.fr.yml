@@ -193,7 +193,7 @@ fr:
         redirection_urls_count: URL courtes
         redirection_url_unique_visits_count: Visites uniques
         redirection_url_visits_count: Visites
-        target_url: URL cible
+        target_url: Lien cible
         unique_visit_rate: Taux de visites uniques
         updated_at: Modification
         visit_rate: Taux de visites
@@ -217,11 +217,11 @@ fr:
         owner_registration_source_details: "Précisions sur l'origine du destinataire"
         redirection_target: URL cible
         redirection_target_name: Nom de l'URL cible
-        redirection_target_target_url: URL cible
+        redirection_target_target_url: Lien cible
         redirection_url_visits_count: Visites
         security_code: Sécurité
         updated_at: Modification
-        visit_url: URL
+        visit_url: Lien court
       task:
         assignee: Assigné à
         created_at: Ajout
