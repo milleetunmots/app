@@ -127,16 +127,26 @@ ActiveAdmin.register Child do
     else
       redirection_target = RedirectionTarget.find(inputs[I18n.t('activerecord.models.redirection_target')])
 
-      latest_parent_id = nil
-      children.order(:parent_to_contact_id).each do |child|
-        next if latest_parent_id == child.parent_to_contact_id
-        latest_parent_id = child.parent_to_contact_id
+      latest_parent1_id = nil
+      children.order(:parent1_id).each do |child|
+        next if latest_parent1_id == child.parent1_id
+        latest_parent1_id = child.parent1_id
 
-        RedirectionUrl.create!(
-          redirection_target: redirection_target,
-          parent_id: child.parent_to_contact_id,
-          child: child
-        )
+        if child.should_contact_parent1?
+          RedirectionUrl.create!(
+            redirection_target: redirection_target,
+            parent_id: child.parent1_id,
+            child: child
+          )
+        end
+
+        if child.should_contact_parent2?
+          RedirectionUrl.create!(
+            redirection_target: redirection_target,
+            parent_id: child.parent2_id,
+            child: child
+          )
+        end
       end
       redirect_to redirection_target.decorate.redirection_urls_path, notice: 'URL courtes créées'
     end

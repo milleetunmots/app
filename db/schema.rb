@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_15_172648) do
+ActiveRecord::Schema.define(version: 2019_12_18_141427) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -105,14 +105,12 @@ ActiveRecord::Schema.define(version: 2019_12_15_172648) do
     t.integer "redirection_url_unique_visits_count"
     t.float "redirection_unique_visit_rate"
     t.float "redirection_visit_rate"
-    t.integer "parent_to_contact_id"
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["gender"], name: "index_children_on_gender"
     t.index ["group_id"], name: "index_children_on_group_id"
     t.index ["parent1_id"], name: "index_children_on_parent1_id"
     t.index ["parent2_id"], name: "index_children_on_parent2_id"
-    t.index ["parent_to_contact_id"], name: "index_children_on_parent_to_contact_id"
   end
 
   create_table "groups", force: :cascade do |t|

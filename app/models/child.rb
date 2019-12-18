@@ -23,17 +23,15 @@
 #  group_id                            :bigint
 #  parent1_id                          :bigint           not null
 #  parent2_id                          :bigint
-#  parent_to_contact_id                :integer
 #
 # Indexes
 #
-#  index_children_on_birthdate             (birthdate)
-#  index_children_on_child_support_id      (child_support_id)
-#  index_children_on_gender                (gender)
-#  index_children_on_group_id              (group_id)
-#  index_children_on_parent1_id            (parent1_id)
-#  index_children_on_parent2_id            (parent2_id)
-#  index_children_on_parent_to_contact_id  (parent_to_contact_id)
+#  index_children_on_birthdate         (birthdate)
+#  index_children_on_child_support_id  (child_support_id)
+#  index_children_on_gender            (gender)
+#  index_children_on_group_id          (group_id)
+#  index_children_on_parent1_id        (parent1_id)
+#  index_children_on_parent2_id        (parent2_id)
 #
 # Foreign Keys
 #
@@ -60,7 +58,6 @@ class Child < ApplicationRecord
   belongs_to :child_support, optional: true
   belongs_to :parent1, class_name: :Parent
   belongs_to :parent2, class_name: :Parent, optional: true
-  belongs_to :parent_to_contact, class_name: :Parent, optional: true
   belongs_to :group, optional: true
 
   has_many :redirection_urls, dependent: :destroy
@@ -79,8 +76,6 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
-
-  before_validation :define_parent_to_contact
 
   validates :gender, inclusion: { in: GENDERS, allow_blank: true }
   validates :first_name, presence: true
@@ -192,8 +187,18 @@ class Child < ApplicationRecord
   scope :with_group, -> { where.not(group_id: nil) }
   scope :without_group, -> { where(group_id: nil) }
 
-  scope :with_parent_to_contact, -> { where.not(parent_to_contact_id: nil) }
-  scope :without_parent_to_contact, -> { where(parent_to_contact_id: nil) }
+  def self.with_parent_to_contact
+    where(should_contact_parent1: true).or(
+      where(should_contact_parent2: true)
+    )
+  end
+
+  def self.without_parent_to_contact
+    where(
+      should_contact_parent1: [nil, false],
+      should_contact_parent2: [nil, false]
+    )
+  end
 
   # ---------------------------------------------------------------------------
   # ransack
@@ -272,15 +277,5 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   has_paper_trail
-
-  private
-
-  def define_parent_to_contact
-    if should_contact_parent1?
-      self.parent_to_contact_id = parent1_id
-    elsif should_contact_parent2?
-      self.parent_to_contact_id = parent2_id
-    end
-  end
 
 end

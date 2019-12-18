@@ -57,11 +57,11 @@ class ChildDecorator < BaseDecorator
   end
 
   def parent1
-    parent model.parent1
+    parent model.parent1, model.should_contact_parent1?
   end
 
   def parent2
-    parent model.parent2
+    parent model.parent2, model.should_contact_parent2?
   end
 
   def group
@@ -134,12 +134,10 @@ class ChildDecorator < BaseDecorator
 
   private
 
-  def parent(parent)
+  def parent(parent, should_contact_parent)
     return nil unless parent
     options = {}
-    if model.parent_to_contact_id == parent.id
-      options[:class] = 'txt-underline'
-    end
+    options[:class] = 'txt-underline' if should_contact_parent
     parent.decorate.admin_link(options)
   end
 
