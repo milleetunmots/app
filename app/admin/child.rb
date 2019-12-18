@@ -203,7 +203,9 @@ ActiveAdmin.register Child do
       row :last_name
       row :birthdate
       row :age
-      row :gender
+      row :gender do |model|
+        model.gender_status
+      end
       row :registration_source
       row :registration_source_details
       row :group
@@ -277,11 +279,12 @@ ActiveAdmin.register Child do
 
   csv do
     column :id
+
     column :first_name
     column :last_name
     column :birthdate
     column :age
-    column(:gender) { |child| child.gender_text }
+    column :gender
     column :letterbox_name
     column :address
     column :city_name

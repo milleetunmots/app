@@ -23,6 +23,8 @@ fr:
     parent1: Parent 1
     parent2: Parent 2
     parents: Parents
+  "false": Non
   is_ambassador: Ambassadeur
   should_be_contacted: À contacter
   should_not_be_contacted: Ne pas contacter
+  "true": Oui

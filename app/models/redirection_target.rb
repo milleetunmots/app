@@ -22,6 +22,7 @@ class RedirectionTarget < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   has_many :redirection_urls, dependent: :destroy
+  has_many :children, through: :redirection_urls
 
   # ---------------------------------------------------------------------------
   # validations

@@ -42,13 +42,13 @@ class ChildDecorator < BaseDecorator
     model.gender || 'x'
   end
 
-  def gender
+  def gender_status
     arbre do
-      status_tag gender_text, class: GENDER_COLORS[safe_gender.to_sym]
+      status_tag gender, class: GENDER_COLORS[safe_gender.to_sym]
     end
   end
 
-  def gender_text
+  def gender
     Child.human_attribute_name("gender.#{safe_gender}")
   end
 
@@ -57,11 +57,19 @@ class ChildDecorator < BaseDecorator
   end
 
   def parent1
-    parent model.parent1, model.should_contact_parent1?
+    parent decorated_parent1, model.should_contact_parent1?
   end
 
   def parent2
-    parent model.parent2, model.should_contact_parent2?
+    parent decorated_parent2, model.should_contact_parent2?
+  end
+
+  def parent1_gender
+    parent_attribute decorated_parent1, :gender
+  end
+
+  def parent2_gender
+    parent_attribute decorated_parent2, :gender
   end
 
   def group
@@ -134,11 +142,23 @@ class ChildDecorator < BaseDecorator
 
   private
 
-  def parent(parent, should_contact_parent)
-    return nil unless parent
+  def decorated_parent1
+    @decorated_parent1 ||= model.parent1&.decorate
+  end
+
+  def decorated_parent2
+    @decorated_parent2 ||= model.parent2&.decorate
+  end
+
+  def parent(decorated_parent, should_contact_parent)
+    return nil unless decorated_parent
     options = {}
     options[:class] = 'txt-underline' if should_contact_parent
-    parent.decorate.admin_link(options)
+    decorated_parent.admin_link(options)
+  end
+
+  def parent_attribute(decorated_parent, key)
+    decorated_parent&.send(key)
   end
 
 end

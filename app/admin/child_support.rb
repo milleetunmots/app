@@ -413,7 +413,7 @@ ActiveAdmin.register ChildSupport do
     column :children_last_names
     column :children_birthdates
     column :children_ages
-    column(:children_genders) { |cs| cs.children_gender_texts }
+    column :children_genders
 
     column(:important_information) { |cs| cs.important_information_text }
     column :should_be_read

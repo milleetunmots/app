@@ -71,4 +71,19 @@ ActiveAdmin.register RedirectionTarget do
     end
   end
 
+  action_item :export_stats,
+              only: :show do
+    link_to 'Stats par famille', [:export_stats, :admin, resource]
+  end
+  member_action :export_stats do
+    service = ExportRedirectionTargetStatsService.new(redirection_target: resource).call
+    if service.errors.any?
+      puts "Error: #{service.errors}"
+      flash[:error] = 'Une erreur est survenue'
+      redirect_to request.referer
+    else
+      send_data service.csv, filename: "url-#{resource.id}-stats-#{Date.today}.csv"
+    end
+  end
+
 end
