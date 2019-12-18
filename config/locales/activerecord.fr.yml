@@ -72,6 +72,7 @@ fr:
         unknown: Inconnue
       child_support:
         address: Adresse
+        book_not_received: Livre non reçu
         call1_books_quantity: Nombre de livres dans le foyer
         call1_duration: Durée de l'appel 1 (en minutes)
         call1_status: Statut de l'appel 1

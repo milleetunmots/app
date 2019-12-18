@@ -39,6 +39,8 @@ ActiveAdmin.register ChildSupport do
   scope(:mine, default: true) { |scope| scope.supported_by(current_admin_user) }
   scope :all
 
+  scope :with_book_not_received
+
   filter :groups,
          as: :select,
          collection: proc { child_group_select_collection },
@@ -49,6 +51,7 @@ ActiveAdmin.register ChildSupport do
          input_html: { multiple: true, data: { select2: {} } }
   filter :should_be_read,
          input_html: { data: { select2: { width: '100%' } } }
+  filter :book_not_received
   filter :supporter,
          input_html: { data: { select2: {} } }
   filter :call1_status
@@ -145,7 +148,14 @@ ActiveAdmin.register ChildSupport do
         column do
           f.label :important_information
           f.input :important_information, label: false, input_html: { rows: 5, style: 'width: 100%' }
-          f.input :should_be_read
+          columns do
+            column do
+              f.input :should_be_read
+            end
+            column do
+              f.input :book_not_received
+            end
+          end
         end
       end
       tabs do
@@ -300,7 +310,8 @@ ActiveAdmin.register ChildSupport do
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
     is_ambassador job
   )
-  permit_params :important_information, :supporter_id, :should_be_read,
+  permit_params :important_information, :supporter_id,
+                :should_be_read, :book_not_received,
                 :call1_duration, :call1_status, :call1_status_details,
                 :call1_parent_actions, :call1_parent_progress,
                 :call1_language_development, :call1_notes,
@@ -338,6 +349,7 @@ ActiveAdmin.register ChildSupport do
           row :parent2
           row :children
           row :important_information
+          row :book_not_received
           row :should_be_read
           row :created_at
           row :updated_at
@@ -415,6 +427,7 @@ ActiveAdmin.register ChildSupport do
     column :children_ages
     column :children_genders
 
+    column :book_not_received
     column(:important_information) { |cs| cs.important_information_text }
     column :should_be_read
 

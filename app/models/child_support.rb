@@ -3,6 +3,7 @@
 # Table name: child_supports
 #
 #  id                          :bigint           not null, primary key
+#  book_not_received           :string
 #  call1_books_quantity        :integer
 #  call1_duration              :integer
 #  call1_language_development  :text
@@ -42,6 +43,7 @@
 #
 # Indexes
 #
+#  index_child_supports_on_book_not_received         (book_not_received)
 #  index_child_supports_on_call1_parent_progress     (call1_parent_progress)
 #  index_child_supports_on_call1_reading_frequency   (call1_reading_frequency)
 #  index_child_supports_on_call2_language_awareness  (call2_language_awareness)
@@ -174,6 +176,8 @@ class ChildSupport < ApplicationRecord
   def self.registration_sources_in(*v)
     where(id: Child.where(registration_source: v).select('DISTINCT child_support_id'))
   end
+
+  scope :with_book_not_received, -> { where.not(book_not_received: [nil, '']) }
 
   # ---------------------------------------------------------------------------
   # ransack
