@@ -2,16 +2,17 @@
 #
 # Table name: redirection_targets
 #
-#  id                                  :bigint           not null, primary key
-#  name                                :string
-#  redirection_url_unique_visits_count :integer
-#  redirection_url_visits_count        :integer
-#  redirection_urls_count              :integer
-#  target_url                          :string           not null
-#  unique_visit_rate                   :float
-#  visit_rate                          :float
-#  created_at                          :datetime         not null
-#  updated_at                          :datetime         not null
+#  id                                         :bigint           not null, primary key
+#  family_redirection_url_unique_visits_count :integer
+#  family_redirection_url_visits_count        :integer
+#  family_redirection_urls_count              :integer
+#  family_unique_visit_rate                   :float
+#  family_visit_rate                          :float
+#  name                                       :string
+#  redirection_urls_count                     :integer
+#  target_url                                 :string           not null
+#  created_at                                 :datetime         not null
+#  updated_at                                 :datetime         not null
 #
 
 class RedirectionTarget < ApplicationRecord
@@ -21,6 +22,7 @@ class RedirectionTarget < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   has_many :redirection_urls, dependent: :destroy
+  has_many :children, through: :redirection_urls
 
   # ---------------------------------------------------------------------------
   # validations
@@ -34,17 +36,22 @@ class RedirectionTarget < ApplicationRecord
 
   def update_counters!
     self.redirection_urls_count = redirection_urls.count
+    self.family_redirection_urls_count = redirection_urls.count('DISTINCT child_id')
 
-    if self.redirection_urls_count.zero?
-      self.redirection_url_unique_visits_count = 0
-      self.unique_visit_rate = 0
-      self.redirection_url_visits_count = 0
-      self.visit_rate = 0
+    if self.family_redirection_urls_count.zero?
+      self.family_redirection_url_unique_visits_count = 0
+      self.family_unique_visit_rate = 0
+      self.family_redirection_url_visits_count = 0
+      self.family_visit_rate = 0
     else
-      self.redirection_url_unique_visits_count = redirection_urls.with_visits.count
-      self.unique_visit_rate = redirection_url_unique_visits_count / redirection_urls_count.to_f
-      self.redirection_url_visits_count = redirection_urls.sum(:redirection_url_visits_count)
-      self.visit_rate = redirection_url_visits_count / redirection_urls_count.to_f
+      # family counters : if both parents receive a link and only
+      # 1 parent opens it, we consider it 100% visited
+
+      self.family_redirection_urls_count = redirection_urls.count('DISTINCT child_id')
+      self.family_redirection_url_unique_visits_count = redirection_urls.with_visits.count('DISTINCT child_id')
+      self.family_unique_visit_rate = family_redirection_url_unique_visits_count / family_redirection_urls_count.to_f
+      self.family_redirection_url_visits_count = redirection_urls.sum(:redirection_url_visits_count)
+      self.family_visit_rate = family_redirection_url_visits_count / family_redirection_urls_count.to_f
     end
 
     save!

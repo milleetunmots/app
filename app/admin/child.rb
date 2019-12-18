@@ -28,7 +28,7 @@ ActiveAdmin.register Child do
       model.child_support_status
     end
     column :group, sortable: :group_id
-    column :redirection_unique_visits
+    column :family_redirection_unique_visits
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -70,11 +70,11 @@ ActiveAdmin.register Child do
   filter :group,
          input_html: { multiple: true, data: { select2: {} } }
   filter :has_quit_group
-  filter :redirection_urls_count
-  filter :redirection_url_visits_count
-  filter :redirection_url_unique_visits_count
-  filter :redirection_unique_visit_rate
-  filter :redirection_visit_rate
+  filter :family_redirection_urls_count
+  filter :family_redirection_url_visits_count
+  filter :family_redirection_url_unique_visits_count
+  filter :family_redirection_unique_visit_rate
+  filter :family_redirection_unique_visits
   filter :created_at
   filter :updated_at
 
@@ -127,16 +127,26 @@ ActiveAdmin.register Child do
     else
       redirection_target = RedirectionTarget.find(inputs[I18n.t('activerecord.models.redirection_target')])
 
-      latest_parent_id = nil
-      children.order(:parent_to_contact_id).each do |child|
-        next if latest_parent_id == child.parent_to_contact_id
-        latest_parent_id = child.parent_to_contact_id
+      latest_parent1_id = nil
+      children.order(:parent1_id).each do |child|
+        next if latest_parent1_id == child.parent1_id
+        latest_parent1_id = child.parent1_id
 
-        RedirectionUrl.create!(
-          redirection_target: redirection_target,
-          parent_id: child.parent_to_contact_id,
-          child: child
-        )
+        if child.should_contact_parent1?
+          RedirectionUrl.create!(
+            redirection_target: redirection_target,
+            parent_id: child.parent1_id,
+            child: child
+          )
+        end
+
+        if child.should_contact_parent2?
+          RedirectionUrl.create!(
+            redirection_target: redirection_target,
+            parent_id: child.parent2_id,
+            child: child
+          )
+        end
       end
       redirect_to redirection_target.decorate.redirection_urls_path, notice: 'URL courtes créées'
     end
@@ -193,16 +203,18 @@ ActiveAdmin.register Child do
       row :last_name
       row :birthdate
       row :age
-      row :gender
+      row :gender do |model|
+        model.gender_status
+      end
       row :registration_source
       row :registration_source_details
       row :group
       row :has_quit_group
-      row :redirection_urls_count
-      row :redirection_url_visits_count
-      row :redirection_url_unique_visits_count
-      row :redirection_unique_visit_rate
-      row :redirection_visit_rate
+      row :family_redirection_urls_count
+      row :family_redirection_url_visits_count
+      row :family_redirection_url_unique_visits_count
+      row :family_redirection_unique_visit_rate
+      row :family_redirection_visit_rate
       row :created_at
       row :updated_at
     end
@@ -267,39 +279,40 @@ ActiveAdmin.register Child do
 
   csv do
     column :id
+
     column :first_name
     column :last_name
     column :birthdate
     column :age
-    column(:gender) { |child| child.gender_text }
+    column :gender
     column :letterbox_name
     column :address
     column :city_name
     column :postal_code
 
-    column(:parent1_gender) { |child| Parent.human_attribute_name("gender.#{child.parent1_gender}") }
-    column(:parent1_first_name) { |child| child.parent1_first_name }
-    column(:parent1_last_name) { |child| child.parent1_last_name }
-    column(:parent1_phone_number_national) { |child| child.parent1_phone_number_national }
+    column :parent1_gender
+    column :parent1_first_name
+    column :parent1_last_name
+    column :parent1_phone_number_national
     column :should_contact_parent1
 
-    column(:parent2_gender) { |child| child.parent2_gender && Parent.human_attribute_name("gender.#{child.parent2_gender}") }
-    column(:parent2_first_name) { |child| child.parent2_first_name }
-    column(:parent2_last_name) { |child| child.parent2_last_name }
-    column(:parent2_phone_number_national) { |child| child.parent2_phone_number_national }
+    column :parent2_gender
+    column :parent2_first_name
+    column :parent2_last_name
+    column :parent2_phone_number_national
     column :should_contact_parent2
 
-    column(:registration_source) { |child| child.registration_source && Child.human_attribute_name("registration_source.#{child.registration_source}") }
+    column :registration_source
     column :registration_source_details
 
-    column(:group_name) { |child| child.group_name }
+    column :group_name
     column :has_quit_group
 
-    column :redirection_urls_count
-    column :redirection_url_visits_count
-    column :redirection_url_unique_visits_count
-    column :redirection_unique_visit_rate
-    column :redirection_visit_rate
+    column :family_redirection_urls_count
+    column :family_redirection_url_visits_count
+    column :family_redirection_url_unique_visits_count
+    column :family_redirection_unique_visit_rate
+    column :family_redirection_visit_rate
 
     column :created_at
     column :updated_at

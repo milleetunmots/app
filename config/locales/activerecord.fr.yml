@@ -27,6 +27,12 @@ fr:
         child_support: Suivi
         city_name: Ville
         created_at: Ajout
+        family_redirection_unique_visit_rate: "Taux de visites uniques familiales d'URL courtes"
+        family_redirection_unique_visits: URL visitées
+        family_redirection_url_unique_visits_count: "Visites familiales uniques d'URL courtes"
+        family_redirection_url_visits_count: "Visites familiales d'URL courtes"
+        family_redirection_urls_count: URL courtes familiales
+        family_redirection_visit_rate: "Taux de visites familiales d'URL courtes"
         first_name: Prénom
         gender: Sexe
         group: Cohorte
@@ -47,12 +53,6 @@ fr:
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
         postal_code: Code postal
-        redirection_unique_visit_rate: "Taux de visites uniques d'URL courtes"
-        redirection_unique_visits: URL visitées
-        redirection_url_unique_visits_count: "Visites uniques d'URL courtes"
-        redirection_url_visits_count: "Visites d'URL courtes"
-        redirection_urls_count: URL courtes
-        redirection_visit_rate: "Taux de visites d'URL courtes"
         registration_source: Comment nous avez-vous connu ?
         registration_source_details: 'Précisez le nom :'
         should_contact_parent1: Contacter parent 1 ?
@@ -202,13 +202,15 @@ fr:
         id: "#"
         created_at: Ajout
         name: Nom
+        family_redirection_url_unique_visits_count: Visites uniques familiales
+        family_redirection_url_visits_count: Visites familiales
+        family_redirection_urls_count: URL courtes familiales
+        family_unique_visit_rate: Taux de visites uniques familiales
+        family_visit_rate: Taux de visites familiales
+        redirection_urls: URL courtes
         redirection_urls_count: URL courtes
-        redirection_url_unique_visits_count: Visites uniques
-        redirection_url_visits_count: Visites
         target_url: Lien cible
-        unique_visit_rate: Taux de visites uniques
         updated_at: Modification
-        visit_rate: Taux de visites
       redirection_url:
         id: "#"
         child: Enfant

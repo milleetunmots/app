@@ -42,13 +42,13 @@ class ChildDecorator < BaseDecorator
     model.gender || 'x'
   end
 
-  def gender
+  def gender_status
     arbre do
-      status_tag gender_text, class: GENDER_COLORS[safe_gender.to_sym]
+      status_tag gender, class: GENDER_COLORS[safe_gender.to_sym]
     end
   end
 
-  def gender_text
+  def gender
     Child.human_attribute_name("gender.#{safe_gender}")
   end
 
@@ -57,11 +57,19 @@ class ChildDecorator < BaseDecorator
   end
 
   def parent1
-    parent model.parent1
+    parent decorated_parent1, model.should_contact_parent1?
   end
 
   def parent2
-    parent model.parent2
+    parent decorated_parent2, model.should_contact_parent2?
+  end
+
+  def parent1_gender
+    parent_attribute decorated_parent1, :gender
+  end
+
+  def parent2_gender
+    parent_attribute decorated_parent2, :gender
   end
 
   def group
@@ -108,39 +116,49 @@ class ChildDecorator < BaseDecorator
     end
   end
 
-  def redirection_urls_count
-    model.redirection_urls_count || 0
+  def family_redirection_urls_count
+    model.family_redirection_urls_count || 0
   end
 
-  def redirection_visit_rate
-    return nil if redirection_urls_count.zero?
-    h.number_to_percentage(model.redirection_visit_rate * 100, precision: 0)
+  def family_redirection_visit_rate
+    return nil if family_redirection_urls_count.zero?
+    h.number_to_percentage(model.family_redirection_visit_rate * 100, precision: 0)
   end
 
-  def redirection_unique_visit_rate
-    return nil if redirection_urls_count.zero?
-    h.number_to_percentage(model.redirection_unique_visit_rate * 100, precision: 0)
+  def family_redirection_unique_visit_rate
+    return nil if family_redirection_urls_count.zero?
+    h.number_to_percentage(model.family_redirection_unique_visit_rate * 100, precision: 0)
   end
 
-  def redirection_visits
-    return nil if redirection_urls_count.zero?
-    "#{model.redirection_url_visits_count} (#{redirection_visit_rate})"
+  def family_redirection_visits
+    return nil if family_redirection_urls_count.zero?
+    "#{model.family_redirection_url_visits_count}/#{family_redirection_urls_count} (#{family_redirection_visit_rate})"
   end
 
-  def redirection_unique_visits
-    return nil if redirection_urls_count.zero?
-    "#{model.redirection_url_unique_visits_count}/#{redirection_urls_count} (#{redirection_unique_visit_rate})"
+  def family_redirection_unique_visits
+    return nil if family_redirection_urls_count.zero?
+    "#{model.family_redirection_url_unique_visits_count}/#{family_redirection_urls_count} (#{family_redirection_unique_visit_rate})"
   end
 
   private
 
-  def parent(parent)
-    return nil unless parent
+  def decorated_parent1
+    @decorated_parent1 ||= model.parent1&.decorate
+  end
+
+  def decorated_parent2
+    @decorated_parent2 ||= model.parent2&.decorate
+  end
+
+  def parent(decorated_parent, should_contact_parent)
+    return nil unless decorated_parent
     options = {}
-    if model.parent_to_contact_id == parent.id
-      options[:class] = 'txt-underline'
-    end
-    parent.decorate.admin_link(options)
+    options[:class] = 'txt-underline' if should_contact_parent
+    decorated_parent.admin_link(options)
+  end
+
+  def parent_attribute(decorated_parent, key)
+    decorated_parent&.send(key)
   end
 
 end

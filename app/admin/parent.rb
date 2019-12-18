@@ -12,7 +12,9 @@ ActiveAdmin.register Parent do
   index do
     selectable_column
     id_column
-    column :gender
+    column :gender do |model|
+      model.gender_status
+    end
     column :first_name
     column :last_name
     column :children
@@ -81,7 +83,9 @@ ActiveAdmin.register Parent do
 
   show do
     attributes_table do
-      row :gender
+      row :gender do |model|
+        model.gender_status
+      end
       row :first_name
       row :last_name
       row :phone_number

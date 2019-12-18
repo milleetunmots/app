@@ -36,8 +36,8 @@ class ChildSupportDecorator < BaseDecorator
     children_attribute(:age, glue)
   end
 
-  def children_gender_texts(glue = "\n")
-    children_attribute(:gender_text, glue)
+  def children_genders(glue = "\n")
+    children_attribute(:gender, glue)
   end
 
   PROGRESS_COLORS = {

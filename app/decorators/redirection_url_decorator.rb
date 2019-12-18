@@ -5,7 +5,7 @@ class RedirectionUrlDecorator < BaseDecorator
   end
 
   def parent_gender
-    decorated_parent&.gender_text
+    decorated_parent&.gender
   end
 
   def child_link
@@ -17,7 +17,7 @@ class RedirectionUrlDecorator < BaseDecorator
   end
 
   def child_gender
-    decorated_child&.gender_text
+    decorated_child&.gender
   end
 
   def child_registration_source
@@ -36,11 +36,11 @@ class RedirectionUrlDecorator < BaseDecorator
   private
 
   def decorated_parent
-    @decorated_parent ||= model&.parent&.decorate
+    @decorated_parent ||= model.parent&.decorate
   end
 
   def decorated_child
-    @decorated_child ||= model&.child&.decorate
+    @decorated_child ||= model.child&.decorate
   end
 
 end

@@ -18,10 +18,11 @@ ActiveAdmin.register RedirectionTarget do
     column :redirection_urls do |model|
       model.redirection_urls_link
     end
-    column :redirection_url_unique_visits_count
-    column :unique_visit_rate
-    column :redirection_url_visits_count
-    column :visit_rate
+    column :family_redirection_urls_count
+    column :family_redirection_url_unique_visits_count
+    column :family_unique_visit_rate
+    column :family_redirection_url_visits_count
+    column :family_visit_rate
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -60,12 +61,28 @@ ActiveAdmin.register RedirectionTarget do
       row :redirection_urls do |model|
         model.redirection_urls_link
       end
-      row :redirection_url_visits_count
-      row :redirection_url_unique_visits_count
-      row :unique_visit_rate
-      row :visit_rate
+      row :family_redirection_urls_count
+      row :family_redirection_url_visits_count
+      row :family_redirection_url_unique_visits_count
+      row :family_unique_visit_rate
+      row :family_visit_rate
       row :created_at
       row :updated_at
+    end
+  end
+
+  action_item :export_stats,
+              only: :show do
+    link_to 'Stats par famille', [:export_stats, :admin, resource]
+  end
+  member_action :export_stats do
+    service = ExportRedirectionTargetStatsService.new(redirection_target: resource).call
+    if service.errors.any?
+      puts "Error: #{service.errors}"
+      flash[:error] = 'Une erreur est survenue'
+      redirect_to request.referer
+    else
+      send_data service.csv, filename: "url-#{resource.id}-stats-#{Date.today}.csv"
     end
   end
 
