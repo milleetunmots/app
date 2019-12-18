@@ -42,7 +42,7 @@ class RedirectionUrl < ApplicationRecord
 
   def initialize(attributes = {})
     super
-    self.security_code = SecureRandom.hex(2)
+    self.security_code = SecureRandom.hex(1)
   end
 
   after_touch :update_relation_counters!
