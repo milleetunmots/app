@@ -28,7 +28,7 @@ ActiveAdmin.register Child do
       model.child_support_status
     end
     column :group, sortable: :group_id
-    column :redirection_unique_visits
+    column :family_redirection_unique_visits
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -70,11 +70,11 @@ ActiveAdmin.register Child do
   filter :group,
          input_html: { multiple: true, data: { select2: {} } }
   filter :has_quit_group
-  filter :redirection_urls_count
-  filter :redirection_url_visits_count
-  filter :redirection_url_unique_visits_count
-  filter :redirection_unique_visit_rate
-  filter :redirection_visit_rate
+  filter :family_redirection_urls_count
+  filter :family_redirection_url_visits_count
+  filter :family_redirection_url_unique_visits_count
+  filter :family_redirection_unique_visit_rate
+  filter :family_redirection_unique_visits
   filter :created_at
   filter :updated_at
 
@@ -208,11 +208,11 @@ ActiveAdmin.register Child do
       row :registration_source_details
       row :group
       row :has_quit_group
-      row :redirection_urls_count
-      row :redirection_url_visits_count
-      row :redirection_url_unique_visits_count
-      row :redirection_unique_visit_rate
-      row :redirection_visit_rate
+      row :family_redirection_urls_count
+      row :family_redirection_url_visits_count
+      row :family_redirection_url_unique_visits_count
+      row :family_redirection_unique_visit_rate
+      row :family_redirection_visit_rate
       row :created_at
       row :updated_at
     end
@@ -305,11 +305,11 @@ ActiveAdmin.register Child do
     column(:group_name) { |child| child.group_name }
     column :has_quit_group
 
-    column :redirection_urls_count
-    column :redirection_url_visits_count
-    column :redirection_url_unique_visits_count
-    column :redirection_unique_visit_rate
-    column :redirection_visit_rate
+    column :family_redirection_urls_count
+    column :family_redirection_url_visits_count
+    column :family_redirection_url_unique_visits_count
+    column :family_redirection_unique_visit_rate
+    column :family_redirection_visit_rate
 
     column :created_at
     column :updated_at

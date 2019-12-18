@@ -2,27 +2,27 @@
 #
 # Table name: children
 #
-#  id                                  :bigint           not null, primary key
-#  birthdate                           :date             not null
-#  first_name                          :string           not null
-#  gender                              :string
-#  has_quit_group                      :boolean
-#  last_name                           :string           not null
-#  redirection_unique_visit_rate       :float
-#  redirection_url_unique_visits_count :integer
-#  redirection_url_visits_count        :integer
-#  redirection_urls_count              :integer
-#  redirection_visit_rate              :float
-#  registration_source                 :string
-#  registration_source_details         :string
-#  should_contact_parent1              :boolean          default(FALSE), not null
-#  should_contact_parent2              :boolean          default(FALSE), not null
-#  created_at                          :datetime         not null
-#  updated_at                          :datetime         not null
-#  child_support_id                    :bigint
-#  group_id                            :bigint
-#  parent1_id                          :bigint           not null
-#  parent2_id                          :bigint
+#  id                                         :bigint           not null, primary key
+#  birthdate                                  :date             not null
+#  family_redirection_unique_visit_rate       :float
+#  family_redirection_url_unique_visits_count :integer
+#  family_redirection_url_visits_count        :integer
+#  family_redirection_urls_count              :integer
+#  family_redirection_visit_rate              :float
+#  first_name                                 :string           not null
+#  gender                                     :string
+#  has_quit_group                             :boolean
+#  last_name                                  :string           not null
+#  registration_source                        :string
+#  registration_source_details                :string
+#  should_contact_parent1                     :boolean          default(FALSE), not null
+#  should_contact_parent2                     :boolean          default(FALSE), not null
+#  created_at                                 :datetime         not null
+#  updated_at                                 :datetime         not null
+#  child_support_id                           :bigint
+#  group_id                                   :bigint
+#  parent1_id                                 :bigint           not null
+#  parent2_id                                 :bigint
 #
 # Indexes
 #
@@ -248,18 +248,21 @@ class Child < ApplicationRecord
            allow_nil: true
 
   def update_counters!
-    self.redirection_urls_count = redirection_urls.count
+    self.family_redirection_urls_count = redirection_urls.count('DISTINCT redirection_target_id')
 
-    if self.redirection_urls_count.zero?
-      self.redirection_url_unique_visits_count = 0
-      self.redirection_unique_visit_rate = 0
-      self.redirection_url_visits_count = 0
-      self.redirection_visit_rate = 0
+    if self.family_redirection_urls_count.zero?
+      self.family_redirection_url_unique_visits_count = 0
+      self.family_redirection_unique_visit_rate = 0
+      self.family_redirection_url_visits_count = 0
+      self.family_redirection_visit_rate = 0
     else
-      self.redirection_url_unique_visits_count = redirection_urls.with_visits.count
-      self.redirection_unique_visit_rate = redirection_url_unique_visits_count / redirection_urls_count.to_f
-      self.redirection_url_visits_count = redirection_urls.sum(:redirection_url_visits_count)
-      self.redirection_visit_rate = redirection_url_visits_count / redirection_urls_count.to_f
+      # family counters : if both parents receive a link and only
+      # 1 parent opens it, we consider it 100% visited
+
+      self.family_redirection_url_unique_visits_count = redirection_urls.with_visits.count('DISTINCT redirection_target_id')
+      self.family_redirection_unique_visit_rate = family_redirection_url_unique_visits_count / family_redirection_urls_count.to_f
+      self.family_redirection_url_visits_count = redirection_urls.sum(:redirection_url_visits_count)
+      self.family_redirection_visit_rate = family_redirection_urls_count / family_redirection_urls_count.to_f
     end
 
     save!

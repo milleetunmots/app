@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_18_141427) do
+ActiveRecord::Schema.define(version: 2019_12_18_143906) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -100,11 +100,11 @@ ActiveRecord::Schema.define(version: 2019_12_18_141427) do
     t.string "registration_source"
     t.bigint "group_id"
     t.boolean "has_quit_group"
-    t.integer "redirection_urls_count"
-    t.integer "redirection_url_visits_count"
-    t.integer "redirection_url_unique_visits_count"
-    t.float "redirection_unique_visit_rate"
-    t.float "redirection_visit_rate"
+    t.integer "family_redirection_urls_count"
+    t.integer "family_redirection_url_visits_count"
+    t.integer "family_redirection_url_unique_visits_count"
+    t.float "family_redirection_unique_visit_rate"
+    t.float "family_redirection_visit_rate"
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["gender"], name: "index_children_on_gender"
@@ -169,12 +169,13 @@ ActiveRecord::Schema.define(version: 2019_12_18_141427) do
     t.string "name"
     t.string "target_url", null: false
     t.integer "redirection_urls_count"
-    t.integer "redirection_url_visits_count"
-    t.integer "redirection_url_unique_visits_count"
-    t.float "unique_visit_rate"
-    t.float "visit_rate"
+    t.integer "family_redirection_url_visits_count"
+    t.integer "family_redirection_url_unique_visits_count"
+    t.float "family_unique_visit_rate"
+    t.float "family_visit_rate"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "family_redirection_urls_count"
   end
 
   create_table "redirection_url_visits", force: :cascade do |t|
