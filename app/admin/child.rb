@@ -290,22 +290,22 @@ ActiveAdmin.register Child do
     column :city_name
     column :postal_code
 
-    column(:parent1_gender) { |child| Parent.human_attribute_name("gender.#{child.parent1_gender}") }
-    column(:parent1_first_name) { |child| child.parent1_first_name }
-    column(:parent1_last_name) { |child| child.parent1_last_name }
-    column(:parent1_phone_number_national) { |child| child.parent1_phone_number_national }
+    column :parent1_gender
+    column :parent1_first_name
+    column :parent1_last_name
+    column :parent1_phone_number_national
     column :should_contact_parent1
 
-    column(:parent2_gender) { |child| child.parent2_gender && Parent.human_attribute_name("gender.#{child.parent2_gender}") }
-    column(:parent2_first_name) { |child| child.parent2_first_name }
-    column(:parent2_last_name) { |child| child.parent2_last_name }
-    column(:parent2_phone_number_national) { |child| child.parent2_phone_number_national }
+    column :parent2_gender
+    column :parent2_first_name
+    column :parent2_last_name
+    column :parent2_phone_number_national
     column :should_contact_parent2
 
-    column(:registration_source) { |child| child.registration_source && Child.human_attribute_name("registration_source.#{child.registration_source}") }
+    column :registration_source
     column :registration_source_details
 
-    column(:group_name) { |child| child.group_name }
+    column :group_name
     column :has_quit_group
 
     column :family_redirection_urls_count
