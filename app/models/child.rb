@@ -194,11 +194,16 @@ class Child < ApplicationRecord
   end
 
   def self.without_parent_to_contact
+    # info: AR simplifies this
     where(
       should_contact_parent1: [nil, false],
       should_contact_parent2: [nil, false]
     ).or(
-      where(should_contact_parent2: true, parent2_id: nil)
+      where(
+        should_contact_parent1: [nil, false],
+        should_contact_parent2: true,
+        parent2_id: nil
+      )
     )
   end
 
