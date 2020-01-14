@@ -197,6 +197,8 @@ class Child < ApplicationRecord
     where(
       should_contact_parent1: [nil, false],
       should_contact_parent2: [nil, false]
+    ).or(
+      where(should_contact_parent2: true, parent2_id: nil)
     )
   end
 

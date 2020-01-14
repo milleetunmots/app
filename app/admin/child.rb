@@ -48,6 +48,8 @@ ActiveAdmin.register Child do
   scope :with_support, group: :support
   scope :without_support, group: :support
 
+  scope :without_parent_to_contact, group: :parent
+
   filter :gender,
          as: :check_boxes,
          collection: proc { child_gender_select_collection(with_unknown: true) }
@@ -140,7 +142,7 @@ ActiveAdmin.register Child do
           )
         end
 
-        if child.should_contact_parent2? && child.parent2_id
+        if child.should_contact_parent2?
           RedirectionUrl.create!(
             redirection_target: redirection_target,
             parent_id: child.parent2_id,

@@ -37,4 +37,5 @@ fr:
       with_group: Dans une cohorte
       with_support: Suivis
       without_group: Sans cohorte
+      without_parent_to_contact: Sans parent à contacter
       without_support: Non suivis
