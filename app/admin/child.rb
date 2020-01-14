@@ -140,7 +140,7 @@ ActiveAdmin.register Child do
           )
         end
 
-        if child.should_contact_parent2?
+        if child.should_contact_parent2? && child.parent2_id
           RedirectionUrl.create!(
             redirection_target: redirection_target,
             parent_id: child.parent2_id,
