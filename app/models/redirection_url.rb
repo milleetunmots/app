@@ -52,7 +52,9 @@ class RedirectionUrl < ApplicationRecord
   def update_relation_counters!
     redirection_target.update_counters!
     parent.update_counters!
-    child.update_counters!
+    # we cannot just do `child.update_counters!` because the family could
+    # contain other children
+    parent.children.each(&:update_counters!)
   end
 
   # ---------------------------------------------------------------------------

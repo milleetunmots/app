@@ -60,7 +60,7 @@ class Child < ApplicationRecord
   belongs_to :parent2, class_name: :Parent, optional: true
   belongs_to :group, optional: true
 
-  has_many :redirection_urls, dependent: :destroy
+  has_many :redirection_urls, dependent: :destroy # TODO: use nullify instead?
   has_many :siblings, class_name: :Child, primary_key: :parent1_id, foreign_key: :parent1_id
 
   # we do not call this 'siblings' because real siblings may have only
@@ -254,8 +254,12 @@ class Child < ApplicationRecord
            prefix: true,
            allow_nil: true
 
+  def family_redirection_urls
+    RedirectionUrl.where(parent_id: [parent1_id, parent2_id].compact)
+  end
+
   def update_counters!
-    self.family_redirection_urls_count = redirection_urls.count('DISTINCT redirection_target_id')
+    self.family_redirection_urls_count = family_redirection_urls.count('DISTINCT redirection_target_id')
 
     if self.family_redirection_urls_count.zero?
       self.family_redirection_url_unique_visits_count = 0
@@ -266,9 +270,9 @@ class Child < ApplicationRecord
       # family counters : if both parents receive a link and only
       # 1 parent opens it, we consider it 100% visited
 
-      self.family_redirection_url_unique_visits_count = redirection_urls.with_visits.count('DISTINCT redirection_target_id')
+      self.family_redirection_url_unique_visits_count = family_redirection_urls.with_visits.count('DISTINCT redirection_target_id')
       self.family_redirection_unique_visit_rate = family_redirection_url_unique_visits_count / family_redirection_urls_count.to_f
-      self.family_redirection_url_visits_count = redirection_urls.sum(:redirection_url_visits_count)
+      self.family_redirection_url_visits_count = family_redirection_urls.sum(:redirection_url_visits_count)
       self.family_redirection_visit_rate = family_redirection_urls_count / family_redirection_urls_count.to_f
     end
 
