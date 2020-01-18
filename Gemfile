@@ -86,6 +86,10 @@ gem 'pg_search'
 # auditing
 gem 'paper_trail'
 
+# PDF
+gem 'wkhtmltopdf-binary'
+gem 'wicked_pdf'
+
 group :production do
   # for assets compilation
   gem 'activerecord-nulldb-adapter'

@@ -1,0 +1,32 @@
+<div class="addresses">
+
+  <% @children.each_slice(3) do |children_slice| %>
+
+    <% children_slice.each do |child| %>
+
+      <div class="address">
+        <div class="address-content">
+          <%= child.full_address %>
+        </div>
+      </div>
+
+    <% end %>
+
+    <% (3 - children_slice.count).times do |child| %>
+      <div class="address"></div>
+    <% end %>
+
+    <% children_slice.each do |child| %>
+
+      <div class="gift-card">
+        <div class="gift-card-content">
+          <%= @debug ? image_tag('gift.png') : wicked_pdf_image_tag('gift.png') %>
+          Un cadeau pour <%= child.first_name %>&nbsp;!
+        </div>
+      </div>
+
+    <% end %>
+
+  <% end %>
+
+</div>

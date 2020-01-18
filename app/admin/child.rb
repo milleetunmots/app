@@ -154,6 +154,22 @@ ActiveAdmin.register Child do
     end
   end
 
+  batch_action :addresses_pdf do |ids|
+    @children = batch_action_collection.where(id: ids).decorate
+    @debug = params.key?('debug')
+    render pdf: 'etiquettes',
+           template: 'admin/children/addresses_pdf',
+           layout: 'pdf',
+           margin: {
+             top: 3,
+             bottom: 0,
+             left: 1,
+             right: 0
+           },
+           show_as_html: @debug,
+           progress: proc { |output| puts output }
+  end
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------
