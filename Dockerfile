@@ -6,6 +6,11 @@ ENV INSTALL_PATH /rails
 RUN mkdir -p $INSTALL_PATH
 WORKDIR $INSTALL_PATH
 
+# Install dependencies
+RUN apt-get update \
+  && apt-get install -qq -y --no-install-recommends \
+    libxrender1
+
 # Copy the package.json as well as the yarn.lock and install
 # the node modules. This is a separate step so the dependencies
 # will be cached unless changes to one of those two files
@@ -23,6 +28,9 @@ RUN bundle install
 # are made.
 COPY Gemfile Gemfile.lock ./
 RUN bundle install
+
+# Allow wkhtmltopdf-binary to expand
+RUN chmod o+w $(bundle show wkhtmltopdf-binary)/bin
 
 # Expose port 3000 to the Docker host, so we can access it
 # from the outside.
