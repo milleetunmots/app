@@ -2,7 +2,7 @@ ActiveAdmin.register Events::TextMessage do
 
   menu parent: 'Événements'
 
-  actions :index, :show
+  actions :index, :show, :new, :create
 
   decorate_with Events::TextMessageDecorator
 
@@ -45,5 +45,32 @@ ActiveAdmin.register Events::TextMessage do
       row :created_at
     end
   end
+
+  # ---------------------------------------------------------------------------
+  # FORM
+  # ---------------------------------------------------------------------------
+
+  form do |f|
+    f.semantic_errors
+    f.inputs do
+      if f.object.related
+        li class: :input do
+          label I18n.t('activerecord.attributes.event.related'), class: :label
+          div style: "padding-top: 6px" do
+            f.object.decorate.related_link
+          end
+        end
+      end
+
+      f.input :related_type, as: :hidden
+      f.input :related_id, as: :hidden
+
+      f.input :occurred_at, as: :datepicker
+      f.input :body, input_html: { rows: 10 }
+    end
+    f.actions
+  end
+
+  permit_params :related_type, :related_id, :occurred_at, :body
 
 end

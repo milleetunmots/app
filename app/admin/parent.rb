@@ -118,4 +118,14 @@ ActiveAdmin.register Parent do
     end
   end
 
+  action_item :event, only: :show do
+    link_to 'Ajouter un SMS reçu',
+            new_admin_events_text_message_path(
+              events_text_message: {
+                related_type: resource.model.class,
+                related_id: resource.id
+              }
+            )
+  end
+
 end

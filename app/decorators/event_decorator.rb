@@ -1,7 +1,15 @@
 class EventDecorator < BaseDecorator
 
   def related_link
-    related.decorate.admin_link
+    if related = model.related&.decorate
+      if related.respond_to?(:admin_link)
+        related.admin_link
+      else
+        auto_link related
+      end
+    else
+      nil
+    end
   end
 
   def css_class_name

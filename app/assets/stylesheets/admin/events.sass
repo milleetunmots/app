@@ -1,5 +1,11 @@
 @import variables
 
+.attributes_table.events_text_message
+  .row-body
+    td
+      font-family: monospace
+      white-space: pre-wrap
+
 .events-history
 
   .event
@@ -10,10 +16,14 @@
     margin: 10px 0
 
     .related
-      font-weight: bold
+      margin-bottom: 10px
 
     .body
+      font-size: 14px
       font-family: monospace
+      white-space: pre-wrap
 
     .occurred-at
+      text-align: right
+      font-size: 14px
       color: #999

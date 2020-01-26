@@ -4,11 +4,9 @@
 
     <div class="event <%= event.css_class_name %>">
       <div class="related">
-        <%= event.related.decorate.name %>
+        <%= event.related_link %>
       </div>
-      <div class="body">
-        <%= event.body %>
-      </div>
+      <div class="body"><%= event.body %></div>
       <div class="occurred-at">
         <%= event.occurred_at %>
       </div>
