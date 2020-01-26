@@ -84,30 +84,37 @@ ActiveAdmin.register Parent do
   # ---------------------------------------------------------------------------
 
   show do
-    attributes_table do
-      row :gender do |model|
-        model.gender_status
+    tabs do
+      tab 'Infos' do
+        attributes_table do
+          row :gender do |model|
+            model.gender_status
+          end
+          row :first_name
+          row :last_name
+          row :phone_number
+          row :is_lycamobile
+          row :email
+          row :letterbox_name
+          row :address
+          row :postal_code
+          row :city_name
+          row :created_at
+          row :updated_at
+          row :children
+          row :is_ambassador
+          row :job
+          row :terms_accepted_at
+          row :redirection_urls_count
+          row :redirection_url_visits_count
+          row :redirection_url_unique_visits_count
+          row :redirection_unique_visit_rate
+          row :redirection_visit_rate
+        end
       end
-      row :first_name
-      row :last_name
-      row :phone_number
-      row :is_lycamobile
-      row :email
-      row :letterbox_name
-      row :address
-      row :postal_code
-      row :city_name
-      row :created_at
-      row :updated_at
-      row :children
-      row :is_ambassador
-      row :job
-      row :terms_accepted_at
-      row :redirection_urls_count
-      row :redirection_url_visits_count
-      row :redirection_url_unique_visits_count
-      row :redirection_unique_visit_rate
-      row :redirection_visit_rate
+      tab 'Historique' do
+        render 'admin/events/history', events: resource.events.order(occurred_at: :desc).decorate
+      end
     end
   end
 

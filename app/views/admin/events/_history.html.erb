@@ -1,0 +1,19 @@
+<div class="events-history">
+
+  <% events.each do |event| %>
+
+    <div class="event <%= event.css_class_name %>">
+      <div class="related">
+        <%= event.related.decorate.name %>
+      </div>
+      <div class="body">
+        <%= event.body %>
+      </div>
+      <div class="occurred-at">
+        <%= event.occurred_at %>
+      </div>
+    </div>
+
+  <% end %>
+
+</div>
