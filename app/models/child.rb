@@ -82,6 +82,7 @@ class Child < ApplicationRecord
   validates :last_name, presence: true
   validates :birthdate, presence: true
   validates :registration_source, presence: true, inclusion: { in: REGISTRATION_SOURCES }
+  validates :registration_source_details, presence: true
 
   # ---------------------------------------------------------------------------
   # helpers
