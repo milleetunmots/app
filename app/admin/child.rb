@@ -69,9 +69,11 @@ ActiveAdmin.register Child do
          as: :select,
          collection: proc { child_registration_source_details_suggestions },
          input_html: { multiple: true, data: { select2: {} } }
-  filter :group,
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :has_quit_group
+  filter :unpaused_group_id_in,
+         as: :select,
+         collection: proc { Group.order(:name) },
+         input_html: { multiple: true, data: { select2: {} } },
+         label: 'Cohorte active'
   filter :family_redirection_urls_count
   filter :family_redirection_url_visits_count
   filter :family_redirection_url_unique_visits_count

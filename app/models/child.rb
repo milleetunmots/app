@@ -207,12 +207,16 @@ class Child < ApplicationRecord
     )
   end
 
+  def self.unpaused_group_id_in(*v)
+    where(group_id: v).where.not(has_quit_group: true)
+  end
+
   # ---------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    %i(months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with)
+    %i(months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with unpaused_group_id_in)
   end
 
   # ---------------------------------------------------------------------------
