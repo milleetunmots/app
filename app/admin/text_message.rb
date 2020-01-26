@@ -18,9 +18,7 @@ ActiveAdmin.register Events::TextMessage do
     column :related do |model|
       model.related_link
     end
-    column :occurred_at do |model|
-      l model.occurred_at.to_date, format: :default
-    end
+    column :occurred_at
     column :body
     column :created_at do |model|
       l model.created_at.to_date, format: :default
@@ -55,7 +53,7 @@ ActiveAdmin.register Events::TextMessage do
     f.inputs do
       if f.object.related
         li class: :input do
-          label I18n.t('activerecord.attributes.event.related'), class: :label
+          label I18n.t('activerecord.attributes.events/text_message.related'), class: :label
           div style: "padding-top: 6px" do
             f.object.decorate.related_link
           end

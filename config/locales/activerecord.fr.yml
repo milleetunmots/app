@@ -4,6 +4,8 @@ fr:
       admin_user: Administrateur
       child: Enfant
       child_support: Suivi
+      events_text_message: SMS
+      events/text_message: SMS
       group: Cohorte
       parent: Parent
       redirection_target: URL cible
@@ -172,6 +174,13 @@ fr:
         3_remind: Piqûre de rappel
         4_frequent: Assidu
         5_frequent_helps: Assidu avec aide réelle
+      events/text_message:
+        body: Message
+        created_at: Ajout
+        id: "#"
+        occurred_at: Date
+        related: Parent
+        updated_at: Modification
       group:
         children: Enfants
         ended_at: Date de fin
