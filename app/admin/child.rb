@@ -215,29 +215,36 @@ ActiveAdmin.register Child do
   # ---------------------------------------------------------------------------
 
   show do
-    attributes_table do
-      row :parent1
-      row :should_contact_parent1
-      row :parent2
-      row :should_contact_parent2
-      row :first_name
-      row :last_name
-      row :birthdate
-      row :age
-      row :gender do |model|
-        model.gender_status
+    tabs do
+      tab 'Infos' do
+        attributes_table do
+          row :parent1
+          row :should_contact_parent1
+          row :parent2
+          row :should_contact_parent2
+          row :first_name
+          row :last_name
+          row :birthdate
+          row :age
+          row :gender do |model|
+            model.gender_status
+          end
+          row :registration_source
+          row :registration_source_details
+          row :group
+          row :has_quit_group
+          row :family_redirection_urls_count
+          row :family_redirection_url_visits_count
+          row :family_redirection_url_unique_visits_count
+          row :family_redirection_unique_visit_rate
+          row :family_redirection_visit_rate
+          row :created_at
+          row :updated_at
+        end
       end
-      row :registration_source
-      row :registration_source_details
-      row :group
-      row :has_quit_group
-      row :family_redirection_urls_count
-      row :family_redirection_url_visits_count
-      row :family_redirection_url_unique_visits_count
-      row :family_redirection_unique_visit_rate
-      row :family_redirection_visit_rate
-      row :created_at
-      row :updated_at
+      tab 'Historique' do
+        render 'admin/events/history', events: resource.parent_events.order(occurred_at: :desc).decorate
+      end
     end
   end
 
