@@ -48,6 +48,14 @@ ActiveAdmin.register Events::TextMessage do
   # FORM
   # ---------------------------------------------------------------------------
 
+  controller do
+    def build_new_resource
+      resource = super
+      resource.occurred_at = Time.now
+      resource
+    end
+  end
+
   form do |f|
     f.semantic_errors
     f.inputs do
@@ -63,7 +71,7 @@ ActiveAdmin.register Events::TextMessage do
       f.input :related_type, as: :hidden
       f.input :related_id, as: :hidden
 
-      f.input :occurred_at, as: :datepicker
+      f.input :occurred_at
       f.input :body, input_html: { rows: 10 }
     end
     f.actions
