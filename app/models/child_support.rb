@@ -203,6 +203,7 @@ class ChildSupport < ApplicationRecord
   delegate :address,
            :city_name,
            :letterbox_name,
+           :parent_events,
            :parent1_first_name,
            :parent1_gender,
            :parent1_is_ambassador?,

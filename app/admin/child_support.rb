@@ -325,6 +325,9 @@ ActiveAdmin.register ChildSupport do
             first_child_f.input :registration_source_details
           end
         end
+        tab 'Historique' do
+          render 'admin/events/history', events: f.object.parent_events.order(occurred_at: :desc).decorate
+        end
       end
     end
     f.actions
@@ -436,6 +439,9 @@ ActiveAdmin.register ChildSupport do
           row :call3_goals
           row :call3_notes
         end
+      end
+      tab 'Historique' do
+        render 'admin/events/history', events: resource.parent_events.order(occurred_at: :desc).decorate
       end
     end
   end
