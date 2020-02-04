@@ -160,6 +160,7 @@ ActiveAdmin.register Child do
     @children = batch_action_collection.where(id: ids).decorate
     @debug = params.key?('debug')
     render pdf: 'etiquettes',
+           disposition: 'attachment',
            template: 'admin/children/addresses_pdf',
            layout: 'pdf',
            margin: {
