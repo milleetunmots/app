@@ -16,8 +16,15 @@ class ChildrenImportService
 
         # base
         attributes = {
-          registration_source: row['registration_source']&.strip,
-          registration_source_details: row['registration_source_details']&.strip,
+          registration_source: case row['registration_source']&.strip&.downcase
+          when 'amis' then :friends
+          when 'pmi' then :pmi
+          when 'orthophoniste' then :therapist
+          when 'creche' then :nursery
+          when 'reinscription' then :resubscribing
+          else :other
+          end,
+          registration_source_details: row['registration_source_details']&.strip || '?',
           first_name: row['first_name']&.strip,
           last_name: row['last_name']&.strip,
           birthdate: Date.parse(row['birthdate']&.strip)
@@ -37,10 +44,11 @@ class ChildrenImportService
             first_name: parent1_first_name,
             last_name: parent1_last_name,
             phone_number: parent1_phone_number,
-            letterbox_name: row['parent1_letterbox_name']&.strip,
+            letterbox_name: row['parent1_letterbox_name']&.strip || [parent1_first_name, parent1_last_name].compact.join(' '),
             address: row['parent1_address']&.strip,
             city_name: row['parent1_city_name']&.strip,
-            postal_code: row['parent1_postal_code']&.strip
+            postal_code: row['parent1_postal_code']&.strip,
+            terms_accepted_at: Time.now
           }
 
           # parent 2
@@ -54,7 +62,8 @@ class ChildrenImportService
               letterbox_name: attributes[:parent1_attributes][:letterbox_name],
               address: attributes[:parent1_attributes][:address],
               city_name: attributes[:parent1_attributes][:city_name],
-              postal_code: attributes[:parent1_attributes][:postal_code]
+              postal_code: attributes[:parent1_attributes][:postal_code],
+              terms_accepted_at: Time.now
             }
           end
         end
