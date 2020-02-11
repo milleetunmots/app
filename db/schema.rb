@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_11_013817) do
+ActiveRecord::Schema.define(version: 2020_02_11_130926) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -73,6 +73,7 @@ ActiveRecord::Schema.define(version: 2020_02_11_013817) do
     t.string "call3_parent_progress"
     t.string "book_not_received"
     t.string "call3_sendings_benefits"
+    t.text "call3_sendings_benefits_details"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
@@ -112,6 +113,18 @@ ActiveRecord::Schema.define(version: 2020_02_11_013817) do
     t.index ["group_id"], name: "index_children_on_group_id"
     t.index ["parent1_id"], name: "index_children_on_parent1_id"
     t.index ["parent2_id"], name: "index_children_on_parent2_id"
+  end
+
+  create_table "events", force: :cascade do |t|
+    t.string "type"
+    t.string "related_type"
+    t.bigint "related_id"
+    t.datetime "occurred_at"
+    t.text "body"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
+    t.index ["type"], name: "index_events_on_type"
   end
 
   create_table "groups", force: :cascade do |t|

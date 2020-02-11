@@ -2,44 +2,45 @@
 #
 # Table name: child_supports
 #
-#  id                          :bigint           not null, primary key
-#  book_not_received           :string
-#  call1_books_quantity        :integer
-#  call1_duration              :integer
-#  call1_language_development  :text
-#  call1_notes                 :text
-#  call1_parent_actions        :text
-#  call1_parent_progress       :string
-#  call1_reading_frequency     :string
-#  call1_status                :string
-#  call1_status_details        :text
-#  call2_content_usage         :text
-#  call2_duration              :integer
-#  call2_goals                 :text
-#  call2_language_awareness    :string
-#  call2_language_development  :text
-#  call2_notes                 :text
-#  call2_parent_progress       :string
-#  call2_program_investment    :string
-#  call2_status                :string
-#  call2_status_details        :text
-#  call2_technical_information :text
-#  call3_content_usage         :text
-#  call3_duration              :integer
-#  call3_goals                 :text
-#  call3_language_awareness    :string
-#  call3_language_development  :text
-#  call3_notes                 :text
-#  call3_parent_progress       :string
-#  call3_sendings_benefits     :string
-#  call3_status                :string
-#  call3_status_details        :text
-#  call3_technical_information :text
-#  important_information       :text
-#  should_be_read              :boolean
-#  created_at                  :datetime         not null
-#  updated_at                  :datetime         not null
-#  supporter_id                :bigint
+#  id                              :bigint           not null, primary key
+#  book_not_received               :string
+#  call1_books_quantity            :integer
+#  call1_duration                  :integer
+#  call1_language_development      :text
+#  call1_notes                     :text
+#  call1_parent_actions            :text
+#  call1_parent_progress           :string
+#  call1_reading_frequency         :string
+#  call1_status                    :string
+#  call1_status_details            :text
+#  call2_content_usage             :text
+#  call2_duration                  :integer
+#  call2_goals                     :text
+#  call2_language_awareness        :string
+#  call2_language_development      :text
+#  call2_notes                     :text
+#  call2_parent_progress           :string
+#  call2_program_investment        :string
+#  call2_status                    :string
+#  call2_status_details            :text
+#  call2_technical_information     :text
+#  call3_content_usage             :text
+#  call3_duration                  :integer
+#  call3_goals                     :text
+#  call3_language_awareness        :string
+#  call3_language_development      :text
+#  call3_notes                     :text
+#  call3_parent_progress           :string
+#  call3_sendings_benefits         :string
+#  call3_sendings_benefits_details :text
+#  call3_status                    :string
+#  call3_status_details            :text
+#  call3_technical_information     :text
+#  important_information           :text
+#  should_be_read                  :boolean
+#  created_at                      :datetime         not null
+#  updated_at                      :datetime         not null
+#  supporter_id                    :bigint
 #
 # Indexes
 #

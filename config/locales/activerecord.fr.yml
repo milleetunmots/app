@@ -103,6 +103,7 @@ fr:
         call3_notes: Remarques diverses
         call3_parent_progress: "Note d'avancement du parent"
         call3_sendings_benefits: Apport des envois
+        call3_sendings_benefits_details: "Précisions sur l'apport des envois"
         call3_technical_information: Informations techniques
         city_name: Ville
         children: Enfants
