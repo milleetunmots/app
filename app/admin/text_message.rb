@@ -2,8 +2,6 @@ ActiveAdmin.register Events::TextMessage do
 
   menu parent: 'Événements'
 
-  actions :index, :show, :new, :create
-
   decorate_with Events::TextMessageDecorator
 
   # ---------------------------------------------------------------------------
