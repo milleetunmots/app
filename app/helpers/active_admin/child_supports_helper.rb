@@ -48,8 +48,13 @@ module ActiveAdmin::ChildSupportsHelper
     child_support_call1_parent_progress_select_collection
   end
 
-  def child_support_call3_program_investment_select_collection
-    child_support_call2_program_investment_select_collection
+  def child_support_call3_sendings_benefits_select_collection
+    ChildSupport::SENDINGS_BENEFITS.map do |v|
+      [
+        ChildSupport.human_attribute_name("call3_sendings_benefits.#{v}"),
+        v
+      ]
+    end
   end
 
 end

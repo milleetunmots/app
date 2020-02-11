@@ -197,9 +197,9 @@ class ChildSupportDecorator < BaseDecorator
     end
   end
 
-  def call3_program_investment
-    if v = model.call3_program_investment
-      ChildSupport.human_attribute_name("call3_program_investment.#{v}")
+  def call3_sendings_benefits
+    if v = model.call3_sendings_benefits
+      ChildSupport.human_attribute_name("call3_sendings_benefits.#{v}")
     end
   end
 

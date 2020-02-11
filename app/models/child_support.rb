@@ -31,7 +31,7 @@
 #  call3_language_development  :text
 #  call3_notes                 :text
 #  call3_parent_progress       :string
-#  call3_program_investment    :string
+#  call3_sendings_benefits     :string
 #  call3_status                :string
 #  call3_status_details        :text
 #  call3_technical_information :text
@@ -51,7 +51,6 @@
 #  index_child_supports_on_call2_program_investment  (call2_program_investment)
 #  index_child_supports_on_call3_language_awareness  (call3_language_awareness)
 #  index_child_supports_on_call3_parent_progress     (call3_parent_progress)
-#  index_child_supports_on_call3_program_investment  (call3_program_investment)
 #  index_child_supports_on_should_be_read            (should_be_read)
 #  index_child_supports_on_supporter_id              (supporter_id)
 #
@@ -82,6 +81,13 @@ class ChildSupport < ApplicationRecord
     2_weekly
     3_frequently
     4_daily
+  ].freeze
+  SENDINGS_BENEFITS = %w[
+    1_none
+    2_far
+    3_remind
+    4_frequent
+    5_frequent_helps
   ].freeze
 
   # ---------------------------------------------------------------------------
@@ -133,9 +139,9 @@ class ChildSupport < ApplicationRecord
               in: PARENT_PROGRESS,
               allow_blank: true
             }
-  validates :call3_program_investment,
+  validates :call3_sendings_benefits,
             inclusion: {
-              in: PROGRAM_INVESTMENT,
+              in: SENDINGS_BENEFITS,
               allow_blank: true
             }
 
@@ -161,11 +167,11 @@ class ChildSupport < ApplicationRecord
     end
   end
 
-  def self.call3_program_investment_present(bool)
+  def self.call3_sendings_benefits_present(bool)
     if bool
-      where(call3_program_investment: PROGRAM_INVESTMENT)
+      where(call3_sendings_benefits: PROGRAM_INVESTMENT)
     else
-      where.not(call3_program_investment: PROGRAM_INVESTMENT)
+      where.not(call3_sendings_benefits: PROGRAM_INVESTMENT)
     end
   end
 

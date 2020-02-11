@@ -98,9 +98,9 @@ ActiveAdmin.register ChildSupport do
          as: :select,
          collection: proc { child_support_call3_language_awareness_select_collection },
          input_html: { multiple: true, data: { select2: {} } }
-  filter :call3_program_investment,
+  filter :call3_sendings_benefits,
          as: :select,
-         collection: proc { child_support_call3_program_investment_select_collection },
+         collection: proc { child_support_call3_sendings_benefits_select_collection },
          input_html: { multiple: true, data: { select2: {} } }
   filter :created_at
   filter :updated_at
@@ -258,9 +258,9 @@ ActiveAdmin.register ChildSupport do
               f.input :call3_parent_progress,
                       as: :radio,
                       collection: child_support_call3_parent_progress_select_collection
-              f.input :call3_program_investment,
+              f.input :call3_sendings_benefits,
                       as: :radio,
-                      collection: child_support_call3_program_investment_select_collection
+                      collection: child_support_call3_sendings_benefits_select_collection
             end
             column do
               f.input :call3_language_development, input_html: { rows: 8, style: 'width: 70%' }
@@ -323,7 +323,7 @@ ActiveAdmin.register ChildSupport do
                 :call2_goals, :call2_notes,
                 :call3_duration, :call3_status, :call3_status_details,
                 :call3_technical_information, :call3_content_usage,
-                :call3_program_investment, :call3_language_development,
+                :call3_sendings_benefits, :call3_language_development,
                 :call3_language_awareness, :call3_parent_progress,
                 :call3_goals, :call3_notes,
                 first_child_attributes: [
@@ -392,7 +392,7 @@ ActiveAdmin.register ChildSupport do
           row :call3_content_usage
           row :call3_language_awareness
           row :call3_parent_progress
-          row :call3_program_investment
+          row :call3_sendings_benefits
           row :call3_language_development
           row :call3_goals
           row :call3_notes
@@ -460,7 +460,7 @@ ActiveAdmin.register ChildSupport do
     column(:call3_content_usage) { |cs| cs.call3_content_usage_text }
     column :call3_language_awareness
     column :call3_parent_progress
-    column :call3_program_investment
+    column :call3_sendings_benefits
     column(:call3_language_development) { |cs| cs.call3_language_development_text }
     column(:call3_goals) { |cs| cs.call3_goals_text }
     column(:call3_notes) { |cs| cs.call3_notes_text }

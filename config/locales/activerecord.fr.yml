@@ -102,7 +102,7 @@ fr:
         call3_language_development: "Développement langagier de l'enfant"
         call3_notes: Remarques diverses
         call3_parent_progress: "Note d'avancement du parent"
-        call3_program_investment: "Note d'investissement dans le programme"
+        call3_sendings_benefits: Apport des envois
         call3_technical_information: Informations techniques
         city_name: Ville
         children: Enfants
@@ -163,10 +163,12 @@ fr:
         2_medium: Intermédiaire
         3_high: Avancé
         4_excellent: Très avancé
-      child_support/call3_program_investment:
-        1_low: Faible
-        2_medium: Modéré
-        3_high: Important
+      child_support/call3_sendings_benefits:
+        1_none: Ne suit pas
+        2_far: Regarde de loin
+        3_remind: Piqûre de rappel
+        4_frequent: Assidu
+        5_frequent_helps: Assidu avec aide réelle
       group:
         children: Enfants
         ended_at: Date de fin
