@@ -25,4 +25,18 @@ class Events::TextMessage < Event
 
   validates :body, presence: true
 
+  # ---------------------------------------------------------------------------
+  # helpers
+  # ---------------------------------------------------------------------------
+
+  delegate :first_child,
+           to: :related,
+           prefix: true,
+           allow_nil: true
+
+  delegate :id,
+           to: :related_first_child,
+           prefix: true,
+           allow_nil: true
+
 end

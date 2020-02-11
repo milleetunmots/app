@@ -180,6 +180,11 @@ fr:
         id: "#"
         occurred_at: Date
         related: Parent
+        related_first_child: Fratrie
+        related_first_child_id: Fratrie
+        related_first_child_name: Fratrie
+        related_id: Parent
+        related_name: Parent
         updated_at: Modification
       group:
         children: Enfants

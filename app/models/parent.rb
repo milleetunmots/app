@@ -62,6 +62,10 @@ class Parent < ApplicationRecord
     parent1_children.or(parent2_children)
   end
 
+  def first_child
+    children.order(:id).first
+  end
+
   has_many :redirection_urls, dependent: :destroy
 
   has_many :events, as: :related

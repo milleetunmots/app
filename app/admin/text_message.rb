@@ -16,6 +16,9 @@ ActiveAdmin.register Events::TextMessage do
     column :related do |model|
       model.related_link
     end
+    column :related_first_child do |model|
+      model.related_first_child_link
+    end
     column :occurred_at
     column :body
     column :created_at do |model|
@@ -35,6 +38,9 @@ ActiveAdmin.register Events::TextMessage do
     attributes_table do
       row :related do |model|
         model.related_link
+      end
+      row :related_first_child do |model|
+        model.related_first_child_link
       end
       row :occurred_at
       row :body
@@ -76,5 +82,25 @@ ActiveAdmin.register Events::TextMessage do
   end
 
   permit_params :related_type, :related_id, :occurred_at, :body
+
+  # ---------------------------------------------------------------------------
+  # CSV EXPORT
+  # ---------------------------------------------------------------------------
+
+  csv do
+    column :id
+
+    column :related_id
+    column :related_name
+
+    column :related_first_child_id
+    column :related_first_child_name
+
+    column :occurred_at
+    column :body
+
+    column :created_at
+    column :updated_at
+  end
 
 end
