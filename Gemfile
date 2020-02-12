@@ -90,6 +90,9 @@ gem 'paper_trail'
 gem 'wkhtmltopdf-binary'
 gem 'wicked_pdf'
 
+# soft deletion
+gem 'discard', '~> 1.0'
+
 group :production do
   # for assets compilation
   gem 'activerecord-nulldb-adapter'

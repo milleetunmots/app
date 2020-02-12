@@ -177,6 +177,7 @@ fr:
       events/text_message:
         body: Message
         created_at: Ajout
+        discarded_at: Mis à la corbeille
         id: "#"
         occurred_at: Date
         related: Parent

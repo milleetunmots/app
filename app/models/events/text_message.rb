@@ -4,6 +4,7 @@
 #
 #  id           :bigint           not null, primary key
 #  body         :text
+#  discarded_at :datetime
 #  occurred_at  :datetime
 #  related_type :string
 #  type         :string
@@ -13,6 +14,7 @@
 #
 # Indexes
 #
+#  index_events_on_discarded_at                 (discarded_at)
 #  index_events_on_related_type_and_related_id  (related_type,related_id)
 #  index_events_on_type                         (type)
 #

@@ -4,6 +4,8 @@ ActiveAdmin.register Events::TextMessage do
 
   decorate_with Events::TextMessageDecorator
 
+  actions :all, except: [:destroy]
+
   # ---------------------------------------------------------------------------
   # INDEX
   # ---------------------------------------------------------------------------
@@ -24,8 +26,17 @@ ActiveAdmin.register Events::TextMessage do
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
-    actions
+    actions do |model|
+      if model.discarded?
+        link_to 'Restaurer', [:undiscard, :admin, model], method: :put, class: 'member_link green'
+      else
+        link_to 'Supprimer', [:discard, :admin, model], method: :put, class: 'member_link red'
+      end
+    end
   end
+
+  scope :kept, default: true
+  scope :discarded
 
   filter :occurred_at
   filter :created_at
@@ -45,6 +56,7 @@ ActiveAdmin.register Events::TextMessage do
       row :occurred_at
       row :body
       row :created_at
+      row :discarded_at
     end
   end
 
@@ -101,6 +113,29 @@ ActiveAdmin.register Events::TextMessage do
 
     column :created_at
     column :updated_at
+    column :discarded_at
+  end
+
+  # ---------------------------------------------------------------------------
+  # DISCARD
+  # ---------------------------------------------------------------------------
+
+  member_action :discard, method: :put do
+    resource.discard!
+    redirect_to request.referer, notice: 'Mis à la corbeille'
+  end
+
+  member_action :undiscard, method: :put do
+    resource.undiscard!
+    redirect_to request.referer, notice: 'Sorti de la corbeille'
+  end
+
+  action_item :discard_undiscard, only: :show do
+    if resource.discarded?
+      link_to 'Restaurer', [:undiscard, :admin, resource], method: :put, class: :green
+    else
+      link_to 'Supprimer', [:discard, :admin, resource], method: :put, class: :red
+    end
   end
 
 end

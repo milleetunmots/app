@@ -25,8 +25,10 @@ fr:
         new_model: Nouvelle tâche
     scopes:
       all: Tous
+      discarded: Corbeille
       done: Fait
       ended: Terminées
+      kept: Valides
       mine: Sous ma responsabilité
       months_between_0_and_12: 0-1 an
       months_between_12_and_24: 1-2 ans
