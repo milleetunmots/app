@@ -28,7 +28,11 @@ ActiveAdmin.register Events::TextMessage do
     end
     actions do |model|
       if model.discarded?
-        link_to 'Restaurer', [:undiscard, :admin, model], method: :put, class: 'member_link green'
+        (
+          link_to 'Restaurer', [:undiscard, :admin, model], method: :put, class: 'member_link green'
+        ) + (
+          link_to 'Supprimer définitivement', [:really_destroy, :admin, model], method: :delete, class: 'member_link red', data: { confirm: I18n.t('active_admin.delete_confirmation') }
+        )
       else
         link_to 'Supprimer', [:discard, :admin, model], method: :put, class: 'member_link red'
       end
@@ -130,9 +134,18 @@ ActiveAdmin.register Events::TextMessage do
     redirect_to request.referer, notice: 'Sorti de la corbeille'
   end
 
+  member_action :really_destroy, method: :delete do
+    resource.destroy
+    redirect_to admin_events_text_messages_path(scope: :discarded), notice: 'Supprimé'
+  end
+
   action_item :discard_undiscard, only: :show do
     if resource.discarded?
-      link_to 'Restaurer', [:undiscard, :admin, resource], method: :put, class: :green
+      (
+        link_to 'Restaurer', [:undiscard, :admin, resource], method: :put, class: :green
+      ) + ' ' + (
+        link_to 'Supprimer définitivement', [:really_destroy, :admin, resource], method: :delete, class: :red, data: { confirm: I18n.t(:delete_confirmation) }
+      )
     else
       link_to 'Supprimer', [:discard, :admin, resource], method: :put, class: :red
     end
