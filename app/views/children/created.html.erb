@@ -1,10 +1,14 @@
 <div id="inscription-success">
 
-  <div class="container text-center" id="inscription-success-content">
+  <div class="text-center" id="inscription-success-content">
 
     <h1>Inscription effectuée avec succès</h1>
 
-    <%= link_to 'Retour', new_child_path, class: 'btn btn-primary btn-lg' %>
+    <%= link_to new_child_path, class: 'back-btn' do %>
+      <i>←</i>Retour
+    <% end %>
+
+    <iframe id="helloasso-widget" allowtransparency="true" src="https://www.helloasso.com/associations/1001mots/formulaires/2/widget"></iframe>
 
   </div>
 
