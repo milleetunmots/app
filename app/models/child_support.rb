@@ -37,6 +37,8 @@
 #  call3_status_details            :text
 #  call3_technical_information     :text
 #  important_information           :text
+#  is_bilingual                    :boolean
+#  second_language                 :string
 #  should_be_read                  :boolean
 #  created_at                      :datetime         not null
 #  updated_at                      :datetime         not null

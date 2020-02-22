@@ -52,6 +52,8 @@ ActiveAdmin.register ChildSupport do
   filter :should_be_read,
          input_html: { data: { select2: { width: '100%' } } }
   filter :book_not_received
+  filter :is_bilingual
+  filter :second_language
   filter :supporter,
          input_html: { data: { select2: {} } }
   filter :call1_status
@@ -147,12 +149,14 @@ ActiveAdmin.register ChildSupport do
         end
         column do
           f.label :important_information
-          f.input :important_information, label: false, input_html: { rows: 5, style: 'width: 100%' }
+          f.input :important_information, label: false, input_html: { rows: 3, style: 'width: 100%' }
           columns do
             column do
-              f.input :should_be_read
+              f.input :is_bilingual
+              f.input :second_language
             end
             column do
+              f.input :should_be_read
               f.input :book_not_received
             end
           end
@@ -313,6 +317,7 @@ ActiveAdmin.register ChildSupport do
   )
   permit_params :important_information, :supporter_id,
                 :should_be_read, :book_not_received,
+                :is_bilingual, :second_language,
                 :call1_duration, :call1_status, :call1_status_details,
                 :call1_parent_actions, :call1_parent_progress,
                 :call1_language_development, :call1_notes,
@@ -352,6 +357,8 @@ ActiveAdmin.register ChildSupport do
           row :important_information
           row :book_not_received
           row :should_be_read
+          row :is_bilingual
+          row :second_language
           row :created_at
           row :updated_at
         end
@@ -432,6 +439,8 @@ ActiveAdmin.register ChildSupport do
     column :book_not_received
     column(:important_information) { |cs| cs.important_information_text }
     column :should_be_read
+    column :is_bilingual
+    column :second_language
 
     column :call1_status
     column :call1_status_details

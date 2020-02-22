@@ -116,6 +116,7 @@ fr:
         groups: Cohortes
         id: "#"
         important_information: Infos importantes (langue maternelle, présence du père, ...)
+        is_bilingual: Bilinguisme
         letterbox_name: Nom sur la boîte aux lettres
         parent1: Parent 1
         parent1_first_name: Prénom du parent 1
@@ -129,6 +130,7 @@ fr:
         parent2_phone_number_national: Numéro du parent 2
         postal_code: Code postal
         registration_sources: Origines
+        second_language: Langue parlée
         should_be_read: À lire par l'équipe
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?
