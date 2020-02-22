@@ -2,7 +2,7 @@ div class: 'card card-parent' do
   (
     div parent.admin_link(with_icon: true, target: '_blank')
   ) + (
-    div parent.phone_number
+    div parent.phone_number(with_icon: true)
   ) + (
     div parent.full_address
   ) + (

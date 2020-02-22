@@ -9,6 +9,7 @@
 #  first_name                          :string           not null
 #  gender                              :string           not null
 #  is_ambassador                       :boolean
+#  is_lycamobile                       :boolean
 #  job                                 :string
 #  last_name                           :string           not null
 #  letterbox_name                      :string

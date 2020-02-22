@@ -246,10 +246,12 @@ class Child < ApplicationRecord
            to: :parent1
 
   delegate :is_ambassador?,
+           :is_lycamobile?,
            to: :parent1,
            prefix: true
 
   delegate :is_ambassador?,
+           :is_lycamobile?,
            to: :parent2,
            prefix: true,
            allow_nil: true

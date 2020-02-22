@@ -44,9 +44,15 @@ class ParentDecorator < BaseDecorator
     [model.first_name, model.last_name].join ' '
   end
 
-  def phone_number
+  def phone_number(with_icon: false)
     phone = Phonelib.parse model.phone_number
-    phone.national
+    r = [phone.national]
+    if with_icon
+      if model.is_lycamobile?
+        r << h.image_tag('lycamobile.png', class: 'phone-number-icon')
+      end
+    end
+    r.join.html_safe
   end
 
   def full_address

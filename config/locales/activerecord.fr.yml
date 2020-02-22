@@ -187,6 +187,7 @@ fr:
         gender: Sexe
         id: "#"
         is_ambassador: Parent ambassadeur
+        is_lycamobile: Lycamobile
         job: Métier
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres
