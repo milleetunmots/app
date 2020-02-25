@@ -217,7 +217,9 @@ class ChildSupport < ApplicationRecord
            :parent2_phone_number_national,
            :postal_code,
            :should_contact_parent1,
+           :should_contact_parent1?,
            :should_contact_parent2,
+           :should_contact_parent2?,
            to: :first_child,
            allow_nil: true
 

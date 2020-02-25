@@ -122,19 +122,17 @@ ActiveAdmin.register ChildSupport do
           columns do
             # parents
             [
-              [:parent1, f.object.parent1, f.object.should_contact_parent1, f.object.parent1_is_ambassador?],
-              [:parent2, f.object.parent2, f.object.should_contact_parent2, f.object.parent2_is_ambassador?]
+              [f.object.parent1, f.object.should_contact_parent1],
+              [f.object.parent2, f.object.should_contact_parent2]
             ].each do |p|
-              next if p[1].nil?
-              parent = p[1].decorate
-              should_contact_parent = p[2]
-              parent_is_ambassador = p[3]
+              next if p[0].nil?
+              parent = p[0].decorate
+              should_contact_parent = p[1]
 
               column do
                 render 'parent',
                        parent: parent,
-                       should_contact_parent: should_contact_parent,
-                       parent_is_ambassador: parent_is_ambassador
+                       should_contact_parent: should_contact_parent
               end
             end
             column do
@@ -352,8 +350,18 @@ ActiveAdmin.register ChildSupport do
       tab I18n.t('child_support.base') do
         attributes_table title: I18n.t('child_support.base') do
           row :supporter
-          row :parent1
-          row :parent2
+          row :parent1 do |decorated|
+            render 'parent',
+                   parent: decorated.model.parent1.decorate,
+                   should_contact_parent: decorated.should_contact_parent1?
+          end
+          row :parent2 do |decorated|
+            if decorated.model.parent2
+              render 'parent',
+                     parent: decorated.model.parent2.decorate,
+                     should_contact_parent: decorated.should_contact_parent2?
+            end
+          end
           row :children
           row :important_information
           row :book_not_received

@@ -15,7 +15,7 @@ div class: 'card card-parent' do
     end
   ) + (
     div class: 'is-ambassador' do
-      if parent_is_ambassador
+      if parent.is_ambassador?
         status_tag 'yes', label: t('is_ambassador')
       end
     end
