@@ -191,7 +191,14 @@ ActiveAdmin.register ChildSupport do
             end
             column do
               f.input :call1_language_development, input_html: { rows: 8, style: 'width: 70%' }
-              f.input :call1_notes, input_html: { rows: 8, style: 'width: 70%' }
+              f.input :call1_notes,
+                      input_html: {
+                        rows: 8,
+                        style: 'width: 70%',
+                        value: f.object.call1_notes.presence || (
+                          I18n.t('child_support.default.call1_notes')
+                        )
+                      }
             end
           end
         end
@@ -229,7 +236,14 @@ ActiveAdmin.register ChildSupport do
             column do
               f.input :call2_language_development, input_html: { rows: 8, style: 'width: 70%' }
               f.input :call2_goals, input_html: { rows: 8, style: 'width: 70%' }
-              f.input :call2_notes, input_html: { rows: 8, style: 'width: 70%' }
+              f.input :call2_notes,
+                      input_html: {
+                        rows: 8,
+                        style: 'width: 70%',
+                        value: f.object.call2_notes.presence || (
+                          I18n.t('child_support.default.call2_notes')
+                        )
+                      }
             end
           end
         end
@@ -268,7 +282,14 @@ ActiveAdmin.register ChildSupport do
             column do
               f.input :call3_language_development, input_html: { rows: 8, style: 'width: 70%' }
               f.input :call3_goals, input_html: { rows: 8, style: 'width: 70%' }
-              f.input :call3_notes, input_html: { rows: 8, style: 'width: 70%' }
+              f.input :call3_notes,
+                      input_html: {
+                        rows: 8,
+                        style: 'width: 70%',
+                        value: f.object.call3_notes.presence || (
+                          I18n.t('child_support.default.call3_notes')
+                        )
+                      }
             end
           end
         end
