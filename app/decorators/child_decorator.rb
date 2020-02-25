@@ -11,6 +11,10 @@ class ChildDecorator < BaseDecorator
   end
 
   def age
+    h.t 'child_age.months', months: model.months
+  end
+
+  def age_in_months_or_years
     months = model.months
     if months < 24
       h.t 'child_age.months', months: months
