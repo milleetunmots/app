@@ -462,6 +462,7 @@ ActiveAdmin.register ChildSupport do
     column :parent1_first_name
     column :parent1_last_name
     column :parent1_phone_number_national
+    column :parent1_is_lycamobile
     column :should_contact_parent1
     column :letterbox_name
     column :address
@@ -472,6 +473,7 @@ ActiveAdmin.register ChildSupport do
     column :parent2_first_name
     column :parent2_last_name
     column :parent2_phone_number_national
+    column :parent2_is_lycamobile
     column :should_contact_parent2
 
     column :children_first_names
