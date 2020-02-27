@@ -41,13 +41,6 @@ COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
-# Create a user with limited rights to run the app
-RUN groupadd -g 2000 rails \
-  && useradd -ms /bin/bash -u 2001 -g rails rails
-# Give right to write on tmp
-RUN mkdir tmp && chown rails tmp
-USER rails
-
 # The main command to run when the container starts. Also
 # tell the Rails dev server to bind to all interfaces by
 # default.
