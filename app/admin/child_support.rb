@@ -293,40 +293,44 @@ ActiveAdmin.register ChildSupport do
             end
           end
         end
-        %i(parent1 parent2).each do |k|
-          if f.object.first_child.send(k)
-            tab I18n.t("child_support.#{k}") do
-              f.semantic_fields_for :first_child do |first_child_f|
-                first_child_f.semantic_fields_for k do |parent_f|
-                  parent_f.input :phone_number
-                  parent_f.input :is_lycamobile
-                  parent_f.input :email
-                  parent_f.input :letterbox_name
-                  parent_f.input :address
-                  parent_f.input :postal_code
-                  parent_f.input :city_name
-                  parent_f.input :is_ambassador
-                  parent_f.input :job
+        if f.object.first_child
+          %i(parent1 parent2).each do |k|
+            if f.object.first_child.send(k)
+              tab I18n.t("child_support.#{k}") do
+                f.semantic_fields_for :first_child do |first_child_f|
+                  first_child_f.semantic_fields_for k do |parent_f|
+                    parent_f.input :phone_number
+                    parent_f.input :is_lycamobile
+                    parent_f.input :email
+                    parent_f.input :letterbox_name
+                    parent_f.input :address
+                    parent_f.input :postal_code
+                    parent_f.input :city_name
+                    parent_f.input :is_ambassador
+                    parent_f.input :job
+                  end
                 end
               end
             end
           end
         end
-        tab f.object.first_child.decorate.name do
-          f.semantic_fields_for :first_child do |first_child_f|
-            first_child_f.input :gender,
-                                as: :radio,
-                                collection: child_gender_select_collection(with_unknown: true)
-            first_child_f.input :should_contact_parent1
-            first_child_f.input :should_contact_parent2
-            first_child_f.input :registration_source,
-                                collection: child_registration_source_select_collection,
-                                input_html: { data: { select2: {} } }
-            first_child_f.input :registration_source_details
+        if f.object.first_child
+          tab f.object.first_child.decorate.name do
+            f.semantic_fields_for :first_child do |first_child_f|
+              first_child_f.input :gender,
+                                  as: :radio,
+                                  collection: child_gender_select_collection(with_unknown: true)
+              first_child_f.input :should_contact_parent1
+              first_child_f.input :should_contact_parent2
+              first_child_f.input :registration_source,
+                                  collection: child_registration_source_select_collection,
+                                  input_html: { data: { select2: {} } }
+              first_child_f.input :registration_source_details
+            end
           end
-        end
-        tab 'Historique' do
-          render 'admin/events/history', events: f.object.parent_events.order(occurred_at: :desc).decorate
+          tab 'Historique' do
+            render 'admin/events/history', events: f.object.parent_events.order(occurred_at: :desc).decorate
+          end
         end
       end
     end
@@ -375,9 +379,11 @@ ActiveAdmin.register ChildSupport do
         attributes_table title: I18n.t('child_support.base') do
           row :supporter
           row :parent1 do |decorated|
-            render 'parent',
-                   parent: decorated.model.parent1.decorate,
-                   should_contact_parent: decorated.should_contact_parent1?
+            if decorated.model.parent1
+              render 'parent',
+                     parent: decorated.model.parent1.decorate,
+                     should_contact_parent: decorated.should_contact_parent1?
+            end
           end
           row :parent2 do |decorated|
             if decorated.model.parent2
@@ -440,8 +446,10 @@ ActiveAdmin.register ChildSupport do
           row :call3_notes
         end
       end
-      tab 'Historique' do
-        render 'admin/events/history', events: resource.parent_events.order(occurred_at: :desc).decorate
+      if resource.first_child
+        tab 'Historique' do
+          render 'admin/events/history', events: resource.parent_events.order(occurred_at: :desc).decorate
+        end
       end
     end
   end
