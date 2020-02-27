@@ -245,12 +245,16 @@ class Child < ApplicationRecord
            :postal_code,
            to: :parent1
 
-  delegate :is_ambassador?,
+  delegate :is_ambassador,
+           :is_ambassador?,
+           :is_lycamobile,
            :is_lycamobile?,
            to: :parent1,
            prefix: true
 
-  delegate :is_ambassador?,
+  delegate :is_ambassador,
+           :is_ambassador?,
+           :is_lycamobile,
            :is_lycamobile?,
            to: :parent2,
            prefix: true,
