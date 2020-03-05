@@ -10,7 +10,7 @@ Rails.application.routes.draw do
 
   get 'r/:id/:security_code', to: 'redirection#visit', as: :visit_redirection
 
-  resources :events, only: :create
+  resources :events, only: [:index, :create]
 
   root to: redirect('/admin')
 

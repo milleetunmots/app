@@ -2,6 +2,10 @@ class EventsController < ApplicationController
 
   skip_before_action :verify_authenticity_token
 
+  def index
+    head :no_content
+  end
+
   def create
     case params[:source]&.to_sym
     when :buzz
