@@ -17,7 +17,7 @@ fr:
     call2_parent_progress_present: Note appel 2 présente
     call3_parent_progress_present: Note appel 3 présente
     default:
-      call1_parent_actions: "Livres :\nChansons :\nJeux :\nSorties :"
+      call1_parent_actions: "Livres :\nChansons :\nJeux :\nSorties :\nParler au quotidien :\nEcrans :"
       call1_notes: Facebook
       call2_content_usage: "Livre\nSMS/Vidéo\nJeux\nChansons"
       call2_notes: Facebook
