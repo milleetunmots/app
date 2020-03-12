@@ -83,12 +83,26 @@ class ChildSupportDecorator < BaseDecorator
     h.content_tag :div, call1_parent_actions_text, class: 'free-text'
   end
 
+  def call1_language_awareness
+    if v = model.call1_language_awareness
+      ChildSupport.human_attribute_name("call1_language_awareness.#{v}")
+    end
+  end
+
   def call1_language_development_text
     model.call1_language_development
   end
 
   def call1_language_development
     h.content_tag :div, call1_language_development_text, class: 'free-text'
+  end
+
+  def call1_goals_text
+    model.call1_goals
+  end
+
+  def call1_goals
+    h.content_tag :div, call1_goals_text, class: 'free-text'
   end
 
   def call1_notes_text
@@ -119,12 +133,12 @@ class ChildSupportDecorator < BaseDecorator
     h.content_tag :div, call2_technical_information_text, class: 'free-text'
   end
 
-  def call2_content_usage_text
-    model.call2_content_usage
+  def call2_parent_actions_text
+    model.call2_parent_actions
   end
 
-  def call2_content_usage
-    h.content_tag :div, call2_content_usage_text, class: 'free-text'
+  def call2_parent_actions
+    h.content_tag :div, call2_parent_actions_text, class: 'free-text'
   end
 
   def call2_language_awareness
@@ -139,9 +153,9 @@ class ChildSupportDecorator < BaseDecorator
     end
   end
 
-  def call2_program_investment
-    if v = model.call2_program_investment
-      ChildSupport.human_attribute_name("call2_program_investment.#{v}")
+  def call2_sendings_benefits
+    if v = model.call2_sendings_benefits
+      ChildSupport.human_attribute_name("call2_sendings_benefits.#{v}")
     end
   end
 
@@ -151,6 +165,12 @@ class ChildSupportDecorator < BaseDecorator
 
   def call2_language_development
     h.content_tag :div, call2_language_development_text, class: 'free-text'
+  end
+
+  def call2_reading_frequency
+    if v = model.call2_reading_frequency
+      ChildSupport.human_attribute_name("call2_reading_frequency.#{v}")
+    end
   end
 
   def call2_goals_text
@@ -177,12 +197,12 @@ class ChildSupportDecorator < BaseDecorator
     h.content_tag :div, call3_technical_information_text, class: 'free-text'
   end
 
-  def call3_content_usage_text
-    model.call3_content_usage
+  def call3_parent_actions_text
+    model.call3_parent_actions
   end
 
-  def call3_content_usage
-    h.content_tag :div, call3_content_usage_text, class: 'free-text'
+  def call3_parent_actions
+    h.content_tag :div, call3_parent_actions_text, class: 'free-text'
   end
 
   def call3_language_awareness
@@ -209,6 +229,12 @@ class ChildSupportDecorator < BaseDecorator
 
   def call3_language_development
     h.content_tag :div, call3_language_development_text, class: 'free-text'
+  end
+
+  def call3_reading_frequency
+    if v = model.call3_reading_frequency
+      ChildSupport.human_attribute_name("call3_reading_frequency.#{v}")
+    end
   end
 
   def call3_goals_text

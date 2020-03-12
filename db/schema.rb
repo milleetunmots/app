@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_22_185731) do
+ActiveRecord::Schema.define(version: 2020_03_12_115612) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -42,13 +42,12 @@ ActiveRecord::Schema.define(version: 2020_02_22_185731) do
     t.string "call1_parent_progress"
     t.text "call1_notes"
     t.text "call2_technical_information"
-    t.text "call2_content_usage"
-    t.string "call2_program_investment"
+    t.text "call2_parent_actions"
     t.text "call2_language_development"
     t.text "call2_goals"
     t.text "call2_notes"
     t.text "call3_technical_information"
-    t.text "call3_content_usage"
+    t.text "call3_parent_actions"
     t.text "call3_language_development"
     t.text "call3_goals"
     t.text "call3_notes"
@@ -76,12 +75,17 @@ ActiveRecord::Schema.define(version: 2020_02_22_185731) do
     t.text "call3_sendings_benefits_details"
     t.boolean "is_bilingual"
     t.string "second_language"
+    t.string "call1_language_awareness"
+    t.text "call1_goals"
+    t.string "call2_reading_frequency"
+    t.string "call3_reading_frequency"
+    t.string "call2_sendings_benefits"
+    t.text "call2_sendings_benefits_details"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
     t.index ["call2_language_awareness"], name: "index_child_supports_on_call2_language_awareness"
     t.index ["call2_parent_progress"], name: "index_child_supports_on_call2_parent_progress"
-    t.index ["call2_program_investment"], name: "index_child_supports_on_call2_program_investment"
     t.index ["call3_language_awareness"], name: "index_child_supports_on_call3_language_awareness"
     t.index ["call3_parent_progress"], name: "index_child_supports_on_call3_parent_progress"
     t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
