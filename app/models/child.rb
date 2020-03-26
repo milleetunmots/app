@@ -151,12 +151,8 @@ class Child < ApplicationRecord
     months_between(12, 24)
   end
 
-  def self.months_between_24_and_36
-    months_between(24, 36)
-  end
-
-  def self.months_more_than_36
-    months_gteq(36)
+  def self.months_more_than_24
+    months_gteq(24)
   end
 
   # ---------------------------------------------------------------------------

@@ -32,8 +32,7 @@ fr:
       mine: Sous ma responsabilité
       months_between_0_and_12: 0-1 an
       months_between_12_and_24: 1-2 ans
-      months_between_24_and_36: 2-3 ans
-      months_more_than_36: 3+ ans
+      months_more_than_24: 2+ ans
       not_ended: En cours
       todo: À faire
       with_book_not_received: Ayant un livre non reçu
