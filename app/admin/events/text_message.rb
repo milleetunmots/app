@@ -21,6 +21,7 @@ ActiveAdmin.register Events::TextMessage do
     column :related_first_child do |model|
       model.related_first_child_link
     end
+    column :related_first_child_group
     column :occurred_at
     column :body
     column :created_at do |model|
@@ -41,6 +42,12 @@ ActiveAdmin.register Events::TextMessage do
 
   scope :kept, default: true
   scope :discarded
+
+  filter :parent_first_child_group_id_in,
+         as: :select,
+         collection: proc { Group.order(:name) },
+         input_html: { multiple: true, data: { select2: {} } },
+         label: 'Cohorte'
 
   filter :occurred_at
   filter :created_at
@@ -111,6 +118,9 @@ ActiveAdmin.register Events::TextMessage do
 
     column :related_first_child_id
     column :related_first_child_name
+
+    column :related_first_child_group_name
+    column :related_first_child_has_quit_group
 
     column :occurred_at
     column :body

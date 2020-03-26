@@ -37,8 +37,29 @@ class Events::TextMessage < Event
            allow_nil: true
 
   delegate :id,
+           :group,
+           :group_id,
+           :group_name,
+           :has_quit_group,
            to: :related_first_child,
            prefix: true,
            allow_nil: true
+
+  # ---------------------------------------------------------------------------
+  # scopes
+  # ---------------------------------------------------------------------------
+
+  # this cannot be named related_first_child_... due to Ransack behavior
+  def self.parent_first_child_group_id_in(*v)
+    where(related: Parent.first_child_group_id_in(v))
+  end
+
+  # ---------------------------------------------------------------------------
+  # ransack
+  # ---------------------------------------------------------------------------
+
+  def self.ransackable_scopes(auth_object = nil)
+    %i(parent_first_child_group_id_in)
+  end
 
 end
