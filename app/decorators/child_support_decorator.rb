@@ -20,20 +20,6 @@ class ChildSupportDecorator < BaseDecorator
     end
   end
 
-  def other_family_child_supports
-    arbre do
-      ul do
-        model.other_children.with_support.decorate.each do |child|
-          li do
-            (
-              h.link_to child.name, h.auto_url_for(child.child_support)
-            ) + ' (' + child.age + ')'
-          end
-        end
-      end
-    end
-  end
-
   def children_first_names(glue = "\n")
     children_attribute(:first_name, glue)
   end
@@ -304,6 +290,17 @@ class ChildSupportDecorator < BaseDecorator
   #     h.render 'child', child: child.decorate
   #   end
   # end
+
+  def dropdown_menu_item
+    (
+      [
+        "<b>Suivi ##{model.id}</b>"
+      ] +
+      model.children.decorate.map do |child|
+        child.gendered_name_with_age(with_icon: true)
+      end
+    ).join('<br/>-&nbsp;').html_safe
+  end
 
   private
 

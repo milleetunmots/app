@@ -433,7 +433,6 @@ ActiveAdmin.register ChildSupport do
             end
           end
           row :children
-          row :other_family_child_supports
           row :important_information
           row :book_not_received
           row :should_be_read
@@ -576,6 +575,16 @@ ActiveAdmin.register ChildSupport do
 
     column :created_at
     column :updated_at
+  end
+
+  action_item :other_family_child_supports,
+              only: %i(show edit),
+              if: proc { resource.has_other_family_child_supports? } do
+    dropdown_menu 'Autres suivis' do
+      resource.other_family_child_supports.each do |other_child_support|
+        item other_child_support.decorate.dropdown_menu_item, url_for(id: other_child_support.id)
+      end
+    end
   end
 
 end

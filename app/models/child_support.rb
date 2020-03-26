@@ -252,6 +252,14 @@ class ChildSupport < ApplicationRecord
     Child.parent_id_in(all_parent_ids).where.not(child_support: self)
   end
 
+  def has_other_family_child_supports?
+    other_children.with_support.any?
+  end
+
+  def other_family_child_supports
+    other_children.with_support.map(&:child_support).uniq
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------
