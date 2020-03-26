@@ -247,6 +247,11 @@ class ChildSupport < ApplicationRecord
     (call3_parent_progress || '').split('_').first&.to_i
   end
 
+  def other_children
+    all_parent_ids = children.pluck(:parent1_id, :parent2_id).join(',').split(',').uniq
+    Child.parent_id_in(all_parent_ids).where.not(child_support: self)
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------

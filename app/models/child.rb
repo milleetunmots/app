@@ -190,6 +190,12 @@ class Child < ApplicationRecord
     )
   end
 
+  def self.parent_id_in(*v)
+    where(parent1_id: v).or(
+      where(parent2_id: v)
+    )
+  end
+
   def self.without_parent_to_contact
     # info: AR simplifies this
     where(

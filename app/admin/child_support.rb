@@ -433,6 +433,7 @@ ActiveAdmin.register ChildSupport do
             end
           end
           row :children
+          row :other_family_child_supports
           row :important_information
           row :book_not_received
           row :should_be_read

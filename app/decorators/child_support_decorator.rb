@@ -20,6 +20,20 @@ class ChildSupportDecorator < BaseDecorator
     end
   end
 
+  def other_family_child_supports
+    arbre do
+      ul do
+        model.other_children.with_support.decorate.each do |child|
+          li do
+            (
+              h.link_to child.name, h.auto_url_for(child.child_support)
+            ) + ' (' + child.age + ')'
+          end
+        end
+      end
+    end
+  end
+
   def children_first_names(glue = "\n")
     children_attribute(:first_name, glue)
   end
