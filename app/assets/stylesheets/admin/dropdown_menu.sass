@@ -1,4 +1,6 @@
 #title_bar #titlebar_right .action_item
+  @import active_admin/components/dropdown_menu
+
   .dropdown_menu
     .dropdown_menu_button
       font-weight: inherit
@@ -7,6 +9,14 @@
       text-shadow: none
       line-height: normal
       box-shadow: none
+      border: 0
+      border-radius: 3px
+      background: #5E6469
+      padding-left: 8px
+      color: white
+
+      &:not(.disabled):hover
+        background: #767e84
 
       &:before
         border-width: 5px 5px 0
