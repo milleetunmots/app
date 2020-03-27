@@ -2,6 +2,7 @@ ActiveAdmin.register Parent do
 
   decorate_with ParentDecorator
 
+  has_better_csv
   has_paper_trail
   has_tasks
 
@@ -19,7 +20,9 @@ ActiveAdmin.register Parent do
     column :last_name
     column :children
     column :phone_number
-    column :email
+    column :email do |decorated|
+      decorated.email_link
+    end
     column :is_ambassador
     column :redirection_unique_visits
     column :created_at do |model|
@@ -87,14 +90,16 @@ ActiveAdmin.register Parent do
     tabs do
       tab 'Infos' do
         attributes_table do
-          row :gender do |model|
-            model.gender_status
+          row :gender do |decorated|
+            decorated.gender_status
           end
           row :first_name
           row :last_name
           row :phone_number
           row :is_lycamobile
-          row :email
+          row :email do |decorated|
+            decorated.email_link
+          end
           row :letterbox_name
           row :address
           row :postal_code
@@ -105,6 +110,7 @@ ActiveAdmin.register Parent do
           row :is_ambassador
           row :job
           row :terms_accepted_at
+          row :text_messages_count
           row :redirection_urls_count
           row :redirection_url_visits_count
           row :redirection_url_unique_visits_count
@@ -126,6 +132,45 @@ ActiveAdmin.register Parent do
                 related_id: resource.id
               }
             )
+  end
+
+  # ---------------------------------------------------------------------------
+  # CSV EXPORT
+  # ---------------------------------------------------------------------------
+
+  csv do
+    column :id
+
+    column :gender
+    column :first_name
+    column :last_name
+
+    column :email
+    column :phone_number_national
+    column :is_lycamobile
+
+    column :letterbox_name
+    column :address
+    column :city_name
+    column :postal_code
+
+    column :job
+    column :is_ambassador
+
+    column :children_count
+
+    column :text_messages_count
+
+    column :redirection_urls_count
+    column :redirection_url_visits_count
+    column :redirection_url_unique_visits_count
+    column :redirection_unique_visit_rate
+    column :redirection_visit_rate
+
+    column :terms_accepted_at
+
+    column :created_at
+    column :updated_at
   end
 
 end

@@ -1,6 +1,6 @@
 class AdminUserDecorator < BaseDecorator
 
-  def email
+  def email_link
     h.mail_to model.email
   end
 

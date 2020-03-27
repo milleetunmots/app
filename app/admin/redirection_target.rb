@@ -4,6 +4,8 @@ ActiveAdmin.register RedirectionTarget do
 
   decorate_with RedirectionTargetDecorator
 
+  has_better_csv
+
   # ---------------------------------------------------------------------------
   # INDEX
   # ---------------------------------------------------------------------------

@@ -43,7 +43,7 @@ class ChildDecorator < BaseDecorator
   }
 
   def safe_gender
-    model.gender || 'x'
+    model.gender.presence || 'x'
   end
 
   def gender_status
@@ -54,6 +54,20 @@ class ChildDecorator < BaseDecorator
 
   def gender
     Child.human_attribute_name("gender.#{safe_gender}")
+  end
+
+  def gendered_name_with_age(options = {})
+    with_icon = options.delete(:with_icon)
+
+    txt = options.delete(:label) || name
+    if with_icon
+      txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + txt
+    end
+    h.content_tag :span do
+      (
+        h.content_tag(:span, txt, { class: "txt-#{GENDER_COLORS[safe_gender.to_sym]}" }.merge(options))
+      ) + ' (' + age + ')'
+    end
   end
 
   def name
@@ -142,6 +156,10 @@ class ChildDecorator < BaseDecorator
   def family_redirection_unique_visits
     return nil if family_redirection_urls_count.zero?
     "#{model.family_redirection_url_unique_visits_count}/#{family_redirection_urls_count} (#{family_redirection_unique_visit_rate})"
+  end
+
+  def family_text_messages_count
+    model.family_text_messages.kept.count
   end
 
   def full_address

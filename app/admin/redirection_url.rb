@@ -6,6 +6,8 @@ ActiveAdmin.register RedirectionUrl do
 
   decorate_with RedirectionUrlDecorator
 
+  has_better_csv
+
   # ---------------------------------------------------------------------------
   # INDEX
   # ---------------------------------------------------------------------------

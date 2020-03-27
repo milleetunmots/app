@@ -291,6 +291,17 @@ class ChildSupportDecorator < BaseDecorator
   #   end
   # end
 
+  def dropdown_menu_item
+    (
+      [
+        "<b>Suivi ##{model.id}</b>"
+      ] +
+      model.children.decorate.map do |child|
+        child.gendered_name_with_age(with_icon: true)
+      end
+    ).join('<br/>-&nbsp;').html_safe
+  end
+
   private
 
   def children_attribute(key, glue)

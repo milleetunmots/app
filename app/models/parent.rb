@@ -117,12 +117,60 @@ class Parent < ApplicationRecord
     save!
   end
 
+  def self.first_child_couples
+    # Gets table of parent_id, first_child_id couples
+    #
+    # Make sure this is working properly with something like
+    # Parent.first_child_couples.all? do |couple|
+    #   Parent.find(couple['parent_id']).first_child&.id === couple['first_child_id']
+    # end
+
+    Parent.joins(
+      "LEFT OUTER JOIN children
+                    ON children.parent1_id = parents.id OR children.parent2_id = parents.id"
+    ).group(
+      :id
+    ).select(
+      "parents.id AS parent_id,
+      MIN(children.id) AS first_child_id"
+    )
+  end
+
+  def self.left_outer_joins_first_child
+    # Joins with first_child, for example to extract group_id
+    #
+    # Make sure this is working with something like
+    # Parent.left_outer_joins_first_child.select("parents.*, first_child.group_id").all? do |parent|
+    #   parent.group_id == Parent.find(parent.id).first_child&.group_id
+    # end
+
+    joins(
+      "INNER JOIN (#{first_child_couples.to_sql}) first_child_couples
+               ON id = first_child_couples.parent_id"
+    ).joins(
+      "LEFT OUTER JOIN children first_child
+                    ON first_child.id = first_child_couples.first_child_id"
+    )
+  end
+
   # ---------------------------------------------------------------------------
   # global search
   # ---------------------------------------------------------------------------
 
   include PgSearch
   multisearchable against: %i(first_name last_name phone_number_national email)
+
+  # ---------------------------------------------------------------------------
+  # scopes
+  # ---------------------------------------------------------------------------
+
+  def self.where_first_child(conditions)
+    left_outer_joins_first_child.where(first_child: conditions)
+  end
+
+  def self.first_child_group_id_in(*v)
+    where_first_child(group_id: v)
+  end
 
   # ---------------------------------------------------------------------------
   # versions history

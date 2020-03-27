@@ -151,12 +151,8 @@ class Child < ApplicationRecord
     months_between(12, 24)
   end
 
-  def self.months_between_24_and_36
-    months_between(24, 36)
-  end
-
-  def self.months_more_than_36
-    months_gteq(36)
+  def self.months_more_than_24
+    months_gteq(24)
   end
 
   # ---------------------------------------------------------------------------
@@ -194,6 +190,12 @@ class Child < ApplicationRecord
     )
   end
 
+  def self.parent_id_in(*v)
+    where(parent1_id: v).or(
+      where(parent2_id: v)
+    )
+  end
+
   def self.without_parent_to_contact
     # info: AR simplifies this
     where(
@@ -224,14 +226,16 @@ class Child < ApplicationRecord
   # helpers
   # ---------------------------------------------------------------------------
 
-  delegate :first_name,
+  delegate :email,
+           :first_name,
            :last_name,
            :gender,
            :phone_number_national,
            to: :parent1,
            prefix: true
 
-  delegate :first_name,
+  delegate :email,
+           :first_name,
            :last_name,
            :gender,
            :phone_number_national,
@@ -267,6 +271,10 @@ class Child < ApplicationRecord
 
   def family_redirection_urls
     RedirectionUrl.where(parent_id: [parent1_id, parent2_id].compact)
+  end
+
+  def family_text_messages
+    parent_events.text_messages
   end
 
   def update_counters!

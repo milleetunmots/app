@@ -21,7 +21,11 @@ class ParentDecorator < BaseDecorator
     end
   end
 
-  def email
+  def children_count
+    model.children.count
+  end
+
+  def email_link
     h.mail_to model.email
   end
 
@@ -114,6 +118,10 @@ class ParentDecorator < BaseDecorator
   def redirection_unique_visits
     return nil if redirection_urls_count.zero?
     "#{model.redirection_url_unique_visits_count}/#{redirection_urls_count} (#{redirection_unique_visit_rate})"
+  end
+
+  def text_messages_count
+    model.events.text_messages.kept.count
   end
 
   private

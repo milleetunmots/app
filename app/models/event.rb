@@ -39,6 +39,6 @@ class Event < ApplicationRecord
   # scope
   # ---------------------------------------------------------------------------
 
-  scope :text_messages, -> { where(type: 'TextMessage') }
+  scope :text_messages, -> { where(type: 'Events::TextMessage') }
 
 end
