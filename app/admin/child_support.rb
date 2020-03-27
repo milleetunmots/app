@@ -2,6 +2,7 @@ ActiveAdmin.register ChildSupport do
 
   decorate_with ChildSupportDecorator
 
+  has_better_csv
   has_paper_trail
   has_tasks
 

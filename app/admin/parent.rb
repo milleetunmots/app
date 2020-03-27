@@ -2,6 +2,7 @@ ActiveAdmin.register Parent do
 
   decorate_with ParentDecorator
 
+  has_better_csv
   has_paper_trail
   has_tasks
 

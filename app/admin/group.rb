@@ -2,6 +2,7 @@ ActiveAdmin.register Group do
 
   decorate_with GroupDecorator
 
+  has_better_csv
   has_paper_trail
   has_tasks
 

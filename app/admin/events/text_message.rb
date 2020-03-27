@@ -4,6 +4,8 @@ ActiveAdmin.register Events::TextMessage do
 
   decorate_with Events::TextMessageDecorator
 
+  has_better_csv
+
   actions :all, except: [:destroy]
 
   # ---------------------------------------------------------------------------
