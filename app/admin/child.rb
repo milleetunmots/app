@@ -353,4 +353,19 @@ ActiveAdmin.register Child do
     column :updated_at
   end
 
+  controller do
+    def csv_filename
+      filter_name = params.fetch(:q, {}).fetch(:unpaused_group_id_in, []).map do |group_id|
+        Group.find_by_id(group_id)&.name
+      end.join(',')
+
+      [
+        collection.object.klass.model_name.human.pluralize,
+        current_scope.name,
+        filter_name.presence,
+        Time.zone.now.to_date.to_s(:default)
+      ].compact.join(' - ') + '.csv'
+    end
+  end
+
 end
