@@ -35,6 +35,7 @@ fr:
         family_redirection_url_visits_count: "Visites familiales d'URL courtes"
         family_redirection_urls_count: URL courtes familiales
         family_redirection_visit_rate: "Taux de visites familiales d'URL courtes"
+        family_text_messages_count: SMS familiaux
         first_name: Prénom
         gender: Sexe
         group: Cohorte
@@ -45,12 +46,14 @@ fr:
         letterbox_name: Nom sur la boîte aux lettres
         months: Age (en mois)
         parent1: Parent 1
+        parent1_email: Email du parent 1
         parent1_first_name: Prénom du parent 1
         parent1_gender: Sexe du parent 1
         parent1_is_lycamobile: Parent 1 Lycamobile ?
         parent1_last_name: Nom du parent 1
         parent1_phone_number_national: Numéro du parent 1
         parent2: Parent 2
+        parent2_email: Email du parent 2
         parent2_first_name: Prénom du parent 2
         parent2_gender: Sexe du parent 2
         parent2_is_lycamobile: Parent 2 Lycamobile ?
@@ -224,6 +227,7 @@ fr:
       parent:
         address: Adresse
         children: Enfant(s)
+        children_count: Enfants
         city_name: Ville
         created_at: Ajout
         email: Email
@@ -236,6 +240,7 @@ fr:
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres
         phone_number: Téléphone
+        phone_number_national: Téléphone
         postal_code: Code postal
         redirection_unique_visit_rate: "Taux de visites uniques d'URL courtes"
         redirection_unique_visits: URL visitées
@@ -244,6 +249,7 @@ fr:
         redirection_urls_count: URL courtes
         redirection_visit_rate: "Taux de visites d'URL courtes"
         terms_accepted_at: Acceptation des conditions d'utilisation
+        text_messages_count: SMS
         updated_at: Modification
       parent/gender:
         f: Femme

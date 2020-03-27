@@ -10,14 +10,16 @@ ActiveAdmin.register AdminUser do
     selectable_column
     id_column
     column :name
-    column :email
+    column :email do |decorated|
+      decorated.email_link
+    end
     column :current_sign_in_at
     column :sign_in_count
-    column :created_at do |model|
-      l model.created_at.to_date, format: :default
+    column :created_at do |decorated|
+      l decorated.created_at.to_date, format: :default
     end
-    column :updated_at do |model|
-      l model.updated_at.to_date, format: :default
+    column :updated_at do |decorated|
+      l decorated.updated_at.to_date, format: :default
     end
     actions
   end

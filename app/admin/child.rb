@@ -232,6 +232,7 @@ ActiveAdmin.register Child do
           row :registration_source_details
           row :group
           row :has_quit_group
+          row :family_text_messages_count
           row :family_redirection_urls_count
           row :family_redirection_url_visits_count
           row :family_redirection_url_unique_visits_count
@@ -320,6 +321,7 @@ ActiveAdmin.register Child do
     column :parent1_gender
     column :parent1_first_name
     column :parent1_last_name
+    column :parent1_email
     column :parent1_phone_number_national
     column :parent1_is_lycamobile
     column :should_contact_parent1
@@ -327,6 +329,7 @@ ActiveAdmin.register Child do
     column :parent2_gender
     column :parent2_first_name
     column :parent2_last_name
+    column :parent2_email
     column :parent2_phone_number_national
     column :parent2_is_lycamobile
     column :should_contact_parent2
@@ -336,6 +339,8 @@ ActiveAdmin.register Child do
 
     column :group_name
     column :has_quit_group
+
+    column :family_text_messages_count
 
     column :family_redirection_urls_count
     column :family_redirection_url_visits_count

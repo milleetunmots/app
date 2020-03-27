@@ -226,14 +226,16 @@ class Child < ApplicationRecord
   # helpers
   # ---------------------------------------------------------------------------
 
-  delegate :first_name,
+  delegate :email,
+           :first_name,
            :last_name,
            :gender,
            :phone_number_national,
            to: :parent1,
            prefix: true
 
-  delegate :first_name,
+  delegate :email,
+           :first_name,
            :last_name,
            :gender,
            :phone_number_national,
@@ -269,6 +271,10 @@ class Child < ApplicationRecord
 
   def family_redirection_urls
     RedirectionUrl.where(parent_id: [parent1_id, parent2_id].compact)
+  end
+
+  def family_text_messages
+    parent_events.text_messages
   end
 
   def update_counters!
