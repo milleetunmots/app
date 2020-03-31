@@ -17,9 +17,9 @@ module ActiveAdmin
           def csv_filename
             [
               collection.object.klass.model_name.human.pluralize,
-              current_scope.name,
+              current_scope&.name,
               Time.zone.now.to_date.to_s(:default)
-            ].join(' - ') + '.csv'
+            ].compact.join(' - ') + '.csv'
           end
         end
       end
