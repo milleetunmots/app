@@ -51,6 +51,8 @@ ActiveAdmin.register Events::TextMessage do
          input_html: { multiple: true, data: { select2: {} } },
          label: 'Cohorte'
 
+  filter :body
+
   filter :occurred_at
   filter :created_at
 
