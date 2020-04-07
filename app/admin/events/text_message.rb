@@ -24,7 +24,9 @@ ActiveAdmin.register Events::TextMessage do
     end
     column :related_first_child_group
     column :occurred_at
-    column :body
+    column :body do |decorated|
+      decorated.truncated_body
+    end
     column :created_at do |decorated|
       l decorated.created_at.to_date, format: :default
     end
@@ -57,7 +59,7 @@ ActiveAdmin.register Events::TextMessage do
         model.related_first_child_link
       end
       row :occurred_at
-      row :body
+      row :body, class: 'row-pre'
       row :created_at
       row :discarded_at
     end

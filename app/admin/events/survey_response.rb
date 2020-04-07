@@ -67,7 +67,7 @@ ActiveAdmin.register Events::SurveyResponse do
       row :survey_name do |decorated|
         decorated.survey_link
       end
-      row :body
+      row :body, class: 'row-pre'
       row :created_at
       row :discarded_at
     end

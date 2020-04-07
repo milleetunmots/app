@@ -1,5 +1,12 @@
 class Events::SurveyResponseDecorator < EventDecorator
 
+  def name
+    [
+      related_name,
+      model.survey_name
+    ].join(' - ')
+  end
+
   def survey_link
     path = polymorphic_path(
       [:admin, model.class],
