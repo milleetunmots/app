@@ -91,6 +91,7 @@ ActiveAdmin.register Events::WorkshopParticipation do
       f.input :related_id, as: :hidden
 
       f.input :occurred_at
+
       f.input :comments, as: :text, input_html: { rows: 10 }
     end
     f.actions

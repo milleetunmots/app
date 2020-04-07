@@ -4,8 +4,10 @@ fr:
       admin_user: Administrateur
       child: Enfant
       child_support: Suivi
+      events_survey_response: Réponse à un questionnaire
       events_text_message: SMS
       events_workshop_participation: Participation aux ateliers
+      events/survey_response: Réponse à un questionnaire
       events/text_message: SMS
       events/workshop_participation: Participation aux ateliers
       group: Cohorte
@@ -220,6 +222,10 @@ fr:
         related_id: Parent
         related_name: Parent
         updated_at: Modification
+      events/survey_response:
+        << : *EVENT
+        body: Réponses
+        survey_name: Questionnaire
       events/text_message:
         << : *EVENT
         body: Message

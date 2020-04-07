@@ -20,12 +20,27 @@
 #  index_events_on_type                         (type)
 #
 
-class Events::WorkshopParticipation < Event
+class Events::SurveyResponse < Event
 
   # ---------------------------------------------------------------------------
   # attributes
   # ---------------------------------------------------------------------------
 
-  alias_attribute :comments, :body
+  alias_attribute :survey_name, :subject
+
+  # ---------------------------------------------------------------------------
+  # validations
+  # ---------------------------------------------------------------------------
+
+  validates :body, presence: true
+  validates :survey_name, presence: true
+
+  # ---------------------------------------------------------------------------
+  # helpers
+  # ---------------------------------------------------------------------------
+
+  def self.survey_names
+    pluck('DISTINCT subject')
+  end
 
 end

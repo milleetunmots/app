@@ -7,6 +7,7 @@
 #  discarded_at :datetime
 #  occurred_at  :datetime
 #  related_type :string
+#  subject      :string
 #  type         :string
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null

@@ -17,4 +17,5 @@
 
 ActiveSupport::Inflector.inflections(:fr) do |inflect|
   inflect.irregular 'participation aux ateliers', 'participations aux ateliers'
+  inflect.irregular 'réponse à un questionnaire', 'réponses à des questionnaires'
 end

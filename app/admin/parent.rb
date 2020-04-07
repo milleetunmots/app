@@ -140,6 +140,13 @@ ActiveAdmin.register Parent do
                related_id: resource.id
              }
            )
+      item 'Une réponse à un questionnaire',
+           new_admin_events_survey_response_path(
+             events_survey_response: {
+               related_type: resource.model.class,
+               related_id: resource.id
+             }
+           )
     end
   end
 
