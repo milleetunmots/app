@@ -36,6 +36,10 @@ class EventDecorator < BaseDecorator
     h.l model.occurred_at, format: :message
   end
 
+  def timeline_occurred_at
+    h.l model.occurred_at.to_date, format: :message
+  end
+
   private
 
   def decorated_related

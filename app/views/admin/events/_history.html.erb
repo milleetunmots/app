@@ -1,15 +1,29 @@
 <div class="events-history">
 
+  <div class="timeline"></div>
+
   <% events.each do |event| %>
 
     <div class="event <%= event.css_class_name %>">
-      <div class="related">
-        <%= event.related_link %>
+
+      <div class="timeline-anchor">
+        <span class="bullet">⬤</span>
+        <span class="occurred-at"><%= event.timeline_occurred_at %></span>
       </div>
-      <div class="body"><%= event.body %></div>
-      <div class="occurred-at">
-        <%= event.occurred_at %>
-      </div>
+
+      <div class="description"><%= event.timeline_description %></div>
+
+
+      <% if event.model.is_a?(Events::TextMessage) %>
+
+        <div class="body"><%= event.body %></div>
+
+      <% elsif event.model.is_a?(Events::WorkshopParticipation) %>
+
+        <!-- nothing for the moment -->
+
+      <% end %>
+
       <%= link_to 'Détails', [:admin, event], class: 'admin-link' %>
     </div>
 

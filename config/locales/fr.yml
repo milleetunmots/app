@@ -33,6 +33,9 @@ fr:
   should_be_contacted: À contacter
   should_not_be_contacted: Ne pas contacter
   "true": Oui
+  date:
+    formats:
+      message: "%e %b %Y"
   time:
     formats:
       message: "%e %b %Y %kh%M"
