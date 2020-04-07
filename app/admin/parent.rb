@@ -124,14 +124,23 @@ ActiveAdmin.register Parent do
     end
   end
 
-  action_item :event, only: :show do
-    link_to 'Ajouter un SMS reçu',
-            new_admin_events_text_message_path(
-              events_text_message: {
-                related_type: resource.model.class,
-                related_id: resource.id
-              }
-            )
+  action_item :new_event, only: :show do
+    dropdown_menu 'Ajouter' do
+      item 'Un SMS reçu',
+           new_admin_events_text_message_path(
+             events_text_message: {
+               related_type: resource.model.class,
+               related_id: resource.id
+             }
+           )
+      item 'Une participation aux ateliers',
+           new_admin_events_workshop_participation_path(
+             events_workshop_participation: {
+               related_type: resource.model.class,
+               related_id: resource.id
+             }
+           )
+    end
   end
 
   # ---------------------------------------------------------------------------

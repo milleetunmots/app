@@ -1,8 +1,8 @@
-ActiveAdmin.register Events::TextMessage do
+ActiveAdmin.register Events::WorkshopParticipation do
 
   menu parent: 'Événements'
 
-  decorate_with Events::TextMessageDecorator
+  decorate_with Events::WorkshopParticipationDecorator
 
   has_better_csv
   use_discard
@@ -24,7 +24,7 @@ ActiveAdmin.register Events::TextMessage do
     end
     column :related_first_child_group
     column :occurred_at
-    column :body
+    column :comments
     column :created_at do |decorated|
       l decorated.created_at.to_date, format: :default
     end
@@ -39,7 +39,7 @@ ActiveAdmin.register Events::TextMessage do
          input_html: { multiple: true, data: { select2: {} } },
          label: 'Cohorte'
 
-  filter :body
+  filter :comments
 
   filter :occurred_at
   filter :created_at
@@ -57,7 +57,7 @@ ActiveAdmin.register Events::TextMessage do
         model.related_first_child_link
       end
       row :occurred_at
-      row :body
+      row :comments
       row :created_at
       row :discarded_at
     end
@@ -91,12 +91,12 @@ ActiveAdmin.register Events::TextMessage do
       f.input :related_id, as: :hidden
 
       f.input :occurred_at
-      f.input :body, input_html: { rows: 10 }
+      f.input :comments, as: :text, input_html: { rows: 10 }
     end
     f.actions
   end
 
-  permit_params :related_type, :related_id, :occurred_at, :body
+  permit_params :related_type, :related_id, :occurred_at, :comments
 
   # ---------------------------------------------------------------------------
   # CSV EXPORT
@@ -115,7 +115,7 @@ ActiveAdmin.register Events::TextMessage do
     column :related_first_child_has_quit_group
 
     column :occurred_at
-    column :body
+    column :comments
 
     column :created_at
     column :updated_at

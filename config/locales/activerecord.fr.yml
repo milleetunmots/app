@@ -5,7 +5,9 @@ fr:
       child: Enfant
       child_support: Suivi
       events_text_message: SMS
+      events_workshop_participation: Participation aux ateliers
       events/text_message: SMS
+      events/workshop_participation: Participation aux ateliers
       group: Cohorte
       parent: Parent
       redirection_target: URL cible
@@ -202,8 +204,7 @@ fr:
         3_remind: Piqûre de rappel
         4_frequent: Assidu
         5_frequent_helps: Assidu avec aide réelle
-      events/text_message:
-        body: Message
+      event: &EVENT
         created_at: Ajout
         discarded_at: Mis à la corbeille
         id: "#"
@@ -219,6 +220,12 @@ fr:
         related_id: Parent
         related_name: Parent
         updated_at: Modification
+      events/text_message:
+        << : *EVENT
+        body: Message
+      events/workshop_participation:
+        << : *EVENT
+        comments: Infos
       group:
         children: Enfants
         ended_at: Date de fin

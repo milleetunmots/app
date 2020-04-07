@@ -14,3 +14,7 @@
 # ActiveSupport::Inflector.inflections(:en) do |inflect|
 #   inflect.acronym 'RESTful'
 # end
+
+ActiveSupport::Inflector.inflections(:fr) do |inflect|
+  inflect.irregular 'participation aux ateliers', 'participations aux ateliers'
+end
