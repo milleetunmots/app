@@ -78,6 +78,7 @@ class ChildrenImportService
             if use_default_letterbox_name
               attributes[:parent1_attributes][:letterbox_name]  = [
                 attributes[:parent1_attributes][:letterbox_name],
+                '-',
                 parent2_first_name,
                 parent2_last_name
               ].compact.join(' ')
