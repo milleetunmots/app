@@ -11,7 +11,7 @@
 #  family_redirection_visit_rate              :float
 #  first_name                                 :string           not null
 #  gender                                     :string
-#  has_quit_group                             :boolean
+#  has_quit_group                             :boolean          default(FALSE), not null
 #  last_name                                  :string           not null
 #  registration_source                        :string
 #  registration_source_details                :string
@@ -211,7 +211,7 @@ class Child < ApplicationRecord
   end
 
   def self.unpaused_group_id_in(*v)
-    where(group_id: v).where.not(has_quit_group: true)
+    where(group_id: v).where(has_quit_group: false)
   end
 
   # ---------------------------------------------------------------------------
