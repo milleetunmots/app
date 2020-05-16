@@ -75,6 +75,10 @@ ActiveAdmin.register Child do
          collection: proc { Group.order(:name) },
          input_html: { multiple: true, data: { select2: {} } },
          label: 'Cohorte active'
+  filter :without_parent_text_message_since,
+         as: :datepicker,
+         required: false,
+         label: 'Parent sans SMS depuis'
   filter :family_redirection_urls_count
   filter :family_redirection_url_visits_count
   filter :family_redirection_url_unique_visits_count

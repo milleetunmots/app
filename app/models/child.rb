@@ -196,6 +196,10 @@ class Child < ApplicationRecord
     )
   end
 
+  def self.parent_id_not_in(*v)
+    where.not(parent1_id: v).where.not(parent2_id: v)
+  end
+
   def self.without_parent_to_contact
     # info: AR simplifies this
     where(
@@ -214,12 +218,18 @@ class Child < ApplicationRecord
     where(group_id: v).where(has_quit_group: false)
   end
 
+  def self.without_parent_text_message_since(v)
+    parent_id_not_in(
+      Events::TextMessage.where(related_type: :Parent).where('occurred_at >= ?', v).pluck('DISTINCT related_id')
+    )
+  end
+
   # ---------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    %i(months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with unpaused_group_id_in)
+    %i(months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with unpaused_group_id_in without_parent_text_message_since)
   end
 
   # ---------------------------------------------------------------------------
