@@ -111,6 +111,35 @@ ActiveAdmin.register Events::SurveyResponse do
   permit_params :related_type, :related_id, :occurred_at, :survey_name, :body
 
   # ---------------------------------------------------------------------------
+  # IMPORT
+  # ---------------------------------------------------------------------------
+
+  action_item :new_import,
+              only: :index do
+    link_to I18n.t('survey_response.new_import_link'), [:new_import, :admin, :events_survey_responses]
+  end
+  collection_action :new_import do
+    @import_action = perform_import_admin_events_survey_responses_path
+  end
+  collection_action :perform_import, method: :post do
+    @survey_name = params[:import][:survey_name]
+    @csv_file = params[:import][:csv_file]
+
+    service = SurveyResponsesImportService.new(
+      survey_name: @survey_name,
+      csv_file: @csv_file
+    ).call
+
+    if service.errors.empty?
+      redirect_to admin_events_survey_responses_path, notice: 'Import terminé'
+    else
+      @import_action = perform_import_admin_events_survey_responses_path
+      @errors = service.errors
+      render :new_import
+    end
+  end
+
+  # ---------------------------------------------------------------------------
   # CSV EXPORT
   # ---------------------------------------------------------------------------
 

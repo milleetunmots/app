@@ -28,6 +28,8 @@ fr:
     parent1: Parent 1
     parent2: Parent 2
     parents: Parents
+  survey_response:
+    new_import_link: Import CSV
   "false": Non
   is_ambassador: Ambassadeur
   should_be_contacted: À contacter
