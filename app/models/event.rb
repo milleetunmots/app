@@ -58,6 +58,8 @@ class Event < ApplicationRecord
   # scope
   # ---------------------------------------------------------------------------
 
+  scope :other_events, -> { where(type: 'Events::OtherEvent') }
+  scope :survey_responses, -> { where(type: 'Events::SurveyResponse') }
   scope :text_messages, -> { where(type: 'Events::TextMessage') }
   scope :workshop_participations, -> { where(type: 'Events::WorkshopParticipation') }
 

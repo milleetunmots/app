@@ -147,6 +147,13 @@ ActiveAdmin.register Parent do
                related_id: resource.id
              }
            )
+      item 'Un autre événement',
+           new_admin_events_other_event_path(
+             events_other_event: {
+               related_type: resource.model.class,
+               related_id: resource.id
+             }
+           )
     end
   end
 

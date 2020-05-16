@@ -4,9 +4,11 @@ fr:
       admin_user: Administrateur
       child: Enfant
       child_support: Suivi
+      events_other_event: Autre
       events_survey_response: Questionnaire
       events_text_message: SMS
       events_workshop_participation: Atelier
+      events/other_event: Autre
       events/survey_response: Questionnaire
       events/text_message: SMS
       events/workshop_participation: Atelier
@@ -222,6 +224,9 @@ fr:
         related_id: Parent
         related_name: Parent
         updated_at: Modification
+      events/other_event:
+        << : *EVENT
+        body: Détails
       events/survey_response:
         << : *EVENT
         body: Réponses
