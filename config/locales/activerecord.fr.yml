@@ -4,12 +4,12 @@ fr:
       admin_user: Administrateur
       child: Enfant
       child_support: Suivi
-      events_survey_response: Réponse à un questionnaire
+      events_survey_response: Questionnaire
       events_text_message: SMS
-      events_workshop_participation: Participation aux ateliers
-      events/survey_response: Réponse à un questionnaire
+      events_workshop_participation: Atelier
+      events/survey_response: Questionnaire
       events/text_message: SMS
-      events/workshop_participation: Participation aux ateliers
+      events/workshop_participation: Atelier
       group: Cohorte
       parent: Parent
       redirection_target: URL cible
