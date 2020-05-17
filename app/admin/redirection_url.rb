@@ -7,6 +7,7 @@ ActiveAdmin.register RedirectionUrl do
   decorate_with RedirectionUrlDecorator
 
   has_better_csv
+  use_discard
 
   # ---------------------------------------------------------------------------
   # INDEX
@@ -29,7 +30,9 @@ ActiveAdmin.register RedirectionUrl do
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
-    actions
+    actions do |decorated|
+      discard_links(decorated.model, class: 'member_link')
+    end
   end
 
   filter :redirection_target,

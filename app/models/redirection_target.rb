@@ -3,6 +3,7 @@
 # Table name: redirection_targets
 #
 #  id                                         :bigint           not null, primary key
+#  discarded_at                               :datetime
 #  family_redirection_url_unique_visits_count :integer
 #  family_redirection_url_visits_count        :integer
 #  family_redirection_urls_count              :integer
@@ -14,8 +15,14 @@
 #  created_at                                 :datetime         not null
 #  updated_at                                 :datetime         not null
 #
+# Indexes
+#
+#  index_redirection_targets_on_discarded_at  (discarded_at)
+#
 
 class RedirectionTarget < ApplicationRecord
+
+  include Discard::Model
 
   # ---------------------------------------------------------------------------
   # relations

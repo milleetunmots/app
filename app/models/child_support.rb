@@ -41,6 +41,7 @@
 #  call3_status                    :string
 #  call3_status_details            :text
 #  call3_technical_information     :text
+#  discarded_at                    :datetime
 #  important_information           :text
 #  is_bilingual                    :boolean
 #  second_language                 :string
@@ -58,6 +59,7 @@
 #  index_child_supports_on_call2_parent_progress     (call2_parent_progress)
 #  index_child_supports_on_call3_language_awareness  (call3_language_awareness)
 #  index_child_supports_on_call3_parent_progress     (call3_parent_progress)
+#  index_child_supports_on_discarded_at              (discarded_at)
 #  index_child_supports_on_should_be_read            (should_be_read)
 #  index_child_supports_on_supporter_id              (supporter_id)
 #
@@ -67,6 +69,8 @@
 #
 
 class ChildSupport < ApplicationRecord
+
+  include Discard::Model
 
   LANGUAGE_AWARENESS = %w[
     1_none
