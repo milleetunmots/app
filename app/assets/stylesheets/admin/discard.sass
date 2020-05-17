@@ -1,0 +1,19 @@
+@import variables
+
+#title_bar #titlebar_right .action_item a.discards-link
+  float: right
+  margin-left: 50px
+
+body.discards
+  #title_bar
+    background-color: transparentize($red, 0.5)
+    color: white
+
+    h2#page_title
+      &:after
+        content: ' (corbeille)'
+
+    #titlebar_right
+      .action_item
+        a:not(.discards-link)
+          display: none

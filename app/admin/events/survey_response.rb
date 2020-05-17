@@ -5,6 +5,7 @@ ActiveAdmin.register Events::SurveyResponse do
   decorate_with Events::SurveyResponseDecorator
 
   has_better_csv
+  use_discard
 
   # ---------------------------------------------------------------------------
   # INDEX
@@ -162,11 +163,5 @@ ActiveAdmin.register Events::SurveyResponse do
     column :updated_at
     column :discarded_at
   end
-
-  # ---------------------------------------------------------------------------
-  # DISCARD
-  # ---------------------------------------------------------------------------
-
-  use_discard
 
 end

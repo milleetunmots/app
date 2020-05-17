@@ -24,8 +24,7 @@ fr:
       task:
         new_model: Nouvelle tâche
     scopes:
-      all: Valides
-      discarded: Corbeille
+      all: Tous
       done: Fait
       ended: Terminées
       mine: Sous ma responsabilité

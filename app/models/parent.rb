@@ -44,7 +44,6 @@
 class Parent < ApplicationRecord
 
   include Discard::Model
-  default_scope -> { kept }
 
   GENDERS = %w[m f].freeze
   REGEX_VALID_EMAIL = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i

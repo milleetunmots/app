@@ -5,6 +5,7 @@ ActiveAdmin.register Parent do
   has_better_csv
   has_paper_trail
   has_tasks
+  use_discard
 
   # ---------------------------------------------------------------------------
   # INDEX
@@ -35,8 +36,6 @@ ActiveAdmin.register Parent do
       discard_links(decorated.model, class: 'member_link')
     end
   end
-
-  scope :all, default: true
 
   filter :gender,
          as: :check_boxes,
@@ -199,11 +198,5 @@ ActiveAdmin.register Parent do
     column :created_at
     column :updated_at
   end
-
-  # ---------------------------------------------------------------------------
-  # DISCARD
-  # ---------------------------------------------------------------------------
-
-  use_discard
 
 end

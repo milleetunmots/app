@@ -23,7 +23,6 @@
 class Event < ApplicationRecord
 
   include Discard::Model
-  default_scope -> { kept }
 
   # ---------------------------------------------------------------------------
   # relations

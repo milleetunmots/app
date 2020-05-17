@@ -5,6 +5,7 @@ ActiveAdmin.register Child do
   has_better_csv
   has_paper_trail
   has_tasks
+  use_discard
 
   # ---------------------------------------------------------------------------
   # INDEX
@@ -379,11 +380,5 @@ ActiveAdmin.register Child do
       ].compact.join(' - ') + '.csv'
     end
   end
-
-  # ---------------------------------------------------------------------------
-  # DISCARD
-  # ---------------------------------------------------------------------------
-
-  use_discard
 
 end

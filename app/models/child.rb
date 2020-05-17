@@ -44,7 +44,6 @@
 class Child < ApplicationRecord
 
   include Discard::Model
-  default_scope -> { kept }
 
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[

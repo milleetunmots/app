@@ -5,6 +5,7 @@ ActiveAdmin.register Events::TextMessage do
   decorate_with Events::TextMessageDecorator
 
   has_better_csv
+  use_discard
 
   # ---------------------------------------------------------------------------
   # INDEX
@@ -123,11 +124,5 @@ ActiveAdmin.register Events::TextMessage do
     column :updated_at
     column :discarded_at
   end
-
-  # ---------------------------------------------------------------------------
-  # DISCARD
-  # ---------------------------------------------------------------------------
-
-  use_discard
 
 end
