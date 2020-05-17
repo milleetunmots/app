@@ -31,8 +31,12 @@ ActiveAdmin.register Parent do
     column :updated_at do |model|
       l model.updated_at.to_date, format: :default
     end
-    actions
+    actions do |decorated|
+      discard_links(decorated.model, class: 'member_link')
+    end
   end
+
+  scope :all, default: true
 
   filter :gender,
          as: :check_boxes,
@@ -195,5 +199,11 @@ ActiveAdmin.register Parent do
     column :created_at
     column :updated_at
   end
+
+  # ---------------------------------------------------------------------------
+  # DISCARD
+  # ---------------------------------------------------------------------------
+
+  use_discard
 
 end

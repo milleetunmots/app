@@ -33,7 +33,9 @@ ActiveAdmin.register Child do
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
-    actions
+    actions do |decorated|
+      discard_links(decorated.model, class: 'member_link')
+    end
   end
 
   scope :all, default: true
@@ -377,5 +379,11 @@ ActiveAdmin.register Child do
       ].compact.join(' - ') + '.csv'
     end
   end
+
+  # ---------------------------------------------------------------------------
+  # DISCARD
+  # ---------------------------------------------------------------------------
+
+  use_discard
 
 end

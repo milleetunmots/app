@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_06_091637) do
+ActiveRecord::Schema.define(version: 2020_05_17_195349) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -113,8 +113,10 @@ ActiveRecord::Schema.define(version: 2020_05_06_091637) do
     t.integer "family_redirection_url_unique_visits_count"
     t.float "family_redirection_unique_visit_rate"
     t.float "family_redirection_visit_rate"
+    t.datetime "discarded_at"
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
+    t.index ["discarded_at"], name: "index_children_on_discarded_at"
     t.index ["gender"], name: "index_children_on_gender"
     t.index ["group_id"], name: "index_children_on_group_id"
     t.index ["parent1_id"], name: "index_children_on_parent1_id"
@@ -168,8 +170,10 @@ ActiveRecord::Schema.define(version: 2020_05_06_091637) do
     t.float "redirection_unique_visit_rate"
     t.float "redirection_visit_rate"
     t.boolean "is_lycamobile"
+    t.datetime "discarded_at"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
+    t.index ["discarded_at"], name: "index_parents_on_discarded_at"
     t.index ["email"], name: "index_parents_on_email"
     t.index ["first_name"], name: "index_parents_on_first_name"
     t.index ["gender"], name: "index_parents_on_gender"

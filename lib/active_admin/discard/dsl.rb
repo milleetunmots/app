@@ -15,8 +15,9 @@ module ActiveAdmin
       def use_discard
         actions :all, except: [:destroy]
 
-        scope :kept, default: true
-        scope :discarded
+        scope :discarded, group: :discard do |scope|
+          scope.with_discarded.discarded
+        end
 
         member_action :discard, method: :put do
           resource.discard!

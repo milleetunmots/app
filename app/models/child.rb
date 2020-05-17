@@ -4,6 +4,7 @@
 #
 #  id                                         :bigint           not null, primary key
 #  birthdate                                  :date             not null
+#  discarded_at                               :datetime
 #  family_redirection_unique_visit_rate       :float
 #  family_redirection_url_unique_visits_count :integer
 #  family_redirection_url_visits_count        :integer
@@ -28,6 +29,7 @@
 #
 #  index_children_on_birthdate         (birthdate)
 #  index_children_on_child_support_id  (child_support_id)
+#  index_children_on_discarded_at      (discarded_at)
 #  index_children_on_gender            (gender)
 #  index_children_on_group_id          (group_id)
 #  index_children_on_parent1_id        (parent1_id)
@@ -40,6 +42,9 @@
 #
 
 class Child < ApplicationRecord
+
+  include Discard::Model
+  default_scope -> { kept }
 
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[
