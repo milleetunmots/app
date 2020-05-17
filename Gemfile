@@ -93,6 +93,9 @@ gem 'wicked_pdf'
 # soft deletion
 gem 'discard', '~> 1.0'
 
+# date validation
+gem 'date_validator'
+
 group :production do
   # for assets compilation
   gem 'activerecord-nulldb-adapter'

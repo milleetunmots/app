@@ -81,6 +81,8 @@ class Child < ApplicationRecord
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :birthdate, presence: true
+  validates :birthdate, date: { after: Proc.new { Date.today - 2.years } },
+                        on: :create
   validates :registration_source, presence: true, inclusion: { in: REGISTRATION_SOURCES }
   validates :registration_source_details, presence: true
 
