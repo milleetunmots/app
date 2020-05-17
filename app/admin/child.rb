@@ -197,7 +197,12 @@ ActiveAdmin.register Child do
               collection: child_gender_select_collection(with_unknown: true)
       f.input :first_name
       f.input :last_name
-      f.input :birthdate, as: :datepicker
+      f.input :birthdate,
+              as: :datepicker,
+              datepicker_options: {
+                min_date: Child.min_birthdate,
+                max_date: Child.max_birthdate
+              }
       f.input :registration_source,
               collection: child_registration_source_select_collection,
               input_html: { data: { select2: {} } }

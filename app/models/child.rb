@@ -81,7 +81,10 @@ class Child < ApplicationRecord
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :birthdate, presence: true
-  validates :birthdate, date: { after: Proc.new { Date.today - 2.years } },
+  validates :birthdate, date: {
+                          after: Proc.new { min_birthdate },
+                          before: Proc.new { max_birthdate }
+                        },
                         on: :create
   validates :registration_source, presence: true, inclusion: { in: REGISTRATION_SOURCES }
   validates :registration_source_details, presence: true
@@ -89,6 +92,14 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
+
+  def self.min_birthdate
+    Date.today - 2.years
+  end
+
+  def self.max_birthdate
+    Date.today
+  end
 
   # computes an (integer) number of months old
   def months
