@@ -1,5 +1,14 @@
 class RedirectionTargetDecorator < BaseDecorator
 
+  def admin_link(options = {})
+    txt = model.name
+    options[:class] = [
+      options[:class],
+      model.discarded? ? 'discarded' : 'kept'
+    ].compact.join(' ')
+    h.link_to txt, [:admin, model], options
+  end
+
   def redirection_urls_path
     admin_redirection_urls_path(q: {redirection_target_id_in: [model.id]})
   end

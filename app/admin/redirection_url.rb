@@ -2,7 +2,7 @@ ActiveAdmin.register RedirectionUrl do
 
   menu parent: 'Redirection'
 
-  actions :all, except: [:edit, :update]
+  actions :all, except: [:new, :create, :edit, :update]
 
   decorate_with RedirectionUrlDecorator
 
@@ -16,19 +16,21 @@ ActiveAdmin.register RedirectionUrl do
   index do
     selectable_column
     id_column
-    column :redirection_target, sortable: :redirection_target_id
-    column :parent, sortable: :parent_id do |model|
-      model.parent_link
+    column :redirection_target, sortable: :redirection_target_id do |decorated|
+      decorated.redirection_target_link
     end
-    column :child, sortable: :child_id do |model|
-      model.child_link
+    column :parent, sortable: :parent_id do |decorated|
+      decorated.parent_link
     end
-    column :visit_url do |model|
-      model.visit_link
+    column :child, sortable: :child_id do |decorated|
+      decorated.child_link
+    end
+    column :visit_url do |decorated|
+      decorated.visit_link
     end
     column :redirection_url_visits_count
-    column :created_at do |model|
-      l model.created_at.to_date, format: :default
+    column :created_at do |decorated|
+      l decorated.created_at.to_date, format: :default
     end
     actions do |decorated|
       discard_links(decorated.model, class: 'member_link')
@@ -47,16 +49,18 @@ ActiveAdmin.register RedirectionUrl do
 
   show do
     attributes_table do
-      row :redirection_target
-      row :parent do |model|
-        model.parent_link
+      row :redirection_target do |decorated|
+        decorated.redirection_target_link
       end
-      row :child do |model|
-        model.child_link
+      row :parent do |decorated|
+        decorated.parent_link
+      end
+      row :child do |decorated|
+        decorated.child_link
       end
       row :security_code
-      row :visit_url do |model|
-        model.visit_link
+      row :visit_url do |decorated|
+        decorated.visit_link
       end
       row :redirection_url_visits_count
       row :created_at

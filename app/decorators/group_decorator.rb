@@ -1,10 +1,12 @@
 class GroupDecorator < BaseDecorator
 
   def admin_link(options = {})
-    options[:class] = [options[:class], 'group-admin-link'].compact.join(' ')
-    if model.is_ended?
-      options[:class] = [options[:class], 'ended'].join(' ')
-    end
+    options[:class] = [
+      options[:class],
+      'group-admin-link',
+      model.discarded? ? 'discarded' : 'kept',
+      model.is_ended? ? 'ended' : 'not-ended'
+    ].compact.join(' ')
 
     h.link_to model.name, [:admin, model], options
   end

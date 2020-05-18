@@ -7,7 +7,12 @@ class ChildDecorator < BaseDecorator
     if with_icon
       txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + txt
     end
-    h.link_to txt, [:admin, model], { class: GENDER_COLORS[safe_gender.to_sym] }.merge(options)
+    options[:class] = [
+      options[:class],
+      GENDER_COLORS[safe_gender.to_sym],
+      model.discarded? ? 'discarded' : 'kept'
+    ].compact.join(' ')
+    h.link_to txt, [:admin, model], options
   end
 
   def age
