@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_06_091637) do
+ActiveRecord::Schema.define(version: 2020_05_17_195349) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -81,6 +81,7 @@ ActiveRecord::Schema.define(version: 2020_05_06_091637) do
     t.string "call3_reading_frequency"
     t.string "call2_sendings_benefits"
     t.text "call2_sendings_benefits_details"
+    t.datetime "discarded_at"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
@@ -88,6 +89,7 @@ ActiveRecord::Schema.define(version: 2020_05_06_091637) do
     t.index ["call2_parent_progress"], name: "index_child_supports_on_call2_parent_progress"
     t.index ["call3_language_awareness"], name: "index_child_supports_on_call3_language_awareness"
     t.index ["call3_parent_progress"], name: "index_child_supports_on_call3_parent_progress"
+    t.index ["discarded_at"], name: "index_child_supports_on_discarded_at"
     t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
     t.index ["supporter_id"], name: "index_child_supports_on_supporter_id"
   end
@@ -113,8 +115,10 @@ ActiveRecord::Schema.define(version: 2020_05_06_091637) do
     t.integer "family_redirection_url_unique_visits_count"
     t.float "family_redirection_unique_visit_rate"
     t.float "family_redirection_visit_rate"
+    t.datetime "discarded_at"
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
+    t.index ["discarded_at"], name: "index_children_on_discarded_at"
     t.index ["gender"], name: "index_children_on_gender"
     t.index ["group_id"], name: "index_children_on_group_id"
     t.index ["parent1_id"], name: "index_children_on_parent1_id"
@@ -142,6 +146,8 @@ ActiveRecord::Schema.define(version: 2020_05_06_091637) do
     t.date "ended_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.datetime "discarded_at"
+    t.index ["discarded_at"], name: "index_groups_on_discarded_at"
     t.index ["ended_at"], name: "index_groups_on_ended_at"
     t.index ["started_at"], name: "index_groups_on_started_at"
   end
@@ -168,8 +174,10 @@ ActiveRecord::Schema.define(version: 2020_05_06_091637) do
     t.float "redirection_unique_visit_rate"
     t.float "redirection_visit_rate"
     t.boolean "is_lycamobile"
+    t.datetime "discarded_at"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
+    t.index ["discarded_at"], name: "index_parents_on_discarded_at"
     t.index ["email"], name: "index_parents_on_email"
     t.index ["first_name"], name: "index_parents_on_first_name"
     t.index ["gender"], name: "index_parents_on_gender"
@@ -200,6 +208,8 @@ ActiveRecord::Schema.define(version: 2020_05_06_091637) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "family_redirection_urls_count"
+    t.datetime "discarded_at"
+    t.index ["discarded_at"], name: "index_redirection_targets_on_discarded_at"
   end
 
   create_table "redirection_url_visits", force: :cascade do |t|
@@ -216,7 +226,9 @@ ActiveRecord::Schema.define(version: 2020_05_06_091637) do
     t.integer "redirection_url_visits_count"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.datetime "discarded_at"
     t.index ["child_id"], name: "index_redirection_urls_on_child_id"
+    t.index ["discarded_at"], name: "index_redirection_urls_on_discarded_at"
     t.index ["parent_id"], name: "index_redirection_urls_on_parent_id"
     t.index ["redirection_target_id"], name: "index_redirection_urls_on_redirection_target_id"
   end
@@ -232,8 +244,10 @@ ActiveRecord::Schema.define(version: 2020_05_06_091637) do
     t.date "done_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.datetime "discarded_at"
     t.index ["assignee_id"], name: "index_tasks_on_assignee_id"
     t.index ["description"], name: "index_tasks_on_description"
+    t.index ["discarded_at"], name: "index_tasks_on_discarded_at"
     t.index ["done_at"], name: "index_tasks_on_done_at"
     t.index ["due_date"], name: "index_tasks_on_due_date"
     t.index ["related_type", "related_id"], name: "index_tasks_on_related_type_and_related_id"

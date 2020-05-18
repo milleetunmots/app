@@ -5,6 +5,7 @@ ActiveAdmin.register Parent do
   has_better_csv
   has_paper_trail
   has_tasks
+  use_discard
 
   # ---------------------------------------------------------------------------
   # INDEX
@@ -31,7 +32,9 @@ ActiveAdmin.register Parent do
     column :updated_at do |model|
       l model.updated_at.to_date, format: :default
     end
-    actions
+    actions do |decorated|
+      discard_links(decorated.model, class: 'member_link')
+    end
   end
 
   filter :gender,

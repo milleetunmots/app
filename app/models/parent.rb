@@ -5,6 +5,7 @@
 #  id                                  :bigint           not null, primary key
 #  address                             :string           not null
 #  city_name                           :string           not null
+#  discarded_at                        :datetime
 #  email                               :string
 #  first_name                          :string           not null
 #  gender                              :string           not null
@@ -29,6 +30,7 @@
 #
 #  index_parents_on_address                (address)
 #  index_parents_on_city_name              (city_name)
+#  index_parents_on_discarded_at           (discarded_at)
 #  index_parents_on_email                  (email)
 #  index_parents_on_first_name             (first_name)
 #  index_parents_on_gender                 (gender)
@@ -40,6 +42,8 @@
 #
 
 class Parent < ApplicationRecord
+
+  include Discard::Model
 
   GENDERS = %w[m f].freeze
   REGEX_VALID_EMAIL = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i

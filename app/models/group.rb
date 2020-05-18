@@ -2,20 +2,24 @@
 #
 # Table name: groups
 #
-#  id         :bigint           not null, primary key
-#  ended_at   :date
-#  name       :string
-#  started_at :date
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id           :bigint           not null, primary key
+#  discarded_at :datetime
+#  ended_at     :date
+#  name         :string
+#  started_at   :date
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
 #
 # Indexes
 #
-#  index_groups_on_ended_at    (ended_at)
-#  index_groups_on_started_at  (started_at)
+#  index_groups_on_discarded_at  (discarded_at)
+#  index_groups_on_ended_at      (ended_at)
+#  index_groups_on_started_at    (started_at)
 #
 
 class Group < ApplicationRecord
+
+  include Discard::Model
 
   # ---------------------------------------------------------------------------
   # relations

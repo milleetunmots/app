@@ -7,7 +7,11 @@ class ParentDecorator < BaseDecorator
     if with_icon
       txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + txt
     end
-    options[:class] = [options[:class], GENDER_COLORS[model.gender.to_sym]].compact.join(' ')
+    options[:class] = [
+      options[:class],
+      GENDER_COLORS[model.gender.to_sym],
+      model.discarded? ? 'discarded' : 'kept'
+    ].compact.join(' ')
     h.link_to txt, [:admin, model], options
   end
 

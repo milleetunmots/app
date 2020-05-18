@@ -1,5 +1,9 @@
 class RedirectionUrlDecorator < BaseDecorator
 
+  def redirection_target_link
+    decorated_redirection_target&.admin_link
+  end
+
   def parent_link
     decorated_parent&.admin_link
   end
@@ -34,6 +38,10 @@ class RedirectionUrlDecorator < BaseDecorator
   end
 
   private
+
+  def decorated_redirection_target
+    @decorated_redirection_target ||= model.redirection_target&.decorate
+  end
 
   def decorated_parent
     @decorated_parent ||= model.parent&.decorate
