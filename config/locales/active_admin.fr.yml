@@ -8,6 +8,7 @@ fr:
         create_support: Créer le suivi pour
         addresses_pdf: Générer les étiquettes pour
         quit_group: Mettre en pause la cohorte pour
+        generate_quit_sms: Générer le message de continuation pour
     edit_model: Modifier
     delete_model: Supprimer
     filters:

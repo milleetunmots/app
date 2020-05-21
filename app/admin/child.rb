@@ -181,6 +181,19 @@ ActiveAdmin.register Child do
            progress: proc { |output| puts output }
   end
 
+  batch_action :generate_quit_sms do |ids|
+    @children = batch_action_collection.where(id: ids)
+
+    service = ExportQuitMessagesService.new(children: @children).call
+    if service.errors.any?
+      puts "Error: #{service.errors}"
+      flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
+      redirect_to request.referer
+    else
+      send_data service.csv, filename: "children-quit-sms-#{Date.today}.csv"
+    end
+  end
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------
