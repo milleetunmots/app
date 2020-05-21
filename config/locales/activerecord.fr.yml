@@ -136,7 +136,7 @@ fr:
         important_information: Infos importantes (langue maternelle, présence du père, ...)
         is_bilingual: Bilinguisme
         letterbox_name: Nom sur la boîte aux lettres
-        other_family_child_supports: Autres suivis de la fratrie
+        other_family_child_supports: Autres suivis de la famille
         parent1: Parent 1
         parent1_first_name: Prénom du parent 1
         parent1_gender: Sexe du parent 1
@@ -214,13 +214,13 @@ fr:
         id: "#"
         occurred_at: Date
         related: Parent
-        related_first_child: Fratrie
+        related_first_child: Famille
         related_first_child_group: Cohorte
         related_first_child_group_id: Cohorte
         related_first_child_group_name: Cohorte
         related_first_child_has_quit_group: Cohorte en pause
-        related_first_child_id: Fratrie
-        related_first_child_name: Fratrie
+        related_first_child_id: Famille
+        related_first_child_name: Famille
         related_id: Parent
         related_name: Parent
         updated_at: Modification
