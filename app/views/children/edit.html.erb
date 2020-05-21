@@ -1,0 +1,24 @@
+<div id="update">
+
+  <div class="container" id="update-content">
+
+    <%= simple_form_for @child, url: @child_action_path do |f| %>
+
+      <h1>
+        Souhaitez-vous continuer à recevoir nos messages&nbsp;?
+      </h1>
+
+      <div class="text-center end-buttons">
+        <button name="child[has_quit_group]" value="1" type="submit" class="btn-danger btn-lg">
+          Arrêter
+        </button>
+        <button name="child[has_quit_group]" value="0" type="submit" class="btn-primary btn-lg">
+          Continuer
+        </button>
+      </div>
+
+    <% end %>
+
+  </div>
+
+</div>

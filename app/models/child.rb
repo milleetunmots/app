@@ -16,6 +16,7 @@
 #  last_name                                  :string           not null
 #  registration_source                        :string
 #  registration_source_details                :string
+#  security_code                              :string
 #  should_contact_parent1                     :boolean          default(FALSE), not null
 #  should_contact_parent2                     :boolean          default(FALSE), not null
 #  created_at                                 :datetime         not null
@@ -92,6 +93,16 @@ class Child < ApplicationRecord
                         on: :create
   validates :registration_source, presence: true, inclusion: { in: REGISTRATION_SOURCES }
   validates :registration_source_details, presence: true
+  validates :security_code, presence: true
+
+  # ---------------------------------------------------------------------------
+  # callbacks
+  # ---------------------------------------------------------------------------
+
+  def initialize(attributes = {})
+    super
+    self.security_code = SecureRandom.hex(1)
+  end
 
   # ---------------------------------------------------------------------------
   # helpers

@@ -2,6 +2,9 @@ class ChildrenController < ApplicationController
 
   SIBLINGS_COUNT = 3
 
+  before_action :find_child, only: %i(edit update)
+  before_action :build_child_action_path, only: %i(edit update)
+
   def new
     @child = Child.new
     @child.build_parent1
@@ -16,7 +19,7 @@ class ChildrenController < ApplicationController
   end
 
   def create
-    attributes = child_params
+    attributes = child_creation_params
 
     # Siblings
 
@@ -100,16 +103,29 @@ class ChildrenController < ApplicationController
     end
   end
 
-  def created
+  def edit
+    @action_path = update_child_path(id: @child.id, security_code: @child.security_code)
+  end
 
+  def update
+    @child.attributes = child_update_params
+    if @child.save(validate: false)
+      redirect_to updated_child_path
+    else
+      render action: :edit
+    end
   end
 
   private
 
-  def child_params
+  def child_creation_params
     result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, child_support_attributes: %i(important_information))
     result.delete(:child_support_attributes) if result[:child_support_attributes][:important_information].blank?
     result
+  end
+
+  def child_update_params
+    params.require(:child).permit(:has_quit_group)
   end
 
   def parent1_params
@@ -128,6 +144,19 @@ class ChildrenController < ApplicationController
     params.require(:child).permit(siblings: [
       [:gender, :first_name, :last_name, :birthdate]
     ])[:siblings]&.values || []
+  end
+
+  def find_child
+    @child = Child.where(
+      id: params[:id],
+      security_code: params[:security_code]
+    ).first
+
+    head 404 and return if @child.nil?
+  end
+
+  def build_child_action_path
+    @child_action_path = update_child_path(id: @child.id, security_code: @child.security_code)
   end
 
 end

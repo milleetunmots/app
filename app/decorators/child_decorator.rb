@@ -15,6 +15,16 @@ class ChildDecorator < BaseDecorator
     h.link_to txt, [:admin, model], options
   end
 
+  def public_edit_url
+    h.edit_child_url(id: model.id, security_code: model.security_code)
+  end
+
+  def public_edit_link(options = {})
+    url = public_edit_url
+    txt = options.delete(:label) || url
+    h.link_to txt, url, options
+  end
+
   def age
     h.t 'child_age.months', months: model.months
   end

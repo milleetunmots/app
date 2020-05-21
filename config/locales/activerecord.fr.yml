@@ -66,8 +66,10 @@ fr:
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
         postal_code: Code postal
+        public_edit_url: Lien de continuation
         registration_source: Comment nous avez-vous connu ?
         registration_source_details: 'Précisez le nom :'
+        security_code: Sécurité
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?
         updated_at: Modification

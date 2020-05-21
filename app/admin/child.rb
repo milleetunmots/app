@@ -239,8 +239,8 @@ ActiveAdmin.register Child do
           row :last_name
           row :birthdate
           row :age
-          row :gender do |model|
-            model.gender_status
+          row :gender do |decorated|
+            decorated.gender_status
           end
           row :registration_source
           row :registration_source_details
@@ -252,6 +252,12 @@ ActiveAdmin.register Child do
           row :family_redirection_url_unique_visits_count
           row :family_redirection_unique_visit_rate
           row :family_redirection_visit_rate
+          row :security_code do |decorated|
+            decorated.security_code
+          end
+          row :public_edit_url do |decorated|
+            decorated.public_edit_link(target: '_blank')
+          end
           row :created_at
           row :updated_at
         end
