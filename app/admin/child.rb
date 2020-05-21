@@ -181,16 +181,29 @@ ActiveAdmin.register Child do
            progress: proc { |output| puts output }
   end
 
-  batch_action :generate_quit_sms do |ids|
+  batch_action :generate_buzz_expert do |ids|
     @children = batch_action_collection.where(id: ids)
 
-    service = ExportQuitMessagesService.new(children: @children).call
+    service = BuzzExpert::ExportChildrenService.new(children: @children).call
     if service.errors.any?
       puts "Error: #{service.errors}"
       flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
       redirect_to request.referer
     else
-      send_data service.csv, filename: "children-quit-sms-#{Date.today}.csv"
+      send_data service.csv, filename: "Buzz-Expert - #{csv_filename}"
+    end
+  end
+
+  batch_action :generate_quit_sms do |ids|
+    @children = batch_action_collection.where(id: ids)
+
+    service = BuzzExpert::ExportChildrenQuitService.new(children: @children).call
+    if service.errors.any?
+      puts "Error: #{service.errors}"
+      flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
+      redirect_to request.referer
+    else
+      send_data service.csv, filename: "Buzz-Expert - Continuation - #{csv_filename}"
     end
   end
 
@@ -392,7 +405,7 @@ ActiveAdmin.register Child do
       end.join(',')
 
       [
-        collection.object.klass.model_name.human.pluralize,
+        Child.model_name.human.pluralize,
         current_scope.name,
         filter_name.presence,
         Time.zone.now.to_date.to_s(:default)

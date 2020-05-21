@@ -1,11 +1,11 @@
-class GenerateBuzzExpertMessagesService
+class BuzzExpert::GenerateFileService
 
   attr_reader :errors, :csv
 
   # objects: array of Hash {parent:, child:, ...}
   # variables: Hash {key => name} where @key can be found on objects
   # and @name is the header name
-  def initialize(objects:, variables:)
+  def initialize(objects:, variables: {})
     @objects = objects
     @variables = variables
     @errors = []
