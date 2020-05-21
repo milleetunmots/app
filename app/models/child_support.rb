@@ -190,18 +190,26 @@ class ChildSupport < ApplicationRecord
     where(id: Child.where(group_id: v).select('DISTINCT child_support_id'))
   end
 
+  def self.unpaused_group_id_in(*v)
+    where(id: Child.unpaused_group_id_in(v).select('DISTINCT child_support_id'))
+  end
+
   def self.registration_sources_in(*v)
     where(id: Child.where(registration_source: v).select('DISTINCT child_support_id'))
   end
 
   scope :with_book_not_received, -> { where.not(book_not_received: [nil, '']) }
 
+  def self.without_parent_text_message_since(v)
+    where(id: Child.without_parent_text_message_since(v).select('DISTINCT child_support_id'))
+  end
+
   # ---------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    %i(groups_in registration_sources_in)
+    %i(groups_in registration_sources_in unpaused_group_id_in without_parent_text_message_since)
   end
 
   # ---------------------------------------------------------------------------
@@ -210,6 +218,7 @@ class ChildSupport < ApplicationRecord
 
   delegate :address,
            :city_name,
+           :has_quit_group,
            :letterbox_name,
            :parent_events,
            :parent1_first_name,

@@ -37,13 +37,13 @@ ActiveAdmin.register Events::SurveyResponse do
 
   filter :parent_first_child_group_id_in,
          as: :select,
-         collection: proc { Group.order(:name) },
+         collection: proc { child_group_select_collection },
          input_html: { multiple: true, data: { select2: {} } },
          label: 'Cohorte'
 
   filter :survey_name,
          as: :select,
-         collection: proc { Events::SurveyResponse.survey_names.sort_by(&:downcase) },
+         collection: proc { survey_response_survey_name_select_collection },
          input_html: { multiple: true, data: { select2: {} } }
 
   filter :body

@@ -75,7 +75,7 @@ ActiveAdmin.register Child do
   filter :has_quit_group
   filter :unpaused_group_id_in,
          as: :select,
-         collection: proc { Group.order(:name) },
+         collection: proc { child_group_select_collection },
          input_html: { multiple: true, data: { select2: {} } },
          label: 'Cohorte active'
   filter :without_parent_text_message_since,

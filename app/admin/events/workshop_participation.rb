@@ -37,7 +37,7 @@ ActiveAdmin.register Events::WorkshopParticipation do
 
   filter :parent_first_child_group_id_in,
          as: :select,
-         collection: proc { Group.order(:name) },
+         collection: proc { child_group_select_collection },
          input_html: { multiple: true, data: { select2: {} } },
          label: 'Cohorte'
 
