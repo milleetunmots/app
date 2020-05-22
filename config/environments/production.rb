@@ -79,7 +79,8 @@ Rails.application.configure do
 
   config.action_mailer.default_url_options = {
     host: ENV['DEFAULT_HOSTNAME'],
-    port: ENV['DEFAULT_PORT'] || 443
+    port: ENV['DEFAULT_PORT'] || 443,
+    protocol: 'https'
   }
 
   # Ignore bad email addresses and do not raise email delivery errors.
