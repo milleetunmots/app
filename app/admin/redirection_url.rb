@@ -43,6 +43,19 @@ ActiveAdmin.register RedirectionUrl do
   filter :created_at
   filter :updated_at
 
+  batch_action :generate_buzz_expert do |ids|
+    @redirection_urls = batch_action_collection.where(id: ids)
+
+    service = BuzzExpert::ExportRedirectionUrlsService.new(redirection_urls: @redirection_urls).call
+    if service.errors.any?
+      puts "Error: #{service.errors}"
+      flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
+      redirect_to request.referer
+    else
+      send_data service.csv, filename: "Buzz-Expert - #{csv_filename}"
+    end
+  end
+
   # ---------------------------------------------------------------------------
   # SHOW
   # ---------------------------------------------------------------------------

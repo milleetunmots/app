@@ -15,8 +15,14 @@ module ActiveAdmin
       def has_better_csv
         controller do
           def csv_filename
+            klass = if collection.is_a?(ActiveRecord::Relation)
+              collection.klass
+            else
+              collection.object.klass
+            end
+
             [
-              collection.object.klass.model_name.human.pluralize(:fr),
+              klass.model_name.human.pluralize(:fr),
               current_scope&.name,
               Time.zone.now.to_date.to_s(:default)
             ].compact.join(' - ') + '.csv'
