@@ -24,7 +24,8 @@ class BuzzExpert::GenerateFileService
       # headers
       csv << [
         'Numéro du parent',
-        "Prénom de l'enfant"
+        "Prénom de l'enfant",
+        "Nom de l'enfant"
       ] + keys.map do |key|
         @variables[key]
       end
@@ -36,7 +37,8 @@ class BuzzExpert::GenerateFileService
 
         csv << [
           parent.phone_number,
-          child.first_name
+          child.first_name,
+          child.last_name
         ] + keys.map do |key|
           object[key]
         end
