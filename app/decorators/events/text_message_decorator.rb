@@ -15,9 +15,10 @@ class Events::TextMessageDecorator < EventDecorator
   end
 
   def truncated_body
-    model.body.truncate 30,
-                        separator: /\s/,
-                        omission: ' (…)'
+    # model.body.truncate 30,
+    #                     separator: /\s/,
+    #                     omission: ' (…)'
+    model.body
   end
 
 end

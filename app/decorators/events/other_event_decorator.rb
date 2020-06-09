@@ -15,7 +15,7 @@ class Events::OtherEventDecorator < EventDecorator
   end
 
   def truncated_body
-    model.body.truncate 30,
+    model.body.truncate 100,
                         separator: /\s/,
                         omission: ' (…)'
   end
