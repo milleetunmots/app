@@ -35,6 +35,9 @@ ActiveAdmin.register Events::TextMessage do
     end
   end
 
+  scope(:mine, default: true) { |scope| scope.parent_first_child_supported_by(current_admin_user) }
+  scope :all
+
   filter :parent_first_child_group_id_in,
          as: :select,
          collection: proc { child_group_select_collection },

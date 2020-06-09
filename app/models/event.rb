@@ -72,6 +72,10 @@ class Event < ApplicationRecord
     where(related: Parent.first_child_group_id_in(v))
   end
 
+  def self.parent_first_child_supported_by(v)
+    where(related: Parent.first_child_supported_by(v))
+  end
+
   # ---------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------

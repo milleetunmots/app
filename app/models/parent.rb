@@ -176,6 +176,10 @@ class Parent < ApplicationRecord
     where_first_child(group_id: v)
   end
 
+  def self.first_child_supported_by(v)
+    where_first_child(child_support_id: ChildSupport.supported_by(v).select(:id))
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------
