@@ -63,6 +63,8 @@ ActiveAdmin.register ChildSupport do
   filter :book_not_received
   filter :is_bilingual
   filter :second_language
+  filter :postal_code,
+         as: :string
   filter :supporter,
          input_html: { data: { select2: {} } }
   filter :call1_status
