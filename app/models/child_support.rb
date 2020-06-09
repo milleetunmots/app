@@ -198,6 +198,10 @@ class ChildSupport < ApplicationRecord
     where(id: Child.where(registration_source: v).select('DISTINCT child_support_id'))
   end
 
+  def self.registration_sources_details_in(*v)
+    where(id: Child.where(registration_source_details: v).select('DISTINCT child_support_id'))
+  end
+
   def self.postal_code_contains(v)
     where(id: Child.postal_code_contains(v).select('DISTINCT child_support_id'))
   end
@@ -225,7 +229,7 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    %i(groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with registration_sources_in unpaused_group_id_in without_parent_text_message_since)
+    %i(groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with registration_sources_in registration_sources_details_in unpaused_group_id_in without_parent_text_message_since)
   end
 
   # ---------------------------------------------------------------------------

@@ -58,6 +58,10 @@ ActiveAdmin.register ChildSupport do
          as: :select,
          collection: proc { child_registration_source_select_collection },
          input_html: { multiple: true, data: { select2: {} } }
+  filter :registration_sources_details,
+         as: :select,
+         collection: proc { child_registration_source_details_suggestions },
+         input_html: { multiple: true, data: { select2: {} } }
   filter :should_be_read,
          input_html: { data: { select2: { width: '100%' } } }
   filter :book_not_received
