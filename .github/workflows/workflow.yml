@@ -28,3 +28,4 @@ jobs:
           cache_froms: milleetunmots/app:develop
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          always_pull: true
