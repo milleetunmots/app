@@ -23,5 +23,7 @@ jobs:
         uses: docker/build-push-action@v1
         with:
           dockerfile: Dockerfile.release
-          repository: milleetunmots/app
           tag_with_ref: true
+          repository: milleetunmots/app
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
