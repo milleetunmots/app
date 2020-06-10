@@ -25,5 +25,6 @@ jobs:
           dockerfile: Dockerfile.release
           tag_with_ref: true
           repository: milleetunmots/app
+          cache_froms: milleetunmots/app:develop
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
