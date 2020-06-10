@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Build & Push
+      - name: Build & Push to Docker Hub
         uses: docker/build-push-action@v1
         with:
           dockerfile: Dockerfile.release
