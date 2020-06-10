@@ -16,9 +16,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Build & Push
-        uses: docker/build-push-action@v1
-        with:
-          dockerfile: Dockerfile.release
-          repository: milleetunmots/app
-          tag_with_ref: true
+    - name: Build & Push
+      uses: docker/build-push-action@v1
+      with:
+        dockerfile: Dockerfile.release
+        repository: milleetunmots/app
+        tag_with_ref: true
