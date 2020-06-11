@@ -72,7 +72,7 @@ class Event < ApplicationRecord
     where(related: Parent.first_child_group_id_in(v))
   end
 
-  def self.parent_first_child_supported_by(v)
+  def self.parent_first_child_supporter_id_in(*v)
     where(related: Parent.first_child_supported_by(v))
   end
 
@@ -81,7 +81,7 @@ class Event < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    %i(parent_first_child_group_id_in)
+    %i(parent_first_child_group_id_in parent_first_child_supporter_id_in)
   end
 
 end

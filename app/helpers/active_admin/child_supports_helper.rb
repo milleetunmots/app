@@ -1,5 +1,9 @@
 module ActiveAdmin::ChildSupportsHelper
 
+  def child_support_supporter_select_collection
+    AdminUser.order(:name).map(&:decorate)
+  end
+
   def child_support_call1_language_awareness_select_collection
     ChildSupport::LANGUAGE_AWARENESS.map do |v|
       [

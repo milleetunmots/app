@@ -35,14 +35,17 @@ ActiveAdmin.register Events::TextMessage do
     end
   end
 
-  scope(:mine, default: true) { |scope| scope.parent_first_child_supported_by(current_admin_user) }
-  scope :all
-
   filter :parent_first_child_group_id_in,
          as: :select,
          collection: proc { child_group_select_collection },
          input_html: { multiple: true, data: { select2: {} } },
          label: 'Cohorte'
+
+  filter :parent_first_child_supporter_id_in,
+         as: :select,
+         collection: proc { child_support_supporter_select_collection },
+         input_html: { multiple: true, data: { select2: {} } },
+         label: 'Responsable'
 
   filter :body
 
