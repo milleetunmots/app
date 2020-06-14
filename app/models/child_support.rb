@@ -293,6 +293,12 @@ class ChildSupport < ApplicationRecord
     other_children.with_support.map(&:child_support).uniq
   end
 
+  def self.call_attributes
+    new.attributes.keys.select{|a| a.starts_with?("call")}
+  rescue ArgumentError
+    []
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------

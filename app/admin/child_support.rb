@@ -268,7 +268,6 @@ ActiveAdmin.register ChildSupport do
   base_attributes = %i(
     important_information supporter_id should_be_read book_not_received is_bilingual second_language
   )
-  call_attributes = ChildSupport.new.attributes.keys.select{|a| a.starts_with?("call")}
   parent_attributes = %i(
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
@@ -285,8 +284,7 @@ ActiveAdmin.register ChildSupport do
       }
     ]
   }]
-  all_attributes = base_attributes + call_attributes + first_child_attributes
-  permit_params all_attributes
+  permit_params (base_attributes + ChildSupport.call_attributes + first_child_attributes)
 
   # ---------------------------------------------------------------------------
   # SHOW
