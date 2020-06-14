@@ -10,21 +10,10 @@ fr:
     years: "%{years} ans"
   child_support:
     base: Informations
-    call1: Appel 1
-    call2: Appel 2
-    call3: Appel 3
-    call1_parent_progress_present: Note appel 1 présente
-    call2_parent_progress_present: Note appel 2 présente
-    call3_parent_progress_present: Note appel 3 présente
     default:
-      call1_parent_actions: "Livres :\nChansons :\nJeux :\nSorties :\nParler au quotidien :\nEcrans :"
-      call1_notes: Facebook
-      call2_parent_actions: "Livres :\nChansons :\nJeux :\nSorties :\nParler au quotidien :\nEcrans :"
-      call2_notes: Facebook
-      call2_technical_information: "SMS\nVidéos\nLivres"
-      call3_parent_actions: "Livres :\nChansons :\nJeux :\nSorties :\nParler au quotidien :\nEcrans :"
-      call3_notes: Facebook
-      call3_technical_information: "SMS\nVidéos\nLivres"
+      call_notes: Facebook
+      call_parent_actions: "Livres :\nChansons :\nJeux :\nSorties :\nParler au quotidien :\nEcrans :"
+      call_technical_information: "SMS\nVidéos\nLivres"
     parent1: Parent 1
     parent2: Parent 2
     parents: Parents

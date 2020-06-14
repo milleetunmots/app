@@ -125,6 +125,19 @@ fr:
         call3_sendings_benefits: Apport des envois
         call3_sendings_benefits_details: Verbatim
         call3_technical_information: Retour sur les envois
+        call4_duration: Durée de l'appel 4 (en minutes)
+        call4_status: Statut de l'appel 4
+        call4_status_details: Suivi de l'appel 4
+        call4_parent_actions: Pratiques parentales
+        call4_goals: Mini-objectifs
+        call4_language_awareness: Conscience langagière
+        call4_language_development: "Développement langagier de l'enfant"
+        call4_notes: Remarques diverses
+        call4_parent_progress: Niveau de pratiques parentales
+        call4_reading_frequency: Fréquence de lecture
+        call4_sendings_benefits: Apport des envois
+        call4_sendings_benefits_details: Verbatim
+        call4_technical_information: Retour sur les envois
         city_name: Ville
         children: Enfants
         children_first_names: Prénom des enfants
@@ -160,52 +173,20 @@ fr:
         should_contact_parent2: Contacter parent 2 ?
         supporter: Responsable
         updated_at: Modification
-      child_support/call1_language_awareness:
+      child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
         2_awareness: A conscience de son impact
-      child_support/call1_parent_progress:
+      child_support/call_parent_progress:
         1_low: Minimum
         2_medium: Intermédiaire
         3_high: Avancé
         4_excellent: Très avancé
-      child_support/call1_reading_frequency:
+      child_support/call_reading_frequency:
         1_rarely: Plus rarement
         2_weekly: 1 fois par semaine
         3_frequently: 2-3 fois par semaine
         4_daily: Tous les soirs
-      child_support/call2_language_awareness:
-        1_none: "N'a pas conscience de son impact"
-        2_awareness: A conscience de son impact
-      child_support/call2_parent_progress:
-        1_low: Minimum
-        2_medium: Intermédiaire
-        3_high: Avancé
-        4_excellent: Très avancé
-      child_support/call2_reading_frequency:
-        1_rarely: Plus rarement
-        2_weekly: 1 fois par semaine
-        3_frequently: 2-3 fois par semaine
-        4_daily: Tous les soirs
-      child_support/call2_sendings_benefits:
-        1_none: Ne suit pas
-        2_far: Regarde de loin
-        3_remind: Piqûre de rappel
-        4_frequent: Assidu
-        5_frequent_helps: Assidu avec aide réelle
-      child_support/call3_language_awareness:
-        1_none: "N'a pas conscience de son impact"
-        2_awareness: A conscience de son impact
-      child_support/call3_parent_progress:
-        1_low: Minimum
-        2_medium: Intermédiaire
-        3_high: Avancé
-        4_excellent: Très avancé
-      child_support/call3_reading_frequency:
-        1_rarely: Plus rarement
-        2_weekly: 1 fois par semaine
-        3_frequently: 2-3 fois par semaine
-        4_daily: Tous les soirs
-      child_support/call3_sendings_benefits:
+      child_support/call_sendings_benefits:
         1_none: Ne suit pas
         2_far: Regarde de loin
         3_remind: Piqûre de rappel

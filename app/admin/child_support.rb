@@ -21,19 +21,18 @@ ActiveAdmin.register ChildSupport do
     column :children
     column :supporter, sortable: :supporter_id
     column :should_be_read
-    column I18n.t('child_support.call1') do |model|
-      [model.call1_status, model.call1_parent_progress_index].join(' ').html_safe
-    end
-    column I18n.t('child_support.call2') do |model|
-      [model.call2_status, model.call2_parent_progress_index].join(' ').html_safe
-    end
-    column I18n.t('child_support.call3') do |model|
-      [model.call3_status, model.call3_parent_progress_index].join(' ').html_safe
+    (1..4).each do |call_idx|
+      column "Appel #{call_idx}" do |decorated|
+        [
+          decorated.send("call#{call_idx}_status"),
+          decorated.send("call#{call_idx}_parent_progress_index")
+        ].join(' ').html_safe
+      end
     end
     column :groups
     column :registration_sources
-    column :created_at do |model|
-      l model.created_at.to_date, format: :default
+    column :created_at do |decorated|
+      l decorated.created_at.to_date, format: :default
     end
     actions do |decorated|
       discard_links(decorated.model, class: 'member_link')
@@ -71,66 +70,34 @@ ActiveAdmin.register ChildSupport do
          as: :string
   filter :supporter,
          input_html: { data: { select2: {} } }
-  filter :call1_status
-  filter :call1_duration
-  filter :call1_parent_progress_present,
-         as: :boolean,
-         label: proc { I18n.t('child_support.call1_parent_progress_present') }
-  filter :call1_parent_progress,
-         as: :select,
-         collection: proc { child_support_call1_parent_progress_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :call1_language_awareness,
-         as: :select,
-         collection: proc { child_support_call1_language_awareness_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :call1_books_quantity
-  filter :call1_reading_frequency,
-         as: :select,
-         collection: proc { child_support_call1_reading_frequency_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :call2_status
-  filter :call2_duration
-  filter :call2_parent_progress_present,
-         as: :boolean,
-         label: proc { I18n.t('child_support.call2_parent_progress_present') }
-  filter :call2_parent_progress,
-         as: :select,
-         collection: proc { child_support_call2_parent_progress_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :call2_language_awareness,
-         as: :select,
-         collection: proc { child_support_call2_language_awareness_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :call2_sendings_benefits,
-         as: :select,
-         collection: proc { child_support_call2_sendings_benefits_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :call2_reading_frequency,
-         as: :select,
-         collection: proc { child_support_call2_reading_frequency_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :call3_status
-  filter :call3_duration
-  filter :call3_parent_progress_present,
-         as: :boolean,
-         label: proc { I18n.t('child_support.call3_parent_progress_present') }
-  filter :call3_parent_progress,
-         as: :select,
-         collection: proc { child_support_call3_parent_progress_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :call3_language_awareness,
-         as: :select,
-         collection: proc { child_support_call3_language_awareness_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :call3_sendings_benefits,
-         as: :select,
-         collection: proc { child_support_call3_sendings_benefits_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :call3_reading_frequency,
-         as: :select,
-         collection: proc { child_support_call3_reading_frequency_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
+  (1..4).each do |call_idx|
+    filter "call#{call_idx}_status"
+    filter "call#{call_idx}_duration"
+    filter "call#{call_idx}_parent_progress_present",
+           as: :boolean,
+           label: "Note appel #{call_idx} présente"
+    filter "call#{call_idx}_parent_progress",
+           as: :select,
+           collection: proc { child_support_call_parent_progress_select_collection },
+           input_html: { multiple: true, data: { select2: {} } }
+    filter "call#{call_idx}_language_awareness",
+           as: :select,
+           collection: proc { child_support_call_language_awareness_select_collection },
+           input_html: { multiple: true, data: { select2: {} } }
+    if call_idx > 1
+      filter "call#{call_idx}_sendings_benefits",
+             as: :select,
+             collection: proc { child_support_call_sendings_benefits_select_collection },
+             input_html: { multiple: true, data: { select2: {} } }
+    end
+    if call_idx == 1
+      filter "call#{call_idx}_books_quantity"
+    end
+    filter "call#{call_idx}_reading_frequency",
+           as: :select,
+           collection: proc { child_support_call_reading_frequency_select_collection },
+           input_html: { multiple: true, data: { select2: {} } }
+  end
   filter :created_at
   filter :updated_at
 
@@ -188,160 +155,69 @@ ActiveAdmin.register ChildSupport do
         end
       end
       tabs do
-        tab I18n.t('child_support.call1') do
-          columns do
-            column do
-              f.input :call1_status, input_html: { style: 'width: 70%' }
-              f.input :call1_duration, input_html: { style: 'width: 70%' }
+        (1..4).each do |call_idx|
+          tab "Appel #{call_idx}" do
+            columns do
+              column do
+                f.input "call#{call_idx}_status", input_html: { style: 'width: 70%' }
+                f.input "call#{call_idx}_duration", input_html: { style: 'width: 70%' }
+              end
+              column do
+                f.input "call#{call_idx}_status_details", input_html: { rows: 5, style: 'width: 70%' }
+              end
             end
-            column do
-              f.input :call1_status_details, input_html: { rows: 5, style: 'width: 70%' }
-            end
-          end
-          columns do
-            column do
-              f.input :call1_parent_actions,
-                      input_html: {
-                        rows: 8,
-                        style: 'width: 70%',
-                        value: f.object.call1_parent_actions.presence || (
-                          I18n.t('child_support.default.call1_parent_actions')
-                        )
-                      }
-              f.input :call1_language_awareness,
-                      as: :radio,
-                      collection: child_support_call1_language_awareness_select_collection
-              f.input :call1_parent_progress,
-                      as: :radio,
-                      collection: child_support_call1_parent_progress_select_collection
-              f.input :call1_books_quantity, input_html: { style: 'width: 70%' }
-              f.input :call1_reading_frequency,
-                      as: :radio,
-                      collection: child_support_call1_reading_frequency_select_collection
-            end
-            column do
-              f.input :call1_language_development, input_html: { rows: 8, style: 'width: 70%' }
-              f.input :call1_goals, input_html: { rows: 8, style: 'width: 70%' }
-              f.input :call1_notes,
-                      input_html: {
-                        rows: 8,
-                        style: 'width: 70%',
-                        value: f.object.call1_notes.presence || (
-                          I18n.t('child_support.default.call1_notes')
-                        )
-                      }
-            end
-          end
-        end
-        tab I18n.t('child_support.call2') do
-          columns do
-            column do
-              f.input :call2_status, input_html: { style: 'width: 70%' }
-              f.input :call2_duration, input_html: { style: 'width: 70%' }
-            end
-            column do
-              f.input :call2_status_details, input_html: { rows: 5, style: 'width: 70%' }
-            end
-          end
-          columns do
-            column do
-              f.input :call2_technical_information,
-                      input_html: {
-                        rows: 8,
-                        style: 'width: 70%',
-                        value: f.object.call2_technical_information.presence || (
-                          I18n.t('child_support.default.call2_technical_information')
-                        )
-                      }
-              f.input :call2_parent_actions,
-                      input_html: {
-                        rows: 8,
-                        style: 'width: 70%',
-                        value: f.object.call2_parent_actions.presence || (
-                          I18n.t('child_support.default.call2_parent_actions')
-                        )
-                      }
-              f.input :call2_language_awareness,
-                      as: :radio,
-                      collection: child_support_call2_language_awareness_select_collection
-              f.input :call2_parent_progress,
-                      as: :radio,
-                      collection: child_support_call2_parent_progress_select_collection
-              f.input :call2_reading_frequency,
-                      as: :radio,
-                      collection: child_support_call2_reading_frequency_select_collection
-              f.input :call2_sendings_benefits,
-                      as: :radio,
-                      collection: child_support_call2_sendings_benefits_select_collection
-              f.input :call2_sendings_benefits_details, input_html: { rows: 5, style: 'width: 70%' }
-            end
-            column do
-              f.input :call2_language_development, input_html: { rows: 8, style: 'width: 70%' }
-              f.input :call2_goals, input_html: { rows: 8, style: 'width: 70%' }
-              f.input :call2_notes,
-                      input_html: {
-                        rows: 8,
-                        style: 'width: 70%',
-                        value: f.object.call2_notes.presence || (
-                          I18n.t('child_support.default.call2_notes')
-                        )
-                      }
-            end
-          end
-        end
-        tab I18n.t('child_support.call3') do
-          columns do
-            column do
-              f.input :call3_status, input_html: { style: 'width: 70%' }
-              f.input :call3_duration, input_html: { style: 'width: 70%' }
-            end
-            column do
-              f.input :call3_status_details, input_html: { rows: 5, style: 'width: 70%' }
-            end
-          end
-          columns do
-            column do
-              f.input :call3_technical_information,
-                      input_html: {
-                        rows: 8,
-                        style: 'width: 70%',
-                        value: f.object.call3_technical_information.presence || (
-                          I18n.t('child_support.default.call3_technical_information')
-                        )
-                      }
-              f.input :call3_parent_actions,
-                      input_html: {
-                        rows: 8,
-                        style: 'width: 70%',
-                        value: f.object.call3_parent_actions.presence || (
-                          I18n.t('child_support.default.call3_parent_actions')
-                        )
-                      }
-              f.input :call3_language_awareness,
-                      as: :radio,
-                      collection: child_support_call3_language_awareness_select_collection
-              f.input :call3_parent_progress,
-                      as: :radio,
-                      collection: child_support_call3_parent_progress_select_collection
-              f.input :call3_reading_frequency,
-                      as: :radio,
-                      collection: child_support_call3_reading_frequency_select_collection
-              f.input :call3_sendings_benefits,
-                      as: :radio,
-                      collection: child_support_call3_sendings_benefits_select_collection
-              f.input :call3_sendings_benefits_details, input_html: { rows: 5, style: 'width: 70%' }
-            end
-            column do
-              f.input :call3_language_development, input_html: { rows: 8, style: 'width: 70%' }
-              f.input :call3_goals, input_html: { rows: 8, style: 'width: 70%' }
-              f.input :call3_notes,
-                      input_html: {
-                        rows: 8,
-                        style: 'width: 70%',
-                        value: f.object.call3_notes.presence || (
-                          I18n.t('child_support.default.call3_notes')
-                        )
-                      }
+
+            columns do
+              column do
+                if call_idx > 1
+                  f.input "call#{call_idx}_technical_information",
+                          input_html: {
+                            rows: 8,
+                            style: 'width: 70%',
+                            value: f.object.send("call#{call_idx}_technical_information").presence || (
+                              I18n.t('child_support.default.call_technical_information')
+                            )
+                          }
+                end
+                f.input "call#{call_idx}_parent_actions",
+                        input_html: {
+                          rows: 8,
+                          style: 'width: 70%',
+                          value: f.object.send("call#{call_idx}_parent_actions").presence || (
+                            I18n.t('child_support.default.call_parent_actions')
+                          )
+                        }
+                f.input "call#{call_idx}_language_awareness",
+                        as: :radio,
+                        collection: child_support_call_language_awareness_select_collection
+                f.input "call#{call_idx}_parent_progress",
+                        as: :radio,
+                        collection: child_support_call_parent_progress_select_collection
+                if call_idx == 1
+                  f.input "call#{call_idx}_books_quantity", input_html: { style: 'width: 70%' }
+                end
+                f.input "call#{call_idx}_reading_frequency",
+                        as: :radio,
+                        collection: child_support_call_reading_frequency_select_collection
+                if call_idx > 1
+                  f.input "call#{call_idx}_sendings_benefits",
+                          as: :radio,
+                          collection: child_support_call_sendings_benefits_select_collection
+                  f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, style: 'width: 70%' }
+                end
+              end
+              column do
+                f.input "call#{call_idx}_language_development", input_html: { rows: 8, style: 'width: 70%' }
+                f.input "call#{call_idx}_goals", input_html: { rows: 8, style: 'width: 70%' }
+                f.input "call#{call_idx}_notes",
+                        input_html: {
+                          rows: 8,
+                          style: 'width: 70%',
+                          value: f.object.send("call#{call_idx}_notes").presence || (
+                            I18n.t('child_support.default.call_notes')
+                          )
+                        }
+              end
             end
           end
         end
@@ -389,40 +265,28 @@ ActiveAdmin.register ChildSupport do
     f.actions
   end
 
+  base_attributes = %i(
+    important_information supporter_id should_be_read book_not_received is_bilingual second_language
+  )
+  call_attributes = ChildSupport.new.attributes.keys.select{|a| a.starts_with?("call")}
   parent_attributes = %i(
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
     is_ambassador is_lycamobile job
   )
-  permit_params :important_information, :supporter_id,
-                :should_be_read, :book_not_received,
-                :is_bilingual, :second_language,
-                :call1_duration, :call1_status, :call1_status_details,
-                :call1_parent_actions, :call1_parent_progress,
-                :call1_language_development, :call1_notes,
-                :call1_books_quantity, :call1_reading_frequency,
-                :call1_goals, :call1_language_awareness,
-                :call2_duration, :call2_status, :call2_status_details,
-                :call2_technical_information, :call2_parent_actions,
-                :call2_language_development,
-                :call2_language_awareness, :call2_parent_progress,
-                :call2_sendings_benefits, :call2_sendings_benefits_details,
-                :call2_goals, :call2_notes, :call2_reading_frequency,
-                :call3_duration, :call3_status, :call3_status_details,
-                :call3_technical_information, :call3_parent_actions,
-                :call3_sendings_benefits, :call3_sendings_benefits_details,
-                :call3_language_development, :call3_language_awareness,
-                :call3_parent_progress, :call3_goals, :call3_notes,
-                :call3_reading_frequency,
-                first_child_attributes: [
-                  :id,
-                  :gender, :should_contact_parent1, :should_contact_parent2,
-                  :registration_source, :registration_source_details,
-                  {
-                    parent1_attributes: parent_attributes,
-                    parent2_attributes: parent_attributes
-                  }
-                ]
+  first_child_attributes = [{
+    first_child_attributes: [
+      :id,
+      :gender, :should_contact_parent1, :should_contact_parent2,
+      :registration_source, :registration_source_details,
+      {
+        parent1_attributes: parent_attributes,
+        parent2_attributes: parent_attributes
+      }
+    ]
+  }]
+  all_attributes = base_attributes + call_attributes + first_child_attributes
+  permit_params all_attributes
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -457,53 +321,30 @@ ActiveAdmin.register ChildSupport do
           row :updated_at
         end
       end
-      tab I18n.t('child_support.call1') do
-        attributes_table title: I18n.t('child_support.call1') do
-          row :call1_status
-          row :call1_status_details
-          row :call1_duration
-          row :call1_parent_actions
-          row :call1_language_awareness
-          row :call1_parent_progress
-          row :call1_language_development
-          row :call1_books_quantity
-          row :call1_reading_frequency
-          row :call1_goals
-          row :call1_notes
-        end
-      end
-      tab I18n.t('child_support.call2') do
-        attributes_table title: I18n.t('child_support.call2') do
-          row :call2_status
-          row :call2_status_details
-          row :call2_duration
-          row :call2_technical_information
-          row :call2_parent_actions
-          row :call2_language_awareness
-          row :call2_parent_progress
-          row :call2_sendings_benefits
-          row :call2_sendings_benefits_details
-          row :call2_language_development
-          row :call2_reading_frequency
-          row :call2_goals
-          row :call2_notes
-        end
-      end
-      tab I18n.t('child_support.call3') do
-        attributes_table title: I18n.t('child_support.call3') do
-          row :call3_status
-          row :call3_status_details
-          row :call3_duration
-          row :call3_technical_information
-          row :call3_parent_actions
-          row :call3_language_awareness
-          row :call3_parent_progress
-          row :call3_sendings_benefits
-          row :call3_sendings_benefits_details
-          row :call3_language_development
-          row :call3_reading_frequency
-          row :call3_goals
-          row :call3_notes
+      (1..4).each do |call_idx|
+        tab "Appel #{call_idx}" do
+          attributes_table title: "Appel #{call_idx}" do
+            row "call#{call_idx}_status"
+            row "call#{call_idx}_status_details"
+            row "call#{call_idx}_duration"
+            if call_idx > 1
+              row "call#{call_idx}_technical_information"
+            end
+            row "call#{call_idx}_parent_actions"
+            row "call#{call_idx}_language_awareness"
+            row "call#{call_idx}_parent_progress"
+            if call_idx > 1
+              row "call#{call_idx}_sendings_benefits"
+              row "call#{call_idx}_sendings_benefits_details"
+            end
+            row "call#{call_idx}_language_development"
+            if call_idx == 1
+              row "call#{call_idx}_books_quantity"
+            end
+            row "call#{call_idx}_reading_frequency"
+            row "call#{call_idx}_goals"
+            row "call#{call_idx}_notes"
+          end
         end
       end
       if resource.first_child
@@ -548,45 +389,32 @@ ActiveAdmin.register ChildSupport do
     column :is_bilingual
     column :second_language
 
-    column :call1_status
-    column :call1_status_details
-    column :call1_duration
-    column(:call1_parent_actions) { |cs| cs.call1_parent_actions_text }
-    column :call1_language_awareness
-    column :call1_parent_progress
-    column(:call1_language_development) { |cs| cs.call1_language_development_text }
-    column :call1_books_quantity
-    column :call1_reading_frequency
-    column(:call1_goals) { |cs| cs.call1_goals_text }
-    column(:call1_notes) { |cs| cs.call1_notes_text }
+    (1..4).each do |call_idx|
 
-    column :call2_status
-    column :call2_status_details
-    column :call2_duration
-    column(:call2_technical_information) { |cs| cs.call2_technical_information_text }
-    column(:call2_parent_actions) { |cs| cs.call2_parent_actions_text }
-    column :call2_language_awareness
-    column :call2_parent_progress
-    column :call2_sendings_benefits
-    column :call2_sendings_benefits_details
-    column(:call2_language_development) { |cs| cs.call2_language_development_text }
-    column :call2_reading_frequency
-    column(:call2_goals) { |cs| cs.call2_goals_text }
-    column(:call2_notes) { |cs| cs.call2_notes_text }
+      column "call#{call_idx}_status"
+      column "call#{call_idx}_status_details"
+      column "call#{call_idx}_duration"
+      if call_idx > 1
+        column("call#{call_idx}_technical_information") do |cs|
+          cs.send("call#{call_idx}_technical_information_text")
+        end
+      end
+      column("call#{call_idx}_parent_actions") { |cs| cs.send("call#{call_idx}_parent_actions_text") }
+      column "call#{call_idx}_language_awareness"
+      column "call#{call_idx}_parent_progress"
+      if call_idx > 1
+        column "call#{call_idx}_sendings_benefits"
+        column "call#{call_idx}_sendings_benefits_details"
+      end
+      column("call#{call_idx}_language_development") { |cs| cs.send("call#{call_idx}_language_development_text") }
+      if call_idx == 1
+        column "call#{call_idx}_books_quantity"
+      end
+      column "call#{call_idx}_reading_frequency"
+      column("call#{call_idx}_goals") { |cs| cs.send("call#{call_idx}_goals_text") }
+      column("call#{call_idx}_notes") { |cs| cs.send("call#{call_idx}_notes_text") }
 
-    column :call3_status
-    column :call3_status_details
-    column :call3_duration
-    column(:call3_technical_information) { |cs| cs.call3_technical_information_text }
-    column(:call3_parent_actions) { |cs| cs.call3_parent_actions_text }
-    column :call3_language_awareness
-    column :call3_parent_progress
-    column :call3_sendings_benefits
-    column :call3_sendings_benefits_details
-    column(:call3_language_development) { |cs| cs.call3_language_development_text }
-    column :call3_reading_frequency
-    column(:call3_goals) { |cs| cs.call3_goals_text }
-    column(:call3_notes) { |cs| cs.call3_notes_text }
+    end
 
     column :created_at
     column :updated_at

@@ -47,18 +47,6 @@ class ChildSupportDecorator < BaseDecorator
     4 => :blue
   }
 
-  def call1_parent_progress_index
-    progress model.call1_parent_progress_index
-  end
-
-  def call2_parent_progress_index
-    progress model.call2_parent_progress_index
-  end
-
-  def call3_parent_progress_index
-    progress model.call3_parent_progress_index
-  end
-
   def parent1
     parent model.parent1
   end
@@ -75,183 +63,83 @@ class ChildSupportDecorator < BaseDecorator
     h.content_tag :div, important_information_text, class: 'free-text'
   end
 
-  def call1_parent_actions_text
-    model.call1_parent_actions
-  end
+  (1..4).each do |call_idx|
 
-  def call1_parent_actions
-    h.content_tag :div, call1_parent_actions_text, class: 'free-text'
-  end
-
-  def call1_language_awareness
-    if v = model.call1_language_awareness
-      ChildSupport.human_attribute_name("call1_language_awareness.#{v}")
+    define_method("call#{call_idx}_parent_progress_index") do
+      progress model.send("call#{call_idx}_parent_progress_index")
     end
-  end
 
-  def call1_language_development_text
-    model.call1_language_development
-  end
-
-  def call1_language_development
-    h.content_tag :div, call1_language_development_text, class: 'free-text'
-  end
-
-  def call1_goals_text
-    model.call1_goals
-  end
-
-  def call1_goals
-    h.content_tag :div, call1_goals_text, class: 'free-text'
-  end
-
-  def call1_notes_text
-    model.call1_notes
-  end
-
-  def call1_notes
-    h.content_tag :div, call1_notes_text, class: 'free-text'
-  end
-
-  def call1_parent_progress
-    if v = model.call1_parent_progress
-      ChildSupport.human_attribute_name("call1_parent_progress.#{v}")
+    define_method("call#{call_idx}_parent_actions_text") do
+      model.send("call#{call_idx}_parent_actions")
     end
-  end
 
-  def call1_reading_frequency
-    if v = model.call1_reading_frequency
-      ChildSupport.human_attribute_name("call1_reading_frequency.#{v}")
+    define_method("call#{call_idx}_parent_actions") do
+      h.content_tag :div, send("call#{call_idx}_parent_actions_text"), class: 'free-text'
     end
-  end
 
-  def call2_technical_information_text
-    model.call2_technical_information
-  end
-
-  def call2_technical_information
-    h.content_tag :div, call2_technical_information_text, class: 'free-text'
-  end
-
-  def call2_parent_actions_text
-    model.call2_parent_actions
-  end
-
-  def call2_parent_actions
-    h.content_tag :div, call2_parent_actions_text, class: 'free-text'
-  end
-
-  def call2_language_awareness
-    if v = model.call2_language_awareness
-      ChildSupport.human_attribute_name("call2_language_awareness.#{v}")
+    define_method("call#{call_idx}_language_awareness") do
+      if v = model.send("call#{call_idx}_language_awareness")
+        ChildSupport.human_attribute_name("call_language_awareness.#{v}")
+      end
     end
-  end
 
-  def call2_parent_progress
-    if v = model.call2_parent_progress
-      ChildSupport.human_attribute_name("call2_parent_progress.#{v}")
+    define_method("call#{call_idx}_parent_progress") do
+      if v = model.send("call#{call_idx}_parent_progress")
+        ChildSupport.human_attribute_name("call_parent_progress.#{v}")
+      end
     end
-  end
 
-  def call2_sendings_benefits
-    if v = model.call2_sendings_benefits
-      ChildSupport.human_attribute_name("call2_sendings_benefits.#{v}")
+    define_method("call#{call_idx}_language_development_text") do
+      model.send("call#{call_idx}_language_development")
     end
-  end
 
-  def call2_language_development_text
-    model.call2_language_development
-  end
-
-  def call2_language_development
-    h.content_tag :div, call2_language_development_text, class: 'free-text'
-  end
-
-  def call2_reading_frequency
-    if v = model.call2_reading_frequency
-      ChildSupport.human_attribute_name("call2_reading_frequency.#{v}")
+    define_method("call#{call_idx}_language_development") do
+      h.content_tag :div, send("call#{call_idx}_language_development_text"), class: 'free-text'
     end
-  end
 
-  def call2_goals_text
-    model.call2_goals
-  end
-
-  def call2_goals
-    h.content_tag :div, call2_goals_text, class: 'free-text'
-  end
-
-  def call2_notes_text
-    model.call2_notes
-  end
-
-  def call2_notes
-    h.content_tag :div, call2_notes_text, class: 'free-text'
-  end
-
-  def call3_technical_information_text
-    model.call3_technical_information
-  end
-
-  def call3_technical_information
-    h.content_tag :div, call3_technical_information_text, class: 'free-text'
-  end
-
-  def call3_parent_actions_text
-    model.call3_parent_actions
-  end
-
-  def call3_parent_actions
-    h.content_tag :div, call3_parent_actions_text, class: 'free-text'
-  end
-
-  def call3_language_awareness
-    if v = model.call3_language_awareness
-      ChildSupport.human_attribute_name("call3_language_awareness.#{v}")
+    define_method("call#{call_idx}_reading_frequency") do
+      if v = model.send("call#{call_idx}_reading_frequency")
+        ChildSupport.human_attribute_name("call_reading_frequency.#{v}")
+      end
     end
-  end
 
-  def call3_parent_progress
-    if v = model.call3_parent_progress
-      ChildSupport.human_attribute_name("call3_parent_progress.#{v}")
+    define_method("call#{call_idx}_goals_text") do
+      model.send("call#{call_idx}_goals")
     end
-  end
 
-  def call3_sendings_benefits
-    if v = model.call3_sendings_benefits
-      ChildSupport.human_attribute_name("call3_sendings_benefits.#{v}")
+    define_method("call#{call_idx}_goals") do
+      h.content_tag :div, send("call#{call_idx}_goals_text"), class: 'free-text'
     end
-  end
 
-  def call3_language_development_text
-    model.call3_language_development
-  end
-
-  def call3_language_development
-    h.content_tag :div, call3_language_development_text, class: 'free-text'
-  end
-
-  def call3_reading_frequency
-    if v = model.call3_reading_frequency
-      ChildSupport.human_attribute_name("call3_reading_frequency.#{v}")
+    define_method("call#{call_idx}_notes_text") do
+      model.send("call#{call_idx}_notes")
     end
+
+    define_method("call#{call_idx}_notes") do
+      h.content_tag :div, send("call#{call_idx}_notes_text"), class: 'free-text'
+    end
+
   end
 
-  def call3_goals_text
-    model.call3_goals
+  (2..4).each do |call_idx|
+
+    define_method("call#{call_idx}_sendings_benefits") do
+      if v = model.send("call#{call_idx}_sendings_benefits")
+        ChildSupport.human_attribute_name("call_sendings_benefits.#{v}")
+      end
+    end
+
+    define_method("call#{call_idx}_technical_information_text") do
+      model.send("call#{call_idx}_technical_information")
+    end
+
+    define_method("call#{call_idx}_technical_information") do
+      h.content_tag :div, send("call#{call_idx}_technical_information_text"), class: 'free-text'
+    end
+
   end
 
-  def call3_goals
-    h.content_tag :div, call3_goals_text, class: 'free-text'
-  end
-
-  def call3_notes_text
-    model.call3_notes
-  end
-
-  def call3_notes
-    h.content_tag :div, call3_notes_text, class: 'free-text'
-  end
+  ###
 
   def groups
     arbre do

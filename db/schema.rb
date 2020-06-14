@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_21_202011) do
+ActiveRecord::Schema.define(version: 2020_06_12_125045) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -82,6 +82,19 @@ ActiveRecord::Schema.define(version: 2020_05_21_202011) do
     t.string "call2_sendings_benefits"
     t.text "call2_sendings_benefits_details"
     t.datetime "discarded_at"
+    t.text "call4_technical_information"
+    t.text "call4_parent_actions"
+    t.text "call4_language_development"
+    t.text "call4_goals"
+    t.text "call4_notes"
+    t.string "call4_status"
+    t.text "call4_status_details"
+    t.integer "call4_duration"
+    t.string "call4_language_awareness"
+    t.string "call4_parent_progress"
+    t.string "call4_sendings_benefits"
+    t.text "call4_sendings_benefits_details"
+    t.string "call4_reading_frequency"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
@@ -89,6 +102,8 @@ ActiveRecord::Schema.define(version: 2020_05_21_202011) do
     t.index ["call2_parent_progress"], name: "index_child_supports_on_call2_parent_progress"
     t.index ["call3_language_awareness"], name: "index_child_supports_on_call3_language_awareness"
     t.index ["call3_parent_progress"], name: "index_child_supports_on_call3_parent_progress"
+    t.index ["call4_language_awareness"], name: "index_child_supports_on_call4_language_awareness"
+    t.index ["call4_parent_progress"], name: "index_child_supports_on_call4_parent_progress"
     t.index ["discarded_at"], name: "index_child_supports_on_discarded_at"
     t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
     t.index ["supporter_id"], name: "index_child_supports_on_supporter_id"

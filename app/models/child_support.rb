@@ -41,6 +41,19 @@
 #  call3_status                    :string
 #  call3_status_details            :text
 #  call3_technical_information     :text
+#  call4_duration                  :integer
+#  call4_goals                     :text
+#  call4_language_awareness        :string
+#  call4_language_development      :text
+#  call4_notes                     :text
+#  call4_parent_actions            :text
+#  call4_parent_progress           :string
+#  call4_reading_frequency         :string
+#  call4_sendings_benefits         :string
+#  call4_sendings_benefits_details :text
+#  call4_status                    :string
+#  call4_status_details            :text
+#  call4_technical_information     :text
 #  discarded_at                    :datetime
 #  important_information           :text
 #  is_bilingual                    :boolean
@@ -59,6 +72,8 @@
 #  index_child_supports_on_call2_parent_progress     (call2_parent_progress)
 #  index_child_supports_on_call3_language_awareness  (call3_language_awareness)
 #  index_child_supports_on_call3_parent_progress     (call3_parent_progress)
+#  index_child_supports_on_call4_language_awareness  (call4_language_awareness)
+#  index_child_supports_on_call4_parent_progress     (call4_parent_progress)
 #  index_child_supports_on_discarded_at              (discarded_at)
 #  index_child_supports_on_should_be_read            (should_be_read)
 #  index_child_supports_on_supporter_id              (supporter_id)
@@ -115,46 +130,31 @@ class ChildSupport < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  validates :call1_language_awareness,
-            inclusion: {
-              in: LANGUAGE_AWARENESS,
-              allow_blank: true
-            }
-  validates :call1_parent_progress,
-            inclusion: {
-              in: PARENT_PROGRESS,
-              allow_blank: true
-            }
-  validates :call2_language_awareness,
-            inclusion: {
-              in: LANGUAGE_AWARENESS,
-              allow_blank: true
-            }
-  validates :call2_parent_progress,
-            inclusion: {
-              in: PARENT_PROGRESS,
-              allow_blank: true
-            }
-  validates :call2_sendings_benefits,
-            inclusion: {
-              in: SENDINGS_BENEFITS,
-              allow_blank: true
-            }
-  validates :call3_language_awareness,
-            inclusion: {
-              in: LANGUAGE_AWARENESS,
-              allow_blank: true
-            }
-  validates :call3_parent_progress,
-            inclusion: {
-              in: PARENT_PROGRESS,
-              allow_blank: true
-            }
-  validates :call3_sendings_benefits,
-            inclusion: {
-              in: SENDINGS_BENEFITS,
-              allow_blank: true
-            }
+  (1..4).each do |call_idx|
+
+    validates "call#{call_idx}_language_awareness",
+              inclusion: {
+                in: LANGUAGE_AWARENESS,
+                allow_blank: true
+              }
+
+    validates "call#{call_idx}_parent_progress",
+              inclusion: {
+                in: PARENT_PROGRESS,
+                allow_blank: true
+              }
+
+  end
+
+  (2..4).each do |call_idx|
+
+    validates "call#{call_idx}_sendings_benefits",
+              inclusion: {
+                in: SENDINGS_BENEFITS,
+                allow_blank: true
+              }
+
+  end
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -162,28 +162,32 @@ class ChildSupport < ApplicationRecord
 
   scope :supported_by, ->(model) { where(supporter: model) }
 
-  def self.call1_parent_progress_present(bool)
-    if bool
-      where(call1_parent_progress: PARENT_PROGRESS)
-    else
-      where.not(call1_parent_progress: PARENT_PROGRESS)
-    end
-  end
+  class << self
 
-  def self.call2_sendings_benefits_present(bool)
-    if bool
-      where(call2_sendings_benefits: PROGRAM_INVESTMENT)
-    else
-      where.not(call2_sendings_benefits: PROGRAM_INVESTMENT)
-    end
-  end
+    (1..4).each do |call_idx|
 
-  def self.call3_sendings_benefits_present(bool)
-    if bool
-      where(call3_sendings_benefits: PROGRAM_INVESTMENT)
-    else
-      where.not(call3_sendings_benefits: PROGRAM_INVESTMENT)
+      define_method("call#{call_idx}_parent_progress_present") do |bool|
+        if bool
+          where("call#{call_idx}_parent_progress" => PARENT_PROGRESS)
+        else
+          where.not("call#{call_idx}_parent_progress" => PARENT_PROGRESS)
+        end
+      end
+
     end
+
+    (2..4).each do |call_idx|
+
+      define_method("call#{call_idx}_sendings_benefits_present") do |bool|
+        if bool
+          where("call#{call_idx}_sendings_benefits" => PROGRAM_INVESTMENT)
+        else
+          where.not("call#{call_idx}_sendings_benefits" => PROGRAM_INVESTMENT)
+        end
+      end
+
+    end
+
   end
 
   def self.groups_in(*v)
@@ -270,14 +274,10 @@ class ChildSupport < ApplicationRecord
            prefix: true,
            allow_nil: true
 
-  def call1_parent_progress_index
-    (call1_parent_progress || '').split('_').first&.to_i
-  end
-  def call2_parent_progress_index
-    (call2_parent_progress || '').split('_').first&.to_i
-  end
-  def call3_parent_progress_index
-    (call3_parent_progress || '').split('_').first&.to_i
+  (1..4).each do |call_idx|
+    define_method("call#{call_idx}_parent_progress_index") do
+      (send("call#{call_idx}_parent_progress") || '').split('_').first&.to_i
+    end
   end
 
   def other_children
