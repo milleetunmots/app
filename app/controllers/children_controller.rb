@@ -3,6 +3,7 @@ class ChildrenController < ApplicationController
   SIBLINGS_COUNT = 3
 
   before_action :find_child, only: %i(edit update)
+  before_action :build_child_min_birthdate, only: %i(new create)
   before_action :build_child_action_path, only: %i(edit update)
 
   def new
@@ -82,7 +83,10 @@ class ChildrenController < ApplicationController
     # Base
 
     @child = Child.new(attributes)
-    if @child.save
+    if @child.birthdate < @child_min_birthdate
+      @child.errors.add(:birthdate, :invalid, message: "minimale: #{l(@child_min_birthdate)}")
+    end
+    if @child.errors.none? && @child.save
       siblings_attributes.each do |sibling_attributes|
         Child.create!(sibling_attributes.merge(
           registration_source: @child.registration_source,
@@ -169,6 +173,15 @@ class ChildrenController < ApplicationController
     ).first
 
     head 404 and return if @child.nil?
+  end
+
+  def build_child_min_birthdate
+    @child_min_birthdate =
+      if session[:registration_origin] == 2
+        Child.min_birthdate
+      else
+        Child.min_birthdate_alt
+      end
   end
 
   def build_child_action_path
