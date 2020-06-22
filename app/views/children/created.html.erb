@@ -11,17 +11,18 @@
       <% end %>
 
       <p>
-        Votre inscription est bien prise en compte. Vous allez recevoir un livre et des SMS avec des idées pour éveiller le langage de votre enfant. 1001mots est une association d'éveil au langage qui lutte contre l'échec scolaire et les inégalités, reposant sur le modèle du don.<br/>
-        Pour nous aider à accompagner plus d'enfants et participer aux frais d'envoi des livres, vous pouvez nous soutenir en faisant un don. En vous inscrivant vous acceptez d'être sollicité pour des appels aux dons. Vous pouvez arrêter à tout moment.
+        <%== @message %>
       </p>
 
     </div>
 
-    <div id="inscription-success-content-bottom">
+    <% if @widget %>
+      <div id="inscription-success-content-bottom">
 
-      <iframe id="helloasso-widget" allowtransparency="true" src="https://www.helloasso.com/associations/1001mots/formulaires/2/widget"></iframe>
+        <iframe id="helloasso-widget" allowtransparency="true" src="https://www.helloasso.com/associations/1001mots/formulaires/2/widget"></iframe>
 
-    </div>
+      </div>
+    <% end %>
 
   </div>
 

@@ -5,6 +5,8 @@ Rails.application.routes.draw do
   ActiveAdmin.routes(self)
 
   get 'inscription', to: 'children#new', as: :new_child
+  get 'inscription2', to: 'children#new2'
+
   post 'inscription', to: 'children#create', as: :children
   get 'inscrit', to: 'children#created', as: :created_child
 

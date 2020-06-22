@@ -18,6 +18,11 @@ class ChildrenController < ApplicationController
     end
   end
 
+  def new2
+    session[:registration_origin] = 2
+    redirect_to action: :new
+  end
+
   def create
     attributes = child_creation_params
 
@@ -100,6 +105,17 @@ class ChildrenController < ApplicationController
         sibling.build_child_support if sibling.child_support.nil?
       end
       render action: :new
+    end
+  end
+
+  def created
+    if session[:registration_origin] == 2
+      session.delete(:registration_origin)
+      @message = I18n.t('inscription_success.without_widget')
+      @widget = false
+    else
+      @message = I18n.t('inscription_success.with_widget')
+      @widget = true
     end
   end
 
