@@ -2,19 +2,21 @@
 
   <div class="big-number txt-blue">
     <div class="big-number--value">
-      <%= collection.object.count %>
+      <% children_count = collection.object.count %>
+      <%= children_count %>
     </div>
     <div class="big-number--title">
-      Enfants
+      <%= pluralize_without_count children_count, 'Enfant' %>
     </div>
   </div>
 
   <div class="big-number txt-green">
     <div class="big-number--value">
-      <%= collection.object.families_count %>
+      <% families_count = collection.object.families_count %>
+      <%= families_count %>
     </div>
     <div class="big-number--title">
-      Familles
+      <%= pluralize_without_count families_count, 'Famille' %>
     </div>
   </div>
 
