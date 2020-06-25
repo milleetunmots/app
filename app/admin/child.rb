@@ -14,6 +14,10 @@ ActiveAdmin.register Child do
   includes :parent1, :parent2, :child_support, :group
 
   index do
+    div do
+      render 'index_top'
+    end
+
     selectable_column
     id_column
     column :first_name do |model|

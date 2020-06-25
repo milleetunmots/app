@@ -348,6 +348,10 @@ class Child < ApplicationRecord
     )
   end
 
+  def self.families_count
+    count('DISTINCT parent1_id')
+  end
+
   # ---------------------------------------------------------------------------
   # global search
   # ---------------------------------------------------------------------------
