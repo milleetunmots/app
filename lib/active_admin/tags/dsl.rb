@@ -17,7 +17,8 @@ module ActiveAdmin
         filter :tagged_with_all,
                as: :select,
                collection: proc { tag_name_collection },
-               input_html: { multiple: true, data: { select2: {} } }
+               input_html: { multiple: true, data: { select2: {} } },
+               label: 'Tags'
       end
 
       def tags_params
