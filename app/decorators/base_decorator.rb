@@ -7,4 +7,18 @@ class BaseDecorator < Draper::Decorator
     Arbre::Context.new({}, self, &block).to_s
   end
 
+  def tags
+    config = h.active_admin_resource_for(model.class)
+    return unless config
+
+    arbre do
+      model.tags.each do |tag|
+        a tag.name,
+          href: config.route_collection_path(nil, q: {tagged_with_all: [tag.name]}),
+          class: 'tag'
+        text_node "&nbsp;".html_safe
+      end
+    end
+  end
+
 end

@@ -4,6 +4,7 @@ ActiveAdmin.register Child do
 
   has_better_csv
   has_paper_trail
+  has_tags
   has_tasks
   use_discard
 
@@ -244,6 +245,7 @@ ActiveAdmin.register Child do
               collection: child_group_select_collection,
               input_html: { data: { select2: {} } }
       f.input :has_quit_group
+      tags_input(f)
     end
     f.actions
   end
@@ -251,7 +253,8 @@ ActiveAdmin.register Child do
   permit_params :parent1_id, :parent2_id, :group_id, :has_quit_group,
                 :should_contact_parent1, :should_contact_parent2,
                 :gender, :first_name, :last_name, :birthdate,
-                :registration_source, :registration_source_details
+                :registration_source, :registration_source_details,
+                tags_params
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -261,6 +264,7 @@ ActiveAdmin.register Child do
     tabs do
       tab 'Infos' do
         attributes_table do
+          row :tags
           row :parent1
           row :should_contact_parent1
           row :parent2
