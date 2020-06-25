@@ -4,6 +4,7 @@ ActiveAdmin.register Parent do
 
   has_better_csv
   has_paper_trail
+  has_tags
   has_tasks
   use_discard
 
@@ -76,6 +77,7 @@ ActiveAdmin.register Parent do
       f.input :is_ambassador
       f.input :job
       f.input :terms_accepted_at, as: :datepicker
+      tags_input(f)
     end
     f.actions
   end
@@ -83,7 +85,8 @@ ActiveAdmin.register Parent do
   permit_params :gender, :first_name, :last_name,
                 :phone_number, :is_lycamobile, :email,
                 :letterbox_name, :address, :postal_code, :city_name,
-                :is_ambassador, :job, :terms_accepted_at
+                :is_ambassador, :job, :terms_accepted_at,
+                tags_params
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -119,6 +122,7 @@ ActiveAdmin.register Parent do
           row :redirection_url_unique_visits_count
           row :redirection_unique_visit_rate
           row :redirection_visit_rate
+          row :tags
         end
       end
       tab 'Historique' do

@@ -4,6 +4,7 @@ ActiveAdmin.register ChildSupport do
 
   has_better_csv
   has_paper_trail
+  has_tags
   has_tasks
   use_discard
 
@@ -152,6 +153,7 @@ ActiveAdmin.register ChildSupport do
               f.input :book_not_received
             end
           end
+          tags_input(f)
         end
       end
       tabs do
@@ -267,7 +269,7 @@ ActiveAdmin.register ChildSupport do
 
   base_attributes = %i(
     important_information supporter_id should_be_read book_not_received is_bilingual second_language
-  )
+  ) + [tags_params]
   parent_attributes = %i(
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
@@ -315,6 +317,7 @@ ActiveAdmin.register ChildSupport do
           row :should_be_read
           row :is_bilingual
           row :second_language
+          row :tags
           row :created_at
           row :updated_at
         end

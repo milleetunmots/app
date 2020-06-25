@@ -264,7 +264,6 @@ ActiveAdmin.register Child do
     tabs do
       tab 'Infos' do
         attributes_table do
-          row :tags
           row :parent1
           row :should_contact_parent1
           row :parent2
@@ -292,6 +291,7 @@ ActiveAdmin.register Child do
           row :public_edit_url do |decorated|
             decorated.public_edit_link(target: '_blank')
           end
+          row :tags
           row :created_at
           row :updated_at
         end

@@ -186,6 +186,12 @@ class Parent < ApplicationRecord
 
   has_paper_trail skip: [:phone_number_national]
 
+  # ---------------------------------------------------------------------------
+  # tags
+  # ---------------------------------------------------------------------------
+
+  acts_as_taggable
+
   private
 
   def format_phone_number
