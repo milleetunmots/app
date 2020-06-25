@@ -18,23 +18,27 @@ fr:
       redirection_url: URL courte
       task: Tâche
     attributes:
-      admin_user:
+      shared: &SHARED
         created_at: Ajout
+        id: "#"
+        tags: Tags
+        tag_list: Tags
+        updated_at: Modification
+      admin_user:
+        << : *SHARED
         current_sign_in_at: Session en cours
         email: Email
-        id: "#"
         name: Nom
         password: Mot de passe
         password_confirmation: Confirmation du mot de passe
         sign_in_count: Connexions
-        updated_at: Modification
       child:
+        << : *SHARED
         address: Adresse
         age: Age
         birthdate: Date de naissance
         child_support: Suivi
         city_name: Ville
-        created_at: Ajout
         family_redirection_unique_visit_rate: "Taux de visites uniques familiales d'URL courtes"
         family_redirection_unique_visits: URL visitées
         family_redirection_url_unique_visits_count: "Visites familiales uniques d'URL courtes"
@@ -47,7 +51,6 @@ fr:
         group: Cohorte
         group_name: Nom de la cohorte
         has_quit_group: Cohorte en pause
-        id: "#"
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres
         months: Age (en mois)
@@ -72,7 +75,6 @@ fr:
         security_code: Sécurité
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?
-        updated_at: Modification
       child/gender:
         f: Fille
         m: Garçon
@@ -87,6 +89,7 @@ fr:
         therapist: Mon orthophoniste
         unknown: Inconnue
       child_support:
+        << : *SHARED
         address: Adresse
         book_not_received: Livre non reçu
         call1_books_quantity: Nombre de livres dans le foyer
@@ -146,9 +149,7 @@ fr:
         children_birthdates: Date de naissance des enfants
         children_ages: Age des enfants
         children_genders: Sexe des enfants
-        created_at: Ajout
         groups: Cohortes
-        id: "#"
         important_information: Infos importantes (langue maternelle, présence du père, ...)
         is_bilingual: Bilinguisme
         letterbox_name: Nom sur la boîte aux lettres
@@ -173,7 +174,6 @@ fr:
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?
         supporter: Responsable
-        updated_at: Modification
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
         2_awareness: A conscience de son impact
@@ -194,9 +194,8 @@ fr:
         4_frequent: Assidu
         5_frequent_helps: Assidu avec aide réelle
       event: &EVENT
-        created_at: Ajout
+        << : *SHARED
         discarded_at: Mis à la corbeille
-        id: "#"
         occurred_at: Date
         related: Parent
         related_first_child: Famille
@@ -208,7 +207,6 @@ fr:
         related_first_child_name: Famille
         related_id: Parent
         related_name: Parent
-        updated_at: Modification
       events/other_event:
         << : *EVENT
         body: Détails
@@ -223,20 +221,20 @@ fr:
         << : *EVENT
         comments: Infos
       group:
+        << : *SHARED
         children: Enfants
         ended_at: Date de fin
         name: Nom
         started_at: Date de début
       parent:
+        << : *SHARED
         address: Adresse
         children: Enfant(s)
         children_count: Enfants
         city_name: Ville
-        created_at: Ajout
         email: Email
         first_name: Prénom
         gender: Sexe
-        id: "#"
         is_ambassador: Parent ambassadeur
         is_lycamobile: Lycamobile
         job: Métier
@@ -253,14 +251,12 @@ fr:
         redirection_visit_rate: "Taux de visites d'URL courtes"
         terms_accepted_at: Acceptation des conditions d'utilisation
         text_messages_count: SMS
-        updated_at: Modification
       parent/gender:
         f: Femme
         m: Homme
         x: Inconnu
       redirection_target:
-        id: "#"
-        created_at: Ajout
+        << : *SHARED
         name: Nom
         family_redirection_url_unique_visits_count: Visites uniques familiales
         family_redirection_url_visits_count: Visites familiales
@@ -270,9 +266,8 @@ fr:
         redirection_urls: URL courtes
         redirection_urls_count: URL courtes
         target_url: Lien cible
-        updated_at: Modification
       redirection_url:
-        id: "#"
+        << : *SHARED
         child: Enfant
         child_age: "Age de l'enfant"
         child_birthdate: "Date de naissance de l'enfant"
@@ -283,7 +278,6 @@ fr:
         child_last_name: "Nom de l'enfant"
         child_registration_source: Origine
         child_registration_source_details: "Précisions sur l'origine"
-        created_at: Ajout
         parent: Parent
         parent_address: Adresse
         parent_city_name: Ville
@@ -298,20 +292,17 @@ fr:
         redirection_target_target_url: Lien cible
         redirection_url_visits_count: Visites
         security_code: Sécurité
-        updated_at: Modification
         visit_url: Lien court
       task:
+        << : *SHARED
         assignee: Assigné à
-        created_at: Ajout
         description: Description
         done_at: Résolution
         due_date: Date limite
-        id: "#"
         is_done: Terminée
         related: Élément concerné
         reporter: Ajoutée par
         title: Intitulé
-        updated_at: Modification
     errors:
       models:
         parent:

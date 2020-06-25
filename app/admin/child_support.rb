@@ -417,6 +417,8 @@ ActiveAdmin.register ChildSupport do
 
     end
 
+    column :tag_list
+
     column :created_at
     column :updated_at
   end

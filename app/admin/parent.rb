@@ -199,6 +199,8 @@ ActiveAdmin.register Parent do
 
     column :terms_accepted_at
 
+    column :tag_list
+
     column :created_at
     column :updated_at
   end

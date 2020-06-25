@@ -402,6 +402,8 @@ ActiveAdmin.register Child do
     column :family_redirection_unique_visit_rate
     column :family_redirection_visit_rate
 
+    column :tag_list
+
     column :created_at
     column :updated_at
   end
