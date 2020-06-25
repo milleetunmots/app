@@ -48,6 +48,7 @@ class Child < ApplicationRecord
 
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[
+    caf
     pmi
     friends
     therapist

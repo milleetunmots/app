@@ -78,6 +78,7 @@ fr:
         m: Garçon
         x: Inconnu
       child/registration_source:
+        caf: CAF
         friends: Par des amis
         nursery: Crèche
         other: Autre

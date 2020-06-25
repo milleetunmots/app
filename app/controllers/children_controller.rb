@@ -176,12 +176,13 @@ class ChildrenController < ApplicationController
   end
 
   def build_child_min_birthdate
-    @child_min_birthdate =
-      if session[:registration_origin] == 2
-        Child.min_birthdate
-      else
-        Child.min_birthdate_alt
-      end
+    if session[:registration_origin] == 2
+      @child_min_birthdate = Child.min_birthdate
+      @child_min_birthdate_descr = '3 ans'
+    else
+      @child_min_birthdate = Child.min_birthdate_alt
+      @child_min_birthdate_descr = '24 mois'
+    end
   end
 
   def build_child_action_path
