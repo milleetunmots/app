@@ -74,6 +74,8 @@ GEM
       minitest (~> 5.1)
       tzinfo (~> 1.1)
       zeitwerk (~> 2.1, >= 2.1.4)
+    acts-as-taggable-on (6.5.0)
+      activerecord (>= 5.0, < 6.1)
     addressable (2.6.0)
       public_suffix (>= 2.0.2, < 4.0)
     annotate (2.7.5)
@@ -364,6 +366,7 @@ PLATFORMS
 DEPENDENCIES
   activeadmin
   activerecord-nulldb-adapter
+  acts-as-taggable-on (~> 6.0)
   annotate
   arctic_admin
   bootsnap (>= 1.4.2)
@@ -406,4 +409,4 @@ RUBY VERSION
    ruby 2.6.3p62
 
 BUNDLED WITH
-   2.0.2
+   2.1.4

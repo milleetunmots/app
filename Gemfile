@@ -96,6 +96,9 @@ gem 'discard', '~> 1.0'
 # date validation
 gem 'date_validator'
 
+# tags
+gem 'acts-as-taggable-on', '~> 6.0'
+
 group :production do
   # for assets compilation
   gem 'activerecord-nulldb-adapter'
