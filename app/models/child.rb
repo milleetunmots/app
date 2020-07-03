@@ -257,12 +257,16 @@ class Child < ApplicationRecord
     )
   end
 
+  def self.registration_source_details_matches_any(*v)
+    where('registration_source_details ILIKE ?', v)
+  end
+
   # ---------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i(months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with unpaused_group_id_in without_parent_text_message_since)
+    super + %i(months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with unpaused_group_id_in without_parent_text_message_since registration_source_details_matches_any)
   end
 
   # ---------------------------------------------------------------------------

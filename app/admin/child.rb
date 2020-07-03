@@ -72,11 +72,13 @@ ActiveAdmin.register Child do
   filter :registration_source,
          as: :select,
          collection: proc { child_registration_source_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :registration_source_details,
+         input_html: { multiple: true, data: { select2: {} } },
+         label: 'Origine'
+  filter :registration_source_details_matches_any,
          as: :select,
          collection: proc { child_registration_source_details_suggestions },
-         input_html: { multiple: true, data: { select2: {} } }
+         input_html: { multiple: true, data: { select2: {} } },
+         label: "Précisions sur l'origine"
   filter :has_quit_group
   filter :unpaused_group_id_in,
          as: :select,
