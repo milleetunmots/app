@@ -356,6 +356,13 @@ class Child < ApplicationRecord
     count('DISTINCT parent1_id')
   end
 
+  def self.clean_registration_source_details!
+    clean_values = pluck('DISTINCT ON (LOWER(registration_source_details)) registration_source_details').compact
+    clean_values.each do |clean_value|
+      where('registration_source_details ILIKE ?', clean_value).update_all(registration_source_details: clean_value)
+    end
+  end
+
   # ---------------------------------------------------------------------------
   # global search
   # ---------------------------------------------------------------------------

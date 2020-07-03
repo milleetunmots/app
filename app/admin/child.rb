@@ -358,6 +358,22 @@ ActiveAdmin.register Child do
   end
 
   # ---------------------------------------------------------------------------
+  # TOOLS
+  # ---------------------------------------------------------------------------
+
+  action_item :clean_registration_source_details,
+              only: :index do
+    dropdown_menu 'Outils' do
+      item "Nettoyer les précisions sur l'origine",
+           [:clean_registration_source_details, :admin, :children]
+    end
+  end
+  collection_action :clean_registration_source_details do
+    Child.clean_registration_source_details!
+    redirect_to request.referer, notice: 'Nettoyage effectué'
+  end
+
+  # ---------------------------------------------------------------------------
   # CSV EXPORT
   # ---------------------------------------------------------------------------
 
