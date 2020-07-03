@@ -22,4 +22,12 @@ class BaseDecorator < Draper::Decorator
     end
   end
 
+  def created_at_date
+    h.l model.created_at.to_date, format: :default
+  end
+
+  def updated_at_date
+    h.l model.updated_at.to_date, format: :default
+  end
+
 end

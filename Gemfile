@@ -99,6 +99,12 @@ gem 'date_validator'
 # tags
 gem 'acts-as-taggable-on', '~> 6.0'
 
+# AS validations
+gem 'active_storage_validations'
+
+# image manipulations
+gem 'image_processing'
+
 group :production do
   # for assets compilation
   gem 'activerecord-nulldb-adapter'

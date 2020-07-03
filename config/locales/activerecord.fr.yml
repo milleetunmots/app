@@ -13,6 +13,10 @@ fr:
       events/text_message: SMS
       events/workshop_participation: Atelier
       group: Cohorte
+      media/image: Image
+      media/video: Vidéo
+      media/text_message: SMS
+      media/text_messages_bundle: Triplet SMS
       parent: Parent
       redirection_target: URL cible
       redirection_url: URL courte
@@ -226,6 +230,23 @@ fr:
         ended_at: Date de fin
         name: Nom
         started_at: Date de début
+      medium: &MEDIUM
+        << : *SHARED
+        name: Nom
+      media/image:
+        << : *MEDIUM
+        file: Fichier
+      media/video:
+        << : *MEDIUM
+        url: URL
+      media/text_message:
+        << : *MEDIUM
+        body: Message
+      media/text_messages_bundle:
+        << : *MEDIUM
+        body1: Message 1
+        body2: Message 2
+        body3: Message 3
       parent:
         << : *SHARED
         address: Adresse

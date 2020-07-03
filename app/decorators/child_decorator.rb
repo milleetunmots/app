@@ -42,10 +42,6 @@ class ChildDecorator < BaseDecorator
     h.l model.birthdate, format: :default
   end
 
-  def created_at_date
-    h.l model.created_at.to_date, format: :default
-  end
-
   GENDER_COLORS = {
     m: :blue,
     f: :rose,

@@ -1,0 +1,4 @@
+class MediumDecorator < BaseDecorator
+
+
+end

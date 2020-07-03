@@ -362,7 +362,7 @@ ActiveAdmin.register Child do
   # TOOLS
   # ---------------------------------------------------------------------------
 
-  action_item :clean_registration_source_details,
+  action_item :tools,
               only: :index do
     dropdown_menu 'Outils' do
       item "Nettoyer les précisions sur l'origine",
