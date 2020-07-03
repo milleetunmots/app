@@ -27,6 +27,15 @@ class ChildrenController < ApplicationController
   def create
     attributes = child_creation_params
 
+    # Tags
+
+    attributes[:tag_list] =
+      if session[:registration_origin] == 2
+        'form-2'
+      else
+        'form-1'
+      end
+
     # Siblings
 
     siblings_attributes = siblings_params
