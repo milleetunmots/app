@@ -1,5 +1,9 @@
 ActiveAdmin.register Medium do
 
+  menu label: 'Média', parent: 'Médiathèque'
+
+  actions :index
+
   decorate_with MediumDecorator
 
   has_better_csv
@@ -13,7 +17,10 @@ ActiveAdmin.register Medium do
     selectable_column
     id_column
     column :name
-    column :type
+    column :type do |decorated|
+      decorated.type_name
+    end
+    column :tags
     column :created_at do |decorated|
       decorated.created_at_date
     end
@@ -33,7 +40,10 @@ ActiveAdmin.register Medium do
   action_item :new,
               only: :index do
     dropdown_menu 'Créer' do
-      item 'Image', [:new, :admin, :media_image]
+      Medium.descendants.each do |klass|
+        item klass.model_name.human,
+             [:new, :admin, klass.model_name.singular_route_key]
+      end
     end
   end
 
