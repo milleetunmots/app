@@ -1,0 +1,5 @@
+<% @title = 'Médiathèque' %>
+<% @media_folders = MediaFolder.without_parent %>
+<% @media = Medium.without_folder %>
+
+<%= render 'grid' %>

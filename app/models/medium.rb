@@ -12,16 +12,30 @@
 #  url          :string
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
+#  folder_id    :bigint
 #
 # Indexes
 #
 #  index_media_on_discarded_at  (discarded_at)
+#  index_media_on_folder_id     (folder_id)
 #  index_media_on_type          (type)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (folder_id => media_folders.id)
 #
 
 class Medium < ApplicationRecord
 
   include Discard::Model
+
+  # ---------------------------------------------------------------------------
+  # relations
+  # ---------------------------------------------------------------------------
+
+  belongs_to :folder,
+             class_name: :MediaFolder,
+             optional: true
 
   # ---------------------------------------------------------------------------
   # validations
@@ -33,6 +47,7 @@ class Medium < ApplicationRecord
   # scope
   # ---------------------------------------------------------------------------
 
+  scope :without_folder, -> { where(folder: nil) }
   scope :images, -> { where(type: 'Media::Image') }
   scope :videos, -> { where(type: 'Media::Video') }
   scope :text_messages, -> { where(type: 'Media::TextMessage') }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_03_102811) do
+ActiveRecord::Schema.define(version: 2020_07_07_130428) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -199,8 +199,18 @@ ActiveRecord::Schema.define(version: 2020_07_03_102811) do
     t.datetime "discarded_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "folder_id"
     t.index ["discarded_at"], name: "index_media_on_discarded_at"
+    t.index ["folder_id"], name: "index_media_on_folder_id"
     t.index ["type"], name: "index_media_on_type"
+  end
+
+  create_table "media_folders", force: :cascade do |t|
+    t.bigint "parent_id"
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["parent_id"], name: "index_media_folders_on_parent_id"
   end
 
   create_table "parents", force: :cascade do |t|
@@ -349,6 +359,8 @@ ActiveRecord::Schema.define(version: 2020_07_03_102811) do
   add_foreign_key "child_supports", "admin_users", column: "supporter_id"
   add_foreign_key "children", "parents", column: "parent1_id"
   add_foreign_key "children", "parents", column: "parent2_id"
+  add_foreign_key "media", "media_folders", column: "folder_id"
+  add_foreign_key "media_folders", "media_folders", column: "parent_id"
   add_foreign_key "taggings", "tags"
   add_foreign_key "tasks", "admin_users", column: "assignee_id"
   add_foreign_key "tasks", "admin_users", column: "reporter_id"

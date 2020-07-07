@@ -46,6 +46,7 @@ ActiveAdmin.register Media::Image do
 
   show do
     attributes_table do
+      row :folder
       row :name
       row :tags
       row :file do |decorated|
@@ -63,6 +64,7 @@ ActiveAdmin.register Media::Image do
   form do |f|
     f.semantic_errors
     f.inputs do
+      f.input :folder
       f.input :name
       tags_input(f)
       f.input :file, as: :file
@@ -70,6 +72,6 @@ ActiveAdmin.register Media::Image do
     f.actions
   end
 
-  permit_params :name, :file, tags_params
+  permit_params :folder_id, :name, :file, tags_params
 
 end

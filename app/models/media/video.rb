@@ -12,11 +12,17 @@
 #  url          :string
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
+#  folder_id    :bigint
 #
 # Indexes
 #
 #  index_media_on_discarded_at  (discarded_at)
+#  index_media_on_folder_id     (folder_id)
 #  index_media_on_type          (type)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (folder_id => media_folders.id)
 #
 
 class Media::Video < Medium

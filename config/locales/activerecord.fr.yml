@@ -232,6 +232,7 @@ fr:
         started_at: Date de début
       medium: &MEDIUM
         << : *SHARED
+        folder: Dossier
         name: Nom
       media/image:
         << : *MEDIUM

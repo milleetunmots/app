@@ -1,0 +1,36 @@
+<h2><%= @title %></h2>
+
+<div class="grid">
+
+  <% if @parent_link %>
+    <div class="grid--item">
+      <%= link_to '↑', @parent_link %>
+    </div>
+  <% end %>
+
+  <% @media_folders.each do |media_folder| %>
+
+    <div class="grid--item">
+      <%= link_to media_folder.name, [:admin, media_folder] %>
+    </div>
+
+  <% end %>
+
+  <% @media.each do |medium| %>
+
+    <div class="grid--item">
+      <%= link_to medium.name, [:admin, medium] %>
+    </div>
+
+  <% end %>
+
+  <div class="grid--item">
+    <%= link_to 'Nouveau dossier',
+                new_admin_media_folder_path(
+                  media_folder: {
+                    parent_id: @media_folder&.id
+                  }
+                ) %>
+  </div>
+
+</div>
