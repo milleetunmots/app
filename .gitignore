@@ -40,3 +40,6 @@ yarn-debug.log*
 
 # Ignore Docker data
 /docker/data
+
+# Ignore application configuration
+/config/application.yml

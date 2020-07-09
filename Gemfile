@@ -102,8 +102,14 @@ gem 'acts-as-taggable-on', '~> 6.0'
 # AS validations
 gem 'active_storage_validations'
 
+# S3
+gem 'aws-sdk-s3', require: false
+
 # image manipulations
 gem 'image_processing'
+
+# ENV
+gem 'figaro'
 
 group :production do
   # for assets compilation

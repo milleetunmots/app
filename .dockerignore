@@ -11,6 +11,7 @@ docker-compose.yml
 docker-compose.override.yml
 
 # Rails
+/config/application.yml
 /config/database.yml
 /config/master.key
 
