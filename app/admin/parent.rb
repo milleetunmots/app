@@ -22,17 +22,18 @@ ActiveAdmin.register Parent do
     column :last_name
     column :children
     column :phone_number
-    column :email do |decorated|
-      decorated.email_link
-    end
-    column :is_ambassador
-    column :redirection_unique_visits
+    # column :email do |decorated|
+    #   decorated.email_link
+    # end
+    # column :is_ambassador
+    # column :redirection_unique_visits
+    column :tags
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
-    column :updated_at do |model|
-      l model.updated_at.to_date, format: :default
-    end
+    # column :updated_at do |model|
+    #   l model.updated_at.to_date, format: :default
+    # end
     actions do |decorated|
       discard_links(decorated.model, class: 'member_link')
     end

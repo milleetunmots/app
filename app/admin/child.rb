@@ -36,6 +36,7 @@ ActiveAdmin.register Child do
     end
     column :group, sortable: :group_id
     column :family_redirection_unique_visits
+    column :tags
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
