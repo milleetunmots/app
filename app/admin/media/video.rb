@@ -44,6 +44,7 @@ ActiveAdmin.register Media::Video do
 
   show do
     attributes_table do
+      row :folder
       row :name
       row :tags
       row :url do |decorated|
@@ -61,6 +62,7 @@ ActiveAdmin.register Media::Video do
   form do |f|
     f.semantic_errors
     f.inputs do
+      f.input :folder
       f.input :name
       tags_input(f)
       f.input :url
@@ -68,6 +70,6 @@ ActiveAdmin.register Media::Video do
     f.actions
   end
 
-  permit_params :name, :url, tags_params
+  permit_params :folder_id, :name, :url, tags_params
 
 end

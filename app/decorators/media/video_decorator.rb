@@ -19,4 +19,12 @@ class Media::VideoDecorator < MediumDecorator
     h.link_to txt.html_safe, model.url, target: '_blank'
   end
 
+  def icon_class
+    :film
+  end
+
+  def preview
+
+  end
+
 end

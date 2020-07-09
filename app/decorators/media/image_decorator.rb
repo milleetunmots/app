@@ -22,4 +22,12 @@ class Media::ImageDecorator < MediumDecorator
                 style: style.join(';')
   end
 
+  def icon_class
+    :image
+  end
+
+  def preview
+    file_tag
+  end
+
 end

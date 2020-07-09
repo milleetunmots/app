@@ -1,6 +1,6 @@
 <% @title = @media_folder.name %>
 <% @parent_link = @media_folder.parent ? [:admin, @media_folder.parent] : [:admin, :media_folders] %>
-<% @media_folders = @media_folder.children %>
-<% @media = @media_folder.media %>
+<% @media_folders = @media_folder.children.decorate %>
+<% @media = @media_folder.media.decorate %>
 
-<%= render 'grid' %>
+<%= render 'browse' %>

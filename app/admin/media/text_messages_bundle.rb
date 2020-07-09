@@ -52,6 +52,7 @@ ActiveAdmin.register Media::TextMessagesBundle do
 
   show do
     attributes_table do
+      row :folder
       row :name
       row :tags
       row :body1, class: 'row-pre'
@@ -69,6 +70,7 @@ ActiveAdmin.register Media::TextMessagesBundle do
   form do |f|
     f.semantic_errors
     f.inputs do
+      f.input :folder
       f.input :name
       tags_input(f)
       f.input :body1, as: :text, input_html: { rows: 10 }
@@ -78,6 +80,6 @@ ActiveAdmin.register Media::TextMessagesBundle do
     f.actions
   end
 
-  permit_params :name, :body1, :body2, :body3, tags_params
+  permit_params :folder_id, :name, :body1, :body2, :body3, tags_params
 
 end

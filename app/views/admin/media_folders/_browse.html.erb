@@ -1,0 +1,78 @@
+<div class="media-folders-browse">
+
+  <div class="media-folders-browse--title">
+    <h2><%= @title %></h2>
+  </div>
+
+  <% if @parent_link %>
+    <%= link_to '↑', @parent_link %>
+  <% end %>
+
+  <div class="media-folders-browse--folders">
+
+    <h3>Dossiers</h3>
+
+    <div class="browser-grid">
+
+      <% @media_folders.each do |media_folder| %>
+
+        <div class="browser-grid--cell">
+          <%= link_to [:admin, media_folder], class: 'media-folder' do %>
+            <div class="media-folder--icon">
+              <i class="fas fa-folder"></i>
+            </div>
+            <div class="media-folder--name">
+              <%= media_folder.name %>
+            </div>
+          <% end %>
+        </div>
+
+      <% end %>
+
+      <div class="browser-grid--cell">
+        <%= link_to new_admin_media_folder_path(
+                      media_folder: {
+                        parent_id: @media_folder&.id
+                      }
+                    ), class: 'media-folder new-media-folder' do %>
+          <div class="media-folder--icon">
+            <i class="fas fa-plus"></i>
+          </div>
+          <div class="media-folder--name">
+            Nouveau dossier
+          </div>
+        <% end %>
+      </div>
+
+    </div>
+
+  </div><%# media-folders-browse--folders %>
+
+  <div class="media-folders-browse--media">
+
+    <h3>Média</h3>
+
+    <div class="browser-grid">
+
+      <% @media.each do |medium_d| %>
+
+        <div class="browser-grid--cell">
+          <%= link_to [:admin, medium_d.model],
+                      class: "medium #{medium_d.css_class_name}" do %>
+            <div class="medium--preview"><%= medium_d.preview %></div>
+            <div class="medium--icon">
+              <i class="fas fa-<%= medium_d.icon_class %>"></i>
+            </div>
+            <div class="medium--name">
+              <%= medium_d.name %>
+            </div>
+          <% end %>
+        </div>
+
+      <% end %>
+
+    </div>
+
+  </div><%# media-folders-browse--media %>
+
+</div>

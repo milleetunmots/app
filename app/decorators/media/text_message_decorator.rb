@@ -6,4 +6,12 @@ class Media::TextMessageDecorator < MediumDecorator
                         omission: ' (…)'
   end
 
+  def icon_class
+    :sms
+  end
+
+  def preview
+    model.body
+  end
+
 end
