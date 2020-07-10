@@ -69,7 +69,14 @@ ActiveAdmin.register Media::TextMessage do
       f.input :folder
       f.input :name
       tags_input(f)
-      f.input :body, as: :text, input_html: { rows: 10 }
+      f.input :body,
+              as: :text,
+              input_html: {
+                rows: 10,
+                data: {
+                  'chars-counter': 152
+                }
+              }
       f.input :image, as: :file
     end
     f.actions

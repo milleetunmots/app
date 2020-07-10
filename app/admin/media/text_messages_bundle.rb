@@ -91,11 +91,32 @@ ActiveAdmin.register Media::TextMessagesBundle do
       f.input :folder
       f.input :name
       tags_input(f)
-      f.input :body1, as: :text, input_html: { rows: 10 }
+      f.input :body1,
+              as: :text,
+              input_html: {
+                rows: 10,
+                data: {
+                  'chars-counter': 152
+                }
+              }
       f.input :image1, as: :file
-      f.input :body2, as: :text, input_html: { rows: 10 }
+      f.input :body2,
+              as: :text,
+              input_html: {
+                rows: 10,
+                data: {
+                  'chars-counter': 152
+                }
+              }
       f.input :image2, as: :file
-      f.input :body3, as: :text, input_html: { rows: 10 }
+      f.input :body3,
+              as: :text,
+              input_html: {
+                rows: 10,
+                data: {
+                  'chars-counter': 152
+                }
+              }
       f.input :image3, as: :file
     end
     f.actions
