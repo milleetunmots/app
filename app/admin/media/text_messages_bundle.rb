@@ -21,11 +21,20 @@ ActiveAdmin.register Media::TextMessagesBundle do
     column :body1 do |decorated|
       decorated.truncated_body1
     end
+    column :image1 do |decorated|
+      decorated.image1_tag(max_height: '50px')
+    end
     column :body2 do |decorated|
       decorated.truncated_body2
     end
+    column :image2 do |decorated|
+      decorated.image2_tag(max_height: '50px')
+    end
     column :body3 do |decorated|
       decorated.truncated_body3
+    end
+    column :image3 do |decorated|
+      decorated.image3_tag(max_height: '50px')
     end
     column :created_at do |decorated|
       decorated.created_at_date
@@ -56,8 +65,17 @@ ActiveAdmin.register Media::TextMessagesBundle do
       row :name
       row :tags
       row :body1, class: 'row-pre'
+      row :image1 do |decorated|
+        decorated.image1_tag(max_height: '50px')
+      end
       row :body2, class: 'row-pre'
+      row :image2 do |decorated|
+        decorated.image2_tag(max_height: '50px')
+      end
       row :body3, class: 'row-pre'
+      row :image3 do |decorated|
+        decorated.image3_tag(max_height: '50px')
+      end
       row :created_at
       row :discarded_at
     end
@@ -74,12 +92,18 @@ ActiveAdmin.register Media::TextMessagesBundle do
       f.input :name
       tags_input(f)
       f.input :body1, as: :text, input_html: { rows: 10 }
+      f.input :image1, as: :file
       f.input :body2, as: :text, input_html: { rows: 10 }
+      f.input :image2, as: :file
       f.input :body3, as: :text, input_html: { rows: 10 }
+      f.input :image3, as: :file
     end
     f.actions
   end
 
-  permit_params :folder_id, :name, :body1, :body2, :body3, tags_params
+  permit_params :folder_id, :name,
+                :body1, :body2, :body3,
+                :image1, :image2, :image3,
+                tags_params
 
 end

@@ -27,6 +27,16 @@
 
 class Media::Image < Medium
 
+  CONTENT_TYPES = %w(
+    image/bmp
+    image/gif
+    image/jpeg
+    image/jpg
+    image/png
+    image/tiff
+    image/webp
+  )
+
   has_one_attached :file
 
   # ---------------------------------------------------------------------------
@@ -35,14 +45,6 @@ class Media::Image < Medium
 
   validates :file,
             attached: true,
-            content_type: %w(
-              image/bmp
-              image/gif
-              image/jpeg
-              image/jpg
-              image/png
-              image/tiff
-              image/webp
-            )
+            content_type: CONTENT_TYPES
 
 end

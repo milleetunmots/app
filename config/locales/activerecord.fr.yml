@@ -13,6 +13,10 @@ fr:
       events/text_message: SMS
       events/workshop_participation: Atelier
       group: Cohorte
+      media_image: Image
+      media_video: Vidéo
+      media_text_message: SMS
+      media_text_messages_bundle: Triplet SMS
       media/image: Image
       media/video: Vidéo
       media/text_message: SMS
@@ -243,11 +247,15 @@ fr:
       media/text_message:
         << : *MEDIUM
         body: Message
+        image: Image
       media/text_messages_bundle:
         << : *MEDIUM
         body1: Message 1
         body2: Message 2
         body3: Message 3
+        image1: Image 1
+        image2: Image 2
+        image3: Image 3
       parent:
         << : *SHARED
         address: Adresse

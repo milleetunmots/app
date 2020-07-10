@@ -15,11 +15,7 @@ class Media::ImageDecorator < MediumDecorator
   end
 
   def file_tag(max_width: nil, max_height: nil)
-    style = []
-    style << "max-width: #{max_width}" if max_width
-    style << "max-height: #{max_height}" if max_height
-    h.image_tag model.file,
-                style: style.join(';')
+    attached_image_tag model.file, max_width: max_width, max_height: max_height
   end
 
   def icon_class

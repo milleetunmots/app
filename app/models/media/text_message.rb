@@ -27,6 +27,8 @@
 
 class Media::TextMessage < Medium
 
+  has_one_attached :image
+
   # ---------------------------------------------------------------------------
   # attributes
   # ---------------------------------------------------------------------------
@@ -38,5 +40,7 @@ class Media::TextMessage < Medium
   # ---------------------------------------------------------------------------
 
   validates :body, presence: true
+
+  validates :image, content_type: Media::Image::CONTENT_TYPES
 
 end

@@ -21,6 +21,9 @@ ActiveAdmin.register Media::TextMessage do
     column :body do |decorated|
       decorated.truncated_body
     end
+    column :image do |decorated|
+      decorated.image_tag(max_height: '50px')
+    end
     column :created_at do |decorated|
       decorated.created_at_date
     end
@@ -48,6 +51,9 @@ ActiveAdmin.register Media::TextMessage do
       row :name
       row :tags
       row :body, class: 'row-pre'
+      row :image do |decorated|
+        decorated.image_tag(max_height: '50px')
+      end
       row :created_at
       row :discarded_at
     end
@@ -64,10 +70,11 @@ ActiveAdmin.register Media::TextMessage do
       f.input :name
       tags_input(f)
       f.input :body, as: :text, input_html: { rows: 10 }
+      f.input :image, as: :file
     end
     f.actions
   end
 
-  permit_params :folder_id, :name, :body, tags_params
+  permit_params :folder_id, :name, :body, :image, tags_params
 
 end

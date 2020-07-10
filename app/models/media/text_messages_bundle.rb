@@ -27,10 +27,18 @@
 
 class Media::TextMessagesBundle < Medium
 
+  has_one_attached :image1
+  has_one_attached :image2
+  has_one_attached :image3
+
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
 
   validates :body1, presence: true
+
+  validates :image1, content_type: Media::Image::CONTENT_TYPES
+  validates :image2, content_type: Media::Image::CONTENT_TYPES
+  validates :image3, content_type: Media::Image::CONTENT_TYPES
 
 end
