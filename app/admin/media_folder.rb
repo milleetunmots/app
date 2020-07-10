@@ -10,7 +10,8 @@ ActiveAdmin.register MediaFolder do
     if params[:id].nil?
       ['Médiathèque']
     else
-      resource.breadcrumb
+      # weird issue: resource sometimes isn't already decorated
+      resource.decorate.breadcrumb
     end
   end
 
