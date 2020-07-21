@@ -18,6 +18,7 @@
 /config/master.key
 
 # Ignore config files
+/config/application.yml
 /config/database.yml
 
 /public/packs
