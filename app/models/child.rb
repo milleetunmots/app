@@ -365,11 +365,31 @@ class Child < ApplicationRecord
     parents.fathers.count
   end
 
-  def self.clean_registration_source_details!
-    clean_values = pluck('DISTINCT ON (LOWER(registration_source_details)) registration_source_details').compact
-    clean_values.each do |clean_value|
-      where('registration_source_details ILIKE ?', clean_value).update_all(registration_source_details: clean_value)
+  # returns a Hash k => v where
+  # - k is a possible value
+  # - v is an Array of all corresponding values
+  # e.g. { "Noémie" => ["Noémie", Noemie"] }
+  def self.registration_source_details_map
+    values = {}
+
+    # input all values
+    pluck(:registration_source_details).compact.uniq.each do |value|
+      normalized_value = I18n.transliterate(
+        value.unicode_normalize
+      ).downcase.gsub(/[\s-]+/, ' ')
+      values[normalized_value] ||= []
+      values[normalized_value] << value
     end
+
+    # use first found value as map key and remove duplicates
+    Hash[
+      values.map do |k, v|
+        [
+          v.first,
+          v.uniq
+        ]
+      end
+    ]
   end
 
   # ---------------------------------------------------------------------------

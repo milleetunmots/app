@@ -1,0 +1,49 @@
+<%= form_tag(@perform_action) do %>
+
+  <div class="fbg-container-fluid">
+
+    <% @values.each_with_index do |(possibly_wanted_value, existing_values), idx| %>
+
+      <div class="fbg-row middle-xs">
+
+        <div class="fbg-col-xs-3">
+          <div class="box text-right">
+            <% existing_values.each do |existing_value| %>
+              <%= hidden_field_tag "changes[#{idx}][existing][]", existing_value %>
+            <% end %>
+            <%== existing_values.join("<br/>") %>
+          </div>
+        </div>
+
+        <div class="fbg-col-xs-1">
+          <div class="box text-center">
+            ⇒
+          </div>
+        </div>
+
+        <div class="fbg-col-xs-5">
+          <div class="box">
+            <%= text_field_tag "changes[#{idx}][wanted]", possibly_wanted_value %>
+          </div>
+        </div>
+
+      </div>
+
+    <% end %>
+
+    <div class="fbg-row space-row"></div>
+
+    <div class="fbg-row middle-xs">
+
+      <div class="fbg-col-xs-2 fbg-col-xs-offset-4">
+        <div class="box">
+          <%= submit_tag 'Valider' %>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+<% end %>

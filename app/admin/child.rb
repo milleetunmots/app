@@ -366,12 +366,25 @@ ActiveAdmin.register Child do
               only: :index do
     dropdown_menu 'Outils' do
       item "Nettoyer les précisions sur l'origine",
-           [:clean_registration_source_details, :admin, :children]
+           [:new_clean_registration_source_details, :admin, :children]
     end
   end
-  collection_action :clean_registration_source_details do
-    Child.clean_registration_source_details!
-    redirect_to request.referer, notice: 'Nettoyage effectué'
+  collection_action :new_clean_registration_source_details do
+    @values = Child.registration_source_details_map
+    @perform_action = perform_clean_registration_source_details_admin_children_path
+  end
+
+  collection_action :perform_clean_registration_source_details, method: :post do
+    params[:changes].each do |idx, change|
+      wanted_value = change[:wanted]
+      existing_values = change[:existing]
+      Child.where(
+        registration_source_details: existing_values
+      ).update_all(
+        registration_source_details: wanted_value
+      )
+    end
+    redirect_to admin_children_path, notice: 'Nettoyage effectué'
   end
 
   # ---------------------------------------------------------------------------
