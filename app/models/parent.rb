@@ -45,7 +45,9 @@ class Parent < ApplicationRecord
 
   include Discard::Model
 
-  GENDERS = %w[m f].freeze
+  GENDER_FEMALE = 'f'.freeze
+  GENDER_MALE = 'm'.freeze
+  GENDERS = [GENDER_FEMALE, GENDER_MALE].freeze
   REGEX_VALID_EMAIL = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
 
   # ---------------------------------------------------------------------------
@@ -178,6 +180,14 @@ class Parent < ApplicationRecord
 
   def self.first_child_supported_by(v)
     where_first_child(child_support_id: ChildSupport.supported_by(v).select(:id))
+  end
+
+  def self.mothers
+    where(gender: GENDER_FEMALE)
+  end
+
+  def self.fathers
+    where(gender: GENDER_MALE)
   end
 
   # ---------------------------------------------------------------------------

@@ -356,6 +356,15 @@ class Child < ApplicationRecord
     count('DISTINCT parent1_id')
   end
 
+  def self.parents
+    parent_ids = pluck(:parent1_id) + pluck(:parent2_id)
+    Parent.where(id: parent_ids.compact.uniq)
+  end
+
+  def self.fathers_count
+    parents.fathers.count
+  end
+
   def self.clean_registration_source_details!
     clean_values = pluck('DISTINCT ON (LOWER(registration_source_details)) registration_source_details').compact
     clean_values.each do |clean_value|

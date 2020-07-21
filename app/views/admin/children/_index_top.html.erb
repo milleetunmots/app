@@ -10,13 +10,23 @@
     </div>
   </div>
 
-  <div class="big-number txt-green">
+  <div class="big-number txt-rose">
     <div class="big-number--value">
       <% families_count = collection.object.families_count %>
       <%= families_count %>
     </div>
     <div class="big-number--title">
       <%= pluralize_without_count families_count, 'Famille' %>
+    </div>
+  </div>
+
+  <div class="big-number txt-green">
+    <div class="big-number--value">
+      <% fathers_count = collection.object.fathers_count %>
+      <%= fathers_count %>
+    </div>
+    <div class="big-number--title">
+      <%= pluralize_without_count fathers_count, 'Père' %>
     </div>
   </div>
 
