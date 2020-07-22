@@ -376,7 +376,7 @@ class Child < ApplicationRecord
     pluck(:registration_source_details).compact.uniq.each do |value|
       normalized_value = I18n.transliterate(
         value.unicode_normalize
-      ).downcase.gsub(/[\s-]+/, ' ')
+      ).downcase.gsub(/[\s-]+/, ' ').strip
       values[normalized_value] ||= []
       values[normalized_value] << value
     end

@@ -371,7 +371,9 @@ ActiveAdmin.register Child do
   end
   collection_action :new_clean_registration_source_details do
     @values = Child.registration_source_details_map.to_a.sort_by do |o|
-      o.first.downcase
+      I18n.transliterate(
+        o.first.unicode_normalize
+      ).downcase.gsub(/[\s-]+/, ' ').strip
     end
     @perform_action = perform_clean_registration_source_details_admin_children_path
   end
