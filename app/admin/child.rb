@@ -370,7 +370,9 @@ ActiveAdmin.register Child do
     end
   end
   collection_action :new_clean_registration_source_details do
-    @values = Child.registration_source_details_map
+    @values = Child.registration_source_details_map.to_a.sort_by do |o|
+      o.first.downcase
+    end
     @perform_action = perform_clean_registration_source_details_admin_children_path
   end
 
