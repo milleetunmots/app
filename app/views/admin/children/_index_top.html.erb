@@ -1,8 +1,12 @@
+<% full_collection = collection.object.limit(nil) %>
+<% children_count = full_collection.count %>
+<% families_count = full_collection.families_count %>
+<% fathers_count = full_collection.fathers_count %>
+
 <div class="big-numbers">
 
   <div class="big-number txt-blue">
     <div class="big-number--value">
-      <% children_count = collection.object.count %>
       <%= children_count %>
     </div>
     <div class="big-number--title">
@@ -12,7 +16,6 @@
 
   <div class="big-number txt-rose">
     <div class="big-number--value">
-      <% families_count = collection.object.families_count %>
       <%= families_count %>
     </div>
     <div class="big-number--title">
@@ -22,7 +25,6 @@
 
   <div class="big-number txt-green">
     <div class="big-number--value">
-      <% fathers_count = collection.object.fathers_count %>
       <%= fathers_count %>
     </div>
     <div class="big-number--title">
