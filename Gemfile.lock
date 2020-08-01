@@ -157,6 +157,13 @@ GEM
       request_store (>= 1.0)
     erubi (1.9.0)
     execjs (2.7.0)
+    factory_bot (6.1.0)
+      activesupport (>= 5.0.0)
+    factory_bot_rails (6.1.0)
+      factory_bot (~> 6.1.0)
+      railties (>= 5.0.0)
+    faker (2.13.0)
+      i18n (>= 1.6, < 2)
     ffi (1.11.1)
     figaro (1.2.0)
       thor (>= 0.14.0, < 2)
@@ -408,6 +415,8 @@ DEPENDENCIES
   devise-i18n
   discard (~> 1.0)
   draper
+  factory_bot_rails
+  faker
   figaro
   image_processing
   jbuilder (~> 2.5)

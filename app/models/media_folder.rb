@@ -37,6 +37,14 @@ class MediaFolder < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   validates :name, presence: true
+  validate :disallow_self_referential_parenthood
+
+  def disallow_self_referential_parenthood
+    return if id.blank?
+    if parent_id == id
+      errors.add(:parent_id, 'cannot refer to itself')
+    end
+  end
 
   # ---------------------------------------------------------------------------
   # scope
