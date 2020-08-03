@@ -136,7 +136,7 @@ ActiveAdmin.register Child do
 
   batch_action :create_redirection_url, form: -> {
     {
-      I18n.t('activerecord.models.redirection_target') => RedirectionTarget.order(:name).pluck(:name, :id)
+      I18n.t('activerecord.models.medium') => Medium.for_redirections.order(:name).kept.pluck(:name, :id)
     }
   } do |ids, inputs|
     children = batch_action_collection.where(id: ids)
@@ -145,7 +145,9 @@ ActiveAdmin.register Child do
       flash[:error] = "Certains enfants n'ont aucun parent à contacter"
       redirect_to request.referer
     else
-      redirection_target = RedirectionTarget.find(inputs[I18n.t('activerecord.models.redirection_target')])
+      medium = Medium.find(inputs[I18n.t('activerecord.models.medium')])
+
+      redirection_target = RedirectionTarget.where(medium: medium).first_or_create!
 
       latest_parent1_id = nil
       children.order(:parent1_id).each do |child|

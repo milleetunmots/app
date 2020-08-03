@@ -88,8 +88,8 @@ ActiveAdmin.register RedirectionUrl do
   csv do
     column :id
 
-    column :redirection_target_name
-    column :redirection_target_target_url
+    column :redirection_target_medium_name
+    column :redirection_target_medium_url
 
     column :child_first_name
     column :child_last_name

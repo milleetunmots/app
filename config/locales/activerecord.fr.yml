@@ -13,6 +13,7 @@ fr:
       events/text_message: SMS
       events/workshop_participation: Atelier
       group: Cohorte
+      medium: Média
       media_image: Image
       media_video: Vidéo
       media_text_message: SMS
@@ -288,15 +289,16 @@ fr:
         x: Inconnu
       redirection_target:
         << : *SHARED
-        name: Nom
         family_redirection_url_unique_visits_count: Visites uniques familiales
         family_redirection_url_visits_count: Visites familiales
         family_redirection_urls_count: URL courtes familiales
         family_unique_visit_rate: Taux de visites uniques familiales
         family_visit_rate: Taux de visites familiales
+        medium: Média
+        medium_name: Nom
+        medium_url: Lien cible
         redirection_urls: URL courtes
         redirection_urls_count: URL courtes
-        target_url: Lien cible
       redirection_url:
         << : *SHARED
         child: Enfant
@@ -319,8 +321,8 @@ fr:
         parent_phone_number_national: Numéro du parent
         parent_postal_code: Code postal
         redirection_target: URL cible
-        redirection_target_name: Nom de l'URL cible
-        redirection_target_target_url: Lien cible
+        redirection_target_medium_name: Nom de l'URL cible
+        redirection_target_medium_url: Lien cible
         redirection_url_visits_count: Visites
         security_code: Sécurité
         visit_url: Lien court

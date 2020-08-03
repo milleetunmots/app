@@ -71,8 +71,8 @@ class RedirectionUrl < ApplicationRecord
   # helpers
   # ---------------------------------------------------------------------------
 
-  delegate :name,
-           :target_url,
+  delegate :medium_name,
+           :medium_url,
            to: :redirection_target,
            prefix: true
 

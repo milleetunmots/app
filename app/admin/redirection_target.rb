@@ -14,9 +14,9 @@ ActiveAdmin.register RedirectionTarget do
   index do
     selectable_column
     id_column
-    column :name
-    column :target_url do |model|
-      model.target_link
+    column :medium_name
+    column :medium_url do |model|
+      model.medium_link
     end
     column :redirection_urls do |model|
       model.redirection_urls_link
@@ -34,8 +34,9 @@ ActiveAdmin.register RedirectionTarget do
     end
   end
 
-  filter :name
-  filter :target_url
+  filter :medium,
+         collection: proc { redirection_target_medium_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
   filter :created_at
   filter :updated_at
 
@@ -45,13 +46,14 @@ ActiveAdmin.register RedirectionTarget do
 
   form do |f|
     f.inputs do
-      f.input :name
-      f.input :target_url
+      f.input :medium,
+              collection: redirection_target_medium_select_collection,
+              input_html: { data: { select2: {} } }
     end
     f.actions
   end
 
-  permit_params :name, :target_url
+  permit_params :medium_id
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -59,9 +61,9 @@ ActiveAdmin.register RedirectionTarget do
 
   show do
     attributes_table do
-      row :name
-      row :target_url do |model|
-        model.target_link
+      row :medium_name
+      row :medium_url do |model|
+        model.medium_link
       end
       row :redirection_urls do |model|
         model.redirection_urls_link

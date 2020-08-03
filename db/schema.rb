@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_08_03_152129) do
+ActiveRecord::Schema.define(version: 2020_08_03_163526) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -266,8 +266,6 @@ ActiveRecord::Schema.define(version: 2020_08_03_152129) do
   end
 
   create_table "redirection_targets", force: :cascade do |t|
-    t.string "name"
-    t.string "target_url", null: false
     t.integer "redirection_urls_count"
     t.integer "family_redirection_url_visits_count"
     t.integer "family_redirection_url_unique_visits_count"
@@ -277,7 +275,9 @@ ActiveRecord::Schema.define(version: 2020_08_03_152129) do
     t.datetime "updated_at", precision: 6, null: false
     t.integer "family_redirection_urls_count"
     t.datetime "discarded_at"
+    t.bigint "medium_id"
     t.index ["discarded_at"], name: "index_redirection_targets_on_discarded_at"
+    t.index ["medium_id"], name: "index_redirection_targets_on_medium_id", unique: true
   end
 
   create_table "redirection_url_visits", force: :cascade do |t|
@@ -371,6 +371,7 @@ ActiveRecord::Schema.define(version: 2020_08_03_152129) do
   add_foreign_key "media", "media", column: "image3_id"
   add_foreign_key "media", "media_folders", column: "folder_id"
   add_foreign_key "media_folders", "media_folders", column: "parent_id"
+  add_foreign_key "redirection_targets", "media"
   add_foreign_key "taggings", "tags"
   add_foreign_key "tasks", "admin_users", column: "assignee_id"
   add_foreign_key "tasks", "admin_users", column: "reporter_id"

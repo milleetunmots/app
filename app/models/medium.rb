@@ -47,6 +47,8 @@ class Medium < ApplicationRecord
              class_name: :MediaFolder,
              optional: true
 
+  has_one :redirection_target
+
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
@@ -61,6 +63,8 @@ class Medium < ApplicationRecord
   scope :images, -> { where(type: 'Media::Image') }
   scope :videos, -> { where(type: 'Media::Video') }
   scope :text_messages_bundles, -> { where(type: 'Media::TextMessagesBundle') }
+
+  scope :for_redirections, -> { where(type: ['Media::Video']) }
 
   # ---------------------------------------------------------------------------
   # versions history

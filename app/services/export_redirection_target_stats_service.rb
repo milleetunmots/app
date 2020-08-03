@@ -63,8 +63,8 @@ class ExportRedirectionTargetStatsService
           child.decorate.send(key)
         end + [
           @redirection_target.id,
-          @redirection_target.name,
-          @redirection_target.target_url,
+          @redirection_target.medium_name,
+          @redirection_target.medium_url,
           I18n.t(child_has_visited)
         ]
       end

@@ -129,3 +129,9 @@ Media::TextMessagesBundle.create!(
   image3: evils[2]
 )
 puts " ✓"
+
+# Child
+
+100.times do
+  FactoryBot.create(:child)
+end

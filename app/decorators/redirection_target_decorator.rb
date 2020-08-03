@@ -1,7 +1,7 @@
 class RedirectionTargetDecorator < BaseDecorator
 
   def admin_link(options = {})
-    txt = model.name
+    txt = model.medium_name
     options[:class] = [
       options[:class],
       model.discarded? ? 'discarded' : 'kept'
@@ -14,12 +14,11 @@ class RedirectionTargetDecorator < BaseDecorator
   end
 
   def redirection_urls_link
-    h.link_to redirection_urls_count, redirection_urls_path
+    h.link_to (redirection_urls_count || 0), redirection_urls_path
   end
 
-  def target_link
-    txt = model.target_url + '&nbsp;' + h.content_tag(:i, '', class: 'fas fa-external-link-alt')
-    h.link_to txt.html_safe, model.target_url, target: '_blank'
+  def medium_link
+    model.medium.decorate.url_link
   end
 
   def family_redirection_urls_count

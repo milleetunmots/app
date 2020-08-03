@@ -9,15 +9,19 @@
 #  family_redirection_urls_count              :integer
 #  family_unique_visit_rate                   :float
 #  family_visit_rate                          :float
-#  name                                       :string
 #  redirection_urls_count                     :integer
-#  target_url                                 :string           not null
 #  created_at                                 :datetime         not null
 #  updated_at                                 :datetime         not null
+#  medium_id                                  :bigint
 #
 # Indexes
 #
 #  index_redirection_targets_on_discarded_at  (discarded_at)
+#  index_redirection_targets_on_medium_id     (medium_id) UNIQUE
+#
+# Foreign Keys
+#
+#  fk_rails_...  (medium_id => media.id)
 #
 
 class RedirectionTarget < ApplicationRecord
@@ -28,14 +32,18 @@ class RedirectionTarget < ApplicationRecord
   # relations
   # ---------------------------------------------------------------------------
 
+  belongs_to :medium
   has_many :redirection_urls, dependent: :destroy
   has_many :children, through: :redirection_urls
 
   # ---------------------------------------------------------------------------
-  # validations
+  # attributes
   # ---------------------------------------------------------------------------
 
-  validates :target_url, presence: true
+  delegate :name,
+           :url,
+           to: :medium,
+           prefix: true
 
   # ---------------------------------------------------------------------------
   # helpers

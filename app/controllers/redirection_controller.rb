@@ -14,7 +14,7 @@ class RedirectionController < ApplicationController
       @redirection_url.redirection_url_visits.create!(occurred_at: Time.now)
     end
 
-    redirect_to @redirection_url.redirection_target.target_url
+    redirect_to @redirection_url.redirection_target.medium_url
   end
 
 end
