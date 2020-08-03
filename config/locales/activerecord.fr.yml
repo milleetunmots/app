@@ -15,14 +15,14 @@ fr:
       group: Cohorte
       medium: Média
       media_document: Document
+      media_form: Questionnaire
       media_image: Image
       media_video: Vidéo
-      media_text_message: SMS
       media_text_messages_bundle: Trio SMS
       media/document: Document
+      media/form: Questionnaire
       media/image: Image
       media/video: Vidéo
-      media/text_message: SMS
       media/text_messages_bundle: Trio SMS
       parent: Parent
       redirection_target: URL cible
@@ -245,16 +245,15 @@ fr:
       media/document:
         << : *MEDIUM
         file: Fichier
+      media/form:
+        << : *MEDIUM
+        url: URL
       media/image:
         << : *MEDIUM
         file: Fichier
       media/video:
         << : *MEDIUM
         url: URL
-      media/text_message:
-        << : *MEDIUM
-        body: Message
-        image: Image
       media/text_messages_bundle:
         << : *MEDIUM
         body1: Message 1

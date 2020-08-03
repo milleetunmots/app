@@ -61,11 +61,14 @@ class Medium < ApplicationRecord
 
   scope :without_folder, -> { where(folder: nil) }
   scope :documents, -> { where(type: 'Media::Document') }
+  scope :forms, -> { where(type: 'Media::Form') }
   scope :images, -> { where(type: 'Media::Image') }
   scope :videos, -> { where(type: 'Media::Video') }
   scope :text_messages_bundles, -> { where(type: 'Media::TextMessagesBundle') }
 
-  scope :for_redirections, -> { where(type: ['Media::Video']) }
+  scope :for_redirections, -> {
+    where(type: ['Media::Form', 'Media::Video'])
+  }
 
   # ---------------------------------------------------------------------------
   # versions history
