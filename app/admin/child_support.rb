@@ -286,7 +286,10 @@ ActiveAdmin.register ChildSupport do
       }
     ]
   }]
-  permit_params (base_attributes + ChildSupport.call_attributes + first_child_attributes)
+  # block is mandatory here because ChildSupport.call_attributes hits DB
+  permit_params do
+    base_attributes + ChildSupport.call_attributes + first_child_attributes
+  end
 
   # ---------------------------------------------------------------------------
   # SHOW
