@@ -49,7 +49,7 @@ jobs:
 
       - name: Run tests
         env:
-          DATABASE_URL: postgres://localhost@127.0.0.1:5432/rails
+          DATABASE_URL: postgres://rails:rails@localhost:5432/rails
           RAILS_ENV: test
         run: |
           bundle exec rails db:create
