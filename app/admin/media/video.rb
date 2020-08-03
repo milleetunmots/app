@@ -1,6 +1,6 @@
 ActiveAdmin.register Media::Video do
 
-  menu parent: 'Médiathèque'
+  menu parent: 'Médiathèque', label: 'Vidéos'
 
   decorate_with Media::VideoDecorator
 

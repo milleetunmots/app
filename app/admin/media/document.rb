@@ -1,8 +1,8 @@
-ActiveAdmin.register Media::Image do
+ActiveAdmin.register Media::Document do
 
-  menu parent: 'Médiathèque', label: 'Images'
+  menu parent: 'Médiathèque', label: 'Documents'
 
-  decorate_with Media::ImageDecorator
+  decorate_with Media::DocumentDecorator
 
   has_better_csv
   has_paper_trail
@@ -23,7 +23,7 @@ ActiveAdmin.register Media::Image do
     column :theme
     column :tags
     column :file do |decorated|
-      decorated.file_tag(max_height: '50px')
+      decorated.file_tag
     end
     column :created_at do |decorated|
       decorated.created_at_date
@@ -56,7 +56,7 @@ ActiveAdmin.register Media::Image do
       row :theme
       row :tags
       row :file do |decorated|
-        decorated.file_tag(max_height: '50px')
+        decorated.file_tag
       end
       row :created_at
       row :discarded_at

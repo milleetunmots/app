@@ -14,10 +14,12 @@ fr:
       events/workshop_participation: Atelier
       group: Cohorte
       medium: Média
+      media_document: Document
       media_image: Image
       media_video: Vidéo
       media_text_message: SMS
       media_text_messages_bundle: Trio SMS
+      media/document: Document
       media/image: Image
       media/video: Vidéo
       media/text_message: SMS
@@ -240,6 +242,9 @@ fr:
         folder: Dossier
         name: Nom
         theme: Thème
+      media/document:
+        << : *MEDIUM
+        file: Fichier
       media/image:
         << : *MEDIUM
         file: Fichier
