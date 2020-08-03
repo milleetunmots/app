@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_08_01_170815) do
+ActiveRecord::Schema.define(version: 2020_08_03_152129) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -203,6 +203,7 @@ ActiveRecord::Schema.define(version: 2020_08_01_170815) do
     t.bigint "image1_id"
     t.bigint "image2_id"
     t.bigint "image3_id"
+    t.string "theme"
     t.index ["discarded_at"], name: "index_media_on_discarded_at"
     t.index ["folder_id"], name: "index_media_on_folder_id"
     t.index ["image1_id"], name: "index_media_on_image1_id"

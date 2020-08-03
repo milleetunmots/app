@@ -8,6 +8,7 @@
 #  body3        :text
 #  discarded_at :datetime
 #  name         :string
+#  theme        :string
 #  type         :string
 #  url          :string
 #  created_at   :datetime         not null

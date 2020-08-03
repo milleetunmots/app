@@ -17,6 +17,7 @@ ActiveAdmin.register Media::TextMessagesBundle do
     selectable_column
     id_column
     column :name
+    column :theme
     column :tags
     column :body1 do |decorated|
       decorated.truncated_body1
@@ -48,6 +49,10 @@ ActiveAdmin.register Media::TextMessagesBundle do
   end
 
   filter :name
+  filter :theme,
+         as: :select,
+         collection: proc { medium_theme_suggestions },
+         input_html: { multiple: true, data: { select2: {} } }
   filter :body1
   filter :body2
   filter :body3
@@ -63,6 +68,7 @@ ActiveAdmin.register Media::TextMessagesBundle do
     attributes_table do
       row :folder
       row :name
+      row :theme
       row :tags
       row :body1, class: 'row-pre'
       row :image1 do |decorated|
@@ -90,6 +96,9 @@ ActiveAdmin.register Media::TextMessagesBundle do
     f.inputs do
       f.input :folder
       f.input :name
+      f.input :theme,
+              as: :datalist,
+              collection: medium_theme_suggestions
       tags_input(f)
       f.input :body1,
               as: :text,
@@ -128,7 +137,7 @@ ActiveAdmin.register Media::TextMessagesBundle do
     f.actions
   end
 
-  permit_params :folder_id, :name,
+  permit_params :folder_id, :name, :theme,
                 :body1, :body2, :body3,
                 :image1_id, :image2_id, :image3_id,
                 tags_params

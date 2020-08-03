@@ -238,6 +238,7 @@ fr:
         << : *SHARED
         folder: Dossier
         name: Nom
+        theme: Thème
       media/image:
         << : *MEDIUM
         file: Fichier
