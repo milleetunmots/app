@@ -17,6 +17,9 @@
 #  image1_id    :bigint
 #  image2_id    :bigint
 #  image3_id    :bigint
+#  link1_id     :bigint
+#  link2_id     :bigint
+#  link3_id     :bigint
 #
 # Indexes
 #
@@ -25,6 +28,9 @@
 #  index_media_on_image1_id     (image1_id)
 #  index_media_on_image2_id     (image2_id)
 #  index_media_on_image3_id     (image3_id)
+#  index_media_on_link1_id      (link1_id)
+#  index_media_on_link2_id      (link2_id)
+#  index_media_on_link3_id      (link3_id)
 #  index_media_on_type          (type)
 #
 # Foreign Keys
@@ -33,6 +39,9 @@
 #  fk_rails_...  (image1_id => media.id)
 #  fk_rails_...  (image2_id => media.id)
 #  fk_rails_...  (image3_id => media.id)
+#  fk_rails_...  (link1_id => media.id)
+#  fk_rails_...  (link2_id => media.id)
+#  fk_rails_...  (link3_id => media.id)
 #
 
 class Media::TextMessagesBundle < Medium
@@ -51,6 +60,16 @@ class Media::TextMessagesBundle < Medium
              class_name: 'Media::Image',
              optional: true
 
+  belongs_to :link1,
+             class_name: :Medium,
+             optional: true
+  belongs_to :link2,
+             class_name: :Medium,
+             optional: true
+  belongs_to :link3,
+             class_name: :Medium,
+             optional: true
+
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
@@ -58,9 +77,9 @@ class Media::TextMessagesBundle < Medium
   validates :body1, presence: true
   validates :body2,
             presence: true,
-            if: Proc.new { |o| o.image2 }
+            if: Proc.new { |o| o.image2 || o.link2 }
   validates :body3,
             presence: true,
-            if: Proc.new { |o| o.image3 }
+            if: Proc.new { |o| o.image3 || o.link3 }
 
 end

@@ -24,6 +24,18 @@ class Media::TextMessagesBundleDecorator < MediumDecorator
     attached_image_tag model.image3, max_width: max_width, max_height: max_height
   end
 
+  def link1_tag
+    link_tag model.link1
+  end
+
+  def link2_tag
+    link_tag model.link2
+  end
+
+  def link3_tag
+    link_tag model.link3
+  end
+
   def icon_class
     :comments
   end
@@ -68,6 +80,10 @@ class Media::TextMessagesBundleDecorator < MediumDecorator
   def attached_image_tag(attached, max_width: nil, max_height: nil)
     return if attached.nil?
     attached.decorate.file_tag(max_width: max_width, max_height: max_height)
+  end
+
+  def link_tag(link)
+    link&.decorate&.admin_link
   end
 
 end
