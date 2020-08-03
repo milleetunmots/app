@@ -34,26 +34,11 @@
 #  fk_rails_...  (image3_id => media.id)
 #
 
-class Media::Image < Medium
+FactoryBot.define do
+  factory :media_text_messages_bundle, class: Media::TextMessagesBundle do
 
-  CONTENT_TYPES = %w(
-    image/bmp
-    image/gif
-    image/jpeg
-    image/jpg
-    image/png
-    image/tiff
-    image/webp
-  )
+    name  { Faker::Movies::StarWars.planet }
+    body1  { Faker::Quotes::Shakespeare.romeo_and_juliet_quote }
 
-  has_one_attached :file
-
-  # ---------------------------------------------------------------------------
-  # validations
-  # ---------------------------------------------------------------------------
-
-  validates :file,
-            attached: true,
-            content_type: CONTENT_TYPES
-
+  end
 end

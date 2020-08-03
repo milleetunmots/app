@@ -99,7 +99,9 @@ ActiveAdmin.register Media::TextMessagesBundle do
                   'chars-counter': 152
                 }
               }
-      f.input :image1, as: :file
+      f.input :image1,
+              collection: media_image_select_collection,
+              input_html: { data: { select2: {} } }
       f.input :body2,
               as: :text,
               input_html: {
@@ -108,7 +110,9 @@ ActiveAdmin.register Media::TextMessagesBundle do
                   'chars-counter': 152
                 }
               }
-      f.input :image2, as: :file
+      f.input :image2,
+              collection: media_image_select_collection,
+              input_html: { data: { select2: {} } }
       f.input :body3,
               as: :text,
               input_html: {
@@ -117,14 +121,16 @@ ActiveAdmin.register Media::TextMessagesBundle do
                   'chars-counter': 152
                 }
               }
-      f.input :image3, as: :file
+      f.input :image3,
+              collection: media_image_select_collection,
+              input_html: { data: { select2: {} } }
     end
     f.actions
   end
 
   permit_params :folder_id, :name,
                 :body1, :body2, :body3,
-                :image1, :image2, :image3,
+                :image1_id, :image2_id, :image3_id,
                 tags_params
 
 end

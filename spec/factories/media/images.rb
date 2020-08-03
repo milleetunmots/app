@@ -34,26 +34,16 @@
 #  fk_rails_...  (image3_id => media.id)
 #
 
-class Media::Image < Medium
+FactoryBot.define do
+  factory :media_image, class: Media::Image do
 
-  CONTENT_TYPES = %w(
-    image/bmp
-    image/gif
-    image/jpeg
-    image/jpg
-    image/png
-    image/tiff
-    image/webp
-  )
+    name  { Faker::Movies::StarWars.planet }
+    file do
+      Rack::Test::UploadedFile.new(
+        Dir.glob('db/seed/img/cbfd/**/*.jpg').sample,
+        'image/jpg'
+      )
+    end
 
-  has_one_attached :file
-
-  # ---------------------------------------------------------------------------
-  # validations
-  # ---------------------------------------------------------------------------
-
-  validates :file,
-            attached: true,
-            content_type: CONTENT_TYPES
-
+  end
 end

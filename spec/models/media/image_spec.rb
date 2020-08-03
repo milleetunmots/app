@@ -34,26 +34,36 @@
 #  fk_rails_...  (image3_id => media.id)
 #
 
-class Media::Image < Medium
 
-  CONTENT_TYPES = %w(
-    image/bmp
-    image/gif
-    image/jpeg
-    image/jpg
-    image/png
-    image/tiff
-    image/webp
-  )
+require 'rails_helper'
 
-  has_one_attached :file
+RSpec.describe Media::Image, type: :model do
 
-  # ---------------------------------------------------------------------------
-  # validations
-  # ---------------------------------------------------------------------------
+  before(:each) do
+    @image = FactoryBot.build(
+      :media_image
+    )
+  end
 
-  validates :file,
-            attached: true,
-            content_type: CONTENT_TYPES
+  context 'is valid' do
+    it 'if minimal attributes are present' do
+      expect(@image).to be_valid
+    end
+  end
+
+  context 'is not valid' do
+    it 'if no file is given' do
+      @image.file = nil
+      expect(@image).to_not be_valid
+    end
+    it 'if file is of wrong type' do
+      @image.file.attach(
+        io: File.open('db/seed/pdf/birdy.pdf'),
+        filename: 'Birdy',
+        content_type: 'application/pdf'
+      )
+      expect(@image).to_not be_valid
+    end
+  end
 
 end

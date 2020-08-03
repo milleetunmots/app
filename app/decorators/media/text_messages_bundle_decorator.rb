@@ -7,13 +7,13 @@ class Media::TextMessagesBundleDecorator < MediumDecorator
   end
 
   def truncated_body2
-    model.body2.truncate 50,
+    model.body2&.truncate 50,
                         separator: /\s/,
                         omission: ' (…)'
   end
 
   def truncated_body3
-    model.body3.truncate 50,
+    model.body3&.truncate 50,
                         separator: /\s/,
                         omission: ' (…)'
   end
@@ -61,6 +61,13 @@ class Media::TextMessagesBundleDecorator < MediumDecorator
         end
       end
     end
+  end
+
+  private
+
+  def attached_image_tag(attached, max_width: nil, max_height: nil)
+    return if attached.nil?
+    attached.decorate.file_tag(max_width: max_width, max_height: max_height)
   end
 
 end

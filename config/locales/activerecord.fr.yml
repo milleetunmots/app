@@ -16,11 +16,11 @@ fr:
       media_image: Image
       media_video: Vidéo
       media_text_message: SMS
-      media_text_messages_bundle: Triplet SMS
+      media_text_messages_bundle: Trio SMS
       media/image: Image
       media/video: Vidéo
       media/text_message: SMS
-      media/text_messages_bundle: Triplet SMS
+      media/text_messages_bundle: Trio SMS
       parent: Parent
       redirection_target: URL cible
       redirection_url: URL courte
