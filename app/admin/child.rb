@@ -188,6 +188,8 @@ ActiveAdmin.register Child do
              right: 0
            },
            show_as_html: @debug,
+           disable_local_file_access: false,
+           enable_local_file_access: true,
            progress: proc { |output| puts output }
   end
 

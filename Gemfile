@@ -89,7 +89,7 @@ gem 'pg_search'
 gem 'paper_trail'
 
 # PDF
-# gem 'wkhtmltopdf-binary'
+gem 'wkhtmltopdf-binary'
 gem 'wicked_pdf'
 
 # soft deletion

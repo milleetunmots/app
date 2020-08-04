@@ -40,7 +40,7 @@ jobs:
 
       - name: Install required packages
         run: |
-          sudo apt-get -yqq install libpq-dev xvfb wkhtmltopdf
+          sudo apt-get -yqq install libpq-dev
 
       - uses: actions/cache@v2
         with:
@@ -73,6 +73,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - uses: satackey/action-docker-layer-caching@v0.0.4
 
       - name: Build & Push to Docker Hub
         uses: docker/build-push-action@v1
