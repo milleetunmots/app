@@ -19,11 +19,13 @@ fr:
       media_image: Image
       media_video: Vidéo
       media_text_messages_bundle: Trio SMS
+      media_text_messages_bundle_draft: Brouillon de trio SMS
       media/document: Document
       media/form: Questionnaire
       media/image: Image
       media/video: Vidéo
       media/text_messages_bundle: Trio SMS
+      media/text_messages_bundle_draft: Trio SMS
       parent: Parent
       redirection_target: URL cible
       redirection_url: URL courte
@@ -256,7 +258,7 @@ fr:
       media/video:
         << : *MEDIUM
         url: URL
-      media/text_messages_bundle:
+      media/text_messages_bundle: &TEXT_MESSAGES_BUNDLE
         << : *MEDIUM
         body1: Message 1
         body2: Message 2
@@ -267,6 +269,8 @@ fr:
         link1: Lien 1
         link2: Lien 2
         link3: Lien 3
+      media/text_messages_bundle_draft:
+        << : *TEXT_MESSAGES_BUNDLE
       parent:
         << : *SHARED
         address: Adresse
