@@ -1,18 +1,7 @@
 class ParentDecorator < BaseDecorator
 
   def admin_link(options = {})
-    with_icon = options.delete(:with_icon)
-
-    txt = name
-    if with_icon
-      txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + txt
-    end
-    options[:class] = [
-      options[:class],
-      GENDER_COLORS[model.gender.to_sym],
-      model.discarded? ? 'discarded' : 'kept'
-    ].compact.join(' ')
-    h.link_to txt, [:admin, model], options
+    super(options.merge(class: GENDER_COLORS[model.gender.to_sym]))
   end
 
   def children

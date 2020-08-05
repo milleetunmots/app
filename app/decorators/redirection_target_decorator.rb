@@ -1,12 +1,7 @@
 class RedirectionTargetDecorator < BaseDecorator
 
   def admin_link(options = {})
-    txt = model.medium_name
-    options[:class] = [
-      options[:class],
-      model.discarded? ? 'discarded' : 'kept'
-    ].compact.join(' ')
-    h.link_to txt, [:admin, model], options
+    super(options.merge(label: model.medium_name))
   end
 
   def redirection_urls_path

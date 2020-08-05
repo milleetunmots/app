@@ -19,32 +19,16 @@ ActiveAdmin.register Media::TextMessagesBundle do
     column :name
     column :theme
     column :tags
-    column :body1 do |decorated|
-      decorated.truncated_body1
-    end
-    column :image1 do |decorated|
-      decorated.image1_tag(max_height: '50px')
-    end
-    column :link1 do |decorated|
-      decorated.link1_tag
-    end
-    column :body2 do |decorated|
-      decorated.truncated_body2
-    end
-    column :image2 do |decorated|
-      decorated.image2_tag(max_height: '50px')
-    end
-    column :link2 do |decorated|
-      decorated.link2_tag
-    end
-    column :body3 do |decorated|
-      decorated.truncated_body3
-    end
-    column :image3 do |decorated|
-      decorated.image3_tag(max_height: '50px')
-    end
-    column :link3 do |decorated|
-      decorated.link3_tag
+    (1..3).each do |msg_idx|
+      column "body#{msg_idx}" do |decorated|
+        decorated.send("truncated_body#{msg_idx}")
+      end
+      column "image#{msg_idx}", sortable: "image#{msg_idx}_id" do |decorated|
+        decorated.send("image#{msg_idx}_admin_link_with_image", max_height: '50px')
+      end
+      column "link#{msg_idx}", sortable: "link#{msg_idx}_id" do |decorated|
+        decorated.send("link#{msg_idx}_admin_link")
+      end
     end
     column :created_at do |decorated|
       decorated.created_at_date
@@ -81,15 +65,15 @@ ActiveAdmin.register Media::TextMessagesBundle do
     end
 
     columns do
-      (1..3).each do |idx|
+      (1..3).each do |msg_idx|
         column do
-          attributes_table title: "Message #{idx}" do
-            row "body#{idx}", class: 'row-pre'
-            row "image#{idx}" do |decorated|
-              decorated.send("image#{idx}_tag", max_height: '50px')
+          attributes_table title: "Message #{msg_idx}" do
+            row "body#{msg_idx}", class: 'row-pre'
+            row "image#{msg_idx}" do |decorated|
+              decorated.send("image#{msg_idx}_admin_link_with_image", max_width: '100px')
             end
-            row "link#{idx}" do |decorated|
-              decorated.send("link#{idx}_tag")
+            row "link#{msg_idx}" do |decorated|
+              decorated.send("link#{msg_idx}_admin_link")
             end
           end
         end

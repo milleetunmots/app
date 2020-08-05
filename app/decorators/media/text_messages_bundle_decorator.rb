@@ -1,39 +1,51 @@
 class Media::TextMessagesBundleDecorator < MediumDecorator
 
-  def truncated_body1
-    truncated_body model.body1
-  end
+  (1..3).each do |msg_idx|
 
-  def truncated_body2
-    truncated_body model.body2
-  end
+    define_method("truncated_body#{msg_idx}") do
+      v = model.send("body#{msg_idx}")
+      return nil if v.nil?
+      v.truncate 160,
+                 separator: /\s/,
+                 omission: ' (…)'
+    end
 
-  def truncated_body3
-    truncated_body model.body3
-  end
+    define_method("image#{msg_idx}_tag") do |options = {}|
+      v = model.send("image#{msg_idx}")
+      return nil if v.nil?
+      v.decorate.file_tag(options)
+    end
 
-  def image1_tag(max_width: nil, max_height: nil)
-    image_tag model.image1, max_width: max_width, max_height: max_height
-  end
+    define_method("image#{msg_idx}_admin_link") do |options = {}|
+      v = model.send("image#{msg_idx}")
+      return nil if v.nil?
+      v.decorate.admin_link(options)
+    end
 
-  def image2_tag(max_width: nil, max_height: nil)
-    image_tag model.image2, max_width: max_width, max_height: max_height
-  end
+    define_method("image#{msg_idx}_admin_link_with_image") do |options = {}|
+      v = model.send("image#{msg_idx}")
+      return nil if v.nil?
 
-  def image3_tag(max_width: nil, max_height: nil)
-    image_tag model.image3, max_width: max_width, max_height: max_height
-  end
+      h.content_tag :div, class: 'autowrap' do
+        (
+          send("image#{msg_idx}_admin_link")
+        ) + (
+          h.content_tag(:div, '', class: 'autospace')
+        ) + (
+          send(
+            "image#{msg_idx}_admin_link",
+            label: send("image#{msg_idx}_tag", options)
+          )
+        )
+      end
+    end
 
-  def link1_tag
-    link_tag model.link1
-  end
+    define_method("link#{msg_idx}_admin_link") do
+      v = model.send("link#{msg_idx}")
+      return nil if v.nil?
+      v.decorate.admin_link
+    end
 
-  def link2_tag
-    link_tag model.link2
-  end
-
-  def link3_tag
-    link_tag model.link3
   end
 
   def icon_class
@@ -67,22 +79,6 @@ class Media::TextMessagesBundleDecorator < MediumDecorator
         end
       end
     end
-  end
-
-  private
-
-  def truncated_body(v)
-    v&.truncate 160,
-                separator: /\s/,
-                omission: ' (…)'
-  end
-
-  def image_tag(attached, max_width: nil, max_height: nil)
-    attached&.decorate&.file_tag(max_width: max_width, max_height: max_height)
-  end
-
-  def link_tag(link)
-    link&.decorate&.admin_link
   end
 
 end

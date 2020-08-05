@@ -1,20 +1,20 @@
 class Media::ImageDecorator < MediumDecorator
 
-  def file_link_tag(max_width: nil, max_height: nil)
+  def file_link_tag(options = {})
     return nil unless model.file.attached?
-    image_link_tag model.file, max_width: max_width, max_height: max_height
+    image_link_tag model.file, options
   end
 
-  def file_tag(max_width: nil, max_height: nil)
+  def file_tag(options = {})
     return nil unless model.file.attached?
-    h.image_tag_with_max_size model.file, max_width: max_width, max_height: max_height
+    h.image_tag_with_max_size model.file, options
   end
 
-  def buzz_expert_file_link_tag
+  def buzz_expert_file_link_tag(options = {})
     return nil unless model.file.attached?
     variant = model.file_max_byte_size_variant(Media::Image::BUZZ_EXPERT_MAX_WEIGHT)
     return 'En construction' if variant.nil?
-    image_link_tag variant
+    image_link_tag variant, options
   end
 
   def icon_class

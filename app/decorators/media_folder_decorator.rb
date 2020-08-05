@@ -1,13 +1,7 @@
 class MediaFolderDecorator < BaseDecorator
 
-  def admin_link(options = {})
-    with_icon = options.delete(:with_icon)
-
-    txt = options.delete(:label) || name
-    if with_icon
-      txt = h.content_tag(:i, '', class: "fas fa-folder") + "&nbsp;".html_safe + txt
-    end
-    h.link_to txt, [:admin, model], options
+  def icon_class
+    :folder
   end
 
   def breadcrumb
