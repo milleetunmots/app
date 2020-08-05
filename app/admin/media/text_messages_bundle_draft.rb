@@ -34,4 +34,12 @@ ActiveAdmin.register Media::TextMessagesBundleDraft do
     end
   end
 
+  # ---------------------------------------------------------------------------
+  # COMMENTS
+  # ---------------------------------------------------------------------------
+
+  sidebar I18n.t('active_admin.field_comments.sidebar.title'),
+          partial: 'layouts/active_admin/field_comments/sidebar',
+          only: :show
+
 end

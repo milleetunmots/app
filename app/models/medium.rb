@@ -74,6 +74,7 @@ class Medium < ApplicationRecord
   scope :images, -> { where(type: 'Media::Image') }
   scope :videos, -> { where(type: 'Media::Video') }
   scope :text_messages_bundles, -> { where(type: 'Media::TextMessagesBundle') }
+  scope :text_messages_bundle_drafts, -> { where(type: 'Media::TextMessagesBundleDraft') }
 
   scope :for_redirections, -> {
     where(type: ['Media::Form', 'Media::Video'])

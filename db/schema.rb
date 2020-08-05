@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_08_03_180826) do
+ActiveRecord::Schema.define(version: 2020_08_05_212147) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -175,6 +175,18 @@ ActiveRecord::Schema.define(version: 2020_08_03_180826) do
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
     t.index ["type"], name: "index_events_on_type"
+  end
+
+  create_table "field_comments", force: :cascade do |t|
+    t.bigint "author_id"
+    t.string "related_type"
+    t.bigint "related_id"
+    t.string "field"
+    t.text "content"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["author_id"], name: "index_field_comments_on_author_id"
+    t.index ["related_type", "related_id"], name: "index_field_comments_on_related_type_and_related_id"
   end
 
   create_table "groups", force: :cascade do |t|
@@ -372,6 +384,7 @@ ActiveRecord::Schema.define(version: 2020_08_03_180826) do
   add_foreign_key "child_supports", "admin_users", column: "supporter_id"
   add_foreign_key "children", "parents", column: "parent1_id"
   add_foreign_key "children", "parents", column: "parent2_id"
+  add_foreign_key "field_comments", "admin_users", column: "author_id"
   add_foreign_key "media", "media", column: "image1_id"
   add_foreign_key "media", "media", column: "image2_id"
   add_foreign_key "media", "media", column: "image3_id"

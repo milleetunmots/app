@@ -12,6 +12,7 @@ fr:
       events/survey_response: Questionnaire
       events/text_message: SMS
       events/workshop_participation: Atelier
+      field_comment: Commentaire
       group: Cohorte
       medium: Média
       media_document: Document
@@ -233,6 +234,12 @@ fr:
       events/workshop_participation:
         << : *EVENT
         comments: Infos
+      field_comment:
+        << : *SHARED
+        author: Auteur
+        content: Contenu
+        field: Info
+        related: Élément
       group:
         << : *SHARED
         children: Enfants
@@ -242,6 +249,7 @@ fr:
       medium: &MEDIUM
         << : *SHARED
         folder: Dossier
+        folder_id: Dossier
         name: Nom
         theme: Thème
       media/document:
@@ -264,11 +272,17 @@ fr:
         body2: Message 2
         body3: Message 3
         image1: Image 1
+        image1_id: Image 1
         image2: Image 2
+        image2_id: Image 2
         image3: Image 3
+        image3_id: Image 3
         link1: Lien 1
+        link1_id: Lien 1
         link2: Lien 2
+        link2_id: Lien 2
         link3: Lien 3
+        link3_id: Lien 3
       media/text_messages_bundle_draft:
         << : *TEXT_MESSAGES_BUNDLE
       parent:

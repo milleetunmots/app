@@ -1,0 +1,13 @@
+<ul class="fa-ul aafc-ul">
+  <% FieldComment.relating(resource.model).order(created_at: :desc).each do |field_comment| %>
+    <%= render 'active_admin/field_comments/field_comment_li',
+               field_comment: field_comment,
+               show_related: false %>
+  <% end %>
+  <li>
+    <%= link_to url_for_new_field_comment(resource.model), class: :blue do %>
+      <span class="fa-li"><i class="fas fa-plus"></i></span>
+      <%= t('active_admin.field_comments.sidebar.add_link') %>
+    <% end %>
+  </li>
+</ul>
