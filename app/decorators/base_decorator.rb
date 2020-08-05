@@ -30,4 +30,14 @@ class BaseDecorator < Draper::Decorator
     h.l model.updated_at.to_date, format: :default
   end
 
+  def image_link_tag(source, max_width: max_width, max_height: max_height)
+    h.image_tag_with_max_size source,
+                              max_width: max_width,
+                              max_height: max_height,
+                              with_link: true,
+                              link_options: {
+                                target: '_blank'
+                              }
+  end
+
 end

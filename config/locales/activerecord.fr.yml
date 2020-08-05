@@ -250,6 +250,7 @@ fr:
         url: URL
       media/image:
         << : *MEDIUM
+        buzz_expert_file: Ficher pour Buzz Expert
         file: Fichier
         file_url: Lien vers le fichier
       media/video:

@@ -55,6 +55,12 @@ class Media::Image < Medium
     image/tiff
     image/webp
   )
+  WEIGHT_SIZE_RATIO = 0.5 # ratio file weight / image size (by experience)
+  BUZZ_EXPERT_MAX_WEIGHT = 220_000
+
+  # ---------------------------------------------------------------------------
+  # relations
+  # ---------------------------------------------------------------------------
 
   has_one_attached :file
 
@@ -65,5 +71,30 @@ class Media::Image < Medium
   validates :file,
             attached: true,
             content_type: CONTENT_TYPES
+
+  # ---------------------------------------------------------------------------
+  # helpers
+  # ---------------------------------------------------------------------------
+
+  # max_byte_size in octets, e.g. 250_000
+  def file_max_byte_size_variant(max_byte_size)
+    return nil unless file.attached? && file.analyzed?
+
+    return file if file.blob.byte_size <= max_byte_size
+
+    # original
+    width = file.blob.metadata['width']
+    height = file.blob.metadata['height']
+    wh_ratio = width / height.to_f
+
+    # target
+    w = Math.sqrt( (max_byte_size * wh_ratio) / (WEIGHT_SIZE_RATIO * 3) ).floor
+
+    if w >= width
+      file
+    else
+      file.variant(resize_to_limit: [w, w / wh_ratio])
+    end
+  end
 
 end

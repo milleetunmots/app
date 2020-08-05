@@ -13,15 +13,15 @@ class Media::TextMessagesBundleDecorator < MediumDecorator
   end
 
   def image1_tag(max_width: nil, max_height: nil)
-    attached_image_tag model.image1, max_width: max_width, max_height: max_height
+    image_tag model.image1, max_width: max_width, max_height: max_height
   end
 
   def image2_tag(max_width: nil, max_height: nil)
-    attached_image_tag model.image2, max_width: max_width, max_height: max_height
+    image_tag model.image2, max_width: max_width, max_height: max_height
   end
 
   def image3_tag(max_width: nil, max_height: nil)
-    attached_image_tag model.image3, max_width: max_width, max_height: max_height
+    image_tag model.image3, max_width: max_width, max_height: max_height
   end
 
   def link1_tag
@@ -77,9 +77,8 @@ class Media::TextMessagesBundleDecorator < MediumDecorator
                 omission: ' (…)'
   end
 
-  def attached_image_tag(attached, max_width: nil, max_height: nil)
-    return if attached.nil?
-    attached.decorate.file_tag(max_width: max_width, max_height: max_height)
+  def image_tag(attached, max_width: nil, max_height: nil)
+    attached&.decorate&.file_tag(max_width: max_width, max_height: max_height)
   end
 
   def link_tag(link)

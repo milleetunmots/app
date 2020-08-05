@@ -6,7 +6,7 @@ class Media::DocumentDecorator < MediumDecorator
   end
 
   def icon_class
-    :document
+    'file-alt'
   end
 
   def preview

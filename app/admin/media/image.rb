@@ -23,7 +23,7 @@ ActiveAdmin.register Media::Image do
     column :theme
     column :tags
     column :file do |decorated|
-      decorated.file_tag(max_height: '50px')
+      decorated.file_link_tag(max_height: '50px')
     end
     column :created_at do |decorated|
       decorated.created_at_date
@@ -56,10 +56,10 @@ ActiveAdmin.register Media::Image do
       row :theme
       row :tags
       row :file do |decorated|
-        decorated.file_tag(max_height: '200px')
+        decorated.file_link_tag(max_height: '500px')
       end
-      row :file_url do |decorated|
-        decorated.file_link
+      row :buzz_expert_file do |decorated|
+        decorated.buzz_expert_file_link_tag
       end
       row :created_at
       row :discarded_at
