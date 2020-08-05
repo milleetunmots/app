@@ -251,6 +251,7 @@ fr:
       media/image:
         << : *MEDIUM
         file: Fichier
+        file_url: Lien vers le fichier
       media/video:
         << : *MEDIUM
         url: URL

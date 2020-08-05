@@ -56,7 +56,10 @@ ActiveAdmin.register Media::Image do
       row :theme
       row :tags
       row :file do |decorated|
-        decorated.file_tag(max_height: '50px')
+        decorated.file_tag(max_height: '200px')
+      end
+      row :file_url do |decorated|
+        decorated.file_link
       end
       row :created_at
       row :discarded_at
