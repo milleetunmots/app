@@ -2,6 +2,8 @@ ActiveAdmin.register FieldComment do
 
   decorate_with FieldCommentDecorator
 
+  actions :all, except: [:new, :create, :edit, :update]
+
   has_better_csv
 
   # ---------------------------------------------------------------------------

@@ -1,14 +1,16 @@
 @import variables
 
 ul.aafc-ul
+  white-space: normal
+
   li
     margin-top: 5px
 
     &.aafc-comment
-      .aafc-related-content
+      .aafc-related-field-content
         .aafc-related
 
-        .aafc-related + .aafc-content
+        .aafc-related + .aafc-field-content
           &:before
             content: ' - '
 
@@ -19,3 +21,23 @@ ul.aafc-ul
 
         .aafc-author
           display: inline-block
+
+.quick-field-comment-btn
+  .fa-stack-2x
+    color: $dark-gray
+
+  .fa-stack-1x
+    color: white
+
+.attributes_table > table > tbody > tr
+
+  & > td
+    position: relative
+
+    a.quick-field-comment-btn
+      position: absolute
+      top: 7px
+      right: 10px
+
+  &:not(:hover) > td a.quick-field-comment-btn
+    display: none

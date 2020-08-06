@@ -1,7 +1,0 @@
-fr:
-  active_admin:
-    field_comments:
-      sidebar:
-        title: Commentaires
-        add_link: Ajouter un commentaire
-

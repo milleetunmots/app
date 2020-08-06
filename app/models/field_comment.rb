@@ -47,6 +47,7 @@ class FieldComment < ApplicationRecord
 
   scope :posted_by, ->(model) { where(author: model) }
   scope :relating, ->(model) { where(related: model) }
+  scope :concerning, ->(field) { where(field: field) }
 
   # ---------------------------------------------------------------------------
   # callbacks

@@ -1,0 +1,7 @@
+fr:
+  active_admin:
+    field_comments:
+      quick:
+        error: Impossible d'ajouter le commentaire
+        prompt: Commentaire
+        success: Commentaire ajouté

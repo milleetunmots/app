@@ -1,23 +1,23 @@
 <li class="aafc-comment">
-  <div class="aafc-related-content">
+  <div class="aafc-related-field-content">
     <span class="fa-li"><i class="far fa-comment"></i></span>
     <% if (!defined?(show_related) || show_related) && field_comment.related %>
       <span class="aafc-related">
-        <%= field_comment.related.decorate.admin_link %>
+        <%= field_comment.related_link %>
       </span>
     <% end %>
-    <span class="aafc-content">
-      <%= link_to field_comment.content, [:admin, field_comment] %>
-    </span>
+    <%= link_to [:admin, field_comment], class: 'aafc-field-content' do %>
+      <% if defined?(show_field) && show_field %><%= field_comment.field %>&nbsp;: <% end %><%= field_comment.content %>
+    <% end %>
   </div>
   <div class="aafc-date-author">
-    <span class="aafc-date">
-      le <%= l field_comment.created_at.to_date, format: :short %>
-    </span>
     <% if (!defined?(show_author) || show_author) && field_comment.author %>
       <span class="aafc-author">
         par <%= auto_link field_comment.author %>
       </span>
     <% end %>
+    <span class="aafc-date">
+      le <%= field_comment.created_at_date %>
+    </span>
   </div>
 </li>

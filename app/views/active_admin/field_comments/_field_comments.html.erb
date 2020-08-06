@@ -1,0 +1,8 @@
+<ul class="fa-ul aafc-ul">
+  <% field_comments.each do |field_comment| %>
+    <%= render 'active_admin/field_comments/field_comment_li',
+               field_comment: field_comment.decorate,
+               show_related: false %>
+  <% end %>
+</ul>
+<%= link_to_comment_field field %>

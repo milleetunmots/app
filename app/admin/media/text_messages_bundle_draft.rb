@@ -10,7 +10,8 @@ ActiveAdmin.register Media::TextMessagesBundleDraft do
   use_discard
 
   register_text_messages_bundle_index
-  register_text_messages_bundle_show
+  register_text_messages_bundle_show(with_comments: true)
+  register_comments
   register_text_messages_bundle_form
 
   # ---------------------------------------------------------------------------
@@ -33,13 +34,5 @@ ActiveAdmin.register Media::TextMessagesBundleDraft do
       redirect_to request.referer
     end
   end
-
-  # ---------------------------------------------------------------------------
-  # COMMENTS
-  # ---------------------------------------------------------------------------
-
-  sidebar I18n.t('active_admin.field_comments.sidebar.title'),
-          partial: 'layouts/active_admin/field_comments/sidebar',
-          only: :show
 
 end

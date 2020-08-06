@@ -41,13 +41,17 @@ module ActiveAdmin
         filter :created_at
       end
 
-      def register_text_messages_bundle_show
+      def register_text_messages_bundle_show(with_comments: false)
         show do
           attributes_table do
-            row :folder
-            row :name
-            row :theme
-            row :tags
+            send (with_comments ? :row_with_comments : :row), :folder_id do |decorated|
+              decorated.folder_link
+            end
+            send (with_comments ? :row_with_comments : :row), :name
+            send (with_comments ? :row_with_comments : :row), :theme
+            send (with_comments ? :row_with_comments : :row), :tag_list do |decorated|
+              decorated.tags
+            end
             row :created_at
             row :discarded_at
           end
@@ -56,11 +60,11 @@ module ActiveAdmin
             (1..3).each do |msg_idx|
               column do
                 attributes_table title: "Message #{msg_idx}" do
-                  row "body#{msg_idx}", class: 'row-pre'
-                  row "image#{msg_idx}" do |decorated|
+                  send (with_comments ? :row_with_comments : :row), "body#{msg_idx}", class: 'row-pre'
+                  send (with_comments ? :row_with_comments : :row), "image#{msg_idx}_id" do |decorated|
                     decorated.send("image#{msg_idx}_admin_link_with_image", max_width: '100px')
                   end
-                  row "link#{msg_idx}" do |decorated|
+                  send (with_comments ? :row_with_comments : :row), "link#{msg_idx}_id" do |decorated|
                     decorated.send("link#{msg_idx}_admin_link")
                   end
                 end
@@ -114,6 +118,39 @@ module ActiveAdmin
                       tags_params
       end
 
+      def register_comments
+        # add 'Quick add field_comment' action
+        member_action :quick_field_comment, method: :post do
+          field_comment = FieldComment.new(
+            author: current_admin_user,
+            related: resource,
+            field: params[:field],
+            content: params[:content]
+          )
+          if field_comment.save
+            render plain: 'OK'
+          else
+            render json: field_comment.errors, status: :unprocessable_entity
+          end
+        end
+
+        # skip forery protection for quick adding field_comment
+        controller do
+          skip_forgery_protection only: :quick_field_comment
+        end
+      end
+
     end
   end
 end
+
+# dirty hack
+
+module ActiveAdmin::AttributesTableFieldComments
+  def row_with_comments(*args, &block)
+    row(*args, &block)
+    @table.children.last.children.last << field_comments_for(args[0])
+  end
+end
+
+::ActiveAdmin::Views::AttributesTable.send :include, ActiveAdmin::AttributesTableFieldComments
