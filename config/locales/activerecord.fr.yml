@@ -16,6 +16,7 @@ fr:
       group: Cohorte
       medium: Média
       media_document: Document
+      media_folder: Dossier
       media_form: Questionnaire
       media_image: Image
       media_video: Vidéo
@@ -246,6 +247,10 @@ fr:
         ended_at: Date de fin
         name: Nom
         started_at: Date de début
+      media_folder:
+        << : *SHARED
+        name: Nom
+        parent: Parent
       medium: &MEDIUM
         << : *SHARED
         folder: Dossier
