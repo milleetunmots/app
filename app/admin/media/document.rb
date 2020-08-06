@@ -23,7 +23,7 @@ ActiveAdmin.register Media::Document do
     column :theme
     column :tags
     column :file do |decorated|
-      decorated.file_tag
+      decorated.file_link_tag
     end
     column :created_at do |decorated|
       decorated.created_at_date
@@ -56,7 +56,7 @@ ActiveAdmin.register Media::Document do
       row :theme
       row :tags
       row :file do |decorated|
-        decorated.file_tag
+        decorated.file_link_tag
       end
       row :created_at
       row :discarded_at
