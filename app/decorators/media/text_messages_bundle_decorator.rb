@@ -27,16 +27,16 @@ class Media::TextMessagesBundleDecorator < MediumDecorator
       return nil if v.nil?
 
       h.content_tag :div, class: 'autowrap' do
-        (
-          send("image#{msg_idx}_admin_link")
-        ) + (
-          h.content_tag(:div, '', class: 'autospace')
-        ) + (
+        # (
+        #   send("image#{msg_idx}_admin_link")
+        # ) + (
+        #   h.content_tag(:div, '', class: 'autospace')
+        # ) + (
           send(
             "image#{msg_idx}_admin_link",
             label: send("image#{msg_idx}_tag", options)
           )
-        )
+        # )
       end
     end
 
@@ -50,6 +50,20 @@ class Media::TextMessagesBundleDecorator < MediumDecorator
 
   def icon_class
     :comments
+  end
+
+  def comments_indicator
+    if model.field_comments.any?
+      tooltip = model.field_comments.decorate.map do |field_comment|
+        "<b>#{field_comment.field}</b> : #{field_comment.content}"
+      end.join('<br/>')
+
+      h.content_tag :i,
+                    '',
+                    class: 'fas fa-comment txt-red',
+                    title: tooltip,
+                    data: { tooltip: {} }
+    end
   end
 
   def preview

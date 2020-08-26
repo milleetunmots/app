@@ -48,6 +48,8 @@ class Media::TextMessagesBundleDraft < Medium
 
   include Media::TextMessagesBundleConcern
 
+  has_many :field_comments, as: :related
+
   def undraft
     update_attribute :type, 'Media::TextMessagesBundle'
   end

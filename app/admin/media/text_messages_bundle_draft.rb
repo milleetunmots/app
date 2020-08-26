@@ -1,6 +1,6 @@
 ActiveAdmin.register Media::TextMessagesBundleDraft do
 
-  menu parent: 'Médiathèque', label: 'Trios SMS : Brouillons'
+  menu parent: 'Médiathèque', label: 'Brouillons'
 
   decorate_with Media::TextMessagesBundleDraftDecorator
 

@@ -6,19 +6,22 @@ module ActiveAdmin
         index do
           selectable_column
           id_column
+          column '', :comments do |decorated|
+            decorated.comments_indicator
+          end
           column :name
-          column :theme
+          # column :theme
           column :tags
           (1..3).each do |msg_idx|
-            column "body#{msg_idx}" do |decorated|
+            column "body#{msg_idx}".to_sym do |decorated|
               decorated.send("truncated_body#{msg_idx}")
             end
-            column "image#{msg_idx}", sortable: "image#{msg_idx}_id" do |decorated|
+            column "image#{msg_idx}".to_sym, sortable: "image#{msg_idx}_id" do |decorated|
               decorated.send("image#{msg_idx}_admin_link_with_image", max_height: '50px')
             end
-            column "link#{msg_idx}", sortable: "link#{msg_idx}_id" do |decorated|
-              decorated.send("link#{msg_idx}_admin_link")
-            end
+            # column "link#{msg_idx}".to_sym, sortable: "link#{msg_idx}_id" do |decorated|
+            #   decorated.send("link#{msg_idx}_admin_link")
+            # end
           end
           column :created_at do |decorated|
             decorated.created_at_date

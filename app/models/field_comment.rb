@@ -1,8 +1,9 @@
 # == Schema Information
 #
-# Table name: comments
+# Table name: field_comments
 #
 #  id           :bigint           not null, primary key
+#  content      :text
 #  field        :string
 #  related_type :string
 #  created_at   :datetime         not null
@@ -12,8 +13,8 @@
 #
 # Indexes
 #
-#  index_comments_on_author_id                    (author_id)
-#  index_comments_on_related_type_and_related_id  (related_type,related_id)
+#  index_field_comments_on_author_id                    (author_id)
+#  index_field_comments_on_related_type_and_related_id  (related_type,related_id)
 #
 # Foreign Keys
 #
