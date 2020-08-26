@@ -17,7 +17,7 @@ ActiveAdmin.register Media::Form do
     selectable_column
     id_column
     column :name
-    column :theme
+    # column :theme
     column :tags
     column :url do |decorated|
       decorated.url_link
@@ -36,10 +36,10 @@ ActiveAdmin.register Media::Form do
   end
 
   filter :name
-  filter :theme,
-         as: :select,
-         collection: proc { medium_theme_suggestions },
-         input_html: { multiple: true, data: { select2: {} } }
+  # filter :theme,
+  #        as: :select,
+  #        collection: proc { medium_theme_suggestions },
+  #        input_html: { multiple: true, data: { select2: {} } }
   filter :url
 
   filter :occurred_at
@@ -53,7 +53,7 @@ ActiveAdmin.register Media::Form do
     attributes_table do
       row :folder
       row :name
-      row :theme
+      # row :theme
       row :tags
       row :url do |decorated|
         decorated.url_link
@@ -75,9 +75,9 @@ ActiveAdmin.register Media::Form do
               prompt: 'Aucun (dossier racine)',
               input_html: { data: { select2: {} } }
       f.input :name
-      f.input :theme,
-              as: :datalist,
-              collection: medium_theme_suggestions
+      # f.input :theme,
+      #         as: :datalist,
+      #         collection: medium_theme_suggestions
       tags_input(f)
       f.input :url
     end

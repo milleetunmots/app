@@ -20,7 +20,7 @@ ActiveAdmin.register Media::Image do
     selectable_column
     id_column
     column :name
-    column :theme
+    # column :theme
     column :tags
     column :file do |decorated|
       decorated.file_link_tag(max_height: '50px')
@@ -39,10 +39,10 @@ ActiveAdmin.register Media::Image do
   end
 
   filter :name
-  filter :theme,
-         as: :select,
-         collection: proc { medium_theme_suggestions },
-         input_html: { multiple: true, data: { select2: {} } }
+  # filter :theme,
+  #        as: :select,
+  #        collection: proc { medium_theme_suggestions },
+  #        input_html: { multiple: true, data: { select2: {} } }
 
   filter :occurred_at
   filter :created_at
@@ -55,7 +55,7 @@ ActiveAdmin.register Media::Image do
     attributes_table do
       row :folder
       row :name
-      row :theme
+      # row :theme
       row :tags
       row :file do |decorated|
         decorated.file_link_tag(max_height: '500px')
@@ -80,9 +80,9 @@ ActiveAdmin.register Media::Image do
               prompt: 'Aucun (dossier racine)',
               input_html: { data: { select2: {} } }
       f.input :name
-      f.input :theme,
-              as: :datalist,
-              collection: medium_theme_suggestions
+      # f.input :theme,
+      #         as: :datalist,
+      #         collection: medium_theme_suggestions
       tags_input(f)
       f.input :file,
               as: :file,

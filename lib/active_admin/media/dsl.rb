@@ -2,12 +2,14 @@ module ActiveAdmin
   module Media
     module DSL
 
-      def register_text_messages_bundle_index
+      def register_text_messages_bundle_index(with_comments: false)
         index do
           selectable_column
           id_column
-          column '', :comments do |decorated|
-            decorated.comments_indicator
+          if with_comments
+            column '', :comments do |decorated|
+              decorated.comments_indicator
+            end
           end
           column :name
           # column :theme
@@ -34,10 +36,10 @@ module ActiveAdmin
         end
 
         filter :name
-        filter :theme,
-               as: :select,
-               collection: proc { medium_theme_suggestions },
-               input_html: { multiple: true, data: { select2: {} } }
+        # filter :theme,
+        #        as: :select,
+        #        collection: proc { medium_theme_suggestions },
+        #        input_html: { multiple: true, data: { select2: {} } }
         filter :body1
         filter :body2
         filter :body3
@@ -53,7 +55,7 @@ module ActiveAdmin
               decorated.folder_link
             end
             send (with_comments ? :row_with_comments : :row), :name
-            send (with_comments ? :row_with_comments : :row), :theme
+            # send (with_comments ? :row_with_comments : :row), :theme
             send (with_comments ? :row_with_comments : :row), :tag_list do |decorated|
               decorated.tags
             end
@@ -88,9 +90,9 @@ module ActiveAdmin
                     prompt: 'Aucun (dossier racine)',
                     input_html: { data: { select2: {} } }
             f.input :name
-            f.input :theme,
-                    as: :datalist,
-                    collection: medium_theme_suggestions
+            # f.input :theme,
+            #         as: :datalist,
+            #         collection: medium_theme_suggestions
             tags_input(f)
             columns do
               (1..3).each do |idx|

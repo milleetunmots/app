@@ -9,7 +9,7 @@ ActiveAdmin.register Media::TextMessagesBundleDraft do
   has_tags
   use_discard
 
-  register_text_messages_bundle_index
+  register_text_messages_bundle_index(with_comments: true)
   register_text_messages_bundle_show(with_comments: true)
   register_comments
   register_text_messages_bundle_form
