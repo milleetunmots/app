@@ -36,3 +36,24 @@
             text-align: left
             background-color: white
             color: #323537
+
+table.index_table .col-actions
+  @import active_admin/components/dropdown_menu
+
+  .dropdown_menu
+    .dropdown_menu_list_wrapper
+      .dropdown_menu_list
+        li
+          a
+            &.blue
+              background-color: $blue
+              color: $black
+            &.green
+              background-color: $green
+              color: white
+            &.red
+              background-color: $error
+              color: white
+            &.yellow
+              background-color: $yellow
+              color: $black

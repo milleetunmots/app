@@ -34,8 +34,10 @@ ActiveAdmin.register Parent do
     # column :updated_at do |model|
     #   l model.updated_at.to_date, format: :default
     # end
-    actions do |decorated|
-      discard_links(decorated.model, class: 'member_link')
+    actions dropdown: true do |decorated|
+      discard_links_args(decorated.model).each do |args|
+        item *args
+      end
     end
   end
 

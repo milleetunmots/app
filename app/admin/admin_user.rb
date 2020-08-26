@@ -23,7 +23,7 @@ ActiveAdmin.register AdminUser do
     column :updated_at do |decorated|
       l decorated.updated_at.to_date, format: :default
     end
-    actions
+    actions dropdown: true
   end
 
   filter :email

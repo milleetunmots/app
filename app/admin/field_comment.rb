@@ -27,7 +27,7 @@ ActiveAdmin.register FieldComment do
     column :updated_at do |decorated|
       decorated.updated_at_date
     end
-    actions
+    actions dropdown: true
   end
 
   scope(:mine, default: true, group: :author) { |scope| scope.posted_by(current_admin_user) }
