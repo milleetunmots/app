@@ -1,6 +1,6 @@
 ActiveAdmin.register Media::TextMessagesBundle do
 
-  menu parent: 'Médiathèque', label: 'Trios SMS'
+  menu parent: 'Médiathèque', label: 'Trios SMS', priority: 2
 
   decorate_with Media::TextMessagesBundleDecorator
 

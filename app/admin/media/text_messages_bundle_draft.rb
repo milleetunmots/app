@@ -1,6 +1,6 @@
 ActiveAdmin.register Media::TextMessagesBundleDraft do
 
-  menu parent: 'Médiathèque', label: 'Brouillons'
+  menu parent: 'Médiathèque', label: 'Brouillons', priority: 1
 
   decorate_with Media::TextMessagesBundleDraftDecorator
 
