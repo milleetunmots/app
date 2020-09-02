@@ -31,7 +31,7 @@ ActiveAdmin.register MediaFolder do
     f.inputs do
       f.input :parent,
               collection: media_folder_parent_select_collection(f.object),
-              prompt: 'Aucun (dossier racine)',
+              include_blank: 'Aucun (dossier racine)',
               input_html: { data: { select2: {} } }
       f.input :name
     end

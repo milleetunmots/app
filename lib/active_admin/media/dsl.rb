@@ -110,9 +110,11 @@ module ActiveAdmin
                           }
                   f.input "image#{idx}",
                           collection: media_image_select_collection,
+                          include_blank: 'Aucune',
                           input_html: { data: { select2: {} } }
                   f.input "link#{idx}",
                           collection: redirection_target_medium_select_collection,
+                          include_blank: 'Aucun',
                           input_html: { data: { select2: {} } }
                 end
               end

@@ -74,7 +74,7 @@ ActiveAdmin.register Media::Document do
     f.inputs do
       f.input :folder,
               collection: medium_folder_select_collection,
-              prompt: 'Aucun (dossier racine)',
+              include_blank: 'Aucun (dossier racine)',
               input_html: { data: { select2: {} } }
       f.input :name
       # f.input :theme,
