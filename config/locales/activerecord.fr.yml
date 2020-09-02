@@ -21,13 +21,13 @@ fr:
       media_image: Image
       media_video: Vidéo
       media_text_messages_bundle: Trio SMS
-      media_text_messages_bundle_draft: Brouillon de trio SMS
+      media_text_messages_bundle_draft: Brouillon
       media/document: Document
       media/form: Questionnaire
       media/image: Image
       media/video: Vidéo
       media/text_messages_bundle: Trio SMS
-      media/text_messages_bundle_draft: Trio SMS
+      media/text_messages_bundle_draft: Brouillon
       parent: Parent
       redirection_target: URL cible
       redirection_url: URL courte
