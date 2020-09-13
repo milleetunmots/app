@@ -1,0 +1,43 @@
+# == Schema Information
+#
+# Table name: support_module_weeks
+#
+#  id                :bigint           not null, primary key
+#  name              :string
+#  position          :integer          default(0), not null
+#  medium_id         :bigint
+#  support_module_id :bigint           not null
+#
+# Indexes
+#
+#  index_support_module_weeks_on_medium_id          (medium_id)
+#  index_support_module_weeks_on_position           (position)
+#  index_support_module_weeks_on_support_module_id  (support_module_id)
+#
+
+class SupportModuleWeek < ApplicationRecord
+
+  # ---------------------------------------------------------------------------
+  # relations
+  # ---------------------------------------------------------------------------
+
+  belongs_to :support_module
+  belongs_to :medium, optional: true
+
+  # ---------------------------------------------------------------------------
+  # validations
+  # ---------------------------------------------------------------------------
+
+  validates :name, presence: true
+  validates :position,
+            presence: true
+
+  # ---------------------------------------------------------------------------
+  # SCOPES
+  # ---------------------------------------------------------------------------
+
+  def self.positioned
+    order(:position)
+  end
+
+end

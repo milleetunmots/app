@@ -31,6 +31,8 @@ fr:
       parent: Parent
       redirection_target: URL cible
       redirection_url: URL courte
+      support_module: Module
+      support_module_week: Semaine
       task: Tâche
     attributes:
       shared: &SHARED
@@ -358,6 +360,20 @@ fr:
         redirection_url_visits_count: Visites
         security_code: Sécurité
         visit_url: Lien court
+      support_module:
+        << : *SHARED
+        ages: Tranche d'âge
+        name: Nom
+        support_module_weeks: Semaines
+      support_module/ages:
+        a0_1: 0 - 1 ans
+        a1_2 : 1 - 2 ans
+      support_module_week:
+        << : *SHARED
+        medium: Média
+        name: Nom
+        support_module: Module
+        position: Numéro
       task:
         << : *SHARED
         assignee: Assigné à

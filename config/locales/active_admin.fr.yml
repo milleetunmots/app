@@ -17,6 +17,7 @@ fr:
       predicates:
         gteq: Au moins
         lt: Moins de
+    move: "↕"
     resources:
       admin_user:
         new_model: Nouvel administrateur

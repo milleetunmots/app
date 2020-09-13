@@ -34,3 +34,20 @@ body.logged_in
       &.select2-search__field
         height: auto
 
+    .inputs.has_many_fields
+      & > ol
+        border: 1px solid #ccc
+        border-radius: 5px
+        padding-top: 20px
+        position: relative
+
+        & > li.handle.ui-sortable-handle
+          position: absolute
+          display: flex
+          align-items: center
+          left: 0
+          top: 0
+          width: 25%
+          height: 100%
+          cursor: move
+          padding-left: 20px
