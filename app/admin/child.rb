@@ -82,6 +82,11 @@ ActiveAdmin.register Child do
          collection: proc { child_registration_source_details_suggestions },
          input_html: { multiple: true, data: { select2: {} } },
          label: "Précisions sur l'origine"
+  filter :group_id_in,
+         as: :select,
+         collection: proc { child_group_select_collection },
+         input_html: { multiple: true, data: { select2: {} } },
+         label: 'Cohorte'
   filter :has_quit_group
   filter :unpaused_group_id_in,
          as: :select,

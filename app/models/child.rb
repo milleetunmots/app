@@ -247,6 +247,10 @@ class Child < ApplicationRecord
     )
   end
 
+  def self.group_id_in(*v)
+    where(group_id: v)
+  end
+
   def self.unpaused_group_id_in(*v)
     where(group_id: v).where(has_quit_group: false)
   end

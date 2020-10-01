@@ -47,6 +47,11 @@ ActiveAdmin.register ChildSupport do
 
   scope :with_book_not_received
 
+  filter :group_id_in,
+         as: :select,
+         collection: proc { child_group_select_collection },
+         input_html: { multiple: true, data: { select2: {} } },
+         label: 'Cohorte'
   filter :unpaused_group_id_in,
          as: :select,
          collection: proc { child_group_select_collection },
