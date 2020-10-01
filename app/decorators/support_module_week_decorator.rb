@@ -1,7 +1,7 @@
 class SupportModuleWeekDecorator < BaseDecorator
 
   def title(number = model.position)
-    start = model.support_module.start_at
+    start = model.support_module.start_at&.beginning_of_week
     if start
       monday = start + (number - 1).weeks
       "Semaine du #{I18n.l(monday, format: :long)}"
