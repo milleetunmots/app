@@ -47,6 +47,24 @@ class SupportModule < ApplicationRecord
             }
 
   # ---------------------------------------------------------------------------
+  # helpers
+  # ---------------------------------------------------------------------------
+
+  def duplicate
+    self.class.new(
+      ages: ages,
+      name: "Copie de #{name}",
+      tag_list: tag_list,
+      support_module_weeks: support_module_weeks.map do |smw|
+        smw.class.new(
+          medium: smw.medium,
+          position: smw.position
+        )
+      end
+    )
+  end
+
+  # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------
 

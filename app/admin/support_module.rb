@@ -114,4 +114,14 @@ ActiveAdmin.register SupportModule do
     end
   end
 
+  action_item :duplicate, only: :show do
+    link_to 'Dupliquer', [:duplicate, :admin, resource], class: 'green'
+  end
+
+  member_action :duplicate do
+    new_resource = resource.duplicate
+    new_resource.save!
+    redirect_to [:admin, new_resource]
+  end
+
 end
