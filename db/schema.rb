@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_13_091843) do
+ActiveRecord::Schema.define(version: 2020_10_01_195912) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -322,8 +322,10 @@ ActiveRecord::Schema.define(version: 2020_09_13_091843) do
   create_table "support_module_weeks", force: :cascade do |t|
     t.bigint "support_module_id", null: false
     t.bigint "medium_id"
-    t.string "name"
     t.integer "position", default: 0, null: false
+    t.boolean "has_been_sent1", default: false, null: false
+    t.boolean "has_been_sent2", default: false, null: false
+    t.boolean "has_been_sent3", default: false, null: false
     t.index ["medium_id"], name: "index_support_module_weeks_on_medium_id"
     t.index ["position"], name: "index_support_module_weeks_on_position"
     t.index ["support_module_id"], name: "index_support_module_weeks_on_support_module_id"
@@ -335,6 +337,7 @@ ActiveRecord::Schema.define(version: 2020_09_13_091843) do
     t.datetime "discarded_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.date "start_at"
     t.index ["discarded_at"], name: "index_support_modules_on_discarded_at"
   end
 

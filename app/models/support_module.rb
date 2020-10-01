@@ -6,6 +6,7 @@
 #  ages         :string           not null
 #  discarded_at :datetime
 #  name         :string
+#  start_at     :date
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #

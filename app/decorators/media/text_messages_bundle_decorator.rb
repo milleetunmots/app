@@ -48,9 +48,13 @@ class Media::TextMessagesBundleDecorator < MediumDecorator
 
   end
 
-  def as_card(msg_idx)
+  def as_card(msg_idx, options = {})
+    classes = [
+      'card card-text-messages-bundle',
+      options[:class]
+    ].compact.join(' ')
     arbre do
-      div class: 'card card-text-messages-bundle' do
+      div class: classes do
         div send("body#{msg_idx}"), class: 'body'
         if model.send("image#{msg_idx}")
           div send("image#{msg_idx}_admin_link_with_image", max_width: '100px'), class: 'image'

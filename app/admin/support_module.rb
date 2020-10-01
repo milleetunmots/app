@@ -16,6 +16,7 @@ ActiveAdmin.register SupportModule do
     id_column
     column :name
     column :ages
+    column :start_at
     column :tags
     column :created_at do |model|
       l model.created_at.to_date, format: :default
@@ -26,6 +27,10 @@ ActiveAdmin.register SupportModule do
       end
     end
   end
+
+  filter :name
+  filter :ages
+  filter :start_at
 
   # ---------------------------------------------------------------------------
   # FORM
@@ -38,6 +43,7 @@ ActiveAdmin.register SupportModule do
       f.input :ages,
               as: :radio,
               collection: support_module_ages_select_collection
+      f.input :start_at, as: :datepicker
       tags_input(f)
     end
     f.inputs do
@@ -47,18 +53,24 @@ ActiveAdmin.register SupportModule do
                  allow_destroy: true,
                  sortable: :position,
                  sortable_start: 1 do |fmwf|
-        fmwf.input :name
         fmwf.input :medium,
                    collection: support_module_week_medium_select_collection,
                    input_html: { data: { select2: {} } }
+        fmwf.input :has_been_sent1
+        fmwf.input :has_been_sent2
+        fmwf.input :has_been_sent3
       end
     end
     f.actions
   end
 
-  permit_params :name, :ages, :support_module_weeks,
+  permit_params :name, :ages, :start_at, :support_module_weeks,
                 {
-                  support_module_weeks_attributes: [:id, :name, :medium_id, :position, :_destroy]
+                  support_module_weeks_attributes: [
+                    :id, :medium_id, :position,
+                    :has_been_sent1, :has_been_sent2, :has_been_sent3,
+                    :_destroy
+                  ]
                 }.merge(tags_params)
 
   # ---------------------------------------------------------------------------
@@ -69,6 +81,7 @@ ActiveAdmin.register SupportModule do
     attributes_table do
       row :name
       row :ages
+      row :start_at
       row :tags
       row :created_at
       row :updated_at
@@ -83,7 +96,12 @@ ActiveAdmin.register SupportModule do
                   if support_module_week.medium.send("body#{msg_idx}").blank?
                     'Vide'
                   else
-                    support_module_week.medium.decorate.as_card(msg_idx)
+                    classes = if support_module_week.send("has_been_sent#{msg_idx}?")
+                      'sent'
+                    else
+                      'not-sent'
+                    end
+                    support_module_week.medium.decorate.as_card(msg_idx, class: classes)
                   end
                 end
               end

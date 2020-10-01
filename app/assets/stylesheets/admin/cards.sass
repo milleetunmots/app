@@ -1,4 +1,5 @@
 .card
+  position: relative
   margin-bottom: 10px
 
   &.card-parent
@@ -28,4 +29,22 @@
     .image
 
     .link
+
+    &.sent
+      border-color: $green
+
+      &:after
+        content: '✓'
+        display: block
+        width: 30px
+        height: 30px
+        line-height: 28px
+        text-align: center
+        position: absolute
+        top: -15px
+        right: -15px
+        background: white
+        border: 1px solid $green
+        border-radius: 100%
+        color: $green
 

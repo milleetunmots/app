@@ -3,7 +3,9 @@
 # Table name: support_module_weeks
 #
 #  id                :bigint           not null, primary key
-#  name              :string
+#  has_been_sent1    :boolean          default(FALSE), not null
+#  has_been_sent2    :boolean          default(FALSE), not null
+#  has_been_sent3    :boolean          default(FALSE), not null
 #  position          :integer          default(0), not null
 #  medium_id         :bigint
 #  support_module_id :bigint           not null
@@ -28,7 +30,6 @@ class SupportModuleWeek < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  validates :name, presence: true
   validates :position,
             presence: true
 

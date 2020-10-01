@@ -364,12 +364,16 @@ fr:
         << : *SHARED
         ages: Tranche d'âge
         name: Nom
+        start_at: Démarrage
         support_module_weeks: Semaines
       support_module/ages:
         a0_1: 0 - 1 ans
         a1_2 : 1 - 2 ans
       support_module_week:
         << : *SHARED
+        has_been_sent1: Message 1 envoyé ?
+        has_been_sent2: Message 2 envoyé ?
+        has_been_sent3: Message 3 envoyé ?
         medium: Média
         name: Nom
         support_module: Module
