@@ -98,10 +98,10 @@ fr:
         x: Inconnu
       child/registration_source:
         caf: CAF
-        friends: Par des amis
+        friends: Par des amis / de la famille
         nursery: Crèche
         other: Autre
-        pmi: PMI
+        pmi: Mon/ma professionnel·le de santé
         resubscribing: J'ai déjà reçu les SMS et je réinscris un enfant
         therapist: Mon orthophoniste
         unknown: Inconnue

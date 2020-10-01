@@ -33,7 +33,7 @@ class ChildrenController < ApplicationController
       if session[:registration_origin] == 2
         'form-2'
       else
-        'form-1'
+        'site'
       end
 
     # Siblings
