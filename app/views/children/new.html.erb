@@ -10,33 +10,25 @@
 
       <div class="row justify-content-sm-center">
         <div class="col-sm-6">
-          <div id="description">
-            <b>Votre enfant a entre 0 et <%= @child_min_birthdate_descr %>&nbsp?</b><br/>
-            Inscrivez-vous pour recevoir gratuitement :
-            <ul>
-              <li>3 SMS par semaine avec des idées de jeux et des conseils pour éveiller son langage</li>
-              <li>des livres adaptés à son âge</li>
-            </ul>
-            La famille peut choisir d'arrêter l'accompagnement à n'importe quel moment.
-          </div>
+          <div id="description"><%= @banner.html_safe %></div>
         </div>
       </div>
 
       <div class="row justify-content-sm-center">
         <div class="col-sm-8">
           <%= f.simple_fields_for :parent1 do |parent1_f| %>
-            <%= parent1_f.input :terms_accepted_at, as: :boolean, label: "Je donne mon accord pour que mes données soient gardées par 1001mots", checked_value: Time.now %>
+            <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label, checked_value: Time.now %>
           <% end %>
         </div>
       </div>
 
       <div class="row justify-content-sm-center accepted-fields">
-        <div class="col-sm-4">
-          <%= f.input :registration_source, collection: child_registration_source_select_collection %>
+        <div class="col-sm-6">
+          <%= f.input :registration_source, label: @registration_source_label.html_safe, collection: (@registration_source_collection == :pro ? child_registration_source_select_collection_for_pros : child_registration_source_select_collection) %>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-6">
           <div id="child-registration-source-details-field">
-            <%= f.input :registration_source_details %>
+            <%= f.input :registration_source_details, label: @registration_source_details_label.html_safe %>
           </div>
         </div>
       </div>

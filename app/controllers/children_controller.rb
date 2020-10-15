@@ -3,7 +3,7 @@ class ChildrenController < ApplicationController
   SIBLINGS_COUNT = 3
 
   before_action :find_child, only: %i(edit update)
-  before_action :build_child_min_birthdate, only: %i(new create)
+  before_action :build_variables, only: %i(new create)
   before_action :build_child_action_path, only: %i(edit update)
 
   def new
@@ -19,8 +19,18 @@ class ChildrenController < ApplicationController
     end
   end
 
+  def new1
+    session[:registration_origin] = 1
+    redirect_to action: :new
+  end
+
   def new2
     session[:registration_origin] = 2
+    redirect_to action: :new
+  end
+
+  def new3
+    session[:registration_origin] = 3
     redirect_to action: :new
   end
 
@@ -30,10 +40,10 @@ class ChildrenController < ApplicationController
     # Tags
 
     attributes[:tag_list] =
-      if session[:registration_origin] == 2
-        'form-2'
-      else
-        'site'
+      case current_registration_origin
+      when 3 then 'form-pro'
+      when 2 then 'form-2'
+      else 'site'
       end
 
     # Siblings
@@ -125,12 +135,21 @@ class ChildrenController < ApplicationController
   end
 
   def created
-    if session[:registration_origin] == 2
+    case current_registration_origin
+    when 3
+      # for this form we keep the registration_origin
+      # so that multiple children can be registered
+      @message = I18n.t('inscription_success.pro')
+      @again = true
+      @widget = false
+    when 2
       session.delete(:registration_origin)
       @message = I18n.t('inscription_success.without_widget')
+      @again = false
       @widget = false
     else
       @message = I18n.t('inscription_success.with_widget')
+      @again = false
       @widget = true
     end
   end
@@ -187,18 +206,38 @@ class ChildrenController < ApplicationController
     head 404 and return if @child.nil?
   end
 
-  def build_child_min_birthdate
-    if session[:registration_origin] == 2
+  def build_variables
+    case current_registration_origin
+    when 3
+      @banner = I18n.t('inscription_banner.form3')
+      @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.pro')
+      @registration_source_label = I18n.t('inscription_registration_source_label.pro')
+      @registration_source_collection = :pro
+      @registration_source_details_label = I18n.t('inscription_registration_source_details_label.pro')
+      @child_min_birthdate = Date.today - 30.months
+    when 2
+      @banner = I18n.t('inscription_banner.form2')
+      @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
+      @registration_source_label = I18n.t('inscription_registration_source_label.parent')
+      @registration_source_collection = :parent
+      @registration_source_details_label = I18n.t('inscription_registration_source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate
-      @child_min_birthdate_descr = '3 ans'
     else
+      @banner = I18n.t('inscription_banner.form1')
+      @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
+      @registration_source_label = I18n.t('inscription_registration_source_label.parent')
+      @registration_source_collection = :parent
+      @registration_source_details_label = I18n.t('inscription_registration_source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate_alt
-      @child_min_birthdate_descr = '24 mois'
     end
   end
 
   def build_child_action_path
     @child_action_path = update_child_path(id: @child.id, security_code: @child.security_code)
+  end
+
+  def current_registration_origin
+    session[:registration_origin]
   end
 
 end

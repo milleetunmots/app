@@ -35,6 +35,15 @@ module ActiveAdmin::ChildrenHelper
     end
   end
 
+  def child_registration_source_select_collection_for_pros
+    [
+      ['un·e professionnel·le de PMI', :pmi],
+      ['un·e orthophoniste', :therapist],
+      ['un·e professionnel·le de santé', :pmi],
+      ['un·e autre partenaire de 1001mots (centre social, association, crèche...)', :other]
+    ]
+  end
+
   def child_registration_source_details_suggestions
     Child.pluck('DISTINCT ON (LOWER(registration_source_details)) registration_source_details').compact.sort_by(&:downcase)
   end
