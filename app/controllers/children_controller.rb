@@ -7,6 +7,7 @@ class ChildrenController < ApplicationController
   before_action :build_child_action_path, only: %i(edit update)
 
   def new
+    puts "FORM ORIGIN: #{current_registration_origin}"
     @child = Child.new
     @child.build_parent1
     @child.build_parent2
