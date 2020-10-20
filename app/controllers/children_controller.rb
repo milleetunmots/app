@@ -208,23 +208,22 @@ class ChildrenController < ApplicationController
   end
 
   def build_variables
+    @title = I18n.t("inscription_title.form#{current_registration_origin}")
+    @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
     case current_registration_origin
     when 3
-      @banner = I18n.t('inscription_banner.form3')
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.pro')
       @registration_source_label = I18n.t('inscription_registration_source_label.pro')
       @registration_source_collection = :pro
       @registration_source_details_label = I18n.t('inscription_registration_source_details_label.pro')
       @child_min_birthdate = Date.today - 30.months
     when 2
-      @banner = I18n.t('inscription_banner.form2')
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
       @registration_source_label = I18n.t('inscription_registration_source_label.parent')
       @registration_source_collection = :parent
       @registration_source_details_label = I18n.t('inscription_registration_source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate
     else
-      @banner = I18n.t('inscription_banner.form1')
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
       @registration_source_label = I18n.t('inscription_registration_source_label.parent')
       @registration_source_collection = :parent
@@ -238,7 +237,7 @@ class ChildrenController < ApplicationController
   end
 
   def current_registration_origin
-    session[:registration_origin]
+    session[:registration_origin] || 1
   end
 
 end
