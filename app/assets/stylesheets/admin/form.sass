@@ -30,6 +30,30 @@ body.logged_in
             label
               font-size: 80%
 
+    ol.choices-group
+      li.choice
+        label
+          cursor: pointer
+
+        .unselect-btn
+          display: none
+          vertical-align: 1px
+          font-size: 10px
+          margin-left: 10px
+          cursor: pointer
+
+      &.with-choice
+        li.choice
+          &.chosen
+            .unselect-btn
+              display: inline-block
+
+          &:not(.chosen)
+            opacity: 0.4
+
+      & + .empty-choice
+        display: none
+
     input[type="search"]
       &.select2-search__field
         height: auto

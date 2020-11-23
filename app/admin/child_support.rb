@@ -256,7 +256,7 @@ ActiveAdmin.register ChildSupport do
             f.semantic_fields_for :first_child do |first_child_f|
               first_child_f.input :gender,
                                   as: :radio,
-                                  collection: child_gender_select_collection(with_unknown: true)
+                                  collection: child_gender_select_collection
               first_child_f.input :should_contact_parent1
               first_child_f.input :should_contact_parent2
               first_child_f.input :registration_source,

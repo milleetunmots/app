@@ -242,7 +242,7 @@ ActiveAdmin.register Child do
       f.input :should_contact_parent2
       f.input :gender,
               as: :radio,
-              collection: child_gender_select_collection(with_unknown: true)
+              collection: child_gender_select_collection
       f.input :first_name
       f.input :last_name
       f.input :birthdate,
