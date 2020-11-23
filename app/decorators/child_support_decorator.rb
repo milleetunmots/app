@@ -63,7 +63,7 @@ class ChildSupportDecorator < BaseDecorator
     h.content_tag :div, important_information_text, class: 'free-text'
   end
 
-  (1..4).each do |call_idx|
+  (1..5).each do |call_idx|
 
     define_method("call#{call_idx}_parent_progress_index") do
       progress model.send("call#{call_idx}_parent_progress_index")
@@ -121,7 +121,7 @@ class ChildSupportDecorator < BaseDecorator
 
   end
 
-  (2..4).each do |call_idx|
+  (2..5).each do |call_idx|
 
     define_method("call#{call_idx}_sendings_benefits") do
       if v = model.send("call#{call_idx}_sendings_benefits")

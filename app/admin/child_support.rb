@@ -22,7 +22,7 @@ ActiveAdmin.register ChildSupport do
     column :children
     column :supporter, sortable: :supporter_id
     column :should_be_read
-    (1..4).each do |call_idx|
+    (1..5).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         [
           decorated.send("call#{call_idx}_status"),
@@ -78,7 +78,7 @@ ActiveAdmin.register ChildSupport do
          as: :string
   filter :supporter,
          input_html: { data: { select2: {} } }
-  (1..4).each do |call_idx|
+  (1..5).each do |call_idx|
     filter "call#{call_idx}_status"
     filter "call#{call_idx}_duration"
     filter "call#{call_idx}_parent_progress_present",
@@ -164,7 +164,7 @@ ActiveAdmin.register ChildSupport do
         end
       end
       tabs do
-        (1..4).each do |call_idx|
+        (1..5).each do |call_idx|
           tab "Appel #{call_idx}" do
             columns do
               column do
@@ -332,7 +332,7 @@ ActiveAdmin.register ChildSupport do
           row :updated_at
         end
       end
-      (1..4).each do |call_idx|
+      (1..5).each do |call_idx|
         tab "Appel #{call_idx}" do
           attributes_table title: "Appel #{call_idx}" do
             row "call#{call_idx}_status"
@@ -400,7 +400,7 @@ ActiveAdmin.register ChildSupport do
     column :is_bilingual
     column :second_language
 
-    (1..4).each do |call_idx|
+    (1..5).each do |call_idx|
 
       column "call#{call_idx}_status"
       column "call#{call_idx}_status_details"

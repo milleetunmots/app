@@ -159,6 +159,19 @@ fr:
         call4_sendings_benefits: Apport des envois
         call4_sendings_benefits_details: Verbatim
         call4_technical_information: Retour sur les envois
+        call5_duration: Durée de l'appel 5 (en minutes)
+        call5_status: Statut de l'appel 5
+        call5_status_details: Suivi de l'appel 5
+        call5_parent_actions: Pratiques parentales
+        call5_goals: Mini-objectifs
+        call5_language_awareness: Conscience langagière
+        call5_language_development: "Développement langagier de l'enfant"
+        call5_notes: Remarques diverses
+        call5_parent_progress: Niveau de pratiques parentales
+        call5_reading_frequency: Fréquence de lecture
+        call5_sendings_benefits: Apport des envois
+        call5_sendings_benefits_details: Verbatim
+        call5_technical_information: Retour sur les envois
         city_name: Ville
         children: Enfants
         children_first_names: Prénom des enfants

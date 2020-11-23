@@ -54,6 +54,19 @@
 #  call4_status                    :string
 #  call4_status_details            :text
 #  call4_technical_information     :text
+#  call5_duration                  :integer
+#  call5_goals                     :text
+#  call5_language_awareness        :string
+#  call5_language_development      :text
+#  call5_notes                     :text
+#  call5_parent_actions            :text
+#  call5_parent_progress           :string
+#  call5_reading_frequency         :string
+#  call5_sendings_benefits         :string
+#  call5_sendings_benefits_details :text
+#  call5_status                    :string
+#  call5_status_details            :text
+#  call5_technical_information     :text
 #  discarded_at                    :datetime
 #  important_information           :text
 #  is_bilingual                    :boolean
@@ -74,6 +87,8 @@
 #  index_child_supports_on_call3_parent_progress     (call3_parent_progress)
 #  index_child_supports_on_call4_language_awareness  (call4_language_awareness)
 #  index_child_supports_on_call4_parent_progress     (call4_parent_progress)
+#  index_child_supports_on_call5_language_awareness  (call5_language_awareness)
+#  index_child_supports_on_call5_parent_progress     (call5_parent_progress)
 #  index_child_supports_on_discarded_at              (discarded_at)
 #  index_child_supports_on_should_be_read            (should_be_read)
 #  index_child_supports_on_supporter_id              (supporter_id)
@@ -130,7 +145,7 @@ class ChildSupport < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  (1..4).each do |call_idx|
+  (1..5).each do |call_idx|
 
     validates "call#{call_idx}_language_awareness",
               inclusion: {
@@ -146,7 +161,7 @@ class ChildSupport < ApplicationRecord
 
   end
 
-  (2..4).each do |call_idx|
+  (2..5).each do |call_idx|
 
     validates "call#{call_idx}_sendings_benefits",
               inclusion: {
@@ -164,7 +179,7 @@ class ChildSupport < ApplicationRecord
 
   class << self
 
-    (1..4).each do |call_idx|
+    (1..5).each do |call_idx|
 
       define_method("call#{call_idx}_parent_progress_present") do |bool|
         if bool
@@ -176,7 +191,7 @@ class ChildSupport < ApplicationRecord
 
     end
 
-    (2..4).each do |call_idx|
+    (2..5).each do |call_idx|
 
       define_method("call#{call_idx}_sendings_benefits_present") do |bool|
         if bool
@@ -278,7 +293,7 @@ class ChildSupport < ApplicationRecord
            prefix: true,
            allow_nil: true
 
-  (1..4).each do |call_idx|
+  (1..5).each do |call_idx|
     define_method("call#{call_idx}_parent_progress_index") do
       (send("call#{call_idx}_parent_progress") || '').split('_').first&.to_i
     end

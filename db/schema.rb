@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_01_195912) do
+ActiveRecord::Schema.define(version: 2020_11_23_174804) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -116,6 +116,19 @@ ActiveRecord::Schema.define(version: 2020_10_01_195912) do
     t.string "call4_sendings_benefits"
     t.text "call4_sendings_benefits_details"
     t.string "call4_reading_frequency"
+    t.text "call5_technical_information"
+    t.text "call5_parent_actions"
+    t.text "call5_language_development"
+    t.text "call5_goals"
+    t.text "call5_notes"
+    t.string "call5_status"
+    t.text "call5_status_details"
+    t.integer "call5_duration"
+    t.string "call5_language_awareness"
+    t.string "call5_parent_progress"
+    t.string "call5_sendings_benefits"
+    t.text "call5_sendings_benefits_details"
+    t.string "call5_reading_frequency"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
@@ -125,6 +138,8 @@ ActiveRecord::Schema.define(version: 2020_10_01_195912) do
     t.index ["call3_parent_progress"], name: "index_child_supports_on_call3_parent_progress"
     t.index ["call4_language_awareness"], name: "index_child_supports_on_call4_language_awareness"
     t.index ["call4_parent_progress"], name: "index_child_supports_on_call4_parent_progress"
+    t.index ["call5_language_awareness"], name: "index_child_supports_on_call5_language_awareness"
+    t.index ["call5_parent_progress"], name: "index_child_supports_on_call5_parent_progress"
     t.index ["discarded_at"], name: "index_child_supports_on_discarded_at"
     t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
     t.index ["supporter_id"], name: "index_child_supports_on_supporter_id"
