@@ -120,6 +120,9 @@ fr:
         call1_parent_actions: Pratiques parentales
         call1_parent_progress: Niveau de pratiques parentales
         call1_reading_frequency: Fréquence de lecture
+        call1_sendings_benefits: Apport des envois
+        call1_sendings_benefits_details: Verbatim
+        call1_technical_information: Retour sur les envois
         call2_duration: Durée de l'appel 2 (en minutes)
         call2_status: Statut de l'appel 2
         call2_status_details: Suivi de l'appel 2

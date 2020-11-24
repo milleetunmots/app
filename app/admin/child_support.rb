@@ -92,12 +92,10 @@ ActiveAdmin.register ChildSupport do
            as: :select,
            collection: proc { child_support_call_language_awareness_select_collection },
            input_html: { multiple: true, data: { select2: {} } }
-    if call_idx > 1
-      filter "call#{call_idx}_sendings_benefits",
-             as: :select,
-             collection: proc { child_support_call_sendings_benefits_select_collection },
-             input_html: { multiple: true, data: { select2: {} } }
-    end
+    filter "call#{call_idx}_sendings_benefits",
+           as: :select,
+           collection: proc { child_support_call_sendings_benefits_select_collection },
+           input_html: { multiple: true, data: { select2: {} } }
     if call_idx == 1
       filter "call#{call_idx}_books_quantity"
     end
@@ -178,16 +176,14 @@ ActiveAdmin.register ChildSupport do
 
             columns do
               column do
-                if call_idx > 1
-                  f.input "call#{call_idx}_technical_information",
-                          input_html: {
-                            rows: 8,
-                            style: 'width: 70%',
-                            value: f.object.send("call#{call_idx}_technical_information").presence || (
-                              I18n.t('child_support.default.call_technical_information')
-                            )
-                          }
-                end
+                f.input "call#{call_idx}_technical_information",
+                        input_html: {
+                          rows: 8,
+                          style: 'width: 70%',
+                          value: f.object.send("call#{call_idx}_technical_information").presence || (
+                            I18n.t('child_support.default.call_technical_information')
+                          )
+                        }
                 f.input "call#{call_idx}_parent_actions",
                         input_html: {
                           rows: 8,
@@ -202,18 +198,13 @@ ActiveAdmin.register ChildSupport do
                 f.input "call#{call_idx}_parent_progress",
                         as: :radio,
                         collection: child_support_call_parent_progress_select_collection
-                if call_idx == 1
-                  f.input "call#{call_idx}_books_quantity", input_html: { style: 'width: 70%' }
-                end
                 f.input "call#{call_idx}_reading_frequency",
                         as: :radio,
                         collection: child_support_call_reading_frequency_select_collection
-                if call_idx > 1
-                  f.input "call#{call_idx}_sendings_benefits",
-                          as: :radio,
-                          collection: child_support_call_sendings_benefits_select_collection
-                  f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, style: 'width: 70%' }
-                end
+                f.input "call#{call_idx}_sendings_benefits",
+                        as: :radio,
+                        collection: child_support_call_sendings_benefits_select_collection
+                f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, style: 'width: 70%' }
               end
               column do
                 f.input "call#{call_idx}_language_development", input_html: { rows: 8, style: 'width: 70%' }
@@ -226,6 +217,9 @@ ActiveAdmin.register ChildSupport do
                             I18n.t('child_support.default.call_notes')
                           )
                         }
+                if call_idx == 1
+                  f.input "call#{call_idx}_books_quantity", input_html: { style: 'width: 70%' }
+                end
               end
             end
           end
@@ -338,16 +332,12 @@ ActiveAdmin.register ChildSupport do
             row "call#{call_idx}_status"
             row "call#{call_idx}_status_details"
             row "call#{call_idx}_duration"
-            if call_idx > 1
-              row "call#{call_idx}_technical_information"
-            end
+            row "call#{call_idx}_technical_information"
             row "call#{call_idx}_parent_actions"
             row "call#{call_idx}_language_awareness"
             row "call#{call_idx}_parent_progress"
-            if call_idx > 1
-              row "call#{call_idx}_sendings_benefits"
-              row "call#{call_idx}_sendings_benefits_details"
-            end
+            row "call#{call_idx}_sendings_benefits"
+            row "call#{call_idx}_sendings_benefits_details"
             row "call#{call_idx}_language_development"
             if call_idx == 1
               row "call#{call_idx}_books_quantity"
@@ -405,18 +395,14 @@ ActiveAdmin.register ChildSupport do
       column "call#{call_idx}_status"
       column "call#{call_idx}_status_details"
       column "call#{call_idx}_duration"
-      if call_idx > 1
-        column("call#{call_idx}_technical_information") do |cs|
-          cs.send("call#{call_idx}_technical_information_text")
-        end
+      column("call#{call_idx}_technical_information") do |cs|
+        cs.send("call#{call_idx}_technical_information_text")
       end
       column("call#{call_idx}_parent_actions") { |cs| cs.send("call#{call_idx}_parent_actions_text") }
       column "call#{call_idx}_language_awareness"
       column "call#{call_idx}_parent_progress"
-      if call_idx > 1
-        column "call#{call_idx}_sendings_benefits"
-        column "call#{call_idx}_sendings_benefits_details"
-      end
+      column "call#{call_idx}_sendings_benefits"
+      column "call#{call_idx}_sendings_benefits_details"
       column("call#{call_idx}_language_development") { |cs| cs.send("call#{call_idx}_language_development_text") }
       if call_idx == 1
         column "call#{call_idx}_books_quantity"

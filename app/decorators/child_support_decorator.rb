@@ -119,10 +119,6 @@ class ChildSupportDecorator < BaseDecorator
       h.content_tag :div, send("call#{call_idx}_notes_text"), class: 'free-text'
     end
 
-  end
-
-  (2..5).each do |call_idx|
-
     define_method("call#{call_idx}_sendings_benefits") do
       if v = model.send("call#{call_idx}_sendings_benefits")
         ChildSupport.human_attribute_name("call_sendings_benefits.#{v}")

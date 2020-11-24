@@ -13,8 +13,11 @@
 #  call1_parent_actions            :text
 #  call1_parent_progress           :string
 #  call1_reading_frequency         :string
+#  call1_sendings_benefits         :string
+#  call1_sendings_benefits_details :text
 #  call1_status                    :string
 #  call1_status_details            :text
+#  call1_technical_information     :text
 #  call2_duration                  :integer
 #  call2_goals                     :text
 #  call2_language_awareness        :string
@@ -159,10 +162,6 @@ class ChildSupport < ApplicationRecord
                 allow_blank: true
               }
 
-  end
-
-  (2..5).each do |call_idx|
-
     validates "call#{call_idx}_sendings_benefits",
               inclusion: {
                 in: SENDINGS_BENEFITS,
@@ -188,10 +187,6 @@ class ChildSupport < ApplicationRecord
           where.not("call#{call_idx}_parent_progress" => PARENT_PROGRESS)
         end
       end
-
-    end
-
-    (2..5).each do |call_idx|
 
       define_method("call#{call_idx}_sendings_benefits_present") do |bool|
         if bool
