@@ -107,6 +107,19 @@ ActiveAdmin.register ChildSupport do
   filter :created_at
   filter :updated_at
 
+  batch_action :assign_supporter, form: -> {
+    {
+      I18n.t('activerecord.attributes.child_support.supporter') => AdminUser.pluck(:name, :id)
+    }
+  } do |ids, inputs|
+    batch_action_collection.find(ids).each do |child_support|
+      supporter_id = inputs[I18n.t('activerecord.attributes.child_support.supporter')]
+      child_support.supporter_id = supporter_id
+      child_support.save!
+    end
+    redirect_to request.referer, notice: "Responsable mis à jour"
+  end
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------

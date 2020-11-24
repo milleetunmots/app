@@ -5,6 +5,7 @@ fr:
       labels:
         add_tags: Taguer
         add_to_group: Ajouter à une cohorte
+        assign_supporter: Assigner un(e) responsable pour
         create_redirection_url: Créer une URL courte pour
         create_support: Créer le suivi pour
         addresses_pdf: Générer les étiquettes pour
