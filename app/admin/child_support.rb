@@ -44,6 +44,7 @@ ActiveAdmin.register ChildSupport do
 
   scope(:mine, default: true) { |scope| scope.supported_by(current_admin_user) }
   scope :all
+  scope :without_supporter
 
   scope :with_book_not_received
 

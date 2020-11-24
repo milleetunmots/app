@@ -175,6 +175,7 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   scope :supported_by, ->(model) { where(supporter: model) }
+  scope :without_supporter, -> { where(supporter_id: nil) }
 
   class << self
 
