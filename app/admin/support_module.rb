@@ -59,6 +59,10 @@ ActiveAdmin.register SupportModule do
         fmwf.input :has_been_sent1
         fmwf.input :has_been_sent2
         fmwf.input :has_been_sent3
+        fmwf.input :additional_medium,
+                   collection: support_module_week_additional_medium_select_collection,
+                   input_html: { data: { select2: {} } }
+        fmwf.input :has_been_sent4
       end
     end
     f.actions
@@ -69,6 +73,8 @@ ActiveAdmin.register SupportModule do
                   support_module_weeks_attributes: [
                     :id, :medium_id, :position,
                     :has_been_sent1, :has_been_sent2, :has_been_sent3,
+                    :additional_medium_id,
+                    :has_been_sent4,
                     :_destroy
                   ]
                 }.merge(tags_params)
@@ -94,7 +100,9 @@ ActiveAdmin.register SupportModule do
               (1..3).each do |msg_idx|
                 column do
                   if support_module_week.medium.send("body#{msg_idx}").blank?
-                    'Vide'
+                    link_to 'Vide',
+                            [:admin, support_module_week.medium],
+                            target: '_blank'
                   else
                     classes = if support_module_week.send("has_been_sent#{msg_idx}?")
                       'sent'
@@ -103,6 +111,16 @@ ActiveAdmin.register SupportModule do
                     end
                     support_module_week.medium.decorate.as_card(msg_idx, class: classes)
                   end
+                end
+              end
+              if support_module_week.additional_medium
+                column do
+                  classes = if support_module_week.has_been_sent4?
+                    'sent'
+                  else
+                    'not-sent'
+                  end
+                  support_module_week.additional_medium.decorate.as_card(1, class: classes)
                 end
               end
             end

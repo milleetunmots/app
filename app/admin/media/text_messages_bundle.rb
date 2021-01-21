@@ -14,6 +14,9 @@ ActiveAdmin.register Media::TextMessagesBundle do
   register_text_messages_bundle_show
   register_text_messages_bundle_form
 
+  scope :all, default: true
+  scope :single_message
+
   # ---------------------------------------------------------------------------
   # ACTIONS
   # ---------------------------------------------------------------------------

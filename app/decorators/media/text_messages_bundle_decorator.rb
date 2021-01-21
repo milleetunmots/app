@@ -55,7 +55,11 @@ class Media::TextMessagesBundleDecorator < MediumDecorator
     ].compact.join(' ')
     arbre do
       div class: classes do
-        div send("body#{msg_idx}"), class: 'body'
+        a href: polymorphic_path([:admin, model]),
+          class: 'body',
+          target: '_blank' do
+          send("body#{msg_idx}")
+        end
         if model.send("image#{msg_idx}")
           div send("image#{msg_idx}_admin_link_with_image", max_width: '100px'), class: 'image'
         end

@@ -52,4 +52,13 @@ class Media::TextMessagesBundle < Medium
     update_attribute :type, 'Media::TextMessagesBundleDraft'
   end
 
+  def self.single_message
+    where.not(
+      body1: [nil, '']
+    ).where(
+      body2: [nil, ''],
+      body3: [nil, '']
+    )
+  end
+
 end

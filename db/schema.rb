@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_24_163620) do
+ActiveRecord::Schema.define(version: 2021_01_21_145522) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -344,6 +344,9 @@ ActiveRecord::Schema.define(version: 2020_11_24_163620) do
     t.boolean "has_been_sent1", default: false, null: false
     t.boolean "has_been_sent2", default: false, null: false
     t.boolean "has_been_sent3", default: false, null: false
+    t.integer "additional_medium_id"
+    t.boolean "has_been_sent4", default: false, null: false
+    t.index ["additional_medium_id"], name: "index_support_module_weeks_on_additional_medium_id"
     t.index ["medium_id"], name: "index_support_module_weeks_on_medium_id"
     t.index ["position"], name: "index_support_module_weeks_on_position"
     t.index ["support_module_id"], name: "index_support_module_weeks_on_support_module_id"
@@ -434,6 +437,7 @@ ActiveRecord::Schema.define(version: 2020_11_24_163620) do
   add_foreign_key "media", "media_folders", column: "folder_id"
   add_foreign_key "media_folders", "media_folders", column: "parent_id"
   add_foreign_key "redirection_targets", "media"
+  add_foreign_key "support_module_weeks", "media", column: "additional_medium_id"
   add_foreign_key "taggings", "tags"
   add_foreign_key "tasks", "admin_users", column: "assignee_id"
   add_foreign_key "tasks", "admin_users", column: "reporter_id"
