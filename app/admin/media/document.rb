@@ -1,6 +1,6 @@
 ActiveAdmin.register Media::Document do
 
-  menu parent: 'Médiathèque', label: 'Documents'
+  menu parent: 'Médiathèque', label: 'Documents', priority: 4
 
   decorate_with Media::DocumentDecorator
 

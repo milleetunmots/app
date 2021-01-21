@@ -1,6 +1,6 @@
 ActiveAdmin.register Media::Form do
 
-  menu parent: 'Médiathèque', label: 'Questionnaires'
+  menu parent: 'Médiathèque', label: 'Questionnaires', priority: 6
 
   decorate_with Media::FormDecorator
 

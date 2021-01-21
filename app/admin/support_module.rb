@@ -1,5 +1,7 @@
 ActiveAdmin.register SupportModule do
 
+  menu parent: 'Médiathèque', label: 'Modules', priority: 0
+
   decorate_with SupportModuleDecorator
 
   has_paper_trail

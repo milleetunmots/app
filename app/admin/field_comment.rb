@@ -1,5 +1,7 @@
 ActiveAdmin.register FieldComment do
 
+  menu parent: 'Médiathèque', label: 'Commentaires', priority: 8
+
   decorate_with FieldCommentDecorator
 
   actions :all, except: [:new, :create, :edit, :update]

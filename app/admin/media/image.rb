@@ -1,6 +1,6 @@
 ActiveAdmin.register Media::Image do
 
-  menu parent: 'Médiathèque', label: 'Images'
+  menu parent: 'Médiathèque', label: 'Images', priority: 5
 
   decorate_with Media::ImageDecorator
 

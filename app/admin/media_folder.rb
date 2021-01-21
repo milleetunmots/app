@@ -1,6 +1,6 @@
 ActiveAdmin.register MediaFolder do
 
-  menu label: 'Dossiers', parent: 'Médiathèque', priority: 0
+  menu label: 'Dossiers', parent: 'Médiathèque', priority: 1
 
   # actions :index
 
