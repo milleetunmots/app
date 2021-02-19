@@ -117,4 +117,8 @@ class Media::TextMessagesBundleDecorator < MediumDecorator
     end
   end
 
+  def select_collection_option_label
+    name + tag_list.sort.map{ |t| " ##{t}" }.join
+  end
+
 end
