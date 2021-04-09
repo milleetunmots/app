@@ -60,8 +60,11 @@ RSpec.describe Parent, type: :model do
       it "if the parent doesn't have gender" do
         expect(FactoryBot.build_stubbed(:parent, gender: nil)). to be_invalid
       end
-      it "if the parent doesn't have first name" do
+      it "if the parent doesn't have firstname" do
         expect(FactoryBot.build_stubbed(:parent, first_name: nil)). to be_invalid
+      end
+      it "if the parent doesn't have lastname" do
+        expect(FactoryBot.build_stubbed(:parent, last_name: nil)). to be_invalid
       end
 
     end
