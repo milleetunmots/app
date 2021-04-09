@@ -1,5 +1,8 @@
 # Ignore bundler config.
 /.bundle
+/.idea
+
+erd.pdf
 
 # Ignore all logfiles and tempfiles.
 /log/*

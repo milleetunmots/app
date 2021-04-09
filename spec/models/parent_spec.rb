@@ -49,9 +49,11 @@ RSpec.describe Parent, type: :model do
     @parent = FactoryBot.build(:parent)
   end
 
-  context 'is valid' do
-    it 'if minimal attributes are present' do
-      expect(@parent).to be_valid
+  describe "Validations" do
+    context "succeed" do
+      it 'if minimal attributes are present' do
+        expect(@parent).to be_valid
+      end
     end
   end
 
