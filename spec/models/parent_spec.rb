@@ -51,9 +51,19 @@ RSpec.describe Parent, type: :model do
 
   describe "Validations" do
     context "succeed" do
-      it 'if minimal attributes are present' do
-        expect(@parent).to be_valid
+      it "if minimal attributes are present" do
+        expect(FactoryBot.build_stubbed(:parent)).to be_valid
       end
+    end
+
+    context "fail" do
+      it "if the parent doesn't have gender" do
+        expect(FactoryBot.build_stubbed(:parent, gender: nil)). to be_invalid
+      end
+      it "if the parent doesn't have first name" do
+        expect(FactoryBot.build_stubbed(:parent, first_name: nil)). to be_invalid
+      end
+
     end
   end
 
