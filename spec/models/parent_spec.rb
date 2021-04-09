@@ -66,6 +66,27 @@ RSpec.describe Parent, type: :model do
       it "if the parent doesn't have lastname" do
         expect(FactoryBot.build_stubbed(:parent, last_name: nil)). to be_invalid
       end
+      it "if the parent doesn't have letterbox" do
+        expect(FactoryBot.build_stubbed(:parent, letterbox_name: nil)). to be_invalid
+      end
+      it "if the parent doesn't have address" do
+        expect(FactoryBot.build_stubbed(:parent, address: nil)). to be_invalid
+      end
+      it "if the parent doesn't have city" do
+        expect(FactoryBot.build_stubbed(:parent, city_name: nil)). to be_invalid
+      end
+      it "if the parent doesn't have postal code" do
+        expect(FactoryBot.build_stubbed(:parent, postal_code: nil)). to be_invalid
+      end
+      it "if the parent doesn't have phone number" do
+        expect(FactoryBot.build_stubbed(:parent, phone_number: nil)). to be_invalid
+      end
+      it "if the parent doesn't have email" do
+        expect(FactoryBot.build_stubbed(:parent, email: nil)). to be_invalid
+      end
+      it "if the parent doesn't accept the terms" do
+        expect(FactoryBot.build_stubbed(:parent, terms_accepted_at: nil)). to be_invalid
+      end
 
     end
   end
