@@ -26,5 +26,12 @@
 require 'rails_helper'
 
 RSpec.describe AdminUser, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe "Validations" do
+    it "fails if the user doesn't have a name" do
+      expect(FactoryBot.build_stubbed(:admin_user, name: nil)).to be_invalid
+    end
+    it "succeds if the user have a name " do
+      expect(FactoryBot.build_stubbed(:admin_user, name: "username", email: "admin@dev.io")).to be_valid
+    end
+  end
 end
