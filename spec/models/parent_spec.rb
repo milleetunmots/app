@@ -44,9 +44,17 @@
 require 'rails_helper'
 
 RSpec.describe Parent, type: :model do
+  describe "Validations" do
+    it "fails if the parent doesn't have gender" do
+      expect(FactoryBot.build_stubbed(:parent, gender: nil)).to be_invalid
+    end
+    it "succeds if the parent have a name " do
+      expect(FactoryBot.build_stubbed(:admin_user, name: "username", email: "admin@dev.io")).to be_valid
+    end
+  end
 
   before(:each) do
-    @parent = FactoryBot.build(:parent)
+    @parent = FactoryBot.build_stubbed(:parent)
   end
 
   context 'is valid' do

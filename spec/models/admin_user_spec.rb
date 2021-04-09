@@ -27,11 +27,25 @@ require 'rails_helper'
 
 RSpec.describe AdminUser, type: :model do
   describe "Validations" do
-    it "fails if the user doesn't have a name" do
-      expect(FactoryBot.build_stubbed(:admin_user, name: nil)).to be_invalid
+    context "succeed" do
+      it "if the user have a name " do
+        expect(FactoryBot.build_stubbed(:admin_user)).to be_valid
+      end
     end
-    it "succeds if the user have a name " do
-      expect(FactoryBot.build_stubbed(:admin_user, name: "username", email: "admin@dev.io")).to be_valid
+
+    context "fail" do
+      it "if the user doesn't have a name" do
+        expect(FactoryBot.build_stubbed(:admin_user, name: nil)).to be_invalid
+      end
+
+      it "if the user doesn't have a email" do
+        expect(FactoryBot.build_stubbed(:admin_user, email: nil)).to be_invalid
+      end
+
+      it "if the user already exists" do
+        @existed = FactoryBot.create(:admin_user, name:"username")
+        expect(FactoryBot.build_stubbed(:admin_user, name: "Username")).to be_invalid
+      end
     end
   end
 end
