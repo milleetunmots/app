@@ -92,6 +92,7 @@ fr:
         security_code: Sécurité
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?
+        src_url: URL d'inscription
       child/gender:
         f: Fille
         m: Garçon

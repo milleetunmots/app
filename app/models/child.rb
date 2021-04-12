@@ -19,6 +19,7 @@
 #  security_code                              :string
 #  should_contact_parent1                     :boolean          default(FALSE), not null
 #  should_contact_parent2                     :boolean          default(FALSE), not null
+#  src_url                                    :string
 #  created_at                                 :datetime         not null
 #  updated_at                                 :datetime         not null
 #  child_support_id                           :bigint
