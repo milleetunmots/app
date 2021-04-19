@@ -47,47 +47,37 @@ require 'rails_helper'
 
 RSpec.describe Child, type: :model do
 
-  before(:each) do
-    @child = FactoryBot.build(:child)
-  end
-
   describe "Validations" do
     context "succeed" do
       it "if minimal attributes are present" do
-        puts @child.inspect
         expect(FactoryBot.build_stubbed(:child)).to be_valid
       end
     end
 
-=begin
     context "fail" do
-      it "if the child doesn't have gender" do
-        expect(FactoryBot.build_stubbed(:child, gender: nil)).to be_invalid
-      end
       it "if the child's gender isn't male or female" do
-        expect(FactoryBot.build_stubbed(:child, gender: nil)).to be_valid
+        child = FactoryBot.build_stubbed(:child)
+        expect(child.gender).to eq ("m"||"f")
       end
       it "if the child doesn't have first name" do
-
+        expect(FactoryBot.build_stubbed(:child, first_name: nil)). to be_invalid
       end
       it "if the child doesn't have last name" do
-
+        expect(FactoryBot.build_stubbed(:child, last_name: nil)). to be_invalid
       end
       it "if the child doesn't have birthdate" do
-
+        expect(FactoryBot.build_stubbed(:child, first_name: nil)). to be_invalid
       end
       it "if the child doesn't have registration source" do
-
+        expect(FactoryBot.build_stubbed(:child, registration_source: nil)). to be_invalid
       end
       it "if the child doesn't have registration source detail" do
-
+        expect(FactoryBot.build_stubbed(:child, registration_source_details: nil)). to be_invalid
       end
       it "if the child doesn't have security code" do
-
+        expect(FactoryBot.build_stubbed(:child, security_code: nil)). to be_invalid
       end
-
     end
-
-=end
   end
+
 end
