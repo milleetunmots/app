@@ -80,4 +80,40 @@ RSpec.describe Child, type: :model do
     end
   end
 
+  describe ".strict_siblings" do
+
+    before do
+      @parent1 = FactoryBot.create(:parent)
+      @parent2 = FactoryBot.create(:parent)
+      @first_child = FactoryBot.create(:child)
+      @second_child = FactoryBot.create(:child)
+      @third_child = FactoryBot.create(:child)
+
+      @first_child.parent1 = @parent1
+      @first_child.parent2 = @parent2
+      @second_child.parent1 = @parent1
+      @second_child.parent2 = @parent2
+      @third_child.parent1 = @parent1
+      @third_child.parent2 = @parent2
+
+      @first_child.save
+      @second_child.save
+      @third_child.save
+
+      @first_child_strict_siblings = [@second_child, @third_child]
+
+    end
+
+    it "returns siblings" do
+      expect(@first_child.strict_siblings).to match_array @first_child_strict_siblings
+    end
+
+
+
+
+
+
+
+  end
+
 end
