@@ -43,7 +43,7 @@ RSpec.describe AdminUser, type: :model do
       end
 
       it "if the user already exists" do
-        @existed = FactoryBot.create(:admin_user, name:"username")
+        @existing = FactoryBot.create(:admin_user, name:"username")
         expect(FactoryBot.build_stubbed(:admin_user, name: "Username")).to be_invalid
       end
     end
