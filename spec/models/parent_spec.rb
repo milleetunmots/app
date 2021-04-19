@@ -45,9 +45,7 @@ require 'rails_helper'
 
 RSpec.describe Parent, type: :model do
 
-  before(:each) do
-    @parent = FactoryBot.build(:parent)
-  end
+  let(:parent) { FactoryBot.build_stubbed(:parent, email: Faker::Internet.email) }
 
   describe "Validations" do
     context "succeed" do
@@ -81,8 +79,12 @@ RSpec.describe Parent, type: :model do
       it "if the parent doesn't have phone number" do
         expect(FactoryBot.build_stubbed(:parent, phone_number: nil)). to be_invalid
       end
-      it "if the parent doesn't have email" do
-        expect(FactoryBot.build_stubbed(:parent, email: nil)). to be_invalid
+      it "if the parent's email doesn't have the correct format" do
+        expect(parent.email). to match(Parent::REGEX_VALID_EMAIL)
+      end
+      it "if a parent with same email already exists" do
+        @existed = FactoryBot.create(:parent, email:"parent@mail.io")
+        expect(FactoryBot.build_stubbed(:parent, email: "parent@mail.io")).to be_invalid
       end
       it "if the parent doesn't accept the terms" do
         expect(FactoryBot.build_stubbed(:parent, terms_accepted_at: nil)). to be_invalid
@@ -90,5 +92,4 @@ RSpec.describe Parent, type: :model do
 
     end
   end
-
 end
