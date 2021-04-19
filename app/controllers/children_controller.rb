@@ -2,6 +2,7 @@ class ChildrenController < ApplicationController
 
   SIBLINGS_COUNT = 3
 
+  before_action :set_src_url
   before_action :find_child, only: %i(edit update)
   before_action :build_variables, only: %i(new create)
   before_action :build_child_action_path, only: %i(edit update)
@@ -36,7 +37,9 @@ class ChildrenController < ApplicationController
   end
 
   def create
-    attributes = child_creation_params
+    attributes = child_creation_params.merge(
+      src_url: session[:src_url]
+    )
 
     # Tags
 
@@ -153,6 +156,7 @@ class ChildrenController < ApplicationController
       @again = false
       @widget = true
     end
+    session.delete(:src_url)
   end
 
   def edit
@@ -238,6 +242,10 @@ class ChildrenController < ApplicationController
 
   def current_registration_origin
     session[:registration_origin] || 1
+  end
+
+  def set_src_url
+    session[:src_url] ||= request.url
   end
 
 end

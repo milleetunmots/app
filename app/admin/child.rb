@@ -102,6 +102,7 @@ ActiveAdmin.register Child do
   filter :family_redirection_url_unique_visits_count
   filter :family_redirection_unique_visit_rate
   filter :family_redirection_unique_visits
+  filter :src_url
   filter :created_at
   filter :updated_at
 
@@ -301,6 +302,7 @@ ActiveAdmin.register Child do
             decorated.public_edit_link(target: '_blank')
           end
           row :tags
+          row :src_url
           row :created_at
           row :updated_at
         end
