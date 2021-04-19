@@ -36,7 +36,6 @@ group :development, :test do
   gem 'simplecov', require: false
   gem 'factory_bot_rails'
   gem 'faker'
-  gem 'cucumber-rails', require: false
 end
 
 group :development do
