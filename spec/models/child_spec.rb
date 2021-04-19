@@ -57,7 +57,7 @@ RSpec.describe Child, type: :model do
     context "fail" do
       it "if the child's gender isn't male or female" do
         child = FactoryBot.build_stubbed(:child)
-        expect(child.gender).to eq ("m"||"f")
+        expect(Child::GENDERS).to include child.gender
       end
       it "if the child doesn't have first name" do
         expect(FactoryBot.build_stubbed(:child, first_name: nil)). to be_invalid
