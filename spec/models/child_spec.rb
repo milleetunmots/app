@@ -51,10 +51,43 @@ RSpec.describe Child, type: :model do
     @child = FactoryBot.build(:child)
   end
 
-  context 'is valid' do
-    it 'if minimal attributes are present' do
-      expect(@child).to be_valid
+  describe "Validations" do
+    context "succeed" do
+      it "if minimal attributes are present" do
+        puts @child.inspect
+        expect(FactoryBot.build_stubbed(:child)).to be_valid
+      end
     end
-  end
 
+=begin
+    context "fail" do
+      it "if the child doesn't have gender" do
+        expect(FactoryBot.build_stubbed(:child, gender: nil)).to be_invalid
+      end
+      it "if the child's gender isn't male or female" do
+        expect(FactoryBot.build_stubbed(:child, gender: nil)).to be_valid
+      end
+      it "if the child doesn't have first name" do
+
+      end
+      it "if the child doesn't have last name" do
+
+      end
+      it "if the child doesn't have birthdate" do
+
+      end
+      it "if the child doesn't have registration source" do
+
+      end
+      it "if the child doesn't have registration source detail" do
+
+      end
+      it "if the child doesn't have security code" do
+
+      end
+
+    end
+
+=end
+  end
 end
