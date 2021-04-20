@@ -44,7 +44,6 @@
 require 'rails_helper'
 
 RSpec.describe Parent, type: :model do
-
   describe "Validations" do
     context "succeed" do
       it "if minimal attributes are present" do
@@ -54,41 +53,50 @@ RSpec.describe Parent, type: :model do
 
     context "fail" do
       it "if the parent doesn't have gender" do
-        expect(FactoryBot.build_stubbed(:parent, gender: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, gender: nil)).to be_invalid
       end
+
       it "if the parent doesn't have firstname" do
-        expect(FactoryBot.build_stubbed(:parent, first_name: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, first_name: nil)).to be_invalid
       end
+
       it "if the parent doesn't have lastname" do
-        expect(FactoryBot.build_stubbed(:parent, last_name: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, last_name: nil)).to be_invalid
       end
+
       it "if the parent doesn't have letterbox" do
-        expect(FactoryBot.build_stubbed(:parent, letterbox_name: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, letterbox_name: nil)).to be_invalid
       end
+
       it "if the parent doesn't have address" do
-        expect(FactoryBot.build_stubbed(:parent, address: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, address: nil)).to be_invalid
       end
+
       it "if the parent doesn't have city" do
-        expect(FactoryBot.build_stubbed(:parent, city_name: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, city_name: nil)).to be_invalid
       end
+
       it "if the parent doesn't have postal code" do
-        expect(FactoryBot.build_stubbed(:parent, postal_code: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, postal_code: nil)).to be_invalid
       end
+
       it "if the parent doesn't have phone number" do
-        expect(FactoryBot.build_stubbed(:parent, phone_number: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, phone_number: nil)).to be_invalid
       end
+
       it "if the parent's email doesn't have the correct format" do
         parent = FactoryBot.build_stubbed(:parent, email: Faker::Internet.email)
         expect(parent.email). to match(Parent::REGEX_VALID_EMAIL)
       end
+
       it "if a parent with same email already exists" do
         @existing = FactoryBot.create(:parent, email:"parent@mail.io")
         expect(FactoryBot.build_stubbed(:parent, email: "parent@mail.io")).to be_invalid
       end
+
       it "if the parent doesn't accept the terms" do
         expect(FactoryBot.build_stubbed(:parent, terms_accepted_at: nil)). to be_invalid
       end
-
     end
   end
 end
