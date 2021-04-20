@@ -4,7 +4,7 @@
 #inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.6.0
+  TargetRubyVersion: 2.6.6
   TargetRailsVersion: 5.1.4
   Exclude:
     - 'vendor/**/*'
@@ -38,10 +38,17 @@ Metrics/BlockLength:
     - 'Rakefile'
     - '**/*.rake'
     - 'spec/**/*.rb'
+    - 'spec/**/*'
+  CountComments: false  # count full line comments?
+    Max: 55
+    ExcludedMethods: [ ]
+
 
 Metrics/ModuleLength:
   Exclude:
     - 'spec/**/*.rb'
+  CountComments: false  # count full line comments?
+    Max: 500
 
 Metrics/AbcSize:
   # The ABC size is a calculated magnitude, so this number can be an Integer or
@@ -52,9 +59,6 @@ Metrics/ClassLength:
   CountComments: false  # count full line comments?
   Max: 500
 
-Metrics/ModuleLength:
-  CountComments: false  # count full line comments?
-  Max: 500
 
 Metrics/LineLength:
   Max: 100
@@ -77,10 +81,6 @@ Metrics/MethodLength:
   CountComments: false  # count full line comments?
   Max: 80
 
-Metrics/BlockLength:
-  CountComments: false  # count full line comments?
-  Max: 55
-  ExcludedMethods: []
 
 Metrics/PerceivedComplexity:
   Max: 10
@@ -95,7 +95,3 @@ Documentation:
 
 Style/Lambda:
   Enabled: false
-
-Metrics/BlockLength:
-  Exclude:
-    - 'spec/**/*'
