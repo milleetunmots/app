@@ -46,7 +46,6 @@
 require 'rails_helper'
 
 RSpec.describe Child, type: :model do
-
   before(:each) do
     @child = FactoryBot.build(:child)
   end
@@ -56,5 +55,4 @@ RSpec.describe Child, type: :model do
       expect(@child).to be_valid
     end
   end
-
 end
