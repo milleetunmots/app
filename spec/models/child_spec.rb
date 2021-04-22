@@ -66,7 +66,7 @@ RSpec.describe Child, type: :model do
         expect(FactoryBot.build_stubbed(:child, last_name: nil)). to be_invalid
       end
       it "if the child doesn't have birthdate" do
-        expect(FactoryBot.build_stubbed(:child, first_name: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:child, birthdate: nil)). to be_invalid
       end
       it "if the child doesn't have registration source" do
         expect(FactoryBot.build_stubbed(:child, registration_source: nil)). to be_invalid
