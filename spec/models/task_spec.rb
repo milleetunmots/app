@@ -39,7 +39,8 @@ RSpec.describe Task, type: :model do
     @task = FactoryBot.create(:task)
     @task_done = FactoryBot.create(:task, done_at: Date.yesterday)
     @task_not_done = FactoryBot.create(:task, done_at: nil)
-    @admin_user = FactoryBot.create(:admin_user)
+    @user1 = FactoryBot.create(:admin_user)
+    @user2 = FactoryBot.create(:admin_user)
   end
 
   describe "Validations" do
@@ -86,7 +87,7 @@ RSpec.describe Task, type: :model do
   describe "#todo" do
     context "returns" do
       it "tasks not done yet" do
-        expect(Task.todo).to eq [@task_not_done]
+        expect(Task.todo).to match_array [@task, @task_not_done]
       end
     end
   end
@@ -102,9 +103,9 @@ RSpec.describe Task, type: :model do
   describe "#assigned_to" do
     context "returns" do
       it "tasks assigned to the user in parameter" do
-        @task.assignee = @admin_user
+        @task.assignee = @user1
         @task.save
-        expect(Task.assigned_to @admin_user).to eq [@task]
+        expect(Task.assigned_to @user1).to eq [@task]
       end
     end
   end
@@ -112,7 +113,9 @@ RSpec.describe Task, type: :model do
   describe "#not_assigned_to" do
     context "returns" do
       it "tasks not assigned to the user in parameter" do
-        expect(Task.not_assigned_to @admin_user).to eq [@task]
+        @task.assignee = @user2
+        @task.save
+        expect(Task.not_assigned_to @user1).to match_array [@task]
       end
     end
   end
