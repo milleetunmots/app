@@ -46,7 +46,6 @@
 require 'rails_helper'
 
 RSpec.describe Child, type: :model do
-
   describe "Validations" do
     context "succeed" do
       it "if minimal attributes are present" do
