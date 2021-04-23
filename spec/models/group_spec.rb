@@ -58,13 +58,13 @@ RSpec.describe Group, type: :model do
   describe ".is_ended? returns" do
     context "true" do
       it "if the group is ended" do
-        expect(@group_ended.is_ended?).to eq TRUE
+        expect(@group_ended.is_ended?).to be_truthy
       end
     end
 
     context "false" do
       it "if the group isn't ended" do
-        expect(@group_not_ended.is_ended?).to eq FALSE
+        expect(@group_not_ended.is_ended?).to be_falsey
       end
     end
   end
@@ -72,13 +72,13 @@ RSpec.describe Group, type: :model do
   describe ".is_not_ended? returns" do
     context "true" do
       it "if the group is not ended" do
-        expect(@group_ended.is_not_ended?).to eq FALSE
+        expect(@group_ended.is_not_ended?).to be_falsey
       end
     end
 
     context "false" do
       it "if the group is ended" do
-        expect(@group_not_ended.is_not_ended?).to eq TRUE
+        expect(@group_not_ended.is_not_ended?).to be_truthy
       end
     end
   end
