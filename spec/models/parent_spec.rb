@@ -99,4 +99,37 @@ RSpec.describe Parent, type: :model do
       end
     end
   end
+
+  describe ".children" do
+    context "return" do
+      it "parent's children" do
+        parent = FactoryBot.create(:parent)
+        first_child = FactoryBot.create(:child)
+        second_child = FactoryBot.create(:child)
+        third_child = FactoryBot.create(:child)
+        first_child.parent1 = parent
+        second_child.parent1 = parent
+        third_child.parent2 = parent
+        first_child.save
+        second_child.save
+        third_child.save
+        expect(parent.children).to match_array [first_child, second_child, third_child]
+      end
+    end
+  end
+
+  describe ".first_children" do
+    context "return" do
+      it "parent's first children" do
+        parent = FactoryBot.create(:parent)
+        first_child = FactoryBot.create(:child)
+        second_child = FactoryBot.create(:child)
+        first_child.parent1 = parent
+        second_child.parent1 = parent
+        first_child.save
+        second_child.save
+        expect(parent.first_child).to eq first_child
+      end
+    end
+  end
 end
