@@ -119,7 +119,7 @@ RSpec.describe Parent, type: :model do
   end
 
   describe ".first_children" do
-    context "return" do
+    context "returns" do
       it "parent's first children" do
         parent = FactoryBot.create(:parent)
         first_child = FactoryBot.create(:child)
@@ -132,4 +132,49 @@ RSpec.describe Parent, type: :model do
       end
     end
   end
+
+  describe "#first_child_couples" do
+    context "returns" do
+      it "table of parent_id, first_child_id couples" do
+        parent1 = FactoryBot.create(:parent)
+=begin
+
+
+        parent2 = FactoryBot.create(:parent)
+        first_child = FactoryBot.create(:child)
+        second_child = FactoryBot.create(:child)
+        third_child = FactoryBot.create(:child)
+        parent1.parent1_children = [first_child, second_child]
+        #parent2.parent1_children = [third_child]
+        parent1.save
+        #parent2.save
+=end
+        puts Parent.first_child_couples.inspect
+        #expect(Parent.first_child_couples).to match_array [parent1, first_child, parent2, third_child]
+      end
+    end
+  end
+
+  describe "#mothers" do
+    context "returns" do
+      it "the mothers" do
+        mother1 = FactoryBot.create(:parent, gender: Parent::GENDER_FEMALE)
+        mother2 = FactoryBot.create(:parent, gender: Parent::GENDER_FEMALE)
+        mother3 = FactoryBot.create(:parent, gender: Parent::GENDER_FEMALE)
+        expect(Parent.mothers).to match_array [mother1, mother2, mother3]
+      end
+    end
+  end
+
+  describe "#fathers" do
+    context "returns" do
+      it "the fathers" do
+        father1 = FactoryBot.create(:parent, gender: Parent::GENDER_MALE)
+        father2 = FactoryBot.create(:parent, gender: Parent::GENDER_MALE)
+        expect(Parent.fathers).to match_array [father1, father2]
+      end
+    end
+  end
+
+
 end
