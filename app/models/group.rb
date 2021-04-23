@@ -18,7 +18,6 @@
 #
 
 class Group < ApplicationRecord
-
   include Discard::Model
 
   # ---------------------------------------------------------------------------
@@ -59,5 +58,4 @@ class Group < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   has_paper_trail
-
 end
