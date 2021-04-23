@@ -17,7 +17,7 @@
 #  index_groups_on_started_at    (started_at)
 #
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe Group, type: :model do
   before(:each) do

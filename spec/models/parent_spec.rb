@@ -41,7 +41,7 @@
 #  index_parents_on_postal_code            (postal_code)
 #
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe Parent, type: :model do
   describe "Validations" do

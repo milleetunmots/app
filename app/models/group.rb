@@ -32,8 +32,8 @@ class Group < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   validates :name,
-            presence: true,
-            uniqueness: { case_sensitive: false }
+    presence: true,
+    uniqueness: {case_sensitive: false}
 
   # ---------------------------------------------------------------------------
   # scopes
