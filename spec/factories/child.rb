@@ -3,13 +3,12 @@ FactoryBot.define do
 
     association :parent1, factory: :parent
 
-    gender                      { Child::GENDERS.sample }
-    birthdate                   {
+    birthdate {
       Faker::Date.between(from: Child.min_birthdate, to: Child.max_birthdate)
     }
-    first_name                  { Faker::Name.first_name }
-    last_name                   { Faker::Name.last_name }
-    registration_source         { Child::REGISTRATION_SOURCES.sample }
+    first_name { Faker::Name.first_name }
+    last_name { Faker::Name.last_name }
+    registration_source { Child::REGISTRATION_SOURCES.sample }
     registration_source_details { Faker::Movies::StarWars.planet }
 
   end
