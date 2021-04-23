@@ -123,9 +123,26 @@ RSpec.describe ChildSupport, type: :model do
         end
       end
     end
+  end
 
-    context "fail" do
+  describe "#supported_by" do
+    context "returns" do
+      it "Child_support supported by the admin in parameter" do
+        admin_user = FactoryBot.create(:admin_user)
+        child_support = FactoryBot.create(:child_support)
+        child_support.supporter = admin_user
+        child_support.save
+        expect(ChildSupport.supported_by admin_user).to match_array [child_support]
+      end
+    end
+  end
 
+  describe "#without_supporter" do
+    context "returns" do
+      it "Child_support without supporter" do
+        child_support = FactoryBot.create(:child_support, supporter: nil)
+        expect(ChildSupport.without_supporter).to match_array [child_support]
+      end
     end
   end
 end
