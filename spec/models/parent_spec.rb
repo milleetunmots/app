@@ -148,19 +148,19 @@ RSpec.describe Parent, type: :model do
     end
   end
 
-  describe "#mothers" do
-    context "returns" do
-      it "the mothers" do
-        expect(Parent.mothers).to match_array [second_parent]
-      end
-    end
-  end
-
-  describe "#fathers" do
-    context "returns" do
-      it "the fathers" do
-        expect(Parent.fathers).to match_array [first_parent]
-      end
-    end
-  end
+  #   describe "#mothers" do
+  #     context "returns" do
+  #       it "the mothers" do
+  #         expect(Parent.mothers).to match_array [second_parent]
+  #       end
+  #     end
+  #   end
+  #
+  #   describe "#fathers" do
+  #     context "returns" do
+  #       it "the fathers" do
+  #         expect(Parent.fathers).to match_array [first_parent]
+  #       end
+  #     end
+  #   end
 end
