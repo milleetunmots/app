@@ -3,7 +3,6 @@ FactoryBot.define do
 
     association :parent1, factory: :parent
 
-    gender { Child::GENDERS.sample }
     birthdate {
       Faker::Date.between(from: Child.min_birthdate, to: Child.max_birthdate)
     }
