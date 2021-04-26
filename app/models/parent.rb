@@ -45,8 +45,8 @@ class Parent < ApplicationRecord
 
   include Discard::Model
 
-  GENDER_FEMALE = 'f'.freeze
-  GENDER_MALE = 'm'.freeze
+  GENDER_FEMALE = "f".freeze
+  GENDER_MALE = "m".freeze
   GENDERS = [GENDER_FEMALE, GENDER_MALE].freeze
   REGEX_VALID_EMAIL = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
 
@@ -55,14 +55,14 @@ class Parent < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   has_many :parent1_children,
-           class_name: :Child,
-           foreign_key: :parent1_id,
-           dependent: :nullify
+    class_name: :Child,
+    foreign_key: :parent1_id,
+    dependent: :nullify
 
   has_many :parent2_children,
-           class_name: :Child,
-           foreign_key: :parent2_id,
-           dependent: :nullify
+    class_name: :Child,
+    foreign_key: :parent2_id,
+    dependent: :nullify
 
   def children
     parent1_children.or(parent2_children)
@@ -82,7 +82,7 @@ class Parent < ApplicationRecord
 
   before_validation :format_phone_number
 
-  validates :gender, presence: true, inclusion: { in: GENDERS }
+  validates :gender, presence: true, inclusion: {in: GENDERS}
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :letterbox_name, presence: true
@@ -90,15 +90,15 @@ class Parent < ApplicationRecord
   validates :city_name, presence: true
   validates :postal_code, presence: true
   validates :phone_number,
-            phone: {
-              possible: true,
-              types: :mobile,
-              countries: :fr
-            },
-            presence: true
+    phone: {
+      possible: true,
+      types: :mobile,
+      countries: :fr
+    },
+    presence: true
   validates :email,
-            format: { with: REGEX_VALID_EMAIL, allow_blank: true },
-            uniqueness: { case_sensitive: false, allow_blank: true }
+    format: {with: REGEX_VALID_EMAIL, allow_blank: true},
+    uniqueness: {case_sensitive: false, allow_blank: true}
   validates :terms_accepted_at, presence: true
 
   # ---------------------------------------------------------------------------
@@ -206,7 +206,7 @@ class Parent < ApplicationRecord
 
   def format_phone_number
     # format phone number to e164
-    if attribute_present?('phone_number')
+    if attribute_present?("phone_number")
       phone = Phonelib.parse(phone_number)
       self.phone_number = phone.e164
       self.phone_number_national = phone.national(false)

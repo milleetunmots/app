@@ -41,7 +41,7 @@
 #  index_parents_on_postal_code            (postal_code)
 #
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe Parent, type: :model do
   describe "Validations" do
@@ -54,6 +54,10 @@ RSpec.describe Parent, type: :model do
     context "fail" do
       it "if the parent doesn't have gender" do
         expect(FactoryBot.build_stubbed(:parent, gender: nil)).to be_invalid
+      end
+
+      it "if the parent gender isn't provided by Parent::GENDERS" do
+        expect(FactoryBot.build_stubbed(:parent, gender: "x")).to be_invalid
       end
 
       it "if the parent doesn't have firstname" do
@@ -90,7 +94,7 @@ RSpec.describe Parent, type: :model do
       end
 
       it "if a parent with same email already exists" do
-        @existing = FactoryBot.create(:parent, email:"parent@mail.io")
+        @existing = FactoryBot.create(:parent, email: "parent@mail.io")
         expect(FactoryBot.build_stubbed(:parent, email: "parent@mail.io")).to be_invalid
       end
 
@@ -137,20 +141,11 @@ RSpec.describe Parent, type: :model do
     context "returns" do
       it "table of parent_id, first_child_id couples" do
         parent1 = FactoryBot.create(:parent)
-=begin
-
-
-        parent2 = FactoryBot.create(:parent)
         first_child = FactoryBot.create(:child)
-        second_child = FactoryBot.create(:child)
-        third_child = FactoryBot.create(:child)
-        parent1.parent1_children = [first_child, second_child]
-        #parent2.parent1_children = [third_child]
+        parent1.parent1_children = [first_child]
         parent1.save
-        #parent2.save
-=end
-        puts Parent.first_child_couples.inspect
-        #expect(Parent.first_child_couples).to match_array [parent1, first_child, parent2, third_child]
+        expect(Parent.first_child_couples.first["parent_id"]).to eq parent1.id
+        expect(Parent.first_child_couples.first["first_child_id"]).to eq first_child.id
       end
     end
   end
