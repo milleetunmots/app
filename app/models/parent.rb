@@ -164,7 +164,7 @@ class Parent < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   include PgSearch
-  multisearchable against: %i(first_name last_name phone_number_national email)
+  multisearchable against: %i[first_name last_name phone_number_national email]
 
   # ---------------------------------------------------------------------------
   # scopes

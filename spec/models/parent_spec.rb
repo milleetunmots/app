@@ -44,6 +44,12 @@
 require "rails_helper"
 
 RSpec.describe Parent, type: :model do
+  let(:first_child) { FactoryBot.create(:child) }
+  let(:second_child) { FactoryBot.create(:child) }
+  let(:third_child) { FactoryBot.create(:child) }
+  let(:first_parent) { FactoryBot.create(:parent, gender: Parent::GENDER_MALE, parent1_children: [first_child, third_child]) }
+  let(:second_parent) { FactoryBot.create(:parent, gender: Parent::GENDER_FEMALE, parent2_children: [second_child]) }
+
   describe "Validations" do
     context "succeed" do
       it "if minimal attributes are present" do
@@ -90,7 +96,7 @@ RSpec.describe Parent, type: :model do
 
       it "if the parent's email doesn't have the correct format" do
         parent = FactoryBot.build_stubbed(:parent, email: Faker::Internet.email)
-        expect(parent.email). to match(Parent::REGEX_VALID_EMAIL)
+        expect(parent.email).to match(Parent::REGEX_VALID_EMAIL)
       end
 
       it "if a parent with same email already exists" do
@@ -107,17 +113,8 @@ RSpec.describe Parent, type: :model do
   describe ".children" do
     context "return" do
       it "parent's children" do
-        parent = FactoryBot.create(:parent)
-        first_child = FactoryBot.create(:child)
-        second_child = FactoryBot.create(:child)
-        third_child = FactoryBot.create(:child)
-        first_child.parent1 = parent
-        second_child.parent1 = parent
-        third_child.parent2 = parent
-        first_child.save
-        second_child.save
-        third_child.save
-        expect(parent.children).to match_array [first_child, second_child, third_child]
+        expect(first_parent.children).to match_array [first_child, third_child]
+        expect(second_parent.children).to match_array [second_child]
       end
     end
   end
@@ -125,14 +122,8 @@ RSpec.describe Parent, type: :model do
   describe ".first_children" do
     context "returns" do
       it "parent's first children" do
-        parent = FactoryBot.create(:parent)
-        first_child = FactoryBot.create(:child)
-        second_child = FactoryBot.create(:child)
-        first_child.parent1 = parent
-        second_child.parent1 = parent
-        first_child.save
-        second_child.save
-        expect(parent.first_child).to eq first_child
+        expect(first_parent.first_child).to eq first_child
+        expect(second_parent.first_child).to eq second_child
       end
     end
   end
@@ -140,12 +131,19 @@ RSpec.describe Parent, type: :model do
   describe "#first_child_couples" do
     context "returns" do
       it "table of parent_id, first_child_id couples" do
-        parent1 = FactoryBot.create(:parent)
-        first_child = FactoryBot.create(:child)
-        parent1.parent1_children = [first_child]
-        parent1.save
-        expect(Parent.first_child_couples.first["parent_id"]).to eq parent1.id
-        expect(Parent.first_child_couples.first["first_child_id"]).to eq first_child.id
+        Parent.first_child_couples.all do |couple|
+          expect(Parent.find(couple["parent_id"]).first_child.id).to eq couple["first_child_id"]
+        end
+      end
+    end
+  end
+
+  describe "#left_outer_joins_first_child" do
+    context "returns" do
+      it "table of parents joins with first_child" do
+        Parent.left_outer_joins_first_child.select("parents.*, first_child.group_id").all do |parent|
+          expect(parent.group_id).to eq Parent.find(parent.id).first_child.group_id
+        end
       end
     end
   end
@@ -153,10 +151,7 @@ RSpec.describe Parent, type: :model do
   describe "#mothers" do
     context "returns" do
       it "the mothers" do
-        mother1 = FactoryBot.create(:parent, gender: Parent::GENDER_FEMALE)
-        mother2 = FactoryBot.create(:parent, gender: Parent::GENDER_FEMALE)
-        mother3 = FactoryBot.create(:parent, gender: Parent::GENDER_FEMALE)
-        expect(Parent.mothers).to match_array [mother1, mother2, mother3]
+        expect(Parent.mothers).to match_array [second_parent]
       end
     end
   end
@@ -164,12 +159,8 @@ RSpec.describe Parent, type: :model do
   describe "#fathers" do
     context "returns" do
       it "the fathers" do
-        father1 = FactoryBot.create(:parent, gender: Parent::GENDER_MALE)
-        father2 = FactoryBot.create(:parent, gender: Parent::GENDER_MALE)
-        expect(Parent.fathers).to match_array [father1, father2]
+        expect(Parent.fathers).to match_array [first_parent]
       end
     end
   end
-
-
 end
