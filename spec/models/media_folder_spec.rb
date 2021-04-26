@@ -17,7 +17,7 @@
 #  fk_rails_...  (parent_id => media_folders.id)
 #
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe MediaFolder, type: :model do
 
@@ -27,18 +27,18 @@ RSpec.describe MediaFolder, type: :model do
     )
   end
 
-  context 'is valid' do
-    it 'if a name is present' do
+  context "is valid" do
+    it "if a name is present" do
       expect(@media_folder).to be_valid
     end
   end
 
-  context 'is not valid' do
-    it 'if no name is given' do
+  context "is not valid" do
+    it "if no name is given" do
       @media_folder.name = nil
       expect(@media_folder).to_not be_valid
     end
-    it 'if it is its own parent' do
+    it "if it is its own parent" do
       @media_folder.save!
       @media_folder.parent = @media_folder
       expect(@media_folder).to_not be_valid
