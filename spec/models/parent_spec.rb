@@ -44,11 +44,13 @@
 require "rails_helper"
 
 RSpec.describe Parent, type: :model do
-  let(:first_child) { FactoryBot.create(:child) }
-  let(:second_child) { FactoryBot.create(:child) }
-  let(:third_child) { FactoryBot.create(:child) }
-  let(:first_parent) { FactoryBot.create(:parent, gender: Parent::GENDER_MALE, parent1_children: [first_child, third_child]) }
-  let(:second_parent) { FactoryBot.create(:parent, gender: Parent::GENDER_FEMALE, parent2_children: [second_child]) }
+  before(:each) do
+    @first_parent = FactoryBot.create(:parent, gender: Parent::GENDER_MALE)
+    @second_parent = FactoryBot.create(:parent, gender: Parent::GENDER_FEMALE)
+    @first_child = FactoryBot.create(:child, first_name: "FirstName", parent1: @first_parent)
+    @second_child = FactoryBot.create(:child, parent1: @second_parent)
+    @third_child = FactoryBot.create(:child, parent1: @first_parent)
+  end
 
   describe "Validations" do
     context "succeed" do
@@ -113,8 +115,8 @@ RSpec.describe Parent, type: :model do
   describe ".children" do
     context "return" do
       it "parent's children" do
-        expect(first_parent.children).to match_array [first_child, third_child]
-        expect(second_parent.children).to match_array [second_child]
+        expect(@first_parent.children).to match_array [@first_child, @third_child]
+        expect(@second_parent.children).to match_array [@second_child]
       end
     end
   end
@@ -122,8 +124,8 @@ RSpec.describe Parent, type: :model do
   describe ".first_children" do
     context "returns" do
       it "parent's first children" do
-        expect(first_parent.first_child).to eq first_child
-        expect(second_parent.first_child).to eq second_child
+        expect(@first_parent.first_child).to eq @first_child
+        expect(@second_parent.first_child).to eq @second_child
       end
     end
   end
@@ -131,7 +133,7 @@ RSpec.describe Parent, type: :model do
   describe "#first_child_couples" do
     context "returns" do
       it "table of parent_id, first_child_id couples" do
-        Parent.first_child_couples.all do |couple|
+        Parent.first_child_couples.all.each do |couple|
           expect(Parent.find(couple["parent_id"]).first_child.id).to eq couple["first_child_id"]
         end
       end
@@ -141,26 +143,34 @@ RSpec.describe Parent, type: :model do
   describe "#left_outer_joins_first_child" do
     context "returns" do
       it "table of parents joins with first_child" do
-        Parent.left_outer_joins_first_child.select("parents.*, first_child.group_id").all do |parent|
+        Parent.left_outer_joins_first_child.select("parents.*, first_child.group_id").all.each do |parent|
           expect(parent.group_id).to eq Parent.find(parent.id).first_child.group_id
         end
       end
     end
   end
 
-  #   describe "#mothers" do
-  #     context "returns" do
-  #       it "the mothers" do
-  #         expect(Parent.mothers).to match_array [second_parent]
-  #       end
-  #     end
-  #   end
-  #
-  #   describe "#fathers" do
-  #     context "returns" do
-  #       it "the fathers" do
-  #         expect(Parent.fathers).to match_array [first_parent]
-  #       end
-  #     end
-  #   end
+  describe "#where_first_child(conditions)" do
+    context "returns" do
+      it "first_child who meet the condition" do
+        expect(Parent.where_first_child(first_name: "FirstName").first).to eq @first_child.parent1
+      end
+    end
+  end
+
+  describe "#fathers" do
+    context "returns" do
+      it "the fathers" do
+        expect(Parent.fathers).to match_array [@first_parent]
+      end
+    end
+  end
+
+  describe "#mothers" do
+    context "returns" do
+      it "the mothers" do
+        expect(Parent.mothers).to match_array [@second_parent]
+      end
+    end
+  end
 end
