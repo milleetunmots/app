@@ -100,7 +100,7 @@
 #
 #  fk_rails_...  (supporter_id => admin_users.id)
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe ChildSupport, type: :model do
   describe "Validations" do
@@ -132,7 +132,7 @@ RSpec.describe ChildSupport, type: :model do
         child_support = FactoryBot.create(:child_support)
         child_support.supporter = admin_user
         child_support.save
-        expect(ChildSupport.supported_by admin_user).to match_array [child_support]
+        expect(ChildSupport.supported_by(admin_user)).to match_array [child_support]
       end
     end
   end
