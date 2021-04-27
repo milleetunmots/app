@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :child do
     association :parent1, factory: :parent
-    
+
     birthdate {
       Faker::Date.between(from: Child.min_birthdate, to: Child.max_birthdate)
     }

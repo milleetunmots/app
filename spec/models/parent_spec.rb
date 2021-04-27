@@ -50,6 +50,25 @@ RSpec.describe Parent, type: :model do
     @first_child = FactoryBot.create(:child, first_name: "FirstName", parent1: @first_parent)
     @second_child = FactoryBot.create(:child, parent1: @second_parent)
     @third_child = FactoryBot.create(:child, parent1: @first_parent)
+    @group = FactoryBot.create(:group, children: [@first_child])
+  end
+
+  describe ".children" do
+    context "return" do
+      it "parent's children" do
+        expect(@first_parent.children).to match_array [@first_child, @third_child]
+        expect(@second_parent.children).to match_array [@second_child]
+      end
+    end
+  end
+
+  describe ".first_children" do
+    context "returns" do
+      it "parent's first children" do
+        expect(@first_parent.first_child).to eq @first_child
+        expect(@second_parent.first_child).to eq @second_child
+      end
+    end
   end
 
   describe "Validations" do
@@ -107,25 +126,7 @@ RSpec.describe Parent, type: :model do
       end
 
       it "if the parent doesn't accept the terms" do
-        expect(FactoryBot.build_stubbed(:parent, terms_accepted_at: nil)). to be_invalid
-      end
-    end
-  end
-
-  describe ".children" do
-    context "return" do
-      it "parent's children" do
-        expect(@first_parent.children).to match_array [@first_child, @third_child]
-        expect(@second_parent.children).to match_array [@second_child]
-      end
-    end
-  end
-
-  describe ".first_children" do
-    context "returns" do
-      it "parent's first children" do
-        expect(@first_parent.first_child).to eq @first_child
-        expect(@second_parent.first_child).to eq @second_child
+        expect(FactoryBot.build_stubbed(:parent, terms_accepted_at: nil)).to be_invalid
       end
     end
   end
@@ -152,16 +153,26 @@ RSpec.describe Parent, type: :model do
 
   describe "#where_first_child(conditions)" do
     context "returns" do
-      it "first_child who meet the condition" do
+      it "table of parents with first child who meet the condition" do
         expect(Parent.where_first_child(first_name: "FirstName").first).to eq @first_child.parent1
       end
     end
   end
 
-  describe "#fathers" do
+  describe "#first_child_group_in(*v)" do
     context "returns" do
-      it "the fathers" do
-        expect(Parent.fathers).to match_array [@first_parent]
+      it "table of parent with first child in the group" do
+        expect(Parent.first_child_group_id_in(@group.id).first).to eq @first_child.parent1
+      end
+    end
+  end
+
+  describe "#first_child_supported_by(v)" do
+    context "returns" do
+      it "table of parents with first child supported by v" do
+        admin = FactoryBot.create(:admin_user)
+        @first_child.update child_support: FactoryBot.create(:child_support, supporter: admin)
+        expect(Parent.first_child_supported_by(admin).first).to eq @first_child.parent1
       end
     end
   end
@@ -170,6 +181,14 @@ RSpec.describe Parent, type: :model do
     context "returns" do
       it "the mothers" do
         expect(Parent.mothers).to match_array [@second_parent]
+      end
+    end
+  end
+
+  describe "#fathers" do
+    context "returns" do
+      it "the fathers" do
+        expect(Parent.fathers).to match_array [@first_parent]
       end
     end
   end
