@@ -43,7 +43,6 @@
 
 FactoryBot.define do
   factory :parent do
-
     gender { Parent::GENDERS.sample }
     first_name { Faker::Name.first_name }
     last_name { Faker::Name.last_name }
@@ -53,6 +52,5 @@ FactoryBot.define do
     postal_code { Faker::Address.postcode }
     phone_number { Faker::PhoneNumber.phone_number }
     terms_accepted_at { Faker::Date.backward }
-
   end
 end

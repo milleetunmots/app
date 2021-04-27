@@ -50,6 +50,7 @@ RSpec.describe Parent, type: :model do
     @first_child = FactoryBot.create(:child, first_name: "FirstName", parent1: @first_parent)
     @second_child = FactoryBot.create(:child, parent1: @second_parent)
     @third_child = FactoryBot.create(:child, parent1: @first_parent)
+    @group = FactoryBot.create(:group, children: [@first_child])
   end
 
   describe "Validations" do
@@ -107,7 +108,7 @@ RSpec.describe Parent, type: :model do
       end
 
       it "if the parent doesn't accept the terms" do
-        expect(FactoryBot.build_stubbed(:parent, terms_accepted_at: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, terms_accepted_at: nil)).to be_invalid
       end
     end
   end
@@ -158,6 +159,24 @@ RSpec.describe Parent, type: :model do
     end
   end
 
+  describe "#first_child_group_in(*v)" do
+    context "returns" do
+      it "" do
+        expect(Parent.first_child_group_id_in(@group.id).first).to eq @first_child.parent1
+      end
+    end
+  end
+
+=begin
+  describe "#first_child_supported_by(v)" do
+    context "returns" do
+      it "" do
+        @admin = FactoryBot.create(:admin_user)
+        @first_child.child_support = FactoryBot.create(:)
+      end
+    end
+  end
+=end
   describe "#fathers" do
     context "returns" do
       it "the fathers" do
