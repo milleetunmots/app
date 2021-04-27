@@ -52,7 +52,7 @@ RSpec.describe Child, type: :model do
         expect(FactoryBot.build_stubbed(:child)).to be_valid
       end
 
-      it "if the gender is provided by Child::GENDERS" do
+      it "if the child's gender is provided by Child::GENDERS" do
         expect(FactoryBot.build_stubbed(:child, gender: Child::GENDERS.sample)).to be_valid
       end
     end
@@ -66,19 +66,19 @@ RSpec.describe Child, type: :model do
         expect(FactoryBot.build_stubbed(:child, first_name: nil)).to be_invalid
       end
       it "if the child doesn't have last name" do
-        expect(FactoryBot.build_stubbed(:child, last_name: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:child, last_name: nil)).to be_invalid
       end
       it "if the child doesn't have birthdate" do
-        expect(FactoryBot.build_stubbed(:child, birthdate: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:child, birthdate: nil)).to be_invalid
       end
       it "if the child doesn't have registration source" do
-        expect(FactoryBot.build_stubbed(:child, registration_source: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:child, registration_source: nil)).to be_invalid
       end
       it "if the child doesn't have registration source detail" do
-        expect(FactoryBot.build_stubbed(:child, registration_source_details: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:child, registration_source_details: nil)).to be_invalid
       end
       it "if the child doesn't have security code" do
-        expect(FactoryBot.build_stubbed(:child, security_code: nil)). to be_invalid
+        expect(FactoryBot.build_stubbed(:child, security_code: nil)).to be_invalid
       end
     end
   end
