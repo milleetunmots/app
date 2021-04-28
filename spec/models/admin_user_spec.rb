@@ -35,16 +35,16 @@ RSpec.describe AdminUser, type: :model do
 
     context "fail" do
       it "if the user doesn't have a name" do
-        expect(FactoryBot.build_stubbed(:admin_user, name: nil)).to be_invalid
+        expect(FactoryBot.build_stubbed(:admin_user, name: nil)).not_to be_valid
       end
 
       it "if the user doesn't have a email" do
-        expect(FactoryBot.build_stubbed(:admin_user, email: nil)).to be_invalid
+        expect(FactoryBot.build_stubbed(:admin_user, email: nil)).not_to be_valid
       end
 
       it "if the user already exists" do
         @existing = FactoryBot.create(:admin_user, name: "username")
-        expect(FactoryBot.build_stubbed(:admin_user, name: "Username")).to be_invalid
+        expect(FactoryBot.build_stubbed(:admin_user, name: "Username")).not_to be_valid
       end
     end
   end
