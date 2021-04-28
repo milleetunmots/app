@@ -72,7 +72,7 @@ RSpec.describe Task, type: :model do
   describe ".is_done = (v)" do
     context "sets done_at" do
       it "at the current time if v is empty, true, t or 1" do
-        v = %w(true t 1).sample
+        v = %w[true t 1].sample
         @task.is_done = v
         expect(@task.done_at.class).to be Date
       end
@@ -100,12 +100,23 @@ RSpec.describe Task, type: :model do
     end
   end
 
+  describe "#relating" do
+    context "returns" do
+      it "tasks related to model in parameter" do
+        related_model = [:child, :group, :parent].sample
+        related = FactoryBot.create(related_model)
+        @task.update! related: related
+        expect(Task.relating(related)).to eq [@task]
+      end
+    end
+  end
+
   describe "#assigned_to" do
     context "returns" do
       it "tasks assigned to the user in parameter" do
         @task.assignee = @user1
         @task.save
-        expect(Task.assigned_to @user1).to eq [@task]
+        expect(Task.assigned_to(@user1)).to eq [@task]
       end
     end
   end
@@ -115,7 +126,7 @@ RSpec.describe Task, type: :model do
       it "tasks not assigned to the user in parameter" do
         @task.assignee = @user2
         @task.save
-        expect(Task.not_assigned_to @user1).to match_array [@task]
+        expect(Task.not_assigned_to(@user1)).to match_array [@task]
       end
     end
   end

@@ -67,13 +67,11 @@ class Task < ApplicationRecord
   def is_done
     !done_at.nil?
   end
-  alias :is_done? :is_done
+  alias_method :is_done?, :is_done
 
   def is_done=(v)
-    if %w(true t 1).include?((v || '').to_s.downcase)
-      self.done_at = Time.now
-    else
-      self.done_at = nil
+    self.done_at = if %w[true t 1].include?((v || '').to_s.downcase)
+      Time.now
     end
   end
 
@@ -82,6 +80,6 @@ class Task < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   include PgSearch
-  multisearchable against: %i(title description)
+  multisearchable against: %i[title description]
 
 end
