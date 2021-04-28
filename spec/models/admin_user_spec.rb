@@ -23,7 +23,7 @@
 #  index_admin_users_on_reset_password_token  (reset_password_token) UNIQUE
 #
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe AdminUser, type: :model do
   describe "Validations" do
@@ -43,7 +43,7 @@ RSpec.describe AdminUser, type: :model do
       end
 
       it "if the user already exists" do
-        @existing = FactoryBot.create(:admin_user, name:"username")
+        @existing = FactoryBot.create(:admin_user, name: "username")
         expect(FactoryBot.build_stubbed(:admin_user, name: "Username")).to be_invalid
       end
     end

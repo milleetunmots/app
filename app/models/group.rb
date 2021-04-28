@@ -18,7 +18,6 @@
 #
 
 class Group < ApplicationRecord
-
   include Discard::Model
 
   # ---------------------------------------------------------------------------
@@ -32,8 +31,8 @@ class Group < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   validates :name,
-            presence: true,
-            uniqueness: { case_sensitive: false }
+    presence: true,
+    uniqueness: {case_sensitive: false}
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -59,5 +58,4 @@ class Group < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   has_paper_trail
-
 end

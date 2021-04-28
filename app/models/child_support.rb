@@ -134,10 +134,10 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   belongs_to :supporter,
-             class_name: :AdminUser,
-             optional: true
+    class_name: :AdminUser,
+    optional: true
   has_many :children,
-           dependent: :nullify
+    dependent: :nullify
   has_one :first_child, class_name: :Child
   has_one :parent1, through: :first_child
   has_one :parent2, through: :first_child
@@ -151,22 +151,22 @@ class ChildSupport < ApplicationRecord
   (1..5).each do |call_idx|
 
     validates "call#{call_idx}_language_awareness",
-              inclusion: {
-                in: LANGUAGE_AWARENESS,
-                allow_blank: true
-              }
+      inclusion: {
+        in: LANGUAGE_AWARENESS,
+        allow_blank: true
+      }
 
     validates "call#{call_idx}_parent_progress",
-              inclusion: {
-                in: PARENT_PROGRESS,
-                allow_blank: true
-              }
+      inclusion: {
+        in: PARENT_PROGRESS,
+        allow_blank: true
+      }
 
     validates "call#{call_idx}_sendings_benefits",
-              inclusion: {
-                in: SENDINGS_BENEFITS,
-                allow_blank: true
-              }
+      inclusion: {
+        in: SENDINGS_BENEFITS,
+        allow_blank: true
+      }
 
   end
 
@@ -256,38 +256,38 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   delegate :address,
-           :city_name,
-           :has_quit_group,
-           :letterbox_name,
-           :parent_events,
-           :parent1_first_name,
-           :parent1_gender,
-           :parent1_is_ambassador,
-           :parent1_is_ambassador?,
-           :parent1_is_lycamobile,
-           :parent1_is_lycamobile?,
-           :parent1_last_name,
-           :parent1_phone_number_national,
-           :parent2_first_name,
-           :parent2_gender,
-           :parent2_is_ambassador,
-           :parent2_is_ambassador?,
-           :parent2_is_lycamobile,
-           :parent2_is_lycamobile?,
-           :parent2_last_name,
-           :parent2_phone_number_national,
-           :postal_code,
-           :should_contact_parent1,
-           :should_contact_parent1?,
-           :should_contact_parent2,
-           :should_contact_parent2?,
-           to: :first_child,
-           allow_nil: true
+    :city_name,
+    :has_quit_group,
+    :letterbox_name,
+    :parent_events,
+    :parent1_first_name,
+    :parent1_gender,
+    :parent1_is_ambassador,
+    :parent1_is_ambassador?,
+    :parent1_is_lycamobile,
+    :parent1_is_lycamobile?,
+    :parent1_last_name,
+    :parent1_phone_number_national,
+    :parent2_first_name,
+    :parent2_gender,
+    :parent2_is_ambassador,
+    :parent2_is_ambassador?,
+    :parent2_is_lycamobile,
+    :parent2_is_lycamobile?,
+    :parent2_last_name,
+    :parent2_phone_number_national,
+    :postal_code,
+    :should_contact_parent1,
+    :should_contact_parent1?,
+    :should_contact_parent2,
+    :should_contact_parent2?,
+    to: :first_child,
+    allow_nil: true
 
   delegate :name,
-           to: :supporter,
-           prefix: true,
-           allow_nil: true
+    to: :supporter,
+    prefix: true,
+    allow_nil: true
 
   (1..5).each do |call_idx|
     define_method("call#{call_idx}_parent_progress_index") do
