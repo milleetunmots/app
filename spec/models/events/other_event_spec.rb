@@ -22,17 +22,17 @@
 
 require "rails_helper"
 
-RSpec.describe Events::TextMessage, type: :model do
+RSpec.describe Events::OtherEvent, type: :model do
   describe "Validations" do
     context "succeed" do
-      it "if the text message have a body" do
-        expect(FactoryBot.build_stubbed(:text_message)).to be_valid
+      it "if the event have a body" do
+        expect(FactoryBot.build_stubbed(:other_event)).to be_valid
       end
     end
 
     context "fail" do
-      it "if the text message doesn't have a body" do
-        expect(FactoryBot.build_stubbed(:text_message, body: nil)).not_to be_valid
+      it "if the event doesn't have a body" do
+        expect(FactoryBot.build_stubbed(:other_event, body: nil)).not_to be_valid
       end
     end
   end

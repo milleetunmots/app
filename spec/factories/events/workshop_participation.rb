@@ -20,20 +20,10 @@
 #  index_events_on_type                         (type)
 #
 
-require "rails_helper"
+FactoryBot.define do
+  factory :workshop_participation, class: Events::WorkshopParticipation do
+    association :related, factory: :parent
 
-RSpec.describe Events::TextMessage, type: :model do
-  describe "Validations" do
-    context "succeed" do
-      it "if the text message have a body" do
-        expect(FactoryBot.build_stubbed(:text_message)).to be_valid
-      end
-    end
-
-    context "fail" do
-      it "if the text message doesn't have a body" do
-        expect(FactoryBot.build_stubbed(:text_message, body: nil)).not_to be_valid
-      end
-    end
+    occurred_at { Faker::Date.backward(days: 30) }
   end
 end
