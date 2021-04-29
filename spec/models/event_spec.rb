@@ -28,6 +28,11 @@ RSpec.describe Event, type: :model do
     @survey_response = FactoryBot.create(:survey_response)
     @text_message = FactoryBot.create(:text_message)
     @workshop_participation = FactoryBot.create(:workshop_participation)
+    @admin = FactoryBot.create(:admin_user)
+    @child = FactoryBot.create(:child, child_support: FactoryBot.create(:child_support, supporter: @admin))
+    @parent = FactoryBot.create(:parent, parent1_children: [@child])
+    @group = FactoryBot.create(:group, children: [@child])
+    @event = FactoryBot.create(:event, related: @parent)
   end
 
   describe "Validations" do
@@ -72,6 +77,22 @@ RSpec.describe Event, type: :model do
     context "returns" do
       it "workshops" do
         expect(Event.workshop_participations).to match_array [@workshop_participation]
+      end
+    end
+  end
+
+  describe "#parent_first_child_group_id_in" do
+    context "returns" do
+      it "table of events with parent's first child in the group" do
+        expect(Event.parent_first_child_group_id_in(@group.id).first).to eq @event
+      end
+    end
+  end
+
+  describe "#parent_first_child_supporter_id_in" do
+    context "returns" do
+      it "table of events with parent's first child supported by the parameter" do
+        expect(Event.parent_first_child_supporter_id_in(@admin).first).to eq @event
       end
     end
   end
