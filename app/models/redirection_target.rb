@@ -41,9 +41,9 @@ class RedirectionTarget < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   delegate :name,
-           :url,
-           to: :medium,
-           prefix: true
+    :url,
+    to: :medium,
+    prefix: true
 
   # ---------------------------------------------------------------------------
   # helpers

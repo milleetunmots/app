@@ -51,7 +51,7 @@ FactoryBot.define do
       Faker::Date.between(from: Child.min_birthdate.tomorrow, to: Child.max_birthdate)
     }
     first_name { Faker::Name.first_name }
-    last_name { Faker::Name.last_name }
+    last_name { parent1.last_name }
     registration_source { Child::REGISTRATION_SOURCES.sample }
     registration_source_details { Faker::Movies::StarWars.planet }
   end

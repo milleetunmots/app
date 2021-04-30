@@ -84,16 +84,16 @@ class Child < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  validates :gender, inclusion: { in: GENDERS, allow_blank: true }
+  validates :gender, inclusion: {in: GENDERS, allow_blank: true}
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :birthdate, presence: true
   validates :birthdate, date: {
-                          after: Proc.new { min_birthdate },
-                          before: Proc.new { max_birthdate }
-                        },
+    after: proc { min_birthdate },
+    before: proc { max_birthdate }
+  },
                         on: :create
-  validates :registration_source, presence: true, inclusion: { in: REGISTRATION_SOURCES }
+  validates :registration_source, presence: true, inclusion: {in: REGISTRATION_SOURCES}
   validates :registration_source_details, presence: true
   validates :security_code, presence: true
 
