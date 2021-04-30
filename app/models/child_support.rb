@@ -191,9 +191,9 @@ class ChildSupport < ApplicationRecord
 
       define_method("call#{call_idx}_sendings_benefits_present") do |bool|
         if bool
-          where("call#{call_idx}_sendings_benefits" => PROGRAM_INVESTMENT)
+          where("call#{call_idx}_sendings_benefits" => SENDINGS_BENEFITS)
         else
-          where.not("call#{call_idx}_sendings_benefits" => PROGRAM_INVESTMENT)
+          where.not("call#{call_idx}_sendings_benefits" => SENDINGS_BENEFITS)
         end
       end
 
@@ -248,7 +248,7 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i(groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with registration_sources_in registration_sources_details_in group_id_in unpaused_group_id_in without_parent_text_message_since)
+    super + %i[groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with registration_sources_in registration_sources_details_in group_id_in unpaused_group_id_in without_parent_text_message_since]
   end
 
   # ---------------------------------------------------------------------------

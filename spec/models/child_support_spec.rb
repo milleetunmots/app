@@ -148,19 +148,35 @@ RSpec.describe ChildSupport, type: :model do
 
   (1..5).each do |call_idx|
     describe "call#{call_idx}_parent_progress_present" do
-      context "(true)" do
-        first_child_support = FactoryBot.create(
-          :child_support, "call#{call_idx}_parent_progress": ChildSupport::PARENT_PROGRESS.sample
-        )
-        second_child_support = FactoryBot.create(:child_support, "call#{call_idx}_parent_progress": nil)
-        it "" do
-          expect(ChildSupport.method("call#{call_idx}_parent_progress_present").call(true).first).to eq first_child_support
-        end
-        it "" do
-          expect(ChildSupport.method("call#{call_idx}_parent_progress_present").call(false).first).to eq second_child_support
+      context "returns" do
+        it "child supports with parent progress in call #{call_idx} when the parameter is true" do
+          child_support = FactoryBot.create(
+            :child_support, "call#{call_idx}_parent_progress": ChildSupport::PARENT_PROGRESS.sample
+          )
+          expect(ChildSupport.method(:"call#{call_idx}_parent_progress_present").call(true).first).to eq child_support
         end
       end
+    end
 
+    describe "call#{call_idx}_sendings_benefits_present" do
+      context "returns" do
+        it "child supports with sendings benefits in call #{call_idx} when the parameter is true" do
+          child_support = FactoryBot.create(
+            :child_support, "call#{call_idx}_sendings_benefits": ChildSupport::SENDINGS_BENEFITS.sample
+          )
+          expect(ChildSupport.method(:"call#{call_idx}_sendings_benefits_present").call(true).first).to eq child_support
+        end
+      end
     end
   end
+
+  describe "#groups_in(*v)" do
+    context "returns" do
+      it "child supports for child with group v" do
+
+      end
+    end
+  end
+
+
 end
