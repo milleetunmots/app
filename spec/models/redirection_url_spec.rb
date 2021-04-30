@@ -31,8 +31,17 @@ RSpec.describe RedirectionUrl, type: :model do
     end
 
     context "fail" do
-      it "the url doesn't have security code" do
+      it "if the url doesn't have security code" do
         expect(FactoryBot.build_stubbed(:redirection_url, security_code: nil)).not_to be_valid
+      end
+    end
+  end
+
+  describe "with_visits" do
+    context "returns" do
+      it "redirection urls visited" do
+        first_url = FactoryBot.create(:redirection_url, redirection_url_visits: [FactoryBot.create(:redirection_url_visit)] )
+        expect(RedirectionUrl.with_visits).to match_array [first_url]
       end
     end
   end
