@@ -100,7 +100,7 @@
 #
 #  fk_rails_...  (supporter_id => admin_users.id)
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe ChildSupport, type: :model do
   describe "Validations" do
@@ -110,15 +110,15 @@ RSpec.describe ChildSupport, type: :model do
       end
 
       (1..5).each do |call_idx|
-        it "if call#{call_idx}_language_awareness is 'none' or 'awareness'" do
+        it "if call#{call_idx}_language_awareness is provided by child_support::LANGUAGE_AWARENESS" do
           expect(FactoryBot.build_stubbed(:child_support, "call#{call_idx}_language_awareness": ChildSupport::LANGUAGE_AWARENESS.sample)).to be_valid
         end
 
-        it "if call#{call_idx}_parent_progress is 'low', 'medium', 'high' or 'excellent'" do
+        it "if call#{call_idx}_parent_progress is provided by child_support::PARENT_PROGRESS" do
           expect(FactoryBot.build_stubbed(:child_support, "call#{call_idx}_parent_progress": ChildSupport::PARENT_PROGRESS.sample)).to be_valid
         end
 
-        it "if call#{call_idx}_sendings_benefits is 'none', 'far', 'remind', 'frequent' or 'frequent_helps'" do
+        it "if call#{call_idx}_sendings_benefits is provided by child_support::SENDINGS_BENEFITS" do
           expect(FactoryBot.build_stubbed(:child_support, "call#{call_idx}_sendings_benefits": ChildSupport::SENDINGS_BENEFITS.sample)).to be_valid
         end
       end
@@ -132,7 +132,7 @@ RSpec.describe ChildSupport, type: :model do
         child_support = FactoryBot.create(:child_support)
         child_support.supporter = admin_user
         child_support.save
-        expect(ChildSupport.supported_by admin_user).to match_array [child_support]
+        expect(ChildSupport.supported_by(admin_user)).to match_array [child_support]
       end
     end
   end
@@ -143,6 +143,24 @@ RSpec.describe ChildSupport, type: :model do
         child_support = FactoryBot.create(:child_support, supporter: nil)
         expect(ChildSupport.without_supporter).to match_array [child_support]
       end
+    end
+  end
+
+  (1..5).each do |call_idx|
+    describe "call#{call_idx}_parent_progress_present" do
+      context "(true)" do
+        first_child_support = FactoryBot.create(
+          :child_support, "call#{call_idx}_parent_progress": ChildSupport::PARENT_PROGRESS.sample
+        )
+        second_child_support = FactoryBot.create(:child_support, "call#{call_idx}_parent_progress": nil)
+        it "" do
+          expect(ChildSupport.method("call#{call_idx}_parent_progress_present").call(true).first).to eq first_child_support
+        end
+        it "" do
+          expect(ChildSupport.method("call#{call_idx}_parent_progress_present").call(false).first).to eq second_child_support
+        end
+      end
+
     end
   end
 end
