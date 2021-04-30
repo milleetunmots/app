@@ -72,30 +72,29 @@ class RedirectionUrl < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   delegate :medium_name,
-           :medium_url,
-           to: :redirection_target,
-           prefix: true
+    :medium_url,
+    to: :redirection_target,
+    prefix: true
 
   delegate :address,
-           :city_name,
-           :first_name,
+    :city_name,
+    :first_name,
            # :gender,
-           :last_name,
-           :letterbox_name,
-           :phone_number_national,
-           :postal_code,
-           to: :parent,
-           prefix: true
+    :last_name,
+    :letterbox_name,
+    :phone_number_national,
+    :postal_code,
+    to: :parent,
+    prefix: true
 
   delegate :birthdate,
-           :first_name,
+    :first_name,
            # :gender,
-           :group_name,
-           :has_quit_group,
-           :last_name,
-           :registration_source,
-           :registration_source_details,
-           to: :child,
-           prefix: true
-
+    :group_name,
+    :has_quit_group,
+    :last_name,
+    :registration_source,
+    :registration_source_details,
+    to: :child,
+    prefix: true
 end
