@@ -41,27 +41,27 @@ class Event < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   delegate :first_child,
-           to: :related,
-           prefix: true,
-           allow_nil: true
+    to: :related,
+    prefix: true,
+    allow_nil: true
 
   delegate :id,
-           :group,
-           :group_id,
-           :group_name,
-           :has_quit_group,
-           to: :related_first_child,
-           prefix: true,
-           allow_nil: true
+    :group,
+    :group_id,
+    :group_name,
+    :has_quit_group,
+    to: :related_first_child,
+    prefix: true,
+    allow_nil: true
 
   # ---------------------------------------------------------------------------
   # scope
   # ---------------------------------------------------------------------------
 
-  scope :other_events, -> { where(type: 'Events::OtherEvent') }
-  scope :survey_responses, -> { where(type: 'Events::SurveyResponse') }
-  scope :text_messages, -> { where(type: 'Events::TextMessage') }
-  scope :workshop_participations, -> { where(type: 'Events::WorkshopParticipation') }
+  scope :other_events, -> { where(type: "Events::OtherEvent") }
+  scope :survey_responses, -> { where(type: "Events::SurveyResponse") }
+  scope :text_messages, -> { where(type: "Events::TextMessage") }
+  scope :workshop_participations, -> { where(type: "Events::WorkshopParticipation") }
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -81,7 +81,7 @@ class Event < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    %i(parent_first_child_group_id_in parent_first_child_supporter_id_in)
+    %i[parent_first_child_group_id_in parent_first_child_supporter_id_in]
   end
 
 end

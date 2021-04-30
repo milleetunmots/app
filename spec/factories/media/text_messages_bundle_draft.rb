@@ -36,7 +36,7 @@
 #
 
 FactoryBot.define do
-  factory :media_text_messages_bundle, class: Media::TextMessagesBundle do
+  factory :media_text_messages_bundle_draft, class: Media::TextMessagesBundleDraft do
 
     name { Faker::Movies::StarWars.planet }
     body1 { Faker::Quotes::Shakespeare.romeo_and_juliet_quote }

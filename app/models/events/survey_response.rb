@@ -40,7 +40,7 @@ class Events::SurveyResponse < Event
   # ---------------------------------------------------------------------------
 
   def self.survey_names
-    pluck('DISTINCT subject')
+    pluck("DISTINCT subject")
   end
 
 end

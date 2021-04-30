@@ -53,8 +53,8 @@ class Medium < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   belongs_to :folder,
-             class_name: :MediaFolder,
-             optional: true
+    class_name: :MediaFolder,
+    optional: true
 
   has_one :redirection_target
 
@@ -69,15 +69,15 @@ class Medium < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   scope :without_folder, -> { where(folder: nil) }
-  scope :documents, -> { where(type: 'Media::Document') }
-  scope :forms, -> { where(type: 'Media::Form') }
-  scope :images, -> { where(type: 'Media::Image') }
-  scope :videos, -> { where(type: 'Media::Video') }
-  scope :text_messages_bundles, -> { where(type: 'Media::TextMessagesBundle') }
-  scope :text_messages_bundle_drafts, -> { where(type: 'Media::TextMessagesBundleDraft') }
+  scope :documents, -> { where(type: "Media::Document") }
+  scope :forms, -> { where(type: "Media::Form") }
+  scope :images, -> { where(type: "Media::Image") }
+  scope :videos, -> { where(type: "Media::Video") }
+  scope :text_messages_bundles, -> { where(type: "Media::TextMessagesBundle") }
+  scope :text_messages_bundle_drafts, -> { where(type: "Media::TextMessagesBundleDraft") }
 
   scope :for_redirections, -> {
-    where(type: ['Media::Form', 'Media::Video'])
+    where(type: %w[Media::Form Media::Video])
   }
 
   # ---------------------------------------------------------------------------
