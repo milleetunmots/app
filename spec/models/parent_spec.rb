@@ -45,7 +45,8 @@ require "rails_helper"
 
 RSpec.describe Parent, type: :model do
   before(:each) do
-    @first_parent = FactoryBot.create(:parent, gender: Parent::GENDER_MALE)
+    @redirection_uls_with_visit = FactoryBot.build(:redirection_url, redirection_url_visits: [FactoryBot.build(:redirection_url_visit)])
+    @first_parent = FactoryBot.create(:parent, gender: Parent::GENDER_MALE, redirection_urls: [@redirection_uls_with_visit])
     @second_parent = FactoryBot.create(:parent, gender: Parent::GENDER_FEMALE)
     @first_child = FactoryBot.create(:child, first_name: "FirstName", parent1: @first_parent)
     @second_child = FactoryBot.create(:child, parent1: @second_parent)
@@ -80,39 +81,39 @@ RSpec.describe Parent, type: :model do
 
     context "fail" do
       it "if the parent doesn't have gender" do
-        expect(FactoryBot.build_stubbed(:parent, gender: nil)).to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, gender: nil)).not_to be_valid
       end
 
       it "if the parent gender isn't provided by Parent::GENDERS" do
-        expect(FactoryBot.build_stubbed(:parent, gender: "x")).to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, gender: "x")).not_to be_valid
       end
 
       it "if the parent doesn't have firstname" do
-        expect(FactoryBot.build_stubbed(:parent, first_name: nil)).to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, first_name: nil)).not_to be_valid
       end
 
       it "if the parent doesn't have lastname" do
-        expect(FactoryBot.build_stubbed(:parent, last_name: nil)).to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, last_name: nil)).not_to be_valid
       end
 
       it "if the parent doesn't have letterbox" do
-        expect(FactoryBot.build_stubbed(:parent, letterbox_name: nil)).to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, letterbox_name: nil)).not_to be_valid
       end
 
       it "if the parent doesn't have address" do
-        expect(FactoryBot.build_stubbed(:parent, address: nil)).to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, address: nil)).not_to be_valid
       end
 
       it "if the parent doesn't have city" do
-        expect(FactoryBot.build_stubbed(:parent, city_name: nil)).to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, city_name: nil)).not_to be_valid
       end
 
       it "if the parent doesn't have postal code" do
-        expect(FactoryBot.build_stubbed(:parent, postal_code: nil)).to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, postal_code: nil)).not_to be_valid
       end
 
       it "if the parent doesn't have phone number" do
-        expect(FactoryBot.build_stubbed(:parent, phone_number: nil)).to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, phone_number: nil)).not_to be_valid
       end
 
       it "if the parent's email doesn't have the correct format" do
@@ -122,11 +123,57 @@ RSpec.describe Parent, type: :model do
 
       it "if a parent with same email already exists" do
         @existing = FactoryBot.create(:parent, email: "parent@mail.io")
-        expect(FactoryBot.build_stubbed(:parent, email: "parent@mail.io")).to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, email: "parent@mail.io")).not_to be_valid
       end
 
       it "if the parent doesn't accept the terms" do
-        expect(FactoryBot.build_stubbed(:parent, terms_accepted_at: nil)).to be_invalid
+        expect(FactoryBot.build_stubbed(:parent, terms_accepted_at: nil)).not_to be_valid
+      end
+    end
+  end
+
+  describe ".update_counters!" do
+    context "if the parent doesn't have redirections urls, set" do
+      it "redirection_url_unique_visits_count to 0" do
+        @second_parent.update_counters!
+        expect(@second_parent.redirection_url_unique_visits_count).to eq 0
+      end
+
+      it "redirection_unique_visit_rate to 0" do
+        @second_parent.update_counters!
+        expect(@second_parent.redirection_unique_visit_rate).to eq 0
+      end
+
+      it "redirection_url_visits_count to 0" do
+        @second_parent.update_counters!
+        expect(@second_parent.redirection_url_visits_count).to eq 0
+      end
+
+      it "redirection_visit_rate to 0" do
+        @second_parent.update_counters!
+        expect(@second_parent.redirection_visit_rate).to eq 0
+      end
+    end
+
+    context "if the parent have redirections urls, set" do
+      it "redirection_url_unique_visits_count to number of urls the parents visited" do
+        @first_parent.update_counters!
+        expect(@first_parent.redirection_url_unique_visits_count).to eq 1
+      end
+
+      it "redirection_url_visits_count to sum of redirection_url_visits_count" do
+        @first_parent.update_counters!
+        expect(@first_parent.redirection_url_visits_count).to eq 1
+      end
+
+      it "redirection_unique_visit_rate to redirection_url_unique_visits_count / redirection_urls_count" do
+        @first_parent.update_counters!
+        expect(@first_parent.redirection_unique_visit_rate).to eq 1
+      end
+
+      it "redirection_visit_rate to redirection_url_visits_count / redirection_urls_count" do
+        @first_parent.update_counters!
+        expect(@first_parent.redirection_visit_rate).to eq 1
       end
     end
   end
