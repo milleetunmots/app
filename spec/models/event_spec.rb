@@ -96,4 +96,12 @@ RSpec.describe Event, type: :model do
       end
     end
   end
+
+  describe "#ransackable_scopes" do
+    context "returns" do
+      it "ransackable scopes" do
+        expect(Event.ransackable_scopes).to eq %i[parent_first_child_group_id_in parent_first_child_supporter_id_in]
+      end
+    end
+  end
 end
