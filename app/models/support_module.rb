@@ -29,9 +29,9 @@ class SupportModule < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   has_many :support_module_weeks,
-           -> { positioned },
-           inverse_of: :support_module,
-           dependent: :destroy
+    -> { positioned },
+    inverse_of: :support_module,
+    dependent: :destroy
 
   accepts_nested_attributes_for :support_module_weeks, allow_destroy: true
 
@@ -41,10 +41,10 @@ class SupportModule < ApplicationRecord
 
   validates :name, presence: true
   validates :ages,
-            presence: true,
-            inclusion: {
-              in: AGES
-            }
+    presence: true,
+    inclusion: {
+      in: AGES
+    }
 
   # ---------------------------------------------------------------------------
   # helpers
