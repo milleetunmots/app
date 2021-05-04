@@ -46,6 +46,17 @@
 require "rails_helper"
 
 RSpec.describe Child, type: :model do
+  before(:each) do
+    @parent1 = FactoryBot.create(:parent)
+    @parent2 = FactoryBot.create(:parent)
+    @first_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month)
+    @second_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(8))
+    @third_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(14))
+    @fourth_child = FactoryBot.create(:child, birthdate: Date.today.yesterday)
+    @fifth_child = FactoryBot.create(:child, birthdate: Date.today.prev_month(27))
+    @all_child = [@first_child, @second_child, @third_child, @fourth_child, @fifth_child]
+  end
+
   describe "Validations" do
     context "succeed" do
       it "if minimal attributes are present" do
@@ -86,31 +97,9 @@ RSpec.describe Child, type: :model do
   describe ".strict_siblings" do
     context "returns" do
       it "the child siblings" do
-        parent1 = FactoryBot.create(:parent)
-        parent2 = FactoryBot.create(:parent)
-        first_child = FactoryBot.create(:child)
-        second_child = FactoryBot.create(:child)
-        third_child = FactoryBot.create(:child)
-        first_child.parent1 = parent1
-        first_child.parent2 = parent2
-        second_child.parent1 = parent1
-        second_child.parent2 = parent2
-        third_child.parent1 = parent1
-        third_child.parent2 = parent2
-        first_child.save
-        second_child.save
-        third_child.save
-        first_child_strict_siblings = [second_child, third_child]
-        expect(first_child.strict_siblings).to match_array first_child_strict_siblings
-      end
-
-      it "empty array if the child doesn't have siblings" do
-        parent3 = FactoryBot.create(:parent)
-        parent4 = FactoryBot.create(:parent)
-        fourth_child = FactoryBot.create(:child)
-        fourth_child.parent1 = parent3
-        fourth_child.parent2 = parent4
-        expect(fourth_child.strict_siblings).to eq []
+        expect(Child.all).to match_array @all_child
+        expect(@first_child.strict_siblings).to match_array [@second_child, @third_child]
+        expect(@fourth_child.strict_siblings).to eq []
       end
     end
   end
@@ -148,13 +137,23 @@ RSpec.describe Child, type: :model do
     end
   end
 
+  describe ".create_support!" do
+    context "create" do
+      it "child_support for the children and all strict siblings" do
+        @first_child.create_support!
+        expect(@first_child.child_support).not_to be_nil
+        @first_child.strict_siblings.each do |sibling|
+          expect(sibling.child_support).to eq @first_child.child_support
+        end
+      end
+    end
+  end
+
   describe "#months_gteq" do
     context "returns" do
       it "children with a birthdate at the most equal to x months ago" do
-        first_child = FactoryBot.create(:child, birthdate: Date.today.prev_month)
-        second_child = FactoryBot.create(:child, birthdate: Date.today.yesterday)
-        expect(Child.months_gteq(1)).to eq [second_child]
-        expect(Child.all).to match_array [first_child, second_child]
+        expect(Child.months_gteq(25)).to match_array [@fifth_child]
+        expect(Child.all).to match_array @all_child
       end
     end
   end
@@ -162,8 +161,8 @@ RSpec.describe Child, type: :model do
   describe "#months_lt" do
     context "returns" do
       it "children with a birthdate strictly greater than exactly x months ago" do
-        child = FactoryBot.create(:child, birthdate: Date.today.prev_day)
-        expect(Child.months_lt(1)).to eq [child]
+        expect(Child.months_lt(1)).to match_array [@fourth_child]
+        expect(Child.all).to match_array @all_child
       end
     end
   end
@@ -171,8 +170,11 @@ RSpec.describe Child, type: :model do
   describe "#months_equals" do
     context "returns" do
       it "children with a birthdate equals to x months ago" do
-        child = FactoryBot.create(:child, birthdate: Date.today.prev_month)
-        expect(Child.months_equals(1)).to eq [child]
+        expect(Child.months_equals(1)).to eq [@first_child]
+        expect(Child.months_equals(8)).to eq [@second_child]
+        expect(Child.months_equals(14)).to eq [@third_child]
+        expect(Child.months_equals(27)).to eq [@fifth_child]
+        expect(Child.all).to match_array @all_child
       end
     end
   end
@@ -180,8 +182,8 @@ RSpec.describe Child, type: :model do
   describe "#months_between" do
     context "returns" do
       it "children with a birthdate between x and y months ago" do
-        child = FactoryBot.create(:child, birthdate: Date.today.prev_month(2))
-        expect(Child.months_between(2, 3)).to eq [child]
+        expect(Child.months_between(2, 15)).to match_array [@second_child, @third_child]
+        expect(Child.all).to match_array @all_child
       end
     end
   end
@@ -189,8 +191,8 @@ RSpec.describe Child, type: :model do
   describe "#months_between_0_and_12" do
     context "returns" do
       it "children with a birthdate between 0 and 12 months ago" do
-        child = FactoryBot.create(:child, birthdate: Date.today.prev_month(2))
-        expect(Child.months_between_0_and_12).to eq [child]
+        expect(Child.months_between_0_and_12).to match_array [@first_child, @second_child, @fourth_child]
+        expect(Child.all).to match_array @all_child
       end
     end
   end
@@ -198,8 +200,8 @@ RSpec.describe Child, type: :model do
   describe "#months_between_12_and_24" do
     context "returns" do
       it "children with a birthdate between 12 and 24 months ago" do
-        child = FactoryBot.create(:child, birthdate: Date.today.prev_month(15))
-        expect(Child.months_between_12_and_24).to eq [child]
+        expect(Child.months_between_12_and_24).to match_array [@third_child]
+        expect(Child.all).to match_array @all_child
       end
     end
   end
@@ -207,8 +209,8 @@ RSpec.describe Child, type: :model do
   describe "#months_more_than_24" do
     context "returns" do
       it "children with a birthdate more than 24 months ago" do
-        child = FactoryBot.create(:child, birthdate: Date.today.prev_year(2))
-        expect(Child.months_more_than_24).to eq [child]
+        expect(Child.months_more_than_24).to match_array [@fifth_child]
+        expect(Child.all).to match_array @all_child
       end
     end
   end

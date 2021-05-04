@@ -142,7 +142,7 @@ class Child < ApplicationRecord
 
     # 2- use it on current child
     self.child_support_id = child_support.id
-    self.save(validate: false)
+    save(validate: false)
 
     # 3- also update all strict siblings
     # nb: we do this one by one to trigger paper_trail
