@@ -24,29 +24,9 @@
 #  fk_rails_...  (additional_medium_id => media.id)
 #
 
-class SupportModuleWeek < ApplicationRecord
+FactoryBot.define do
+  factory :support_module_week do
+    association :support_module, factory: :support_module
 
-  # ---------------------------------------------------------------------------
-  # relations
-  # ---------------------------------------------------------------------------
-
-  belongs_to :support_module
-  belongs_to :medium, optional: true
-  belongs_to :additional_medium, class_name: :Medium, optional: true
-
-  # ---------------------------------------------------------------------------
-  # validations
-  # ---------------------------------------------------------------------------
-
-  validates :position,
-    presence: true
-
-  # ---------------------------------------------------------------------------
-  # SCOPES
-  # ---------------------------------------------------------------------------
-
-  def self.positioned
-    order(:position)
   end
-
 end
