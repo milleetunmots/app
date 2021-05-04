@@ -159,14 +159,14 @@ class Child < ApplicationRecord
   def self.months_gteq(x)
     # >= x months
     # means a birthdate at the most equal to x months ago
-    where('birthdate <= ?', Time.zone.today - x.to_i.months)
+    where("birthdate <= ?", Time.zone.today - x.to_i.months)
   end
 
   def self.months_lt(x)
     # < x months
     # means being at most 1 day less than x months old
     # which means a birthdate strictly greater than exactly x months ago
-    where('birthdate > ?', Time.zone.today - x.to_i.months)
+    where("birthdate > ?", Time.zone.today - x.to_i.months)
   end
 
   def self.months_equals(x)
@@ -258,12 +258,12 @@ class Child < ApplicationRecord
 
   def self.without_parent_text_message_since(v)
     parent_id_not_in(
-      Events::TextMessage.where(related_type: :Parent).where('occurred_at >= ?', v).pluck('DISTINCT related_id')
+      Events::TextMessage.where(related_type: :Parent).where("occurred_at >= ?", v).pluck("DISTINCT related_id")
     )
   end
 
   def self.registration_source_details_matches_any(*v)
-    where('registration_source_details ILIKE ?', v)
+    where("registration_source_details ILIKE ?", v)
   end
 
   # ---------------------------------------------------------------------------
@@ -279,47 +279,47 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   delegate :email,
-           :first_name,
-           :last_name,
-           :gender,
-           :phone_number_national,
-           to: :parent1,
-           prefix: true
+    :first_name,
+    :last_name,
+    :gender,
+    :phone_number_national,
+    to: :parent1,
+    prefix: true
 
   delegate :email,
-           :first_name,
-           :last_name,
-           :gender,
-           :phone_number_national,
-           to: :parent2,
-           prefix: true,
-           allow_nil: true
+    :first_name,
+    :last_name,
+    :gender,
+    :phone_number_national,
+    to: :parent2,
+    prefix: true,
+    allow_nil: true
 
   delegate :address,
-           :city_name,
-           :letterbox_name,
-           :postal_code,
-           to: :parent1
+    :city_name,
+    :letterbox_name,
+    :postal_code,
+    to: :parent1
 
   delegate :is_ambassador,
-           :is_ambassador?,
-           :is_lycamobile,
-           :is_lycamobile?,
-           to: :parent1,
-           prefix: true
+    :is_ambassador?,
+    :is_lycamobile,
+    :is_lycamobile?,
+    to: :parent1,
+    prefix: true
 
   delegate :is_ambassador,
-           :is_ambassador?,
-           :is_lycamobile,
-           :is_lycamobile?,
-           to: :parent2,
-           prefix: true,
-           allow_nil: true
+    :is_ambassador?,
+    :is_lycamobile,
+    :is_lycamobile?,
+    to: :parent2,
+    prefix: true,
+    allow_nil: true
 
   delegate :name,
-           to: :group,
-           prefix: true,
-           allow_nil: true
+    to: :group,
+    prefix: true,
+    allow_nil: true
 
   def family_redirection_urls
     RedirectionUrl.where(parent_id: [parent1_id, parent2_id].compact)
@@ -330,7 +330,7 @@ class Child < ApplicationRecord
   end
 
   def update_counters!
-    self.family_redirection_urls_count = family_redirection_urls.count('DISTINCT redirection_target_id')
+    self.family_redirection_urls_count = family_redirection_urls.count("DISTINCT redirection_target_id")
 
     if self.family_redirection_urls_count.zero?
       self.family_redirection_url_unique_visits_count = 0
@@ -341,7 +341,7 @@ class Child < ApplicationRecord
       # family counters : if both parents receive a link and only
       # 1 parent opens it, we consider it 100% visited
 
-      self.family_redirection_url_unique_visits_count = family_redirection_urls.with_visits.count('DISTINCT redirection_target_id')
+      self.family_redirection_url_unique_visits_count = family_redirection_urls.with_visits.count("DISTINCT redirection_target_id")
       self.family_redirection_unique_visit_rate = family_redirection_url_unique_visits_count / family_redirection_urls_count.to_f
       self.family_redirection_url_visits_count = family_redirection_urls.sum(:redirection_url_visits_count)
       self.family_redirection_visit_rate = family_redirection_urls_count / family_redirection_urls_count.to_f
@@ -352,13 +352,13 @@ class Child < ApplicationRecord
 
   def parent_events
     Event.where(
-      related_type: 'Parent',
+      related_type: "Parent",
       related_id: [parent1_id, parent2_id].compact
     )
   end
 
   def self.families_count
-    count('DISTINCT parent1_id')
+    count("DISTINCT parent1_id")
   end
 
   def self.parents
@@ -381,7 +381,7 @@ class Child < ApplicationRecord
     pluck(:registration_source_details).compact.uniq.each do |value|
       normalized_value = I18n.transliterate(
         value.unicode_normalize
-      ).downcase.gsub(/[\s-]+/, ' ').strip
+      ).downcase.gsub(/[\s-]+/, " ").strip
       values[normalized_value] ||= []
       values[normalized_value] << value
     end

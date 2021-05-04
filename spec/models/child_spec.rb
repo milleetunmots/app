@@ -151,8 +151,10 @@ RSpec.describe Child, type: :model do
   describe "#months_gteq" do
     context "returns" do
       it "children with a birthdate at the most equal to x months ago" do
-        child = FactoryBot.create(:child, birthdate: Date.today.prev_month)
-        expect(Child.months_gteq(1)).to eq [child]
+        first_child = FactoryBot.create(:child, birthdate: Date.today.prev_month)
+        second_child = FactoryBot.create(:child, birthdate: Date.today.yesterday)
+        expect(Child.months_gteq(1)).to eq [second_child]
+        expect(Child.all).to match_array [first_child, second_child]
       end
     end
   end
