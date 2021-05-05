@@ -54,7 +54,8 @@ RSpec.describe Child, type: :model do
     @third_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(14))
     @fourth_child = FactoryBot.create(:child, birthdate: Date.today.yesterday)
     @fifth_child = FactoryBot.create(:child, birthdate: Date.today.prev_month(27))
-    @all_child = [@first_child, @second_child, @third_child, @fourth_child, @fifth_child]
+    @child_support = FactoryBot.create(:child_support, first_child: @fourth_child)
+    @all_children = [@first_child, @second_child, @third_child, @fourth_child, @fifth_child]
   end
 
   describe "Validations" do
@@ -97,9 +98,9 @@ RSpec.describe Child, type: :model do
   describe ".strict_siblings" do
     context "returns" do
       it "the child siblings" do
-        expect(Child.all).to match_array @all_child
         expect(@first_child.strict_siblings).to match_array [@second_child, @third_child]
         expect(@fourth_child.strict_siblings).to eq []
+        expect(Child.all).to match_array @all_children
       end
     end
   end
@@ -153,7 +154,7 @@ RSpec.describe Child, type: :model do
     context "returns" do
       it "children with a birthdate at the most equal to x months ago" do
         expect(Child.months_gteq(25)).to match_array [@fifth_child]
-        expect(Child.all).to match_array @all_child
+        expect(Child.all).to match_array @all_children
       end
     end
   end
@@ -162,7 +163,7 @@ RSpec.describe Child, type: :model do
     context "returns" do
       it "children with a birthdate strictly greater than exactly x months ago" do
         expect(Child.months_lt(1)).to match_array [@fourth_child]
-        expect(Child.all).to match_array @all_child
+        expect(Child.all).to match_array @all_children
       end
     end
   end
@@ -174,7 +175,7 @@ RSpec.describe Child, type: :model do
         expect(Child.months_equals(8)).to eq [@second_child]
         expect(Child.months_equals(14)).to eq [@third_child]
         expect(Child.months_equals(27)).to eq [@fifth_child]
-        expect(Child.all).to match_array @all_child
+        expect(Child.all).to match_array @all_children
       end
     end
   end
@@ -183,7 +184,7 @@ RSpec.describe Child, type: :model do
     context "returns" do
       it "children with a birthdate between x and y months ago" do
         expect(Child.months_between(2, 15)).to match_array [@second_child, @third_child]
-        expect(Child.all).to match_array @all_child
+        expect(Child.all).to match_array @all_children
       end
     end
   end
@@ -192,7 +193,7 @@ RSpec.describe Child, type: :model do
     context "returns" do
       it "children with a birthdate between 0 and 12 months ago" do
         expect(Child.months_between_0_and_12).to match_array [@first_child, @second_child, @fourth_child]
-        expect(Child.all).to match_array @all_child
+        expect(Child.all).to match_array @all_children
       end
     end
   end
@@ -201,7 +202,7 @@ RSpec.describe Child, type: :model do
     context "returns" do
       it "children with a birthdate between 12 and 24 months ago" do
         expect(Child.months_between_12_and_24).to match_array [@third_child]
-        expect(Child.all).to match_array @all_child
+        expect(Child.all).to match_array @all_children
       end
     end
   end
@@ -210,7 +211,25 @@ RSpec.describe Child, type: :model do
     context "returns" do
       it "children with a birthdate more than 24 months ago" do
         expect(Child.months_more_than_24).to match_array [@fifth_child]
-        expect(Child.all).to match_array @all_child
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#with_support" do
+    context "returns" do
+      it "children with child_support" do
+        expect(Child.with_support).to match_array [@fourth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#without_support" do
+    context "returns" do
+      it "children without child_support" do
+        expect(Child.without_support).to match_array [@first_child, @second_child, @third_child, @fifth_child]
+        expect(Child.all).to match_array @all_children
       end
     end
   end
