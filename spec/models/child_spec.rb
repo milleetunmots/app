@@ -47,14 +47,17 @@ require "rails_helper"
 
 RSpec.describe Child, type: :model do
   before(:each) do
+    @group = FactoryBot.create(:group)
     @parent1 = FactoryBot.create(:parent, postal_code: 75006)
     @parent2 = FactoryBot.create(:parent)
-    @first_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month, should_contact_parent2: true)
-    @second_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(8))
+    @parent3 = FactoryBot.create(:parent)
+    @first_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month, should_contact_parent2: true, group: @group)
+    @second_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(8), group: @group, has_quit_group: true)
     @third_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(14))
-    @fourth_child = FactoryBot.create(:child, birthdate: Date.today.yesterday, group: FactoryBot.create(:group))
-    @fifth_child = FactoryBot.create(:child, birthdate: Date.today.prev_month(27), should_contact_parent1: true)
+    @fourth_child = FactoryBot.create(:child, parent2: @parent3,birthdate: Date.today.yesterday)
+    @fifth_child = FactoryBot.create(:child, parent2: @parent3, birthdate: Date.today.prev_month(27), should_contact_parent1: true)
     @child_support = FactoryBot.create(:child_support, first_child: @fourth_child)
+
     @all_children = [@first_child, @second_child, @third_child, @fourth_child, @fifth_child]
   end
 
@@ -273,7 +276,7 @@ RSpec.describe Child, type: :model do
   describe "#with_group" do
     context "returns" do
       it "children with group" do
-        expect(Child.with_group).to match_array [@fourth_child]
+        expect(Child.with_group).to match_array [@first_child, @second_child]
         expect(Child.all).to match_array @all_children
       end
     end
@@ -282,7 +285,7 @@ RSpec.describe Child, type: :model do
   describe "#without_group" do
     context "returns" do
       it "children without group" do
-        expect(Child.without_group).to match_array [@first_child, @second_child, @third_child, @fifth_child]
+        expect(Child.without_group).to match_array [@third_child, @fourth_child, @fifth_child]
         expect(Child.all).to match_array @all_children
       end
     end
@@ -292,6 +295,51 @@ RSpec.describe Child, type: :model do
     context "returns" do
       it "children with parent to contact" do
         expect(Child.with_parent_to_contact).to match_array [@first_child, @fifth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#parent_id_in" do
+    context "returns" do
+      it "children with a parent's id in parameter" do
+        expect(Child.parent_id_in(@parent1.id)).to match_array [@first_child, @second_child, @third_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#parent_id_not_in" do
+    context "returns" do
+      it "children without a parent's id in parameter" do
+        expect(Child.parent_id_not_in(@parent1.id)).to match_array [@fourth_child, @fifth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#without_parent_to_contact" do
+    context "returns" do
+      it "children without parent to contact" do
+        expect(Child.without_parent_to_contact).to match_array [@second_child, @third_child, @fourth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#group_id_in" do
+    context "returns" do
+      it "children with the group in parameter" do
+        expect(Child.group_id_in(@group.id)).to match_array [@first_child, @second_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#unpaused_group_id_in" do
+    context "returns" do
+      it "children in the group in parameter and doesn't have quit" do
+        expect(Child.unpaused_group_id_in(@group.id)).to match_array [@first_child]
         expect(Child.all).to match_array @all_children
       end
     end
