@@ -47,13 +47,13 @@ require "rails_helper"
 
 RSpec.describe Child, type: :model do
   before(:each) do
-    @parent1 = FactoryBot.create(:parent)
+    @parent1 = FactoryBot.create(:parent, postal_code: 75006)
     @parent2 = FactoryBot.create(:parent)
-    @first_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month)
+    @first_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month, should_contact_parent2: true)
     @second_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(8))
     @third_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(14))
-    @fourth_child = FactoryBot.create(:child, birthdate: Date.today.yesterday)
-    @fifth_child = FactoryBot.create(:child, birthdate: Date.today.prev_month(27))
+    @fourth_child = FactoryBot.create(:child, birthdate: Date.today.yesterday, group: FactoryBot.create(:group))
+    @fifth_child = FactoryBot.create(:child, birthdate: Date.today.prev_month(27), should_contact_parent1: true)
     @child_support = FactoryBot.create(:child_support, first_child: @fourth_child)
     @all_children = [@first_child, @second_child, @third_child, @fourth_child, @fifth_child]
   end
@@ -229,6 +229,69 @@ RSpec.describe Child, type: :model do
     context "returns" do
       it "children without child_support" do
         expect(Child.without_support).to match_array [@first_child, @second_child, @third_child, @fifth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#postal_code_contains" do
+    context "returns" do
+      it "children with parent's postal code contains the parameter" do
+        expect(Child.postal_code_contains(500)).to match_array [@first_child, @second_child, @third_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#postal_code_ends_with" do
+    context "returns" do
+      it "children with parent's postal code ends with the parameter" do
+        expect(Child.postal_code_ends_with(06)).to match_array [@first_child, @second_child, @third_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#postal_code_equals" do
+    context "returns" do
+      it "children with parent's postal code is the parameter" do
+        expect(Child.postal_code_equals(75006)).to match_array [@first_child, @second_child, @third_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#postal_code_starts_with" do
+    context "returns" do
+      it "children with parent's postal code starts with the parameter" do
+        expect(Child.postal_code_contains(75)).to match_array [@first_child, @second_child, @third_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#with_group" do
+    context "returns" do
+      it "children with group" do
+        expect(Child.with_group).to match_array [@fourth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#without_group" do
+    context "returns" do
+      it "children without group" do
+        expect(Child.without_group).to match_array [@first_child, @second_child, @third_child, @fifth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#with_parent_to_contact" do
+    context "returns" do
+      it "children with parent to contact" do
+        expect(Child.with_parent_to_contact).to match_array [@first_child, @fifth_child]
         expect(Child.all).to match_array @all_children
       end
     end
