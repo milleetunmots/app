@@ -45,13 +45,13 @@ require "rails_helper"
 
 RSpec.describe Parent, type: :model do
   before(:each) do
-    @redirection_uls_with_visit = FactoryBot.build(:redirection_url, redirection_url_visits: [FactoryBot.build(:redirection_url_visit)])
-    @first_parent = FactoryBot.create(:parent, gender: Parent::GENDER_MALE, redirection_urls: [@redirection_uls_with_visit])
+    @first_parent = FactoryBot.create(:parent, gender: Parent::GENDER_MALE)
     @second_parent = FactoryBot.create(:parent, gender: Parent::GENDER_FEMALE)
     @first_child = FactoryBot.create(:child, first_name: "FirstName", parent1: @first_parent)
     @second_child = FactoryBot.create(:child, parent1: @second_parent)
     @third_child = FactoryBot.create(:child, parent1: @first_parent)
     @group = FactoryBot.create(:group, children: [@first_child])
+    @redirection_uls_with_visit = FactoryBot.create(:redirection_url, redirection_url_visits: [FactoryBot.build(:redirection_url_visit)], child: @first_child, parent: @first_parent)
   end
 
   describe ".children" do
