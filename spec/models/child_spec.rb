@@ -57,8 +57,6 @@ RSpec.describe Child, type: :model do
     @fourth_child = FactoryBot.create(:child, parent2: @parent3,birthdate: Date.today.yesterday)
     @fifth_child = FactoryBot.create(:child, parent2: @parent3, birthdate: Date.today.prev_month(27), should_contact_parent1: true)
     @child_support = FactoryBot.create(:child_support, first_child: @fourth_child)
-    @text_message = FactoryBot.create(:text_message, related: @parent3, occurred_at: Faker::Date.backward(days: 40))
-    @text_message = FactoryBot.create(:text_message, related: @parent1, occurred_at: Faker::Date.backward(days: 75))
 
     @all_children = [@first_child, @second_child, @third_child, @fourth_child, @fifth_child]
   end
@@ -350,6 +348,7 @@ RSpec.describe Child, type: :model do
   describe "#without_parent_text_message_since" do
     context "returns" do
       it "children with parents who don't have text message since the parameter" do
+        @text_message = FactoryBot.create(:text_message, related: @parent3, occurred_at: Date.today.prev_month(1))
         expect(Child.without_parent_text_message_since(Date.today.prev_month(2))).to match_array [@first_child, @second_child, @third_child]
         expect(Child.all).to match_array @all_children
       end
