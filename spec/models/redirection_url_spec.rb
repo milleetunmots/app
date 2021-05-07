@@ -41,7 +41,9 @@ RSpec.describe RedirectionUrl, type: :model do
     context "returns" do
       it "redirection urls visited" do
         first_url = FactoryBot.create(:redirection_url, redirection_url_visits: [FactoryBot.create(:redirection_url_visit)] )
+        second_url = FactoryBot.create(:redirection_url, redirection_url_visits: [] )
         expect(RedirectionUrl.with_visits).to match_array [first_url]
+        expect(RedirectionUrl.with_visits).not_to include second_url
       end
     end
   end

@@ -33,6 +33,7 @@ RSpec.describe RedirectionTarget, type: :model do
     @redirection_target_without_urls = FactoryBot.build(:redirection_target)
     @redirection_target_with_urls = FactoryBot.build(:redirection_target, redirection_urls: [@redirection_uls_without_visit, @redirection_uls_with_visit])
   end
+
   describe ".update_counters!" do
     context "if family_redirection_urls_count is zero, set" do
       it "family_redirection_url_unique_visits_count to 0" do

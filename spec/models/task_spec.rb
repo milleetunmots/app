@@ -52,7 +52,7 @@ RSpec.describe Task, type: :model do
 
     context "fail" do
       it "if the task doesn't have a title" do
-        expect(FactoryBot.build_stubbed(:task, title: nil)).to be_invalid
+        expect(FactoryBot.build_stubbed(:task, title: nil)).not_to be_valid
       end
     end
   end

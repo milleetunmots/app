@@ -74,7 +74,7 @@ RSpec.describe Medium, type: :model do
   describe "#without_folder" do
     context "returns" do
       it "mediums without folder" do
-        expect(Medium.without_folder).not_to match_array [@with_folder]
+        expect(Medium.without_folder).not_to include @with_folder
         expect(Medium.without_folder).to match_array [@document, @form, @image, @video, @text_message_bundle, @text_messages_bundle_draft]
       end
     end
@@ -84,6 +84,7 @@ RSpec.describe Medium, type: :model do
     context "returns" do
       it "documents" do
         expect(Medium.documents).to match_array [@document]
+        expect(Medium.documents).not_to include @form, @image, @video, @text_message_bundle, @text_messages_bundle_draft
       end
     end
   end
@@ -92,6 +93,7 @@ RSpec.describe Medium, type: :model do
     context "returns" do
       it "forms" do
         expect(Medium.forms).to match_array [@form]
+        expect(Medium.forms).not_to include @document, @image, @video, @text_message_bundle, @text_messages_bundle_draft
       end
     end
   end
@@ -100,6 +102,7 @@ RSpec.describe Medium, type: :model do
     context "returns" do
       it "images" do
         expect(Medium.images).to match_array [@image]
+        expect(Medium.images).not_to include @document, @form, @video, @text_message_bundle, @text_messages_bundle_draft
       end
     end
   end
@@ -108,6 +111,7 @@ RSpec.describe Medium, type: :model do
     context "returns" do
       it "videos" do
         expect(Medium.videos).to match_array [@video]
+        expect(Medium.videos).not_to include @document, @image, @form, @text_message_bundle, @text_messages_bundle_draft
       end
     end
   end
@@ -116,6 +120,7 @@ RSpec.describe Medium, type: :model do
     context "returns" do
       it "text messages bundles" do
         expect(Medium.text_messages_bundles).to match_array [@text_message_bundle]
+        expect(Medium.text_messages_bundles).not_to include @document, @image, @video, @form, @text_messages_bundle_draft
       end
     end
   end
@@ -124,6 +129,7 @@ RSpec.describe Medium, type: :model do
     context "returns" do
       it "text messages bundle drafts" do
         expect(Medium.text_messages_bundle_drafts).to match_array [@text_messages_bundle_draft]
+        expect(Medium.text_messages_bundle_drafts).not_to include @document, @image, @video, @text_message_bundle, @form
       end
     end
   end
@@ -132,6 +138,7 @@ RSpec.describe Medium, type: :model do
     context "returns" do
       it "forms and videos" do
         expect(Medium.for_redirections).to match_array [@form, @video]
+        expect(Medium.for_redirections).not_to include @document, @image, @text_message_bundle, @text_messages_bundle_draft
       end
     end
   end

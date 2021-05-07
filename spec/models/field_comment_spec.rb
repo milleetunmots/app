@@ -27,7 +27,8 @@ RSpec.describe FieldComment, type: :model do
   before(:each) do
     @admin = FactoryBot.create(:admin_user)
     @parent = FactoryBot.create(:parent)
-    @field_comment = FactoryBot.create(:field_comment, author: @admin, related: @parent, field: "last_name")
+    @field_comment1 = FactoryBot.create(:field_comment, author: @admin, related: @parent, field: "last_name")
+    @field_comment2 = FactoryBot.create(:field_comment)
   end
 
   describe "Validations" do
@@ -47,7 +48,8 @@ RSpec.describe FieldComment, type: :model do
   describe "#posted_by" do
     context "returns" do
       it "field comments posted by the admin_user in parameter" do
-        expect(FieldComment.posted_by(@admin)).to match_array [@field_comment]
+        expect(FieldComment.posted_by(@admin)).to match_array [@field_comment1]
+        expect(FieldComment.all).to match_array [@field_comment1, @field_comment2]
       end
     end
   end
@@ -55,7 +57,8 @@ RSpec.describe FieldComment, type: :model do
   describe "#relating" do
     context "returns" do
       it "field comments relating the model in parameter" do
-        expect(FieldComment.relating(@parent)).to match_array [@field_comment]
+        expect(FieldComment.relating(@parent)).to match_array [@field_comment1]
+        expect(FieldComment.all).to match_array [@field_comment1, @field_comment2]
       end
     end
   end
@@ -63,7 +66,8 @@ RSpec.describe FieldComment, type: :model do
   describe "#concerning" do
     context "returns" do
       it "field comments concerning the field in parameter" do
-        expect(FieldComment.concerning("last_name")).to match_array [@field_comment]
+        expect(FieldComment.concerning("last_name")).to match_array [@field_comment1]
+        expect(FieldComment.all).to match_array [@field_comment1, @field_comment2]
       end
     end
   end
