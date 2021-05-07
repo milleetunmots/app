@@ -43,17 +43,325 @@
 #  fk_rails_...  (parent2_id => parents.id)
 #
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe Child, type: :model do
-
   before(:each) do
-    @child = FactoryBot.build(:child)
+    @group = FactoryBot.create(:group)
+    @parent1 = FactoryBot.create(:parent, postal_code: 75006)
+    @parent2 = FactoryBot.create(:parent)
+    @parent3 = FactoryBot.create(:parent)
+    @first_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month, should_contact_parent2: true, group: @group)
+    @second_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(8), group: @group, has_quit_group: true)
+    @third_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(14))
+    @fourth_child = FactoryBot.create(:child, parent2: @parent3,birthdate: Date.today.yesterday)
+    @fifth_child = FactoryBot.create(:child, parent2: @parent3, birthdate: Date.today.prev_month(27), should_contact_parent1: true)
+    @child_support = FactoryBot.create(:child_support, first_child: @fourth_child)
+
+    @all_children = [@first_child, @second_child, @third_child, @fourth_child, @fifth_child]
   end
 
-  context 'is valid' do
-    it 'if minimal attributes are present' do
-      expect(@child).to be_valid
+  describe "Validations" do
+    context "succeed" do
+      it "if minimal attributes are present" do
+        expect(FactoryBot.build_stubbed(:child)).to be_valid
+      end
+
+      it "if the child's gender is provided by Child::GENDERS" do
+        expect(FactoryBot.build_stubbed(:child, gender: Child::GENDERS.sample)).to be_valid
+      end
+    end
+
+    context "fail" do
+      it "if the child's gender isn't provided by Child::GENDERS" do
+        expect(FactoryBot.build_stubbed(:child, gender: "x")).not_to be_valid
+      end
+
+      it "if the child doesn't have first name" do
+        expect(FactoryBot.build_stubbed(:child, first_name: nil)).not_to be_valid
+      end
+      it "if the child doesn't have last name" do
+        expect(FactoryBot.build_stubbed(:child, last_name: nil)).not_to be_valid
+      end
+      it "if the child doesn't have birthdate" do
+        expect(FactoryBot.build_stubbed(:child, birthdate: nil)).not_to be_valid
+      end
+      it "if the child doesn't have registration source" do
+        expect(FactoryBot.build_stubbed(:child, registration_source: nil)).not_to be_valid
+      end
+      it "if the child doesn't have registration source detail" do
+        expect(FactoryBot.build_stubbed(:child, registration_source_details: nil)).not_to be_valid
+      end
+      it "if the child doesn't have security code" do
+        expect(FactoryBot.build_stubbed(:child, security_code: nil)).not_to be_valid
+      end
+    end
+  end
+
+  describe ".strict_siblings" do
+    context "returns" do
+      it "the child siblings" do
+        expect(@first_child.strict_siblings).to match_array [@second_child, @third_child]
+        expect(@fourth_child.strict_siblings).to eq []
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#min_birthdate" do
+    context "returns" do
+      it "the date 34 months ago" do
+        expect(Child.min_birthdate).to eq Date.today - 34.months
+      end
+    end
+  end
+
+  describe "#min_birthdate_alt" do
+    context "returns" do
+      it "the date 2 years ago" do
+        expect(Child.min_birthdate_alt).to eq Date.today - 2.years
+      end
+    end
+  end
+
+  describe "#max_birthdate" do
+    context "returns" do
+      it "today date" do
+        expect(Child.max_birthdate).to eq Date.today
+      end
+    end
+  end
+
+  describe ".months" do
+    context "returns" do
+      it "a number of months old" do
+        child = FactoryBot.build_stubbed(:child, birthdate: Date.today.prev_month)
+        expect(child.months).to eq 1
+      end
+    end
+  end
+
+  describe ".create_support!" do
+    context "create" do
+      it "child_support for the children and all strict siblings" do
+        @first_child.create_support!
+        expect(@first_child.child_support).not_to be_nil
+        @first_child.strict_siblings.each do |sibling|
+          expect(sibling.child_support).to eq @first_child.child_support
+        end
+      end
+    end
+  end
+
+  describe "#months_gteq" do
+    context "returns" do
+      it "children with a birthdate at the most equal to x months ago" do
+        expect(Child.months_gteq(25)).to match_array [@fifth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#months_lt" do
+    context "returns" do
+      it "children with a birthdate strictly greater than exactly x months ago" do
+        expect(Child.months_lt(1)).to match_array [@fourth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#months_equals" do
+    context "returns" do
+      it "children with a birthdate equals to x months ago" do
+        expect(Child.months_equals(1)).to eq [@first_child]
+        expect(Child.months_equals(8)).to eq [@second_child]
+        expect(Child.months_equals(14)).to eq [@third_child]
+        expect(Child.months_equals(27)).to eq [@fifth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#months_between" do
+    context "returns" do
+      it "children with a birthdate between x and y months ago" do
+        expect(Child.months_between(2, 15)).to match_array [@second_child, @third_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#months_between_0_and_12" do
+    context "returns" do
+      it "children with a birthdate between 0 and 12 months ago" do
+        expect(Child.months_between_0_and_12).to match_array [@first_child, @second_child, @fourth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#months_between_12_and_24" do
+    context "returns" do
+      it "children with a birthdate between 12 and 24 months ago" do
+        expect(Child.months_between_12_and_24).to match_array [@third_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#months_more_than_24" do
+    context "returns" do
+      it "children with a birthdate more than 24 months ago" do
+        expect(Child.months_more_than_24).to match_array [@fifth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#with_support" do
+    context "returns" do
+      it "children with child_support" do
+        expect(Child.with_support).to match_array [@fourth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#without_support" do
+    context "returns" do
+      it "children without child_support" do
+        expect(Child.without_support).to match_array [@first_child, @second_child, @third_child, @fifth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#postal_code_contains" do
+    context "returns" do
+      it "children with parent's postal code contains the parameter" do
+        expect(Child.postal_code_contains(500)).to match_array [@first_child, @second_child, @third_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#postal_code_ends_with" do
+    context "returns" do
+      it "children with parent's postal code ends with the parameter" do
+        expect(Child.postal_code_ends_with(06)).to match_array [@first_child, @second_child, @third_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#postal_code_equals" do
+    context "returns" do
+      it "children with parent's postal code is the parameter" do
+        expect(Child.postal_code_equals(75006)).to match_array [@first_child, @second_child, @third_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#postal_code_starts_with" do
+    context "returns" do
+      it "children with parent's postal code starts with the parameter" do
+        expect(Child.postal_code_contains(75)).to match_array [@first_child, @second_child, @third_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#with_group" do
+    context "returns" do
+      it "children with group" do
+        expect(Child.with_group).to match_array [@first_child, @second_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#without_group" do
+    context "returns" do
+      it "children without group" do
+        expect(Child.without_group).to match_array [@third_child, @fourth_child, @fifth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#with_parent_to_contact" do
+    context "returns" do
+      it "children with parent to contact" do
+        expect(Child.with_parent_to_contact).to match_array [@first_child, @fifth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#parent_id_in" do
+    context "returns" do
+      it "children with a parent's id in parameter" do
+        expect(Child.parent_id_in(@parent1.id)).to match_array [@first_child, @second_child, @third_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#parent_id_not_in" do
+    context "returns" do
+      it "children without a parent's id in parameter" do
+        expect(Child.parent_id_not_in(@parent1.id)).to match_array [@fourth_child, @fifth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#without_parent_to_contact" do
+    context "returns" do
+      it "children without parent to contact" do
+        expect(Child.without_parent_to_contact).to match_array [@second_child, @third_child, @fourth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#group_id_in" do
+    context "returns" do
+      it "children with the group in parameter" do
+        expect(Child.group_id_in(@group.id)).to match_array [@first_child, @second_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#unpaused_group_id_in" do
+    context "returns" do
+      it "children in the group in parameter and doesn't have quit" do
+        expect(Child.unpaused_group_id_in(@group.id)).to match_array [@first_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#without_parent_text_message_since" do
+    context "returns" do
+      it "children with parents who don't have text message since the parameter" do
+        @text_message = FactoryBot.create(:text_message, related: @parent3, occurred_at: Date.today.prev_month(1))
+        expect(Child.without_parent_text_message_since(Date.today.prev_month(2))).to match_array [@first_child, @second_child, @third_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#registration_source_details_matches_any" do
+    context "returns" do
+      it "children with registration source details matching with the parameter" do
+        @fifth_child.update registration_source_details: "Plus de Details"
+        expect(Child.registration_source_details_matches_any("Plus de Details")).to match_array [@fifth_child]
+        expect(Child.all).to match_array @all_children
+      end
     end
   end
 

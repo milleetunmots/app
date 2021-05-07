@@ -24,15 +24,15 @@ class MediaFolder < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   belongs_to :parent,
-             class_name: :MediaFolder,
-             optional: true
+    class_name: :MediaFolder,
+    optional: true
   has_many :children,
-           class_name: :MediaFolder,
-           foreign_key: :parent_id,
-           dependent: :nullify
+    class_name: :MediaFolder,
+    foreign_key: :parent_id,
+    dependent: :nullify
   has_many :media,
-           foreign_key: :folder_id,
-           dependent: :nullify
+    foreign_key: :folder_id,
+    dependent: :nullify
 
   # ---------------------------------------------------------------------------
   # validations
@@ -44,7 +44,7 @@ class MediaFolder < ApplicationRecord
   def disallow_self_referential_parenthood
     return if id.blank?
     if parent_id == id
-      errors.add(:parent_id, 'cannot refer to itself')
+      errors.add(:parent_id, "cannot refer to itself")
     end
   end
 

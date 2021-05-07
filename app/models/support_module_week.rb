@@ -39,7 +39,7 @@ class SupportModuleWeek < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   validates :position,
-            presence: true
+    presence: true
 
   # ---------------------------------------------------------------------------
   # SCOPES

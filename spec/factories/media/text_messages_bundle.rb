@@ -38,8 +38,8 @@
 FactoryBot.define do
   factory :media_text_messages_bundle, class: Media::TextMessagesBundle do
 
-    name  { Faker::Movies::StarWars.planet }
-    body1  { Faker::Quotes::Shakespeare.romeo_and_juliet_quote }
+    name { Faker::Movies::StarWars.planet }
+    body1 { Faker::Quotes::Shakespeare.romeo_and_juliet_quote }
 
   end
 end
