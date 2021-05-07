@@ -71,8 +71,12 @@ class ChildrenController < ApplicationController
     father_attributes_available = !father_attributes[:first_name].blank? || !father_attributes[:last_name].blank? || !father_attributes[:phone_number].blank?
     father_attributes_valid = !father_attributes[:first_name].blank? && !father_attributes[:last_name].blank? && !father_attributes[:phone_number].blank?
 
+    child_first_name_exists = Child.exists?(first_name: attributes[:first_name])
+    mother_exists = Parent.exists?(first_name: mother_attributes[:first_name], last_name: mother_attributes[:last_name])
+    father_exists = Parent.exists?(first_name: father_attributes[:first_name], last_name: father_attributes[:last_name])
+
     if (mother_attributes_available && !mother_attributes_valid) || (father_attributes_available && !father_attributes_valid) || (!mother_attributes_available && !father_attributes_available)
-      flash.now[:error] = 'Inscription refusée'
+      flash.now[:error] = "Inscription refusée"
       @child = Child.new(attributes.merge(
         parent1_attributes: parent1_attributes.merge(mother_attributes),
         parent2_attributes: father_attributes
@@ -112,6 +116,11 @@ class ChildrenController < ApplicationController
     if @child.birthdate < @child_min_birthdate
       @child.errors.add(:birthdate, :invalid, message: "minimale: #{l(@child_min_birthdate)}")
     end
+    if child_first_name_exists && (mother_exists || father_exists)
+      @child.errors.add(:last_name, :invalid, message: "existe déja")
+      @child.errors.add(:first_name, :invalid, message: "existe déja")
+      @child.errors.add(:birthdate, :invalid, message: "existe déja")
+    end
     if @child.errors.none? && @child.save
       siblings_attributes.each do |sibling_attributes|
         Child.create!(sibling_attributes.merge(
@@ -124,7 +133,7 @@ class ChildrenController < ApplicationController
       end
       redirect_to created_child_path
     else
-      flash.now[:error] = 'Inscription refusée'
+      flash.now[:error] = "Inscription refusée"
       @child.build_parent2 if @child.parent2.nil?
       @child.build_child_support if @child.child_support.nil?
       @child.siblings.build(siblings_attributes)
@@ -178,6 +187,10 @@ class ChildrenController < ApplicationController
     result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, child_support_attributes: %i(important_information))
     result.delete(:child_support_attributes) if result[:child_support_attributes][:important_information].blank?
     result
+  end
+
+  def child_exists?
+
   end
 
   def child_update_params
@@ -247,5 +260,4 @@ class ChildrenController < ApplicationController
   def set_src_url
     session[:src_url] ||= request.url
   end
-
 end
