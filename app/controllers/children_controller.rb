@@ -189,10 +189,6 @@ class ChildrenController < ApplicationController
     result
   end
 
-  def child_exists?
-
-  end
-
   def child_update_params
     params.require(:child).permit(:has_quit_group)
   end
