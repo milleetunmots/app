@@ -70,11 +70,6 @@ class ChildrenController < ApplicationController
     mother_attributes_valid = !mother_attributes[:first_name].blank? && !mother_attributes[:last_name].blank? && !mother_attributes[:phone_number].blank?
     father_attributes_available = !father_attributes[:first_name].blank? || !father_attributes[:last_name].blank? || !father_attributes[:phone_number].blank?
     father_attributes_valid = !father_attributes[:first_name].blank? && !father_attributes[:last_name].blank? && !father_attributes[:phone_number].blank?
-
-    child_first_name_exists = Child.exists?(first_name: attributes[:first_name])
-    mother_exists = Parent.exists?(first_name: mother_attributes[:first_name], last_name: mother_attributes[:last_name])
-    father_exists = Parent.exists?(first_name: father_attributes[:first_name], last_name: father_attributes[:last_name])
-
     if (mother_attributes_available && !mother_attributes_valid) || (father_attributes_available && !father_attributes_valid) || (!mother_attributes_available && !father_attributes_available)
       flash.now[:error] = "Inscription refusée"
       @child = Child.new(attributes.merge(
@@ -115,11 +110,6 @@ class ChildrenController < ApplicationController
     @child = Child.new(attributes)
     if @child.birthdate < @child_min_birthdate
       @child.errors.add(:birthdate, :invalid, message: "minimale: #{l(@child_min_birthdate)}")
-    end
-    if child_first_name_exists && (mother_exists || father_exists)
-      @child.errors.add(:last_name, :invalid, message: "existe déja")
-      @child.errors.add(:first_name, :invalid, message: "existe déja")
-      @child.errors.add(:birthdate, :invalid, message: "existe déja")
     end
     if @child.errors.none? && @child.save
       siblings_attributes.each do |sibling_attributes|
@@ -193,7 +183,7 @@ class ChildrenController < ApplicationController
     params.require(:child).permit(:has_quit_group)
   end
 
-  def parent1_params
+  def   parent1_params
     params.require(:child).permit(parent1_attributes: %i(letterbox_name address postal_code city_name))[:parent1_attributes]
   end
 

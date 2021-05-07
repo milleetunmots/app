@@ -96,6 +96,15 @@ class Child < ApplicationRecord
   validates :registration_source, presence: true, inclusion: {in: REGISTRATION_SOURCES}
   validates :registration_source_details, presence: true
   validates :security_code, presence: true
+  validate :no_duplicate
+
+  def no_duplicate
+    self.class.where(birthdate: birthdate).where('unaccent(first_name) ILIKE unaccent(?)', first_name).each do |child|
+      if parent1.duplicate_of?(child.parent1) || parent1.duplicate_of?(child.parent2) || parent2&.duplicate_of?(child.parent1) || parent2&.duplicate_of?(child.parent2)
+        errors.add(:base, :invalid, message: "L'enfant existe déjà")
+      end
+    end
+  end
 
   # ---------------------------------------------------------------------------
   # callbacks
@@ -396,6 +405,9 @@ class Child < ApplicationRecord
       end
     ]
   end
+
+
+
 
   # ---------------------------------------------------------------------------
   # global search
