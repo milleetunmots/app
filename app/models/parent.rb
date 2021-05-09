@@ -192,7 +192,7 @@ class Parent < ApplicationRecord
 
   def duplicate_of?(other_parent)
     return false if other_parent.nil?
-    first_name == other_parent.first_name && last_name == other_parent.last_name && phone_number == other_parent.phone_number
+    I18n.transliterate(first_name).capitalize == I18n.transliterate(other_parent.first_name).capitalize && I18n.transliterate(last_name).capitalize == I18n.transliterate(other_parent.last_name).capitalize && phone_number == other_parent.phone_number
   end
 
   # ---------------------------------------------------------------------------
