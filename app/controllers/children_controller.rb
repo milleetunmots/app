@@ -70,8 +70,8 @@ class ChildrenController < ApplicationController
     mother_attributes_valid = !mother_attributes[:first_name].blank? && !mother_attributes[:last_name].blank? && !mother_attributes[:phone_number].blank?
     father_attributes_available = !father_attributes[:first_name].blank? || !father_attributes[:last_name].blank? || !father_attributes[:phone_number].blank?
     father_attributes_valid = !father_attributes[:first_name].blank? && !father_attributes[:last_name].blank? && !father_attributes[:phone_number].blank?
-    creation = (mother_attributes_available && !mother_attributes_valid) || (father_attributes_available && !father_attributes_valid) || (!mother_attributes_available && !father_attributes_available)
-    if creation
+    creation_impossible = (mother_attributes_available && !mother_attributes_valid) || (father_attributes_available && !father_attributes_valid) || (!mother_attributes_available && !father_attributes_available)
+    if creation_impossible
       flash.now[:error] = "Inscription refusée"
       @child = Child.new(attributes.merge(
         parent1_attributes: parent1_attributes.merge(mother_attributes),
