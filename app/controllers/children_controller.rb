@@ -183,7 +183,7 @@ class ChildrenController < ApplicationController
     params.require(:child).permit(:has_quit_group)
   end
 
-  def   parent1_params
+  def parent1_params
     params.require(:child).permit(parent1_attributes: %i(letterbox_name address postal_code city_name))[:parent1_attributes]
   end
 
