@@ -48,15 +48,7 @@ class Child < ApplicationRecord
   include Discard::Model
 
   GENDERS = %w[m f].freeze
-  REGISTRATION_SOURCES = %w[
-    caf
-    pmi
-    friends
-    therapist
-    nursery
-    resubscribing
-    other
-  ].freeze
+  REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery resubscribing other].freeze
 
   # ---------------------------------------------------------------------------
   # relations
