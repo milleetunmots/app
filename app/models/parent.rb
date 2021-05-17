@@ -190,6 +190,15 @@ class Parent < ApplicationRecord
     where(gender: GENDER_MALE)
   end
 
+  def duplicate_of?(other_parent)
+    return false if other_parent.nil?
+    if other_parent.phone_number
+      format_phone_number
+      return true if phone_number == other_parent.phone_number
+    end
+    I18n.transliterate(first_name).capitalize == I18n.transliterate(other_parent.first_name).capitalize && I18n.transliterate(last_name).capitalize == I18n.transliterate(other_parent.last_name).capitalize
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------

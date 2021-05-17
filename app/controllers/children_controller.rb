@@ -70,9 +70,9 @@ class ChildrenController < ApplicationController
     mother_attributes_valid = !mother_attributes[:first_name].blank? && !mother_attributes[:last_name].blank? && !mother_attributes[:phone_number].blank?
     father_attributes_available = !father_attributes[:first_name].blank? || !father_attributes[:last_name].blank? || !father_attributes[:phone_number].blank?
     father_attributes_valid = !father_attributes[:first_name].blank? && !father_attributes[:last_name].blank? && !father_attributes[:phone_number].blank?
-
-    if (mother_attributes_available && !mother_attributes_valid) || (father_attributes_available && !father_attributes_valid) || (!mother_attributes_available && !father_attributes_available)
-      flash.now[:error] = 'Inscription refusée'
+    creation_impossible = (mother_attributes_available && !mother_attributes_valid) || (father_attributes_available && !father_attributes_valid) || (!mother_attributes_available && !father_attributes_available)
+    if creation_impossible
+      flash.now[:error] = "Inscription refusée"
       @child = Child.new(attributes.merge(
         parent1_attributes: parent1_attributes.merge(mother_attributes),
         parent2_attributes: father_attributes
@@ -124,7 +124,7 @@ class ChildrenController < ApplicationController
       end
       redirect_to created_child_path
     else
-      flash.now[:error] = 'Inscription refusée'
+      flash.now[:error] = "Inscription refusée"
       @child.build_parent2 if @child.parent2.nil?
       @child.build_child_support if @child.child_support.nil?
       @child.siblings.build(siblings_attributes)
@@ -247,5 +247,4 @@ class ChildrenController < ApplicationController
   def set_src_url
     session[:src_url] ||= request.url
   end
-
 end

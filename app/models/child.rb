@@ -48,15 +48,7 @@ class Child < ApplicationRecord
   include Discard::Model
 
   GENDERS = %w[m f].freeze
-  REGISTRATION_SOURCES = %w[
-    caf
-    pmi
-    friends
-    therapist
-    nursery
-    resubscribing
-    other
-  ].freeze
+  REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery resubscribing other].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -96,6 +88,15 @@ class Child < ApplicationRecord
   validates :registration_source, presence: true, inclusion: {in: REGISTRATION_SOURCES}
   validates :registration_source_details, presence: true
   validates :security_code, presence: true
+  validate :no_duplicate, on: :create
+
+  def no_duplicate
+    self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).each do |child|
+      if parent1.duplicate_of?(child.parent1) || parent1.duplicate_of?(child.parent2) || parent2&.duplicate_of?(child.parent1) || parent2&.duplicate_of?(child.parent2)
+        errors.add(:base, :invalid, message: "L'enfant existe déjà")
+      end
+    end
+  end
 
   # ---------------------------------------------------------------------------
   # callbacks
