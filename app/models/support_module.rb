@@ -19,11 +19,6 @@ class SupportModule < ApplicationRecord
 
   include Discard::Model
 
-  AGES = %w[
-    a0_1
-    a1_2
-  ].freeze
-
   # ---------------------------------------------------------------------------
   # relations
   # ---------------------------------------------------------------------------
@@ -40,11 +35,6 @@ class SupportModule < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   validates :name, presence: true
-  validates :ages,
-    presence: true,
-    inclusion: {
-      in: AGES
-    }
 
   # ---------------------------------------------------------------------------
   # helpers
@@ -52,7 +42,6 @@ class SupportModule < ApplicationRecord
 
   def duplicate
     self.class.new(
-      ages: ages,
       name: "Copie de #{name}",
       tag_list: tag_list,
       support_module_weeks: support_module_weeks.map do |smw|
