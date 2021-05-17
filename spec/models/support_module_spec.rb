@@ -3,7 +3,6 @@
 # Table name: support_modules
 #
 #  id           :bigint           not null, primary key
-#  ages         :string           not null
 #  discarded_at :datetime
 #  name         :string
 #  start_at     :date
@@ -29,10 +28,6 @@ RSpec.describe SupportModule, type: :model do
       it "if the support module doesn't have name" do
         expect(FactoryBot.build(:support_module, name: nil)).not_to be_valid
       end
-
-      it "if the support module doesn't have ages" do
-        expect(FactoryBot.build(:support_module, ages: nil)).not_to be_valid
-      end
     end
   end
 
@@ -41,7 +36,6 @@ RSpec.describe SupportModule, type: :model do
       it "new support module with the same attributes" do
         support_module = FactoryBot.create(:support_module)
         new_support_module = support_module.duplicate
-        expect(new_support_module.ages).to eq support_module.ages
         expect(new_support_module.name).to eq "Copie de #{support_module.name}"
         expect(new_support_module.tag_list).to eq support_module.tag_list
         expect(new_support_module.support_module_weeks).to eq support_module.support_module_weeks

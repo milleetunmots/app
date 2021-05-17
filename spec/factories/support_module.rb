@@ -3,7 +3,6 @@
 # Table name: support_modules
 #
 #  id           :bigint           not null, primary key
-#  ages         :string           not null
 #  discarded_at :datetime
 #  name         :string
 #  start_at     :date
@@ -18,6 +17,5 @@
 FactoryBot.define do
   factory :support_module do
     name { Faker::Lorem.word }
-    ages { SupportModule::AGES.sample }
   end
 end
