@@ -1,6 +1,6 @@
-ActiveAdmin.register ActsAsTaggableOn::Tag, as: 'Tag' do
+ActiveAdmin.register Tag, as: 'Tag' do
 
-  decorate_with ActsAsTaggableOn::TagDecorator
+  decorate_with TagDecorator
 
   # ---------------------------------------------------------------------------
   # INDEX
