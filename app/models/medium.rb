@@ -92,4 +92,7 @@ class Medium < ApplicationRecord
 
   acts_as_taggable
 
+  include PgSearch
+  multisearchable against: :name
+
 end
