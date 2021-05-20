@@ -54,6 +54,9 @@ class Media::Document < Medium
 
   validates :file,
             attached: true
+  validates :type, presence: true, :inclusion => { :in => Medium::TYPES }
+
+  before_save :set_type
 
   def set_type
     self.type = 'Media::Document'

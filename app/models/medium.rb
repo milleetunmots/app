@@ -46,7 +46,7 @@
 
 class Medium < ApplicationRecord
 
-  MEDIA_TYPE = %w[
+  TYPES = %w[
     Media::Document
     Media::Form Media::Image
     Media::TextMessagesBundleConcern
@@ -99,5 +99,8 @@ class Medium < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   acts_as_taggable
+
+  include PgSearch
+  multisearchable against: :name
 
 end

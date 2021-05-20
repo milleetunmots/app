@@ -46,6 +46,10 @@
 
 class Media::TextMessagesBundleDraft < Medium
 
+  validates :type, presence: true, :inclusion => { :in => Medium::TYPES }
+
+  before_save :set_type
+
   include Media::TextMessagesBundleConcern
 
   has_many :field_comments, as: :related
