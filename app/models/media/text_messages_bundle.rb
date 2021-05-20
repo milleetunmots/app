@@ -46,10 +46,6 @@
 
 class Media::TextMessagesBundle < Medium
 
-  validates :type, presence: true, :inclusion => { :in => Medium::TYPES }
-
-  before_save :set_type
-
   include Media::TextMessagesBundleConcern
 
   def draft
@@ -63,10 +59,6 @@ class Media::TextMessagesBundle < Medium
       body2: [nil, ''],
       body3: [nil, '']
     )
-  end
-
-  def set_type
-    self.type = 'Media::TextMessagesBundle'
   end
 
 end

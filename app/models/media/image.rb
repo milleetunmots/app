@@ -72,10 +72,6 @@ class Media::Image < Medium
             attached: true,
             content_type: CONTENT_TYPES
 
-  validates :type, presence: true, :inclusion => { :in => Medium::TYPES }
-
-  before_save :set_type
-
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
@@ -99,10 +95,6 @@ class Media::Image < Medium
     else
       file.variant(resize_to_limit: [w, w / wh_ratio])
     end
-  end
-
-  def set_type
-    self.type = 'Media::Image'
   end
 
 end

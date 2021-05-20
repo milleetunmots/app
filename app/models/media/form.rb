@@ -52,12 +52,4 @@ class Media::Form < Medium
 
   validates :url, presence: true
 
-  validates :type, presence: true, :inclusion => { :in => Medium::TYPES }
-
-  before_save :set_type
-
-  def set_type
-    self.type = 'Media::Form'
-  end
-
 end

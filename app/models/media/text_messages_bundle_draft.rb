@@ -46,20 +46,12 @@
 
 class Media::TextMessagesBundleDraft < Medium
 
-  validates :type, presence: true, :inclusion => { :in => Medium::TYPES }
-
-  before_save :set_type
-
   include Media::TextMessagesBundleConcern
 
   has_many :field_comments, as: :related
 
   def undraft
     update_attribute :type, 'Media::TextMessagesBundle'
-  end
-
-  def set_type
-    self.type = 'Media::TextMessagesBundleDraft'
   end
 
 end

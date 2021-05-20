@@ -46,18 +46,10 @@
 
 class Media::Video < Medium
 
-  validates :type, presence: true, :inclusion => { :in => Medium::TYPES }
-
-  before_save :set_type
-
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
 
   validates :url, presence: true
-
-  def set_type
-    self.type = 'Media::Video'
-  end
 
 end
