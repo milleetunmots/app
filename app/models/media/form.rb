@@ -52,4 +52,8 @@ class Media::Form < Medium
 
   validates :url, presence: true
 
+  def set_type
+    self.type = 'Media::Form'
+  end
+
 end

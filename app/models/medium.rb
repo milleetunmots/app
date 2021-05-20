@@ -46,6 +46,14 @@
 
 class Medium < ApplicationRecord
 
+  MEDIA_TYPE = %w[
+    Media::Document
+    Media::Form Media::Image
+    Media::TextMessagesBundleConcern
+    Media::TextMessagesBundleDraft
+    Media::Video
+  ]
+
   include Discard::Model
 
   # ---------------------------------------------------------------------------

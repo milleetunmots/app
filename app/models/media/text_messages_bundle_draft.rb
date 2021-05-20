@@ -54,4 +54,8 @@ class Media::TextMessagesBundleDraft < Medium
     update_attribute :type, 'Media::TextMessagesBundle'
   end
 
+  def set_type
+    self.type = 'Media::TextMessagesBundleDraft'
+  end
+
 end

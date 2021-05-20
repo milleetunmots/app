@@ -61,4 +61,8 @@ class Media::TextMessagesBundle < Medium
     )
   end
 
+  def set_type
+    self.type = 'Media::TextMessagesBundle'
+  end
+
 end

@@ -55,4 +55,8 @@ class Media::Document < Medium
   validates :file,
             attached: true
 
+  def set_type
+    self.type = 'Media::Document'
+  end
+
 end

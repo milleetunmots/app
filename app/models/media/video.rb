@@ -52,4 +52,8 @@ class Media::Video < Medium
 
   validates :url, presence: true
 
+  def set_type
+    self.type = 'Media::Video'
+  end
+
 end

@@ -97,4 +97,8 @@ class Media::Image < Medium
     end
   end
 
+  def set_type
+    self.type = 'Media::Image'
+  end
+
 end
