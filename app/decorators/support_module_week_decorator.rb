@@ -6,7 +6,7 @@ class SupportModuleWeekDecorator < BaseDecorator
       monday = start + (number - 1).weeks
       "Semaine n° #{number} - du #{I18n.l(monday, format: :long)} - #{model.medium&.name}"
     else
-      "Semaine #{number}"
+      "Semaine n° #{number} - #{model.medium&.name}"
     end
   end
 
