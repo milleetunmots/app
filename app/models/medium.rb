@@ -49,7 +49,7 @@ class Medium < ApplicationRecord
   TYPES = %w[
     Media::Document
     Media::Form Media::Image
-    Media::TextMessagesBundleConcern
+    Media::TextMessagesBundle
     Media::TextMessagesBundleDraft
     Media::Video
   ]
