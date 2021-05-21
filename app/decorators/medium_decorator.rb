@@ -12,13 +12,4 @@ class MediumDecorator < BaseDecorator
     model.type.split('::').last.underscore.gsub('_', '-')
   end
 
-  def as_autocomplete_result
-    h.content_tag :div, class: "medium" do
-      (
-        h.content_tag :div, class: :name do
-          name
-        end
-      )
-    end
-  end
 end

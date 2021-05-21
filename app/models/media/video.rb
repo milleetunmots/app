@@ -52,4 +52,7 @@ class Media::Video < Medium
 
   validates :url, presence: true
 
+  include PgSearch
+  multisearchable against: :name
+
 end
