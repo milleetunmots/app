@@ -12,15 +12,4 @@ class Media::VideoDecorator < MediumDecorator
   def preview
 
   end
-
-  def as_autocomplete_result
-    h.content_tag :div, class: "medium" do
-      (
-        h.content_tag :div, class: :name do
-          name
-        end
-      )
-    end
-  end
-
 end
