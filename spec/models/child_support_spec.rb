@@ -103,6 +103,14 @@
 require "rails_helper"
 
 RSpec.describe ChildSupport, type: :model do
+  before(:each) do
+    @group = FactoryBot.create(:group)
+    @child = FactoryBot.create(:child, group: @group)
+    @admin_user = FactoryBot.create(:admin_user)
+    @first_child_support = FactoryBot.create(:child_support, first_child:@child, supporter: @admin_user)
+    @second_child_support = FactoryBot.create(:child_support)
+  end
+
   describe "Validations" do
     context "succeed" do
       it "if minimal attributes are present" do
@@ -128,11 +136,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#supported_by" do
     context "returns" do
       it "Child_support supported by the admin in parameter" do
-        admin_user = FactoryBot.create(:admin_user)
-        child_support = FactoryBot.create(:child_support)
-        child_support.supporter = admin_user
-        child_support.save
-        expect(ChildSupport.supported_by(admin_user)).to match_array [child_support]
+        expect(ChildSupport.supported_by(@admin_user)).to match_array [@first_child_support]
       end
     end
   end
@@ -140,8 +144,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#without_supporter" do
     context "returns" do
       it "Child_support without supporter" do
-        child_support = FactoryBot.create(:child_support, supporter: nil)
-        expect(ChildSupport.without_supporter).to match_array [child_support]
+        expect(ChildSupport.without_supporter).to match_array [@second_child_support]
       end
     end
   end
@@ -150,10 +153,11 @@ RSpec.describe ChildSupport, type: :model do
     describe "call#{call_idx}_parent_progress_present" do
       context "returns" do
         it "child supports with parent progress in call #{call_idx} when the parameter is true" do
-          child_support = FactoryBot.create(
+          first_child_support = FactoryBot.create(
             :child_support, "call#{call_idx}_parent_progress": ChildSupport::PARENT_PROGRESS.sample
           )
-          expect(ChildSupport.method(:"call#{call_idx}_parent_progress_present").call(true).first).to eq child_support
+          second_child_support = FactoryBot.create(:child_support)
+          expect(ChildSupport.method(:"call#{call_idx}_parent_progress_present").call(true)).to match_array [first_child_support]
         end
       end
     end
@@ -161,10 +165,11 @@ RSpec.describe ChildSupport, type: :model do
     describe "call#{call_idx}_sendings_benefits_present" do
       context "returns" do
         it "child supports with sendings benefits in call #{call_idx} when the parameter is true" do
-          child_support = FactoryBot.create(
+          first_child_support = FactoryBot.create(
             :child_support, "call#{call_idx}_sendings_benefits": ChildSupport::SENDINGS_BENEFITS.sample
           )
-          expect(ChildSupport.method(:"call#{call_idx}_sendings_benefits_present").call(true).first).to eq child_support
+          second_child_support = FactoryBot.create(:child_support)
+          expect(ChildSupport.method(:"call#{call_idx}_sendings_benefits_present").call(true)).to match_array [first_child_support]
         end
       end
     end
@@ -173,7 +178,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#groups_in(*v)" do
     context "returns" do
       it "child supports for child with group v" do
-
+        expect(ChildSupport.groups_in())
       end
     end
   end

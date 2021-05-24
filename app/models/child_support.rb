@@ -196,9 +196,7 @@ class ChildSupport < ApplicationRecord
           where.not("call#{call_idx}_sendings_benefits" => SENDINGS_BENEFITS)
         end
       end
-
     end
-
   end
 
   def self.groups_in(*v)
