@@ -49,8 +49,8 @@ RSpec.describe Child, type: :model do
   before(:each) do
     @group = FactoryBot.create(:group)
     @parent1 = FactoryBot.create(:parent, postal_code: 75006)
-    @parent2 = FactoryBot.create(:parent)
-    @parent3 = FactoryBot.create(:parent)
+    @parent2 = FactoryBot.create(:parent, postal_code: 999)
+    @parent3 = FactoryBot.create(:parent, postal_code: 222)
     @first_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month, should_contact_parent2: true, group: @group)
     @second_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(8), group: @group, has_quit_group: true)
     @third_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(14))
