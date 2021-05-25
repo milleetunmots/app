@@ -12,5 +12,4 @@ class Media::VideoDecorator < MediumDecorator
   def preview
 
   end
-
 end
