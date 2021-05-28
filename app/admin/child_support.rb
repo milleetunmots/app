@@ -443,4 +443,14 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
+  controller do
+    after_action :add_tags_to_children, only: %i[show, edit, update]
+
+    def add_tags_to_children
+      child_support = ChildSupport.find(params[:id])
+      child_support.children.each do |child|
+        child.update! tag_list: (child.child_support&.tag_list + child.tag_list).uniq
+      end
+    end
+  end
 end
