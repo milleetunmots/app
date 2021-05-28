@@ -140,6 +140,7 @@ class Child < ApplicationRecord
   def create_support!(child_support_attributes = {})
     # 1- create support
     child_support = ChildSupport.create!(child_support_attributes)
+    child_support.update! tag_list: tag_list
 
     # 2- use it on current child
     self.child_support_id = child_support.id
@@ -148,6 +149,7 @@ class Child < ApplicationRecord
     # 3- also update all strict siblings
     # nb: we do this one by one to trigger paper_trail
     strict_siblings.without_support.each do |child|
+      child_support.update! tag_list: (child_support.tag_list + child.tag_list).uniq
       child.child_support_id = child_support.id
       child.save(validate: false)
     end
@@ -333,7 +335,7 @@ class Child < ApplicationRecord
   def update_counters!
     self.family_redirection_urls_count = family_redirection_urls.count("DISTINCT redirection_target_id")
 
-    if self.family_redirection_urls_count.zero?
+    if family_redirection_urls_count.zero?
       self.family_redirection_url_unique_visits_count = 0
       self.family_redirection_unique_visit_rate = 0
       self.family_redirection_url_visits_count = 0
