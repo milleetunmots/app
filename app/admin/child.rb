@@ -453,7 +453,7 @@ ActiveAdmin.register Child do
   end
 
   controller do
-    after_action :add_tags_to_child_support, only: %i[show, edit, update]
+    after_action :add_tags_to_child_support_and_parents, only: %i[show update]
 
     def csv_filename
       filter_name = params.fetch(:q, {}).fetch(:unpaused_group_id_in, []).map do |group_id|
@@ -468,9 +468,11 @@ ActiveAdmin.register Child do
       ].compact.join(" - ") + ".csv"
     end
 
-    def add_tags_to_child_support
+    def add_tags_to_child_support_and_parents
       child = Child.find(params[:id])
       child.child_support&.update! tag_list: (child.child_support&.tag_list + child.tag_list).uniq
+      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
+      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
     end
   end
 

@@ -444,7 +444,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   controller do
-    after_action :add_tags_to_children, only: %i[show, edit, update]
+    after_action :add_tags_to_children, only: %i[show update]
 
     def add_tags_to_children
       child_support = ChildSupport.find(params[:id])
