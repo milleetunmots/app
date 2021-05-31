@@ -75,23 +75,23 @@ ActiveAdmin.register Child do
   filter :registration_source,
     as: :select,
     collection: proc { child_registration_source_select_collection },
-    input_html: { multiple: true, data: { select2: {} } },
+    input_html: {multiple: true, data: {select2: {}}},
     label: "Origine"
   filter :registration_source_details_matches_any,
     as: :select,
     collection: proc { child_registration_source_details_suggestions },
-    input_html: { multiple: true, data: { select2: {} } },
+    input_html: {multiple: true, data: {select2: {}}},
     label: "Précisions sur l'origine"
   filter :group_id_in,
     as: :select,
     collection: proc { child_group_select_collection },
-    input_html: { multiple: true, data: { select2: {} } },
+    input_html: {multiple: true, data: {select2: {}}},
     label: "Cohorte"
   filter :has_quit_group
   filter :unpaused_group_id_in,
     as: :select,
     collection: proc { child_group_select_collection },
-    input_html: { multiple: true, data: { select2: {} } },
+    input_html: {multiple: true, data: {select2: {}}},
     label: "Cohorte active"
   filter :without_parent_text_message_since,
     as: :datepicker,
@@ -230,11 +230,11 @@ ActiveAdmin.register Child do
     f.inputs do
       f.input :parent1,
         collection: child_parent_select_collection,
-        input_html: { data: { select2: {} } }
+        input_html: {data: {select2: {}}}
       f.input :should_contact_parent1
       f.input :parent2,
         collection: child_parent_select_collection,
-        input_html: { data: { select2: {} } }
+        input_html: {data: {select2: {}}}
       f.input :should_contact_parent2
       f.input :gender,
         as: :radio,
@@ -249,11 +249,11 @@ ActiveAdmin.register Child do
         }
       f.input :registration_source,
         collection: child_registration_source_select_collection,
-        input_html: { data: { select2: {} } }
+        input_html: {data: {select2: {}}}
       f.input :registration_source_details
       f.input :group,
         collection: child_group_select_collection,
-        input_html: { data: { select2: {} } }
+        input_html: {data: {select2: {}}}
       f.input :has_quit_group
       tags_input(f)
     end
@@ -470,7 +470,7 @@ ActiveAdmin.register Child do
 
     def add_tags_to_child_support_and_parents
       child = Child.find(params[:id])
-      child.child_support&.update! tag_list: (child.child_support&.tag_list + child.tag_list).uniq
+      child.child_support&.update! tag_list: child.tag_list
       child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
       child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
     end

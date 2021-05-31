@@ -449,7 +449,7 @@ ActiveAdmin.register ChildSupport do
     def add_tags_to_children
       child_support = ChildSupport.find(params[:id])
       child_support.children.each do |child|
-        child.update! tag_list: (child.child_support&.tag_list + child.tag_list).uniq
+        child.update! tag_list: child.child_support&.tag_list
       end
     end
   end
