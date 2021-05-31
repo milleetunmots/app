@@ -164,7 +164,6 @@ class ChildrenController < ApplicationController
   end
 
   def update
-    byebug
     @child.attributes = child_update_params
     if @child.save(validate: false)
       redirect_to updated_child_path
