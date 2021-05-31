@@ -137,20 +137,20 @@ class Child < ApplicationRecord
   # support
   # ---------------------------------------------------------------------------
 
-  def create_support!(child_support_attributes = {})
+  def create_support!(child_support_attributes = {tag_list: siblings_tags})
     # 1- create support
     child_support = ChildSupport.create!(child_support_attributes)
-    child_support.update! tag_list: tag_list
 
     # 2- use it on current child
     self.child_support_id = child_support.id
+    self.tag_list = siblings_tags
     save(validate: false)
 
     # 3- also update all strict siblings
     # nb: we do this one by one to trigger paper_trail
     strict_siblings.without_support.each do |child|
-      child_support.update! tag_list: (child_support.tag_list + child.tag_list).uniq
       child.child_support_id = child_support.id
+      child.tag_list = siblings_tags
       child.save(validate: false)
     end
   end
@@ -419,4 +419,13 @@ class Child < ApplicationRecord
 
   acts_as_taggable
 
+  private
+
+  def siblings_tags
+    tags = []
+    siblings.each do |child|
+      tags = (tags + child.tag_list).uniq
+    end
+    tags
+  end
 end
