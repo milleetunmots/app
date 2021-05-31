@@ -68,6 +68,12 @@ class Child < ApplicationRecord
     self.class.where(parent1_id: parent1_id, parent2_id: parent2_id).where.not(id: id)
   end
 
+  def siblings_tags
+    tags = []
+    siblings.each { |child| tags = (tags + child.tag_list).uniq }
+    tags
+  end
+
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
   accepts_nested_attributes_for :parent2
@@ -416,11 +422,4 @@ class Child < ApplicationRecord
 
   acts_as_taggable
 
-  private
-
-  def siblings_tags
-    tags = []
-    siblings.each { |child| tags = (tags + child.tag_list).uniq }
-    tags
-  end
 end
