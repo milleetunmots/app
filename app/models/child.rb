@@ -392,10 +392,7 @@ class Child < ApplicationRecord
     # use first found value as map key and remove duplicates
     Hash[
       values.map do |k, v|
-        [
-          v.first,
-          v.uniq
-        ]
+        [ v.first, v.uniq ]
       end
     ]
   end
@@ -423,9 +420,7 @@ class Child < ApplicationRecord
 
   def siblings_tags
     tags = []
-    siblings.each do |child|
-      tags = (tags + child.tag_list).uniq
-    end
+    siblings.each { |child| tags = (tags + child.tag_list).uniq }
     tags
   end
 end
