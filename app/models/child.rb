@@ -68,8 +68,8 @@ class Child < ApplicationRecord
     self.class.where(parent1_id: parent1_id, parent2_id: parent2_id).where.not(id: id)
   end
 
-  def siblings_tags
-    tags = []
+  def all_tags
+    tags = tag_list
     siblings.each { |child| tags = (tags + child.tag_list).uniq }
     tags
   end
@@ -143,20 +143,20 @@ class Child < ApplicationRecord
   # support
   # ---------------------------------------------------------------------------
 
-  def create_support!(child_support_attributes = {tag_list: siblings_tags})
+  def create_support!(child_support_attributes = {tag_list: all_tags})
     # 1- create support
     child_support = ChildSupport.create!(child_support_attributes)
 
     # 2- use it on current child
     self.child_support_id = child_support.id
-    self.tag_list = siblings_tags
+    self.tag_list = all_tags
     save(validate: false)
 
     # 3- also update all strict siblings
     # nb: we do this one by one to trigger paper_trail
     strict_siblings.without_support.each do |child|
       child.child_support_id = child_support.id
-      child.tag_list = siblings_tags
+      child.tag_list = all_tags
       child.save(validate: false)
     end
   end
