@@ -22,7 +22,7 @@ div class: 'card card-parent' do
   ) + (
     div class: 'specific_tags' do
       parent.specific_tags.each do |tag|
-        div status_tag tag, label: tag,
+        div status_tag tag, label: tag
       end
     end
   )
