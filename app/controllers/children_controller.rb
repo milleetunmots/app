@@ -3,9 +3,9 @@ class ChildrenController < ApplicationController
   SIBLINGS_COUNT = 3
 
   before_action :set_src_url
-  before_action :find_child, only: %i(edit update)
-  before_action :build_variables, only: %i(new create)
-  before_action :build_child_action_path, only: %i(edit update)
+  before_action :find_child, only: %i[edit update]
+  before_action :build_variables, only: %i[new create]
+  before_action :build_child_action_path, only: %i[edit update]
 
   def new
     puts "FORM ORIGIN: #{current_registration_origin}"
@@ -175,7 +175,7 @@ class ChildrenController < ApplicationController
   private
 
   def child_creation_params
-    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, child_support_attributes: %i(important_information))
+    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, child_support_attributes: %i[important_information])
     result.delete(:child_support_attributes) if result[:child_support_attributes][:important_information].blank?
     result
   end
@@ -185,15 +185,15 @@ class ChildrenController < ApplicationController
   end
 
   def parent1_params
-    params.require(:child).permit(parent1_attributes: %i(letterbox_name address postal_code city_name))[:parent1_attributes]
+    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name])[:parent1_attributes]
   end
 
   def mother_params
-    params.require(:child).permit(parent1_attributes: %i(first_name last_name phone_number))[:parent1_attributes]
+    params.require(:child).permit(parent1_attributes: %i[first_name last_name phone_number])[:parent1_attributes]
   end
 
   def father_params
-    params.require(:child).permit(parent2_attributes: %i(first_name last_name phone_number))[:parent2_attributes]
+    params.require(:child).permit(parent2_attributes: %i[first_name last_name phone_number])[:parent2_attributes]
   end
 
   def siblings_params

@@ -68,6 +68,12 @@ class Child < ApplicationRecord
     self.class.where(parent1_id: parent1_id, parent2_id: parent2_id).where.not(id: id)
   end
 
+  def all_tags
+    tags = tag_list
+    siblings.each { |child| tags = (tags + child.tag_list).uniq }
+    tags
+  end
+
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
   accepts_nested_attributes_for :parent2
@@ -137,18 +143,20 @@ class Child < ApplicationRecord
   # support
   # ---------------------------------------------------------------------------
 
-  def create_support!(child_support_attributes = {})
+  def create_support!(child_support_attributes = {tag_list: all_tags})
     # 1- create support
     child_support = ChildSupport.create!(child_support_attributes)
 
     # 2- use it on current child
     self.child_support_id = child_support.id
+    self.tag_list = all_tags
     save(validate: false)
 
     # 3- also update all strict siblings
     # nb: we do this one by one to trigger paper_trail
     strict_siblings.without_support.each do |child|
       child.child_support_id = child_support.id
+      child.tag_list = all_tags
       child.save(validate: false)
     end
   end
@@ -272,7 +280,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i(months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with unpaused_group_id_in without_parent_text_message_since registration_source_details_matches_any)
+    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with unpaused_group_id_in without_parent_text_message_since registration_source_details_matches_any]
   end
 
   # ---------------------------------------------------------------------------
@@ -333,7 +341,7 @@ class Child < ApplicationRecord
   def update_counters!
     self.family_redirection_urls_count = family_redirection_urls.count("DISTINCT redirection_target_id")
 
-    if self.family_redirection_urls_count.zero?
+    if family_redirection_urls_count.zero?
       self.family_redirection_url_unique_visits_count = 0
       self.family_redirection_unique_visit_rate = 0
       self.family_redirection_url_visits_count = 0
@@ -390,10 +398,7 @@ class Child < ApplicationRecord
     # use first found value as map key and remove duplicates
     Hash[
       values.map do |k, v|
-        [
-          v.first,
-          v.uniq
-        ]
+        [ v.first, v.uniq ]
       end
     ]
   end
@@ -403,7 +408,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   include PgSearch
-  multisearchable against: %i(first_name last_name)
+  multisearchable against: %i[first_name last_name]
 
   # ---------------------------------------------------------------------------
   # versions history
