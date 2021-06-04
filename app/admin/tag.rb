@@ -26,7 +26,6 @@ ActiveAdmin.register Tag, as: 'Tag' do
   # ---------------------------------------------------------------------------
 
   form do |f|
-    div f.object.errors.inspect
     f.inputs do
       f.input :name
       f.input :color, as: :color
