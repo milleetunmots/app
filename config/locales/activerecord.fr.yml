@@ -413,3 +413,7 @@ fr:
           attributes:
             phone_number:
               invalid: Numéro de téléphone non valide
+        tag:
+          attributes:
+            name:
+              taken: existe déjà
