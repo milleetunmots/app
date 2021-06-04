@@ -22,7 +22,8 @@ div class: 'card card-parent' do
   ) + (
     div class: 'specific_tags' do
       parent.specific_tags.each do |tag|
-        div status_tag tag, label: tag
+        a_tag = Tag.find_by(name: tag)
+        div status_tag tag, label: tag, style: "background-color: #{a_tag.color}"
       end
     end
   )
