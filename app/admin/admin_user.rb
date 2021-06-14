@@ -45,6 +45,18 @@ ActiveAdmin.register AdminUser do
     f.actions
   end
 
+  controller do
+    def destroy
+      admin_user = AdminUser.find(params[:id])
+      tasks_reported = Task.where(reporter: admin_user)
+      tasks_assigned = Task.where(assignee: admin_user)
+      tasks_reported.each { |task| task.update! reporter: nil }
+      tasks_assigned.each { |task| task.update! assignee: nil }
+      admin_user.destroy
+      redirect_to admin_admin_users_url
+    end
+  end
+
   permit_params :name, :email, :password, :password_confirmation
 
 end
