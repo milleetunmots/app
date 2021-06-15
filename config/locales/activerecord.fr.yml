@@ -51,7 +51,7 @@ fr:
         password_confirmation: Confirmation du mot de passe
         sign_in_count: Connexions
       admin_user/user_role:
-        super_admin: Admin
+        super_admin: Administrateur.rice
         team_member: Membre de l'équipe
         caller: Appelant.e
       child:

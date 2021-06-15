@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
 
   def access_denied(exception)
-    redirect_to admin_children_url
+    redirect_to admin_children_url, alert: exception.message
   end
 
   before_action :set_time_zone
