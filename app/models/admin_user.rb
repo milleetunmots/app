@@ -25,6 +25,8 @@
 
 class AdminUser < ApplicationRecord
 
+  ROLES = %w[super_admin team_member caller].freeze
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable,
