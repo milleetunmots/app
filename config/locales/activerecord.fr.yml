@@ -51,9 +51,9 @@ fr:
         password_confirmation: Confirmation du mot de passe
         sign_in_count: Connexions
       admin_user/user_role:
-        super_admin: Administrateur
+        super_admin: Admin
         team_member: Membre de l'équipe
-        caller: Appelante
+        caller: Appelant.e
       child:
         << : *SHARED
         address: Adresse
