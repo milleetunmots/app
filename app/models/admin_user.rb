@@ -40,6 +40,5 @@ class AdminUser < ApplicationRecord
     presence: true,
     uniqueness: {case_sensitive: false}
 
-  validates :role, inclusion: {in: ROLES}
-
+  validates :user_role, inclusion: {in: ROLES}
 end
