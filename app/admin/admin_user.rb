@@ -15,6 +15,7 @@ ActiveAdmin.register AdminUser do
     column :email do |decorated|
       decorated.email_link
     end
+    column :user_role
     column :current_sign_in_at
     column :sign_in_count
     column :created_at do |decorated|
@@ -39,6 +40,9 @@ ActiveAdmin.register AdminUser do
     f.inputs do
       f.input :name
       f.input :email
+      f.input :user_role,
+        collection: admin_user_role_select_collection,
+        input_html: {data: {select2: {}}}
       f.input :password
       f.input :password_confirmation, required: true
     end
@@ -64,6 +68,6 @@ ActiveAdmin.register AdminUser do
     end
   end
 
-  permit_params :name, :email, :password, :password_confirmation
+  permit_params :name, :email, :user_role, :password, :password_confirmation
 
 end

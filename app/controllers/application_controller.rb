@@ -1,5 +1,9 @@
 class ApplicationController < ActionController::Base
 
+  def access_denied(exception)
+    redirect_to admin_children_url, alert: exception.message
+  end
+
   before_action :set_time_zone
 
   def status

@@ -46,9 +46,14 @@ fr:
         current_sign_in_at: Session en cours
         email: Email
         name: Nom
+        user_role: Rôle
         password: Mot de passe
         password_confirmation: Confirmation du mot de passe
         sign_in_count: Connexions
+      admin_user/user_role:
+        super_admin: Administrateur.rice
+        team_member: Membre de l'équipe
+        caller: Appelant.e
       child:
         << : *SHARED
         address: Adresse
