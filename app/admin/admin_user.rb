@@ -53,15 +53,10 @@ ActiveAdmin.register AdminUser do
     def destroy
       tasks_assigned_count = resource.assigned_tasks.todo.count
       destroy! do |format|
-        if resource.destroyed?
-          format.html do
-            case tasks_assigned_count
-            when 0
-              redirect_to admin_admin_users_url, alert: "Utilisateur supprimé"
-            else
-              redirect_to admin_tasks_url(scope: 'todo'), alert: "L'utilisateur supprimé avait #{tasks_assigned_count} tâche assignée(s) et non executée(s)."
-            end
-          end
+        redirect_to request.referer, alert: "Suppression impossible." and return unless resource.destroyed?
+        format.html do
+          redirect_to admin_admin_users_url, alert: "Utilisateur supprimé" and return if tasks_assigned_count.zero?
+          redirect_to admin_tasks_url(scope: 'todo'), alert: "L'utilisateur supprimé avait #{tasks_assigned_count} tâche assignée(s) et non executée(s)."
         end
       end
     end
