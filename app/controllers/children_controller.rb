@@ -3,9 +3,9 @@ class ChildrenController < ApplicationController
   SIBLINGS_COUNT = 3
 
   before_action :set_src_url
-  before_action :find_child, only: %i(edit update)
-  before_action :build_variables, only: %i(new create)
-  before_action :build_child_action_path, only: %i(edit update)
+  before_action :find_child, only: %i[edit update]
+  before_action :build_variables, only: %i[new create]
+  before_action :build_child_action_path, only: %i[edit update]
 
   def new
     puts "FORM ORIGIN: #{current_registration_origin}"
@@ -70,9 +70,9 @@ class ChildrenController < ApplicationController
     mother_attributes_valid = !mother_attributes[:first_name].blank? && !mother_attributes[:last_name].blank? && !mother_attributes[:phone_number].blank?
     father_attributes_available = !father_attributes[:first_name].blank? || !father_attributes[:last_name].blank? || !father_attributes[:phone_number].blank?
     father_attributes_valid = !father_attributes[:first_name].blank? && !father_attributes[:last_name].blank? && !father_attributes[:phone_number].blank?
-
-    if (mother_attributes_available && !mother_attributes_valid) || (father_attributes_available && !father_attributes_valid) || (!mother_attributes_available && !father_attributes_available)
-      flash.now[:error] = 'Inscription refusée'
+    creation_impossible = (mother_attributes_available && !mother_attributes_valid) || (father_attributes_available && !father_attributes_valid) || (!mother_attributes_available && !father_attributes_available)
+    if creation_impossible
+      flash.now[:error] = "Inscription refusée"
       @child = Child.new(attributes.merge(
         parent1_attributes: parent1_attributes.merge(mother_attributes),
         parent2_attributes: father_attributes
@@ -124,7 +124,7 @@ class ChildrenController < ApplicationController
       end
       redirect_to created_child_path
     else
-      flash.now[:error] = 'Inscription refusée'
+      flash.now[:error] = "Inscription refusée"
       @child.build_parent2 if @child.parent2.nil?
       @child.build_child_support if @child.child_support.nil?
       @child.siblings.build(siblings_attributes)
@@ -175,7 +175,7 @@ class ChildrenController < ApplicationController
   private
 
   def child_creation_params
-    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, child_support_attributes: %i(important_information))
+    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, child_support_attributes: %i[important_information])
     result.delete(:child_support_attributes) if result[:child_support_attributes][:important_information].blank?
     result
   end
@@ -185,15 +185,15 @@ class ChildrenController < ApplicationController
   end
 
   def parent1_params
-    params.require(:child).permit(parent1_attributes: %i(letterbox_name address postal_code city_name))[:parent1_attributes]
+    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name])[:parent1_attributes]
   end
 
   def mother_params
-    params.require(:child).permit(parent1_attributes: %i(first_name last_name phone_number))[:parent1_attributes]
+    params.require(:child).permit(parent1_attributes: %i[first_name last_name phone_number])[:parent1_attributes]
   end
 
   def father_params
-    params.require(:child).permit(parent2_attributes: %i(first_name last_name phone_number))[:parent2_attributes]
+    params.require(:child).permit(parent2_attributes: %i[first_name last_name phone_number])[:parent2_attributes]
   end
 
   def siblings_params
@@ -247,5 +247,4 @@ class ChildrenController < ApplicationController
   def set_src_url
     session[:src_url] ||= request.url
   end
-
 end

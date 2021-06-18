@@ -42,8 +42,8 @@ ActiveAdmin.register Parent do
   end
 
   filter :gender,
-         as: :check_boxes,
-         collection: proc { parent_gender_select_collection }
+    as: :check_boxes,
+    collection: proc { parent_gender_select_collection }
   filter :first_name
   filter :last_name
   filter :phone_number
@@ -65,12 +65,12 @@ ActiveAdmin.register Parent do
   form do |f|
     f.inputs do
       f.input :gender,
-              as: :radio,
-              collection: parent_gender_select_collection
+        as: :radio,
+        collection: parent_gender_select_collection
       f.input :first_name
       f.input :last_name
       f.input :phone_number,
-              input_html: { value: f.object.decorate.phone_number }
+        input_html: { value: f.object.decorate.phone_number }
       f.input :is_lycamobile
       f.input :email
       f.input :letterbox_name
@@ -86,10 +86,10 @@ ActiveAdmin.register Parent do
   end
 
   permit_params :gender, :first_name, :last_name,
-                :phone_number, :is_lycamobile, :email,
-                :letterbox_name, :address, :postal_code, :city_name,
-                :is_ambassador, :job, :terms_accepted_at,
-                tags_params
+    :phone_number, :is_lycamobile, :email,
+    :letterbox_name, :address, :postal_code, :city_name,
+    :is_ambassador, :job, :terms_accepted_at,
+    tags_params
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -137,33 +137,33 @@ ActiveAdmin.register Parent do
   action_item :new_event, only: :show do
     dropdown_menu 'Ajouter' do
       item 'Un SMS reçu',
-           new_admin_events_text_message_path(
-             events_text_message: {
-               related_type: resource.model.class,
-               related_id: resource.id
-             }
-           )
+        new_admin_events_text_message_path(
+          events_text_message: {
+            related_type: resource.model.class,
+            related_id: resource.id
+          }
+        )
       item 'Une participation aux ateliers',
-           new_admin_events_workshop_participation_path(
-             events_workshop_participation: {
-               related_type: resource.model.class,
-               related_id: resource.id
-             }
-           )
+        new_admin_events_workshop_participation_path(
+          events_workshop_participation: {
+            related_type: resource.model.class,
+            related_id: resource.id
+          }
+        )
       item 'Une réponse à un questionnaire',
-           new_admin_events_survey_response_path(
-             events_survey_response: {
-               related_type: resource.model.class,
-               related_id: resource.id
-             }
-           )
+        new_admin_events_survey_response_path(
+          events_survey_response: {
+            related_type: resource.model.class,
+            related_id: resource.id
+          }
+        )
       item 'Un autre événement',
-           new_admin_events_other_event_path(
-             events_other_event: {
-               related_type: resource.model.class,
-               related_id: resource.id
-             }
-           )
+        new_admin_events_other_event_path(
+          events_other_event: {
+            related_type: resource.model.class,
+            related_id: resource.id
+          }
+        )
     end
   end
 

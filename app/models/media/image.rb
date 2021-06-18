@@ -97,4 +97,7 @@ class Media::Image < Medium
     end
   end
 
+  include PgSearch
+  multisearchable against: :name
+
 end

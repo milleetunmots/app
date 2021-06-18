@@ -17,7 +17,6 @@ ActiveAdmin.register SupportModule do
     selectable_column
     id_column
     column :name
-    column :ages
     column :start_at
     column :tags
     column :created_at do |model|
@@ -31,7 +30,6 @@ ActiveAdmin.register SupportModule do
   end
 
   filter :name
-  filter :ages
   filter :start_at
 
   # ---------------------------------------------------------------------------
@@ -42,9 +40,6 @@ ActiveAdmin.register SupportModule do
     f.semantic_errors *f.object.errors.keys
     f.inputs do
       f.input :name
-      f.input :ages,
-              as: :radio,
-              collection: support_module_ages_select_collection
       f.input :start_at, as: :datepicker
       tags_input(f)
     end
@@ -70,7 +65,7 @@ ActiveAdmin.register SupportModule do
     f.actions
   end
 
-  permit_params :name, :ages, :start_at, :support_module_weeks,
+  permit_params :name, :start_at, :support_module_weeks,
                 {
                   support_module_weeks_attributes: [
                     :id, :medium_id, :position,
@@ -88,7 +83,6 @@ ActiveAdmin.register SupportModule do
   show do
     attributes_table do
       row :name
-      row :ages
       row :start_at
       row :tags
       row :created_at

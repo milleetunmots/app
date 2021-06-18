@@ -219,16 +219,19 @@ GEM
     marcel (0.3.3)
       mimemagic (~> 0.3.2)
     method_source (0.9.2)
-    mimemagic (0.3.3)
+    mimemagic (0.3.10)
+      nokogiri (~> 1)
+      rake
     mini_magick (4.10.1)
     mini_mime (1.0.1)
-    mini_portile2 (2.4.0)
+    mini_portile2 (2.5.1)
     minitest (5.14.1)
     msgpack (1.2.10)
     multi_json (1.13.1)
     nio4r (2.3.1)
-    nokogiri (1.10.9)
-      mini_portile2 (~> 2.4.0)
+    nokogiri (1.11.5)
+      mini_portile2 (~> 2.5.0)
+      racc (~> 1.4)
     orm_adapter (0.5.0)
     paper_trail (10.3.0)
       activerecord (>= 4.2, < 6.1)
@@ -240,7 +243,9 @@ GEM
     phonelib (0.6.35)
     popper_js (1.14.5)
     public_suffix (3.1.0)
-    puma (3.12.6)
+    puma (4.3.8)
+      nio4r (~> 2.0)
+    racc (1.5.2)
     rack (2.2.3)
     rack-proxy (0.6.5)
       rack
@@ -425,7 +430,7 @@ DEPENDENCIES
   pg (>= 0.18, < 2.0)
   pg_search
   phonelib
-  puma (~> 3.12)
+  puma (~> 4.3)
   rails (~> 6.0.0.rc1)
   rails-i18n
   rollbar

@@ -27,5 +27,4 @@ class Media::ImageDecorator < MediumDecorator
                   class: 'image',
                   style: "background-image: url('#{url_for(model.file)}')"
   end
-
 end

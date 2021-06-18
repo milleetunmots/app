@@ -48,15 +48,7 @@ class Child < ApplicationRecord
   include Discard::Model
 
   GENDERS = %w[m f].freeze
-  REGISTRATION_SOURCES = %w[
-    caf
-    pmi
-    friends
-    therapist
-    nursery
-    resubscribing
-    other
-  ].freeze
+  REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery resubscribing other].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -76,6 +68,12 @@ class Child < ApplicationRecord
     self.class.where(parent1_id: parent1_id, parent2_id: parent2_id).where.not(id: id)
   end
 
+  def all_tags
+    tags = tag_list
+    siblings.each { |child| tags = (tags + child.tag_list).uniq }
+    tags
+  end
+
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
   accepts_nested_attributes_for :parent2
@@ -84,18 +82,27 @@ class Child < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  validates :gender, inclusion: { in: GENDERS, allow_blank: true }
+  validates :gender, inclusion: {in: GENDERS, allow_blank: true}
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :birthdate, presence: true
   validates :birthdate, date: {
-                          after: Proc.new { min_birthdate },
-                          before: Proc.new { max_birthdate }
-                        },
+    after: proc { min_birthdate },
+    before: proc { max_birthdate }
+  },
                         on: :create
-  validates :registration_source, presence: true, inclusion: { in: REGISTRATION_SOURCES }
+  validates :registration_source, presence: true, inclusion: {in: REGISTRATION_SOURCES}
   validates :registration_source_details, presence: true
   validates :security_code, presence: true
+  validate :no_duplicate, on: :create
+
+  def no_duplicate
+    self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).each do |child|
+      if parent1.duplicate_of?(child.parent1) || parent1.duplicate_of?(child.parent2) || parent2&.duplicate_of?(child.parent1) || parent2&.duplicate_of?(child.parent2)
+        errors.add(:base, :invalid, message: "L'enfant est déjà enregistré")
+      end
+    end
+  end
 
   # ---------------------------------------------------------------------------
   # callbacks
@@ -136,18 +143,20 @@ class Child < ApplicationRecord
   # support
   # ---------------------------------------------------------------------------
 
-  def create_support!(child_support_attributes = {})
+  def create_support!(child_support_attributes = {tag_list: all_tags})
     # 1- create support
     child_support = ChildSupport.create!(child_support_attributes)
 
     # 2- use it on current child
     self.child_support_id = child_support.id
-    self.save(validate: false)
+    self.tag_list = all_tags
+    save(validate: false)
 
     # 3- also update all strict siblings
     # nb: we do this one by one to trigger paper_trail
     strict_siblings.without_support.each do |child|
       child.child_support_id = child_support.id
+      child.tag_list = all_tags
       child.save(validate: false)
     end
   end
@@ -159,14 +168,14 @@ class Child < ApplicationRecord
   def self.months_gteq(x)
     # >= x months
     # means a birthdate at the most equal to x months ago
-    where('birthdate <= ?', Time.zone.today - x.to_i.months)
+    where("birthdate <= ?", Time.zone.today - x.to_i.months)
   end
 
   def self.months_lt(x)
     # < x months
     # means being at most 1 day less than x months old
     # which means a birthdate strictly greater than exactly x months ago
-    where('birthdate > ?', Time.zone.today - x.to_i.months)
+    where("birthdate > ?", Time.zone.today - x.to_i.months)
   end
 
   def self.months_equals(x)
@@ -258,12 +267,12 @@ class Child < ApplicationRecord
 
   def self.without_parent_text_message_since(v)
     parent_id_not_in(
-      Events::TextMessage.where(related_type: :Parent).where('occurred_at >= ?', v).pluck('DISTINCT related_id')
+      Events::TextMessage.where(related_type: :Parent).where("occurred_at >= ?", v).pluck("DISTINCT related_id")
     )
   end
 
   def self.registration_source_details_matches_any(*v)
-    where('registration_source_details ILIKE ?', v)
+    where("registration_source_details ILIKE ?", v)
   end
 
   # ---------------------------------------------------------------------------
@@ -271,7 +280,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i(months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with unpaused_group_id_in without_parent_text_message_since registration_source_details_matches_any)
+    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with unpaused_group_id_in without_parent_text_message_since registration_source_details_matches_any]
   end
 
   # ---------------------------------------------------------------------------
@@ -279,47 +288,47 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   delegate :email,
-           :first_name,
-           :last_name,
-           :gender,
-           :phone_number_national,
-           to: :parent1,
-           prefix: true
+    :first_name,
+    :last_name,
+    :gender,
+    :phone_number_national,
+    to: :parent1,
+    prefix: true
 
   delegate :email,
-           :first_name,
-           :last_name,
-           :gender,
-           :phone_number_national,
-           to: :parent2,
-           prefix: true,
-           allow_nil: true
+    :first_name,
+    :last_name,
+    :gender,
+    :phone_number_national,
+    to: :parent2,
+    prefix: true,
+    allow_nil: true
 
   delegate :address,
-           :city_name,
-           :letterbox_name,
-           :postal_code,
-           to: :parent1
+    :city_name,
+    :letterbox_name,
+    :postal_code,
+    to: :parent1
 
   delegate :is_ambassador,
-           :is_ambassador?,
-           :is_lycamobile,
-           :is_lycamobile?,
-           to: :parent1,
-           prefix: true
+    :is_ambassador?,
+    :is_lycamobile,
+    :is_lycamobile?,
+    to: :parent1,
+    prefix: true
 
   delegate :is_ambassador,
-           :is_ambassador?,
-           :is_lycamobile,
-           :is_lycamobile?,
-           to: :parent2,
-           prefix: true,
-           allow_nil: true
+    :is_ambassador?,
+    :is_lycamobile,
+    :is_lycamobile?,
+    to: :parent2,
+    prefix: true,
+    allow_nil: true
 
   delegate :name,
-           to: :group,
-           prefix: true,
-           allow_nil: true
+    to: :group,
+    prefix: true,
+    allow_nil: true
 
   def family_redirection_urls
     RedirectionUrl.where(parent_id: [parent1_id, parent2_id].compact)
@@ -330,9 +339,9 @@ class Child < ApplicationRecord
   end
 
   def update_counters!
-    self.family_redirection_urls_count = family_redirection_urls.count('DISTINCT redirection_target_id')
+    self.family_redirection_urls_count = family_redirection_urls.count("DISTINCT redirection_target_id")
 
-    if self.family_redirection_urls_count.zero?
+    if family_redirection_urls_count.zero?
       self.family_redirection_url_unique_visits_count = 0
       self.family_redirection_unique_visit_rate = 0
       self.family_redirection_url_visits_count = 0
@@ -341,7 +350,7 @@ class Child < ApplicationRecord
       # family counters : if both parents receive a link and only
       # 1 parent opens it, we consider it 100% visited
 
-      self.family_redirection_url_unique_visits_count = family_redirection_urls.with_visits.count('DISTINCT redirection_target_id')
+      self.family_redirection_url_unique_visits_count = family_redirection_urls.with_visits.count("DISTINCT redirection_target_id")
       self.family_redirection_unique_visit_rate = family_redirection_url_unique_visits_count / family_redirection_urls_count.to_f
       self.family_redirection_url_visits_count = family_redirection_urls.sum(:redirection_url_visits_count)
       self.family_redirection_visit_rate = family_redirection_urls_count / family_redirection_urls_count.to_f
@@ -352,13 +361,13 @@ class Child < ApplicationRecord
 
   def parent_events
     Event.where(
-      related_type: 'Parent',
+      related_type: "Parent",
       related_id: [parent1_id, parent2_id].compact
     )
   end
 
   def self.families_count
-    count('DISTINCT parent1_id')
+    count("DISTINCT parent1_id")
   end
 
   def self.parents
@@ -381,7 +390,7 @@ class Child < ApplicationRecord
     pluck(:registration_source_details).compact.uniq.each do |value|
       normalized_value = I18n.transliterate(
         value.unicode_normalize
-      ).downcase.gsub(/[\s-]+/, ' ').strip
+      ).downcase.gsub(/[\s-]+/, " ").strip
       values[normalized_value] ||= []
       values[normalized_value] << value
     end
@@ -389,10 +398,7 @@ class Child < ApplicationRecord
     # use first found value as map key and remove duplicates
     Hash[
       values.map do |k, v|
-        [
-          v.first,
-          v.uniq
-        ]
+        [ v.first, v.uniq ]
       end
     ]
   end
@@ -402,7 +408,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   include PgSearch
-  multisearchable against: %i(first_name last_name)
+  multisearchable against: %i[first_name last_name]
 
   # ---------------------------------------------------------------------------
   # versions history

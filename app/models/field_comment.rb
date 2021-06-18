@@ -35,12 +35,12 @@ class FieldComment < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   validates :field,
-            presence: true,
-            inclusion: {
-              in: -> (o) {
-                o.related.attributes.keys
-              }
-            }
+    presence: true,
+    inclusion: {
+      in: ->(o) {
+        o.related.attributes.keys
+      }
+    }
 
   # ---------------------------------------------------------------------------
   # scopes

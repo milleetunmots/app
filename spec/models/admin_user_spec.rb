@@ -23,8 +23,29 @@
 #  index_admin_users_on_reset_password_token  (reset_password_token) UNIQUE
 #
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe AdminUser, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe "Validations" do
+    context "succeed" do
+      it "if the user have a name " do
+        expect(FactoryBot.build_stubbed(:admin_user)).to be_valid
+      end
+    end
+
+    context "fail" do
+      it "if the user doesn't have a name" do
+        expect(FactoryBot.build_stubbed(:admin_user, name: nil)).not_to be_valid
+      end
+
+      it "if the user doesn't have a email" do
+        expect(FactoryBot.build_stubbed(:admin_user, email: nil)).not_to be_valid
+      end
+
+      it "if the user already exists" do
+        @existing = FactoryBot.create(:admin_user, name: "username")
+        expect(FactoryBot.build_stubbed(:admin_user, name: "Username")).not_to be_valid
+      end
+    end
+  end
 end
