@@ -32,6 +32,9 @@ class AdminUser < ApplicationRecord
   devise :database_authenticatable,
     :recoverable, :rememberable, :validatable
 
+  has_many :reported_tasks, class_name: :Task, foreign_key: :reporter_id, dependent: :nullify
+  has_many :assigned_tasks, class_name: :Task, foreign_key: :assignee_id, dependent: :nullify
+
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
