@@ -15,6 +15,7 @@ ActiveAdmin.register AdminUser do
     column :email do |decorated|
       decorated.email_link
     end
+    column :user_role
     column :current_sign_in_at
     column :sign_in_count
     column :created_at do |decorated|
@@ -39,12 +40,28 @@ ActiveAdmin.register AdminUser do
     f.inputs do
       f.input :name
       f.input :email
+      f.input :user_role,
+        collection: admin_user_role_select_collection,
+        input_html: {data: {select2: {}}}
       f.input :password
       f.input :password_confirmation, required: true
     end
     f.actions
   end
 
-  permit_params :name, :email, :password, :password_confirmation
+  controller do
+    def destroy
+      tasks_assigned_count = resource.assigned_tasks.todo.count
+      destroy! do |format|
+        redirect_to request.referer, alert: "Suppression impossible." and return unless resource.destroyed?
+        format.html do
+          redirect_to admin_admin_users_url, alert: "Utilisateur supprimé" and return if tasks_assigned_count.zero?
+          redirect_to admin_tasks_url(scope: 'todo'), alert: "L'utilisateur supprimé avait #{tasks_assigned_count} tâche assignée(s) et non executée(s)."
+        end
+      end
+    end
+  end
+
+  permit_params :name, :email, :user_role, :password, :password_confirmation
 
 end
