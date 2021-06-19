@@ -47,6 +47,7 @@ ActiveAdmin.register ChildSupport do
   scope :without_supporter
 
   scope :with_book_not_received
+  scope :call_2_4
 
   filter :group_id_in,
     as: :select,
