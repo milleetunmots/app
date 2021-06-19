@@ -40,11 +40,15 @@ ActiveAdmin.register AdminUser do
     f.inputs do
       f.input :name
       f.input :email
-      f.input :user_role,
-        collection: admin_user_role_select_collection,
-        input_html: {data: {select2: {}}}
-      f.input :password
-      f.input :password_confirmation, required: true
+      if current_admin_user.admin?
+        f.input :user_role,
+          collection: admin_user_role_select_collection,
+          input_html: {data: {select2: {}}}
+      end
+      if current_admin_user == admin_user_in_params || !params[:id]
+        f.input :password
+        f.input :password_confirmation, required: true
+      end
     end
     f.actions
   end
