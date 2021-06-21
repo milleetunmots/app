@@ -43,12 +43,13 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
-  scope(:mine, default: true) { |scope| scope.supported_by(current_admin_user) }
-  scope :all
-  scope :without_supporter
+  scope :all, group: :all
+
+  scope(:mine, default: true, group: :supporter) { |scope| scope.supported_by(current_admin_user) }
+  scope :without_supporter, group: :supporter
 
   scope :with_book_not_received
-  scope :call_2_4
+  scope :call_2_4, group: :call
 
   filter :group_id_in,
     as: :select,
