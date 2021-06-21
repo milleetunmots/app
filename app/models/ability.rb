@@ -12,7 +12,7 @@ class Ability
 
     can :manage, [Child, Task]
     can :read, ActiveAdmin::Page, name: 'Dashboard'
-    can :update, AdminUser
+    can :update, AdminUser, id: user.id
 
     if user.team_member?
       can :manage, [Medium, SupportModule, MediaFolder, FieldComment, Tag, Event]

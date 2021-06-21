@@ -66,6 +66,12 @@ ActiveAdmin.register AdminUser do
     end
   end
 
-  permit_params :name, :email, :user_role, :password, :password_confirmation
+  permit_params
+
+  permit_params do
+    params = [:name, :email, :password, :password_confirmation]
+    params.push :user_role if current_admin_user.admin?
+    params
+  end
 
 end
