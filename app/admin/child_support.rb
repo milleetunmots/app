@@ -35,6 +35,7 @@ ActiveAdmin.register ChildSupport do
     column :created_at do |decorated|
       l decorated.created_at.to_date, format: :default
     end
+    column :to_call
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -174,6 +175,7 @@ ActiveAdmin.register ChildSupport do
             end
           end
           tags_input(f)
+          f.input :to_call
         end
       end
       tabs do
@@ -284,7 +286,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   base_attributes = %i[
-    important_information supporter_id should_be_read book_not_received is_bilingual second_language
+    important_information supporter_id should_be_read book_not_received is_bilingual second_language to_call
   ] + [tags_params]
   parent_attributes = %i[
     id
@@ -331,6 +333,7 @@ ActiveAdmin.register ChildSupport do
             end
           end
           row :children
+          row :to_call
           row :important_information
           row :book_not_received
           row :should_be_read
