@@ -49,13 +49,13 @@ RSpec.describe Child, type: :model do
   before(:each) do
     @group = FactoryBot.create(:group)
     @parent1 = FactoryBot.create(:parent, postal_code: 75006)
-    @parent2 = FactoryBot.create(:parent)
-    @parent3 = FactoryBot.create(:parent)
+    @parent2 = FactoryBot.create(:parent, postal_code: 99999)
+    @parent3 = FactoryBot.create(:parent, postal_code: 33333)
     @first_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month, should_contact_parent2: true, group: @group)
     @second_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(8), group: @group, has_quit_group: true)
     @third_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(14))
-    @fourth_child = FactoryBot.create(:child, parent2: @parent3,birthdate: Date.today.yesterday)
-    @fifth_child = FactoryBot.create(:child, parent2: @parent3, birthdate: Date.today.prev_month(27), should_contact_parent1: true)
+    @fourth_child = FactoryBot.create(:child, parent1: @parent2, parent2: @parent3, birthdate: Date.today.yesterday)
+    @fifth_child = FactoryBot.create(:child, parent1: @parent2, parent2: @parent3, birthdate: Date.today.prev_month(27), should_contact_parent1: true)
     @child_support = FactoryBot.create(:child_support, first_child: @fourth_child)
 
     @all_children = [@first_child, @second_child, @third_child, @fourth_child, @fifth_child]
@@ -102,7 +102,7 @@ RSpec.describe Child, type: :model do
     context "returns" do
       it "the child siblings" do
         expect(@first_child.strict_siblings).to match_array [@second_child, @third_child]
-        expect(@fourth_child.strict_siblings).to eq []
+        expect(@fourth_child.strict_siblings).to eq [@fifth_child]
         expect(Child.all).to match_array @all_children
       end
     end

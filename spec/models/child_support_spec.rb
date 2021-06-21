@@ -104,12 +104,14 @@ require "rails_helper"
 
 RSpec.describe ChildSupport, type: :model do
   before(:each) do
+    @first_parent = FactoryBot.create(:parent, postal_code: 75006)
+    @second_parent = FactoryBot.create(:parent, postal_code: 99999)
     @group = FactoryBot.create(:group)
-    @child = FactoryBot.create(:child, group: @group, registration_source: "pmi")
-    @second_child = FactoryBot.create(:child, group: @group, has_quit_group: true)
-    @third_child = FactoryBot.create(:child, registration_source: "pmi")
+    @first_child = FactoryBot.create(:child, group: @group, registration_source: "pmi", parent1: @first_parent)
+    @second_child = FactoryBot.create(:child, group: @group, has_quit_group: true, parent1: @first_parent)
+    @third_child = FactoryBot.create(:child, registration_source: "pmi", registration_source_details: "Aristide Bamenou", parent1: @second_parent)
     @admin_user = FactoryBot.create(:admin_user)
-    @first_child_support = FactoryBot.create(:child_support, first_child: @child, supporter: @admin_user)
+    @first_child_support = FactoryBot.create(:child_support, first_child: @first_child, supporter: @admin_user)
     @second_child_support = FactoryBot.create(:child_support)
     @third_child_support = FactoryBot.create(:child_support, first_child: @second_child)
     @fourth_child_support = FactoryBot.create(:child_support, first_child: @third_child)
@@ -207,6 +209,46 @@ RSpec.describe ChildSupport, type: :model do
     context "returns" do
       it "child supports for child with registration sources in v" do
         expect(ChildSupport.registration_sources_in("pmi")).to match_array [@first_child_support, @fourth_child_support]
+      end
+    end
+  end
+
+  describe "#registration_sources_details_in(*v)" do
+    context "returns" do
+      it "child supports for child with registration sources details in v" do
+        expect(ChildSupport.registration_sources_details_in("Aristide Bamenou")).to match_array [@fourth_child_support]
+      end
+    end
+  end
+
+  describe "#postal_code_contains(v)" do
+    context "returns" do
+      it "child supports for child with parent postal code contains v" do
+        expect(ChildSupport.postal_code_contains(500)).to match_array [@first_child_support, @third_child_support]
+      end
+    end
+  end
+
+  describe "#postal_code_ends_with(v)" do
+    context "returns" do
+      it "child supports for child with parent postal code ends with v" do
+        expect(ChildSupport.postal_code_ends_with(99)).to match_array [@fourth_child_support]
+      end
+    end
+  end
+
+  describe "#postal_code_equals(v)" do
+    context "returns" do
+      it "child supports for child with parent postal code equals v" do
+        expect(ChildSupport.postal_code_equals(75006)).to match_array [@first_child_support, @third_child_support]
+      end
+    end
+  end
+
+  describe "#postal_code_starts_with(v)" do
+    context "returns" do
+      it "child supports for child with parent postal code starts with v" do
+        expect(ChildSupport.postal_code_starts_with(75)).to match_array [@first_child_support, @third_child_support]
       end
     end
   end
