@@ -105,10 +105,14 @@ require "rails_helper"
 RSpec.describe ChildSupport, type: :model do
   before(:each) do
     @group = FactoryBot.create(:group)
-    @child = FactoryBot.create(:child, group: @group)
+    @child = FactoryBot.create(:child, group: @group, registration_source: "pmi")
+    @second_child = FactoryBot.create(:child, group: @group, has_quit_group: true)
+    @third_child = FactoryBot.create(:child, registration_source: "pmi")
     @admin_user = FactoryBot.create(:admin_user)
-    @first_child_support = FactoryBot.create(:child_support, first_child:@child, supporter: @admin_user)
+    @first_child_support = FactoryBot.create(:child_support, first_child: @child, supporter: @admin_user)
     @second_child_support = FactoryBot.create(:child_support)
+    @third_child_support = FactoryBot.create(:child_support, first_child: @second_child)
+    @fourth_child_support = FactoryBot.create(:child_support, first_child: @third_child)
   end
 
   describe "Validations" do
@@ -144,7 +148,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#without_supporter" do
     context "returns" do
       it "Child_support without supporter" do
-        expect(ChildSupport.without_supporter).to match_array [@second_child_support]
+        expect(ChildSupport.without_supporter).to match_array [@second_child_support, @third_child_support, @fourth_child_support]
       end
     end
   end
@@ -177,8 +181,32 @@ RSpec.describe ChildSupport, type: :model do
 
   describe "#groups_in(*v)" do
     context "returns" do
-      it "child supports for child with group v" do
-        expect(ChildSupport.groups_in())
+      it "child supports for child with group in v" do
+        expect(ChildSupport.groups_in(@group.id)).to match_array [@first_child_support, @third_child_support]
+      end
+    end
+  end
+
+  describe "#group_id_in(*v)" do
+    context "returns" do
+      it "child supports for child with group id in v" do
+        expect(ChildSupport.group_id_in(@group.id)).to match_array [@first_child_support, @third_child_support]
+      end
+    end
+  end
+
+  describe "#unpaused_group_id_in(*v)" do
+    context "returns" do
+      it "child supports for unpaused child with group id in v" do
+        expect(ChildSupport.unpaused_group_id_in(@group.id)).to match_array [@first_child_support]
+      end
+    end
+  end
+
+  describe "#registration_sources_in(*v)" do
+    context "returns" do
+      it "child supports for child with registration sources in v" do
+        expect(ChildSupport.registration_sources_in("pmi")).to match_array [@first_child_support, @fourth_child_support]
       end
     end
   end
