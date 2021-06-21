@@ -45,7 +45,7 @@ ActiveAdmin.register AdminUser do
           collection: admin_user_role_select_collection,
           input_html: {data: {select2: {}}}
       end
-      if current_admin_user == admin_user_in_params || !params[:id]
+      if !params[:id] || current_admin_user == admin_user_in_params
         f.input :password
         f.input :password_confirmation, required: true
       end
@@ -69,11 +69,10 @@ ActiveAdmin.register AdminUser do
   permit_params do
     parameters = [:name, :email]
     parameters.push :user_role if current_admin_user.admin?
-    if current_admin_user == params[:id]
+    if !params[:id] || current_admin_user == admin_user_in_params
       parameters.push :password
       parameters.push :password_confirmation
     end
-    byebug
     parameters
   end
 
