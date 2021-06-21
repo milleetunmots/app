@@ -176,7 +176,11 @@ class ChildSupport < ApplicationRecord
 
   scope :supported_by, ->(model) { where(supporter: model) }
   scope :without_supporter, -> { where(supporter_id: nil) }
-  scope :call_2_4, -> { where('call1_status ILIKE ?', 'ko') }
+  scope :call_2_4, -> {
+    where('call1_status ILIKE ?', 'ko')
+      .or(where(call1_parent_progress: '1_low'))
+      .or(where(call1_parent_progress: '2_medium'))
+  }
 
   class << self
 
