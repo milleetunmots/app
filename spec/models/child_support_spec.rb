@@ -108,7 +108,7 @@ RSpec.describe ChildSupport, type: :model do
     @second_parent = FactoryBot.create(:parent, postal_code: 99999)
     @group = FactoryBot.create(:group)
     @first_child = FactoryBot.create(:child, group: @group, registration_source: "pmi", parent1: @first_parent)
-    @second_child = FactoryBot.create(:child, group: @group, has_quit_group: true, parent1: @first_parent)
+    @second_child = FactoryBot.create(:child, group: @group, has_quit_group: true, parent1: @first_parent, registration_source: "caf")
     @third_child = FactoryBot.create(:child, registration_source: "pmi", registration_source_details: "Aristide Bamenou", parent1: @second_parent)
     @admin_user = FactoryBot.create(:admin_user)
     @first_child_support = FactoryBot.create(:child_support, first_child: @first_child, supporter: @admin_user)
