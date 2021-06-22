@@ -176,6 +176,12 @@ class ChildSupport < ApplicationRecord
 
   scope :supported_by, ->(model) { where(supporter: model) }
   scope :without_supporter, -> { where(supporter_id: nil) }
+  scope :call_2_4, -> {
+    where("call1_status ILIKE ?", "ko")
+      .or(where(call1_parent_progress: "1_low"))
+      .or(where(call1_parent_progress: "2_medium"))
+      .or(where(to_call: true))
+  }
 
   class << self
 
@@ -200,45 +206,45 @@ class ChildSupport < ApplicationRecord
   end
 
   def self.groups_in(*v)
-    where(id: Child.where(group_id: v).select('DISTINCT child_support_id'))
+    where(id: Child.where(group_id: v).select("DISTINCT child_support_id"))
   end
 
   def self.group_id_in(*v)
-    where(id: Child.group_id_in(v).select('DISTINCT child_support_id'))
+    where(id: Child.group_id_in(v).select("DISTINCT child_support_id"))
   end
 
   def self.unpaused_group_id_in(*v)
-    where(id: Child.unpaused_group_id_in(v).select('DISTINCT child_support_id'))
+    where(id: Child.unpaused_group_id_in(v).select("DISTINCT child_support_id"))
   end
 
   def self.registration_sources_in(*v)
-    where(id: Child.where(registration_source: v).select('DISTINCT child_support_id'))
+    where(id: Child.where(registration_source: v).select("DISTINCT child_support_id"))
   end
 
   def self.registration_sources_details_in(*v)
-    where(id: Child.where(registration_source_details: v).select('DISTINCT child_support_id'))
+    where(id: Child.where(registration_source_details: v).select("DISTINCT child_support_id"))
   end
 
   def self.postal_code_contains(v)
-    where(id: Child.postal_code_contains(v).select('DISTINCT child_support_id'))
+    where(id: Child.postal_code_contains(v).select("DISTINCT child_support_id"))
   end
 
   def self.postal_code_ends_with(v)
-    where(id: Child.postal_code_ends_with(v).select('DISTINCT child_support_id'))
+    where(id: Child.postal_code_ends_with(v).select("DISTINCT child_support_id"))
   end
 
   def self.postal_code_equals(v)
-    where(id: Child.postal_code_equals(v).select('DISTINCT child_support_id'))
+    where(id: Child.postal_code_equals(v).select("DISTINCT child_support_id"))
   end
 
   def self.postal_code_starts_with(v)
-    where(id: Child.postal_code_starts_with(v).select('DISTINCT child_support_id'))
+    where(id: Child.postal_code_starts_with(v).select("DISTINCT child_support_id"))
   end
 
-  scope :with_book_not_received, -> { where.not(book_not_received: [nil, '']) }
+  scope :with_book_not_received, -> { where.not(book_not_received: [nil, ""]) }
 
   def self.without_parent_text_message_since(v)
-    where(id: Child.without_parent_text_message_since(v).select('DISTINCT child_support_id'))
+    where(id: Child.without_parent_text_message_since(v).select("DISTINCT child_support_id"))
   end
 
   # ---------------------------------------------------------------------------
@@ -289,12 +295,12 @@ class ChildSupport < ApplicationRecord
 
   (1..5).each do |call_idx|
     define_method("call#{call_idx}_parent_progress_index") do
-      (send("call#{call_idx}_parent_progress") || '').split('_').first&.to_i
+      (send("call#{call_idx}_parent_progress") || "").split("_").first&.to_i
     end
   end
 
   def other_children
-    all_parent_ids = children.pluck(:parent1_id, :parent2_id).join(',').split(',').uniq
+    all_parent_ids = children.pluck(:parent1_id, :parent2_id).join(",").split(",").uniq
     Child.parent_id_in(all_parent_ids).where.not(child_support: self)
   end
 
