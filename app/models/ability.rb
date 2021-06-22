@@ -12,14 +12,15 @@ class Ability
 
     can :manage, [Child, Task]
     can :read, ActiveAdmin::Page, name: 'Dashboard'
+    can :update, AdminUser, id: user.id
 
     if user.team_member?
-      can :manage, [Medium, Tag, Event]
+      can :manage, [Medium, SupportModule, MediaFolder, FieldComment, Tag, Event]
       can [:read, :update], [Group, Parent]
       can :read, [RedirectionUrl, ChildSupport]
     else
       can :manage, [Parent, ChildSupport]
-      can :read, [Group, Medium, RedirectionUrl, Tag, Event]
+      can :read, [Group, Medium, RedirectionUrl, Tag, Event, SupportModule, MediaFolder, FieldComment]
     end
   end
 end

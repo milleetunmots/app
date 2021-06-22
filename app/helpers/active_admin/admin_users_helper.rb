@@ -8,4 +8,8 @@ module ActiveAdmin::AdminUsersHelper
       ]
     end
   end
+
+  def admin_user_in_params
+    AdminUser.find(params[:id]) if params[:id]
+  end
 end
