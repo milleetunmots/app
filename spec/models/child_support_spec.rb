@@ -107,13 +107,14 @@ RSpec.describe ChildSupport, type: :model do
     @first_parent = FactoryBot.create(:parent, postal_code: 75006)
     @second_parent = FactoryBot.create(:parent, postal_code: 99999)
     @group = FactoryBot.create(:group)
+    @text_message = FactoryBot.create(:text_message, related: @first_parent)
     @first_child = FactoryBot.create(:child, group: @group, registration_source: "pmi", parent1: @first_parent)
     @second_child = FactoryBot.create(:child, group: @group, has_quit_group: true, parent1: @first_parent, registration_source: "caf")
     @third_child = FactoryBot.create(:child, registration_source: "pmi", registration_source_details: "Aristide Bamenou", parent1: @second_parent)
     @admin_user = FactoryBot.create(:admin_user)
     @first_child_support = FactoryBot.create(:child_support, first_child: @first_child, supporter: @admin_user)
     @second_child_support = FactoryBot.create(:child_support)
-    @third_child_support = FactoryBot.create(:child_support, first_child: @second_child)
+    @third_child_support = FactoryBot.create(:child_support, first_child: @second_child, book_not_received: "Les loisirs")
     @fourth_child_support = FactoryBot.create(:child_support, first_child: @third_child)
   end
 
@@ -252,6 +253,13 @@ RSpec.describe ChildSupport, type: :model do
       end
     end
   end
-
-
+=begin
+  describe "#with_book_not_received" do
+    context "returns" do
+      it "child supports with book not received" do
+        expect(ChildSupport.with_book_not_received).to match_array [@third_child_support]
+      end
+    end
+  end
+=end
 end
