@@ -1,7 +1,7 @@
 fr:
   activerecord:
     models:
-      admin_user: Administrateur
+      admin_user: Utilisateur
       child: Enfant
       child_support: Suivi
       events_other_event: Autre
