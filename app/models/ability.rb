@@ -10,7 +10,8 @@ class Ability
       return
     end
 
-    can :manage, [Child, Task]
+    can :manage, Child
+    can :manage, Task
     can :read, ActiveAdmin::Page, name: 'Dashboard'
 
     if user.team_member?
@@ -21,5 +22,12 @@ class Ability
       can :manage, [Parent, ChildSupport]
       can :read, [Group, Medium, RedirectionUrl, Tag, Event]
     end
+  end
+
+  def can?(action, subject, *extra_args)
+    while subject.is_a?(Draper::Decorator)
+      subject = subject.model
+    end
+    super(action, subject, *extra_args)
   end
 end
