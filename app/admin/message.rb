@@ -4,29 +4,18 @@ ActiveAdmin.register_page "Message" do
 
   content do
 
-    form action: admin_message_program_sms_path, method: :post do |f|
+    form action: admin_message_program_sms_path, method: :post, id: 'sms-form' do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
       
-      label do 
-        'Date d\'envoie du message'
-      end
-      div do
-        input type: 'date', id: 'date-send', name: 'date_sent' do end
-        input type: 'time', id: 'time-send', name: 'hour_sent' do end
+      label 'Date et heure d\'envoie du message'
+      div class: 'datetime-container' do
+        input type: 'text', id: 'date-send', name: 'date_sent', class: 'datepicker hasDatePicker', style: 'margin-right: 20px;', value: Date.today
+        input type: 'time', id: 'time-send', name: 'hour_sent', value: Time.zone.now.strftime('%H:%M')
       end
       
       div do
-        label do
-          'Parents et/ou cohorte'
-        end
-        select name: 'recipients[]', multiple: 'multiple', id: 'recipients', width: '700px' do
-          optgroup label: 'Tags' do
-            Tag.all.each do |tag|
-              option value: 'tag.'+tag.id.to_s do tag.name end
-            end
-          end
-          optgroup label: 'Cohortes' do
-          end
+        label 'Choisissez les destinataires'
+        select name: 'recipients[]', multiple: 'multiple', id: 'recipients' do
           optgroup label: 'Parents' do
             Parent.all.each do |parent|
               option value: 'parent.'+parent.id.to_s do parent.first_name+' '+ parent.last_name end
@@ -37,22 +26,21 @@ ActiveAdmin.register_page "Message" do
 
 
       div do
-        label do
-          'Message'
-        end
-        textarea name: 'message' do
-        end
+        label 'Message'
+        textarea name: 'message'
       end
 
-      button do
-        'Envoyer'
+      div class: 'actions' do
+        div class: 'action input_action' do
+          input type: 'submit', value: 'Valider'
+        end
       end
     end
   end
 
 
   page_action :program_sms, method: :post do
-    # raise params.inspect
+    redirect_back(fallback_location: root_path, notice: 'Message programmé')
   end
 
 end
