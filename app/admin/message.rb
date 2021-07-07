@@ -1,32 +1,49 @@
 ActiveAdmin.register_page "Message" do
+  
+  menu  priority: 12, parent: 'Programmer des envois'
+
   content do
 
     render "admin/message/new"
 
-    label do 
-      'Date d\'envoie du message'
-    end
     form action: admin_message_program_sms_path, method: :post do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
-
-      fieldset class: 'inputs' do
-        ol do
-          li class: 'datepicker input required stringish' do
-            f.input :started_at, as: :datepicker
+      
+      label do 
+        'Date d\'envoie du message'
+      end
+      div do
+        input type: 'date', id: 'date-send', name: 'date sent' do end
+        input type: 'time', id: 'time-send', name: 'hour sent' do end
+      end
+      
+      div do
+        label do
+          'Parents et/ou cohorte'
+        end
+        select name: 'search[]', multiple: 'multiple', id: 'recipients', width: '700px' do
+          optgroup label: 'Tags' do
+            Tag.all.each do |tag|
+              option value: 'tag.'+tag.id.to_s do tag.name end
+            end
+          end
+          optgroup label: 'Cohortes' do
+          end
+          optgroup label: 'Parents' do
+            Parent.all.each do |parent|
+              option value: 'parent.'+parent.id.to_s do parent.first_name+' '+ parent.last_name end
+            end
           end
         end
       end
 
-      label do
-        'Parents et/ou cohorte'
-      end
-      f.input type: 'search', name: 'search' do
-      end
 
-      label do
-        'Message'
-      end
-      textarea name: 'message' do
+      div do
+        label do
+          'Message'
+        end
+        textarea name: 'message' do
+        end
       end
 
       button do
@@ -37,8 +54,7 @@ ActiveAdmin.register_page "Message" do
 
 
   page_action :program_sms, method: :post do
-    puts 'Wow, actually doing!'
-    redirect_to 'http://stackoverflow.com'
+    # raise params.inspect
   end
 
 end
