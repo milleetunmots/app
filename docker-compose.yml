@@ -16,7 +16,7 @@ services:
       - ./docker/data/postgres/log:/var/log/postgresql
       - ./docker/data/postgres/lib/data:/var/lib/postgresql/data
     restart: always
-
+      
   mailcatcher:
     image: schickling/mailcatcher
     ports:
@@ -26,6 +26,8 @@ services:
     stdin_open: true
     tty: true
     build: .
+    env_file:
+      - .env
     volumes:
       - .:/rails
       - ./docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh

@@ -1,24 +1,34 @@
 class ProgramMessageService
   def initialize(planned_date, planned_hour, recipients, message)
-    @date_sent = Time.parse("#{planned_date} #{planned_hour}").to_i
-    @recipients = recipients
+    @planned_timestamp = Time.zone.parse("#{planned_date} #{planned_hour}").to_i
+    @recipients = recipients || []
     @message = message
     @tag_ids = []
     @parent_ids = []
     @group_ids = []
+    @parent_phone_numbers = []
   end
 
   def call
+    return { error: 'Tous les champs doivent être complétés.' } unless all_fields_are_present
     sort_recip
     find_parent_ids_from_tags
     find_parent_ids_from_groups
-    @parent_ids.uniq
+    get_all_phone_numbers
+    SpotHit::SendSmsService.new(@parent_phone_numbers, @planned_timestamp, @message).call
   end
 
   private
 
-  def sort_recip
+  def all_fields_are_present
+    @planned_timestamp && !@recipients.empty? && !@message.empty?
+  end
 
+  def get_all_phone_numbers
+    @parent_phone_numbers += Parent.find(@parent_ids.uniq).pluck(:phone_number)
+  end
+
+  def sort_recip
     @recipients.each do |recipient_id|
       if recipient_id.include? 'parent.'
         @parent_ids << recipient_id[/\d+/].to_i

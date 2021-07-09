@@ -34,9 +34,12 @@ ActiveAdmin.register_page "Message" do
 
 
   page_action :program_sms, method: :post do
-    ProgramMessageService.new(params[:planned_date], params[:planned_hour], params[:recipients], params[:message]).call
-
-    redirect_back(fallback_location: root_path, notice: 'Message programmé')
+    response = ProgramMessageService.new(params[:planned_date], params[:planned_hour], params[:recipients], params[:message]).call
+    if response && response[:error]
+      redirect_back(fallback_location: root_path, alert: response[:error])
+    else
+      redirect_back(fallback_location: root_path, notice: 'Message(s) programmé(s)')
+    end
   end
 
   page_action :recipients do
