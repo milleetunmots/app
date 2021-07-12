@@ -1,8 +1,12 @@
 class SpotHit::SendSmsService
+
+  attr_reader :errors
+
   def initialize(recipient_phone_numbers, planned_timestamp, message)
     @planned_timestamp = planned_timestamp
     @recipient_phone_numbers = recipient_phone_numbers
     @message = message
+    @errors = []
   end
   
   def call
@@ -14,6 +18,7 @@ class SpotHit::SendSmsService
       message: @message,
       date: @planned_timestamp
     })
-    return { error: 'Erreur lors de la programmation de la campagne.' } if JSON.parse(response.body.to_s).key? 'erreurs'
+    @errors << 'Erreur lors de la programmation de la campagne.' if JSON.parse(response.body.to_s).key? 'erreurs'
+    self
   end
 end
