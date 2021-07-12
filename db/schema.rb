@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_21_124953) do
+ActiveRecord::Schema.define(version: 2021_07_12_125915) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -86,7 +86,7 @@ ActiveRecord::Schema.define(version: 2021_06_21_124953) do
     t.integer "call1_duration"
     t.integer "call2_duration"
     t.integer "call3_duration"
-    t.integer "call1_books_quantity"
+    t.string "call1_books_quantity"
     t.string "call1_reading_frequency"
     t.string "call2_language_awareness"
     t.string "call2_parent_progress"

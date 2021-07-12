@@ -101,7 +101,10 @@ ActiveAdmin.register ChildSupport do
       collection: proc { child_support_call_sendings_benefits_select_collection },
       input_html: {multiple: true, data: {select2: {}}}
     if call_idx == 1
-      filter "call#{call_idx}_books_quantity"
+      filter "call#{call_idx}_books_quantity",
+        as: :select,
+        collection: proc { child_support_books_quantity },
+        input_html: {multiple: true, data: {select2: {}}}
     end
     filter "call#{call_idx}_reading_frequency",
       as: :select,
@@ -236,7 +239,9 @@ ActiveAdmin.register ChildSupport do
 
                   }
                 if call_idx == 1
-                  f.input "call#{call_idx}_books_quantity", input_html: {style: "width: 70%"}
+                  f.input "call#{call_idx}_books_quantity",
+                          as: :radio,
+                          collection: child_support_books_quantity
                 end
               end
             end

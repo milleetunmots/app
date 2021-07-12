@@ -233,6 +233,11 @@ fr:
         3_remind: Piqûre de rappel
         4_frequent: Assidu
         5_frequent_helps: Assidu avec aide réelle
+      child_support/books_quantity:
+        1_none: Aucun
+        2_one_to_five: Entre un et cinq
+        3_five_to_ten: Entre cinq et dix
+        4_more_than_ten: Plus de dix
       event: &EVENT
         << : *SHARED
         discarded_at: Mis à la corbeille
