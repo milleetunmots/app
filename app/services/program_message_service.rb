@@ -21,7 +21,7 @@ class ProgramMessageService
     find_parent_ids_from_tags
     find_parent_ids_from_groups
     get_all_phone_numbers
-    @errors << 'Aucun parent à contacter' and return self if @parent_phone_numbers.empty?
+    @errors << 'Aucun parent à contacter.' and return self if @parent_phone_numbers.empty?
     service = SpotHit::SendSmsService.new(@parent_phone_numbers, @planned_timestamp, @message).call
     @errors = service.errors if service.errors.any?
     self
@@ -30,8 +30,7 @@ class ProgramMessageService
   private
 
   def check_all_fields_are_present
-    @errors << 'Tous les champs doivent être complétés.'
-      unless @planned_timestamp.present? || @recipients.empty? || @message.empty?
+    @errors << 'Tous les champs doivent être complétés.' if !@planned_timestamp.present? || @recipients.empty? || @message.empty?
   end
 
   def get_all_phone_numbers
