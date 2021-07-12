@@ -4,7 +4,7 @@
 #
 #  id                              :bigint           not null, primary key
 #  book_not_received               :string
-#  call1_books_quantity            :integer
+#  call1_books_quantity            :string
 #  call1_duration                  :integer
 #  call1_goals                     :text
 #  call1_language_awareness        :string
