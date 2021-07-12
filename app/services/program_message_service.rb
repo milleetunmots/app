@@ -1,4 +1,7 @@
 class ProgramMessageService
+
+  attr_reader :errors
+
   def initialize(planned_date, planned_hour, recipients, message)
     @planned_timestamp = Time.zone.parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []
@@ -7,21 +10,28 @@ class ProgramMessageService
     @parent_ids = []
     @group_ids = []
     @parent_phone_numbers = []
+    @errors = []
   end
 
   def call
-    return { error: 'Tous les champs doivent être complétés.' } unless all_fields_are_present
+    check_all_fields_are_present
+    return self if @errors.any?
+
     sort_recip
     find_parent_ids_from_tags
     find_parent_ids_from_groups
     get_all_phone_numbers
-    SpotHit::SendSmsService.new(@parent_phone_numbers, @planned_timestamp, @message).call
+    @errors << 'Aucun parent à contacter' and return self if @parent_phone_numbers.empty?
+    service = SpotHit::SendSmsService.new(@parent_phone_numbers, @planned_timestamp, @message).call
+    @errors = service.errors if service.errors.any?
+    self
   end
 
   private
 
-  def all_fields_are_present
-    @planned_timestamp && !@recipients.empty? && !@message.empty?
+  def check_all_fields_are_present
+    @errors << 'Tous les champs doivent être complétés.'
+      unless @planned_timestamp.present? || @recipients.empty? || @message.empty?
   end
 
   def get_all_phone_numbers

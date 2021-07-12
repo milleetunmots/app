@@ -1,5 +1,4 @@
 class SpotHit::SendSmsService
-  
   def initialize(recipient_phone_numbers, planned_timestamp, message)
     @planned_timestamp = planned_timestamp
     @recipient_phone_numbers = recipient_phone_numbers
