@@ -2,22 +2,33 @@ class SpotHit::SendSmsService
 
   attr_reader :errors
 
-  def initialize(recipient_phone_numbers, planned_timestamp, message)
+  def initialize(recipients, planned_timestamp, message)
     @planned_timestamp = planned_timestamp
-    @recipient_phone_numbers = recipient_phone_numbers
+    @recipients = recipients
     @message = message
     @errors = []
   end
   
   def call
     uri = URI('https://www.spot-hit.fr/api/envoyer/sms')
-  
-    response = HTTP.post(uri, form: {
-      key: ENV["SPOT_HIT_API_KEY"],
-      destinataires: @recipient_phone_numbers.join(', '),
-      message: @message,
-      date: @planned_timestamp
-    })
+    form = {
+      'key' => ENV["HOT_SPOT_API_KEY"],
+      'destinataires' => {},
+      'message' => @message,
+      'date' => @planned_timestamp,
+      'destinataires_type' => 'datas',
+    }
+
+    if @recipients.class == Array
+      form.delete('destinataires_type')
+      form['destinataires'] = @recipients.join(', ')
+    else
+      @recipients.each do |phone_number, keys|
+        keys.map { |key, value| form.store("destinataires[#{phone_number}][#{key}]", value) }
+      end
+    end
+    
+    response = HTTP.post(uri, form: form)
     @errors << 'Erreur lors de la programmation de la campagne.' if JSON.parse(response.body.to_s).key? 'erreurs'
     self
   end

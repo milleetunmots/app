@@ -30,4 +30,32 @@ $(document).ready(function() {
     templateSelection: formatSelection,
     minimumInputLength: 3
   });
+
+  //  Cible url
+
+  function templateResultUrl (state) {
+    var $a = $('<span>');
+    $a.append(state.name);
+
+    return $a;
+  };
+
+  var formatSelectionUrl = function(selection) {
+    var $a = $('<span>');
+    $a.append(selection.name);
+    return $a;
+  }
+
+  $('#url_cible').select2({
+    width: '100%',
+    placeholder: "Choisissez une url cible",
+    ajax: {
+      url: '/admin/message/url_cible',
+      dataType: 'json',
+      delay: 250
+    },
+    templateSelection: formatSelectionUrl,
+    templateResult: templateResultUrl
+  });
+  
 });

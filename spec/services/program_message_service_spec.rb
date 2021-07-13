@@ -13,6 +13,9 @@ RSpec.describe ProgramMessageService do
 
   let_it_be(:group, reload: true) { FactoryBot.create(:group, name: 'group 1') }
   
+  let_it_be(:medium, reload: true) { FactoryBot.create(:medium, url: 'http://google.com') }
+  let_it_be(:redirection_target, reload: true) { FactoryBot.create(:redirection_target, medium_id: medium.id) }
+
   let_it_be(:child_1, reload: true) do
     FactoryBot.create(
       :child,
@@ -103,16 +106,96 @@ RSpec.describe ProgramMessageService do
     end
   end
 
+  context 'when parent and variable are given' do
+    it 'calls SpotHit::SendSmsService with parents given only' do
+      expect(SpotHit::SendSmsService).to(
+        receive(:new).
+        with(
+          { parent_2.phone_number => {'PRENOM_ENFANT' => parent_2.first_child.first_name} },
+          Time.zone.parse("#{Date.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          'N\'oubliez pas que {PRENOM_ENFANT} doit faire du sport.'
+        ).
+        and_call_original
+      )
+
+      ProgramMessageService.new(
+        Date.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_2.id}"],
+        'N\'oubliez pas que {PRENOM_ENFANT} doit faire du sport.',
+      ).call
+    end
+  end
+
+  context 'when parent and url are given' do
+    before do
+      allow_any_instance_of(RedirectionUrlDecorator).to(
+        receive(:visit_url).and_return(
+          'http://localhost:3000/r/95/c6'
+        )
+      )
+    end
+
+    it 'calls SpotHit::SendSmsService with parents given only and url place in the message' do
+      expect(SpotHit::SendSmsService).to(
+        receive(:new).
+        with(
+          { parent_2.phone_number => {
+            'PRENOM_ENFANT' => parent_2.first_child.first_name,
+            'URL' => 'http://localhost:3000/r/95/c6'
+            }
+          },
+          Time.zone.parse("#{Date.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          'N\'oubliez pas que {URL} doit faire du sport.'
+        ).
+        and_call_original
+      )
+
+      ProgramMessageService.new(
+        Date.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_2.id}"],
+        'N\'oubliez pas que {URL} doit faire du sport.',
+        redirection_target.id
+      ).call
+    end
+
+    it 'calls SpotHit::SendSmsService with parents given only and url not place in the message' do
+      expect(SpotHit::SendSmsService).to(
+        receive(:new).
+        with(
+          { parent_2.phone_number => {
+            'PRENOM_ENFANT' => parent_2.first_child.first_name,
+            'URL' => 'http://localhost:3000/r/95/c6'
+            } 
+          },
+          Time.zone.parse("#{Date.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          'N\'oubliez l\'importance du sport. {URL}'
+        ).
+        and_call_original
+      )
+
+      ProgramMessageService.new(
+        Date.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_2.id}"],
+        'N\'oubliez l\'importance du sport.',
+        redirection_target.id
+      ).call
+    end
+  end
+
+
   context 'when no recipients found' do
     it 'returns errors' do
-      service = ProgramMessageService.new('2021-07-12', '14:30:00', [], 'coucou').call
+      service = ProgramMessageService.new('2021-07-12', '14:30:00', [], 'coucou', nil).call
       expect(service.errors).to eq(['Tous les champs doivent être complétés.'])
     end
   end
 
   context 'when no message is given' do
     it 'returns errors' do
-      service = ProgramMessageService.new('2021-07-12', '14:30:00', ["parent.#{parent_1.id}"], '').call
+      service = ProgramMessageService.new('2021-07-12', '14:30:00', ["parent.#{parent_1.id}"], '', nil).call
       expect(service.errors).to eq(['Tous les champs doivent être complétés.'])
     end
   end
@@ -123,7 +206,7 @@ RSpec.describe ProgramMessageService do
     end
 
     it 'returns errors' do
-      service = ProgramMessageService.new('2021-07-12', '14:30:00', ["group.#{group.id}"], 'coucou').call
+      service = ProgramMessageService.new('2021-07-12', '14:30:00', ["group.#{group.id}"], 'coucou', nil).call
       expect(service.errors).to eq(['Aucun parent à contacter.'])
     end
   end
