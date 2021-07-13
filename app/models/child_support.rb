@@ -173,15 +173,13 @@ class ChildSupport < ApplicationRecord
         in: SENDINGS_BENEFITS,
         allow_blank: true
       }
-
   end
 
-  validates :call1_books_quantity,
-            inclusion: {
-              in: BOOKS_QUANTITY,
-              allow_blank: true
-            }
-
+  validates :books_quantity,
+    inclusion: {
+      in: BOOKS_QUANTITY,
+      allow_blank: true
+    }
   # ---------------------------------------------------------------------------
   # scopes
   # ---------------------------------------------------------------------------
