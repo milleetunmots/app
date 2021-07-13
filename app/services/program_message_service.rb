@@ -9,7 +9,8 @@ class ProgramMessageService
     @tag_ids = []
     @parent_ids = []
     @group_ids = []
-    @parent_phone_numbers = []
+    @recipent_datas = []
+    @variables = []
     @errors = []
   end
 
@@ -21,20 +22,35 @@ class ProgramMessageService
     find_parent_ids_from_tags
     find_parent_ids_from_groups
     get_all_phone_numbers
-    @errors << 'Aucun parent à contacter.' and return self if @parent_phone_numbers.empty?
-    service = SpotHit::SendSmsService.new(@parent_phone_numbers, @planned_timestamp, @message).call
+    @errors << 'Aucun parent à contacter.' and return self if @recipent_datas.empty?
+    get_all_variables if @message.match(/\{(.*?)\}/)
+    generate_phone_number_with_datas if @variables.include? 'PRENOM_ENFANT'
+
+    service = SpotHit::SendSmsService.new(@recipent_datas, @planned_timestamp, @message).call
     @errors = service.errors if service.errors.any?
     self
   end
 
   private
 
+  def get_all_variables
+    @variables += @message.scan(/\{(.*?)\}/).transpose[0].uniq
+  end
+
+  def generate_phone_number_with_datas
+    hash = Hash[@recipent_datas.collect { |item| [item, {}] } ]
+    Parent.where(phone_number: @recipent_datas).find_each do |parent|
+      hash[parent.phone_number]['PRENOM_ENFANT'] = parent.first_child.first_name || 'votre enfant'
+    end
+    @recipent_datas = hash
+  end
+
   def check_all_fields_are_present
     @errors << 'Tous les champs doivent être complétés.' if !@planned_timestamp.present? || @recipients.empty? || @message.empty?
   end
 
   def get_all_phone_numbers
-    @parent_phone_numbers += Parent.find(@parent_ids.uniq).pluck(:phone_number)
+    @recipent_datas += Parent.find(@parent_ids.uniq).pluck(:phone_number)
   end
 
   def sort_recip
