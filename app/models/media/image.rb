@@ -20,6 +20,7 @@
 #  link1_id     :bigint
 #  link2_id     :bigint
 #  link3_id     :bigint
+#  spot_hit_id  :string
 #
 # Indexes
 #
@@ -73,6 +74,12 @@ class Media::Image < Medium
             content_type: CONTENT_TYPES
 
   # ---------------------------------------------------------------------------
+  # callbacks
+  # ---------------------------------------------------------------------------
+
+  after_save :upload_file_to_spot_hit
+
+  # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
 
@@ -99,5 +106,13 @@ class Media::Image < Medium
 
   include PgSearch
   multisearchable against: :name
+
+
+  def upload_file_to_spot_hit
+    return unless attachment_changes['file'].present?
+
+    service = SpotHit::UploadMediaService.new(self).call
+    fail service.errors.join(', ') if service.errors.any?
+  end
 
 end

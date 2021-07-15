@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_21_124953) do
+ActiveRecord::Schema.define(version: 2021_07_15_103312) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -240,6 +240,7 @@ ActiveRecord::Schema.define(version: 2021_06_21_124953) do
     t.bigint "link1_id"
     t.bigint "link2_id"
     t.bigint "link3_id"
+    t.string "spot_hit_id"
     t.index ["discarded_at"], name: "index_media_on_discarded_at"
     t.index ["folder_id"], name: "index_media_on_folder_id"
     t.index ["image1_id"], name: "index_media_on_image1_id"

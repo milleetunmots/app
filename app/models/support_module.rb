@@ -3,7 +3,6 @@
 # Table name: support_modules
 #
 #  id           :bigint           not null, primary key
-#  ages         :string           not null
 #  discarded_at :datetime
 #  name         :string
 #  start_at     :date
