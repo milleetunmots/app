@@ -75,6 +75,7 @@
 #  is_bilingual                    :boolean
 #  second_language                 :string
 #  should_be_read                  :boolean
+#  to_call                         :boolean
 #  created_at                      :datetime         not null
 #  updated_at                      :datetime         not null
 #  supporter_id                    :bigint
@@ -99,6 +100,7 @@
 # Foreign Keys
 #
 #  fk_rails_...  (supporter_id => admin_users.id)
+#
 
 require "rails_helper"
 
