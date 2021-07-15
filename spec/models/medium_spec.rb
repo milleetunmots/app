@@ -49,6 +49,9 @@ require "rails_helper"
 
 RSpec.describe Medium, type: :model do
   before(:each) do
+    stub_request(:post, 'https://www.spot-hit.fr/api/mms/upload').
+      to_return(status: 200, body: '{"success":true, "file":"1234.png"}')
+
     @with_folder = FactoryBot.create(:medium, folder: FactoryBot.create(:media_folder))
     @document = FactoryBot.create(:media_document)
     @form = FactoryBot.create(:media_form)
