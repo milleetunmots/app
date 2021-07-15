@@ -101,7 +101,10 @@ ActiveAdmin.register ChildSupport do
       collection: proc { child_support_call_sendings_benefits_select_collection },
       input_html: {multiple: true, data: {select2: {}}}
     if call_idx == 1
-      filter "call#{call_idx}_books_quantity"
+      filter :books_quantity,
+             as: :select,
+             collection: proc { child_support_books_quantity },
+             input_html: {multiple: true, data: {select2: {}}}
     end
     filter "call#{call_idx}_reading_frequency",
       as: :select,
@@ -236,7 +239,7 @@ ActiveAdmin.register ChildSupport do
 
                   }
                 if call_idx == 1
-                  f.input "call#{call_idx}_books_quantity", input_html: {style: "width: 70%"}
+                  f.input :books_quantity, as: :radio, collection: child_support_books_quantity
                 end
               end
             end
@@ -287,7 +290,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   base_attributes = %i[
-    important_information supporter_id should_be_read book_not_received is_bilingual second_language to_call
+    important_information supporter_id should_be_read book_not_received is_bilingual second_language to_call books_quantity
   ] + [tags_params]
   parent_attributes = %i[
     id
@@ -359,7 +362,7 @@ ActiveAdmin.register ChildSupport do
             row "call#{call_idx}_sendings_benefits_details"
             row "call#{call_idx}_language_development"
             if call_idx == 1
-              row "call#{call_idx}_books_quantity"
+              row :books_quantity
             end
             row "call#{call_idx}_reading_frequency"
             row "call#{call_idx}_goals"
@@ -424,7 +427,7 @@ ActiveAdmin.register ChildSupport do
       column "call#{call_idx}_sendings_benefits_details"
       column("call#{call_idx}_language_development") { |cs| cs.send("call#{call_idx}_language_development_text") }
       if call_idx == 1
-        column "call#{call_idx}_books_quantity"
+        column :books_quantity
       end
       column "call#{call_idx}_reading_frequency"
       column("call#{call_idx}_goals") { |cs| cs.send("call#{call_idx}_goals_text") }

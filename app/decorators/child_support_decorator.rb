@@ -186,6 +186,12 @@ class ChildSupportDecorator < BaseDecorator
     ).join('<br/>-&nbsp;').html_safe
   end
 
+  def books_quantity
+    if model.books_quantity
+      ChildSupport.human_attribute_name("books_quantity.#{model.books_quantity}")
+    end
+  end
+
   private
 
   def children_attribute(key, glue)

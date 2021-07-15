@@ -4,7 +4,7 @@
 #
 #  id                              :bigint           not null, primary key
 #  book_not_received               :string
-#  call1_books_quantity            :integer
+#  books_quantity                  :string
 #  call1_duration                  :integer
 #  call1_goals                     :text
 #  call1_language_awareness        :string
@@ -129,6 +129,12 @@ class ChildSupport < ApplicationRecord
     4_frequent
     5_frequent_helps
   ].freeze
+  BOOKS_QUANTITY = %w[
+    1_none
+    2_one_to_five
+    3_five_to_ten
+    4_more_than_ten
+  ].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -168,9 +174,13 @@ class ChildSupport < ApplicationRecord
         in: SENDINGS_BENEFITS,
         allow_blank: true
       }
-
   end
 
+  validates :books_quantity,
+    inclusion: {
+      in: BOOKS_QUANTITY,
+      allow_blank: true
+    }
   # ---------------------------------------------------------------------------
   # scopes
   # ---------------------------------------------------------------------------

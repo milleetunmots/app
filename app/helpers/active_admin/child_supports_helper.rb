@@ -42,4 +42,13 @@ module ActiveAdmin::ChildSupportsHelper
     end
   end
 
+  def child_support_books_quantity
+    ChildSupport::BOOKS_QUANTITY.map do |v|
+      [
+        ChildSupport.human_attribute_name("books_quantity.#{v}"),
+        v
+      ]
+    end
+  end
+
 end

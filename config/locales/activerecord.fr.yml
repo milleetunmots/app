@@ -115,7 +115,7 @@ fr:
         << : *SHARED
         address: Adresse
         book_not_received: Livre non reçu
-        call1_books_quantity: Nombre de livres dans le foyer
+        books_quantity: Nombre de livres dans le foyer
         call1_duration: Durée de l'appel 1 (en minutes)
         call1_status: Statut de l'appel 1
         call1_status_details: Suivi de l'appel 1
@@ -233,6 +233,11 @@ fr:
         3_remind: Piqûre de rappel
         4_frequent: Assidu
         5_frequent_helps: Assidu avec aide réelle
+      child_support/books_quantity:
+        1_none: 0
+        2_one_to_five: 1-5
+        3_five_to_ten: 5-10
+        4_more_than_ten: Plus de 10
       event: &EVENT
         << : *SHARED
         discarded_at: Mis à la corbeille
