@@ -132,7 +132,7 @@ class ChildSupport < ApplicationRecord
     1_none
     2_one_to_five
     3_five_to_ten
-    4_more_than_tenstring
+    4_more_than_ten
   ].freeze
 
   # ---------------------------------------------------------------------------
