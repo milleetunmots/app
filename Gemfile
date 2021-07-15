@@ -22,6 +22,9 @@ gem 'jbuilder', '~> 2.5'
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
+# gem http use for multipart-form
+gem 'http'
+
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
@@ -54,6 +57,11 @@ group :test do
   gem 'selenium-webdriver'
   # Easy installation and use of web drivers to run system tests with browsers
   gem 'webdrivers'
+  gem 'webmock'
+  # ruby-prof
+  gem 'ruby-prof', '>= 0.17.0', require: false
+  gem 'stackprof', '>= 0.2.9', require: false
+  gem 'test-prof'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
