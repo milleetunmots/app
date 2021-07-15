@@ -13,7 +13,7 @@ class SpotHit::SendSmsService
     uri = URI('https://www.spot-hit.fr/api/envoyer/sms')
   
     response = HTTP.post(uri, form: {
-      key: ENV["HOT_SPOT_API_KEY"],
+      key: ENV["SPOT_HIT_API_KEY"],
       destinataires: @recipient_phone_numbers.join(', '),
       message: @message,
       date: @planned_timestamp

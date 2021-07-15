@@ -23,8 +23,7 @@ gem 'jbuilder', '~> 2.5'
 # gem 'bcrypt', '~> 3.1.7'
 
 # gem http use for multipart-form
-gem "http"
-
+gem 'http'
 
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
