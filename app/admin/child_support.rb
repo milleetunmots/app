@@ -239,9 +239,7 @@ ActiveAdmin.register ChildSupport do
 
                   }
                 if call_idx == 1
-                  f.input "books_quantity",
-                          as: :radio,
-                          collection: child_support_books_quantity
+                  f.input "books_quantity", as: :radio, collection: child_support_books_quantity
                 end
               end
             end
@@ -292,7 +290,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   base_attributes = %i[
-    important_information supporter_id should_be_read book_not_received is_bilingual second_language to_call
+    important_information supporter_id should_be_read book_not_received is_bilingual second_language to_call books_quantity
   ] + [tags_params]
   parent_attributes = %i[
     id

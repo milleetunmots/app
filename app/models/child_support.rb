@@ -4,7 +4,7 @@
 #
 #  id                              :bigint           not null, primary key
 #  book_not_received               :string
-#  call1_books_quantity            :string
+#  books_quantity                  :integer
 #  call1_duration                  :integer
 #  call1_goals                     :text
 #  call1_language_awareness        :string
@@ -132,8 +132,8 @@ class ChildSupport < ApplicationRecord
     1_none
     2_one_to_five
     3_five_to_ten
-    4_more_than_ten
-  ]
+    4_more_than_tenstring
+  ].freeze
 
   # ---------------------------------------------------------------------------
   # relations

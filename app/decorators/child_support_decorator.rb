@@ -206,6 +206,12 @@ class ChildSupportDecorator < BaseDecorator
     parent.decorate.admin_link
   end
 
+  def books_quantity
+    if model.books_quantity
+      ChildSupport.human_attribute_name("books_quantity.#{model.books_quantity}")
+    end
+  end
+
   # def parent_card(parent, should_contact_parent)
   #  if parent
   #     h.render 'parent', parent: parent.decorate, should_contact_parent: should_contact_parent
