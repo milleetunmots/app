@@ -187,9 +187,8 @@ class ChildSupportDecorator < BaseDecorator
   end
 
   def books_quantity
-    if model.books_quantity
-      ChildSupport.human_attribute_name("books_quantity.#{model.books_quantity}")
-    end
+    return nil if model.books_quantity.blank?
+    ChildSupport.human_attribute_name("books_quantity.#{model.books_quantity}")
   end
 
   private
