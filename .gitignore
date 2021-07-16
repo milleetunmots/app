@@ -45,3 +45,5 @@ yarn-debug.log*
 /config/application.yml
 
 /.idea
+
+.env

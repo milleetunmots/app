@@ -22,6 +22,7 @@ ActiveAdmin.register Media::Image do
     column :name
     # column :theme
     column :tags
+    column :spot_hit_id
     column :file do |decorated|
       decorated.file_link_tag(max_height: '50px')
     end
@@ -57,6 +58,7 @@ ActiveAdmin.register Media::Image do
       row :name
       # row :theme
       row :tags
+      row :spot_hit_id
       row :file do |decorated|
         decorated.file_link_tag(max_height: '500px')
       end

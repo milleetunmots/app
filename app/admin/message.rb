@@ -9,19 +9,13 @@ ActiveAdmin.register_page "Message" do
       
       label 'Date et heure d\'envoie du message'
       div class: 'datetime-container' do
-        input type: 'text', id: 'date-send', name: 'date_sent', class: 'datepicker hasDatePicker', style: 'margin-right: 20px;', value: Date.today
-        input type: 'time', id: 'time-send', name: 'hour_sent', value: Time.zone.now.strftime('%H:%M')
+        input type: 'text', name: 'planned_date', class: 'datepicker hasDatePicker', style: 'margin-right: 20px;', value: Date.today
+        input type: 'time', name: 'planned_hour', value: Time.zone.now.strftime('%H:%M')
       end
       
       div do
         label 'Choisissez les destinataires'
-        select name: 'recipients[]', multiple: 'multiple', id: 'recipients' do
-          optgroup label: 'Parents' do
-            Parent.all.each do |parent|
-              option value: 'parent.'+parent.id.to_s do parent.first_name+' '+ parent.last_name end
-            end
-          end
-        end
+        select name: 'recipients[]', multiple: 'multiple', id: 'recipients'
       end
 
 
@@ -40,7 +34,33 @@ ActiveAdmin.register_page "Message" do
 
 
   page_action :program_sms, method: :post do
-    redirect_back(fallback_location: root_path, notice: 'Message programmé')
+    service = ProgramMessageService.new(params[:planned_date], params[:planned_hour], params[:recipients], params[:message]).call
+
+    if service.errors.any?
+      redirect_back(fallback_location: root_path, alert: service.errors.join("\n"))
+    else
+      redirect_back(fallback_location: root_path, notice: 'Message(s) programmé(s)')
+    end
+  end
+
+  page_action :recipients do
+    results = (
+      Parent.where('unaccent(CONCAT(first_name, last_name)) ILIKE unaccent(?)', "%#{params[:term]}%").decorate +
+      Tag.where('unaccent(name) ILIKE unaccent(?)', "%#{params[:term]}%").decorate +
+      Group.where('unaccent(name) ILIKE unaccent(?)', "%#{params[:term]}%").decorate
+    ).map do |result|
+      {
+        id: "#{result.object.class.name.underscore}.#{result.id}",
+        name: result.name,
+        type: result.object.class.name.underscore,
+        icon: result.icon_class,
+        html: result.as_autocomplete_result
+      }
+    end
+
+    render json: {
+      results: results
+    }
   end
 
 end

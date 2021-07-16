@@ -25,7 +25,8 @@ class Group < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   has_many :children, dependent: :nullify
-
+  has_many :parent1, through: :children
+  has_many :parent2, through: :children
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
