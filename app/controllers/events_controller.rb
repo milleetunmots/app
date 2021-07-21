@@ -23,4 +23,9 @@ class EventsController < ApplicationController
     end
   end
 
+  def update_status
+    Event.where(message_id: params[:id_message]).update_all(status: params[:statut])
+    head :ok
+  end
+
 end

@@ -14,6 +14,10 @@ class Events::TextMessageDecorator < EventDecorator
     ].join(' ').html_safe
   end
 
+  def status_value
+    Event::STATUS[status]
+  end
+
   def truncated_body
     # model.body.truncate 30,
     #                     separator: /\s/,
