@@ -29,7 +29,29 @@ class SpotHit::SendSmsService
     end
     
     response = HTTP.post(uri, form: form)
-    @errors << 'Erreur lors de la programmation de la campagne.' if JSON.parse(response.body.to_s).key? 'erreurs'
+    if JSON.parse(response.body.to_s).key? 'erreurs'
+      @errors << 'Erreur lors de la programmation de la campagne.'
+    else
+      create_history(JSON.parse(response.body.to_s)['id'])
+    end
     self
+  end
+
+  private
+
+  def create_history message_id
+    @recipients.each do |phone_number, keys|
+      event_params = {
+        related_id: Parent.where(phone_number: phone_number).first.id,
+        related_type: 'Parent',
+        body: @message,
+        message_id: message_id,
+        status: 0,
+        type: 'Events::TextMessage',
+        occurred_at: Time.at(@planned_timestamp)
+      }
+      keys.map { |key, value| event_params[:body].gsub!("{#{key}}", value) } if @recipients.class == Hash
+      Event.create(event_params)
+    end
   end
 end
