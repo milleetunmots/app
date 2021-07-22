@@ -7,7 +7,7 @@ ActiveAdmin.register_page "Message" do
     form action: admin_message_program_sms_path, method: :post, id: 'sms-form' do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
       
-      label 'Date et heure d\'envoie du message'
+      label 'Date et heure d\'envoi du message'
       div class: 'datetime-container' do
         input type: 'text', name: 'planned_date', class: 'datepicker hasDatePicker', style: 'margin-right: 20px;', value: Date.today
         input type: 'time', name: 'planned_hour', value: Time.zone.now.strftime('%H:%M')
@@ -20,13 +20,14 @@ ActiveAdmin.register_page "Message" do
 
       div do
         label 'Url cible'
-        select name: 'url_cible', id: 'url_cible'
+        select name: 'redirection_target', id: 'redirection_target'
       end
 
 
       div do
         label 'Message'
         textarea name: 'message'
+        small 'Variables disponibles: {PRENOM_ENFANT}, {URL}'
       end
 
       div class: 'actions' do
@@ -44,7 +45,7 @@ ActiveAdmin.register_page "Message" do
       params[:planned_hour], 
       params[:recipients], 
       params[:message], 
-      params[:url_cible]
+      params[:redirection_target]
     ).call
 
     if service.errors.any?
@@ -74,14 +75,16 @@ ActiveAdmin.register_page "Message" do
     }
   end
 
-  page_action :url_cible do
-    results = (
-      RedirectionTarget.joins(:medium).where("media.name ILIKE unaccent(?) and media.url IS NOT NULL", "%#{params[:term]}%").decorate).map do |result|
-      {
-        id: result.id,
-        name: result.medium.name,
-      }
-    end
+  page_action :redirection_targets do
+    results =
+      RedirectionTarget.joins(:medium)
+                       .where('media.name ILIKE unaccent(?) and media.url IS NOT NULL', "%#{params[:term]}%")
+                       .decorate.map do |result|
+        {
+          id: result.id,
+          text: result.medium.name,
+        }
+      end
 
     render json: {
       results: results

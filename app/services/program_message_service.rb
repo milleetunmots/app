@@ -2,15 +2,15 @@ class ProgramMessageService
 
   attr_reader :errors
 
-  def initialize(planned_date, planned_hour, recipients, message, url = nil)
+  def initialize(planned_date, planned_hour, recipients, message, redirection_target_id = nil)
     @planned_timestamp = Time.zone.parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []
     @message = message
     @tag_ids = []
     @parent_ids = []
-    @url = RedirectionTarget.find(url) if url
+    @redirection_target = RedirectionTarget.find(redirection_target_id) if redirection_target_id
     @group_ids = []
-    @recipent_datas = []
+    @recipient_data = []
     @variables = []
     @errors = []
   end
@@ -18,19 +18,22 @@ class ProgramMessageService
   def call
     check_all_fields_are_present
     return self if @errors.any?
+
     get_all_variables if @message.match(/\{(.*?)\}/)
-    
-    @errors << 'Veuillez choisir un lien cible.' and return self if @url.nil? and @variables.include? 'URL'
+    return self if @errors.any?
+
     sort_recipients
     find_parent_ids_from_tags
     find_parent_ids_from_groups
     get_all_phone_numbers
+    @errors << 'Aucun parent à contacter.' and return self if @recipient_data.empty?
 
-    @errors << 'Aucun parent à contacter.' and return self if @recipent_datas.empty?
-    generate_phone_number_with_datas if @url or @variables.include? 'PRENOM_ENFANT'
-    @message += " {URL}" if @url and !@variables.include? 'URL'
+    generate_phone_number_from_data if @redirection_target or @variables.include?('PRENOM_ENFANT')
+    return self if @errors.any?
+
+    @message += " {URL}" if @redirection_target and !@variables.include?('URL')
     
-    service = SpotHit::SendSmsService.new(@recipent_datas, @planned_timestamp, @message).call
+    service = SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message).call
     @errors = service.errors if service.errors.any?
     self
   end
@@ -39,30 +42,32 @@ class ProgramMessageService
 
   def get_all_variables
     @variables += @message.scan(/\{(.*?)\}/).transpose[0].uniq
+
+    @errors << 'Veuillez choisir un lien cible.' if @redirection_target.nil? and @variables.include?('URL')
   end
 
-  def generate_phone_number_with_datas
-    hash = Hash[@recipent_datas.collect { |item| [item, {}] } ]
-    Parent.where(phone_number: @recipent_datas).find_each do |parent|
+  def generate_phone_number_from_data
+    hash = Hash[@recipient_data.collect { |item| [item, {}] } ]
+    Parent.where(phone_number: @recipient_data).find_each do |parent|
       if parent.first_child.first_name
         hash[parent.phone_number]['PRENOM_ENFANT'] = parent.first_child.first_name
       else
         hash[parent.phone_number]['PRENOM_ENFANT'] = 'votre enfant'
       end
-      if @url
-        short_url = RedirectionUrl.new(
-          redirection_target_id: @url.id,
+      if @redirection_target
+        redirection_url = RedirectionUrl.new(
+          redirection_target_id: @redirection_target.id,
           parent_id: parent.id,
           child_id: parent.first_child.id
         )
-        if short_url.save
-          hash[parent.phone_number]['URL'] = short_url.decorate.visit_url
+        if redirection_url.save
+          hash[parent.phone_number]['URL'] = redirection_url.decorate.visit_url
         else
           @errors << 'Problème(s) avec l\'url courte.' and return
         end
       end
     end
-    @recipent_datas = hash
+    @recipient_data = hash
   end
 
   def check_all_fields_are_present
@@ -70,7 +75,7 @@ class ProgramMessageService
   end
 
   def get_all_phone_numbers
-    @recipent_datas += Parent.find(@parent_ids.uniq).pluck(:phone_number)
+    @recipient_data += Parent.find(@parent_ids.uniq).pluck(:phone_number)
   end
 
   def sort_recipients

@@ -31,31 +31,17 @@ $(document).ready(function() {
     minimumInputLength: 3
   });
 
-  //  Cible url
+  //  redirection_target
 
-  function templateResultUrl (state) {
-    var $a = $('<span>');
-    $a.append(state.name);
-
-    return $a;
-  };
-
-  var formatSelectionUrl = function(selection) {
-    var $a = $('<span>');
-    $a.append(selection.name);
-    return $a;
-  }
-
-  $('#url_cible').select2({
+  $('#redirection_target').select2({
     width: '100%',
     placeholder: "Choisissez une url cible",
+    allowClear: true,
     ajax: {
-      url: '/admin/message/url_cible',
+      url: '/admin/message/redirection_targets',
       dataType: 'json',
       delay: 250
     },
-    templateSelection: formatSelectionUrl,
-    templateResult: templateResultUrl
   });
   
 });
