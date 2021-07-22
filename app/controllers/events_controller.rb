@@ -37,7 +37,8 @@ class EventsController < ApplicationController
       spot_hit_message_id: params[:id],
       spot_hit_status: 1,
       type: 'Events::TextMessage',
-      occurred_at: Time.at(params[:date].to_i)
+      occurred_at: Time.at(params[:date].to_i),
+      originated_by_app: false
     })
     if event.save
       head :ok
