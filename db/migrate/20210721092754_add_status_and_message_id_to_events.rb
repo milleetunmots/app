@@ -1,6 +1,6 @@
 class AddStatusAndMessageIdToEvents < ActiveRecord::Migration[6.0]
   def change
-    add_column :events, :status, :integer
-    add_column :events, :message_id, :string
+    add_column :events, :spot_hit_status, :integer
+    add_column :events, :spot_hit_message_id, :string
   end
 end

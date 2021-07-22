@@ -10,7 +10,6 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-
 ActiveRecord::Schema.define(version: 2021_07_21_092754) do
 
   # These are extensions that must be enabled in order to support this database
@@ -194,8 +193,8 @@ ActiveRecord::Schema.define(version: 2021_07_21_092754) do
     t.datetime "updated_at", precision: 6, null: false
     t.datetime "discarded_at"
     t.string "subject"
-    t.integer "status"
-    t.string "message_id"
+    t.integer "spot_hit_status"
+    t.string "spot_hit_message_id"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
     t.index ["type"], name: "index_events_on_type"
