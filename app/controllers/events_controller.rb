@@ -24,20 +24,20 @@ class EventsController < ApplicationController
   end
 
   def update_status
-    Event.find_by(spot_hit_message_id: params[:id_message]).update(spot_hit_status: params[:statut])
+    Event.where(spot_hit_message_id: params[:id_message]).update_all(spot_hit_status: params[:statut])
     head :ok
   end
 
   def spot_hit_response
     parsed_phone = Phonelib.parse(params[:numero])
-
     event = Event.new({
       related: Parent.find_by(phone_number: parsed_phone.e164),
       body: params[:message],
       spot_hit_message_id: params[:id],
       spot_hit_status: 1,
       type: 'Events::TextMessage',
-      occurred_at: Time.at(params[:date].to_i)
+      occurred_at: Time.at(params[:date].to_i),
+      originated_by_app: false
     })
     if event.save
       head :ok
