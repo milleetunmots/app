@@ -19,8 +19,9 @@ Rails.application.routes.draw do
   get 'mis-a-jour', to: 'children#updated', as: :updated_child
 
   get 'r/:id/:security_code', to: 'redirection#visit', as: :visit_redirection
-  
+
   get 'spot_hit/status', to: 'events#update_status'
+  get 'spot_hit/response', to: 'events#get_response'
 
   resources :events, only: [:index, :create]
 

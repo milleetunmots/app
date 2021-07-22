@@ -28,4 +28,20 @@ class EventsController < ApplicationController
     head :ok
   end
 
+  def get_response
+    response_parent = Event.new({
+      related_id: Event.where(message_id: params[:source]).first.id,
+      related_type: 'Event',
+      body: params[:message],
+      message_id: params[:id],
+      status: 1,
+      type: 'Events::TextMessage',
+      occurred_at: Time.at(params[:date].to_i)
+    })
+    if response_parent.save
+      head :ok
+    else
+      head :unprocessable_entity
+    end
+  end
 end
