@@ -30,4 +30,18 @@ $(document).ready(function() {
     templateSelection: formatSelection,
     minimumInputLength: 3
   });
+
+  //  redirection_target
+
+  $('#redirection_target').select2({
+    width: '100%',
+    placeholder: "Choisissez une url cible",
+    allowClear: true,
+    ajax: {
+      url: '/admin/message/redirection_targets',
+      dataType: 'json',
+      delay: 250
+    },
+  });
+  
 });

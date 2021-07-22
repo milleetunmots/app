@@ -2,14 +2,16 @@ class ProgramMessageService
 
   attr_reader :errors
 
-  def initialize(planned_date, planned_hour, recipients, message)
+  def initialize(planned_date, planned_hour, recipients, message, redirection_target_id = nil)
     @planned_timestamp = Time.zone.parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []
     @message = message
     @tag_ids = []
     @parent_ids = []
+    @redirection_target = RedirectionTarget.find(redirection_target_id) if redirection_target_id
     @group_ids = []
-    @parent_phone_numbers = []
+    @recipient_data = []
+    @variables = []
     @errors = []
   end
 
@@ -17,27 +19,66 @@ class ProgramMessageService
     check_all_fields_are_present
     return self if @errors.any?
 
-    sort_recip
+    get_all_variables if @message.match(/\{(.*?)\}/)
+    return self if @errors.any?
+
+    sort_recipients
     find_parent_ids_from_tags
     find_parent_ids_from_groups
     get_all_phone_numbers
-    @errors << 'Aucun parent à contacter.' and return self if @parent_phone_numbers.empty?
-    service = SpotHit::SendSmsService.new(@parent_phone_numbers, @planned_timestamp, @message).call
+    @errors << 'Aucun parent à contacter.' and return self if @recipient_data.empty?
+
+    generate_phone_number_from_data if @redirection_target or @variables.include?('PRENOM_ENFANT')
+    return self if @errors.any?
+
+    @message += " {URL}" if @redirection_target and !@variables.include?('URL')
+    
+    service = SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message).call
     @errors = service.errors if service.errors.any?
     self
   end
 
   private
 
+  def get_all_variables
+    @variables += @message.scan(/\{(.*?)\}/).transpose[0].uniq
+
+    @errors << 'Veuillez choisir un lien cible.' if @redirection_target.nil? and @variables.include?('URL')
+  end
+
+  def generate_phone_number_from_data
+    hash = Hash[@recipient_data.collect { |item| [item, {}] } ]
+    Parent.where(phone_number: @recipient_data).find_each do |parent|
+      if parent.first_child.first_name
+        hash[parent.phone_number]['PRENOM_ENFANT'] = parent.first_child.first_name
+      else
+        hash[parent.phone_number]['PRENOM_ENFANT'] = 'votre enfant'
+      end
+      if @redirection_target
+        redirection_url = RedirectionUrl.new(
+          redirection_target_id: @redirection_target.id,
+          parent_id: parent.id,
+          child_id: parent.first_child.id
+        )
+        if redirection_url.save
+          hash[parent.phone_number]['URL'] = redirection_url.decorate.visit_url
+        else
+          @errors << 'Problème(s) avec l\'url courte.' and return
+        end
+      end
+    end
+    @recipient_data = hash
+  end
+
   def check_all_fields_are_present
     @errors << 'Tous les champs doivent être complétés.' if !@planned_timestamp.present? || @recipients.empty? || @message.empty?
   end
 
   def get_all_phone_numbers
-    @parent_phone_numbers += Parent.find(@parent_ids.uniq).pluck(:phone_number)
+    @recipient_data += Parent.find(@parent_ids.uniq).pluck(:phone_number)
   end
 
-  def sort_recip
+  def sort_recipients
     @recipients.each do |recipient_id|
       if recipient_id.include? 'parent.'
         @parent_ids << recipient_id[/\d+/].to_i
