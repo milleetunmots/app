@@ -23,4 +23,9 @@ class EventsController < ApplicationController
     end
   end
 
+  def update_status
+    Event.find_by(spot_hit_message_id: params[:id_message]).update(spot_hit_status: params[:statut])
+    head :ok
+  end
+
 end

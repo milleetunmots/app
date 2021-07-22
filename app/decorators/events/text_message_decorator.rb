@@ -14,6 +14,12 @@ class Events::TextMessageDecorator < EventDecorator
     ].join(' ').html_safe
   end
 
+  def spot_hit_status_value
+    return unless spot_hit_status.present?
+
+    Event::SPOT_HIT_STATUS[spot_hit_status]
+  end
+
   def truncated_body
     # model.body.truncate 30,
     #                     separator: /\s/,
