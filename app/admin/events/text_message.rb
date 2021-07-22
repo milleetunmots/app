@@ -22,8 +22,8 @@ ActiveAdmin.register Events::TextMessage do
     column :related_first_child do |decorated|
       decorated.related_first_child_link
     end
-    column :status do |decorated|
-      decorated.status_value
+    column :spot_hit_status do |decorated|
+      decorated.spot_hit_status_value
     end
     column :related_first_child_group
     column :occurred_at
@@ -69,8 +69,8 @@ ActiveAdmin.register Events::TextMessage do
       row :related_first_child do |model|
         model.related_first_child_link
       end
-      row :status do |decorated|
-        decorated.status_value
+      row :spot_hit_status do |decorated|
+        decorated.spot_hit_status_value
       end
       row :occurred_at
       row :body, class: 'row-pre'
