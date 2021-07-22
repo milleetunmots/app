@@ -28,7 +28,7 @@ class Event < ApplicationRecord
   # constantes
   # ---------------------------------------------------------------------------
 
-  SPOT_HIT_STATUS = ['En attente','Livré','Envoyé','En cours','Echec','Expiré']
+  SPOT_HIT_STATUS = ['En attente','Livré','Envoyé','En cours','Echec','Expiré'].freeze
 
   # ---------------------------------------------------------------------------
   # relations
