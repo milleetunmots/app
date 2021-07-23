@@ -55,15 +55,20 @@ class ProgramMessageService
         hash[parent.phone_number]['PRENOM_ENFANT'] = 'votre enfant'
       end
       if @redirection_target
-        redirection_url = RedirectionUrl.new(
-          redirection_target_id: @redirection_target.id,
-          parent_id: parent.id,
-          child_id: parent.first_child.id
-        )
-        if redirection_url.save
-          hash[parent.phone_number]['URL'] = redirection_url.decorate.visit_url
+        redirection_url = parent.redirection_urls.find_by(child_id: parent.first_child.id, parent_id:parent.id, redirection_target_id: @redirection_target.id)
+        if redirection_url.nil?
+          redirection_url = RedirectionUrl.new(
+            redirection_target_id: @redirection_target.id,
+            parent_id: parent.id,
+            child_id: parent.first_child.id
+          )
+          if redirection_url.save
+            hash[parent.phone_number]['URL'] = redirection_url.decorate.visit_url
+          else
+            @errors << 'Problème(s) avec l\'url courte.' and return
+          end
         else
-          @errors << 'Problème(s) avec l\'url courte.' and return
+          hash[parent.phone_number]['URL'] = redirection_url.decorate.visit_url
         end
       end
     end
