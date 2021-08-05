@@ -113,6 +113,9 @@ ActiveAdmin.register ChildSupport do
   end
   filter :created_at
   filter :updated_at
+  filter :facebook
+  filter :whatsapp
+  filter :instagram
 
   batch_action :assign_supporter, form: -> {
     {
@@ -179,7 +182,16 @@ ActiveAdmin.register ChildSupport do
             end
           end
           tags_input(f)
-          f.input :to_call
+          columns do
+            column do
+              f.input :to_call
+            end
+            column do
+              f.input :facebook
+              f.input :whatsapp
+              f.input :instagram
+            end
+          end
         end
       end
       tabs do
@@ -290,7 +302,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   base_attributes = %i[
-    important_information supporter_id should_be_read book_not_received is_bilingual second_language to_call books_quantity
+    important_information supporter_id should_be_read book_not_received is_bilingual second_language to_call books_quantity facebook whatsapp instagram
   ] + [tags_params]
   parent_attributes = %i[
     id
@@ -343,6 +355,9 @@ ActiveAdmin.register ChildSupport do
           row :should_be_read
           row :is_bilingual
           row :second_language
+          row :facebook
+          row :whatsapp
+          row :instagram
           row :tags
           row :created_at
           row :updated_at
