@@ -21,7 +21,6 @@ ActiveAdmin.register ChildSupport do
     id_column
     column :children
     column :supporter, sortable: :supporter_id
-    column :should_be_read
     (1..5).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         [
@@ -32,10 +31,6 @@ ActiveAdmin.register ChildSupport do
     end
     column :groups
     column :registration_sources
-    column :created_at do |decorated|
-      l decorated.created_at.to_date, format: :default
-    end
-    column :to_call
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
