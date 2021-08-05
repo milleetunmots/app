@@ -161,7 +161,7 @@ class ChildSupportDecorator < BaseDecorator
     end
   end
 
-  def children_registration_sources(glue = "\n")
+  def children_registration_sources(glue = ";")
     children_attribute(:registration_source, glue)
   end
 
