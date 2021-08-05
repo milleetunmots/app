@@ -188,6 +188,7 @@ fr:
         children_birthdates: Date de naissance des enfants
         children_ages: Age des enfants
         children_genders: Sexe des enfants
+        children_registration_sources: Origines des enfants
         groups: Cohortes
         important_information: Infos importantes (langue maternelle, présence du père, ...)
         is_bilingual: Bilinguisme

@@ -161,6 +161,10 @@ class ChildSupportDecorator < BaseDecorator
     end
   end
 
+  def children_registration_sources(glue = "\n")
+    children_attribute(:registration_source, glue)
+  end
+
   # def parent1_card
   #   parent_card model.parent1, model.should_contact_parent1
   # end
