@@ -30,7 +30,6 @@ ActiveAdmin.register ChildSupport do
       end
     end
     column :groups
-    column :registration_sources
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
