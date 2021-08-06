@@ -340,11 +340,11 @@ class ChildSupport < ApplicationRecord
   end
 
   def present_on
-    super.split(";")
+    super&.split(";")
   end
 
   def follow_us_on
-    super.split(";")
+    super&.split(";")
   end
 
   def present_on=(val)
