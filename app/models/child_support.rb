@@ -339,6 +339,22 @@ class ChildSupport < ApplicationRecord
     []
   end
 
+  def present_on
+    super.split(";")
+  end
+
+  def follow_us_on
+    super.split(";")
+  end
+
+  def present_on=(val)
+    super(val.reject(&:blank?).join(";"))
+  end
+
+  def follow_us_on=(val)
+    super(val.reject(&:blank?).join(";"))
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------

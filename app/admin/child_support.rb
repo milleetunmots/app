@@ -313,8 +313,8 @@ ActiveAdmin.register ChildSupport do
   end
 
   base_attributes = %i[
-    important_information supporter_id should_be_read book_not_received is_bilingual second_language to_call books_quantity present_on follow_us_on
-  ] + [tags_params]
+    important_information supporter_id should_be_read book_not_received is_bilingual second_language to_call books_quantity
+  ] + [tags_params] + [{present_on: [], follow_us_on: []}]
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
