@@ -96,9 +96,9 @@ ActiveAdmin.register ChildSupport do
       input_html: {multiple: true, data: {select2: {}}}
     if call_idx == 1
       filter :books_quantity,
-             as: :select,
-             collection: proc { child_support_books_quantity },
-             input_html: {multiple: true, data: {select2: {}}}
+        as: :select,
+        collection: proc { child_support_books_quantity },
+        input_html: {multiple: true, data: {select2: {}}}
     end
     filter "call#{call_idx}_reading_frequency",
       as: :select,
@@ -372,7 +372,7 @@ ActiveAdmin.register ChildSupport do
   csv do
     column :id
     column(:supporter) { |cs| cs.supporter_name }
-
+    column :children_registration_sources
     column(:parent1_gender) { |cs| Parent.human_attribute_name("gender.#{cs.parent1_gender}") }
     column :parent1_first_name
     column :parent1_last_name
