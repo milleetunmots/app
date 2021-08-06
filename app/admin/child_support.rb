@@ -113,9 +113,6 @@ ActiveAdmin.register ChildSupport do
   end
   filter :created_at
   filter :updated_at
-  filter :facebook
-  filter :whatsapp
-  filter :instagram
 
   batch_action :assign_supporter, form: -> {
     {
