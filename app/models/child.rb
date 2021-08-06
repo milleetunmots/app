@@ -70,12 +70,12 @@ class Child < ApplicationRecord
 
   def siblings
     if parent2_id
-      self.class.where(parent1_id: parent1_id).where.not(id: id)
-        .or(self.class.where(parent1_id: parent2_id)).where.not(id: id)
-        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+      self.class.where(parent1_id: parent1_id)
+        .or(self.class.where(parent1_id: parent2_id))
+        .or(self.class.where(parent2_id: parent1_id))
         .or(self.class.where(parent2_id: parent2_id)).where.not(id: id)
     end
-    self.class.where(parent1_id: parent1_id).where.not(id: id)
+    self.class.where(parent1_id: parent1_id)
       .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
   end
 
