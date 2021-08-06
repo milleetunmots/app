@@ -102,9 +102,9 @@ ActiveAdmin.register ChildSupport do
       input_html: {multiple: true, data: {select2: {}}}
     if call_idx == 1
       filter :books_quantity,
-             as: :select,
-             collection: proc { child_support_books_quantity },
-             input_html: {multiple: true, data: {select2: {}}}
+        as: :select,
+        collection: proc { child_support_books_quantity },
+        input_html: {multiple: true, data: {select2: {}}}
     end
     filter "call#{call_idx}_reading_frequency",
       as: :select,
@@ -167,6 +167,22 @@ ActiveAdmin.register ChildSupport do
               end
             end
           end
+          columns do
+            column do
+              f.input :present_on,
+                collection: social_network_collection,
+                multiple: true,
+                input_html: {data: {select2: {tokenSeparators: [";"]}}}
+            end
+          end
+          columns do
+            column do
+              f.input :follow_us_on,
+                collection: our_social_network_collection,
+                multiple: true,
+                input_html: {data: {select2: {tokenSeparators: [";"]}}}
+            end
+          end
         end
         column do
           f.label :important_information
@@ -185,11 +201,6 @@ ActiveAdmin.register ChildSupport do
           columns do
             column do
               f.input :to_call
-            end
-            column do
-              f.input :facebook
-              f.input :whatsapp
-              f.input :instagram
             end
           end
         end
@@ -302,7 +313,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   base_attributes = %i[
-    important_information supporter_id should_be_read book_not_received is_bilingual second_language to_call books_quantity facebook whatsapp instagram
+    important_information supporter_id should_be_read book_not_received is_bilingual second_language to_call books_quantity present_on follow_us_on
   ] + [tags_params]
   parent_attributes = %i[
     id
@@ -355,9 +366,8 @@ ActiveAdmin.register ChildSupport do
           row :should_be_read
           row :is_bilingual
           row :second_language
-          row :facebook
-          row :whatsapp
-          row :instagram
+          row :present_on
+          row :follow_us_on
           row :tags
           row :created_at
           row :updated_at

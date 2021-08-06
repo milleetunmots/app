@@ -135,6 +135,16 @@ class ChildSupport < ApplicationRecord
     3_five_to_ten
     4_more_than_ten
   ].freeze
+  SOCIAL_NETWORK = %w[
+    1_facebook
+    2_whatsapp
+    3_instagram
+  ].freeze
+  OUR_SOCIAL_NETWORK = %w[
+    1_national_facebook
+    2_local_facebook
+    3_whatsapp
+  ].freeze
 
   # ---------------------------------------------------------------------------
   # relations

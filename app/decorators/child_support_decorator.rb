@@ -192,6 +192,18 @@ class ChildSupportDecorator < BaseDecorator
     end
   end
 
+  def present_on
+    if model.present_on
+      ChildSupport.human_attribute_name("social_network.#{model.present_on}")
+    end
+  end
+
+  def follow_us_on
+    if model.follow_us_on
+      ChildSupport.human_attribute_name("our_social_network.#{model.follow_us_on}")
+    end
+  end
+
   private
 
   def children_attribute(key, glue)
