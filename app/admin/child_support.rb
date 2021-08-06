@@ -227,10 +227,7 @@ ActiveAdmin.register ChildSupport do
                 f.input "call#{call_idx}_notes",
                   input_html: {
                     rows: 8,
-                    style: "width: 70%",
-                    value: f.object.send("call#{call_idx}_notes").presence ||
-                      I18n.t("child_support.default.call_notes")
-
+                    style: "width: 70%"
                   }
                 if call_idx == 1
                   f.input :books_quantity, as: :radio, collection: child_support_books_quantity
