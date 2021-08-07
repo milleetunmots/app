@@ -55,8 +55,8 @@ ActiveAdmin.register_page "Module" do
       SupportModule.where("unaccent(name) ILIKE unaccent(?)", "%#{params[:term]}%").decorate
         .map do |result|
         {
-          id: "#{result.object.class.name.underscore}.#{result.id}",
-          name: result.name
+          id: result.id,
+          text: result.name
         }
       end
 
