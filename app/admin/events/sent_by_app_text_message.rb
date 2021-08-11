@@ -1,6 +1,6 @@
-ActiveAdmin.register Events::TextMessage do
+ActiveAdmin.register Events::TextMessage, as: 'Sent By App TextMessage' do
 
-  menu parent: 'Événements'
+  menu parent: 'Événements', label: 'SMS envoyé'
 
   decorate_with Events::TextMessageDecorator
 
@@ -88,6 +88,10 @@ ActiveAdmin.register Events::TextMessage do
       resource = super
       resource.occurred_at = Time.now
       resource
+    end
+
+    def scoped_collection
+      end_of_association_chain.sent_by_app_text_messages
     end
   end
 

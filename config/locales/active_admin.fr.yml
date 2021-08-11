@@ -28,6 +28,8 @@ fr:
         new_model: Nouveau parent
       task:
         new_model: Nouvelle tâche
+      sent_by_app_text_message:
+        new_model: Créer SMS
     scopes:
       all: Tous
       done: Fait
