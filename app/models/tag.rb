@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: tags
+#
+#  id             :integer          not null, primary key
+#  color          :string
+#  name           :string
+#  taggings_count :integer          default(0)
+#  created_at     :datetime
+#  updated_at     :datetime
+#
+# Indexes
+#
+#  index_tags_on_name  (name) UNIQUE
+#
 class Tag < ActsAsTaggableOn::Tag
 
   before_validation :format_name
@@ -6,7 +21,7 @@ class Tag < ActsAsTaggableOn::Tag
 
   def format_name
     if attribute_present?("name")
-      self.name = I18n.transliterate(self.name).downcase
+      self.name = I18n.transliterate(name).downcase
     end
   end
 end

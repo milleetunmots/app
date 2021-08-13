@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_17_090451) do
+ActiveRecord::Schema.define(version: 2021_07_22_134731) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -24,7 +24,7 @@ ActiveRecord::Schema.define(version: 2021_05_17_090451) do
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
-    t.index %w[record_type record_id name blob_id], name: "index_active_storage_attachments_uniqueness", unique: true
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
   create_table "active_storage_blobs", force: :cascade do |t|
@@ -52,6 +52,7 @@ ActiveRecord::Schema.define(version: 2021_05_17_090451) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "name"
+    t.string "user_role"
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
@@ -85,7 +86,6 @@ ActiveRecord::Schema.define(version: 2021_05_17_090451) do
     t.integer "call1_duration"
     t.integer "call2_duration"
     t.integer "call3_duration"
-    t.integer "call1_books_quantity"
     t.string "call1_reading_frequency"
     t.string "call2_language_awareness"
     t.string "call2_parent_progress"
@@ -132,6 +132,8 @@ ActiveRecord::Schema.define(version: 2021_05_17_090451) do
     t.string "call1_sendings_benefits"
     t.text "call1_sendings_benefits_details"
     t.text "call1_technical_information"
+    t.boolean "to_call"
+    t.string "books_quantity"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
@@ -191,8 +193,11 @@ ActiveRecord::Schema.define(version: 2021_05_17_090451) do
     t.datetime "updated_at", precision: 6, null: false
     t.datetime "discarded_at"
     t.string "subject"
+    t.integer "spot_hit_status"
+    t.string "spot_hit_message_id"
+    t.boolean "originated_by_app", default: true, null: false
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
-    t.index %w[related_type related_id], name: "index_events_on_related_type_and_related_id"
+    t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
     t.index ["type"], name: "index_events_on_type"
   end
 
@@ -205,7 +210,7 @@ ActiveRecord::Schema.define(version: 2021_05_17_090451) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["author_id"], name: "index_field_comments_on_author_id"
-    t.index %w[related_type related_id], name: "index_field_comments_on_related_type_and_related_id"
+    t.index ["related_type", "related_id"], name: "index_field_comments_on_related_type_and_related_id"
   end
 
   create_table "groups", force: :cascade do |t|
@@ -238,6 +243,7 @@ ActiveRecord::Schema.define(version: 2021_05_17_090451) do
     t.bigint "link1_id"
     t.bigint "link2_id"
     t.bigint "link3_id"
+    t.string "spot_hit_id"
     t.index ["discarded_at"], name: "index_media_on_discarded_at"
     t.index ["folder_id"], name: "index_media_on_folder_id"
     t.index ["image1_id"], name: "index_media_on_image1_id"
@@ -299,7 +305,7 @@ ActiveRecord::Schema.define(version: 2021_05_17_090451) do
     t.bigint "searchable_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index %w[searchable_type searchable_id], name: "index_pg_search_documents_on_searchable_type_and_searchable_id"
+    t.index ["searchable_type", "searchable_id"], name: "index_pg_search_documents_on_searchable_type_and_searchable_id"
   end
 
   create_table "redirection_targets", force: :cascade do |t|
@@ -371,13 +377,13 @@ ActiveRecord::Schema.define(version: 2021_05_17_090451) do
     t.string "context", limit: 128
     t.datetime "created_at"
     t.index ["context"], name: "index_taggings_on_context"
-    t.index %w[tag_id taggable_id taggable_type context tagger_id tagger_type], name: "taggings_idx", unique: true
+    t.index ["tag_id", "taggable_id", "taggable_type", "context", "tagger_id", "tagger_type"], name: "taggings_idx", unique: true
     t.index ["tag_id"], name: "index_taggings_on_tag_id"
-    t.index %w[taggable_id taggable_type context], name: "taggings_taggable_context_idx"
-    t.index %w[taggable_id taggable_type tagger_id context], name: "taggings_idy"
+    t.index ["taggable_id", "taggable_type", "context"], name: "taggings_taggable_context_idx"
+    t.index ["taggable_id", "taggable_type", "tagger_id", "context"], name: "taggings_idy"
     t.index ["taggable_id"], name: "index_taggings_on_taggable_id"
     t.index ["taggable_type"], name: "index_taggings_on_taggable_type"
-    t.index %w[tagger_id tagger_type], name: "index_taggings_on_tagger_id_and_tagger_type"
+    t.index ["tagger_id", "tagger_type"], name: "index_taggings_on_tagger_id_and_tagger_type"
     t.index ["tagger_id"], name: "index_taggings_on_tagger_id"
   end
 
@@ -407,7 +413,7 @@ ActiveRecord::Schema.define(version: 2021_05_17_090451) do
     t.index ["discarded_at"], name: "index_tasks_on_discarded_at"
     t.index ["done_at"], name: "index_tasks_on_done_at"
     t.index ["due_date"], name: "index_tasks_on_due_date"
-    t.index %w[related_type related_id], name: "index_tasks_on_related_type_and_related_id"
+    t.index ["related_type", "related_id"], name: "index_tasks_on_related_type_and_related_id"
     t.index ["reporter_id"], name: "index_tasks_on_reporter_id"
     t.index ["title"], name: "index_tasks_on_title"
   end
@@ -420,7 +426,7 @@ ActiveRecord::Schema.define(version: 2021_05_17_090451) do
     t.text "object"
     t.datetime "created_at"
     t.text "object_changes"
-    t.index %w[item_type item_id], name: "index_versions_on_item_type_and_item_id"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

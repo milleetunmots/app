@@ -25,6 +25,12 @@ class Event < ApplicationRecord
   include Discard::Model
 
   # ---------------------------------------------------------------------------
+  # constantes
+  # ---------------------------------------------------------------------------
+
+  SPOT_HIT_STATUS = ['En attente','Livré','Envoyé','En cours','Echec','Expiré'].freeze
+
+  # ---------------------------------------------------------------------------
   # relations
   # ---------------------------------------------------------------------------
 
@@ -61,6 +67,8 @@ class Event < ApplicationRecord
   scope :other_events, -> { where(type: "Events::OtherEvent") }
   scope :survey_responses, -> { where(type: "Events::SurveyResponse") }
   scope :text_messages, -> { where(type: "Events::TextMessage") }
+  scope :sent_by_app_text_messages, -> { where(type: "Events::TextMessage", originated_by_app: true) }
+  scope :received_text_messages, -> { where(type: "Events::TextMessage", originated_by_app: false) }
   scope :workshop_participations, -> { where(type: "Events::WorkshopParticipation") }
 
   # ---------------------------------------------------------------------------

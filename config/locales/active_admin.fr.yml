@@ -28,6 +28,8 @@ fr:
         new_model: Nouveau parent
       task:
         new_model: Nouvelle tâche
+      sent_by_app_text_message:
+        new_model: Créer SMS
     scopes:
       all: Tous
       done: Fait
@@ -39,6 +41,7 @@ fr:
       not_ended: En cours
       single_message: Messages uniques
       todo: À faire
+      call_2_4: Appel 2/4
       with_book_not_received: Ayant un livre non reçu
       with_group: Dans une cohorte
       with_support: Suivis

@@ -20,6 +20,7 @@
 #  link1_id     :bigint
 #  link2_id     :bigint
 #  link3_id     :bigint
+#  spot_hit_id  :string
 #
 # Indexes
 #

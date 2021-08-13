@@ -49,8 +49,8 @@ ActiveAdmin.register Task do
 
   scope(:mine, default: true, group: :assignee) { |scope| scope.assigned_to(current_admin_user) }
   scope :all, group: :assignee
+  scope :todo
 
-  # scope :todo
   # scope :done
   # scope :all
 

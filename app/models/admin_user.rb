@@ -14,6 +14,7 @@
 #  reset_password_sent_at :datetime
 #  reset_password_token   :string
 #  sign_in_count          :integer          default(0), not null
+#  user_role              :string
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
 #
@@ -25,10 +26,15 @@
 
 class AdminUser < ApplicationRecord
 
+  ROLES = %w[super_admin team_member caller].freeze
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable,
     :recoverable, :rememberable, :validatable
+
+  has_many :reported_tasks, class_name: :Task, foreign_key: :reporter_id, dependent: :nullify
+  has_many :assigned_tasks, class_name: :Task, foreign_key: :assignee_id, dependent: :nullify
 
   # ---------------------------------------------------------------------------
   # validations
@@ -37,4 +43,18 @@ class AdminUser < ApplicationRecord
   validates :name,
     presence: true,
     uniqueness: {case_sensitive: false}
+
+  validates :user_role, inclusion: {in: ROLES}
+
+  def admin?
+    user_role == "super_admin"
+  end
+
+  def team_member?
+    user_role == "team_member"
+  end
+
+  def caller?
+    user_role == "caller"
+  end
 end

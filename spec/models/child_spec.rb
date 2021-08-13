@@ -48,17 +48,20 @@ require "rails_helper"
 RSpec.describe Child, type: :model do
   before(:each) do
     @group = FactoryBot.create(:group)
-    @parent1 = FactoryBot.create(:parent, postal_code: 75006)
-    @parent2 = FactoryBot.create(:parent)
-    @parent3 = FactoryBot.create(:parent)
-    @first_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month, should_contact_parent2: true, group: @group)
-    @second_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(8), group: @group, has_quit_group: true)
-    @third_child = FactoryBot.create(:child, parent1: @parent1, parent2: @parent2, birthdate: Date.today.prev_month(14))
-    @fourth_child = FactoryBot.create(:child, parent2: @parent3,birthdate: Date.today.yesterday)
-    @fifth_child = FactoryBot.create(:child, parent2: @parent3, birthdate: Date.today.prev_month(27), should_contact_parent1: true)
+    @first_parent = FactoryBot.create(:parent, postal_code: 75020, gender: Parent::GENDER_MALE)
+    @second_parent = FactoryBot.create(:parent, postal_code: 93700, gender: Parent::GENDER_FEMALE)
+    @third_parent = FactoryBot.create(:parent, postal_code: 45170, gender: Parent::GENDER_MALE)
+    @fourth_parent = FactoryBot.create(:parent, postal_code: 78190, gender: Parent::GENDER_FEMALE)
+    @fifth_parent = FactoryBot.create(:parent, postal_code: 78190, gender: Parent::GENDER_FEMALE)
+    @first_child = FactoryBot.create(:child, parent1: @first_parent, parent2: @second_parent, birthdate: Date.today.prev_month, should_contact_parent2: true, group: @group, tag_list: ["tag1"])
+    @second_child = FactoryBot.create(:child, parent1: @first_parent, parent2: @second_parent, birthdate: Date.today.prev_month(8), group: @group, has_quit_group: true, tag_list: ["tag2"])
+    @third_child = FactoryBot.create(:child, parent1: @first_parent, parent2: @fourth_parent, birthdate: Date.today.prev_month(14))
+    @fourth_child = FactoryBot.create(:child, parent1: @third_parent, parent2: @fifth_parent, birthdate: Date.today.yesterday, tag_list: ["test1"])
+    @fifth_child = FactoryBot.create(:child, parent1: @third_parent, parent2: @fifth_parent, birthdate: Date.today.prev_month(27), should_contact_parent1: true, tag_list: ["test2"])
+    @sixth_child = FactoryBot.create(:child, parent1: @third_parent, parent2: @fourth_parent, birthdate: Date.today.prev_month(28), should_contact_parent1: true)
     @child_support = FactoryBot.create(:child_support, first_child: @fourth_child)
 
-    @all_children = [@first_child, @second_child, @third_child, @fourth_child, @fifth_child]
+    @all_children = [@first_child, @second_child, @third_child, @fourth_child, @fifth_child, @sixth_child]
   end
 
   describe "Validations" do
@@ -95,15 +98,9 @@ RSpec.describe Child, type: :model do
       it "if the child doesn't have security code" do
         expect(FactoryBot.build_stubbed(:child, security_code: nil)).not_to be_valid
       end
-    end
-  end
-
-  describe ".strict_siblings" do
-    context "returns" do
-      it "the child siblings" do
-        expect(@first_child.strict_siblings).to match_array [@second_child, @third_child]
-        expect(@fourth_child.strict_siblings).to eq []
-        expect(Child.all).to match_array @all_children
+      it "if the child exists yet" do
+        new_child = FactoryBot.build(:child, first_name: @first_child.first_name, birthdate: @first_child.birthdate, parent1: @first_child.parent1)
+        expect(new_child.save).to be false
       end
     end
   end
@@ -141,13 +138,46 @@ RSpec.describe Child, type: :model do
     end
   end
 
+  describe ".strict_siblings" do
+    context "returns" do
+      it "the child strict siblings" do
+        expect(@first_child.strict_siblings).to match_array [@second_child]
+        expect(@fourth_child.strict_siblings).to eq [@fifth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe ".siblings" do
+    context "returns" do
+      it "the child siblings" do
+        expect(@first_child.siblings).to match_array [@second_child, @third_child]
+        expect(@fourth_child.siblings).to match_array [@fifth_child, @sixth_child]
+        expect(@sixth_child.siblings).to match_array [@third_child, @fourth_child, @fifth_child]
+        expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe ".all_tags" do
+    context "returns" do
+      it "all tags of siblings" do
+        expect(@fifth_child.all_tags).to match_array %w[test1 test2]
+      end
+    end
+
+  end
+
   describe ".create_support!" do
     context "create" do
-      it "child_support for the children and all strict siblings" do
+      it "child_support for the child and all their siblings" do
         @first_child.create_support!
         expect(@first_child.child_support).not_to be_nil
-        @first_child.strict_siblings.each do |sibling|
+        @first_child.siblings.each do |sibling|
           expect(sibling.child_support).to eq @first_child.child_support
+        end
+        @first_child.strict_siblings do |sibling|
+          expect(sibling.tag_list).to eq @first_child.tag_list
         end
       end
     end
@@ -156,7 +186,7 @@ RSpec.describe Child, type: :model do
   describe "#months_gteq" do
     context "returns" do
       it "children with a birthdate at the most equal to x months ago" do
-        expect(Child.months_gteq(25)).to match_array [@fifth_child]
+        expect(Child.months_gteq(25)).to match_array [@fifth_child, @sixth_child]
         expect(Child.all).to match_array @all_children
       end
     end
@@ -178,6 +208,7 @@ RSpec.describe Child, type: :model do
         expect(Child.months_equals(8)).to eq [@second_child]
         expect(Child.months_equals(14)).to eq [@third_child]
         expect(Child.months_equals(27)).to eq [@fifth_child]
+        expect(Child.months_equals(28)).to eq [@sixth_child]
         expect(Child.all).to match_array @all_children
       end
     end
@@ -213,7 +244,7 @@ RSpec.describe Child, type: :model do
   describe "#months_more_than_24" do
     context "returns" do
       it "children with a birthdate more than 24 months ago" do
-        expect(Child.months_more_than_24).to match_array [@fifth_child]
+        expect(Child.months_more_than_24).to match_array [@fifth_child, @sixth_child]
         expect(Child.all).to match_array @all_children
       end
     end
@@ -231,7 +262,7 @@ RSpec.describe Child, type: :model do
   describe "#without_support" do
     context "returns" do
       it "children without child_support" do
-        expect(Child.without_support).to match_array [@first_child, @second_child, @third_child, @fifth_child]
+        expect(Child.without_support).to match_array [@first_child, @second_child, @third_child, @fifth_child, @sixth_child]
         expect(Child.all).to match_array @all_children
       end
     end
@@ -239,8 +270,8 @@ RSpec.describe Child, type: :model do
 
   describe "#postal_code_contains" do
     context "returns" do
-      it "children with parent's postal code contains the parameter" do
-        expect(Child.postal_code_contains(500)).to match_array [@first_child, @second_child, @third_child]
+      it "children with first parent's postal code contains the parameter" do
+        expect(Child.postal_code_contains(502)).to match_array [@first_child, @second_child, @third_child]
         expect(Child.all).to match_array @all_children
       end
     end
@@ -248,8 +279,8 @@ RSpec.describe Child, type: :model do
 
   describe "#postal_code_ends_with" do
     context "returns" do
-      it "children with parent's postal code ends with the parameter" do
-        expect(Child.postal_code_ends_with(06)).to match_array [@first_child, @second_child, @third_child]
+      it "children with first parent's postal code ends with the parameter" do
+        expect(Child.postal_code_ends_with(70)).to match_array [@fourth_child, @fifth_child, @sixth_child]
         expect(Child.all).to match_array @all_children
       end
     end
@@ -257,8 +288,8 @@ RSpec.describe Child, type: :model do
 
   describe "#postal_code_equals" do
     context "returns" do
-      it "children with parent's postal code is the parameter" do
-        expect(Child.postal_code_equals(75006)).to match_array [@first_child, @second_child, @third_child]
+      it "children with first parent's postal code is the parameter" do
+        expect(Child.postal_code_equals(75020)).to match_array [@first_child, @second_child, @third_child]
         expect(Child.all).to match_array @all_children
       end
     end
@@ -266,7 +297,7 @@ RSpec.describe Child, type: :model do
 
   describe "#postal_code_starts_with" do
     context "returns" do
-      it "children with parent's postal code starts with the parameter" do
+      it "children with first parent's postal code starts with the parameter" do
         expect(Child.postal_code_contains(75)).to match_array [@first_child, @second_child, @third_child]
         expect(Child.all).to match_array @all_children
       end
@@ -285,7 +316,7 @@ RSpec.describe Child, type: :model do
   describe "#without_group" do
     context "returns" do
       it "children without group" do
-        expect(Child.without_group).to match_array [@third_child, @fourth_child, @fifth_child]
+        expect(Child.without_group).to match_array [@third_child, @fourth_child, @fifth_child, @sixth_child]
         expect(Child.all).to match_array @all_children
       end
     end
@@ -294,7 +325,7 @@ RSpec.describe Child, type: :model do
   describe "#with_parent_to_contact" do
     context "returns" do
       it "children with parent to contact" do
-        expect(Child.with_parent_to_contact).to match_array [@first_child, @fifth_child]
+        expect(Child.with_parent_to_contact).to match_array [@first_child, @fifth_child, @sixth_child]
         expect(Child.all).to match_array @all_children
       end
     end
@@ -303,7 +334,7 @@ RSpec.describe Child, type: :model do
   describe "#parent_id_in" do
     context "returns" do
       it "children with a parent's id in parameter" do
-        expect(Child.parent_id_in(@parent1.id)).to match_array [@first_child, @second_child, @third_child]
+        expect(Child.parent_id_in(@first_parent.id)).to match_array [@first_child, @second_child, @third_child]
         expect(Child.all).to match_array @all_children
       end
     end
@@ -312,7 +343,7 @@ RSpec.describe Child, type: :model do
   describe "#parent_id_not_in" do
     context "returns" do
       it "children without a parent's id in parameter" do
-        expect(Child.parent_id_not_in(@parent1.id)).to match_array [@fourth_child, @fifth_child]
+        expect(Child.parent_id_not_in(@first_parent.id)).to match_array [@fourth_child, @fifth_child, @sixth_child]
         expect(Child.all).to match_array @all_children
       end
     end
@@ -348,7 +379,7 @@ RSpec.describe Child, type: :model do
   describe "#without_parent_text_message_since" do
     context "returns" do
       it "children with parents who don't have text message since the parameter" do
-        @text_message = FactoryBot.create(:text_message, related: @parent3, occurred_at: Date.today.prev_month(1))
+        @text_message = FactoryBot.create(:text_message, related: @third_parent, occurred_at: Date.today.prev_month(1))
         expect(Child.without_parent_text_message_since(Date.today.prev_month(2))).to match_array [@first_child, @second_child, @third_child]
         expect(Child.all).to match_array @all_children
       end
@@ -364,5 +395,4 @@ RSpec.describe Child, type: :model do
       end
     end
   end
-
 end

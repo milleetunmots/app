@@ -5,7 +5,7 @@ puts "--- SEEDING DATABASE ---"
 puts "\tAdminUser"
 
 print "\t\tadmin@example.com"
-AdminUser.create!(name: 'Admin', email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?
+AdminUser.create!(user_role: 'super_admin', name: 'Admin', email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?
 puts " ✓"
 
 # MediaFolder

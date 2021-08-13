@@ -1,6 +1,6 @@
-ActiveAdmin.register Events::TextMessage do
+ActiveAdmin.register Events::TextMessage, as: 'Sent By App TextMessage' do
 
-  menu parent: 'Événements'
+  menu parent: 'Événements', label: 'SMS envoyé'
 
   decorate_with Events::TextMessageDecorator
 
@@ -21,6 +21,9 @@ ActiveAdmin.register Events::TextMessage do
     end
     column :related_first_child do |decorated|
       decorated.related_first_child_link
+    end
+    column :spot_hit_status do |decorated|
+      decorated.spot_hit_status_value
     end
     column :related_first_child_group
     column :occurred_at
@@ -66,6 +69,9 @@ ActiveAdmin.register Events::TextMessage do
       row :related_first_child do |model|
         model.related_first_child_link
       end
+      row :spot_hit_status do |decorated|
+        decorated.spot_hit_status_value
+      end
       row :occurred_at
       row :body, class: 'row-pre'
       row :created_at
@@ -82,6 +88,10 @@ ActiveAdmin.register Events::TextMessage do
       resource = super
       resource.occurred_at = Time.now
       resource
+    end
+
+    def scoped_collection
+      end_of_association_chain.sent_by_app_text_messages
     end
   end
 

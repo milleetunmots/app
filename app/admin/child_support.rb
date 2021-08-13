@@ -21,7 +21,6 @@ ActiveAdmin.register ChildSupport do
     id_column
     column :children
     column :supporter, sortable: :supporter_id
-    column :should_be_read
     (1..5).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         [
@@ -31,10 +30,6 @@ ActiveAdmin.register ChildSupport do
       end
     end
     column :groups
-    column :registration_sources
-    column :created_at do |decorated|
-      l decorated.created_at.to_date, format: :default
-    end
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -42,11 +37,13 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
-  scope(:mine, default: true) { |scope| scope.supported_by(current_admin_user) }
-  scope :all
-  scope :without_supporter
+  scope :all, group: :all
+
+  scope(:mine, default: true, group: :supporter) { |scope| scope.supported_by(current_admin_user) }
+  scope :without_supporter, group: :supporter
 
   scope :with_book_not_received
+  scope :call_2_4, group: :call
 
   filter :group_id_in,
     as: :select,
@@ -98,7 +95,10 @@ ActiveAdmin.register ChildSupport do
       collection: proc { child_support_call_sendings_benefits_select_collection },
       input_html: {multiple: true, data: {select2: {}}}
     if call_idx == 1
-      filter "call#{call_idx}_books_quantity"
+      filter :books_quantity,
+        as: :select,
+        collection: proc { child_support_books_quantity },
+        input_html: {multiple: true, data: {select2: {}}}
     end
     filter "call#{call_idx}_reading_frequency",
       as: :select,
@@ -173,6 +173,7 @@ ActiveAdmin.register ChildSupport do
             end
           end
           tags_input(f)
+          f.input :to_call
         end
       end
       tabs do
@@ -226,13 +227,10 @@ ActiveAdmin.register ChildSupport do
                 f.input "call#{call_idx}_notes",
                   input_html: {
                     rows: 8,
-                    style: "width: 70%",
-                    value: f.object.send("call#{call_idx}_notes").presence ||
-                      I18n.t("child_support.default.call_notes")
-
+                    style: "width: 70%"
                   }
                 if call_idx == 1
-                  f.input "call#{call_idx}_books_quantity", input_html: {style: "width: 70%"}
+                  f.input :books_quantity, as: :radio, collection: child_support_books_quantity
                 end
               end
             end
@@ -283,7 +281,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   base_attributes = %i[
-    important_information supporter_id should_be_read book_not_received is_bilingual second_language
+    important_information supporter_id should_be_read book_not_received is_bilingual second_language to_call books_quantity
   ] + [tags_params]
   parent_attributes = %i[
     id
@@ -330,6 +328,7 @@ ActiveAdmin.register ChildSupport do
             end
           end
           row :children
+          row :to_call
           row :important_information
           row :book_not_received
           row :should_be_read
@@ -354,7 +353,7 @@ ActiveAdmin.register ChildSupport do
             row "call#{call_idx}_sendings_benefits_details"
             row "call#{call_idx}_language_development"
             if call_idx == 1
-              row "call#{call_idx}_books_quantity"
+              row :books_quantity
             end
             row "call#{call_idx}_reading_frequency"
             row "call#{call_idx}_goals"
@@ -373,7 +372,7 @@ ActiveAdmin.register ChildSupport do
   csv do
     column :id
     column(:supporter) { |cs| cs.supporter_name }
-
+    column :children_registration_sources
     column(:parent1_gender) { |cs| Parent.human_attribute_name("gender.#{cs.parent1_gender}") }
     column :parent1_first_name
     column :parent1_last_name
@@ -419,7 +418,7 @@ ActiveAdmin.register ChildSupport do
       column "call#{call_idx}_sendings_benefits_details"
       column("call#{call_idx}_language_development") { |cs| cs.send("call#{call_idx}_language_development_text") }
       if call_idx == 1
-        column "call#{call_idx}_books_quantity"
+        column :books_quantity
       end
       column "call#{call_idx}_reading_frequency"
       column("call#{call_idx}_goals") { |cs| cs.send("call#{call_idx}_goals_text") }

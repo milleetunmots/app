@@ -14,12 +14,6 @@ div class: 'card card-parent' do
       end
     end
   ) + (
-    div class: 'is-ambassador' do
-      if parent.is_ambassador?
-        status_tag 'yes', label: t('is_ambassador')
-      end
-    end
-  ) + (
     div class: 'specific_tags' do
       parent.specific_tags.each do |tag|
         a_tag = Tag.find_by(name: tag)

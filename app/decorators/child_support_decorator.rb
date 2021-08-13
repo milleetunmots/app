@@ -161,6 +161,10 @@ class ChildSupportDecorator < BaseDecorator
     end
   end
 
+  def children_registration_sources(glue = ";")
+    children_attribute(:registration_source, glue)
+  end
+
   # def parent1_card
   #   parent_card model.parent1, model.should_contact_parent1
   # end
@@ -184,6 +188,12 @@ class ChildSupportDecorator < BaseDecorator
         child.gendered_name_with_age(with_icon: true)
       end
     ).join('<br/>-&nbsp;').html_safe
+  end
+
+  def books_quantity
+    if model.books_quantity
+      ChildSupport.human_attribute_name("books_quantity.#{model.books_quantity}")
+    end
   end
 
   private

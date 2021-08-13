@@ -20,6 +20,9 @@ Rails.application.routes.draw do
 
   get 'r/:id/:security_code', to: 'redirection#visit', as: :visit_redirection
 
+  get 'spot_hit/status', to: 'events#update_status'
+  get 'spot_hit/response', to: 'events#spot_hit_response'
+
   resources :events, only: [:index, :create]
 
   root to: redirect('/admin')

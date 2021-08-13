@@ -62,18 +62,6 @@ class Child < ApplicationRecord
   has_many :redirection_urls, dependent: :destroy # TODO: use nullify instead?
   has_many :siblings, class_name: :Child, primary_key: :parent1_id, foreign_key: :parent1_id
 
-  # we do not call this 'siblings' because real siblings may have only
-  # one parent in common
-  def strict_siblings
-    self.class.where(parent1_id: parent1_id, parent2_id: parent2_id).where.not(id: id)
-  end
-
-  def all_tags
-    tags = tag_list
-    siblings.each { |child| tags = (tags + child.tag_list).uniq }
-    tags
-  end
-
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
   accepts_nested_attributes_for :parent2
@@ -86,11 +74,7 @@ class Child < ApplicationRecord
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :birthdate, presence: true
-  validates :birthdate, date: {
-    after: proc { min_birthdate },
-    before: proc { max_birthdate }
-  },
-                        on: :create
+  validates :birthdate, date: {after: proc { min_birthdate }, before: proc { max_birthdate }}, on: :create
   validates :registration_source, presence: true, inclusion: {in: REGISTRATION_SOURCES}
   validates :registration_source_details, presence: true
   validates :security_code, presence: true
@@ -132,11 +116,31 @@ class Child < ApplicationRecord
   # computes an (integer) number of months old
   def months
     diff = Time.zone.today.month + Time.zone.today.year * 12 - (birthdate.month + birthdate.year * 12)
-    if Time.zone.today.day < birthdate.day
-      diff - 1
-    else
-      diff
-    end
+    Time.zone.today.day < birthdate.day ? diff - 1 : diff
+  end
+
+  # we do not call this 'siblings' because real siblings may have only
+  # one parent in common
+  def strict_siblings
+    parent2_id ? self.class.where(parent1_id: parent1_id, parent2_id: parent2_id)
+      .or(self.class.where(parent1_id: parent2_id, parent2_id: parent1_id)).where.not(id: id) :
+      self.class.where(parent1_id: parent1_id)
+        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+  end
+
+  def siblings
+    parent2_id ? self.class.where(parent1_id: parent1_id)
+      .or(self.class.where(parent1_id: parent2_id))
+      .or(self.class.where(parent2_id: parent1_id))
+      .or(self.class.where(parent2_id: parent2_id)).where.not(id: id) :
+      self.class.where(parent1_id: parent1_id)
+        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+  end
+
+  def all_tags
+    tags = tag_list
+    strict_siblings.each { |child| tags = (tags + child.tag_list).uniq }
+    tags
   end
 
   # ---------------------------------------------------------------------------
@@ -154,10 +158,13 @@ class Child < ApplicationRecord
 
     # 3- also update all strict siblings
     # nb: we do this one by one to trigger paper_trail
-    strict_siblings.without_support.each do |child|
+    siblings.without_support.each do |child|
       child.child_support_id = child_support.id
-      child.tag_list = all_tags
       child.save(validate: false)
+    end
+
+    strict_siblings.each do |child|
+      child.tag_list = all_tags
     end
   end
 
@@ -228,15 +235,11 @@ class Child < ApplicationRecord
   scope :without_group, -> { where(group_id: nil) }
 
   def self.with_parent_to_contact
-    where(should_contact_parent1: true).or(
-      where(should_contact_parent2: true)
-    )
+    where(should_contact_parent1: true).or(where(should_contact_parent2: true))
   end
 
   def self.parent_id_in(*v)
-    where(parent1_id: v).or(
-      where(parent2_id: v)
-    )
+    where(parent1_id: v).or(where(parent2_id: v))
   end
 
   def self.parent_id_not_in(*v)
@@ -245,16 +248,8 @@ class Child < ApplicationRecord
 
   def self.without_parent_to_contact
     # info: AR simplifies this
-    where(
-      should_contact_parent1: [nil, false],
-      should_contact_parent2: [nil, false]
-    ).or(
-      where(
-        should_contact_parent1: [nil, false],
-        should_contact_parent2: true,
-        parent2_id: nil
-      )
-    )
+    where(should_contact_parent1: [nil, false], should_contact_parent2: [nil, false])
+      .or(where(should_contact_parent1: [nil, false], should_contact_parent2: true, parent2_id: nil))
   end
 
   def self.group_id_in(*v)
@@ -360,10 +355,7 @@ class Child < ApplicationRecord
   end
 
   def parent_events
-    Event.where(
-      related_type: "Parent",
-      related_id: [parent1_id, parent2_id].compact
-    )
+    Event.where(related_type: "Parent", related_id: [parent1_id, parent2_id].compact)
   end
 
   def self.families_count
