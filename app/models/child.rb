@@ -129,12 +129,18 @@ class Child < ApplicationRecord
   end
 
   def true_siblings
-    parent2_id ? self.class.where(parent1_id: parent1_id)
-      .or(self.class.where(parent1_id: parent2_id))
-      .or(self.class.where(parent2_id: parent1_id))
-      .or(self.class.where(parent2_id: parent2_id)).where.not(id: id) :
+    if id.nil?
+      nil
+    end
+    if parent2_id
+      self.class.where(parent1_id: parent1_id)
+        .or(self.class.where(parent1_id: parent2_id))
+        .or(self.class.where(parent2_id: parent1_id))
+        .or(self.class.where(parent2_id: parent2_id)).where.not(id: id)
+    else
       self.class.where(parent1_id: parent1_id)
         .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+    end
   end
 
   def all_tags
