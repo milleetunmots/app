@@ -128,13 +128,17 @@ class Child < ApplicationRecord
         .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
   end
 
-  def siblings
-    parent2_id ? self.class.where(parent1_id: parent1_id)
-      .or(self.class.where(parent1_id: parent2_id))
-      .or(self.class.where(parent2_id: parent1_id))
-      .or(self.class.where(parent2_id: parent2_id)).where.not(id: id) :
+  def true_siblings
+    return [] if id.nil?
+    if parent2_id
+      self.class.where(parent1_id: parent1_id)
+        .or(self.class.where(parent1_id: parent2_id))
+        .or(self.class.where(parent2_id: parent1_id))
+        .or(self.class.where(parent2_id: parent2_id)).where.not(id: id)
+    else
       self.class.where(parent1_id: parent1_id)
         .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+    end
   end
 
   def all_tags
@@ -158,7 +162,7 @@ class Child < ApplicationRecord
 
     # 3- also update all strict siblings
     # nb: we do this one by one to trigger paper_trail
-    siblings.without_support.each do |child|
+    true_siblings.without_support.each do |child|
       child.child_support_id = child_support.id
       child.save(validate: false)
     end
