@@ -129,9 +129,7 @@ class Child < ApplicationRecord
   end
 
   def true_siblings
-    if id.nil?
-      nil
-    end
+    return [] if id.nil?
     if parent2_id
       self.class.where(parent1_id: parent1_id)
         .or(self.class.where(parent1_id: parent2_id))
