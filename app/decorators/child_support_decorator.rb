@@ -193,13 +193,13 @@ class ChildSupportDecorator < BaseDecorator
   end
 
   def present_on
-    model.present_on.map do |social_network|
+    model.present_on&.map do |social_network|
       ChildSupport.human_attribute_name("social_network.#{social_network}")
     end
   end
 
   def follow_us_on
-    model.follow_us_on.map do |social_network|
+    model.follow_us_on&.map do |social_network|
       ChildSupport.human_attribute_name("our_social_network.#{social_network}")
     end
   end
