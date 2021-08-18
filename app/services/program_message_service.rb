@@ -26,13 +26,13 @@ class ProgramMessageService
     find_parent_ids_from_tags
     find_parent_ids_from_groups
     get_all_phone_numbers
-    @errors << 'Aucun parent à contacter.' and return self if @recipient_data.empty?
+    @errors << "Aucun parent à contacter." and return self if @recipient_data.empty?
 
-    generate_phone_number_from_data if @redirection_target or @variables.include?('PRENOM_ENFANT')
+    generate_phone_number_from_data if @redirection_target || @variables.include?("PRENOM_ENFANT")
     return self if @errors.any?
 
-    @message += " {URL}" if @redirection_target and !@variables.include?('URL')
-    
+    @message += " {URL}" if @redirection_target && !@variables.include?("URL")
+
     service = SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message).call
     @errors = service.errors if service.errors.any?
     self
@@ -43,17 +43,13 @@ class ProgramMessageService
   def get_all_variables
     @variables += @message.scan(/\{(.*?)\}/).transpose[0].uniq
 
-    @errors << 'Veuillez choisir un lien cible.' if @redirection_target.nil? and @variables.include?('URL')
+    @errors << "Veuillez choisir un lien cible." if @redirection_target.nil? && @variables.include?("URL")
   end
 
   def generate_phone_number_from_data
-    hash = Hash[@recipient_data.collect { |item| [item, {}] } ]
+    hash = Hash[@recipient_data.collect { |item| [item, {}] }]
     Parent.where(phone_number: @recipient_data).find_each do |parent|
-      if parent.first_child.first_name
-        hash[parent.phone_number]['PRENOM_ENFANT'] = parent.first_child.first_name
-      else
-        hash[parent.phone_number]['PRENOM_ENFANT'] = 'votre enfant'
-      end
+      hash[parent.phone_number]["PRENOM_ENFANT"] = (parent.first_child.first_name || "votre enfant")
       if @redirection_target
         redirection_url = parent.redirection_urls.find_by(child_id: parent.first_child.id, parent_id:parent.id, redirection_target_id: @redirection_target.id)
         if redirection_url.nil?
@@ -63,12 +59,12 @@ class ProgramMessageService
             child_id: parent.first_child.id
           )
           if redirection_url.save
-            hash[parent.phone_number]['URL'] = redirection_url.decorate.visit_url
+            hash[parent.phone_number]["URL"] = redirection_url.decorate.visit_url
           else
-            @errors << 'Problème(s) avec l\'url courte.' and return
+            @errors << "Problème(s) avec l'url courte." and return
           end
         else
-          hash[parent.phone_number]['URL'] = redirection_url.decorate.visit_url
+          hash[parent.phone_number]["URL"] = redirection_url.decorate.visit_url
         end
       end
     end
@@ -76,7 +72,7 @@ class ProgramMessageService
   end
 
   def check_all_fields_are_present
-    @errors << 'Tous les champs doivent être complétés.' if !@planned_timestamp.present? || @recipients.empty? || @message.empty?
+    @errors << "Tous les champs doivent être complétés." if !@planned_timestamp.present? || @recipients.empty? || @message.empty?
   end
 
   def get_all_phone_numbers
@@ -85,11 +81,11 @@ class ProgramMessageService
 
   def sort_recipients
     @recipients.each do |recipient_id|
-      if recipient_id.include? 'parent.'
+      if recipient_id.include? "parent."
         @parent_ids << recipient_id[/\d+/].to_i
-      elsif recipient_id.include? 'tag.'
+      elsif recipient_id.include? "tag."
         @tag_ids << recipient_id[/\d+/].to_i
-      elsif recipient_id.include? 'group.'
+      elsif recipient_id.include? "group."
         @group_ids << recipient_id[/\d+/].to_i
       end
     end
@@ -98,7 +94,7 @@ class ProgramMessageService
   def find_parent_ids_from_tags
     @tag_ids.each do |tag_id|
       # taggable_id = id of the parent in our case
-      @parent_ids += Tagging.by_taggable_type('Parent').by_tag_id(tag_id).pluck(:taggable_id)
+      @parent_ids += Tagging.by_taggable_type("Parent").by_tag_id(tag_id).pluck(:taggable_id)
     end
   end
 
