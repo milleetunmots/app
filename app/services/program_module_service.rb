@@ -31,26 +31,47 @@ class ProgramModuleService < ProgramMessageService
     support_module_week_list.each do |support_module_week|
       text_message_bundle = Medium.find(support_module_week.medium_id)
       if support_module_week.additional_medium_id
+
+        additional_medium = Medium.find(support_module_week.additional_medium_id)
+
         first_service = SpotHit::SendSmsService.new(
-          @recipient_data, Time.zone.parse("#{@starting_date} 12:30").to_i, text_message_bundle.body1
+          @recipient_data, Time.zone.parse("#{@starting_date + 1.day} 12:30").to_i, text_message_bundle.body1
         ).call
         @errors = first_service.errors if first_service.errors.any?
 
-        # second_service = SpotHit::SendSmsService.new(
-        #   @recipient_data, Time.zone.parse("#{@starting_date} 12:30").to_i, text_message_bundle.body1
-        # ).call
-        # @errors = second_service.errors if second_service.errors.any?
-        #
-        # additional_medium = Medium.find(support_module_week.additional_medium_id)
+        second_service = SpotHit::SendSmsService.new(
+          @recipient_data, Time.zone.parse("#{@starting_date + 3.days} 12:30").to_i, text_message_bundle.body2
+        ).call
+        @errors = second_service.errors if second_service.errors.any?
 
-        # p additional_medium.body1
-      # else
+        third_service = SpotHit::SendSmsService.new(
+          @recipient_data, Time.zone.parse("#{@starting_date + 4.days} 14:00").to_i, additional_medium.body1
+        ).call
+        @errors = third_service.errors if third_service.errors.any?
+
+        fourth_service = SpotHit::SendSmsService.new(
+          @recipient_data, Time.zone.parse("#{@starting_date + 5.days} 12:30").to_i, text_message_bundle.body3
+        ).call
+        @errors = fourth_service.errors if fourth_service.errors.any?
+
+      else
+
+        first_service = SpotHit::SendSmsService.new(
+          @recipient_data, Time.zone.parse("#{@starting_date + 1.day} 12:30").to_i, text_message_bundle.body1
+        ).call
+        @errors = first_service.errors if first_service.errors.any?
+
+        second_service = SpotHit::SendSmsService.new(
+          @recipient_data, Time.zone.parse("#{@starting_date + 3.days} 12:30").to_i, text_message_bundle.body2
+        ).call
+        @errors = second_service.errors if second_service.errors.any?
+
+        third_service = SpotHit::SendSmsService.new(
+          @recipient_data, Time.zone.parse("#{@starting_date + 5.days} 12:30").to_i, text_message_bundle.body3
+        ).call
+        @errors = third_service.errors if third_service.errors.any?
 
       end
-
-      # p text_message_bundle.body2
-      # p text_message_bundle.body3
-
 
     end
 
