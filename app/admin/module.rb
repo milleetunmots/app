@@ -4,7 +4,7 @@ ActiveAdmin.register_page "Module" do
 
   content do
 
-    form action: admin_message_program_sms_path, method: :post, id: "sms-form" do |f|
+    form action: admin_module_program_module_path, method: :post, id: "sms-form" do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
 
       label "Date de démarrage"
@@ -27,6 +27,20 @@ ActiveAdmin.register_page "Module" do
           input type: "submit", value: "Valider"
         end
       end
+    end
+  end
+
+  page_action :program_module, method: :post do
+    service = ProgramModuleService.new(
+      params[:planned_date],
+      params[:recipients],
+      params[:module_to_send]
+    ).call
+
+    if service.errors.any?
+      redirect_back(fallback_location: root_path, alert: service.errors.join("\n"))
+    else
+      redirect_back(fallback_location: root_path, notice: "Module programmé")
     end
   end
 
