@@ -8,7 +8,7 @@ class SpotHit::SendSmsService
     @message = message
     @errors = []
   end
-  
+
   def call
     uri = URI('https://www.spot-hit.fr/api/envoyer/sms')
     form = {
@@ -27,9 +27,10 @@ class SpotHit::SendSmsService
         keys.map { |key, value| form.store("destinataires[#{phone_number}][#{key}]", value) }
       end
     end
-    
+
     response = HTTP.post(uri, form: form)
     if JSON.parse(response.body.to_s).key? 'erreurs'
+      p JSON.parse(response.body.to_s)
       @errors << 'Erreur lors de la programmation de la campagne.'
     else
       create_events(JSON.parse(response.body.to_s)['id'])
