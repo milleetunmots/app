@@ -20,8 +20,10 @@ class ProgramModuleService < ProgramMessageService
     sort_recipients
     find_parent_ids_from_tags
     find_parent_ids_from_groups
-    get_all_phone_numbers
-    @errors << "Aucun parent à contacter." and return self if @recipient_data.empty?
+
+    @errors << "Aucun parent à contacter." and return self if @parent_ids.empty?
+
+    format_data_for_spot_hit
 
     # generate_phone_number_from_data if @redirection_target || @variables.include?("PRENOM_ENFANT")
     # return self if @errors.any?
@@ -78,6 +80,8 @@ class ProgramModuleService < ProgramMessageService
     self
 
   end
+
+  protected
 
   def check_all_fields_are_present
     @errors << "Tous les champs doivent être complétés." if !@starting_date.present? || @recipients.empty? || @module_to_send.empty?
