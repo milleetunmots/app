@@ -53,14 +53,15 @@ module ProgramMessagesHelper
   def retrieve_messages(module_to_send)
     result = {}
     support_module_week_list = SupportModule.find(module_to_send).support_module_weeks
-    support_module_week_list.each do |support_module_week|
+    support_module_week_list.each_with_index do |support_module_week, index|
+      result["support_module_week_#{index + 1}"] = {}
       text_message_bundle = Medium.find(support_module_week.medium_id)
-      result[:message_1] = text_message_bundle.body1
-      result[:message_2] = text_message_bundle.body2
-      result[:message_3] = text_message_bundle.body3
+      result["support_module_week_#{index + 1}"][:message_1] = text_message_bundle.body1
+      result["support_module_week_#{index + 1}"][:message_2] = text_message_bundle.body2
+      result["support_module_week_#{index + 1}"][:message_3] = text_message_bundle.body3
       if support_module_week.additional_medium_id
         additional_medium = Medium.find(support_module_week.additional_medium_id)
-        result[:message_4] = additional_medium.body1
+        result["support_module_week_#{index + 1}"][:message_4] = additional_medium.body1
       end
     end
     result

@@ -9,22 +9,25 @@ ActiveAdmin.register_page "Messages" do
       f.input :tags, type: :hidden, name: :tags, value: params[:tags]
       f.input :groups, type: :hidden, name: :groups, value: params[:groups]
 
-      params[:messages].each do |message|
+      params[:messages].each do |support_module_week|
         div do
-          div do
-            label (message[0]).to_s
-            textarea name: (message[0]).to_s do
-              message[1]
-            end
-            div class: "datetime-container" do
-              input type: "text",
-                    name: "planned_date_#{message[0]}",
-                    class: "datepicker hasDatePicker",
-                    style: "margin-right: 20px;",
-                    value: params[:planned_date]
-              input type: "time",
-                    name: "planned_hour_#{message[0]}",
-                    value: Time.zone.now.strftime("%H:%M")
+          label support_module_week[0]
+          support_module_week[1].each do |message|
+            div do
+              label message[0]
+              textarea name: "#{support_module_week[0]}_#{message[0]}" do
+                message[1]
+              end
+              div class: "datetime-container" do
+                input type: "text",
+                      name: "planned_date_#{support_module_week[0]}_#{message[0]}",
+                      class: "datepicker hasDatePicker",
+                      style: "margin-right: 20px;",
+                      value: params[:planned_date]
+                input type: "time",
+                      name: "planned_hour_#{support_module_week[0]}_#{message[0]}",
+                      value: Time.zone.now.strftime("%H:%M")
+              end
             end
           end
         end
