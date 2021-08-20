@@ -1,3 +1,5 @@
+include ProgramMessagesHelper
+
 ActiveAdmin.register_page "Module" do
 
   menu priority: 12, parent: "Programmer des envois"
@@ -31,51 +33,27 @@ ActiveAdmin.register_page "Module" do
   end
 
   page_action :program_module, method: :post do
-    service = ProgramModuleService.new(
-      params[:planned_date],
-      params[:recipients],
-      params[:module_to_send]
-    ).call
+    parents, tags, groups = sort_recipients(params[:recipients]).values
+    messages = retrieve_messages(params[:module_to_send])
 
-    if service.errors.any?
-      redirect_back(fallback_location: root_path, alert: service.errors.join("\n"))
-    else
-      redirect_back(fallback_location: root_path, notice: "Module programmé")
-    end
+    redirect_to admin_messages_path(
+      planned_date: params[:planned_date],
+      parents: parents,
+      tags: tags,
+      groups: groups,
+      messages: messages
+    )
   end
 
   page_action :recipients do
-    results = (
-      Parent.where("unaccent(CONCAT(first_name, last_name)) ILIKE unaccent(?)", "%#{params[:term]}%").decorate +
-      Tag.where("unaccent(name) ILIKE unaccent(?)", "%#{params[:term]}%").decorate +
-      Group.where("unaccent(name) ILIKE unaccent(?)", "%#{params[:term]}%").decorate
-    ).map do |result|
-      {
-        id: "#{result.object.class.name.underscore}.#{result.id}",
-        name: result.name,
-        type: result.object.class.name.underscore,
-        icon: result.icon_class,
-        html: result.as_autocomplete_result
-      }
-    end
-
     render json: {
-      results: results
+      results: get_recipients
     }
   end
 
   page_action :module_to_send do
-    results =
-      SupportModule.where("unaccent(name) ILIKE unaccent(?)", "%#{params[:term]}%").decorate
-        .map do |result|
-        {
-          id: result.id,
-          text: result.name
-        }
-      end
-
     render json: {
-      results: results
+      results: get_module
     }
   end
 

@@ -1,6 +1,6 @@
 class ProgramModuleService < ProgramMessageService
 
-  def initialize(planned_date, recipients, module_to_send)
+  def initialize(planned_date, parents, tags, groups, messages, planned_hours , module_to_send)
     @starting_date = Time.zone.parse(planned_date)
     @recipients = recipients || []
     @module_to_send = module_to_send

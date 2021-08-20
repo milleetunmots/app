@@ -1,3 +1,5 @@
+include ProgramMessagesHelper
+
 ActiveAdmin.register_page "Message" do
 
   menu priority: 12, parent: "Programmer des envois"
@@ -56,38 +58,14 @@ ActiveAdmin.register_page "Message" do
   end
 
   page_action :recipients do
-    results = (
-      Parent.where("unaccent(CONCAT(first_name, last_name)) ILIKE unaccent(?)", "%#{params[:term]}%").decorate +
-      Tag.where("unaccent(name) ILIKE unaccent(?)", "%#{params[:term]}%").decorate +
-      Group.where("unaccent(name) ILIKE unaccent(?)", "%#{params[:term]}%").decorate
-    ).map do |result|
-      {
-        id: "#{result.object.class.name.underscore}.#{result.id}",
-        name: result.name,
-        type: result.object.class.name.underscore,
-        icon: result.icon_class,
-        html: result.as_autocomplete_result
-      }
-    end
-
     render json: {
-      results: results
+      results: get_recipients
     }
   end
 
   page_action :redirection_targets do
-    results =
-      RedirectionTarget.joins(:medium)
-        .where("media.name ILIKE unaccent(?) and media.url IS NOT NULL", "%#{params[:term]}%")
-        .decorate.map do |result|
-        {
-          id: result.id,
-          text: result.medium.name
-        }
-      end
-
     render json: {
-      results: results
+      results: get_redirection_targets
     }
   end
 

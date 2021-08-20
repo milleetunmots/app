@@ -55,12 +55,12 @@ module ProgramMessagesHelper
     support_module_week_list = SupportModule.find(module_to_send).support_module_weeks
     support_module_week_list.each do |support_module_week|
       text_message_bundle = Medium.find(support_module_week.medium_id)
-      result[:first_message] = text_message_bundle.body1
-      result[:second_message] = text_message_bundle.body2
-      result[:third_message] = text_message_bundle.body3
+      result[:message_1] = text_message_bundle.body1
+      result[:message_2] = text_message_bundle.body2
+      result[:message_3] = text_message_bundle.body3
       if support_module_week.additional_medium_id
         additional_medium = Medium.find(support_module_week.additional_medium_id)
-        result[:fourth_message] = additional_medium.body1
+        result[:message_4] = additional_medium.body1
       end
     end
     result
