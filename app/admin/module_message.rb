@@ -3,11 +3,10 @@ ActiveAdmin.register_page "Messages" do
   menu false
 
   content do
+
     form action: admin_messages_program_module_message_path, method: :post, id: "sms-form" do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
-      f.input :parents, type: :hidden, name: :parents, value: params[:parents]
-      f.input :tags, type: :hidden, name: :tags, value: params[:tags]
-      f.input :groups, type: :hidden, name: :groups, value: params[:groups]
+      f.input :recipients, type: :hidden, name: :recipients, value: params[:recipients]
 
       params[:messages].each do |support_module_week|
         div do
@@ -42,27 +41,35 @@ ActiveAdmin.register_page "Messages" do
   end
 
   page_action :program_module_message, method: :post do
-    4.times do |time|
-      params&.each do |param|
-        if param[0].include? "support_module_week_#{time}_message_#{time}"
-          p param[1]
-        end
 
+    recipients = params[:recipients].tr('["]', "").delete(" ").split(",")
+
+    messages = {}
+    planned_dates = {}
+    planned_hours = {}
+
+    params.each do |key, value|
+      if key.match?("^support_module_week_[0-9]_message_[0-9]$")
+        messages[key.to_s] = value
+      elsif key.match?("^planned_date_")
+        planned_dates[key.sub("planned_date_", "")] = value
+      elsif key.match?("^planned_hour_")
+        planned_hours[key.sub("planned_hour_", "")] = value
       end
     end
-    #p params
 
-    # service = ProgramModuleService.new(
-    #   params[:planned_date],
-    #   params[:recipients],
-    #   params[:module_to_send]
-    # ).call
-    #
-    # if service.errors.any?
-    #   redirect_back(fallback_location: root_path, alert: service.errors.join("\n"))
-    # else
-    #   redirect_back(fallback_location: root_path, notice: "Module programmé")
-    # end
+    messages.each do |key, value|
+      service = ProgramMessageService.new(
+        planned_dates[key],
+        planned_hours[key],
+        recipients,
+        value
+      ).call
+      if service.errors.any?
+        redirect_back(fallback_location: root_path, alert: service.errors.join("\n"))
+      end
+    end
+    redirect_back(fallback_location: root_path, notice: "Module programmé")
   end
 
 end

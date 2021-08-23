@@ -33,14 +33,12 @@ ActiveAdmin.register_page "Module" do
   end
 
   page_action :program_module, method: :post do
-    parents, tags, groups = sort_recipients(params[:recipients]).values
+
     messages = retrieve_messages(params[:module_to_send])
 
     redirect_to admin_messages_path(
       planned_date: params[:planned_date],
-      parents: parents,
-      tags: tags,
-      groups: groups,
+      recipients: params[:recipients],
       messages: messages
     )
   end

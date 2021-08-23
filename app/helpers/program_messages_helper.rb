@@ -36,20 +36,6 @@ module ProgramMessagesHelper
     end
   end
 
-  def sort_recipients(recipients)
-    result = {parent_ids: [], tag_ids: [], group_ids: []}
-    recipients&.each do |recipient_id|
-      if recipient_id.include? "parent."
-        result[:parent_ids] << recipient_id[/\d+/].to_i
-      elsif recipient_id.include? "tag."
-        result[:tag_ids] << recipient_id[/\d+/].to_i
-      elsif recipient_id.include? "group."
-        result[:group_ids] << recipient_id[/\d+/].to_i
-      end
-    end
-    result
-  end
-
   def retrieve_messages(module_to_send)
     result = {}
     support_module_week_list = SupportModule.find(module_to_send).support_module_weeks
