@@ -21,7 +21,7 @@ class Tag < ActsAsTaggableOn::Tag
 
   def format_name
     if attribute_present?("name")
-      self.name = I18n.transliterate(self.name).downcase
+      self.name = I18n.transliterate(name).downcase
     end
   end
 end

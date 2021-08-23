@@ -47,13 +47,13 @@ ActiveAdmin.register_page "Module" do
 
   page_action :recipients do
     render json: {
-      results: get_recipients
+      results: get_recipients(params[:term])
     }
   end
 
   page_action :module_to_send do
     render json: {
-      results: get_module
+      results: get_module(params[:term])
     }
   end
 

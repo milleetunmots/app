@@ -21,7 +21,6 @@ ActiveAdmin.register ChildSupport do
     id_column
     column :children
     column :supporter, sortable: :supporter_id
-    column :should_be_read
     (1..5).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         [
@@ -31,11 +30,6 @@ ActiveAdmin.register ChildSupport do
       end
     end
     column :groups
-    column :registration_sources
-    column :created_at do |decorated|
-      l decorated.created_at.to_date, format: :default
-    end
-    column :to_call
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -102,9 +96,9 @@ ActiveAdmin.register ChildSupport do
       input_html: {multiple: true, data: {select2: {}}}
     if call_idx == 1
       filter :books_quantity,
-             as: :select,
-             collection: proc { child_support_books_quantity },
-             input_html: {multiple: true, data: {select2: {}}}
+        as: :select,
+        collection: proc { child_support_books_quantity },
+        input_html: {multiple: true, data: {select2: {}}}
     end
     filter "call#{call_idx}_reading_frequency",
       as: :select,
@@ -233,10 +227,7 @@ ActiveAdmin.register ChildSupport do
                 f.input "call#{call_idx}_notes",
                   input_html: {
                     rows: 8,
-                    style: "width: 70%",
-                    value: f.object.send("call#{call_idx}_notes").presence ||
-                      I18n.t("child_support.default.call_notes")
-
+                    style: "width: 70%"
                   }
                 if call_idx == 1
                   f.input :books_quantity, as: :radio, collection: child_support_books_quantity
@@ -381,7 +372,7 @@ ActiveAdmin.register ChildSupport do
   csv do
     column :id
     column(:supporter) { |cs| cs.supporter_name }
-
+    column :children_registration_sources
     column(:parent1_gender) { |cs| Parent.human_attribute_name("gender.#{cs.parent1_gender}") }
     column :parent1_first_name
     column :parent1_last_name

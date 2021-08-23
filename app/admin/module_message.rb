@@ -33,20 +33,25 @@ ActiveAdmin.register_page "Messages" do
         end
       end
 
-
       div class: "actions" do
         div class: "action input_action" do
           input type: "submit", value: "Programmer"
         end
       end
-
     end
-
-
   end
 
   page_action :program_module_message, method: :post do
-    p params
+    4.times do |time|
+      params&.each do |param|
+        if param[0].include? "support_module_week_#{time}_message_#{time}"
+          p param[1]
+        end
+
+      end
+    end
+    #p params
+
     # service = ProgramModuleService.new(
     #   params[:planned_date],
     #   params[:recipients],

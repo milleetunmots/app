@@ -154,10 +154,13 @@ class Child < ApplicationRecord
 
     # 3- also update all strict siblings
     # nb: we do this one by one to trigger paper_trail
-    strict_siblings.without_support.each do |child|
+    siblings.without_support.each do |child|
       child.child_support_id = child_support.id
-      child.tag_list = all_tags
       child.save(validate: false)
+    end
+
+    strict_siblings.each do |child|
+      child.tag_list = all_tags
     end
   end
 
@@ -228,15 +231,11 @@ class Child < ApplicationRecord
   scope :without_group, -> { where(group_id: nil) }
 
   def self.with_parent_to_contact
-    where(should_contact_parent1: true).or(
-      where(should_contact_parent2: true)
-    )
+    where(should_contact_parent1: true).or(where(should_contact_parent2: true))
   end
 
   def self.parent_id_in(*v)
-    where(parent1_id: v).or(
-      where(parent2_id: v)
-    )
+    where(parent1_id: v).or(where(parent2_id: v))
   end
 
   def self.parent_id_not_in(*v)
@@ -245,16 +244,8 @@ class Child < ApplicationRecord
 
   def self.without_parent_to_contact
     # info: AR simplifies this
-    where(
-      should_contact_parent1: [nil, false],
-      should_contact_parent2: [nil, false]
-    ).or(
-      where(
-        should_contact_parent1: [nil, false],
-        should_contact_parent2: true,
-        parent2_id: nil
-      )
-    )
+    where(should_contact_parent1: [nil, false], should_contact_parent2: [nil, false])
+      .or(where(should_contact_parent1: [nil, false], should_contact_parent2: true, parent2_id: nil))
   end
 
   def self.group_id_in(*v)
@@ -360,10 +351,7 @@ class Child < ApplicationRecord
   end
 
   def parent_events
-    Event.where(
-      related_type: "Parent",
-      related_id: [parent1_id, parent2_id].compact
-    )
+    Event.where(related_type: "Parent", related_id: [parent1_id, parent2_id].compact)
   end
 
   def self.families_count

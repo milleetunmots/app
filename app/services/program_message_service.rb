@@ -25,7 +25,7 @@ class ProgramMessageService
     find_parent_ids_from_tags
     find_parent_ids_from_groups
 
-    @errors << "Aucun parent à contacter." and return self if @parent_ids.empty?
+    @errors << 'Aucun parent à contacter.' and return self if @parent_ids.empty?
 
     format_data_for_spot_hit
     return self if @errors.any?
@@ -47,16 +47,16 @@ class ProgramMessageService
 
   def format_data_for_spot_hit
     # we need to format phone_numbers as hash inn order to include variables
-    if @redirection_target or @variables.include?("PRENOM_ENFANT")
+    if @redirection_target or @variables.include?('PRENOM_ENFANT')
       @recipient_data = {}
 
       Parent.where(id: @parent_ids).find_each do |parent|
         @recipient_data[parent.id.to_s] = {}
 
-        @recipient_data[parent.id.to_s]["PRENOM_ENFANT"] = parent.first_child&.first_name || "votre enfant"
+        @recipient_data[parent.id.to_s]['PRENOM_ENFANT'] = parent.first_child&.first_name || 'votre enfant'
 
         if @redirection_target && parent.first_child.present?
-          @recipient_data[parent.id.to_s]["URL"] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
+          @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
         end
 
       end
@@ -84,7 +84,7 @@ class ProgramMessageService
   end
 
   def check_all_fields_are_present
-    @errors << "Tous les champs doivent être complétés." if !@planned_timestamp.present? || @recipients.empty? || @message.empty?
+    @errors << 'Tous les champs doivent être complétés.' if !@planned_timestamp.present? || @recipients.empty? || @message.empty?
   end
 
   def find_parent_ids_from_tags
