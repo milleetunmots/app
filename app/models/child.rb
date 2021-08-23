@@ -62,18 +62,6 @@ class Child < ApplicationRecord
   has_many :redirection_urls, dependent: :destroy # TODO: use nullify instead?
   has_many :siblings, class_name: :Child, primary_key: :parent1_id, foreign_key: :parent1_id
 
-  # we do not call this 'siblings' because real siblings may have only
-  # one parent in common
-  def strict_siblings
-    self.class.where(parent1_id: parent1_id, parent2_id: parent2_id).where.not(id: id)
-  end
-
-  def all_tags
-    tags = tag_list
-    siblings.each { |child| tags = (tags + child.tag_list).uniq }
-    tags
-  end
-
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
   accepts_nested_attributes_for :parent2
@@ -139,6 +127,34 @@ class Child < ApplicationRecord
     end
   end
 
+  # we do not call this 'siblings' because real siblings may have only
+  # one parent in common
+  def strict_siblings
+    parent2_id ? self.class.where(parent1_id: parent1_id, parent2_id: parent2_id)
+                     .or(self.class.where(parent1_id: parent2_id, parent2_id: parent1_id)).where.not(id: id) :
+      self.class.where(parent1_id: parent1_id)
+          .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+  end
+
+  def true_siblings
+    return [] if id.nil?
+    if parent2_id
+      self.class.where(parent1_id: parent1_id)
+          .or(self.class.where(parent1_id: parent2_id))
+          .or(self.class.where(parent2_id: parent1_id))
+          .or(self.class.where(parent2_id: parent2_id)).where.not(id: id)
+    else
+      self.class.where(parent1_id: parent1_id)
+          .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+    end
+  end
+
+  def all_tags
+    tags = tag_list
+    siblings.each { |child| tags = (tags + child.tag_list).uniq }
+    tags
+  end
+
   # ---------------------------------------------------------------------------
   # support
   # ---------------------------------------------------------------------------
@@ -154,7 +170,7 @@ class Child < ApplicationRecord
 
     # 3- also update all strict siblings
     # nb: we do this one by one to trigger paper_trail
-    siblings.without_support.each do |child|
+    true_siblings.without_support.each do |child|
       child.child_support_id = child_support.id
       child.save(validate: false)
     end

@@ -59,13 +59,13 @@ ActiveAdmin.register_page "Message" do
 
   page_action :recipients do
     render json: {
-      results: get_recipients
+      results: get_recipients(params[:term])
     }
   end
 
   page_action :redirection_targets do
     render json: {
-      results: get_redirection_targets
+      results: get_redirection_targets(params[:term])
     }
   end
 

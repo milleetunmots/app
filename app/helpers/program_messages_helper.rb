@@ -1,9 +1,9 @@
 module ProgramMessagesHelper
 
   def get_recipients(term)
-    (Parent.where("unaccent(CONCAT(first_name, last_name)) ILIKE unaccent(?)", term).decorate +
-        Tag.where("unaccent(name) ILIKE unaccent(?)", term).decorate +
-        Group.where("unaccent(name) ILIKE unaccent(?)", term).decorate
+    (Parent.where("unaccent(CONCAT(first_name, last_name)) ILIKE unaccent(?)", "%#{term}%").decorate +
+        Tag.where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate +
+        Group.where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate
     ).map do |result|
       {
         id: "#{result.object.class.name.underscore}.#{result.id}",
@@ -17,7 +17,7 @@ module ProgramMessagesHelper
 
   def get_redirection_targets(term)
     RedirectionTarget.joins(:medium)
-      .where("media.name ILIKE unaccent(?) and media.url IS NOT NULL", term)
+      .where("media.name ILIKE unaccent(?) and media.url IS NOT NULL", "%#{term}%")
       .decorate.map do |result|
       {
         id: result.id,
@@ -27,7 +27,7 @@ module ProgramMessagesHelper
   end
 
   def get_module(term)
-    SupportModule.where("unaccent(name) ILIKE unaccent(?)", term).decorate
+    SupportModule.where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate
       .map do |result|
       {
         id: result.id,

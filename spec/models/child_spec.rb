@@ -148,12 +148,12 @@ RSpec.describe Child, type: :model do
     end
   end
 
-  describe ".siblings" do
+  describe ".true_siblings" do
     context "returns" do
       it "the child siblings" do
-        expect(@first_child.siblings).to match_array [@second_child, @third_child]
-        expect(@fourth_child.siblings).to match_array [@fifth_child, @sixth_child]
-        expect(@sixth_child.siblings).to match_array [@third_child, @fourth_child, @fifth_child]
+        expect(@first_child.true_siblings).to match_array [@second_child, @third_child]
+        expect(@fourth_child.true_siblings).to match_array [@fifth_child, @sixth_child]
+        expect(@sixth_child.true_siblings).to match_array [@third_child, @fourth_child, @fifth_child]
         expect(Child.all).to match_array @all_children
       end
     end
@@ -173,7 +173,7 @@ RSpec.describe Child, type: :model do
       it "child_support for the child and all their siblings" do
         @first_child.create_support!
         expect(@first_child.child_support).not_to be_nil
-        @first_child.siblings.each do |sibling|
+        @first_child.true_siblings.each do |sibling|
           expect(sibling.child_support).to eq @first_child.child_support
         end
         @first_child.strict_siblings do |sibling|
