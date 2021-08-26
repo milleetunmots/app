@@ -12,6 +12,7 @@ class Ability
 
     can :manage, Child
     can :manage, Task
+    can :manage, PgSearch::Document
     can :read, ActiveAdmin::Page, name: 'Dashboard'
     can :update, AdminUser, id: user.id
 
