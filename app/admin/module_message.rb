@@ -6,29 +6,35 @@ ActiveAdmin.register_page "Messages" do
 
     messages = retrieve_messages(params[:module_to_send])
 
-    form action: admin_messages_program_module_message_path, method: :post, id: "sms-form" do |f|
+    form action: admin_messages_program_module_message_path, method: :post do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
       f.input :recipients, type: :hidden, name: :recipients, value: params[:recipients]
 
-      messages.each do |support_module_week|
+      messages.each_with_index do |support_module_week, week_index|
         div do
-          label support_module_week[0]
-          support_module_week[1].each do |message|
-            div do
-              label message[0]
-              textarea name: "#{support_module_week[0]}_#{message[0]}" do
-                message[1]
-              end
-              div class: "datetime-container" do
-                input type: "text",
+          label "Semaine #{week_index + 1}"
+          columns do
+            support_module_week[1].each_with_index do |message, message_index|
+              column do
+                div do
+                  label "Message #{message_index + 1}"
+                  textarea name: "#{support_module_week[0]}_#{message[0]}" do
+                    message[1]
+                  end
+                  div class: "datetime-container" do
+                    input type: "text",
                       name: "planned_date_#{support_module_week[0]}_#{message[0]}",
                       class: "datepicker hasDatePicker",
                       style: "margin-right: 20px;",
                       value: params[:planned_date]
-                input type: "time",
+
+                    input type: "time",
                       name: "planned_hour_#{support_module_week[0]}_#{message[0]}",
-                      value: Time.zone.now.strftime("%H:%M")
-              end
+                      value: "12:30"
+
+                  end
+                end
+                end
             end
           end
         end
@@ -69,6 +75,7 @@ ActiveAdmin.register_page "Messages" do
       ).call
       if service.errors.any?
         redirect_back(fallback_location: root_path, alert: service.errors.join("\n"))
+        return
       end
     end
     redirect_back(fallback_location: root_path, notice: "Module programmé")
