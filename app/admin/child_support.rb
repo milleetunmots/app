@@ -158,6 +158,22 @@ ActiveAdmin.register ChildSupport do
               end
             end
           end
+          columns do
+            column do
+              f.input :present_on,
+                collection: social_network_collection,
+                multiple: true,
+                input_html: {data: {select2: {tokenSeparators: [";"]}}}
+            end
+          end
+          columns do
+            column do
+              f.input :follow_us_on,
+                collection: our_social_network_collection,
+                multiple: true,
+                input_html: {data: {select2: {tokenSeparators: [";"]}}}
+            end
+          end
         end
         column do
           f.label :important_information
@@ -173,7 +189,11 @@ ActiveAdmin.register ChildSupport do
             end
           end
           tags_input(f)
-          f.input :to_call
+          columns do
+            column do
+              f.input :to_call
+            end
+          end
         end
       end
       tabs do
@@ -282,7 +302,7 @@ ActiveAdmin.register ChildSupport do
 
   base_attributes = %i[
     important_information supporter_id should_be_read book_not_received is_bilingual second_language to_call books_quantity
-  ] + [tags_params]
+  ] + [tags_params] + [{present_on: [], follow_us_on: []}]
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
@@ -334,6 +354,8 @@ ActiveAdmin.register ChildSupport do
           row :should_be_read
           row :is_bilingual
           row :second_language
+          row :present_on
+          row :follow_us_on
           row :tags
           row :created_at
           row :updated_at

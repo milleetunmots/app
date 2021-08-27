@@ -51,4 +51,22 @@ module ActiveAdmin::ChildSupportsHelper
     end
   end
 
+  def social_network_collection
+    ChildSupport::SOCIAL_NETWORK.map do |v|
+      [
+        ChildSupport.human_attribute_name("social_network.#{v}"),
+        v
+      ]
+    end
+  end
+
+  def our_social_network_collection
+    ChildSupport::OUR_SOCIAL_NETWORK.map do |v|
+      [
+        ChildSupport.human_attribute_name("our_social_network.#{v}"),
+        v
+      ]
+    end
+  end
+
 end

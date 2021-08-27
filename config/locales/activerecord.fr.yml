@@ -215,6 +215,8 @@ fr:
         should_contact_parent2: Contacter parent 2 ?
         supporter: Responsable
         to_call: Appel 2 ou 4
+        present_on: Presence sur les reseaux sociaux
+        follow_us_on: Nous suit sur
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
         2_awareness: A conscience de son impact
@@ -239,6 +241,14 @@ fr:
         2_one_to_five: 1-5
         3_five_to_ten: 5-10
         4_more_than_ten: Plus de 10
+      child_support/social_network:
+        1_facebook: Facebook
+        2_whatsapp: WhatsApp
+        3_instagram: Instagram
+      child_support/our_social_network:
+        1_national_facebook: Facebook national
+        2_local_facebook: Facebook local
+        3_whatsapp: WhatsApp
       event: &EVENT
         << : *SHARED
         discarded_at: Mis à la corbeille
