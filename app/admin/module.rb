@@ -34,12 +34,10 @@ ActiveAdmin.register_page "Module" do
 
   page_action :program_module, method: :post do
 
-    messages = retrieve_messages(params[:module_to_send])
-
     redirect_to admin_messages_path(
       planned_date: params[:planned_date],
       recipients: params[:recipients],
-      messages: messages
+      module_to_send: params[:module_to_send]
     )
   end
 

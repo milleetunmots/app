@@ -4,11 +4,13 @@ ActiveAdmin.register_page "Messages" do
 
   content do
 
+    messages = retrieve_messages(params[:module_to_send])
+
     form action: admin_messages_program_module_message_path, method: :post, id: "sms-form" do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
       f.input :recipients, type: :hidden, name: :recipients, value: params[:recipients]
 
-      params[:messages].each do |support_module_week|
+      messages.each do |support_module_week|
         div do
           label support_module_week[0]
           support_module_week[1].each do |message|
