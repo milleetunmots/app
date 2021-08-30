@@ -21,7 +21,7 @@ class Ability
       can :manage, [Medium, SupportModule, MediaFolder, FieldComment, Tag, Event, Child]
       can [:create, :read, :update], [Group, RedirectionUrl, ChildSupport]
     else
-      can :manage, ChildSupport, supporter: user
+      can :manage, ChildSupport, supporter_id: user.id
       can :read, [Group, Medium, RedirectionUrl, Tag, Event, SupportModule, MediaFolder, FieldComment]
       can [:create, :read, :update], Child
     end
