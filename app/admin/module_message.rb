@@ -21,11 +21,12 @@ ActiveAdmin.register_page "Messages" do
                 end
 
                 if message[1][:link]
+                  f.input "link_#{support_module_week[0]}_#{message[0]}",
+                    type: :hidden,
+                    name: "link_#{support_module_week[0]}_#{message[0]}",
+                    value: message[1][:link]
                   div do
-                    # label "Url cible #{message_index + 1}"
-                    select name: "link_#{support_module_week[0]}_#{message[0]}",
-                           value: message[1][:link], hidden: true
-                    small "{URL} disponible"
+                    small "{URL} disponible dans ce message"
                   end
                 end
 
@@ -36,7 +37,6 @@ ActiveAdmin.register_page "Messages" do
                           class: "datepicker hasDatePicker",
                           style: "margin-right: 20px;",
                           value: params[:planned_date]
-
                     input type: "time",
                           name: "planned_hour_#{support_module_week[0]}_#{message[0]}",
                           value: "12:30"
@@ -47,17 +47,17 @@ ActiveAdmin.register_page "Messages" do
             end
           end
         end
-        div class: "actions" do
-          div class: "action input_action" do
-            input type: "submit", value: "Programmer"
-          end
+      end
+
+      div class: "actions" do
+        div class: "action input_action" do
+          input type: "submit", value: "Programmer"
         end
       end
     end
   end
 
   page_action :program_module_message, method: :post do
-
     recipients = params[:recipients].tr('["]', "").delete(" ").split(",")
 
     messages = {}
@@ -66,10 +66,10 @@ ActiveAdmin.register_page "Messages" do
     planned_hours = {}
 
     params.each do |key, value|
-      if key.match?("^support_module_week_[0-9]_message_[0-9]$")
-        messages[key.to_s] = value
-        elsif key.match?
-
+      if key.match?("^body_support_module_week_[0-9]_message_[0-9]$")
+        messages[key.sub("body_", "")] = value
+      elsif key.match?("^link_support_module_week_[0-9]_message_[0-9]$")
+        links[key.sub("link_", "")] = value
       elsif key.match?("^planned_date_")
         planned_dates[key.sub("planned_date_", "")] = value
       elsif key.match?("^planned_hour_")
@@ -82,7 +82,8 @@ ActiveAdmin.register_page "Messages" do
         planned_dates[key],
         planned_hours[key],
         recipients,
-        value
+        value,
+        links[key]
       ).call
       if service.errors.any?
         redirect_back(fallback_location: root_path, alert: service.errors.join("\n"))
@@ -92,9 +93,4 @@ ActiveAdmin.register_page "Messages" do
     redirect_back(fallback_location: root_path, notice: "Module programmé")
   end
 
-  # page_action :redirection_targets do
-  #   render json: {
-  #     results: get_redirection_targets(params[:term])
-  #   }
-  # end
 end

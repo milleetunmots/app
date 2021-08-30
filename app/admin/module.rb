@@ -33,12 +33,19 @@ ActiveAdmin.register_page "Module" do
   end
 
   page_action :program_module, method: :post do
-
-    redirect_to admin_messages_path(
-      planned_date: params[:planned_date],
-      recipients: params[:recipients],
-      module_to_send: params[:module_to_send]
-    )
+    if !Date.parse(params[:planned_date]).monday?
+      redirect_back(fallback_location: root_path, alert: "La date de démarrage doit être un lundi")
+    elsif params[:recipients].nil?
+      redirect_back(fallback_location: root_path, alert: "Choisissez au moins un destinataire")
+    elsif params[:module_to_send].nil?
+      redirect_back(fallback_location: root_path, alert: "Choisissez le module à programmer")
+    else
+      redirect_to admin_messages_path(
+        planned_date: params[:planned_date],
+        recipients: params[:recipients],
+        module_to_send: params[:module_to_send]
+      )
+    end
   end
 
   page_action :recipients do
