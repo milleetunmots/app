@@ -57,4 +57,13 @@ module ProgramMessagesHelper
     end
     result
   end
+
+  def date_update(date)
+    date = Date.strptime(date.to_s, "%Y-%m-%d")
+    returned = date.next_day.to_s if date.monday?
+    returned = date.next_day(2).to_s if date.tuesday?
+    returned = date.next_day.to_s if date.thursday?
+    returned = date.next_day.to_s if date.friday?
+    returned
+  end
 end

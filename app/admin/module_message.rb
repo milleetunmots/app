@@ -2,7 +2,9 @@ ActiveAdmin.register_page "Messages" do
   menu false
 
   content do
+    date = params[:planned_date]
     messages = retrieve_messages(params[:module_to_send])
+
     form action: admin_messages_program_module_message_path, method: :post do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
       f.input :recipients, type: :hidden, name: :recipients, value: params[:recipients]
@@ -31,22 +33,24 @@ ActiveAdmin.register_page "Messages" do
                 end
 
                 div do
+                  date = date_update(date)
                   div class: "datetime-container" do
                     input type: "text",
                           name: "planned_date_#{support_module_week[0]}_#{message[0]}",
                           class: "datepicker hasDatePicker",
                           style: "margin-right: 20px;",
-                          value: params[:planned_date]
+                          value: date
                     input type: "time",
                           name: "planned_hour_#{support_module_week[0]}_#{message[0]}",
-                          value: "12:30"
+                          value: Date.strptime(date.to_s, "%Y-%m-%d").saturday? ? "14:00" : "12:30"
                   end
-
                 end
               end
             end
           end
         end
+        date = Date.strptime(date.to_s, "%Y-%m-%d")
+        date = date.friday? ? date.next_day(3).to_s : date.next_day(2).to_s
       end
 
       div class: "actions" do
