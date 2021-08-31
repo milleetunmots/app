@@ -18,6 +18,8 @@ class Ability
 
 
     if user.team_member?
+      can :manage, ActiveAdmin::Page, name: "Module"
+      can :manage, ActiveAdmin::Page, name: "Messages"
       can :manage, [Medium, SupportModule, MediaFolder, FieldComment, Tag, Event, Child]
       can [:create, :read, :update], [Group, RedirectionUrl, ChildSupport]
     else

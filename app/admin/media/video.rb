@@ -71,9 +71,9 @@ ActiveAdmin.register Media::Video do
     f.semantic_errors
     f.inputs do
       f.input :folder,
-              collection: medium_folder_select_collection,
-              include_blank: 'Aucun (dossier racine)',
-              input_html: { data: { select2: {} } }
+        collection: medium_folder_select_collection,
+        include_blank: 'Aucun (dossier racine)',
+        input_html: {data: {select2: {}}}
       f.input :name
       # f.input :theme,
       #         as: :datalist,

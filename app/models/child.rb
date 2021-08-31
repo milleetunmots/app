@@ -74,7 +74,11 @@ class Child < ApplicationRecord
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :birthdate, presence: true
-  validates :birthdate, date: {after: proc { min_birthdate }, before: proc { max_birthdate }}, on: :create
+  validates :birthdate, date: {
+    after: proc { min_birthdate },
+    before: proc { max_birthdate }
+  },
+                        on: :create
   validates :registration_source, presence: true, inclusion: {in: REGISTRATION_SOURCES}
   validates :registration_source_details, presence: true
   validates :security_code, presence: true
@@ -116,34 +120,38 @@ class Child < ApplicationRecord
   # computes an (integer) number of months old
   def months
     diff = Time.zone.today.month + Time.zone.today.year * 12 - (birthdate.month + birthdate.year * 12)
-    Time.zone.today.day < birthdate.day ? diff - 1 : diff
+    if Time.zone.today.day < birthdate.day
+      diff - 1
+    else
+      diff
+    end
   end
 
   # we do not call this 'siblings' because real siblings may have only
   # one parent in common
   def strict_siblings
     parent2_id ? self.class.where(parent1_id: parent1_id, parent2_id: parent2_id)
-      .or(self.class.where(parent1_id: parent2_id, parent2_id: parent1_id)).where.not(id: id) :
+                     .or(self.class.where(parent1_id: parent2_id, parent2_id: parent1_id)).where.not(id: id) :
       self.class.where(parent1_id: parent1_id)
-        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+          .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
   end
 
   def true_siblings
     return [] if id.nil?
     if parent2_id
       self.class.where(parent1_id: parent1_id)
-        .or(self.class.where(parent1_id: parent2_id))
-        .or(self.class.where(parent2_id: parent1_id))
-        .or(self.class.where(parent2_id: parent2_id)).where.not(id: id)
+          .or(self.class.where(parent1_id: parent2_id))
+          .or(self.class.where(parent2_id: parent1_id))
+          .or(self.class.where(parent2_id: parent2_id)).where.not(id: id)
     else
       self.class.where(parent1_id: parent1_id)
-        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+          .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
     end
   end
 
   def all_tags
     tags = tag_list
-    strict_siblings.each { |child| tags = (tags + child.tag_list).uniq }
+    siblings.each { |child| tags = (tags + child.tag_list).uniq }
     tags
   end
 

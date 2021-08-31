@@ -108,15 +108,18 @@ RSpec.describe ChildSupport, type: :model do
   before(:each) do
     @first_parent = FactoryBot.create(:parent, postal_code: 75006)
     @second_parent = FactoryBot.create(:parent, postal_code: 99999)
+    @third_parent = FactoryBot.create(:parent, postal_code: 88888)
+    @fourth_parent = FactoryBot.create(:parent, postal_code: 55555)
     @group = FactoryBot.create(:group)
-    @first_child = FactoryBot.create(:child, group: @group, registration_source: "pmi", parent1: @first_parent)
-    @second_child = FactoryBot.create(:child, group: @group, has_quit_group: true, parent1: @first_parent, registration_source: "caf")
-    @third_child = FactoryBot.create(:child, registration_source: "pmi", registration_source_details: "Aristide Bamenou", parent1: @second_parent)
+    @first_child = FactoryBot.create(:child, group: @group, registration_source: "pmi", parent1: @first_parent, parent2: @third_parent)
+    @second_child = FactoryBot.create(:child, has_quit_group: true, parent1: @second_parent, parent2: @fourth_parent, registration_source: "caf")
+    @third_child = FactoryBot.create(:child, registration_source: "pmi", registration_source_details: "Aristide Bamenou", parent1: @first_parent, group: @group)
     @admin_user = FactoryBot.create(:admin_user)
-    @first_child_support = FactoryBot.create(:child_support, first_child: @first_child, supporter: @admin_user)
+    @first_child.create_support!
+    @first_child_support = @first_child.child_support
+    @first_child_support.update! supporter: @admin_user
     @second_child_support = FactoryBot.create(:child_support)
     @third_child_support = FactoryBot.create(:child_support, first_child: @second_child)
-    @fourth_child_support = FactoryBot.create(:child_support, first_child: @third_child)
   end
 
   describe "Validations" do
@@ -152,7 +155,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#without_supporter" do
     context "returns" do
       it "Child_support without supporter" do
-        expect(ChildSupport.without_supporter).to match_array [@second_child_support, @third_child_support, @fourth_child_support]
+        expect(ChildSupport.without_supporter).to match_array [@second_child_support, @third_child_support]
       end
     end
   end
@@ -186,7 +189,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#groups_in(*v)" do
     context "returns" do
       it "child supports for child with group in v" do
-        expect(ChildSupport.groups_in(@group.id)).to match_array [@first_child_support, @third_child_support]
+        expect(ChildSupport.groups_in(@group)).to match_array [@first_child_support]
       end
     end
   end
@@ -194,7 +197,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#group_id_in(*v)" do
     context "returns" do
       it "child supports for child with group id in v" do
-        expect(ChildSupport.group_id_in(@group.id)).to match_array [@first_child_support, @third_child_support]
+        expect(ChildSupport.group_id_in(@group.id)).to match_array [@first_child_support]
       end
     end
   end
@@ -210,7 +213,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#registration_sources_in(*v)" do
     context "returns" do
       it "child supports for child with registration sources in v" do
-        expect(ChildSupport.registration_sources_in("pmi")).to match_array [@first_child_support, @fourth_child_support]
+        expect(ChildSupport.registration_sources_in("pmi")).to match_array [@first_child_support]
       end
     end
   end
@@ -218,7 +221,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#registration_sources_details_in(*v)" do
     context "returns" do
       it "child supports for child with registration sources details in v" do
-        expect(ChildSupport.registration_sources_details_in("Aristide Bamenou")).to match_array [@fourth_child_support]
+        expect(ChildSupport.registration_sources_details_in("Aristide Bamenou")).to match_array [@first_child_support]
       end
     end
   end
@@ -226,7 +229,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#postal_code_contains(v)" do
     context "returns" do
       it "child supports for child with parent postal code contains v" do
-        expect(ChildSupport.postal_code_contains(500)).to match_array [@first_child_support, @third_child_support]
+        expect(ChildSupport.postal_code_contains(500)).to match_array [@first_child_support]
       end
     end
   end
@@ -234,7 +237,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#postal_code_ends_with(v)" do
     context "returns" do
       it "child supports for child with parent postal code ends with v" do
-        expect(ChildSupport.postal_code_ends_with(99)).to match_array [@fourth_child_support]
+        expect(ChildSupport.postal_code_ends_with(99)).to match_array [@third_child_support]
       end
     end
   end
@@ -242,7 +245,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#postal_code_equals(v)" do
     context "returns" do
       it "child supports for child with parent postal code equals v" do
-        expect(ChildSupport.postal_code_equals(75006)).to match_array [@first_child_support, @third_child_support]
+        expect(ChildSupport.postal_code_equals(75006)).to match_array [@first_child_support]
       end
     end
   end
@@ -250,7 +253,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#postal_code_starts_with(v)" do
     context "returns" do
       it "child supports for child with parent postal code starts with v" do
-        expect(ChildSupport.postal_code_starts_with(75)).to match_array [@first_child_support, @third_child_support]
+        expect(ChildSupport.postal_code_starts_with(75)).to match_array [@first_child_support]
       end
     end
   end
