@@ -17,7 +17,8 @@ class CreateBuzzExpertEventService
     event = Events::TextMessage.new(
       related: found_parent,
       body: @body,
-      occurred_at: Time.now
+      occurred_at: Time.now,
+      originated_by_app: false
     )
     @errors += event.errors.full_messages and return self unless event.save
 
