@@ -7,6 +7,7 @@ ActiveAdmin.register_page "Messages" do
 
     form action: admin_messages_program_module_message_path, method: :post do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
+      f.input :module_to_send, type: :hidden, name: :module_to_send, value: params[:module_to_send]
       f.input :recipients, type: :hidden, name: :recipients, value: params[:recipients]
 
       messages.each_with_index do |support_module_week, week_index|
@@ -95,6 +96,6 @@ ActiveAdmin.register_page "Messages" do
       end
     end
     redirect_back(fallback_location: root_path, notice: "Module programmé")
+    set_messages_sent(params[:module_to_send])
   end
-
 end

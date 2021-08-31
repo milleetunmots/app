@@ -66,4 +66,12 @@ module ProgramMessagesHelper
     returned = date.next_day.to_s if date.friday?
     returned
   end
+
+  def set_messages_sent(module_to_send)
+    support_module_week_list = SupportModule.find(module_to_send).support_module_weeks
+    support_module_week_list.each do |support_module_week|
+      support_module_week.update! has_been_sent1: true, has_been_sent2: true, has_been_sent3: true
+      support_module_week.update! has_been_sent4: true if support_module_week.additional_medium_id
+    end
+  end
 end
