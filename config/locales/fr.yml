@@ -21,11 +21,11 @@ fr:
     new_import_link: Import CSV
   "false": Non
   inscription_title:
-    form1: "Recevez des livres et des idées pour éveiller votre enfant"
+    form1: "Découvrez nos idées pour éveiller votre enfant"
     form2: "Recevez des livres et des idées pour éveiller votre enfant"
     form3: "Inscrivez des familles à l'accompagnement à distance 1001mots&nbsp;!"
   inscription_banner:
-    form1: "<b>Votre enfant a entre 0 et 24 mois&nbsp;?</b><br/>Inscrivez-vous pour recevoir gratuitement&nbsp;:<ul><li>3 SMS par semaine avec des idées de jeux et des conseils pour éveiller son langage</li><li>des livres adaptés à son âge</li></ul>La famille peut choisir d'arrêter l'accompagnement à n'importe quel moment."
+    form1: "Pour 3€/mois, vous recevrez pendant 3 mois sur votre téléphone des idées et conseils de spécialiste pour éveiller le langage de votre enfant de moins de 2 ans. La formule sera disponible à partir du mois d'octobre, mais vous pouvez vous inscrire dès maintenant!<br><br>==><i>Si vous nous avez connu par nos partenaires (CAF, PMI, crèches, orthophonistes...) ou par d'autres parents accompagnés, utilisez le lien url que vous avez reçu pour vous inscrire)</i>"
     form2: "<b>Votre enfant a entre 0 et 3 ans&nbsp;?</b><br/>Inscrivez-vous pour recevoir gratuitement&nbsp;:<ul><li>3 SMS par semaine avec des idées de jeux et des conseils pour éveiller son langage</li><li>des livres adaptés à son âge</li></ul>La famille peut choisir d'arrêter l'accompagnement à n'importe quel moment."
     form3: "<b>Cet accompagnement est conseillé pour des enfants entre 0 et 3 ans.</b> Nous avons besoin des coordonnées d’au moins un des parents.<br/><br/>La famille recevra gratuitement&nbsp;:<ul><li>3 SMS par semaine avec des idées de jeux et des conseils pour éveiller le langage de l'enfant</li><li>des livres adaptés à son âge</li><li>des appels de professionnels spécialistes de l’éveil langagier</li></ul>La famille peut choisir d'arrêter l'accompagnement à n'importe quel moment."
   inscription_terms_accepted_at_label:
