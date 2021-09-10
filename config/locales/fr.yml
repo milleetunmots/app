@@ -38,7 +38,7 @@ fr:
     parent: "Précisez le nom de la personne qui vous a parlé de 1001mots"
     pro: "Précisez votre nom"
   inscription_success:
-    with_widget: Votre inscription est bien prise en compte. Vous allez recevoir un livre et des SMS avec des idées pour éveiller le langage de votre enfant. 1001mots est une association d'éveil au langage qui lutte contre l'échec scolaire et les inégalités, reposant sur le modèle du don.<br/>Pour nous aider à accompagner plus d'enfants et participer aux frais d'envoi des livres, vous pouvez nous soutenir en faisant un don. En vous inscrivant vous acceptez d'être sollicité pour des appels aux dons. Vous pouvez arrêter à tout moment.
+    with_widget: Votre inscription est bien prise en compte, nous vous recontacterons prochainement pour vous permettre de découvrir nos idées d'éveil par SMS.<br>D'ici là, pour nous aider à accompagner plus d'enfants, vous pouvez nous soutenir en faisant un don.
     without_widget: Votre inscription est bien prise en compte. D'ici quelques semaines, vous allez recevoir des livres et des SMS avec des idées pour éveiller le langage de votre enfant. Vous pouvez arrêter à tout moment.
     pro: "L'inscription a bien été prise en compte. D'ici quelques semaines, les parents vont recevoir des livres et des SMS avec des idées pour éveiller le langage de leur enfant. Ils peuvent arrêter à tout moment."
   is_ambassador: Ambassadeur
