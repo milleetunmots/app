@@ -151,7 +151,7 @@ class Child < ApplicationRecord
 
   def all_tags
     tags = tag_list
-    siblings.each { |child| tags = (tags + child.tag_list).uniq }
+    true_siblings.each { |child| tags = (tags + child.tag_list).uniq }
     tags
   end
 
