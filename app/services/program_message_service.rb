@@ -1,5 +1,7 @@
 class ProgramMessageService
 
+  include ProgramMessagesHelper
+
   attr_reader :errors
 
   def initialize(planned_date, planned_hour, recipients, message, redirection_target_id = nil)
@@ -31,24 +33,24 @@ class ProgramMessageService
     format_data_for_spot_hit
     return self if @errors.any?
 
-    @message += " {URL}" if @redirection_target and !@variables.include?('URL')
-    
+    @message += " {URL}" if @redirection_target && !@variables.include?("URL")
+
     service = SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message).call
     @errors = service.errors if service.errors.any?
     self
   end
 
-  private
+  protected
 
   def get_all_variables
     @variables += @message.scan(/\{(.*?)\}/).transpose[0].uniq
 
-    @errors << 'Veuillez choisir un lien cible.' if @redirection_target.nil? and @variables.include?('URL')
+    @errors << "Veuillez choisir un lien cible." if @redirection_target.nil? && @variables.include?("URL")
   end
 
   def format_data_for_spot_hit
     # we need to format phone_numbers as hash inn order to include variables
-    if @redirection_target or @variables.include?('PRENOM_ENFANT')
+    if @redirection_target || @variables.include?('PRENOM_ENFANT')
       @recipient_data = {}
 
       Parent.where(id: @parent_ids).find_each do |parent|
@@ -77,7 +79,7 @@ class ProgramMessageService
         child_id: parent.first_child.id
       )
       unless redirection_url.save
-        @errors << 'Problème(s) avec l\'url courte.'
+        @errors << "Problème(s) avec l'url courte."
       end
     end
 
@@ -86,6 +88,13 @@ class ProgramMessageService
 
   def check_all_fields_are_present
     @errors << 'Tous les champs doivent être complétés.' if !@planned_timestamp.present? || @recipients.empty? || @message.empty?
+  end
+
+  def find_parent_ids_from_tags
+    @tag_ids.each do |tag_id|
+      # taggable_id = id of the parent in our case
+      @parent_ids += Tagging.by_taggable_type("Parent").by_tag_id(tag_id).pluck(:taggable_id)
+    end
   end
 
   def sort_recipients
@@ -97,13 +106,6 @@ class ProgramMessageService
       elsif recipient_id.include? 'group.'
         @group_ids << recipient_id[/\d+/].to_i
       end
-    end
-  end
-
-  def find_parent_ids_from_tags
-    @tag_ids.each do |tag_id|
-      # taggable_id = id of the parent in our case
-      @parent_ids += Tagging.by_taggable_type('Parent').by_tag_id(tag_id).pluck(:taggable_id)
     end
   end
 

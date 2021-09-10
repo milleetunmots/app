@@ -135,6 +135,16 @@ class ChildSupport < ApplicationRecord
     3_five_to_ten
     4_more_than_ten
   ].freeze
+  SOCIAL_NETWORK = %w[
+    1_facebook
+    2_whatsapp
+    3_instagram
+  ].freeze
+  OUR_SOCIAL_NETWORK = %w[
+    1_national_facebook
+    2_local_facebook
+    3_whatsapp
+  ].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -327,6 +337,22 @@ class ChildSupport < ApplicationRecord
     new.attributes.keys.select{|a| a.starts_with?("call")}
   rescue ArgumentError
     []
+  end
+
+  def present_on
+    super&.split(";")
+  end
+
+  def follow_us_on
+    super&.split(";")
+  end
+
+  def present_on=(val)
+    super(val.reject(&:blank?).join(";"))
+  end
+
+  def follow_us_on=(val)
+    super(val.reject(&:blank?).join(";"))
   end
 
   # ---------------------------------------------------------------------------
