@@ -34,7 +34,7 @@ ActiveAdmin.register_page "Messages" do
                 end
 
                 div do
-                  date = date_update(date)
+                  date = support_module_week[1].length == 3 ? three_messages_date_update(date) : four_messages_date_update(date)
                   div class: "datetime-container" do
                     input type: "text",
                           name: "planned_date_#{support_module_week[0]}_#{message[0]}",
