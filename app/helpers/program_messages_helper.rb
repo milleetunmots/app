@@ -38,7 +38,7 @@ module ProgramMessagesHelper
 
   def retrieve_messages(module_to_send)
     result = {}
-    support_module_week_list = SupportModule.find(module_to_send).support_module_weeks
+    support_module_week_list = SupportModuleWeek.where("support_module_id = ?", module_to_send)
     support_module_week_list.each_with_index do |support_module_week, index|
       result["support_module_week_#{index + 1}"] = {message_1: {}, message_2: {}, message_3: {}}
       text_message_bundle = Medium.find(support_module_week.medium_id)
@@ -58,21 +58,15 @@ module ProgramMessagesHelper
     result
   end
 
-  def three_messages_date_update(date)
-    date = Date.strptime(date.to_s, "%Y-%m-%d")
-    returned = date.next_day.to_s if date.monday?
-    returned = date.next_day(2).to_s if date.tuesday?
-    returned = date.next_day(2).to_s if date.thursday?
-    returned
-  end
-
-  def four_messages_date_update(date)
-    date = Date.strptime(date.to_s, "%Y-%m-%d")
-    returned = date.next_day.to_s if date.monday?
-    returned = date.next_day(2).to_s if date.tuesday?
-    returned = date.next_day.to_s if date.thursday?
-    returned = date.next_day.to_s if date.friday?
-    returned
+  def manage_messages_date(date, support_module_week)
+    return date.next_day(2) if date.tuesday?
+    return date.next_day(3) if date.saturday?
+    if support_module_week.length == 3
+      return date.next_day(2) if date.thursday?
+    else
+      return date.next_day if date.thursday?
+      return date.next_day if date.friday?
+    end
   end
 
   def set_messages_sent(module_to_send)
