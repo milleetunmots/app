@@ -1,8 +1,9 @@
-class SpotHit::SendSmsService < SpotHit::SendMessageService
+class SpotHit::SendMmsService < SpotHit::SendMessageService
   def call
-    uri = URI("https://www.spot-hit.fr/api/envoyer/sms")
+    uri = URI("https://www.spot-hit.fr/api/envoyer/mms")
     form = {
       "key" => ENV["SPOT_HIT_API_KEY"],
+      "fichier" => @file,
       "destinataires" => {},
       "message" => @message,
       "date" => @planned_timestamp,

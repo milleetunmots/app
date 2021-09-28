@@ -5,14 +5,14 @@ RSpec.describe ProgramMessageService do
   let_it_be(:parent_1, reload: true) { FactoryBot.create(:parent, first_name: 'Sami') }
   let_it_be(:parent_2, reload: true) { FactoryBot.create(:parent, phone_number: '+33563333333', first_name: 'Fabien') }
   let_it_be(:parent_3, reload: true) { FactoryBot.create(:parent, first_name: 'Aristide') }
-    
+
   let_it_be(:tag_1, reload: true) { FactoryBot.create(:tag, name: 'giga') }
   let_it_be(:tag_2, reload: true) { FactoryBot.create(:tag, name: 'bien') }
 
   let_it_be(:tagging_2, reload: true) { FactoryBot.create(:tagging, tag_id: tag_2.id, taggable_id: parent_3.id) }
 
   let_it_be(:group, reload: true) { FactoryBot.create(:group, name: 'group 1') }
-  
+
   let_it_be(:medium, reload: true) { FactoryBot.create(:medium, url: 'http://google.com') }
   let_it_be(:redirection_target, reload: true) { FactoryBot.create(:redirection_target, medium_id: medium.id) }
 
@@ -156,6 +156,7 @@ RSpec.describe ProgramMessageService do
         Time.zone.now.strftime('%H:%M'),
         ["parent.#{parent_2.id}"],
         'N\'oubliez pas que {URL} doit faire du sport.',
+        nil,
         redirection_target.id
       ).call
     end
@@ -167,7 +168,7 @@ RSpec.describe ProgramMessageService do
           { parent_2.id.to_s => {
             'PRENOM_ENFANT' => parent_2.first_child.first_name,
             'URL' => 'http://localhost:3000/r/95/c6'
-            } 
+            }
           },
           Time.zone.parse("#{Date.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           'N\'oubliez l\'importance du sport. {URL}'
@@ -180,6 +181,7 @@ RSpec.describe ProgramMessageService do
         Time.zone.now.strftime('%H:%M'),
         ["parent.#{parent_2.id}"],
         'N\'oubliez l\'importance du sport.',
+        nil,
         redirection_target.id
       ).call
     end

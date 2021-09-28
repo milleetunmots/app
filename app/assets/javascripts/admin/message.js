@@ -43,5 +43,15 @@ $(document).ready(function() {
       delay: 250
     },
   });
-  
+
+  $('#image_to_send').select2({
+    width: '100%',
+    placeholder: "Choisissez une image",
+    allowClear: true,
+    ajax: {
+      url: '/admin/message/image_to_send',
+      dataType: 'json',
+      delay: 250
+    },
+  });
 });
