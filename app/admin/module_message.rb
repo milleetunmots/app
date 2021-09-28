@@ -25,13 +25,21 @@ ActiveAdmin.register_page "Messages" do
                     end
                   end
 
-                  if message[1][:link]
-                    f.input "link_#{support_module_week[0]}_#{message[0]}",
-                      type: :hidden,
-                      name: "link_#{support_module_week[0]}_#{message[0]}",
-                      value: message[1][:link]
-                    div do
+                  div do
+                    if message[1][:link]
+                      f.input "link_#{support_module_week[0]}_#{message[0]}",
+                        type: :hidden,
+                        name: "link_#{support_module_week[0]}_#{message[0]}",
+                        value: message[1][:link]
                       small "{URL} disponible dans ce message"
+                    end
+
+                    if message[1][:file]
+                      f.input "file_#{support_module_week[0]}_#{message[0]}",
+                        type: :hidden,
+                        name: "file_#{support_module_week[0]}_#{message[0]}",
+                        value: message[1][:file].spot_hit_id
+                      small "Il y a l'image #{message[1][:file].name} dans ce message"
                     end
                   end
 
@@ -68,6 +76,7 @@ ActiveAdmin.register_page "Messages" do
 
     messages = {}
     links = {}
+    files = {}
     planned_dates = {}
     planned_hours = {}
 
@@ -76,6 +85,8 @@ ActiveAdmin.register_page "Messages" do
         messages[key.sub("body_", "")] = value
       elsif key.match?("^link_support_module_week_[0-9]_message_[0-9]$")
         links[key.sub("link_", "")] = value
+      elsif key.match?("^file_support_module_week_[0-9]_message_[0-9]$")
+        files[key.sub("file_", "")] = value
       elsif key.match?("^planned_date_")
         planned_dates[key.sub("planned_date_", "")] = value
       elsif key.match?("^planned_hour_")
@@ -95,6 +106,7 @@ ActiveAdmin.register_page "Messages" do
             planned_hours[key],
             recipients,
             value,
+            files[key],
             links[key]
           ).call
           if service.errors.any?
