@@ -27,19 +27,30 @@ ActiveAdmin.register_page "Messages" do
 
                   div do
                     if message[1][:link]
-                      f.input "link_#{support_module_week[0]}_#{message[0]}",
+                      f.input RedirectionTarget.find((message[1][:link]).to_i).medium_name,
                         type: :hidden,
                         name: "link_#{support_module_week[0]}_#{message[0]}",
                         value: message[1][:link]
-                      small "{URL} disponible dans ce message"
+                      button do
+                        link_to(
+                          "Lien: #{RedirectionTarget.find(message[1][:link]).medium_name}",
+                          [:admin, RedirectionTarget.find(message[1][:link]).medium],
+                          target: "_blank"
+                        )
+                      end
                     end
-
                     if message[1][:file]
-                      f.input "file_#{support_module_week[0]}_#{message[0]}",
+                      f.input message[1][:file].name,
                         type: :hidden,
                         name: "file_#{support_module_week[0]}_#{message[0]}",
                         value: message[1][:file].spot_hit_id
-                      small "Il y a l'image #{message[1][:file].name} dans ce message"
+                      button do
+                        link_to(
+                          "Image: #{Medium.find(message[1][:file].id).name}",
+                          admin_media_image_path(message[1][:file].id),
+                          target: "_blank"
+                        )
+                      end
                     end
                   end
 
@@ -115,8 +126,8 @@ ActiveAdmin.register_page "Messages" do
           end
         end
       end
-    rescue
-      redirect_back(fallback_location: root_path, alert: alert)
+    rescue StandardError => e
+      redirect_back(fallback_location: root_path, alert: e.message.truncate(200))
     else
       set_messages_sent(params[:module_to_send])
       flash[:notice] = "Module programmé"
