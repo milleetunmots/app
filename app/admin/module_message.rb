@@ -25,13 +25,13 @@ ActiveAdmin.register_page "Messages" do
                     end
                   end
 
-                  div do
+                  div id: "message-attachment" do
                     if message[1][:link]
                       f.input RedirectionTarget.find((message[1][:link]).to_i).medium_name,
                         type: :hidden,
                         name: "link_#{support_module_week[0]}_#{message[0]}",
                         value: message[1][:link]
-                      button do
+                      div class: "message-variable" do
                         link_to(
                           "Lien: #{RedirectionTarget.find(message[1][:link]).medium_name}",
                           [:admin, RedirectionTarget.find(message[1][:link]).medium],
@@ -44,7 +44,7 @@ ActiveAdmin.register_page "Messages" do
                         type: :hidden,
                         name: "file_#{support_module_week[0]}_#{message[0]}",
                         value: message[1][:file].spot_hit_id
-                      button do
+                      div class: "message-variable" do
                         link_to(
                           "Image: #{Medium.find(message[1][:file].id).name}",
                           admin_media_image_path(message[1][:file].id),
