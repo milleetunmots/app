@@ -249,6 +249,12 @@ fr:
         1_national_facebook: Facebook national
         2_local_facebook: Facebook local
         3_whatsapp: WhatsApp
+      child_support/book_not_received:
+        1_first_book: Livre 1
+        2_second_book: Livre 2
+        3_third_book: Livre 3
+        4_fourth_book: Livre 4
+        5_fifth_book: Livre 5
       event: &EVENT
         << : *SHARED
         discarded_at: Mis à la corbeille
