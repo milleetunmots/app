@@ -145,6 +145,13 @@ class ChildSupport < ApplicationRecord
     2_local_facebook
     3_whatsapp
   ].freeze
+  BOOK_NOT_RECEIVED = %w[
+    1_first_book
+    2_second_book
+    3_third_book
+    4_fourth_book
+    5_fifth_book
+  ].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -343,6 +350,10 @@ class ChildSupport < ApplicationRecord
     super&.split(";")
   end
 
+  def book_not_received
+    super&.split(";")
+  end
+
   def follow_us_on
     super&.split(";")
   end
@@ -352,6 +363,10 @@ class ChildSupport < ApplicationRecord
   end
 
   def follow_us_on=(val)
+    super(val.reject(&:blank?).join(";"))
+  end
+
+  def book_not_received=(val)
     super(val.reject(&:blank?).join(";"))
   end
 

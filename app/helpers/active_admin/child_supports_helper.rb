@@ -59,4 +59,8 @@ module ActiveAdmin::ChildSupportsHelper
     ChildSupport::OUR_SOCIAL_NETWORK.map { |v| ChildSupport.human_attribute_name("our_social_network.#{v}") }
   end
 
+  def book_not_received_collection
+    ChildSupport::BOOK_NOT_RECEIVED.map { |v| ChildSupport.human_attribute_name("book_not_received.#{v}") }
+  end
+
 end
