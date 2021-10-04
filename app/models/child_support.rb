@@ -206,8 +206,11 @@ class ChildSupport < ApplicationRecord
   scope :without_supporter, -> { where(supporter_id: nil) }
   scope :call_2_4, -> {
     where("call1_status ILIKE ?", "ko")
+      .or(where("call3_status ILIKE ?", "ko"))
       .or(where(call1_parent_progress: "1_low"))
       .or(where(call1_parent_progress: "2_medium"))
+      .or(where(call3_parent_progress: "1_low"))
+      .or(where(call3_parent_progress: "2_medium"))
       .or(where(to_call: true))
   }
 
