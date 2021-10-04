@@ -104,6 +104,7 @@ ActiveAdmin.register Task do
 
   controller do
     def build_new_resource
+      flash.now[:alert] = "Pour un livre non reçu, merci de ne pas attribuer de tâche, cocher la/les case(s) correspondante(s) dans le Suivi" if params["task"]["related_type"] == "ChildSupport"
       resource = super
       resource.reporter = current_admin_user
       resource
