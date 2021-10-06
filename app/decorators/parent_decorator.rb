@@ -117,6 +117,10 @@ class ParentDecorator < BaseDecorator
     model.events.text_messages.kept.count
   end
 
+  def parent_groups
+    model.children.decorate.map(&:group_name).join("\n")
+  end
+
   private
 
   def child(child)

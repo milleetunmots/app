@@ -416,6 +416,8 @@ ActiveAdmin.register Child do
     column :city_name
     column :postal_code
 
+    column :child_group_name
+
     column :parent1_gender
     column :parent1_first_name
     column :parent1_last_name
@@ -435,7 +437,6 @@ ActiveAdmin.register Child do
     column :registration_source
     column :registration_source_details
 
-    column :group_name
     column :has_quit_group
 
     column :family_text_messages_count
