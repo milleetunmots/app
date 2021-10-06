@@ -62,9 +62,9 @@ ActiveAdmin.register Media::Image do
       row :file do |decorated|
         decorated.file_link_tag(max_height: '500px')
       end
-      row :buzz_expert_file do |decorated|
-        decorated.buzz_expert_file_link_tag
-      end
+      # row :buzz_expert_file do |decorated|
+      #   decorated.buzz_expert_file_link_tag
+      # end
       row :created_at
       row :discarded_at
     end

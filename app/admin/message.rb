@@ -32,6 +32,11 @@ ActiveAdmin.register_page "Message" do
         small "Variables disponibles: {PRENOM_ENFANT}, {URL}"
       end
 
+      div do
+        label "Image"
+        select name: "image_to_send", id: "image_to_send"
+      end
+
       div class: "actions" do
         div class: "action input_action" do
           input type: "submit", value: "Valider"
@@ -47,6 +52,7 @@ ActiveAdmin.register_page "Message" do
       params[:planned_hour],
       params[:recipients],
       params[:message],
+      get_spot_hit_file(params[:image_to_send]),
       params[:redirection_target]
     ).call
 
@@ -69,4 +75,9 @@ ActiveAdmin.register_page "Message" do
     }
   end
 
+  page_action :image_to_send do
+    render json: {
+      results: get_image_to_send(params[:term])
+    }
+  end
 end

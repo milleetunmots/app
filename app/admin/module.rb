@@ -5,7 +5,6 @@ ActiveAdmin.register_page "Module" do
   menu priority: 12, parent: "Programmer des envois"
 
   content do
-
     form action: admin_module_program_module_path, method: :post, id: "sms-form" do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
 
@@ -33,12 +32,26 @@ ActiveAdmin.register_page "Module" do
   end
 
   page_action :program_module, method: :post do
-    if !Date.parse(params[:planned_date]).monday?
-      redirect_back(fallback_location: root_path, alert: "La date de démarrage doit être un lundi")
+    if !Date.parse(params[:planned_date]).tuesday?
+      redirect_back(
+        fallback_location: root_path,
+        alert: "La date de démarrage doit être un mardi"
+      )
+    elsif Date.parse(params[:planned_date]).past?
+      redirect_back(
+        fallback_location: root_path,
+        alert: "Choisissez une date ultérieure s'il vous plait."
+      )
     elsif params[:recipients].nil?
-      redirect_back(fallback_location: root_path, alert: "Choisissez au moins un destinataire")
+      redirect_back(
+        fallback_location: root_path,
+        alert: "Choisissez au moins un destinataire s'il vous plait."
+      )
     elsif params[:module_to_send].nil?
-      redirect_back(fallback_location: root_path, alert: "Choisissez le module à programmer")
+      redirect_back(
+        fallback_location: root_path,
+        alert: "Choisissez le module à programmer s'il vous plait."
+      )
     else
       redirect_to admin_messages_path(
         planned_date: params[:planned_date],
@@ -59,5 +72,4 @@ ActiveAdmin.register_page "Module" do
       results: get_module(params[:term])
     }
   end
-
 end

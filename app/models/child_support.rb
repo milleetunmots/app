@@ -145,6 +145,13 @@ class ChildSupport < ApplicationRecord
     2_local_facebook
     3_whatsapp
   ].freeze
+  BOOK_NOT_RECEIVED = %w[
+    1_first_book
+    2_second_book
+    3_third_book
+    4_fourth_book
+    5_fifth_book
+  ].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -198,9 +205,12 @@ class ChildSupport < ApplicationRecord
   scope :supported_by, ->(model) { where(supporter: model) }
   scope :without_supporter, -> { where(supporter_id: nil) }
   scope :call_2_4, -> {
-    where("call1_status ILIKE ?", "ko")
-      .or(where(call1_parent_progress: "1_low"))
-      .or(where(call1_parent_progress: "2_medium"))
+    where("call1_status ILIKE ? AND call3_status = ?", "ko", "")
+      .or(where("call3_status ILIKE ?", "ko"))
+      .or(where("call1_parent_progress = ? AND call3_parent_progress = ?", "1_low", ""))
+      .or(where("call1_parent_progress = ? AND call3_parent_progress = ?", "2_medium", ""))
+      .or(where(call3_parent_progress: "1_low"))
+      .or(where(call3_parent_progress: "2_medium"))
       .or(where(to_call: true))
   }
 
@@ -343,6 +353,10 @@ class ChildSupport < ApplicationRecord
     super&.split(";")
   end
 
+  def book_not_received
+    super&.split(";")
+  end
+
   def follow_us_on
     super&.split(";")
   end
@@ -352,6 +366,10 @@ class ChildSupport < ApplicationRecord
   end
 
   def follow_us_on=(val)
+    super(val.reject(&:blank?).join(";"))
+  end
+
+  def book_not_received=(val)
     super(val.reject(&:blank?).join(";"))
   end
 

@@ -185,7 +185,10 @@ ActiveAdmin.register ChildSupport do
             end
             column do
               f.input :should_be_read
-              f.input :book_not_received
+              f.input :book_not_received,
+                collection: book_not_received_collection,
+                multiple: true,
+                input_html: {data: {select2: {tokenSeparators: [";"]}}}
             end
           end
           tags_input(f)
@@ -301,8 +304,8 @@ ActiveAdmin.register ChildSupport do
   end
 
   base_attributes = %i[
-    important_information supporter_id should_be_read book_not_received is_bilingual second_language to_call books_quantity
-  ] + [tags_params] + [{present_on: [], follow_us_on: []}]
+    important_information supporter_id should_be_read is_bilingual second_language to_call books_quantity
+  ] + [tags_params] + [{book_not_received: [], present_on: [], follow_us_on: []}]
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
@@ -394,8 +397,9 @@ ActiveAdmin.register ChildSupport do
   csv do
     column :id
     column(:supporter) { |cs| cs.supporter_name }
-    column :children_registration_sources
     column(:parent1_gender) { |cs| Parent.human_attribute_name("gender.#{cs.parent1_gender}") }
+    column :children_registration_sources
+    column :child_support_groups
     column :parent1_first_name
     column :parent1_last_name
     column :parent1_phone_number_national

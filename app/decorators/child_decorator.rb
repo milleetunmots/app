@@ -1,5 +1,16 @@
 class ChildDecorator < BaseDecorator
 
+  GENDER_COLORS = {
+    m: :blue,
+    f: :rose,
+    x: :grey
+  }
+  GENDER_CLASSES = {
+    m: :male,
+    f: :female,
+    x: :unknown
+  }
+
   def admin_link(options = {})
     super(options.merge(class: GENDER_COLORS[safe_gender.to_sym]))
   end
@@ -15,15 +26,15 @@ class ChildDecorator < BaseDecorator
   end
 
   def age
-    h.t 'child_age.months', months: model.months
+    h.t "child_age.months", months: model.months
   end
 
   def age_in_months_or_years
     months = model.months
     if months < 24
-      h.t 'child_age.months', months: months
+      h.t "child_age.months", months: months
     else
-      h.t 'child_age.years', years: (months / 12).floor
+      h.t "child_age.years", years: (months / 12).floor
     end
   end
 
@@ -31,19 +42,8 @@ class ChildDecorator < BaseDecorator
     h.l model.birthdate, format: :default
   end
 
-  GENDER_COLORS = {
-    m: :blue,
-    f: :rose,
-    x: :grey
-  }
-  GENDER_CLASSES = {
-    m: :male,
-    f: :female,
-    x: :unknown
-  }
-
   def safe_gender
-    model.gender.presence || 'x'
+    model.gender.presence || "x"
   end
 
   def gender_status
@@ -61,17 +61,16 @@ class ChildDecorator < BaseDecorator
 
     txt = options.delete(:label) || name
     if with_icon
-      txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + txt
+      txt = h.content_tag(:i, "", class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + txt
     end
     h.content_tag :span do
-      (
-        h.content_tag(:span, txt, { class: "txt-#{GENDER_COLORS[safe_gender.to_sym]}" }.merge(options))
-      ) + ' (' + age + ')'
+      h.content_tag(:span, txt, {class: "txt-#{GENDER_COLORS[safe_gender.to_sym]}"}.merge(options))
+      + " (" + age + ")"
     end
   end
 
   def name
-    [model.first_name, model.last_name].join ' '
+    [model.first_name, model.last_name].join " "
   end
 
   def parent1
@@ -93,7 +92,7 @@ class ChildDecorator < BaseDecorator
   def group
     options = {}
     if model.has_quit_group?
-      options[:class] = 'quit'
+      options[:class] = "quit"
     end
     model.group&.decorate&.admin_link(options)
   end
@@ -166,6 +165,10 @@ class ChildDecorator < BaseDecorator
     model.parent1.decorate.full_address
   end
 
+  def child_group_name
+    model.group&.name
+  end
+
   private
 
   def decorated_parent1
@@ -179,7 +182,7 @@ class ChildDecorator < BaseDecorator
   def parent(decorated_parent, should_contact_parent)
     return nil unless decorated_parent
     options = {}
-    options[:class] = 'txt-underline' if should_contact_parent
+    options[:class] = "txt-underline" if should_contact_parent
     decorated_parent.admin_link(options)
   end
 

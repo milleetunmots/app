@@ -187,6 +187,8 @@ ActiveAdmin.register Parent do
     column :city_name
     column :postal_code
 
+    column :parent_groups
+
     column :job
     column :is_ambassador
 

@@ -5,7 +5,8 @@ namespace :spothit do
     Media::Image.where(spot_hit_id: nil).find_each do |image|
       sleep(1)
       service = SpotHit::UploadMediaService.new(image).call
-      fail service.errors.join(', ') if service.errors.any?
+      next if service.errors.any?
+      # fail service.errors.join(', ') if service.errors.any?
     end
   end
 end

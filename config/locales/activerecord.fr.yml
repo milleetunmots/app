@@ -71,7 +71,7 @@ fr:
         first_name: Prénom
         gender: Sexe
         group: Cohorte
-        group_name: Nom de la cohorte
+        child_group_name: Cohorte
         has_quit_group: Cohorte en pause
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres
@@ -190,6 +190,7 @@ fr:
         children_genders: Sexe des enfants
         children_registration_sources: Origines des enfants
         groups: Cohortes
+        child_support_groups: Cohortes
         important_information: Infos importantes (langue maternelle, présence du père, ...)
         is_bilingual: Bilinguisme
         letterbox_name: Nom sur la boîte aux lettres
@@ -249,6 +250,12 @@ fr:
         1_national_facebook: Facebook national
         2_local_facebook: Facebook local
         3_whatsapp: WhatsApp
+      child_support/book_not_received:
+        1_first_book: Livre 1
+        2_second_book: Livre 2
+        3_third_book: Livre 3
+        4_fourth_book: Livre 4
+        5_fifth_book: Livre 5
       event: &EVENT
         << : *SHARED
         discarded_at: Mis à la corbeille
@@ -348,6 +355,7 @@ fr:
         phone_number: Téléphone
         phone_number_national: Téléphone
         postal_code: Code postal
+        parent_groups: Cohortes
         redirection_unique_visit_rate: "Taux de visites uniques d'URL courtes"
         redirection_unique_visits: URL visitées
         redirection_url_unique_visits_count: "Visites uniques d'URL courtes"

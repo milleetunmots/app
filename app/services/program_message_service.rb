@@ -4,10 +4,11 @@ class ProgramMessageService
 
   attr_reader :errors
 
-  def initialize(planned_date, planned_hour, recipients, message, redirection_target_id = nil)
+  def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil)
     @planned_timestamp = Time.zone.parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []
     @message = message
+    @file = file
     @tag_ids = []
     @parent_ids = []
     @redirection_target = RedirectionTarget.find(redirection_target_id) if redirection_target_id
@@ -35,7 +36,12 @@ class ProgramMessageService
 
     @message += " {URL}" if @redirection_target && !@variables.include?("URL")
 
-    service = SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message).call
+    service = if @file.nil?
+      SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message).call
+    else
+      SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, @file).call
+    end
+
     @errors = service.errors if service.errors.any?
     self
   end
