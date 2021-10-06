@@ -397,8 +397,9 @@ ActiveAdmin.register ChildSupport do
   csv do
     column :id
     column(:supporter) { |cs| cs.supporter_name }
-    column :children_registration_sources
     column(:parent1_gender) { |cs| Parent.human_attribute_name("gender.#{cs.parent1_gender}") }
+    column :children_registration_sources
+    column :child_support_groups
     column :parent1_first_name
     column :parent1_last_name
     column :parent1_phone_number_national

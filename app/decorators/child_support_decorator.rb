@@ -1,5 +1,12 @@
 class ChildSupportDecorator < BaseDecorator
 
+  PROGRESS_COLORS = {
+    1 => :red,
+    2 => :yellow,
+    3 => :green,
+    4 => :blue
+  }
+
   def admin_link
     h.auto_link model
   end
@@ -40,12 +47,9 @@ class ChildSupportDecorator < BaseDecorator
     children_attribute(:gender, glue)
   end
 
-  PROGRESS_COLORS = {
-    1 => :red,
-    2 => :yellow,
-    3 => :green,
-    4 => :blue
-  }
+  def children_registration_sources(glue = "\n")
+    children_attribute(:registration_source, glue)
+  end
 
   def parent1
     parent model.parent1
@@ -61,6 +65,52 @@ class ChildSupportDecorator < BaseDecorator
 
   def important_information
     h.content_tag :div, important_information_text, class: 'free-text'
+  end
+
+  def books_quantity
+    if model.books_quantity
+      ChildSupport.human_attribute_name("books_quantity.#{model.books_quantity}")
+    end
+  end
+
+  def present_on
+    model.present_on&.map do |social_network|
+      ChildSupport.human_attribute_name("social_network.#{social_network}")
+    end
+  end
+
+  def follow_us_on
+    model.follow_us_on&.map do |social_network|
+      ChildSupport.human_attribute_name("our_social_network.#{social_network}")
+    end
+  end
+
+  def groups
+    arbre do
+      ul do
+        model.children.decorate.each do |child|
+          li do
+            child.group
+          end
+        end
+      end
+    end
+  end
+
+  def child_support_groups(glue = "\n")
+    children_attribute(:group_name, glue)
+  end
+
+  def registration_sources
+    arbre do
+      ul do
+        model.children.decorate.each do |child|
+          li do
+            child.registration_source
+          end
+        end
+      end
+    end
   end
 
   (1..5).each do |call_idx|
@@ -135,35 +185,19 @@ class ChildSupportDecorator < BaseDecorator
 
   end
 
+  def dropdown_menu_item
+    (
+      [
+        "<b>Suivi ##{model.id}</b>"
+      ] +
+        model.children.decorate.map do |child|
+          child.gendered_name_with_age(with_icon: true)
+        end
+    ).join('<br/>-&nbsp;').html_safe
+  end
+
+
   ###
-
-  def groups
-    arbre do
-      ul do
-        model.children.decorate.each do |child|
-          li do
-            child.group
-          end
-        end
-      end
-    end
-  end
-
-  def registration_sources
-    arbre do
-      ul do
-        model.children.decorate.each do |child|
-          li do
-            child.registration_source
-          end
-        end
-      end
-    end
-  end
-
-  def children_registration_sources(glue = ";")
-    children_attribute(:registration_source, glue)
-  end
 
   # def parent1_card
   #   parent_card model.parent1, model.should_contact_parent1
@@ -178,35 +212,6 @@ class ChildSupportDecorator < BaseDecorator
   #     h.render 'child', child: child.decorate
   #   end
   # end
-
-  def dropdown_menu_item
-    (
-      [
-        "<b>Suivi ##{model.id}</b>"
-      ] +
-      model.children.decorate.map do |child|
-        child.gendered_name_with_age(with_icon: true)
-      end
-    ).join('<br/>-&nbsp;').html_safe
-  end
-
-  def books_quantity
-    if model.books_quantity
-      ChildSupport.human_attribute_name("books_quantity.#{model.books_quantity}")
-    end
-  end
-
-  def present_on
-    model.present_on&.map do |social_network|
-      ChildSupport.human_attribute_name("social_network.#{social_network}")
-    end
-  end
-
-  def follow_us_on
-    model.follow_us_on&.map do |social_network|
-      ChildSupport.human_attribute_name("our_social_network.#{social_network}")
-    end
-  end
 
   private
 
