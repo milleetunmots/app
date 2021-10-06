@@ -40,7 +40,7 @@ ActiveAdmin.register_page "Messages" do
                       end
                     end
                     if message[1][:file]
-                      f.input message[1][:file].name,
+                      f.input message[1][:file],
                         type: :hidden,
                         name: "file_#{support_module_week[0]}_#{message[0]}",
                         value: message[1][:file].spot_hit_id
