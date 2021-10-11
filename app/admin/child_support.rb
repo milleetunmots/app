@@ -298,13 +298,16 @@ ActiveAdmin.register ChildSupport do
             render "admin/events/history", events: f.object.parent_events.order(occurred_at: :desc).decorate
           end
         end
+        tab "Notes" do
+          f.input :notes, as: :text
+        end
       end
     end
     f.actions
   end
 
   base_attributes = %i[
-    important_information supporter_id should_be_read is_bilingual second_language to_call books_quantity
+    important_information supporter_id should_be_read is_bilingual second_language to_call books_quantity notes
   ] + [tags_params] + [{book_not_received: [], present_on: [], follow_us_on: []}]
   parent_attributes = %i[
     id
@@ -389,6 +392,11 @@ ActiveAdmin.register ChildSupport do
       if resource.first_child
         tab "Historique" do
           render "admin/events/history", events: resource.parent_events.order(occurred_at: :desc).decorate
+        end
+      end
+      tab "Notes" do
+        attributes_table title: "Notes" do
+          row :notes
         end
       end
     end
