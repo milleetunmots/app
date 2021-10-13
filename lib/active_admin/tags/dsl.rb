@@ -56,12 +56,12 @@ module ActiveAdmin
             if object.has_attribute? :child_support_id
               if object.child_support_id
                 child_support = ChildSupport.find(object.child_support_id)
-                child_support.update! tag_list (child_support.tag_list + object.tag_list).uniq
+                child_support.update! tag_list: (child_support.tag_list + object.tag_list).uniq
               end
             end
             if object.has_attribute? :children
               object.children.each do |child|
-                child.update! tag_list (child.tag_list + object.tag_list).uniq
+                child.update! tag_list: (child.tag_list + object.tag_list).uniq
                 child.parent1&.update! tag_list: (child.parent1&.tag_list + object.tag_list).uniq
                 child.parent2&.update! tag_list: (child.parent2&.tag_list + object.tag_list).uniq
               end
