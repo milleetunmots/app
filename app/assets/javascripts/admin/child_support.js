@@ -1,9 +1,9 @@
 $(document).ready(function() {
-  let parent1 = $('#child_parent1_id');
-  let parent2 = $('#child_parent2_id');
+  let $parent1 = $('#child_parent1_id');
+  let $parent2 = $('#child_parent2_id');
 
-  let autocompletion = function(input, id) {
-    input.change(function() {
+  let autocompletion = function($input, id) {
+    $input.change(function() {
       $.getJSON(`/parent/${$(id).val()}/first_child`, function(child) {
         $('#child_registration_source').val(child.registration_source).change();
         $('#child_registration_source_details').val(child.registration_source_details);
@@ -27,7 +27,7 @@ $(document).ready(function() {
     })
   }
 
-  autocompletion(parent1, '#child_parent1_id');
-  autocompletion(parent2, '#child_parent2_id');
+  autocompletion($parent1, '#child_parent1_id');
+  autocompletion($parent2, '#child_parent2_id');
 });
 
