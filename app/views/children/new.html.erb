@@ -1,3 +1,4 @@
+<%= google_places_api_tag %>
 <div id="inscription">
 
   <div class="container" id="inscription-content">
@@ -87,9 +88,7 @@
           <h3>Adresse</h3>
           <%= f.simple_fields_for :parent1 do |parent1_f| %>
             <%= parent1_f.input :letterbox_name %>
-            <%= parent1_f.input :address %>
-            <%= parent1_f.input :postal_code %>
-            <%= parent1_f.input :city_name %>
+            <%= address_input parent1_f %>
           <% end %>
         </div>
       </div>
