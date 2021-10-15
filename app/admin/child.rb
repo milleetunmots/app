@@ -399,7 +399,7 @@ ActiveAdmin.register Child do
     redirect_to admin_children_path, notice: "Nettoyage effectué"
   end
 
-  action_item :view, only: :new do
+  action_item :view do
     link_to "Nouveau parent", new_admin_parent_path, target: "_blank"
   end
 
