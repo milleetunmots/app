@@ -244,7 +244,7 @@ class Child < ApplicationRecord
   end
 
   scope :with_group, -> { where.not(group_id: nil) }
-  scope :without_group, -> { where(group_id: nil) }
+  scope :without_group, -> { where(group_id: nil).where.not(id: all.select { |child| child.tag_list.include?("2eme cohorte") }.map(&:id)) }
 
   def self.with_parent_to_contact
     where(should_contact_parent1: true).or(where(should_contact_parent2: true))
@@ -282,7 +282,11 @@ class Child < ApplicationRecord
     where("registration_source_details ILIKE ?", v)
   end
 
-  # ---------------------------------------------------------------------------
+  def self.waiting_second_group
+    where(id: all.select { |child| child.tag_list.include?("2eme cohorte") }.map(&:id))
+  end
+
+  # --------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
 

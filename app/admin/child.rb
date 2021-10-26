@@ -51,6 +51,7 @@ ActiveAdmin.register Child do
 
   scope :without_group, group: :group
   scope :with_group, group: :group
+  scope :waiting_second_group, group: :group
 
   scope :months_between_0_and_12, group: :months
   scope :months_between_12_and_24, group: :months
