@@ -213,13 +213,58 @@ ActiveAdmin.register Child do
   batch_action :generate_quit_sms do |ids|
     @children = batch_action_collection.where(id: ids)
 
-    service = BuzzExpert::ExportChildrenQuitService.new(children: @children).call
-    if service.errors.any?
-      puts "Error: #{service.errors}"
-      flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
+    if @children.without_parent_to_contact.any?
+      flash[:error] = "Certains enfants n'ont aucun parent à contacter"
       redirect_to request.referer
+    end
+
+    latest_parent_id = nil
+    begin
+      @children.order(:parent1_id).each do |child|
+        next if child.child_support&.pursuit == true
+        next if latest_parent_id == child.parent1_id
+        latest_parent_id = child.parent1_id
+
+        date = Time.now.change({hour: 14, min: 30, sec: 0})
+        next_saturday = if date.monday?
+          date.next_day(5)
+        elsif date.tuesday?
+          date.next_day(4)
+        elsif date.wednesday?
+          date.next_day(3)
+        elsif date.thursday?
+          date.next_day(2)
+        elsif date.friday?
+          date.next_day
+        elsif date.sunday?
+          date.next_day(6)
+        else
+          date
+        end
+
+        quit_link = Rails.application.routes.url_helpers.edit_child_url(
+          id: child.id,
+          security_code: child.security_code
+        )
+        message = "Bonjour ! Ca fait 4 mois que je vous envoie des SMS pour votre enfant. Bravo pour tout ce que vous faites pour lui :) Voulez vous continuer à recevoir ces SMS et livres ? Cliquez sur le lien ci-dessous et répondez OUI ! Ca reprendra prochainement ! Je vous souhaite de beaux moments avec vos enfants :) #{quit_link}"
+
+        service = SpotHit::SendSmsService.new(
+          [latest_parent_id],
+          Time.zone.parse(next_saturday.to_s).to_i,
+          message
+        ).call
+        if service.errors.any?
+          alert = service.errors.join("\n")
+          raise StandardError, alert
+        else
+          child.update! has_quit_group: true
+        end
+      end
+    rescue StandardError => e
+      redirect_back(fallback_location: root_path, alert: e.message.truncate(200))
     else
-      send_data service.csv, filename: "Buzz-Expert - Continuation - #{csv_filename}"
+      flash[:notice] = "Message de continuation envoyé"
+      redirect_to admin_sent_by_app_text_messages_url
     end
   end
 
