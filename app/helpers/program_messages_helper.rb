@@ -56,6 +56,8 @@ module ProgramMessagesHelper
     support_module_week_list = SupportModuleWeek.where("support_module_id = ?", module_to_send)
     support_module_week_list.each_with_index do |support_module_week, index|
       result["support_module_week_#{index + 1}"] = {message_1: {}, message_2: {}, message_3: {}}
+      next unless support_module_week.medium_id
+
       text_message_bundle = Medium.find(support_module_week.medium_id)
       result["support_module_week_#{index + 1}"][:message_1][:body] = text_message_bundle.body1
       result["support_module_week_#{index + 1}"][:message_1][:link] = RedirectionTarget.where(medium_id: text_message_bundle.link1_id).first&.id
@@ -66,13 +68,13 @@ module ProgramMessagesHelper
       result["support_module_week_#{index + 1}"][:message_3][:body] = text_message_bundle.body3
       result["support_module_week_#{index + 1}"][:message_3][:link] = RedirectionTarget.where(medium_id: text_message_bundle.link3_id).first&.id
       result["support_module_week_#{index + 1}"][:message_3][:file] = Medium.where("type = ? and id = ?", "Media::Image", text_message_bundle.image3_id).first
-      if support_module_week.additional_medium_id
-        additional_medium = Medium.find(support_module_week.additional_medium_id)
-        result["support_module_week_#{index + 1}"][:message_4] = {}
-        result["support_module_week_#{index + 1}"][:message_4][:body] = additional_medium.body1
-        result["support_module_week_#{index + 1}"][:message_4][:link] = RedirectionTarget.where(medium_id: additional_medium.link1_id).first&.id
-        result["support_module_week_#{index + 1}"][:message_4][:file] = Medium.where("type = ? and id = ?", "Media::Image", text_message_bundle.image1_id).first
-      end
+      next unless support_module_week.additional_medium_id
+
+      additional_medium = Medium.find(support_module_week.additional_medium_id)
+      result["support_module_week_#{index + 1}"][:message_4] = {}
+      result["support_module_week_#{index + 1}"][:message_4][:body] = additional_medium.body1
+      result["support_module_week_#{index + 1}"][:message_4][:link] = RedirectionTarget.where(medium_id: additional_medium.link1_id).first&.id
+      result["support_module_week_#{index + 1}"][:message_4][:file] = Medium.where("type = ? and id = ?", "Media::Image", text_message_bundle.image1_id).first
     end
     result
   end
