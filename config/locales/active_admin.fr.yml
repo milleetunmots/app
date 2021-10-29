@@ -11,7 +11,7 @@ fr:
         addresses_pdf: Générer les étiquettes pour
         quit_group: Mettre en pause la cohorte pour
         generate_buzz_expert: Export Buzz Expert pour
-        generate_quit_sms: Export Buzz Expert de continuation pour
+        generate_quit_sms: Envoi de message de continuation pour
     edit_model: Modifier
     delete_model: Supprimer
     filters:
