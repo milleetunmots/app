@@ -221,27 +221,11 @@ ActiveAdmin.register Child do
     latest_parent_id = nil
     begin
       @children.order(:parent1_id).each do |child|
-        next if child.child_support&.pursuit == true
+        next if child.child_support&.pursuit?
         next if latest_parent_id == child.parent1_id
         latest_parent_id = child.parent1_id
 
-        date = Time.now.change({hour: 14, min: 30, sec: 0})
-        next_saturday = if date.monday?
-          date.next_day(5)
-        elsif date.tuesday?
-          date.next_day(4)
-        elsif date.wednesday?
-          date.next_day(3)
-        elsif date.thursday?
-          date.next_day(2)
-        elsif date.friday?
-          date.next_day
-        elsif date.sunday?
-          date.next_day(6)
-        else
-          date
-        end
-
+        next_saturday = Time.now.beginning_of_week.next_day(5).change({hour: 14, min: 30, sec: 0})
         quit_link = Rails.application.routes.url_helpers.edit_child_url(
           id: child.id,
           security_code: child.security_code
@@ -250,7 +234,7 @@ ActiveAdmin.register Child do
 
         service = SpotHit::SendSmsService.new(
           [latest_parent_id],
-          Time.zone.parse(next_saturday.to_s).to_i,
+          next_saturday.to_i,
           message
         ).call
         if service.errors.any?

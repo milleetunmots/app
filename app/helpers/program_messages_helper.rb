@@ -59,7 +59,7 @@ module ProgramMessagesHelper
       text_message_bundle = Medium.find(support_module_week.medium_id)
       result["support_module_week_#{index + 1}"][:message_1][:body] = text_message_bundle.body1
       result["support_module_week_#{index + 1}"][:message_1][:link] = RedirectionTarget.where(medium_id: text_message_bundle.link1_id).first&.id
-      result["support_module_week_#{index + 1}"][:message_1][:file] = Medium.where("type = ? and id = ?", "Media::Image", text_message_bundle.image1_id).first&.spot_hit_id
+      result["support_module_week_#{index + 1}"][:message_1][:file] = Medium.where("type = ? and id = ?", "Media::Image", text_message_bundle.image1_id).first
       result["support_module_week_#{index + 1}"][:message_2][:body] = text_message_bundle.body2
       result["support_module_week_#{index + 1}"][:message_2][:link] = RedirectionTarget.where(medium_id: text_message_bundle.link2_id).first&.id
       result["support_module_week_#{index + 1}"][:message_2][:file] = Medium.where("type = ? and id = ?", "Media::Image", text_message_bundle.image2_id).first
