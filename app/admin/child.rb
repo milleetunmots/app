@@ -49,7 +49,7 @@ ActiveAdmin.register Child do
 
   scope :all, default: true
 
-  scope :without_group, group: :group
+  scope :without_group_and_not_waiting_second_group, group: :group
   scope :with_group, group: :group
   scope :waiting_second_group, group: :group
 
