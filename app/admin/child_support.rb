@@ -30,7 +30,7 @@ ActiveAdmin.register ChildSupport do
       end
     end
     column :groups
-    column :pursuit
+    column :will_stay_in_group
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -198,7 +198,7 @@ ActiveAdmin.register ChildSupport do
               f.input :to_call
             end
             column do
-              f.input :pursuit
+              f.input :will_stay_in_group
             end
           end
         end
@@ -311,7 +311,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   base_attributes = %i[
-    important_information supporter_id should_be_read is_bilingual second_language to_call books_quantity notes pursuit
+    important_information supporter_id should_be_read is_bilingual second_language to_call books_quantity notes will_stay_in_group
   ] + [tags_params] + [{book_not_received: [], present_on: [], follow_us_on: []}]
   parent_attributes = %i[
     id
@@ -359,7 +359,7 @@ ActiveAdmin.register ChildSupport do
           end
           row :children
           row :to_call
-          row :pursuit
+          row :will_stay_in_group
           row :important_information
           row :book_not_received
           row :should_be_read

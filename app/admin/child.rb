@@ -221,7 +221,7 @@ ActiveAdmin.register Child do
     latest_parent_id = nil
     begin
       @children.order(:parent1_id).each do |child|
-        next if child.child_support&.pursuit?
+        next if child.child_support&.will_stay_in_group?
         next if latest_parent_id == child.parent1_id
         latest_parent_id = child.parent1_id
 

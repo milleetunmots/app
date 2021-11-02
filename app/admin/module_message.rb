@@ -11,62 +11,60 @@ ActiveAdmin.register_page "Messages" do
       f.input :recipients, type: :hidden, name: :recipients, value: params[:recipients]
 
       messages.each_with_index do |support_module_week, week_index|
+        next unless support_module_week
         div do
           label "Semaine #{week_index + 1}"
           hr
           columns do
             support_module_week[1].each_with_index do |message, message_index|
-              unless message[1][:body].blank?
-                column do
-                  div do
-                    label "Message #{message_index + 1}"
-                    textarea name: "body_#{support_module_week[0]}_#{message[0]}" do
-                      message[1][:body]
+              next if message[1][:body].blank?
+              column do
+                div do
+                  label "Message #{message_index + 1}"
+                  textarea name: "body_#{support_module_week[0]}_#{message[0]}" do
+                    message[1][:body]
+                  end
+                end
+                div id: "message-attachment" do
+                  if message[1][:link]
+                    f.input RedirectionTarget.find((message[1][:link]).to_i).medium_name,
+                      type: :hidden,
+                      name: "link_#{support_module_week[0]}_#{message[0]}",
+                      value: message[1][:link]
+                    div class: "message-variable" do
+                      link_to(
+                        "Lien: #{RedirectionTarget.find(message[1][:link]).medium_name}",
+                        [:admin, RedirectionTarget.find(message[1][:link]).medium],
+                        target: "_blank"
+                      )
                     end
                   end
-
-                  div id: "message-attachment" do
-                    if message[1][:link]
-                      f.input RedirectionTarget.find((message[1][:link]).to_i).medium_name,
-                        type: :hidden,
-                        name: "link_#{support_module_week[0]}_#{message[0]}",
-                        value: message[1][:link]
-                      div class: "message-variable" do
-                        link_to(
-                          "Lien: #{RedirectionTarget.find(message[1][:link]).medium_name}",
-                          [:admin, RedirectionTarget.find(message[1][:link]).medium],
-                          target: "_blank"
-                        )
-                      end
-                    end
-                    if message[1][:file]
-                      f.input message[1][:file].name,
-                        type: :hidden,
-                        name: "file_#{support_module_week[0]}_#{message[0]}",
-                        value: message[1][:file].spot_hit_id
-                      div class: "message-variable" do
-                        link_to(
-                          "Image: #{Medium.find(message[1][:file].id).name}",
-                          admin_media_image_path(message[1][:file].id),
-                          target: "_blank"
-                        )
-                      end
+                  if message[1][:file]
+                    f.input message[1][:file].name,
+                      type: :hidden,
+                      name: "file_#{support_module_week[0]}_#{message[0]}",
+                      value: message[1][:file].spot_hit_id
+                    div class: "message-variable" do
+                      link_to(
+                        "Image: #{Medium.find(message[1][:file].id).name}",
+                        admin_media_image_path(message[1][:file].id),
+                        target: "_blank"
+                      )
                     end
                   end
-
-                  div do
-                    div class: "datetime-container" do
-                      input type: "text",
-                            name: "planned_date_#{support_module_week[0]}_#{message[0]}",
-                            class: "datepicker hasDatePicker",
-                            style: "margin-right: 20px;",
-                            value: date
-                      input type: "time",
-                            name: "planned_hour_#{support_module_week[0]}_#{message[0]}",
-                            value: date.saturday? ? "14:00" : "12:30"
-                    end
-                    date = manage_messages_date(date, support_module_week[1])
+                end
+                div do
+                  div class: "datetime-container" do
+                    input type: "text",
+                          name: "planned_date_#{support_module_week[0]}_#{message[0]}",
+                          class: "datepicker hasDatePicker",
+                          style: "margin-right: 20px;",
+                          value: date
+                    input type: "time",
+                          name: "planned_hour_#{support_module_week[0]}_#{message[0]}",
+                          value: date.saturday? ? "14:00" : "12:30"
                   end
+                  date = manage_messages_date(date, support_module_week[1])
                 end
               end
             end
