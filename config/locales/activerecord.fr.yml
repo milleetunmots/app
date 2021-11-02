@@ -208,6 +208,7 @@ fr:
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
         postal_code: Code postal
+        will_stay_in_group: Poursuite de la cohorte
         registration_sources: Origines
         registration_sources_details: Précisions sur l'origine
         second_language: Langue parlée

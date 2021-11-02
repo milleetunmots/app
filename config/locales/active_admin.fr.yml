@@ -11,7 +11,7 @@ fr:
         addresses_pdf: Générer les étiquettes pour
         quit_group: Mettre en pause la cohorte pour
         generate_buzz_expert: Export Buzz Expert pour
-        generate_quit_sms: Export Buzz Expert de continuation pour
+        generate_quit_sms: Mettre en pause et envoyer le message de continuation pour
     edit_model: Modifier
     delete_model: Supprimer
     filters:
@@ -42,10 +42,12 @@ fr:
       single_message: Messages uniques
       todo: À faire
       call_2_4: Appel 2/4
+      waiting_second_group: Attente de 2eme cohorte
       with_book_not_received: Ayant un livre non reçu
       with_group: Dans une cohorte
       with_support: Suivis
       without_group: Sans cohorte
+      without_group_and_not_waiting_second_group: Sans cohorte et pas en attente
       without_parent_to_contact: Sans parent à contacter
       without_support: Non suivis
       without_supporter: Sans responsable
