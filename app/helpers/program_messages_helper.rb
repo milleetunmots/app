@@ -55,9 +55,9 @@ module ProgramMessagesHelper
     result = {}
     support_module_week_list = SupportModuleWeek.where("support_module_id = ?", module_to_send)
     support_module_week_list.each_with_index do |support_module_week, index|
+      result["support_module_week_#{index + 1}"] = {message_1: {}, message_2: {}, message_3: {}}
       next unless support_module_week.medium_id
 
-      result["support_module_week_#{index + 1}"] = {message_1: {}, message_2: {}, message_3: {}}
       text_message_bundle = Medium.find(support_module_week.medium_id)
       result["support_module_week_#{index + 1}"][:message_1][:body] = text_message_bundle.body1
       result["support_module_week_#{index + 1}"][:message_1][:link] = RedirectionTarget.where(medium_id: text_message_bundle.link1_id).first&.id
