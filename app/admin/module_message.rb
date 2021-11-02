@@ -11,18 +11,18 @@ ActiveAdmin.register_page "Messages" do
       f.input :recipients, type: :hidden, name: :recipients, value: params[:recipients]
 
       messages.each_with_index do |support_module_week, week_index|
-        next unless support_module_week
         div do
           label "Semaine #{week_index + 1}"
           hr
           columns do
             support_module_week[1].each_with_index do |message, message_index|
-              next if message[1][:body].blank?
               column do
                 div do
                   label "Message #{message_index + 1}"
-                  textarea name: "body_#{support_module_week[0]}_#{message[0]}" do
-                    message[1][:body]
+                  unless message[1][:body].blank?
+                    textarea name: "body_#{support_module_week[0]}_#{message[0]}" do
+                      message[1][:body]
+                    end
                   end
                 end
                 div id: "message-attachment" do
@@ -53,19 +53,21 @@ ActiveAdmin.register_page "Messages" do
                     end
                   end
                 end
-                div do
-                  div class: "datetime-container" do
-                    input type: "text",
-                          name: "planned_date_#{support_module_week[0]}_#{message[0]}",
-                          class: "datepicker hasDatePicker",
-                          style: "margin-right: 20px;",
-                          value: date
-                    input type: "time",
-                          name: "planned_hour_#{support_module_week[0]}_#{message[0]}",
-                          value: date.saturday? ? "14:00" : "12:30"
-                  end
-                  date = manage_messages_date(date, support_module_week[1])
+                div class: "datetime-container" do
+                  input type: "text",
+                        name: "planned_date_#{support_module_week[0]}_#{message[0]}",
+                        class: "datepicker hasDatePicker",
+                        style: "margin-right: 20px;",
+                        value: message[1][:body].blank? ? "" : date
+                  input type: "time",
+                        name: "planned_hour_#{support_module_week[0]}_#{message[0]}",
+                        value: if message[1][:body].blank?
+                                 ""
+                               else
+                                 date.saturday? ? "14:00" : "12:30"
+                               end
                 end
+                date = manage_messages_date(date, support_module_week[1])
               end
             end
           end
@@ -106,6 +108,8 @@ ActiveAdmin.register_page "Messages" do
     begin
       alert = ""
       messages.each do |key, value|
+        next if value.blank?
+
         if Date.parse(planned_dates[key]).past?
           alert = "Une date antérieure a été choisie"
           raise StandardError, alert
