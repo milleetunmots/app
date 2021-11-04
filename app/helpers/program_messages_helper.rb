@@ -53,7 +53,7 @@ module ProgramMessagesHelper
 
   def retrieve_messages(module_to_send)
     result = {}
-    support_module_week_list = SupportModuleWeek.where("support_module_id = ?", module_to_send)
+    support_module_week_list = SupportModuleWeek.where("support_module_id = ?", module_to_send).order(:position)
     support_module_week_list.each_with_index do |support_module_week, index|
       result["support_module_week_#{index + 1}"] = {message_1: {}, message_2: {}, message_3: {}}
       next unless support_module_week.medium_id
