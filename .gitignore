@@ -47,3 +47,5 @@ yarn-debug.log*
 /.idea
 
 .env
+
+erd.pdf
