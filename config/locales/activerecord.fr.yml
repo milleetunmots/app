@@ -259,8 +259,11 @@ fr:
         5_fifth_book: Livre 5
       event: &EVENT
         << : *SHARED
+        address: Adresse
+        city_name: Ville
         discarded_at: Mis à la corbeille
         occurred_at: Date
+        postal_code: Code postal
         related: Parent
         related_first_child: Famille
         related_first_child_group: Cohorte

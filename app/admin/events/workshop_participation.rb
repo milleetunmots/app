@@ -38,10 +38,10 @@ ActiveAdmin.register Events::WorkshopParticipation do
   end
 
   filter :parent_first_child_group_id_in,
-         as: :select,
-         collection: proc { child_group_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
-         label: 'Cohorte'
+    as: :select,
+    collection: proc { child_group_select_collection },
+    input_html: { multiple: true, data: { select2: {} } },
+    label: 'Cohorte'
 
   filter :comments
 
@@ -60,6 +60,9 @@ ActiveAdmin.register Events::WorkshopParticipation do
       row :related_first_child do |model|
         model.related_first_child_link
       end
+      row :address
+      row :postal_code
+      row :city_name
       row :occurred_at
       row :comments, class: 'row-pre'
       row :created_at
@@ -96,12 +99,14 @@ ActiveAdmin.register Events::WorkshopParticipation do
 
       f.input :occurred_at
 
+      address_input f
+
       f.input :comments, as: :text, input_html: { rows: 10 }
     end
     f.actions
   end
 
-  permit_params :related_type, :related_id, :occurred_at, :comments
+  permit_params :related_type, :related_id, :occurred_at, :comments, :address, :postal_code, :city_name
 
   # ---------------------------------------------------------------------------
   # CSV EXPORT

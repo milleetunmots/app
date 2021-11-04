@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_02_092316) do
+ActiveRecord::Schema.define(version: 2021_11_04_113150) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -200,6 +200,9 @@ ActiveRecord::Schema.define(version: 2021_11_02_092316) do
     t.integer "spot_hit_status"
     t.string "spot_hit_message_id"
     t.boolean "originated_by_app", default: true, null: false
+    t.string "address"
+    t.string "postal_code"
+    t.string "city_name"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
     t.index ["type"], name: "index_events_on_type"
