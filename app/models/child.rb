@@ -127,6 +127,20 @@ class Child < ApplicationRecord
     end
   end
 
+  def age_range
+    if months >= 36
+      "Plus de 36 mois"
+    elsif months >= 24
+      "24 à 36 mois"
+    elsif months >= 12
+      "12 à 24 mois"
+    elsif months >= 6
+      "6 à 12 mois"
+    else
+      "0 à 6 mois"
+    end
+  end
+
   # we do not call this 'siblings' because real siblings may have only
   # one parent in common
   def strict_siblings
