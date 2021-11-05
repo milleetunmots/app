@@ -41,32 +41,6 @@ module ActiveAdmin
           collection.object.klass.where(id: ids).each do |object|
             object.tag_list.add(tags)
             object.save(validate: false)
-
-            if object.has_attribute? :parent1_id
-              if object.parent1_id
-                parent1 = Parent.find(object.parent1_id)
-                parent1.update! tag_list: (parent1.tag_list + object.tag_list).uniq
-              end
-            end
-            if object.has_attribute? :parent2_id
-              if object.parent2_id
-                parent2 = Parent.find(object.parent2_id)
-                parent2.update! tag_list: (parent2.tag_list + object.tag_list).uniq
-              end
-            end
-            if object.has_attribute? :child_support_id
-              if object.child_support_id
-                child_support = ChildSupport.find(object.child_support_id)
-                child_support.update! tag_list: (child_support.tag_list + object.tag_list).uniq
-              end
-            end
-            child = Child.where(child_support_id: object.id).first
-            if child
-              child.update! tag_list: (child.tag_list + object.tag_list).uniq
-              child.strict_siblings.each { |sibling| sibling.update! tag_list: (sibling.tag_list + object.tag_list).uniq }
-              child.parent1&.update! tag_list: (child.parent1&.tag_list + object.tag_list).uniq
-              child.parent2&.update! tag_list: (child.parent2&.tag_list + object.tag_list).uniq
-            end
           end
           redirect_to back_url, notice: "Tags ajoutés"
         end
