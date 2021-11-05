@@ -94,6 +94,7 @@ class Child < ApplicationRecord
   end
 
   def different_phone_number
+    return unless parent2&.phone_number
     if parent1.phone_number == parent2.phone_number
       errors.add(:base, :invalid, message: "Les deux parents ont le même numéro")
     end
