@@ -1,20 +1,20 @@
 module ActiveAdmin::TagsHelper
 
   def tag_name_collection
-    ActsAsTaggableOn::Tag.order('LOWER(name)').pluck(:name)
+    ActsAsTaggableOn::Tag.order("LOWER(name)").pluck(:name)
   end
 
   def tags_input(form, options = {})
-    form.input  :tag_list,
+    form.input :tag_list,
       {
         multiple: true,
-        label: 'Tags',
+        label: "Tags",
         collection: tag_name_collection,
         input_html: {
           data: {
             select2: {
               tags: true,
-              tokenSeparators: [',']
+              tokenSeparators: [","]
             }
           }
         }

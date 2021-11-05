@@ -1,11 +1,12 @@
 ActiveAdmin.register Events::WorkshopParticipation do
 
-  menu parent: 'Événements'
+  menu parent: "Événements"
 
   decorate_with Events::WorkshopParticipationDecorator
 
   has_better_csv
   use_discard
+  has_tags
 
   # ---------------------------------------------------------------------------
   # INDEX
@@ -40,8 +41,8 @@ ActiveAdmin.register Events::WorkshopParticipation do
   filter :parent_first_child_group_id_in,
     as: :select,
     collection: proc { child_group_select_collection },
-    input_html: { multiple: true, data: { select2: {} } },
-    label: 'Cohorte'
+    input_html: {multiple: true, data: {select2: {}}},
+    label: "Cohorte"
 
   filter :comments
 
@@ -64,7 +65,7 @@ ActiveAdmin.register Events::WorkshopParticipation do
       row :postal_code
       row :city_name
       row :occurred_at
-      row :comments, class: 'row-pre'
+      row :comments, class: "row-pre"
       row :created_at
       row :discarded_at
     end
@@ -83,11 +84,12 @@ ActiveAdmin.register Events::WorkshopParticipation do
   end
 
   form do |f|
-    f.semantic_errors
+    render "admin/address/google_places_api"
+    f.semantic_errors *f.object.errors.keys
     f.inputs do
       if f.object.related
         li class: :input do
-          label f.object.class.human_attribute_name('related'), class: :label
+          label f.object.class.human_attribute_name("related"), class: :label
           div style: "padding-top: 6px" do
             f.object.decorate.related_link
           end
@@ -101,12 +103,14 @@ ActiveAdmin.register Events::WorkshopParticipation do
 
       address_input f
 
-      f.input :comments, as: :text, input_html: { rows: 10 }
+      f.input :comments, as: :text, input_html: {rows: 10}
+
+      tags_input f
     end
     f.actions
   end
 
-  permit_params :related_type, :related_id, :occurred_at, :comments, :address, :postal_code, :city_name
+  permit_params :related_type, :related_id, :occurred_at, :comments, :address, :postal_code, :city_name, tags_params
 
   # ---------------------------------------------------------------------------
   # CSV EXPORT
