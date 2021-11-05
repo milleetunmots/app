@@ -57,6 +57,7 @@ fr:
       child:
         << : *SHARED
         address: Adresse
+        age_range: Tranche d'age
         age: Age
         birthdate: Date de naissance
         child_support: Suivi
