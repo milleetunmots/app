@@ -49,6 +49,7 @@ class Child < ApplicationRecord
 
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery resubscribing other].freeze
+  PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -82,6 +83,7 @@ class Child < ApplicationRecord
   validates :registration_source, presence: true, inclusion: {in: REGISTRATION_SOURCES}
   validates :registration_source_details, presence: true
   validates :security_code, presence: true
+  validates :pmi_detail, inclusion: {in: PMI_LIST, allow_blank: true}
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
 

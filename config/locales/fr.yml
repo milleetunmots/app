@@ -30,6 +30,8 @@ fr:
     <br><i>Vous nous avez connu par votre CAF, votre PMI, votre orthophoniste ou votre crèche ? Ou vous nous avez connu par un parent déjà accompagné par 1001mots ? Dans ce cas, notre programme est gratuit pour vous : il suffit de vous inscrire en utilisant le lien URL que vous avez reçu.</i>"
     form2: "<b>Votre enfant a entre 0 et 3 ans&nbsp;?</b><br/>Inscrivez-vous pour recevoir gratuitement&nbsp;:<ul><li>3 SMS par semaine avec des idées de jeux et des conseils pour éveiller son langage</li><li>des livres adaptés à son âge</li></ul>La famille peut choisir d'arrêter l'accompagnement à n'importe quel moment."
     form3: "<b>Cet accompagnement est conseillé pour des enfants entre 0 et 3 ans.</b> Nous avons besoin des coordonnées d’au moins un des parents.<br/><br/>La famille recevra gratuitement&nbsp;:<ul><li>3 SMS par semaine avec des idées de jeux et des conseils pour éveiller le langage de l'enfant</li><li>des livres adaptés à son âge</li><li>des appels de professionnels spécialistes de l’éveil langagier</li></ul>La famille peut choisir d'arrêter l'accompagnement à n'importe quel moment."
+  inscription_pmi:
+    detail: "Précisez votre PMI"
   inscription_terms_accepted_at_label:
     parent: "Je donne mon accord pour que mes données soient gardées par 1001mots"
     pro: "Les parents donnent leur accord pour que les données soient gardées par 1001mots"
