@@ -6,6 +6,8 @@ fr:
         add_tags: Taguer
         add_to_group: Ajouter à une cohorte
         assign_supporter: Assigner un(e) responsable pour
+        check_potential_ambassador: "Sélectionner 'Potentiel parent ambassadeur' pour"
+        uncheck_potential_ambassador: "Désélectionner 'Potentiel parent ambassadeur' pour"
         create_redirection_url: Créer une URL courte pour
         create_support: Créer le suivi pour
         addresses_pdf: Générer les étiquettes pour
