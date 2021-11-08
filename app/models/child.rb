@@ -98,7 +98,7 @@ class Child < ApplicationRecord
   def different_phone_number
     return unless parent2&.phone_number
     if parent1.phone_number == parent2.phone_number
-      errors.add(:base, :invalid, message: "Les deux parents ont le même numéro")
+      errors.add(:base, :invalid, message: "Nous avons besoin des coordonnées d'au moins un parent. Si l'autre parent ne souhaite pas recevoir les messages, merci de ne pas l'inscrire car nous n'avons pas besoin de son nom.")
     end
   end
 
@@ -134,20 +134,6 @@ class Child < ApplicationRecord
       diff - 1
     else
       diff
-    end
-  end
-
-  def age_range
-    if months >= 36
-      "Plus de 36 mois"
-    elsif months >= 24
-      "24 à 36 mois"
-    elsif months >= 12
-      "12 à 24 mois"
-    elsif months >= 6
-      "6 à 12 mois"
-    else
-      "0 à 6 mois"
     end
   end
 
