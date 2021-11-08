@@ -121,7 +121,7 @@ fr:
         montargis: PMI Montargis
         gien: PMI Gien
         pithiviers: PMI Pithiviers
-        sarreguemines: PMI Sarraguemines
+        sarreguemines: PMI Sarreguemines
         forbach: PMI Forbach
       child_support:
         << : *SHARED

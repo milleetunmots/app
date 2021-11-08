@@ -35,6 +35,7 @@ ActiveAdmin.register Child do
       model.child_support_status
     end
     column :group, sortable: :group_id
+    column :pmi_detail
     column :family_redirection_unique_visits
     column :tags
     column :created_at do |model|
@@ -78,6 +79,10 @@ ActiveAdmin.register Child do
     collection: proc { child_registration_source_select_collection },
     input_html: {multiple: true, data: {select2: {}}},
     label: "Origine"
+  filter :pmi_detail,
+    as: :select,
+    collection: proc { child_registration_pmi_detail_collection },
+    input_html: {multiple: true, data: {select2: {}}}
   filter :registration_source_details_matches_any,
     as: :select,
     collection: proc { child_registration_source_details_suggestions },
