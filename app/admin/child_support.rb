@@ -122,6 +122,18 @@ ActiveAdmin.register ChildSupport do
     redirect_to request.referer, notice: "Responsable mis à jour"
   end
 
+  batch_action :check_call_2_4 do |ids|
+    @child_supports = batch_action_collection.where(id: ids)
+    @child_supports.each { |child_support| child_support.to_call? ? next : child_support.update!(to_call: true) }
+    redirect_to collection_path, notice: "Appels 2 ou 4 ajoutés."
+  end
+
+  batch_action :uncheck_call_2_4 do |ids|
+    @child_supports = batch_action_collection.where(id: ids)
+    @child_supports.each { |child_support| !child_support.to_call? ? next : child_support.update!(to_call: false) }
+    redirect_to collection_path, notice: "Appels 2 ou 4 retirés."
+  end
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------
