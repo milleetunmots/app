@@ -179,7 +179,7 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   (1..5).each do |call_idx|
-    validates "call#{call_idx}status",
+    validates "call#{call_idx}_status",
       inclusion: {
         in: CALL_STATUS,
         allow_blank: true
