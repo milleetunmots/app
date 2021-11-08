@@ -125,40 +125,33 @@ ActiveAdmin.register ChildSupport do
     redirect_to request.referer, notice: "Responsable mis à jour"
   end
 
-  batch_action :select_a_book_not_received, form: -> {
-    {
-      I18n.t("activerecord.attributes.child_support.book_not_received") => ChildSupport::BOOK_NOT_RECEIVED.map { |v| ChildSupport.human_attribute_name("book_not_received.#{v}") }
-    }
-  } do |ids, inputs|
-    batch_action_collection.find(ids).each do |child_support|
-      books = child_support.book_not_received.push(inputs[I18n.t('activerecord.attributes.child_support.book_not_received')])
-      books = books.to_set.to_a.sort
-      child_support.update!(book_not_received: books)
-    end
-    redirect_to request.referer, notice: "Livre non reçu ajouté"
+  batch_action :remove_book_not_received do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| child_support.update! book_not_received: [] }
+    redirect_to request.referer, notice: "Livres non reçus enlevés"
   end
 
   batch_action :check_should_be_read do |ids|
-    @child_supports = batch_action_collection.where(id: ids)
-    @child_supports.each { |child_support| child_support.should_be_read? ? next : child_support.update!(should_be_read: true) }
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| child_support.should_be_read? ? next : child_support.update!(should_be_read: true) }
     redirect_to collection_path, notice: "Témoignages marquants ajoutés."
   end
 
   batch_action :uncheck_should_be_read do |ids|
-    @child_supports = batch_action_collection.where(id: ids)
-    @child_supports.each { |child_support| !child_support.should_be_read? ? next : child_support.update!(should_be_read: false) }
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| !child_support.should_be_read? ? next : child_support.update!(should_be_read: false) }
     redirect_to collection_path, notice: "Témoignages marquants retirés."
   end
 
   batch_action :check_call_2_4 do |ids|
-    @child_supports = batch_action_collection.where(id: ids)
-    @child_supports.each { |child_support| child_support.to_call? ? next : child_support.update!(to_call: true) }
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| child_support.to_call? ? next : child_support.update!(to_call: true) }
     redirect_to collection_path, notice: "Appels 2 ou 4 ajoutés."
   end
 
   batch_action :uncheck_call_2_4 do |ids|
-    @child_supports = batch_action_collection.where(id: ids)
-    @child_supports.each { |child_support| !child_support.to_call? ? next : child_support.update!(to_call: false) }
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| !child_support.to_call? ? next : child_support.update!(to_call: false) }
     redirect_to collection_path, notice: "Appels 2 ou 4 retirés."
   end
 

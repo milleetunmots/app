@@ -18,7 +18,7 @@ fr:
         quit_group: Mettre en pause la cohorte pour
         generate_buzz_expert: Export Buzz Expert pour
         generate_quit_sms: Mettre en pause et envoyer le message de continuation pour
-        select_a_book_not_received: "Sélectionner un livre non reçus pour"
+        remove_book_not_received: "Enlever les livres non reçus"
     edit_model: Modifier
     delete_model: Supprimer
     filters:
