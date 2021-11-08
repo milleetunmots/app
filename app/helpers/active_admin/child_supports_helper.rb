@@ -63,4 +63,7 @@ module ActiveAdmin::ChildSupportsHelper
     ChildSupport::BOOK_NOT_RECEIVED.map { |v| ChildSupport.human_attribute_name("book_not_received.#{v}") }
   end
 
+  def call_status_collection
+    ChildSupport::CALL_STATUS.map { |v| ChildSupport.human_attribute_name("call_status.#{v}") }
+  end
 end
