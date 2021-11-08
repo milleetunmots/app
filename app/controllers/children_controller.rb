@@ -113,16 +113,16 @@ class ChildrenController < ApplicationController
       @child.errors.add(:birthdate, :invalid, message: "minimale: #{l(@child_min_birthdate)}")
     end
     if @child.errors.none? && @child.save
-      message = "Bonjour ! Je suis ravie de votre inscription aux SMS et livres pour #{@child.first_name} ! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire xxxxxxxxxx"
+      # message = "Bonjour ! Je suis ravie de votre inscription aux SMS et livres pour #{@child.first_name} ! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire xxxxxxxxxx"
 
-      service = SpotHit::SendSmsService.new(
-        [@child.parent1_id],
-        Time.now.to_i,
-        message
-      ).call
-      if service.errors.any?
-        @child.errors.add(:birthdate, :invalid, message: service.errors.join("\n"))
-      end
+      # service = SpotHit::SendSmsService.new(
+      #   [@child.parent1_id],
+      #   Time.now.to_i,
+      #   message
+      # ).call
+      # if service.errors.any?
+      #   @child.errors.add(:birthdate, :invalid, message: service.errors.join("\n"))
+      # end
 
       siblings_attributes.each do |sibling_attributes|
         Child.create!(sibling_attributes.merge(
