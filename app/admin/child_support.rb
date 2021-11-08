@@ -245,7 +245,9 @@ ActiveAdmin.register ChildSupport do
           tab "Appel #{call_idx}" do
             columns do
               column do
-                f.input "call#{call_idx}_status", input_html: {style: "width: 70%"}
+                f.input "call#{call_idx}_status",
+                  collection: call_status_collection,
+                  input_html: {data: {select2: {}}}
                 f.input "call#{call_idx}_duration", input_html: {style: "width: 70%"}
               end
               column do
