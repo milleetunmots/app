@@ -91,6 +91,7 @@ fr:
         parent2_is_lycamobile: Parent 2 Lycamobile ?
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
+        pmi_detail: PMI
         postal_code: Code postal
         public_edit_url: Lien de continuation
         registration_source: Comment nous avez-vous connu ?
@@ -112,6 +113,16 @@ fr:
         resubscribing: J'ai déjà reçu les SMS et je réinscris un enfant
         therapist: Mon orthophoniste
         unknown: Inconnue
+      child/pmi_detail:
+        trappes: PMI Trappes
+        plaisir: PMI Plaisir
+        orleans: PMI Orléans
+        orleans_est: PMI Orléans Est
+        montargis: PMI Montargis
+        gien: PMI Gien
+        pithiviers: PMI Pithiviers
+        sarreguemines: PMI Sarraguemines
+        forbach: PMI Forbach
       child_support:
         << : *SHARED
         address: Adresse

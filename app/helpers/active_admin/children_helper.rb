@@ -44,6 +44,12 @@ module ActiveAdmin::ChildrenHelper
     ]
   end
 
+  def child_registration_pmi_detail_collection
+    Child::PMI_LIST.map do |v|
+      [Child.human_attribute_name("pmi_detail.#{v}"), v]
+    end
+  end
+
   def child_registration_source_details_suggestions
     Child.pluck('DISTINCT ON (LOWER(registration_source_details)) registration_source_details').compact.sort_by(&:downcase)
   end
