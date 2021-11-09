@@ -195,6 +195,7 @@ fr:
         call5_technical_information: Retour sur les envois
         city_name: Ville
         children: Enfants
+        children_age_range: Tranche d'âge des enfants
         children_first_names: Prénom des enfants
         children_last_names: Nom des enfants
         children_birthdates: Date de naissance des enfants
