@@ -116,16 +116,17 @@ class ChildrenController < ApplicationController
       @child.errors.add(:pmi_detail, :invalid, message: "Précisez votre PMI svp!")
     end
     if @child.errors.none? && @child.save
-      # message = "Bonjour ! Je suis ravie de votre inscription aux SMS et livres pour #{@child.first_name} ! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire xxxxxxxxxx"
+      sms_url_form = "https://bit.ly/3koOm1T"
+      message = "Bonjour ! Je suis ravie de votre inscription aux SMS et livres pour #{@child.first_name} ! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{sms_url_form}"
 
-      # service = SpotHit::SendSmsService.new(
-      #   [@child.parent1_id],
-      #   Time.now.to_i,
-      #   message
-      # ).call
-      # if service.errors.any?
-      #   @child.errors.add(:birthdate, :invalid, message: service.errors.join("\n"))
-      # end
+      service = SpotHit::SendSmsService.new(
+        [@child.parent1_id],
+        Time.now.to_i,
+        message
+      ).call
+      if service.errors.any?
+        @child.errors.add(:base, :invalid, message: service.errors.join("\n"))
+      end
 
       siblings_attributes.each do |sibling_attributes|
         Child.create!(sibling_attributes.merge(
