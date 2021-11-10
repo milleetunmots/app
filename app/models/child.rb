@@ -50,6 +50,7 @@ class Child < ApplicationRecord
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery resubscribing other].freeze
   PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach].freeze
+  CAF_LIST = %w[paris aulnay_sous_bois loiret]
 
   # ---------------------------------------------------------------------------
   # relations

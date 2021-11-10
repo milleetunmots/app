@@ -30,6 +30,10 @@
             <% if @registration_source_collection == :pro %>
               <%= f.input :pmi_detail, label: @registration_pmi_detail.html_safe, collection: child_registration_pmi_detail_collection %>
             <% end %>
+            <% if @registration_source_collection == :parent %>
+
+            <% end %>
+
             <%= f.input :registration_source_details, label: @registration_source_details_label.html_safe %>
           </div>
         </div>

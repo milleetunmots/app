@@ -123,6 +123,10 @@ fr:
         pithiviers: PMI Pithiviers
         sarreguemines: PMI Sarreguemines
         forbach: PMI Forbach
+      child/caf_detail:
+          paris: CAF Paris
+          aulnay_sous_bois: CAF Aulnay sous bois
+          loiret: CAF Loiret
       child_support:
         << : *SHARED
         address: Adresse
