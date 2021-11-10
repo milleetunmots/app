@@ -51,8 +51,8 @@ class ChildSupportDecorator < BaseDecorator
     children_attribute(:registration_source, glue)
   end
 
-  def children_age_range(glue = "\n")
-    children_attribute(:age_range, glue)
+  def children_registration_months_range(glue = "\n")
+    children_attribute(:registration_months_range, glue)
   end
 
   def parent1
