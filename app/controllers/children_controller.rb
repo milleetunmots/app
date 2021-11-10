@@ -242,6 +242,7 @@ class ChildrenController < ApplicationController
       @registration_source_collection = :parent
       @registration_source_details_label = I18n.t('inscription_registration_source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate
+      @origin = :caf
     else
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
       @registration_source_label = I18n.t('inscription_registration_source_label.parent')
