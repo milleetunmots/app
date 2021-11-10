@@ -49,6 +49,7 @@ class Child < ApplicationRecord
 
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery resubscribing other].freeze
+  PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -82,13 +83,22 @@ class Child < ApplicationRecord
   validates :registration_source, presence: true, inclusion: {in: REGISTRATION_SOURCES}
   validates :registration_source_details, presence: true
   validates :security_code, presence: true
+  validates :pmi_detail, inclusion: {in: PMI_LIST, allow_blank: true}
   validate :no_duplicate, on: :create
+  validate :different_phone_number, on: :create
 
   def no_duplicate
     self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).each do |child|
       if parent1.duplicate_of?(child.parent1) || parent1.duplicate_of?(child.parent2) || parent2&.duplicate_of?(child.parent1) || parent2&.duplicate_of?(child.parent2)
         errors.add(:base, :invalid, message: "L'enfant est déjà enregistré")
       end
+    end
+  end
+
+  def different_phone_number
+    return unless parent2&.phone_number
+    if parent1.phone_number == parent2.phone_number
+      errors.add(:base, :invalid, message: "Nous avons besoin des coordonnées d'au moins un parent. Si l'autre parent ne souhaite pas recevoir les messages, merci de ne pas l'inscrire car nous n'avons pas besoin de son nom.")
     end
   end
 
@@ -121,6 +131,15 @@ class Child < ApplicationRecord
   def months
     diff = Time.zone.today.month + Time.zone.today.year * 12 - (birthdate.month + birthdate.year * 12)
     if Time.zone.today.day < birthdate.day
+      diff - 1
+    else
+      diff
+    end
+  end
+
+  def registration_months
+    diff = created_at.month + created_at.year * 12 - (birthdate.month + birthdate.year * 12)
+    if created_at.day < birthdate.day
       diff - 1
     else
       diff

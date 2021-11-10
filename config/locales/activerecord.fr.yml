@@ -57,6 +57,7 @@ fr:
       child:
         << : *SHARED
         address: Adresse
+        registration_months_range: Tranche d'age à l'inscription
         age: Age
         birthdate: Date de naissance
         child_support: Suivi
@@ -90,6 +91,7 @@ fr:
         parent2_is_lycamobile: Parent 2 Lycamobile ?
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
+        pmi_detail: PMI
         postal_code: Code postal
         public_edit_url: Lien de continuation
         registration_source: Comment nous avez-vous connu ?
@@ -111,6 +113,16 @@ fr:
         resubscribing: J'ai déjà reçu les SMS et je réinscris un enfant
         therapist: Mon orthophoniste
         unknown: Inconnue
+      child/pmi_detail:
+        trappes: PMI Trappes
+        plaisir: PMI Plaisir
+        orleans: PMI Orléans
+        orleans_est: PMI Orléans Est
+        montargis: PMI Montargis
+        gien: PMI Gien
+        pithiviers: PMI Pithiviers
+        sarreguemines: PMI Sarreguemines
+        forbach: PMI Forbach
       child_support:
         << : *SHARED
         address: Adresse
@@ -183,6 +195,7 @@ fr:
         call5_technical_information: Retour sur les envois
         city_name: Ville
         children: Enfants
+        children_registration_months_range: Tranche d'âge à l'inscription
         children_first_names: Prénom des enfants
         children_last_names: Nom des enfants
         children_birthdates: Date de naissance des enfants
@@ -257,6 +270,11 @@ fr:
         3_third_book: Livre 3
         4_fourth_book: Livre 4
         5_fifth_book: Livre 5
+      child_support/call_status:
+        1_ok: OK
+        2_ko: KO
+        3_unassigned_number: Numéro non-attribué
+        4_dont_call: Ne pas appeler
       event: &EVENT
         << : *SHARED
         discarded_at: Mis à la corbeille

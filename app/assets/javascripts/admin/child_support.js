@@ -5,10 +5,16 @@ $(document).ready(function() {
   let autocompletion = function($input, id) {
     $input.change(function() {
       $.getJSON(`/parent/${$(id).val()}/first_child`, function(child) {
-        $('#child_registration_source').val(child.registration_source).change();
-        $('#child_registration_source_details').val(child.registration_source_details);
-        $('#child_group_id').val(child.group_id).change();
-        addTags(["fratrie ajoutée"])
+        if ("registration_source" in child) {
+          $('#child_registration_source').val(child.registration_source).change();
+          addTags(["fratrie ajoutée"])
+        }
+        if ("registration_source_details" in child) {
+          $('#child_registration_source_details').val(child.registration_source_details);
+        }
+        if ("group_id" in child) {
+          $('#child_group_id').val(child.group_id).change();
+        }
       });
     })
 

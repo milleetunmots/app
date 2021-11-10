@@ -35,6 +35,7 @@ ActiveAdmin.register Child do
       model.child_support_status
     end
     column :group, sortable: :group_id
+    column :pmi_detail
     column :family_redirection_unique_visits
     column :tags
     column :created_at do |model|
@@ -78,6 +79,10 @@ ActiveAdmin.register Child do
     collection: proc { child_registration_source_select_collection },
     input_html: {multiple: true, data: {select2: {}}},
     label: "Origine"
+  filter :pmi_detail,
+    as: :select,
+    collection: proc { child_registration_pmi_detail_collection },
+    input_html: {multiple: true, data: {select2: {}}}
   filter :registration_source_details_matches_any,
     as: :select,
     collection: proc { child_registration_source_details_suggestions },
@@ -280,6 +285,9 @@ ActiveAdmin.register Child do
       f.input :registration_source,
         collection: child_registration_source_select_collection,
         input_html: {data: {select2: {}}}
+      f.input :pmi_detail,
+        collection: child_registration_pmi_detail_collection,
+        input_html: {data: {select2: {}}}
       f.input :registration_source_details
       f.input :group,
         collection: child_group_select_collection,
@@ -293,7 +301,7 @@ ActiveAdmin.register Child do
   permit_params :parent1_id, :parent2_id, :group_id, :has_quit_group,
     :should_contact_parent1, :should_contact_parent2,
     :gender, :first_name, :last_name, :birthdate,
-    :registration_source, :registration_source_details,
+    :registration_source, :registration_source_details, :pmi_detail
     tags_params
 
   # ---------------------------------------------------------------------------
@@ -317,6 +325,7 @@ ActiveAdmin.register Child do
           end
           row :registration_source
           row :registration_source_details
+          row :pmi_detail
           row :group
           row :has_quit_group
           row :family_text_messages_count
@@ -443,6 +452,7 @@ ActiveAdmin.register Child do
     column :first_name
     column :last_name
     column :birthdate
+    column :registration_months_range
     column :age
     column :gender
     column :letterbox_name
@@ -469,6 +479,7 @@ ActiveAdmin.register Child do
     column :should_contact_parent2
 
     column :registration_source
+    column :pmi_detail
     column :registration_source_details
 
     column :has_quit_group
@@ -510,5 +521,4 @@ ActiveAdmin.register Child do
       child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
     end
   end
-
 end

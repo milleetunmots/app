@@ -78,7 +78,10 @@ ActiveAdmin.register ChildSupport do
   filter :supporter,
     input_html: {data: {select2: {}}}
   (1..5).each do |call_idx|
-    filter "call#{call_idx}_status"
+    filter "call#{call_idx}_status",
+      as: :select,
+      collection: proc { call_status_collection },
+      input_html: {data: {select2: {}}}
     filter "call#{call_idx}_duration"
     filter "call#{call_idx}_parent_progress_present",
       as: :boolean,
@@ -120,6 +123,36 @@ ActiveAdmin.register ChildSupport do
       child_support.save!
     end
     redirect_to request.referer, notice: "Responsable mis à jour"
+  end
+
+  batch_action :remove_book_not_received do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| child_support.update! book_not_received: [] }
+    redirect_to request.referer, notice: "Livres non reçus enlevés"
+  end
+
+  batch_action :check_should_be_read do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| child_support.should_be_read? ? next : child_support.update!(should_be_read: true) }
+    redirect_to collection_path, notice: "Témoignages marquants ajoutés."
+  end
+
+  batch_action :uncheck_should_be_read do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| !child_support.should_be_read? ? next : child_support.update!(should_be_read: false) }
+    redirect_to collection_path, notice: "Témoignages marquants retirés."
+  end
+
+  batch_action :check_call_2_4 do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| child_support.to_call? ? next : child_support.update!(to_call: true) }
+    redirect_to collection_path, notice: "Appels 2 ou 4 ajoutés."
+  end
+
+  batch_action :uncheck_call_2_4 do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| !child_support.to_call? ? next : child_support.update!(to_call: false) }
+    redirect_to collection_path, notice: "Appels 2 ou 4 retirés."
   end
 
   # ---------------------------------------------------------------------------
@@ -208,7 +241,9 @@ ActiveAdmin.register ChildSupport do
           tab "Appel #{call_idx}" do
             columns do
               column do
-                f.input "call#{call_idx}_status", input_html: {style: "width: 70%"}
+                f.input "call#{call_idx}_status",
+                  collection: call_status_collection,
+                  input_html: {data: {select2: {}}}
                 f.input "call#{call_idx}_duration", input_html: {style: "width: 70%"}
               end
               column do
@@ -433,6 +468,7 @@ ActiveAdmin.register ChildSupport do
     column :children_first_names
     column :children_last_names
     column :children_birthdates
+    column :children_registration_months_range
     column :children_ages
     column :children_genders
 

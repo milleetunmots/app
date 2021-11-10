@@ -169,6 +169,25 @@ class ChildDecorator < BaseDecorator
     model.group&.name
   end
 
+  def pmi_detail
+    return nil if model.pmi_detail.blank?
+    Child.human_attribute_name("pmi_detail.#{model.pmi_detail}")
+  end
+
+  def registration_months_range
+    if registration_months >= 36
+      "Plus de 36 mois"
+    elsif registration_months >= 24
+      "24 - 36 mois"
+    elsif registration_months >= 12
+      "12 - 24 mois"
+    elsif registration_months >= 6
+      "6 - 12 mois"
+    else
+      "Moins de 6 mois"
+    end
+  end
+
   private
 
   def decorated_parent1

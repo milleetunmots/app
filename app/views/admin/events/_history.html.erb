@@ -20,7 +20,15 @@
 
       <% elsif event.model.is_a?(Events::WorkshopParticipation) %>
 
-        <!-- nothing for the moment -->
+        <div class="comments"><%= event.comments %></div>
+
+      <% elsif event.model.is_a?(Events::OtherEvent) %>
+
+        <div class="body"><%= event.body %></div>
+
+      <% elsif event.model.is_a?(Events::SurveyResponse) %>
+
+        <div class="body"><%= event.body %></div>
 
       <% end %>
 
