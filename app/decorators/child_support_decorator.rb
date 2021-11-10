@@ -89,12 +89,12 @@ class ChildSupportDecorator < BaseDecorator
     end
   end
 
-  def age_range
+  def registration_months_range
     arbre do
       ul do
         model.children.decorate.each do |child|
           li do
-            child.age_range
+            child.registration_months_range
           end
         end
       end
