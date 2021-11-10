@@ -46,7 +46,7 @@ fr:
     parent: "Précisez le nom de la personne qui vous a parlé de 1001mots"
     pro: "Précisez votre nom"
   inscription_success:
-    with_widget: "Votre inscription est bien prise en compte. D'ici quelques semaines, vous allez recevoir des livres et des SMS avec des idées pour éveiller le langage de votre enfant. Si vous avez encore 5 minutes, merci de répondre à <a href='https://2exo.short.gy/Questionnaire1001mots' target='_blank'>ce court questionnaire</a> pour recevoir les livres chez vous.<br>D'ici là, pour nous aider à accompagner plus d'enfants, vous pouvez nous soutenir en faisant un don."
+    with_widget: Votre inscription est bien prise en compte, nous vous recontacterons prochainement pour vous permettre de découvrir nos idées d'éveil par SMS.<br>D'ici là, pour nous aider à accompagner plus d'enfants, vous pouvez nous soutenir en faisant un don.
     without_widget: "Votre inscription est bien prise en compte. D'ici quelques semaines, vous allez recevoir des livres et des SMS avec des idées pour éveiller le langage de votre enfant. Si vous avez encore 5 minutes, merci de répondre à <a href='https://2exo.short.gy/Questionnaire1001mots' target='_blank'>ce court questionnaire</a> pour recevoir les livres chez vous."
     pro: "L'inscription a bien été prise en compte. D'ici quelques semaines, les parents vont recevoir des livres et des SMS avec des idées pour éveiller le langage de leur enfant. Ils peuvent arrêter à tout moment."
   is_ambassador: Ambassadeur
