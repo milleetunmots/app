@@ -124,9 +124,6 @@ class ChildrenController < ApplicationController
         Time.now.to_i,
         message
       ).call
-      if service.errors.any?
-        @child.errors.add(:base, :invalid, message: service.errors.join("\n"))
-      end
 
       siblings_attributes.each do |sibling_attributes|
         Child.create!(sibling_attributes.merge(
