@@ -85,6 +85,7 @@ class Child < ApplicationRecord
   validates :registration_source_details, presence: true
   validates :security_code, presence: true
   validates :pmi_detail, inclusion: {in: PMI_LIST, allow_blank: true}
+  validates :caf_detail, inclusion: {in: CAF_LIST, allow_blank: true}
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
 

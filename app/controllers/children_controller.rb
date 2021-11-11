@@ -115,6 +115,9 @@ class ChildrenController < ApplicationController
     if current_registration_origin == 3 && @child.registration_source == "pmi" && @child.pmi_detail.blank?
       @child.errors.add(:pmi_detail, :invalid, message: "Précisez votre PMI svp!")
     end
+    if current_registration_origin == 2 && @child.registration_source == "caf" && @child.caf_detail.blank?
+      @child.errors.add(:caf_detail, :invalid, message: "Précisez votre CAF svp!")
+    end
     if @child.errors.none? && @child.save
       # message = "Bonjour ! Je suis ravie de votre inscription aux SMS et livres pour #{@child.first_name} ! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire xxxxxxxxxx"
 
@@ -189,7 +192,7 @@ class ChildrenController < ApplicationController
   private
 
   def child_creation_params
-    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, :pmi_detail, child_support_attributes: %i[important_information])
+    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, :pmi_detail, :caf_detail, child_support_attributes: %i[important_information])
     result.delete(:child_support_attributes) if result[:child_support_attributes][:important_information].blank?
     result
   end
@@ -240,6 +243,7 @@ class ChildrenController < ApplicationController
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
       @registration_source_label = I18n.t('inscription_registration_source_label.parent')
       @registration_source_collection = :parent
+      @registration_caf_detail = I18n.t('inscription_caf.detail')
       @registration_source_details_label = I18n.t('inscription_registration_source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate
       @origin = :caf

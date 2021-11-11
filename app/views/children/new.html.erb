@@ -30,11 +30,10 @@
             <% if @registration_source_collection == :pro %>
               <%= f.input :pmi_detail, label: @registration_pmi_detail.html_safe, collection: child_registration_pmi_detail_collection %>
             <% end %>
-            <% if @origin && @origin == :caf %>
-              <%= f.input :registration_source_details, label: @registration_source_details_label.html_safe, collection: child_registration_caf_detail_collection %>
-            <% else %>
-              <%= f.input :registration_source_details, label: @registration_source_details_label.html_safe %>
+            <% if @registration_source_collection == :parent && @origin == :caf %>
+              <%= f.input :caf_detail, label: @registration_caf_detail.html_safe, collection: child_registration_caf_detail_collection %>
             <% end %>
+            <%= f.input :registration_source_details, label: @registration_source_details_label.html_safe %>
           </div>
         </div>
       </div>
