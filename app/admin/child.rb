@@ -461,7 +461,7 @@ ActiveAdmin.register Child do
     column :first_name
     column :last_name
     column :birthdate
-    column :age_range
+    column :registration_months_range
     column :age
     column :gender
     column :letterbox_name
