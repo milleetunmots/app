@@ -28,6 +28,7 @@
     inputSourceDetails.id = "child_registration_source_details";
     inputSourceDetails.classList = "form-control select required";
     inputSourceDetails.type = "text";
+    inputSourceDetails.name = "child[registration_source_details]";
     inputSourceDetails.setAttribute('aria-required', true);
 
     if (value == 'caf') {
