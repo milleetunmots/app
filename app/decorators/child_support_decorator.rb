@@ -51,8 +51,8 @@ class ChildSupportDecorator < BaseDecorator
     children_attribute(:registration_source, glue)
   end
 
-  def children_age_range(glue = "\n")
-    children_attribute(:age_range, glue)
+  def children_registration_months_range(glue = "\n")
+    children_attribute(:registration_months_range, glue)
   end
 
   def parent1
@@ -89,12 +89,12 @@ class ChildSupportDecorator < BaseDecorator
     end
   end
 
-  def age_range
+  def registration_months_range
     arbre do
       ul do
         model.children.decorate.each do |child|
           li do
-            child.age_range
+            child.registration_months_range
           end
         end
       end

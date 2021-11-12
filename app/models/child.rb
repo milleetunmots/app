@@ -137,6 +137,15 @@ class Child < ApplicationRecord
     end
   end
 
+  def registration_months
+    diff = created_at.month + created_at.year * 12 - (birthdate.month + birthdate.year * 12)
+    if created_at.day < birthdate.day
+      diff - 1
+    else
+      diff
+    end
+  end
+
   # we do not call this 'siblings' because real siblings may have only
   # one parent in common
   def strict_siblings

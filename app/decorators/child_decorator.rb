@@ -176,17 +176,17 @@ class ChildDecorator < BaseDecorator
     Child.human_attribute_name("pmi_detail.#{model.pmi_detail}")
   end
 
-  def age_range
-    if months >= 36
+  def registration_months_range
+    if registration_months >= 36
       "Plus de 36 mois"
-    elsif months >= 24
-      "24 à 36 mois"
-    elsif months >= 12
-      "12 à 24 mois"
-    elsif months >= 6
-      "6 à 12 mois"
+    elsif registration_months >= 24
+      "24 - 36 mois"
+    elsif registration_months >= 12
+      "12 - 24 mois"
+    elsif registration_months >= 6
+      "6 - 12 mois"
     else
-      "0 à 6 mois"
+      "Moins de 6 mois"
     end
   end
 
