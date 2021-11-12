@@ -468,7 +468,7 @@ ActiveAdmin.register ChildSupport do
     column :children_first_names
     column :children_last_names
     column :children_birthdates
-    column :children_age_range
+    column :children_registration_months_range
     column :children_ages
     column :children_genders
 
