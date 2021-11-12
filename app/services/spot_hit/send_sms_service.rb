@@ -21,7 +21,6 @@ class SpotHit::SendSmsService < SpotHit::SendMessageService
     end
 
     response = HTTP.post(uri, form: form)
-    p @recipients
     if JSON.parse(response.body.to_s).key? "erreurs"
       @errors << "Erreur lors de la programmation de la campagne. [Réponse SPOT_HIT API #{response.body.to_s}]"
     else
