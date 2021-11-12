@@ -115,6 +115,9 @@ class ChildrenController < ApplicationController
     if current_registration_origin == 3 && @child.registration_source == "pmi" && @child.pmi_detail.blank?
       @child.errors.add(:pmi_detail, :invalid, message: "Précisez votre PMI svp!")
     end
+    if current_registration_origin == 2 && @child.registration_source == "caf" && @child.registration_source_details.blank?
+      @child.errors.add(:caf_detail, :invalid, message: "Précisez votre CAF svp!")
+    end
     if @child.errors.none? && @child.save
       if current_registration_origin == 2
         sms_url_form = "https://bit.ly/3koOm1T"
@@ -240,6 +243,7 @@ class ChildrenController < ApplicationController
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
       @registration_source_label = I18n.t('inscription_registration_source_label.parent')
       @registration_source_collection = :parent
+      @registration_caf_detail = I18n.t('inscription_caf.detail')
       @registration_source_details_label = I18n.t('inscription_registration_source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate
     else
