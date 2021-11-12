@@ -91,7 +91,9 @@ class ChildDecorator < BaseDecorator
 
   def group
     options = {}
-    if model.has_quit_group?
+    if model.parent1.events.received_text_messages.where(body: "STOP").any?
+      options[:class] = "stop"
+    elsif model.has_quit_group?
       options[:class] = "quit"
     end
     model.group&.decorate&.admin_link(options)
