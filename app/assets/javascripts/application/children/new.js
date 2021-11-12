@@ -41,18 +41,6 @@
     $('#child-registration-source-details-field').toggle(!isEmpty);
   };
 
-  // var initRegistrationSourceDetails = function() {
-  //   var registrationSource = $('#child_registration_source option:selected').val();
-  //   var value = "Précisez le nom de la personne qui vous a parlé de 1001mots *"
-  //
-  //   if (registrationSource == 'caf') {
-  //     $('#child-registration-source-details-field label').html("Précisez votre CAF")
-  //   }
-  //   else {
-  //     $('#child-registration-source-details-field label').html(value);
-  //   }
-  // }
-
   var initAddChildBtn = function(btn) {
     var $btn = $(btn);
     var $container = $btn.closest('.child-fields-container');
