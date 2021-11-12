@@ -50,12 +50,6 @@ module ActiveAdmin::ChildrenHelper
     end
   end
 
-  def child_registration_caf_detail_collection
-    Child::CAF_LIST.map do |v|
-      [Child.human_attribute_name("caf_detail.#{v}"), v]
-    end
-  end
-
   def child_registration_source_details_suggestions
     Child.pluck('DISTINCT ON (LOWER(registration_source_details)) registration_source_details').compact.sort_by(&:downcase)
   end

@@ -174,11 +174,6 @@ class ChildDecorator < BaseDecorator
     Child.human_attribute_name("pmi_detail.#{model.pmi_detail}")
   end
 
-  def caf_detail
-    return nil if model.caf_detail.blank?
-    Child.human_attribute_name("caf_detail.#{model.caf_detail}")
-  end
-
   def age_range
     if months >= 36
       "Plus de 36 mois"
