@@ -6,9 +6,52 @@
   };
 
   var onChangeRegistrationSource = function() {
-    var isEmpty = !$(this).val();
+    var value = $(this).val();
+    var isEmpty = !value;
+
+    var caf_list = ["CAF Paris", "CAF Aulnay sous bois", "CAF Loiret"];
+    var selectCafList = document.createElement("select");
+    selectCafList.id = "child_registration_source_details";
+    selectCafList.classList = "form-control select required";
+    selectCafList.name = "child[registration_source_details]";
+    selectCafList.setAttribute('aria-required', true);
+
+
+    for (var i = 0; i < caf_list.length; i++) {
+      var option = document.createElement("option");
+      option.value = caf_list[i];
+      option.text = caf_list[i];
+      selectCafList.appendChild(option);
+    }
+
+    var inputSourceDetails = document.createElement("input");
+    inputSourceDetails.id = "child_registration_source_details";
+    inputSourceDetails.classList = "form-control select required";
+    inputSourceDetails.type = "text";
+    inputSourceDetails.name = "child[registration_source_details]";
+    inputSourceDetails.setAttribute('aria-required', true);
+
+    if (value == 'caf') {
+      $('label[for="child_registration_source_details"]').html("Précisez votre CAF");
+      $('#child_registration_source_details').replaceWith(selectCafList)
+    } else{
+      $('label[for="child_registration_source_details"]').html("Précisez le nom de la personne qui vous a parlé de 1001mots");
+      $('#child_registration_source_details').replaceWith(inputSourceDetails)
+    }
     $('#child-registration-source-details-field').toggle(!isEmpty);
   };
+
+  // var initRegistrationSourceDetails = function() {
+  //   var registrationSource = $('#child_registration_source option:selected').val();
+  //   var value = "Précisez le nom de la personne qui vous a parlé de 1001mots *"
+  //
+  //   if (registrationSource == 'caf') {
+  //     $('#child-registration-source-details-field label').html("Précisez votre CAF")
+  //   }
+  //   else {
+  //     $('#child-registration-source-details-field label').html(value);
+  //   }
+  // }
 
   var initAddChildBtn = function(btn) {
     var $btn = $(btn);
