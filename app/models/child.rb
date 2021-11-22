@@ -116,7 +116,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.min_birthdate
-    Date.today - 34.months
+    Date.today - 48.months
   end
 
   def self.min_birthdate_alt
