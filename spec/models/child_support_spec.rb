@@ -210,13 +210,13 @@ RSpec.describe ChildSupport, type: :model do
     end
   end
 
-  describe "#registration_sources_in(*v)" do
-    context "returns" do
-      it "child supports for child with registration sources in v" do
-        expect(ChildSupport.registration_sources_in("pmi")).to match_array [@first_child_support]
-      end
-    end
-  end
+  # describe "#registration_sources_in(*v)" do
+  #   context "returns" do
+  #     it "child supports for child with registration sources in v" do
+  #       expect(ChildSupport.registration_sources_in("pmi")).to match_array [@first_child_support]
+  #     end
+  #   end
+  # end
 
   describe "#registration_sources_details_in(*v)" do
     context "returns" do
