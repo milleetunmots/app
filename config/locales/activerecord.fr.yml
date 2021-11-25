@@ -129,6 +129,7 @@ fr:
         availability: Disponibilités
         book_not_received: Livre non reçu
         books_quantity: Nombre de livres dans le foyer
+        call_infos: Informations
         call1_duration: Durée de l'appel 1 (en minutes)
         call1_status: Statut de l'appel 1
         call1_status_details: Suivi de l'appel 1
