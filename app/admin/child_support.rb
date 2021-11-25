@@ -215,7 +215,7 @@ ActiveAdmin.register ChildSupport do
         column do
           f.label :important_information
           f.input :important_information, label: false, input_html: {rows: 3, style: "width: 100%"}
-          f.input :availability, label: false, input_html: {placeholder: "Disponibilités", style: "width: 100%"}
+          f.input :availability, label: false, input_html: {placeholder: "Disponibilités générales", style: "width: 100%"}
           f.input :call_infos, label: false, input_html: {placeholder: "Infos appels", style: "width: 100%"}
           columns do
             column do
