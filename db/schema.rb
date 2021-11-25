@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_24_140014) do
+ActiveRecord::Schema.define(version: 2021_11_24_145115) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -139,6 +139,7 @@ ActiveRecord::Schema.define(version: 2021_11_24_140014) do
     t.text "notes"
     t.boolean "will_stay_in_group", default: false, null: false
     t.string "availability"
+    t.string "call_infos"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"

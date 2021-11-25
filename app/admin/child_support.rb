@@ -29,7 +29,7 @@ ActiveAdmin.register ChildSupport do
         ].join(" ").html_safe
       end
     end
-    column :availability
+    column :call_infos
     column :groups
     column :will_stay_in_group
     actions dropdown: true do |decorated|
@@ -48,6 +48,7 @@ ActiveAdmin.register ChildSupport do
   scope :call_2_4, group: :call
 
   filter :availability, as: :string
+  filter :call_infos, as: :string
   filter :group_id_in,
     as: :select,
     collection: proc { child_group_select_collection },
@@ -215,6 +216,7 @@ ActiveAdmin.register ChildSupport do
           f.label :important_information
           f.input :important_information, label: false, input_html: {rows: 3, style: "width: 100%"}
           f.input :availability, label: false, input_html: {placeholder: "Disponibilités", style: "width: 100%"}
+          f.input :call_infos, label: false, input_html: {placeholder: "Infos appels", style: "width: 100%"}
           columns do
             column do
               f.input :is_bilingual
@@ -349,7 +351,16 @@ ActiveAdmin.register ChildSupport do
   end
 
   base_attributes = %i[
-    important_information supporter_id should_be_read is_bilingual second_language to_call books_quantity notes will_stay_in_group, availability
+    important_information
+    supporter_id
+    should_be_read
+    is_bilingual
+    second_language
+    to_call
+    books_quantity
+    notes will_stay_in_group
+    availability
+    call_infos
   ] + [tags_params] + [{book_not_received: [], present_on: [], follow_us_on: []}]
   parent_attributes = %i[
     id
@@ -400,6 +411,7 @@ ActiveAdmin.register ChildSupport do
           row :will_stay_in_group
           row :important_information
           row :availability
+          row :call_infos
           row :book_not_received
           row :should_be_read
           row :is_bilingual
