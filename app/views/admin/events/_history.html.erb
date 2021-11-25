@@ -33,7 +33,7 @@
       <% end %>
 
       <% if Event.received_text_messages.to_a.include? event %>
-        <%= link_to 'Détails', admin_received_text_message_path(event), class: 'admin-link' %>
+        <%= link_to 'Détails', admin_events_text_message_path(event), class: 'admin-link' %>
       <% elsif Event.sent_by_app_text_messages.to_a.include? event %>
         <%= link_to 'Détails', admin_sent_by_app_text_message_path(event), class: 'admin-link' %>
       <% else %>
