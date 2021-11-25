@@ -158,6 +158,12 @@ ActiveAdmin.register ChildSupport do
     redirect_to collection_path, notice: "Appels 2 ou 4 retirés."
   end
 
+  batch_action :remove_call_infos do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| child_support.update! call_infos: "" }
+    redirect_to request.referer, notice: "Informations éffacées"
+  end
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------
