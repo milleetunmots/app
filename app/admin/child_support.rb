@@ -158,6 +158,12 @@ ActiveAdmin.register ChildSupport do
     redirect_to collection_path, notice: "Appels 2 ou 4 retirés."
   end
 
+  batch_action :remove_call_infos do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| child_support.update! call_infos: "" }
+    redirect_to request.referer, notice: "Informations éffacées"
+  end
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------
@@ -215,7 +221,7 @@ ActiveAdmin.register ChildSupport do
         column do
           f.label :important_information
           f.input :important_information, label: false, input_html: {rows: 3, style: "width: 100%"}
-          f.input :availability, label: false, input_html: {placeholder: "Disponibilités", style: "width: 100%"}
+          f.input :availability, label: false, input_html: {placeholder: "Disponibilités générales", style: "width: 100%"}
           f.input :call_infos, label: false, input_html: {placeholder: "Infos appels", style: "width: 100%"}
           columns do
             column do
