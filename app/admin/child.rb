@@ -36,8 +36,8 @@ ActiveAdmin.register Child do
     end
     column :group, sortable: :group_id
     column :group_status
-    if :follow_up_start && :follow_up_end
-      column :child_follow_up_months
+    if :group_start && :group_end
+      column :child_group_months
     end
     column :pmi_detail
     column :family_redirection_unique_visits
@@ -101,11 +101,11 @@ ActiveAdmin.register Child do
     as: :select,
     collection: proc {child_group_status_select_collection} ,
     input_html: {multiple: true, data: {select2: {}}}
-  filter :follow_up_start,
+  filter :group_start,
     as: :datepicker,
       required: false,
       label: "Début de l'accompagnement"
-  filter :follow_up_end,
+  filter :group_end,
     as: :datepicker,
     required: false,
     label: "Fin de l'accompagnement"
@@ -176,7 +176,7 @@ ActiveAdmin.register Child do
       batch_action_collection.where(id: ids).update_all(
         group_id: group.id,
         group_status: "active",
-        follow_up_start: group.started_at
+        group_start: group.started_at
       )
       redirect_to request.referer, notice: "Enfants ajoutés à la cohorte"
     end
@@ -374,9 +374,9 @@ ActiveAdmin.register Child do
           row :pmi_detail
           row :group
           row :group_status
-          row :follow_up_start
-          row :follow_up_end
-          row :child_follow_up_months
+          row :group_start
+          row :group_end
+          row :child_group_months
           row :family_text_messages_count
           row :family_redirection_urls_count
           row :family_redirection_url_visits_count
@@ -426,7 +426,7 @@ ActiveAdmin.register Child do
   end
   member_action :quit_group do
     resource.update_attribute :group_status, "stopped"
-    resource.update_attribute :follow_up_end, resource.model.group.ended_at.past? ? resource.model.group.ended_at : Time.now
+    resource.update_attribute :group_end, resource.model.group.ended_at.past? ? resource.model.group.ended_at : Time.now
     redirect_to [:admin, resource]
   end
 
@@ -550,8 +550,8 @@ ActiveAdmin.register Child do
 
   controller do
     after_save do |child|
-      child.update! follow_up_start: child.group.started_at if child.group && %w[active stopped paused].include?(child.group_status)
-      child.update!(follow_up_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at.past?
+      child.update! group_start: child.group.started_at if child.group && %w[active stopped paused].include?(child.group_status)
+      child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at.past?
       child.child_support&.update! tag_list: child.tag_list
       child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
       child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq

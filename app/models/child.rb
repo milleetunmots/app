@@ -148,10 +148,10 @@ class Child < ApplicationRecord
     end
   end
 
-  def child_follow_up_months
-    return unless follow_up_end && follow_up_start
-    diff = follow_up_end.month + follow_up_end.year * 12 - (follow_up_start.month + follow_up_start.year * 12)
-    if follow_up_end.day < follow_up_start.day
+  def child_group_months
+    return unless group_end && group_start
+    diff = group_end.month + group_end.year * 12 - (group_start.month + group_start.year * 12)
+    if group_end.day < group_start.day
       diff - 1
     else
       diff
