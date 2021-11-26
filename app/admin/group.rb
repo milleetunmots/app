@@ -46,6 +46,7 @@ ActiveAdmin.register Group do
   # ---------------------------------------------------------------------------
 
   form do |f|
+    f.semantic_errors *f.object.errors.keys
     f.inputs do
       f.input :name
       f.input :started_at, as: :datepicker

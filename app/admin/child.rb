@@ -306,6 +306,7 @@ ActiveAdmin.register Child do
   # ---------------------------------------------------------------------------
 
   form do |f|
+    f.semantic_errors *f.object.errors.keys
     f.inputs do
       f.input :parent1,
         collection: child_parent_select_collection,
