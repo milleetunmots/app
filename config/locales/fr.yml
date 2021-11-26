@@ -25,11 +25,17 @@ fr:
     form2: "Recevez des livres et des idées pour éveiller votre enfant"
     form3: "Inscrivez des familles à l'accompagnement à distance 1001mots&nbsp;!"
   inscription_banner:
-    form1: "Pour quelques euros par mois, vous recevrez pendant 3 mois sur votre téléphone des idées et conseils de spécialiste pour éveiller le langage de votre enfant de moins de 2 ans. La formule sera disponible à partir du mois d'octobre, mais vous pouvez vous inscrire dès maintenant!<br>
-    <br>Vous pouvez aussi vous inscrire gratuitement à <a href='https://www.facebook.com/pg/1001mots.org/posts/' target='_blank''>notre page Facebook</a>, où nos spécialistes proposent régulièrement du contenu pour les parents.<br>
-    <br><i>Vous nous avez connu par votre CAF, votre PMI, votre orthophoniste ou votre crèche ? Ou vous nous avez connu par un parent déjà accompagné par 1001mots ? Dans ce cas, notre programme est gratuit pour vous : il suffit de vous inscrire en utilisant le lien URL que vous avez reçu.</i>"
+    form1: "En raison d'un afflux de demandes, les inscriptions à notre programme sont temporairement restreintes : seuls les parents recommandés par nos partenaires ou par des parents déjà accompagnés peuvent s'inscrire. Il faut pour cela utiliser le lien URL que vous avez reçu.<br>
+    <br>Dans l'immédiat, vous pouvez :<br>
+    <ul style='list-style-type:none;'>
+      <li>- vous inscrire à <a href='https://www.facebook.com/pg/1001mots.org/posts/' target='_blank''>notre page Facebook</a>, où nos spécialistes proposent régulièrement du contenu pour les parents,</li>
+      <li>- vous inscrire pour recevoir nos SMS à partir de début 2022,</li>
+      <li>- nous faire un don.</li>
+    </ul>"
     form2: "<b>Votre enfant a entre 0 et 3 ans&nbsp;?</b><br/>Inscrivez-vous pour recevoir gratuitement&nbsp;:<ul><li>3 SMS par semaine avec des idées de jeux et des conseils pour éveiller son langage</li><li>des livres adaptés à son âge</li></ul>La famille peut choisir d'arrêter l'accompagnement à n'importe quel moment."
     form3: "<b>Cet accompagnement est conseillé pour des enfants entre 0 et 3 ans.</b> Nous avons besoin des coordonnées d’au moins un des parents.<br/><br/>La famille recevra gratuitement&nbsp;:<ul><li>3 SMS par semaine avec des idées de jeux et des conseils pour éveiller le langage de l'enfant</li><li>des livres adaptés à son âge</li><li>des appels de professionnels spécialistes de l’éveil langagier</li></ul>La famille peut choisir d'arrêter l'accompagnement à n'importe quel moment."
+  inscription_pmi:
+    detail: "Précisez votre PMI"
   inscription_terms_accepted_at_label:
     parent: "Je donne mon accord pour que mes données soient gardées par 1001mots"
     pro: "Les parents donnent leur accord pour que les données soient gardées par 1001mots"
@@ -41,7 +47,7 @@ fr:
     pro: "Précisez votre nom"
   inscription_success:
     with_widget: Votre inscription est bien prise en compte, nous vous recontacterons prochainement pour vous permettre de découvrir nos idées d'éveil par SMS.<br>D'ici là, pour nous aider à accompagner plus d'enfants, vous pouvez nous soutenir en faisant un don.
-    without_widget: Votre inscription est bien prise en compte. D'ici quelques semaines, vous allez recevoir des livres et des SMS avec des idées pour éveiller le langage de votre enfant. Vous pouvez arrêter à tout moment.
+    without_widget: "Votre inscription est bien prise en compte. D'ici quelques semaines, vous allez recevoir des livres et des SMS avec des idées pour éveiller le langage de votre enfant. Si vous avez encore 5 minutes, merci de répondre à <a href='https://2exo.short.gy/Questionnaire1001mots' target='_blank'>ce court questionnaire</a> pour recevoir les livres chez vous."
     pro: "L'inscription a bien été prise en compte. D'ici quelques semaines, les parents vont recevoir des livres et des SMS avec des idées pour éveiller le langage de leur enfant. Ils peuvent arrêter à tout moment."
   is_ambassador: Ambassadeur
   should_be_contacted: À contacter

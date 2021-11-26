@@ -107,8 +107,8 @@ RSpec.describe Child, type: :model do
 
   describe "#min_birthdate" do
     context "returns" do
-      it "the date 34 months ago" do
-        expect(Child.min_birthdate).to eq Date.today - 34.months
+      it "the date 48 months ago" do
+        expect(Child.min_birthdate).to eq Date.today - 48.months
       end
     end
   end

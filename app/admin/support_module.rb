@@ -90,7 +90,7 @@ ActiveAdmin.register SupportModule do
     end
     panel '', class: 'support-module-week-lines' do
       resource.support_module_weeks.decorate.each_with_index do |support_module_week, idx|
-        panel support_module_week.title(1+idx), class: 'support-module-week-line' do
+        panel support_module_week.title, class: 'support-module-week-line' do
           if support_module_week.medium
             columns do
               (1..3).each do |msg_idx|

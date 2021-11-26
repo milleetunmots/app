@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_04_113150) do
+ActiveRecord::Schema.define(version: 2021_11_24_145115) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -138,6 +138,8 @@ ActiveRecord::Schema.define(version: 2021_11_04_113150) do
     t.string "follow_us_on"
     t.text "notes"
     t.boolean "will_stay_in_group", default: false, null: false
+    t.string "availability"
+    t.string "call_infos"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
@@ -178,6 +180,7 @@ ActiveRecord::Schema.define(version: 2021_11_04_113150) do
     t.datetime "discarded_at"
     t.string "security_code"
     t.string "src_url"
+    t.string "pmi_detail"
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["discarded_at"], name: "index_children_on_discarded_at"
@@ -200,9 +203,6 @@ ActiveRecord::Schema.define(version: 2021_11_04_113150) do
     t.integer "spot_hit_status"
     t.string "spot_hit_message_id"
     t.boolean "originated_by_app", default: true, null: false
-    t.string "address"
-    t.string "postal_code"
-    t.string "city_name"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
     t.index ["type"], name: "index_events_on_type"

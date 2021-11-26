@@ -35,6 +35,7 @@ ActiveAdmin.register Child do
       model.child_support_status
     end
     column :group, sortable: :group_id
+    column :pmi_detail
     column :family_redirection_unique_visits
     column :tags
     column :created_at do |model|
@@ -78,6 +79,10 @@ ActiveAdmin.register Child do
     collection: proc { child_registration_source_select_collection },
     input_html: {multiple: true, data: {select2: {}}},
     label: "Origine"
+  filter :pmi_detail,
+    as: :select,
+    collection: proc { child_registration_pmi_detail_collection },
+    input_html: {multiple: true, data: {select2: {}}}
   filter :registration_source_details_matches_any,
     as: :select,
     collection: proc { child_registration_source_details_suggestions },
@@ -106,6 +111,34 @@ ActiveAdmin.register Child do
   filter :src_url
   filter :created_at
   filter :updated_at
+
+  batch_action :add_tags do |ids|
+    session[:add_tags_ids] = ids
+    redirect_to action: :add_tags
+  end
+
+  collection_action :add_tags do
+    @klass = collection.object.klass
+    @ids = session.delete(:add_tags_ids) || []
+    @form_action = url_for(action: :perform_adding_tags)
+    @back_url = request.referer
+    render "active_admin/tags/add_tags"
+  end
+
+  collection_action :perform_adding_tags, method: :post do
+    ids = params[:ids]
+    tags = params[:tag_list]
+    back_url = params[:back_url]
+
+    Child.where(id: ids).each do |child|
+      child.tag_list.add(tags)
+      child.save(validate: false)
+      child.child_support&.update! tag_list: child.tag_list
+      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
+      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
+    end
+    redirect_to back_url, notice: "Tags ajoutés"
+  end
 
   batch_action :create_support do |ids|
     batch_action_collection.find(ids).each do |child|
@@ -280,6 +313,9 @@ ActiveAdmin.register Child do
       f.input :registration_source,
         collection: child_registration_source_select_collection,
         input_html: {data: {select2: {}}}
+      f.input :pmi_detail,
+        collection: child_registration_pmi_detail_collection,
+        input_html: {data: {select2: {}}}
       f.input :registration_source_details
       f.input :group,
         collection: child_group_select_collection,
@@ -293,7 +329,7 @@ ActiveAdmin.register Child do
   permit_params :parent1_id, :parent2_id, :group_id, :has_quit_group,
     :should_contact_parent1, :should_contact_parent2,
     :gender, :first_name, :last_name, :birthdate,
-    :registration_source, :registration_source_details,
+    :registration_source, :registration_source_details, :pmi_detail,
     tags_params
 
   # ---------------------------------------------------------------------------
@@ -317,6 +353,7 @@ ActiveAdmin.register Child do
           end
           row :registration_source
           row :registration_source_details
+          row :pmi_detail
           row :group
           row :has_quit_group
           row :family_text_messages_count
@@ -443,6 +480,7 @@ ActiveAdmin.register Child do
     column :first_name
     column :last_name
     column :birthdate
+    column :registration_months_range
     column :age
     column :gender
     column :letterbox_name
@@ -469,6 +507,7 @@ ActiveAdmin.register Child do
     column :should_contact_parent2
 
     column :registration_source
+    column :pmi_detail
     column :registration_source_details
 
     column :has_quit_group
@@ -488,7 +527,11 @@ ActiveAdmin.register Child do
   end
 
   controller do
-    after_action :add_tags_to_child_support_and_parents, only: %i[show update]
+    after_save do |child|
+      child.child_support&.update! tag_list: child.tag_list
+      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
+      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
+    end
 
     def csv_filename
       filter_name = params.fetch(:q, {}).fetch(:unpaused_group_id_in, []).map do |group_id|
@@ -502,13 +545,5 @@ ActiveAdmin.register Child do
         Time.zone.now.to_date.to_s(:default)
       ].compact.join(" - ") + ".csv"
     end
-
-    def add_tags_to_child_support_and_parents
-      child = Child.find(params[:id])
-      child.child_support&.update! tag_list: child.tag_list
-      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
-      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
-    end
   end
-
 end

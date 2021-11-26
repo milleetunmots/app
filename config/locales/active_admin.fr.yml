@@ -6,12 +6,20 @@ fr:
         add_tags: Taguer
         add_to_group: Ajouter à une cohorte
         assign_supporter: Assigner un(e) responsable pour
+        check_call_2_4: "Sélectionner 'Appel 2 ou 4' pour"
+        uncheck_call_2_4: "Désélectionner 'Appel 2 ou 4' pour"
+        check_potential_ambassador: "Sélectionner 'Potentiel parent ambassadeur' pour"
+        uncheck_potential_ambassador: "Désélectionner 'Potentiel parent ambassadeur' pour"
+        check_should_be_read: "Sélectionner 'Témoignage marquant' pour"
+        uncheck_should_be_read: "Désélectionner 'Témoignage marquant' pour"
         create_redirection_url: Créer une URL courte pour
         create_support: Créer le suivi pour
         addresses_pdf: Générer les étiquettes pour
         quit_group: Mettre en pause la cohorte pour
         generate_buzz_expert: Export Buzz Expert pour
         generate_quit_sms: Mettre en pause et envoyer le message de continuation pour
+        remove_book_not_received: "Enlever les livres non reçus"
+        remove_call_infos: "Effacer les informations"
     edit_model: Modifier
     delete_model: Supprimer
     filters:

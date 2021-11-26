@@ -29,6 +29,7 @@ ActiveAdmin.register ChildSupport do
         ].join(" ").html_safe
       end
     end
+    column :call_infos
     column :groups
     column :will_stay_in_group
     actions dropdown: true do |decorated|
@@ -46,6 +47,8 @@ ActiveAdmin.register ChildSupport do
   scope :with_book_not_received
   scope :call_2_4, group: :call
 
+  filter :availability, as: :string
+  filter :call_infos, as: :string
   filter :group_id_in,
     as: :select,
     collection: proc { child_group_select_collection },
@@ -78,7 +81,10 @@ ActiveAdmin.register ChildSupport do
   filter :supporter,
     input_html: {data: {select2: {}}}
   (1..5).each do |call_idx|
-    filter "call#{call_idx}_status"
+    filter "call#{call_idx}_status",
+      as: :select,
+      collection: proc { call_status_collection },
+      input_html: {data: {select2: {}}}
     filter "call#{call_idx}_duration"
     filter "call#{call_idx}_parent_progress_present",
       as: :boolean,
@@ -120,6 +126,42 @@ ActiveAdmin.register ChildSupport do
       child_support.save!
     end
     redirect_to request.referer, notice: "Responsable mis à jour"
+  end
+
+  batch_action :remove_book_not_received do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| child_support.update! book_not_received: [] }
+    redirect_to request.referer, notice: "Livres non reçus enlevés"
+  end
+
+  batch_action :check_should_be_read do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| child_support.should_be_read? ? next : child_support.update!(should_be_read: true) }
+    redirect_to collection_path, notice: "Témoignages marquants ajoutés."
+  end
+
+  batch_action :uncheck_should_be_read do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| !child_support.should_be_read? ? next : child_support.update!(should_be_read: false) }
+    redirect_to collection_path, notice: "Témoignages marquants retirés."
+  end
+
+  batch_action :check_call_2_4 do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| child_support.to_call? ? next : child_support.update!(to_call: true) }
+    redirect_to collection_path, notice: "Appels 2 ou 4 ajoutés."
+  end
+
+  batch_action :uncheck_call_2_4 do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| !child_support.to_call? ? next : child_support.update!(to_call: false) }
+    redirect_to collection_path, notice: "Appels 2 ou 4 retirés."
+  end
+
+  batch_action :remove_call_infos do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| child_support.update! call_infos: "" }
+    redirect_to request.referer, notice: "Informations éffacées"
   end
 
   # ---------------------------------------------------------------------------
@@ -179,6 +221,8 @@ ActiveAdmin.register ChildSupport do
         column do
           f.label :important_information
           f.input :important_information, label: false, input_html: {rows: 3, style: "width: 100%"}
+          f.input :availability, label: false, input_html: {placeholder: "Disponibilités générales", style: "width: 100%"}
+          f.input :call_infos, label: false, input_html: {placeholder: "Infos appels", style: "width: 100%"}
           columns do
             column do
               f.input :is_bilingual
@@ -208,7 +252,9 @@ ActiveAdmin.register ChildSupport do
           tab "Appel #{call_idx}" do
             columns do
               column do
-                f.input "call#{call_idx}_status", input_html: {style: "width: 70%"}
+                f.input "call#{call_idx}_status",
+                  collection: call_status_collection,
+                  input_html: {data: {select2: {}}}
                 f.input "call#{call_idx}_duration", input_html: {style: "width: 70%"}
               end
               column do
@@ -311,7 +357,16 @@ ActiveAdmin.register ChildSupport do
   end
 
   base_attributes = %i[
-    important_information supporter_id should_be_read is_bilingual second_language to_call books_quantity notes will_stay_in_group
+    important_information
+    supporter_id
+    should_be_read
+    is_bilingual
+    second_language
+    to_call
+    books_quantity
+    notes will_stay_in_group
+    availability
+    call_infos
   ] + [tags_params] + [{book_not_received: [], present_on: [], follow_us_on: []}]
   parent_attributes = %i[
     id
@@ -361,6 +416,8 @@ ActiveAdmin.register ChildSupport do
           row :to_call
           row :will_stay_in_group
           row :important_information
+          row :availability
+          row :call_infos
           row :book_not_received
           row :should_be_read
           row :is_bilingual
@@ -433,6 +490,7 @@ ActiveAdmin.register ChildSupport do
     column :children_first_names
     column :children_last_names
     column :children_birthdates
+    column :children_registration_months_range
     column :children_ages
     column :children_genders
 
@@ -482,10 +540,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   controller do
-    after_action :add_tags_to_children_and_parents, only: %i[show update]
-
-    def add_tags_to_children_and_parents
-      child_support = ChildSupport.find(params[:id])
+    after_save do |child_support|
       child_support.children.each do |child|
         child.update! tag_list: child_support.tag_list
         child.parent1&.update! tag_list: (child.parent1&.tag_list + child_support.tag_list).uniq

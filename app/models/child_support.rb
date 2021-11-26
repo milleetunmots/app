@@ -152,6 +152,12 @@ class ChildSupport < ApplicationRecord
     4_fourth_book
     5_fifth_book
   ].freeze
+  CALL_STATUS = %w[
+    1_ok
+    2_ko
+    3_unassigned_number
+    4_dont_call
+  ]
 
   # ---------------------------------------------------------------------------
   # relations
@@ -173,6 +179,12 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   (1..5).each do |call_idx|
+    validates "call#{call_idx}_status",
+      inclusion: {
+        in: CALL_STATUS,
+        allow_blank: true
+      },
+      on: :create
 
     validates "call#{call_idx}_language_awareness",
       inclusion: {

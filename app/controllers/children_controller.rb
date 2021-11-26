@@ -112,7 +112,24 @@ class ChildrenController < ApplicationController
     if @child.birthdate < @child_min_birthdate
       @child.errors.add(:birthdate, :invalid, message: "minimale: #{l(@child_min_birthdate)}")
     end
+    if current_registration_origin == 3 && @child.registration_source == "pmi" && @child.pmi_detail.blank?
+      @child.errors.add(:pmi_detail, :invalid, message: "Précisez votre PMI svp!")
+    end
+    if current_registration_origin == 2 && @child.registration_source == "caf" && @child.registration_source_details.blank?
+      @child.errors.add(:caf_detail, :invalid, message: "Précisez votre CAF svp!")
+    end
     if @child.errors.none? && @child.save
+      if current_registration_origin == 2
+        sms_url_form = "https://bit.ly/3koOm1T"
+        message = "Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{sms_url_form}"
+
+        service = SpotHit::SendSmsService.new(
+          [@child.parent1_id],
+          Time.now.to_i,
+          message
+        ).call
+      end
+
       siblings_attributes.each do |sibling_attributes|
         Child.create!(sibling_attributes.merge(
           registration_source: @child.registration_source,
@@ -175,7 +192,7 @@ class ChildrenController < ApplicationController
   private
 
   def child_creation_params
-    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, child_support_attributes: %i[important_information])
+    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, :pmi_detail, child_support_attributes: %i[important_information])
     result.delete(:child_support_attributes) if result[:child_support_attributes][:important_information].blank?
     result
   end
@@ -219,12 +236,14 @@ class ChildrenController < ApplicationController
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.pro')
       @registration_source_label = I18n.t('inscription_registration_source_label.pro')
       @registration_source_collection = :pro
+      @registration_pmi_detail = I18n.t('inscription_pmi.detail')
       @registration_source_details_label = I18n.t('inscription_registration_source_details_label.pro')
       @child_min_birthdate = Date.today - 30.months
     when 2
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
       @registration_source_label = I18n.t('inscription_registration_source_label.parent')
       @registration_source_collection = :parent
+      @registration_caf_detail = I18n.t('inscription_caf.detail')
       @registration_source_details_label = I18n.t('inscription_registration_source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate
     else
