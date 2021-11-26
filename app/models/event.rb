@@ -28,7 +28,7 @@ class Event < ApplicationRecord
   # constantes
   # ---------------------------------------------------------------------------
 
-  SPOT_HIT_STATUS = ['En attente','Livré','Envoyé','En cours','Echec','Expiré'].freeze
+  SPOT_HIT_STATUS = ["En attente","Livré","Envoyé","En cours","Echec","Expiré"].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -55,7 +55,7 @@ class Event < ApplicationRecord
     :group,
     :group_id,
     :group_name,
-    :has_quit_group,
+    :group_status,
     to: :related_first_child,
     prefix: true,
     allow_nil: true
@@ -82,6 +82,18 @@ class Event < ApplicationRecord
 
   def self.parent_first_child_supporter_id_in(*v)
     where(related: Parent.first_child_supported_by(v))
+  end
+
+  # ---------------------------------------------------------------------------
+  # helpers
+  # ---------------------------------------------------------------------------
+
+  def is_received_text_message?
+    is_a?(Events::TextMessage) && !originated_by_app
+  end
+
+  def is_sent_by_app_text_message?
+    is_a?(Events::TextMessage) && originated_by_app
   end
 
   # ---------------------------------------------------------------------------

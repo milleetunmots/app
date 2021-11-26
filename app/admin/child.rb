@@ -35,6 +35,10 @@ ActiveAdmin.register Child do
       model.child_support_status
     end
     column :group, sortable: :group_id
+    column :group_status
+    if :group_start && :group_end
+      column :child_group_months
+    end
     column :pmi_detail
     column :family_redirection_unique_visits
     column :tags
@@ -93,8 +97,19 @@ ActiveAdmin.register Child do
     collection: proc { child_group_select_collection },
     input_html: {multiple: true, data: {select2: {}}},
     label: "Cohorte"
-  filter :has_quit_group
-  filter :unpaused_group_id_in,
+  filter :group_status,
+    as: :select,
+    collection: proc {child_group_status_select_collection} ,
+    input_html: {multiple: true, data: {select2: {}}}
+  filter :group_start,
+    as: :datepicker,
+      required: false,
+      label: "Début de l'accompagnement"
+  filter :group_end,
+    as: :datepicker,
+    required: false,
+    label: "Fin de l'accompagnement"
+  filter :active_group_id_in,
     as: :select,
     collection: proc { child_group_select_collection },
     input_html: {multiple: true, data: {select2: {}}},
@@ -111,6 +126,34 @@ ActiveAdmin.register Child do
   filter :src_url
   filter :created_at
   filter :updated_at
+
+  batch_action :add_tags do |ids|
+    session[:add_tags_ids] = ids
+    redirect_to action: :add_tags
+  end
+
+  collection_action :add_tags do
+    @klass = collection.object.klass
+    @ids = session.delete(:add_tags_ids) || []
+    @form_action = url_for(action: :perform_adding_tags)
+    @back_url = request.referer
+    render "active_admin/tags/add_tags"
+  end
+
+  collection_action :perform_adding_tags, method: :post do
+    ids = params[:ids]
+    tags = params[:tag_list]
+    back_url = params[:back_url]
+
+    Child.where(id: ids).each do |child|
+      child.tag_list.add(tags)
+      child.save(validate: false)
+      child.child_support&.update! tag_list: child.tag_list
+      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
+      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
+    end
+    redirect_to back_url, notice: "Tags ajoutés"
+  end
 
   batch_action :create_support do |ids|
     batch_action_collection.find(ids).each do |child|
@@ -132,14 +175,15 @@ ActiveAdmin.register Child do
       group = Group.find(inputs[I18n.t("activerecord.models.group")])
       batch_action_collection.where(id: ids).update_all(
         group_id: group.id,
-        has_quit_group: false # just in case
+        group_status: "active",
+        group_start: group.started_at
       )
       redirect_to request.referer, notice: "Enfants ajoutés à la cohorte"
     end
   end
 
   batch_action :quit_group do |ids|
-    batch_action_collection.where(id: ids).update_all(has_quit_group: true)
+    batch_action_collection.where(id: ids).update_all(group_status: "paused")
     redirect_to request.referer, notice: "Modification effectuée"
   end
 
@@ -246,7 +290,7 @@ ActiveAdmin.register Child do
           alert = service.errors.join("\n")
           raise StandardError, alert
         else
-          child.update! has_quit_group: true
+          child.update! group_status: "paused"
         end
       end
     rescue StandardError => e
@@ -292,16 +336,18 @@ ActiveAdmin.register Child do
       f.input :group,
         collection: child_group_select_collection,
         input_html: {data: {select2: {}}}
-      f.input :has_quit_group
+      f.input :group_status,
+        collection: child_group_status_select_collection,
+        input_html: {data: {select2: {}}}
       tags_input(f)
     end
     f.actions
   end
 
-  permit_params :parent1_id, :parent2_id, :group_id, :has_quit_group,
+  permit_params :parent1_id, :parent2_id, :group_id,
     :should_contact_parent1, :should_contact_parent2,
     :gender, :first_name, :last_name, :birthdate,
-    :registration_source, :registration_source_details, :pmi_detail
+    :registration_source, :registration_source_details, :pmi_detail, :group_status,
     tags_params
 
   # ---------------------------------------------------------------------------
@@ -327,7 +373,10 @@ ActiveAdmin.register Child do
           row :registration_source_details
           row :pmi_detail
           row :group
-          row :has_quit_group
+          row :group_status
+          row :group_start
+          row :group_end
+          row :child_group_months
           row :family_text_messages_count
           row :family_redirection_urls_count
           row :family_redirection_url_visits_count
@@ -372,11 +421,12 @@ ActiveAdmin.register Child do
   end
   action_item :quit_group,
     only: :show,
-    if: proc { resource.group && !resource.has_quit_group? } do
+    if: proc { resource.group && %w[paused active].include?(resource.model.group_status) } do
     link_to "Quitter la cohorte", [:quit_group, :admin, resource]
   end
   member_action :quit_group do
-    resource.update_attribute :has_quit_group, true
+    resource.update_attribute :group_status, "stopped"
+    resource.update_attribute :group_end, resource.model.group.ended_at&.past? ? resource.model.group.ended_at : Time.now
     redirect_to [:admin, resource]
   end
 
@@ -482,7 +532,7 @@ ActiveAdmin.register Child do
     column :pmi_detail
     column :registration_source_details
 
-    column :has_quit_group
+    column :group_status
 
     column :family_text_messages_count
 
@@ -499,10 +549,16 @@ ActiveAdmin.register Child do
   end
 
   controller do
-    after_action :add_tags_to_child_support_and_parents, only: %i[show update]
+    after_save do |child|
+      child.update! group_start: child.group.started_at if child.group && %w[active stopped paused].include?(child.group_status)
+      child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
+      child.child_support&.update! tag_list: child.tag_list
+      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
+      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
+    end
 
     def csv_filename
-      filter_name = params.fetch(:q, {}).fetch(:unpaused_group_id_in, []).map do |group_id|
+      filter_name = params.fetch(:q, {}).fetch(:active_group_id_in, []).map do |group_id|
         Group.find_by_id(group_id)&.name
       end.join(",")
 
@@ -512,13 +568,6 @@ ActiveAdmin.register Child do
         filter_name.presence,
         Time.zone.now.to_date.to_s(:default)
       ].compact.join(" - ") + ".csv"
-    end
-
-    def add_tags_to_child_support_and_parents
-      child = Child.find(params[:id])
-      child.child_support&.update! tag_list: child.tag_list
-      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
-      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
     end
   end
 end

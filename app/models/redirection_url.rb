@@ -91,7 +91,7 @@ class RedirectionUrl < ApplicationRecord
     :first_name,
            # :gender,
     :group_name,
-    :has_quit_group,
+    :group_status,
     :last_name,
     :registration_source,
     :registration_source_details,

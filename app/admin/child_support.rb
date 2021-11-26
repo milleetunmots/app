@@ -29,6 +29,7 @@ ActiveAdmin.register ChildSupport do
         ].join(" ").html_safe
       end
     end
+    column :call_infos
     column :groups
     column :will_stay_in_group
     actions dropdown: true do |decorated|
@@ -46,12 +47,14 @@ ActiveAdmin.register ChildSupport do
   scope :with_book_not_received
   scope :call_2_4, group: :call
 
+  filter :availability, as: :string
+  filter :call_infos, as: :string
   filter :group_id_in,
     as: :select,
     collection: proc { child_group_select_collection },
     input_html: {multiple: true, data: {select2: {}}},
     label: "Cohorte"
-  filter :unpaused_group_id_in,
+  filter :active_group_id_in,
     as: :select,
     collection: proc { child_group_select_collection },
     input_html: {multiple: true, data: {select2: {}}},
@@ -155,6 +158,12 @@ ActiveAdmin.register ChildSupport do
     redirect_to collection_path, notice: "Appels 2 ou 4 retirés."
   end
 
+  batch_action :remove_call_infos do |ids|
+    child_supports = batch_action_collection.where(id: ids)
+    child_supports.each { |child_support| child_support.update! call_infos: "" }
+    redirect_to request.referer, notice: "Informations éffacées"
+  end
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------
@@ -212,6 +221,8 @@ ActiveAdmin.register ChildSupport do
         column do
           f.label :important_information
           f.input :important_information, label: false, input_html: {rows: 3, style: "width: 100%"}
+          f.input :availability, label: false, input_html: {placeholder: "Disponibilités générales", style: "width: 100%"}
+          f.input :call_infos, label: false, input_html: {placeholder: "Infos appels", style: "width: 100%"}
           columns do
             column do
               f.input :is_bilingual
@@ -346,7 +357,16 @@ ActiveAdmin.register ChildSupport do
   end
 
   base_attributes = %i[
-    important_information supporter_id should_be_read is_bilingual second_language to_call books_quantity notes will_stay_in_group
+    important_information
+    supporter_id
+    should_be_read
+    is_bilingual
+    second_language
+    to_call
+    books_quantity
+    notes will_stay_in_group
+    availability
+    call_infos
   ] + [tags_params] + [{book_not_received: [], present_on: [], follow_us_on: []}]
   parent_attributes = %i[
     id
@@ -396,6 +416,8 @@ ActiveAdmin.register ChildSupport do
           row :to_call
           row :will_stay_in_group
           row :important_information
+          row :availability
+          row :call_infos
           row :book_not_received
           row :should_be_read
           row :is_bilingual
@@ -518,10 +540,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   controller do
-    after_action :add_tags_to_children_and_parents, only: %i[show update]
-
-    def add_tags_to_children_and_parents
-      child_support = ChildSupport.find(params[:id])
+    after_save do |child_support|
       child_support.children.each do |child|
         child.update! tag_list: child_support.tag_list
         child.parent1&.update! tag_list: (child.parent1&.tag_list + child_support.tag_list).uniq

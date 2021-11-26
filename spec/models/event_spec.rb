@@ -33,9 +33,9 @@ RSpec.describe Event, type: :model do
     @workshop_participation1 = FactoryBot.create(:workshop_participation)
     @workshop_participation2 = FactoryBot.create(:workshop_participation)
     @admin = FactoryBot.create(:admin_user)
-    @child = FactoryBot.create(:child, child_support: FactoryBot.create(:child_support, supporter: @admin))
+    @group = FactoryBot.create(:group)
+    @child = FactoryBot.create(:child, child_support: FactoryBot.create(:child_support, supporter: @admin), group: @group, group_status: "active")
     @parent = FactoryBot.create(:parent, parent1_children: [@child])
-    @group = FactoryBot.create(:group, children: [@child])
     @event = FactoryBot.create(:event, related: @parent)
   end
 

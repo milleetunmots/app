@@ -31,7 +31,7 @@ class ExportRedirectionTargetStatsService
     registration_source_details
 
     group_name
-    has_quit_group
+    group_status
   ].freeze
 
   def initialize(redirection_target:)
