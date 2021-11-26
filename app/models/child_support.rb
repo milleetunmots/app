@@ -304,7 +304,7 @@ class ChildSupport < ApplicationRecord
 
   delegate :address,
     :city_name,
-    :has_quit_group,
+    :group_status,
     :letterbox_name,
     :parent_events,
     :parent1_first_name,

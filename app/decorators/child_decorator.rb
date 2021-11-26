@@ -56,6 +56,12 @@ class ChildDecorator < BaseDecorator
     Child.human_attribute_name("gender.#{safe_gender}")
   end
 
+  def group_status
+    if v = model.group_status
+      Child.human_attribute_name("group_status.#{v}")
+    end
+  end
+
   def gendered_name_with_age(options = {})
     with_icon = options.delete(:with_icon)
 
@@ -91,10 +97,12 @@ class ChildDecorator < BaseDecorator
 
   def group
     options = {}
-    if model.parent_events.received_text_messages.where(body: "STOP").any?
+    if model.group_status == "stopped"
       options[:class] = "stop"
-    elsif model.has_quit_group?
-      options[:class] = "quit"
+    elsif model.group_status == "paused"
+      options[:class] = "pause"
+    elsif model.group_status == "waiting"
+      options[:class] = "wait"
     end
     model.group&.decorate&.admin_link(options)
   end

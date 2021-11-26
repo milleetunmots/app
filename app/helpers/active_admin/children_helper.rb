@@ -22,6 +22,15 @@ module ActiveAdmin::ChildrenHelper
     Group.order(:name).map(&:decorate)
   end
 
+  def child_group_status_select_collection
+    Child::GROUP_STATUS.map do |v|
+      [
+        Child.human_attribute_name("group_status.#{v}"),
+        v
+      ]
+    end
+  end
+
   def child_parent_select_collection
     Parent.order(:first_name, :last_name).map(&:decorate)
   end

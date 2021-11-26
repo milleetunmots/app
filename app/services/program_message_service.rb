@@ -118,7 +118,7 @@ class ProgramMessageService
   def find_parent_ids_from_groups
     Group.includes(:children).where(id: @group_ids).find_each do |group|
       group.children.each do |child|
-        next if child.has_quit_group
+        next if %w[waiting paused stopped].include? child.group_status
 
         @parent_ids << child.parent1_id if child.parent1_id && child.should_contact_parent1
         @parent_ids << child.parent2_id if child.parent2_id && child.should_contact_parent2

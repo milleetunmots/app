@@ -12,7 +12,7 @@
 #  family_redirection_visit_rate              :float
 #  first_name                                 :string           not null
 #  gender                                     :string
-#  has_quit_group                             :boolean          default(FALSE), not null
+#  group_status                               :string          default("waiting"), not null
 #  last_name                                  :string           not null
 #  registration_source                        :string
 #  registration_source_details                :string
@@ -50,6 +50,7 @@ class Child < ApplicationRecord
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery resubscribing other].freeze
   PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach].freeze
+  GROUP_STATUS = %w[waiting active paused stopped].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -84,6 +85,7 @@ class Child < ApplicationRecord
   validates :registration_source_details, presence: true
   validates :security_code, presence: true
   validates :pmi_detail, inclusion: {in: PMI_LIST, allow_blank: true}
+  validates :group_status, inclusion: {in: GROUP_STATUS}
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
 
@@ -140,6 +142,16 @@ class Child < ApplicationRecord
   def registration_months
     diff = created_at.month + created_at.year * 12 - (birthdate.month + birthdate.year * 12)
     if created_at.day < birthdate.day
+      diff - 1
+    else
+      diff
+    end
+  end
+
+  def child_follow_up_months
+    return unless follow_up_end && follow_up_start
+    diff = follow_up_end.month + follow_up_end.year * 12 - (follow_up_start.month + follow_up_start.year * 12)
+    if follow_up_end.day < follow_up_start.day
       diff - 1
     else
       diff
@@ -289,7 +301,7 @@ class Child < ApplicationRecord
   end
 
   def self.unpaused_group_id_in(*v)
-    where(group_id: v).where(has_quit_group: false)
+    where(group_id: v).where.not(group_status: "paused")
   end
 
   def self.without_parent_text_message_since(v)
