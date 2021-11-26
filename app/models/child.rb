@@ -88,7 +88,7 @@ class Child < ApplicationRecord
   validates :group_status, inclusion: {in: GROUP_STATUS}
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
-  validate :group_status
+  validate :valid_group_status
 
   def no_duplicate
     self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).each do |child|
@@ -105,7 +105,7 @@ class Child < ApplicationRecord
     end
   end
 
-  def group_status
+  def valid_group_status
     errors.add(:base, :invalid, message: "L'enfant ne peut pas être en attente en étant dans une cohorte") if group_id && group_status == "waiting"
     errors.add(:base, :invalid, message: "L'enfant doit être dans une cohorte") if group_id.nil? && group_status != "waiting"
   end

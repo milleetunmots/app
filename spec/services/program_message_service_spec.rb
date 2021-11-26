@@ -33,6 +33,7 @@ RSpec.describe ProgramMessageService do
       parent1_id: parent_3.id,
       should_contact_parent1: false,
       group_id: group.id,
+      group_status: "active",
       first_name: 'Joe'
     )
   end
