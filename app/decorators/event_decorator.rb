@@ -16,6 +16,10 @@ class EventDecorator < BaseDecorator
     decorated_related_first_child&.group
   end
 
+  def related_first_child_group_status
+    decorated_related_first_child&.group_status
+  end
+
   def related_first_child_link
     decorated_related_first_child&.admin_link
   end

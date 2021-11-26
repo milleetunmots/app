@@ -12,7 +12,7 @@
 #  family_redirection_visit_rate              :float
 #  first_name                                 :string           not null
 #  gender                                     :string
-#  has_quit_group                             :boolean          default(FALSE), not null
+#  group_status                               :string          default("waiting"), not null
 #  last_name                                  :string           not null
 #  registration_source                        :string
 #  registration_source_details                :string
@@ -50,6 +50,7 @@ class Child < ApplicationRecord
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery resubscribing other].freeze
   PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach].freeze
+  GROUP_STATUS = %w[waiting active paused stopped].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -84,8 +85,10 @@ class Child < ApplicationRecord
   validates :registration_source_details, presence: true
   validates :security_code, presence: true
   validates :pmi_detail, inclusion: {in: PMI_LIST, allow_blank: true}
+  validates :group_status, inclusion: {in: GROUP_STATUS}
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
+  validate :valid_group_status
 
   def no_duplicate
     self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).each do |child|
@@ -100,6 +103,11 @@ class Child < ApplicationRecord
     if parent1.phone_number == parent2.phone_number
       errors.add(:base, :invalid, message: "Nous avons besoin des coordonnées d'au moins un parent. Si l'autre parent ne souhaite pas recevoir les messages, merci de ne pas l'inscrire car nous n'avons pas besoin de son nom.")
     end
+  end
+
+  def valid_group_status
+    errors.add(:base, :invalid, message: "L'enfant ne peut pas être en attente en étant dans une cohorte") if group_id && group_status == "waiting"
+    errors.add(:base, :invalid, message: "L'enfant doit être dans une cohorte") if group_id.nil? && group_status != "waiting"
   end
 
   # ---------------------------------------------------------------------------
@@ -140,6 +148,16 @@ class Child < ApplicationRecord
   def registration_months
     diff = created_at.month + created_at.year * 12 - (birthdate.month + birthdate.year * 12)
     if created_at.day < birthdate.day
+      diff - 1
+    else
+      diff
+    end
+  end
+
+  def child_group_months
+    return unless group_end && group_start
+    diff = group_end.month + group_end.year * 12 - (group_start.month + group_start.year * 12)
+    if group_end.day < group_start.day
       diff - 1
     else
       diff
@@ -288,8 +306,8 @@ class Child < ApplicationRecord
     where(group_id: v)
   end
 
-  def self.unpaused_group_id_in(*v)
-    where(group_id: v).where(has_quit_group: false)
+  def self.active_group_id_in(*v)
+    where(group_id: v).where(group_status: "active")
   end
 
   def self.without_parent_text_message_since(v)
@@ -311,7 +329,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with unpaused_group_id_in without_parent_text_message_since registration_source_details_matches_any]
+    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in without_parent_text_message_since registration_source_details_matches_any]
   end
 
   # ---------------------------------------------------------------------------

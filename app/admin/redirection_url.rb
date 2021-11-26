@@ -101,7 +101,7 @@ ActiveAdmin.register RedirectionUrl do
     column :child_registration_source
     column :child_registration_source_details
     column :child_group_name
-    column :child_has_quit_group
+    column :child_group_status
 
     column :parent_gender
     column :parent_first_name

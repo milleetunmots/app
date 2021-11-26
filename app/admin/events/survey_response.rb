@@ -155,7 +155,7 @@ ActiveAdmin.register Events::SurveyResponse do
     column :related_first_child_name
 
     column :related_first_child_group_name
-    column :related_first_child_has_quit_group
+    column :related_first_child_group_status
 
     column :occurred_at
     column :survey_name

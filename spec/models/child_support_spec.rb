@@ -111,9 +111,9 @@ RSpec.describe ChildSupport, type: :model do
     @third_parent = FactoryBot.create(:parent, postal_code: 88888)
     @fourth_parent = FactoryBot.create(:parent, postal_code: 55555)
     @group = FactoryBot.create(:group)
-    @first_child = FactoryBot.create(:child, group: @group, registration_source: "pmi", parent1: @first_parent, parent2: @third_parent)
-    @second_child = FactoryBot.create(:child, has_quit_group: true, parent1: @second_parent, parent2: @fourth_parent, registration_source: "caf")
-    @third_child = FactoryBot.create(:child, registration_source: "pmi", registration_source_details: "Aristide Bamenou", parent1: @first_parent, group: @group)
+    @first_child = FactoryBot.create(:child, group: @group, registration_source: "pmi", parent1: @first_parent, parent2: @third_parent, group_status: "active")
+    @second_child = FactoryBot.create(:child, parent1: @second_parent, parent2: @fourth_parent, registration_source: "caf")
+    @third_child = FactoryBot.create(:child, registration_source: "pmi", registration_source_details: "Aristide Bamenou", parent1: @first_parent, group: @group, group_status: "active")
     @admin_user = FactoryBot.create(:admin_user)
     @first_child.create_support!
     @first_child_support = @first_child.child_support
@@ -202,10 +202,10 @@ RSpec.describe ChildSupport, type: :model do
     end
   end
 
-  describe "#unpaused_group_id_in(*v)" do
+  describe "#active_group_id_in(*v)" do
     context "returns" do
       it "child supports for unpaused child with group id in v" do
-        expect(ChildSupport.unpaused_group_id_in(@group.id)).to match_array [@first_child_support]
+        expect(ChildSupport.active_group_id_in(@group.id)).to match_array [@first_child_support]
       end
     end
   end

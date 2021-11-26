@@ -12,7 +12,7 @@
 #  family_redirection_visit_rate              :float
 #  first_name                                 :string           not null
 #  gender                                     :string
-#  has_quit_group                             :boolean          default(FALSE), not null
+#  group_status                               :string          default("waiting"), not null
 #  last_name                                  :string           not null
 #  registration_source                        :string
 #  registration_source_details                :string
