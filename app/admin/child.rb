@@ -118,6 +118,7 @@ ActiveAdmin.register Child do
   end
 
   collection_action :add_tags do
+    @klass = collection.object.klass
     @ids = session.delete(:add_tags_ids) || []
     @form_action = url_for(action: :perform_adding_tags)
     @back_url = request.referer
