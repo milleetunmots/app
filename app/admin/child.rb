@@ -426,7 +426,7 @@ ActiveAdmin.register Child do
   end
   member_action :quit_group do
     resource.update_attribute :group_status, "stopped"
-    resource.update_attribute :group_end, resource.model.group.ended_at.past? ? resource.model.group.ended_at : Time.now
+    resource.update_attribute :group_end, resource.model.group.ended_at&.past? ? resource.model.group.ended_at : Time.now
     redirect_to [:admin, resource]
   end
 
@@ -551,7 +551,7 @@ ActiveAdmin.register Child do
   controller do
     after_save do |child|
       child.update! group_start: child.group.started_at if child.group && %w[active stopped paused].include?(child.group_status)
-      child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at.past?
+      child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
       child.child_support&.update! tag_list: child.tag_list
       child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
       child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
