@@ -12,7 +12,7 @@
 #  family_redirection_visit_rate              :float
 #  first_name                                 :string           not null
 #  gender                                     :string
-#  has_quit_group                             :boolean          default(FALSE), not null
+#  group_status                               :string          default("waiting"), not null
 #  last_name                                  :string           not null
 #  registration_source                        :string
 #  registration_source_details                :string
@@ -54,7 +54,7 @@ RSpec.describe Child, type: :model do
     @fourth_parent = FactoryBot.create(:parent, postal_code: 78190, gender: Parent::GENDER_FEMALE)
     @fifth_parent = FactoryBot.create(:parent, postal_code: 78190, gender: Parent::GENDER_FEMALE)
     @first_child = FactoryBot.create(:child, parent1: @first_parent, parent2: @second_parent, birthdate: Date.today.prev_month, should_contact_parent2: true, group: @group, tag_list: ["tag1"])
-    @second_child = FactoryBot.create(:child, parent1: @first_parent, parent2: @second_parent, birthdate: Date.today.prev_month(8), group: @group, has_quit_group: true, tag_list: ["tag2"])
+    @second_child = FactoryBot.create(:child, parent1: @first_parent, parent2: @second_parent, birthdate: Date.today.prev_month(8), group: @group, group_status: "paused", tag_list: ["tag2"])
     @third_child = FactoryBot.create(:child, parent1: @first_parent, parent2: @fourth_parent, birthdate: Date.today.prev_month(14))
     @fourth_child = FactoryBot.create(:child, parent1: @third_parent, parent2: @fifth_parent, birthdate: Date.today.yesterday, tag_list: ["test1"])
     @fifth_child = FactoryBot.create(:child, parent1: @third_parent, parent2: @fifth_parent, birthdate: Date.today.prev_month(27), should_contact_parent1: true, tag_list: ["test2"])

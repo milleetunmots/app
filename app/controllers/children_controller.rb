@@ -198,7 +198,7 @@ class ChildrenController < ApplicationController
   end
 
   def child_update_params
-    params.require(:child).permit(:has_quit_group)
+    params.require(:child).permit(:group_status)
   end
 
   def parent1_params

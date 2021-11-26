@@ -37,6 +37,10 @@ class RedirectionUrlDecorator < BaseDecorator
     h.link_to txt.html_safe, visit_url, target: '_blank'
   end
 
+  def child_group_status
+    decorated_child&.group_status
+  end
+
   private
 
   def decorated_redirection_target

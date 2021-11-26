@@ -70,10 +70,12 @@ fr:
         family_redirection_visit_rate: "Taux de visites familiales d'URL courtes"
         family_text_messages_count: SMS familiaux
         first_name: Prénom
+        follow_up_end: Fin du suivi
+        follow_up_start: Debut du suivi
         gender: Sexe
         group: Cohorte
         child_group_name: Cohorte
-        has_quit_group: Cohorte en pause
+        group_status: Status de la cohorte
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres
         months: Age (en mois)
@@ -100,6 +102,7 @@ fr:
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?
         src_url: URL d'inscription
+        child_follow_up_months: Durée de l'accompagnement (en mois)
       child/gender:
         f: Fille
         m: Garçon
@@ -123,6 +126,11 @@ fr:
         pithiviers: PMI Pithiviers
         sarreguemines: PMI Sarreguemines
         forbach: PMI Forbach
+      child/group_status:
+        waiting: En attente
+        active: Active
+        paused: En pause
+        stopped: Arrêtée
       child_support:
         << : *SHARED
         address: Adresse
@@ -289,7 +297,7 @@ fr:
         related_first_child_group: Cohorte
         related_first_child_group_id: Cohorte
         related_first_child_group_name: Cohorte
-        related_first_child_has_quit_group: Cohorte en pause
+        related_first_child_group_status: Status de la cohorte
         related_first_child_id: Famille
         related_first_child_name: Famille
         related_id: Parent
@@ -412,7 +420,7 @@ fr:
         child_first_name: "Prénom de l'enfant"
         child_gender: "Sexe de l'enfant"
         child_group_name: Cohorte
-        child_has_quit_group: Cohorte en pause
+        child_group_status: Statut de la cohorte
         child_last_name: "Nom de l'enfant"
         child_registration_source: Origine
         child_registration_source_details: "Précisions sur l'origine"
