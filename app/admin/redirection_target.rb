@@ -37,8 +37,8 @@ ActiveAdmin.register RedirectionTarget do
   end
 
   filter :medium,
-         collection: proc { redirection_target_medium_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
+    collection: proc { redirection_target_medium_select_collection },
+    input_html: { multiple: true, data: { select2: {} } }
   filter :created_at
   filter :updated_at
 
@@ -47,10 +47,11 @@ ActiveAdmin.register RedirectionTarget do
   # ---------------------------------------------------------------------------
 
   form do |f|
+    f.semantic_errors *f.object.errors.keys
     f.inputs do
       f.input :medium,
-              collection: redirection_target_medium_select_collection,
-              input_html: { data: { select2: {} } }
+        collection: redirection_target_medium_select_collection,
+        input_html: { data: { select2: {} } }
     end
     f.actions
   end
@@ -81,7 +82,7 @@ ActiveAdmin.register RedirectionTarget do
   end
 
   action_item :export_stats,
-              only: :show do
+    only: :show do
     link_to 'Stats par famille', [:export_stats, :admin, resource]
   end
   member_action :export_stats do

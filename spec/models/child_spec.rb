@@ -53,7 +53,7 @@ RSpec.describe Child, type: :model do
     @third_parent = FactoryBot.create(:parent, postal_code: 45170, gender: Parent::GENDER_MALE)
     @fourth_parent = FactoryBot.create(:parent, postal_code: 78190, gender: Parent::GENDER_FEMALE)
     @fifth_parent = FactoryBot.create(:parent, postal_code: 78190, gender: Parent::GENDER_FEMALE)
-    @first_child = FactoryBot.create(:child, parent1: @first_parent, parent2: @second_parent, birthdate: Date.today.prev_month, should_contact_parent2: true, group: @group, tag_list: ["tag1"])
+    @first_child = FactoryBot.create(:child, parent1: @first_parent, parent2: @second_parent, birthdate: Date.today.prev_month, should_contact_parent2: true, group: @group, tag_list: ["tag1"], group_status: "active")
     @second_child = FactoryBot.create(:child, parent1: @first_parent, parent2: @second_parent, birthdate: Date.today.prev_month(8), group: @group, group_status: "paused", tag_list: ["tag2"])
     @third_child = FactoryBot.create(:child, parent1: @first_parent, parent2: @fourth_parent, birthdate: Date.today.prev_month(14))
     @fourth_child = FactoryBot.create(:child, parent1: @third_parent, parent2: @fifth_parent, birthdate: Date.today.yesterday, tag_list: ["test1"])
@@ -367,10 +367,10 @@ RSpec.describe Child, type: :model do
     end
   end
 
-  describe "#unpaused_group_id_in" do
+  describe "#active_group_id_in" do
     context "returns" do
       it "children in the group in parameter and doesn't have quit" do
-        expect(Child.unpaused_group_id_in(@group.id)).to match_array [@first_child]
+        expect(Child.active_group_id_in(@group.id)).to match_array [@first_child]
         expect(Child.all).to match_array @all_children
       end
     end
