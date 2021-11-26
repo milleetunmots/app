@@ -367,10 +367,10 @@ RSpec.describe Child, type: :model do
     end
   end
 
-  describe "#unpaused_group_id_in" do
+  describe "#active_group_id_in" do
     context "returns" do
       it "children in the group in parameter and doesn't have quit" do
-        expect(Child.unpaused_group_id_in(@group.id)).to match_array [@first_child]
+        expect(Child.active_group_id_in(@group.id)).to match_array [@first_child]
         expect(Child.all).to match_array @all_children
       end
     end

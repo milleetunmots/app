@@ -4,6 +4,8 @@ class AddGroupStatusToChildren < ActiveRecord::Migration[6.0]
     add_column :children, :group_start, :date
     add_column :children, :group_end, :date
 
+    Child.reset_column_information
+
     Child.where.not(group_id: nil).each do |child|
       group = Group.find(child.group_id)
       child.update group_start: group.started_at

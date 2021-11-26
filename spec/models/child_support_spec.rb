@@ -202,10 +202,10 @@ RSpec.describe ChildSupport, type: :model do
     end
   end
 
-  describe "#unpaused_group_id_in(*v)" do
+  describe "#active_group_id_in(*v)" do
     context "returns" do
       it "child supports for unpaused child with group id in v" do
-        expect(ChildSupport.unpaused_group_id_in(@group.id)).to match_array [@first_child_support]
+        expect(ChildSupport.active_group_id_in(@group.id)).to match_array [@first_child_support]
       end
     end
   end

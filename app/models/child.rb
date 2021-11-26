@@ -306,8 +306,8 @@ class Child < ApplicationRecord
     where(group_id: v)
   end
 
-  def self.unpaused_group_id_in(*v)
-    where(group_id: v).where.not(group_status: "paused")
+  def self.active_group_id_in(*v)
+    where(group_id: v).where(group_status: "active")
   end
 
   def self.without_parent_text_message_since(v)
@@ -329,7 +329,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with unpaused_group_id_in without_parent_text_message_since registration_source_details_matches_any]
+    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in without_parent_text_message_since registration_source_details_matches_any]
   end
 
   # ---------------------------------------------------------------------------

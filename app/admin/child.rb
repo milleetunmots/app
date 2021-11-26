@@ -109,7 +109,7 @@ ActiveAdmin.register Child do
     as: :datepicker,
     required: false,
     label: "Fin de l'accompagnement"
-  filter :unpaused_group_id_in,
+  filter :active_group_id_in,
     as: :select,
     collection: proc { child_group_select_collection },
     input_html: {multiple: true, data: {select2: {}}},
@@ -558,7 +558,7 @@ ActiveAdmin.register Child do
     end
 
     def csv_filename
-      filter_name = params.fetch(:q, {}).fetch(:unpaused_group_id_in, []).map do |group_id|
+      filter_name = params.fetch(:q, {}).fetch(:active_group_id_in, []).map do |group_id|
         Group.find_by_id(group_id)&.name
       end.join(",")
 
