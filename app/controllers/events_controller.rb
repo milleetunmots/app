@@ -41,7 +41,7 @@ class EventsController < ApplicationController
                         originated_by_app: false
     })
     head :unprocessable_entity and return unless event.save
-    #TODO Quitter la cohorte
+    parent.children.each { |child| child.update!(group_status: "stopped", group_end: Time.now) }
 
     head :ok
 
