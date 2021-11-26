@@ -85,6 +85,18 @@ class Event < ApplicationRecord
   end
 
   # ---------------------------------------------------------------------------
+  # helpers
+  # ---------------------------------------------------------------------------
+
+  def is_received_text_message?
+    is_a?(Events::TextMessage) && !originated_by_app
+  end
+
+  def is_sent_by_app_text_message?
+    is_a?(Events::TextMessage) && originated_by_app
+  end
+
+  # ---------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
 
