@@ -551,7 +551,7 @@ ActiveAdmin.register Child do
 
   controller do
     after_save do |child|
-      child.update! group_start: child.group.started_at if child.group && %w[active stopped paused].include?(child.group_status) && group_start.nil
+      child.update! group_start: child.group.started_at if child.group && %w[active stopped paused].include?(child.group_status) && group_start.nil?
       child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
       child.child_support&.update! tag_list: child.tag_list
       child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
