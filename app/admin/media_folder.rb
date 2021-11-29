@@ -30,11 +30,12 @@ ActiveAdmin.register MediaFolder do
   # ---------------------------------------------------------------------------
 
   form do |f|
+    f.semantic_errors *f.object.errors.keys
     f.inputs do
       f.input :parent,
-              collection: media_folder_parent_select_collection(f.object),
-              include_blank: 'Aucun (dossier racine)',
-              input_html: { data: { select2: {} } }
+        collection: media_folder_parent_select_collection(f.object),
+        include_blank: 'Aucun (dossier racine)',
+        input_html: { data: { select2: {} } }
       f.input :name
     end
     f.actions
