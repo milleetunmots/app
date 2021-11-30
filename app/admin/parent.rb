@@ -75,9 +75,7 @@ ActiveAdmin.register Parent do
       f.input :is_lycamobile
       f.input :email
       f.input :letterbox_name
-      f.input :address
-      f.input :postal_code
-      f.input :city_name
+      address_input f
       f.input :is_ambassador
       f.input :job
       f.input :terms_accepted_at, as: :datepicker

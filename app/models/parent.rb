@@ -75,6 +75,7 @@ class Parent < ApplicationRecord
   has_many :redirection_urls, dependent: :destroy
 
   has_many :events, as: :related
+  # has_many :workshops, through: :events, as: :related
 
   # ---------------------------------------------------------------------------
   # validations

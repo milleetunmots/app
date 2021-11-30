@@ -35,6 +35,7 @@ class Event < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   belongs_to :related, polymorphic: true
+  # belongs_to :workshop, optional: true
 
   # ---------------------------------------------------------------------------
   # validations

@@ -7,11 +7,11 @@ fr:
       events_other_event: Autre
       events_survey_response: Questionnaire
       events_text_message: SMS
-      events_workshop_participation: Atelier
+      events_workshop_participation: Participation aux ateliers
       events/other_event: Autre
       events/survey_response: Questionnaire
       events/text_message: SMS
-      events/workshop_participation: Atelier
+      events/workshop_participation: Participation aux ateliers
       field_comment: Commentaire
       group: Cohorte
       medium: Média
@@ -34,6 +34,7 @@ fr:
       support_module: Module
       support_module_week: Semaine
       task: Tâche
+      workshop: Atelier
     attributes:
       shared: &SHARED
         created_at: Ajout

@@ -512,6 +512,7 @@ ActiveAdmin.register Child do
     column :postal_code
 
     column :child_group_name
+    column :child_group_months
 
     column :parent1_gender
     column :parent1_first_name

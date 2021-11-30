@@ -8,11 +8,10 @@ class CreateWorkshops < ActiveRecord::Migration[6.0]
       t.string :postal_code, null: false
       t.string :city_name, null: false
       t.text :description
-      t.references :animator, foreign_key: {to_table: :admin_users}
+      t.string :guests_tag
+      t.datetime :discarded_at
 
       t.timestamps
     end
-
-    add_reference :events, :workshop
   end
 end
