@@ -1,8 +1,8 @@
-# class Workshop < ApplicationRecord
-#   include Discard::Model
-#
-#   belongs_to :animator, class_name: "AdminUser"
-#   has_many :events, dependent: :delete_all
+class Workshop < ApplicationRecord
+  include Discard::Model
+
+  belongs_to :animator, class_name: "AdminUser"
+  has_many :events
 #
 #   validates :title,
 #     presence: true,
@@ -25,11 +25,11 @@
 #       allow_blank: true
 #     }
 #
-#   def parents_selected
-#     super&.split(";")
-#   end
+  def parents_selected
+    super&.split(";")
+  end
 #
-#   def parents_selected=(val)
-#     super(val.reject(&:blank?).join(";"))
-#   end
-# end
+  def parents_selected=(val)
+    super(val.reject(&:blank?).join(";"))
+  end
+end
