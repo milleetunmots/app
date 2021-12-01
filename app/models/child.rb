@@ -156,6 +156,7 @@ class Child < ApplicationRecord
 
   def child_group_months
     return unless group_end && group_start
+
     diff = group_end.month + group_end.year * 12 - (group_start.month + group_start.year * 12)
     if group_end.day < group_start.day
       diff - 1
@@ -163,6 +164,30 @@ class Child < ApplicationRecord
       diff
     end
   end
+
+  def months_since_registration
+    return unless group_start
+
+    diff = group_start.month + group_start.year * 12 - (created_at.month + created_at.year * 12)
+    if created_at.day < group_start.day
+      diff - 1
+    else
+      diff
+    end
+  end
+
+  def months_since_group_start
+    return unless group_start&.past?
+
+    diff = Time.now.month + Time.now.year * 12 - (group_start.month + group_start.year * 12)
+    if group_start.day < Time.now.day
+      diff - 1
+    else
+      diff
+    end
+
+  end
+
 
   # we do not call this 'siblings' because real siblings may have only
   # one parent in common
