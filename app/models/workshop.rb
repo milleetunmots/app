@@ -21,7 +21,7 @@ class Workshop < ApplicationRecord
 
   validates :co_animator,
     inclusion: {
-      in: AdminUser.order(:name).pluck(:name),
+      in: admin_user_select_collection,
       allow_blank: true
     }
 
