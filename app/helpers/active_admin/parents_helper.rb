@@ -9,4 +9,7 @@ module ActiveAdmin::ParentsHelper
     end
   end
 
+  def parent_select_collection
+    Parent.order(:id).map(&:decorate)
+  end
 end
