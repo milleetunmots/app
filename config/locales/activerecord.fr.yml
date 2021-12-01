@@ -104,6 +104,8 @@ fr:
         should_contact_parent2: Contacter parent 2 ?
         src_url: URL d'inscription
         child_group_months: Durée de l'accompagnement (en mois)
+        months_since_registration: Temps entre l'inscription et le debut de la cohorte (en mois)
+        months_since_group_start: Temps depuis le debut de l'accompagnement (en mois)
       child/gender:
         f: Fille
         m: Garçon
