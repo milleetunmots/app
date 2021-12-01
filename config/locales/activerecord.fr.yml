@@ -470,6 +470,16 @@ fr:
         related: Élément concerné
         reporter: Ajoutée par
         title: Intitulé
+      workshop:
+        title: Thème
+        animator: Animateur
+        co_animator: Co-animateur
+        address: Adresse
+        guests_tag: Tag des invités
+        postal_code: Code postal
+        city_name: Ville
+        parents_selected: Parents invités
+        workshop_address: Adresse
     errors:
       models:
         parent:

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_30_175601) do
+ActiveRecord::Schema.define(version: 2021_11_30_235017) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -441,9 +441,10 @@ ActiveRecord::Schema.define(version: 2021_11_30_175601) do
   end
 
   create_table "workshops", force: :cascade do |t|
-    t.string "title"
+    t.string "title", null: false
     t.string "co_animator"
     t.datetime "occurred_at"
+    t.string "parents_selected"
     t.string "address", null: false
     t.string "postal_code", null: false
     t.string "city_name", null: false
@@ -452,7 +453,7 @@ ActiveRecord::Schema.define(version: 2021_11_30_175601) do
     t.datetime "discarded_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "animator_id"
+    t.bigint "animator_id", null: false
     t.index ["animator_id"], name: "index_workshops_on_animator_id"
   end
 
@@ -460,6 +461,7 @@ ActiveRecord::Schema.define(version: 2021_11_30_175601) do
   add_foreign_key "child_supports", "admin_users", column: "supporter_id"
   add_foreign_key "children", "parents", column: "parent1_id"
   add_foreign_key "children", "parents", column: "parent2_id"
+  add_foreign_key "events", "workshops"
   add_foreign_key "field_comments", "admin_users", column: "author_id"
   add_foreign_key "media", "media", column: "image1_id"
   add_foreign_key "media", "media", column: "image2_id"

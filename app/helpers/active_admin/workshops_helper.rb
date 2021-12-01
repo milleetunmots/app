@@ -1,6 +1,6 @@
 module ActiveAdmin::WorkshopsHelper
   def workshop_co_animator_select_collection
-    AdminUser.order(:name).map(&:decorate)
+    AdminUser.order(:name).map(&:name)
   end
 
   def parent_collection
