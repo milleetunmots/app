@@ -19,12 +19,6 @@ class Workshop < ApplicationRecord
   validates :city_name,
     presence: true
 
-  validates :co_animator,
-    inclusion: {
-      in: admin_user_select_collection,
-      allow_blank: true
-    }
-
   def parents_selected
     super&.split(";")
   end
