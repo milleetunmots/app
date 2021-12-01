@@ -102,9 +102,7 @@ class Event < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super(auth_object) + %i[parent_first_child_group_id_in parent_first_child_supporter_id_in]
+    %i[parent_first_child_group_id_in parent_first_child_supporter_id_in]
   end
-
-  acts_as_taggable
 
 end

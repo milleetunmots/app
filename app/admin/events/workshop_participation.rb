@@ -6,8 +6,7 @@ ActiveAdmin.register Events::WorkshopParticipation do
 
   has_better_csv
   use_discard
-  has_tags
-
+  
   # ---------------------------------------------------------------------------
   # INDEX
   # ---------------------------------------------------------------------------
@@ -61,9 +60,6 @@ ActiveAdmin.register Events::WorkshopParticipation do
       row :related_first_child do |model|
         model.related_first_child_link
       end
-      row :address
-      row :postal_code
-      row :city_name
       row :occurred_at
       row :comments, class: "row-pre"
       row :created_at
@@ -84,7 +80,6 @@ ActiveAdmin.register Events::WorkshopParticipation do
   end
 
   form do |f|
-    render "admin/address/google_places_api"
     f.semantic_errors *f.object.errors.keys
     f.inputs do
       if f.object.related
@@ -101,16 +96,12 @@ ActiveAdmin.register Events::WorkshopParticipation do
 
       f.input :occurred_at
 
-      address_input f
-
       f.input :comments, as: :text, input_html: {rows: 10}
-
-      tags_input f
     end
     f.actions
   end
 
-  permit_params :related_type, :related_id, :occurred_at, :comments, :address, :postal_code, :city_name, tags_params
+  permit_params :related_type, :related_id, :occurred_at, :comments
 
   # ---------------------------------------------------------------------------
   # CSV EXPORT
