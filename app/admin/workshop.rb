@@ -61,7 +61,8 @@ ActiveAdmin.register Workshop do
     def create
       workshop_attributes = params.require(:workshop).permit(:title, :occurred_at, :animator_id, :co_animator, :address, :postal_code, :city_name, :description, :guests_tag, parents_selected: []).to_h
 
-      @workshop = Workshop.create(workshop_attributes)
+      @workshop = Workshop.new(workshop_attributes)
+      @workshop.save
 
       parents_selected = Parent.find(workshop_attributes["parents_selected"].map(&:to_i).delete_if { |i| i == 0 })
       parents_tagged = Parent.tagged_with(workshop_attributes[:guests_tag]).to_a
@@ -69,13 +70,14 @@ ActiveAdmin.register Workshop do
       guest_list = (parents_selected + parents_tagged).uniq
 
       guest_list.each do |guest|
-        event = Event.create(
+        event = Event.new(
           related: guest,
           comments: @workshop.description,
           type: "Events::WorkshopParticipation",
           occurred_at: @workshop.occurred_at,
           workshop_id: @workshop.id
         )
+        event.save
       end
       redirect_to admin_workshop_path @workshop
     end
