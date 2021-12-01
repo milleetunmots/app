@@ -3,8 +3,6 @@ ActiveAdmin.register Workshop do
   decorate_with WorkshopDecorator
 
   has_better_csv
-  has_paper_trail
-  has_tasks
   use_discard
 
   includes :animator
@@ -19,6 +17,13 @@ ActiveAdmin.register Workshop do
     column :guests_tag
   end
 
+  filter :title
+  filter :animator
+  filter :address
+  filter :postal_code
+  filter :city_name
+  filter :guests_tag
+
   form do |f|
     f.semantic_errors *f.object.errors.keys
     f.inputs do
@@ -29,7 +34,7 @@ ActiveAdmin.register Workshop do
       address_input f
       f.input :description, input_html: {rows: 3}
       f.input :parents_selected, multiple: true, collection: parent_collection, input_html: {data: {select2: {}}}
-      f.input :guests_tag, collection: Tag.order(:name).pluck(:name), input_html: {data: {select2: {}}}
+      f.input :guests_tag, collection: workshop_tag_collection, input_html: {data: {select2: {}}}
     end
     f.actions
   end
@@ -38,9 +43,18 @@ ActiveAdmin.register Workshop do
 
   show do
     tabs do
-
+      tab "Infos" do
+        attributes_table do
+          row :title
+          row :occurred_at
+          row :animator
+          row :co_animator
+          row :workshop_address
+          row :description
+          row :guests_tag
+        end
+      end
     end
-
   end
 
   controller do

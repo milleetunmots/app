@@ -475,6 +475,7 @@ fr:
         animator: Animateur
         co_animator: Co-animateur
         address: Adresse
+        occurred_at: Date
         guests_tag: Tag des invités
         postal_code: Code postal
         city_name: Ville
