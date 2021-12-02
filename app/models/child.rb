@@ -137,55 +137,25 @@ class Child < ApplicationRecord
 
   # computes an (integer) number of months old
   def months
-    diff = Time.zone.today.month + Time.zone.today.year * 12 - (birthdate.month + birthdate.year * 12)
-    if Time.zone.today.day < birthdate.day
-      diff - 1
-    else
-      diff
-    end
+    duration_in_months(birthdate)
   end
 
   def registration_months
-    diff = created_at.month + created_at.year * 12 - (birthdate.month + birthdate.year * 12)
-    if created_at.day < birthdate.day
-      diff - 1
-    else
-      diff
-    end
+    duration_in_months(birthdate, created_at)
   end
 
   def child_group_months
-    return unless group_end && group_start
-
-    diff = group_end.month + group_end.year * 12 - (group_start.month + group_start.year * 12)
-    if group_end.day < group_start.day
-      diff - 1
-    else
-      diff
-    end
+    duration_in_months(group_start, group_end)
   end
 
-  def months_since_registration
-    return unless group_start
-
-    diff = group_start.month + group_start.year * 12 - (created_at.month + created_at.year * 12)
-    if created_at.day < group_start.day
-      diff - 1
-    else
-      diff
-    end
+  def months_between_registration_and_group_start
+    duration_in_months(created_at, group_start)
   end
 
   def months_since_group_start
-    return unless group_start&.past?
+    return if group_end&.past?
 
-    diff = Time.now.month + Time.now.year * 12 - (group_start.month + group_start.year * 12)
-    if group_start.day < Time.now.day
-      diff - 1
-    else
-      diff
-    end
-
+    duration_in_months(group_start)
   end
 
 
@@ -492,5 +462,18 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   acts_as_taggable
+
+  private
+
+  def duration_in_months(started_at, ended_at = Time.now)
+    return unless started_at && ended_at && ended_at > started_at
+
+    diff = ended_at.month + ended_at.year * 12 - (started_at.month + started_at.year * 12)
+    if ended_at.day < started_at.day
+      diff - 1
+    else
+      diff
+    end
+  end
 
 end
