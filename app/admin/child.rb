@@ -36,9 +36,9 @@ ActiveAdmin.register Child do
     end
     column :group, sortable: :group_id
     column :group_status
-    if :group_start && :group_end
-      column :child_group_months
-    end
+    # if :group_start && :group_end
+    #   column :child_group_months
+    # end
     # column :months_between_registration_and_group_start if :group_start
     # column :months_since_group_start if :group_start && :group_end
     column :pmi_detail
