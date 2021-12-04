@@ -78,23 +78,11 @@ ActiveAdmin.register Workshop do
 
         guest_list.each do |guest|
           parent_id = guest.gsub("parent.", "").to_i
-          event = Event.new(
-            related_type: "Parent",
-            related_id: parent_id,
-            comments: @workshop.description,
-            type: "Events::WorkshopParticipation",
-            occurred_at: @workshop.occurred_at,
-            workshop_id: @workshop.id
-          )
+          event = Event.new(related_type: "Parent", related_id: parent_id, comments: @workshop.description, type: "Events::WorkshopParticipation", occurred_at: @workshop.occurred_at, workshop_id: @workshop.id)
           event.save
           response_url = " Cliquez sur ce lien pour repondre à l'invitation: #{request.base_url}/w/#{parent_id}/#{@workshop.id}"
 
-          ProgramMessageService.new(
-            Date.today,
-            Time.zone.now.strftime("%H:%M"),
-            [guest],
-            @workshop.invitation_message + response_url
-          ).call
+          ProgramMessageService.new(Date.today, Time.zone.now.strftime("%H:%M"), [guest], @workshop.invitation_message + response_url).call
         end
 
         redirect_to admin_workshop_path @workshop
