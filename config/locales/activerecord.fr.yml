@@ -318,6 +318,8 @@ fr:
       events/workshop_participation:
         << : *EVENT
         comments: Infos
+        workshop_invitation_response: Réponse à l'invitation
+        workshop_presence: Présent
       field_comment:
         << : *SHARED
         author: Auteur
@@ -478,11 +480,13 @@ fr:
         co_animator: Co-animateur
         address: Adresse
         occurred_at: Date
+        invitation_message: Message d'invitation
         guests_tag: Tag des invités
         postal_code: Code postal
         city_name: Ville
         parents_selected: Parents invités
         workshop_address: Adresse
+        workshop_parents_list: Parents invités
     errors:
       models:
         parent:
