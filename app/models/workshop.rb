@@ -2,7 +2,7 @@ class Workshop < ApplicationRecord
   include Discard::Model
 
   belongs_to :animator, class_name: "AdminUser"
-  has_many :events
+  has_many :events, dependent: :delete_all
 
   validates :title,
     presence: true,
@@ -17,6 +17,8 @@ class Workshop < ApplicationRecord
   validates :postal_code,
     presence: true
   validates :city_name,
+    presence: true
+  validates :invitation_message,
     presence: true
 
   def parents_selected
