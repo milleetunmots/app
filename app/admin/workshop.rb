@@ -13,6 +13,7 @@ ActiveAdmin.register Workshop do
     column :title
     column :animator
     column :co_animator
+    column :occurred_at
     column :workshop_address
     column :guests_tag
   end
