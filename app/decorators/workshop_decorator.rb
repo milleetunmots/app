@@ -20,6 +20,8 @@ class WorkshopDecorator < BaseDecorator
   private
 
   def parents_list
-    Parent.find(parents_selected.map(&:to_i))
+    parents_tagged = Parent.tagged_with(guests_tag).pluck(:id).map(&:to_i)
+    guest_list = (parents_selected + parents_tagged).uniq
+    Parent.find(guest_list.map(&:to_i))
   end
 end
