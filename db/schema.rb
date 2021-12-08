@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_01_194712) do
+ActiveRecord::Schema.define(version: 2021_12_08_094905) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -438,6 +438,18 @@ ActiveRecord::Schema.define(version: 2021_12_01_194712) do
     t.datetime "created_at"
     t.text "object_changes"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
+  end
+
+  create_table "welcome_form_responses", force: :cascade do |t|
+    t.string "form_phone_number"
+    t.string "form_last_name"
+    t.string "degree"
+    t.string "child_care"
+    t.integer "books_number"
+    t.text "parenting_practice"
+    t.text "initial_motivation"
+    t.bigint "parent_id"
+    t.index ["parent_id"], name: "index_welcome_form_responses_on_parent_id"
   end
 
   create_table "workshops", force: :cascade do |t|
