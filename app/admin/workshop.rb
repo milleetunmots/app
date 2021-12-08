@@ -81,7 +81,7 @@ ActiveAdmin.register Workshop do
           parent_id = guest.gsub("parent.", "").to_i
           event = Event.new(related_type: "Parent", related_id: parent_id, comments: @workshop.description, type: "Events::WorkshopParticipation", occurred_at: @workshop.occurred_at, workshop_id: @workshop.id)
           event.save
-          response_url = " Cliquez sur ce lien pour repondre à l'invitation: #{request.base_url}/w/#{parent_id}/#{@workshop.id}"
+          response_url = " Pour vous inscrire ou dire que vous ne venez pas, cliquer sur ce lien: #{request.base_url}/w/#{parent_id}/#{@workshop.id}"
 
           ProgramMessageService.new(Date.today, Time.zone.now.strftime("%H:%M"), [guest], @workshop.invitation_message + response_url).call
         end
