@@ -1,12 +1,12 @@
 ActiveAdmin.register Events::WorkshopParticipation do
 
-  menu parent: 'Événements'
+  menu parent: "Événements"
 
   decorate_with Events::WorkshopParticipationDecorator
 
   has_better_csv
   use_discard
-
+  
   # ---------------------------------------------------------------------------
   # INDEX
   # ---------------------------------------------------------------------------
@@ -38,10 +38,10 @@ ActiveAdmin.register Events::WorkshopParticipation do
   end
 
   filter :parent_first_child_group_id_in,
-         as: :select,
-         collection: proc { child_group_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
-         label: 'Cohorte'
+    as: :select,
+    collection: proc { child_group_select_collection },
+    input_html: {multiple: true, data: {select2: {}}},
+    label: "Cohorte"
 
   filter :comments
 
@@ -61,7 +61,7 @@ ActiveAdmin.register Events::WorkshopParticipation do
         model.related_first_child_link
       end
       row :occurred_at
-      row :comments, class: 'row-pre'
+      row :comments, class: "row-pre"
       row :created_at
       row :discarded_at
     end
@@ -80,11 +80,11 @@ ActiveAdmin.register Events::WorkshopParticipation do
   end
 
   form do |f|
-    f.semantic_errors
+    f.semantic_errors *f.object.errors.keys
     f.inputs do
       if f.object.related
         li class: :input do
-          label f.object.class.human_attribute_name('related'), class: :label
+          label f.object.class.human_attribute_name("related"), class: :label
           div style: "padding-top: 6px" do
             f.object.decorate.related_link
           end
@@ -96,7 +96,7 @@ ActiveAdmin.register Events::WorkshopParticipation do
 
       f.input :occurred_at
 
-      f.input :comments, as: :text, input_html: { rows: 10 }
+      f.input :comments, as: :text, input_html: {rows: 10}
     end
     f.actions
   end

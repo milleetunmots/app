@@ -187,7 +187,7 @@ ActiveAdmin.setup do |config|
   # pages:
   #   config.meta_tags_for_logged_out_pages = {}
 
-  meta_tags_options = { viewport: 'width=device-width, initial-scale=1' }
+  meta_tags_options = {viewport: "width=device-width, initial-scale=1"}
   config.meta_tags = meta_tags_options
   config.meta_tags_for_logged_out_pages = meta_tags_options
 
@@ -225,7 +225,7 @@ ActiveAdmin.setup do |config|
   # Set the CSV builder separator
   config.csv_options = {
     byte_order_mark: "\xEF\xBB\xBF",
-    col_sep: ';'
+    col_sep: ";"
   }
 
   # Force the use of quotes
@@ -319,4 +319,10 @@ ActiveAdmin.setup do |config|
   # You can inherit it with own class and inject it for all resources
   #
   # config.order_clause = MyOrderClause
+end
+
+Rails.application.config.after_initialize do
+  javascripts = Array.wrap("https://maps.googleapis.com/maps/api/js?libraries=places&key=#{ENV["GOOGLE_MAPS_API_KEY"]}")
+  javascripts += ActiveAdmin.application.javascripts.to_a
+  ActiveAdmin.application.javascripts.replace javascripts
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_26_155539) do
+ActiveRecord::Schema.define(version: 2021_12_08_094905) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -205,9 +205,13 @@ ActiveRecord::Schema.define(version: 2021_11_26_155539) do
     t.integer "spot_hit_status"
     t.string "spot_hit_message_id"
     t.boolean "originated_by_app", default: true, null: false
+    t.bigint "workshop_id"
+    t.string "response"
+    t.boolean "presence"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
     t.index ["type"], name: "index_events_on_type"
+    t.index ["workshop_id"], name: "index_events_on_workshop_id"
   end
 
   create_table "field_comments", force: :cascade do |t|
@@ -438,10 +442,35 @@ ActiveRecord::Schema.define(version: 2021_11_26_155539) do
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
+  create_table "welcome_form_responses", id: false, force: :cascade do |t|
+    t.string "response_id"
+    t.json "form_item"
+    t.index ["response_id"], name: "index_welcome_form_responses_on_response_id", unique: true
+  end
+
+  create_table "workshops", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "co_animator"
+    t.datetime "occurred_at"
+    t.string "parents_selected"
+    t.string "address", null: false
+    t.string "postal_code", null: false
+    t.string "city_name", null: false
+    t.text "description"
+    t.string "guests_tag"
+    t.datetime "discarded_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "animator_id", null: false
+    t.text "invitation_message"
+    t.index ["animator_id"], name: "index_workshops_on_animator_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "child_supports", "admin_users", column: "supporter_id"
   add_foreign_key "children", "parents", column: "parent1_id"
   add_foreign_key "children", "parents", column: "parent2_id"
+  add_foreign_key "events", "workshops"
   add_foreign_key "field_comments", "admin_users", column: "author_id"
   add_foreign_key "media", "media", column: "image1_id"
   add_foreign_key "media", "media", column: "image2_id"
@@ -456,4 +485,5 @@ ActiveRecord::Schema.define(version: 2021_11_26_155539) do
   add_foreign_key "taggings", "tags"
   add_foreign_key "tasks", "admin_users", column: "assignee_id"
   add_foreign_key "tasks", "admin_users", column: "reporter_id"
+  add_foreign_key "workshops", "admin_users", column: "animator_id"
 end
