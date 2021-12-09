@@ -206,6 +206,8 @@ ActiveRecord::Schema.define(version: 2021_12_08_094905) do
     t.string "spot_hit_message_id"
     t.boolean "originated_by_app", default: true, null: false
     t.bigint "workshop_id"
+    t.string "response"
+    t.boolean "presence"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
     t.index ["type"], name: "index_events_on_type"
@@ -440,16 +442,10 @@ ActiveRecord::Schema.define(version: 2021_12_08_094905) do
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
-  create_table "welcome_form_responses", force: :cascade do |t|
-    t.string "form_phone_number"
-    t.string "form_last_name"
-    t.string "degree"
-    t.string "child_care"
-    t.integer "books_number"
-    t.text "parenting_practice"
-    t.text "initial_motivation"
-    t.bigint "parent_id"
-    t.index ["parent_id"], name: "index_welcome_form_responses_on_parent_id"
+  create_table "welcome_form_responses", id: false, force: :cascade do |t|
+    t.string "response_id"
+    t.json "form_item"
+    t.index ["response_id"], name: "index_welcome_form_responses_on_response_id", unique: true
   end
 
   create_table "workshops", force: :cascade do |t|
@@ -466,6 +462,7 @@ ActiveRecord::Schema.define(version: 2021_12_08_094905) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "animator_id", null: false
+    t.text "invitation_message"
     t.index ["animator_id"], name: "index_workshops_on_animator_id"
   end
 

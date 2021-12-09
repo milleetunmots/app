@@ -1,15 +1,10 @@
 class CreateWelcomeFormResponse < ActiveRecord::Migration[6.0]
   def change
-    create_table :welcome_form_responses do |t|
-      t.string :form_phone_number
-      t.string :form_last_name
-      t.string :degree
-      t.string :child_care
-      t.integer :books_number
-      t.text :parenting_practice
-      t.text :initial_motivation
+    create_table :welcome_form_responses, id: false do |t|
+      t.string :response_id
+      t.json :form_item
 
-      t.references :parent
+      t.index :response_id, unique: true
     end
   end
 end
