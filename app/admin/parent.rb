@@ -133,6 +133,10 @@ ActiveAdmin.register Parent do
     end
   end
 
+  action_item :get_welcome_form_responses, priority: 0 do
+    link_to "Charger les réponses au formulaire de bienvenue", get_typeform_responses_path
+  end
+
   action_item :new_event, only: :show do
     dropdown_menu 'Ajouter' do
       item 'Un SMS reçu',
