@@ -63,4 +63,16 @@ module ActiveAdmin::ChildrenHelper
     Child.pluck('DISTINCT ON (LOWER(registration_source_details)) registration_source_details').compact.sort_by(&:downcase)
   end
 
+  def families_count
+    Child.families_count
+  end
+
+  def fathers_count
+    Child.fathers_count
+  end
+
+  def children_count
+    Child.limit(nil).count
+  end
+
 end
