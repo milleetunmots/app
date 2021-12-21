@@ -1,0 +1,32 @@
+<% birthdate_start = session[:birthdate_start] || Time.today.prev_year %>
+<% birthdate_end = session[:birthdate_end] || Time.today %>
+<% registration_date_start = session[:registration_date_start] || Time.today.prev_year %>
+<% registration_date_end = session[:registration_date_end] || Time.today %>
+
+<div class="data-row">
+  <div class="data-col">
+    <p>Nombre total de familles inscrites</p>
+    <%= families_data_count(
+          birthdate_start,
+          birthdate_end,
+          registration_date_start,
+          registration_date_end)%>
+  </div>
+  <div class="data-col">
+    <p>Nombre total d'enfants inscrits</p>
+    <%= children_data_count(
+          birthdate_start,
+          birthdate_end,
+          registration_date_start,
+          registration_date_end)%>
+  </div>
+  <div>
+    <p>Nombre total de pères</p>
+    <%= fathers_data_count(
+        birthdate_start,
+        birthdate_end,
+        registration_date_start,
+        registration_date_end)%>
+  </div>
+
+</div>

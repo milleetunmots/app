@@ -90,7 +90,7 @@ $(document).ready(function() {
       ]
   });
 
-  $('#age_range').select2({
+  $('#age_ranges').select2({
     width: '100%',
     placeholder: "Choisissez les tranches d'âge",
     data: [
