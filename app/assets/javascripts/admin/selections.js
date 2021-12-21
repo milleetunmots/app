@@ -54,4 +54,63 @@ $(document).ready(function() {
       delay: 250
     },
   });
+
+  $('#registration_sources').select2({
+    width: '100%',
+    placeholder: "Choisissez les origines des inscriptions",
+    data: [
+        {
+          "id": "caf",
+          "text": "CAF"
+        },
+        {
+          "id": "pmi",
+          "text": "Mon/ma professionnel·le de santé"
+        },
+        {
+          "id": "friends",
+          "text": "Par des amis / de la famille"
+        },
+        {
+          "id": "therapist",
+          "text": "Mon orthophoniste"
+        },
+        {
+          "id": "nursery",
+          "text": "Crèche"
+        },
+        {
+          "id": "resubscribing",
+          "text": "J'ai déjà reçu les SMS et je réinscris un enfant"
+        },
+        {
+          "id": "other",
+          "text": "Autre"
+        }
+      ]
+  });
+
+  $('#age_range').select2({
+    width: '100%',
+    placeholder: "Choisissez les tranches d'âge",
+    data: [
+      {
+        "id": 6,
+        "text": "Moins de 6 mois"
+      },
+      {
+        "id": 12,
+        "text": "12 - 24 mois"
+      },
+      {
+        "id": 24,
+        "text": "24 - 36 mois"
+      },
+      {
+        "id": 36,
+        "text": "Plus de 36 mois"
+      },
+    ]
+  })
+
 });
