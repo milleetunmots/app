@@ -1,42 +1,22 @@
 module ActiveAdmin::RegistrationsHelper
 
-  def families_data_count(
-    birthdate_start,
-    birthdate_end,
-    registration_date_start,
-    registration_date_end
+  def data_count(
+    registration_start,
+    registration_end,
+    age_start,
+    age_end,
+    registration_sources
   )
-    birthdate_start = Date.strptime(birthdate_start.to_s, "%Y-%m-%d")
-    birthdate_end = Date.strptime(birthdate_end.to_s, "%Y-%m-%d")
-    Child.where(birthdate: birthdate_start..birthdate_end)
-      .where(created_at: registration_date_start..registration_date_end)
-      .families_count
-  end
+    values = {}
 
-  def children_data_count(
-    birthdate_start,
-    birthdate_end,
-    registration_date_start,
-    registration_date_end
-  )
-    birthdate_start = Date.strptime(birthdate_start.to_s, "%Y-%m-%d")
-    birthdate_end = Date.strptime(birthdate_end.to_s, "%Y-%m-%d")
-    Child.where(birthdate: birthdate_start..birthdate_end)
-      .where(created_at: registration_date_start..registration_date_end)
-      .count
-  end
+    values["families_count"] = Child.where(created_at: (registration_start..registration_end), registration_source: registration_sources)
+      .select("DISTINCT parent1_id", "created_at", "birthdate")
+      .count { |child| child.registration_months <= age_end.gsub(" mois", "").to_i && child.registration_months >= age_start.gsub(" mois", "").to_i }
 
-  def fathers_data_count(
-    birthdate_start,
-    birthdate_end,
-    registration_date_start,
-    registration_date_end
-  )
-    birthdate_start = Date.strptime(birthdate_start.to_s, "%Y-%m-%d")
-    birthdate_end = Date.strptime(birthdate_end.to_s, "%Y-%m-%d")
-    Child.where(birthdate: birthdate_start..birthdate_end)
-      .where(created_at: registration_date_start..registration_date_end)
-      .fathers_count
-  end
+    values["children_count"] = Child.where(created_at: (registration_start..registration_end), registration_source: registration_sources)
+      .count { |child| child.registration_months <= age_end.gsub(" mois", "").to_i && child.registration_months >= age_start.gsub(" mois", "").to_i }
 
+
+    values
+  end
 end
