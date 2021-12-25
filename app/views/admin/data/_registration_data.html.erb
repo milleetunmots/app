@@ -1,37 +1,34 @@
 <div class="data-row">
   <div class="data-col">
-    <p>Objectif nombre de familles inscrites ou accompagnées</p>
+    <p>Objectif</p>
+    <p><%= data_count_values["goal"] %></p>
   </div>
 </div>
 <div class="data-row">
   <div class="data-col">
-    <p>Nombre total de familles inscrites ou accompagnées (hors popi)</p>
+    <p>Familles (hors popi)</p>
+    <p><%= data_count_values["no_popi_families_count"] %></p>
   </div>
   <div class="data-col">
-    <p>Nombre d’enfants inscrits (hors popi)</p>
+    <p>Enfants (hors popi)</p>
+    <p><%= data_count_values["no_popi_children_count"] %></p>
   </div>
   <div class="data-col">
-    <p>Nombre de pères(hors popi)</p>
+    <p>Pères (hors popi)</p>
+    <p><%= data_count_values["no_popi_fathers_count"] %></p>
   </div>
 </div>
 <div class="data-row">
   <div class="data-col">
-    <p>Nombre total de familles inscrites</p>
-    <pre>
-      <%= data_count_values["families_count"] %>
-    </pre>
+    <p>Familles</p>
+    <p><%= data_count_values["families_count"] %></p>
   </div>
   <div class="data-col">
-    <p>Nombre total d'enfants inscrits</p>
-    <pre>
-      <%= data_count_values["children_count"] %>
-    </pre>
+    <p>Enfants</p>
+    <p><%= data_count_values["children_count"] %></p>
   </div>
   <div class="data-col">
-    <p>Nombre total de pères</p>
-    <pre>
-      <%= data_count_values["fathers_count"].inspect%>
-    </pre>
-
+    <p>Pères</p>
+    <p><%= data_count_values["fathers_count"] %></p>
   </div>
 </div>
