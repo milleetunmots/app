@@ -5,7 +5,7 @@ ActiveAdmin.register_page "Inscriptions" do
     @registration_start = session[:registration_start] ||= Time.now.prev_year.strftime("%Y-%m-%d")
     @registration_end = session[:registration_end] ||= Time.now.strftime("%Y-%m-%d")
     @age_start = session[:age_start] ||= "0 mois"
-    @age_end = session[:age_end] ||= "36 mois"
+    @age_end = session[:age_end] ||= "48 mois"
     @registration_sources = session[:registration_sources] ||= nil
     @data_count = data_count(
       @registration_start,
