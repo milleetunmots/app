@@ -7,11 +7,11 @@ fr:
       events_other_event: Autre
       events_survey_response: Questionnaire
       events_text_message: SMS
-      events_workshop_participation: Atelier
+      events_workshop_participation: Participation aux ateliers
       events/other_event: Autre
       events/survey_response: Questionnaire
       events/text_message: SMS
-      events/workshop_participation: Atelier
+      events/workshop_participation: Participation aux ateliers
       field_comment: Commentaire
       group: Cohorte
       medium: Média
@@ -34,6 +34,7 @@ fr:
       support_module: Module
       support_module_week: Semaine
       task: Tâche
+      workshop: Atelier
     attributes:
       shared: &SHARED
         created_at: Ajout
@@ -104,6 +105,8 @@ fr:
         should_contact_parent2: Contacter parent 2 ?
         src_url: URL d'inscription
         child_group_months: Durée de l'accompagnement (en mois)
+        months_between_registration_and_group_start: Temps entre l'inscription et le debut de la cohorte (en mois)
+        months_since_group_start: Temps depuis le debut de l'accompagnement (en mois)
       child/gender:
         f: Fille
         m: Garçon
@@ -288,8 +291,11 @@ fr:
         4_dont_call: Ne pas appeler
       event: &EVENT
         << : *SHARED
+        address: Adresse
+        city_name: Ville
         discarded_at: Mis à la corbeille
         occurred_at: Date
+        postal_code: Code postal
         related: Parent
         related_first_child: Famille
         related_first_child_group: Cohorte
@@ -313,6 +319,8 @@ fr:
       events/workshop_participation:
         << : *EVENT
         comments: Infos
+        workshop_invitation_response: Réponse à l'invitation
+        workshop_presence: Présent
       field_comment:
         << : *SHARED
         author: Auteur
@@ -467,6 +475,19 @@ fr:
         related: Élément concerné
         reporter: Ajoutée par
         title: Intitulé
+      workshop:
+        title: Thème
+        animator: Animateur
+        co_animator: Co-animateur
+        address: Adresse
+        occurred_at: Date
+        invitation_message: Message d'invitation
+        guests_tag: Tag des invités
+        postal_code: Code postal
+        city_name: Ville
+        parents_selected: Parents invités
+        workshop_address: Adresse
+        workshop_parents_list: Parents invités
     errors:
       models:
         parent:

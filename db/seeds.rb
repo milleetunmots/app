@@ -36,6 +36,7 @@ puts " ✓"
 #
 # puts "\tMedia::Image"
 #
+# puts "\tMedia::Image"
 # goods = []
 # Dir.glob('db/seed/img/cbfd/good/*.jpg').each do |path|
 #   filename = File.basename(path)
@@ -103,6 +104,7 @@ Media::TextMessagesBundle.create!(
   body1: 'Bonjour !'
 )
 puts " ✓"
+
 #
 # print "\t\tLes gentils"
 # Media::TextMessagesBundle.create!(

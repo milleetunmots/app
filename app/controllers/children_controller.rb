@@ -145,6 +145,8 @@ class ChildrenController < ApplicationController
           parent1: @child.parent1,
           parent2: @child.parent2,
           land: @child.land,
+          should_contact_parent1: @child.should_contact_parent1,
+          should_contact_parent2: @child.should_contact_parent2,
           child_support: @child.child_support
         ))
       end

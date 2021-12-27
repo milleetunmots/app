@@ -1,6 +1,6 @@
 ActiveAdmin.register Events::WorkshopParticipation do
 
-  menu parent: 'Événements'
+  menu parent: "Événements"
 
   decorate_with Events::WorkshopParticipationDecorator
 
@@ -22,6 +22,8 @@ ActiveAdmin.register Events::WorkshopParticipation do
     column :related_first_child do |decorated|
       decorated.related_first_child_link
     end
+    column :workshop_invitation_response
+    column :workshop_presence
     column :related_first_child_group
     column :occurred_at
     column :comments do |decorated|
@@ -38,12 +40,15 @@ ActiveAdmin.register Events::WorkshopParticipation do
   end
 
   filter :parent_first_child_group_id_in,
-         as: :select,
-         collection: proc { child_group_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
-         label: 'Cohorte'
+    as: :select,
+    collection: proc { child_group_select_collection },
+    input_html: {multiple: true, data: {select2: {}}},
+    label: "Cohorte"
 
   filter :comments
+
+  filter :workshop_invitation_response
+  filter :workshop_presence
 
   filter :occurred_at
   filter :created_at
@@ -60,8 +65,10 @@ ActiveAdmin.register Events::WorkshopParticipation do
       row :related_first_child do |model|
         model.related_first_child_link
       end
+      row :workshop_invitation_response
+      row :workshop_presence
       row :occurred_at
-      row :comments, class: 'row-pre'
+      row :comments, class: "row-pre"
       row :created_at
       row :discarded_at
     end
@@ -80,11 +87,11 @@ ActiveAdmin.register Events::WorkshopParticipation do
   end
 
   form do |f|
-    f.semantic_errors
+    f.semantic_errors *f.object.errors.keys
     f.inputs do
       if f.object.related
         li class: :input do
-          label f.object.class.human_attribute_name('related'), class: :label
+          label f.object.class.human_attribute_name("related"), class: :label
           div style: "padding-top: 6px" do
             f.object.decorate.related_link
           end
@@ -96,7 +103,7 @@ ActiveAdmin.register Events::WorkshopParticipation do
 
       f.input :occurred_at
 
-      f.input :comments, as: :text, input_html: { rows: 10 }
+      f.input :comments, as: :text, input_html: {rows: 10}
     end
     f.actions
   end
@@ -115,6 +122,9 @@ ActiveAdmin.register Events::WorkshopParticipation do
 
     column :related_first_child_id
     column :related_first_child_name
+
+    column :workshop_invitation_response
+    column :workshop_presence
 
     column :related_first_child_group_name
     column :related_first_child_group_status
