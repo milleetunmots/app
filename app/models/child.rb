@@ -51,6 +51,7 @@ class Child < ApplicationRecord
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery resubscribing other].freeze
   PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach].freeze
   GROUP_STATUS = %w[waiting active paused stopped].freeze
+  LANDS = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -86,6 +87,7 @@ class Child < ApplicationRecord
   validates :security_code, presence: true
   validates :pmi_detail, inclusion: {in: PMI_LIST, allow_blank: true}
   validates :group_status, inclusion: {in: GROUP_STATUS}
+  validates :land, inclusion: {in: LANDS, allow_blank: true}
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
   validate :valid_group_status

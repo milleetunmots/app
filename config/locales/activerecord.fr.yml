@@ -77,6 +77,7 @@ fr:
         group: Cohorte
         child_group_name: Cohorte
         group_status: Statut de la cohorte
+        land: Terrain
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres
         months: Age (en mois)

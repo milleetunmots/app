@@ -33,9 +33,10 @@ videos = MediaFolder.create!(name: 'Vidéos')
 puts " ✓"
 
 # Media::Image
-
+#
 # puts "\tMedia::Image"
-
+#
+# puts "\tMedia::Image"
 # goods = []
 # Dir.glob('db/seed/img/cbfd/good/*.jpg').each do |path|
 #   filename = File.basename(path)
@@ -76,33 +77,34 @@ puts " ✓"
 
 # Media::Video
 
-puts "\tMedia::Video"
-
-print "\t\tBrooklyn"
-Media::Video.create!(
-  name: 'Brooklyn',
-  url: 'https://youtu.be/p4AH_WQVz10'
-)
-puts " ✓"
-
-print "\t\tChrono Trigger"
-Media::Video.create!(
-  name: 'Chrono Trigger',
-  url: 'https://youtu.be/aqgm9rBjEH4'
-)
-puts " ✓"
+# puts "\tMedia::Video"
+#
+# print "\t\tBrooklyn"
+# Media::Video.create!(
+#   name: 'Brooklyn',
+#   url: 'https://youtu.be/p4AH_WQVz10'
+# )
+# puts " ✓"
+#
+# print "\t\tChrono Trigger"
+# Media::Video.create!(
+#   name: 'Chrono Trigger',
+#   url: 'https://youtu.be/aqgm9rBjEH4'
+# )
+# puts " ✓"
 
 # Media::TextMessagesBundle
 
-# puts "\tMedia::TextMessagesBundle"
-#
-# print "\t\tBienvenue"
-# Media::TextMessagesBundle.create!(
-#   folder: sms,
-#   name: 'Bienvenue',
-#   body1: 'Bonjour !'
-# )
-# puts " ✓"
+puts "\tMedia::TextMessagesBundle"
+
+print "\t\tBienvenue"
+Media::TextMessagesBundle.create!(
+  folder: sms,
+  name: 'Bienvenue',
+  body1: 'Bonjour !'
+)
+puts " ✓"
+
 #
 # print "\t\tLes gentils"
 # Media::TextMessagesBundle.create!(
