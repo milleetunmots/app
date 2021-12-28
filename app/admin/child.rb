@@ -31,22 +31,14 @@ ActiveAdmin.register Child do
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
     column :postal_code
+    column :land
     column :child_support, sortable: :child_support_id do |model|
       model.child_support_status
     end
     column :group, sortable: :group_id
     column :group_status
-    if :group_start && :group_end
-      column :child_group_months
-    end
-    column :months_since_registration if :group_start
-    column :months_since_group_start if :group_start
     column :pmi_detail
-    column :family_redirection_unique_visits
     column :tags
-    column :created_at do |model|
-      l model.created_at.to_date, format: :default
-    end
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -372,6 +364,7 @@ ActiveAdmin.register Child do
           row :gender do |decorated|
             decorated.gender_status
           end
+          row :land
           row :registration_source
           row :registration_source_details
           row :pmi_detail
@@ -380,7 +373,7 @@ ActiveAdmin.register Child do
           row :group_start
           row :group_end
           row :child_group_months
-          row :months_since_registration
+          row :months_between_registration_and_group_start
           row :months_since_group_start
           row :family_text_messages_count
           row :family_redirection_urls_count
@@ -517,7 +510,7 @@ ActiveAdmin.register Child do
 
     column :child_group_name
     column :child_group_months
-    column :months_since_registration
+    column :months_between_registration_and_group_start
     column :months_since_group_start
 
     column :parent1_gender

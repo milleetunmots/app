@@ -77,6 +77,7 @@ fr:
         group: Cohorte
         child_group_name: Cohorte
         group_status: Statut de la cohorte
+        land: Terrain
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres
         months: Age (en mois)
@@ -104,7 +105,7 @@ fr:
         should_contact_parent2: Contacter parent 2 ?
         src_url: URL d'inscription
         child_group_months: Durée de l'accompagnement (en mois)
-        months_since_registration: Temps entre l'inscription et le debut de la cohorte (en mois)
+        months_between_registration_and_group_start: Temps entre l'inscription et le debut de la cohorte (en mois)
         months_since_group_start: Temps depuis le debut de l'accompagnement (en mois)
       child/gender:
         f: Fille
@@ -318,6 +319,8 @@ fr:
       events/workshop_participation:
         << : *EVENT
         comments: Infos
+        workshop_invitation_response: Réponse à l'invitation
+        workshop_presence: Présent
       field_comment:
         << : *SHARED
         author: Auteur
@@ -478,11 +481,13 @@ fr:
         co_animator: Co-animateur
         address: Adresse
         occurred_at: Date
+        invitation_message: Message d'invitation
         guests_tag: Tag des invités
         postal_code: Code postal
         city_name: Ville
         parents_selected: Parents invités
         workshop_address: Adresse
+        workshop_parents_list: Parents invités
     errors:
       models:
         parent:
