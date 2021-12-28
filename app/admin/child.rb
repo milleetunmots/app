@@ -507,6 +507,7 @@ ActiveAdmin.register Child do
     column :address
     column :city_name
     column :postal_code
+    column :land
 
     column :child_group_name
     column :child_group_months

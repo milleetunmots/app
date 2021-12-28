@@ -51,6 +51,14 @@ class ChildSupportDecorator < BaseDecorator
     children_attribute(:registration_source, glue)
   end
 
+  def children_present_on
+    model.decorate.present_on&.join("\n")
+  end
+
+  def children_follow_us_on
+    model.decorate.follow_us_on&.join("\n")
+  end
+
   def children_registration_months_range(glue = "\n")
     children_attribute(:registration_months_range, glue)
   end

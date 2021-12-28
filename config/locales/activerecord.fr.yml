@@ -210,6 +210,8 @@ fr:
         city_name: Ville
         children: Enfants
         children_registration_months_range: Tranche d'âge à l'inscription
+        children_present_on: Presence sur les reseaux sociaux
+        children_follow_us_on: Nous suit sur
         children_first_names: Prénom des enfants
         children_last_names: Nom des enfants
         children_birthdates: Date de naissance des enfants
