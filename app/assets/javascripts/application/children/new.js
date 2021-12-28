@@ -34,7 +34,9 @@
     if (value == 'caf') {
       $('label[for="child_registration_source_details"]').html("Précisez votre CAF");
       $('#child_registration_source_details').replaceWith(selectCafList)
-    } else{
+    } else if (['pmi', 'therapist', 'other'].includes(value)) {
+      $('label[for="child_registration_source_details"]').html("Précisez votre nom");
+    } else {
       $('label[for="child_registration_source_details"]').html("Précisez le nom de la personne qui vous a parlé de 1001mots");
       $('#child_registration_source_details').replaceWith(inputSourceDetails)
     }
