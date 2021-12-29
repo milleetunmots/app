@@ -7,15 +7,17 @@ ActiveAdmin.register_page "Inscriptions" do
     @age_start = session[:age_start] ||= "0 mois"
     @age_end = session[:age_end] ||= "48 mois"
     @registration_sources = session[:registration_sources] ||= nil
-    @data_count = data_count(
+    @lands = session[:lands] ||= nil
+    @data_count = registration_data_count(
       @registration_start,
       @registration_end,
       @age_start,
       @age_end,
+      @lands,
       @registration_sources
     )
 
-    form action: admin_inscriptions_data_filtered_path, id: "filter-container", method: :post do |f|
+    form action: admin_inscriptions_data_filtered_path, class: "filter-container", method: :post do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
 
       div do
@@ -31,6 +33,17 @@ ActiveAdmin.register_page "Inscriptions" do
           end
           div do
             select_tag "age_end", options_for_select((0..48).map { |v| "#{v} mois" }, @age_end), data: {select2: {}}, style: "width: 95%"
+          end
+        end
+        div class: "data-filter-row" do
+          div class: "data-filter-label" do
+            label "Terrains"
+          end
+          div class: "data-filter-input" do
+            select_tag "lands[]",
+              options_for_select(child_land_select_collection, @lands),
+              multiple: "multiple", data: {select2: {}},
+              style: "width: 100%"
           end
         end
         div class: "data-filter-row" do
@@ -62,6 +75,7 @@ ActiveAdmin.register_page "Inscriptions" do
     session[:registration_end] = params[:registration_end]
     session[:age_start] = params[:age_start]
     session[:age_end] = params[:age_end]
+    session[:lands] = params[:lands]
     session[:registration_sources] = params[:registration_sources]
 
     redirect_to admin_inscriptions_path

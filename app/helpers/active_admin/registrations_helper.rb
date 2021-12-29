@@ -1,13 +1,19 @@
 module ActiveAdmin::RegistrationsHelper
 
-  def data_count(registration_start, registration_end, age_start, age_end, registration_sources)
+  def registration_data_count(registration_start, registration_end, age_start, age_end, lands, registration_sources)
     values = {}
 
-    popi_children = Child.tagged_with("hors cible").where(created_at: (registration_start..registration_end), registration_source: registration_sources)
-                    .select { |child| child.registration_months <= age_end.gsub(" mois", "").to_i && child.registration_months >= age_start.gsub(" mois", "").to_i }
+    popi_children = Child.tagged_with("hors cible").where(
+      created_at: (registration_start..registration_end),
+      registration_source: registration_sources,
+      land: lands
+    ).select { |child| child.registration_months <= age_end.gsub(" mois", "").to_i && child.registration_months >= age_start.gsub(" mois", "").to_i }
 
-    children = Child.where(created_at: (registration_start..registration_end), registration_source: registration_sources)
-      .select { |child| child.registration_months <= age_end.gsub(" mois", "").to_i && child.registration_months >= age_start.gsub(" mois", "").to_i }
+    children = Child.where(
+      created_at: (registration_start..registration_end),
+      registration_source: registration_sources,
+      land: lands
+    ).select { |child| child.registration_months <= age_end.gsub(" mois", "").to_i && child.registration_months >= age_start.gsub(" mois", "").to_i }
 
     values["goal"] = 4000
 
