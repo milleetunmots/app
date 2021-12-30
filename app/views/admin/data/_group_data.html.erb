@@ -1,1 +1,29 @@
-
+<div class="data-row">
+  <div class="data-col">
+    <p>Objectif</p>
+    <hr>
+    <p class="data-number"><%= data_count_values["goal"] %></p>
+  </div>
+</div>
+<div class="data-row">
+  <div class="data-col">
+    <p>Familles accompagnées</p>
+    <hr>
+    <p class="data-number"><%= data_count_values["families_count"] %></p>
+  </div>
+  <div class="data-col">
+    <p>Enfants accompagnés</p>
+    <hr>
+    <p class="data-number"><%= data_count_values["children_count"] %></p>
+  </div>
+  <div class="data-col">
+    <p>Cohortes en cours</p>
+    <hr>
+    <p class="data-number"><%= data_count_values["active_groups_count"] %></p>
+  </div>
+  <div class="data-col">
+    <p>Cohortes terminées</p>
+    <hr>
+    <p class="data-number"><%= data_count_values["stopped_groups_count"] %></p>
+  </div>
+</div>

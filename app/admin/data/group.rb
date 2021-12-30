@@ -12,6 +12,16 @@ ActiveAdmin.register_page "Cohortes" do
     @registration_sources = session[:registration_sources] ||= nil
     @tags = session[:tags] ||= nil
 
+    @data_count = group_data_count(
+      @registration_start, @registration_end,
+      @age_start, @age_end,
+      @groups,
+      @lands,
+      @call3_sending_benefits,
+      @registration_sources,
+      @tags
+    )
+
     form action: admin_cohortes_data_filtered_path, class: "filter-container", method: :post do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
 
