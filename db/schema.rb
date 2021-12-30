@@ -183,7 +183,7 @@ ActiveRecord::Schema.define(version: 2021_12_25_060008) do
     t.string "group_status", default: "waiting"
     t.date "group_start"
     t.date "group_end"
-    t.string "land"
+    t.string "land", default: "France"
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["discarded_at"], name: "index_children_on_discarded_at"

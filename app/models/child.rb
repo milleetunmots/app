@@ -53,7 +53,7 @@ class Child < ApplicationRecord
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery resubscribing other].freeze
   PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach].freeze
   GROUP_STATUS = %w[waiting active paused stopped].freeze
-  LANDS = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
+  LANDS = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle France].freeze
 
   # ---------------------------------------------------------------------------
   # relations
