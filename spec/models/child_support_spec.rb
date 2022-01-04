@@ -3,6 +3,7 @@
 # Table name: child_supports
 #
 #  id                              :bigint           not null, primary key
+#  availability                    :string
 #  book_not_received               :string
 #  books_quantity                  :string
 #  call1_duration                  :integer
@@ -70,12 +71,17 @@
 #  call5_status                    :string
 #  call5_status_details            :text
 #  call5_technical_information     :text
+#  call_infos                      :string
 #  discarded_at                    :datetime
+#  follow_us_on                    :string
 #  important_information           :text
 #  is_bilingual                    :boolean
+#  notes                           :text
+#  present_on                      :string
 #  second_language                 :string
 #  should_be_read                  :boolean
 #  to_call                         :boolean
+#  will_stay_in_group              :boolean          default(FALSE), not null
 #  created_at                      :datetime         not null
 #  updated_at                      :datetime         not null
 #  supporter_id                    :bigint

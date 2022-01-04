@@ -2,16 +2,19 @@
 #
 # Table name: events
 #
-#  id           :bigint           not null, primary key
-#  body         :text
-#  discarded_at :datetime
-#  occurred_at  :datetime
-#  related_type :string
-#  subject      :string
-#  type         :string
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  related_id   :bigint
+#  id                  :bigint           not null, primary key
+#  body                :text
+#  discarded_at        :datetime
+#  occurred_at         :datetime
+#  originated_by_app   :boolean          default(TRUE), not null
+#  related_type        :string
+#  spot_hit_status     :integer
+#  subject             :string
+#  type                :string
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  related_id          :bigint
+#  spot_hit_message_id :string
 #
 # Indexes
 #
