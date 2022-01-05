@@ -121,6 +121,18 @@ class ParentDecorator < BaseDecorator
     model.children.decorate.map(&:group_name).join("\n")
   end
 
+  def parent_present_on
+    model.first_child.decorate&.child_present_on
+  end
+
+  def parent_follow_us_on
+    model.first_child.decorate&.child_follow_us_on
+  end
+
+  def land
+    model.first_child.land
+  end
+
   private
 
   def child(child)
