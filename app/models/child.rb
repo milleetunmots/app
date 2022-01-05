@@ -48,7 +48,7 @@ class Child < ApplicationRecord
   include Discard::Model
 
   GENDERS = %w[m f].freeze
-  REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery resubscribing other].freeze
+  REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
   PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach].freeze
   GROUP_STATUS = %w[waiting active paused stopped].freeze
   LANDS = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
