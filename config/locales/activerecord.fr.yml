@@ -63,6 +63,8 @@ fr:
         birthdate: Date de naissance
         child_support: Suivi
         city_name: Ville
+        child_present_on: Presence sur les reseaux sociaux
+        child_follow_us_on: Nous suit sur
         family_redirection_unique_visit_rate: "Taux de visites uniques familiales d'URL courtes"
         family_redirection_unique_visits: URL visitées
         family_redirection_url_unique_visits_count: "Visites familiales uniques d'URL courtes"

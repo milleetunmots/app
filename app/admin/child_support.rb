@@ -497,7 +497,7 @@ ActiveAdmin.register ChildSupport do
     column :children_ages
     column :children_genders
 
-    column :book_not_received
+    column :children_book_not_received
     column(:important_information) { |cs| cs.important_information_text }
     column :should_be_read
     column :is_bilingual

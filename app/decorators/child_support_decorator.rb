@@ -52,11 +52,15 @@ class ChildSupportDecorator < BaseDecorator
   end
 
   def children_present_on
-    model.decorate.present_on&.join("\n")
+    model.decorate.present_on&.join(", ")
   end
 
   def children_follow_us_on
-    model.decorate.follow_us_on&.join("\n")
+    model.decorate.follow_us_on&.join(", ")
+  end
+
+  def children_book_not_received
+    model.decorate.book_not_received&.join(", ")
   end
 
   def children_registration_months_range(glue = "\n")
@@ -82,18 +86,6 @@ class ChildSupportDecorator < BaseDecorator
   def books_quantity
     if model.books_quantity
       ChildSupport.human_attribute_name("books_quantity.#{model.books_quantity}")
-    end
-  end
-
-  def present_on
-    model.present_on&.map do |social_network|
-      ChildSupport.human_attribute_name("social_network.#{social_network}")
-    end
-  end
-
-  def follow_us_on
-    model.follow_us_on&.map do |social_network|
-      ChildSupport.human_attribute_name("our_social_network.#{social_network}")
     end
   end
 

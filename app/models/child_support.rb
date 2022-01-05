@@ -106,68 +106,22 @@ class ChildSupport < ApplicationRecord
 
   include Discard::Model
 
-  LANGUAGE_AWARENESS = %w[
-    1_none
-    2_awareness
-  ].freeze
-  PARENT_PROGRESS = %w[
-    1_low
-    2_medium
-    3_high
-    4_excellent
-  ].freeze
-  READING_FREQUENCY = %w[
-    1_rarely
-    2_weekly
-    3_frequently
-    4_daily
-  ].freeze
-  SENDINGS_BENEFITS = %w[
-    1_none
-    2_far
-    3_remind
-    4_frequent
-    5_frequent_helps
-  ].freeze
-  BOOKS_QUANTITY = %w[
-    1_none
-    2_one_to_five
-    3_five_to_ten
-    4_more_than_ten
-  ].freeze
-  SOCIAL_NETWORK = %w[
-    1_facebook
-    2_whatsapp
-    3_instagram
-  ].freeze
-  OUR_SOCIAL_NETWORK = %w[
-    1_national_facebook
-    2_local_facebook
-    3_whatsapp
-  ].freeze
-  BOOK_NOT_RECEIVED = %w[
-    1_first_book
-    2_second_book
-    3_third_book
-    4_fourth_book
-    5_fifth_book
-  ].freeze
-  CALL_STATUS = %w[
-    1_ok
-    2_ko
-    3_unassigned_number
-    4_dont_call
-  ]
+  LANGUAGE_AWARENESS = %w[1_none 2_awareness].freeze
+  PARENT_PROGRESS = %w[1_low 2_medium 3_high 4_excellent].freeze
+  READING_FREQUENCY = %w[1_rarely 2_weekly 3_frequently 4_daily].freeze
+  SENDINGS_BENEFITS = %w[1_none 2_far 3_remind 4_frequent 5_frequent_helps].freeze
+  BOOKS_QUANTITY = %w[1_none 2_one_to_five 3_five_to_ten 4_more_than_ten].freeze
+  BOOK_NOT_RECEIVED = %w[1_first_book 2_second_book 3_third_book 4_fourth_book 5_fifth_book].freeze
+  CALL_STATUS = %w[1_ok 2_ko 3_unassigned_number 4_dont_call].freeze
+  SOCIAL_NETWORK = %w[1_facebook 2_whatsapp 3_instagram].freeze
+  OUR_SOCIAL_NETWORK = %w[1_national_facebook 2_local_facebook 3_whatsapp].freeze
 
   # ---------------------------------------------------------------------------
   # relations
   # ---------------------------------------------------------------------------
 
-  belongs_to :supporter,
-    class_name: :AdminUser,
-    optional: true
-  has_many :children,
-    dependent: :nullify
+  belongs_to :supporter, class_name: :AdminUser, optional: true
+  has_many :children, dependent: :nullify
   has_one :first_child, class_name: :Child
   has_one :parent1, through: :first_child
   has_one :parent2, through: :first_child
@@ -179,37 +133,14 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   (1..5).each do |call_idx|
-    validates "call#{call_idx}_status",
-      inclusion: {
-        in: CALL_STATUS,
-        allow_blank: true
-      },
-      on: :create
-
-    validates "call#{call_idx}_language_awareness",
-      inclusion: {
-        in: LANGUAGE_AWARENESS,
-        allow_blank: true
-      }
-
-    validates "call#{call_idx}_parent_progress",
-      inclusion: {
-        in: PARENT_PROGRESS,
-        allow_blank: true
-      }
-
-    validates "call#{call_idx}_sendings_benefits",
-      inclusion: {
-        in: SENDINGS_BENEFITS,
-        allow_blank: true
-      }
+    validates "call#{call_idx}_status", inclusion: {in: CALL_STATUS, allow_blank: true}, on: :create
+    validates "call#{call_idx}_language_awareness", inclusion: {in: LANGUAGE_AWARENESS, allow_blank: true}
+    validates "call#{call_idx}_parent_progress", inclusion: {in: PARENT_PROGRESS, allow_blank: true}
+    validates "call#{call_idx}_sendings_benefits", inclusion: {in: SENDINGS_BENEFITS, allow_blank: true}
   end
 
-  validates :books_quantity,
-    inclusion: {
-      in: BOOKS_QUANTITY,
-      allow_blank: true
-    }
+  validates :books_quantity, inclusion: {in: BOOKS_QUANTITY, allow_blank: true}
+
   # ---------------------------------------------------------------------------
   # scopes
   # ---------------------------------------------------------------------------
@@ -229,7 +160,6 @@ class ChildSupport < ApplicationRecord
   class << self
 
     (1..5).each do |call_idx|
-
       define_method("call#{call_idx}_parent_progress_present") do |bool|
         if bool
           where("call#{call_idx}_parent_progress" => PARENT_PROGRESS)
