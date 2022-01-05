@@ -5,6 +5,16 @@
     $('.accepted-fields').toggleClass('hidden', !hasAccepted);
   };
 
+  var onSelectChildRegistrationSource = function() {
+    $(this).on('change', ()=>{
+      $('.child_pmi_detail').hide();
+      var registrationSource = $(`#child_registration_source option[value=${$(this).val()}]`).text();
+      if (registrationSource == 'un·e professionnel·le de PMI') {
+        $('.child_pmi_detail').show();
+      }
+    })
+  }
+
   var onChangeRegistrationSource = function() {
     var value = $(this).val();
     var isEmpty = !value;
@@ -30,14 +40,19 @@
     inputSourceDetails.type = "text";
     inputSourceDetails.name = "child[registration_source_details]";
     inputSourceDetails.setAttribute('aria-required', true);
+    var $label = $('label[for="child_registration_source_details"]')
 
     if (value == 'caf') {
-      $('label[for="child_registration_source_details"]').html("Précisez votre CAF");
+      var old_label = $label.html();
+      $label.data("old_html", old_label)
+      $label.html("Précisez votre CAF");
       $('#child_registration_source_details').replaceWith(selectCafList)
-    } else if (['pmi', 'therapist', 'other'].includes(value)) {
-      $('label[for="child_registration_source_details"]').html("Précisez votre nom");
     } else {
-      $('label[for="child_registration_source_details"]').html("Précisez le nom de la personne qui vous a parlé de 1001mots");
+      var old_label = $label.data("old_html");
+      if (old_label) {
+        $label.html(old_label);
+      }
+
       $('#child_registration_source_details').replaceWith(inputSourceDetails)
     }
     $('#child-registration-source-details-field').toggle(!isEmpty);
@@ -78,6 +93,7 @@
 
   var init = function() {
     onToggleTerms.apply($('input[type="checkbox"][name="child[parent1_attributes][terms_accepted_at]"]')[0]);
+    onSelectChildRegistrationSource.apply($('#child_registration_source'));
     $(document).on('change', 'input[type="checkbox"][name="child[parent1_attributes][terms_accepted_at]"]', onToggleTerms);
 
     onChangeRegistrationSource.apply($('select[name="child[registration_source]"]')[0]);

@@ -99,7 +99,7 @@ fr:
         postal_code: Code postal
         public_edit_url: Lien de continuation
         registration_source: Comment nous avez-vous connu ?
-        registration_source_details: 'Précisez le nom :'
+        registration_source_details: Précisez votre nom ou celui de votre structure
         security_code: Sécurité
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?

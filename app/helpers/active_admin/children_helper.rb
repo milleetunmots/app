@@ -48,7 +48,7 @@ module ActiveAdmin::ChildrenHelper
     [
       ['un·e professionnel·le de PMI', :pmi],
       ['un·e orthophoniste', :therapist],
-      ['un·e professionnel·le de santé', :pmi],
+      ['un·e professionnel·le de santé', :doctor],
       ['un·e autre partenaire de 1001mots (centre social, association, crèche...)', :other]
     ]
   end
