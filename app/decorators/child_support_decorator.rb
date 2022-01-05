@@ -59,6 +59,10 @@ class ChildSupportDecorator < BaseDecorator
     model.decorate.follow_us_on&.join(", ")
   end
 
+  def children_land(glue = "\n")
+    children_attribute(:land, glue)
+  end
+
   def children_book_not_received
     model.decorate.book_not_received&.join(", ")
   end

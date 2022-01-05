@@ -250,6 +250,7 @@ fr:
         to_call: Appel 2 ou 4
         present_on: Presence sur les reseaux sociaux
         follow_us_on: Nous suit sur
+        children_land: Terrain
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
         2_awareness: A conscience de son impact

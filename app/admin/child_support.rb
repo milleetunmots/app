@@ -482,6 +482,7 @@ ActiveAdmin.register ChildSupport do
 
     column :children_present_on
     column :children_follow_us_on
+    column :children_land
 
     column(:parent2_gender) { |cs| cs.parent2_gender && Parent.human_attribute_name("gender.#{cs.parent2_gender}") }
     column :parent2_first_name

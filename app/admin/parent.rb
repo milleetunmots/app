@@ -18,9 +18,6 @@ ActiveAdmin.register Parent do
     column :gender do |model|
       model.gender_status
     end
-    column :parent_present_on
-    column :parent_follow_us_on
-    column :land
     column :first_name
     column :last_name
     column :children
