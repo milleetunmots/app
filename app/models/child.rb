@@ -47,6 +47,8 @@ class Child < ApplicationRecord
 
   include Discard::Model
 
+  after_commit :set_land, on: :create
+
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
   PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach].freeze
@@ -119,6 +121,16 @@ class Child < ApplicationRecord
   def initialize(attributes = {})
     super
     self.security_code = SecureRandom.hex(1)
+  end
+
+  def set_land
+    case postal_code.to_i / 1000
+    when 45 then update land: "Loiret"
+    when 78 then update land: "Yvelines"
+    when 93 then update land: "Seine-Saint-Denis"
+    when 75 then update land: "Paris"
+    when 57 then update land: "Moselle"
+    end
   end
 
   # ---------------------------------------------------------------------------
