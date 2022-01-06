@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_25_060008) do
+ActiveRecord::Schema.define(version: 2022_01_06_104458) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -207,8 +207,6 @@ ActiveRecord::Schema.define(version: 2021_12_25_060008) do
     t.string "spot_hit_message_id"
     t.boolean "originated_by_app", default: true, null: false
     t.bigint "workshop_id"
-    t.string "response"
-    t.boolean "presence"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
     t.index ["type"], name: "index_events_on_type"
@@ -446,18 +444,16 @@ ActiveRecord::Schema.define(version: 2021_12_25_060008) do
   create_table "workshops", force: :cascade do |t|
     t.string "title", null: false
     t.string "co_animator"
-    t.datetime "occurred_at"
-    t.string "parents_selected"
+    t.datetime "occurred_at", null: false
     t.string "address", null: false
     t.string "postal_code", null: false
     t.string "city_name", null: false
     t.text "description"
-    t.string "guests_tag"
+    t.text "invitation_message", null: false
     t.datetime "discarded_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "animator_id", null: false
-    t.text "invitation_message"
     t.index ["animator_id"], name: "index_workshops_on_animator_id"
   end
 

@@ -64,17 +64,13 @@ class Parent < ApplicationRecord
     foreign_key: :parent2_id,
     dependent: :nullify
 
-  def children
-    parent1_children.or(parent2_children)
-  end
-
-  def first_child
-    children.order(:id).first
-  end
-
   has_many :redirection_urls, dependent: :destroy
 
   has_many :events, as: :related
+
+  has_many :workshops, through: :events, as: :related
+
+
 
   # ---------------------------------------------------------------------------
   # validations
@@ -188,6 +184,14 @@ class Parent < ApplicationRecord
 
   def self.fathers
     where(gender: GENDER_MALE)
+  end
+
+  def children
+    parent1_children.or(parent2_children)
+  end
+
+  def first_child
+    children.order(:id).first
   end
 
   def duplicate_of?(other_parent)
