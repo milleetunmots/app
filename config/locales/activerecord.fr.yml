@@ -484,11 +484,11 @@ fr:
         reporter: Ajoutée par
         title: Intitulé
       workshop:
-        title: Thème
+        name: Thème
         animator: Animateur
         co_animator: Co-animateur
         address: Adresse
-        occurred_at: Date
+        workshop_date: Date
         invitation_message: Message d'invitation
         guests_tag: Tag des invités
         postal_code: Code postal

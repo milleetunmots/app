@@ -3,14 +3,18 @@ class Workshop < ApplicationRecord
 
   belongs_to :animator, class_name: "AdminUser"
   has_many :events, dependent: :delete_all
+  has_many :participants, through: :events, as: :related, source: :related, source_type: :Parent
 
-  validates :title,
+  accepts_nested_attributes_for :events
+
+  before_validation :set_workshop_participation, on: :create
+
+  validates :name,
     presence: true,
     uniqueness: {case_sensitive: false}
-
   validates :animator,
     presence: true
-  validates :occurred_at,
+  validates :workshop_date,
     presence: true
   validates :address,
     presence: true
@@ -21,11 +25,14 @@ class Workshop < ApplicationRecord
   validates :invitation_message,
     presence: true
 
-  def parents_selected
-    super&.split(";")
-  end
+  validates_associated :events
 
-  def parents_selected=(val)
-    super(val.reject(&:blank?).join(";"))
+  def set_workshop_participation
+    events.each do |participation|
+      participation.occurred_at = workshop_date
+      participation.type = "Events::WorkshopParticipation"
+      participation.body = description
+      participation.save(validate: false)
+    end
   end
 end
