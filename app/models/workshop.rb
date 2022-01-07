@@ -1,3 +1,29 @@
+# == Schema Information
+#
+# Table name: workshops
+#
+#  id                 :bigint           not null, primary key
+#  address            :string           not null
+#  city_name          :string           not null
+#  co_animator        :string
+#  description        :text
+#  discarded_at       :datetime
+#  invitation_message :text             not null
+#  name               :string           not null
+#  postal_code        :string           not null
+#  workshop_date      :date             not null
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  animator_id        :bigint           not null
+#
+# Indexes
+#
+#  index_workshops_on_animator_id  (animator_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (animator_id => admin_users.id)
+#
 class Workshop < ApplicationRecord
   include Discard::Model
 
