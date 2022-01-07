@@ -22,18 +22,10 @@ ActiveAdmin.register Parent do
     column :last_name
     column :children
     column :phone_number
-    # column :email do |decorated|
-    #   decorated.email_link
-    # end
-    # column :is_ambassador
-    # column :redirection_unique_visits
     column :tags
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
-    # column :updated_at do |model|
-    #   l model.updated_at.to_date, format: :default
-    # end
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -75,9 +67,7 @@ ActiveAdmin.register Parent do
       f.input :is_lycamobile
       f.input :email
       f.input :letterbox_name
-      f.input :address
-      f.input :postal_code
-      f.input :city_name
+      address_input f
       f.input :is_ambassador
       f.input :job
       f.input :terms_accepted_at, as: :datepicker
@@ -204,6 +194,10 @@ ActiveAdmin.register Parent do
 
     column :job
     column :is_ambassador
+
+    column :parent_present_on
+    column :parent_follow_us_on
+    column :land
 
     column :children_count
 

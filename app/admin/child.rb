@@ -373,6 +373,8 @@ ActiveAdmin.register Child do
           row :group_start
           row :group_end
           row :child_group_months
+          row :months_between_registration_and_group_start
+          row :months_since_group_start
           row :family_text_messages_count
           row :family_redirection_urls_count
           row :family_redirection_url_visits_count
@@ -505,8 +507,15 @@ ActiveAdmin.register Child do
     column :address
     column :city_name
     column :postal_code
+    column :land
+
+    column :child_present_on
+    column :child_follow_us_on
 
     column :child_group_name
+    column :child_group_months
+    column :months_between_registration_and_group_start
+    column :months_since_group_start
 
     column :parent1_gender
     column :parent1_first_name
@@ -546,7 +555,7 @@ ActiveAdmin.register Child do
 
   controller do
     after_save do |child|
-      child.update! group_start: child.group.started_at if child.group && %w[active stopped paused].include?(child.group_status) && group_start.nil?
+      child.update!(group_start: child.group.started_at) if child.group && %w[active stopped paused].include?(child.group_status) && child.group_start.nil?
       child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
       child.child_support&.update! tag_list: child.tag_list
       child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq

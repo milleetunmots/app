@@ -1,0 +1,24 @@
+<div id="update">
+
+  <div class="container" id="update-content">
+
+    <%= simple_form_for @workshop_participation, url: @workshop_participation_action_path do %>
+
+      <h1>
+        Allez-vous participer à l'atelier?
+      </h1>
+
+      <div class="text-center end-buttons">
+        <button name="workshop_participation[workshop_invitation_response]" value="Oui" type="submit" class="btn-danger btn-lg">
+          Oui
+        </button>
+        <button name="workshop_participation[workshop_invitation_response]" value="Non" type="submit" class="btn-primary btn-lg">
+          Non
+        </button>
+      </div>
+
+    <% end %>
+
+  </div>
+
+</div>

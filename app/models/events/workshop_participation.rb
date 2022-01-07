@@ -30,5 +30,7 @@ class Events::WorkshopParticipation < Event
   # ---------------------------------------------------------------------------
 
   alias_attribute :comments, :body
+  alias_attribute :workshop_invitation_response, :response
+  alias_attribute :workshop_presence, :presence
 
 end

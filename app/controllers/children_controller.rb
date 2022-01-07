@@ -130,6 +130,14 @@ class ChildrenController < ApplicationController
         ).call
       end
 
+      case @child.postal_code.to_i / 1000
+      when 45 then @child.update land: "Loiret"
+      when 78 then @child.update land: "Yvelines"
+      when 93 then @child.update land: "Seine-Saint-Denis"
+      when 75 then @child.update land: "Paris"
+      when 57 then @child.update land: "Moselle"
+      end
+
       siblings_attributes.each do |sibling_attributes|
         Child.create!(sibling_attributes.merge(
           registration_source: @child.registration_source,
@@ -137,6 +145,8 @@ class ChildrenController < ApplicationController
           parent1: @child.parent1,
           parent2: @child.parent2,
           land: @child.land,
+          should_contact_parent1: @child.should_contact_parent1,
+          should_contact_parent2: @child.should_contact_parent2,
           child_support: @child.child_support
         ))
       end

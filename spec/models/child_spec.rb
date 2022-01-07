@@ -399,4 +399,12 @@ RSpec.describe Child, type: :model do
       end
     end
   end
+
+  describe "#ransackable_scopes" do
+    context "returns" do
+      it "ransackable scopes" do
+        expect(Child.ransackable_scopes).to match_array %i[tagged_with_all months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in without_parent_text_message_since registration_source_details_matches_any]
+      end
+    end
+  end
 end

@@ -480,6 +480,10 @@ ActiveAdmin.register ChildSupport do
     column :city_name
     column :postal_code
 
+    column :children_present_on
+    column :children_follow_us_on
+    column :children_land
+
     column(:parent2_gender) { |cs| cs.parent2_gender && Parent.human_attribute_name("gender.#{cs.parent2_gender}") }
     column :parent2_first_name
     column :parent2_last_name
@@ -494,7 +498,7 @@ ActiveAdmin.register ChildSupport do
     column :children_ages
     column :children_genders
 
-    column :book_not_received
+    column :children_book_not_received
     column(:important_information) { |cs| cs.important_information_text }
     column :should_be_read
     column :is_bilingual
