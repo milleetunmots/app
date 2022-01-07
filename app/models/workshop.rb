@@ -9,6 +9,8 @@ class Workshop < ApplicationRecord
 
   accepts_nested_attributes_for :events
 
+  before_validation :set_workshop_participation, on: :create
+
   validates :name,
     presence: true,
     uniqueness: {case_sensitive: false}
@@ -25,11 +27,16 @@ class Workshop < ApplicationRecord
   validates :invitation_message,
     presence: true
 
-  # def set_workshop_participation
-  #   events.each do |participation|
-  #     participation.occurred_at = workshop_date
-  #     participation.subject = name
-  #     participation.body = description
-  #   end
-  # end
+  validates_associated :events
+
+  def set_workshop_participation
+    events.each do |participation|
+      participation.occurred_at = workshop_date
+      participation.type = "Events::WorkshopParticipation"
+      participation.body = description
+      participation.save(validate: false)
+    end
+  end
+
+
 end
