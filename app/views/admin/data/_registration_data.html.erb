@@ -39,8 +39,10 @@
     <p class="data-number"><%= data_count_values["fathers_count"] %></p>
   </div>
   <div class="data-col">
-    <p>Taux de hors cible</p>
+    <p>Taux d'enfants cibles</p>
     <hr>
-    <p class="data-number"><%= data_count_values["no_popi_rate"] %></p>
+    <% if data_count_values["children_count"] != 0 %>
+      <p class="data-number"><%= data_count_values["no_popi_rate"] %>%</p>
+    <% end %>
   </div>
 </div>

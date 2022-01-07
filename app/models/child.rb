@@ -15,7 +15,7 @@
 #  group_end                                  :date
 #  group_start                                :date
 #  group_status                               :string           default("waiting")
-#  land                                       :string           default("France")
+#  land                                       :string
 #  last_name                                  :string           not null
 #  pmi_detail                                 :string
 #  registration_source                        :string
