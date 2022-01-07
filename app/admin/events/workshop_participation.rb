@@ -22,8 +22,6 @@ ActiveAdmin.register Events::WorkshopParticipation do
     column :related_first_child do |decorated|
       decorated.related_first_child_link
     end
-    column :workshop_invitation_response
-    column :workshop_presence
     column :related_first_child_group
     column :occurred_at
     column :comments do |decorated|
@@ -65,8 +63,6 @@ ActiveAdmin.register Events::WorkshopParticipation do
       row :related_first_child do |model|
         model.related_first_child_link
       end
-      row :workshop_invitation_response
-      row :workshop_presence
       row :occurred_at
       row :comments, class: "row-pre"
       row :created_at
@@ -122,9 +118,6 @@ ActiveAdmin.register Events::WorkshopParticipation do
 
     column :related_first_child_id
     column :related_first_child_name
-
-    column :workshop_invitation_response
-    column :workshop_presence
 
     column :related_first_child_group_name
     column :related_first_child_group_status
