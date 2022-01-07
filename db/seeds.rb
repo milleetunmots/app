@@ -104,7 +104,6 @@ Media::TextMessagesBundle.create!(
   body1: 'Bonjour !'
 )
 puts " ✓"
-
 #
 # print "\t\tLes gentils"
 # Media::TextMessagesBundle.create!(

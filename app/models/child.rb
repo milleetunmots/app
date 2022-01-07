@@ -12,8 +12,12 @@
 #  family_redirection_visit_rate              :float
 #  first_name                                 :string           not null
 #  gender                                     :string
-#  group_status                               :string          default("waiting"), not null
+#  group_end                                  :date
+#  group_start                                :date
+#  group_status                               :string           default("waiting")
+#  land                                       :string
 #  last_name                                  :string           not null
+#  pmi_detail                                 :string
 #  registration_source                        :string
 #  registration_source_details                :string
 #  security_code                              :string
@@ -177,21 +181,21 @@ class Child < ApplicationRecord
   # one parent in common
   def strict_siblings
     parent2_id ? self.class.where(parent1_id: parent1_id, parent2_id: parent2_id)
-                     .or(self.class.where(parent1_id: parent2_id, parent2_id: parent1_id)).where.not(id: id) :
+      .or(self.class.where(parent1_id: parent2_id, parent2_id: parent1_id)).where.not(id: id) :
       self.class.where(parent1_id: parent1_id)
-          .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
   end
 
   def true_siblings
     return [] if id.nil?
     if parent2_id
       self.class.where(parent1_id: parent1_id)
-          .or(self.class.where(parent1_id: parent2_id))
-          .or(self.class.where(parent2_id: parent1_id))
-          .or(self.class.where(parent2_id: parent2_id)).where.not(id: id)
+        .or(self.class.where(parent1_id: parent2_id))
+        .or(self.class.where(parent2_id: parent1_id))
+        .or(self.class.where(parent2_id: parent2_id)).where.not(id: id)
     else
       self.class.where(parent1_id: parent1_id)
-          .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
     end
   end
 
@@ -236,6 +240,10 @@ class Child < ApplicationRecord
     where("birthdate <= ?", Time.zone.today - x.to_i.months)
   end
 
+  def self.registration_months_gteq(x)
+    where("age(children.created_at, birthdate) >= interval '? months'", x)
+  end
+
   def self.months_lt(x)
     # < x months
     # means being at most 1 day less than x months old
@@ -243,12 +251,24 @@ class Child < ApplicationRecord
     where("birthdate > ?", Time.zone.today - x.to_i.months)
   end
 
+  def self.registration_months_lt(x)
+    where("age(children.created_at, birthdate) < interval '? months'", x)
+  end
+
   def self.months_equals(x)
     months_gteq(x).merge(months_lt(x.to_i + 1))
   end
 
+  def self.registration_months_equals(x)
+    registration_months_gteq(x).merge(registration_months_lt(x.to_i + 1))
+  end
+
   def self.months_between(x, y)
     months_gteq(x).merge(months_lt(y))
+  end
+
+  def self.registration_months_between(x, y)
+    registration_months_gteq(x).merge(registration_months_lt(y))
   end
 
   def self.months_between_0_and_12
@@ -422,7 +442,7 @@ class Child < ApplicationRecord
   end
 
   def self.families_count
-    count("DISTINCT parent1_id")
+    count("DISTINCT children.parent1_id")
   end
 
   def self.parents
@@ -430,8 +450,16 @@ class Child < ApplicationRecord
     Parent.where(id: parent_ids.compact.uniq)
   end
 
+  def self.popi_parents
+    parents.tagged_with('hors cible')
+  end
+
   def self.fathers_count
     parents.fathers.count
+  end
+
+  def self.popi_fathers_count
+    popi_parents.fathers.count
   end
 
   # returns a Hash k => v where

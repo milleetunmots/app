@@ -42,6 +42,8 @@
     inputSourceDetails.setAttribute('aria-required', true);
     var $label = $('label[for="child_registration_source_details"]')
 
+    var $label = $('label[for="child_registration_source_details"]')
+
     if (value == 'caf') {
       var old_label = $label.html();
       $label.data("old_html", old_label)
@@ -52,7 +54,6 @@
       if (old_label) {
         $label.html(old_label);
       }
-
       $('#child_registration_source_details').replaceWith(inputSourceDetails)
     }
     $('#child-registration-source-details-field').toggle(!isEmpty);

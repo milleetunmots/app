@@ -12,8 +12,12 @@
 #  family_redirection_visit_rate              :float
 #  first_name                                 :string           not null
 #  gender                                     :string
-#  group_status                               :string          default("waiting"), not null
+#  group_end                                  :date
+#  group_start                                :date
+#  group_status                               :string           default("waiting")
+#  land                                       :string
 #  last_name                                  :string           not null
+#  pmi_detail                                 :string
 #  registration_source                        :string
 #  registration_source_details                :string
 #  security_code                              :string

@@ -44,6 +44,10 @@ module ActiveAdmin::ChildrenHelper
     end
   end
 
+  def child_land_select_collection
+    Child::LANDS
+  end
+
   def child_registration_source_select_collection_for_pros
     [
       ['un·e professionnel·le de PMI', :pmi],
