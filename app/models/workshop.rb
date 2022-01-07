@@ -1,8 +1,6 @@
 class Workshop < ApplicationRecord
   include Discard::Model
 
-  # before_save :set_workshop_participation
-
   belongs_to :animator, class_name: "AdminUser"
   has_many :events, dependent: :delete_all
   has_many :participants, through: :events, as: :related, source: :related, source_type: :Parent
@@ -37,6 +35,4 @@ class Workshop < ApplicationRecord
       participation.save(validate: false)
     end
   end
-
-
 end

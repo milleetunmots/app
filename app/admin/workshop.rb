@@ -55,36 +55,4 @@ ActiveAdmin.register Workshop do
       end
     end
   end
-
-  # controller do
-  #   def create
-  #     workshop_attributes = params.require(:workshop).permit(:name, :workshop_date, :animator_id, :co_animator, :address, :postal_code, :city_name, :description, :invitation_message, participant_ids: []).to_h
-  #
-  #     @workshop = Workshop.new(workshop_attributes)
-  #
-  #     @workshop.events.each do |participation|
-  #       participation.occurred_at = @workshop.workshop_date
-  #       participation.subject = @workshop.name
-  #       participation.body = @workshop.description
-  #     end
-  #
-  #     if @workshop.save
-        # parents_selected = @workshop.parents_selected.map { |item| "parent.#{item}" }
-        # parents_tagged = Parent.tagged_with(@workshop.guests_tag).pluck(:id).map { |item| "parent.#{item}" }
-        # guest_list = (parents_selected + parents_tagged).uniq
-        #
-        # guest_list.each do |guest|
-        #   parent_id = guest.gsub("parent.", "").to_i
-        #   event = Event.new(related_type: "Parent", related_id: parent_id, comments: @workshop.description, type: "Events::WorkshopParticipation", occurred_at: @workshop.occurred_at, workshop_id: @workshop.id)
-        #   event.save
-        #   response_url = " Pour vous inscrire ou dire que vous ne venez pas, cliquer sur ce lien: #{request.base_url}/w/#{parent_id}/#{@workshop.id}"
-        #
-        #   ProgramMessageService.new(Date.today, Time.zone.now.strftime("%H:%M"), [guest], @workshop.invitation_message + response_url).call
-        # end
-
-  #       redirect_to admin_workshop_path @workshop
-  #     end
-  #   end
-  # end
-
 end
