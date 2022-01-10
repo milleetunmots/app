@@ -8,8 +8,7 @@
   var onSelectChildRegistrationSource = function() {
     $(this).on('change', ()=>{
       $('.child_pmi_detail').hide();
-      var registrationSource = $(`#child_registration_source option[value=${$(this).val()}]`).text();
-      if (registrationSource == 'un·e professionnel·le de PMI') {
+      if ($(this).val() == 'pmi') {
         $('.child_pmi_detail').show();
       }
     })
@@ -40,7 +39,6 @@
     inputSourceDetails.type = "text";
     inputSourceDetails.name = "child[registration_source_details]";
     inputSourceDetails.setAttribute('aria-required', true);
-    var $label = $('label[for="child_registration_source_details"]')
 
     var $label = $('label[for="child_registration_source_details"]')
 

@@ -115,6 +115,7 @@ fr:
         x: Inconnu
       child/registration_source:
         caf: CAF
+        doctor: Docteur
         friends: Par des amis / de la famille
         nursery: Crèche
         other: Autre
