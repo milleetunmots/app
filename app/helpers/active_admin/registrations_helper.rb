@@ -14,7 +14,7 @@ module ActiveAdmin::RegistrationsHelper
     values["no_popi_families_count"] = values["families_count"] - children.tagged_with("hors cible").families_count
     values["no_popi_children_count"] = values["children_count"] - children.tagged_with("hors cible").count
     values["no_popi_fathers_count"] = values["fathers_count"] - children.tagged_with("hors cible").popi_fathers_count
-    values["no_popi_rate"] = (values["no_popi_children_count"] * 100).fdiv(values["children_count"])
+    values["no_popi_rate"] = ((values["no_popi_children_count"] * 100).fdiv(values["children_count"])).round(2)
 
     values
   end
