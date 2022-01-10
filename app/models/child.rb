@@ -12,8 +12,12 @@
 #  family_redirection_visit_rate              :float
 #  first_name                                 :string           not null
 #  gender                                     :string
-#  group_status                               :string          default("waiting"), not null
+#  group_end                                  :date
+#  group_start                                :date
+#  group_status                               :string           default("waiting")
+#  land                                       :string
 #  last_name                                  :string           not null
+#  pmi_detail                                 :string
 #  registration_source                        :string
 #  registration_source_details                :string
 #  security_code                              :string
@@ -47,10 +51,13 @@ class Child < ApplicationRecord
 
   include Discard::Model
 
+  after_commit :set_land, on: :create
+
   GENDERS = %w[m f].freeze
-  REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery resubscribing other].freeze
+  REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
   PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach].freeze
   GROUP_STATUS = %w[waiting active paused stopped].freeze
+  LANDS = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -86,6 +93,7 @@ class Child < ApplicationRecord
   validates :security_code, presence: true
   validates :pmi_detail, inclusion: {in: PMI_LIST, allow_blank: true}
   validates :group_status, inclusion: {in: GROUP_STATUS}
+  validates :land, inclusion: {in: LANDS, allow_blank: true}
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
   validate :valid_group_status
@@ -119,6 +127,16 @@ class Child < ApplicationRecord
     self.security_code = SecureRandom.hex(1)
   end
 
+  def set_land
+    case postal_code.to_i / 1000
+    when 45 then update land: "Loiret"
+    when 78 then update land: "Yvelines"
+    when 93 then update land: "Seine-Saint-Denis"
+    when 75 then update land: "Paris"
+    when 57 then update land: "Moselle"
+    end
+  end
+
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
@@ -137,52 +155,47 @@ class Child < ApplicationRecord
 
   # computes an (integer) number of months old
   def months
-    diff = Time.zone.today.month + Time.zone.today.year * 12 - (birthdate.month + birthdate.year * 12)
-    if Time.zone.today.day < birthdate.day
-      diff - 1
-    else
-      diff
-    end
+    duration_in_months(birthdate)
   end
 
   def registration_months
-    diff = created_at.month + created_at.year * 12 - (birthdate.month + birthdate.year * 12)
-    if created_at.day < birthdate.day
-      diff - 1
-    else
-      diff
-    end
+    duration_in_months(birthdate, created_at)
   end
 
   def child_group_months
-    return unless group_end && group_start
-    diff = group_end.month + group_end.year * 12 - (group_start.month + group_start.year * 12)
-    if group_end.day < group_start.day
-      diff - 1
-    else
-      diff
-    end
+    duration_in_months(group_start, group_end)
   end
+
+  def months_between_registration_and_group_start
+    duration_in_months(created_at, group_start)
+  end
+
+  def months_since_group_start
+    return if group_end&.past?
+
+    duration_in_months(group_start)
+  end
+
 
   # we do not call this 'siblings' because real siblings may have only
   # one parent in common
   def strict_siblings
     parent2_id ? self.class.where(parent1_id: parent1_id, parent2_id: parent2_id)
-                     .or(self.class.where(parent1_id: parent2_id, parent2_id: parent1_id)).where.not(id: id) :
+      .or(self.class.where(parent1_id: parent2_id, parent2_id: parent1_id)).where.not(id: id) :
       self.class.where(parent1_id: parent1_id)
-          .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
   end
 
   def true_siblings
     return [] if id.nil?
     if parent2_id
       self.class.where(parent1_id: parent1_id)
-          .or(self.class.where(parent1_id: parent2_id))
-          .or(self.class.where(parent2_id: parent1_id))
-          .or(self.class.where(parent2_id: parent2_id)).where.not(id: id)
+        .or(self.class.where(parent1_id: parent2_id))
+        .or(self.class.where(parent2_id: parent1_id))
+        .or(self.class.where(parent2_id: parent2_id)).where.not(id: id)
     else
       self.class.where(parent1_id: parent1_id)
-          .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
     end
   end
 
@@ -227,6 +240,10 @@ class Child < ApplicationRecord
     where("birthdate <= ?", Time.zone.today - x.to_i.months)
   end
 
+  def self.registration_months_gteq(x)
+    where("age(children.created_at, birthdate) >= interval '? months'", x)
+  end
+
   def self.months_lt(x)
     # < x months
     # means being at most 1 day less than x months old
@@ -234,12 +251,24 @@ class Child < ApplicationRecord
     where("birthdate > ?", Time.zone.today - x.to_i.months)
   end
 
+  def self.registration_months_lt(x)
+    where("age(children.created_at, birthdate) < interval '? months'", x)
+  end
+
   def self.months_equals(x)
     months_gteq(x).merge(months_lt(x.to_i + 1))
   end
 
+  def self.registration_months_equals(x)
+    registration_months_gteq(x).merge(registration_months_lt(x.to_i + 1))
+  end
+
   def self.months_between(x, y)
     months_gteq(x).merge(months_lt(y))
+  end
+
+  def self.registration_months_between(x, y)
+    registration_months_gteq(x).merge(registration_months_lt(y))
   end
 
   def self.months_between_0_and_12
@@ -413,7 +442,7 @@ class Child < ApplicationRecord
   end
 
   def self.families_count
-    count("DISTINCT parent1_id")
+    count("DISTINCT children.parent1_id")
   end
 
   def self.parents
@@ -421,8 +450,16 @@ class Child < ApplicationRecord
     Parent.where(id: parent_ids.compact.uniq)
   end
 
+  def self.popi_parents
+    parents.tagged_with('hors cible')
+  end
+
   def self.fathers_count
     parents.fathers.count
+  end
+
+  def self.popi_fathers_count
+    popi_parents.fathers.count
   end
 
   # returns a Hash k => v where
@@ -467,5 +504,18 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   acts_as_taggable
+
+  private
+
+  def duration_in_months(started_at, ended_at = Time.now)
+    return unless started_at && ended_at && ended_at > started_at
+
+    diff = ended_at.month + ended_at.year * 12 - (started_at.month + started_at.year * 12)
+    if ended_at.day < started_at.day
+      diff - 1
+    else
+      diff
+    end
+  end
 
 end

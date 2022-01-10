@@ -9,3 +9,4 @@
 //= require tippy-2.5.2
 
 //= require_tree ./admin
+//= require ./application/addresses

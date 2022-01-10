@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_26_155539) do
+ActiveRecord::Schema.define(version: 2022_01_06_190608) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -183,6 +183,7 @@ ActiveRecord::Schema.define(version: 2021_11_26_155539) do
     t.string "group_status", default: "waiting"
     t.date "group_start"
     t.date "group_end"
+    t.string "land"
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["discarded_at"], name: "index_children_on_discarded_at"
@@ -205,9 +206,11 @@ ActiveRecord::Schema.define(version: 2021_11_26_155539) do
     t.integer "spot_hit_status"
     t.string "spot_hit_message_id"
     t.boolean "originated_by_app", default: true, null: false
+    t.bigint "workshop_id"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
     t.index ["type"], name: "index_events_on_type"
+    t.index ["workshop_id"], name: "index_events_on_workshop_id"
   end
 
   create_table "field_comments", force: :cascade do |t|
@@ -438,10 +441,27 @@ ActiveRecord::Schema.define(version: 2021_11_26_155539) do
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
+  create_table "workshops", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "co_animator"
+    t.date "workshop_date", null: false
+    t.string "address", null: false
+    t.string "postal_code", null: false
+    t.string "city_name", null: false
+    t.text "description"
+    t.text "invitation_message", null: false
+    t.datetime "discarded_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "animator_id", null: false
+    t.index ["animator_id"], name: "index_workshops_on_animator_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "child_supports", "admin_users", column: "supporter_id"
   add_foreign_key "children", "parents", column: "parent1_id"
   add_foreign_key "children", "parents", column: "parent2_id"
+  add_foreign_key "events", "workshops"
   add_foreign_key "field_comments", "admin_users", column: "author_id"
   add_foreign_key "media", "media", column: "image1_id"
   add_foreign_key "media", "media", column: "image2_id"
@@ -456,4 +476,5 @@ ActiveRecord::Schema.define(version: 2021_11_26_155539) do
   add_foreign_key "taggings", "tags"
   add_foreign_key "tasks", "admin_users", column: "assignee_id"
   add_foreign_key "tasks", "admin_users", column: "reporter_id"
+  add_foreign_key "workshops", "admin_users", column: "animator_id"
 end

@@ -7,11 +7,11 @@ fr:
       events_other_event: Autre
       events_survey_response: Questionnaire
       events_text_message: SMS
-      events_workshop_participation: Atelier
+      events_workshop_participation: Participation aux ateliers
       events/other_event: Autre
       events/survey_response: Questionnaire
       events/text_message: SMS
-      events/workshop_participation: Atelier
+      events/workshop_participation: Participation aux ateliers
       field_comment: Commentaire
       group: Cohorte
       medium: Média
@@ -34,6 +34,7 @@ fr:
       support_module: Module
       support_module_week: Semaine
       task: Tâche
+      workshop: Atelier
     attributes:
       shared: &SHARED
         created_at: Ajout
@@ -62,6 +63,8 @@ fr:
         birthdate: Date de naissance
         child_support: Suivi
         city_name: Ville
+        child_present_on: Presence sur les reseaux sociaux
+        child_follow_us_on: Nous suit sur
         family_redirection_unique_visit_rate: "Taux de visites uniques familiales d'URL courtes"
         family_redirection_unique_visits: URL visitées
         family_redirection_url_unique_visits_count: "Visites familiales uniques d'URL courtes"
@@ -76,6 +79,7 @@ fr:
         group: Cohorte
         child_group_name: Cohorte
         group_status: Statut de la cohorte
+        land: Terrain
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres
         months: Age (en mois)
@@ -97,18 +101,21 @@ fr:
         postal_code: Code postal
         public_edit_url: Lien de continuation
         registration_source: Comment nous avez-vous connu ?
-        registration_source_details: 'Précisez le nom :'
+        registration_source_details: Précisez votre nom ou celui de votre structure
         security_code: Sécurité
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?
         src_url: URL d'inscription
         child_group_months: Durée de l'accompagnement (en mois)
+        months_between_registration_and_group_start: Temps entre l'inscription et le debut de la cohorte (en mois)
+        months_since_group_start: Temps depuis le debut de l'accompagnement (en mois)
       child/gender:
         f: Fille
         m: Garçon
         x: Inconnu
       child/registration_source:
         caf: CAF
+        doctor: Docteur
         friends: Par des amis / de la famille
         nursery: Crèche
         other: Autre
@@ -206,6 +213,8 @@ fr:
         city_name: Ville
         children: Enfants
         children_registration_months_range: Tranche d'âge à l'inscription
+        children_present_on: Presence sur les reseaux sociaux
+        children_follow_us_on: Nous suit sur
         children_first_names: Prénom des enfants
         children_last_names: Nom des enfants
         children_birthdates: Date de naissance des enfants
@@ -242,6 +251,7 @@ fr:
         to_call: Appel 2 ou 4
         present_on: Presence sur les reseaux sociaux
         follow_us_on: Nous suit sur
+        children_land: Terrain
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
         2_awareness: A conscience de son impact
@@ -287,8 +297,11 @@ fr:
         4_dont_call: Ne pas appeler
       event: &EVENT
         << : *SHARED
+        address: Adresse
+        city_name: Ville
         discarded_at: Mis à la corbeille
         occurred_at: Date
+        postal_code: Code postal
         related: Parent
         related_first_child: Famille
         related_first_child_group: Cohorte
@@ -312,6 +325,8 @@ fr:
       events/workshop_participation:
         << : *EVENT
         comments: Infos
+        workshop_invitation_response: Réponse à l'invitation
+        workshop_presence: Présent
       field_comment:
         << : *SHARED
         author: Auteur
@@ -385,6 +400,9 @@ fr:
         phone_number_national: Téléphone
         postal_code: Code postal
         parent_groups: Cohortes
+        parent_present_on: Presence sur les reseaux sociaux
+        parent_follow_us_on: Nous suit sur
+        land: Terrain
         redirection_unique_visit_rate: "Taux de visites uniques d'URL courtes"
         redirection_unique_visits: URL visitées
         redirection_url_unique_visits_count: "Visites uniques d'URL courtes"
@@ -466,6 +484,19 @@ fr:
         related: Élément concerné
         reporter: Ajoutée par
         title: Intitulé
+      workshop:
+        name: Thème
+        animator: Animateur
+        co_animator: Co-animateur
+        address: Adresse
+        workshop_date: Date
+        invitation_message: Message d'invitation
+        guests_tag: Tag des invités
+        postal_code: Code postal
+        city_name: Ville
+        parents_selected: Parents invités
+        workshop_address: Adresse
+        workshop_parents_list: Parents invités
     errors:
       models:
         parent:

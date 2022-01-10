@@ -44,11 +44,15 @@ module ActiveAdmin::ChildrenHelper
     end
   end
 
+  def child_land_select_collection
+    Child::LANDS
+  end
+
   def child_registration_source_select_collection_for_pros
     [
       ['un·e professionnel·le de PMI', :pmi],
       ['un·e orthophoniste', :therapist],
-      ['un·e professionnel·le de santé', :pmi],
+      ['un·e professionnel·le de santé', :doctor],
       ['un·e autre partenaire de 1001mots (centre social, association, crèche...)', :other]
     ]
   end

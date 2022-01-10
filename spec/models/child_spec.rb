@@ -12,8 +12,12 @@
 #  family_redirection_visit_rate              :float
 #  first_name                                 :string           not null
 #  gender                                     :string
-#  group_status                               :string          default("waiting"), not null
+#  group_end                                  :date
+#  group_start                                :date
+#  group_status                               :string           default("waiting")
+#  land                                       :string
 #  last_name                                  :string           not null
+#  pmi_detail                                 :string
 #  registration_source                        :string
 #  registration_source_details                :string
 #  security_code                              :string
@@ -392,6 +396,14 @@ RSpec.describe Child, type: :model do
         @fifth_child.update registration_source_details: "Plus de Details"
         expect(Child.registration_source_details_matches_any("Plus de Details")).to match_array [@fifth_child]
         expect(Child.all).to match_array @all_children
+      end
+    end
+  end
+
+  describe "#ransackable_scopes" do
+    context "returns" do
+      it "ransackable scopes" do
+        expect(Child.ransackable_scopes).to match_array %i[tagged_with_all months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in without_parent_text_message_since registration_source_details_matches_any]
       end
     end
   end
