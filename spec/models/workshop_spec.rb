@@ -8,7 +8,6 @@
 #  co_animator        :string
 #  discarded_at       :datetime
 #  invitation_message :text             not null
-#  land               :string
 #  name               :string
 #  postal_code        :string           not null
 #  topic              :string           not null
@@ -90,16 +89,18 @@ RSpec.describe Workshop, type: :model do
       let(:tag_workshop) { FactoryBot.create(:workshop, tag_list: workshop_tag) }
 
       it "of chosen parents as participants" do
+        expect(workshop.event_ids).not_to be_empty
         expect(workshop.event_ids).to match_array Event.workshop_participations.where(related: workshop_participants).pluck(:id)
       end
-      it "of chosen land's parents" do
-        expect(paris_workshop.event_ids).to match_array Event.workshop_participations.where(related: paris_parent).pluck(:id)
-        expect(loiret_workshop.event_ids).to match_array Event.workshop_participations.where(related: [first_loiret_parent, second_loiret_parent]).pluck(:id)
-      end
-      it "of parents tagged with tags" do
+      # it "of chosen land's parents" do
+        # expect(paris_workshop.event_ids).not_to be_empty
+        # expect(paris_workshop.event_ids).to match_array Event.workshop_participations.where(related: paris_parent).pluck(:id)
+        # expect(loiret_workshop.event_ids).to match_array Event.workshop_participations.where(related: [first_loiret_parent, second_loiret_parent]).pluck(:id)
+      # end
+      # it "of parents tagged with tags" do
       #   expect(Event.workshop_participations.where(related: tag_parent)).not_to be_empty
       #   expect(tag_workshop.event_ids).to match_array Event.workshop_participations.where(related: tag_parent).pluck(:id)
-      end
+      # end
 
     end
   end

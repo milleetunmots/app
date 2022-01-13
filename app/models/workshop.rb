@@ -8,7 +8,6 @@
 #  co_animator        :string
 #  discarded_at       :datetime
 #  invitation_message :text             not null
-#  land               :string
 #  name               :string
 #  postal_code        :string           not null
 #  topic              :string           not null
@@ -58,27 +57,31 @@ class Workshop < ApplicationRecord
 
   validates_associated :events
 
-  # before_commit do |workshop|
-  #
+  # def initialize
+  #   super
+    # self.name = "#{year}_#{month}"
+    # self.name = "#{tag_list.join("_")}_#{name}" unless tag_list.empty?
+    # self.name = "#{land}_#{name}" if land
+    #
+    # self.events.each do |participation|
+    #   participation.occurred_at = workshop_date
+    #   participation.type = "Events::WorkshopParticipation"
+    #   participation.body = name
+    #   participation.save(validate: false)
+    # end
   # end
 
-  def set_workshop_participation
-    self.name = "#{workshop_date.year}_#{workshop_date.month}"
-    self.name = "#{tag_list.join("_")}_#{name}" unless tag_list.empty?
-    self.name = "#{land}_#{name}" if land
+  # def set_workshop_participation
 
+
+    # Child.where(land: land)
     # Parent.tagged_with(tag_list, any: true).each do |parent|
     #   participation = Event.where(type: "Events::WorkshopParticipation", occurred_at: workshop_date, related: parent, body: name).first_or_create
     #   events << participation unless events.include? participation
     # end
 
-    events.each do |participation|
-      participation.occurred_at = workshop_date
-      participation.type = "Events::WorkshopParticipation"
-      participation.body = name
-      participation.save(validate: false)
-    end
-  end
+
+  # end
 
   acts_as_taggable
 
