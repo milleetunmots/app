@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_06_190608) do
+ActiveRecord::Schema.define(version: 2022_01_11_142155) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -442,18 +442,19 @@ ActiveRecord::Schema.define(version: 2022_01_06_190608) do
   end
 
   create_table "workshops", force: :cascade do |t|
-    t.string "name", null: false
+    t.string "topic", null: false
     t.string "co_animator"
     t.date "workshop_date", null: false
     t.string "address", null: false
     t.string "postal_code", null: false
     t.string "city_name", null: false
-    t.text "description"
+    t.string "name"
     t.text "invitation_message", null: false
     t.datetime "discarded_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "animator_id", null: false
+    t.string "land"
     t.index ["animator_id"], name: "index_workshops_on_animator_id"
   end
 

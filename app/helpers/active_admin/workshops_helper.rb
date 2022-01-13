@@ -1,0 +1,2 @@
+module ActiveAdmin::WorkshopsHelper
+end

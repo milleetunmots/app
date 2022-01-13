@@ -497,6 +497,7 @@ fr:
         parents_selected: Parents invités
         workshop_address: Adresse
         workshop_parents_list: Parents invités
+        workshop_participants : Participants
     errors:
       models:
         parent:
