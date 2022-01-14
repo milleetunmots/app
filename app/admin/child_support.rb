@@ -542,14 +542,4 @@ ActiveAdmin.register ChildSupport do
       end
     end
   end
-
-  controller do
-    after_save do |child_support|
-      child_support.children.each do |child|
-        child.update! tag_list: child_support.tag_list
-        child.parent1&.update! tag_list: (child.parent1&.tag_list + child_support.tag_list).uniq
-        child.parent2&.update! tag_list: (child.parent2&.tag_list + child_support.tag_list).uniq
-      end
-    end
-  end
 end

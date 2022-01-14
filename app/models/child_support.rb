@@ -112,6 +112,9 @@ class ChildSupport < ApplicationRecord
 
   include Discard::Model
 
+  after_commit :update_children_and_parents_tags
+
+
   LANGUAGE_AWARENESS = %w[1_none 2_awareness].freeze
   PARENT_PROGRESS = %w[1_low 2_medium 3_high 4_excellent].freeze
   READING_FREQUENCY = %w[1_rarely 2_weekly 3_frequently 4_daily].freeze
@@ -146,6 +149,14 @@ class ChildSupport < ApplicationRecord
   end
 
   validates :books_quantity, inclusion: {in: BOOKS_QUANTITY, allow_blank: true}
+
+  def update_children_and_parents_tags
+    children.each do |child|
+      child.update! tag_list: tag_list
+      child.parent1&.update! tag_list: (child.parent1&.tag_list + tag_list).uniq
+      child.parent2&.update! tag_list: (child.parent2&.tag_list + tag_list).uniq
+    end
+  end
 
   # ---------------------------------------------------------------------------
   # scopes

@@ -70,12 +70,14 @@ RSpec.describe Child, type: :model do
 
   describe "Validations" do
     context "succeed" do
+      subject { FactoryBot.build(:child) }
       it "if minimal attributes are present" do
-        expect(FactoryBot.build_stubbed(:child)).to be_valid
+        expect(subject).to be_valid
       end
 
       it "if the child's gender is provided by Child::GENDERS" do
-        expect(FactoryBot.build_stubbed(:child, gender: Child::GENDERS.sample)).to be_valid
+        subject.gender = Child::GENDERS.sample
+        expect(subject).to be_valid
       end
     end
 
