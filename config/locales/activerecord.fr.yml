@@ -485,18 +485,15 @@ fr:
         reporter: Ajoutée par
         title: Intitulé
       workshop:
-        name: Thème
+        topic: Thème
         animator: Animateur
-        co_animator: Co-animateur
+        co_animator: Binôme
         address: Adresse
-        workshop_date: Date
-        invitation_message: Message d'invitation
-        guests_tag: Tag des invités
         postal_code: Code postal
         city_name: Ville
-        parents_selected: Parents invités
+        workshop_date: Date
+        invitation_message: Message d'invitation
         workshop_address: Adresse
-        workshop_parents_list: Parents invités
         workshop_participants : Participants
     errors:
       models:
