@@ -14,4 +14,8 @@ class WorkshopDecorator < BaseDecorator
       end
     end
   end
+
+  def topic
+    Workshop.human_attribute_name("topic.#{model.topic}")
+  end
 end

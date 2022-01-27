@@ -70,7 +70,9 @@ class Parent < ApplicationRecord
 
   has_many :workshops, through: :events
 
+  accepts_nested_attributes_for :events
 
+  validates_associated :events
 
   # ---------------------------------------------------------------------------
   # validations
@@ -229,5 +231,4 @@ class Parent < ApplicationRecord
       self.phone_number_national = phone.national(false)
     end
   end
-
 end

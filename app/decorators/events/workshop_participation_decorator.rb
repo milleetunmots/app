@@ -15,7 +15,7 @@ class Events::WorkshopParticipationDecorator < EventDecorator
   end
 
   def truncated_comments
-    model.comments.truncate 30,
+    model.comments&.truncate 30,
       separator: /\s/,
       omission: ' (…)'
   end

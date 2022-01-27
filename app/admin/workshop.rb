@@ -12,11 +12,11 @@ ActiveAdmin.register Workshop do
     selectable_column
     id_column
     column :name
+    column :topic
     column :animator
     column :co_animator
     column :workshop_date
     column :workshop_address
-    column :workshop_participants
   end
 
   filter :name
@@ -28,10 +28,10 @@ ActiveAdmin.register Workshop do
   form do |f|
     f.semantic_errors *f.object.errors.keys
     f.inputs do
-      f.input :topic
+      f.input :topic, collection: workshop_topic_select_collection, input_html: {data: {select2: {}}}
       f.input :workshop_date, as: :datepicker
       f.input :animator, input_html: {data: {select2: {}}}
-      f.input :co_animator, collection: admin_user_select_collection, input_html: {data: {select2: {}}}
+      f.input :co_animator
       address_input f
       f.input :participants, collection: parent_select_collection, input_html: {data: {select2: {}}}
       tags_input(f)
