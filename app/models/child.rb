@@ -52,7 +52,6 @@ class Child < ApplicationRecord
   include Discard::Model
 
   after_commit :set_land, :set_land_tags, on: :create
-  after_commit :update_support_and_parents_tags, :update_group_status
 
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
@@ -87,8 +86,7 @@ class Child < ApplicationRecord
   validates :birthdate, date: {
     after: proc { min_birthdate },
     before: proc { max_birthdate }
-  },
-                        on: :create
+  }, on: :create
   validates :registration_source, presence: true, inclusion: {in: REGISTRATION_SOURCES}
   validates :registration_source_details, presence: true
   validates :security_code, presence: true
@@ -144,17 +142,6 @@ class Child < ApplicationRecord
     tag_list.add("Aulnay-Sous-Bois") if postal_code.to_i == 93600
     tag_list.add("Orleans") if [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800].include? postal_code.to_i
     tag_list.add("Montargis") if [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570].include? postal_code.to_i
-  end
-
-  def update_support_and_parents_tags
-    child_support&.update! tag_list: tag_list
-    parent1&.update! tag_list: (parent1&.tag_list + tag_list).uniq
-    parent2&.update! tag_list: (parent2&.tag_list + tag_list).uniq
-  end
-
-  def update_group_status
-    update! group_start: child.group&.started_at if group && %w[active stopped paused].include?(group_status) && group_start.nil?
-    update! group_end: child.group.ended_at, group_status: "stopped" if group&.ended_at&.past?
   end
 
   # ---------------------------------------------------------------------------

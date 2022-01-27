@@ -1,5 +1,10 @@
 class ParentDecorator < BaseDecorator
 
+  GENDER_COLORS = {
+    m: :blue,
+    f: :rose
+  }
+
   def admin_link(options = {})
     super(options.merge(class: GENDER_COLORS[model.gender.to_sym]))
   end
@@ -21,11 +26,6 @@ class ParentDecorator < BaseDecorator
   def email_link
     h.mail_to model.email
   end
-
-  GENDER_COLORS = {
-    m: :blue,
-    f: :rose
-  }
 
   def gender_status
     arbre do

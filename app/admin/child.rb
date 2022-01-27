@@ -554,6 +554,14 @@ ActiveAdmin.register Child do
   end
 
   controller do
+    after_save do |child|
+      child.update!(group_start: child.group.started_at) if child.group && %w[active stopped paused].include?(child.group_status) && child.group_start.nil?
+      child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
+      child.child_support&.update! tag_list: child.tag_list
+      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
+      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
+    end
+
     def csv_filename
       filter_name = params.fetch(:q, {}).fetch(:active_group_id_in, []).map do |group_id|
         Group.find_by_id(group_id)&.name
