@@ -27,6 +27,8 @@
 class Workshop < ApplicationRecord
   include Discard::Model
 
+  acts_as_taggable
+
   TOPICS = %w[meal sleep nursery_rhymes books games outside bath emotion]
 
   belongs_to :animator, class_name: "AdminUser"
@@ -35,7 +37,7 @@ class Workshop < ApplicationRecord
 
   accepts_nested_attributes_for :events
 
-  before_validation :set_workshop_participation, on: :create
+  before_validation :set_workshop_participation, :set_workshop_tags_participation, :set_name, on: :create
 
   validates :topic,
     presence: true,
@@ -50,39 +52,28 @@ class Workshop < ApplicationRecord
     presence: true
   validates :city_name,
     presence: true
-  validates :land,
-    inclusion: {in: Child::LANDS}
   validates :invitation_message,
     presence: true
 
   validates_associated :events
 
-  # def initialize
-  #   super
-    # self.name = "#{year}_#{month}"
-    # self.name = "#{tag_list.join("_")}_#{name}" unless tag_list.empty?
-    # self.name = "#{land}_#{name}" if land
-    #
-    # self.events.each do |participation|
-    #   participation.occurred_at = workshop_date
-    #   participation.type = "Events::WorkshopParticipation"
-    #   participation.body = name
-    #   participation.save(validate: false)
-    # end
-  # end
+  def set_name
+    self.name = "#{workshop_date.year}_#{workshop_date.month}"
+    self.name = "#{tag_list.join("_")}_#{name}" unless tag_list.empty?
+  end
 
-  # def set_workshop_participation
+  def set_workshop_participation
+    Parent.tagged_with(tag_list.join(", ")).each do |parent|
+      events.create(type: "Events::WorkshopParticipation", workshop_id: id, related_id: parent.id, occurred_at: workshop_date)
+    end
+  end
 
-
-    # Child.where(land: land)
-    # Parent.tagged_with(tag_list, any: true).each do |parent|
-    #   participation = Event.where(type: "Events::WorkshopParticipation", occurred_at: workshop_date, related: parent, body: name).first_or_create
-    #   events << participation unless events.include? participation
-    # end
-
-
-  # end
-
-  acts_as_taggable
-
+  def set_workshop_tags_participation
+    events.each do |participation|
+      participation.occurred_at = workshop_date
+      participation.type = "Events::WorkshopParticipation"
+      participation.body = name
+      participation.save(validate: false)
+    end
+  end
 end

@@ -66,5 +66,4 @@ module ActiveAdmin::ChildrenHelper
   def child_registration_source_details_suggestions
     Child.pluck('DISTINCT ON (LOWER(registration_source_details)) registration_source_details').compact.sort_by(&:downcase)
   end
-
 end

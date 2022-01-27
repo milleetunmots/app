@@ -7,7 +7,7 @@ class MediaFolderDecorator < BaseDecorator
   def breadcrumb
     if model.parent.nil?
       [
-        h.link_to('Médiathèque', [:admin, :media_folders])
+        h.link_to("Médiathèque", [:admin, :media_folders])
       ]
     else
       model.parent.decorate.breadcrumb + [
@@ -15,5 +15,4 @@ class MediaFolderDecorator < BaseDecorator
       ]
     end
   end
-
 end
