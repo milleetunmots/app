@@ -20,36 +20,32 @@
 require "rails_helper"
 
 RSpec.describe MediaFolder, type: :model do
+  subject { FactoryBot.create(:media_folder) }
 
-  before(:each) do
-    @media_folder1 = FactoryBot.create(:media_folder)
-    @media_folder2 = FactoryBot.create(:media_folder, parent: @media_folder1)
-  end
+  describe "#name" do
+    it "is required" do
+      subject.name = nil
 
-  describe "Validations" do
-    context "succeed" do
-      it "if a name is present" do
-        expect(FactoryBot.build(:media_folder)).to be_valid
-      end
-    end
-
-    context "fail" do
-      it "if no name is given" do
-        expect(FactoryBot.build(:media_folder, name: nil)).not_to be_valid
-      end
-
-      it "if it is its own parent" do
-        @media_folder1.parent= @media_folder1
-        expect(@media_folder1).to_not be_valid
-      end
+      expect(subject).to_not be_valid
     end
   end
 
-  describe "#without_parent" do
+  describe "#parent" do
+    it "is another folder or doesn't exist" do
+      subject.parent = subject
+
+      expect(subject).to_not be_valid
+    end
+  end
+
+  describe ".without_parent" do
+    let(:parent) { FactoryBot.create(:media_folder) }
+    let(:second_folder) { FactoryBot.create(:media_folder, parent: parent) }
+
     context "returns" do
       it "media folders without parent" do
-        expect(MediaFolder.without_parent).to match_array [@media_folder1]
-        expect(MediaFolder.all).to match_array [@media_folder1, @media_folder2]
+        expect(MediaFolder.without_parent).to match_array [parent, subject]
+        expect(MediaFolder.all).to match_array [parent, subject, second_folder]
       end
     end
   end

@@ -24,14 +24,14 @@ class MediaFolder < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   belongs_to :parent,
-    class_name: :MediaFolder,
+    class_name: "MediaFolder",
     optional: true
   has_many :children,
-    class_name: :MediaFolder,
-    foreign_key: :parent_id,
+    class_name: "MediaFolder",
+    foreign_key: "parent_id",
     dependent: :nullify
   has_many :media,
-    foreign_key: :folder_id,
+    foreign_key: "folder_id",
     dependent: :nullify
 
   # ---------------------------------------------------------------------------

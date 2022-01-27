@@ -70,8 +70,6 @@ class Parent < ApplicationRecord
 
   has_many :workshops, through: :events
 
-
-
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
@@ -229,5 +227,4 @@ class Parent < ApplicationRecord
       self.phone_number_national = phone.national(false)
     end
   end
-
 end

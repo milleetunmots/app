@@ -133,6 +133,10 @@ puts " ✓"
 
 # Child
 
-100.times do
+print "\t50 Children"
+
+50.times do
   FactoryBot.create(:child)
 end
+
+puts " ✓"
