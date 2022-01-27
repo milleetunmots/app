@@ -37,7 +37,7 @@ class Workshop < ApplicationRecord
 
   accepts_nested_attributes_for :events
 
-  before_validation :set_name, :set_workshop, :set_workshop_tag_participants, on: :create
+  before_validation :set_name, :set_workshop_participation, :set_workshop_tag_participants, on: :create
 
   validates :topic,
     presence: true,
@@ -74,7 +74,7 @@ class Workshop < ApplicationRecord
     end
   end
 
-  def set_workshop
+  def set_workshop_participation
     events.each do |participation|
       participation.occurred_at = workshop_date
       participation.type = "Events::WorkshopParticipation"

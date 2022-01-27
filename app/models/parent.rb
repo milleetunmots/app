@@ -70,10 +70,6 @@ class Parent < ApplicationRecord
 
   has_many :workshops, through: :events
 
-  accepts_nested_attributes_for :events
-
-  validates_associated :events
-
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
