@@ -68,14 +68,16 @@ ActiveAdmin.register Workshop do
   controller do
     after_create do |workshop|
       message = workshop.invitation_message
-      workshop.participants.each do |participant|
+      parent_ids = workshop.participant_ids + Parent.tagged_with(workshop.tag_list.join(", ")).pluck(:id)
+
+      parent_ids.each do |participant_id|
         response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
-          parent_id: participant.id,
+          parent_id: participant_id,
           workshop_id: workshop.id
         )
         workshop.invitation_message = "#{message} Cliquez sur ce lien pour repondre à l'invitation: #{response_link}"
         service = SpotHit::SendSmsService.new(
-          participant.id,
+          participant_id,
           DateTime.current.middle_of_day,
           workshop.invitation_message
         ).call
