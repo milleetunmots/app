@@ -503,7 +503,7 @@ fr:
         books: Livres
         games: Jeux de recup'
         outside: Sorties
-        bath: Bain / Habillage /Change
+        bath: Bain / Habillage / Change
         emotion: Emotions
     errors:
       models:

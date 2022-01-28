@@ -17,6 +17,11 @@ ActiveAdmin.register Workshop do
     column :co_animator
     column :workshop_date
     column :workshop_address
+    actions dropdown: true do |decorated|
+      discard_links_args(decorated.model).each do |args|
+        item *args
+      end
+    end
   end
 
   filter :name
@@ -56,6 +61,32 @@ ActiveAdmin.register Workshop do
           row :workshop_participants
           row :tags
         end
+      end
+    end
+  end
+
+  controller do
+    after_create do |workshop|
+      message = workshop.invitation_message
+      workshop.participants.each do |participant|
+        response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
+          parent_id: participant.id,
+          workshop_id: workshop.id
+        )
+        workshop.invitation_message = "#{message} Cliquez sur ce lien pour repondre à l'invitation: #{response_link}"
+        service = SpotHit::SendSmsService.new(
+          participant.id,
+          DateTime.current.middle_of_day,
+          workshop.invitation_message
+        ).call
+        if service.errors.any?
+          alert = service.errors.join("\n")
+          raise StandardError, alert
+        end
+      rescue => e
+        flash[:alert] = e.message.truncate(200)
+      else
+        flash[:notice] = "Invitations envoyées"
       end
     end
   end
