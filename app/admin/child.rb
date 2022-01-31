@@ -460,8 +460,8 @@ ActiveAdmin.register Child do
   action_item :tools,
     only: :index do
     dropdown_menu "Outils" do
-      item "Nettoyer les précisions sur l'origine",
-        [:new_clean_registration_source_details, :admin, :children]
+      item "Nettoyer les précisions sur l'origine", [:new_clean_registration_source_details, :admin, :children]
+      item "Mettre à jour le tag des enfants pas à l'école", [:set_age_ok, :admin, :children]
     end
   end
   collection_action :new_clean_registration_source_details do
@@ -471,6 +471,19 @@ ActiveAdmin.register Child do
       ).downcase.gsub(/[\s-]+/, " ").strip
     end
     @perform_action = perform_clean_registration_source_details_admin_children_path
+  end
+
+  collection_action :set_age_ok do
+    child_with_age_ok = Child.where(birthdate: Date.new(Date.today.year - 2, 1, 1)..Date.new(Date.today.year, 12, 31))
+
+    Child.all.each do |child|
+      if child_with_age_ok.include? child
+        child.update! tag_list: (child.tag_list + "age_ok").uniq
+      elsif child.tag_list.include? "age_ok"
+        child.tag_list.remove("age_ok")
+      end
+    end
+    redirect_to admin_children_path, notice: "Tags mis à jour"
   end
 
   collection_action :perform_clean_registration_source_details, method: :post do

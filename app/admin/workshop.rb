@@ -12,11 +12,16 @@ ActiveAdmin.register Workshop do
     selectable_column
     id_column
     column :name
+    column :topic
     column :animator
     column :co_animator
     column :workshop_date
     column :workshop_address
-    column :workshop_participants
+    actions dropdown: true do |decorated|
+      discard_links_args(decorated.model).each do |args|
+        item *args
+      end
+    end
   end
 
   filter :name
@@ -28,7 +33,7 @@ ActiveAdmin.register Workshop do
   form do |f|
     f.semantic_errors *f.object.errors.keys
     f.inputs do
-      f.input :topic, collection: Workshop::TOPICS, input_html: {data: {select2: {}}}
+      f.input :topic, collection: workshop_topic_select_collection, input_html: {data: {select2: {}}}
       f.input :workshop_date, as: :datepicker
       f.input :animator, input_html: {data: {select2: {}}}
       f.input :co_animator
@@ -56,6 +61,34 @@ ActiveAdmin.register Workshop do
           row :workshop_participants
           row :tags
         end
+      end
+    end
+  end
+
+  controller do
+    after_create do |workshop|
+      message = workshop.invitation_message
+      parent_ids = workshop.participant_ids + Parent.tagged_with(workshop.tag_list.join(", ")).pluck(:id)
+
+      parent_ids.each do |participant_id|
+        response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
+          parent_id: participant_id,
+          workshop_id: workshop.id
+        )
+        workshop.invitation_message = "#{message} Pour vous inscrire ou dire que vous ne venez pas, cliquer sur ce lien: #{response_link}"
+        service = SpotHit::SendSmsService.new(
+          participant_id,
+          DateTime.current.middle_of_day,
+          workshop.invitation_message
+        ).call
+        if service.errors.any?
+          alert = service.errors.join("\n")
+          raise StandardError, alert
+        end
+      rescue => e
+        flash[:alert] = e.message.truncate(200)
+      else
+        flash[:notice] = "Invitations envoyées"
       end
     end
   end

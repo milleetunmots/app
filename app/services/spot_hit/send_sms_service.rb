@@ -10,9 +10,12 @@ class SpotHit::SendSmsService < SpotHit::SendMessageService
       "smslong" => 1
     }
 
-    if @recipients.class == Array
+    if @recipients.instance_of?(Array)
       form.delete("destinataires_type")
       form["destinataires"] = Parent.where(id: @recipients).pluck(:phone_number).join(", ")
+    elsif @recipients.instance_of?(Integer)
+      form.delete("destinataires_type")
+      form["destinataires"] = Parent.find(@recipients).phone_number
     else
       @recipients.each do |parent_id, keys|
         parent = Parent.find(parent_id)

@@ -37,7 +37,7 @@ class Workshop < ApplicationRecord
 
   accepts_nested_attributes_for :events
 
-  before_validation :set_workshop_participation, :set_workshop_tags_participation, :set_name, on: :create
+  before_validation :set_name, :set_workshop_participation, :set_workshop_tag_participants, on: :create
 
   validates :topic,
     presence: true,
@@ -59,21 +59,26 @@ class Workshop < ApplicationRecord
 
   def set_name
     self.name = "#{workshop_date.year}_#{workshop_date.month}"
-    self.name = "#{tag_list.join("_")}_#{name}" unless tag_list.empty?
+    self.name = tag_list.empty? ? "Atelier_#{name}" : "#{tag_list.join("_")}_#{name}"
   end
 
-  def set_workshop_participation
+  def set_workshop_tag_participants
     Parent.tagged_with(tag_list.join(", ")).each do |parent|
-      events.create(type: "Events::WorkshopParticipation", workshop_id: id, related_id: parent.id, occurred_at: workshop_date)
+      events.build(
+        type: "Events::WorkshopParticipation",
+        workshop: self,
+        related: parent,
+        body: name,
+        occurred_at: workshop_date
+      )
     end
   end
 
-  def set_workshop_tags_participation
+  def set_workshop_participation
     events.each do |participation|
       participation.occurred_at = workshop_date
       participation.type = "Events::WorkshopParticipation"
       participation.body = name
-      participation.save(validate: false)
     end
   end
 end

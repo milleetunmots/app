@@ -8,6 +8,5 @@ FactoryBot.define do
     postal_code { Faker::Address.postcode }
     city_name { Faker::Address.city }
     invitation_message { Faker::Lorem.paragraph(sentence_count: 2) }
-
   end
 end
