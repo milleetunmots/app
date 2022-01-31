@@ -122,7 +122,7 @@ class ParentDecorator < BaseDecorator
   end
 
   def parent_present_on
-    model.first_child.decorate&.child_present_on
+    model.first_child&.decorate&.child_present_on
   end
 
   def parent_follow_us_on
