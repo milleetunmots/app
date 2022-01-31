@@ -27,6 +27,7 @@ ActiveAdmin.register Events::WorkshopParticipation do
     column :comments do |decorated|
       decorated.truncated_comments
     end
+    column :parent_response
     column :created_at do |decorated|
       l decorated.created_at.to_date, format: :default
     end

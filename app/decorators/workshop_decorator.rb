@@ -7,8 +7,9 @@ class WorkshopDecorator < BaseDecorator
     arbre do
       ul do
         participants.decorate.each do |participant|
+          response = Event.workshop_participations.find_by(workshop_id: model.id, related_id: participant.id).parent_response
           li do
-            participant.admin_link
+            participant.admin_link if response == "Oui"
           end
         end
       end

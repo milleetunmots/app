@@ -75,7 +75,7 @@ ActiveAdmin.register Workshop do
           parent_id: participant_id,
           workshop_id: workshop.id
         )
-        workshop.invitation_message = "#{message} Cliquez sur ce lien pour repondre à l'invitation: #{response_link}"
+        workshop.invitation_message = "#{message} Pour vous inscrire ou dire que vous ne venez pas, cliquer sur ce lien: #{response_link}"
         service = SpotHit::SendSmsService.new(
           participant_id,
           DateTime.current.middle_of_day,

@@ -312,6 +312,7 @@ fr:
         related_first_child_name: Famille
         related_id: Parent
         related_name: Parent
+        parent_response: Inscription à l'atelier
       events/other_event:
         << : *EVENT
         body: Détails
@@ -495,7 +496,7 @@ fr:
         workshop_date: Date
         invitation_message: Message d'invitation
         workshop_address: Adresse
-        workshop_participants : Participants
+        workshop_participants : Parents inscrits
       workshop/topic:
         meal: Repas
         sleep: Coucher
