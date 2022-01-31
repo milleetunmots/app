@@ -69,6 +69,7 @@ RSpec.describe Workshop, type: :model do
     context "format" do
       let(:workshop) { FactoryBot.create(:workshop, workshop_date: Date.new(2022, 3, 5)) }
       let(:paris_18_workshop) { FactoryBot.create(:workshop, workshop_date: Date.new(2022, 1, 5), tag_list: %w[Paris_18eme belliard]) }
+      
       it "is 'Atelier_year_month' if tags are not given" do
         expect(workshop.name).to eq "Atelier_2022_3"
       end
@@ -81,12 +82,9 @@ RSpec.describe Workshop, type: :model do
   describe ".events" do
     context "are workshop participations" do
       let(:workshop_participants) { FactoryBot.create_list(:parent, 5) }
-
       let(:workshop) { FactoryBot.create(:workshop, participants: workshop_participants) }
-
       let(:tag_parent) { FactoryBot.create(:parent, tag_list: "workshop_tag") }
       let(:tag_workshop) { FactoryBot.create(:workshop, tag_list: "workshop_tag") }
-
       let(:participants) { FactoryBot.create_list(:parent, 3) }
       let(:parent) { FactoryBot.create(:parent, tag_list: "tag_test") }
       let(:both_workshop) { FactoryBot.create(:workshop, participants: participants, tag_list: "tag_test") }

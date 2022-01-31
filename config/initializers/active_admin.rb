@@ -228,6 +228,8 @@ ActiveAdmin.setup do |config|
     col_sep: ";"
   }
 
+  config.disable_streaming_in = ['development', 'staging']
+
   # Force the use of quotes
   # config.csv_options = { force_quotes: true }
 
