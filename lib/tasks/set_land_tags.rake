@@ -2,29 +2,31 @@
 namespace :set_land do
   desc 'Set land tags'
   task land_tags: :environment do
-    Child.where(parent1_id: get_parent_ids(%w[75018])).each do |child|
-      child.tag_list.add("Paris_18_eme")
-      child.save!
-    end
-    Child.where(parent1_id: get_parent_ids(%w[75020])).each do |child|
-      child.tag_list.add("Paris_20_eme")
-      child.save!
-    end
-    Child.where(parent1_id: get_parent_ids(%w[93600])).each do |child|
-      child.tag_list.add("Aulnay-Sous-Bois")
-      child.save!
-    end
-    Child.where(parent1_id: get_parent_ids(%w[45000 45100 45140 45160 45240 45380 45400 45430 45470 45650 45770 45800])).each do |child|
-      child.tag_list.add("Orleans")
-      child.save!
-    end
-    Child.where(parent1_id: get_parent_ids(%w[45110 45120 45200 45210 45220 45230,45260 45270 45290 45320 45490 45500 45520 45680 45700 49800 77460 77570])).each do |child|
-      child.tag_list.add("Montargis")
-      child.save!
-    end
+    set_tag("Paris_18_eme", %w[75018])
+    set_tag("Paris_20_eme", %w[75020])
+    set_tag("Aulnay-Sous-Bois", %w[93600])
+    set_tag("Plaisir", %w[78370])
+    set_tag("Trappes", %w[78190])
+    set_tag("Les Clayes Sous Bois", %w[78340])
+    set_tag("Coignière, Maurepas", %w[78310])
+    set_tag("Elancourt", %w[78990])
+    set_tag("Guyancourt", %w[78280])
+    set_tag("Montigny le bretonneux", %w[78180])
+    set_tag("La verrière", %w[78320])
+    set_tag("Villepreux", %w[78450])
+    set_tag("Voisin le Bretonneux", %w[78960])
+    set_tag("Orleans", %w[45000 45100 45140 45160 45240 45380 45400 45430 45470 45650 45770 45800])
+    set_tag("Montargis", %w[45110 45120 45200 45210 45220 45230,45260 45270 45290 45320 45490 45500 45520 45680 45700 49800 77460 77570])
   end
 
   def get_parent_ids(postal_code)
     Parent.where(postal_code: postal_code).pluck(:id)
+  end
+
+  def set_tag(tag, postal_codes)
+    Child.where(parent1_id: get_parent_ids(postal_codes)).each do |child|
+      child.tag_list.add(tag)
+      child.save!
+    end
   end
 end
