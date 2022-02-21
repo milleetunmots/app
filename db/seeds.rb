@@ -136,7 +136,8 @@ puts " ✓"
 print "\t50 Children"
 
 50.times do
-  FactoryBot.create(:child)
+  child = FactoryBot.create(:child)
+  child.update_column(:created_at, Faker::Date.backward(days: 720))
 end
 
 puts " ✓"
