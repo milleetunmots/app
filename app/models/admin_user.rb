@@ -44,15 +44,15 @@ class AdminUser < ApplicationRecord
     uniqueness: {case_sensitive: false}
   validates :user_role, inclusion: {in: ROLES}
 
-  def admin?
+  def is_admin?
     user_role == "super_admin"
   end
 
-  def team_member?
+  def is_team_member?
     user_role == "team_member"
   end
 
-  def caller?
+  def is_caller?
     user_role == "caller"
   end
 end

@@ -57,21 +57,21 @@ RSpec.describe AdminUser, type: :model do
     end
   end
 
-  describe "#admin?" do
+  describe "#is_admin?" do
     it "return true if user is super_admin" do
-      expect(subject.admin?).to be subject.user_role == "super_admin"
+      expect(subject.is_admin?).to be subject.user_role == "super_admin"
     end
   end
 
-  describe "#team_member?" do
+  describe "#is_team_member?" do
     it "return true if user is team_member" do
-      expect(subject.team_member?).to be subject.user_role == "team_member"
+      expect(subject.is_team_member?).to be subject.user_role == "team_member"
     end
   end
 
-  describe "#caller?" do
+  describe "#is_caller?" do
     it "return true if user is caller" do
-      expect(subject.caller?).to be subject.user_role == "caller"
+      expect(subject.is_caller?).to be subject.user_role == "caller"
     end
   end
 end
