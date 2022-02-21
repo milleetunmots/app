@@ -18,7 +18,7 @@
     var value = $(this).val();
     var isEmpty = !value;
 
-    var caf_list = ["CAF Paris", "CAF Aulnay sous bois", "CAF Loiret"];
+    var caf_list = ["CAF Paris", "CAF Seine-Saint-Denis", "CAF Loiret","CAF Moselle"];
     var selectCafList = document.createElement("select");
     selectCafList.id = "child_registration_source_details";
     selectCafList.classList = "form-control select required";
