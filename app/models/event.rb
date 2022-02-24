@@ -7,6 +7,7 @@
 #  discarded_at        :datetime
 #  occurred_at         :datetime
 #  originated_by_app   :boolean          default(TRUE), not null
+#  parent_response     :string
 #  related_type        :string
 #  spot_hit_status     :integer
 #  subject             :string

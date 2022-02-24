@@ -312,6 +312,7 @@ fr:
         related_first_child_name: Famille
         related_id: Parent
         related_name: Parent
+        parent_response: Inscription à l'atelier
       events/other_event:
         << : *EVENT
         body: Détails
@@ -485,18 +486,26 @@ fr:
         reporter: Ajoutée par
         title: Intitulé
       workshop:
-        name: Thème
+        topic: Thème
         animator: Animateur
-        co_animator: Co-animateur
+        co_animator: Binôme
         address: Adresse
-        workshop_date: Date
-        invitation_message: Message d'invitation
-        guests_tag: Tag des invités
+        name: Atelier
         postal_code: Code postal
         city_name: Ville
-        parents_selected: Parents invités
+        workshop_date: Date
+        invitation_message: Message d'invitation
         workshop_address: Adresse
-        workshop_parents_list: Parents invités
+        workshop_participants : Parents inscrits
+      workshop/topic:
+        meal: Repas
+        sleep: Coucher
+        nursery_rhymes: Comptines
+        books: Livres
+        games: Jeux de recup'
+        outside: Sorties
+        bath: Bain / Habillage / Change
+        emotion: Emotions
     errors:
       models:
         parent:

@@ -51,7 +51,7 @@ class Child < ApplicationRecord
 
   include Discard::Model
 
-  after_commit :set_land, on: :create
+  after_commit :set_land, :set_land_tags, on: :create
 
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
@@ -86,8 +86,7 @@ class Child < ApplicationRecord
   validates :birthdate, date: {
     after: proc { min_birthdate },
     before: proc { max_birthdate }
-  },
-                        on: :create
+  }, on: :create
   validates :registration_source, presence: true, inclusion: {in: REGISTRATION_SOURCES}
   validates :registration_source_details, presence: true
   validates :security_code, presence: true
@@ -135,6 +134,24 @@ class Child < ApplicationRecord
     when 75 then update land: "Paris"
     when 57 then update land: "Moselle"
     end
+  end
+
+  def set_land_tags
+    tag_list.add("Paris_18_eme") if postal_code.to_i == 75018
+    tag_list.add("Paris_20_eme") if postal_code.to_i == 75020
+    tag_list.add("Plaisir") if postal_code.to_i == 78370
+    tag_list.add("Trappes") if postal_code.to_i == 78190
+    tag_list.add("Les Clayes Sous Bois") if postal_code.to_i == 78340
+    tag_list.add("Coignière, Maurepas") if postal_code.to_i == 78310
+    tag_list.add("Elancourt") if postal_code.to_i == 78990
+    tag_list.add("Guyancourt") if postal_code.to_i == 78280
+    tag_list.add("Montigny le bretonneux") if postal_code.to_i == 78180
+    tag_list.add("La verrière") if postal_code.to_i == 78320
+    tag_list.add("Villepreux") if postal_code.to_i == 78450
+    tag_list.add("Voisin le Bretonneux") if postal_code.to_i == 78960
+    tag_list.add("Aulnay-Sous-Bois") if postal_code.to_i == 93600
+    tag_list.add("Orleans") if [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800].include? postal_code.to_i
+    tag_list.add("Montargis") if [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570].include? postal_code.to_i
   end
 
   # ---------------------------------------------------------------------------

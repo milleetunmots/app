@@ -27,26 +27,51 @@
 require "rails_helper"
 
 RSpec.describe AdminUser, type: :model do
-  describe "Validations" do
-    context "succeed" do
-      it "if the user have a name " do
-        expect(FactoryBot.build_stubbed(:admin_user)).to be_valid
-      end
+  subject { FactoryBot.create(:admin_user) }
+
+  describe "#name" do
+    let(:another_user) { FactoryBot.build(:admin_user, name: subject.name) }
+
+    it "is required" do
+      subject.name = nil
+
+      expect(subject).to_not be_valid
     end
 
-    context "fail" do
-      it "if the user doesn't have a name" do
-        expect(FactoryBot.build_stubbed(:admin_user, name: nil)).not_to be_valid
-      end
+    it "is unique" do
+      expect(another_user).to_not be_valid
+    end
+  end
 
-      it "if the user doesn't have a email" do
-        expect(FactoryBot.build_stubbed(:admin_user, email: nil)).not_to be_valid
-      end
+  describe "#user_role" do
+    it "is required" do
+      subject.user_role = nil
 
-      it "if the user already exists" do
-        @existing = FactoryBot.create(:admin_user, name: "username")
-        expect(FactoryBot.build_stubbed(:admin_user, name: "Username")).not_to be_valid
-      end
+      expect(subject).to_not be_valid
+    end
+
+    it "is included in ROLES" do
+      subject.user_role = "animator"
+
+      expect(subject).to_not be_valid
+    end
+  end
+
+  describe "#admin?" do
+    it "return true if user is super_admin" do
+      expect(subject.admin?).to be subject.user_role == "super_admin"
+    end
+  end
+
+  describe "#team_member?" do
+    it "return true if user is team_member" do
+      expect(subject.team_member?).to be subject.user_role == "team_member"
+    end
+  end
+
+  describe "#caller?" do
+    it "return true if user is caller" do
+      expect(subject.caller?).to be subject.user_role == "caller"
     end
   end
 end

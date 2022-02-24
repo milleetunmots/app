@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_06_190608) do
+ActiveRecord::Schema.define(version: 2022_01_28_164853) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -207,6 +207,7 @@ ActiveRecord::Schema.define(version: 2022_01_06_190608) do
     t.string "spot_hit_message_id"
     t.boolean "originated_by_app", default: true, null: false
     t.bigint "workshop_id"
+    t.string "parent_response"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
     t.index ["type"], name: "index_events_on_type"
@@ -442,13 +443,13 @@ ActiveRecord::Schema.define(version: 2022_01_06_190608) do
   end
 
   create_table "workshops", force: :cascade do |t|
-    t.string "name", null: false
+    t.string "topic", null: false
     t.string "co_animator"
     t.date "workshop_date", null: false
     t.string "address", null: false
     t.string "postal_code", null: false
     t.string "city_name", null: false
-    t.text "description"
+    t.string "name"
     t.text "invitation_message", null: false
     t.datetime "discarded_at"
     t.datetime "created_at", precision: 6, null: false

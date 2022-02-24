@@ -43,9 +43,14 @@ class EventsController < ApplicationController
     head :unprocessable_entity and return unless event.save
 
     parent.children.where.not(group_id: nil).where(group_status: %w[active paused]).each do |child|
-      child.group_status = "stopped"
-      child.group_end = Time.now
-      child.save(validate: false)
+      if child.parent2
+        child.parent1 == parent ? child.should_contact_parent1 = false : child.should_contact_parent2 = false
+      else
+        child.group_status = "stopped"
+        child.group_end = Time.now
+        child.save(validate: false)
+      end
+
     end
 
     head :ok

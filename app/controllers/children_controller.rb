@@ -119,16 +119,11 @@ class ChildrenController < ApplicationController
       @child.errors.add(:caf_detail, :invalid, message: "Précisez votre CAF svp!")
     end
     if @child.errors.none? && @child.save
-      if current_registration_origin == 2
-        sms_url_form = "https://bit.ly/3koOm1T"
-        message = "Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{sms_url_form}"
+      sms_url_form = "https://bit.ly/3koOm1T"
+      message = "Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{sms_url_form}"
 
-        service = SpotHit::SendSmsService.new(
-          [@child.parent1_id],
-          Time.now.to_i,
-          message
-        ).call
-      end
+      SpotHit::SendSmsService.new([@child.parent1_id], Time.now.to_i, message).call if current_registration_origin == 2
+      SpotHit::SendSmsService.new([@child.parent1_id], DateTime.now.change({hour: 19}).to_i, message).call if current_registration_origin == 3
 
       siblings_attributes.each do |sibling_attributes|
         Child.create!(sibling_attributes.merge(
@@ -139,6 +134,7 @@ class ChildrenController < ApplicationController
           land: @child.land,
           should_contact_parent1: @child.should_contact_parent1,
           should_contact_parent2: @child.should_contact_parent2,
+          pmi_detail: @child.pmi_detail,
           child_support: @child.child_support
         ))
       end
