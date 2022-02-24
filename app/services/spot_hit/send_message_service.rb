@@ -13,7 +13,7 @@ class SpotHit::SendMessageService
   protected
 
   def create_events(message_id)
-    recipents = @recipients
+    recipients = @recipients
     recipients = {recipients => {}} if recipients.instance_of?(Integer)
     recipients.each do |parent_id, keys|
       parent = Parent.find(parent_id)
