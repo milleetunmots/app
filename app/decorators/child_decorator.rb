@@ -193,6 +193,8 @@ class ChildDecorator < BaseDecorator
   end
 
   def registration_months_range
+    return nil unless registration_months
+
     if registration_months >= 36
       "Plus de 36 mois"
     elsif registration_months >= 24
