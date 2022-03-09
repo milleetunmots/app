@@ -78,6 +78,8 @@ class Event < ApplicationRecord
   scope :other_events, -> { where(type: "Events::OtherEvent") }
   scope :survey_responses, -> { where(type: "Events::SurveyResponse") }
   scope :text_messages, -> { where(type: "Events::TextMessage") }
+  scope :text_messages_send_by_app, -> { where(type: "Events::TextMessage", originated_by_app: true) }
+  scope :text_messages_send_by_parent, -> { where(type: "Events::TextMessage", originated_by_app: false) }
   scope :sent_by_app_text_messages, -> { where(type: "Events::TextMessage", originated_by_app: true) }
   scope :received_text_messages, -> { where(type: "Events::TextMessage", originated_by_app: false) }
   scope :workshop_participations, -> { where(type: "Events::WorkshopParticipation") }

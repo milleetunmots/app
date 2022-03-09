@@ -559,6 +559,8 @@ ActiveAdmin.register Child do
     column :group_status
 
     column :family_text_messages_count
+    column :family_text_messages_received_count
+    column :family_text_messages_sent_count
 
     column :family_redirection_urls_count
     column :family_redirection_url_visits_count
