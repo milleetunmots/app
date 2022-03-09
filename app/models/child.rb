@@ -370,6 +370,10 @@ class Child < ApplicationRecord
     where(id: all.select { |child| child.tag_list.include?("2eme cohorte") }.map(&:id))
   end
 
+  def self.group_active_between(x, y)
+    where("group_start >= ?", x).or(where("group_start >= ? AND group_end <= ?", x, y))
+  end
+
   # --------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
@@ -467,16 +471,8 @@ class Child < ApplicationRecord
     Parent.where(id: parent_ids.compact.uniq)
   end
 
-  def self.popi_parents
-    parents.tagged_with('hors cible')
-  end
-
   def self.fathers_count
     parents.fathers.count
-  end
-
-  def self.popi_fathers_count
-    popi_parents.fathers.count
   end
 
   # returns a Hash k => v where
