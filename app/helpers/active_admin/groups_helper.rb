@@ -25,11 +25,11 @@ module ActiveAdmin::GroupsHelper
     children = children.where(registration_source: registration_sources) if registration_sources
     children = children.tagged_with(tags, any: true) if tags
 
-    values["goal"] = 4000
-    values["active_groups_count"] = Group.where("started_at < ?", DateTime.now).where("ended_at > ?", DateTime.now).count
-    values["stopped_groups_count"] = Group.where("ended_at < ?", DateTime.now).count
-    values["families_count"] = children.families_count
-    values["children_count"] = children.count
+    values["goal"] = 5700
+    values["active_groups"] = Group.where("started_at < ?", DateTime.now).where("ended_at > ?", DateTime.now).count
+    values["stopped_groups"] = Group.where("ended_at < ?", DateTime.now).count
+    values["children_followed"] = children.where(group_status: "active").count
+    values["families_followed"] = children.where(group_status: "active").families_count
 
     values
   end
