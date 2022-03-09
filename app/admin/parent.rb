@@ -202,6 +202,8 @@ ActiveAdmin.register Parent do
     column :children_count
 
     column :text_messages_count
+    column :text_messages_received_count
+    column :text_messages_sent_count
 
     column :redirection_urls_count
     column :redirection_url_visits_count
