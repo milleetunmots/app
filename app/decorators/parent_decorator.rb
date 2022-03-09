@@ -117,6 +117,14 @@ class ParentDecorator < BaseDecorator
     model.events.text_messages.kept.count
   end
 
+  def text_messages_received_count
+    model.events.text_messages_send_by_app.kept.count
+  end
+
+  def text_messages_sent_count
+    model.events.text_messages_send_by_parent.kept.count
+  end
+
   def parent_groups
     model.children.decorate.map(&:group_name).join("\n")
   end
