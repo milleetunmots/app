@@ -24,8 +24,6 @@ namespace :set_land do
       parent.tag_list.add(tag)
       parent.children.each do |child|
         child.tag_list.add(tag)
-        child.&child_support.tag_list.add(tag)
-        child.&child_support.save!
         child.save!
       end
       parent.save!
