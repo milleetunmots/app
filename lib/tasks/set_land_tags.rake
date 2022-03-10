@@ -19,14 +19,16 @@ namespace :set_land do
     set_tag("Montargis", %w[45110 45120 45200 45210 45220 45230,45260 45270 45290 45320 45490 45500 45520 45680 45700 49800 77460 77570])
   end
 
-  def get_parent_ids(postal_code)
-    Parent.where(postal_code: postal_code).pluck(:id)
-  end
-
   def set_tag(tag, postal_codes)
-    Child.where(parent1_id: get_parent_ids(postal_codes)).each do |child|
-      child.tag_list.add(tag)
-      child.save!
+    Parent.where(postal_code: postal_codes).each do |parent|
+      parent.tag_list.add(tag)
+      parent.children.each do |child|
+        child.tag_list.add(tag)
+        child.&child_support.tag_list.add(tag)
+        child.&child_support.save!
+        child.save!
+      end
+      parent.save!
     end
   end
 end
