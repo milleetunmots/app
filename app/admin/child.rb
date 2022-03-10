@@ -480,7 +480,12 @@ ActiveAdmin.register Child do
   end
 
   collection_action :set_age_ok do
-    child_with_age_ok = Child.where(birthdate: Date.new(Date.today.year - 2, 1, 1)..Date.new(Date.today.year, 12, 31))
+    child_with_age_ok = if Date.today.month <= 8
+      Child.where(birthdate: Date.new(Date.today.year - 3, 1, 1)..Date.new(Date.today.year, 12, 31))
+    else
+      Child.where(birthdate: Date.new(Date.today.year - 2, 1, 1)..Date.new(Date.today.year, 12, 31))
+    end
+
 
     Child.all.each do |child|
       if child_with_age_ok.include? child
