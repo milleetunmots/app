@@ -1,5 +1,8 @@
 puts "--- SEEDING DATABASE ---"
 
+POSTAL_CODES = [75018, 75020, 78370, 78190, 78340, 78310, 78990, 78280, 78180, 78320, 78450, 78960, 93600, 45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800, 45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570]
+PARENTS = []
+
 # AdminUser
 
 puts "\tAdminUser"
@@ -130,6 +133,14 @@ puts " ✓"
 #   image3: evils[2]
 # )
 # puts " ✓"
+#
+# Father
+print "\t50 Parents"
+50.times do
+  parent = FactoryBot.create(:parent, postal_code: POSTAL_CODES.sample)
+  PARENTS << parent
+end
+puts " ✓"
 
 # Child
 
@@ -137,7 +148,7 @@ print "\t50 Children"
 
 50.times do
   created_date = Faker::Date.backward(days: 120)
-  child = FactoryBot.create(:child, birthdate: created_date.prev_month((rand * 10).to_i))
+  child = FactoryBot.create(:child, parent1: PARENTS.sample, birthdate: created_date.prev_month((rand * 10).to_i))
   child.update_column(:created_at, created_date)
 end
 

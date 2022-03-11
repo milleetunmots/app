@@ -52,6 +52,7 @@ class Child < ApplicationRecord
   include Discard::Model
 
   after_commit :set_land, :set_land_tags, on: :create
+  after_commit :transmit_tags
 
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
@@ -117,9 +118,7 @@ class Child < ApplicationRecord
     errors.add(:base, :invalid, message: "L'enfant doit être dans une cohorte") if group_id.nil? && group_status != "waiting"
   end
 
-  # ---------------------------------------------------------------------------
-  # callbacks
-  # ---------------------------------------------------------------------------
+
 
   def initialize(attributes = {})
     super
@@ -152,6 +151,12 @@ class Child < ApplicationRecord
     tag_list.add("Aulnay-Sous-Bois") if postal_code.to_i == 93600
     tag_list.add("Orleans") if [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800].include? postal_code.to_i
     tag_list.add("Montargis") if [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570].include? postal_code.to_i
+  end
+
+  def transmit_tags
+    child_support&.update! tag_list: tag_list
+    parent1&.update! tag_list: (parent1&.tag_list + tag_list).uniq
+    parent2&.update! tag_list: (parent2&.tag_list + tag_list).uniq
   end
 
   # ---------------------------------------------------------------------------
@@ -538,5 +543,4 @@ class Child < ApplicationRecord
       diff
     end
   end
-
 end
