@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_28_164853) do
+ActiveRecord::Schema.define(version: 2022_03_24_061601) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -184,9 +184,11 @@ ActiveRecord::Schema.define(version: 2022_01_28_164853) do
     t.date "group_start"
     t.date "group_end"
     t.string "land"
+    t.bigint "family_id"
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["discarded_at"], name: "index_children_on_discarded_at"
+    t.index ["family_id"], name: "index_children_on_family_id"
     t.index ["gender"], name: "index_children_on_gender"
     t.index ["group_id"], name: "index_children_on_group_id"
     t.index ["parent1_id"], name: "index_children_on_parent1_id"
@@ -212,6 +214,18 @@ ActiveRecord::Schema.define(version: 2022_01_28_164853) do
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
     t.index ["type"], name: "index_events_on_type"
     t.index ["workshop_id"], name: "index_events_on_workshop_id"
+  end
+
+  create_table "families", force: :cascade do |t|
+    t.bigint "parent1_id", null: false
+    t.bigint "parent2_id"
+    t.bigint "child_support_id"
+    t.datetime "discarded_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["child_support_id"], name: "index_families_on_child_support_id"
+    t.index ["parent1_id"], name: "index_families_on_parent1_id"
+    t.index ["parent2_id"], name: "index_families_on_parent2_id"
   end
 
   create_table "field_comments", force: :cascade do |t|
@@ -460,9 +474,12 @@ ActiveRecord::Schema.define(version: 2022_01_28_164853) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "child_supports", "admin_users", column: "supporter_id"
+  add_foreign_key "children", "families"
   add_foreign_key "children", "parents", column: "parent1_id"
   add_foreign_key "children", "parents", column: "parent2_id"
   add_foreign_key "events", "workshops"
+  add_foreign_key "families", "parents", column: "parent1_id"
+  add_foreign_key "families", "parents", column: "parent2_id"
   add_foreign_key "field_comments", "admin_users", column: "author_id"
   add_foreign_key "media", "media", column: "image1_id"
   add_foreign_key "media", "media", column: "image2_id"

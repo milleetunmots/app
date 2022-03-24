@@ -46,6 +46,7 @@
 FactoryBot.define do
   factory :child do
     association :parent1, factory: :parent
+    association :family, factory: :family
 
     birthdate {
       Faker::Date.between(from: Child.min_birthdate.tomorrow, to: Child.max_birthdate.yesterday)
