@@ -27,6 +27,7 @@
 #  created_at                                 :datetime         not null
 #  updated_at                                 :datetime         not null
 #  child_support_id                           :bigint
+#  family_id                                  :bigint
 #  group_id                                   :bigint
 #  parent1_id                                 :bigint           not null
 #  parent2_id                                 :bigint
@@ -36,6 +37,7 @@
 #  index_children_on_birthdate         (birthdate)
 #  index_children_on_child_support_id  (child_support_id)
 #  index_children_on_discarded_at      (discarded_at)
+#  index_children_on_family_id         (family_id)
 #  index_children_on_gender            (gender)
 #  index_children_on_group_id          (group_id)
 #  index_children_on_parent1_id        (parent1_id)
@@ -43,6 +45,7 @@
 #
 # Foreign Keys
 #
+#  fk_rails_...  (family_id => families.id)
 #  fk_rails_...  (parent1_id => parents.id)
 #  fk_rails_...  (parent2_id => parents.id)
 #
@@ -67,6 +70,7 @@ class Child < ApplicationRecord
   belongs_to :parent1, class_name: :Parent
   belongs_to :parent2, class_name: :Parent, optional: true
   belongs_to :group, optional: true
+  belongs_to :family
 
   has_many :redirection_urls, dependent: :destroy # TODO: use nullify instead?
   has_many :siblings, class_name: :Child, primary_key: :parent1_id, foreign_key: :parent1_id
@@ -74,6 +78,7 @@ class Child < ApplicationRecord
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
   accepts_nested_attributes_for :parent2
+  accepts_nested_attributes_for :family
 
   # ---------------------------------------------------------------------------
   # validations
