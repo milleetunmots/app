@@ -3,7 +3,7 @@ class PutChildrenInFamilies < ActiveRecord::Migration[6.0]
     Child.all.each do |child|
       next if child.family
 
-      child.update!(family: Family.create!(parent1_id: child.parent1.id, parent2_id: child.parent2&.id, child_support_id: child.child_support&.id))
+      child.update!(family: Family.create!(parent1: child.parent1, parent2: child.parent2, child_support: child.child_support))
       child.siblings.each { |sibling| sibling.update!(family: child.family) }
     end
   end
