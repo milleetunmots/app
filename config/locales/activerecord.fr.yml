@@ -13,6 +13,7 @@ fr:
       events/text_message: SMS
       events/workshop_participation: Participation aux ateliers
       field_comment: Commentaire
+      family: Famille
       group: Cohorte
       medium: Média
       media_document: Document
@@ -336,6 +337,11 @@ fr:
         content: Contenu
         field: Info
         related: Élément
+      family:
+        << : *SHARED
+        parent1: Parent 1
+        parent2: Parent 2
+        children: Enfants
       group:
         << : *SHARED
         children: Enfants

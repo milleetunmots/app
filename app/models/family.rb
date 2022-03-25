@@ -22,4 +22,15 @@
 #  fk_rails_...  (parent2_id => parents.id)
 #
 class Family < ApplicationRecord
+
+  belongs_to :parent1, class_name: :Parent
+  belongs_to :parent2, class_name: :Parent, optional: true
+  belongs_to :child_support, optional: true
+  has_many :children
+
+  accepts_nested_attributes_for :parent1
+  accepts_nested_attributes_for :parent2
+  accepts_nested_attributes_for :child_support
+
+  acts_as_taggable
 end
