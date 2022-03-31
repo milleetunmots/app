@@ -1,5 +1,7 @@
 ActiveAdmin.register Family do
 
+  config.clear_action_items!
+
   decorate_with FamilyDecorator
 
   has_tags

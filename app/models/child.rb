@@ -84,6 +84,8 @@ class Child < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
+  before_validation :create_family, on: :create
+
   validates :gender, inclusion: {in: GENDERS, allow_blank: true}
   validates :first_name, presence: true
   validates :last_name, presence: true
@@ -510,6 +512,11 @@ class Child < ApplicationRecord
         [ v.first, v.uniq ]
       end
     ]
+  end
+
+  def create_family
+    self.family = Family.find_or_create_by! parent1: parent1
+    self.family.update! parent2: parent2 unless self.family.parent2
   end
 
   # ---------------------------------------------------------------------------
