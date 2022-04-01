@@ -121,34 +121,6 @@ ActiveAdmin.register Child do
   filter :created_at
   filter :updated_at
 
-  batch_action :add_tags do |ids|
-    session[:add_tags_ids] = ids
-    redirect_to action: :add_tags
-  end
-
-  collection_action :add_tags do
-    @klass = collection.object.klass
-    @ids = session.delete(:add_tags_ids) || []
-    @form_action = url_for(action: :perform_adding_tags)
-    @back_url = request.referer
-    render "active_admin/tags/add_tags"
-  end
-
-  collection_action :perform_adding_tags, method: :post do
-    ids = params[:ids]
-    tags = params[:tag_list]
-    back_url = params[:back_url]
-
-    Child.where(id: ids).each do |child|
-      child.tag_list.add(tags)
-      child.save(validate: false)
-      child.child_support&.update! tag_list: child.tag_list
-      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
-      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
-    end
-    redirect_to back_url, notice: "Tags ajoutés"
-  end
-
   batch_action :create_support do |ids|
     batch_action_collection.find(ids).each do |child|
       next if already_existing_child_support = child.child_support
@@ -583,15 +555,10 @@ ActiveAdmin.register Child do
     after_save do |child|
       if child.group && %w[active stopped paused].include?(child.group_status) && child.group_start.nil?
         child.update!(group_start: child.group.started_at)
-        child.parent1&.tag_list&.add("Famille suivie")
-        child.parent2&.tag_list&.add("Famille suivie")
-        child.parent1&.save
-        child.parent2&.save
+        child.family&.tag_list&.add("Famille suivie")
+        child.family&.save
       end
       child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
-      child.child_support&.update! tag_list: child.tag_list
-      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
-      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
     end
 
     def csv_filename

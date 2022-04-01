@@ -55,6 +55,7 @@ class Child < ApplicationRecord
   include Discard::Model
 
   after_commit :set_land, :set_land_tags, on: :create
+  after_commit :update_family
 
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
@@ -519,6 +520,15 @@ class Child < ApplicationRecord
     self.family.update! parent2: parent2 unless self.family.parent2
   end
 
+  def update_family
+    family.update!(
+      parent1: parent1,
+      parent2: parent2,
+      child_support: child_support,
+      tag_list: (family.tag_list + tag_list).uniq
+    )
+  end
+
   # ---------------------------------------------------------------------------
   # global search
   # ---------------------------------------------------------------------------
@@ -550,5 +560,4 @@ class Child < ApplicationRecord
       diff
     end
   end
-
 end
