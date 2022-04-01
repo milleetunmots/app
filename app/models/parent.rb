@@ -45,6 +45,8 @@ class Parent < ApplicationRecord
 
   include Discard::Model
 
+  after_commit :update_family
+
   GENDER_FEMALE = "f".freeze
   GENDER_MALE = "m".freeze
   GENDERS = [GENDER_FEMALE, GENDER_MALE].freeze
@@ -203,6 +205,11 @@ class Parent < ApplicationRecord
 
   def specific_tags
     tag_list - first_child.all_tags
+  end
+
+  def update_family
+    families = Family.where(parent1: self).or(Family.where(parent2: self))
+    families.each { |family| family.update! tag_list: (family.tag_list + tag_list).uniq }
   end
 
   # ---------------------------------------------------------------------------
