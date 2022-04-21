@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_24_061601) do
+ActiveRecord::Schema.define(version: 2022_04_06_074258) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -157,8 +157,6 @@ ActiveRecord::Schema.define(version: 2022_03_24_061601) do
   end
 
   create_table "children", force: :cascade do |t|
-    t.bigint "parent1_id", null: false
-    t.bigint "parent2_id"
     t.string "first_name", null: false
     t.string "last_name", null: false
     t.date "birthdate", null: false
@@ -167,7 +165,6 @@ ActiveRecord::Schema.define(version: 2022_03_24_061601) do
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "should_contact_parent1", default: false, null: false
     t.boolean "should_contact_parent2", default: false, null: false
-    t.bigint "child_support_id"
     t.string "registration_source_details"
     t.string "registration_source"
     t.bigint "group_id"
@@ -186,13 +183,10 @@ ActiveRecord::Schema.define(version: 2022_03_24_061601) do
     t.string "land"
     t.bigint "family_id"
     t.index ["birthdate"], name: "index_children_on_birthdate"
-    t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["discarded_at"], name: "index_children_on_discarded_at"
     t.index ["family_id"], name: "index_children_on_family_id"
     t.index ["gender"], name: "index_children_on_gender"
     t.index ["group_id"], name: "index_children_on_group_id"
-    t.index ["parent1_id"], name: "index_children_on_parent1_id"
-    t.index ["parent2_id"], name: "index_children_on_parent2_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -311,7 +305,6 @@ ActiveRecord::Schema.define(version: 2022_03_24_061601) do
     t.integer "redirection_url_unique_visits_count"
     t.float "redirection_unique_visit_rate"
     t.float "redirection_visit_rate"
-    t.boolean "is_lycamobile"
     t.datetime "discarded_at"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
@@ -475,8 +468,6 @@ ActiveRecord::Schema.define(version: 2022_03_24_061601) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "child_supports", "admin_users", column: "supporter_id"
   add_foreign_key "children", "families"
-  add_foreign_key "children", "parents", column: "parent1_id"
-  add_foreign_key "children", "parents", column: "parent2_id"
   add_foreign_key "events", "workshops"
   add_foreign_key "families", "parents", column: "parent1_id"
   add_foreign_key "families", "parents", column: "parent2_id"

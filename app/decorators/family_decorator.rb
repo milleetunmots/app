@@ -23,4 +23,29 @@ class FamilyDecorator < BaseDecorator
       end
     end
   end
+
+  def parent1_name
+    model.parent1.decorate.name
+  end
+
+  def parent2_name
+    model.parent2&.decorate&.name
+  end
+
+  def full_address
+    [
+      letterbox_name,
+      address,
+      [
+        postal_code,
+        city_name
+      ].join(' ')
+    ].join("\n")
+  end
+
+  def all_children
+    result = []
+    model.children.to_a.each {|child| result << child.decorate.name }
+    result.join("\n")
+  end
 end

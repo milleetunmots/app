@@ -26,36 +26,27 @@
 #  src_url                                    :string
 #  created_at                                 :datetime         not null
 #  updated_at                                 :datetime         not null
-#  child_support_id                           :bigint
 #  family_id                                  :bigint
 #  group_id                                   :bigint
-#  parent1_id                                 :bigint           not null
-#  parent2_id                                 :bigint
 #
 # Indexes
 #
-#  index_children_on_birthdate         (birthdate)
-#  index_children_on_child_support_id  (child_support_id)
-#  index_children_on_discarded_at      (discarded_at)
-#  index_children_on_family_id         (family_id)
-#  index_children_on_gender            (gender)
-#  index_children_on_group_id          (group_id)
-#  index_children_on_parent1_id        (parent1_id)
-#  index_children_on_parent2_id        (parent2_id)
+#  index_children_on_birthdate     (birthdate)
+#  index_children_on_discarded_at  (discarded_at)
+#  index_children_on_family_id     (family_id)
+#  index_children_on_gender        (gender)
+#  index_children_on_group_id      (group_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (family_id => families.id)
-#  fk_rails_...  (parent1_id => parents.id)
-#  fk_rails_...  (parent2_id => parents.id)
 #
 
 class Child < ApplicationRecord
 
   include Discard::Model
 
-  after_commit :set_land, :set_land_tags, on: :create
-  after_commit :update_family
+  after_commit :set_land, on: :create
 
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
@@ -67,19 +58,19 @@ class Child < ApplicationRecord
   # relations
   # ---------------------------------------------------------------------------
 
-  belongs_to :child_support, optional: true
-  belongs_to :parent1, class_name: :Parent
-  belongs_to :parent2, class_name: :Parent, optional: true
   belongs_to :group, optional: true
   belongs_to :family
+  has_one :child_support, through: :family
+  has_one :parent1, through: :family
+  has_one :parent2, through: :family
 
   has_many :redirection_urls, dependent: :destroy # TODO: use nullify instead?
-  has_many :siblings, class_name: :Child, primary_key: :parent1_id, foreign_key: :parent1_id
+  has_many :siblings, class_name: :Child, primary_key: :family_id, foreign_key: :family_id
 
+  accepts_nested_attributes_for :family
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
   accepts_nested_attributes_for :parent2
-  accepts_nested_attributes_for :family
 
   # ---------------------------------------------------------------------------
   # validations
@@ -135,31 +126,13 @@ class Child < ApplicationRecord
   end
 
   def set_land
-    case postal_code.to_i / 1000
+    case family.postal_code.to_i / 1000
     when 45 then update land: "Loiret"
     when 78 then update land: "Yvelines"
     when 93 then update land: "Seine-Saint-Denis"
     when 75 then update land: "Paris"
     when 57 then update land: "Moselle"
     end
-  end
-
-  def set_land_tags
-    tag_list.add("Paris_18_eme") if postal_code.to_i == 75018
-    tag_list.add("Paris_20_eme") if postal_code.to_i == 75020
-    tag_list.add("Plaisir") if postal_code.to_i == 78370
-    tag_list.add("Trappes") if postal_code.to_i == 78190
-    tag_list.add("Les Clayes Sous Bois") if postal_code.to_i == 78340
-    tag_list.add("Coignière, Maurepas") if postal_code.to_i == 78310
-    tag_list.add("Elancourt") if postal_code.to_i == 78990
-    tag_list.add("Guyancourt") if postal_code.to_i == 78280
-    tag_list.add("Montigny le bretonneux") if postal_code.to_i == 78180
-    tag_list.add("La verrière") if postal_code.to_i == 78320
-    tag_list.add("Villepreux") if postal_code.to_i == 78450
-    tag_list.add("Voisin le Bretonneux") if postal_code.to_i == 78960
-    tag_list.add("Aulnay-Sous-Bois") if postal_code.to_i == 93600
-    tag_list.add("Orleans") if [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800].include? postal_code.to_i
-    tag_list.add("Montargis") if [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570].include? postal_code.to_i
   end
 
   # ---------------------------------------------------------------------------
@@ -199,60 +172,6 @@ class Child < ApplicationRecord
     return if group_end&.past?
 
     duration_in_months(group_start)
-  end
-
-
-  # we do not call this 'siblings' because real siblings may have only
-  # one parent in common
-  def strict_siblings
-    parent2_id ? self.class.where(parent1_id: parent1_id, parent2_id: parent2_id)
-      .or(self.class.where(parent1_id: parent2_id, parent2_id: parent1_id)).where.not(id: id) :
-      self.class.where(parent1_id: parent1_id)
-        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
-  end
-
-  def true_siblings
-    return [] if id.nil?
-    if parent2_id
-      self.class.where(parent1_id: parent1_id)
-        .or(self.class.where(parent1_id: parent2_id))
-        .or(self.class.where(parent2_id: parent1_id))
-        .or(self.class.where(parent2_id: parent2_id)).where.not(id: id)
-    else
-      self.class.where(parent1_id: parent1_id)
-        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
-    end
-  end
-
-  def all_tags
-    tags = tag_list
-    true_siblings.each { |child| tags = (tags + child.tag_list).uniq }
-    tags
-  end
-
-  # ---------------------------------------------------------------------------
-  # support
-  # ---------------------------------------------------------------------------
-
-  def create_support!(child_support_attributes = {tag_list: all_tags})
-    # 1- create support
-    child_support = ChildSupport.create!(child_support_attributes)
-
-    # 2- use it on current child
-    self.child_support_id = child_support.id
-    self.tag_list = all_tags
-    save(validate: false)
-
-    # 3- also update all strict siblings
-    # nb: we do this one by one to trigger paper_trail
-    true_siblings.without_support.each do |child|
-      child.child_support_id = child_support.id
-      child.save(validate: false)
-    end
-
-    strict_siblings.each do |child|
-      child.tag_list = all_tags
-    end
   end
 
   # ---------------------------------------------------------------------------
@@ -313,6 +232,10 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   scope :with_support, -> { joins(:child_support) }
+  scope :with_group, -> { where.not(group_id: nil) }
+  scope :without_group, -> { where(group_id: nil) }
+  scope :without_group_and_not_waiting_second_group, -> { where(group_id: nil).where.not(id: all.select { |child| child.tag_list.include?("2eme cohorte") }.map(&:id)) }
+
 
   def self.without_support
     left_outer_joins(:child_support).where(child_supports: {id: nil})
@@ -333,10 +256,6 @@ class Child < ApplicationRecord
   def self.postal_code_starts_with(v)
     where(parent1: Parent.ransack(postal_code_starts_with: v).result)
   end
-
-  scope :with_group, -> { where.not(group_id: nil) }
-  scope :without_group, -> { where(group_id: nil) }
-  scope :without_group_and_not_waiting_second_group, -> { where(group_id: nil).where.not(id: all.select { |child| child.tag_list.include?("2eme cohorte") }.map(&:id)) }
 
   def self.with_parent_to_contact
     where(should_contact_parent1: true).or(where(should_contact_parent2: true))
@@ -393,44 +312,6 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
-
-  delegate :email,
-    :first_name,
-    :last_name,
-    :gender,
-    :phone_number_national,
-    to: :parent1,
-    prefix: true
-
-  delegate :email,
-    :first_name,
-    :last_name,
-    :gender,
-    :phone_number_national,
-    to: :parent2,
-    prefix: true,
-    allow_nil: true
-
-  delegate :address,
-    :city_name,
-    :letterbox_name,
-    :postal_code,
-    to: :parent1
-
-  delegate :is_ambassador,
-    :is_ambassador?,
-    :is_lycamobile,
-    :is_lycamobile?,
-    to: :parent1,
-    prefix: true
-
-  delegate :is_ambassador,
-    :is_ambassador?,
-    :is_lycamobile,
-    :is_lycamobile?,
-    to: :parent2,
-    prefix: true,
-    allow_nil: true
 
   delegate :name,
     to: :group,
