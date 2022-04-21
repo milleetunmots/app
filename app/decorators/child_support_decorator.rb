@@ -18,7 +18,7 @@ class ChildSupportDecorator < BaseDecorator
   def children
     arbre do
       ul do
-        model.children.decorate.each do |child|
+        model.family.children.decorate.each do |child|
           li do
             child.admin_link + ' (' + child.age + ')'
           end
@@ -96,7 +96,7 @@ class ChildSupportDecorator < BaseDecorator
   def registration_months_range
     arbre do
       ul do
-        model.children.decorate.each do |child|
+        model.family.children.decorate.each do |child|
           li do
             child.registration_months_range
           end
@@ -108,7 +108,7 @@ class ChildSupportDecorator < BaseDecorator
   def groups
     arbre do
       ul do
-        model.children.decorate.each do |child|
+        model.family.children.decorate.each do |child|
           li do
             child.group
           end
@@ -124,7 +124,7 @@ class ChildSupportDecorator < BaseDecorator
   def registration_sources
     arbre do
       ul do
-        model.children.decorate.each do |child|
+        model.family.children.decorate.each do |child|
           li do
             child.registration_source
           end
@@ -210,7 +210,7 @@ class ChildSupportDecorator < BaseDecorator
       [
         "<b>Suivi ##{model.id}</b>"
       ] +
-        model.children.decorate.map do |child|
+        model.family.children.decorate.map do |child|
           child.gendered_name_with_age(with_icon: true)
         end
     ).join('<br/>-&nbsp;').html_safe
@@ -236,7 +236,7 @@ class ChildSupportDecorator < BaseDecorator
   private
 
   def children_attribute(key, glue)
-    result = model.children.decorate.map(&key)
+    result = model.family.children.decorate.map(&key)
     glue ? result.join(glue) : result
   end
 

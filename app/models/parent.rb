@@ -10,7 +10,6 @@
 #  first_name                          :string           not null
 #  gender                              :string           not null
 #  is_ambassador                       :boolean
-#  is_lycamobile                       :boolean
 #  job                                 :string
 #  last_name                           :string           not null
 #  letterbox_name                      :string
@@ -45,8 +44,6 @@ class Parent < ApplicationRecord
 
   include Discard::Model
 
-  after_commit :update_family
-
   GENDER_FEMALE = "f".freeze
   GENDER_MALE = "m".freeze
   GENDERS = [GENDER_FEMALE, GENDER_MALE].freeze
@@ -56,21 +53,14 @@ class Parent < ApplicationRecord
   # relations
   # ---------------------------------------------------------------------------
 
-  has_many :parent1_children,
-    class_name: :Child,
-    foreign_key: :parent1_id,
-    dependent: :nullify
-
-  has_many :parent2_children,
-    class_name: :Child,
-    foreign_key: :parent2_id,
-    dependent: :nullify
-
+  has_one :family, ->(parent){ unscope(:where).where('parent1_id = ? OR parent2_id = ?', parent.id, parent.id) }
+  has_many :children, through: :family
+  # has_many :children, through: :family, source: :parent2
   has_many :redirection_urls, dependent: :destroy
-
   has_many :events, as: :related
-
   has_many :workshops, through: :events
+
+  accepts_nested_attributes_for :family
 
   # ---------------------------------------------------------------------------
   # validations
@@ -97,8 +87,110 @@ class Parent < ApplicationRecord
     uniqueness: {case_sensitive: false, allow_blank: true}
   validates :terms_accepted_at, presence: true
 
+  delegate :tag_list,
+  to: :family,
+  prefix: true
+
+
   # ---------------------------------------------------------------------------
   # helpers
+  # ---------------------------------------------------------------------------
+
+  # def self.first_child_couples
+  #   # Gets table of parent_id, first_child_id couples
+  #   #
+  #   # Make sure this is working properly with something like
+  #   # Parent.first_child_couples.all? do |couple|
+  #   #   Parent.find(couple['parent_id']).first_child&.id === couple['first_child_id']
+  #   # end
+  #
+  #   Parent.joins(
+  #     "LEFT OUTER JOIN children
+  #                   ON children.parent1_id = parents.id OR children.parent2_id = parents.id"
+  #   ).group(
+  #     :id
+  #   ).select(
+  #     "parents.id AS parent_id,
+  #     MIN(children.id) AS first_child_id"
+  #   )
+  # end
+
+  # def self.left_outer_joins_first_child
+  #   # Joins with first_child, for example to extract group_id
+  #   #
+  #   # Make sure this is working with something like
+  #   # Parent.left_outer_joins_first_child.select("parents.*, first_child.group_id").all? do |parent|
+  #   #   parent.group_id == Parent.find(parent.id).first_child&.group_id
+  #   # end
+  #
+  #   joins(
+  #     "INNER JOIN (#{first_child_couples.to_sql}) first_child_couples
+  #              ON id = first_child_couples.parent_id"
+  #   ).joins(
+  #     "LEFT OUTER JOIN children first_child
+  #                   ON first_child.id = first_child_couples.first_child_id"
+  #   )
+  # end
+
+  # ---------------------------------------------------------------------------
+  # global search
+  # ---------------------------------------------------------------------------
+
+  include PgSearch
+  multisearchable against: %i[first_name last_name phone_number_national email]
+
+  # ---------------------------------------------------------------------------
+  # scopes
+  # ---------------------------------------------------------------------------
+
+  # def self.where_first_child(conditions)
+  #   left_outer_joins_first_child.where(first_child: conditions)
+  # end
+
+  # def self.first_child_group_id_in(*v)
+  #   where_first_child(group_id: v)
+  # end
+
+  # def self.first_child_supported_by(v)
+  #   where_first_child(child_support_id: ChildSupport.supported_by(v).select(:id))
+  # end
+
+  def self.mothers
+    where(gender: GENDER_FEMALE)
+  end
+
+  def self.fathers
+    where(gender: GENDER_MALE)
+  end
+
+  # def children
+  #   parent1_children.or(parent2_children)
+  # end
+
+  def duplicate_of?(other_parent)
+    return false if other_parent.nil?
+
+    if other_parent.phone_number
+      format_phone_number
+      return true if phone_number == other_parent.phone_number
+    end
+    I18n.transliterate(first_name).capitalize == I18n.transliterate(other_parent.first_name).capitalize && I18n.transliterate(last_name).capitalize == I18n.transliterate(other_parent.last_name).capitalize
+  end
+
+  # ---------------------------------------------------------------------------
+  # versions history
+  # ---------------------------------------------------------------------------
+
+  has_paper_trail skip: [:phone_number_national]
+
+  # ---------------------------------------------------------------------------
+  # tags
+  # ---------------------------------------------------------------------------
+
+  acts_as_taggable
+
+  # ---------------------------------------------------------------------------
+  # methods
   # ---------------------------------------------------------------------------
 
   def update_counters!
@@ -118,111 +210,6 @@ class Parent < ApplicationRecord
 
     save!
   end
-
-  def self.first_child_couples
-    # Gets table of parent_id, first_child_id couples
-    #
-    # Make sure this is working properly with something like
-    # Parent.first_child_couples.all? do |couple|
-    #   Parent.find(couple['parent_id']).first_child&.id === couple['first_child_id']
-    # end
-
-    Parent.joins(
-      "LEFT OUTER JOIN children
-                    ON children.parent1_id = parents.id OR children.parent2_id = parents.id"
-    ).group(
-      :id
-    ).select(
-      "parents.id AS parent_id,
-      MIN(children.id) AS first_child_id"
-    )
-  end
-
-  def self.left_outer_joins_first_child
-    # Joins with first_child, for example to extract group_id
-    #
-    # Make sure this is working with something like
-    # Parent.left_outer_joins_first_child.select("parents.*, first_child.group_id").all? do |parent|
-    #   parent.group_id == Parent.find(parent.id).first_child&.group_id
-    # end
-
-    joins(
-      "INNER JOIN (#{first_child_couples.to_sql}) first_child_couples
-               ON id = first_child_couples.parent_id"
-    ).joins(
-      "LEFT OUTER JOIN children first_child
-                    ON first_child.id = first_child_couples.first_child_id"
-    )
-  end
-
-  # ---------------------------------------------------------------------------
-  # global search
-  # ---------------------------------------------------------------------------
-
-  include PgSearch
-  multisearchable against: %i[first_name last_name phone_number_national email]
-
-  # ---------------------------------------------------------------------------
-  # scopes
-  # ---------------------------------------------------------------------------
-
-  def self.where_first_child(conditions)
-    left_outer_joins_first_child.where(first_child: conditions)
-  end
-
-  def self.first_child_group_id_in(*v)
-    where_first_child(group_id: v)
-  end
-
-  def self.first_child_supported_by(v)
-    where_first_child(child_support_id: ChildSupport.supported_by(v).select(:id))
-  end
-
-  def self.mothers
-    where(gender: GENDER_FEMALE)
-  end
-
-  def self.fathers
-    where(gender: GENDER_MALE)
-  end
-
-  def children
-    parent1_children.or(parent2_children)
-  end
-
-  def first_child
-    children.order(:id).first
-  end
-
-  def duplicate_of?(other_parent)
-    return false if other_parent.nil?
-    if other_parent.phone_number
-      format_phone_number
-      return true if phone_number == other_parent.phone_number
-    end
-    I18n.transliterate(first_name).capitalize == I18n.transliterate(other_parent.first_name).capitalize && I18n.transliterate(last_name).capitalize == I18n.transliterate(other_parent.last_name).capitalize
-  end
-
-  def specific_tags
-    tag_list - first_child.all_tags
-  end
-
-  def update_family
-    families = Family.where(parent1: self).or(Family.where(parent2: self))
-    families.each { |family| family.update! tag_list: (family.tag_list + tag_list).uniq }
-  end
-
-  # ---------------------------------------------------------------------------
-  # versions history
-  # ---------------------------------------------------------------------------
-
-  has_paper_trail skip: [:phone_number_national]
-
-  # ---------------------------------------------------------------------------
-  # tags
-  # ---------------------------------------------------------------------------
-
-  acts_as_taggable
 
   private
 

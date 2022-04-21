@@ -23,8 +23,12 @@
 #
 class Family < ApplicationRecord
 
-  belongs_to :parent1, class_name: :Parent
-  belongs_to :parent2, class_name: :Parent, optional: true
+  acts_as_taggable
+
+  after_commit :set_land_tags, on: :create
+
+  belongs_to :parent1, class_name: 'Parent'
+  belongs_to :parent2, class_name: 'Parent', optional: true
   belongs_to :child_support, optional: true
   has_many :children
 
@@ -32,5 +36,63 @@ class Family < ApplicationRecord
   accepts_nested_attributes_for :parent2
   accepts_nested_attributes_for :child_support
 
-  acts_as_taggable
+  delegate :email,
+           :first_name,
+           :last_name,
+           :gender,
+           :phone_number_national,
+           :is_ambassador,
+           :is_ambassador?,
+           to: :parent1,
+           prefix: true
+
+  delegate :email,
+           :first_name,
+           :last_name,
+           :gender,
+           :phone_number_national,
+           to: :parent2,
+           prefix: true,
+           allow_nil: true
+
+  delegate :address,
+           :city_name,
+           :letterbox_name,
+           :postal_code,
+           to: :parent1
+
+  delegate :is_ambassador,
+           :is_ambassador?,
+           to: :parent2,
+           prefix: true,
+           allow_nil: true
+
+
+  def first_child
+      children.order(:id).first
+  end
+
+  def create_support!(child_support_attributes)
+    child_support = ChildSupport.create!(child_support_attributes)
+    self.child_support_id = child_support.id
+    save(validate: false)
+  end
+
+  def set_land_tags
+    tag_list.add("Paris_18_eme") if postal_code.to_i == 75018
+    tag_list.add("Paris_20_eme") if postal_code.to_i == 75020
+    tag_list.add("Plaisir") if [78370, 78340, 78310, 78990, 78280, 78114, 78320, 78450, 78960, 78100, 78640, 78850].include? postal_code.to_i
+    tag_list.add("Trappes") if [78190, 78180, 78280, 78310, 78610, 78960].include? postal_code.to_i
+    tag_list.add("Les Clayes Sous Bois") if postal_code.to_i == 78340
+    tag_list.add("Coignière, Maurepas") if postal_code.to_i == 78310
+    tag_list.add("Elancourt") if postal_code.to_i == 78990
+    tag_list.add("Guyancourt") if postal_code.to_i == 78280
+    tag_list.add("Montigny le bretonneux") if postal_code.to_i == 78180
+    tag_list.add("La verrière") if postal_code.to_i == 78320
+    tag_list.add("Villepreux") if postal_code.to_i == 78450
+    tag_list.add("Voisin le Bretonneux") if postal_code.to_i == 78960
+    tag_list.add("Aulnay-Sous-Bois") if postal_code.to_i == 93600
+    tag_list.add("Orleans") if [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800].include? postal_code.to_i
+    tag_list.add("Montargis") if [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570].include? postal_code.to_i
+  end
 end
