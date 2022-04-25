@@ -24,6 +24,5 @@
 FactoryBot.define do
   factory :family do
     association :parent1, factory: :parent
-
   end
 end

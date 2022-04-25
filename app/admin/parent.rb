@@ -221,6 +221,5 @@ ActiveAdmin.register Parent do
     def update_family_tags
       resource.family.update tag_list: params[:parent][:family_tag_list]
     end
-
   end
 end

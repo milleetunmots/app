@@ -24,5 +24,20 @@
 require 'rails_helper'
 
 RSpec.describe Family, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  subject { FactoryBot.create(:family) }
+
+  describe "Validations" do
+    context "succeed" do
+      it "if minimal attributes are present" do
+        expect(subject).to be_valid
+      end
+    end
+
+    context "fail" do
+      it "if parent1 isn't provided" do
+        subject.parent1 = nil
+        expect(subject).to_not be_valid
+      end
+    end
+  end
 end
