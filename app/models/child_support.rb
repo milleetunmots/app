@@ -132,6 +132,8 @@ class ChildSupport < ApplicationRecord
   has_one :parent1, through: :family
   has_one :parent2, through: :family
 
+  accepts_nested_attributes_for :family
+
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
@@ -144,6 +146,10 @@ class ChildSupport < ApplicationRecord
   end
 
   validates :books_quantity, inclusion: {in: BOOKS_QUANTITY, allow_blank: true}
+
+  delegate :tag_list,
+           to: :family,
+           prefix: true
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -253,10 +259,6 @@ class ChildSupport < ApplicationRecord
            :parent2_last_name,
            :parent2_phone_number_national,
            :postal_code,
-           :should_contact_parent1,
-           :should_contact_parent1?,
-           :should_contact_parent2,
-           :should_contact_parent2?,
            to: :family,
            allow_nil: true
 

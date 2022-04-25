@@ -231,15 +231,10 @@ class Child < ApplicationRecord
   # other scopes
   # ---------------------------------------------------------------------------
 
-  scope :with_support, -> { joins(:child_support) }
   scope :with_group, -> { where.not(group_id: nil) }
   scope :without_group, -> { where(group_id: nil) }
   scope :without_group_and_not_waiting_second_group, -> { where(group_id: nil).where.not(id: all.select { |child| child.tag_list.include?("2eme cohorte") }.map(&:id)) }
 
-
-  def self.without_support
-    left_outer_joins(:child_support).where(child_supports: {id: nil})
-  end
 
   def self.postal_code_contains(v)
     where(parent1: Parent.ransack(postal_code_contains: v).result)
@@ -261,32 +256,12 @@ class Child < ApplicationRecord
     where(should_contact_parent1: true).or(where(should_contact_parent2: true))
   end
 
-  def self.parent_id_in(*v)
-    where(parent1_id: v).or(where(parent2_id: v))
-  end
-
-  def self.parent_id_not_in(*v)
-    where.not(parent1_id: v).where.not(parent2_id: v)
-  end
-
-  def self.without_parent_to_contact
-    # info: AR simplifies this
-    where(should_contact_parent1: [nil, false], should_contact_parent2: [nil, false])
-      .or(where(should_contact_parent1: [nil, false], should_contact_parent2: true, parent2_id: nil))
-  end
-
   def self.group_id_in(*v)
     where(group_id: v)
   end
 
   def self.active_group_id_in(*v)
     where(group_id: v).where(group_status: "active")
-  end
-
-  def self.without_parent_text_message_since(v)
-    parent_id_not_in(
-      Events::TextMessage.where(related_type: :Parent).where("occurred_at >= ?", v).pluck("DISTINCT related_id")
-    )
   end
 
   def self.registration_source_details_matches_any(*v)
@@ -355,9 +330,7 @@ class Child < ApplicationRecord
     save!
   end
 
-  def parent_events
-    Event.where(related_type: "Parent", related_id: [parent1_id, parent2_id].compact)
-  end
+
 
   def self.families_count
     count("DISTINCT children.parent1_id")
