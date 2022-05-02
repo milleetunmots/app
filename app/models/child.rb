@@ -46,6 +46,7 @@ class Child < ApplicationRecord
 
   include Discard::Model
 
+  before_validation :create_family, on: :create
   after_commit :set_land, on: :create
 
   GENDERS = %w[m f].freeze
@@ -76,8 +77,6 @@ class Child < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  before_validation :create_family, on: :create
-
   validates :gender, inclusion: {in: GENDERS, allow_blank: true}
   validates :first_name, presence: true
   validates :last_name, presence: true
@@ -95,6 +94,10 @@ class Child < ApplicationRecord
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
   validate :valid_group_status
+
+  delegate :tag_list,
+           to: :family,
+           prefix: true
 
   def no_duplicate
     self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).each do |child|
@@ -234,7 +237,11 @@ class Child < ApplicationRecord
   scope :with_group, -> { where.not(group_id: nil) }
   scope :without_group, -> { where(group_id: nil) }
   scope :without_group_and_not_waiting_second_group, -> { where(group_id: nil).where.not(id: all.select { |child| child.tag_list.include?("2eme cohorte") }.map(&:id)) }
+  scope :with_support, -> { joins(:child_support) }
 
+  def self.without_support
+    left_outer_joins(:child_support).where(child_supports: {id: nil})
+  end
 
   def self.postal_code_contains(v)
     where(parent1: Parent.ransack(postal_code_contains: v).result)
@@ -330,14 +337,12 @@ class Child < ApplicationRecord
     save!
   end
 
-
-
   def self.families_count
-    count("DISTINCT children.parent1_id")
+    Family.count
   end
 
   def self.parents
-    parent_ids = pluck(:parent1_id) + pluck(:parent2_id)
+    parent_ids = Family.pluck(:parent1_id) + Family.pluck(:parent2_id)
     Parent.where(id: parent_ids.compact.uniq)
   end
 
@@ -372,15 +377,6 @@ class Child < ApplicationRecord
   def create_family
     self.family = Family.find_or_create_by! parent1: parent1
     self.family.update! parent2: parent2 unless self.family.parent2
-  end
-
-  def update_family
-    family.update!(
-      parent1: parent1,
-      parent2: parent2,
-      child_support: child_support,
-      tag_list: (family.tag_list + tag_list).uniq
-    )
   end
 
   # ---------------------------------------------------------------------------

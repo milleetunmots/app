@@ -18,7 +18,7 @@ class ChildSupportDecorator < BaseDecorator
   def children
     arbre do
       ul do
-        model.family.children.decorate.each do |child|
+        model.family&.children&.decorate&.each do |child|
           li do
             child.admin_link + ' (' + child.age + ')'
           end

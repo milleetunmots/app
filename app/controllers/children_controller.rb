@@ -10,15 +10,15 @@ class ChildrenController < ApplicationController
   def new
     puts "FORM ORIGIN: #{current_registration_origin}"
     @child = Child.new
-    @child.build_parent1
-    @child.build_parent2
-    @child.build_child_support
+    # @child.build_parent1
+    # @child.build_parent2
+    # @child.build_child_support
     until @child.siblings.size >= SIBLINGS_COUNT do
       @child.siblings.build
     end
-    @child.siblings.each do |sibling|
-      sibling.build_child_support
-    end
+    # @child.siblings.each do |sibling|
+    #   sibling.build_child_support
+    # end
   end
 
   def new1

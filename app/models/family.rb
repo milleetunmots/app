@@ -67,40 +67,29 @@ class Family < ApplicationRecord
            prefix: true,
            allow_nil: true
 
-  scope :with_support, -> { joins(:child_support) }
-
-  def self.without_support
-    left_outer_joins(:child_support).where(child_supports: {id: nil})
-  end
 
 
   def first_child
       children.order(:id).first
   end
 
-  def parent_events
-    Event.where(related_type: "Parent", related_id: [parent1_id, parent2_id].compact)
-  end
+  # def parent_events
+  #   Event.where(related_type: "Parent", related_id: [parent1_id, parent2_id].compact)
+  # end
 
-  def self.parent_id_in(*v)
-    where(parent1_id: v).or(where(parent2_id: v))
-  end
+  # def self.parent_id_in(*v)
+  #   where(parent1_id: v).or(where(parent2_id: v))
+  # end
 
-  def self.parent_id_not_in(*v)
-    where.not(parent1_id: v).where.not(parent2_id: v)
-  end
+  # def self.parent_id_not_in(*v)
+  #   where.not(parent1_id: v).where.not(parent2_id: v)
+  # end
 
-  def self.without_parent_text_message_since(v)
-    parent_id_not_in(
-      Events::TextMessage.where(related_type: :Parent).where("occurred_at >= ?", v).pluck("DISTINCT related_id")
-    )
-  end
-
-  def create_support!(child_support_attributes)
-    child_support = ChildSupport.create!(child_support_attributes)
-    self.child_support_id = child_support.id
-    save(validate: false)
-  end
+  # def self.without_parent_text_message_since(v)
+  #   parent_id_not_in(
+  #     Events::TextMessage.where(related_type: :Parent).where("occurred_at >= ?", v).pluck("DISTINCT related_id")
+  #   )
+  # end
 
   def set_land_tags
     tag_list.add("Paris_18_eme") if postal_code.to_i == 75018
