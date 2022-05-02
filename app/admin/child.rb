@@ -59,7 +59,7 @@ ActiveAdmin.register Child do
   scope :with_support, group: :support
   scope :without_support, group: :support
 
-  scope :without_parent_to_contact, group: :parent
+  # scope :without_parent_to_contact, group: :parent
 
   filter :gender,
     as: :check_boxes,
@@ -280,14 +280,14 @@ ActiveAdmin.register Child do
   form do |f|
     f.semantic_errors *f.object.errors.keys
     f.inputs do
-      f.input :parent1,
-        collection: child_parent_select_collection,
-        input_html: {data: {select2: {}}}
-      f.input :should_contact_parent1
-      f.input :parent2,
-        collection: child_parent_select_collection,
-        input_html: {data: {select2: {}}}
-      f.input :should_contact_parent2
+      # f.input :parent1,
+      #   collection: child_parent_select_collection,
+      #   input_html: {data: {select2: {}}}
+      # f.input :should_contact_parent1
+      # f.input :parent2,
+      #   collection: child_parent_select_collection,
+      #   input_html: {data: {select2: {}}}
+      # f.input :should_contact_parent2
       f.input :gender,
         as: :radio,
         collection: child_gender_select_collection
@@ -313,6 +313,7 @@ ActiveAdmin.register Child do
         collection: child_group_status_select_collection,
         input_html: {data: {select2: {}}}
       tags_input(f)
+      family_tags_input(f)
     end
     f.actions
   end
@@ -321,7 +322,7 @@ ActiveAdmin.register Child do
     :should_contact_parent1, :should_contact_parent2,
     :gender, :first_name, :last_name, :birthdate,
     :registration_source, :registration_source_details, :pmi_detail, :group_status,
-    tags_params
+    tags_params, family_attributes: [:id, tag_list: []]
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -371,9 +372,9 @@ ActiveAdmin.register Child do
           row :updated_at
         end
       end
-      tab "Historique" do
-        render "admin/events/history", events: resource.parent_events.order(occurred_at: :desc).decorate
-      end
+      # tab "Historique" do
+      #   render "admin/events/history", events: resource.parent_events.order(occurred_at: :desc).decorate
+      # end
     end
   end
 
@@ -552,6 +553,8 @@ ActiveAdmin.register Child do
   end
 
   controller do
+    before_action :update_family_tags, only: :update
+
     after_save do |child|
       if child.group && %w[active stopped paused].include?(child.group_status) && child.group_start.nil?
         child.update!(group_start: child.group.started_at)
@@ -559,6 +562,10 @@ ActiveAdmin.register Child do
         child.family&.save
       end
       child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
+    end
+
+    def update_family_tags
+      resource.family.update tag_list: params[:child][:family_tag_list]
     end
 
     def csv_filename

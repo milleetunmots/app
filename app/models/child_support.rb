@@ -190,43 +190,43 @@ class ChildSupport < ApplicationRecord
   end
 
   def self.groups_in(*v)
-    where(id: Child.where(group_id: v).select("DISTINCT child_support_id"))
+    where(id: Child.where(group_id: v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.group_id_in(*v)
-    where(id: Child.group_id_in(v).select("DISTINCT child_support_id"))
+    where(id: Child.group_id_in(v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.active_group_id_in(*v)
-    where(id: Child.active_group_id_in(v).select("DISTINCT child_support_id"))
+    where(id: Child.active_group_id_in(v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.registration_sources_in(*v)
-    where(id: Child.where(registration_source: v).select("DISTINCT child_support_id"))
+    where(id: Child.where(registration_source: v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.registration_sources_details_in(*v)
-    where(id: Child.where(registration_source_details: v).select("DISTINCT child_support_id"))
+    where(id: Child.where(registration_source_details: v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.postal_code_contains(v)
-    where(id: Child.postal_code_contains(v).select("DISTINCT child_support_id"))
+    where(id: Child.postal_code_contains(v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.postal_code_ends_with(v)
-    where(id: Child.postal_code_ends_with(v).select("DISTINCT child_support_id"))
+    where(id: Child.postal_code_ends_with(v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.postal_code_equals(v)
-    where(id: Child.postal_code_equals(v).select("DISTINCT child_support_id"))
+    where(id: Child.postal_code_equals(v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.postal_code_starts_with(v)
-    where(id: Child.postal_code_starts_with(v).select("DISTINCT child_support_id"))
+    where(id: Child.postal_code_starts_with(v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.without_parent_text_message_since(v)
-    where(id: Child.without_parent_text_message_since(v).select("DISTINCT child_support_id"))
+    where(id: Child.without_parent_text_message_since(v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   # ---------------------------------------------------------------------------
