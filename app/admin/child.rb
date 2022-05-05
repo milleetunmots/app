@@ -280,14 +280,14 @@ ActiveAdmin.register Child do
   form do |f|
     f.semantic_errors *f.object.errors.keys
     f.inputs do
-      # f.input :parent1,
-      #   collection: child_parent_select_collection,
-      #   input_html: {data: {select2: {}}}
-      # f.input :should_contact_parent1
-      # f.input :parent2,
-      #   collection: child_parent_select_collection,
-      #   input_html: {data: {select2: {}}}
-      # f.input :should_contact_parent2
+      f.simple_fields_for :family do |family_f|
+        family_f.input :parent1,
+                       collection: child_parent_select_collection,
+                       input_html: {data: {select2: {}}}
+        family_f.input :parent2,
+                       collection: child_parent_select_collection,
+                       input_html: {data: {select2: {}}}
+      end
       f.input :gender,
         as: :radio,
         collection: child_gender_select_collection
@@ -318,11 +318,9 @@ ActiveAdmin.register Child do
     f.actions
   end
 
-  permit_params :parent1_id, :parent2_id, :group_id,
-    :should_contact_parent1, :should_contact_parent2,
-    :gender, :first_name, :last_name, :birthdate,
-    :registration_source, :registration_source_details, :pmi_detail, :group_status,
-    tags_params, family_attributes: [:id, tag_list: []]
+  permit_params :group_id, :should_contact_parent1, :should_contact_parent2, :gender, :first_name, :last_name,
+                :birthdate, :registration_source, :registration_source_details, :pmi_detail,
+                :group_status, tags_params, family_attributes: [:id, :parent1_id, :parent2_id, tag_list: []]
 
   # ---------------------------------------------------------------------------
   # SHOW

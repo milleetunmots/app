@@ -44,6 +44,8 @@ require "rails_helper"
 
 RSpec.describe Parent, type: :model do
   subject { FactoryBot.create(:parent, email: Faker::Internet.email) }
+  let(:first_parent) { FactoryBot.create(:parent, gender: Parent::GENDER_FEMALE)}
+  let(:second_parent) { FactoryBot.create(:parent, gender: Parent::GENDER_MALE)}
 
   describe "#gender" do
     it "is required" do
@@ -131,6 +133,22 @@ RSpec.describe Parent, type: :model do
     end
   end
 
+  describe ".mothers" do
+    it "returns all mothers" do
+      subject.update! gender: Parent::GENDER_FEMALE
+
+      expect(Parent.mothers).to match_array [subject, first_parent]
+    end
+  end
+
+  describe ".fathers" do
+    it "returns all fathers" do
+      subject.update! gender: Parent::GENDER_MALE
+
+      expect(Parent.fathers).to match_array [subject, second_parent]
+    end
+  end
+
   describe "#update_counters!" do
     context "if the parent doesn't have redirections urls, set" do
       it "redirection_url_unique_visits_count to 0" do
@@ -199,10 +217,14 @@ RSpec.describe Parent, type: :model do
   end
 
   describe "#duplicate_of?(another_parent)" do
+    let(:fake_parent) { nil }
+    let(:another_parent) { FactoryBot.build(:parent, first_name: subject.first_name, last_name: subject.last_name, phone_number: subject.phone_number) }
     let(:another_parent) { FactoryBot.build(:parent, first_name: subject.first_name, last_name: subject.last_name, phone_number: subject.phone_number) }
 
     context "returns true if another_parent is a double of the current parent" do
+      it { expect(subject.duplicate_of?(fake_parent)).to be_falsey }
       it { expect(subject.duplicate_of?(another_parent)).to be_truthy }
+
     end
   end
 end

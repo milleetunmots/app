@@ -147,9 +147,7 @@ class ChildSupport < ApplicationRecord
 
   validates :books_quantity, inclusion: {in: BOOKS_QUANTITY, allow_blank: true}
 
-  delegate :tag_list,
-           to: :family,
-           prefix: true
+  delegate :tag_list, to: :family, prefix: true
 
   # ---------------------------------------------------------------------------
   # scopes

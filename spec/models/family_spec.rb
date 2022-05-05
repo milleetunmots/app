@@ -84,7 +84,6 @@ RSpec.describe Family, type: :model do
 
         expect(first_family.tag_list).to match_array ["Paris_18_eme"]
         expect(second_family.tag_list).to match_array ["Trappes"]
-
       end
     end
   end
