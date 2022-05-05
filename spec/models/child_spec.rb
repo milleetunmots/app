@@ -247,148 +247,148 @@ RSpec.describe Child, type: :model do
     end
   end
 
-  describe "#with_support" do
-    context "returns" do
-      it "children with child_support" do
-        expect(Child.with_support).to match_array [@fourth_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
+  # describe "#with_support" do
+  #   context "returns" do
+  #     it "children with child_support" do
+  #       expect(Child.with_support).to match_array [@fourth_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
 
-  describe "#without_support" do
-    context "returns" do
-      it "children without child_support" do
-        expect(Child.without_support).to match_array [@first_child, @second_child, @third_child, @fifth_child, @sixth_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
+  # describe "#without_support" do
+  #   context "returns" do
+  #     it "children without child_support" do
+  #       expect(Child.without_support).to match_array [@first_child, @second_child, @third_child, @fifth_child, @sixth_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
 
-  describe "#postal_code_contains" do
-    context "returns" do
-      it "children with first parent's postal code contains the parameter" do
-        expect(Child.postal_code_contains(502)).to match_array [@first_child, @second_child, @third_child]
-      end
-    end
-  end
+  # describe "#postal_code_contains" do
+  #   context "returns" do
+  #     it "children with first parent's postal code contains the parameter" do
+  #       expect(Child.postal_code_contains(502)).to match_array [@first_child, @second_child, @third_child]
+  #     end
+  #   end
+  # end
 
-  describe "#postal_code_ends_with" do
-    context "returns" do
-      it "children with first parent's postal code ends with the parameter" do
-        expect(Child.postal_code_ends_with(70)).to match_array [@fourth_child, @fifth_child, @sixth_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
+  # describe "#postal_code_ends_with" do
+  #   context "returns" do
+  #     it "children with first parent's postal code ends with the parameter" do
+  #       expect(Child.postal_code_ends_with(70)).to match_array [@fourth_child, @fifth_child, @sixth_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
 
-  describe "#postal_code_equals" do
-    context "returns" do
-      it "children with first parent's postal code is the parameter" do
-        expect(Child.postal_code_equals(75020)).to match_array [@first_child, @second_child, @third_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
+  # describe "#postal_code_equals" do
+  #   context "returns" do
+  #     it "children with first parent's postal code is the parameter" do
+  #       expect(Child.postal_code_equals(75020)).to match_array [@first_child, @second_child, @third_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
 
-  describe "#postal_code_starts_with" do
-    context "returns" do
-      it "children with first parent's postal code starts with the parameter" do
-        expect(Child.postal_code_contains(75)).to match_array [@first_child, @second_child, @third_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
+  # describe "#postal_code_starts_with" do
+  #   context "returns" do
+  #     it "children with first parent's postal code starts with the parameter" do
+  #       expect(Child.postal_code_contains(75)).to match_array [@first_child, @second_child, @third_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
+  #
+  # describe "#with_group" do
+  #   context "returns" do
+  #     it "children with group" do
+  #       expect(Child.with_group).to match_array [@first_child, @second_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
 
-  describe "#with_group" do
-    context "returns" do
-      it "children with group" do
-        expect(Child.with_group).to match_array [@first_child, @second_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
+  # describe "#without_group" do
+  #   context "returns" do
+  #     it "children without group" do
+  #       expect(Child.without_group).to match_array [@third_child, @fourth_child, @fifth_child, @sixth_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
+  #
+  # describe "#with_parent_to_contact" do
+  #   context "returns" do
+  #     it "children with parent to contact" do
+  #       expect(Child.with_parent_to_contact).to match_array [@first_child, @fifth_child, @sixth_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
 
-  describe "#without_group" do
-    context "returns" do
-      it "children without group" do
-        expect(Child.without_group).to match_array [@third_child, @fourth_child, @fifth_child, @sixth_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
+  # describe "#parent_id_in" do
+  #   context "returns" do
+  #     it "children with a parent's id in parameter" do
+  #       expect(Child.parent_id_in(@first_parent.id)).to match_array [@first_child, @second_child, @third_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
 
-  describe "#with_parent_to_contact" do
-    context "returns" do
-      it "children with parent to contact" do
-        expect(Child.with_parent_to_contact).to match_array [@first_child, @fifth_child, @sixth_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
+  # describe "#parent_id_not_in" do
+  #   context "returns" do
+  #     it "children without a parent's id in parameter" do
+  #       expect(Child.parent_id_not_in(@first_parent.id)).to match_array [@fourth_child, @fifth_child, @sixth_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
 
-  describe "#parent_id_in" do
-    context "returns" do
-      it "children with a parent's id in parameter" do
-        expect(Child.parent_id_in(@first_parent.id)).to match_array [@first_child, @second_child, @third_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
+  # describe "#without_parent_to_contact" do
+  #   context "returns" do
+  #     it "children without parent to contact" do
+  #       expect(Child.without_parent_to_contact).to match_array [@second_child, @third_child, @fourth_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
 
-  describe "#parent_id_not_in" do
-    context "returns" do
-      it "children without a parent's id in parameter" do
-        expect(Child.parent_id_not_in(@first_parent.id)).to match_array [@fourth_child, @fifth_child, @sixth_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
+  # describe "#group_id_in" do
+  #   context "returns" do
+  #     it "children with the group in parameter" do
+  #       expect(Child.group_id_in(@group.id)).to match_array [@first_child, @second_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
 
-  describe "#without_parent_to_contact" do
-    context "returns" do
-      it "children without parent to contact" do
-        expect(Child.without_parent_to_contact).to match_array [@second_child, @third_child, @fourth_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
+  # describe "#active_group_id_in" do
+  #   context "returns" do
+  #     it "children in the group in parameter and doesn't have quit" do
+  #       expect(Child.active_group_id_in(@group.id)).to match_array [@first_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
 
-  describe "#group_id_in" do
-    context "returns" do
-      it "children with the group in parameter" do
-        expect(Child.group_id_in(@group.id)).to match_array [@first_child, @second_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
+  # describe "#without_parent_text_message_since" do
+  #   context "returns" do
+  #     it "children with parents who don't have text message since the parameter" do
+  #       @text_message = FactoryBot.create(:text_message, related: @third_parent, occurred_at: Date.today.prev_month(1))
+  #       expect(Child.without_parent_text_message_since(Date.today.prev_month(2))).to match_array [@first_child, @second_child, @third_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
 
-  describe "#active_group_id_in" do
-    context "returns" do
-      it "children in the group in parameter and doesn't have quit" do
-        expect(Child.active_group_id_in(@group.id)).to match_array [@first_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
-
-  describe "#without_parent_text_message_since" do
-    context "returns" do
-      it "children with parents who don't have text message since the parameter" do
-        @text_message = FactoryBot.create(:text_message, related: @third_parent, occurred_at: Date.today.prev_month(1))
-        expect(Child.without_parent_text_message_since(Date.today.prev_month(2))).to match_array [@first_child, @second_child, @third_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
-
-  describe "#registration_source_details_matches_any" do
-    context "returns" do
-      it "children with registration source details matching with the parameter" do
-        @fifth_child.update registration_source_details: "Plus de Details"
-        expect(Child.registration_source_details_matches_any("Plus de Details")).to match_array [@fifth_child]
-        expect(Child.all).to match_array @all_children
-      end
-    end
-  end
+  # describe "#registration_source_details_matches_any" do
+  #   context "returns" do
+  #     it "children with registration source details matching with the parameter" do
+  #       @fifth_child.update registration_source_details: "Plus de Details"
+  #       expect(Child.registration_source_details_matches_any("Plus de Details")).to match_array [@fifth_child]
+  #       expect(Child.all).to match_array @all_children
+  #     end
+  #   end
+  # end
 end

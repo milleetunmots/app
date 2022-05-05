@@ -14,8 +14,10 @@
 
       <div class="row justify-content-sm-center">
         <div class="col-sm-8">
-          <%= f.simple_fields_for :parent1 do |parent1_f| %>
-            <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label, checked_value: Time.now %>
+          <%= f.simple_fields_for :family do |family_f| %>
+            <%= family_f.simple_fields_for :parent1 do |parent1_f| %>
+              <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label, checked_value: Time.now %>
+            <% end %>
           <% end %>
         </div>
       </div>
@@ -48,16 +50,18 @@
             <%= render 'child_form', f: f, with_support: true %>
           </div>
 
-          <% @child.siblings.each_with_index do |sibling, i| %>
-            <div class="child-fields-container <%= 'hidden' unless sibling.gender %>">
+          <% @child.family.children.each_with_index do |child, i| %>
+            <div class="child-fields-container <%= 'hidden' unless child.gender %>">
               <div class="separator"></div>
               <div class="add-child-btn-container">
                 <%= link_to '+ Ajouter un autre enfant', '#', class: 'btn btn-primary add-child-btn' %>
               </div>
               <div class="child-fields">
                 <%= link_to '- Annuler', '#', class: 'btn btn-danger float-right rm-child-btn' %>
-                <%= f.simple_fields_for "siblings[#{i}]", sibling  do |sibling_f| %>
-                  <%= render 'child_form', f: sibling_f %>
+                <%= f.simple_fields_for :family do |family_f| %>
+                  <%= family_f.simple_fields_for "children[#{i}]", child  do |child_f| %>
+                    <%= render 'child_form', f: child_f %>
+                  <% end %>
                 <% end %>
               </div>
             </div>
@@ -68,10 +72,12 @@
           <div class="row">
             <div class="col-sm-6">
               <h3>Mère</h3>
-              <%= f.simple_fields_for :parent1 do |parent1_f| %>
-                <%= parent1_f.input :first_name, required: false %>
-                <%= parent1_f.input :last_name, required: false %>
-                <%= parent1_f.input :phone_number, required: false %>
+              <%= f.simple_fields_for :family do |family_f| %>
+                <%= family_f.simple_fields_for :parent1 do |parent1_f| %>
+                  <%= parent1_f.input :first_name, required: false %>
+                  <%= parent1_f.input :last_name, required: false %>
+                  <%= parent1_f.input :phone_number, required: false %>
+                <% end %>
               <% end %>
             </div>
             <div class="col-sm-6">
@@ -79,18 +85,22 @@
                 Père
               </h3>
               <div id="parent2-fields">
-                <%= f.simple_fields_for :parent2 do |parent2_f| %>
-                  <%= parent2_f.input :first_name, required: false %>
-                  <%= parent2_f.input :last_name, required: false %>
-                  <%= parent2_f.input :phone_number, required: false %>
+                <%= f.simple_fields_for :family do |family_f| %>
+                  <%= family_f.simple_fields_for :parent2 do |parent2_f| %>
+                    <%= parent2_f.input :first_name, required: false %>
+                    <%= parent2_f.input :last_name, required: false %>
+                    <%= parent2_f.input :phone_number, required: false %>
+                  <% end %>
                 <% end %>
               </div>
             </div>
           </div>
           <h3>Adresse</h3>
-          <%= f.simple_fields_for :parent1 do |parent1_f| %>
-            <%= parent1_f.input :letterbox_name %>
-            <%= address_input parent1_f %>
+          <%= f.simple_fields_for :family do |family_f| %>
+            <%= family_f.simple_fields_for :parent1 do |parent1_f| %>
+              <%= parent1_f.input :letterbox_name %>
+              <%= address_input parent1_f %>
+            <% end %>
           <% end %>
         </div>
       </div>
