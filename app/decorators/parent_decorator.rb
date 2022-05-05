@@ -12,7 +12,7 @@ class ParentDecorator < BaseDecorator
   def children
     arbre do
       ul do
-        model.children.decorate.each do |child|
+        model.family&.children&.decorate&.each do |child|
           li child.admin_link
         end
       end
@@ -44,11 +44,6 @@ class ParentDecorator < BaseDecorator
   def phone_number(with_icon: false)
     phone = Phonelib.parse model.phone_number
     r = [phone.national]
-    if with_icon
-      if model.is_lycamobile?
-        r << h.image_tag('lycamobile.png', class: 'phone-number-icon')
-      end
-    end
     r.join.html_safe
   end
 
@@ -130,15 +125,15 @@ class ParentDecorator < BaseDecorator
   end
 
   def parent_present_on
-    model.first_child&.decorate&.child_present_on
+    model.family&.first_child&.decorate&.child_present_on
   end
 
   def parent_follow_us_on
-    model.first_child.decorate&.child_follow_us_on
+    model.family&.first_child&.decorate&.child_follow_us_on
   end
 
   def land
-    model.first_child.land
+    model.family&.first_child&.land
   end
 
   private

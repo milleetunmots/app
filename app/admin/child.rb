@@ -59,7 +59,7 @@ ActiveAdmin.register Child do
   scope :with_support, group: :support
   scope :without_support, group: :support
 
-  scope :without_parent_to_contact, group: :parent
+  # scope :without_parent_to_contact, group: :parent
 
   filter :gender,
     as: :check_boxes,
@@ -120,34 +120,6 @@ ActiveAdmin.register Child do
   filter :src_url
   filter :created_at
   filter :updated_at
-
-  batch_action :add_tags do |ids|
-    session[:add_tags_ids] = ids
-    redirect_to action: :add_tags
-  end
-
-  collection_action :add_tags do
-    @klass = collection.object.klass
-    @ids = session.delete(:add_tags_ids) || []
-    @form_action = url_for(action: :perform_adding_tags)
-    @back_url = request.referer
-    render "active_admin/tags/add_tags"
-  end
-
-  collection_action :perform_adding_tags, method: :post do
-    ids = params[:ids]
-    tags = params[:tag_list]
-    back_url = params[:back_url]
-
-    Child.where(id: ids).each do |child|
-      child.tag_list.add(tags)
-      child.save(validate: false)
-      child.child_support&.update! tag_list: child.tag_list
-      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
-      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
-    end
-    redirect_to back_url, notice: "Tags ajoutés"
-  end
 
   batch_action :create_support do |ids|
     batch_action_collection.find(ids).each do |child|
@@ -308,14 +280,14 @@ ActiveAdmin.register Child do
   form do |f|
     f.semantic_errors *f.object.errors.keys
     f.inputs do
-      f.input :parent1,
-        collection: child_parent_select_collection,
-        input_html: {data: {select2: {}}}
-      f.input :should_contact_parent1
-      f.input :parent2,
-        collection: child_parent_select_collection,
-        input_html: {data: {select2: {}}}
-      f.input :should_contact_parent2
+      f.simple_fields_for :family do |family_f|
+        family_f.input :parent1,
+                       collection: child_parent_select_collection,
+                       input_html: {data: {select2: {}}}
+        family_f.input :parent2,
+                       collection: child_parent_select_collection,
+                       input_html: {data: {select2: {}}}
+      end
       f.input :gender,
         as: :radio,
         collection: child_gender_select_collection
@@ -341,15 +313,14 @@ ActiveAdmin.register Child do
         collection: child_group_status_select_collection,
         input_html: {data: {select2: {}}}
       tags_input(f)
+      family_tags_input(f)
     end
     f.actions
   end
 
-  permit_params :parent1_id, :parent2_id, :group_id,
-    :should_contact_parent1, :should_contact_parent2,
-    :gender, :first_name, :last_name, :birthdate,
-    :registration_source, :registration_source_details, :pmi_detail, :group_status,
-    tags_params
+  permit_params :group_id, :should_contact_parent1, :should_contact_parent2, :gender, :first_name, :last_name,
+                :birthdate, :registration_source, :registration_source_details, :pmi_detail,
+                :group_status, tags_params, family_attributes: [:id, :parent1_id, :parent2_id, tag_list: []]
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -399,9 +370,9 @@ ActiveAdmin.register Child do
           row :updated_at
         end
       end
-      tab "Historique" do
-        render "admin/events/history", events: resource.parent_events.order(occurred_at: :desc).decorate
-      end
+      # tab "Historique" do
+      #   render "admin/events/history", events: resource.parent_events.order(occurred_at: :desc).decorate
+      # end
     end
   end
 
@@ -580,18 +551,19 @@ ActiveAdmin.register Child do
   end
 
   controller do
+    before_action :update_family_tags, only: :update
+
     after_save do |child|
       if child.group && %w[active stopped paused].include?(child.group_status) && child.group_start.nil?
         child.update!(group_start: child.group.started_at)
-        child.parent1&.tag_list&.add("Famille suivie")
-        child.parent2&.tag_list&.add("Famille suivie")
-        child.parent1&.save
-        child.parent2&.save
+        child.family&.tag_list&.add("Famille suivie")
+        child.family&.save
       end
       child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
-      child.child_support&.update! tag_list: child.tag_list
-      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
-      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
+    end
+
+    def update_family_tags
+      resource.family.update tag_list: params[:child][:family_tag_list]
     end
 
     def csv_filename

@@ -26,35 +26,28 @@
 #  src_url                                    :string
 #  created_at                                 :datetime         not null
 #  updated_at                                 :datetime         not null
-#  child_support_id                           :bigint
 #  family_id                                  :bigint
 #  group_id                                   :bigint
-#  parent1_id                                 :bigint           not null
-#  parent2_id                                 :bigint
 #
 # Indexes
 #
-#  index_children_on_birthdate         (birthdate)
-#  index_children_on_child_support_id  (child_support_id)
-#  index_children_on_discarded_at      (discarded_at)
-#  index_children_on_family_id         (family_id)
-#  index_children_on_gender            (gender)
-#  index_children_on_group_id          (group_id)
-#  index_children_on_parent1_id        (parent1_id)
-#  index_children_on_parent2_id        (parent2_id)
+#  index_children_on_birthdate     (birthdate)
+#  index_children_on_discarded_at  (discarded_at)
+#  index_children_on_family_id     (family_id)
+#  index_children_on_gender        (gender)
+#  index_children_on_group_id      (group_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (family_id => families.id)
-#  fk_rails_...  (parent1_id => parents.id)
-#  fk_rails_...  (parent2_id => parents.id)
 #
 
 class Child < ApplicationRecord
 
   include Discard::Model
 
-  after_commit :set_land, :set_land_tags, on: :create
+  before_validation :create_family, on: :create
+  after_commit :set_land, on: :create
 
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
@@ -66,19 +59,19 @@ class Child < ApplicationRecord
   # relations
   # ---------------------------------------------------------------------------
 
-  belongs_to :child_support, optional: true
-  belongs_to :parent1, class_name: :Parent
-  belongs_to :parent2, class_name: :Parent, optional: true
   belongs_to :group, optional: true
   belongs_to :family
+  has_one :child_support, through: :family
+  has_one :parent1, through: :family
+  has_one :parent2, through: :family
 
   has_many :redirection_urls, dependent: :destroy # TODO: use nullify instead?
-  has_many :siblings, class_name: :Child, primary_key: :parent1_id, foreign_key: :parent1_id
+  has_many :siblings, class_name: :Child, primary_key: :family_id, foreign_key: :family_id
 
+  accepts_nested_attributes_for :family
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
   accepts_nested_attributes_for :parent2
-  accepts_nested_attributes_for :family
 
   # ---------------------------------------------------------------------------
   # validations
@@ -101,6 +94,10 @@ class Child < ApplicationRecord
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
   validate :valid_group_status
+
+  delegate :tag_list,
+           to: :family,
+           prefix: true
 
   def no_duplicate
     self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).each do |child|
@@ -132,31 +129,13 @@ class Child < ApplicationRecord
   end
 
   def set_land
-    case postal_code.to_i / 1000
+    case family.postal_code.to_i / 1000
     when 45 then update land: "Loiret"
     when 78 then update land: "Yvelines"
     when 93 then update land: "Seine-Saint-Denis"
     when 75 then update land: "Paris"
     when 57 then update land: "Moselle"
     end
-  end
-
-  def set_land_tags
-    tag_list.add("Paris_18_eme") if postal_code.to_i == 75018
-    tag_list.add("Paris_20_eme") if postal_code.to_i == 75020
-    tag_list.add("Plaisir") if postal_code.to_i == 78370
-    tag_list.add("Trappes") if postal_code.to_i == 78190
-    tag_list.add("Les Clayes Sous Bois") if postal_code.to_i == 78340
-    tag_list.add("Coignière, Maurepas") if postal_code.to_i == 78310
-    tag_list.add("Elancourt") if postal_code.to_i == 78990
-    tag_list.add("Guyancourt") if postal_code.to_i == 78280
-    tag_list.add("Montigny le bretonneux") if postal_code.to_i == 78180
-    tag_list.add("La verrière") if postal_code.to_i == 78320
-    tag_list.add("Villepreux") if postal_code.to_i == 78450
-    tag_list.add("Voisin le Bretonneux") if postal_code.to_i == 78960
-    tag_list.add("Aulnay-Sous-Bois") if postal_code.to_i == 93600
-    tag_list.add("Orleans") if [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800].include? postal_code.to_i
-    tag_list.add("Montargis") if [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570].include? postal_code.to_i
   end
 
   # ---------------------------------------------------------------------------
@@ -196,60 +175,6 @@ class Child < ApplicationRecord
     return if group_end&.past?
 
     duration_in_months(group_start)
-  end
-
-
-  # we do not call this 'siblings' because real siblings may have only
-  # one parent in common
-  def strict_siblings
-    parent2_id ? self.class.where(parent1_id: parent1_id, parent2_id: parent2_id)
-      .or(self.class.where(parent1_id: parent2_id, parent2_id: parent1_id)).where.not(id: id) :
-      self.class.where(parent1_id: parent1_id)
-        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
-  end
-
-  def true_siblings
-    return [] if id.nil?
-    if parent2_id
-      self.class.where(parent1_id: parent1_id)
-        .or(self.class.where(parent1_id: parent2_id))
-        .or(self.class.where(parent2_id: parent1_id))
-        .or(self.class.where(parent2_id: parent2_id)).where.not(id: id)
-    else
-      self.class.where(parent1_id: parent1_id)
-        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
-    end
-  end
-
-  def all_tags
-    tags = tag_list
-    true_siblings.each { |child| tags = (tags + child.tag_list).uniq }
-    tags
-  end
-
-  # ---------------------------------------------------------------------------
-  # support
-  # ---------------------------------------------------------------------------
-
-  def create_support!(child_support_attributes = {tag_list: all_tags})
-    # 1- create support
-    child_support = ChildSupport.create!(child_support_attributes)
-
-    # 2- use it on current child
-    self.child_support_id = child_support.id
-    self.tag_list = all_tags
-    save(validate: false)
-
-    # 3- also update all strict siblings
-    # nb: we do this one by one to trigger paper_trail
-    true_siblings.without_support.each do |child|
-      child.child_support_id = child_support.id
-      child.save(validate: false)
-    end
-
-    strict_siblings.each do |child|
-      child.tag_list = all_tags
-    end
   end
 
   # ---------------------------------------------------------------------------
@@ -309,6 +234,9 @@ class Child < ApplicationRecord
   # other scopes
   # ---------------------------------------------------------------------------
 
+  scope :with_group, -> { where.not(group_id: nil) }
+  scope :without_group, -> { where(group_id: nil) }
+  scope :without_group_and_not_waiting_second_group, -> { where(group_id: nil).where.not(id: all.select { |child| child.tag_list.include?("2eme cohorte") }.map(&:id)) }
   scope :with_support, -> { joins(:child_support) }
 
   def self.without_support
@@ -331,26 +259,8 @@ class Child < ApplicationRecord
     where(parent1: Parent.ransack(postal_code_starts_with: v).result)
   end
 
-  scope :with_group, -> { where.not(group_id: nil) }
-  scope :without_group, -> { where(group_id: nil) }
-  scope :without_group_and_not_waiting_second_group, -> { where(group_id: nil).where.not(id: all.select { |child| child.tag_list.include?("2eme cohorte") }.map(&:id)) }
-
   def self.with_parent_to_contact
     where(should_contact_parent1: true).or(where(should_contact_parent2: true))
-  end
-
-  def self.parent_id_in(*v)
-    where(parent1_id: v).or(where(parent2_id: v))
-  end
-
-  def self.parent_id_not_in(*v)
-    where.not(parent1_id: v).where.not(parent2_id: v)
-  end
-
-  def self.without_parent_to_contact
-    # info: AR simplifies this
-    where(should_contact_parent1: [nil, false], should_contact_parent2: [nil, false])
-      .or(where(should_contact_parent1: [nil, false], should_contact_parent2: true, parent2_id: nil))
   end
 
   def self.group_id_in(*v)
@@ -359,12 +269,6 @@ class Child < ApplicationRecord
 
   def self.active_group_id_in(*v)
     where(group_id: v).where(group_status: "active")
-  end
-
-  def self.without_parent_text_message_since(v)
-    parent_id_not_in(
-      Events::TextMessage.where(related_type: :Parent).where("occurred_at >= ?", v).pluck("DISTINCT related_id")
-    )
   end
 
   def self.registration_source_details_matches_any(*v)
@@ -390,44 +294,6 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
-
-  delegate :email,
-    :first_name,
-    :last_name,
-    :gender,
-    :phone_number_national,
-    to: :parent1,
-    prefix: true
-
-  delegate :email,
-    :first_name,
-    :last_name,
-    :gender,
-    :phone_number_national,
-    to: :parent2,
-    prefix: true,
-    allow_nil: true
-
-  delegate :address,
-    :city_name,
-    :letterbox_name,
-    :postal_code,
-    to: :parent1
-
-  delegate :is_ambassador,
-    :is_ambassador?,
-    :is_lycamobile,
-    :is_lycamobile?,
-    to: :parent1,
-    prefix: true
-
-  delegate :is_ambassador,
-    :is_ambassador?,
-    :is_lycamobile,
-    :is_lycamobile?,
-    to: :parent2,
-    prefix: true,
-    allow_nil: true
 
   delegate :name,
     to: :group,
@@ -471,16 +337,12 @@ class Child < ApplicationRecord
     save!
   end
 
-  def parent_events
-    Event.where(related_type: "Parent", related_id: [parent1_id, parent2_id].compact)
-  end
-
   def self.families_count
-    count("DISTINCT children.parent1_id")
+    Family.count
   end
 
   def self.parents
-    parent_ids = pluck(:parent1_id) + pluck(:parent2_id)
+    parent_ids = Family.pluck(:parent1_id) + Family.pluck(:parent2_id)
     Parent.where(id: parent_ids.compact.uniq)
   end
 
@@ -510,6 +372,11 @@ class Child < ApplicationRecord
         [ v.first, v.uniq ]
       end
     ]
+  end
+
+  def create_family
+    self.family = Family.find_or_create_by! parent1: parent1
+    self.family.update! parent2: parent2 if parent2
   end
 
   # ---------------------------------------------------------------------------
@@ -543,5 +410,4 @@ class Child < ApplicationRecord
       diff
     end
   end
-
 end

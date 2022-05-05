@@ -179,17 +179,15 @@ ActiveAdmin.register ChildSupport do
           columns do
             # parents
             [
-              [f.object.parent1, f.object.should_contact_parent1],
-              [f.object.parent2, f.object.should_contact_parent2]
+              [f.object.parent1],
+              [f.object.parent2]
             ].each do |p|
               next if p[0].nil?
               parent = p[0].decorate
-              should_contact_parent = p[1]
 
               column do
                 render "parent",
-                  parent: parent,
-                  should_contact_parent: should_contact_parent
+                  parent: parent
               end
             end
             column do
@@ -237,6 +235,7 @@ ActiveAdmin.register ChildSupport do
             end
           end
           tags_input(f)
+          family_tags_input(f)
           columns do
             column do
               f.input :to_call
@@ -367,7 +366,7 @@ ActiveAdmin.register ChildSupport do
     notes will_stay_in_group
     availability
     call_infos
-  ] + [tags_params] + [{book_not_received: [], present_on: [], follow_us_on: []}]
+  ] + [tags_params] + [{book_not_received: [], present_on: [], follow_us_on: []}] + [{family_attributes: [:id, tag_list: []]}]
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
@@ -401,15 +400,13 @@ ActiveAdmin.register ChildSupport do
           row :parent1 do |decorated|
             if decorated.model.parent1
               render "parent",
-                parent: decorated.model.parent1.decorate,
-                should_contact_parent: decorated.should_contact_parent1?
+                parent: decorated.model.parent1.decorate
             end
           end
           row :parent2 do |decorated|
             if decorated.model.parent2
               render "parent",
-                parent: decorated.model.parent2.decorate,
-                should_contact_parent: decorated.should_contact_parent2?
+                parent: decorated.model.parent2.decorate
             end
           end
           row :children
@@ -453,7 +450,7 @@ ActiveAdmin.register ChildSupport do
       end
       if resource.first_child
         tab "Historique" do
-          render "admin/events/history", events: resource.parent_events.order(occurred_at: :desc).decorate
+          render "admin/events/history", events: resource.family.parent_events.order(occurred_at: :desc).decorate
         end
       end
       tab "Notes" do
@@ -534,23 +531,21 @@ ActiveAdmin.register ChildSupport do
     column :updated_at
   end
 
-  action_item :other_family_child_supports,
-    only: %i[show edit],
-    if: proc { resource.has_other_family_child_supports? } do
-    dropdown_menu "Autres suivis" do
-      resource.other_family_child_supports.each do |other_child_support|
-        item other_child_support.decorate.dropdown_menu_item, url_for(id: other_child_support.id)
-      end
+  controller do
+    before_action :update_family_tags, only: :update
+
+    def update_family_tags
+      resource.family.update tag_list: params[:child_support][:family_tag_list]
     end
   end
 
-  controller do
-    after_save do |child_support|
-      child_support.children.each do |child|
-        child.update! tag_list: child_support.tag_list
-        child.parent1&.update! tag_list: (child.parent1&.tag_list + child_support.tag_list).uniq
-        child.parent2&.update! tag_list: (child.parent2&.tag_list + child_support.tag_list).uniq
-      end
-    end
-  end
+  # action_item :other_family_child_supports,
+  #   only: %i[show edit],
+  #   if: proc { resource.has_other_family_child_supports? } do
+  #   dropdown_menu "Autres suivis" do
+  #     resource.other_family_child_supports.each do |other_child_support|
+  #       item other_child_support.decorate.dropdown_menu_item, url_for(id: other_child_support.id)
+  #     end
+  #   end
+  # end
 end

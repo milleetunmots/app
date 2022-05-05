@@ -10,15 +10,14 @@ class ChildrenController < ApplicationController
   def new
     puts "FORM ORIGIN: #{current_registration_origin}"
     @child = Child.new
-    @child.build_parent1
-    @child.build_parent2
-    @child.build_child_support
-    until @child.siblings.size >= SIBLINGS_COUNT do
-      @child.siblings.build
+    @child.build_family
+    @child.family.build_parent1
+    @child.family.build_parent2
+    @child.family.build_child_support
+    until @child.family.children.size >= SIBLINGS_COUNT do
+      @child.family.children.build
     end
-    @child.siblings.each do |sibling|
-      sibling.build_child_support
-    end
+    @child.family.build_child_support
   end
 
   def new1
@@ -57,6 +56,7 @@ class ChildrenController < ApplicationController
     # Parents
 
     parent1_attributes = parent1_params
+
     mother_attributes = mother_params.merge(
       gender: 'f',
       terms_accepted_at: Time.now
@@ -66,6 +66,11 @@ class ChildrenController < ApplicationController
       terms_accepted_at: Time.now
     )
 
+    child_support_attributes = child_support_params
+
+    family = Family.new(parent1_attributes: parent1_attributes.merge(mother_attributes), parent2_attributes: father_attributes, child_support_attributes: child_support_attributes)
+    family.children.build(siblings_attributes)
+
     mother_attributes_available = !mother_attributes[:first_name].blank? || !mother_attributes[:last_name].blank? || !mother_attributes[:phone_number].blank?
     mother_attributes_valid = !mother_attributes[:first_name].blank? && !mother_attributes[:last_name].blank? && !mother_attributes[:phone_number].blank?
     father_attributes_available = !father_attributes[:first_name].blank? || !father_attributes[:last_name].blank? || !father_attributes[:phone_number].blank?
@@ -73,42 +78,35 @@ class ChildrenController < ApplicationController
     creation_impossible = (mother_attributes_available && !mother_attributes_valid) || (father_attributes_available && !father_attributes_valid) || (!mother_attributes_available && !father_attributes_available)
     if creation_impossible
       flash.now[:error] = "Inscription refusée"
-      @child = Child.new(attributes.merge(
-        parent1_attributes: parent1_attributes.merge(mother_attributes),
-        parent2_attributes: father_attributes
-      ))
-      @child.build_child_support if @child.child_support.nil?
-      @child.siblings.build(siblings_attributes)
-      until @child.siblings.size >= SIBLINGS_COUNT do
-        @child.siblings.build
-      end
-      @child.siblings.each do |sibling|
-        sibling.build_child_support if sibling.child_support.nil?
-      end
+      @child = Child.new(attributes)
+      @child.family = family
       @child.errors.add(:base, :invalid_parents, message: 'Infos des parents non valides')
-      # @child.build_parent2 if @child.parent2.nil?
       render action: :new and return
     end
 
-    if mother_attributes_available
-      # mother data is available: use it as parent 1 (we know for sure that it is valid)
-      attributes[:parent1_attributes] = parent1_attributes.merge(mother_attributes)
-      attributes[:should_contact_parent1] = true
-
-      if father_attributes_available
-        # father data is also available: use it as parent 2 (we know for sure that it is valid)
-        attributes[:parent2_attributes] = parent1_attributes.merge(father_attributes)
-        attributes[:should_contact_parent2] = true
-      end
-    else
-      # mother data is not available: use father as parent 1 (we know for sure that it is present and valid)
-      attributes[:parent1_attributes] = parent1_attributes.merge(father_attributes)
-      attributes[:should_contact_parent1] = true
-    end
+    # if mother_attributes_available
+    #   # mother data is available: use it as parent 1 (we know for sure that it is valid)
+    #   attributes[:parent1_attributes] = parent1_attributes.merge(mother_attributes)
+    #   attributes[:should_contact_parent1] = true
+    #
+    #   if father_attributes_available
+    #     # father data is also available: use it as parent 2 (we know for sure that it is valid)
+    #     attributes[:parent2_attributes] = parent1_attributes.merge(father_attributes)
+    #     attributes[:should_contact_parent2] = true
+    #   end
+    # else
+    #   # mother data is not available: use father as parent 1 (we know for sure that it is present and valid)
+    #   attributes[:parent1_attributes] = parent1_attributes.merge(father_attributes)
+    #   attributes[:should_contact_parent1] = true
+    # end
 
     # Base
 
     @child = Child.new(attributes)
+    @child.family = family
+    @child.parent1 = family.parent1
+    @child.parent2 = family.parent2
+
     if @child.birthdate < @child_min_birthdate
       @child.errors.add(:birthdate, :invalid, message: "minimale: #{l(@child_min_birthdate)}")
     end
@@ -119,7 +117,7 @@ class ChildrenController < ApplicationController
       @child.errors.add(:caf_detail, :invalid, message: "Précisez votre CAF svp!")
     end
     if @child.errors.none? && @child.save
-      sms_url_form = "https://bit.ly/3koOm1T"
+      sms_url_form = "https://wr1q9w7z4ro.typeform.com/to/odImEgtZ"
       message = "Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{sms_url_form}"
 
       SpotHit::SendSmsService.new([@child.parent1_id], Time.now.to_i, message).call if current_registration_origin == 2
@@ -129,27 +127,21 @@ class ChildrenController < ApplicationController
         Child.create!(sibling_attributes.merge(
           registration_source: @child.registration_source,
           registration_source_details: @child.registration_source_details,
-          parent1: @child.parent1,
-          parent2: @child.parent2,
           land: @child.land,
-          should_contact_parent1: @child.should_contact_parent1,
-          should_contact_parent2: @child.should_contact_parent2,
           pmi_detail: @child.pmi_detail,
-          child_support: @child.child_support
+          family: @child.family
         ))
       end
       redirect_to created_child_path
     else
       flash.now[:error] = "Inscription refusée"
-      @child.build_parent2 if @child.parent2.nil?
-      @child.build_child_support if @child.child_support.nil?
-      @child.siblings.build(siblings_attributes)
-      until @child.siblings.size >= SIBLINGS_COUNT do
-        @child.siblings.build
+      @child.family.build_parent2 if @child.parent2.nil?
+      @child.family.build_child_support if @child.child_support.nil?
+      @child.family.children.build(siblings_attributes)
+      until @child.family.children.size >= SIBLINGS_COUNT do
+        @child.family.children.build
       end
-      @child.siblings.each do |sibling|
-        sibling.build_child_support if sibling.child_support.nil?
-      end
+      @child.family.build_child_support if @child.family.child_support.nil?
       render action: :new
     end
   end
@@ -191,9 +183,11 @@ class ChildrenController < ApplicationController
   private
 
   def child_creation_params
-    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, :pmi_detail, child_support_attributes: %i[important_information])
-    result.delete(:child_support_attributes) if result[:child_support_attributes][:important_information].blank?
-    result
+    params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, :pmi_detail)
+  end
+
+  def child_support_params
+    params.require(:child).permit(family_attributes: [child_support_attributes: %i[important_information]])[:family_attributes][:child_support_attributes]
   end
 
   def child_update_params
@@ -201,21 +195,21 @@ class ChildrenController < ApplicationController
   end
 
   def parent1_params
-    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name])[:parent1_attributes]
+    params.require(:child).permit(family_attributes: [parent1_attributes: %i[letterbox_name address postal_code city_name]])[:family_attributes][:parent1_attributes]
   end
 
   def mother_params
-    params.require(:child).permit(parent1_attributes: %i[first_name last_name phone_number])[:parent1_attributes]
+    params.require(:child).permit(family_attributes: [parent1_attributes: %i[first_name last_name phone_number]])[:family_attributes][:parent1_attributes]
   end
 
   def father_params
-    params.require(:child).permit(parent2_attributes: %i[first_name last_name phone_number])[:parent2_attributes]
+    params.require(:child).permit(family_attributes: [parent2_attributes: %i[first_name last_name phone_number]])[:family_attributes][:parent2_attributes]
   end
 
   def siblings_params
-    params.require(:child).permit(siblings: [
-      [:gender, :first_name, :last_name, :birthdate]
-    ])[:siblings]&.values || []
+    params.require(:child).permit(family_attributes: [
+      children: [:gender, :first_name, :last_name, :birthdate]
+    ])[:family_attributes][:children]&.values || []
   end
 
   def find_child

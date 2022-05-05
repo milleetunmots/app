@@ -127,12 +127,12 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   belongs_to :supporter, class_name: :AdminUser, optional: true
-  has_many :children, dependent: :nullify
-  has_one :first_child, class_name: :Child
-  has_one :parent1, through: :first_child
-  has_one :parent2, through: :first_child
+  has_one :family
+  has_many :children, through: :family
+  has_one :parent1, through: :family
+  has_one :parent2, through: :family
 
-  accepts_nested_attributes_for :first_child
+  accepts_nested_attributes_for :family
 
   # ---------------------------------------------------------------------------
   # validations
@@ -147,12 +147,15 @@ class ChildSupport < ApplicationRecord
 
   validates :books_quantity, inclusion: {in: BOOKS_QUANTITY, allow_blank: true}
 
+  delegate :tag_list, to: :family, prefix: true
+
   # ---------------------------------------------------------------------------
   # scopes
   # ---------------------------------------------------------------------------
 
   scope :supported_by, ->(model) { where(supporter: model) }
   scope :without_supporter, -> { where(supporter_id: nil) }
+  scope :with_book_not_received, -> { where.not(book_not_received: [nil, ""]) }
   scope :call_2_4, -> {
     where("call1_status ILIKE ? AND call3_status = ?", "ko", "")
       .or(where("call3_status ILIKE ?", "ko"))
@@ -185,45 +188,43 @@ class ChildSupport < ApplicationRecord
   end
 
   def self.groups_in(*v)
-    where(id: Child.where(group_id: v).select("DISTINCT child_support_id"))
+    where(id: Child.where(group_id: v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.group_id_in(*v)
-    where(id: Child.group_id_in(v).select("DISTINCT child_support_id"))
+    where(id: Child.group_id_in(v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.active_group_id_in(*v)
-    where(id: Child.active_group_id_in(v).select("DISTINCT child_support_id"))
+    where(id: Child.active_group_id_in(v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.registration_sources_in(*v)
-    where(id: Child.where(registration_source: v).select("DISTINCT child_support_id"))
+    where(id: Child.where(registration_source: v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.registration_sources_details_in(*v)
-    where(id: Child.where(registration_source_details: v).select("DISTINCT child_support_id"))
+    where(id: Child.where(registration_source_details: v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.postal_code_contains(v)
-    where(id: Child.postal_code_contains(v).select("DISTINCT child_support_id"))
+    where(id: Child.postal_code_contains(v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.postal_code_ends_with(v)
-    where(id: Child.postal_code_ends_with(v).select("DISTINCT child_support_id"))
+    where(id: Child.postal_code_ends_with(v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.postal_code_equals(v)
-    where(id: Child.postal_code_equals(v).select("DISTINCT child_support_id"))
+    where(id: Child.postal_code_equals(v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   def self.postal_code_starts_with(v)
-    where(id: Child.postal_code_starts_with(v).select("DISTINCT child_support_id"))
+    where(id: Child.postal_code_starts_with(v).joins(:family).select("DISTINCT child_support_id"))
   end
 
-  scope :with_book_not_received, -> { where.not(book_not_received: [nil, ""]) }
-
   def self.without_parent_text_message_since(v)
-    where(id: Child.without_parent_text_message_since(v).select("DISTINCT child_support_id"))
+    where(id: Child.without_parent_text_message_since(v).joins(:family).select("DISTINCT child_support_id"))
   end
 
   # ---------------------------------------------------------------------------
@@ -239,56 +240,35 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   delegate :address,
-    :city_name,
-    :group_status,
-    :letterbox_name,
-    :parent_events,
-    :parent1_first_name,
-    :parent1_gender,
-    :parent1_is_ambassador,
-    :parent1_is_ambassador?,
-    :parent1_is_lycamobile,
-    :parent1_is_lycamobile?,
-    :parent1_last_name,
-    :parent1_phone_number_national,
-    :parent2_first_name,
-    :parent2_gender,
-    :parent2_is_ambassador,
-    :parent2_is_ambassador?,
-    :parent2_is_lycamobile,
-    :parent2_is_lycamobile?,
-    :parent2_last_name,
-    :parent2_phone_number_national,
-    :postal_code,
-    :should_contact_parent1,
-    :should_contact_parent1?,
-    :should_contact_parent2,
-    :should_contact_parent2?,
-    to: :first_child,
-    allow_nil: true
+           :city_name,
+           :first_child,
+           :letterbox_name,
+           :parent_events,
+           :parent1_first_name,
+           :parent1_gender,
+           :parent1_is_ambassador,
+           :parent1_is_ambassador?,
+           :parent1_last_name,
+           :parent1_phone_number_national,
+           :parent2_first_name,
+           :parent2_gender,
+           :parent2_is_ambassador,
+           :parent2_is_ambassador?,
+           :parent2_last_name,
+           :parent2_phone_number_national,
+           :postal_code,
+           to: :family,
+           allow_nil: true
 
   delegate :name,
-    to: :supporter,
-    prefix: true,
-    allow_nil: true
+           to: :supporter,
+           prefix: true,
+           allow_nil: true
 
   (1..5).each do |call_idx|
     define_method("call#{call_idx}_parent_progress_index") do
       (send("call#{call_idx}_parent_progress") || "").split("_").first&.to_i
     end
-  end
-
-  def other_children
-    all_parent_ids = children.pluck(:parent1_id, :parent2_id).join(",").split(",").uniq
-    Child.parent_id_in(all_parent_ids).where.not(child_support: self)
-  end
-
-  def has_other_family_child_supports?
-    other_children.with_support.any?
-  end
-
-  def other_family_child_supports
-    other_children.with_support.map(&:child_support).uniq
   end
 
   def self.call_attributes

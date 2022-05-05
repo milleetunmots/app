@@ -4,7 +4,9 @@
 <%= f.input :birthdate, start_year: @child_min_birthdate.year, end_year: Child.max_birthdate.year %>
 
 <% if defined?(with_support) && with_support %>
-  <%= f.simple_fields_for :child_support do |child_support_f| %>
-    <%= child_support_f.input :important_information, label: 'Commentaires', input_html: { rows: 5 } %>
+  <%= f.simple_fields_for :family do |family_f| %>
+    <%= family_f.simple_fields_for :child_support do |child_support_f| %>
+      <%= child_support_f.input :important_information, label: 'Commentaires', input_html: { rows: 5 } %>
+    <% end %>
   <% end %>
 <% end %>
