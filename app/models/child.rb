@@ -376,7 +376,7 @@ class Child < ApplicationRecord
 
   def create_family
     self.family = Family.find_or_create_by! parent1: parent1
-    self.family.update! parent2: parent2 unless self.family.parent2
+    self.family.update! parent2: parent2 if parent2
   end
 
   # ---------------------------------------------------------------------------
