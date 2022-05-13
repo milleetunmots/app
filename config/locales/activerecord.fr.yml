@@ -342,6 +342,10 @@ fr:
         parent1: Parent 1
         parent2: Parent 2
         children: Enfants
+        parent1_name: Parent 1
+        parent2_name: Parent 2
+        all_children: Enfants
+        full_address: Adresse
       group:
         << : *SHARED
         children: Enfants
