@@ -25,18 +25,11 @@ ActiveAdmin.register Family do
   end
 
   csv do
-    column :id
-
     column :parent1_name
     column :parent2_name
     column :all_children
 
     column :full_address
-
-    column :tag_list
-
-    column :created_at
-    column :updated_at
   end
 
   permit_params tags_list: []
