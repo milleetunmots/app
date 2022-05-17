@@ -125,7 +125,7 @@ RSpec.describe ChildSupport, type: :model do
 
   let_it_be(:group, reload: true) { FactoryBot.create(:group) }
 
-  let_it_be(:first_child, reload: true) { FactoryBot.create(:child, family: first_family, group: group, group_status: "active") }
+  let_it_be(:first_child, reload: true) { FactoryBot.create(:child, family: first_family, registration_source: "other", group: group, group_status: "active") }
   let_it_be(:second_child, reload: true) { FactoryBot.create(:child, family: second_family, registration_source: "caf") }
   let_it_be(:third_child, reload: true) { FactoryBot.create(:child, family: third_family, registration_source: "pmi", registration_source_details: "Aristide Bamenou", group: group, group_status: "paused") }
 
