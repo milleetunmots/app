@@ -155,6 +155,11 @@ ActiveAdmin.register Parent do
     end
   end
 
+  batch_action :add_family_tags do |ids|
+    session[:add_tags_ids] = ids
+    redirect_to action: :add_family_tags
+  end
+
   batch_action :check_potential_ambassador do |ids|
     @parents = batch_action_collection.where(id: ids)
     @parents.each { |parent| parent.is_ambassador? ? next : parent.update!(is_ambassador: true) }
@@ -165,6 +170,26 @@ ActiveAdmin.register Parent do
     @parents = batch_action_collection.where(id: ids)
     @parents.each { |parent| !parent.is_ambassador? ? next : parent.update!(is_ambassador: false) }
     redirect_to collection_path, notice: "Potentiels parents ambassadeurs retirés."
+  end
+
+  collection_action :add_family_tags do
+    @klass = Family
+    @ids = session.delete(:add_tags_ids) || []
+    @form_action = url_for(action: :perform_adding_family_tags)
+    @back_url = request.referer
+    render "active_admin/tags/add_tags"
+  end
+
+  collection_action :perform_adding_family_tags, method: :post do
+    ids = params[:ids]
+    tags = params[:tag_list]
+    back_url = params[:back_url]
+
+    Parent.where(id: ids).each do |object|
+      object.family.tag_list.add(tags)
+      object.family.save(validate: false)
+    end
+    redirect_to back_url, notice: "Tags ajoutés aux familles"
   end
 
   # ---------------------------------------------------------------------------

@@ -56,11 +56,11 @@ ActiveAdmin.register Child do
   scope :months_between_12_and_24, group: :months
   scope :months_more_than_24, group: :months
 
-  scope :with_support, group: :support
-  scope :without_support, group: :support
-
-  # scope :without_parent_to_contact, group: :parent
-
+  filter :family_tagged_with_all,
+         as: :select,
+         collection: proc { tag_name_collection },
+         input_html: {multiple: true, data: {select2: {}}},
+         label: "Tags de la famille"
   filter :gender,
     as: :check_boxes,
     collection: proc { child_gender_select_collection(with_unknown: true) }
@@ -120,6 +120,11 @@ ActiveAdmin.register Child do
   filter :src_url
   filter :created_at
   filter :updated_at
+
+  batch_action :add_family_tags do |ids|
+    session[:add_tags_ids] = ids
+    redirect_to action: :add_family_tags
+  end
 
   batch_action :create_support do |ids|
     batch_action_collection.find(ids).each do |child|
@@ -271,6 +276,26 @@ ActiveAdmin.register Child do
       flash[:notice] = "Message de continuation envoyé"
       redirect_to admin_sent_by_app_text_messages_url
     end
+  end
+
+  collection_action :add_family_tags do
+    @klass = Family
+    @ids = session.delete(:add_tags_ids) || []
+    @form_action = url_for(action: :perform_adding_family_tags)
+    @back_url = request.referer
+    render "active_admin/tags/add_tags"
+  end
+
+  collection_action :perform_adding_family_tags, method: :post do
+    ids = params[:ids]
+    tags = params[:tag_list]
+    back_url = params[:back_url]
+
+    Child.where(id: ids).each do |object|
+      object.family.tag_list.add(tags)
+      object.family.save(validate: false)
+    end
+    redirect_to back_url, notice: "Tags ajoutés aux familles"
   end
 
   # ---------------------------------------------------------------------------
