@@ -26,7 +26,6 @@ class Family < ApplicationRecord
   acts_as_taggable
 
   before_create do
-    byebug
     self.child_support = ChildSupport.create unless child_support
   end
 
