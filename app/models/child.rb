@@ -26,7 +26,7 @@
 #  src_url                                    :string
 #  created_at                                 :datetime         not null
 #  updated_at                                 :datetime         not null
-#  family_id                                  :bigint
+#  family_id                                  :bigint           not null
 #  group_id                                   :bigint
 #
 # Indexes
@@ -46,7 +46,6 @@ class Child < ApplicationRecord
 
   include Discard::Model
 
-  before_validation :create_family, on: :create
   after_commit :set_land, on: :create
 
   GENDERS = %w[m f].freeze
@@ -66,7 +65,6 @@ class Child < ApplicationRecord
   has_one :parent2, through: :family
 
   has_many :redirection_urls, dependent: :destroy # TODO: use nullify instead?
-  has_many :siblings, class_name: :Child, primary_key: :family_id, foreign_key: :family_id
 
   accepts_nested_attributes_for :family
   accepts_nested_attributes_for :child_support
@@ -237,26 +235,21 @@ class Child < ApplicationRecord
   scope :with_group, -> { where.not(group_id: nil) }
   scope :without_group, -> { where(group_id: nil) }
   scope :without_group_and_not_waiting_second_group, -> { where(group_id: nil).where.not(id: all.select { |child| child.tag_list.include?("2eme cohorte") }.map(&:id)) }
-  scope :with_support, -> { joins(:child_support) }
-
-  def self.without_support
-    left_outer_joins(:child_support).where(child_supports: {id: nil})
-  end
 
   def self.postal_code_contains(v)
-    where(parent1: Parent.ransack(postal_code_contains: v).result)
+    where(family: Family.postal_code_contains(v))
   end
 
   def self.postal_code_ends_with(v)
-    where(parent1: Parent.ransack(postal_code_ends_with: v).result)
+    where(family: Family.postal_code_ends_with(v))
   end
 
   def self.postal_code_equals(v)
-    where(parent1: Parent.ransack(postal_code_equals: v).result)
+    where(family: Family.postal_code_equals(v))
   end
 
   def self.postal_code_starts_with(v)
-    where(parent1: Parent.ransack(postal_code_starts_with: v).result)
+    where(family: Family.postal_code_starts_with(v))
   end
 
   def self.with_parent_to_contact
@@ -281,6 +274,22 @@ class Child < ApplicationRecord
 
   def self.group_active_between(x, y)
     where("group_start >= ?", x).or(where("group_start >= ? AND group_end <= ?", x, y))
+  end
+
+  def parent_events
+      Event.where(related_type: "Parent", related_id: [family.parent1_id, family.parent2_id].compact)
+  end
+
+  def self.parent_id_in(*v)
+    where(family: Family.parent_id_in(v))
+  end
+
+  def self.parent_id_not_in(*v)
+    where(family: Family.parent_id_not_in(v))
+  end
+
+  def self.without_parent_text_message_since(v)
+    where(family: Family.without_parent_text_message_since(v))
   end
 
   # --------------------------------------------------------------------------
@@ -372,11 +381,6 @@ class Child < ApplicationRecord
         [ v.first, v.uniq ]
       end
     ]
-  end
-
-  def create_family
-    self.family = Family.find_or_create_by! parent1: parent1
-    self.family.update! parent2: parent2 if parent2
   end
 
   # ---------------------------------------------------------------------------

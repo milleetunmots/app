@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_06_074258) do
+ActiveRecord::Schema.define(version: 2022_05_16_105120) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -181,7 +181,7 @@ ActiveRecord::Schema.define(version: 2022_04_06_074258) do
     t.date "group_start"
     t.date "group_end"
     t.string "land"
-    t.bigint "family_id"
+    t.bigint "family_id", null: false
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["discarded_at"], name: "index_children_on_discarded_at"
     t.index ["family_id"], name: "index_children_on_family_id"
