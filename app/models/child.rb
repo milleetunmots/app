@@ -228,6 +228,10 @@ class Child < ApplicationRecord
     months_gteq(24)
   end
 
+  def self.family_tagged_with_all(*v)
+    where(family: Family.tagged_with(v) )
+  end
+
   # ---------------------------------------------------------------------------
   # other scopes
   # ---------------------------------------------------------------------------
@@ -297,7 +301,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in without_parent_text_message_since registration_source_details_matches_any]
+    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in without_parent_text_message_since registration_source_details_matches_any family_tagged_with_all]
   end
 
   # ---------------------------------------------------------------------------
