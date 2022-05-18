@@ -24,8 +24,6 @@ module ActiveAdmin::RemotesHelper
 
     parent_ids = (children.joins(:family).pluck(:parent1_id) + children.joins(:family).pluck(:parent2_id)).compact
 
-    byebug
-
     values["messages_received"] = Event.where(related_type: "Parent", related_id: parent_ids).text_messages_send_by_app.count / parent_ids.length unless parent_ids.length.zero?
     values["messages_sent"] = Event.where(related_type: "Parent", related_id: parent_ids).text_messages_send_by_parent.count / parent_ids.length unless parent_ids.length.zero?
     # values["active_groups"] = Group.where("started_at < ?", DateTime.now).where("ended_at > ?", DateTime.now).count
