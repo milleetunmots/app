@@ -47,6 +47,11 @@ ActiveAdmin.register ChildSupport do
   scope :with_book_not_received
   scope :call_2_4, group: :call
 
+  filter :family_tagged_with_all,
+         as: :select,
+         collection: proc { tag_name_collection },
+         input_html: {multiple: true, data: {select2: {}}},
+         label: "Tags de la famille"
   filter :availability, as: :string
   filter :call_infos, as: :string
   filter :group_id_in,
@@ -115,6 +120,11 @@ ActiveAdmin.register ChildSupport do
   filter :created_at
   filter :updated_at
 
+  batch_action :add_family_tags do |ids|
+    session[:add_tags_ids] = ids
+    redirect_to action: :add_family_tags
+  end
+
   batch_action :assign_supporter, form: -> {
     {
       I18n.t("activerecord.attributes.child_support.supporter") => AdminUser.pluck(:name, :id)
@@ -162,6 +172,26 @@ ActiveAdmin.register ChildSupport do
     child_supports = batch_action_collection.where(id: ids)
     child_supports.each { |child_support| child_support.update! call_infos: "" }
     redirect_to request.referer, notice: "Informations éffacées"
+  end
+
+  collection_action :add_family_tags do
+    @klass = Family
+    @ids = session.delete(:add_tags_ids) || []
+    @form_action = url_for(action: :perform_adding_family_tags)
+    @back_url = request.referer
+    render "active_admin/tags/add_tags"
+  end
+
+  collection_action :perform_adding_family_tags, method: :post do
+    ids = params[:ids]
+    tags = params[:tag_list]
+    back_url = params[:back_url]
+
+    ChildSupport.where(id: ids).each do |object|
+      object.family.tag_list.add(tags)
+      object.family.save(validate: false)
+    end
+    redirect_to back_url, notice: "Tags ajoutés aux familles"
   end
 
   # ---------------------------------------------------------------------------

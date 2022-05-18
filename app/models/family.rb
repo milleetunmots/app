@@ -25,7 +25,11 @@ class Family < ApplicationRecord
 
   acts_as_taggable
 
-  after_commit :set_land_tags, on: :create
+  before_create do
+    self.child_support = ChildSupport.create unless child_support
+  end
+
+  after_create :set_land_tags
 
   belongs_to :parent1, class_name: 'Parent'
   belongs_to :parent2, class_name: 'Parent', optional: true
@@ -67,29 +71,41 @@ class Family < ApplicationRecord
            prefix: true,
            allow_nil: true
 
-
-
   def first_child
       children.order(:id).first
   end
 
-  # def parent_events
-  #   Event.where(related_type: "Parent", related_id: [parent1_id, parent2_id].compact)
-  # end
+  def self.postal_code_contains(v)
+    where(parent1: Parent.ransack(postal_code_contains: v).result)
+  end
 
-  # def self.parent_id_in(*v)
-  #   where(parent1_id: v).or(where(parent2_id: v))
-  # end
+  def self.postal_code_ends_with(v)
+    where(parent1: Parent.ransack(postal_code_ends_with: v).result)
+  end
 
-  # def self.parent_id_not_in(*v)
-  #   where.not(parent1_id: v).where.not(parent2_id: v)
-  # end
+  def self.postal_code_equals(v)
+    where(parent1: Parent.ransack(postal_code_equals: v).result)
+  end
 
-  # def self.without_parent_text_message_since(v)
-  #   parent_id_not_in(
-  #     Events::TextMessage.where(related_type: :Parent).where("occurred_at >= ?", v).pluck("DISTINCT related_id")
-  #   )
-  # end
+  def self.postal_code_starts_with(v)
+    where(parent1: Parent.ransack(postal_code_starts_with: v).result)
+  end
+
+  def self.parent_id_in(*v)
+    where(parent1_id: v).or(where(parent2_id: v))
+  end
+
+  def self.parent_id_not_in(*v)
+    where.not(parent1_id: v).where.not(parent2_id: v)
+  end
+
+  def self.without_parent_text_message_since(v)
+    parent_id_not_in(
+      Events::TextMessage.where(related_type: :Parent).where("occurred_at >= ?", v).pluck("DISTINCT related_id")
+    )
+  end
+
+
 
   def set_land_tags
     tag_list.add("Paris_18_eme") if postal_code.to_i == 75018
@@ -108,4 +124,14 @@ class Family < ApplicationRecord
     tag_list.add("Orleans") if [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800].include? postal_code.to_i
     tag_list.add("Montargis") if [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570].include? postal_code.to_i
   end
+
+  # --------------------------------------------------------------------------
+  # ransack
+  # ---------------------------------------------------------------------------
+
+  def self.ransackable_scopes(auth_object = nil)
+    super + %i[postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with]
+  end
+
+
 end

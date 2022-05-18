@@ -44,8 +44,15 @@ require "rails_helper"
 
 RSpec.describe Parent, type: :model do
   subject { FactoryBot.create(:parent, email: Faker::Internet.email) }
-  let(:first_parent) { FactoryBot.create(:parent, gender: Parent::GENDER_FEMALE)}
-  let(:second_parent) { FactoryBot.create(:parent, gender: Parent::GENDER_MALE)}
+
+  let_it_be(:first_parent, reload: true) { FactoryBot.create(:parent, gender: Parent::GENDER_FEMALE)}
+  let_it_be(:second_parent, reload: true) { FactoryBot.create(:parent, gender: Parent::GENDER_MALE)}
+  let_it_be(:first_family, reload: true) { FactoryBot.create(:family, parent1: first_parent) }
+  let_it_be(:second_family, reload: true) { FactoryBot.create(:family, parent1: second_parent) }
+  let_it_be(:first_child, reload: true) { FactoryBot.create(:child, family: first_family) }
+  let_it_be(:second_child, reload: true) { FactoryBot.create(:child, family: first_family) }
+  let_it_be(:third_child, reload: true) { FactoryBot.create(:child, family: second_family) }
+
 
   describe "#gender" do
     it "is required" do
@@ -146,6 +153,13 @@ RSpec.describe Parent, type: :model do
       subject.update! gender: Parent::GENDER_MALE
 
       expect(Parent.fathers).to match_array [subject, second_parent]
+    end
+  end
+
+  describe "#children" do
+    it "returns all parent's children" do
+      expect(first_parent.children).to match_array [first_child, second_child]
+      expect(second_parent.children).to match_array [third_child]
     end
   end
 
