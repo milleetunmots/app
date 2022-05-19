@@ -126,13 +126,13 @@ ActiveAdmin.register Child do
     redirect_to action: :add_family_tags
   end
 
-  batch_action :create_support do |ids|
-    batch_action_collection.find(ids).each do |child|
-      next if already_existing_child_support = child.child_support
-      child.create_support!
-    end
-    redirect_to collection_path, notice: I18n.t("child.supports_created")
-  end
+  # batch_action :create_support do |ids|
+  #   batch_action_collection.find(ids).each do |child|
+  #     next if already_existing_child_support = child.child_support
+  #     child.create_support!
+  #   end
+  #   redirect_to collection_path, notice: I18n.t("child.supports_created")
+  # end
 
   batch_action :add_to_group, form: -> {
     {
@@ -223,18 +223,18 @@ ActiveAdmin.register Child do
            progress: proc { |output| puts output }
   end
 
-  batch_action :generate_buzz_expert do |ids|
-    @children = batch_action_collection.where(id: ids)
-
-    service = BuzzExpert::ExportChildrenService.new(children: @children).call
-    if service.errors.any?
-      puts "Error: #{service.errors}"
-      flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
-      redirect_to request.referer
-    else
-      send_data service.csv, filename: "Buzz-Expert - #{csv_filename}"
-    end
-  end
+  # batch_action :generate_buzz_expert do |ids|
+  #   @children = batch_action_collection.where(id: ids)
+  #
+  #   service = BuzzExpert::ExportChildrenService.new(children: @children).call
+  #   if service.errors.any?
+  #     puts "Error: #{service.errors}"
+  #     flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
+  #     redirect_to request.referer
+  #   else
+  #     send_data service.csv, filename: "Adresses - #{csv_filename}"
+  #   end
+  # end
 
   batch_action :generate_quit_sms do |ids|
     @children = batch_action_collection.where(id: ids)
@@ -309,10 +309,14 @@ ActiveAdmin.register Child do
         family_f.input :parent1,
                        collection: child_parent_select_collection,
                        input_html: {data: {select2: {}}}
+      end
+      f.input :should_contact_parent1
+      f.simple_fields_for :family do |family_f|
         family_f.input :parent2,
                        collection: child_parent_select_collection,
                        input_html: {data: {select2: {}}}
       end
+      f.input :should_contact_parent2
       f.input :gender,
         as: :radio,
         collection: child_gender_select_collection

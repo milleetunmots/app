@@ -95,7 +95,11 @@ class Child < ApplicationRecord
 
   delegate :tag_list,
            to: :family,
+           allow_nil: true,
            prefix: true
+
+  delegate :postal_code,
+           to: :parent1
 
   def no_duplicate
     self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).each do |child|
