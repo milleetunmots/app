@@ -24,9 +24,10 @@ module ActiveAdmin::RemotesHelper
 
     parent_ids = (children.joins(:family).pluck(:parent1_id) + children.joins(:family).pluck(:parent2_id)).compact
 
-    values["messages_received"] = Event.where(related_type: "Parent", related_id: parent_ids).text_messages_send_by_app.count / parent_ids.length unless parent_ids.length.zero?
-    values["messages_sent"] = Event.where(related_type: "Parent", related_id: parent_ids).text_messages_send_by_parent.count / parent_ids.length unless parent_ids.length.zero?
-    # values["active_groups"] = Group.where("started_at < ?", DateTime.now).where("ended_at > ?", DateTime.now).count
+    values["redirection_url_count"] = (RedirectionUrl.where(parent_id: parent_ids).count.fdiv(parent_ids.length) ) unless parent_ids.length.zero?
+    values["redirection_url_visited_count"] = (RedirectionUrlVisit.where(redirection_url_id: RedirectionUrl.where(parent_id: parent_ids)).count.fdiv(parent_ids.length)) unless parent_ids.length.zero?
+    values["messages_received_count"] = (Event.where(related_type: "Parent", related_id: parent_ids).text_messages_send_by_app.count.fdiv(parent_ids.length)) unless parent_ids.length.zero?
+    values["messages_sent_count"] = (Event.where(related_type: "Parent", related_id: parent_ids).text_messages_send_by_parent.count.fdiv(parent_ids.length)) unless parent_ids.length.zero?
     # values["stopped_groups"] = Group.where("ended_at < ?", DateTime.now).count
     # values["children_followed"] = children.where(group_status: "active").count
     # values["families_followed"] = children.where(group_status: "active").families_count

@@ -318,7 +318,7 @@ class Child < ApplicationRecord
     allow_nil: true
 
   def family_redirection_urls
-    RedirectionUrl.where(parent_id: [parent1_id, parent2_id].compact)
+    RedirectionUrl.where(parent_id: [family.parent1_id, family.parent2_id].compact)
   end
 
   def family_text_messages

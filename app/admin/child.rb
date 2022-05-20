@@ -171,23 +171,23 @@ ActiveAdmin.register Child do
   } do |ids, inputs|
     children = batch_action_collection.where(id: ids)
 
-    if children.without_parent_to_contact.any?
-      flash[:error] = "Certains enfants n'ont aucun parent à contacter"
-      redirect_to request.referer
-    else
+    # if children.without_parent_to_contact.any?
+    # #   flash[:error] = "Certains enfants n'ont aucun parent à contacter"
+    # #   redirect_to request.referer
+    # else
       medium = Medium.find(inputs[I18n.t("activerecord.models.medium")])
 
       redirection_target = RedirectionTarget.where(medium: medium).first_or_create!
 
       latest_parent1_id = nil
-      children.order(:parent1_id).each do |child|
-        next if latest_parent1_id == child.parent1_id
-        latest_parent1_id = child.parent1_id
+      children.joins(:family).order(:parent1_id).each do |child|
+        next if latest_parent1_id == child.family.parent1_id
+        latest_parent1_id = child.family.parent1_id
 
         if child.should_contact_parent1?
           RedirectionUrl.create!(
             redirection_target: redirection_target,
-            parent_id: child.parent1_id,
+            parent_id: child.family.parent1_id,
             child: child
           )
         end
@@ -201,7 +201,7 @@ ActiveAdmin.register Child do
         end
       end
       redirect_to redirection_target.decorate.redirection_urls_path, notice: "URL courtes créées"
-    end
+    # end
   end
 
   batch_action :addresses_pdf do |ids|
