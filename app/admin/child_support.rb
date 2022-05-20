@@ -528,6 +528,7 @@ ActiveAdmin.register ChildSupport do
     end
 
     column :tag_list
+    column :notes
 
     column :created_at
     column :updated_at
