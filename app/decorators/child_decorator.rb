@@ -179,6 +179,14 @@ class ChildDecorator < BaseDecorator
     model.family_text_messages.kept.count
   end
 
+  def family_text_messages_received_count
+    model.family_text_messages_received.kept.count
+  end
+
+  def family_text_messages_sent_count
+    model.family_text_messages_sent.kept.count
+  end
+
   def full_address
     model.parent1.decorate.full_address
   end
@@ -193,6 +201,8 @@ class ChildDecorator < BaseDecorator
   end
 
   def registration_months_range
+    return unless registration_months
+
     if registration_months >= 36
       "Plus de 36 mois"
     elsif registration_months >= 24

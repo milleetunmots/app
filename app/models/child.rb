@@ -433,6 +433,14 @@ class Child < ApplicationRecord
     parent_events.text_messages
   end
 
+  def family_text_messages_received
+    parent_events.text_messages_send_by_app
+  end
+
+  def family_text_messages_sent
+    parent_events.text_messages_send_by_parent
+  end
+
   def update_counters!
     self.family_redirection_urls_count = family_redirection_urls.count("DISTINCT redirection_target_id")
 
