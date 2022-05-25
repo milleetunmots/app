@@ -175,9 +175,9 @@ class ChildDecorator < BaseDecorator
     "#{model.family_redirection_url_unique_visits_count}/#{family_redirection_urls_count} (#{family_redirection_unique_visit_rate})"
   end
 
-  # def family_text_messages_count
-  #   model.family_text_messages.kept.count
-  # end
+  def family_text_messages_count
+    model.family_text_messages.kept.count
+  end
 
   def family_text_messages_received_count
     model.family_text_messages_received.kept.count
@@ -201,6 +201,8 @@ class ChildDecorator < BaseDecorator
   end
 
   def registration_months_range
+    return unless registration_months
+
     if registration_months >= 36
       "Plus de 36 mois"
     elsif registration_months >= 24

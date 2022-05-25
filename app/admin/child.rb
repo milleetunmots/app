@@ -122,17 +122,12 @@ ActiveAdmin.register Child do
   filter :updated_at
 
   batch_action :add_family_tags do |ids|
-    session[:add_tags_ids] = ids
-    redirect_to action: :add_family_tags
+    @klass = Family
+    @ids = ids
+    @form_action = url_for(action: :perform_adding_family_tags)
+    @back_url = request.referer
+    render "active_admin/tags/add_tags"
   end
-
-  # batch_action :create_support do |ids|
-  #   batch_action_collection.find(ids).each do |child|
-  #     next if already_existing_child_support = child.child_support
-  #     child.create_support!
-  #   end
-  #   redirect_to collection_path, notice: I18n.t("child.supports_created")
-  # end
 
   batch_action :add_to_group, form: -> {
     {
@@ -143,18 +138,9 @@ ActiveAdmin.register Child do
       flash[:error] = "Certains enfants sont déjà dans une cohorte"
       redirect_to request.referer
     else
-      group = Group.find(inputs[I18n.t("activerecord.models.group")])
-      batch_action_collection.where(id: ids).update_all(
-        group_id: group.id,
-        group_status: "active",
-        group_start: group.started_at
-      )
-
-      Child.where(id: ids).parents.each do |parent|
-        parent.tag_list.add("Famille suivie")
-        parent.save
+      batch_action_collection.where(id: ids).each do |child|
+        child.put_in_group(inputs[I18n.t("activerecord.models.group")])
       end
-
       redirect_to request.referer, notice: "Enfants ajoutés à la cohorte"
     end
   end
@@ -223,19 +209,6 @@ ActiveAdmin.register Child do
            progress: proc { |output| puts output }
   end
 
-  # batch_action :generate_buzz_expert do |ids|
-  #   @children = batch_action_collection.where(id: ids)
-  #
-  #   service = BuzzExpert::ExportChildrenService.new(children: @children).call
-  #   if service.errors.any?
-  #     puts "Error: #{service.errors}"
-  #     flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
-  #     redirect_to request.referer
-  #   else
-  #     send_data service.csv, filename: "Adresses - #{csv_filename}"
-  #   end
-  # end
-
   batch_action :generate_quit_sms do |ids|
     @children = batch_action_collection.where(id: ids)
 
@@ -276,14 +249,6 @@ ActiveAdmin.register Child do
       flash[:notice] = "Message de continuation envoyé"
       redirect_to admin_sent_by_app_text_messages_url
     end
-  end
-
-  collection_action :add_family_tags do
-    @klass = Family
-    @ids = session.delete(:add_tags_ids) || []
-    @form_action = url_for(action: :perform_adding_family_tags)
-    @back_url = request.referer
-    render "active_admin/tags/add_tags"
   end
 
   collection_action :perform_adding_family_tags, method: :post do
@@ -399,9 +364,9 @@ ActiveAdmin.register Child do
           row :updated_at
         end
       end
-      # tab "Historique" do
-      #   render "admin/events/history", events: resource.parent_events.order(occurred_at: :desc).decorate
-      # end
+      tab "Historique" do
+        render "admin/events/history", events: resource.parent_events.order(occurred_at: :desc).decorate
+      end
     end
   end
 
@@ -546,7 +511,6 @@ ActiveAdmin.register Child do
     column :parent1_last_name
     column :parent1_email
     column :parent1_phone_number_national
-    column :parent1_is_lycamobile
     column :should_contact_parent1
 
     column :parent2_gender
@@ -554,7 +518,6 @@ ActiveAdmin.register Child do
     column :parent2_last_name
     column :parent2_email
     column :parent2_phone_number_national
-    column :parent2_is_lycamobile
     column :should_contact_parent2
 
     column :registration_source
@@ -580,7 +543,9 @@ ActiveAdmin.register Child do
   end
 
   controller do
-    before_action :update_family_tags, only: :update
+    before_update do
+      resource.family.update tag_list: params[:child][:family_tag_list]
+    end
 
     after_save do |child|
       if child.group && %w[active stopped paused].include?(child.group_status) && child.group_start.nil?
@@ -589,10 +554,6 @@ ActiveAdmin.register Child do
         child.family&.save
       end
       child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
-    end
-
-    def update_family_tags
-      resource.family.update tag_list: params[:child][:family_tag_list]
     end
 
     def csv_filename

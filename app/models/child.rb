@@ -46,8 +46,6 @@ class Child < ApplicationRecord
 
   include Discard::Model
 
-  after_commit :set_land, on: :create
-
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
   PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach].freeze
@@ -93,34 +91,6 @@ class Child < ApplicationRecord
   validate :different_phone_number, on: :create
   validate :valid_group_status
 
-  delegate :tag_list,
-           to: :family,
-           allow_nil: true,
-           prefix: true
-
-  delegate :postal_code,
-           to: :parent1
-
-  def no_duplicate
-    self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).each do |child|
-      if parent1.duplicate_of?(child.parent1) || parent1.duplicate_of?(child.parent2) || parent2&.duplicate_of?(child.parent1) || parent2&.duplicate_of?(child.parent2)
-        errors.add(:base, :invalid, message: "L'enfant est déjà enregistré")
-      end
-    end
-  end
-
-  def different_phone_number
-    return unless parent2&.phone_number
-    if parent1.phone_number == parent2.phone_number
-      errors.add(:base, :invalid, message: "Nous avons besoin des coordonnées d'au moins un parent. Si l'autre parent ne souhaite pas recevoir les messages, merci de ne pas l'inscrire car nous n'avons pas besoin de son nom.")
-    end
-  end
-
-  def valid_group_status
-    errors.add(:base, :invalid, message: "L'enfant ne peut pas être en attente en étant dans une cohorte") if group_id && group_status == "waiting"
-    errors.add(:base, :invalid, message: "L'enfant doit être dans une cohorte") if group_id.nil? && group_status != "waiting"
-  end
-
   # ---------------------------------------------------------------------------
   # callbacks
   # ---------------------------------------------------------------------------
@@ -130,19 +100,32 @@ class Child < ApplicationRecord
     self.security_code = SecureRandom.hex(1)
   end
 
-  def set_land
+  before_create do
     case family.postal_code.to_i / 1000
-    when 45 then update land: "Loiret"
-    when 78 then update land: "Yvelines"
-    when 93 then update land: "Seine-Saint-Denis"
-    when 75 then update land: "Paris"
-    when 57 then update land: "Moselle"
+    when 45 then self.land = "Loiret"
+    when 78 then self.land = "Yvelines"
+    when 93 then self.land = "Seine-Saint-Denis"
+    when 75 then self.land = "Paris"
+    when 57 then self.land = "Moselle"
     end
   end
 
   # ---------------------------------------------------------------------------
-  # helpers
+  # scopes
   # ---------------------------------------------------------------------------
+
+  scope :with_group, -> { where.not(group_id: nil) }
+  scope :without_group, -> { where(group_id: nil) }
+
+  def self.without_group_and_not_waiting_second_group
+    second_group_children_ids = Child.tagged_with("2eme cohorte").pluck(:id)
+    where(group_id: nil).where.not(id: second_group_children_ids)
+  end
+
+  def self.waiting_second_group
+    waiting_second_group_children_ids = Child.tagged_with("2eme cohorte").pluck(:id)
+    where(id: waiting_second_group_children_ids)
+  end
 
   def self.min_birthdate
     Date.today - 48.months
@@ -155,94 +138,6 @@ class Child < ApplicationRecord
   def self.max_birthdate
     Date.today
   end
-
-  # computes an (integer) number of months old
-  def months
-    duration_in_months(birthdate)
-  end
-
-  def registration_months
-    duration_in_months(birthdate, created_at)
-  end
-
-  def child_group_months
-    duration_in_months(group_start, group_end)
-  end
-
-  def months_between_registration_and_group_start
-    duration_in_months(created_at, group_start)
-  end
-
-  def months_since_group_start
-    return if group_end&.past?
-
-    duration_in_months(group_start)
-  end
-
-  # ---------------------------------------------------------------------------
-  # search by age (in months)
-  # ---------------------------------------------------------------------------
-
-  def self.months_gteq(x)
-    # >= x months
-    # means a birthdate at the most equal to x months ago
-    where("birthdate <= ?", Time.zone.today - x.to_i.months)
-  end
-
-  def self.registration_months_gteq(x)
-    where("age(children.created_at, birthdate) >= interval '? months'", x)
-  end
-
-  def self.months_lt(x)
-    # < x months
-    # means being at most 1 day less than x months old
-    # which means a birthdate strictly greater than exactly x months ago
-    where("birthdate > ?", Time.zone.today - x.to_i.months)
-  end
-
-  def self.registration_months_lt(x)
-    where("age(children.created_at, birthdate) < interval '? months'", x)
-  end
-
-  def self.months_equals(x)
-    months_gteq(x).merge(months_lt(x.to_i + 1))
-  end
-
-  def self.registration_months_equals(x)
-    registration_months_gteq(x).merge(registration_months_lt(x.to_i + 1))
-  end
-
-  def self.months_between(x, y)
-    months_gteq(x).merge(months_lt(y))
-  end
-
-  def self.registration_months_between(x, y)
-    registration_months_gteq(x).merge(registration_months_lt(y))
-  end
-
-  def self.months_between_0_and_12
-    months_between(0, 12)
-  end
-
-  def self.months_between_12_and_24
-    months_between(12, 24)
-  end
-
-  def self.months_more_than_24
-    months_gteq(24)
-  end
-
-  def self.family_tagged_with_all(*v)
-    where(family: Family.tagged_with(v) )
-  end
-
-  # ---------------------------------------------------------------------------
-  # other scopes
-  # ---------------------------------------------------------------------------
-
-  scope :with_group, -> { where.not(group_id: nil) }
-  scope :without_group, -> { where(group_id: nil) }
-  scope :without_group_and_not_waiting_second_group, -> { where(group_id: nil).where.not(id: all.select { |child| child.tag_list.include?("2eme cohorte") }.map(&:id)) }
 
   def self.postal_code_contains(v)
     where(family: Family.postal_code_contains(v))
@@ -276,16 +171,8 @@ class Child < ApplicationRecord
     where("registration_source_details ILIKE ?", v)
   end
 
-  def self.waiting_second_group
-    where(id: all.select { |child| child.tag_list.include?("2eme cohorte") }.map(&:id))
-  end
-
   def self.group_active_between(x, y)
     where("group_start >= ?", x).or(where("group_start >= ? AND group_end <= ?", x, y))
-  end
-
-  def parent_events
-      Event.where(related_type: "Parent", related_id: [family.parent1_id, family.parent2_id].compact)
   end
 
   def self.parent_id_in(*v)
@@ -300,6 +187,63 @@ class Child < ApplicationRecord
     where(family: Family.without_parent_text_message_since(v))
   end
 
+  def self.family_tagged_with_all(*v)
+    where(family: Family.tagged_with(v) )
+  end
+
+  # ---------------------------------------------------------------------------
+  # search by age (in months)
+  # ---------------------------------------------------------------------------
+
+  def self.months_gteq(x)
+    # >= x months
+    # means a birthdate at the most equal to x months ago
+    where("birthdate <= ?", Time.zone.today - x.to_i.months)
+  end
+
+  def self.months_lt(x)
+    # < x months
+    # means being at most 1 day less than x months old
+    # which means a birthdate strictly greater than exactly x months ago
+    where("birthdate > ?", Time.zone.today - x.to_i.months)
+  end
+
+  def self.months_equals(x)
+    months_gteq(x).merge(months_lt(x.to_i + 1))
+  end
+
+  def self.months_between(x, y)
+    months_gteq(x).merge(months_lt(y))
+  end
+
+  def self.registration_months_gteq(x)
+    where("age(children.created_at, birthdate) >= interval '? months'", x)
+  end
+
+  def self.registration_months_lt(x)
+    where("age(children.created_at, birthdate) < interval '? months'", x)
+  end
+
+  def self.registration_months_equals(x)
+    registration_months_gteq(x).merge(registration_months_lt(x.to_i + 1))
+  end
+
+  def self.registration_months_between(x, y)
+    registration_months_gteq(x).merge(registration_months_lt(y))
+  end
+
+  def self.months_between_0_and_12
+    months_between(0, 12)
+  end
+
+  def self.months_between_12_and_24
+    months_between(12, 24)
+  end
+
+  def self.months_more_than_24
+    months_gteq(24)
+  end
+
   # --------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
@@ -311,48 +255,6 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
-
-  delegate :name,
-    to: :group,
-    prefix: true,
-    allow_nil: true
-
-  def family_redirection_urls
-    RedirectionUrl.where(parent_id: [family.parent1_id, family.parent2_id].compact)
-  end
-
-  def family_text_messages
-    parent_events.text_messages
-  end
-
-  def family_text_messages_received
-    parent_events.text_messages_send_by_app
-  end
-
-  def family_text_messages_sent
-    parent_events.text_messages_send_by_parent
-  end
-
-  def update_counters!
-    self.family_redirection_urls_count = family_redirection_urls.count("DISTINCT redirection_target_id")
-
-    if family_redirection_urls_count.zero?
-      self.family_redirection_url_unique_visits_count = 0
-      self.family_redirection_unique_visit_rate = 0
-      self.family_redirection_url_visits_count = 0
-      self.family_redirection_visit_rate = 0
-    else
-      # family counters : if both parents receive a link and only
-      # 1 parent opens it, we consider it 100% visited
-
-      self.family_redirection_url_unique_visits_count = family_redirection_urls.with_visits.count("DISTINCT redirection_target_id")
-      self.family_redirection_unique_visit_rate = family_redirection_url_unique_visits_count / family_redirection_urls_count.to_f
-      self.family_redirection_url_visits_count = family_redirection_urls.sum(:redirection_url_visits_count)
-      self.family_redirection_visit_rate = family_redirection_urls_count / family_redirection_urls_count.to_f
-    end
-
-    save!
-  end
 
   def self.families_count
     Family.count
@@ -410,7 +312,142 @@ class Child < ApplicationRecord
 
   acts_as_taggable
 
+  # ---------------------------------------------------------------------------
+  # methods
+  # ---------------------------------------------------------------------------
+
+  delegate :email,
+           :first_name,
+           :last_name,
+           :gender,
+           :phone_number_national,
+           :is_ambassador,
+           :is_ambassador?,
+           to: :parent1,
+           prefix: true
+
+  delegate :email,
+           :first_name,
+           :last_name,
+           :gender,
+           :phone_number_national,
+           to: :parent2,
+           prefix: true,
+           allow_nil: true
+
+  delegate :address,
+           :city_name,
+           :letterbox_name,
+           :postal_code,
+           to: :parent1
+
+  delegate :tag_list,
+           to: :family,
+           allow_nil: true,
+           prefix: true
+
+  delegate :name,
+           to: :group,
+           prefix: true,
+           allow_nil: true
+
+  # computes an (integer) number of months old
+  def months
+    duration_in_months(birthdate)
+  end
+
+  def registration_months
+    duration_in_months(birthdate, created_at)
+  end
+
+  def child_group_months
+    duration_in_months(group_start, group_end)
+  end
+
+  def months_between_registration_and_group_start
+    duration_in_months(created_at, group_start)
+  end
+
+  def months_since_group_start
+    return if group_end&.past?
+
+    duration_in_months(group_start)
+  end
+
+  def family_redirection_urls
+    RedirectionUrl.where(parent_id: [family.parent1_id, family.parent2_id].compact)
+  end
+
+  def family_text_messages
+    parent_events.text_messages
+  end
+
+  def family_text_messages_received
+    parent_events.text_messages_send_by_app
+  end
+
+  def family_text_messages_sent
+    parent_events.text_messages_send_by_parent
+  end
+
+  def parent_events
+    Event.where(related_type: "Parent", related_id: [family.parent1_id, family.parent2_id].compact)
+  end
+
+  def update_counters!
+    self.family_redirection_urls_count = family_redirection_urls.count("DISTINCT redirection_target_id")
+
+    if family_redirection_urls_count.zero?
+      self.family_redirection_url_unique_visits_count = 0
+      self.family_redirection_unique_visit_rate = 0
+      self.family_redirection_url_visits_count = 0
+      self.family_redirection_visit_rate = 0
+    else
+      # family counters : if both parents receive a link and only
+      # 1 parent opens it, we consider it 100% visited
+
+      self.family_redirection_url_unique_visits_count = family_redirection_urls.with_visits.count("DISTINCT redirection_target_id")
+      self.family_redirection_unique_visit_rate = family_redirection_url_unique_visits_count / family_redirection_urls_count.to_f
+      self.family_redirection_url_visits_count = family_redirection_urls.sum(:redirection_url_visits_count)
+      self.family_redirection_visit_rate = family_redirection_urls_count / family_redirection_urls_count.to_f
+    end
+
+    save!
+  end
+
+  def put_in_group(group_id)
+    group = Group.find(group_id)
+
+    if group_status == "waiting"
+      update!(group: group, group_start: group.started_at, group_status: "active")
+      family.tag_list.add("Famille suivie")
+      family.save!
+    end
+
+    update!(group: group, group_start: group.started_at, group_end: child.group.ended_at, group_status: "stopped") if group.ended_at&.past?
+  end
+
   private
+
+  def no_duplicate
+    self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).each do |child|
+      if parent1.duplicate_of?(child.parent1) || parent1.duplicate_of?(child.parent2) || parent2&.duplicate_of?(child.parent1) || parent2&.duplicate_of?(child.parent2)
+        errors.add(:base, :invalid, message: "L'enfant est déjà enregistré")
+      end
+    end
+  end
+
+  def different_phone_number
+    return unless parent2&.phone_number
+    if parent1.phone_number == parent2.phone_number
+      errors.add(:base, :invalid, message: "Nous avons besoin des coordonnées d'au moins un parent. Si l'autre parent ne souhaite pas recevoir les messages, merci de ne pas l'inscrire car nous n'avons pas besoin de son nom.")
+    end
+  end
+
+  def valid_group_status
+    errors.add(:base, :invalid, message: "L'enfant ne peut pas être en attente en étant dans une cohorte") if group_id && group_status == "waiting"
+    errors.add(:base, :invalid, message: "L'enfant doit être dans une cohorte") if group_id.nil? && group_status != "waiting"
+  end
 
   def duration_in_months(started_at, ended_at = Time.now)
     return unless started_at && ended_at && ended_at > started_at
