@@ -16,14 +16,14 @@ module ActiveAdmin::RegistrationsHelper
 
     values["goal"] = 4000
     values["no_popi_children_registered_or_followed_count"] = no_popi(children.or(children_followed)).count
-    values["no_popi_families_registered_or_followed_count"] = no_popi(children.or(children_followed)).map(&:parent1_id).uniq.count
+    values["no_popi_families_registered_or_followed_count"] = no_popi(children.or(children_followed)).map(&:family_id).uniq.count
     values["no_popi_fathers_registered_or_followed_count"] = no_popi(children.parents.fathers.or(children_followed.parents.fathers)).map(&:id).uniq.count
 
     values["no_popi_children_registered"] = no_popi(children).count
-    values["no_popi_families_registered"] = no_popi(children).map(&:parent1_id).uniq.count
+    values["no_popi_families_registered"] = no_popi(children).map(&:family_id).uniq.count
 
     values["children_registered"] = children.count
-    values["families_registered"] = children.map(&:parent1_id).uniq.count
+    values["families_registered"] = children.map(&:family_id).uniq.count
 
     values["no_popi_rate"] = ((values["no_popi_children_registered"] * 100).fdiv(values["children_registered"])).round(2)
 
