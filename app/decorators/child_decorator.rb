@@ -203,14 +203,14 @@ class ChildDecorator < BaseDecorator
   def registration_months_range
     return unless registration_months
 
-    if registration_months >= 36
+    if registration_months >= 37
       "Plus de 36 mois"
-    elsif registration_months >= 24
-      "24 - 36 mois"
-    elsif registration_months >= 12
-      "12 - 24 mois"
-    elsif registration_months >= 6
-      "6 - 12 mois"
+    elsif registration_months >= 25
+      "25 à 36 mois"
+    elsif registration_months >= 13
+      "13 à 24 mois"
+    elsif registration_months >= 7
+      "7 - 12 mois"
     else
       "Moins de 6 mois"
     end
