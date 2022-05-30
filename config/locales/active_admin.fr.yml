@@ -5,6 +5,7 @@ fr:
       labels:
         add_tags: Taguer
         add_to_group: Ajouter à une cohorte
+        add_family_tags: Taguer les familles pour
         assign_supporter: Assigner un(e) responsable pour
         check_call_2_4: "Sélectionner 'Appel 2 ou 4' pour"
         uncheck_call_2_4: "Désélectionner 'Appel 2 ou 4' pour"

@@ -87,7 +87,7 @@ class Parent < ApplicationRecord
     uniqueness: {case_sensitive: false, allow_blank: true}
   validates :terms_accepted_at, presence: true
 
-  delegate :tag_list, to: :family, prefix: true
+  delegate :tag_list, to: :family, allow_nil: true, prefix: true
 
   # ---------------------------------------------------------------------------
   # global search
@@ -137,6 +137,10 @@ class Parent < ApplicationRecord
   # ---------------------------------------------------------------------------
   # methods
   # ---------------------------------------------------------------------------
+
+  delegate :first_child,
+           to: :family,
+           prefix: false
 
   def update_counters!
     self.redirection_urls_count = redirection_urls.count

@@ -241,9 +241,7 @@ ActiveAdmin.register Parent do
   end
 
   controller do
-    before_action :update_family_tags, only: :update
-
-    def update_family_tags
+    before_update do
       resource.family.update tag_list: params[:parent][:family_tag_list]
     end
   end

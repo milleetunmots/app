@@ -137,9 +137,9 @@ print "\t50 Children"
 
 50.times do
   parent1 = FactoryBot.create(:parent)
-  family = FactoryBot.create(:family, parent1_id: parent1.id)
+  family = FactoryBot.create(:family, parent1: parent1)
   created_date = Faker::Date.backward(days: 120)
-  child = FactoryBot.create(:child, birthdate: created_date.prev_month((rand * 10).to_i), parent1: parent1, family: family)
+  child = FactoryBot.create(:child, birthdate: created_date.prev_month((rand * 10).to_i), family: family)
   child.update_column(:created_at, created_date)
 end
 

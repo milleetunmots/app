@@ -68,11 +68,9 @@ ActiveAdmin.register Workshop do
   controller do
     after_create do |workshop|
       message = workshop.invitation_message
-      parent_ids = workshop.participant_ids + Parent.tagged_with(workshop.tag_list.join(", "), any: true).pluck(:id)
-
-      families_parent_ids =  Family.tagged_with(workshop.tag_list.join(", "), any: true).pluck(:parent1_id) + Family.tagged_with("famille_tag, Hello", any: true).pluck(:parent2_id)
-
-      families_parent_ids.each { |id| parent_ids << id unless id.nil? }
+      families = Family.tagged_with(workshop.tag_list.join(", "), any: true)
+      parent_ids = workshop.participant_ids + Parent.tagged_with(workshop.tag_list.join(", "), any: true).pluck(:id) + families.pluck(:parent1_id) + families.pluck(:parent2_id)
+      parent_ids.compact!
 
       parent_ids.each do |participant_id|
         response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(

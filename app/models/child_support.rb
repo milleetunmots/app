@@ -243,6 +243,22 @@ class ChildSupport < ApplicationRecord
   # helpers
   # ---------------------------------------------------------------------------
 
+  (1..5).each do |call_idx|
+    define_method("call#{call_idx}_parent_progress_index") do
+      (send("call#{call_idx}_parent_progress") || "").split("_").first&.to_i
+    end
+  end
+
+  def self.call_attributes
+    new.attributes.keys.select{|a| a.starts_with?("call")}
+  rescue ArgumentError
+    []
+  end
+
+  # ---------------------------------------------------------------------------
+  # methods
+  # ---------------------------------------------------------------------------
+
   delegate :address,
            :city_name,
            :first_child,
@@ -268,18 +284,6 @@ class ChildSupport < ApplicationRecord
            to: :supporter,
            prefix: true,
            allow_nil: true
-
-  (1..5).each do |call_idx|
-    define_method("call#{call_idx}_parent_progress_index") do
-      (send("call#{call_idx}_parent_progress") || "").split("_").first&.to_i
-    end
-  end
-
-  def self.call_attributes
-    new.attributes.keys.select{|a| a.starts_with?("call")}
-  rescue ArgumentError
-    []
-  end
 
   def present_on
     super&.split(";")

@@ -121,40 +121,12 @@ ActiveAdmin.register Child do
   filter :created_at
   filter :updated_at
 
-  batch_action :add_tags do |ids|
-    session[:add_tags_ids] = ids
-    redirect_to action: :add_tags
-  end
-
-  collection_action :add_tags do
-    @klass = collection.object.klass
-    @ids = session.delete(:add_tags_ids) || []
-    @form_action = url_for(action: :perform_adding_tags)
+  batch_action :add_family_tags do |ids|
+    @klass = Family
+    @ids = ids
+    @form_action = url_for(action: :perform_adding_family_tags)
     @back_url = request.referer
     render "active_admin/tags/add_tags"
-  end
-
-  collection_action :perform_adding_tags, method: :post do
-    ids = params[:ids]
-    tags = params[:tag_list]
-    back_url = params[:back_url]
-
-    Child.where(id: ids).each do |child|
-      child.tag_list.add(tags)
-      child.save(validate: false)
-      child.child_support&.update! tag_list: child.tag_list
-      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
-      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
-    end
-    redirect_to back_url, notice: "Tags ajoutés"
-  end
-
-  batch_action :create_support do |ids|
-    batch_action_collection.find(ids).each do |child|
-      next if already_existing_child_support = child.child_support
-      child.create_support!
-    end
-    redirect_to collection_path, notice: I18n.t("child.supports_created")
   end
 
   batch_action :add_to_group, form: -> {
@@ -166,18 +138,9 @@ ActiveAdmin.register Child do
       flash[:error] = "Certains enfants sont déjà dans une cohorte"
       redirect_to request.referer
     else
-      group = Group.find(inputs[I18n.t("activerecord.models.group")])
-      batch_action_collection.where(id: ids).update_all(
-        group_id: group.id,
-        group_status: "active",
-        group_start: group.started_at
-      )
-
-      Child.where(id: ids).parents.each do |parent|
-        parent.tag_list.add("Famille suivie")
-        parent.save
+      batch_action_collection.where(id: ids).each do |child|
+        child.put_in_group(inputs[I18n.t("activerecord.models.group")])
       end
-
       redirect_to request.referer, notice: "Enfants ajoutés à la cohorte"
     end
   end
@@ -194,23 +157,23 @@ ActiveAdmin.register Child do
   } do |ids, inputs|
     children = batch_action_collection.where(id: ids)
 
-    if children.without_parent_to_contact.any?
-      flash[:error] = "Certains enfants n'ont aucun parent à contacter"
-      redirect_to request.referer
-    else
+    # if children.without_parent_to_contact.any?
+    # #   flash[:error] = "Certains enfants n'ont aucun parent à contacter"
+    # #   redirect_to request.referer
+    # else
       medium = Medium.find(inputs[I18n.t("activerecord.models.medium")])
 
       redirection_target = RedirectionTarget.where(medium: medium).first_or_create!
 
       latest_parent1_id = nil
-      children.order(:parent1_id).each do |child|
-        next if latest_parent1_id == child.parent1_id
-        latest_parent1_id = child.parent1_id
+      children.joins(:family).order(:parent1_id).each do |child|
+        next if latest_parent1_id == child.family.parent1_id
+        latest_parent1_id = child.family.parent1_id
 
         if child.should_contact_parent1?
           RedirectionUrl.create!(
             redirection_target: redirection_target,
-            parent_id: child.parent1_id,
+            parent_id: child.family.parent1_id,
             child: child
           )
         end
@@ -224,7 +187,7 @@ ActiveAdmin.register Child do
         end
       end
       redirect_to redirection_target.decorate.redirection_urls_path, notice: "URL courtes créées"
-    end
+    # end
   end
 
   batch_action :addresses_pdf do |ids|
@@ -244,19 +207,6 @@ ActiveAdmin.register Child do
            disable_local_file_access: false,
            enable_local_file_access: true,
            progress: proc { |output| puts output }
-  end
-
-  batch_action :generate_buzz_expert do |ids|
-    @children = batch_action_collection.where(id: ids)
-
-    service = BuzzExpert::ExportChildrenService.new(children: @children).call
-    if service.errors.any?
-      puts "Error: #{service.errors}"
-      flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
-      redirect_to request.referer
-    else
-      send_data service.csv, filename: "Buzz-Expert - #{csv_filename}"
-    end
   end
 
   batch_action :generate_quit_sms do |ids|
@@ -301,6 +251,18 @@ ActiveAdmin.register Child do
     end
   end
 
+  collection_action :perform_adding_family_tags, method: :post do
+    ids = params[:ids]
+    tags = params[:tag_list]
+    back_url = params[:back_url]
+
+    Child.where(id: ids).each do |object|
+      object.family.tag_list.add(tags)
+      object.family.save(validate: false)
+    end
+    redirect_to back_url, notice: "Tags ajoutés aux familles"
+  end
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------
@@ -308,6 +270,17 @@ ActiveAdmin.register Child do
   form do |f|
     f.semantic_errors *f.object.errors.keys
     f.inputs do
+      f.simple_fields_for :family do |family_f|
+        family_f.input :parent1,
+                       collection: child_parent_select_collection,
+                       input_html: {data: {select2: {}}}
+      end
+      f.input :should_contact_parent1
+      f.simple_fields_for :family do |family_f|
+        family_f.input :parent2,
+                       collection: child_parent_select_collection,
+                       input_html: {data: {select2: {}}}
+      end
       f.input :parent1,
         collection: child_parent_select_collection,
         input_html: {data: {select2: {}}}
@@ -541,7 +514,6 @@ ActiveAdmin.register Child do
     column :parent1_last_name
     column :parent1_email
     column :parent1_phone_number_national
-    column :parent1_is_lycamobile
     column :should_contact_parent1
 
     column :parent2_gender
@@ -549,7 +521,6 @@ ActiveAdmin.register Child do
     column :parent2_last_name
     column :parent2_email
     column :parent2_phone_number_national
-    column :parent2_is_lycamobile
     column :should_contact_parent2
 
     column :registration_source
@@ -573,6 +544,10 @@ ActiveAdmin.register Child do
   end
 
   controller do
+    before_update do
+      resource.family.update tag_list: params[:child][:family_tag_list]
+    end
+
     after_save do |child|
       if child.group && %w[active stopped paused].include?(child.group_status) && child.group_start.nil?
         child.update!(group_start: child.group.started_at)
@@ -582,9 +557,6 @@ ActiveAdmin.register Child do
         child.parent2&.save
       end
       child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
-      child.child_support&.update! tag_list: child.tag_list
-      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
-      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
     end
 
     def csv_filename
