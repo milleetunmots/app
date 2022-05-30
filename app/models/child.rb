@@ -127,18 +127,6 @@ class Child < ApplicationRecord
     where(id: waiting_second_group_children_ids)
   end
 
-  def self.min_birthdate
-    Date.today - 48.months
-  end
-
-  def self.min_birthdate_alt
-    Date.today - 2.years
-  end
-
-  def self.max_birthdate
-    Date.today
-  end
-
   def self.postal_code_contains(v)
     where(family: Family.postal_code_contains(v))
   end
@@ -181,6 +169,11 @@ class Child < ApplicationRecord
 
   def self.parent_id_not_in(*v)
     where(family: Family.parent_id_not_in(v))
+  end
+
+  def self.without_parent_to_contact
+    # info: AR simplifies this
+    where(should_contact_parent1: [nil, false], should_contact_parent2: [nil, false])
   end
 
   def self.without_parent_text_message_since(v)
@@ -255,6 +248,18 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
+
+  def self.min_birthdate
+    Date.today - 48.months
+  end
+
+  def self.min_birthdate_alt
+    Date.today - 2.years
+  end
+
+  def self.max_birthdate
+    Date.today
+  end
 
   def self.families_count
     Family.count

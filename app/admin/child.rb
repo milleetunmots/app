@@ -56,9 +56,6 @@ ActiveAdmin.register Child do
   scope :months_between_12_and_24, group: :months
   scope :months_more_than_24, group: :months
 
-  scope :with_support, group: :support
-  scope :without_support, group: :support
-
   scope :without_parent_to_contact, group: :parent
 
   filter :gender,
