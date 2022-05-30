@@ -138,6 +138,10 @@ class Parent < ApplicationRecord
   # methods
   # ---------------------------------------------------------------------------
 
+  delegate :first_child,
+           to: :family,
+           prefix: false
+
   def update_counters!
     self.redirection_urls_count = redirection_urls.count
 
