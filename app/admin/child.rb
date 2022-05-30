@@ -56,11 +56,11 @@ ActiveAdmin.register Child do
   scope :months_between_12_and_24, group: :months
   scope :months_more_than_24, group: :months
 
-  filter :family_tagged_with_all,
-         as: :select,
-         collection: proc { tag_name_collection },
-         input_html: {multiple: true, data: {select2: {}}},
-         label: "Tags de la famille"
+  scope :with_support, group: :support
+  scope :without_support, group: :support
+
+  scope :without_parent_to_contact, group: :parent
+
   filter :gender,
     as: :check_boxes,
     collection: proc { child_gender_select_collection(with_unknown: true) }
@@ -281,6 +281,13 @@ ActiveAdmin.register Child do
                        collection: child_parent_select_collection,
                        input_html: {data: {select2: {}}}
       end
+      f.input :parent1,
+        collection: child_parent_select_collection,
+        input_html: {data: {select2: {}}}
+      f.input :should_contact_parent1
+      f.input :parent2,
+        collection: child_parent_select_collection,
+        input_html: {data: {select2: {}}}
       f.input :should_contact_parent2
       f.input :gender,
         as: :radio,
@@ -307,14 +314,15 @@ ActiveAdmin.register Child do
         collection: child_group_status_select_collection,
         input_html: {data: {select2: {}}}
       tags_input(f)
-      family_tags_input(f)
     end
     f.actions
   end
 
-  permit_params :group_id, :should_contact_parent1, :should_contact_parent2, :gender, :first_name, :last_name,
-                :birthdate, :registration_source, :registration_source_details, :pmi_detail,
-                :group_status, tags_params, family_attributes: [:id, :parent1_id, :parent2_id, tag_list: []]
+  permit_params :parent1_id, :parent2_id, :group_id,
+    :should_contact_parent1, :should_contact_parent2,
+    :gender, :first_name, :last_name, :birthdate,
+    :registration_source, :registration_source_details, :pmi_detail, :group_status,
+    tags_params
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -445,12 +453,7 @@ ActiveAdmin.register Child do
   end
 
   collection_action :set_age_ok do
-    child_with_age_ok = if Date.today.month <= 8
-      Child.where(birthdate: Date.new(Date.today.year - 3, 1, 1)..Date.new(Date.today.year, 12, 31))
-    else
-      Child.where(birthdate: Date.new(Date.today.year - 2, 1, 1)..Date.new(Date.today.year, 12, 31))
-    end
-
+    child_with_age_ok = Child.where(birthdate: Date.new(Date.today.year - 2, 1, 1)..Date.new(Date.today.year, 12, 31))
 
     Child.all.each do |child|
       if child_with_age_ok.include? child
@@ -527,8 +530,6 @@ ActiveAdmin.register Child do
     column :group_status
 
     column :family_text_messages_count
-    column :family_text_messages_received_count
-    column :family_text_messages_sent_count
 
     column :family_redirection_urls_count
     column :family_redirection_url_visits_count
@@ -550,8 +551,10 @@ ActiveAdmin.register Child do
     after_save do |child|
       if child.group && %w[active stopped paused].include?(child.group_status) && child.group_start.nil?
         child.update!(group_start: child.group.started_at)
-        child.family&.tag_list&.add("Famille suivie")
-        child.family&.save
+        child.parent1&.tag_list&.add("Famille suivie")
+        child.parent2&.tag_list&.add("Famille suivie")
+        child.parent1&.save
+        child.parent2&.save
       end
       child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
     end
