@@ -108,7 +108,7 @@ class ChildSupportDecorator < BaseDecorator
   def groups
     arbre do
       ul do
-        model.family.children.decorate.each do |child|
+        model.family&.children.decorate.each do |child|
           li do
             child.group
           end

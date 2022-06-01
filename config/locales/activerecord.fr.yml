@@ -106,8 +106,6 @@ fr:
         registration_source: Comment nous avez-vous connu ?
         registration_source_details: Précisez votre nom ou celui de votre structure
         security_code: Sécurité
-        should_contact_parent1: Contacter parent 1 ?
-        should_contact_parent2: Contacter parent 2 ?
         src_url: URL d'inscription
         child_group_months: Durée de l'accompagnement (en mois)
         months_between_registration_and_group_start: Temps entre l'inscription et le debut de la cohorte (en mois)
@@ -248,8 +246,6 @@ fr:
         registration_sources_details: Précisions sur l'origine
         second_language: Langue parlée
         should_be_read: Témoignage marquant
-        should_contact_parent1: Contacter parent 1 ?
-        should_contact_parent2: Contacter parent 2 ?
         supporter: Responsable
         to_call: Appel 2 ou 4
         present_on: Presence sur les reseaux sociaux

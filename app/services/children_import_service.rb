@@ -41,14 +41,6 @@ class ChildrenImportService
         parent2_first_name = row['parent2_first_name']&.strip
         parent2_last_name = row['parent2_last_name']&.strip
 
-        # allow contacts if given
-        unless parent1_phone_number.blank?
-          attributes[:should_contact_parent1] = true
-        end
-        unless parent2_phone_number.blank?
-          attributes[:should_contact_parent2] = true
-        end
-
         # link to existing parents ?
         existing_parent1 = Parent.where(phone_number: parent1_phone_number).order(:id).first
         if existing_parent1

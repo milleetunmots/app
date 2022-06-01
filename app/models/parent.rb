@@ -112,6 +112,10 @@ class Parent < ApplicationRecord
     family&.children
   end
 
+  def first_child
+    family&.first_child
+  end
+
   def duplicate_of?(other_parent)
     return false if other_parent.nil?
 
@@ -137,10 +141,6 @@ class Parent < ApplicationRecord
   # ---------------------------------------------------------------------------
   # methods
   # ---------------------------------------------------------------------------
-
-  delegate :first_child,
-           to: :family,
-           prefix: false
 
   def update_counters!
     self.redirection_urls_count = redirection_urls.count

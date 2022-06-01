@@ -88,11 +88,11 @@ class ChildDecorator < BaseDecorator
   end
 
   def parent1
-    parent decorated_parent1, model.should_contact_parent1?
+    decorated_parent1.admin_link
   end
 
   def parent2
-    parent decorated_parent2, model.should_contact_parent2?
+    decorated_parent2&.admin_link
   end
 
   def parent1_gender
@@ -224,13 +224,6 @@ class ChildDecorator < BaseDecorator
 
   def decorated_parent2
     @decorated_parent2 ||= model.parent2&.decorate
-  end
-
-  def parent(decorated_parent, should_contact_parent)
-    return nil unless decorated_parent
-    options = {}
-    options[:class] = "txt-underline" if should_contact_parent
-    decorated_parent.admin_link(options)
   end
 
   def parent_attribute(decorated_parent, key)

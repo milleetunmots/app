@@ -365,8 +365,6 @@ ActiveAdmin.register ChildSupport do
               first_child_f.input :gender,
                 as: :radio,
                 collection: child_gender_select_collection
-              first_child_f.input :should_contact_parent1
-              first_child_f.input :should_contact_parent2
               first_child_f.input :registration_source,
                 collection: child_registration_source_select_collection,
                 input_html: {data: {select2: {}}}
@@ -405,8 +403,7 @@ ActiveAdmin.register ChildSupport do
   first_child_attributes = [{
     first_child_attributes: [
       :id,
-      :gender, :should_contact_parent1, :should_contact_parent2,
-      :registration_source, :registration_source_details,
+      :gender, :registration_source, :registration_source_details,
       {
         parent1_attributes: parent_attributes,
         parent2_attributes: parent_attributes
@@ -500,8 +497,6 @@ ActiveAdmin.register ChildSupport do
     column :parent1_first_name
     column :parent1_last_name
     column :parent1_phone_number_national
-    column :parent1_is_lycamobile
-    column :should_contact_parent1
     column :letterbox_name
     column :address
     column :city_name
@@ -516,7 +511,6 @@ ActiveAdmin.register ChildSupport do
     column :parent2_last_name
     column :parent2_phone_number_national
     column :parent2_is_lycamobile
-    column :should_contact_parent2
 
     column :children_first_names
     column :children_last_names

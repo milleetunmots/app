@@ -21,8 +21,6 @@
 #  registration_source                        :string
 #  registration_source_details                :string
 #  security_code                              :string
-#  should_contact_parent1                     :boolean          default(FALSE), not null
-#  should_contact_parent2                     :boolean          default(FALSE), not null
 #  src_url                                    :string
 #  created_at                                 :datetime         not null
 #  updated_at                                 :datetime         not null
@@ -143,10 +141,6 @@ class Child < ApplicationRecord
     where(family: Family.postal_code_starts_with(v))
   end
 
-  def self.with_parent_to_contact
-    where(should_contact_parent1: true).or(where(should_contact_parent2: true))
-  end
-
   def self.group_id_in(*v)
     where(group_id: v)
   end
@@ -169,11 +163,6 @@ class Child < ApplicationRecord
 
   def self.parent_id_not_in(*v)
     where(family: Family.parent_id_not_in(v))
-  end
-
-  def self.without_parent_to_contact
-    # info: AR simplifies this
-    where(should_contact_parent1: [nil, false], should_contact_parent2: [nil, false])
   end
 
   def self.without_parent_text_message_since(v)

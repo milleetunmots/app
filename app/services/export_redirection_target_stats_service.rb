@@ -19,13 +19,11 @@ class ExportRedirectionTargetStatsService
     parent1_first_name
     parent1_last_name
     parent1_phone_number_national
-    should_contact_parent1
 
     parent2_gender
     parent2_first_name
     parent2_last_name
     parent2_phone_number_national
-    should_contact_parent2
 
     registration_source
     registration_source_details

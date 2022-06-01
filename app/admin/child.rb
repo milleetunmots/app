@@ -56,8 +56,6 @@ ActiveAdmin.register Child do
   scope :months_between_12_and_24, group: :months
   scope :months_more_than_24, group: :months
 
-  scope :without_parent_to_contact, group: :parent
-
   filter :gender,
     as: :check_boxes,
     collection: proc { child_gender_select_collection(with_unknown: true) }
@@ -154,10 +152,6 @@ ActiveAdmin.register Child do
   } do |ids, inputs|
     children = batch_action_collection.where(id: ids)
 
-    # if children.without_parent_to_contact.any?
-    # #   flash[:error] = "Certains enfants n'ont aucun parent à contacter"
-    # #   redirect_to request.referer
-    # else
       medium = Medium.find(inputs[I18n.t("activerecord.models.medium")])
 
       redirection_target = RedirectionTarget.where(medium: medium).first_or_create!
@@ -167,15 +161,13 @@ ActiveAdmin.register Child do
         next if latest_parent1_id == child.family.parent1_id
         latest_parent1_id = child.family.parent1_id
 
-        if child.should_contact_parent1?
-          RedirectionUrl.create!(
-            redirection_target: redirection_target,
-            parent_id: child.family.parent1_id,
-            child: child
-          )
-        end
+        RedirectionUrl.create!(
+          redirection_target: redirection_target,
+          parent_id: child.family.parent1_id,
+          child: child
+        )
 
-        if child.should_contact_parent2? && child.parent2_id
+        if child.family.parent2_id
           RedirectionUrl.create!(
             redirection_target: redirection_target,
             parent_id: child.parent2_id,
@@ -184,7 +176,6 @@ ActiveAdmin.register Child do
         end
       end
       redirect_to redirection_target.decorate.redirection_urls_path, notice: "URL courtes créées"
-    # end
   end
 
   batch_action :addresses_pdf do |ids|
@@ -208,11 +199,6 @@ ActiveAdmin.register Child do
 
   batch_action :generate_quit_sms do |ids|
     @children = batch_action_collection.where(id: ids)
-
-    if @children.without_parent_to_contact.any?
-      flash[:error] = "Certains enfants n'ont aucun parent à contacter"
-      redirect_to request.referer
-    end
 
     latest_parent_id = nil
     begin
@@ -272,20 +258,11 @@ ActiveAdmin.register Child do
                        collection: child_parent_select_collection,
                        input_html: {data: {select2: {}}}
       end
-      f.input :should_contact_parent1
       f.simple_fields_for :family do |family_f|
         family_f.input :parent2,
                        collection: child_parent_select_collection,
                        input_html: {data: {select2: {}}}
       end
-      f.input :parent1,
-        collection: child_parent_select_collection,
-        input_html: {data: {select2: {}}}
-      f.input :should_contact_parent1
-      f.input :parent2,
-        collection: child_parent_select_collection,
-        input_html: {data: {select2: {}}}
-      f.input :should_contact_parent2
       f.input :gender,
         as: :radio,
         collection: child_gender_select_collection
@@ -315,9 +292,7 @@ ActiveAdmin.register Child do
     f.actions
   end
 
-  permit_params :parent1_id, :parent2_id, :group_id,
-    :should_contact_parent1, :should_contact_parent2,
-    :gender, :first_name, :last_name, :birthdate,
+  permit_params :parent1_id, :parent2_id, :group_id, :gender, :first_name, :last_name, :birthdate,
     :registration_source, :registration_source_details, :pmi_detail, :group_status,
     tags_params
 
@@ -330,9 +305,7 @@ ActiveAdmin.register Child do
       tab "Infos" do
         attributes_table do
           row :parent1
-          row :should_contact_parent1
           row :parent2
-          row :should_contact_parent2
           row :first_name
           row :last_name
           row :birthdate
@@ -380,19 +353,6 @@ ActiveAdmin.register Child do
     if: proc { resource.child_support } do
     link_to I18n.t("child.show_support_link"), [:admin, resource.child_support]
   end
-  action_item :create_support,
-    only: :show,
-    if: proc { !resource.child_support } do
-    link_to I18n.t("child.create_support_link"), [:create_support, :admin, resource]
-  end
-  member_action :create_support do
-    if already_existing_child_support = resource.child_support
-      redirect_to [:admin, already_existing_child_support], notice: I18n.t("child.support_already_existed")
-    else
-      resource.create_support!
-      redirect_to [:edit, :admin, resource.child_support]
-    end
-  end
   action_item :quit_group,
     only: :show,
     if: proc { resource.group && %w[paused active].include?(resource.model.group_status) } do
@@ -402,31 +362,6 @@ ActiveAdmin.register Child do
     resource.update_attribute :group_status, "stopped"
     resource.update_attribute :group_end, resource.model.group.ended_at&.past? ? resource.model.group.ended_at : Time.now
     redirect_to [:admin, resource]
-  end
-
-  # ---------------------------------------------------------------------------
-  # IMPORT
-  # ---------------------------------------------------------------------------
-
-  action_item :new_import,
-    only: :index do
-    link_to I18n.t("child.new_import_link"), [:new_import, :admin, :children]
-  end
-  collection_action :new_import do
-    @import_action = perform_import_admin_children_path
-  end
-  collection_action :perform_import, method: :post do
-    @csv_file = params[:import][:csv_file]
-
-    service = ChildrenImportService.new(csv_file: @csv_file).call
-
-    if service.errors.empty?
-      redirect_to admin_children_path, notice: "Import terminé"
-    else
-      @import_action = perform_import_admin_children_path
-      @errors = service.errors
-      render :new_import
-    end
   end
 
   # ---------------------------------------------------------------------------
@@ -511,14 +446,12 @@ ActiveAdmin.register Child do
     column :parent1_last_name
     column :parent1_email
     column :parent1_phone_number_national
-    column :should_contact_parent1
 
     column :parent2_gender
     column :parent2_first_name
     column :parent2_last_name
     column :parent2_email
     column :parent2_phone_number_national
-    column :should_contact_parent2
 
     column :registration_source
     column :pmi_detail
@@ -548,10 +481,8 @@ ActiveAdmin.register Child do
     after_save do |child|
       if child.group && %w[active stopped paused].include?(child.group_status) && child.group_start.nil?
         child.update!(group_start: child.group.started_at)
-        child.parent1&.tag_list&.add("Famille suivie")
-        child.parent2&.tag_list&.add("Famille suivie")
-        child.parent1&.save
-        child.parent2&.save
+        child.family.tag_list&.add("Famille suivie")
+        child.family.save
       end
       child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
     end

@@ -131,6 +131,10 @@ class Family < ApplicationRecord
     )
   end
 
+  def parent_events
+    Event.where(related_type: "Parent", related_id: [parent1_id, parent2_id].compact)
+  end
+
   # --------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------

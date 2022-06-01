@@ -120,8 +120,8 @@ class ProgramMessageService
       group.children.each do |child|
         next unless child.group_status == "active"
 
-        @parent_ids << child.parent1_id if child.parent1_id && child.should_contact_parent1
-        @parent_ids << child.parent2_id if child.parent2_id && child.should_contact_parent2
+        @parent_ids << child.parent1_id if child.parent1_id
+        @parent_ids << child.parent2_id if child.parent2_id
       end
     end
   end

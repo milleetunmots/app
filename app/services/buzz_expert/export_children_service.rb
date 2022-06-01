@@ -20,19 +20,15 @@ module BuzzExpert
         next if latest_parent1_id == child.parent1_id
         latest_parent1_id = child.parent1_id
 
-        if child.should_contact_parent1?
-          objects << {
-            parent: child.parent1,
-            child: child
-          }
-        end
+        objects << {
+          parent: child.parent1,
+          child: child
+        }
 
-        if child.should_contact_parent2? && child.parent2
-          objects << {
-            parent: child.parent2,
-            child: child
-          }
-        end
+        objects << {
+          parent: child.parent2,
+          child: child
+        }
       end
 
       service = GenerateFileService.new(
