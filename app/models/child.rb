@@ -154,6 +154,17 @@ class Child < ApplicationRecord
     tag_list.add("Montargis") if [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570].include? postal_code.to_i
   end
 
+  before_update do
+    parent1.tag_list.add(self.tag_list)
+    parent1.save
+    parent2&.tag_list&.add(self.tag_list)
+    parent2&.save
+    # if child_support&.tag_list != self.tag_list
+    #   child_support&.tag_list&.add(self.tag_list)
+    #   child_support&.save
+    # end
+  end
+
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------

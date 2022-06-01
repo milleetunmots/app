@@ -134,6 +134,19 @@ class ChildSupport < ApplicationRecord
 
   accepts_nested_attributes_for :first_child
 
+  before_update do
+    parent1.tag_list.add(self.tag_list)
+    parent1.save
+    parent2&.tag_list&.add(self.tag_list)
+    parent2&.save
+    # children.each do |child|
+    #   unless child.tag_list.include? self.tag_list
+    #     child.tag_list&.add(self.tag_list)
+    #     child.save
+    #   end
+    # end
+  end
+
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
