@@ -51,13 +51,30 @@ class Child < ApplicationRecord
 
   include Discard::Model
 
-  after_commit :set_land, :set_land_tags, on: :create
-
   GENDERS = %w[m f].freeze
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
   PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach].freeze
   GROUP_STATUS = %w[waiting active paused stopped].freeze
   LANDS = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
+
+  # ---------------------------------------------------------------------------
+  # global search
+  # ---------------------------------------------------------------------------
+
+  include PgSearch
+  multisearchable against: %i[first_name last_name]
+
+  # ---------------------------------------------------------------------------
+  # versions history
+  # ---------------------------------------------------------------------------
+
+  has_paper_trail
+
+  # ---------------------------------------------------------------------------
+  # tags
+  # ---------------------------------------------------------------------------
+
+  acts_as_taggable
 
   # ---------------------------------------------------------------------------
   # relations
@@ -97,26 +114,6 @@ class Child < ApplicationRecord
   validate :different_phone_number, on: :create
   validate :valid_group_status
 
-  def no_duplicate
-    self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).each do |child|
-      if parent1.duplicate_of?(child.parent1) || parent1.duplicate_of?(child.parent2) || parent2&.duplicate_of?(child.parent1) || parent2&.duplicate_of?(child.parent2)
-        errors.add(:base, :invalid, message: "L'enfant est déjà enregistré")
-      end
-    end
-  end
-
-  def different_phone_number
-    return unless parent2&.phone_number
-    if parent1.phone_number == parent2.phone_number
-      errors.add(:base, :invalid, message: "Nous avons besoin des coordonnées d'au moins un parent. Si l'autre parent ne souhaite pas recevoir les messages, merci de ne pas l'inscrire car nous n'avons pas besoin de son nom.")
-    end
-  end
-
-  def valid_group_status
-    errors.add(:base, :invalid, message: "L'enfant ne peut pas être en attente en étant dans une cohorte") if group_id && group_status == "waiting"
-    errors.add(:base, :invalid, message: "L'enfant doit être dans une cohorte") if group_id.nil? && group_status != "waiting"
-  end
-
   # ---------------------------------------------------------------------------
   # callbacks
   # ---------------------------------------------------------------------------
@@ -126,21 +123,19 @@ class Child < ApplicationRecord
     self.security_code = SecureRandom.hex(1)
   end
 
-  def set_land
+  before_create do
     case postal_code.to_i / 1000
-    when 45 then update land: "Loiret"
-    when 78 then update land: "Yvelines"
-    when 93 then update land: "Seine-Saint-Denis"
-    when 75 then update land: "Paris"
-    when 57 then update land: "Moselle"
+    when 45 then self.land = "Loiret"
+    when 78 then self.land = "Yvelines"
+    when 93 then self.land = "Seine-Saint-Denis"
+    when 75 then self.land = "Paris"
+    when 57 then self.land = "Moselle"
     end
-  end
 
-  def set_land_tags
     tag_list.add("Paris_18_eme") if postal_code.to_i == 75018
     tag_list.add("Paris_20_eme") if postal_code.to_i == 75020
-    tag_list.add("Plaisir") if postal_code.to_i == 78370
-    tag_list.add("Trappes") if postal_code.to_i == 78190
+    tag_list.add("Plaisir") if [78370, 78340, 78310, 78990, 78280, 78114, 78320, 78450, 78960, 78100, 78640, 78850].include? postal_code.to_i
+    tag_list.add("Trappes") if [78190, 78180, 78280, 78310, 78610, 78960].include? postal_code.to_i
     tag_list.add("Les Clayes Sous Bois") if postal_code.to_i == 78340
     tag_list.add("Coignière, Maurepas") if postal_code.to_i == 78310
     tag_list.add("Elancourt") if postal_code.to_i == 78990
@@ -159,166 +154,25 @@ class Child < ApplicationRecord
     parent1.save
     parent2&.tag_list&.add(self.tag_list)
     parent2&.save
-    # if child_support&.tag_list != self.tag_list
-    #   child_support&.tag_list&.add(self.tag_list)
-    #   child_support&.save
-    # end
   end
 
   # ---------------------------------------------------------------------------
-  # helpers
-  # ---------------------------------------------------------------------------
-
-  def self.min_birthdate
-    Date.today - 48.months
-  end
-
-  def self.min_birthdate_alt
-    Date.today - 2.years
-  end
-
-  def self.max_birthdate
-    Date.today
-  end
-
-  # computes an (integer) number of months old
-  def months
-    duration_in_months(birthdate)
-  end
-
-  def registration_months
-    duration_in_months(birthdate, created_at)
-  end
-
-  def child_group_months
-    duration_in_months(group_start, group_end)
-  end
-
-  def months_between_registration_and_group_start
-    duration_in_months(created_at, group_start)
-  end
-
-  def months_since_group_start
-    return if group_end&.past?
-
-    duration_in_months(group_start)
-  end
-
-
-  # we do not call this 'siblings' because real siblings may have only
-  # one parent in common
-  def strict_siblings
-    parent2_id ? self.class.where(parent1_id: parent1_id, parent2_id: parent2_id)
-      .or(self.class.where(parent1_id: parent2_id, parent2_id: parent1_id)).where.not(id: id) :
-      self.class.where(parent1_id: parent1_id)
-        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
-  end
-
-  def true_siblings
-    return [] if id.nil?
-    if parent2_id
-      self.class.where(parent1_id: parent1_id)
-        .or(self.class.where(parent1_id: parent2_id))
-        .or(self.class.where(parent2_id: parent1_id))
-        .or(self.class.where(parent2_id: parent2_id)).where.not(id: id)
-    else
-      self.class.where(parent1_id: parent1_id)
-        .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
-    end
-  end
-
-  def all_tags
-    tags = tag_list
-    true_siblings.each { |child| tags = (tags + child.tag_list).uniq }
-    tags
-  end
-
-  # ---------------------------------------------------------------------------
-  # support
-  # ---------------------------------------------------------------------------
-
-  def create_support!(child_support_attributes = {tag_list: all_tags})
-    # 1- create support
-    child_support = ChildSupport.create!(child_support_attributes)
-
-    # 2- use it on current child
-    self.child_support_id = child_support.id
-    self.tag_list = all_tags
-    save(validate: false)
-
-    # 3- also update all strict siblings
-    # nb: we do this one by one to trigger paper_trail
-    true_siblings.without_support.each do |child|
-      child.child_support_id = child_support.id
-      child.save(validate: false)
-    end
-
-    strict_siblings.each do |child|
-      child.tag_list = all_tags
-    end
-  end
-
-  # ---------------------------------------------------------------------------
-  # search by age (in months)
-  # ---------------------------------------------------------------------------
-
-  def self.months_gteq(x)
-    # >= x months
-    # means a birthdate at the most equal to x months ago
-    where("birthdate <= ?", Time.zone.today - x.to_i.months)
-  end
-
-  def self.registration_months_gteq(x)
-    where("age(children.created_at, birthdate) >= interval '? months'", x)
-  end
-
-  def self.months_lt(x)
-    # < x months
-    # means being at most 1 day less than x months old
-    # which means a birthdate strictly greater than exactly x months ago
-    where("birthdate >= ?", Time.zone.today - x.to_i.months)
-  end
-
-  def self.registration_months_lt(x)
-    where("age(children.created_at, birthdate) <= interval '? months'", x)
-  end
-
-  def self.months_equals(x)
-    months_gteq(x).merge(months_lt(x.to_i + 1))
-  end
-
-  def self.registration_months_equals(x)
-    registration_months_gteq(x).merge(registration_months_lt(x.to_i + 1))
-  end
-
-  def self.months_between(x, y)
-    months_gteq(x).merge(months_lt(y))
-  end
-
-  def self.registration_months_between(x, y)
-    registration_months_gteq(x).merge(registration_months_lt(y))
-  end
-
-  def self.months_between_0_and_12
-    months_between(0, 12)
-  end
-
-  def self.months_between_12_and_24
-    months_between(12, 24)
-  end
-
-  def self.months_more_than_24
-    months_gteq(24)
-  end
-
-  # ---------------------------------------------------------------------------
-  # other scopes
+  # scopes
   # ---------------------------------------------------------------------------
 
   scope :with_support, -> { joins(:child_support) }
+  scope :without_support, -> { left_outer_joins(:child_support).where(child_supports: {id: nil}) }
+  scope :with_group, -> { where.not(group_id: nil) }
+  scope :without_group, -> { where(group_id: nil) }
 
-  def self.without_support
-    left_outer_joins(:child_support).where(child_supports: {id: nil})
+  def self.without_group_and_not_waiting_second_group
+    second_group_children_ids = Child.tagged_with("2eme cohorte").pluck(:id)
+    where(group_id: nil).where.not(id: second_group_children_ids)
+  end
+
+  def self.waiting_second_group
+    waiting_second_group_children_ids = Child.tagged_with("2eme cohorte").pluck(:id)
+    where(id: waiting_second_group_children_ids)
   end
 
   def self.postal_code_contains(v)
@@ -336,10 +190,6 @@ class Child < ApplicationRecord
   def self.postal_code_starts_with(v)
     where(parent1: Parent.ransack(postal_code_starts_with: v).result)
   end
-
-  scope :with_group, -> { where.not(group_id: nil) }
-  scope :without_group, -> { where(group_id: nil) }
-  scope :without_group_and_not_waiting_second_group, -> { where(group_id: nil).where.not(id: all.select { |child| child.tag_list.include?("2eme cohorte") }.map(&:id)) }
 
   def self.with_parent_to_contact
     where(should_contact_parent1: true).or(where(should_contact_parent2: true))
@@ -377,20 +227,114 @@ class Child < ApplicationRecord
     where("registration_source_details ILIKE ?", v)
   end
 
-  def self.waiting_second_group
-    where(id: all.select { |child| child.tag_list.include?("2eme cohorte") }.map(&:id))
-  end
-
-  # --------------------------------------------------------------------------
-  # ransack
+  # ---------------------------------------------------------------------------
+  # search by age (in months)
   # ---------------------------------------------------------------------------
 
-  def self.ransackable_scopes(auth_object = nil)
-    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in without_parent_text_message_since registration_source_details_matches_any]
+  def self.months_gteq(x)
+    # >= x months
+    # means a birthdate at the most equal to x months ago
+    where("birthdate <= ?", Time.zone.today - x.to_i.months)
+  end
+
+  def self.months_lt(x)
+    # < x months
+    # means being at most 1 day less than x months old
+    # which means a birthdate strictly greater than exactly x months ago
+    where("birthdate >= ?", Time.zone.today - x.to_i.months)
+  end
+
+  def self.months_equals(x)
+    months_gteq(x).merge(months_lt(x.to_i + 1))
+  end
+
+  def self.months_between(x, y)
+    months_gteq(x).merge(months_lt(y))
+  end
+
+  def self.registration_months_gteq(x)
+    where("age(children.created_at, birthdate) >= interval '? months'", x)
+  end
+
+  def self.registration_months_lt(x)
+    where("age(children.created_at, birthdate) <= interval '? months'", x)
+  end
+
+  def self.registration_months_equals(x)
+    registration_months_gteq(x).merge(registration_months_lt(x.to_i + 1))
+  end
+
+  def self.registration_months_between(x, y)
+    registration_months_gteq(x).merge(registration_months_lt(y))
+  end
+
+  def self.months_between_0_and_12
+    months_between(0, 12)
+  end
+
+  def self.months_between_12_and_24
+    months_between(12, 24)
+  end
+
+  def self.months_more_than_24
+    months_gteq(24)
   end
 
   # ---------------------------------------------------------------------------
   # helpers
+  # ---------------------------------------------------------------------------
+
+  def self.min_birthdate
+    Date.today - 48.months
+  end
+
+  def self.min_birthdate_alt
+    Date.today - 2.years
+  end
+
+  def self.max_birthdate
+    Date.today
+  end
+
+  def self.families_count
+    count("DISTINCT children.parent1_id")
+  end
+
+  def self.fathers_count
+    parents.fathers.count
+  end
+
+  def self.parents
+    parent_ids = pluck(:parent1_id) + pluck(:parent2_id)
+    Parent.where(id: parent_ids.compact.uniq)
+  end
+
+  # returns a Hash k => v where
+  # - k is a possible value
+  # - v is an Array of all corresponding values
+  # e.g. { "Noémie" => ["Noémie", Noemie"] }
+  def self.registration_source_details_map
+    values = {}
+
+    # input all values
+    pluck(:registration_source_details).compact.uniq.each do |value|
+      normalized_value = I18n.transliterate(
+        value.unicode_normalize
+      ).downcase.gsub(/[\s-]+/, " ").strip
+      values[normalized_value] ||= []
+      values[normalized_value] << value
+    end
+
+    # use first found value as map key and remove duplicates
+    Hash[
+      values.map do |k, v|
+        [ v.first, v.uniq ]
+      end
+    ]
+  end
+
+  # ---------------------------------------------------------------------------
+  # methods
   # ---------------------------------------------------------------------------
 
   delegate :email,
@@ -436,6 +380,52 @@ class Child < ApplicationRecord
     prefix: true,
     allow_nil: true
 
+  # computes an (integer) number of months old
+  def months
+    duration_in_months(birthdate)
+  end
+
+  def registration_months
+    duration_in_months(birthdate, created_at)
+  end
+
+  def child_group_months
+    duration_in_months(group_start, group_end)
+  end
+
+  def months_between_registration_and_group_start
+    duration_in_months(created_at, group_start)
+  end
+
+  def months_since_group_start
+    return if group_end&.past?
+
+    duration_in_months(group_start)
+  end
+
+  # we do not call this 'siblings' because real siblings may have only
+  # one parent in common
+  def strict_siblings
+    parent2_id ? self.class.where(parent1_id: parent1_id, parent2_id: parent2_id)
+                     .or(self.class.where(parent1_id: parent2_id, parent2_id: parent1_id)).where.not(id: id) :
+      self.class.where(parent1_id: parent1_id)
+          .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+  end
+
+  def true_siblings
+    return [] if id.nil?
+
+    if parent2_id
+      self.class.where(parent1_id: parent1_id)
+          .or(self.class.where(parent1_id: parent2_id))
+          .or(self.class.where(parent2_id: parent1_id))
+          .or(self.class.where(parent2_id: parent2_id)).where.not(id: id)
+    else
+      self.class.where(parent1_id: parent1_id)
+          .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+    end
+  end
+
   def family_redirection_urls
     RedirectionUrl.where(parent_id: [parent1_id, parent2_id].compact)
   end
@@ -477,71 +467,65 @@ class Child < ApplicationRecord
     Event.where(related_type: "Parent", related_id: [parent1_id, parent2_id].compact)
   end
 
-  def self.families_count
-    count("DISTINCT children.parent1_id")
-  end
-
-  def self.parents
-    parent_ids = pluck(:parent1_id) + pluck(:parent2_id)
-    Parent.where(id: parent_ids.compact.uniq)
-  end
-
   def self.popi_parents
     parents.tagged_with('hors cible')
-  end
-
-  def self.fathers_count
-    parents.fathers.count
   end
 
   def self.popi_fathers_count
     popi_parents.fathers.count
   end
 
-  # returns a Hash k => v where
-  # - k is a possible value
-  # - v is an Array of all corresponding values
-  # e.g. { "Noémie" => ["Noémie", Noemie"] }
-  def self.registration_source_details_map
-    values = {}
+  # ---------------------------------------------------------------------------
+  # support
+  # ---------------------------------------------------------------------------
 
-    # input all values
-    pluck(:registration_source_details).compact.uniq.each do |value|
-      normalized_value = I18n.transliterate(
-        value.unicode_normalize
-      ).downcase.gsub(/[\s-]+/, " ").strip
-      values[normalized_value] ||= []
-      values[normalized_value] << value
+  def create_support!(child_support_attributes = {})
+    # 1- create support
+    child_support = ChildSupport.create!(child_support_attributes)
+
+    # 2- use it on current child
+    self.child_support_id = child_support.id
+    save(validate: false)
+
+    # 3- also update all strict siblings
+    # nb: we do this one by one to trigger paper_trail
+    true_siblings.without_support.each do |child|
+      child.child_support_id = child_support.id
+      child.save(validate: false)
     end
-
-    # use first found value as map key and remove duplicates
-    Hash[
-      values.map do |k, v|
-        [ v.first, v.uniq ]
-      end
-    ]
   end
 
-  # ---------------------------------------------------------------------------
-  # global search
+
+  # --------------------------------------------------------------------------
+  # ransack
   # ---------------------------------------------------------------------------
 
-  include PgSearch
-  multisearchable against: %i[first_name last_name]
+  def self.ransackable_scopes(auth_object = nil)
+    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in without_parent_text_message_since registration_source_details_matches_any]
+  end
 
-  # ---------------------------------------------------------------------------
-  # versions history
-  # ---------------------------------------------------------------------------
-
-  has_paper_trail
-
-  # ---------------------------------------------------------------------------
-  # tags
-  # ---------------------------------------------------------------------------
-
-  acts_as_taggable
 
   private
+
+  def no_duplicate
+    self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).each do |child|
+      if parent1.duplicate_of?(child.parent1) || parent1.duplicate_of?(child.parent2) || parent2&.duplicate_of?(child.parent1) || parent2&.duplicate_of?(child.parent2)
+        errors.add(:base, :invalid, message: "L'enfant est déjà enregistré")
+      end
+    end
+  end
+
+  def different_phone_number
+    return unless parent2&.phone_number
+    if parent1.phone_number == parent2.phone_number
+      errors.add(:base, :invalid, message: "Nous avons besoin des coordonnées d'au moins un parent. Si l'autre parent ne souhaite pas recevoir les messages, merci de ne pas l'inscrire car nous n'avons pas besoin de son nom.")
+    end
+  end
+
+  def valid_group_status
+    errors.add(:base, :invalid, message: "L'enfant ne peut pas être en attente en étant dans une cohorte") if group_id && group_status == "waiting"
+    errors.add(:base, :invalid, message: "L'enfant doit être dans une cohorte") if group_id.nil? && group_status != "waiting"
+  end
 
   def duration_in_months(started_at, ended_at = Time.now)
     return unless started_at && ended_at && ended_at > started_at
@@ -553,5 +537,4 @@ class Child < ApplicationRecord
       diff
     end
   end
-
 end

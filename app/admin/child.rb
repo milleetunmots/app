@@ -121,34 +121,6 @@ ActiveAdmin.register Child do
   filter :created_at
   filter :updated_at
 
-  batch_action :add_tags do |ids|
-    session[:add_tags_ids] = ids
-    redirect_to action: :add_tags
-  end
-
-  collection_action :add_tags do
-    @klass = collection.object.klass
-    @ids = session.delete(:add_tags_ids) || []
-    @form_action = url_for(action: :perform_adding_tags)
-    @back_url = request.referer
-    render "active_admin/tags/add_tags"
-  end
-
-  collection_action :perform_adding_tags, method: :post do
-    ids = params[:ids]
-    tags = params[:tag_list]
-    back_url = params[:back_url]
-
-    Child.where(id: ids).each do |child|
-      child.tag_list.add(tags)
-      child.save(validate: false)
-      child.child_support&.update! tag_list: child.tag_list
-      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
-      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
-    end
-    redirect_to back_url, notice: "Tags ajoutés"
-  end
-
   batch_action :create_support do |ids|
     batch_action_collection.find(ids).each do |child|
       next if already_existing_child_support = child.child_support
@@ -246,18 +218,18 @@ ActiveAdmin.register Child do
            progress: proc { |output| puts output }
   end
 
-  batch_action :generate_buzz_expert do |ids|
-    @children = batch_action_collection.where(id: ids)
-
-    service = BuzzExpert::ExportChildrenService.new(children: @children).call
-    if service.errors.any?
-      puts "Error: #{service.errors}"
-      flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
-      redirect_to request.referer
-    else
-      send_data service.csv, filename: "Buzz-Expert - #{csv_filename}"
-    end
-  end
+  # batch_action :generate_buzz_expert do |ids|
+  #   @children = batch_action_collection.where(id: ids)
+  #
+  #   service = BuzzExpert::ExportChildrenService.new(children: @children).call
+  #   if service.errors.any?
+  #     puts "Error: #{service.errors}"
+  #     flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
+  #     redirect_to request.referer
+  #   else
+  #     send_data service.csv, filename: "Buzz-Expert - #{csv_filename}"
+  #   end
+  # end
 
   batch_action :generate_quit_sms do |ids|
     @children = batch_action_collection.where(id: ids)
@@ -438,26 +410,26 @@ ActiveAdmin.register Child do
   # IMPORT
   # ---------------------------------------------------------------------------
 
-  action_item :new_import,
-    only: :index do
-    link_to I18n.t("child.new_import_link"), [:new_import, :admin, :children]
-  end
-  collection_action :new_import do
-    @import_action = perform_import_admin_children_path
-  end
-  collection_action :perform_import, method: :post do
-    @csv_file = params[:import][:csv_file]
-
-    service = ChildrenImportService.new(csv_file: @csv_file).call
-
-    if service.errors.empty?
-      redirect_to admin_children_path, notice: "Import terminé"
-    else
-      @import_action = perform_import_admin_children_path
-      @errors = service.errors
-      render :new_import
-    end
-  end
+  # action_item :new_import,
+  #   only: :index do
+  #   link_to I18n.t("child.new_import_link"), [:new_import, :admin, :children]
+  # end
+  # collection_action :new_import do
+  #   @import_action = perform_import_admin_children_path
+  # end
+  # collection_action :perform_import, method: :post do
+  #   @csv_file = params[:import][:csv_file]
+  #
+  #   service = ChildrenImportService.new(csv_file: @csv_file).call
+  #
+  #   if service.errors.empty?
+  #     redirect_to admin_children_path, notice: "Import terminé"
+  #   else
+  #     @import_action = perform_import_admin_children_path
+  #     @errors = service.errors
+  #     render :new_import
+  #   end
+  # end
 
   # ---------------------------------------------------------------------------
   # TOOLS
@@ -487,11 +459,8 @@ ActiveAdmin.register Child do
                         end
 
     Child.all.each do |child|
-      if child_with_age_ok.include? child
-        child.update! tag_list: (child.tag_list + "age_ok").uniq
-      elsif child.tag_list.include? "age_ok"
-        child.tag_list.remove("age_ok")
-      end
+      child_with_age_ok.include? child ? child.tag_list.add("age_ok") : child.tag_list.remove("age_ok")
+      child.save
     end
     redirect_to admin_children_path, notice: "Tags mis à jour"
   end
@@ -588,9 +557,6 @@ ActiveAdmin.register Child do
         child.parent2&.save
       end
       child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
-      # child.child_support&.update! tag_list: child.tag_list
-      # child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
-      # child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
     end
 
     def csv_filename

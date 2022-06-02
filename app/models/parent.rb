@@ -201,10 +201,6 @@ class Parent < ApplicationRecord
     I18n.transliterate(first_name).capitalize == I18n.transliterate(other_parent.first_name).capitalize && I18n.transliterate(last_name).capitalize == I18n.transliterate(other_parent.last_name).capitalize
   end
 
-  def specific_tags
-    tag_list - first_child.all_tags
-  end
-
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------

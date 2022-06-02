@@ -135,16 +135,10 @@ class ChildSupport < ApplicationRecord
   accepts_nested_attributes_for :first_child
 
   before_update do
-    parent1.tag_list.add(self.tag_list)
-    parent1.save
-    parent2&.tag_list&.add(self.tag_list)
-    parent2&.save
-    # children.each do |child|
-    #   unless child.tag_list.include? self.tag_list
-    #     child.tag_list&.add(self.tag_list)
-    #     child.save
-    #   end
-    # end
+    first_child.parent1.tag_list.add(self.tag_list)
+    first_child.parent1.save
+    first_child.parent2&.tag_list&.add(self.tag_list)
+    first_child.parent2&.save
   end
 
   # ---------------------------------------------------------------------------
@@ -251,44 +245,16 @@ class ChildSupport < ApplicationRecord
   # helpers
   # ---------------------------------------------------------------------------
 
-  delegate :address,
-    :city_name,
-    :group_status,
-    :letterbox_name,
-    :parent_events,
-    :parent1_first_name,
-    :parent1_gender,
-    :parent1_is_ambassador,
-    :parent1_is_ambassador?,
-    :parent1_is_lycamobile,
-    :parent1_is_lycamobile?,
-    :parent1_last_name,
-    :parent1_phone_number_national,
-    :parent2_first_name,
-    :parent2_gender,
-    :parent2_is_ambassador,
-    :parent2_is_ambassador?,
-    :parent2_is_lycamobile,
-    :parent2_is_lycamobile?,
-    :parent2_last_name,
-    :parent2_phone_number_national,
-    :postal_code,
-    :should_contact_parent1,
-    :should_contact_parent1?,
-    :should_contact_parent2,
-    :should_contact_parent2?,
-    to: :first_child,
-    allow_nil: true
-
-  delegate :name,
-    to: :supporter,
-    prefix: true,
-    allow_nil: true
-
   (1..5).each do |call_idx|
     define_method("call#{call_idx}_parent_progress_index") do
       (send("call#{call_idx}_parent_progress") || "").split("_").first&.to_i
     end
+  end
+
+  def self.call_attributes
+    new.attributes.keys.select{|a| a.starts_with?("call")}
+  rescue ArgumentError
+    []
   end
 
   def other_children
@@ -304,11 +270,43 @@ class ChildSupport < ApplicationRecord
     other_children.with_support.map(&:child_support).uniq
   end
 
-  def self.call_attributes
-    new.attributes.keys.select{|a| a.starts_with?("call")}
-  rescue ArgumentError
-    []
-  end
+  # ---------------------------------------------------------------------------
+  # methods
+  # ---------------------------------------------------------------------------
+
+  delegate :address,
+           :city_name,
+           :group_status,
+           :letterbox_name,
+           :parent_events,
+           :parent1_first_name,
+           :parent1_gender,
+           :parent1_is_ambassador,
+           :parent1_is_ambassador?,
+           :parent1_is_lycamobile,
+           :parent1_is_lycamobile?,
+           :parent1_last_name,
+           :parent1_phone_number_national,
+           :parent2_first_name,
+           :parent2_gender,
+           :parent2_is_ambassador,
+           :parent2_is_ambassador?,
+           :parent2_is_lycamobile,
+           :parent2_is_lycamobile?,
+           :parent2_last_name,
+           :parent2_phone_number_national,
+           :postal_code,
+           :should_contact_parent1,
+           :should_contact_parent1?,
+           :should_contact_parent2,
+           :should_contact_parent2?,
+           to: :first_child,
+           allow_nil: true
+
+  delegate :name,
+           to: :supporter,
+           prefix: true,
+           allow_nil: true
 
   def present_on
     super&.split(";")
