@@ -126,11 +126,11 @@ class ParentDecorator < BaseDecorator
   end
 
   def parent_follow_us_on
-    model.first_child.decorate&.child_follow_us_on
+    model.first_child&.decorate&.child_follow_us_on
   end
 
   def land
-    model.first_child.land
+    model.first_child&.land
   end
 
   private
