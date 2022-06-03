@@ -1,13 +1,18 @@
 <div class="data-row">
   <div class="data-col">
-    <p class="title">Moyenne des nombres d'URLs cibles</p>
+    <p class="title">Nombre d'enfants</p>
     <hr>
-    <% if data_count_values["redirection_url_count"] %>
-      <p class="data-number"><%= data_count_values["redirection_url_count"] %></p>
-    <% end %>
+    <p class="data-number"><%= data_count_values["children_count"] %></p>
   </div>
   <div class="data-col">
-    <p class="title">Moyenne des nombres de visites familiales uniques</p>
+    <p class="title">Nombre de parents</p>
+    <hr>
+    <p class="data-number"><%= data_count_values["parent_count"] %></p>
+  </div>
+</div>
+<div class="data-row">
+  <div class="data-col">
+    <p class="title">Nombre moyen de visites familiales uniques</p>
     <hr>
     <% if data_count_values["redirection_url_visited_count"] %>
       <p class="data-number"><%= data_count_values["redirection_url_visited_count"] %></p>
@@ -23,14 +28,14 @@
 </div>
 <div class="data-row">
   <div class="data-col">
-    <p class="title">Moyenne des nombres de messages reçus</p>
+    <p class="title">Nombre moyen de SMS reçus par les parents</p>
     <hr>
     <% if data_count_values["messages_received_count"] %>
       <p class="data-number"><%= data_count_values["messages_received_count"] %></p>
   <%end %>
   </div>
   <div class="data-col">
-    <p class="title">Moyenne des nombres de messages envoyés</p>
+    <p class="title">Nombre moyen de SMS reçus par 1001mots</p>
     <hr>
     <% if data_count_values["messages_sent_count"] %>
       <p class="data-number"><%= data_count_values["messages_sent_count"] %></p>

@@ -3,7 +3,7 @@ module ActiveAdmin::RegistrationsHelper
   def registration_data_count(registration_start, registration_end, age_start, age_end, lands, registration_sources)
     values = {}
 
-    children = Child.where(created_at: (registration_start..registration_end)).registration_months_between(age_start.gsub(" mois", "").to_i, age_end.gsub(" mois", "").to_i)
+    children = Child.where(created_at: (registration_start.to_date...(registration_end.to_date+1.day))).registration_months_between(age_start.gsub(" mois", "").to_i, age_end.gsub(" mois", "").to_i)
     children = children.where(registration_source: registration_sources) if registration_sources
     children = children.where(land: lands) if lands
 
