@@ -1,4 +1,4 @@
-ActiveAdmin.register_page "Engagement" do
+ActiveAdmin.register_page "Engagements" do
   menu priority: 12, parent: "Rapport"
 
   content do
