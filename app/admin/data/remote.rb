@@ -1,4 +1,4 @@
-ActiveAdmin.register_page "Programme à distance" do
+ActiveAdmin.register_page "Engagement" do
   menu priority: 12, parent: "Rapport"
 
   content do
@@ -22,7 +22,7 @@ ActiveAdmin.register_page "Programme à distance" do
       @tags
     )
 
-    form action: admin_programme_a_distance_data_filtered_path, class: "filter-container", method: :post do |f|
+    form action: admin_engagement_data_filtered_path, class: "filter-container", method: :post do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
 
       div do
@@ -118,6 +118,6 @@ ActiveAdmin.register_page "Programme à distance" do
     session[:tags] = params[:tags]
     session[:registration_sources] = params[:registration_sources]
 
-    redirect_to admin_programme_a_distance_path
+    redirect_to admin_engagement_path
   end
 end
