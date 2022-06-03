@@ -17,7 +17,7 @@ module ActiveAdmin::GroupsHelper
     group_ids = Group.where(name: groups).pluck(:id)
     support_ids = ChildSupport.where(call3_sendings_benefits: call3_sending_benefits).pluck(:id)
 
-    children = Child.where(created_at: (registration_start..registration_end))
+    children = Child.where(created_at: (registration_start.to_date...(registration_end.to_date+1.day)))
       .registration_months_between(age_start.gsub(" mois", "").to_i, age_end.gsub(" mois", "").to_i)
       .where(group_status: "active")
     children = children.where(group_id: group_ids) if groups

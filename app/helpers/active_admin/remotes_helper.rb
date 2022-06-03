@@ -14,7 +14,7 @@ module ActiveAdmin::RemotesHelper
     group_ids = Group.where(name: groups).pluck(:id)
     support_ids = ChildSupport.where(call3_sendings_benefits: call3_sending_benefits).pluck(:id)
 
-    children = Child.where(created_at: (date_start..date_end))
+    children = Child.where(created_at: (date_start.to_date...(date_end.to_date+1.day)))
                     .registration_months_between(age_start.gsub(" mois", "").to_i, age_end.gsub(" mois", "").to_i)
     children = children.where(group_id: group_ids) if groups
     children = children.where(land: lands) if lands
@@ -27,6 +27,8 @@ module ActiveAdmin::RemotesHelper
     redirection_url_count = RedirectionUrl.where(parent_id: parent_ids).count
     redirection_url_visited_count = RedirectionUrlVisit.where(redirection_url_id: RedirectionUrl.where(parent_id: parent_ids)).count
 
+    values["children_count"] = children.count
+    values["parent_count"] = parent_ids.count
     values["redirection_url_count"] = (redirection_url_count.fdiv(parent_ids.length) ).round(2) unless parent_ids.length.zero?
     values["redirection_url_visited_count"] = (redirection_url_visited_count.fdiv(parent_ids.length)).round(2) unless parent_ids.length.zero?
     values["redirection_url_visited_rate"] = (values["redirection_url_visited_count"].fdiv(values["redirection_url_count"]) * 100).round(2) unless parent_ids.length.zero? && redirection_url_visited_count.zero?
