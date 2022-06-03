@@ -16,7 +16,7 @@
   <div class="data-col">
     <p class="title">Taux de visites familiales uniques</p>
     <hr>
-    <% if data_count_values["redirection_url_visited_rate"] %>
+    <% if data_count_values["redirection_url_count"] && data_count_values["redirection_url_count"] > 0 %>
       <p class="data-number"><%= data_count_values["redirection_url_visited_rate"] %> %</p>
     <% end %>
   </div>
