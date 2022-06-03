@@ -136,8 +136,7 @@ if Rails.env.development?
   print "\t50 Children"
 
   50.times do
-    child = FactoryBot.create(:child)
-    child.update_column(:created_at, Faker::Date.backward(days: 720))
+    FactoryBot.create(:child)
   end
 
   puts " ✓"
