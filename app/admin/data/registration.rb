@@ -6,6 +6,7 @@ ActiveAdmin.register_page "Inscriptions" do
     @registration_end = session[:registration_end] ||= Time.now.strftime("%Y-%m-%d")
     @age_start = session[:age_start] ||= "0 mois"
     @age_end = session[:age_end] ||= "48 mois"
+    @groups = session[:groups] ||= nil
     @registration_sources = session[:registration_sources] ||= nil
     @lands = session[:lands] ||= nil
     @data_count = registration_data_count(
@@ -13,6 +14,7 @@ ActiveAdmin.register_page "Inscriptions" do
       @registration_end,
       @age_start,
       @age_end,
+      @groups,
       @lands,
       @registration_sources
     )
@@ -33,6 +35,17 @@ ActiveAdmin.register_page "Inscriptions" do
           end
           div do
             select_tag "age_end", options_for_select((0..48).map { |v| "#{v} mois" }, @age_end), data: {select2: {}}, style: "width: 95%"
+          end
+        end
+        div class: "data-filter-row" do
+          div class: "data-filter-label" do
+            label "Cohortes"
+          end
+          div class: "data-filter-input" do
+            select_tag "groups[]",
+                       options_for_select(group_select_collection, @groups),
+                       multiple: "multiple", data: {select2: {}},
+                       style: "width: 100%"
           end
         end
         div class: "data-filter-row" do
@@ -75,6 +88,7 @@ ActiveAdmin.register_page "Inscriptions" do
     session[:registration_end] = params[:registration_end]
     session[:age_start] = params[:age_start]
     session[:age_end] = params[:age_end]
+    session[:groups] = params[:groups]
     session[:lands] = params[:lands]
     session[:registration_sources] = params[:registration_sources]
 
