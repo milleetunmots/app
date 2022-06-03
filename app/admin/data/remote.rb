@@ -1,4 +1,4 @@
-ActiveAdmin.register_page "Inscriptions" do
+ActiveAdmin.register_page "Engagements" do
   menu priority: 12, parent: "Rapport"
 
   content do
@@ -7,19 +7,22 @@ ActiveAdmin.register_page "Inscriptions" do
     @age_start = params[:age_start] ||= "0 mois"
     @age_end = params[:age_end] ||= "48 mois"
     @groups = params[:groups] ||= nil
-    @registration_sources = params[:registration_sources] ||= nil
     @lands = params[:lands] ||= nil
-    @data_count = registration_data_count(
-      @registration_start,
-      @registration_end,
-      @age_start,
-      @age_end,
+    @call3_sending_benefits = params[:call3_sending_benefits] ||= nil
+    @registration_sources = params[:registration_sources] ||= nil
+    @tags = params[:tags] ||= nil
+
+    @data_count = remote_data_count(
+      @registration_start, @registration_end,
+      @age_start, @age_end,
       @groups,
       @lands,
-      @registration_sources
+      @call3_sending_benefits,
+      @registration_sources,
+      @tags
     )
 
-    form action: admin_inscriptions_path, class: "filter-container", method: :get do |f|
+    form action: admin_engagement_path, class: "filter-container", method: :get do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
 
       div do
@@ -54,9 +57,20 @@ ActiveAdmin.register_page "Inscriptions" do
           end
           div class: "data-filter-input" do
             select_tag "lands[]",
-              options_for_select(child_land_select_collection, @lands),
-              multiple: "multiple", data: {select2: {}},
-              style: "width: 100%"
+                       options_for_select(child_land_select_collection, @lands),
+                       multiple: "multiple", data: {select2: {}},
+                       style: "width: 100%"
+          end
+        end
+        div class: "data-filter-row" do
+          div class: "data-filter-label" do
+            label "Apport des envois de l'appel 3"
+          end
+          div class: "data-filter-input" do
+            select_tag "call3_sending_benefits[]",
+                       options_for_select(child_support_call_sendings_benefits_select_collection, @call3_sending_benefits),
+                       multiple: "multiple", data: {select2: {}},
+                       style: "width: 100%"
           end
         end
         div class: "data-filter-row" do
@@ -65,9 +79,20 @@ ActiveAdmin.register_page "Inscriptions" do
           end
           div class: "data-filter-input" do
             select_tag "registration_sources[]",
-              options_for_select(child_registration_source_select_collection, @registration_sources),
-              multiple: "multiple", data: {select2: {}},
-              style: "width: 100%"
+                       options_for_select(child_registration_source_select_collection, @registration_sources),
+                       multiple: "multiple", data: {select2: {}},
+                       style: "width: 100%"
+          end
+        end
+        div class: "data-filter-row" do
+          div class: "data-filter-label" do
+            label "Tags"
+          end
+          div class: "data-filter-input" do
+            select_tag "tags[]",
+                       options_for_select(tag_name_collection, @tags),
+                       multiple: "multiple", data: {select2: {}},
+                       style: "width: 100%"
           end
         end
         div class: "actions" do
@@ -76,9 +101,8 @@ ActiveAdmin.register_page "Inscriptions" do
           end
         end
       end
-
       div do
-        render "/admin/data/registration_data", data_count_values: @data_count
+        render "/admin/data/remote_data", data_count_values: @data_count
       end
     end
   end

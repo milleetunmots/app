@@ -54,6 +54,10 @@ class Group < ApplicationRecord
     !is_ended?
   end
 
+  def self.not_target_group
+    where("unaccent(name) ILIKE unaccent(?)", "%popi%")
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------
