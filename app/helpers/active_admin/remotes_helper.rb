@@ -11,14 +11,23 @@ module ActiveAdmin::RemotesHelper
   )
     values = {}
 
-    group_ids = Group.where(name: groups).pluck(:id)
-    support_ids = ChildSupport.where(call3_sendings_benefits: call3_sending_benefits).pluck(:id)
+    children = Child.where("group_start >= ?", date_start.to_date)
 
-    children = Child.where(created_at: (date_start.to_date...(date_end.to_date+1.day)))
+    children = children.where("group_end <= ?", date_end.to_date).or(children.where(group_end: nil))
                     .registration_months_between(age_start.gsub(" mois", "").to_i, age_end.gsub(" mois", "").to_i)
-    children = children.where(group_id: group_ids) if groups
+
+    if groups
+      group_ids = Group.where(name: groups).pluck(:id)
+      children = children.where(group_id: group_ids)
+    end
+
     children = children.where(land: lands) if lands
-    children = children.where(child_support_id: support_ids) if call3_sending_benefits
+
+    if call3_sending_benefits
+      support_ids = ChildSupport.where(call3_sendings_benefits: call3_sending_benefits).pluck(:id)
+      children = children.where(child_support_id: support_ids)
+    end
+
     children = children.where(registration_source: registration_sources) if registration_sources
     children = children.tagged_with(tags, any: true) if tags
 
