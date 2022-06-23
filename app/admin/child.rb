@@ -501,9 +501,6 @@ ActiveAdmin.register Child do
     column :postal_code
     column :land
 
-    column :child_present_on
-    column :child_follow_us_on
-
     column :child_group_name
     column :child_group_months
     column :months_between_registration_and_group_start
@@ -514,7 +511,8 @@ ActiveAdmin.register Child do
     column :parent1_last_name
     column :parent1_email
     column :parent1_phone_number_national
-    column :parent1_is_lycamobile
+    column :parent1_on_facebook
+    column :parent1_on_whatsapp
     column :should_contact_parent1
 
     column :parent2_gender
@@ -522,7 +520,8 @@ ActiveAdmin.register Child do
     column :parent2_last_name
     column :parent2_email
     column :parent2_phone_number_national
-    column :parent2_is_lycamobile
+    column :parent2_on_facebook
+    column :parent2_on_whatsapp
     column :should_contact_parent2
 
     column :registration_source

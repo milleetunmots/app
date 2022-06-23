@@ -39,7 +39,8 @@ ActiveAdmin.register Parent do
   filter :first_name
   filter :last_name
   filter :phone_number
-  filter :is_lycamobile
+  filter :on_whatsapp
+  filter :on_facebook
   filter :email
   filter :letterbox_name
   filter :address
@@ -64,7 +65,8 @@ ActiveAdmin.register Parent do
       f.input :last_name
       f.input :phone_number,
         input_html: { value: f.object.decorate.phone_number }
-      f.input :is_lycamobile
+      f.input :on_whatsapp
+      f.input :on_facebook
       f.input :email
       f.input :letterbox_name
       address_input f
@@ -77,7 +79,7 @@ ActiveAdmin.register Parent do
   end
 
   permit_params :gender, :first_name, :last_name,
-    :phone_number, :is_lycamobile, :email,
+    :phone_number, :on_whatsapp, :on_facebook, :email,
     :letterbox_name, :address, :postal_code, :city_name,
     :is_ambassador, :job, :terms_accepted_at,
     tags_params
@@ -96,7 +98,8 @@ ActiveAdmin.register Parent do
           row :first_name
           row :last_name
           row :phone_number
-          row :is_lycamobile
+          row :on_whatsapp
+          row :on_facebook
           row :email do |decorated|
             decorated.email_link
           end
@@ -183,7 +186,8 @@ ActiveAdmin.register Parent do
 
     column :email
     column :phone_number_national
-    column :is_lycamobile
+    column :on_whatsapp
+    column :on_facebook
 
     column :letterbox_name
     column :address
@@ -195,8 +199,6 @@ ActiveAdmin.register Parent do
     column :job
     column :is_ambassador
 
-    column :parent_present_on
-    column :parent_follow_us_on
     column :land
 
     column :children_count

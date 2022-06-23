@@ -10,10 +10,11 @@
 #  first_name                          :string           not null
 #  gender                              :string           not null
 #  is_ambassador                       :boolean
-#  is_lycamobile                       :boolean
 #  job                                 :string
 #  last_name                           :string           not null
 #  letterbox_name                      :string
+#  on_facebook                         :boolean
+#  on_whatsapp                         :boolean
 #  phone_number                        :string           not null
 #  phone_number_national               :string
 #  postal_code                         :string           not null

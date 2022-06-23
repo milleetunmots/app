@@ -51,14 +51,6 @@ class ChildSupportDecorator < BaseDecorator
     children_attribute(:registration_source, glue)
   end
 
-  def children_present_on
-    model.decorate.present_on&.join(", ")
-  end
-
-  def children_follow_us_on
-    model.decorate.follow_us_on&.join(", ")
-  end
-
   def children_land(glue = "\n")
     children_attribute(:land, glue)
   end

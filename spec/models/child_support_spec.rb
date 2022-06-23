@@ -73,11 +73,9 @@
 #  call5_technical_information     :text
 #  call_infos                      :string
 #  discarded_at                    :datetime
-#  follow_us_on                    :string
 #  important_information           :text
 #  is_bilingual                    :boolean
 #  notes                           :text
-#  present_on                      :string
 #  second_language                 :string
 #  should_be_read                  :boolean
 #  to_call                         :boolean
