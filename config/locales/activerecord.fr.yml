@@ -223,6 +223,7 @@ fr:
         children_registration_sources: Origines des enfants
         groups: Cohortes
         child_support_groups: Cohortes
+        first_child_pmi_detail: PMI du premier enfant
         important_information: Infos importantes (langue maternelle, présence du père, ...)
         is_bilingual: Bilinguisme
         letterbox_name: Nom sur la boîte aux lettres
