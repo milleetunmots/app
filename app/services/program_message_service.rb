@@ -42,7 +42,12 @@ class ProgramMessageService
       SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, @file).call
     end
 
-    @errors = service.errors if service.errors.any?
+    if service.errors.any?
+      @errors = service.errors
+    else
+      @url.build_redirection_url_sent(occurred_at: Time.now)
+      @url.save!
+    end
     self
   end
 
@@ -66,6 +71,8 @@ class ProgramMessageService
 
         if @redirection_target && parent.first_child.present?
           @recipient_data[parent.id.to_s]["URL"] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
+
+          @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
         end
 
       end

@@ -33,12 +33,14 @@ module ActiveAdmin::RemotesHelper
 
     parent_ids = (children.pluck(:parent1_id) + children.pluck(:parent2_id)).compact
 
-    redirection_url_count = RedirectionUrl.where(parent_id: parent_ids).count
+    redirection_url_ids= RedirectionUrl.where(parent_id: parent_ids).pluck(:id)
+
+    redirection_url_sent_count = RedirectionUrlSent.where(redirection_url_id: redirection_url_ids).count
     redirection_url_visited_count = RedirectionUrlVisit.where(redirection_url_id: RedirectionUrl.where(parent_id: parent_ids)).count
 
     values["children_count"] = children.count
     values["parent_count"] = parent_ids.count
-    values["redirection_url_count"] = (redirection_url_count.fdiv(parent_ids.length) ).round(2) unless parent_ids.length.zero?
+    values["redirection_url_count"] = (redirection_url_sent_count.fdiv(parent_ids.length) ).round(2) unless parent_ids.length.zero?
     values["redirection_url_visited_count"] = (redirection_url_visited_count.fdiv(parent_ids.length)).round(2) unless parent_ids.length.zero?
     values["redirection_url_visited_rate"] = (values["redirection_url_visited_count"].fdiv(values["redirection_url_count"]) * 100).round(2) unless parent_ids.length.zero? && redirection_url_visited_count.zero?
     values["messages_received_count"] = (Event.where(related_type: "Parent", related_id: parent_ids).text_messages_send_by_app.count.fdiv(parent_ids.length)).round(2) unless parent_ids.length.zero?
