@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_23_081521) do
+ActiveRecord::Schema.define(version: 2022_06_23_093639) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -134,8 +134,6 @@ ActiveRecord::Schema.define(version: 2022_06_23_081521) do
     t.text "call1_technical_information"
     t.boolean "to_call"
     t.string "books_quantity"
-    t.string "present_on"
-    t.string "follow_us_on"
     t.text "notes"
     t.boolean "will_stay_in_group", default: false, null: false
     t.string "availability"

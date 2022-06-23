@@ -501,9 +501,6 @@ ActiveAdmin.register Child do
     column :postal_code
     column :land
 
-    column :child_present_on
-    column :child_follow_us_on
-
     column :child_group_name
     column :child_group_months
     column :months_between_registration_and_group_start

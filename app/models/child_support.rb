@@ -73,11 +73,9 @@
 #  call5_technical_information     :text
 #  call_infos                      :string
 #  discarded_at                    :datetime
-#  follow_us_on                    :string
 #  important_information           :text
 #  is_bilingual                    :boolean
 #  notes                           :text
-#  present_on                      :string
 #  second_language                 :string
 #  should_be_read                  :boolean
 #  to_call                         :boolean
@@ -119,8 +117,6 @@ class ChildSupport < ApplicationRecord
   BOOKS_QUANTITY = %w[1_none 2_one_to_five 3_five_to_ten 4_more_than_ten].freeze
   BOOK_NOT_RECEIVED = %w[1_first_book 2_second_book 3_third_book 4_fourth_book 5_fifth_book].freeze
   CALL_STATUS = %w[1_ok 2_ko 3_unassigned_number 4_dont_call].freeze
-  SOCIAL_NETWORK = %w[1_facebook 2_whatsapp 3_instagram].freeze
-  OUR_SOCIAL_NETWORK = %w[1_national_facebook 2_local_facebook 3_whatsapp].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -312,24 +308,8 @@ class ChildSupport < ApplicationRecord
            prefix: true,
            allow_nil: true
 
-  def present_on
-    super&.split(";")
-  end
-
   def book_not_received
     super&.split(";")
-  end
-
-  def follow_us_on
-    super&.split(";")
-  end
-
-  def present_on=(val)
-    super(val.reject(&:blank?).join(";"))
-  end
-
-  def follow_us_on=(val)
-    super(val.reject(&:blank?).join(";"))
   end
 
   def book_not_received=(val)

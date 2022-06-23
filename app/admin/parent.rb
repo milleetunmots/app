@@ -199,8 +199,6 @@ ActiveAdmin.register Parent do
     column :job
     column :is_ambassador
 
-    column :parent_present_on
-    column :parent_follow_us_on
     column :land
 
     column :children_count

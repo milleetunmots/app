@@ -352,7 +352,7 @@ ActiveAdmin.register ChildSupport do
     notes will_stay_in_group
     availability
     call_infos
-  ] + [tags_params] + [{book_not_received: [], present_on: [], follow_us_on: []}]
+  ] + [tags_params] + [{book_not_received: []}]
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
@@ -407,8 +407,6 @@ ActiveAdmin.register ChildSupport do
           row :should_be_read
           row :is_bilingual
           row :second_language
-          row :present_on
-          row :follow_us_on
           row :tags
           row :created_at
           row :updated_at
@@ -466,8 +464,6 @@ ActiveAdmin.register ChildSupport do
     column :city_name
     column :postal_code
 
-    column :children_present_on
-    column :children_follow_us_on
     column :children_land
 
     column(:parent2_gender) { |cs| cs.parent2_gender && Parent.human_attribute_name("gender.#{cs.parent2_gender}") }
