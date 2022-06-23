@@ -89,14 +89,16 @@ fr:
         parent1_email: Email du parent 1
         parent1_first_name: Prénom du parent 1
         parent1_gender: Sexe du parent 1
-        parent1_is_lycamobile: Parent 1 Lycamobile ?
+        parent1_on_facebook: Parent 1 Facebook ?
+        parent1_on_whatsapp: Parent 1 Whatsapp ?
         parent1_last_name: Nom du parent 1
         parent1_phone_number_national: Numéro du parent 1
         parent2: Parent 2
         parent2_email: Email du parent 2
         parent2_first_name: Prénom du parent 2
         parent2_gender: Sexe du parent 2
-        parent2_is_lycamobile: Parent 2 Lycamobile ?
+        parent2_on_facebook: Parent 2 Facebook ?
+        parent2_on_whatsapp: Parent 2 Whatsapp ?
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
         pmi_detail: PMI
@@ -232,13 +234,15 @@ fr:
         parent1: Parent 1
         parent1_first_name: Prénom du parent 1
         parent1_gender: Sexe du parent 1
-        parent1_is_lycamobile: Parent 1 Lycamobile ?
+        parent1_on_facebook: Parent 1 Facebook ?
+        parent1_on_whatsapp: Parent 1 Whatsapp ?
         parent1_last_name: Nom du parent 1
         parent1_phone_number_national: Numéro du parent 1
         parent2: Parent 2
         parent2_first_name: Prénom du parent 2
         parent2_gender: Sexe du parent 2
-        parent2_is_lycamobile: Parent 2 Lycamobile ?
+        parent2_on_facebook: Parent 2 Facebook ?
+        parent2_on_whatsapp: Parent 2 Whatsapp ?
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
         postal_code: Code postal
@@ -395,7 +399,8 @@ fr:
         first_name: Prénom
         gender: Sexe
         is_ambassador: Potentiel parent ambassadeur
-        is_lycamobile: Lycamobile
+        on_facebook: Facebook
+        on_whatsapp: Whatsapp
         job: Métier
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres

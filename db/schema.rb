@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_28_164853) do
+ActiveRecord::Schema.define(version: 2022_06_23_081521) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -297,8 +297,9 @@ ActiveRecord::Schema.define(version: 2022_01_28_164853) do
     t.integer "redirection_url_unique_visits_count"
     t.float "redirection_unique_visit_rate"
     t.float "redirection_visit_rate"
-    t.boolean "is_lycamobile"
     t.datetime "discarded_at"
+    t.boolean "on_facebook"
+    t.boolean "on_whatsapp"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"

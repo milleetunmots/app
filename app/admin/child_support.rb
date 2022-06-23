@@ -201,22 +201,6 @@ ActiveAdmin.register ChildSupport do
               end
             end
           end
-          columns do
-            column do
-              f.input :present_on,
-                collection: social_network_collection,
-                multiple: true,
-                input_html: {data: {select2: {tokenSeparators: [";"]}}}
-            end
-          end
-          columns do
-            column do
-              f.input :follow_us_on,
-                collection: our_social_network_collection,
-                multiple: true,
-                input_html: {data: {select2: {tokenSeparators: [";"]}}}
-            end
-          end
         end
         column do
           f.label :important_information
@@ -316,7 +300,8 @@ ActiveAdmin.register ChildSupport do
                 f.semantic_fields_for :first_child do |first_child_f|
                   first_child_f.semantic_fields_for k do |parent_f|
                     parent_f.input :phone_number
-                    parent_f.input :is_lycamobile
+                    parent_f.input :on_whatsapp
+                    parent_f.input :on_facebook
                     parent_f.input :email
                     parent_f.input :letterbox_name
                     parent_f.input :address
@@ -371,7 +356,7 @@ ActiveAdmin.register ChildSupport do
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
-    is_ambassador is_lycamobile job
+    is_ambassador on_whatsapp on_facebook job
   ]
   first_child_attributes = [{
     first_child_attributes: [
@@ -473,7 +458,8 @@ ActiveAdmin.register ChildSupport do
     column :parent1_first_name
     column :parent1_last_name
     column :parent1_phone_number_national
-    column :parent1_is_lycamobile
+    column :parent1_on_whatsapp
+    column :parent1_on_facebook
     column :should_contact_parent1
     column :letterbox_name
     column :address
@@ -488,7 +474,8 @@ ActiveAdmin.register ChildSupport do
     column :parent2_first_name
     column :parent2_last_name
     column :parent2_phone_number_national
-    column :parent2_is_lycamobile
+    column :parent2_on_whatsapp
+    column :parent2_on_facebook
     column :should_contact_parent2
 
     column :children_first_names
@@ -543,14 +530,4 @@ ActiveAdmin.register ChildSupport do
       end
     end
   end
-
-  # controller do
-  #   after_save do |child_support|
-  #     child_support.children.each do |child|
-  #       child.update! tag_list: child_support.tag_list
-  #       child.parent1&.update! tag_list: (child.parent1&.tag_list + child_support.tag_list).uniq
-  #       child.parent2&.update! tag_list: (child.parent2&.tag_list + child_support.tag_list).uniq
-  #     end
-  #   end
-  # end
 end

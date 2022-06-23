@@ -360,17 +360,11 @@ class Child < ApplicationRecord
     :postal_code,
     to: :parent1
 
-  delegate :is_ambassador,
-    :is_ambassador?,
-    :is_lycamobile,
-    :is_lycamobile?,
+  delegate :is_ambassador, :is_ambassador?, :on_facebook, :on_facebook?, :on_whatsapp, :on_whatsapp?,
     to: :parent1,
     prefix: true
 
-  delegate :is_ambassador,
-    :is_ambassador?,
-    :is_lycamobile,
-    :is_lycamobile?,
+  delegate :is_ambassador, :is_ambassador?, :on_facebook, :on_facebook?, :on_whatsapp, :on_whatsapp?,
     to: :parent2,
     prefix: true,
     allow_nil: true
