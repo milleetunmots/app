@@ -33,6 +33,7 @@ class RedirectionUrl < ApplicationRecord
   belongs_to :child
 
   has_many :redirection_url_visits, dependent: :destroy
+  has_one :redirection_url_sent, dependent: :destroy
 
   # ---------------------------------------------------------------------------
   # validations

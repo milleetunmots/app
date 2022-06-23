@@ -3,12 +3,15 @@ module ActiveAdmin::RegistrationsHelper
   def registration_data_count(registration_start, registration_end, age_start, age_end, groups, lands, registration_sources)
     values = {}
 
-    group_ids = Group.where(name: groups).pluck(:id)
-
     children = Child.where(created_at: (registration_start.to_date...(registration_end.to_date+1.day))).registration_months_between(age_start.gsub(" mois", "").to_i, age_end.gsub(" mois", "").to_i)
-    children = children.where(group_id: group_ids) if groups
-    children = children.where(registration_source: registration_sources) if registration_sources
+
+    if groups
+      group_ids = Group.where(name: groups).pluck(:id)
+      children = groups.include?("Sans cohorte") ? children.without_group.or(children.where(group_id: group_ids)) : children.where(group_id: group_ids)
+    end
+
     children = children.where(land: lands) if lands
+    children = children.where(registration_source: registration_sources) if registration_sources
 
     not_target_children = children.where(group_id: Group.not_target_group.pluck(:id))
 

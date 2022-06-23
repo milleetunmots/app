@@ -43,7 +43,7 @@ ActiveAdmin.register_page "Inscriptions" do
           end
           div class: "data-filter-input" do
             select_tag "groups[]",
-                       options_for_select(group_select_collection, @groups),
+                       options_for_select(group_select_collection << "Sans cohorte", @groups),
                        multiple: "multiple", data: {select2: {}},
                        style: "width: 100%"
           end
