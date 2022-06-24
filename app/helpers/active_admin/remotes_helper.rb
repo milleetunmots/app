@@ -33,10 +33,11 @@ module ActiveAdmin::RemotesHelper
 
     parent_ids = (children.pluck(:parent1_id) + children.pluck(:parent2_id)).compact
 
-    redirection_url_ids= RedirectionUrl.where(parent_id: parent_ids).pluck(:id)
+    redirection_url_ids = RedirectionUrl.where(parent_id: parent_ids).pluck(:id)
+    redirection_url_sent_ids = RedirectionUrlSent.where(redirection_url_id: redirection_url_ids).pluck(:id)
 
-    redirection_url_sent_count = RedirectionUrlSent.where(redirection_url_id: redirection_url_ids).count
-    redirection_url_visited_count = RedirectionUrlVisit.where(redirection_url_id: RedirectionUrl.where(parent_id: parent_ids)).count
+    redirection_url_sent_count = redirection_url_sent_ids.count
+    redirection_url_visited_count = RedirectionUrlVisit.where(redirection_url_id: RedirectionUrlSent.where(redirection_url_id: redirection_url_ids).pluck(:redirection_url_id)).count
 
     values["children_count"] = children.count
     values["parent_count"] = parent_ids.count
