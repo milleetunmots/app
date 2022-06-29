@@ -45,8 +45,8 @@ class ParentDecorator < BaseDecorator
     phone = Phonelib.parse model.phone_number
     r = [phone.national]
     if with_icon
-      r << h.image_tag('whatsapp.png', class: 'phone-number-icon') if model.on_whatsapp?
-      r << h.image_tag('facebook.png', class: 'phone-number-icon') if model.on_facebook?
+      r << h.image_tag('whatsapp.png', class: 'phone-number-icon') if model.follow_us_on_whatsapp?
+      r << h.image_tag('facebook.png', class: 'phone-number-icon') if model.follow_us_on_facebook?
     end
     r.join.html_safe
   end

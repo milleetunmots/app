@@ -87,16 +87,20 @@ fr:
         parent1_email: Email du parent 1
         parent1_first_name: Prénom du parent 1
         parent1_gender: Sexe du parent 1
-        parent1_on_facebook: Parent 1 Facebook ?
-        parent1_on_whatsapp: Parent 1 Whatsapp ?
+        parent1_present_on_facebook: Parent 1 present sur Facebook ?
+        parent1_follow_us_on_facebook: Parent 1 nous suit sur Facebook ?
+        parent1_present_on_whatsapp: Parent 1 present sur Whatsapp ?
+        parent1_follow_us_on_whatsapp: Parent 1 nous suit sur Whatsapp ?
         parent1_last_name: Nom du parent 1
         parent1_phone_number_national: Numéro du parent 1
         parent2: Parent 2
         parent2_email: Email du parent 2
         parent2_first_name: Prénom du parent 2
         parent2_gender: Sexe du parent 2
-        parent2_on_facebook: Parent 2 Facebook ?
-        parent2_on_whatsapp: Parent 2 Whatsapp ?
+        parent2_present_on_facebook: Parent 2 present sur Facebook ?
+        parent2_follow_us_on_facebook: Parent 2 nous suit sur Facebook ?
+        parent2_present_on_whatsapp: Parent 2 present sur Whatsapp ?
+        parent2_follow_us_on_whatsapp: Parent 2 nous suit sur Whatsapp ?
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
         pmi_detail: PMI
@@ -231,15 +235,19 @@ fr:
         parent1: Parent 1
         parent1_first_name: Prénom du parent 1
         parent1_gender: Sexe du parent 1
-        parent1_on_facebook: Parent 1 Facebook ?
-        parent1_on_whatsapp: Parent 1 Whatsapp ?
+        parent1_present_on_facebook: Parent 1 present sur Facebook ?
+        parent1_follow_us_on_facebook: Parent 1 nous suit sur Facebook ?
+        parent1_present_on_whatsapp: Parent 1 present sur Whatsapp ?
+        parent1_follow_us_on_whatsapp: Parent 1 nous suit sur Whatsapp ?
         parent1_last_name: Nom du parent 1
         parent1_phone_number_national: Numéro du parent 1
         parent2: Parent 2
         parent2_first_name: Prénom du parent 2
         parent2_gender: Sexe du parent 2
-        parent2_on_facebook: Parent 2 Facebook ?
-        parent2_on_whatsapp: Parent 2 Whatsapp ?
+        parent2_present_on_facebook: Parent 2 present sur Facebook ?
+        parent2_follow_us_on_facebook: Parent 2 nous suit sur Facebook ?
+        parent2_present_on_whatsapp: Parent 2 present sur Whatsapp ?
+        parent2_follow_us_on_whatsapp: Parent 2 nous suit sur Whatsapp ?
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
         postal_code: Code postal
@@ -394,8 +402,10 @@ fr:
         first_name: Prénom
         gender: Sexe
         is_ambassador: Potentiel parent ambassadeur
-        on_facebook: Facebook
-        on_whatsapp: Whatsapp
+        present_on_whatsapp: Présent sur Whatsapp
+        present_on_facebook: Présent sur Facebook
+        follow_us_on_whatsapp: Nous suit sur Whatsapp
+        follow_us_on_facebook: Nous suit sur Facebook
         job: Métier
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres

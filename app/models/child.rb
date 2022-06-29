@@ -360,11 +360,29 @@ class Child < ApplicationRecord
     :postal_code,
     to: :parent1
 
-  delegate :is_ambassador, :is_ambassador?, :on_facebook, :on_facebook?, :on_whatsapp, :on_whatsapp?,
+  delegate :is_ambassador,
+           :is_ambassador?,
+           :present_on_facebook,
+           :present_on_facebook?,
+           :present_on_whatsapp,
+           :present_on_whatsapp?,
+           :follow_us_on_facebook,
+           :follow_us_on_facebook?,
+           :follow_us_on_whatsapp,
+           :follow_us_on_whatsapp?,
     to: :parent1,
     prefix: true
 
-  delegate :is_ambassador, :is_ambassador?, :on_facebook, :on_facebook?, :on_whatsapp, :on_whatsapp?,
+  delegate :is_ambassador,
+           :is_ambassador?,
+           :present_on_facebook,
+           :present_on_facebook?,
+           :present_on_whatsapp,
+           :present_on_whatsapp?,
+           :follow_us_on_facebook,
+           :follow_us_on_facebook?,
+           :follow_us_on_whatsapp,
+           :follow_us_on_whatsapp?,
     to: :parent2,
     prefix: true,
     allow_nil: true

@@ -8,16 +8,18 @@
 #  discarded_at                        :datetime
 #  email                               :string
 #  first_name                          :string           not null
+#  follow_us_on_facebook               :boolean
+#  follow_us_on_whatsapp               :boolean
 #  gender                              :string           not null
 #  is_ambassador                       :boolean
 #  job                                 :string
 #  last_name                           :string           not null
 #  letterbox_name                      :string
-#  on_facebook                         :boolean
-#  on_whatsapp                         :boolean
 #  phone_number                        :string           not null
 #  phone_number_national               :string
 #  postal_code                         :string           not null
+#  present_on_facebook                 :boolean
+#  present_on_whatsapp                 :boolean
 #  redirection_unique_visit_rate       :float
 #  redirection_url_unique_visits_count :integer
 #  redirection_url_visits_count        :integer

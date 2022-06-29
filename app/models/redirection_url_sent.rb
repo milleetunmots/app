@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: redirection_url_visits
+# Table name: redirection_url_sents
 #
 #  id                 :bigint           not null, primary key
 #  occurred_at        :datetime
@@ -8,7 +8,7 @@
 #
 # Indexes
 #
-#  index_redirection_url_visits_on_redirection_url_id  (redirection_url_id)
+#  index_redirection_url_sents_on_redirection_url_id  (redirection_url_id)
 #
 
 class RedirectionUrlSent < ApplicationRecord

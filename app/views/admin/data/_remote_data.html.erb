@@ -14,22 +14,15 @@
   <div class="data-col">
     <p class="title">Nombre moyen de lien envoyés</p>
     <hr>
-    <% if data_count_values["redirection_url_count"] %>
-      <p class="data-number"><%= data_count_values["redirection_url_count"] %></p>
+    <% if data_count_values["redirection_url_sent_rate"] %>
+      <p class="data-number"><%= data_count_values["redirection_url_sent_rate"] %></p>
     <% end %>
-  </div>
-  <div class="data-col">
-    <p class="title">Nombre moyen de liens cliqués au moins une fois</p>
-    <hr>
-    <% if data_count_values["redirection_url_visited_count"] %>
-      <p class="data-number"><%= data_count_values["redirection_url_visited_count"] %></p>
-  <% end %>
   </div>
   <div class="data-col">
     <p class="title">Taux de clic</p>
     <hr>
-    <% if data_count_values["redirection_url_count"] && data_count_values["redirection_url_count"] > 0 %>
-      <p class="data-number"><%= data_count_values["redirection_url_visited_rate"] %> %</p>
+    <% if data_count_values["redirection_url_unique_visited_rate"] %>
+      <p class="data-number"><%= data_count_values["redirection_url_unique_visited_rate"] %> %</p>
     <% end %>
   </div>
 </div>
