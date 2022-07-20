@@ -156,6 +156,8 @@ class Child < ApplicationRecord
     parent2&.save
   end
 
+  after_create :create_support!
+
   # ---------------------------------------------------------------------------
   # scopes
   # ---------------------------------------------------------------------------
@@ -492,18 +494,25 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def create_support!(child_support_attributes = {})
-    # 1- create support
-    child_support = ChildSupport.create!(child_support_attributes)
+    return if child_support
 
-    # 2- use it on current child
-    self.child_support_id = child_support.id
-    save(validate: false)
+    if true_siblings.with_support.any?
+      self.child_support_id = true_siblings.with_support.first.child_support.id
+      save(validate: false)
+    else
+      # 1- create support
+      child_support = ChildSupport.create!(child_support_attributes)
 
-    # 3- also update all strict siblings
-    # nb: we do this one by one to trigger paper_trail
-    true_siblings.without_support.each do |child|
-      child.child_support_id = child_support.id
-      child.save(validate: false)
+      # 2- use it on current child
+      self.child_support_id = child_support.id
+      save(validate: false)
+
+      # 3- also update all strict siblings
+      # nb: we do this one by one to trigger paper_trail
+      true_siblings.without_support.each do |child|
+        child.child_support_id = child_support.id
+        child.save(validate: false)
+      end
     end
   end
 

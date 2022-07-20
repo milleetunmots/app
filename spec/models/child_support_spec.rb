@@ -123,8 +123,9 @@ RSpec.describe ChildSupport, type: :model do
   let_it_be(:third_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, registration_source: "pmi", registration_source_details: "Aristide Bamenou", group: group, group_status: "paused") }
 
   let_it_be(:first_child_support, reload: true) { FactoryBot.create(:child_support, first_child: first_child, supporter: admin_user) }
-  let_it_be(:second_child_support, reload: true) { FactoryBot.create(:child_support, first_child: second_child) }
-  let_it_be(:third_child_support, reload: true) { FactoryBot.create(:child_support, first_child: third_child) }
+  let_it_be(:second_child_support, reload: true) { second_child.child_support }
+  let_it_be(:third_child_support, reload: true) { third_child.child_support }
+
 
 
   describe "Validations" do
@@ -160,7 +161,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#without_supporter" do
     context "returns" do
       it "Child_support without supporter" do
-        expect(ChildSupport.without_supporter).to match_array [second_child_support, third_child_support]
+        expect(ChildSupport.without_supporter).to match_array [third_child_support, second_child_support]
       end
     end
   end
