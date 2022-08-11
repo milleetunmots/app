@@ -11,6 +11,8 @@
 #  follow_us_on_facebook               :boolean
 #  follow_us_on_whatsapp               :boolean
 #  gender                              :string           not null
+#  grade                               :string
+#  grade_country                       :boolean
 #  is_ambassador                       :boolean
 #  job                                 :string
 #  last_name                           :string           not null
