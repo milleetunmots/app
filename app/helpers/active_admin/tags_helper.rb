@@ -4,20 +4,22 @@ module ActiveAdmin::TagsHelper
     ActsAsTaggableOn::Tag.order("LOWER(name)").pluck(:name)
   end
 
-  def tags_input(form, options = {})
+  def tags_input(form, options = {}, width: nil)
+    input_html = {
+      data: {
+        select2: {
+          tags: true,
+          tokenSeparators: [","]
+        }
+      }
+    }
+    input_html[:width] = width if width
     form.input :tag_list,
       {
         multiple: true,
         label: "Tags",
         collection: tag_name_collection,
-        input_html: {
-          data: {
-            select2: {
-              tags: true,
-              tokenSeparators: [","]
-            }
-          }
-        }
+        input_html: input_html
       }.deep_merge(options)
   end
 
