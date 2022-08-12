@@ -71,6 +71,10 @@ ActiveAdmin.register ChildSupport do
     as: :select,
     collection: proc { child_registration_source_details_suggestions },
     input_html: {multiple: true, data: {select2: {}}}
+  filter :first_child_pmi_detail,
+         as: :select,
+         collection: proc { child_registration_pmi_detail_collection },
+         input_html: {multiple: true, data: {select2: {}}}
   filter :should_be_read,
     input_html: {data: {select2: {width: "100%"}}}
   filter :book_not_received
@@ -201,22 +205,6 @@ ActiveAdmin.register ChildSupport do
               end
             end
           end
-          columns do
-            column do
-              f.input :present_on,
-                collection: social_network_collection,
-                multiple: true,
-                input_html: {data: {select2: {tokenSeparators: [";"]}}}
-            end
-          end
-          columns do
-            column do
-              f.input :follow_us_on,
-                collection: our_social_network_collection,
-                multiple: true,
-                input_html: {data: {select2: {tokenSeparators: [";"]}}}
-            end
-          end
         end
         column do
           f.label :important_information
@@ -316,7 +304,10 @@ ActiveAdmin.register ChildSupport do
                 f.semantic_fields_for :first_child do |first_child_f|
                   first_child_f.semantic_fields_for k do |parent_f|
                     parent_f.input :phone_number
-                    parent_f.input :is_lycamobile
+                    parent_f.input :present_on_whatsapp
+                    parent_f.input :follow_us_on_whatsapp
+                    parent_f.input :present_on_facebook
+                    parent_f.input :follow_us_on_facebook
                     parent_f.input :email
                     parent_f.input :letterbox_name
                     parent_f.input :address
@@ -367,11 +358,11 @@ ActiveAdmin.register ChildSupport do
     notes will_stay_in_group
     availability
     call_infos
-  ] + [tags_params] + [{book_not_received: [], present_on: [], follow_us_on: []}]
+  ] + [tags_params] + [{book_not_received: []}]
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
-    is_ambassador is_lycamobile job
+    is_ambassador present_on_whatsapp present_on_facebook follow_us_on_whatsapp follow_us_on_facebook job
   ]
   first_child_attributes = [{
     first_child_attributes: [
@@ -422,8 +413,6 @@ ActiveAdmin.register ChildSupport do
           row :should_be_read
           row :is_bilingual
           row :second_language
-          row :present_on
-          row :follow_us_on
           row :tags
           row :created_at
           row :updated_at
@@ -473,22 +462,26 @@ ActiveAdmin.register ChildSupport do
     column :parent1_first_name
     column :parent1_last_name
     column :parent1_phone_number_national
-    column :parent1_is_lycamobile
+    column :parent1_present_on_whatsapp
+    column :parent1_follow_us_on_whatsapp
+    column :parent1_present_on_facebook
+    column :parent1_follow_us_on_facebook
     column :should_contact_parent1
     column :letterbox_name
     column :address
     column :city_name
     column :postal_code
 
-    column :children_present_on
-    column :children_follow_us_on
     column :children_land
 
     column(:parent2_gender) { |cs| cs.parent2_gender && Parent.human_attribute_name("gender.#{cs.parent2_gender}") }
     column :parent2_first_name
     column :parent2_last_name
     column :parent2_phone_number_national
-    column :parent2_is_lycamobile
+    column :parent2_present_on_whatsapp
+    column :parent2_follow_us_on_whatsapp
+    column :parent2_present_on_facebook
+    column :parent2_follow_us_on_facebook
     column :should_contact_parent2
 
     column :children_first_names
@@ -543,14 +536,4 @@ ActiveAdmin.register ChildSupport do
       end
     end
   end
-
-  # controller do
-  #   after_save do |child_support|
-  #     child_support.children.each do |child|
-  #       child.update! tag_list: child_support.tag_list
-  #       child.parent1&.update! tag_list: (child.parent1&.tag_list + child_support.tag_list).uniq
-  #       child.parent2&.update! tag_list: (child.parent2&.tag_list + child_support.tag_list).uniq
-  #     end
-  #   end
-  # end
 end

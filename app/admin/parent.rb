@@ -39,7 +39,10 @@ ActiveAdmin.register Parent do
   filter :first_name
   filter :last_name
   filter :phone_number
-  filter :is_lycamobile
+  filter :present_on_whatsapp
+  filter :present_on_facebook
+  filter :follow_us_on_whatsapp
+  filter :follow_us_on_facebook
   filter :email
   filter :letterbox_name
   filter :address
@@ -64,7 +67,10 @@ ActiveAdmin.register Parent do
       f.input :last_name
       f.input :phone_number,
         input_html: { value: f.object.decorate.phone_number }
-      f.input :is_lycamobile
+      f.input :present_on_whatsapp
+      f.input :present_on_facebook
+      f.input :follow_us_on_whatsapp
+      f.input :follow_us_on_facebook
       f.input :email
       f.input :letterbox_name
       address_input f
@@ -77,7 +83,7 @@ ActiveAdmin.register Parent do
   end
 
   permit_params :gender, :first_name, :last_name,
-    :phone_number, :is_lycamobile, :email,
+    :phone_number, :present_on_whatsapp, :present_on_facebook, :follow_us_on_facebook, :follow_us_on_whatsapp, :email,
     :letterbox_name, :address, :postal_code, :city_name,
     :is_ambassador, :job, :terms_accepted_at,
     tags_params
@@ -96,7 +102,10 @@ ActiveAdmin.register Parent do
           row :first_name
           row :last_name
           row :phone_number
-          row :is_lycamobile
+          row :present_on_whatsapp
+          row :present_on_facebook
+          row :follow_us_on_whatsapp
+          row :follow_us_on_facebook
           row :email do |decorated|
             decorated.email_link
           end
@@ -183,7 +192,10 @@ ActiveAdmin.register Parent do
 
     column :email
     column :phone_number_national
-    column :is_lycamobile
+    column :present_on_whatsapp
+    column :present_on_facebook
+    column :follow_us_on_whatsapp
+    column :follow_us_on_facebook
 
     column :letterbox_name
     column :address
@@ -195,8 +207,6 @@ ActiveAdmin.register Parent do
     column :job
     column :is_ambassador
 
-    column :parent_present_on
-    column :parent_follow_us_on
     column :land
 
     column :children_count

@@ -63,8 +63,6 @@ fr:
         birthdate: Date de naissance
         child_support: Suivi
         city_name: Ville
-        child_present_on: Presence sur les reseaux sociaux
-        child_follow_us_on: Nous suit sur
         family_redirection_unique_visit_rate: "Taux de visites uniques familiales d'URL courtes"
         family_redirection_unique_visits: URL visitées
         family_redirection_url_unique_visits_count: "Visites familiales uniques d'URL courtes"
@@ -89,14 +87,20 @@ fr:
         parent1_email: Email du parent 1
         parent1_first_name: Prénom du parent 1
         parent1_gender: Sexe du parent 1
-        parent1_is_lycamobile: Parent 1 Lycamobile ?
+        parent1_present_on_facebook: Parent 1 present sur Facebook ?
+        parent1_follow_us_on_facebook: Parent 1 nous suit sur Facebook ?
+        parent1_present_on_whatsapp: Parent 1 present sur Whatsapp ?
+        parent1_follow_us_on_whatsapp: Parent 1 nous suit sur Whatsapp ?
         parent1_last_name: Nom du parent 1
         parent1_phone_number_national: Numéro du parent 1
         parent2: Parent 2
         parent2_email: Email du parent 2
         parent2_first_name: Prénom du parent 2
         parent2_gender: Sexe du parent 2
-        parent2_is_lycamobile: Parent 2 Lycamobile ?
+        parent2_present_on_facebook: Parent 2 present sur Facebook ?
+        parent2_follow_us_on_facebook: Parent 2 nous suit sur Facebook ?
+        parent2_present_on_whatsapp: Parent 2 present sur Whatsapp ?
+        parent2_follow_us_on_whatsapp: Parent 2 nous suit sur Whatsapp ?
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
         pmi_detail: PMI
@@ -215,8 +219,6 @@ fr:
         city_name: Ville
         children: Enfants
         children_registration_months_range: Tranche d'âge à l'inscription
-        children_present_on: Presence sur les reseaux sociaux
-        children_follow_us_on: Nous suit sur
         children_first_names: Prénom des enfants
         children_last_names: Nom des enfants
         children_birthdates: Date de naissance des enfants
@@ -225,6 +227,7 @@ fr:
         children_registration_sources: Origines des enfants
         groups: Cohortes
         child_support_groups: Cohortes
+        first_child_pmi_detail: PMI du premier enfant
         important_information: Infos importantes (langue maternelle, présence du père, ...)
         is_bilingual: Bilinguisme
         letterbox_name: Nom sur la boîte aux lettres
@@ -232,13 +235,19 @@ fr:
         parent1: Parent 1
         parent1_first_name: Prénom du parent 1
         parent1_gender: Sexe du parent 1
-        parent1_is_lycamobile: Parent 1 Lycamobile ?
+        parent1_present_on_facebook: Parent 1 present sur Facebook ?
+        parent1_follow_us_on_facebook: Parent 1 nous suit sur Facebook ?
+        parent1_present_on_whatsapp: Parent 1 present sur Whatsapp ?
+        parent1_follow_us_on_whatsapp: Parent 1 nous suit sur Whatsapp ?
         parent1_last_name: Nom du parent 1
         parent1_phone_number_national: Numéro du parent 1
         parent2: Parent 2
         parent2_first_name: Prénom du parent 2
         parent2_gender: Sexe du parent 2
-        parent2_is_lycamobile: Parent 2 Lycamobile ?
+        parent2_present_on_facebook: Parent 2 present sur Facebook ?
+        parent2_follow_us_on_facebook: Parent 2 nous suit sur Facebook ?
+        parent2_present_on_whatsapp: Parent 2 present sur Whatsapp ?
+        parent2_follow_us_on_whatsapp: Parent 2 nous suit sur Whatsapp ?
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
         postal_code: Code postal
@@ -251,8 +260,6 @@ fr:
         should_contact_parent2: Contacter parent 2 ?
         supporter: Responsable
         to_call: Appel 2 ou 4
-        present_on: Presence sur les reseaux sociaux
-        follow_us_on: Nous suit sur
         children_land: Terrain
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
@@ -395,7 +402,10 @@ fr:
         first_name: Prénom
         gender: Sexe
         is_ambassador: Potentiel parent ambassadeur
-        is_lycamobile: Lycamobile
+        present_on_whatsapp: Présent sur Whatsapp
+        present_on_facebook: Présent sur Facebook
+        follow_us_on_whatsapp: Nous suit sur Whatsapp
+        follow_us_on_facebook: Nous suit sur Facebook
         job: Métier
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres
@@ -403,8 +413,6 @@ fr:
         phone_number_national: Téléphone
         postal_code: Code postal
         parent_groups: Cohortes
-        parent_present_on: Presence sur les reseaux sociaux
-        parent_follow_us_on: Nous suit sur
         land: Terrain
         redirection_unique_visit_rate: "Taux de visites uniques d'URL courtes"
         redirection_unique_visits: URL visitées

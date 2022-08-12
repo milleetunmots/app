@@ -25,14 +25,6 @@ class ChildDecorator < BaseDecorator
     h.link_to txt, url, options
   end
 
-  def child_present_on
-    model.child_support&.decorate&.children_present_on
-  end
-
-  def child_follow_us_on
-    model.child_support&.decorate&.children_follow_us_on
-  end
-
   def age
     h.t "child_age.months", months: model.months
   end

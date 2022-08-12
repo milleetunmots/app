@@ -45,9 +45,8 @@ class ParentDecorator < BaseDecorator
     phone = Phonelib.parse model.phone_number
     r = [phone.national]
     if with_icon
-      if model.is_lycamobile?
-        r << h.image_tag('lycamobile.png', class: 'phone-number-icon')
-      end
+      r << h.image_tag('whatsapp.png', class: 'phone-number-icon') if model.follow_us_on_whatsapp?
+      r << h.image_tag('facebook.png', class: 'phone-number-icon') if model.follow_us_on_facebook?
     end
     r.join.html_safe
   end
@@ -119,14 +118,6 @@ class ParentDecorator < BaseDecorator
 
   def parent_groups
     model.children.decorate.map(&:group_name).join("\n")
-  end
-
-  def parent_present_on
-    model.first_child&.decorate&.child_present_on
-  end
-
-  def parent_follow_us_on
-    model.first_child&.decorate&.child_follow_us_on
   end
 
   def land

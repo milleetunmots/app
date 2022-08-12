@@ -51,14 +51,6 @@ class ChildSupportDecorator < BaseDecorator
     children_attribute(:registration_source, glue)
   end
 
-  def children_present_on
-    model.decorate.present_on&.join(", ")
-  end
-
-  def children_follow_us_on
-    model.decorate.follow_us_on&.join(", ")
-  end
-
   def children_land(glue = "\n")
     children_attribute(:land, glue)
   end
@@ -251,6 +243,11 @@ class ChildSupportDecorator < BaseDecorator
   def parent(parent)
     return nil unless parent
     parent.decorate.admin_link
+  end
+
+  def first_child_pmi_detail
+    return nil if model.first_child.pmi_detail.blank?
+    Child.human_attribute_name("pmi_detail.#{model.first_child.pmi_detail}")
   end
 
   # def parent_card(parent, should_contact_parent)
