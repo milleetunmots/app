@@ -115,6 +115,10 @@ ActiveAdmin.register ChildSupport do
       as: :select,
       collection: proc { child_support_call_reading_frequency_select_collection },
       input_html: {multiple: true, data: {select2: {}}}
+    filter "call#{call_idx}_tv_frequency",
+      as: :select,
+      collection: proc { child_support_call_tv_frequency_select_collection },
+      input_html: {multiple: true, data: {select2: {}}}
   end
   filter :created_at
   filter :updated_at
@@ -205,34 +209,33 @@ ActiveAdmin.register ChildSupport do
               end
             end
           end
-        end
-        column do
-          f.label :important_information
-          f.input :important_information, label: false, input_html: {rows: 3, style: "width: 100%"}
-          f.input :availability, label: false, input_html: {placeholder: "Disponibilités générales", style: "width: 100%"}
-          f.input :call_infos, label: false, input_html: {placeholder: "Infos appels", style: "width: 100%"}
-          columns do
-            column do
+          columns style: 'margin-top:50px;' do
+            column class: 'w-140' do
               f.input :is_bilingual
+            end
+            column class: 'column flex-1' do
               f.input :second_language
             end
-            column do
-              f.input :should_be_read
-              f.input :book_not_received,
-                collection: book_not_received_collection,
-                multiple: true,
-                input_html: {data: {select2: {tokenSeparators: [";"]}}}
-            end
           end
-          tags_input(f)
+
           columns do
             column do
-              f.input :to_call
-            end
-            column do
-              f.input :will_stay_in_group
+              f.label :important_information
+              f.input :important_information, label: false, input_html: { rows: 7, style: "width: 100%; margin-top:20px;" }
             end
           end
+        end
+        column class:'column flex-column' do
+          tags_input(f, width: '75%')
+          f.input :availability, label: 'Disponibilités générales', input_html: { style: "width: 70%"}
+          f.input :call_infos, label: 'Infos appel', input_html: { style: "width: 70%"}
+          f.input :book_not_received,
+            collection: book_not_received_collection,
+            multiple: true,
+            input_html: {data: {select2: {tokenSeparators: [";"]}}}
+          f.input :should_be_read
+          f.input :to_call
+          # f.input :will_stay_in_group
         end
       end
       tabs do
@@ -247,6 +250,29 @@ ActiveAdmin.register ChildSupport do
               end
               column do
                 f.input "call#{call_idx}_status_details", input_html: {rows: 5, style: "width: 70%"}
+              end
+            end
+
+            columns style: 'justify-content:space-between;'do
+              column max_width: '8%' do
+                f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
+              end
+              if call_idx == 1
+                column do
+                  f.input :books_quantity,
+                    as: :radio,
+                    collection: child_support_books_quantity
+                end
+              end
+              column do
+                f.input "call#{call_idx}_reading_frequency",
+                  as: :radio,
+                  collection: child_support_call_reading_frequency_select_collection
+              end
+              column do
+                f.input "call#{call_idx}_tv_frequency",
+                  as: :radio,
+                  collection: child_support_call_tv_frequency_select_collection
               end
             end
 
@@ -274,9 +300,6 @@ ActiveAdmin.register ChildSupport do
                 f.input "call#{call_idx}_parent_progress",
                   as: :radio,
                   collection: child_support_call_parent_progress_select_collection
-                f.input "call#{call_idx}_reading_frequency",
-                  as: :radio,
-                  collection: child_support_call_reading_frequency_select_collection
                 f.input "call#{call_idx}_sendings_benefits",
                   as: :radio,
                   collection: child_support_call_sendings_benefits_select_collection
@@ -290,9 +313,6 @@ ActiveAdmin.register ChildSupport do
                     rows: 8,
                     style: "width: 70%"
                   }
-                if call_idx == 1
-                  f.input :books_quantity, as: :radio, collection: child_support_books_quantity
-                end
               end
             end
           end
@@ -435,6 +455,7 @@ ActiveAdmin.register ChildSupport do
               row :books_quantity
             end
             row "call#{call_idx}_reading_frequency"
+            # row "call#{call_idx}_tv_frequency"
             row "call#{call_idx}_goals"
             row "call#{call_idx}_notes"
           end

@@ -5,6 +5,23 @@ SimpleCov.start "rails"
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require "spec_helper"
 ENV["RAILS_ENV"] ||= "test"
+ENV['TYPEFORM_NAME'] = 'typeform_name_id'
+ENV['TYPEFORM_CHILD_COUNT'] = 'typeform_child_count_id'
+ENV['TYPEFORM_ALREADY_WORKING_WITH'] = 'typeform_already_working_with_id'
+ENV['TYPEFORM_BOOKS_QUANTITY'] = 'typeform_books_quantity_id'
+ENV['TYPEFORM_MOST_PRESENT_PARENT'] = 'typeform_most_present_parent_id'
+ENV['TYPEFORM_OTHER_PARENT_PHONE'] = 'typeform_other_parent_phone_id'
+ENV['TYPEFORM_OTHER_PARENT_DEGREE'] = 'typeform_other_parent_degree_id'
+ENV['TYPEFORM_OTHER_PARENT_DEGREE_IN_FRANCE'] = 'typeform_other_parent_degree_in_france_id'
+ENV['TYPEFORM_DEGREE'] = 'typeform_degree_id'
+ENV['TYPEFORM_DEGREE_IN_FRANCE'] = 'typeform_degree_in_france_id'
+ENV['TYPEFORM_READING_FREQUENCY'] = 'typeform_reading_frequency_id'
+ENV['TYPEFORM_TV_FREQUENCY'] = 'typeform_tv_frequency_id'
+ENV['TYPEFORM_IS_BILINGUAL'] = 'typeform_is_bilingual_id'
+ENV['TYPEFORM_HELP_MY_CHILD_TO_LEARN_IS_IMPORTANT'] = 'typeform_help_my_child_to_learn_id_important_id'
+ENV['TYPEFORM_WOULD_LIKE_TO_DO_MORE'] = 'typeform_would_like_to_do_more_id'
+ENV['TYPEFORM_WOULD_LIKE_TO_RECEIVE_ADVICES'] = 'typeform_would_like_to_receive_advices_id'
+
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?

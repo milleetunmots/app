@@ -165,6 +165,12 @@ class ChildSupportDecorator < BaseDecorator
       end
     end
 
+    define_method("call#{call_idx}_tv_frequency") do
+      if v = model.send("call#{call_idx}_tv_frequency")
+        ChildSupport.human_attribute_name("call_tv_frequency.#{v}")
+      end
+    end
+
     define_method("call#{call_idx}_goals_text") do
       model.send("call#{call_idx}_goals")
     end
