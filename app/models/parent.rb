@@ -5,6 +5,8 @@
 #  id                                  :bigint           not null, primary key
 #  address                             :string           not null
 #  city_name                           :string           not null
+#  degree                              :string
+#  degree_in_france                    :boolean
 #  discarded_at                        :datetime
 #  email                               :string
 #  first_name                          :string           not null

@@ -119,7 +119,7 @@ class ChildrenController < ApplicationController
       @child.errors.add(:caf_detail, :invalid, message: "Précisez votre CAF svp!")
     end
     if @child.errors.none? && @child.save
-      sms_url_form = "https://wr1q9w7z4ro.typeform.com/to/odImEgtZ"
+      sms_url_form = "#{ENV['TYPEFORM_URL']}#child_support_id=#{@child.child_support.id}"
       message = "Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{sms_url_form}"
 
       SpotHit::SendSmsService.new([@child.parent1_id], Time.now.to_i, message).call if current_registration_origin == 2
