@@ -15,9 +15,4 @@ module ApplicationHelper
     count == 1 ? noun : noun.pluralize
   end
 
-  def digits_in_letter(digit)
-    digits_names = ['zero', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf']
-    digits_names[digit]
-  end
-
 end
