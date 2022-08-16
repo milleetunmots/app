@@ -53,7 +53,7 @@ module Typeform
         when FIELD_IDS[:already_working_with]
           @data[:already_working_with] = answer[:choice][:label]
         when FIELD_IDS[:books_quantity]
-          case answer[:choice][:label]
+          case answer[:choice][:label].to_i
           when 0
             @data[:books_quantity] = ChildSupport::BOOKS_QUANTITY[0]
           when 1, 2, 3, 4, 5
@@ -124,16 +124,20 @@ module Typeform
 
     def update_parents
       @parent1.update!(degree: @data[:degree], degree_in_france: @data[:degree_in_france])
-      @parent2&.update!(g rade: @data[:other_parent_degree], degree_in_france: @data[:other_parent_degree_in_france])
+      @parent2&.update!(degree: @data[:other_parent_degree], degree_in_france: @data[:other_parent_degree_in_france])
     end
 
     def update_child_support
-      informations = @child_support.important_information || ''
-      informations += "\nNombre d'enfants: #{@data[:child_count]}" if @data[:child_count]
-      informations += "\nÀ déjà été accompagné par 1001 mots" if @data[:already_working_with]
-      informations += "\n#{@data[:most_present_parent]} passe le plus de temps avec l'enfant" if @data[:most_present_parent]
-      @child_support.important_information = informations
+      informations = []
+      informations << @child_support.important_information if @child_support.important_information
+      informations << "Nombre d'enfants: #{@data[:child_count]}" if @data[:child_count]
+      informations << "À déjà été accompagné par 1001 mots" if @data[:already_working_with]
+      informations << "#{@data[:most_present_parent]} passe le plus de temps avec l'enfant" if @data[:most_present_parent]
+      @child_support.important_information = informations.join("\n")
 
+      
+
+      
       unless @data[:other_parent_phone] == @parent1.phone_number || @data[:other_parent_phone] == @parent2&.phone_number
         @child_support.other_phone_number = @data[:other_parent_phone]
         @child_support.important_information += "\n#{@data[:other_parent_phone]}"
