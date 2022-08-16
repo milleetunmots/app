@@ -9,6 +9,7 @@ body.logged_in
     .input
       .label
         font-weight: bold
+        text-align: left
 
       &#child_support_call1_parent_progress_input,
       &#child_support_call2_parent_progress_input,
@@ -28,7 +29,10 @@ body.logged_in
       &#child_support_call2_sendings_benefits_input,
       &#child_support_call3_sendings_benefits_input,
       &#child_support_call4_sendings_benefits_input,
-      &#child_support_call5_sendings_benefits_input
+      &#child_support_call5_sendings_benefits_input,
+      &#child_support_call1_tv_frequency_input,
+      &#child_support_books_quantity_input
+
         .choices
           .choice
             label
@@ -83,3 +87,63 @@ body.logged_in
         .button.has_many_remove
           margin-left: 25%
           margin-bottom: 20px
+
+    #child_support_is_bilingual_input,
+    #child_support_should_be_read_input,
+    #child_support_to_call_input,
+      margin-left: 0
+      padding-top: 6px
+      label
+        font-weight: bold
+      input
+        margin-right: 10px
+
+    #child_support_second_language
+      width: calc(100% - 115px)
+
+    label[for=child_support_second_language]
+      width: 110px !important
+    label[for=child_support_important_information],
+      font-weight: bold
+
+    #child_support_tag_list_input,
+    #child_support_book_not_received_input
+      .select2-container
+        min-width: 70%
+
+    .flex-1
+      flex: 1
+
+    .flex-column
+      display: flex;
+      flex-direction: column;
+      gap: 35px;
+
+    .w-140
+      width: 140px !important;
+
+    input
+      border-color: #aaa;
+
+    #child_support_books_quantity_input,
+    #child_support_call1_reading_frequency_input,
+    #child_support_call1_tv_frequency_input
+      .choices-group
+        display: flex
+        flex-direction: column
+        width: 100px
+      .choice
+        margin-left: 0
+        width: 140%
+      .choices
+        width: 100%
+        min-width: 310px
+        legend
+          width: max-content
+
+    #child_support_call1_reading_frequency_input,
+    #child_support_call1_tv_frequency_input
+      .choices-group
+        width: 125px
+      li
+        margin-left: 0
