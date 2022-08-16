@@ -210,7 +210,7 @@ ActiveAdmin.register ChildSupport do
             end
           end
           columns style: 'margin-top:50px;' do
-            column max_width: '140px', min_width: '140px' do
+            column class: 'w-140' do
               f.input :is_bilingual
             end
             column class: 'column flex-1' do
