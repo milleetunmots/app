@@ -5,14 +5,14 @@
 #  id                                  :bigint           not null, primary key
 #  address                             :string           not null
 #  city_name                           :string           not null
+#  degree                              :string
+#  degree_in_france                    :boolean
 #  discarded_at                        :datetime
 #  email                               :string
 #  first_name                          :string           not null
 #  follow_us_on_facebook               :boolean
 #  follow_us_on_whatsapp               :boolean
 #  gender                              :string           not null
-#  grade                               :string
-#  grade_country                       :boolean
 #  is_ambassador                       :boolean
 #  job                                 :string
 #  last_name                           :string           not null

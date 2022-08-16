@@ -5,14 +5,14 @@ module Typeform
     FIELD_IDS = {
       name: ENV['TYPEFORM_NAME'],
       child_count: ENV['TYPEFORM_CHILD_COUNT'],
-      already_accompanied: ENV['TYPEFORM_ALREADY_ACCOMPANIED'],
+      already_working_with: ENV['TYPEFORM_ALREADY_WORKING_WITH'],
       books_quantity: ENV['TYPEFORM_BOOKS_QUANTITY'],
       most_present_parent: ENV['TYPEFORM_MOST_PRESENT_PARENT'],
       other_parent_phone: ENV['TYPEFORM_OTHER_PARENT_PHONE'],
-      other_parent_grade: ENV['TYPEFORM_OTHER_PARENT_GRADE'],
-      other_parent_grade_country: ENV['TYPEFORM_OTHER_PARENT_GRADE_COUNTRY'],
-      grade: ENV['TYPEFORM_GRADE'],
-      grade_country: ENV['TYPEFORM_GRADE_COUNTRY'],
+      other_parent_degree: ENV['TYPEFORM_OTHER_PARENT_DEGREE'],
+      other_parent_degree_in_france: ENV['TYPEFORM_OTHER_PARENT_DEGREE_IN_FRANCE'],
+      degree: ENV['TYPEFORM_DEGREE'],
+      degree_in_france: ENV['TYPEFORM_DEGREE_IN_FRANCE'],
       reading_frequency: ENV['TYPEFORM_READING_FREQUENCY'],
       tv_frequency: ENV['TYPEFORM_TV_FREQUENCY'],
       is_bilingual: ENV['TYPEFORM_IS_BILINGUAL'],
@@ -50,8 +50,8 @@ module Typeform
           @data[:name] = answer[:text] 
         when FIELD_IDS[:child_count]
           @data[:child_count] = answer[:choice][:label]
-        when FIELD_IDS[:already_accompanied]
-          @data[:already_accompanied] = answer[:choice][:label]
+        when FIELD_IDS[:already_working_with]
+          @data[:already_working_with] = answer[:choice][:label]
         when FIELD_IDS[:books_quantity]
           case answer[:choice][:label]
           when 0
@@ -76,14 +76,14 @@ module Typeform
           end
         when FIELD_IDS[:other_parent_phone]
           @data[:other_parent_phone] = Phonelib.parse(answer[:text]).e164
-        when FIELD_IDS[:other_parent_grade]
-          @data[:other_parent_grade] = answer[:choice][:label]
-        when FIELD_IDS[:other_parent_grade_country]
-          @data[:other_parent_grade_country] = answer[:choice][:label]
-        when FIELD_IDS[:grade]
-          @data[:grade] = answer[:choice][:label]
-        when FIELD_IDS[:grade_country]
-          @data[:grade_country] = answer[:choice][:label] == 'France'
+        when FIELD_IDS[:other_parent_degree]
+          @data[:other_parent_degree] = answer[:choice][:label]
+        when FIELD_IDS[:other_parent_degree_in_france]
+          @data[:other_parent_degree_in_france] = answer[:choice][:label]
+        when FIELD_IDS[:degree]
+          @data[:degree] = answer[:choice][:label]
+        when FIELD_IDS[:degree_in_france]
+          @data[:degree_in_france] = answer[:choice][:label] == 'France'
         when FIELD_IDS[:reading_frequency]
           if answer[:choices][:labels] == ['Aucun']
             @data[:call1_reading_frequency] = ChildSupport::READING_FREQUENCY[0]
@@ -123,14 +123,14 @@ module Typeform
     end
 
     def update_parents
-      @parent1.update!(grade: @data[:grade], grade_country: @data[:grade_country])
-      @parent2&.update!(g rade: @data[:other_parent_grade], grade_country: @data[:other_parent_grade_country])
+      @parent1.update!(degree: @data[:degree], degree_in_france: @data[:degree_in_france])
+      @parent2&.update!(g rade: @data[:other_parent_degree], degree_in_france: @data[:other_parent_degree_in_france])
     end
 
     def update_child_support
       informations = @child_support.important_information || ''
       informations += "\nNombre d'enfants: #{@data[:child_count]}" if @data[:child_count]
-      informations += "\nÀ déjà été accompagné par 1001 mots" if @data[:already_accompanied]
+      informations += "\nÀ déjà été accompagné par 1001 mots" if @data[:already_working_with]
       informations += "\n#{@data[:most_present_parent]} passe le plus de temps avec l'enfant" if @data[:most_present_parent]
       @child_support.important_information = informations
 
@@ -146,7 +146,7 @@ module Typeform
         call1_tv_frequency: @data[:call1_tv_frequency],
         child_count: @data[:child_count],
         most_present_parent: @data[:most_present_parent],
-        already_accompanied: @data[:already_accompanied]
+        already_working_with: @data[:already_working_with]
       )
     end
 
