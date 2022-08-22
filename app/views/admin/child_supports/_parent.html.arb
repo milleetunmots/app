@@ -13,5 +13,9 @@ div class: 'card card-parent' do
         status_tag 'no', label: t('should_not_be_contacted')
       end
     end
+  ) + (
+  div class: 'parent-tag' do
+    parent.tags
+  end
   )
 end
