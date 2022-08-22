@@ -155,7 +155,7 @@ fr:
         call1_status: Statut de l'appel 1
         call1_status_details: Suivi de l'appel 1
         call1_language_awareness: Conscience langagière
-        call1_language_development: "Développement langagier de l'enfant"
+        call1_language_development: "Informations sur l'enfant"
         call1_goals: Mini-objectifs
         call1_notes: Remarques diverses
         call1_parent_actions: Pratiques parentales
@@ -171,7 +171,7 @@ fr:
         call2_parent_actions: Pratiques parentales
         call2_goals: Mini-objectifs
         call2_language_awareness: Conscience langagière
-        call2_language_development: "Développement langagier de l'enfant"
+        call2_language_development: "Informations sur l'enfant"
         call2_notes: Remarques diverses
         call2_parent_progress: Niveau de pratiques parentales
         call2_reading_frequency: Fréquence de lecture
@@ -185,7 +185,7 @@ fr:
         call3_parent_actions: Pratiques parentales
         call3_goals: Mini-objectifs
         call3_language_awareness: Conscience langagière
-        call3_language_development: "Développement langagier de l'enfant"
+        call3_language_development: "Informations sur l'enfant"
         call3_notes: Remarques diverses
         call3_parent_progress: Niveau de pratiques parentales
         call3_reading_frequency: Fréquence de lecture
@@ -199,7 +199,7 @@ fr:
         call4_parent_actions: Pratiques parentales
         call4_goals: Mini-objectifs
         call4_language_awareness: Conscience langagière
-        call4_language_development: "Développement langagier de l'enfant"
+        call4_language_development: "Informations sur l'enfant"
         call4_notes: Remarques diverses
         call4_parent_progress: Niveau de pratiques parentales
         call4_reading_frequency: Fréquence de lecture
@@ -213,7 +213,7 @@ fr:
         call5_parent_actions: Pratiques parentales
         call5_goals: Mini-objectifs
         call5_language_awareness: Conscience langagière
-        call5_language_development: "Développement langagier de l'enfant"
+        call5_language_development: "Informations sur l'enfant"
         call5_notes: Remarques diverses
         call5_parent_progress: Niveau de pratiques parentales
         call5_reading_frequency: Fréquence de lecture
