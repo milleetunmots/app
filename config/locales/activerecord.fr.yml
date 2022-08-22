@@ -264,7 +264,7 @@ fr:
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?
         supporter: Responsable
-        to_call: Appel 2 ou 4
+        to_call: Appel 3
         children_land: Terrain
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
