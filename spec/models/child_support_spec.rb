@@ -23,8 +23,10 @@
 #  call1_tv_frequency              :string
 #  call2_duration                  :integer
 #  call2_goals                     :text
+#  call2_goals_tracking            :text
 #  call2_language_awareness        :string
 #  call2_language_development      :text
+#  call2_new_goals                 :text
 #  call2_notes                     :text
 #  call2_parent_actions            :text
 #  call2_parent_progress           :string
@@ -37,8 +39,10 @@
 #  call2_tv_frequency              :string
 #  call3_duration                  :integer
 #  call3_goals                     :text
+#  call3_goals_tracking            :text
 #  call3_language_awareness        :string
 #  call3_language_development      :text
+#  call3_new_goals                 :text
 #  call3_notes                     :text
 #  call3_parent_actions            :text
 #  call3_parent_progress           :string
@@ -51,8 +55,10 @@
 #  call3_tv_frequency              :string
 #  call4_duration                  :integer
 #  call4_goals                     :text
+#  call4_goals_tracking            :text
 #  call4_language_awareness        :string
 #  call4_language_development      :text
+#  call4_new_goals                 :text
 #  call4_notes                     :text
 #  call4_parent_actions            :text
 #  call4_parent_progress           :string
@@ -65,8 +71,10 @@
 #  call4_tv_frequency              :string
 #  call5_duration                  :integer
 #  call5_goals                     :text
+#  call5_goals_tracking            :text
 #  call5_language_awareness        :string
 #  call5_language_development      :text
+#  call5_new_goals                 :text
 #  call5_notes                     :text
 #  call5_parent_actions            :text
 #  call5_parent_progress           :string

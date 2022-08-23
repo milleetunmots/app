@@ -31,7 +31,7 @@ ActiveAdmin.register ChildSupport do
     end
     column :call_infos
     column :groups
-    column :will_stay_in_group
+    # column :will_stay_in_group
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -97,10 +97,10 @@ ActiveAdmin.register ChildSupport do
       as: :select,
       collection: proc { child_support_call_parent_progress_select_collection },
       input_html: {multiple: true, data: {select2: {}}}
-    filter "call#{call_idx}_language_awareness",
-      as: :select,
-      collection: proc { child_support_call_language_awareness_select_collection },
-      input_html: {multiple: true, data: {select2: {}}}
+    # filter "call#{call_idx}_language_awareness",
+    #   as: :select,
+    #   collection: proc { child_support_call_language_awareness_select_collection },
+    #   input_html: {multiple: true, data: {select2: {}}}
     filter "call#{call_idx}_sendings_benefits",
       as: :select,
       collection: proc { child_support_call_sendings_benefits_select_collection },
@@ -276,6 +276,8 @@ ActiveAdmin.register ChildSupport do
               end
             end
 
+            f.input "call#{call_idx}_notes", input_html: { rows: 5, style: "width: 100%" }
+
             columns do
               column do
                 f.input "call#{call_idx}_technical_information",
@@ -284,37 +286,48 @@ ActiveAdmin.register ChildSupport do
                     style: "width: 70%",
                     value: f.object.send("call#{call_idx}_technical_information").presence ||
                       I18n.t("child_support.default.call_technical_information")
-
                   }
+
+                unless call_idx == 1
+                  f.input "call#{call_idx}_goals_tracking",
+                          input_html: {
+                            rows: 8,
+                            style: "width: 70%",
+                            value: f.object.send("call#{call_idx - 1}_goals").presence || " "
+                          }
+                end
+
                 f.input "call#{call_idx}_parent_actions",
                   input_html: {
                     rows: 8,
-                    style: "width: 70%",
-                    value: f.object.send("call#{call_idx}_parent_actions").presence ||
-                      I18n.t("child_support.default.call_parent_actions")
+                    style: "width: 70%"
+                    # value: f.object.send("call#{call_idx}_parent_actions").presence ||
+                    #   I18n.t("child_support.default.call_parent_actions")
 
                   }
-                f.input "call#{call_idx}_language_awareness",
-                  as: :radio,
-                  collection: child_support_call_language_awareness_select_collection
+                # f.input "call#{call_idx}_language_awareness",
+                #   as: :radio,
+                #   collection: child_support_call_language_awareness_select_collection
                 f.input "call#{call_idx}_parent_progress",
                   as: :radio,
                   collection: child_support_call_parent_progress_select_collection
-                f.input "call#{call_idx}_sendings_benefits",
-                  as: :radio,
-                  collection: child_support_call_sendings_benefits_select_collection
-                f.input "call#{call_idx}_sendings_benefits_details", input_html: {rows: 5, style: "width: 70%"}
               end
               column do
-                f.input "call#{call_idx}_language_development", input_html: {rows: 8, style: "width: 70%"}
                 f.input "call#{call_idx}_goals", input_html: {rows: 8, style: "width: 70%"}
-                f.input "call#{call_idx}_notes",
-                  input_html: {
-                    rows: 8,
-                    style: "width: 70%"
-                  }
+                unless call_idx == 1
+                  f.input "call#{call_idx}_new_goals",
+                          input_html: {
+                            rows: 8,
+                            style: "width: 70%"
+                          }
+                end
+                f.input "call#{call_idx}_language_development", input_html: {rows: 8, style: "width: 70%"}
+                f.input "call#{call_idx}_sendings_benefits",
+                        as: :radio,
+                        collection: child_support_call_sendings_benefits_select_collection
               end
             end
+            f.input "call#{call_idx}_sendings_benefits_details", input_html: {rows: 5, style: "width: 100%"}
           end
         end
         if f.object.first_child
@@ -374,8 +387,7 @@ ActiveAdmin.register ChildSupport do
     is_bilingual
     second_language
     to_call
-    books_quantity
-    notes will_stay_in_group
+    notes
     availability
     call_infos
   ] + [tags_params] + [{book_not_received: []}]
@@ -425,7 +437,7 @@ ActiveAdmin.register ChildSupport do
           end
           row :children
           row :to_call
-          row :will_stay_in_group
+          # row :will_stay_in_group
           row :important_information
           row :availability
           row :call_infos
@@ -446,7 +458,7 @@ ActiveAdmin.register ChildSupport do
             row "call#{call_idx}_duration"
             row "call#{call_idx}_technical_information"
             row "call#{call_idx}_parent_actions"
-            row "call#{call_idx}_language_awareness"
+            # row "call#{call_idx}_language_awareness"
             row "call#{call_idx}_parent_progress"
             row "call#{call_idx}_sendings_benefits"
             row "call#{call_idx}_sendings_benefits_details"
@@ -527,7 +539,7 @@ ActiveAdmin.register ChildSupport do
         cs.send("call#{call_idx}_technical_information_text")
       end
       column("call#{call_idx}_parent_actions") { |cs| cs.send("call#{call_idx}_parent_actions_text") }
-      column "call#{call_idx}_language_awareness"
+      # column "call#{call_idx}_language_awareness"
       column "call#{call_idx}_parent_progress"
       column "call#{call_idx}_sendings_benefits"
       column "call#{call_idx}_sendings_benefits_details"

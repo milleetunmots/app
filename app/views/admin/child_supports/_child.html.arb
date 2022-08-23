@@ -3,5 +3,9 @@ div class: 'card card-child' do
     div child.admin_link(with_icon: true, target: '_blank')
   ) + (
     div child.age
+  ) + (
+    div class: 'tags' do
+      child.tags
+    end
   )
 end
