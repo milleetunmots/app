@@ -12,8 +12,8 @@ fr:
     base: Informations
     default:
       call_notes: Facebook
-      call_parent_actions: "Livres :\nChansons :\nJeux :\nSorties :\nParler au quotidien :\nEcrans :"
-      call_technical_information: "SMS\nVidéos\nLivres"
+#      call_parent_actions: "Livres :\nChansons :\nJeux :\nSorties :\nParler au quotidien :\nEcrans :"
+      call_technical_information: "SMS\nLivres\nVidéos"
     parent1: Parent 1
     parent2: Parent 2
     parents: Parents
