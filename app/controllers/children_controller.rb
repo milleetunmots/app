@@ -164,7 +164,7 @@ class ChildrenController < ApplicationController
       @widget = false
     when 2
       session.delete(:registration_origin)
-      @message = I18n.t('inscription_success.without_widget')
+      @message = I18n.t('inscription_success.without_widget', typeform_url: "#{ENV['TYPEFORM_URL']}#child_support_id=#{@child&.child_support&.id}")
       @again = false
       @widget = false
     else
