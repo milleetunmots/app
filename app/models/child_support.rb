@@ -133,7 +133,7 @@ class ChildSupport < ApplicationRecord
   READING_FREQUENCY = %w[1_rarely 2_weekly 3_frequently 4_daily].freeze
   TV_FREQUENCY = %w[1_never 2_weekly 3_frequently 4_daily].freeze
   SENDINGS_BENEFITS = %w[1_none 2_far 3_remind 4_frequent 5_frequent_helps].freeze
-  BOOKS_QUANTITY = %w[1_none 2_one_to_five 3_five_to_ten 4_more_than_ten].freeze
+  BOOKS_QUANTITY = %w[1_none 2_three_or_less 3_between_four_and_ten 4_more_than_ten].freeze
   BOOK_NOT_RECEIVED = %w[1_first_book 2_second_book 3_third_book 4_fourth_book 5_fifth_book].freeze
   CALL_STATUS = %w[1_ok 2_ko 3_unassigned_number 4_dont_call].freeze
 

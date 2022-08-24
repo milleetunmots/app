@@ -53,12 +53,12 @@ module Typeform
         when FIELD_IDS[:already_working_with]
           @data[:already_working_with] = answer[:choice][:label]
         when FIELD_IDS[:books_quantity]
-          case answer[:choice][:label].to_i
-          when 0
+          case answer[:choice][:label]
+          when '0'
             @data[:books_quantity] = ChildSupport::BOOKS_QUANTITY[0]
-          when 1, 2, 3, 4, 5
+          when '1', '2', '3'
             @data[:books_quantity] = ChildSupport::BOOKS_QUANTITY[1]
-          when 6, 7, 8, 9, 10
+          when  '4', '5', '6', '7', '8', '9', '10'
             @data[:books_quantity] = ChildSupport::BOOKS_QUANTITY[2]
           else
             @data[:books_quantity] = ChildSupport::BOOKS_QUANTITY[3]
@@ -66,13 +66,14 @@ module Typeform
         when FIELD_IDS[:most_present_parent]
           case answer[:choice][:label]
           when 'Moi'
-            @data[:most_present_parent] = "#{@child_support.parent1.first_name} #{@child_support.parent1.last_name}" 
+            @data[:most_present_parent] = "#{@child_support.parent1.first_name} #{@child_support.parent1.last_name} passe plus plus de temps avec l'enfant"
           when "Plutôt l'autre parent"
-            @data[:most_present_parent] = @child_support.parent2 ? "#{@child_support.parent2.first_name child_support.parent2.last_name}" : "L'autre parent"
+            parent_name = @child_support.parent2 ? "#{@child_support.parent2.first_name child_support.parent2.last_name}" : "L'autre parent"
+            @data[:most_present_parent] = "#{parent_name} passe le plus de temps avec l'enfant"
           when 'Les deux pareil !'
-            @data[:most_present_parent] = 'Les deux parents' 
+            @data[:most_present_parent] = 'Les deux parents passent le plus de temps avec l\'enfant'
           else
-            @data[:most_present_parent] = answer[:choice][:label]
+            @data[:most_present_parent] = "#{answer[:choice][:label]} passe le plus de temps avec l'enfant"
           end
         when FIELD_IDS[:other_parent_phone]
           @data[:other_parent_phone] = Phonelib.parse(answer[:text]).e164
@@ -89,11 +90,11 @@ module Typeform
             @data[:call1_reading_frequency] = ChildSupport::READING_FREQUENCY[0]
           else
             case answer[:choices][:labels].size
-            when 1
+            when 1, 2
               @data[:call1_reading_frequency] = ChildSupport::READING_FREQUENCY[1]
-            when 2, 3, 4
+            when 2, 3, 4, 5, 6
               @data[:call1_reading_frequency] = ChildSupport::READING_FREQUENCY[2]
-            when 5, 6, 7
+            when 7
               @data[:call1_reading_frequency] = ChildSupport::READING_FREQUENCY[3]
             end
           end
@@ -123,7 +124,13 @@ module Typeform
     end
 
     def update_parents
-      @parent1.update!(degree: @data[:degree], degree_in_france: @data[:degree_in_france])
+      @parent1.update!(
+        degree: @data[:degree],
+        degree_in_france: @data[:degree_in_france],
+        help_my_child_to_learn_is_important: @data[:help_my_child_to_learn_is_important],
+        would_like_to_do_more: @data[:would_like_to_do_more],
+        would_receive_advices: @data[:would_receive_advices]
+      )
       @parent2&.update!(degree: @data[:other_parent_degree], degree_in_france: @data[:other_parent_degree_in_france])
     end
 
@@ -132,7 +139,7 @@ module Typeform
       informations << @child_support.important_information if @child_support.important_information
       informations << "Nombre d'enfants: #{@data[:child_count]}" if @data[:child_count]
       informations << "À déjà été accompagné par 1001 mots" if @data[:already_working_with]
-      informations << "#{@data[:most_present_parent]} passe le plus de temps avec l'enfant" if @data[:most_present_parent]
+      informations << "#{@data[:most_present_parent]}" if @data[:most_present_parent]
       @child_support.important_information = informations.join("\n")
 
       
@@ -140,7 +147,7 @@ module Typeform
       
       unless @data[:other_parent_phone] == @parent1.phone_number || @data[:other_parent_phone] == @parent2&.phone_number
         @child_support.other_phone_number = @data[:other_parent_phone]
-        @child_support.important_information += "\n#{@data[:other_parent_phone]}"
+        @child_support.important_information += "\nAutre numéro de téléphone: #{@data[:other_parent_phone]}"
       end
 
       @child_support.update!(
