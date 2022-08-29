@@ -228,7 +228,7 @@ ActiveAdmin.register ChildSupport do
         column class:'column flex-column' do
           tags_input(f, width: '75%')
           f.input :availability, label: 'Disponibilités générales', input_html: { style: "width: 70%"}
-          f.input :call_infos, label: 'Infos appel', input_html: { style: "width: 70%"}
+          f.input :call_infos, label: 'Tentatives d’appels', input_html: { style: "width: 70%"}
           f.input :book_not_received,
             collection: book_not_received_collection,
             multiple: true,
@@ -293,7 +293,16 @@ ActiveAdmin.register ChildSupport do
                           input_html: {
                             rows: 8,
                             style: "width: 70%",
-                            value: f.object.send("call#{call_idx - 1}_goals").presence || " "
+                            value: case call_idx
+                                   when 2
+                                     f.object.send("call1_goals")
+                                   when 3
+                                     f.object.send("call2_goals").presence || f.object.send("call1_goals")
+                                   when 4
+                                     f.object.send("call3_goals").presence || f.object.send("call2_goals").presence || f.object.send("call1_goals")
+                                   else
+                                     f.object.send("call4_goals").presence || f.object.send("call3_goals").presence || f.object.send("call2_goals").presence || f.object.send("call1_goals")
+                                   end
                           }
                 end
 
@@ -314,13 +323,6 @@ ActiveAdmin.register ChildSupport do
               end
               column do
                 f.input "call#{call_idx}_goals", input_html: {rows: 8, style: "width: 70%"}
-                unless call_idx == 1
-                  f.input "call#{call_idx}_new_goals",
-                          input_html: {
-                            rows: 8,
-                            style: "width: 70%"
-                          }
-                end
                 f.input "call#{call_idx}_language_development", input_html: {rows: 8, style: "width: 70%"}
                 f.input "call#{call_idx}_sendings_benefits",
                         as: :radio,

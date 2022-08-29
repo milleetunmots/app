@@ -157,7 +157,7 @@ fr:
         call1_language_awareness: Conscience langagière
         call1_language_development: "Informations sur l'enfant"
         call1_goals: Mini-objectif
-        call1_notes: Déroulé de l'appel
+        call1_notes: Note appel 1
         call1_parent_actions: Pratiques parentales
         call1_parent_progress: Niveau de pratiques parentales
         call1_reading_frequency: Fréquence de lecture
@@ -172,7 +172,7 @@ fr:
         call2_goals: Mini-objectif
         call2_language_awareness: Conscience langagière
         call2_language_development: "Informations sur l'enfant"
-        call2_notes: Déroulé de l'appel
+        call2_notes: Note appel 2
         call2_parent_progress: Niveau de pratiques parentales
         call2_reading_frequency: Fréquence de lecture
         call2_tv_frequency: Fréquence écran
@@ -180,7 +180,6 @@ fr:
         call2_sendings_benefits_details: Verbatim
         call2_technical_information: Retour sur les envois
         call2_goals_tracking: Suivi mini objectif
-        call2_new_goals: Nouveau mini objectif
         call3_duration: Durée de l'appel 3 (en minutes)
         call3_status: Statut de l'appel 3
         call3_status_details: Suivi de l'appel 3
@@ -188,7 +187,7 @@ fr:
         call3_goals: Mini-objectif
         call3_language_awareness: Conscience langagière
         call3_language_development: "Informations sur l'enfant"
-        call3_notes: Déroulé de l'appel
+        call3_notes: Note appel 3
         call3_parent_progress: Niveau de pratiques parentales
         call3_reading_frequency: Fréquence de lecture
         call3_tv_frequency: Fréquence écran
@@ -196,7 +195,6 @@ fr:
         call3_sendings_benefits_details: Verbatim
         call3_technical_information: Retour sur les envois
         call3_goals_tracking: Suivi mini objectif
-        call3_new_goals: Nouveau mini objectif
         call4_duration: Durée de l'appel 4 (en minutes)
         call4_status: Statut de l'appel 4
         call4_status_details: Suivi de l'appel 4
@@ -204,7 +202,7 @@ fr:
         call4_goals: Mini-objectif
         call4_language_awareness: Conscience langagière
         call4_language_development: "Informations sur l'enfant"
-        call4_notes: Déroulé de l'appel
+        call4_notes: Note appel 4
         call4_parent_progress: Niveau de pratiques parentales
         call4_reading_frequency: Fréquence de lecture
         call4_tv_frequency: Fréquence écran
@@ -212,7 +210,6 @@ fr:
         call4_sendings_benefits_details: Verbatim
         call4_technical_information: Retour sur les envois
         call4_goals_tracking: Suivi mini objectif
-        call4_new_goals: Nouveau mini objectif
         call5_duration: Durée de l'appel 5 (en minutes)
         call5_status: Statut de l'appel 5
         call5_status_details: Suivi de l'appel 5
@@ -220,7 +217,7 @@ fr:
         call5_goals: Mini-objectif
         call5_language_awareness: Conscience langagière
         call5_language_development: "Informations sur l'enfant"
-        call5_notes: Déroulé de l'appel
+        call5_notes: Note appel 5
         call5_parent_progress: Niveau de pratiques parentales
         call5_reading_frequency: Fréquence de lecture
         call5_tv_frequency: Fréquence écran
@@ -228,7 +225,6 @@ fr:
         call5_sendings_benefits_details: Verbatim
         call5_technical_information: Retour sur les envois
         call5_goals_tracking: Suivi mini objectif
-        call5_new_goals: Nouveau mini objectif
         city_name: Ville
         children: Enfants
         children_registration_months_range: Tranche d'âge à l'inscription
@@ -272,7 +268,7 @@ fr:
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?
         supporter: Responsable
-        to_call: Appel 3
+        to_call: Accompagnement renforcé
         children_land: Terrain
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
