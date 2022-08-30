@@ -350,6 +350,7 @@ ActiveAdmin.register ChildSupport do
                     parent_f.input :city_name
                     parent_f.input :is_ambassador
                     parent_f.input :job
+                    selected_modules_input(parent_f)
                   end
                 end
               end
@@ -397,7 +398,7 @@ ActiveAdmin.register ChildSupport do
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
     is_ambassador present_on_whatsapp present_on_facebook follow_us_on_whatsapp follow_us_on_facebook job
-  ]
+  ] + [{selected_module_list: []}]
   first_child_attributes = [{
     first_child_attributes: [
       :id,
