@@ -79,8 +79,9 @@ fr:
         group: Cohorte
         child_group_name: Cohorte
         group_status: Statut de la cohorte
-        land: Terrain
+        land: Territoire
         last_name: Nom
+        land_tag: Terrain
         letterbox_name: Nom sur la boîte aux lettres
         months: Age (en mois)
         parent1: Parent 1
@@ -269,7 +270,7 @@ fr:
         should_contact_parent2: Contacter parent 2 ?
         supporter: Responsable
         to_call: Accompagnement renforcé
-        children_land: Terrain
+        children_land: Territoire
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
         2_awareness: A conscience de son impact

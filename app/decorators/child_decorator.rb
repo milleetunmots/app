@@ -208,6 +208,18 @@ class ChildDecorator < BaseDecorator
     end
   end
 
+  def land_tag
+    arbre do
+      model.lands.each do |land|
+        a land.name,
+          href: h.active_admin_resource_for(model.class).route_collection_path(nil, q: {tagged_with_all: [land.name]}),
+          class: 'tag',
+          style: "background-color: #{land.color || '#CACACA'}"
+        text_node "&nbsp;".html_safe
+      end
+    end
+  end
+
   private
 
   def decorated_parent1
