@@ -226,16 +226,17 @@ ActiveAdmin.register ChildSupport do
           end
         end
         column class:'column flex-column' do
-          tags_input(f, width: '75%')
           f.input :availability, label: 'Disponibilités générales', input_html: { style: "width: 70%"}
-          f.input :call_infos, label: 'Infos appel', input_html: { style: "width: 70%"}
+          f.input :call_infos, label: 'Tentatives d’appels', input_html: { style: "width: 70%"}
           f.input :book_not_received,
             collection: book_not_received_collection,
             multiple: true,
             input_html: {data: {select2: {tokenSeparators: [";"]}}}
           f.input :should_be_read
           f.input :to_call
+          f.input :will_stay_in_group
           # f.input :will_stay_in_group
+          tags_input(f, {label: "Tags fiche de suivi "}, width: '75%')
         end
       end
       tabs do
@@ -293,7 +294,16 @@ ActiveAdmin.register ChildSupport do
                           input_html: {
                             rows: 8,
                             style: "width: 70%",
-                            value: f.object.send("call#{call_idx - 1}_goals").presence || " "
+                            value: case call_idx
+                                   when 2
+                                     f.object.send("call1_goals")
+                                   when 3
+                                     f.object.send("call2_goals").presence || f.object.send("call1_goals")
+                                   when 4
+                                     f.object.send("call3_goals").presence || f.object.send("call2_goals").presence || f.object.send("call1_goals")
+                                   else
+                                     f.object.send("call4_goals").presence || f.object.send("call3_goals").presence || f.object.send("call2_goals").presence || f.object.send("call1_goals")
+                                   end
                           }
                 end
 
@@ -314,13 +324,6 @@ ActiveAdmin.register ChildSupport do
               end
               column do
                 f.input "call#{call_idx}_goals", input_html: {rows: 8, style: "width: 70%"}
-                unless call_idx == 1
-                  f.input "call#{call_idx}_new_goals",
-                          input_html: {
-                            rows: 8,
-                            style: "width: 70%"
-                          }
-                end
                 f.input "call#{call_idx}_language_development", input_html: {rows: 8, style: "width: 70%"}
                 f.input "call#{call_idx}_sendings_benefits",
                         as: :radio,
@@ -348,6 +351,7 @@ ActiveAdmin.register ChildSupport do
                     parent_f.input :city_name
                     parent_f.input :is_ambassador
                     parent_f.input :job
+                    selected_modules_input(parent_f)
                   end
                 end
               end
@@ -395,7 +399,7 @@ ActiveAdmin.register ChildSupport do
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
     is_ambassador present_on_whatsapp present_on_facebook follow_us_on_whatsapp follow_us_on_facebook job
-  ]
+  ] + [{selected_module_list: []}]
   first_child_attributes = [{
     first_child_attributes: [
       :id,

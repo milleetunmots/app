@@ -74,7 +74,8 @@ class Child < ApplicationRecord
   # tags
   # ---------------------------------------------------------------------------
 
-  acts_as_taggable
+  acts_as_taggable_on :tags
+  acts_as_taggable_on :lands
 
   # ---------------------------------------------------------------------------
   # relations
@@ -132,21 +133,21 @@ class Child < ApplicationRecord
     when 57 then self.land = "Moselle"
     end
 
-    tag_list.add("Paris_18_eme") if postal_code.to_i == 75018
-    tag_list.add("Paris_20_eme") if postal_code.to_i == 75020
-    tag_list.add("Plaisir") if [78370, 78340, 78310, 78990, 78280, 78114, 78320, 78450, 78960, 78100, 78640, 78850].include? postal_code.to_i
-    tag_list.add("Trappes") if [78190, 78180, 78280, 78310, 78610, 78960].include? postal_code.to_i
-    tag_list.add("Les Clayes Sous Bois") if postal_code.to_i == 78340
-    tag_list.add("Coignière, Maurepas") if postal_code.to_i == 78310
-    tag_list.add("Elancourt") if postal_code.to_i == 78990
-    tag_list.add("Guyancourt") if postal_code.to_i == 78280
-    tag_list.add("Montigny le bretonneux") if postal_code.to_i == 78180
-    tag_list.add("La verrière") if postal_code.to_i == 78320
-    tag_list.add("Villepreux") if postal_code.to_i == 78450
-    tag_list.add("Voisin le Bretonneux") if postal_code.to_i == 78960
-    tag_list.add("Aulnay-Sous-Bois") if postal_code.to_i == 93600
-    tag_list.add("Orleans") if [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800].include? postal_code.to_i
-    tag_list.add("Montargis") if [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570].include? postal_code.to_i
+    land_list.add("Paris_18_eme") if postal_code.to_i == 75018
+    land_list.add("Paris_20_eme") if postal_code.to_i == 75020
+    land_list.add("Plaisir") if [78370, 78340, 78310, 78990, 78280, 78114, 78320, 78450, 78960, 78100, 78640, 78850].include? postal_code.to_i
+    land_list.add("Trappes") if [78190, 78180, 78280, 78310, 78610, 78960].include? postal_code.to_i
+    land_list.add("Les Clayes Sous Bois") if postal_code.to_i == 78340
+    land_list.add("Coignière, Maurepas") if postal_code.to_i == 78310
+    land_list.add("Elancourt") if postal_code.to_i == 78990
+    land_list.add("Guyancourt") if postal_code.to_i == 78280
+    land_list.add("Montigny le bretonneux") if postal_code.to_i == 78180
+    land_list.add("La verrière") if postal_code.to_i == 78320
+    land_list.add("Villepreux") if postal_code.to_i == 78450
+    land_list.add("Voisin le Bretonneux") if postal_code.to_i == 78960
+    land_list.add("Aulnay-Sous-Bois") if postal_code.to_i == 93600
+    land_list.add("Orleans") if [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800].include? postal_code.to_i
+    land_list.add("Montargis") if [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570].include? postal_code.to_i
   end
 
   before_update do

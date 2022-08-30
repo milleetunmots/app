@@ -133,10 +133,10 @@ RSpec.describe Child, type: :model do
 
     context "tag" do
       it "'Paris_18_eme' is added to child's tags if parent's zip code is 75018" do
-        expect(first_child.tag_list).to match_array ["Paris_18_eme"]
+        expect(first_child.land_list).to match_array ["Paris_18_eme"]
       end
       it "'Orleans' is added to child's tags if parent's zip code is 45380" do
-        expect(second_child.tag_list).to match_array ["Orleans"]
+        expect(second_child.land_list).to match_array ["Orleans"]
       end
     end
   end
