@@ -226,7 +226,6 @@ ActiveAdmin.register ChildSupport do
           end
         end
         column class:'column flex-column' do
-          tags_input(f, width: '75%')
           f.input :availability, label: 'Disponibilités générales', input_html: { style: "width: 70%"}
           f.input :call_infos, label: 'Tentatives d’appels', input_html: { style: "width: 70%"}
           f.input :book_not_received,
@@ -235,7 +234,9 @@ ActiveAdmin.register ChildSupport do
             input_html: {data: {select2: {tokenSeparators: [";"]}}}
           f.input :should_be_read
           f.input :to_call
+          f.input :will_stay_in_group
           # f.input :will_stay_in_group
+          tags_input(f, {label: "Tags fiche de suivi "}, width: '75%')
         end
       end
       tabs do

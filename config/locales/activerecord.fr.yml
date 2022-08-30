@@ -170,7 +170,7 @@ fr:
         call2_status: Statut de l'appel 2
         call2_status_details: Suivi de l'appel 2
         call2_parent_actions: Pratiques parentales
-        call2_goals: Mini-objectif
+        call2_goals: Nouveau mini-objectif
         call2_language_awareness: Conscience langagière
         call2_language_development: "Informations sur l'enfant"
         call2_notes: Note appel 2
@@ -185,7 +185,7 @@ fr:
         call3_status: Statut de l'appel 3
         call3_status_details: Suivi de l'appel 3
         call3_parent_actions: Pratiques parentales
-        call3_goals: Mini-objectif
+        call3_goals: Nouveau mini-objectif
         call3_language_awareness: Conscience langagière
         call3_language_development: "Informations sur l'enfant"
         call3_notes: Note appel 3
@@ -200,7 +200,7 @@ fr:
         call4_status: Statut de l'appel 4
         call4_status_details: Suivi de l'appel 4
         call4_parent_actions: Pratiques parentales
-        call4_goals: Mini-objectif
+        call4_goals: Nouveau mini-objectif
         call4_language_awareness: Conscience langagière
         call4_language_development: "Informations sur l'enfant"
         call4_notes: Note appel 4
@@ -215,7 +215,7 @@ fr:
         call5_status: Statut de l'appel 5
         call5_status_details: Suivi de l'appel 5
         call5_parent_actions: Pratiques parentales
-        call5_goals: Mini-objectif
+        call5_goals: Nouveau mini-objectif
         call5_language_awareness: Conscience langagière
         call5_language_development: "Informations sur l'enfant"
         call5_notes: Note appel 5
