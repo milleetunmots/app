@@ -391,6 +391,8 @@ ActiveAdmin.register ChildSupport do
     is_bilingual
     second_language
     to_call
+    books_quantity
+    will_stay_in_group
     notes
     availability
     call_infos
