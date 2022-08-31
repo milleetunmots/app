@@ -138,7 +138,7 @@ class ChildrenController < ApplicationController
           child_support: @child.child_support
         ))
       end
-      redirect_to created_child_path
+      redirect_to created_child_path(child_id: @child.id)
     else
       flash.now[:error] = "Inscription refusée"
       @child.build_parent2 if @child.parent2.nil?
@@ -163,6 +163,7 @@ class ChildrenController < ApplicationController
       @again = true
       @widget = false
     when 2
+      @child = Child.find(params[:child_id])
       session.delete(:registration_origin)
       @message = I18n.t('inscription_success.without_widget', typeform_url: "#{ENV['TYPEFORM_URL']}#child_support_id=#{@child&.child_support&.id}")
       @again = false
