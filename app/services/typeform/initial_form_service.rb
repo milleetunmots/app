@@ -1,7 +1,7 @@
 module Typeform
   class InitialFormService
     include ApplicationHelper
-    
+
     FIELD_IDS = {
       name: ENV['TYPEFORM_NAME'],
       child_count: ENV['TYPEFORM_CHILD_COUNT'],
@@ -20,7 +20,7 @@ module Typeform
       would_like_to_do_more: ENV['TYPEFORM_WOULD_LIKE_TO_DO_MORE'],
       would_receive_advices: ENV['TYPEFORM_WOULD_LIKE_TO_RECEIVE_ADVICES'],
     }
-    
+
 
     attr_reader :data
 
@@ -39,7 +39,7 @@ module Typeform
       parse_answers
       update_parents
       update_child_support
-      
+
       self
     end
 
@@ -47,7 +47,7 @@ module Typeform
       @answers.each do |answer|
         case answer[:field][:id]
         when FIELD_IDS[:name]
-          @data[:name] = answer[:text] 
+          @data[:name] = answer[:text]
         when FIELD_IDS[:child_count]
           @data[:child_count] = answer[:choice][:label]
         when FIELD_IDS[:already_working_with]
@@ -142,9 +142,9 @@ module Typeform
       informations << "#{@data[:most_present_parent]}" if @data[:most_present_parent]
       @child_support.important_information = informations.join("\n")
 
-      
 
-      
+
+
       unless @data[:other_parent_phone] == @parent1.phone_number || @data[:other_parent_phone] == @parent2&.phone_number
         @child_support.other_phone_number = @data[:other_parent_phone]
         @child_support.important_information += "\nAutre numéro de téléphone: #{@data[:other_parent_phone]}"

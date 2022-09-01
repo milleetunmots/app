@@ -318,13 +318,19 @@ ActiveAdmin.register ChildSupport do
                 # f.input "call#{call_idx}_language_awareness",
                 #   as: :radio,
                 #   collection: child_support_call_language_awareness_select_collection
-                f.input "call#{call_idx}_parent_progress",
-                  as: :radio,
-                  collection: child_support_call_parent_progress_select_collection
               end
               column do
                 f.input "call#{call_idx}_goals", input_html: {rows: 8, style: "width: 70%"}
                 f.input "call#{call_idx}_language_development", input_html: {rows: 8, style: "width: 70%"}
+              end
+            end
+            columns do
+              column do
+                f.input "call#{call_idx}_parent_progress",
+                        as: :radio,
+                        collection: child_support_call_parent_progress_select_collection
+              end
+              column do
                 f.input "call#{call_idx}_sendings_benefits",
                         as: :radio,
                         collection: child_support_call_sendings_benefits_select_collection
