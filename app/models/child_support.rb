@@ -26,6 +26,7 @@
 #  call2_goals_tracking            :text
 #  call2_language_awareness        :string
 #  call2_language_development      :text
+#  call2_new_goals                 :text
 #  call2_notes                     :text
 #  call2_parent_actions            :text
 #  call2_parent_progress           :string
@@ -41,6 +42,7 @@
 #  call3_goals_tracking            :text
 #  call3_language_awareness        :string
 #  call3_language_development      :text
+#  call3_new_goals                 :text
 #  call3_notes                     :text
 #  call3_parent_actions            :text
 #  call3_parent_progress           :string
@@ -56,6 +58,7 @@
 #  call4_goals_tracking            :text
 #  call4_language_awareness        :string
 #  call4_language_development      :text
+#  call4_new_goals                 :text
 #  call4_notes                     :text
 #  call4_parent_actions            :text
 #  call4_parent_progress           :string
@@ -71,6 +74,7 @@
 #  call5_goals_tracking            :text
 #  call5_language_awareness        :string
 #  call5_language_development      :text
+#  call5_new_goals                 :text
 #  call5_notes                     :text
 #  call5_parent_actions            :text
 #  call5_parent_progress           :string
@@ -129,7 +133,7 @@ class ChildSupport < ApplicationRecord
   READING_FREQUENCY = %w[1_rarely 2_weekly 3_frequently 4_daily].freeze
   TV_FREQUENCY = %w[1_never 2_weekly 3_frequently 4_daily].freeze
   SENDINGS_BENEFITS = %w[1_none 2_far 3_remind 4_frequent 5_frequent_helps].freeze
-  BOOKS_QUANTITY = %w[1_none 2_one_to_five 3_five_to_ten 4_more_than_ten].freeze
+  BOOKS_QUANTITY = %w[1_none 2_three_or_less 3_between_four_and_ten 4_more_than_ten].freeze
   BOOK_NOT_RECEIVED = %w[1_first_book 2_second_book 3_third_book 4_fourth_book 5_fifth_book].freeze
   CALL_STATUS = %w[1_ok 2_ko 3_unassigned_number 4_dont_call].freeze
 
