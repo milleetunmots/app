@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_23_125405) do
+ActiveRecord::Schema.define(version: 2022_08_30_081658) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -138,9 +138,27 @@ ActiveRecord::Schema.define(version: 2022_06_23_125405) do
     t.boolean "will_stay_in_group", default: false, null: false
     t.string "availability"
     t.string "call_infos"
+    t.string "other_phone_number"
+    t.integer "child_count"
+    t.string "call1_tv_frequency"
+    t.string "call2_tv_frequency"
+    t.string "call3_tv_frequency"
+    t.string "call4_tv_frequency"
+    t.string "call5_tv_frequency"
+    t.string "most_present_parent"
+    t.boolean "already_working_with"
+    t.text "call2_goals_tracking"
+    t.text "call3_goals_tracking"
+    t.text "call4_goals_tracking"
+    t.text "call5_goals_tracking"
+    t.text "call2_new_goals"
+    t.text "call3_new_goals"
+    t.text "call4_new_goals"
+    t.text "call5_new_goals"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
+    t.index ["call1_tv_frequency"], name: "index_child_supports_on_call1_tv_frequency"
     t.index ["call2_language_awareness"], name: "index_child_supports_on_call2_language_awareness"
     t.index ["call2_parent_progress"], name: "index_child_supports_on_call2_parent_progress"
     t.index ["call3_language_awareness"], name: "index_child_supports_on_call3_language_awareness"
@@ -300,6 +318,11 @@ ActiveRecord::Schema.define(version: 2022_06_23_125405) do
     t.boolean "present_on_whatsapp"
     t.boolean "follow_us_on_whatsapp"
     t.boolean "follow_us_on_facebook"
+    t.string "degree"
+    t.boolean "degree_in_france"
+    t.string "help_my_child_to_learn_is_important"
+    t.string "would_like_to_do_more"
+    t.string "would_receive_advices"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"

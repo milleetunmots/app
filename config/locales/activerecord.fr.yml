@@ -79,8 +79,9 @@ fr:
         group: Cohorte
         child_group_name: Cohorte
         group_status: Statut de la cohorte
-        land: Terrain
+        land: Territoire
         last_name: Nom
+        land_tag: Terrain
         letterbox_name: Nom sur la boîte aux lettres
         months: Age (en mois)
         parent1: Parent 1
@@ -155,12 +156,13 @@ fr:
         call1_status: Statut de l'appel 1
         call1_status_details: Suivi de l'appel 1
         call1_language_awareness: Conscience langagière
-        call1_language_development: "Développement langagier de l'enfant"
-        call1_goals: Mini-objectifs
-        call1_notes: Remarques diverses
+        call1_language_development: "Informations sur l'enfant"
+        call1_goals: Mini-objectif
+        call1_notes: Notes appel 1
         call1_parent_actions: Pratiques parentales
         call1_parent_progress: Niveau de pratiques parentales
         call1_reading_frequency: Fréquence de lecture
+        call1_tv_frequency: Fréquence écran
         call1_sendings_benefits: Apport des envois
         call1_sendings_benefits_details: Verbatim
         call1_technical_information: Retour sur les envois
@@ -168,54 +170,62 @@ fr:
         call2_status: Statut de l'appel 2
         call2_status_details: Suivi de l'appel 2
         call2_parent_actions: Pratiques parentales
-        call2_goals: Mini-objectifs
+        call2_goals: Nouveau mini-objectif
         call2_language_awareness: Conscience langagière
-        call2_language_development: "Développement langagier de l'enfant"
-        call2_notes: Remarques diverses
+        call2_language_development: "Informations sur l'enfant"
+        call2_notes: Notes appel 2
         call2_parent_progress: Niveau de pratiques parentales
         call2_reading_frequency: Fréquence de lecture
+        call2_tv_frequency: Fréquence écran
         call2_sendings_benefits: Apport des envois
         call2_sendings_benefits_details: Verbatim
         call2_technical_information: Retour sur les envois
+        call2_goals_tracking: Suivi mini objectif
         call3_duration: Durée de l'appel 3 (en minutes)
         call3_status: Statut de l'appel 3
         call3_status_details: Suivi de l'appel 3
         call3_parent_actions: Pratiques parentales
-        call3_goals: Mini-objectifs
+        call3_goals: Nouveau mini-objectif
         call3_language_awareness: Conscience langagière
-        call3_language_development: "Développement langagier de l'enfant"
-        call3_notes: Remarques diverses
+        call3_language_development: "Informations sur l'enfant"
+        call3_notes: Notes appel 3
         call3_parent_progress: Niveau de pratiques parentales
         call3_reading_frequency: Fréquence de lecture
+        call3_tv_frequency: Fréquence écran
         call3_sendings_benefits: Apport des envois
         call3_sendings_benefits_details: Verbatim
         call3_technical_information: Retour sur les envois
+        call3_goals_tracking: Suivi mini objectif
         call4_duration: Durée de l'appel 4 (en minutes)
         call4_status: Statut de l'appel 4
         call4_status_details: Suivi de l'appel 4
         call4_parent_actions: Pratiques parentales
-        call4_goals: Mini-objectifs
+        call4_goals: Nouveau mini-objectif
         call4_language_awareness: Conscience langagière
-        call4_language_development: "Développement langagier de l'enfant"
-        call4_notes: Remarques diverses
+        call4_language_development: "Informations sur l'enfant"
+        call4_notes: Notes appel 4
         call4_parent_progress: Niveau de pratiques parentales
         call4_reading_frequency: Fréquence de lecture
+        call4_tv_frequency: Fréquence écran
         call4_sendings_benefits: Apport des envois
         call4_sendings_benefits_details: Verbatim
         call4_technical_information: Retour sur les envois
+        call4_goals_tracking: Suivi mini objectif
         call5_duration: Durée de l'appel 5 (en minutes)
         call5_status: Statut de l'appel 5
         call5_status_details: Suivi de l'appel 5
         call5_parent_actions: Pratiques parentales
-        call5_goals: Mini-objectifs
+        call5_goals: Nouveau mini-objectif
         call5_language_awareness: Conscience langagière
-        call5_language_development: "Développement langagier de l'enfant"
-        call5_notes: Remarques diverses
+        call5_language_development: "Informations sur l'enfant"
+        call5_notes: Notes appel 5
         call5_parent_progress: Niveau de pratiques parentales
         call5_reading_frequency: Fréquence de lecture
+        call5_tv_frequency: Fréquence écran
         call5_sendings_benefits: Apport des envois
         call5_sendings_benefits_details: Verbatim
         call5_technical_information: Retour sur les envois
+        call5_goals_tracking: Suivi mini objectif
         city_name: Ville
         children: Enfants
         children_registration_months_range: Tranche d'âge à l'inscription
@@ -228,7 +238,7 @@ fr:
         groups: Cohortes
         child_support_groups: Cohortes
         first_child_pmi_detail: PMI du premier enfant
-        important_information: Infos importantes (langue maternelle, présence du père, ...)
+        important_information: Infos importantes
         is_bilingual: Bilinguisme
         letterbox_name: Nom sur la boîte aux lettres
         other_family_child_supports: Autres suivis de la famille
@@ -259,8 +269,8 @@ fr:
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?
         supporter: Responsable
-        to_call: Appel 2 ou 4
-        children_land: Terrain
+        to_call: Accompagnement renforcé
+        children_land: Territoire
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
         2_awareness: A conscience de son impact
@@ -271,9 +281,14 @@ fr:
         4_excellent: Très avancé
       child_support/call_reading_frequency:
         1_rarely: Plus rarement
-        2_weekly: 1 fois par semaine
-        3_frequently: 2-3 fois par semaine
-        4_daily: Tous les soirs
+        2_weekly: 1 ou 2 fois par semaine
+        3_frequently: Plus de 2 fois par semaine
+        4_daily: Tous les jours
+      child_support/call_tv_frequency:
+        1_never: Plus rarement
+        2_weekly: 1 ou 2 fois par semaine
+        3_frequently: Plus de 2 fois par semaine
+        4_daily: Tous les jours
       child_support/call_sendings_benefits:
         1_none: Ne suit pas
         2_far: Regarde de loin
@@ -282,8 +297,8 @@ fr:
         5_frequent_helps: Assidu avec aide réelle
       child_support/books_quantity:
         1_none: 0
-        2_one_to_five: 1-5
-        3_five_to_ten: 5-10
+        2_three_or_less: 3 ou moins
+        3_between_four_and_ten: entre 4 et 10
         4_more_than_ten: Plus de 10
       child_support/social_network:
         1_facebook: Facebook
@@ -422,6 +437,7 @@ fr:
         redirection_visit_rate: "Taux de visites d'URL courtes"
         terms_accepted_at: Acceptation des conditions d'utilisation
         text_messages_sent_count: SMS envoyés
+        selected_modules: Modules choisis
       parent/gender:
         f: Femme
         m: Homme

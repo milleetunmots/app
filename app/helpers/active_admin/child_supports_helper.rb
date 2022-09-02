@@ -33,6 +33,15 @@ module ActiveAdmin::ChildSupportsHelper
     end
   end
 
+  def child_support_call_tv_frequency_select_collection
+    ChildSupport::TV_FREQUENCY.reverse.map do |v|
+      [
+        ChildSupport.human_attribute_name("call_tv_frequency.#{v}"),
+        v
+      ]
+    end
+  end
+
   def child_support_call_sendings_benefits_select_collection
     ChildSupport::SENDINGS_BENEFITS.map do |v|
       [

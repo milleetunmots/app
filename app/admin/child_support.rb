@@ -31,7 +31,7 @@ ActiveAdmin.register ChildSupport do
     end
     column :call_infos
     column :groups
-    column :will_stay_in_group
+    # column :will_stay_in_group
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -97,10 +97,10 @@ ActiveAdmin.register ChildSupport do
       as: :select,
       collection: proc { child_support_call_parent_progress_select_collection },
       input_html: {multiple: true, data: {select2: {}}}
-    filter "call#{call_idx}_language_awareness",
-      as: :select,
-      collection: proc { child_support_call_language_awareness_select_collection },
-      input_html: {multiple: true, data: {select2: {}}}
+    # filter "call#{call_idx}_language_awareness",
+    #   as: :select,
+    #   collection: proc { child_support_call_language_awareness_select_collection },
+    #   input_html: {multiple: true, data: {select2: {}}}
     filter "call#{call_idx}_sendings_benefits",
       as: :select,
       collection: proc { child_support_call_sendings_benefits_select_collection },
@@ -114,6 +114,10 @@ ActiveAdmin.register ChildSupport do
     filter "call#{call_idx}_reading_frequency",
       as: :select,
       collection: proc { child_support_call_reading_frequency_select_collection },
+      input_html: {multiple: true, data: {select2: {}}}
+    filter "call#{call_idx}_tv_frequency",
+      as: :select,
+      collection: proc { child_support_call_tv_frequency_select_collection },
       input_html: {multiple: true, data: {select2: {}}}
   end
   filter :created_at
@@ -205,34 +209,34 @@ ActiveAdmin.register ChildSupport do
               end
             end
           end
-        end
-        column do
-          f.label :important_information
-          f.input :important_information, label: false, input_html: {rows: 3, style: "width: 100%"}
-          f.input :availability, label: false, input_html: {placeholder: "Disponibilités générales", style: "width: 100%"}
-          f.input :call_infos, label: false, input_html: {placeholder: "Infos appels", style: "width: 100%"}
-          columns do
-            column do
+          columns style: 'margin-top:50px;' do
+            column class: 'w-140' do
               f.input :is_bilingual
+            end
+            column class: 'column flex-1' do
               f.input :second_language
             end
-            column do
-              f.input :should_be_read
-              f.input :book_not_received,
-                collection: book_not_received_collection,
-                multiple: true,
-                input_html: {data: {select2: {tokenSeparators: [";"]}}}
-            end
           end
-          tags_input(f)
+
           columns do
             column do
-              f.input :to_call
-            end
-            column do
-              f.input :will_stay_in_group
+              f.label :important_information
+              f.input :important_information, label: false, input_html: { rows: 7, style: "width: 100%; margin-top:20px;" }
             end
           end
+        end
+        column class:'column flex-column' do
+          f.input :availability, label: 'Disponibilités générales', input_html: { style: "width: 70%"}
+          f.input :call_infos, label: 'Tentatives d’appels', input_html: { style: "width: 70%"}
+          f.input :book_not_received,
+            collection: book_not_received_collection,
+            multiple: true,
+            input_html: {data: {select2: {tokenSeparators: [";"]}}}
+          f.input :should_be_read
+          f.input :to_call
+          f.input :will_stay_in_group
+          # f.input :will_stay_in_group
+          tags_input(f, {label: "Tags fiche de suivi "}, width: '75%')
         end
       end
       tabs do
@@ -250,6 +254,31 @@ ActiveAdmin.register ChildSupport do
               end
             end
 
+            columns style: 'justify-content:space-between;'do
+              column max_width: '8%' do
+                f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
+              end
+              if call_idx == 1
+                column do
+                  f.input :books_quantity,
+                    as: :radio,
+                    collection: child_support_books_quantity
+                end
+              end
+              column do
+                f.input "call#{call_idx}_reading_frequency",
+                  as: :radio,
+                  collection: child_support_call_reading_frequency_select_collection
+              end
+              column do
+                f.input "call#{call_idx}_tv_frequency",
+                  as: :radio,
+                  collection: child_support_call_tv_frequency_select_collection
+              end
+            end
+
+            f.input "call#{call_idx}_notes", input_html: { rows: 5, style: "width: 100%" }
+
             columns do
               column do
                 f.input "call#{call_idx}_technical_information",
@@ -258,43 +287,56 @@ ActiveAdmin.register ChildSupport do
                     style: "width: 70%",
                     value: f.object.send("call#{call_idx}_technical_information").presence ||
                       I18n.t("child_support.default.call_technical_information")
-
                   }
+
+                unless call_idx == 1
+                  f.input "call#{call_idx}_goals_tracking",
+                          input_html: {
+                            rows: 8,
+                            style: "width: 70%",
+                            value: case call_idx
+                                   when 2
+                                     f.object.send("call1_goals")
+                                   when 3
+                                     f.object.send("call2_goals").presence || f.object.send("call1_goals")
+                                   when 4
+                                     f.object.send("call3_goals").presence || f.object.send("call2_goals").presence || f.object.send("call1_goals")
+                                   else
+                                     f.object.send("call4_goals").presence || f.object.send("call3_goals").presence || f.object.send("call2_goals").presence || f.object.send("call1_goals")
+                                   end
+                          }
+                end
+
                 f.input "call#{call_idx}_parent_actions",
                   input_html: {
                     rows: 8,
-                    style: "width: 70%",
-                    value: f.object.send("call#{call_idx}_parent_actions").presence ||
-                      I18n.t("child_support.default.call_parent_actions")
+                    style: "width: 70%"
+                    # value: f.object.send("call#{call_idx}_parent_actions").presence ||
+                    #   I18n.t("child_support.default.call_parent_actions")
 
                   }
-                f.input "call#{call_idx}_language_awareness",
-                  as: :radio,
-                  collection: child_support_call_language_awareness_select_collection
-                f.input "call#{call_idx}_parent_progress",
-                  as: :radio,
-                  collection: child_support_call_parent_progress_select_collection
-                f.input "call#{call_idx}_reading_frequency",
-                  as: :radio,
-                  collection: child_support_call_reading_frequency_select_collection
-                f.input "call#{call_idx}_sendings_benefits",
-                  as: :radio,
-                  collection: child_support_call_sendings_benefits_select_collection
-                f.input "call#{call_idx}_sendings_benefits_details", input_html: {rows: 5, style: "width: 70%"}
+                # f.input "call#{call_idx}_language_awareness",
+                #   as: :radio,
+                #   collection: child_support_call_language_awareness_select_collection
               end
               column do
-                f.input "call#{call_idx}_language_development", input_html: {rows: 8, style: "width: 70%"}
                 f.input "call#{call_idx}_goals", input_html: {rows: 8, style: "width: 70%"}
-                f.input "call#{call_idx}_notes",
-                  input_html: {
-                    rows: 8,
-                    style: "width: 70%"
-                  }
-                if call_idx == 1
-                  f.input :books_quantity, as: :radio, collection: child_support_books_quantity
-                end
+                f.input "call#{call_idx}_language_development", input_html: {rows: 8, style: "width: 70%"}
               end
             end
+            columns do
+              column do
+                f.input "call#{call_idx}_parent_progress",
+                        as: :radio,
+                        collection: child_support_call_parent_progress_select_collection
+              end
+              column do
+                f.input "call#{call_idx}_sendings_benefits",
+                        as: :radio,
+                        collection: child_support_call_sendings_benefits_select_collection
+              end
+            end
+            f.input "call#{call_idx}_sendings_benefits_details", input_html: {rows: 5, style: "width: 100%"}
           end
         end
         if f.object.first_child
@@ -315,6 +357,7 @@ ActiveAdmin.register ChildSupport do
                     parent_f.input :city_name
                     parent_f.input :is_ambassador
                     parent_f.input :job
+                    selected_modules_input(parent_f)
                   end
                 end
               end
@@ -355,7 +398,8 @@ ActiveAdmin.register ChildSupport do
     second_language
     to_call
     books_quantity
-    notes will_stay_in_group
+    will_stay_in_group
+    notes
     availability
     call_infos
   ] + [tags_params] + [{book_not_received: []}]
@@ -363,7 +407,7 @@ ActiveAdmin.register ChildSupport do
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
     is_ambassador present_on_whatsapp present_on_facebook follow_us_on_whatsapp follow_us_on_facebook job
-  ]
+  ] + [{selected_module_list: []}]
   first_child_attributes = [{
     first_child_attributes: [
       :id,
@@ -405,7 +449,7 @@ ActiveAdmin.register ChildSupport do
           end
           row :children
           row :to_call
-          row :will_stay_in_group
+          # row :will_stay_in_group
           row :important_information
           row :availability
           row :call_infos
@@ -426,7 +470,7 @@ ActiveAdmin.register ChildSupport do
             row "call#{call_idx}_duration"
             row "call#{call_idx}_technical_information"
             row "call#{call_idx}_parent_actions"
-            row "call#{call_idx}_language_awareness"
+            # row "call#{call_idx}_language_awareness"
             row "call#{call_idx}_parent_progress"
             row "call#{call_idx}_sendings_benefits"
             row "call#{call_idx}_sendings_benefits_details"
@@ -435,6 +479,7 @@ ActiveAdmin.register ChildSupport do
               row :books_quantity
             end
             row "call#{call_idx}_reading_frequency"
+            # row "call#{call_idx}_tv_frequency"
             row "call#{call_idx}_goals"
             row "call#{call_idx}_notes"
           end
@@ -506,7 +551,7 @@ ActiveAdmin.register ChildSupport do
         cs.send("call#{call_idx}_technical_information_text")
       end
       column("call#{call_idx}_parent_actions") { |cs| cs.send("call#{call_idx}_parent_actions_text") }
-      column "call#{call_idx}_language_awareness"
+      # column "call#{call_idx}_language_awareness"
       column "call#{call_idx}_parent_progress"
       column "call#{call_idx}_sendings_benefits"
       column "call#{call_idx}_sendings_benefits_details"

@@ -65,8 +65,6 @@ RSpec.describe Child, type: :model do
   let_it_be(:fourth_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: third_parent, birthdate: Date.today.yesterday) } # land: "Paris", tag_list: ["Paris_18_eme"]
   let_it_be(:fifth_child, reload: true) { FactoryBot.create(:child, parent1: fourth_parent, parent2: fifth_parent, birthdate: Date.today.prev_month(27)) } # land: "Seine-Saint_Denis", tag_list: ["Aulnay-Sous-Bois"]
 
-  let_it_be(:first_child_support, reload: true) { FactoryBot.create(:child_support, first_child: first_child) }
-
   describe "Validations" do
     context "succeed" do
       it "if minimal attributes are present" do
@@ -135,10 +133,10 @@ RSpec.describe Child, type: :model do
 
     context "tag" do
       it "'Paris_18_eme' is added to child's tags if parent's zip code is 75018" do
-        expect(first_child.tag_list).to match_array ["Paris_18_eme"]
+        expect(first_child.land_list).to match_array ["Paris_18_eme"]
       end
       it "'Orleans' is added to child's tags if parent's zip code is 45380" do
-        expect(second_child.tag_list).to match_array ["Orleans"]
+        expect(second_child.land_list).to match_array ["Orleans"]
       end
     end
   end
@@ -264,16 +262,26 @@ RSpec.describe Child, type: :model do
 
   describe "#with_support" do
     context "returns" do
+      before do
+        second_child.update_column(:child_support_id, :nil)
+        third_child.update_column(:child_support_id, :nil)
+      end
+
       it "children with child_support" do
-        expect(Child.with_support).to match_array [first_child]
+        expect(Child.with_support).to match_array [first_child, fourth_child, fifth_child]
       end
     end
   end
 
   describe "#without_support" do
     context "returns" do
+      before do
+        second_child.update_column(:child_support_id, :nil)
+        third_child.update_column(:child_support_id, :nil)
+      end
+
       it "children without child_support" do
-        expect(Child.without_support).to match_array [second_child, third_child, fourth_child, fifth_child]
+        expect(Child.without_support).to match_array [second_child, third_child]
       end
     end
   end
@@ -325,24 +333,6 @@ RSpec.describe Child, type: :model do
       end
     end
   end
-
-  # describe "#parent_id_in" do
-  #   context "returns" do
-  #     it "children with a parent's id in parameter" do
-  #       expect(Child.parent_id_in(@first_parent.id)).to match_array [@first_child, @second_child, @third_child]
-  #       expect(Child.all).to match_array @all_children
-  #     end
-  #   end
-  # end
-  #
-  # describe "#parent_id_not_in" do
-  #   context "returns" do
-  #     it "children without a parent's id in parameter" do
-  #       expect(Child.parent_id_not_in(@first_parent.id)).to match_array [@fourth_child, @fifth_child, @sixth_child]
-  #       expect(Child.all).to match_array @all_children
-  #     end
-  #   end
-  # end
 
   describe "#active_group_id_in" do
     context "returns" do

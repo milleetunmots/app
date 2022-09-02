@@ -119,7 +119,7 @@ class ChildrenController < ApplicationController
       @child.errors.add(:caf_detail, :invalid, message: "Précisez votre CAF svp!")
     end
     if @child.errors.none? && @child.save
-      sms_url_form = "https://wr1q9w7z4ro.typeform.com/to/odImEgtZ"
+      sms_url_form = "#{ENV['TYPEFORM_URL']}#child_support_id=#{@child.child_support.id}"
       message = "Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{sms_url_form}"
 
       SpotHit::SendSmsService.new([@child.parent1_id], Time.now.to_i, message).call if current_registration_origin == 2
@@ -138,7 +138,7 @@ class ChildrenController < ApplicationController
           child_support: @child.child_support
         ))
       end
-      redirect_to created_child_path
+      redirect_to created_child_path(child_id: @child.id)
     else
       flash.now[:error] = "Inscription refusée"
       @child.build_parent2 if @child.parent2.nil?
@@ -163,8 +163,9 @@ class ChildrenController < ApplicationController
       @again = true
       @widget = false
     when 2
+      @child = Child.find(params[:child_id])
       session.delete(:registration_origin)
-      @message = I18n.t('inscription_success.without_widget')
+      @message = I18n.t('inscription_success.without_widget', typeform_url: "#{ENV['TYPEFORM_URL']}#child_support_id=#{@child&.child_support&.id}")
       @again = false
       @widget = false
     else

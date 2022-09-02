@@ -5,12 +5,15 @@
 #  id                                  :bigint           not null, primary key
 #  address                             :string           not null
 #  city_name                           :string           not null
+#  degree                              :string
+#  degree_in_france                    :boolean
 #  discarded_at                        :datetime
 #  email                               :string
 #  first_name                          :string           not null
 #  follow_us_on_facebook               :boolean
 #  follow_us_on_whatsapp               :boolean
 #  gender                              :string           not null
+#  help_my_child_to_learn_is_important :string
 #  is_ambassador                       :boolean
 #  job                                 :string
 #  last_name                           :string           not null
@@ -26,6 +29,8 @@
 #  redirection_urls_count              :integer
 #  redirection_visit_rate              :float
 #  terms_accepted_at                   :datetime
+#  would_like_to_do_more               :string
+#  would_receive_advices               :string
 #  created_at                          :datetime         not null
 #  updated_at                          :datetime         not null
 #
@@ -214,7 +219,8 @@ class Parent < ApplicationRecord
   # tags
   # ---------------------------------------------------------------------------
 
-  acts_as_taggable
+  acts_as_taggable_on :tags
+  acts_as_taggable_on :selected_modules
 
   private
 

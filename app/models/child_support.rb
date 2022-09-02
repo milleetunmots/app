@@ -3,6 +3,7 @@
 # Table name: child_supports
 #
 #  id                              :bigint           not null, primary key
+#  already_working_with            :boolean
 #  availability                    :string
 #  book_not_received               :string
 #  books_quantity                  :string
@@ -19,10 +20,13 @@
 #  call1_status                    :string
 #  call1_status_details            :text
 #  call1_technical_information     :text
+#  call1_tv_frequency              :string
 #  call2_duration                  :integer
 #  call2_goals                     :text
+#  call2_goals_tracking            :text
 #  call2_language_awareness        :string
 #  call2_language_development      :text
+#  call2_new_goals                 :text
 #  call2_notes                     :text
 #  call2_parent_actions            :text
 #  call2_parent_progress           :string
@@ -32,10 +36,13 @@
 #  call2_status                    :string
 #  call2_status_details            :text
 #  call2_technical_information     :text
+#  call2_tv_frequency              :string
 #  call3_duration                  :integer
 #  call3_goals                     :text
+#  call3_goals_tracking            :text
 #  call3_language_awareness        :string
 #  call3_language_development      :text
+#  call3_new_goals                 :text
 #  call3_notes                     :text
 #  call3_parent_actions            :text
 #  call3_parent_progress           :string
@@ -45,10 +52,13 @@
 #  call3_status                    :string
 #  call3_status_details            :text
 #  call3_technical_information     :text
+#  call3_tv_frequency              :string
 #  call4_duration                  :integer
 #  call4_goals                     :text
+#  call4_goals_tracking            :text
 #  call4_language_awareness        :string
 #  call4_language_development      :text
+#  call4_new_goals                 :text
 #  call4_notes                     :text
 #  call4_parent_actions            :text
 #  call4_parent_progress           :string
@@ -58,10 +68,13 @@
 #  call4_status                    :string
 #  call4_status_details            :text
 #  call4_technical_information     :text
+#  call4_tv_frequency              :string
 #  call5_duration                  :integer
 #  call5_goals                     :text
+#  call5_goals_tracking            :text
 #  call5_language_awareness        :string
 #  call5_language_development      :text
+#  call5_new_goals                 :text
 #  call5_notes                     :text
 #  call5_parent_actions            :text
 #  call5_parent_progress           :string
@@ -71,11 +84,15 @@
 #  call5_status                    :string
 #  call5_status_details            :text
 #  call5_technical_information     :text
+#  call5_tv_frequency              :string
 #  call_infos                      :string
+#  child_count                     :integer
 #  discarded_at                    :datetime
 #  important_information           :text
 #  is_bilingual                    :boolean
+#  most_present_parent             :string
 #  notes                           :text
+#  other_phone_number              :string
 #  second_language                 :string
 #  should_be_read                  :boolean
 #  to_call                         :boolean
@@ -89,6 +106,7 @@
 #  index_child_supports_on_book_not_received         (book_not_received)
 #  index_child_supports_on_call1_parent_progress     (call1_parent_progress)
 #  index_child_supports_on_call1_reading_frequency   (call1_reading_frequency)
+#  index_child_supports_on_call1_tv_frequency        (call1_tv_frequency)
 #  index_child_supports_on_call2_language_awareness  (call2_language_awareness)
 #  index_child_supports_on_call2_parent_progress     (call2_parent_progress)
 #  index_child_supports_on_call3_language_awareness  (call3_language_awareness)
@@ -113,8 +131,9 @@ class ChildSupport < ApplicationRecord
   LANGUAGE_AWARENESS = %w[1_none 2_awareness].freeze
   PARENT_PROGRESS = %w[1_low 2_medium 3_high 4_excellent].freeze
   READING_FREQUENCY = %w[1_rarely 2_weekly 3_frequently 4_daily].freeze
+  TV_FREQUENCY = %w[1_never 2_weekly 3_frequently 4_daily].freeze
   SENDINGS_BENEFITS = %w[1_none 2_far 3_remind 4_frequent 5_frequent_helps].freeze
-  BOOKS_QUANTITY = %w[1_none 2_one_to_five 3_five_to_ten 4_more_than_ten].freeze
+  BOOKS_QUANTITY = %w[1_none 2_three_or_less 3_between_four_and_ten 4_more_than_ten].freeze
   BOOK_NOT_RECEIVED = %w[1_first_book 2_second_book 3_third_book 4_fourth_book 5_fifth_book].freeze
   CALL_STATUS = %w[1_ok 2_ko 3_unassigned_number 4_dont_call].freeze
 

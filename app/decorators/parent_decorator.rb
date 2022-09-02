@@ -124,6 +124,18 @@ class ParentDecorator < BaseDecorator
     model.first_child&.land
   end
 
+  def selected_modules
+    arbre do
+      model.selected_modules.each do |mod|
+        a mod.name,
+          href: h.active_admin_resource_for(model.class).route_collection_path(nil, q: {tagged_with_all: [mod.name]}),
+          class: 'tag',
+          style: "background-color: #{mod.color || '#CACACA'}"
+        text_node "&nbsp;".html_safe
+      end
+    end
+  end
+
   private
 
   def child(child)

@@ -23,6 +23,7 @@ ActiveAdmin.register Parent do
     column :children
     column :phone_number
     column :tags
+    column :selected_modules
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -78,6 +79,7 @@ ActiveAdmin.register Parent do
       f.input :job
       f.input :terms_accepted_at, as: :datepicker
       tags_input(f)
+      selected_modules_input(f)
     end
     f.actions
   end
@@ -86,7 +88,7 @@ ActiveAdmin.register Parent do
     :phone_number, :present_on_whatsapp, :present_on_facebook, :follow_us_on_facebook, :follow_us_on_whatsapp, :email,
     :letterbox_name, :address, :postal_code, :city_name,
     :is_ambassador, :job, :terms_accepted_at,
-    tags_params
+    tags_params, selected_module_list: []
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -126,6 +128,7 @@ ActiveAdmin.register Parent do
           row :redirection_unique_visit_rate
           row :redirection_visit_rate
           row :tags
+          row :selected_modules
         end
       end
       tab 'Historique' do
@@ -222,6 +225,7 @@ ActiveAdmin.register Parent do
     column :terms_accepted_at
 
     column :tag_list
+    column :selected_modules
 
     column :created_at
     column :updated_at

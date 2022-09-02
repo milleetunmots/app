@@ -3,6 +3,7 @@
 # Table name: child_supports
 #
 #  id                              :bigint           not null, primary key
+#  already_working_with            :boolean
 #  availability                    :string
 #  book_not_received               :string
 #  books_quantity                  :string
@@ -19,10 +20,13 @@
 #  call1_status                    :string
 #  call1_status_details            :text
 #  call1_technical_information     :text
+#  call1_tv_frequency              :string
 #  call2_duration                  :integer
 #  call2_goals                     :text
+#  call2_goals_tracking            :text
 #  call2_language_awareness        :string
 #  call2_language_development      :text
+#  call2_new_goals                 :text
 #  call2_notes                     :text
 #  call2_parent_actions            :text
 #  call2_parent_progress           :string
@@ -32,10 +36,13 @@
 #  call2_status                    :string
 #  call2_status_details            :text
 #  call2_technical_information     :text
+#  call2_tv_frequency              :string
 #  call3_duration                  :integer
 #  call3_goals                     :text
+#  call3_goals_tracking            :text
 #  call3_language_awareness        :string
 #  call3_language_development      :text
+#  call3_new_goals                 :text
 #  call3_notes                     :text
 #  call3_parent_actions            :text
 #  call3_parent_progress           :string
@@ -45,10 +52,13 @@
 #  call3_status                    :string
 #  call3_status_details            :text
 #  call3_technical_information     :text
+#  call3_tv_frequency              :string
 #  call4_duration                  :integer
 #  call4_goals                     :text
+#  call4_goals_tracking            :text
 #  call4_language_awareness        :string
 #  call4_language_development      :text
+#  call4_new_goals                 :text
 #  call4_notes                     :text
 #  call4_parent_actions            :text
 #  call4_parent_progress           :string
@@ -58,10 +68,13 @@
 #  call4_status                    :string
 #  call4_status_details            :text
 #  call4_technical_information     :text
+#  call4_tv_frequency              :string
 #  call5_duration                  :integer
 #  call5_goals                     :text
+#  call5_goals_tracking            :text
 #  call5_language_awareness        :string
 #  call5_language_development      :text
+#  call5_new_goals                 :text
 #  call5_notes                     :text
 #  call5_parent_actions            :text
 #  call5_parent_progress           :string
@@ -71,11 +84,15 @@
 #  call5_status                    :string
 #  call5_status_details            :text
 #  call5_technical_information     :text
+#  call5_tv_frequency              :string
 #  call_infos                      :string
+#  child_count                     :integer
 #  discarded_at                    :datetime
 #  important_information           :text
 #  is_bilingual                    :boolean
+#  most_present_parent             :string
 #  notes                           :text
+#  other_phone_number              :string
 #  second_language                 :string
 #  should_be_read                  :boolean
 #  to_call                         :boolean
@@ -89,6 +106,7 @@
 #  index_child_supports_on_book_not_received         (book_not_received)
 #  index_child_supports_on_call1_parent_progress     (call1_parent_progress)
 #  index_child_supports_on_call1_reading_frequency   (call1_reading_frequency)
+#  index_child_supports_on_call1_tv_frequency        (call1_tv_frequency)
 #  index_child_supports_on_call2_language_awareness  (call2_language_awareness)
 #  index_child_supports_on_call2_parent_progress     (call2_parent_progress)
 #  index_child_supports_on_call3_language_awareness  (call3_language_awareness)
@@ -123,8 +141,9 @@ RSpec.describe ChildSupport, type: :model do
   let_it_be(:third_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, registration_source: "pmi", registration_source_details: "Aristide Bamenou", group: group, group_status: "paused") }
 
   let_it_be(:first_child_support, reload: true) { FactoryBot.create(:child_support, first_child: first_child, supporter: admin_user) }
-  let_it_be(:second_child_support, reload: true) { FactoryBot.create(:child_support, first_child: second_child) }
-  let_it_be(:third_child_support, reload: true) { FactoryBot.create(:child_support, first_child: third_child) }
+  let_it_be(:second_child_support, reload: true) { second_child.child_support }
+  let_it_be(:third_child_support, reload: true) { third_child.child_support }
+
 
 
   describe "Validations" do
@@ -160,7 +179,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#without_supporter" do
     context "returns" do
       it "Child_support without supporter" do
-        expect(ChildSupport.without_supporter).to match_array [second_child_support, third_child_support]
+        expect(ChildSupport.without_supporter).to match_array [third_child_support, second_child_support]
       end
     end
   end

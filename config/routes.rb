@@ -34,6 +34,8 @@ Rails.application.routes.draw do
 
   get "parent/:id/first_child", to: "parents#first_child"
 
+  post "/typeform/webhooks", to: 'typeform#webhooks'
+
   resources :events, only: [:index, :create]
 
   root to: redirect("/admin")

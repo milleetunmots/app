@@ -39,6 +39,7 @@ ActiveAdmin.register Child do
     column :group_status
     column :pmi_detail
     column :tags
+    column :land_tag
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args

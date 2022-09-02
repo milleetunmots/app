@@ -6,12 +6,12 @@ div class: 'card card-parent' do
   ) + (
     div parent.full_address
   ) + (
-    div class: 'should-be-contacted' do
-      if should_contact_parent
-        status_tag 'yes', label: t('should_be_contacted')
-      else
-        status_tag 'no', label: t('should_not_be_contacted')
-      end
-    end
+  div class: 'tags' do
+    parent.tags
+  end
+  ) + br + (
+  div class: 'tags' do
+    parent.selected_modules
+  end
   )
 end
