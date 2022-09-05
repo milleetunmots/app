@@ -40,7 +40,6 @@ class ChildrenController < ApplicationController
     attributes = child_creation_params.merge(
       src_url: session[:src_url]
     )
-
     # Tags
 
     attributes[:tag_list] =
@@ -107,7 +106,6 @@ class ChildrenController < ApplicationController
     end
 
     # Base
-
     @child = Child.new(attributes)
     if @child.birthdate < @child_min_birthdate
       @child.errors.add(:birthdate, :invalid, message: "minimale: #{l(@child_min_birthdate)}")
@@ -138,7 +136,7 @@ class ChildrenController < ApplicationController
           child_support: @child.child_support
         ))
       end
-      redirect_to created_child_path(child_id: @child.id)
+      redirect_to created_child_path(sms_url_form: sms_url_form)
     else
       flash.now[:error] = "Inscription refusée"
       @child.build_parent2 if @child.parent2.nil?
@@ -163,9 +161,8 @@ class ChildrenController < ApplicationController
       @again = true
       @widget = false
     when 2
-      @child = Child.find(params[:child_id])
       session.delete(:registration_origin)
-      @message = I18n.t('inscription_success.without_widget', typeform_url: "#{ENV['TYPEFORM_URL']}#child_support_id=#{@child&.child_support&.id}")
+      @message = I18n.t('inscription_success.without_widget', typeform_url: params[:sms_url_form])
       @again = false
       @widget = false
     else
