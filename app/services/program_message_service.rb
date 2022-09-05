@@ -45,8 +45,10 @@ class ProgramMessageService
     if service.errors.any?
       @errors = service.errors
     else
-      @url.build_redirection_url_sent(occurred_at: Time.now)
-      @url.save!
+      if @url
+        @url.build_redirection_url_sent(occurred_at: Time.now)
+        @url.save!
+      end
     end
     self
   end
