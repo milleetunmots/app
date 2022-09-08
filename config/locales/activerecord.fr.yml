@@ -60,6 +60,7 @@ fr:
         address: Adresse
         registration_months_range: Tranche d'age à l'inscription
         age: Age
+        available_for_workshops: Disponible pour les ateliers
         birthdate: Date de naissance
         child_support: Suivi
         city_name: Ville
@@ -72,6 +73,7 @@ fr:
         family_text_messages_count: SMS familiaux
         family_text_messages_received_count: SMS familiaux reçus
         family_text_messages_sent_count: SMS familiaux envoyés
+        family_followed: Famille suivie
         first_name: Prénom
         group_end: Fin du suivi
         group_start: Debut du suivi
