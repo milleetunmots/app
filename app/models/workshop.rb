@@ -65,9 +65,13 @@ class Workshop < ApplicationRecord
     parent_ids = workshop.participant_ids + Parent.tagged_with(workshop.land_list.join(", ")).pluck(:id)
 
     parent_ids.each do |participant_id|
-      next unless Parent.find(participant_id).available_for_workshops?
+      parent = Parent.find(participant_id)
 
-      next unless Parent.find(participant_id).family_followed?
+      next unless parent.available_for_workshops?
+
+      next unless parent.family_followed?
+
+      next unless parent.should_be_contacted?
 
       response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
         parent_id: participant_id,

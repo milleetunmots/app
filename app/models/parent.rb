@@ -216,6 +216,13 @@ class Parent < ApplicationRecord
     true
   end
 
+  def should_be_contacted?
+    parent1_children.each {|child| return false unless child.should_contact_parent1 }
+    parent2_children.each {|child| return false unless child.should_contact_parent2 }
+
+    true
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------
