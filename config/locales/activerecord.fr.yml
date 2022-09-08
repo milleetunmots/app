@@ -60,6 +60,7 @@ fr:
         address: Adresse
         registration_months_range: Tranche d'age à l'inscription
         age: Age
+        available_for_workshops: Disponible pour les ateliers
         birthdate: Date de naissance
         child_support: Suivi
         city_name: Ville
@@ -421,6 +422,7 @@ fr:
         present_on_facebook: Présent sur Facebook
         follow_us_on_whatsapp: Nous suit sur Whatsapp
         follow_us_on_facebook: Nous suit sur Facebook
+        family_followed: Famille suivie
         job: Métier
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres
@@ -516,6 +518,7 @@ fr:
         animator: Animateur
         co_animator: Binôme
         address: Adresse
+        land_tag: Terrain
         name: Atelier
         postal_code: Code postal
         city_name: Ville

@@ -3,6 +3,7 @@
 # Table name: children
 #
 #  id                                         :bigint           not null, primary key
+#  available_for_workshops                    :boolean          default(FALSE)
 #  birthdate                                  :date             not null
 #  discarded_at                               :datetime
 #  family_redirection_unique_visit_rate       :float

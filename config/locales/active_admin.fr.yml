@@ -40,6 +40,7 @@ fr:
         new_model: Créer SMS
     scopes:
       all: Tous
+      available_for_the_workshops: Disponibles pour les ateliers
       done: Fait
       ended: Terminées
       mine: Sous ma responsabilité

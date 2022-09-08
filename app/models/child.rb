@@ -3,6 +3,7 @@
 # Table name: children
 #
 #  id                                         :bigint           not null, primary key
+#  available_for_workshops                    :boolean          default(FALSE)
 #  birthdate                                  :date             not null
 #  discarded_at                               :datetime
 #  family_redirection_unique_visit_rate       :float
@@ -167,6 +168,7 @@ class Child < ApplicationRecord
   scope :without_support, -> { left_outer_joins(:child_support).where(child_supports: {id: nil}) }
   scope :with_group, -> { where.not(group_id: nil) }
   scope :without_group, -> { where(group_id: nil) }
+  scope :available_for_the_workshops, -> { where(available_for_workshops:  true)}
 
   def self.without_group_and_not_waiting_second_group
     second_group_children_ids = Child.tagged_with("2eme cohorte").pluck(:id)
