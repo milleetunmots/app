@@ -71,6 +71,8 @@ ActiveAdmin.register Workshop do
       parent_ids = workshop.participant_ids + Parent.tagged_with(workshop.tag_list.join(", ")).pluck(:id)
 
       parent_ids.each do |participant_id|
+        next unless Parent.find(participant_id).available_for_workshops?
+
         response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
           parent_id: participant_id,
           workshop_id: workshop.id
