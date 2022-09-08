@@ -17,6 +17,7 @@ ActiveAdmin.register Workshop do
     column :co_animator
     column :workshop_date
     column :workshop_address
+    column :land_tag
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -39,13 +40,14 @@ ActiveAdmin.register Workshop do
       f.input :co_animator
       address_input f
       f.input :participants, collection: parent_select_collection, input_html: {data: {select2: {}}}
-      tags_input(f)
+      lands_input(f)
       f.input :invitation_message, input_html: {rows: 5}
     end
     f.actions
   end
 
-  permit_params :topic, :workshop_date, :animator_id, :co_animator, :address, :postal_code, :city_name, :invitation_message, tags_params, participant_ids: []
+  permit_params :topic, :workshop_date, :animator_id, :co_animator, :address, :postal_code, :city_name,
+                :invitation_message, tags_params, participant_ids: [], lands_list: []
 
   show do
     tabs do
@@ -59,40 +61,8 @@ ActiveAdmin.register Workshop do
           row :workshop_address
           row :invitation_message
           row :workshop_participants
-          row :tags
+          row :land_tag
         end
-      end
-    end
-  end
-
-  controller do
-    after_create do |workshop|
-      message = workshop.invitation_message
-      parent_ids = workshop.participant_ids + Parent.tagged_with(workshop.tag_list.join(", ")).pluck(:id)
-
-      parent_ids.each do |participant_id|
-        next unless Parent.find(participant_id).available_for_workshops?
-
-        next unless Parent.find(participant_id).family_followed?
-
-        response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
-          parent_id: participant_id,
-          workshop_id: workshop.id
-        )
-        workshop.invitation_message = "#{message} Pour vous inscrire ou dire que vous ne venez pas, cliquer sur ce lien: #{response_link}"
-        service = SpotHit::SendSmsService.new(
-          participant_id,
-          DateTime.current.middle_of_day,
-          workshop.invitation_message
-        ).call
-        if service.errors.any?
-          alert = service.errors.join("\n")
-          raise StandardError, alert
-        end
-      rescue => e
-        flash[:alert] = e.message.truncate(200)
-      else
-        flash[:notice] = "Invitations envoyées"
       end
     end
   end

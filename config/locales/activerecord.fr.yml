@@ -518,6 +518,7 @@ fr:
         animator: Animateur
         co_animator: Binôme
         address: Adresse
+        land_tag: Terrain
         name: Atelier
         postal_code: Code postal
         city_name: Ville
