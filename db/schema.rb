@@ -197,7 +197,6 @@ ActiveRecord::Schema.define(version: 2022_09_08_103508) do
     t.date "group_end"
     t.string "land"
     t.boolean "available_for_workshops", default: false
-    t.boolean "family_followed", default: false
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["discarded_at"], name: "index_children_on_discarded_at"
@@ -321,6 +320,7 @@ ActiveRecord::Schema.define(version: 2022_09_08_103508) do
     t.string "help_my_child_to_learn_is_important"
     t.string "would_like_to_do_more"
     t.string "would_receive_advices"
+    t.boolean "family_followed", default: false
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"

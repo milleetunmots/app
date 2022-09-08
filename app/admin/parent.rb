@@ -22,6 +22,7 @@ ActiveAdmin.register Parent do
     column :last_name
     column :children
     column :phone_number
+    column :family_followed
     column :tags
     column :selected_modules
     column :created_at do |model|
@@ -40,6 +41,7 @@ ActiveAdmin.register Parent do
   filter :first_name
   filter :last_name
   filter :phone_number
+  filter :family_followed, as: :check_boxes
   filter :present_on_whatsapp
   filter :present_on_facebook
   filter :follow_us_on_whatsapp
@@ -68,6 +70,7 @@ ActiveAdmin.register Parent do
       f.input :last_name
       f.input :phone_number,
         input_html: { value: f.object.decorate.phone_number }
+      f.input :family_followed
       f.input :present_on_whatsapp
       f.input :present_on_facebook
       f.input :follow_us_on_whatsapp
@@ -87,7 +90,7 @@ ActiveAdmin.register Parent do
   permit_params :gender, :first_name, :last_name,
     :phone_number, :present_on_whatsapp, :present_on_facebook, :follow_us_on_facebook, :follow_us_on_whatsapp, :email,
     :letterbox_name, :address, :postal_code, :city_name,
-    :is_ambassador, :job, :terms_accepted_at,
+    :is_ambassador, :job, :terms_accepted_at, :family_followed,
     tags_params, selected_module_list: []
 
   # ---------------------------------------------------------------------------
@@ -104,6 +107,7 @@ ActiveAdmin.register Parent do
           row :first_name
           row :last_name
           row :phone_number
+          row :family_followed
           row :present_on_whatsapp
           row :present_on_facebook
           row :follow_us_on_whatsapp

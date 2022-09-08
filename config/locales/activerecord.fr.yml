@@ -73,7 +73,6 @@ fr:
         family_text_messages_count: SMS familiaux
         family_text_messages_received_count: SMS familiaux reçus
         family_text_messages_sent_count: SMS familiaux envoyés
-        family_followed: Famille suivie
         first_name: Prénom
         group_end: Fin du suivi
         group_start: Debut du suivi
@@ -423,6 +422,7 @@ fr:
         present_on_facebook: Présent sur Facebook
         follow_us_on_whatsapp: Nous suit sur Whatsapp
         follow_us_on_facebook: Nous suit sur Facebook
+        family_followed: Famille suivie
         job: Métier
         last_name: Nom
         letterbox_name: Nom sur la boîte aux lettres

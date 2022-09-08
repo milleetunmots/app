@@ -149,8 +149,7 @@ ActiveAdmin.register Child do
       )
 
       Child.where(id: ids).parents.each do |parent|
-        parent.tag_list.add("Famille suivie")
-        parent.save
+        parent.update family_followed: true
       end
 
       redirect_to request.referer, notice: "Enfants ajoutés à la cohorte"
@@ -558,10 +557,8 @@ ActiveAdmin.register Child do
     after_save do |child|
       if child.group && %w[active stopped paused].include?(child.group_status) && child.group_start.nil?
         child.update!(group_start: child.group.started_at)
-        child.parent1&.tag_list&.add("Famille suivie")
-        child.parent2&.tag_list&.add("Famille suivie")
-        child.parent1&.save
-        child.parent2&.save
+        child.parent1&.update family_followed: true
+        child.parent2&.update family_followed: true
       end
       child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
     end

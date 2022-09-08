@@ -6,7 +6,6 @@
 #  available_for_workshops                    :boolean          default(FALSE)
 #  birthdate                                  :date             not null
 #  discarded_at                               :datetime
-#  family_followed                            :boolean          default(FALSE)
 #  family_redirection_unique_visit_rate       :float
 #  family_redirection_url_unique_visits_count :integer
 #  family_redirection_url_visits_count        :integer
