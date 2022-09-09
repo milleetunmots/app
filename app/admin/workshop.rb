@@ -47,7 +47,7 @@ ActiveAdmin.register Workshop do
   end
 
   permit_params :topic, :workshop_date, :animator_id, :co_animator, :address, :postal_code, :city_name,
-                :invitation_message, tags_params, participant_ids: [], lands_list: []
+                :invitation_message, tags_params, participant_ids: [], land_list: []
 
   show do
     tabs do
