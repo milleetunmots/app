@@ -65,19 +65,19 @@ RSpec.describe Workshop, type: :model do
     end
   end
 
-  # describe ".name" do
-  #   context "format" do
-  #     let(:workshop) { FactoryBot.create(:workshop, workshop_date: Date.new(2022, 3, 5)) }
-  #     let(:paris_18_workshop) { FactoryBot.create(:workshop, workshop_date: Date.new(2022, 1, 5), tag_list: %w[Paris_18eme belliard]) }
-  #
-  #     it "is 'Atelier_year_month' if tags are not given" do
-  #       expect(workshop.name).to eq "Atelier_2022_3"
-  #     end
-  #     it "if tags are given is 'land_tag1_tag2_year_month'" do
-  #       expect(paris_18_workshop.name).to eq "Paris_18eme_belliard_2022_1"
-  #     end
-  #   end
-  # end
+  describe ".name" do
+    context "format" do
+      let(:workshop) { FactoryBot.create(:workshop, workshop_date: Date.today.next_day()) }
+      let(:paris_18_workshop) { FactoryBot.create(:workshop, workshop_date: Date.today.next_day(2), land_list: %w[Paris_18_eme]) }
+
+      it "is 'Atelier_year_month' if tags are not given" do
+        expect(workshop.name).to eq "Atelier_#{Date.today.next_day().year}_#{Date.today.next_day().month}"
+      end
+      it "if land_tag are given is 'land_tag1_tag2_year_month'" do
+        expect(paris_18_workshop.name).to eq "Atelier_Paris_18_eme_#{Date.today.next_day().year}_#{Date.today.next_day().month}"
+      end
+    end
+  end
 
   # describe ".events" do
   #   context "are workshop participations" do

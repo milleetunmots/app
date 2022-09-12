@@ -37,7 +37,7 @@ class Workshop < ApplicationRecord
 
   accepts_nested_attributes_for :events
 
-  before_validation :set_name, :set_workshop_participation, :set_workshop_tag_participants, on: :create
+  before_validation :set_name, :set_workshop_participation, :set_workshop_land_participants, on: :create
 
   validates :topic,
     presence: true,
@@ -60,47 +60,15 @@ class Workshop < ApplicationRecord
 
   validates_associated :events
 
-  after_create do |workshop|
-    message = workshop.invitation_message
-    parent_ids = workshop.participant_ids + Parent.tagged_with(workshop.land_list.join(", ")).pluck(:id)
-
-    parent_ids.each do |participant_id|
-      parent = Parent.find(participant_id)
-
-      next unless parent.available_for_workshops?
-
-      next unless parent.family_followed?
-
-      next unless parent.should_be_contacted?
-
-      response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
-        parent_id: participant_id,
-        workshop_id: workshop.id
-      )
-
-      workshop.invitation_message = "#{message} Pour vous inscrire ou dire que vous ne venez pas, cliquer sur ce lien: #{response_link}"
-      service = SpotHit::SendSmsService.new(
-        participant_id,
-        DateTime.current.middle_of_day,
-        workshop.invitation_message
-      ).call
-      if service.errors.any?
-        alert = service.errors.join("\n")
-        raise StandardError, alert
-      end
-    end
-  end
-
   def set_name
     self.name = "#{workshop_date.year}_#{workshop_date.month}"
-    self.name = land_list.empty? ? "Atelier_#{name}" : "#{land_list.join("_")}_#{name}"
+    self.name = land_list.empty? ? "Atelier_#{name}" : "Atelier_#{land_list.join("_")}_#{name}"
   end
 
-  def set_workshop_tag_participants
-    Parent.tagged_with(land_list.join(", ")).each do |parent|
+  def set_workshop_land_participants
+    (participants + Child.tagged_with(land_list.join(", "), on: :lands).parents).uniq.each do |parent|
       events.build(
         type: "Events::WorkshopParticipation",
-        workshop: self,
         related: parent,
         body: name,
         occurred_at: workshop_date
