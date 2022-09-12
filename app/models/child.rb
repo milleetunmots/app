@@ -136,16 +136,8 @@ class Child < ApplicationRecord
 
     land_list.add("Paris_18_eme") if postal_code.to_i == 75018
     land_list.add("Paris_20_eme") if postal_code.to_i == 75020
-    land_list.add("Plaisir") if [78370, 78340, 78310, 78990, 78280, 78114, 78320, 78450, 78960, 78100, 78640, 78850].include? postal_code.to_i
-    land_list.add("Trappes") if [78190, 78180, 78280, 78310, 78610, 78960].include? postal_code.to_i
-    land_list.add("Les Clayes Sous Bois") if postal_code.to_i == 78340
-    land_list.add("Coignière, Maurepas") if postal_code.to_i == 78310
-    land_list.add("Elancourt") if postal_code.to_i == 78990
-    land_list.add("Guyancourt") if postal_code.to_i == 78280
-    land_list.add("Montigny le bretonneux") if postal_code.to_i == 78180
-    land_list.add("La verrière") if postal_code.to_i == 78320
-    land_list.add("Villepreux") if postal_code.to_i == 78450
-    land_list.add("Voisin le Bretonneux") if postal_code.to_i == 78960
+    land_list.add("Plaisir") if [78570, 78540, 78650, 78700, 78710, 78711, 78760, 78800, 78820, 78860, 78910, 78955, 78610, 78980, 78520, 78490, 78420, 78410, 78390, 78380, 78330, 78300, 78260, 78220, 78210, 78200, 78180, 78150, 78140, 78130, 78370, 78340, 78310, 78280, 78114, 78320, 78450, 78960, 78100, 78640, 78850].include? postal_code.to_i
+    land_list.add("Trappes") if [78190, 78990].include? postal_code.to_i
     land_list.add("Aulnay-Sous-Bois") if postal_code.to_i == 93600
     land_list.add("Orleans") if [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800].include? postal_code.to_i
     land_list.add("Montargis") if [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570].include? postal_code.to_i
