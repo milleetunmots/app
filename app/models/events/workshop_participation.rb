@@ -43,12 +43,6 @@ class Events::WorkshopParticipation < Event
   after_create :send_message
 
   def send_message
-    return unless related.available_for_workshops?
-
-    return unless related.family_followed?
-
-    return unless related.should_be_contacted?
-
     response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
       parent_id: related.id,
       workshop_id: workshop.id

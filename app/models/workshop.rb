@@ -67,6 +67,12 @@ class Workshop < ApplicationRecord
 
   def set_workshop_land_participants
     (participants + Child.tagged_with(land_list.join(", "), on: :lands).parents).uniq.each do |parent|
+      next unless parent.available_for_workshops?
+
+      next unless parent.family_followed?
+
+      next unless parent.should_be_contacted?
+
       events.build(
         type: "Events::WorkshopParticipation",
         related: parent,
