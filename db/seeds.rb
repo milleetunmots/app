@@ -133,11 +133,23 @@ puts " ✓"
 
 # Child
 if Rails.env.development?
-  print "\t50 Children"
+  postal_code = [75018, 75020, 78570, 78540, 78650, 78700, 78710, 78711, 78760, 78800, 78820, 78860, 78910, 78955, 78610, 78980, 78520, 78490, 78420, 78410, 78390, 78380, 78330, 78300, 78260, 78220, 78210, 78200, 78180, 78150, 78140, 78130, 78370, 78340, 78310, 78990, 78280, 78114, 78320, 78450, 78960, 78100, 78640, 78850, 78190, 78990, 93600, 45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800, 45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570]
+  parents = []
 
-  50.times do
-    FactoryBot.create(:child)
+  print "\t100 parents"
+  100.times do
+    parents << parent = FactoryBot.create(:parent, postal_code: postal_code.sample)
+    break unless parent.phone_number
   end
+  puts " ✓"
 
+  print "\t150 Children"
+
+  150.times do
+    parent1 = parents.sample
+    parent2 = (parents - [parent1]).sample
+
+    FactoryBot.create(:child, parent1: parent1, parent2: parent2)
+  end
   puts " ✓"
 end

@@ -211,9 +211,9 @@ class Parent < ApplicationRecord
   end
 
   def available_for_workshops?
-    children.each {|child| return false unless child.available_for_workshops}
+    children.each {|child| return true if child.available_for_workshops }
 
-    true
+    false
   end
 
   def should_be_contacted?
