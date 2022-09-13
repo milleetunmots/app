@@ -35,7 +35,7 @@ module ActiveAdmin
 
         collection_action :perform_adding_tags, method: :post do
           ids = params[:ids]
-          tags = params[:tag_list]
+          tags = params[:child][:tag_list]
           back_url = params[:back_url]
 
           collection.object.klass.where(id: ids).each do |object|
