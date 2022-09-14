@@ -235,8 +235,7 @@ ActiveAdmin.register ChildSupport do
           f.input :should_be_read
           f.input :to_call
           f.input :will_stay_in_group
-          # f.input :will_stay_in_group
-          tags_input(f, {label: "Tags fiche de suivi "}, width: '75%')
+          tags_input f
         end
       end
       tabs do
