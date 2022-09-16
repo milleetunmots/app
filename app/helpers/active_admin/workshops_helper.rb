@@ -5,7 +5,7 @@ module ActiveAdmin::WorkshopsHelper
     end
   end
 
-  def lands_input(form, options = {}, width: nil)
+  def lands_input(form, options = {})
     input_html = {
       data: {
         select2: {
