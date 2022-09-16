@@ -14,7 +14,6 @@ module ActiveAdmin::WorkshopsHelper
         }
       }
     }
-    input_html[:width] = width if width
     form.input :land_list,
                {
                  multiple: true,
