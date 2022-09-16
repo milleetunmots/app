@@ -27,7 +27,7 @@
 class Workshop < ApplicationRecord
   include Discard::Model
 
-  acts_as_taggable
+  acts_as_taggable_on :lands
 
   TOPICS = %w[meal sleep nursery_rhymes books games outside bath emotion]
 
@@ -37,7 +37,7 @@ class Workshop < ApplicationRecord
 
   accepts_nested_attributes_for :events
 
-  before_validation :set_name, :set_workshop_participation, :set_workshop_tag_participants, on: :create
+  before_validation :set_name, :set_workshop_participation, :set_workshop_land_participants, on: :create
 
   validates :topic,
     presence: true,
@@ -46,6 +46,9 @@ class Workshop < ApplicationRecord
     presence: true
   validates :workshop_date,
     presence: true
+  validates :workshop_date, date: {
+    after: proc { Date.today }
+  }, on: :create
   validates :address,
     presence: true
   validates :postal_code,
@@ -59,14 +62,19 @@ class Workshop < ApplicationRecord
 
   def set_name
     self.name = "#{workshop_date.year}_#{workshop_date.month}"
-    self.name = tag_list.empty? ? "Atelier_#{name}" : "#{tag_list.join("_")}_#{name}"
+    self.name = land_list.empty? ? "Atelier_#{name}" : "Atelier_#{land_list.join("_")}_#{name}"
   end
 
-  def set_workshop_tag_participants
-    Parent.tagged_with(tag_list.join(", ")).each do |parent|
+  def set_workshop_land_participants
+    (participants + Child.tagged_with(land_list.join(", "), on: :lands).parents).uniq.each do |parent|
+      next unless parent.available_for_workshops?
+
+      next unless parent.family_followed?
+
+      next unless parent.should_be_contacted?
+
       events.build(
         type: "Events::WorkshopParticipation",
-        workshop: self,
         related: parent,
         body: name,
         occurred_at: workshop_date

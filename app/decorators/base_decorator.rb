@@ -36,6 +36,21 @@ class BaseDecorator < Draper::Decorator
     end
   end
 
+  def land_tag
+    config = h.active_admin_resource_for(model.class)
+    return unless config
+
+    arbre do
+      model.lands.each do |land|
+        a land.name,
+          href: config.route_collection_path(nil, q: {tagged_with_all: [land.name]}),
+          class: 'tag',
+          style: "background-color: #{land.color || '#CACACA'}"
+        text_node "&nbsp;".html_safe
+      end
+    end
+  end
+
   def created_at_date
     h.l model.created_at.to_date, format: :default
   end

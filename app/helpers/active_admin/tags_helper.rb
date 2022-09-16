@@ -4,7 +4,7 @@ module ActiveAdmin::TagsHelper
     ActsAsTaggableOn::Tag.order("LOWER(name)").pluck(:name)
   end
 
-  def tags_input(form, options = {}, width: nil)
+  def tags_input(form, options = {})
     input_html = {
       data: {
         select2: {
@@ -13,7 +13,6 @@ module ActiveAdmin::TagsHelper
         }
       }
     }
-    input_html[:width] = width if width
     form.input :tag_list,
       {
         multiple: true,
@@ -22,5 +21,4 @@ module ActiveAdmin::TagsHelper
         input_html: input_html
       }.deep_merge(options)
   end
-
 end

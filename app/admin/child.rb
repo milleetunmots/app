@@ -62,6 +62,8 @@ ActiveAdmin.register Child do
 
   scope :without_parent_to_contact, group: :parent
 
+  scope :available_for_the_workshops, group: :workshop
+
   filter :gender,
     as: :check_boxes,
     collection: proc { child_gender_select_collection(with_unknown: true) }
@@ -147,8 +149,7 @@ ActiveAdmin.register Child do
       )
 
       Child.where(id: ids).parents.each do |parent|
-        parent.tag_list.add("Famille suivie")
-        parent.save
+        parent.update family_followed: true
       end
 
       redirect_to request.referer, notice: "Enfants ajoutés à la cohorte"
@@ -300,6 +301,7 @@ ActiveAdmin.register Child do
           min_date: Child.min_birthdate,
           max_date: Child.max_birthdate
         }
+      f.input :available_for_workshops
       f.input :registration_source,
         collection: child_registration_source_select_collection,
         input_html: {data: {select2: {}}}
@@ -320,7 +322,7 @@ ActiveAdmin.register Child do
 
   permit_params :parent1_id, :parent2_id, :group_id,
     :should_contact_parent1, :should_contact_parent2,
-    :gender, :first_name, :last_name, :birthdate,
+    :gender, :first_name, :last_name, :birthdate, :available_for_workshops,
     :registration_source, :registration_source_details, :pmi_detail, :group_status,
     tags_params
 
@@ -344,6 +346,7 @@ ActiveAdmin.register Child do
             decorated.gender_status
           end
           row :land
+          row :available_for_workshops
           row :registration_source
           row :registration_source_details
           row :pmi_detail
@@ -440,7 +443,7 @@ ActiveAdmin.register Child do
     only: :index do
     dropdown_menu "Outils" do
       item "Nettoyer les précisions sur l'origine", [:new_clean_registration_source_details, :admin, :children]
-      item "Mettre à jour le tag des enfants pas à l'école", [:set_age_ok, :admin, :children]
+      item "Mettre à jour les enfants disponibles pour les ateliers", [:set_age_ok, :admin, :children]
     end
   end
   collection_action :new_clean_registration_source_details do
@@ -453,15 +456,14 @@ ActiveAdmin.register Child do
   end
 
   collection_action :set_age_ok do
-    child_with_age_ok = if Date.today.month <= 8
+    children_available = if Date.today.month <= 8
                           Child.where(birthdate: Date.new(Date.today.year - 3, 1, 1)..Date.new(Date.today.year, 12, 31))
                         else
                           Child.where(birthdate: Date.new(Date.today.year - 2, 1, 1)..Date.new(Date.today.year, 12, 31))
                         end
 
     Child.all.each do |child|
-      child_with_age_ok.include? child ? child.tag_list.add("age_ok") : child.tag_list.remove("age_ok")
-      child.save
+      child.update! available_for_workshops: children_available.include?(child) ? true : false
     end
     redirect_to admin_children_path, notice: "Tags mis à jour"
   end
@@ -555,10 +557,8 @@ ActiveAdmin.register Child do
     after_save do |child|
       if child.group && %w[active stopped paused].include?(child.group_status) && child.group_start.nil?
         child.update!(group_start: child.group.started_at)
-        child.parent1&.tag_list&.add("Famille suivie")
-        child.parent2&.tag_list&.add("Famille suivie")
-        child.parent1&.save
-        child.parent2&.save
+        child.parent1&.update family_followed: true
+        child.parent2&.update family_followed: true
       end
       child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
     end

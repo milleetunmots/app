@@ -9,6 +9,7 @@
 #  degree_in_france                    :boolean
 #  discarded_at                        :datetime
 #  email                               :string
+#  family_followed                     :boolean          default(FALSE)
 #  first_name                          :string           not null
 #  follow_us_on_facebook               :boolean
 #  follow_us_on_whatsapp               :boolean
@@ -207,6 +208,19 @@ class Parent < ApplicationRecord
       return true if phone_number == other_parent.phone_number
     end
     I18n.transliterate(first_name).capitalize == I18n.transliterate(other_parent.first_name).capitalize && I18n.transliterate(last_name).capitalize == I18n.transliterate(other_parent.last_name).capitalize
+  end
+
+  def available_for_workshops?
+    children.each {|child| return true if child.available_for_workshops }
+
+    false
+  end
+
+  def should_be_contacted?
+    parent1_children.each {|child| return false unless child.should_contact_parent1 }
+    parent2_children.each {|child| return false unless child.should_contact_parent2 }
+
+    true
   end
 
   # ---------------------------------------------------------------------------
