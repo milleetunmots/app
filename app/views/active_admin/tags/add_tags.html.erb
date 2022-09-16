@@ -12,8 +12,7 @@
                         name: :back_url,
                         value: @back_url %>
 
-    <%= tags_input f,
-                   options = {
+    <%= tags_input f, input_html: {
                       name: 'tag_list[]'
                    }
     %>
