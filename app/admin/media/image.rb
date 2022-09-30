@@ -21,7 +21,9 @@ ActiveAdmin.register Media::Image do
     id_column
     column :name
     # column :theme
-    column :tags
+    column :tags do |model|
+      model.tags(context: 'tags')
+    end
     column :spot_hit_id
     column :file do |decorated|
       decorated.file_link_tag(max_height: '50px')

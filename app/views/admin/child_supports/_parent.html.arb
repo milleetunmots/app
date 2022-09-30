@@ -9,9 +9,5 @@ div class: 'card card-parent' do
   div class: 'tags' do
     parent.tags
   end
-  ) + br + (
-  div class: 'tags' do
-    parent.selected_modules
-  end
   )
 end

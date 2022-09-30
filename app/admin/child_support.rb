@@ -226,6 +226,7 @@ ActiveAdmin.register ChildSupport do
           end
         end
         column class:'column flex-column' do
+          render "available_modules", parent: f.object.parent1.decorate, label_text: 'Modules disponibles'
           f.input :availability, label: 'Disponibilités générales', input_html: { style: "width: 70%"}
           f.input :call_infos, label: 'Tentatives d’appels', input_html: { style: "width: 70%"}
           f.input :book_not_received,
@@ -235,7 +236,7 @@ ActiveAdmin.register ChildSupport do
           f.input :should_be_read
           f.input :to_call
           f.input :will_stay_in_group
-          tags_input(f, label: "Tags fiche de suivi ")
+          tags_input(f, context_list = 'tag_list', label: "Tags fiche de suivi")
         end
       end
       tabs do
@@ -356,7 +357,7 @@ ActiveAdmin.register ChildSupport do
                     parent_f.input :city_name
                     parent_f.input :is_ambassador
                     parent_f.input :job
-                    selected_modules_input(parent_f)
+                    tags_input(parent_f, context_list = 'selected_module_list', label: 'Modules choisis')
                   end
                 end
               end
@@ -456,7 +457,9 @@ ActiveAdmin.register ChildSupport do
           row :should_be_read
           row :is_bilingual
           row :second_language
-          row :tags
+          row :tags do |model|
+            model.tags(context: 'tags')
+          end
           row :created_at
           row :updated_at
         end
