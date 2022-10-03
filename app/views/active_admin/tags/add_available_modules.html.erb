@@ -1,0 +1,32 @@
+<%= semantic_form_for(@klass.new, url: @form_action) do |f| %>
+
+  <%= f.inputs do %>
+
+    <% @ids.each do |id| %>
+      <%= f.hidden_field  :ids,
+                          name: 'ids[]',
+                          value: id %>
+    <% end %>
+
+    <%= f.hidden_field  :back_url,
+                        name: :back_url,
+                        value: @back_url %>
+
+    <%= tags_input f,
+                   context_list= 'available_module_list',
+                   label: 'Modules disponibles', input_html: {
+                      name: 'available_module_list[]'
+                   }
+    %>
+
+  <% end %>
+
+  <%= f.actions do %>
+    <%= f.action :submit, label: 'Valider' %>
+  <% end %>
+
+<% end %>
+
+<%= javascript_tag do %>
+  $('body').addClass('edit');
+<% end %>

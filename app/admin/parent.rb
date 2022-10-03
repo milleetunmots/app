@@ -142,7 +142,12 @@ ActiveAdmin.register Parent do
           row :tags do |model|
             model.tags(context: 'tags')
           end
-          row :selected_modules
+          row :available_modules do |model|
+            model.tags(context: 'available_modules')
+          end
+          row :selected_modules do |model|
+            model.tags(context: 'selected_modules')
+          end
         end
       end
       tab 'Historique' do
@@ -184,6 +189,14 @@ ActiveAdmin.register Parent do
     end
   end
 
+  batch_action :add_available_modules do |ids|
+    @klass = collection.object.klass
+    @ids = ids
+    @form_action = url_for(action: :perform_adding_available_modules)
+    @back_url = request.referer
+    render "active_admin/tags/add_available_modules"
+  end
+
   batch_action :check_potential_ambassador do |ids|
     @parents = batch_action_collection.where(id: ids)
     @parents.each { |parent| parent.is_ambassador? ? next : parent.update!(is_ambassador: true) }
@@ -194,6 +207,18 @@ ActiveAdmin.register Parent do
     @parents = batch_action_collection.where(id: ids)
     @parents.each { |parent| !parent.is_ambassador? ? next : parent.update!(is_ambassador: false) }
     redirect_to collection_path, notice: "Potentiels parents ambassadeurs retirés."
+  end
+
+  collection_action :perform_adding_available_modules, method: :post do
+    ids = params[:ids]
+    modules = params[:available_module_list]
+    back_url = params[:back_url]
+
+    collection.object.klass.where(id: ids).each do |object|
+      object.available_module_list.add(modules)
+      object.save(validate: false)
+    end
+    redirect_to back_url, notice: "Modules disponibles ajoutés"
   end
 
   # ---------------------------------------------------------------------------
