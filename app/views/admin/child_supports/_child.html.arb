@@ -5,7 +5,7 @@ div class: 'card card-child' do
     div child.age
   ) + (
     div class: 'tags' do
-      child.land_tag
+      child.tags(context: 'lands')
     end
   )
 end

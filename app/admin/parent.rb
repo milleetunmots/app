@@ -23,8 +23,15 @@ ActiveAdmin.register Parent do
     column :children
     column :phone_number
     column :family_followed
-    column :tags
-    column :selected_modules
+    column :tags do |model|
+      model.tags(context: 'tags')
+    end
+    column :available_modules do |model|
+      model.tags(context: 'available_modules')
+    end
+    column :selected_modules do |model|
+      model.tags(context: 'selected_modules')
+    end
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -82,7 +89,8 @@ ActiveAdmin.register Parent do
       f.input :job
       f.input :terms_accepted_at, as: :datepicker
       tags_input(f)
-      selected_modules_input(f)
+      tags_input(f, context_list = 'available_module_list', label: 'Modules disponibles')
+      tags_input(f, context_list = 'selected_module_list', label: 'Modules choisis')
     end
     f.actions
   end
@@ -91,7 +99,7 @@ ActiveAdmin.register Parent do
     :phone_number, :present_on_whatsapp, :present_on_facebook, :follow_us_on_facebook, :follow_us_on_whatsapp, :email,
     :letterbox_name, :address, :postal_code, :city_name,
     :is_ambassador, :job, :terms_accepted_at, :family_followed,
-    tags_params, selected_module_list: []
+    tags_params.merge(selected_module_list: [], available_module_list: [])
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -131,8 +139,15 @@ ActiveAdmin.register Parent do
           row :redirection_url_unique_visits_count
           row :redirection_unique_visit_rate
           row :redirection_visit_rate
-          row :tags
-          row :selected_modules
+          row :tags do |model|
+            model.tags(context: 'tags')
+          end
+          row :available_modules do |model|
+            model.tags(context: 'available_modules')
+          end
+          row :selected_modules do |model|
+            model.tags(context: 'selected_modules')
+          end
         end
       end
       tab 'Historique' do
@@ -174,6 +189,14 @@ ActiveAdmin.register Parent do
     end
   end
 
+  batch_action :add_available_modules do |ids|
+    @klass = collection.object.klass
+    @ids = ids
+    @form_action = url_for(action: :perform_adding_available_modules)
+    @back_url = request.referer
+    render "active_admin/tags/add_available_modules"
+  end
+
   batch_action :check_potential_ambassador do |ids|
     @parents = batch_action_collection.where(id: ids)
     @parents.each { |parent| parent.is_ambassador? ? next : parent.update!(is_ambassador: true) }
@@ -184,6 +207,18 @@ ActiveAdmin.register Parent do
     @parents = batch_action_collection.where(id: ids)
     @parents.each { |parent| !parent.is_ambassador? ? next : parent.update!(is_ambassador: false) }
     redirect_to collection_path, notice: "Potentiels parents ambassadeurs retirés."
+  end
+
+  collection_action :perform_adding_available_modules, method: :post do
+    ids = params[:ids]
+    modules = params[:available_module_list]
+    back_url = params[:back_url]
+
+    collection.object.klass.where(id: ids).each do |object|
+      object.available_module_list.add(modules)
+      object.save(validate: false)
+    end
+    redirect_to back_url, notice: "Modules disponibles ajoutés"
   end
 
   # ---------------------------------------------------------------------------

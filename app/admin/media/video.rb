@@ -18,7 +18,9 @@ ActiveAdmin.register Media::Video do
     id_column
     column :name
     # column :theme
-    column :tags
+    column :tags do |model|
+      model.tags(context: 'tags')
+    end
     column :url do |decorated|
       decorated.url_link
     end

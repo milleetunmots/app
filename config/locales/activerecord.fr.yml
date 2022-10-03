@@ -440,6 +440,7 @@ fr:
         terms_accepted_at: Acceptation des conditions d'utilisation
         text_messages_sent_count: SMS envoyés
         selected_modules: Modules choisis
+        available_modules: Modules disponibles
       parent/gender:
         f: Femme
         m: Homme
