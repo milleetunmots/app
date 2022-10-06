@@ -21,7 +21,9 @@ ActiveAdmin.register Media::Document do
     id_column
     column :name
     # column :theme
-    column :tags
+    column :tags do |model|
+      model.tags(context: 'tags')
+    end
     column :file do |decorated|
       decorated.file_link_tag
     end

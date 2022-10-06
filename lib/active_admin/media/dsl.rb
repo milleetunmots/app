@@ -13,7 +13,9 @@ module ActiveAdmin
           end
           column :name
           # column :theme
-          column :tags
+          column :tags do |model|
+            model.tags(context: 'tags')
+          end
           (1..3).each do |msg_idx|
             column "body#{msg_idx}".to_sym do |decorated|
               decorated.send("truncated_body#{msg_idx}")

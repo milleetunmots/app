@@ -38,8 +38,12 @@ ActiveAdmin.register Child do
     column :group, sortable: :group_id
     column :group_status
     column :pmi_detail
-    column :tags
-    column :land_tag
+    column :tags do |model|
+      model.tags(context: 'tags')
+    end
+    column :land_tag do |model|
+      model.tags(context: 'lands')
+    end
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -369,7 +373,12 @@ ActiveAdmin.register Child do
           row :public_edit_url do |decorated|
             decorated.public_edit_link(target: "_blank")
           end
-          row :tags
+          row :tags do |model|
+            model.tags(context: 'tags')
+          end
+          row :tags do |model|
+            model.tags(context: 'lands')
+          end
           row :src_url
           row :created_at
           row :updated_at

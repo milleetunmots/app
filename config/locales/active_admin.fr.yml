@@ -4,6 +4,7 @@ fr:
       default_confirmation: Action groupée
       labels:
         add_tags: Taguer
+        add_available_modules: Ajouter des modules disponibles
         add_to_group: Ajouter à une cohorte
         assign_supporter: Assigner un(e) responsable pour
         check_call_2_4: "Sélectionner l'accompagnement renforcé pour"

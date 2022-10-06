@@ -21,31 +21,18 @@ class BaseDecorator < Draper::Decorator
     h.link_to txt, [:admin, model], options
   end
 
-  def tags
+  def tags(options = {})
+    return unless options[:context]
+
     config = h.active_admin_resource_for(model.class)
     return unless config
 
     arbre do
-      model.tags.each do |tag|
+      model.send(options[:context]).each do |tag|
         a tag.name,
           href: config.route_collection_path(nil, q: {tagged_with_all: [tag.name]}),
           class: 'tag',
           style: "background-color: #{tag.color || '#CACACA'}"
-        text_node "&nbsp;".html_safe
-      end
-    end
-  end
-
-  def land_tag
-    config = h.active_admin_resource_for(model.class)
-    return unless config
-
-    arbre do
-      model.lands.each do |land|
-        a land.name,
-          href: config.route_collection_path(nil, q: {tagged_with_all: [land.name]}),
-          class: 'tag',
-          style: "background-color: #{land.color || '#CACACA'}"
         text_node "&nbsp;".html_safe
       end
     end

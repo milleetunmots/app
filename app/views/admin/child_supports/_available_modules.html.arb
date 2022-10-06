@@ -1,0 +1,8 @@
+li class: 'string input optional stringish' do
+  label class: 'label' do
+    label_text
+  end
+  div class: 'modules' do
+    parent.tags(context: 'available_modules')
+  end
+end

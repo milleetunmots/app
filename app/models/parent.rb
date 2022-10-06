@@ -234,6 +234,7 @@ class Parent < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   acts_as_taggable_on :tags
+  acts_as_taggable_on :available_modules
   acts_as_taggable_on :selected_modules
 
   private

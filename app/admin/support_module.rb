@@ -18,7 +18,9 @@ ActiveAdmin.register SupportModule do
     id_column
     column :name
     column :start_at
-    column :tags
+    column :tags do |model|
+      model.tags(context: 'tags')
+    end
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
