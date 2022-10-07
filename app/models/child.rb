@@ -134,18 +134,32 @@ class Child < ApplicationRecord
     when 57 then self.land = "Moselle"
     end
 
-    land_list.add("paris 18 eme") if postal_code.to_i == 75018
-    land_list.add("paris 20 eme") if postal_code.to_i == 75020
-    land_list.add("plaisir") if [78570, 78540, 78650, 78700, 78710, 78711, 78760, 78800, 78820, 78860, 78910, 78955, 78610, 78980, 78520, 78490, 78420, 78410, 78390, 78380, 78330, 78300, 78260, 78220, 78210, 78200, 78180, 78150, 78140, 78130, 78370, 78340, 78310, 78280, 78114, 78320, 78450, 78960, 78100, 78640, 78850].include? postal_code.to_i
-    land_list.add("trappes") if [78190, 78990].include? postal_code.to_i
-    land_list.add("aulnay sous bois") if postal_code.to_i == 93600
-    land_list.add("orleans") if [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800].include? postal_code.to_i
-    land_list.add("montargis") if [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570].include? postal_code.to_i
+    land_list.add("paris 18 eme") if postal_code.to_i == Parent::PARIS_18_EME_POSTAL_CODE
+    land_list.add("paris 20 eme") if postal_code.to_i == Parent::PARIS_20_EME_POSTAL_CODE
+    land_list.add("plaisir") if Parent::PLAISIR_POSTAL_CODE.include? postal_code.to_i
+    land_list.add("trappes") if Parent::TRAPPES_POSTAL_CODE.include? postal_code.to_i
+    land_list.add("aulnay sous bois") if postal_code.to_i == Parent::AULNAY_SOUS_BOIS_POSTAL_CODE
+    land_list.add("orleans") if Parent::ORELANS_POSTAL_CODE.include? postal_code.to_i
+    land_list.add("montargis") if Parent::MONTARGIS_POSTAL_CODE.include? postal_code.to_i
 
     parent1.tag_list.add(self.land_list)
     parent1.save
     parent2&.tag_list&.add(self.land_list)
     parent2&.save
+  end
+
+  before_update do
+    unless (self.tag_list - parent1.tag_list).empty?
+      parent1.tag_list.add(self.tag_list)
+      parent1.save
+    end
+
+    if parent2
+      unless (self.tag_list - parent2&.tag_list).empty?
+        parent2&.tag_list&.add(self.tag_list)
+        parent2&.save
+      end
+    end
   end
 
   after_create :create_support!
