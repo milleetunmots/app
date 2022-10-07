@@ -373,6 +373,7 @@ ActiveAdmin.register Child do
           row :public_edit_url do |decorated|
             decorated.public_edit_link(target: "_blank")
           end
+          row :available_for_workshops
           row :tags do |model|
             model.tags(context: 'tags')
           end
@@ -452,7 +453,7 @@ ActiveAdmin.register Child do
     only: :index do
     dropdown_menu "Outils" do
       item "Nettoyer les précisions sur l'origine", [:new_clean_registration_source_details, :admin, :children]
-      item "Mettre à jour les enfants disponibles pour les ateliers", [:set_age_ok, :admin, :children]
+      item "Mettre à jour les enfants n'ayant pas l'âge d'aller à l'école", [:set_age_ok, :admin, :children]
     end
   end
   collection_action :new_clean_registration_source_details do
@@ -474,7 +475,7 @@ ActiveAdmin.register Child do
     Child.all.each do |child|
       child.update! available_for_workshops: children_available.include?(child) ? true : false
     end
-    redirect_to admin_children_path, notice: "Tags mis à jour"
+    redirect_to admin_children_path, notice: "Enfants mis à jour"
   end
 
   collection_action :perform_clean_registration_source_details, method: :post do
