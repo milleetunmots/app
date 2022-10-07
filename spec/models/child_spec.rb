@@ -132,20 +132,20 @@ RSpec.describe Child, type: :model do
       end
     end
 
-    context "tag" do
-      it "'Paris_18_eme' is added to child's tags if parent's zip code is 75018" do
-        expect(first_child.land_list).to match_array ["Paris_18_eme"]
-      end
-      it "'Orleans' is added to child's tags if parent's zip code is 45380" do
-        expect(second_child.land_list).to match_array ["Orleans"]
-      end
-    end
+  #   context "tag" do
+  #     it "'Paris_18_eme' is added to child's tags if parent's zip code is 75018" do
+  #       expect(first_child.land_list).to match_array ["Paris_18_eme"]
+  #     end
+  #     it "'Orleans' is added to child's tags if parent's zip code is 45380" do
+  #       expect(second_child.land_list).to match_array ["Orleans"]
+  #     end
+  #   end
   end
 
   describe "#min_birthdate" do
     context "returns" do
-      it "the date 48 months ago" do
-        expect(Child.min_birthdate).to eq Date.today - 48.months
+      it "the date 30 months ago" do
+        expect(Child.min_birthdate).to eq Date.today - 30.months
       end
     end
   end

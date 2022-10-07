@@ -105,6 +105,46 @@ class Parent < ApplicationRecord
   validates :terms_accepted_at, presence: true
 
   # ---------------------------------------------------------------------------
+  # callbacks
+  # ---------------------------------------------------------------------------
+
+  before_update do
+    case postal_code.to_i / 1000
+    when 45 then parent1_children&.each do |child|
+      child.land = "Loiret"
+      child.land_list = []
+      child.land_list.add("orleans") if [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800].include? postal_code.to_i
+      child.land_list.add("montargis") if [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570].include? postal_code.to_i
+      child.save!
+    end
+    when 78 then parent1_children&.each do |child|
+      child.land = "Yvelines"
+      child.land_list = []
+      child.land_list.add("plaisir") if [78570, 78540, 78650, 78700, 78710, 78711, 78760, 78800, 78820, 78860, 78910, 78955, 78610, 78980, 78520, 78490, 78420, 78410, 78390, 78380, 78330, 78300, 78260, 78220, 78210, 78200, 78180, 78150, 78140, 78130, 78370, 78340, 78310, 78280, 78114, 78320, 78450, 78960, 78100, 78640, 78850].include? postal_code.to_i
+      child.land_list.add("trappes") if [78190, 78990].include? postal_code.to_i
+      child.save!
+    end
+    when 93 then parent1_children&.each do |child|
+      child.land = "Seine-Saint-Denis"
+      child.land_list = []
+      child.land_list.add("aulnay sous bois") if postal_code.to_i == 93600
+      child.save!
+      end
+    when 75 then parent1_children&.each do |child|
+      child.land = "Paris"
+      child.land_list = []
+      child.land_list.add("paris 18 eme") if postal_code.to_i == 75018
+      child.land_list.add("paris 20 eme") if postal_code.to_i == 75020
+      child.save!
+      end
+    when 57 then parent1_children&.each do |child|
+      child.land = "Moselle"
+      child.save!
+    end
+    end
+  end
+
+  # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
 
