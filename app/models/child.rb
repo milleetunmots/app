@@ -16,7 +16,6 @@
 #  group_end                                  :date
 #  group_start                                :date
 #  group_status                               :string           default("waiting")
-#  land                                       :string
 #  last_name                                  :string           not null
 #  pmi_detail                                 :string
 #  registration_source                        :string
@@ -56,7 +55,8 @@ class Child < ApplicationRecord
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
   PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach].freeze
   GROUP_STATUS = %w[waiting active paused stopped].freeze
-  LANDS = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
+  TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
+  LANDS = ["Paris 18 eme", "Paris 20 eme", "Plaisir", "Trappes", "Aulnay sous bois", "Orleans", "Montargis"].freeze
 
   # ---------------------------------------------------------------------------
   # global search
@@ -75,8 +75,7 @@ class Child < ApplicationRecord
   # tags
   # ---------------------------------------------------------------------------
 
-  acts_as_taggable_on :tags
-  acts_as_taggable_on :lands
+  acts_as_taggable
 
   # ---------------------------------------------------------------------------
   # relations
@@ -111,7 +110,6 @@ class Child < ApplicationRecord
   validates :security_code, presence: true
   validates :pmi_detail, inclusion: {in: PMI_LIST, allow_blank: true}
   validates :group_status, inclusion: {in: GROUP_STATUS}
-  validates :land, inclusion: {in: LANDS, allow_blank: true}
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
   validate :valid_group_status
@@ -123,29 +121,6 @@ class Child < ApplicationRecord
   def initialize(attributes = {})
     super
     self.security_code = SecureRandom.hex(1)
-  end
-
-  before_create do
-    case postal_code.to_i / 1000
-    when 45 then self.land = "Loiret"
-    when 78 then self.land = "Yvelines"
-    when 93 then self.land = "Seine-Saint-Denis"
-    when 75 then self.land = "Paris"
-    when 57 then self.land = "Moselle"
-    end
-
-    land_list.add("paris 18 eme") if postal_code.to_i == Parent::PARIS_18_EME_POSTAL_CODE
-    land_list.add("paris 20 eme") if postal_code.to_i == Parent::PARIS_20_EME_POSTAL_CODE
-    land_list.add("plaisir") if Parent::PLAISIR_POSTAL_CODE.include? postal_code.to_i
-    land_list.add("trappes") if Parent::TRAPPES_POSTAL_CODE.include? postal_code.to_i
-    land_list.add("aulnay sous bois") if postal_code.to_i == Parent::AULNAY_SOUS_BOIS_POSTAL_CODE
-    land_list.add("orleans") if Parent::ORELANS_POSTAL_CODE.include? postal_code.to_i
-    land_list.add("montargis") if Parent::MONTARGIS_POSTAL_CODE.include? postal_code.to_i
-
-    parent1.tag_list.add(self.land_list)
-    parent1.save
-    parent2&.tag_list&.add(self.land_list)
-    parent2&.save
   end
 
   before_update do

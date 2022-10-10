@@ -31,7 +31,7 @@ ActiveAdmin.register Child do
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
     column :postal_code
-    column :land
+    column :territory
     column :child_support, sortable: :child_support_id do |model|
       model.child_support_status
     end
@@ -41,9 +41,7 @@ ActiveAdmin.register Child do
     column :tags do |model|
       model.tags(context: 'tags')
     end
-    column :land_tag do |model|
-      model.tags(context: 'lands')
-    end
+    column :land
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -349,6 +347,7 @@ ActiveAdmin.register Child do
           row :gender do |decorated|
             decorated.gender_status
           end
+          row :territory
           row :land
           row :available_for_workshops
           row :registration_source
@@ -512,6 +511,7 @@ ActiveAdmin.register Child do
     column :address
     column :city_name
     column :postal_code
+    column :territory
     column :land
 
     column :child_group_name

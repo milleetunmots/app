@@ -80,7 +80,8 @@ fr:
         group: Cohorte
         child_group_name: Cohorte
         group_status: Statut de la cohorte
-        land: Territoire
+        land: Terrain
+        territory: Territoire
         last_name: Nom
         land_tag: Terrain
         letterbox_name: Nom sur la boîte aux lettres
@@ -430,6 +431,7 @@ fr:
         phone_number_national: Téléphone
         postal_code: Code postal
         parent_groups: Cohortes
+        territory: Territoire
         land: Terrain
         redirection_unique_visit_rate: "Taux de visites uniques d'URL courtes"
         redirection_unique_visits: URL visitées

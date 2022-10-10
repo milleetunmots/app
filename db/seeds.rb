@@ -133,19 +133,19 @@ puts " ✓"
 
 # Child
 if Rails.env.development?
-  postal_code = [75018, 75020, 78570, 78540, 78650, 78700, 78710, 78711, 78760, 78800, 78820, 78860, 78910, 78955, 78610, 78980, 78520, 78490, 78420, 78410, 78390, 78380, 78330, 78300, 78260, 78220, 78210, 78200, 78180, 78150, 78140, 78130, 78370, 78340, 78310, 78990, 78280, 78114, 78320, 78450, 78960, 78100, 78640, 78850, 78190, 78990, 93600, 45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800, 45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570]
+  postal_code = Parent::ORELANS_POSTAL_CODE + Parent::PLAISIR_POSTAL_CODE + Parent::MONTARGIS_POSTAL_CODE + Parent::TRAPPES_POSTAL_CODE + [Parent::AULNAY_SOUS_BOIS_POSTAL_CODE, Parent::PARIS_18_EME_POSTAL_CODE, Parent::PARIS_20_EME_POSTAL_CODE]
   parents = []
 
-  print "\t100 parents"
-  100.times do
-    parents << parent = FactoryBot.create(:parent, postal_code: postal_code.sample)
-    break unless parent.phone_number
+  print "\t8 parents"
+  10.times do
+    parents << FactoryBot.create(:parent, postal_code: postal_code.sample)
+    # break unless parent.phone_number
   end
   puts " ✓"
 
-  print "\t150 Children"
+  print "\t20 Children"
 
-  150.times do
+  25.times do
     parent1 = parents.sample
     parent2 = (parents - [parent1]).sample
 

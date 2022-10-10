@@ -58,7 +58,7 @@ class Parent < ApplicationRecord
   GENDER_MALE = "m".freeze
   GENDERS = [GENDER_FEMALE, GENDER_MALE].freeze
   REGEX_VALID_EMAIL = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
-  ORELANS_POSTAL_CODE = [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800,]
+  ORELANS_POSTAL_CODE = [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800]
   PLAISIR_POSTAL_CODE = [78570, 78540, 78650, 78700, 78710, 78711, 78760, 78800, 78820, 78860, 78910, 78955, 78610, 78980, 78520, 78490, 78420, 78410, 78390, 78380, 78330, 78300, 78260, 78220, 78210, 78200, 78180, 78150, 78140, 78130, 78370, 78340, 78310, 78280, 78114, 78320, 78450, 78960, 78100, 78640, 78850]
   MONTARGIS_POSTAL_CODE = [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570]
   TRAPPES_POSTAL_CODE = [78190, 78990]
@@ -110,47 +110,6 @@ class Parent < ApplicationRecord
     format: {with: REGEX_VALID_EMAIL, allow_blank: true},
     uniqueness: {case_sensitive: false, allow_blank: true}
   validates :terms_accepted_at, presence: true
-
-  # ---------------------------------------------------------------------------
-  # callbacks
-  # ---------------------------------------------------------------------------
-
-  before_update do
-    case postal_code.to_i / 1000
-      when 45 then parent1_children&.each do |child|
-        child.land = "Loiret"
-        child.land_list = []
-        child.land_list.add("orleans") if ORELANS_POSTAL_CODE.include? postal_code.to_i
-        child.land_list.add("montargis") if MONTARGIS_POSTAL_CODE.include? postal_code.to_i
-        child.save!
-      end
-      when 78 then parent1_children&.each do |child|
-        child.land = "Yvelines"
-        child.land_list = []
-        child.land_list.add("plaisir") if PLAISIR_POSTAL_CODE.include? postal_code.to_i
-        child.land_list.add("trappes") if TRAPPES_POSTAL_CODE.include? postal_code.to_i
-        child.save!
-      end
-      when 93 then parent1_children&.each do |child|
-        child.land = "Seine-Saint-Denis"
-        child.land_list = []
-        child.land_list.add("aulnay sous bois") if postal_code.to_i == AULNAY_SOUS_BOIS_POSTAL_CODE
-        child.save!
-        end
-      when 75 then parent1_children&.each do |child|
-        child.land = "Paris"
-        child.land_list = []
-        child.land_list.add("paris 18 eme") if postal_code.to_i == PARIS_18_EME_POSTAL_CODE
-        child.land_list.add("paris 20 eme") if postal_code.to_i == PARIS_20_EME_POSTAL_CODE
-        child.save!
-        end
-      when 57 then parent1_children&.each do |child|
-        child.land = "Moselle"
-        child.save!
-      end
-    end
-    self.tag_list.add(first_child&.land_list)
-  end
 
   # ---------------------------------------------------------------------------
   # helpers
