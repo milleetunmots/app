@@ -6,7 +6,7 @@ ActiveAdmin.register Workshop do
   has_tags
   use_discard
 
-  includes :animator, :participants
+  includes :animator, :parents
 
   index do
     selectable_column
@@ -17,7 +17,8 @@ ActiveAdmin.register Workshop do
     column :co_animator
     column :workshop_date
     column :workshop_address
-    column :land_tag
+    column :workshop_land
+    column :parents_who_accepted
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -39,15 +40,15 @@ ActiveAdmin.register Workshop do
       f.input :animator, input_html: {data: {select2: {}}}
       f.input :co_animator
       address_input f
-      f.input :participants, collection: parent_select_collection, input_html: {data: {select2: {}}}
-      lands_input(f)
+      f.input :parents, collection: parent_select_collection, input_html: {data: {select2: {}}}
+      f.input :workshop_land, collection: Child::LANDS, input_html: {data: {select2: {}}}
       f.input :invitation_message, input_html: {rows: 5}
     end
     f.actions
   end
 
   permit_params :topic, :workshop_date, :animator_id, :co_animator, :address, :postal_code, :city_name,
-                :invitation_message, tags_params, participant_ids: [], land_list: []
+                :invitation_message, :workshop_land, tags_params, parent_ids: []
 
   show do
     tabs do
@@ -61,9 +62,27 @@ ActiveAdmin.register Workshop do
           row :workshop_address
           row :invitation_message
           row :workshop_participants
-          row :land_tag
+          row :parents_who_accepted
+          row :parents_who_refused
+          row :parents_without_response
+          row :workshop_land
         end
       end
     end
+  end
+
+  csv do
+    column :id
+    column :name
+    column :topic
+    column :animator_csv
+    column :co_animator
+    column :workshop_date
+    column :workshop_address
+    column :workshop_land
+    column :workshop_participants_csv
+    column :parents_who_accepted_csv
+    column :parents_who_refused_csv
+    column :parents_without_response_csv
   end
 end

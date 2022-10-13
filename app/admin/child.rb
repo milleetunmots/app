@@ -31,7 +31,7 @@ ActiveAdmin.register Child do
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
     column :postal_code
-    column :land
+    column :territory
     column :child_support, sortable: :child_support_id do |model|
       model.child_support_status
     end
@@ -41,9 +41,7 @@ ActiveAdmin.register Child do
     column :tags do |model|
       model.tags(context: 'tags')
     end
-    column :land_tag do |model|
-      model.tags(context: 'lands')
-    end
+    column :land
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -349,6 +347,7 @@ ActiveAdmin.register Child do
           row :gender do |decorated|
             decorated.gender_status
           end
+          row :territory
           row :land
           row :available_for_workshops
           row :registration_source
@@ -373,11 +372,9 @@ ActiveAdmin.register Child do
           row :public_edit_url do |decorated|
             decorated.public_edit_link(target: "_blank")
           end
+          row :available_for_workshops
           row :tags do |model|
             model.tags(context: 'tags')
-          end
-          row :tags do |model|
-            model.tags(context: 'lands')
           end
           row :src_url
           row :created_at
@@ -452,7 +449,7 @@ ActiveAdmin.register Child do
     only: :index do
     dropdown_menu "Outils" do
       item "Nettoyer les précisions sur l'origine", [:new_clean_registration_source_details, :admin, :children]
-      item "Mettre à jour les enfants disponibles pour les ateliers", [:set_age_ok, :admin, :children]
+      item "Mettre à jour les enfants n'ayant pas l'âge d'aller à l'école", [:set_age_ok, :admin, :children]
     end
   end
   collection_action :new_clean_registration_source_details do
@@ -474,7 +471,7 @@ ActiveAdmin.register Child do
     Child.all.each do |child|
       child.update! available_for_workshops: children_available.include?(child) ? true : false
     end
-    redirect_to admin_children_path, notice: "Tags mis à jour"
+    redirect_to admin_children_path, notice: "Enfants mis à jour"
   end
 
   collection_action :perform_clean_registration_source_details, method: :post do
@@ -511,6 +508,7 @@ ActiveAdmin.register Child do
     column :address
     column :city_name
     column :postal_code
+    column :territory
     column :land
 
     column :child_group_name

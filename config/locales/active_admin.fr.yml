@@ -41,7 +41,7 @@ fr:
         new_model: Créer SMS
     scopes:
       all: Tous
-      available_for_the_workshops: Disponibles pour les ateliers
+      available_for_the_workshops: Enfants n'ayant pas encore l'âge d'aller à l'école
       done: Fait
       ended: Terminées
       mine: Sous ma responsabilité

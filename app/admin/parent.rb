@@ -139,6 +139,8 @@ ActiveAdmin.register Parent do
           row :redirection_url_unique_visits_count
           row :redirection_unique_visit_rate
           row :redirection_visit_rate
+          row :territory
+          row :land
           row :tags do |model|
             model.tags(context: 'tags')
           end
@@ -244,12 +246,13 @@ ActiveAdmin.register Parent do
     column :city_name
     column :postal_code
 
+    column :territory
+    column :land
+
     column :parent_groups
 
     column :job
     column :is_ambassador
-
-    column :land
 
     column :children_count
 

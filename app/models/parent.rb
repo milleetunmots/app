@@ -58,6 +58,13 @@ class Parent < ApplicationRecord
   GENDER_MALE = "m".freeze
   GENDERS = [GENDER_FEMALE, GENDER_MALE].freeze
   REGEX_VALID_EMAIL = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
+  ORELANS_POSTAL_CODE = %w[45000 45100 45140 45160 45240 45380 45400 45430 45470 45650 45770 45800]
+  PLAISIR_POSTAL_CODE = %w[78570 78540 78650 78700 78710 78711 78760 78800 78820 78860 78910 78955 78610 78980 78520 78490 78420 78410 78390 78380 78330 78300 78260 78220 78210 78200 78180 78150 78140 78130 78370 78340 78310 78280 78114 78320 78450 78960 78100 78640 78850]
+  MONTARGIS_POSTAL_CODE = %w[45110 45120 45200 45210 45220 45230 45260 45270 45290 45320 45490 45500 45520 45680 45700 49800 77460 77570]
+  TRAPPES_POSTAL_CODE = %w[78190 78990]
+  AULNAY_SOUS_BOIS_POSTAL_CODE = "93600"
+  PARIS_18_EME_POSTAL_CODE = "75018"
+  PARIS_20_EME_POSTAL_CODE = "75020"
 
   # ---------------------------------------------------------------------------
   # relations
@@ -77,7 +84,7 @@ class Parent < ApplicationRecord
 
   has_many :events, as: :related
 
-  has_many :workshops, through: :events
+  has_and_belongs_to_many :workshops
 
   # ---------------------------------------------------------------------------
   # validations
@@ -221,6 +228,12 @@ class Parent < ApplicationRecord
     parent2_children.each {|child| return false unless child.should_contact_parent2 }
 
     true
+  end
+
+  def target_parent?
+    return unless first_child.group
+
+    first_child.target_child?
   end
 
   # ---------------------------------------------------------------------------

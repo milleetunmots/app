@@ -12,6 +12,7 @@
 #  postal_code        :string           not null
 #  topic              :string           not null
 #  workshop_date      :date             not null
+#  workshop_land      :string
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  animator_id        :bigint           not null
@@ -67,45 +68,15 @@ RSpec.describe Workshop, type: :model do
 
   describe ".name" do
     context "format" do
-      let(:workshop) { FactoryBot.create(:workshop, workshop_date: Date.today.next_day()) }
-      let(:paris_18_workshop) { FactoryBot.create(:workshop, workshop_date: Date.today.next_day(2), land_list: %w[Paris_18_eme]) }
+      let(:workshop) { FactoryBot.create(:workshop, workshop_date: Date.today.next_day) }
+      let(:paris_18_workshop) { FactoryBot.create(:workshop, workshop_date: Date.today.next_day(2), workshop_land: "Paris 18 eme") }
 
-      it "is 'Atelier_year_month' if tags are not given" do
-        expect(workshop.name).to eq "Atelier_#{Date.today.next_day().year}_#{Date.today.next_day().month}"
+      it "is 'Atelier_year_month' if land is not given" do
+        expect(workshop.name).to eq "Atelier du #{Date.today.next_day.month}/#{Date.today.next_day.year}"
       end
-      it "if land_tag are given is 'land_tag1_tag2_year_month'" do
-        expect(paris_18_workshop.name).to eq "Atelier_Paris_18_eme_#{Date.today.next_day().year}_#{Date.today.next_day().month}"
+      it "if land is given is 'Atelier_land_year_month'" do
+        expect(paris_18_workshop.name).to eq "Atelier du #{Date.today.next_day.month}/#{Date.today.next_day.year} à Paris 18 eme"
       end
     end
   end
-
-  # describe ".events" do
-  #   context "are workshop participations" do
-  #     let(:workshop_participants) { FactoryBot.create_list(:parent, 5) }
-  #     let(:workshop) { FactoryBot.create(:workshop, participants: workshop_participants) }
-  #     let(:tag_parent) { FactoryBot.create(:parent, tag_list: "workshop_tag") }
-  #     let(:tag_workshop) { FactoryBot.create(:workshop, tag_list: "workshop_tag") }
-  #     let(:participants) { FactoryBot.create_list(:parent, 3) }
-  #     let(:parent) { FactoryBot.create(:parent, tag_list: "tag_test") }
-  #     let(:both_workshop) { FactoryBot.create(:workshop, participants: participants, tag_list: "tag_test") }
-  #
-  #     it "of chosen parents as participants" do
-  #       expect(workshop.event_ids).not_to be_empty
-  #       expect(workshop.event_ids).to match_array Event.workshop_participations.where(related: workshop_participants).pluck(:id)
-  #     end
-  #
-  #     it "of parents tagged with tags" do
-  #       expect(tag_parent).not_to be_nil
-  #       expect(tag_workshop.event_ids).not_to be_empty
-  #       expect(tag_workshop.event_ids).to match_array Event.workshop_participations.where(related: tag_parent).pluck(:id)
-  #     end
-  #
-  #     it "of parents tagged with tags and chosen parents" do
-  #       expect(parent).not_to be_nil
-  #       expect(both_workshop.event_ids).not_to be_empty
-  #       expect(both_workshop.event_ids.count).to eq 4
-  #       expect(both_workshop.event_ids).to match_array Event.workshop_participations.where(related: participants + [parent]).pluck(:id)
-  #     end
-  #   end
-  # end
 end
