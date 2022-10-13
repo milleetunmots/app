@@ -463,6 +463,11 @@ class Child < ApplicationRecord
     Event.where(related_type: "Parent", related_id: [parent1_id, parent2_id].compact)
   end
 
+  def target_child?
+    return unless group
+
+    group.target_group?
+  end
   def self.popi_parents
     parents.tagged_with('hors cible')
   end

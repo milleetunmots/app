@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_10_10_144136) do
+ActiveRecord::Schema.define(version: 2022_10_11_102418) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -333,6 +333,13 @@ ActiveRecord::Schema.define(version: 2022_10_10_144136) do
     t.index ["postal_code"], name: "index_parents_on_postal_code"
   end
 
+  create_table "parents_workshops", id: false, force: :cascade do |t|
+    t.bigint "parent_id"
+    t.bigint "workshop_id"
+    t.index ["parent_id"], name: "index_parents_workshops_on_parent_id"
+    t.index ["workshop_id"], name: "index_parents_workshops_on_workshop_id"
+  end
+
   create_table "pg_search_documents", force: :cascade do |t|
     t.text "content"
     t.string "searchable_type"
@@ -482,6 +489,7 @@ ActiveRecord::Schema.define(version: 2022_10_10_144136) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "animator_id", null: false
+    t.string "workshop_land"
     t.index ["animator_id"], name: "index_workshops_on_animator_id"
   end
 

@@ -41,7 +41,7 @@ class BaseDecorator < Draper::Decorator
   def territory
     return unless postal_code
 
-    return "Loiret" if [77460, 77570].include? postal_code.to_i
+    return "Loiret" if [49800, 77460, 77570].include? postal_code.to_i
 
     case postal_code.to_i / 1000
     when 45 then "Loiret"
@@ -57,13 +57,13 @@ class BaseDecorator < Draper::Decorator
   def land
     return unless postal_code
 
-    return "Paris 18 eme" if postal_code.to_i == Parent::PARIS_18_EME_POSTAL_CODE
-    return "Paris 20 eme" if postal_code.to_i == Parent::PARIS_20_EME_POSTAL_CODE
-    return "Plaisir" if Parent::PLAISIR_POSTAL_CODE.include? postal_code.to_i
-    return "Trappes" if Parent::TRAPPES_POSTAL_CODE.include? postal_code.to_i
-    return "Aulnay sous bois" if postal_code.to_i == Parent::AULNAY_SOUS_BOIS_POSTAL_CODE
-    return "Orleans" if Parent::ORELANS_POSTAL_CODE.include? postal_code.to_i
-    return "Montargis" if Parent::MONTARGIS_POSTAL_CODE.include? postal_code.to_i
+    return "Paris 18 eme" if postal_code == Parent::PARIS_18_EME_POSTAL_CODE
+    return "Paris 20 eme" if postal_code == Parent::PARIS_20_EME_POSTAL_CODE
+    return "Plaisir" if Parent::PLAISIR_POSTAL_CODE.include? postal_code
+    return "Trappes" if Parent::TRAPPES_POSTAL_CODE.include? postal_code
+    return "Aulnay sous bois" if postal_code == Parent::AULNAY_SOUS_BOIS_POSTAL_CODE
+    return "Orleans" if Parent::ORELANS_POSTAL_CODE.include? postal_code
+    return "Montargis" if Parent::MONTARGIS_POSTAL_CODE.include? postal_code
   end
 
   def created_at_date

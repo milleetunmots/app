@@ -134,22 +134,11 @@ puts " ✓"
 # Child
 if Rails.env.development?
   postal_code = Parent::ORELANS_POSTAL_CODE + Parent::PLAISIR_POSTAL_CODE + Parent::MONTARGIS_POSTAL_CODE + Parent::TRAPPES_POSTAL_CODE + [Parent::AULNAY_SOUS_BOIS_POSTAL_CODE, Parent::PARIS_18_EME_POSTAL_CODE, Parent::PARIS_20_EME_POSTAL_CODE]
-  parents = []
-
-  print "\t8 parents"
-  10.times do
-    parents << FactoryBot.create(:parent, postal_code: postal_code.sample)
-    # break unless parent.phone_number
-  end
-  puts " ✓"
 
   print "\t20 Children"
 
-  25.times do
-    parent1 = parents.sample
-    parent2 = (parents - [parent1]).sample
-
-    FactoryBot.create(:child, parent1: parent1, parent2: parent2)
+  20.times do
+    FactoryBot.create(:child, parent1: FactoryBot.create(:parent, postal_code: postal_code.sample))
   end
   puts " ✓"
 end

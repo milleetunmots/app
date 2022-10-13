@@ -376,9 +376,6 @@ ActiveAdmin.register Child do
           row :tags do |model|
             model.tags(context: 'tags')
           end
-          row :tags do |model|
-            model.tags(context: 'lands')
-          end
           row :src_url
           row :created_at
           row :updated_at
