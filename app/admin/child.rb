@@ -241,12 +241,15 @@ ActiveAdmin.register Child do
     if @children.without_parent_to_contact.any?
       flash[:error] = "Certains enfants n'ont aucun parent à contacter"
       redirect_to request.referer
-    end
+    else
+      latest_parent_id = nil
+      errors = []
+      count = 0
 
-    latest_parent_id = nil
-    begin
       @children.order(:parent1_id).each do |child|
         next if child.child_support&.will_stay_in_group?
+        # We don't want to send the same sms twice to the same parent
+        # if they have more than 1 child.
         next if latest_parent_id == child.parent1_id
         latest_parent_id = child.parent1_id
 
@@ -263,17 +266,22 @@ ActiveAdmin.register Child do
           message
         ).call
         if service.errors.any?
-          alert = service.errors.join("\n")
-          raise StandardError, alert
+          errors << "SMS non programmé pour #{child.id} - #{child.decorate.name} | #{service.errors.join("\n")}"
+          # raise StandardError, alert
         else
-          child.update! group_status: "paused"
+          child.update_columns group_status: "paused"
+          count += 1
         end
       end
-    rescue StandardError => e
-      redirect_back(fallback_location: root_path, alert: e.message.truncate(200))
-    else
-      flash[:notice] = "Message de continuation envoyé"
-      redirect_to admin_sent_by_app_text_messages_url
+
+      if errors.any?
+        flash[:notice] = "#{count} SMS bien programmés"
+        flash[:alert] = errors
+        redirect_back(fallback_location: root_path)#, alert: errors.join("<br/>"))
+      else
+        flash[:notice] = "Message de continuation envoyé"
+        redirect_to admin_sent_by_app_text_messages_url
+      end
     end
   end
 
