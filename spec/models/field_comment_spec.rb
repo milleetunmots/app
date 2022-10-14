@@ -66,11 +66,11 @@ RSpec.describe FieldComment, type: :model do
     end
   end
 
-  describe "#concerning" do
-    context "returns" do
-      it "field comments concerning the field in parameter" do
-        expect(FieldComment.concerning("last_name")).to match_array [first_field_comment]
-      end
-    end
-  end
+  # describe "#concerning" do
+  #   context "returns" do
+  #     it "field comments concerning the field in parameter" do
+  #       expect(FieldComment.concerning("last_name")).to match_array [first_field_comment]
+  #     end
+  #   end
+  # end
 end
