@@ -16,7 +16,6 @@
 #  group_end                                  :date
 #  group_start                                :date
 #  group_status                               :string           default("waiting")
-#  land                                       :string
 #  last_name                                  :string           not null
 #  pmi_detail                                 :string
 #  registration_source                        :string
@@ -51,20 +50,20 @@
 require "rails_helper"
 
 RSpec.describe Child, type: :model do
-  let_it_be(:first_parent, reload: true) { FactoryBot.create(:parent, postal_code: 75018) } # land: "Paris", tag_list: ["Paris_18_eme"]
-  let_it_be(:second_parent, reload: true) { FactoryBot.create(:parent, postal_code: 75020) } # land: "Paris", tag_list: ["Paris_20_eme"]
-  let_it_be(:third_parent, reload: true) { FactoryBot.create(:parent, postal_code: 45380) } # land: "Loiret", tag-list: ["Orleans"]
-  let_it_be(:fourth_parent, reload: true) { FactoryBot.create(:parent, postal_code: 93600) } # land: "Seine-Saint_Denis", tag_list: ["Aulnay-Sous-Bois"]
-  let_it_be(:fifth_parent, reload: true) { FactoryBot.create(:parent, postal_code: 45290) } # land: "Loiret", tag_list: ["Monargis"]
+  let_it_be(:first_parent, reload: true) { FactoryBot.create(:parent, postal_code: 75018) }
+  let_it_be(:second_parent, reload: true) { FactoryBot.create(:parent, postal_code: 75020) }
+  let_it_be(:third_parent, reload: true) { FactoryBot.create(:parent, postal_code: 45380) }
+  let_it_be(:fourth_parent, reload: true) { FactoryBot.create(:parent, postal_code: 93600) }
+  let_it_be(:fifth_parent, reload: true) { FactoryBot.create(:parent, postal_code: 45290) }
 
   let_it_be(:first_group, reload: true) { FactoryBot.create(:group) }
   let_it_be(:second_group, reload: true) { FactoryBot.create(:group) }
 
-  let_it_be(:first_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: second_parent, birthdate: Date.today.prev_month, group: first_group, group_status: 'active') } # land: "Paris", tag_list: ["Paris_18_eme"]
-  let_it_be(:second_child, reload: true) { FactoryBot.create(:child, parent1: third_parent, parent2: second_parent, birthdate: Date.today.prev_month(8), group: second_group, group_status: 'paused') } # land: "Loiret", tag_list: ["Orleans"]
-  let_it_be(:third_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: second_parent, birthdate: Date.today.prev_month(14), group: second_group, group_status: 'active') } # land: "Paris", tag_list: ["Paris_18_eme"]
-  let_it_be(:fourth_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: third_parent, birthdate: Date.today.yesterday) } # land: "Paris", tag_list: ["Paris_18_eme"]
-  let_it_be(:fifth_child, reload: true) { FactoryBot.create(:child, parent1: fourth_parent, parent2: fifth_parent, birthdate: Date.today.prev_month(27)) } # land: "Seine-Saint_Denis", tag_list: ["Aulnay-Sous-Bois"]
+  let_it_be(:first_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: second_parent, birthdate: Date.today.prev_month, group: first_group, group_status: 'active') }
+  let_it_be(:second_child, reload: true) { FactoryBot.create(:child, parent1: third_parent, parent2: second_parent, birthdate: Date.today.prev_month(8), group: second_group, group_status: 'paused') }
+  let_it_be(:third_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: second_parent, birthdate: Date.today.prev_month(14), group: second_group, group_status: 'active') }
+  let_it_be(:fourth_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: third_parent, birthdate: Date.today.yesterday) }
+  let_it_be(:fifth_child, reload: true) { FactoryBot.create(:child, parent1: fourth_parent, parent2: fifth_parent, birthdate: Date.today.prev_month(27)) }
 
   describe "Validations" do
     context "succeed" do
@@ -122,30 +121,10 @@ RSpec.describe Child, type: :model do
     end
   end
 
-  describe "After create" do
-    context "land is" do
-      it "'Paris' if parent's zip code starts with 75" do
-        expect(first_child.land).to eq "Paris"
-      end
-      it "'Loiret' if parent's zip code starts with 45" do
-        expect(second_child.land).to eq "Loiret"
-      end
-    end
-
-    context "tag" do
-      it "'Paris_18_eme' is added to child's tags if parent's zip code is 75018" do
-        expect(first_child.land_list).to match_array ["Paris_18_eme"]
-      end
-      it "'Orleans' is added to child's tags if parent's zip code is 45380" do
-        expect(second_child.land_list).to match_array ["Orleans"]
-      end
-    end
-  end
-
   describe "#min_birthdate" do
     context "returns" do
-      it "the date 48 months ago" do
-        expect(Child.min_birthdate).to eq Date.today - 48.months
+      it "the date 30 months ago" do
+        expect(Child.min_birthdate).to eq Date.today - 30.months
       end
     end
   end

@@ -12,6 +12,7 @@
 #  postal_code        :string           not null
 #  topic              :string           not null
 #  workshop_date      :date             not null
+#  workshop_land      :string
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  animator_id        :bigint           not null
@@ -27,66 +28,78 @@
 class Workshop < ApplicationRecord
   include Discard::Model
 
-  acts_as_taggable_on :lands
-
   TOPICS = %w[meal sleep nursery_rhymes books games outside bath emotion]
 
   belongs_to :animator, class_name: "AdminUser"
-  has_many :events, dependent: :delete_all
-  has_many :participants, through: :events, as: :related, source: :related, source_type: :Parent
+  has_and_belongs_to_many :parents
 
-  accepts_nested_attributes_for :events
+  before_validation :set_name, on: :create
+  after_create :set_workshop_participation
 
-  before_validation :set_name, :set_workshop_participation, :set_workshop_land_participants, on: :create
-
-  validates :topic,
-    presence: true,
-    inclusion: {in: TOPICS}
-  validates :animator,
-    presence: true
-  validates :workshop_date,
-    presence: true
-  validates :workshop_date, date: {
-    after: proc { Date.today }
-  }, on: :create
-  validates :address,
-    presence: true
-  validates :postal_code,
-    presence: true
-  validates :city_name,
-    presence: true
-  validates :invitation_message,
-    presence: true
-
-  validates_associated :events
+  validates :topic, presence: true, inclusion: {in: TOPICS}
+  validates :animator, presence: true
+  validates :workshop_date, presence: true
+  validates :workshop_date, date: { after: proc { Date.today } }, on: :create
+  validates :address, presence: true
+  validates :postal_code, presence: true
+  validates :city_name, presence: true
+  validates :invitation_message, presence: true
 
   def set_name
-    self.name = "#{workshop_date.year}_#{workshop_date.month}"
-    self.name = land_list.empty? ? "Atelier_#{name}" : "Atelier_#{land_list.join("_")}_#{name}"
-  end
-
-  def set_workshop_land_participants
-    (participants + Child.tagged_with(land_list.join(", "), on: :lands).parents).uniq.each do |parent|
-      next unless parent.available_for_workshops?
-
-      next unless parent.family_followed?
-
-      next unless parent.should_be_contacted?
-
-      events.build(
-        type: "Events::WorkshopParticipation",
-        related: parent,
-        body: name,
-        occurred_at: workshop_date
-      )
-    end
+    self.name = "#{workshop_date.month}/#{workshop_date.year}"
+    self.name = workshop_land ? "Atelier du #{name} à #{workshop_land}" : "Atelier du #{name}"
   end
 
   def set_workshop_participation
-    events.each do |participation|
-      participation.occurred_at = workshop_date
-      participation.type = "Events::WorkshopParticipation"
-      participation.body = name
+    land_parents = if workshop_land == "Paris 18 eme"
+                     Parent.where(postal_code: Parent::PARIS_18_EME_POSTAL_CODE)
+                   elsif workshop_land == "Paris 20 eme"
+                     Parent.where(postal_code: Parent::PARIS_20_EME_POSTAL_CODE)
+                   elsif workshop_land == "Plaisir"
+                     Parent.where(postal_code: Parent::PLAISIR_POSTAL_CODE)
+                   elsif workshop_land == "Trappes"
+                     Parent.where(postal_code: Parent::TRAPPES_POSTAL_CODE)
+                   elsif workshop_land == "Aulnay sous bois"
+                     Parent.where(postal_code: Parent::AULNAY_SOUS_BOIS_POSTAL_CODE)
+                   elsif workshop_land == "Orleans"
+                     Parent.where(postal_code: Parent::ORELANS_POSTAL_CODE)
+                   elsif workshop_land == "Montargis"
+                     Parent.where(postal_code: Parent::MONTARGIS_POSTAL_CODE)
+                   end
+
+    if land_parents
+      land_parents.each do |parent|
+        next unless parent.available_for_workshops?
+
+        next unless parent.should_be_contacted?
+
+        next if parent.target_parent?
+
+        parents << parent
+      end
+    end
+
+    parents.each do |parent|
+      Event.create(
+        type: "Events::WorkshopParticipation",
+        related: parent,
+        body: name,
+        occurred_at: workshop_date,
+        workshop: self
+      )
+
+      response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
+        parent_id: parent.id,
+        workshop_id: id
+      )
+
+      message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquer sur ce lien: #{response_link}"
+
+      SpotHit::SendSmsService.new(
+        parent.id,
+        DateTime.current.middle_of_day,
+        message
+      ).call
     end
   end
 end

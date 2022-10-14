@@ -40,20 +40,4 @@ class Events::WorkshopParticipation < Event
   alias_attribute :workshop_invitation_response, :response
   alias_attribute :workshop_presence, :presence
 
-  after_create :send_message
-
-  def send_message
-    response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
-      parent_id: related.id,
-      workshop_id: workshop.id
-    )
-
-    message = "#{workshop.invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquer sur ce lien: #{response_link}"
-
-    SpotHit::SendSmsService.new(
-      related.id,
-      DateTime.current.middle_of_day,
-      message
-    ).call
-  end
 end

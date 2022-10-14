@@ -16,7 +16,6 @@
 #  group_end                                  :date
 #  group_start                                :date
 #  group_status                               :string           default("waiting")
-#  land                                       :string
 #  last_name                                  :string           not null
 #  pmi_detail                                 :string
 #  registration_source                        :string
@@ -56,7 +55,8 @@ class Child < ApplicationRecord
   REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
   PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach].freeze
   GROUP_STATUS = %w[waiting active paused stopped].freeze
-  LANDS = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
+  TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
+  LANDS = ["Paris 18 eme", "Paris 20 eme", "Plaisir", "Trappes", "Aulnay sous bois", "Orleans", "Montargis"].freeze
 
   # ---------------------------------------------------------------------------
   # global search
@@ -75,8 +75,7 @@ class Child < ApplicationRecord
   # tags
   # ---------------------------------------------------------------------------
 
-  acts_as_taggable_on :tags
-  acts_as_taggable_on :lands
+  acts_as_taggable
 
   # ---------------------------------------------------------------------------
   # relations
@@ -111,7 +110,6 @@ class Child < ApplicationRecord
   validates :security_code, presence: true
   validates :pmi_detail, inclusion: {in: PMI_LIST, allow_blank: true}
   validates :group_status, inclusion: {in: GROUP_STATUS}
-  validates :land, inclusion: {in: LANDS, allow_blank: true}
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
   validate :valid_group_status
@@ -125,29 +123,18 @@ class Child < ApplicationRecord
     self.security_code = SecureRandom.hex(1)
   end
 
-  before_create do
-    case postal_code.to_i / 1000
-    when 45 then self.land = "Loiret"
-    when 78 then self.land = "Yvelines"
-    when 93 then self.land = "Seine-Saint-Denis"
-    when 75 then self.land = "Paris"
-    when 57 then self.land = "Moselle"
+  before_update do
+    unless (self.tag_list - parent1.tag_list).empty?
+      parent1.tag_list.add(self.tag_list)
+      parent1.save
     end
 
-    land_list.add("Paris_18_eme") if postal_code.to_i == 75018
-    land_list.add("Paris_20_eme") if postal_code.to_i == 75020
-    land_list.add("Plaisir") if [78570, 78540, 78650, 78700, 78710, 78711, 78760, 78800, 78820, 78860, 78910, 78955, 78610, 78980, 78520, 78490, 78420, 78410, 78390, 78380, 78330, 78300, 78260, 78220, 78210, 78200, 78180, 78150, 78140, 78130, 78370, 78340, 78310, 78280, 78114, 78320, 78450, 78960, 78100, 78640, 78850].include? postal_code.to_i
-    land_list.add("Trappes") if [78190, 78990].include? postal_code.to_i
-    land_list.add("Aulnay-Sous-Bois") if postal_code.to_i == 93600
-    land_list.add("Orleans") if [45000, 45100, 45140, 45160, 45240, 45380, 45400, 45430, 45470, 45650, 45770, 45800].include? postal_code.to_i
-    land_list.add("Montargis") if [45110, 45120, 45200, 45210, 45220, 45230, 45260, 45270, 45290, 45320, 45490, 45500, 45520, 45680, 45700, 49800, 77460, 77570].include? postal_code.to_i
-  end
-
-  before_update do
-    parent1.tag_list.add(self.tag_list)
-    parent1.save
-    parent2&.tag_list&.add(self.tag_list)
-    parent2&.save
+    if parent2
+      unless (self.tag_list - parent2&.tag_list).empty?
+        parent2&.tag_list&.add(self.tag_list)
+        parent2&.save
+      end
+    end
   end
 
   after_create :create_support!
@@ -282,7 +269,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.min_birthdate
-    Date.today - 48.months
+    Date.today - 30.months
   end
 
   def self.min_birthdate_alt
@@ -476,6 +463,11 @@ class Child < ApplicationRecord
     Event.where(related_type: "Parent", related_id: [parent1_id, parent2_id].compact)
   end
 
+  def target_child?
+    return unless group
+
+    group.target_group?
+  end
   def self.popi_parents
     parents.tagged_with('hors cible')
   end

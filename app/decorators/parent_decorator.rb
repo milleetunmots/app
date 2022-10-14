@@ -120,10 +120,6 @@ class ParentDecorator < BaseDecorator
     model.children.decorate.map(&:group_name).join("\n")
   end
 
-  def land
-    model.first_child&.land
-  end
-
   private
 
   def child(child)
