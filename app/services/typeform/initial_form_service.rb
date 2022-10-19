@@ -138,7 +138,7 @@ module Typeform
       informations = []
       informations << @child_support.important_information if @child_support.important_information
       informations << "Nombre d'enfants: #{@data[:child_count]}" if @data[:child_count]
-      informations << "À déjà été accompagné par 1001 mots" if @data[:already_working_with]
+      informations << "À déjà été accompagné par 1001 mots" if @data[:already_working_with] == "Oui"
       informations << "#{@data[:most_present_parent]}" if @data[:most_present_parent]
       @child_support.important_information = informations.join("\n")
 
