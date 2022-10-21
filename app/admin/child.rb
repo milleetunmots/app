@@ -232,6 +232,12 @@ ActiveAdmin.register Child do
   # end
 
   batch_action :generate_quit_sms do |ids|
+
+    ids.reject! do |id|
+      child = Child.find(id)
+      child.child_support.will_stay_in_group  || child.group_status != 'active'
+    end
+
     @children = batch_action_collection.where(id: ids)
 
     if @children.without_parent_to_contact.any?
