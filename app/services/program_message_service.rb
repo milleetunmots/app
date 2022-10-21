@@ -15,6 +15,7 @@ class ProgramMessageService
     @variables = []
     @child_ids = []
     @quit_message = quit_message
+    @event_params = {}
     @errors = []
   end
 
@@ -38,9 +39,9 @@ class ProgramMessageService
     @message += " {URL}" if @redirection_target && !@variables.include?("URL")
 
     service = if @file.nil?
-      SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message).call
+      SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, event_params: @event_params).call
     else
-      SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, @file).call
+      SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, file: @file, event_params: @event_params).call
     end
 
     if service.errors.any?
@@ -88,10 +89,15 @@ class ProgramMessageService
           security_code: child.security_code
         )
 
-        @recipient_data[child.parent2_id&.to_s]["QUIT_LINK"] = Rails.application.routes.url_helpers.edit_child_url(
-          id: child_id,
-          security_code: child.security_code
-        ) if child.parent2
+        @event_params[child.parent1_id.to_s] = { quit_group_child_id: child_id }
+
+        if child.parent2
+          @recipient_data[child.parent2_id&.to_s]["QUIT_LINK"] = Rails.application.routes.url_helpers.edit_child_url(
+            id: child_id,
+            security_code: child.security_code
+          )
+          @event_params[child.parent2_id.to_s] = { quit_group_child_id: child_id }
+        end
       end
     else
       # If no variables, we can just sent an array of parent ids
