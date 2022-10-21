@@ -240,8 +240,8 @@ ActiveAdmin.register Child do
     else
       # next_saturday = Date.today.beginning_of_week.next_day(5)
       next_saturday = Date.today
-      # hour = Time.parse("14:30").strftime("%H:%M")
-      hour = Time.now.strftime("%H:%M")
+      hour = Time.parse("11:10").strftime("%H:%M")
+      # hour = Time.now.strftime("%H:%M")
       recipients = ids.map {|id| "child.#{id}"}
       message = "Bonjour ! Ca fait 4 mois que je vous envoie des SMS pour votre enfant. Bravo pour tout ce que vous faites pour lui :) Voulez vous continuer à recevoir ces SMS et livres ? Cliquez sur le lien ci-dessous et répondez OUI ! Ca reprendra prochainement ! Je vous souhaite de beaux moments avec vos enfants :) {QUIT_LINK}"
 
@@ -255,20 +255,9 @@ ActiveAdmin.register Child do
          true
       ).call
 
-      # if service.errors.any?
-
-            # errors << "SMS non programmé pour #{child.id} - #{child.decorate.name} | #{service.errors.join("\n")}"
-            # raise StandardError, alert
-          # else
-          #   child.update_columns group_status: "paused"
-          #   count += 1
-          # end
-
-      # if errors.any?
       if service.errors.any?
-        # flash[:notice] = "#{count} SMS bien programmés" if count > 0
         flash[:alert] = service.errors
-        redirect_back(fallback_location: root_path)#, alert: errors.join("<br/>"))
+        redirect_back(fallback_location: root_path)
       else
         flash[:notice] = "Message de continuation envoyé"
         redirect_to admin_sent_by_app_text_messages_url

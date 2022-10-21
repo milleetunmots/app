@@ -39,4 +39,8 @@ class Events::TextMessage < Event
 
   validates :body, presence: true
 
+  # after_save :tag_children, if: ->{|event| event.spot_hit_status == 'Echec' && event.spot_hit_campaign_id.present? }
+
+  # def tag_children
+  # end
 end
