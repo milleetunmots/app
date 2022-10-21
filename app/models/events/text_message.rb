@@ -39,8 +39,16 @@ class Events::TextMessage < Event
 
   validates :body, presence: true
 
-  # after_save :tag_children, if: ->{|event| event.spot_hit_status == 'Echec' && event.spot_hit_campaign_id.present? }
+  # ---------------------------------------------------------------------------
+  # callbacks
+  # ---------------------------------------------------------------------------
 
-  # def tag_children
-  # end
+  after_save :tag_children, if: -> { saved_change_to_spot_hit_status? && spot_hit_status == 4 } # && group_child_id.present? }
+
+  def tag_children
+    child = related.first_child
+    child.tag_list.add("echec-sms-#{Date.today.strftime("%Y-%m-%d")}")
+    #child.group_status = 'active'
+    child.save
+  end
 end

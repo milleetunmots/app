@@ -259,6 +259,7 @@ ActiveAdmin.register Child do
         flash[:alert] = service.errors
         redirect_back(fallback_location: root_path)
       else
+        @children.update_all(group_status: 'paused')
         flash[:notice] = "Message de continuation envoyé"
         redirect_to admin_sent_by_app_text_messages_url
       end
