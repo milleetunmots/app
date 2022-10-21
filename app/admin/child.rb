@@ -30,6 +30,7 @@ ActiveAdmin.register Child do
     column :age, sortable: :birthdate
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
+    column :parent1_phone_number_national
     column :postal_code
     column :territory
     column :child_support, sortable: :child_support_id do |model|
@@ -51,16 +52,11 @@ ActiveAdmin.register Child do
 
   scope :all, default: true
 
-  scope :without_group_and_not_waiting_second_group, group: :group
-  scope :with_group, group: :group
-  scope :waiting_second_group, group: :group
+  scope :active_group, group: :group
 
   scope :months_between_0_and_12, group: :months
   scope :months_between_12_and_24, group: :months
   scope :months_more_than_24, group: :months
-
-  scope :with_support, group: :support
-  scope :without_support, group: :support
 
   scope :without_parent_to_contact, group: :parent
 
@@ -242,41 +238,36 @@ ActiveAdmin.register Child do
       flash[:error] = "Certains enfants n'ont aucun parent à contacter"
       redirect_to request.referer
     else
-      latest_parent_id = nil
-      errors = []
-      count = 0
+      # next_saturday = Date.today.beginning_of_week.next_day(5)
+      next_saturday = Date.today
+      # hour = Time.parse("14:30").strftime("%H:%M")
+      hour = Time.now.strftime("%H:%M")
+      recipients = ids.map {|id| "child.#{id}"}
+      message = "Bonjour ! Ca fait 4 mois que je vous envoie des SMS pour votre enfant. Bravo pour tout ce que vous faites pour lui :) Voulez vous continuer à recevoir ces SMS et livres ? Cliquez sur le lien ci-dessous et répondez OUI ! Ca reprendra prochainement ! Je vous souhaite de beaux moments avec vos enfants :) {QUIT_LINK}"
 
-      @children.order(:parent1_id).each do |child|
-        next if child.child_support&.will_stay_in_group?
-        # We don't want to send the same sms twice to the same parent
-        # if they have more than 1 child.
-        next if latest_parent_id == child.parent1_id
-        latest_parent_id = child.parent1_id
+      service = ProgramMessageService.new(
+        next_saturday,
+        hour,
+        recipients,
+        message,
+        nil,
+        nil,
+         true
+      ).call
 
-        next_saturday = Time.now.beginning_of_week.next_day(5).change({hour: 14, min: 30, sec: 0})
-        quit_link = Rails.application.routes.url_helpers.edit_child_url(
-          id: child.id,
-          security_code: child.security_code
-        )
-        message = "Bonjour ! Ca fait 4 mois que je vous envoie des SMS pour votre enfant. Bravo pour tout ce que vous faites pour lui :) Voulez vous continuer à recevoir ces SMS et livres ? Cliquez sur le lien ci-dessous et répondez OUI ! Ca reprendra prochainement ! Je vous souhaite de beaux moments avec vos enfants :) #{quit_link}"
+      # if service.errors.any?
 
-        service = SpotHit::SendSmsService.new(
-          [latest_parent_id],
-          next_saturday.to_i,
-          message
-        ).call
-        if service.errors.any?
-          errors << "SMS non programmé pour #{child.id} - #{child.decorate.name} | #{service.errors.join("\n")}"
-          # raise StandardError, alert
-        else
-          child.update_columns group_status: "paused"
-          count += 1
-        end
-      end
+            # errors << "SMS non programmé pour #{child.id} - #{child.decorate.name} | #{service.errors.join("\n")}"
+            # raise StandardError, alert
+          # else
+          #   child.update_columns group_status: "paused"
+          #   count += 1
+          # end
 
-      if errors.any?
-        flash[:notice] = "#{count} SMS bien programmés"
-        flash[:alert] = errors
+      # if errors.any?
+      if service.errors.any?
+        # flash[:notice] = "#{count} SMS bien programmés" if count > 0
+        flash[:alert] = service.errors
         redirect_back(fallback_location: root_path)#, alert: errors.join("<br/>"))
       else
         flash[:notice] = "Message de continuation envoyé"

@@ -2,21 +2,22 @@
 #
 # Table name: events
 #
-#  id                  :bigint           not null, primary key
-#  body                :text
-#  discarded_at        :datetime
-#  occurred_at         :datetime
-#  originated_by_app   :boolean          default(TRUE), not null
-#  parent_response     :string
-#  related_type        :string
-#  spot_hit_status     :integer
-#  subject             :string
-#  type                :string
-#  created_at          :datetime         not null
-#  updated_at          :datetime         not null
-#  related_id          :bigint
-#  spot_hit_message_id :string
-#  workshop_id         :bigint
+#  id                   :bigint           not null, primary key
+#  body                 :text
+#  discarded_at         :datetime
+#  occurred_at          :datetime
+#  originated_by_app    :boolean          default(TRUE), not null
+#  parent_response      :string
+#  related_type         :string
+#  spot_hit_status      :integer
+#  subject              :string
+#  type                 :string
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
+#  related_id           :bigint
+#  spot_hit_campaign_id :string
+#  spot_hit_message_id  :string
+#  workshop_id          :bigint
 #
 # Indexes
 #

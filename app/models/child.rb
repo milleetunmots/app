@@ -148,6 +148,7 @@ class Child < ApplicationRecord
   scope :with_group, -> { where.not(group_id: nil) }
   scope :without_group, -> { where(group_id: nil) }
   scope :available_for_the_workshops, -> { where(available_for_workshops:  true)}
+  scope :active_group, -> { where(group_status: 'active')}
 
   def self.without_group_and_not_waiting_second_group
     second_group_children_ids = Child.tagged_with("2eme cohorte").pluck(:id)
