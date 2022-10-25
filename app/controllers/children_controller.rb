@@ -21,21 +21,6 @@ class ChildrenController < ApplicationController
     end
   end
 
-  def new1
-    session[:registration_origin] = 1
-    redirect_to action: :new
-  end
-
-  def new2
-    session[:registration_origin] = 2
-    redirect_to action: :new
-  end
-
-  def new3
-    session[:registration_origin] = 3
-    redirect_to action: :new
-  end
-
   def create
     attributes = child_creation_params.merge(
       src_url: session[:src_url]
@@ -225,6 +210,14 @@ class ChildrenController < ApplicationController
   end
 
   def build_variables
+    case request.path
+    when '/inscription1'
+      current_registration_origin = 1
+    when '/inscription2'
+      current_registration_origin = 2
+    when '/inscription3'
+      current_registration_origin = 3
+    end
     @title = I18n.t("inscription_title.form#{current_registration_origin}")
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
     case current_registration_origin
