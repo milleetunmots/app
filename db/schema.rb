@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_10_21_104043) do
+ActiveRecord::Schema.define(version: 2022_10_24_144436) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -322,6 +322,7 @@ ActiveRecord::Schema.define(version: 2022_10_21_104043) do
     t.string "would_like_to_do_more"
     t.string "would_receive_advices"
     t.boolean "family_followed", default: false
+    t.string "facebook_name"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
