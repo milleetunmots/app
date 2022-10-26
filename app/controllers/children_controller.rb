@@ -213,10 +213,13 @@ class ChildrenController < ApplicationController
     case request.path
     when '/inscription1'
       session[:registration_origin] = 1
+      @form_path = children1_path
     when '/inscription2'
       session[:registration_origin] = 2
+      @form_path = children2_path
     when '/inscription3'
       session[:registration_origin] = 3
+      @form_path = children3_path
     end
     @title = I18n.t("inscription_title.form#{current_registration_origin}")
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")

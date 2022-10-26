@@ -10,6 +10,9 @@ Rails.application.routes.draw do
   get "inscription3", to: "children#new"
 
   post "inscription", to: "children#create", as: :children
+  post "inscription1", to: "children#create", as: :children1
+  post "inscription2", to: "children#create", as: :children2
+  post "inscription3", to: "children#create", as: :children3
   get "inscrit", to: "children#created", as: :created_child
 
   scope "c/:id/:security_code" do
