@@ -212,11 +212,11 @@ class ChildrenController < ApplicationController
   def build_variables
     case request.path
     when '/inscription1'
-      current_registration_origin = 1
+      session[:registration_origin] = 1
     when '/inscription2'
-      current_registration_origin = 2
+      session[:registration_origin] = 2
     when '/inscription3'
-      current_registration_origin = 3
+      session[:registration_origin] = 3
     end
     @title = I18n.t("inscription_title.form#{current_registration_origin}")
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
