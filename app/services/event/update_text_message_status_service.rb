@@ -39,7 +39,7 @@ class Event::UpdateTextMessageStatusService
   end
 
   def update_text_message(message_id, status)
-    Events::TextMessage.find_by(spot_hit_message_id: message_id).update!(spot_hit_status: status)
+    Events::TextMessage.find_by(spot_hit_message_id: message_id)&.update!(spot_hit_status: status)
   end
 
 end

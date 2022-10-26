@@ -5,11 +5,14 @@ Rails.application.routes.draw do
   ActiveAdmin.routes(self)
 
   get "inscription", to: "children#new", as: :new_child
-  get "inscription1", to: "children#new1"
-  get "inscription2", to: "children#new2"
-  get "inscription3", to: "children#new3"
+  get "inscription1", to: "children#new"
+  get "inscription2", to: "children#new"
+  get "inscription3", to: "children#new"
 
   post "inscription", to: "children#create", as: :children
+  post "inscription1", to: "children#create", as: :children1
+  post "inscription2", to: "children#create", as: :children2
+  post "inscription3", to: "children#create", as: :children3
   get "inscrit", to: "children#created", as: :created_child
 
   scope "c/:id/:security_code" do
