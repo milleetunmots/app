@@ -92,6 +92,7 @@ class ProgramMessageService
         @event_params[child.parent1_id.to_s] = { quit_group_child_id: child_id }
 
         if child.parent2
+          @recipient_data[child.parent2_id&.to_s] = {}
           @recipient_data[child.parent2_id&.to_s]["QUIT_LINK"] = Rails.application.routes.url_helpers.edit_child_url(
             id: child_id,
             security_code: child.security_code
