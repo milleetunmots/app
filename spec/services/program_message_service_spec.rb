@@ -20,7 +20,6 @@ RSpec.describe ProgramMessageService do
     FactoryBot.create(
       :child,
       parent1_id: parent_2.id,
-      should_contact_parent1: true,
       group_id: group.id,
       group_status: "active",
       first_name: 'Kevin'
@@ -31,7 +30,6 @@ RSpec.describe ProgramMessageService do
     FactoryBot.create(
       :child,
       parent1_id: parent_3.id,
-      should_contact_parent1: false,
       group_id: group.id,
       group_status: "active",
       first_name: 'Joe'
@@ -204,15 +202,15 @@ RSpec.describe ProgramMessageService do
     end
   end
 
-  context 'when no parent numbers found' do
-    before do
-      child_1.update!(should_contact_parent1: false)
-    end
+  # context 'when no parent numbers found' do
+    # before do
+    #   child_1.update!(should_contact_parent1: false)
+    # end
 
-    it 'returns errors' do
-      service = ProgramMessageService.new('2021-07-12', '14:30:00', ["group.#{group.id}"], 'coucou', nil).call
-      expect(service.errors).to eq(['Aucun parent à contacter.'])
-    end
-  end
+  #   it 'returns errors' do
+  #     service = ProgramMessageService.new('2021-07-12', '14:30:00', ["group.#{group.id}"], 'coucou', nil).call
+  #     expect(service.errors).to eq(['Aucun parent à contacter.'])
+  #   end
+  # end
 
 end

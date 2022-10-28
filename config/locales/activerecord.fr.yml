@@ -113,8 +113,8 @@ fr:
         registration_source: Comment nous avez-vous connu ?
         registration_source_details: Précisez votre nom ou celui de votre structure
         security_code: Sécurité
-        should_contact_parent1: Contacter parent 1 ?
-        should_contact_parent2: Contacter parent 2 ?
+        dont_contact1: Ne pas contacter parent 1 ?
+        dont_contact2: Ne pas contacter parent 2 ?
         src_url: URL d'inscription
         child_group_months: Durée de l'accompagnement (en mois)
         months_between_registration_and_group_start: Temps entre l'inscription et le debut de la cohorte (en mois)
@@ -290,8 +290,8 @@ fr:
         registration_sources_details: Précisions sur l'origine
         second_language: Langue parlée
         should_be_read: Témoignage marquant
-        should_contact_parent1: Contacter parent 1 ?
-        should_contact_parent2: Contacter parent 2 ?
+        dont_contact1: Ne pas contacter parent 1 ?
+        dont_contact2: Ne pas contacter parent 2 ?
         supporter: Responsable
         to_call: Accompagnement renforcé
         children_land: Territoire
@@ -450,6 +450,7 @@ fr:
         children: Enfant(s)
         children_count: Enfants
         city_name: Ville
+        dont_contact: Ne pas contacter
         email: Email
         first_name: Prénom
         gender: Sexe

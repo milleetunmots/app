@@ -20,6 +20,7 @@ ActiveAdmin.register Parent do
     end
     column :first_name
     column :last_name
+    column :dont_contact
     column :children
     column :phone_number
     column :family_followed
