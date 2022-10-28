@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_10_21_104043) do
+ActiveRecord::Schema.define(version: 2022_10_25_163014) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -177,8 +177,6 @@ ActiveRecord::Schema.define(version: 2022_10_21_104043) do
     t.string "gender"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.boolean "should_contact_parent1", default: false, null: false
-    t.boolean "should_contact_parent2", default: false, null: false
     t.bigint "child_support_id"
     t.string "registration_source_details"
     t.string "registration_source"
@@ -322,6 +320,7 @@ ActiveRecord::Schema.define(version: 2022_10_21_104043) do
     t.string "would_like_to_do_more"
     t.string "would_receive_advices"
     t.boolean "family_followed", default: false
+    t.boolean "dont_contact", default: false
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"

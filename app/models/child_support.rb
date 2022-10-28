@@ -319,10 +319,10 @@ class ChildSupport < ApplicationRecord
            :parent2_last_name,
            :parent2_phone_number_national,
            :postal_code,
-           :should_contact_parent1,
-           :should_contact_parent1?,
-           :should_contact_parent2,
-           :should_contact_parent2?,
+           :dont_contact1,
+           :dont_contact1?,
+           :dont_contact2,
+           :dont_contact2?,
            to: :first_child,
            allow_nil: true
 

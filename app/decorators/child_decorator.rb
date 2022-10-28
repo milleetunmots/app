@@ -80,11 +80,11 @@ class ChildDecorator < BaseDecorator
   end
 
   def parent1
-    parent decorated_parent1, model.should_contact_parent1?
+    parent decorated_parent1, !model.parent1.dont_contact?
   end
 
   def parent2
-    parent decorated_parent2, model.should_contact_parent2?
+    parent decorated_parent2, !model.parent2&.dont_contact?
   end
 
   def parent1_gender

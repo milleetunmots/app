@@ -77,17 +77,14 @@ class ChildrenController < ApplicationController
     if mother_attributes_available
       # mother data is available: use it as parent 1 (we know for sure that it is valid)
       attributes[:parent1_attributes] = parent1_attributes.merge(mother_attributes)
-      attributes[:should_contact_parent1] = true
 
       if father_attributes_available
         # father data is also available: use it as parent 2 (we know for sure that it is valid)
         attributes[:parent2_attributes] = parent1_attributes.merge(father_attributes)
-        attributes[:should_contact_parent2] = true
       end
     else
       # mother data is not available: use father as parent 1 (we know for sure that it is present and valid)
       attributes[:parent1_attributes] = parent1_attributes.merge(father_attributes)
-      attributes[:should_contact_parent1] = true
     end
 
     # Base
@@ -114,8 +111,6 @@ class ChildrenController < ApplicationController
           registration_source_details: @child.registration_source_details,
           parent1: @child.parent1,
           parent2: @child.parent2,
-          should_contact_parent1: @child.should_contact_parent1,
-          should_contact_parent2: @child.should_contact_parent2,
           pmi_detail: @child.pmi_detail,
           child_support: @child.child_support
         ))

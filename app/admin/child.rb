@@ -30,7 +30,6 @@ ActiveAdmin.register Child do
     column :age, sortable: :birthdate
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
-    column :parent1_phone_number_national
     column :postal_code
     column :territory
     column :child_support, sortable: :child_support_id do |model|
@@ -185,7 +184,7 @@ ActiveAdmin.register Child do
         next if latest_parent1_id == child.parent1_id
         latest_parent1_id = child.parent1_id
 
-        if child.should_contact_parent1?
+        unless child.parent1.dont_contact?
           RedirectionUrl.create!(
             redirection_target: redirection_target,
             parent_id: child.parent1_id,
@@ -193,7 +192,7 @@ ActiveAdmin.register Child do
           )
         end
 
-        if child.should_contact_parent2? && child.parent2_id
+        if child.parent2 && !child.parent2&.dont_contact?
           RedirectionUrl.create!(
             redirection_target: redirection_target,
             parent_id: child.parent2_id,
@@ -286,11 +285,9 @@ ActiveAdmin.register Child do
       f.input :parent1,
         collection: child_parent_select_collection,
         input_html: {data: {select2: {}}}
-      f.input :should_contact_parent1
       f.input :parent2,
         collection: child_parent_select_collection,
         input_html: {data: {select2: {}}}
-      f.input :should_contact_parent2
       f.input :gender,
         as: :radio,
         collection: child_gender_select_collection
@@ -322,7 +319,6 @@ ActiveAdmin.register Child do
   end
 
   permit_params :parent1_id, :parent2_id, :group_id,
-    :should_contact_parent1, :should_contact_parent2,
     :gender, :first_name, :last_name, :birthdate, :available_for_workshops,
     :registration_source, :registration_source_details, :pmi_detail, :group_status,
     tags_params
@@ -336,9 +332,7 @@ ActiveAdmin.register Child do
       tab "Infos" do
         attributes_table do
           row :parent1
-          row :should_contact_parent1
           row :parent2
-          row :should_contact_parent2
           row :first_name
           row :last_name
           row :birthdate
@@ -524,7 +518,6 @@ ActiveAdmin.register Child do
     column :parent1_follow_us_on_facebook
     column :parent1_present_on_whatsapp
     column :parent1_follow_us_on_whatsapp
-    column :should_contact_parent1
 
     column :parent2_gender
     column :parent2_first_name
@@ -535,7 +528,6 @@ ActiveAdmin.register Child do
     column :parent2_follow_us_on_facebook
     column :parent2_present_on_whatsapp
     column :parent2_follow_us_on_whatsapp
-    column :should_contact_parent2
 
     column :registration_source
     column :pmi_detail

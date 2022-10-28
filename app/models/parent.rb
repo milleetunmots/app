@@ -8,6 +8,7 @@
 #  degree                              :string
 #  degree_in_france                    :boolean
 #  discarded_at                        :datetime
+#  dont_contact                        :boolean          default(FALSE)
 #  email                               :string
 #  family_followed                     :boolean          default(FALSE)
 #  first_name                          :string           not null

@@ -187,12 +187,12 @@ ActiveAdmin.register ChildSupport do
           columns do
             # parents
             [
-              [f.object.parent1, f.object.should_contact_parent1],
-              [f.object.parent2, f.object.should_contact_parent2]
+              [f.object.parent1, f.object.parent1.dont_contact],
+              [f.object.parent2, f.object.parent2&.dont_contact]
             ].each do |p|
               next if p[0].nil?
               parent = p[0].decorate
-              should_contact_parent = p[1]
+              should_contact_parent = !p[1]
 
               column do
                 render "parent",
@@ -370,8 +370,6 @@ ActiveAdmin.register ChildSupport do
               first_child_f.input :gender,
                 as: :radio,
                 collection: child_gender_select_collection
-              first_child_f.input :should_contact_parent1
-              first_child_f.input :should_contact_parent2
               first_child_f.input :registration_source,
                 collection: child_registration_source_select_collection,
                 input_html: {data: {select2: {}}}
@@ -411,7 +409,7 @@ ActiveAdmin.register ChildSupport do
   first_child_attributes = [{
     first_child_attributes: [
       :id,
-      :gender, :should_contact_parent1, :should_contact_parent2,
+      :gender,
       :registration_source, :registration_source_details,
       {
         parent1_attributes: parent_attributes,
@@ -437,14 +435,14 @@ ActiveAdmin.register ChildSupport do
             if decorated.model.parent1
               render "parent",
                 parent: decorated.model.parent1.decorate,
-                should_contact_parent: decorated.should_contact_parent1?
+                should_contact_parent: !decorated.model.parent1.dont_contact?
             end
           end
           row :parent2 do |decorated|
             if decorated.model.parent2
               render "parent",
                 parent: decorated.model.parent2.decorate,
-                should_contact_parent: decorated.should_contact_parent2?
+                should_contact_parent: !decorated.model.parent2&.dont_contact?
             end
           end
           row :children
@@ -513,7 +511,6 @@ ActiveAdmin.register ChildSupport do
     column :parent1_follow_us_on_whatsapp
     column :parent1_present_on_facebook
     column :parent1_follow_us_on_facebook
-    column :should_contact_parent1
     column :letterbox_name
     column :address
     column :city_name
@@ -529,7 +526,6 @@ ActiveAdmin.register ChildSupport do
     column :parent2_follow_us_on_whatsapp
     column :parent2_present_on_facebook
     column :parent2_follow_us_on_facebook
-    column :should_contact_parent2
 
     column :children_first_names
     column :children_last_names
