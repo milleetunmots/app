@@ -193,14 +193,14 @@ RSpec.describe ProgramMessageService do
   context 'when no recipients found' do
     it 'returns errors' do
       service = ProgramMessageService.new('2021-07-12', '14:30:00', [], 'coucou', nil).call
-      expect(service.errors).to eq(['Tous les champs doivent être complétés.'])
+      expect(service.errors).to eq(['Les destinataires ne sont pas complétés.'])
     end
   end
 
   context 'when no message is given' do
     it 'returns errors' do
       service = ProgramMessageService.new('2021-07-12', '14:30:00', ["parent.#{parent_1.id}"], '', nil).call
-      expect(service.errors).to eq(['Tous les champs doivent être complétés.'])
+      expect(service.errors).to eq(["Le message n'est pas complété."])
     end
   end
 

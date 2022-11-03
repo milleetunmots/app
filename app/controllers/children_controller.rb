@@ -144,15 +144,18 @@ class ChildrenController < ApplicationController
       @message = I18n.t('inscription_success.pro')
       @again = true
       @widget = false
+      @new_link = new_child3_path
     when 2
       session.delete(:registration_origin)
       @message = I18n.t('inscription_success.without_widget', typeform_url: params[:sms_url_form])
       @again = false
       @widget = false
+      @new_link = new_child2_path
     else
       @message = I18n.t('inscription_success.with_widget')
       @again = false
       @widget = true
+      @new_link = new_child1_path
     end
     session.delete(:src_url)
   end
