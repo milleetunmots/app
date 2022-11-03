@@ -200,7 +200,7 @@ RSpec.describe ProgramMessageService do
   context 'when no message is given' do
     it 'returns errors' do
       service = ProgramMessageService.new('2021-07-12', '14:30:00', ["parent.#{parent_1.id}"], '', nil).call
-      expect(service.errors).to eq(["Le message n'est pas complétés."])
+      expect(service.errors).to eq(["Le message n'est pas complété."])
     end
   end
 
