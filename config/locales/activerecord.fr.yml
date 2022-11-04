@@ -530,8 +530,8 @@ fr:
         workshop_address: Adresse
         workshop_participants : Parents invités
         workshop_participants_csv: Parents invités
-        parents_who_accepted: Parents ayant accépté l'invitation
-        parents_who_accepted_csv: Parents ayant accépté l'invitation
+        parents_who_accepted: Parents ayant accepté l'invitation
+        parents_who_accepted_csv: Parents ayant accepté l'invitation
         parents_who_refused: Parents ayant refusé l'invitation
         parents_who_refused_csv: Parents ayant refusé l'invitation
         parents_without_response: Parents n'ayant pas repondu à l'invitation
