@@ -14,6 +14,7 @@
 #  type                :string
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
+#  quit_group_child_id :bigint
 #  related_id          :bigint
 #  spot_hit_message_id :string
 #  workshop_id         :bigint
@@ -21,6 +22,7 @@
 # Indexes
 #
 #  index_events_on_discarded_at                 (discarded_at)
+#  index_events_on_quit_group_child_id          (quit_group_child_id)
 #  index_events_on_related_type_and_related_id  (related_type,related_id)
 #  index_events_on_type                         (type)
 #  index_events_on_workshop_id                  (workshop_id)

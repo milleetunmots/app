@@ -30,6 +30,7 @@ ActiveAdmin.register Child do
     column :age, sortable: :birthdate
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
+    column :parent1_phone_number_national
     column :postal_code
     column :territory
     column :child_support, sortable: :child_support_id do |model|
@@ -51,16 +52,12 @@ ActiveAdmin.register Child do
 
   scope :all, default: true
 
-  scope :without_group_and_not_waiting_second_group, group: :group
-  scope :with_group, group: :group
-  scope :waiting_second_group, group: :group
+  scope :active_group, group: :group
+  scope :without_group, group: :group
 
   scope :months_between_0_and_12, group: :months
   scope :months_between_12_and_24, group: :months
   scope :months_more_than_24, group: :months
-
-  scope :with_support, group: :support
-  scope :without_support, group: :support
 
   scope :without_parent_to_contact, group: :parent
 
@@ -163,6 +160,11 @@ ActiveAdmin.register Child do
     redirect_to request.referer, notice: "Modification effectuée"
   end
 
+  batch_action :reactive_group do |ids|
+    batch_action_collection.where(id: ids).update_all(group_status: "active")
+    redirect_to request.referer, notice: "Modification effectuée"
+  end
+
   batch_action :create_redirection_url, form: -> {
     {
       I18n.t("activerecord.models.medium") => Medium.for_redirections.order(:name).kept.pluck(:name, :id)
@@ -236,44 +238,41 @@ ActiveAdmin.register Child do
   # end
 
   batch_action :generate_quit_sms do |ids|
+
+    ids.reject! do |id|
+      child = Child.find(id)
+      child.child_support.will_stay_in_group  || child.group_status != 'active'
+    end
+
     @children = batch_action_collection.where(id: ids)
 
     if @children.without_parent_to_contact.any?
       flash[:error] = "Certains enfants n'ont aucun parent à contacter"
       redirect_to request.referer
-    end
-
-    latest_parent_id = nil
-    begin
-      @children.order(:parent1_id).each do |child|
-        next if child.child_support&.will_stay_in_group?
-        next if latest_parent_id == child.parent1_id
-        latest_parent_id = child.parent1_id
-
-        next_saturday = Time.now.beginning_of_week.next_day(5).change({hour: 14, min: 30, sec: 0})
-        quit_link = Rails.application.routes.url_helpers.edit_child_url(
-          id: child.id,
-          security_code: child.security_code
-        )
-        message = "Bonjour ! Ca fait 4 mois que je vous envoie des SMS pour votre enfant. Bravo pour tout ce que vous faites pour lui :) Voulez vous continuer à recevoir ces SMS et livres ? Cliquez sur le lien ci-dessous et répondez OUI ! Ca reprendra prochainement ! Je vous souhaite de beaux moments avec vos enfants :) #{quit_link}"
-
-        service = SpotHit::SendSmsService.new(
-          [latest_parent_id],
-          next_saturday.to_i,
-          message
-        ).call
-        if service.errors.any?
-          alert = service.errors.join("\n")
-          raise StandardError, alert
-        else
-          child.update! group_status: "paused"
-        end
-      end
-    rescue StandardError => e
-      redirect_back(fallback_location: root_path, alert: e.message.truncate(200))
     else
-      flash[:notice] = "Message de continuation envoyé"
-      redirect_to admin_sent_by_app_text_messages_url
+      next_saturday = Date.today.beginning_of_week.next_day(5)
+      hour = Time.parse("14:30").strftime("%H:%M")
+      recipients = ids.map {|id| "child.#{id}"}
+      message = "Bonjour ! Ca fait 4 mois que je vous envoie des SMS pour votre enfant. Bravo pour tout ce que vous faites pour lui :) Voulez vous continuer à recevoir ces SMS et livres ? Cliquez sur le lien ci-dessous et répondez OUI ! Ca reprendra prochainement ! Je vous souhaite de beaux moments avec vos enfants :) {QUIT_LINK}"
+
+      service = ProgramMessageService.new(
+        next_saturday,
+        hour,
+        recipients,
+        message,
+        nil,
+        nil,
+         true
+      ).call
+
+      if service.errors.any?
+        flash[:alert] = service.errors
+        redirect_back(fallback_location: root_path)
+      else
+        @children.update_all(group_status: 'paused')
+        flash[:notice] = "Message de continuation envoyé"
+        redirect_to admin_sent_by_app_text_messages_url
+      end
     end
   end
 
