@@ -16,6 +16,10 @@ class ApplicationController < ActionController::Base
     admin_user_signed_in? ? [current_admin_user.id, current_admin_user.email].join(':') : '0:anonymous'
   end
 
+  def not_found
+    raise ActionController::RoutingError.new('Not Found')
+  end
+
   private
 
   def set_time_zone

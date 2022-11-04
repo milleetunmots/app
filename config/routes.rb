@@ -41,8 +41,8 @@ Rails.application.routes.draw do
 
   resources :events, only: [:index, :create]
 
-  resources :children_support_module, only: [:new, :create] do
-    get 'created', on: :collection
+  resources :children_support_modules, only: [:edit, :update] do
+    get 'updated', on: :collection
   end
 
   root to: redirect("/admin")

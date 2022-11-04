@@ -23,6 +23,6 @@ class ChildrenSupportModule < ApplicationRecord
 
   belongs_to :child
   belongs_to :parent
-  belongs_to :support_module
+  belongs_to :support_module, optional: true
 
 end
