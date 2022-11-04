@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_03_104516) do
+ActiveRecord::Schema.define(version: 2022_11_04_101621) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -203,6 +203,17 @@ ActiveRecord::Schema.define(version: 2022_11_03_104516) do
     t.index ["group_id"], name: "index_children_on_group_id"
     t.index ["parent1_id"], name: "index_children_on_parent1_id"
     t.index ["parent2_id"], name: "index_children_on_parent2_id"
+  end
+
+  create_table "children_support_modules", force: :cascade do |t|
+    t.bigint "child_id"
+    t.bigint "support_module_id"
+    t.bigint "parent_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["child_id"], name: "index_children_support_modules_on_child_id"
+    t.index ["parent_id"], name: "index_children_support_modules_on_parent_id"
+    t.index ["support_module_id"], name: "index_children_support_modules_on_support_module_id"
   end
 
   create_table "events", force: :cascade do |t|
