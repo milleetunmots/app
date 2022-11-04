@@ -25,7 +25,14 @@ Rails.application.routes.draw do
     patch "/", to: "workshop_participation#update", as: :update_workshop_participation
   end
 
+  scope "m/:parent_id/:security_code" do
+    get "/", to: "parents#edit", as: :edit_parent
+    patch "/", to: "parents#update", as: :update_parent
+  end
+
   get "mis-a-jour", to: "children#updated", as: :updated_child
+
+  get "parent-module-selected", to: "parents#updated", as: :updated_parent
 
   get "mis-a-jour-invitation", to: "workshop_participation#updated", as: :updated_workshop_participation
 

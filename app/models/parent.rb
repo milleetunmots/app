@@ -29,6 +29,7 @@
 #  redirection_url_visits_count        :integer
 #  redirection_urls_count              :integer
 #  redirection_visit_rate              :float
+#  security_code                       :string
 #  terms_accepted_at                   :datetime
 #  would_like_to_do_more               :string
 #  would_receive_advices               :string
@@ -110,6 +111,11 @@ class Parent < ApplicationRecord
     format: {with: REGEX_VALID_EMAIL, allow_blank: true},
     uniqueness: {case_sensitive: false, allow_blank: true}
   validates :terms_accepted_at, presence: true
+
+  def initialize(attributes = {})
+    super
+    self.security_code = SecureRandom.hex(1)
+  end
 
   # ---------------------------------------------------------------------------
   # helpers

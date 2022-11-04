@@ -124,7 +124,7 @@ class ProgramMessageService
   end
 
   def check_all_fields_are_present
-    @errors << "La date n'est pas complétées." unless @planned_timestamp.present?
+    @errors << "La date n'est pas complétée." unless @planned_timestamp.present?
     @errors << "Les destinataires ne sont pas complétés." if @recipients.empty?
     @errors << "Le message n'est pas complétés." if @message.empty?
   end

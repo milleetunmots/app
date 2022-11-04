@@ -1,0 +1,24 @@
+<div id="update">
+
+  <div class="container" id="update-content">
+
+    <%= simple_form_for @parent, url: @action_path do |f| %>
+
+    <h1> Choix de module </h1>
+    <div class="text-center">
+      <% @available_module_list.each do |available_module| %>
+        <input type="radio" id=<%= available_module %> name="parent[selected_module]" value=<%= available_module %>>
+        <label for=<%= available_module %>><%= available_module %></label><br>
+      <% end %>
+      <button type="submit" class="btn-primary btn-sm">
+        Choisir
+      </button>
+    </div>
+
+    <% end %>
+
+
+
+  </div>
+
+</div>
