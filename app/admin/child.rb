@@ -415,6 +415,29 @@ ActiveAdmin.register Child do
     redirect_to [:admin, resource]
   end
 
+  action_item :select_module, only: :show do
+    link_to I18n.t("child.select_module"), [:select_module, :admin, resource]
+  end
+  member_action :select_module do
+    child_support_module = ChildrenSupportModule.find_or_create_by!(child_id: resource.id, parent_id: resource.model.parent1.id)
+
+    selection_link = Rails.application.routes.url_helpers.edit_children_support_module_url(
+      child_support_module.id,
+      :security_code => resource.model.parent1.security_code
+    )
+
+    message = "Lien: #{selection_link}"
+
+    service = SpotHit::SendSmsService.new(
+      resource.model.parent1.id,
+      DateTime.now,
+      message
+    ).call
+
+    redirect_to [:admin, resource]
+
+  end
+
   # ---------------------------------------------------------------------------
   # IMPORT
   # ---------------------------------------------------------------------------
