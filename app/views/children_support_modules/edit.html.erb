@@ -7,8 +7,8 @@
     <h1> Choix de module </h1>
     <div class="text-center">
       <% @available_module_list.each do |available_module| %>
-        <input type="radio" id=<%= available_module %> name="children_support_module[support_module_id]" value=<%= available_module %>>
-        <label for=<%= available_module %>><%= available_module %></label><br>
+        <input type="radio" id=<%= available_module[:name] %> name="children_support_module[support_module_id]" value=<%= available_module[:support_module_id] %>>
+        <label for=<%= available_module[:name] %>><%= available_module[:name] %></label><br>
       <% end %>
       <button type="submit" class="btn-primary btn-sm">
         Choisir
@@ -16,8 +16,6 @@
     </div>
 
     <% end %>
-
-
 
   </div>
 

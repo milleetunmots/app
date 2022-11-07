@@ -3,7 +3,10 @@ class ChildrenSupportModulesController < ApplicationController
   before_action :find_children_support_module, only: %i[edit update]
 
   def edit
-    @available_module_list = @children_support_module.parent.available_module_list
+    @available_module_list = @children_support_module.parent.available_module_list.map do |available_module|
+      { name: available_module, support_module_id: SupportModule.find_by(name: available_module).id }
+    end
+
     @action_path = children_support_module_path(@children_support_module, security_code: @children_support_module.parent.security_code)
   end
 
