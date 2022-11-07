@@ -73,7 +73,7 @@ class Workshop < ApplicationRecord
 
         next unless parent.should_be_contacted?
 
-        next if parent.target_parent?
+        next unless parent.target_parent?
 
         parents << parent
       end

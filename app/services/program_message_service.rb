@@ -1,10 +1,8 @@
 class ProgramMessageService
 
-  include ProgramMessagesHelper
-
   attr_reader :errors
 
-  def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil)
+  def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil, quit_message = false)
     @planned_timestamp = Time.zone.parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []
     @message = message
@@ -15,6 +13,9 @@ class ProgramMessageService
     @group_ids = []
     @recipient_data = []
     @variables = []
+    @child_ids = []
+    @quit_message = quit_message
+    @event_params = {}
     @errors = []
   end
 
@@ -28,6 +29,7 @@ class ProgramMessageService
     sort_recipients
     find_parent_ids_from_tags
     find_parent_ids_from_groups
+    find_parent_ids_from_children
 
     @errors << "Aucun parent à contacter." and return self if @parent_ids.empty?
 
@@ -37,9 +39,9 @@ class ProgramMessageService
     @message += " {URL}" if @redirection_target && !@variables.include?("URL")
 
     service = if @file.nil?
-      SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message).call
+      SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, event_params: @event_params).call
     else
-      SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, @file).call
+      SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, file: @file, event_params: @event_params).call
     end
 
     if service.errors.any?
@@ -76,7 +78,27 @@ class ProgramMessageService
 
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
         end
+      end
+    elsif @quit_message
+      @recipient_data = {}
+      @child_ids.each do |child_id|
+        child = Child.find(child_id)
+        @recipient_data[child.parent1_id.to_s] = {}
+        @recipient_data[child.parent1_id.to_s]["QUIT_LINK"] = Rails.application.routes.url_helpers.edit_child_url(
+          id: child_id,
+          security_code: child.security_code
+        )
 
+        @event_params[child.parent1_id.to_s] = { quit_group_child_id: child_id }
+
+        if child.parent2
+          @recipient_data[child.parent2_id&.to_s] = {}
+          @recipient_data[child.parent2_id&.to_s]["QUIT_LINK"] = Rails.application.routes.url_helpers.edit_child_url(
+            id: child_id,
+            security_code: child.security_code
+          )
+          @event_params[child.parent2_id.to_s] = { quit_group_child_id: child_id }
+        end
       end
     else
       # If no variables, we can just sent an array of parent ids
@@ -102,17 +124,21 @@ class ProgramMessageService
   end
 
   def check_all_fields_are_present
-    @errors << "Tous les champs doivent être complétés." if !@planned_timestamp.present? || @recipients.empty? || @message.empty?
+    @errors << "La date n'est pas complétée." unless @planned_timestamp.present?
+    @errors << "Les destinataires ne sont pas complétés." if @recipients.empty?
+    @errors << "Le message n'est pas complété." if @message.empty?
   end
 
   def sort_recipients
     @recipients.each do |recipient_id|
-      if recipient_id.include? 'parent.'
+      if recipient_id.include? "parent."
         @parent_ids << recipient_id[/\d+/].to_i
       elsif recipient_id.include? "tag."
         @tag_ids << recipient_id[/\d+/].to_i
       elsif recipient_id.include? "group."
         @group_ids << recipient_id[/\d+/].to_i
+      elsif recipient_id.include? "child."
+        @child_ids << recipient_id[/\d+/].to_i
       end
     end
   end
@@ -132,6 +158,14 @@ class ProgramMessageService
         @parent_ids << child.parent1_id if child.parent1_id && child.should_contact_parent1
         @parent_ids << child.parent2_id if child.parent2_id && child.should_contact_parent2
       end
+    end
+  end
+
+  def find_parent_ids_from_children
+    Child.where(id: @child_ids).find_each do |child|
+
+      @parent_ids << child.parent1_id if child.parent1_id && child.should_contact_parent1
+      @parent_ids << child.parent2_id if child.parent2_id && child.should_contact_parent2
     end
   end
 end

@@ -55,7 +55,7 @@ class Group < ApplicationRecord
   end
 
   def target_group?
-    name.match?("popi")
+    !self.name.match?("Popi")
   end
 
   def self.not_target_group

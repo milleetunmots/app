@@ -6,7 +6,7 @@
 
       <h1>Inscription effectuée avec succès</h1>
 
-      <%= link_to new_child_path, class: 'back-btn' do %>
+      <%= link_to @new_link, class: 'back-btn' do %>
         <i>←</i>Retour
       <% end %>
 
@@ -16,7 +16,7 @@
 
       <% if @again %>
         <br/>
-        <%= link_to new_child_path, class: 'btn btn-primary' do %>
+        <%= link_to @new_link, class: 'btn btn-primary' do %>
           Inscrire un autre enfant
         <% end %>
       <% end %>

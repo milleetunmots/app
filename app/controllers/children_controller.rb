@@ -21,21 +21,6 @@ class ChildrenController < ApplicationController
     end
   end
 
-  def new1
-    session[:registration_origin] = 1
-    redirect_to action: :new
-  end
-
-  def new2
-    session[:registration_origin] = 2
-    redirect_to action: :new
-  end
-
-  def new3
-    session[:registration_origin] = 3
-    redirect_to action: :new
-  end
-
   def create
     attributes = child_creation_params.merge(
       src_url: session[:src_url]
@@ -159,15 +144,18 @@ class ChildrenController < ApplicationController
       @message = I18n.t('inscription_success.pro')
       @again = true
       @widget = false
+      @new_link = new_child3_path
     when 2
       session.delete(:registration_origin)
       @message = I18n.t('inscription_success.without_widget', typeform_url: params[:sms_url_form])
       @again = false
       @widget = false
+      @new_link = new_child2_path
     else
       @message = I18n.t('inscription_success.with_widget')
       @again = false
       @widget = true
+      @new_link = new_child1_path
     end
     session.delete(:src_url)
   end
@@ -225,6 +213,17 @@ class ChildrenController < ApplicationController
   end
 
   def build_variables
+    case request.path
+    when '/inscription1'
+      session[:registration_origin] = 1
+      @form_path = children1_path
+    when '/inscription2'
+      session[:registration_origin] = 2
+      @form_path = children2_path
+    when '/inscription3'
+      session[:registration_origin] = 3
+      @form_path = children3_path
+    end
     @title = I18n.t("inscription_title.form#{current_registration_origin}")
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
     case current_registration_origin

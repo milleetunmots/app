@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <title>1001mots</title>
+    <%= render partial: 'layouts/gtm_head' %>
 
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
     <%= google_places_api_tag %>
   </head>
   <body>
+    <%= render partial: 'layouts/gtm_body' %>
     <%= render partial: 'layouts/flash', flash: flash %>
 
     <%= yield %>
