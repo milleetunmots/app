@@ -30,7 +30,7 @@ class WorkshopDecorator < BaseDecorator
           response = Event.workshop_participations.find_by(
             workshop_id: model.id,
             related_id: participant.id)&.parent_response
-          puts model.id, participant.id if response.nil?
+          logger.debug model.id, participant.id if response.nil?
           li do
             participant.admin_link if response == "Oui"
           end
@@ -45,7 +45,7 @@ class WorkshopDecorator < BaseDecorator
       response = Event.workshop_participations.find_by(
         workshop_id: model.id,
         related_id: parent.id)&.parent_response
-      puts model.id, parent.id if response.nil?
+      logger.debug model.id, parent.id if response.nil?
       result << parent.decorate.name if response == "Oui"
     end
     result.join("\n")
@@ -56,7 +56,7 @@ class WorkshopDecorator < BaseDecorator
       ul do
         parents.decorate.each do |participant|
           response = Event.workshop_participations.find_by(workshop_id: model.id, related_id: participant.id)&.parent_response
-          puts model.id, participant.id if response.nil?
+          logger.debug model.id, participant.id if response.nil?
           li do
             participant.admin_link if response == "Non"
           end
@@ -71,7 +71,7 @@ class WorkshopDecorator < BaseDecorator
       response = Event.workshop_participations.find_by(
         workshop_id: model.id,
         related_id: parent.id)&.parent_response
-      puts model.id, parent.id if response.nil?
+      logger.debug model.id, parent.id if response.nil?
       result << parent.decorate.name if response == "Non"
     end
     result.join("\n")
@@ -82,7 +82,7 @@ class WorkshopDecorator < BaseDecorator
       ul do
         parents.decorate.each do |participant|
           response = Event.workshop_participations.find_by(workshop_id: model.id, related_id: participant.id)&.parent_response
-          puts model.id, participant.id if response.nil?
+          logger.debug model.id, participant.id if response.nil?
           li do
             participant.admin_link unless response
           end
@@ -97,7 +97,7 @@ class WorkshopDecorator < BaseDecorator
       response = Event.workshop_participations.find_by(
         workshop_id: model.id,
         related_id: parent.id)&.parent_response
-      puts model.id, parent.id if response.nil?
+      logger.debug model.id, parent.id if response.nil?
       result << parent.decorate.name unless response
     end
     result.join("\n")
