@@ -419,19 +419,9 @@ ActiveAdmin.register Child do
     link_to I18n.t("child.select_module"), [:select_module, :admin, resource]
   end
   member_action :select_module do
-    child_support_module = ChildrenSupportModule.create!(child_id: resource.id, parent_id: resource.model.parent1.id)
 
-    selection_link = Rails.application.routes.url_helpers.edit_children_support_module_url(
-      child_support_module.id,
-      :security_code => resource.model.parent1.security_code
-    )
-
-    message = "Lien: #{selection_link}"
-
-    service = SpotHit::SendSmsService.new(
-      resource.model.parent1.id,
-      DateTime.now,
-      message
+    service = Child::SelectModuleService.new(
+      resource.model
     ).call
 
     if service.errors.empty?
