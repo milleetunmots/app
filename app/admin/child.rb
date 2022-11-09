@@ -419,7 +419,7 @@ ActiveAdmin.register Child do
     link_to I18n.t("child.select_module"), [:select_module, :admin, resource]
   end
   member_action :select_module do
-    child_support_module = ChildrenSupportModule.find_or_create_by!(child_id: resource.id, parent_id: resource.model.parent1.id)
+    child_support_module = ChildrenSupportModule.create!(child_id: resource.id, parent_id: resource.model.parent1.id)
 
     selection_link = Rails.application.routes.url_helpers.edit_children_support_module_url(
       child_support_module.id,
@@ -434,8 +434,11 @@ ActiveAdmin.register Child do
       message
     ).call
 
-    redirect_to [:admin, resource]
-
+    if service.errors.empty?
+      redirect_to [:admin, resource], notice: 'SMS envoyé'
+    else
+      redirect_to [:admin, resource], alert: service.errors.join("\n")
+    end
   end
 
   # ---------------------------------------------------------------------------

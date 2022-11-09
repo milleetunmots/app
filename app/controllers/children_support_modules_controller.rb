@@ -4,8 +4,10 @@ class ChildrenSupportModulesController < ApplicationController
 
   def edit
     @available_module_list = @children_support_module.parent.available_module_list.map do |available_module|
-      { name: available_module, support_module_id: SupportModule.find_by(name: available_module).id }
-    end
+      support_module = SupportModule.find_by(name: available_module)
+
+      support_module.present? ? { name: available_module, support_module_id: support_module.id } : nil
+    end.compact
 
     @action_path = children_support_module_path(@children_support_module, security_code: @children_support_module.parent.security_code)
   end
