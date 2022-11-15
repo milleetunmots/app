@@ -196,7 +196,7 @@ ActiveAdmin.register Parent do
     @ids = ids
     @form_action = url_for(action: :perform_adding_available_modules)
     @back_url = request.referer
-    render "active_admin/tags/add_available_modules"
+    render "active_admin/available_support_modules/add_available_modules"
   end
 
   batch_action :check_potential_ambassador do |ids|

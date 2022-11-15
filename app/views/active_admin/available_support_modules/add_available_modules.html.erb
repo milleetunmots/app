@@ -12,8 +12,7 @@
                         name: :back_url,
                         value: @back_url %>
 
-    <%= tags_input f,
-                   context_list= 'available_module_list',
+    <%= available_support_module_input f,
                    label: 'Modules disponibles', input_html: {
                       name: 'available_module_list[]'
                    }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_04_101621) do
+ActiveRecord::Schema.define(version: 2022_11_14_160502) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -334,7 +334,9 @@ ActiveRecord::Schema.define(version: 2022_11_04_101621) do
     t.string "would_receive_advices"
     t.boolean "family_followed", default: false
     t.string "security_code"
+    t.string "available_support_module", array: true
     t.index ["address"], name: "index_parents_on_address"
+    t.index ["available_support_module"], name: "index_parents_on_available_support_module", using: :gin
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
     t.index ["email"], name: "index_parents_on_email"
