@@ -202,11 +202,12 @@ ActiveAdmin.register Parent do
 
   collection_action :perform_adding_available_modules, method: :post do
     ids = params[:ids]
-    modules = params[:available_module_list]
+    modules = params[:available_support_module_list]
     back_url = params[:back_url]
 
     collection.object.klass.where(id: ids).each do |object|
-      object.available_module_list.add(modules)
+      object.available_support_module_list = []
+      object.available_support_module_list += modules
       object.save(validate: false)
     end
     redirect_to back_url, notice: "Modules disponibles ajoutés"
