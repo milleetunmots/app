@@ -43,6 +43,7 @@ ActiveAdmin.register Child do
       model.tags(context: 'tags')
     end
     column :land
+    column :selected_support_module_list
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -372,6 +373,7 @@ ActiveAdmin.register Child do
             decorated.public_edit_link(target: "_blank")
           end
           row :available_for_workshops
+          row :selected_support_module_list
           row :tags do |model|
             model.tags(context: 'tags')
           end

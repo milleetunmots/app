@@ -208,6 +208,16 @@ class ChildDecorator < BaseDecorator
     end
   end
 
+  def selected_support_module_list
+    arbre do
+      ChildrenSupportModule.where(child: model).each do |children_support_module|
+        span children_support_module.support_module.name,
+             class: 'support_module'
+        text_node "&nbsp;".html_safe
+      end
+    end
+  end
+
   private
 
   def decorated_parent1

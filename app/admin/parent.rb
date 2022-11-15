@@ -27,6 +27,7 @@ ActiveAdmin.register Parent do
       model.tags(context: 'tags')
     end
     column :available_support_module_list
+    column :selected_support_module_list
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -139,6 +140,7 @@ ActiveAdmin.register Parent do
             model.tags(context: 'tags')
           end
           row :available_support_module_list
+          row :selected_support_module_list
         end
       end
       tab 'Historique' do

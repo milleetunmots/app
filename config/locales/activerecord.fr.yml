@@ -118,6 +118,7 @@ fr:
         child_group_months: Durée de l'accompagnement (en mois)
         months_between_registration_and_group_start: Temps entre l'inscription et le debut de la cohorte (en mois)
         months_since_group_start: Temps depuis le debut de l'accompagnement (en mois)
+        selected_support_module_list: Modules choisis
       child/gender:
         f: Fille
         m: Garçon
@@ -442,6 +443,7 @@ fr:
         terms_accepted_at: Acceptation des conditions d'utilisation
         text_messages_sent_count: SMS envoyés
         available_support_module_list: Modules disponibles
+        selected_support_module_list: Modules choisis
       parent/gender:
         f: Femme
         m: Homme
