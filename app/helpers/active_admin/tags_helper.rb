@@ -18,8 +18,7 @@ module ActiveAdmin::TagsHelper
       }
     }
 
-    form.input context_list.to_sym,
-                    {
+    form.input context_list.to_sym, {
         multiple: true,
         label: "Tags",
         collection: tag_name_collection,

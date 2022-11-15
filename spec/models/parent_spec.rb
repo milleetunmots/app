@@ -4,7 +4,7 @@
 #
 #  id                                  :bigint           not null, primary key
 #  address                             :string           not null
-#  available_support_module            :string           is an Array
+#  available_support_module_list       :string           is an Array
 #  city_name                           :string           not null
 #  degree                              :string
 #  degree_in_france                    :boolean
@@ -39,18 +39,18 @@
 #
 # Indexes
 #
-#  index_parents_on_address                   (address)
-#  index_parents_on_available_support_module  (available_support_module) USING gin
-#  index_parents_on_city_name                 (city_name)
-#  index_parents_on_discarded_at              (discarded_at)
-#  index_parents_on_email                     (email)
-#  index_parents_on_first_name                (first_name)
-#  index_parents_on_gender                    (gender)
-#  index_parents_on_is_ambassador             (is_ambassador)
-#  index_parents_on_job                       (job)
-#  index_parents_on_last_name                 (last_name)
-#  index_parents_on_phone_number_national     (phone_number_national)
-#  index_parents_on_postal_code               (postal_code)
+#  index_parents_on_address                        (address)
+#  index_parents_on_available_support_module_list  (available_support_module_list) USING gin
+#  index_parents_on_city_name                      (city_name)
+#  index_parents_on_discarded_at                   (discarded_at)
+#  index_parents_on_email                          (email)
+#  index_parents_on_first_name                     (first_name)
+#  index_parents_on_gender                         (gender)
+#  index_parents_on_is_ambassador                  (is_ambassador)
+#  index_parents_on_job                            (job)
+#  index_parents_on_last_name                      (last_name)
+#  index_parents_on_phone_number_national          (phone_number_national)
+#  index_parents_on_postal_code                    (postal_code)
 #
 
 require "rails_helper"

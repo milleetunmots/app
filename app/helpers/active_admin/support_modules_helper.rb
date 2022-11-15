@@ -4,7 +4,7 @@ module ActiveAdmin::SupportModulesHelper
     SupportModule.order("LOWER(name)").pluck(:name)
   end
 
-  def available_support_module_input(form, which_parent, options = {})
+  def available_support_module_input(form, options = {})
     input_html = {
       data: {
         select2: {
@@ -14,7 +14,7 @@ module ActiveAdmin::SupportModulesHelper
       }
     }
 
-    form.input which_parent == 'parent1' ? :parent1_available_module : :parent2_available_module,
+    form.input :available_support_module_list,
                {
                  multiple: true,
                  collection: support_module_collection,

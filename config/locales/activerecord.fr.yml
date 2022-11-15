@@ -441,7 +441,7 @@ fr:
         redirection_visit_rate: "Taux de visites d'URL courtes"
         terms_accepted_at: Acceptation des conditions d'utilisation
         text_messages_sent_count: SMS envoyés
-        available_support_module: Modules disponibles
+        available_support_module_list: Modules disponibles
       parent/gender:
         f: Femme
         m: Homme

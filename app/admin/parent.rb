@@ -26,12 +26,7 @@ ActiveAdmin.register Parent do
     column :tags do |model|
       model.tags(context: 'tags')
     end
-    column :available_modules do |model|
-      model.tags(context: 'available_modules')
-    end
-    column :selected_modules do |model|
-      model.tags(context: 'selected_modules')
-    end
+    column :available_support_module_list
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -88,9 +83,8 @@ ActiveAdmin.register Parent do
       f.input :is_ambassador
       f.input :job
       f.input :terms_accepted_at, as: :datepicker
+      available_support_module_input(f)
       tags_input(f)
-      tags_input(f, context_list = 'available_module_list', label: 'Modules disponibles')
-      tags_input(f, context_list = 'selected_module_list', label: 'Modules choisis')
     end
     f.actions
   end
@@ -99,7 +93,7 @@ ActiveAdmin.register Parent do
     :phone_number, :present_on_whatsapp, :present_on_facebook, :follow_us_on_facebook, :follow_us_on_whatsapp, :email,
     :letterbox_name, :address, :postal_code, :city_name,
     :is_ambassador, :job, :terms_accepted_at, :family_followed,
-    tags_params.merge(selected_module_list: [], available_module_list: [])
+    tags_params.merge(available_support_module_list: [])
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -144,12 +138,7 @@ ActiveAdmin.register Parent do
           row :tags do |model|
             model.tags(context: 'tags')
           end
-          row :available_modules do |model|
-            model.tags(context: 'available_modules')
-          end
-          row :selected_modules do |model|
-            model.tags(context: 'selected_modules')
-          end
+          row :available_support_module_list
         end
       end
       tab 'Historique' do
