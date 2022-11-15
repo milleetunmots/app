@@ -142,6 +142,7 @@ fr:
         pithiviers: PMI Pithiviers
         sarreguemines: PMI Sarreguemines
         forbach: PMI Forbach
+        mantes_la_jolie: PMI Mantes-la-Jolie
       child/group_status:
         waiting: En attente
         active: Active
