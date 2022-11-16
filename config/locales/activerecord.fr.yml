@@ -123,14 +123,13 @@ fr:
         m: Garçon
         x: Inconnu
       child/registration_source:
-        caf: CAF
-        doctor: Docteur
-        friends: Par des amis / de la famille
-        nursery: Crèche
+        caf: J'ai reçu un mail/SMS de la CAF
+        doctor: A la crèche
+        friends: Par mon entourage (famille, amis…)
+        nursery: Par mon centre social/ maison des familles
         other: Autre
-        pmi: Mon/ma professionnel·le de santé
-        resubscribing: J'ai déjà reçu les SMS et je réinscris un enfant
-        therapist: Mon orthophoniste
+        pmi: Mon/Ma professionnel.le de santé (puéricultrice, médecin, pédiatre)
+        therapist: J'ai déjà participé au programme 1001 Mots et je réinscris un enfant
         unknown: Inconnue
       child/pmi_detail:
         trappes: PMI Trappes
@@ -142,6 +141,8 @@ fr:
         pithiviers: PMI Pithiviers
         sarreguemines: PMI Sarreguemines
         forbach: PMI Forbach
+        mantes_la_jolie_clemenceau: PMI Mantes-la-Jolie Clémenceau
+        mantes_la_jolie_leclerc: PMI Mantes-la-Jolie Leclerc
       child/group_status:
         waiting: En attente
         active: Active
@@ -152,7 +153,7 @@ fr:
         address: Adresse
         availability: Disponibilités
         book_not_received: Livre non reçu
-        books_quantity: Nombre de livres dans le foyer
+        books_quantity: Nombre de livres dans le foyer pour l'enfant suivi
         call_infos: Informations
         call1_duration: Durée de l'appel 1 (en minutes)
         call1_status: Statut de l'appel 1
@@ -319,7 +320,7 @@ fr:
       child_support/call_status:
         1_ok: OK
         2_ko: KO
-        3_unassigned_number: Numéro non-attribué
+        3_unassigned_number: Numéro érroné
         4_dont_call: Ne pas appeler
       event: &EVENT
         << : *SHARED
