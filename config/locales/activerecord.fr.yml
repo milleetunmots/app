@@ -129,7 +129,6 @@ fr:
         nursery: Par mon centre social/ maison des familles
         other: Autre
         pmi: Mon/Ma professionnel.le de santé (puéricultrice, médecin, pédiatre)
-        resubscribing: Autre
         therapist: J'ai déjà participé au programme 1001 Mots et je réinscris un enfant
         unknown: Inconnue
       child/pmi_detail:
