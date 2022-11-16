@@ -141,7 +141,8 @@ fr:
         pithiviers: PMI Pithiviers
         sarreguemines: PMI Sarreguemines
         forbach: PMI Forbach
-        mantes_la_jolie: PMI Mantes-la-Jolie
+        mantes_la_jolie_clemenceau: PMI Mantes-la-Jolie Clémenceau
+        mantes_la_jolie_leclerc: PMI Mantes-la-Jolie Leclerc
       child/group_status:
         waiting: En attente
         active: Active
