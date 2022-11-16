@@ -256,6 +256,10 @@ class Parent < ApplicationRecord
 
   acts_as_taggable
 
+  def available_support_modules
+    SupportModule.where(id: available_support_module_list)
+  end
+
   private
 
   def format_phone_number

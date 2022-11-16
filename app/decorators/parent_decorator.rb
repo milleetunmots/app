@@ -122,10 +122,8 @@ class ParentDecorator < BaseDecorator
 
   def available_support_module_list
     arbre do
-      model.available_support_module_list&.each do |support_module|
-        next if support_module == ""
-
-        span support_module,
+      model.available_support_modules.each do |support_module|
+        span support_module.name,
           class: 'support_module'
         text_node "&nbsp;".html_safe
       end

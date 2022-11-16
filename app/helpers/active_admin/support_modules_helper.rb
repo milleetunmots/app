@@ -1,16 +1,13 @@
 module ActiveAdmin::SupportModulesHelper
 
   def support_module_collection
-    SupportModule.order("LOWER(name)").pluck(:name)
+    SupportModule.order("LOWER(name)").pluck(:name, :id)
   end
 
   def available_support_module_input(form, options = {})
     input_html = {
       data: {
-        select2: {
-          tags: true,
-          tokenSeparators: [","]
-        }
+        select2: {}
       }
     }
 
