@@ -123,14 +123,13 @@ fr:
         m: Garçon
         x: Inconnu
       child/registration_source:
-        caf: CAF
-        doctor: Docteur
-        friends: Par des amis / de la famille
-        nursery: Crèche
+        caf: J'ai reçu un mail/SMS de la CAF
+        doctor: A la crèche
+        friends: Par mon entourage (famille, amis…)
+        nursery: Par mon centre social/ maison des familles
         other: Autre
-        pmi: Mon/ma professionnel·le de santé
-        resubscribing: J'ai déjà reçu les SMS et je réinscris un enfant
-        therapist: Mon orthophoniste
+        pmi: Mon/Ma professionnel.le de santé (puéricultrice, médecin, pédiatre)
+        therapist: J'ai déjà participé au programme 1001 Mots et je réinscris un enfant
         unknown: Inconnue
       child/pmi_detail:
         trappes: PMI Trappes
@@ -142,6 +141,7 @@ fr:
         pithiviers: PMI Pithiviers
         sarreguemines: PMI Sarreguemines
         forbach: PMI Forbach
+        mantes_la_jolie: PMI Mantes-la-Jolie
       child/group_status:
         waiting: En attente
         active: Active
