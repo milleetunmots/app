@@ -135,7 +135,7 @@ class ParentDecorator < BaseDecorator
   def selected_support_module_list
     arbre do
       ChildrenSupportModule.where(parent: model).each do |children_support_module|
-        span children_support_module.support_module.name,
+        span children_support_module.support_module&.name,
              class: 'support_module'
         text_node "&nbsp;".html_safe
       end

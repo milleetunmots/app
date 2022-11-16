@@ -357,7 +357,7 @@ ActiveAdmin.register ChildSupport do
                     parent_f.input :city_name
                     parent_f.input :is_ambassador
                     parent_f.input :job
-                    tags_input(parent_f, context_list = 'selected_module_list', label: 'Modules choisis')
+                    available_support_module_input(parent_f)
                   end
                 end
               end
