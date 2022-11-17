@@ -124,12 +124,13 @@ fr:
         x: Inconnu
       child/registration_source:
         caf: J'ai reçu un mail/SMS de la CAF
-        doctor: A la crèche
+        doctor: Par mon centre social/ maison des familles
         friends: Par mon entourage (famille, amis…)
-        nursery: Par mon centre social/ maison des familles
+        nursery: A la crèche
         other: Autre
         pmi: Mon/Ma professionnel.le de santé (puéricultrice, médecin, pédiatre)
-        therapist: J'ai déjà participé au programme 1001 Mots et je réinscris un enfant
+        therapist: Mon orthophoniste
+        resubscribing: J'ai déjà participé au programme 1001 Mots et je réinscris un enfant
         unknown: Inconnue
       child/pmi_detail:
         trappes: PMI Trappes
@@ -320,7 +321,7 @@ fr:
       child_support/call_status:
         1_ok: OK
         2_ko: KO
-        3_unassigned_number: Numéro érroné
+        3_unassigned_number: Numéro erroné
         4_dont_call: Ne pas appeler
       event: &EVENT
         << : *SHARED
