@@ -26,8 +26,6 @@ ActiveAdmin.register Parent do
     column :tags do |model|
       model.tags(context: 'tags')
     end
-    column :available_support_module_list
-    column :selected_support_module_list
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -84,7 +82,6 @@ ActiveAdmin.register Parent do
       f.input :is_ambassador
       f.input :job
       f.input :terms_accepted_at, as: :datepicker
-      available_support_module_input(f)
       tags_input(f)
     end
     f.actions
@@ -94,7 +91,7 @@ ActiveAdmin.register Parent do
     :phone_number, :present_on_whatsapp, :present_on_facebook, :follow_us_on_facebook, :follow_us_on_whatsapp, :email,
     :letterbox_name, :address, :postal_code, :city_name,
     :is_ambassador, :job, :terms_accepted_at, :family_followed,
-    tags_params.merge(available_support_module_list: [])
+    tags_params
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -139,8 +136,6 @@ ActiveAdmin.register Parent do
           row :tags do |model|
             model.tags(context: 'tags')
           end
-          row :available_support_module_list
-          row :selected_support_module_list
         end
       end
       tab 'Historique' do
@@ -182,14 +177,6 @@ ActiveAdmin.register Parent do
     end
   end
 
-  batch_action :add_available_modules do |ids|
-    @klass = collection.object.klass
-    @ids = ids
-    @form_action = url_for(action: :perform_adding_available_modules)
-    @back_url = request.referer
-    render "active_admin/available_support_modules/add_available_modules"
-  end
-
   batch_action :check_potential_ambassador do |ids|
     @parents = batch_action_collection.where(id: ids)
     @parents.each { |parent| parent.is_ambassador? ? next : parent.update!(is_ambassador: true) }
@@ -200,19 +187,6 @@ ActiveAdmin.register Parent do
     @parents = batch_action_collection.where(id: ids)
     @parents.each { |parent| !parent.is_ambassador? ? next : parent.update!(is_ambassador: false) }
     redirect_to collection_path, notice: "Potentiels parents ambassadeurs retirés."
-  end
-
-  collection_action :perform_adding_available_modules, method: :post do
-    ids = params[:ids]
-    modules = params[:available_support_module_list]
-    back_url = params[:back_url]
-
-    collection.object.klass.where(id: ids).each do |object|
-      object.available_support_module_list = []
-      object.available_support_module_list += modules
-      object.save(validate: false)
-    end
-    redirect_to back_url, notice: "Modules disponibles ajoutés"
   end
 
   # ---------------------------------------------------------------------------
@@ -259,7 +233,6 @@ ActiveAdmin.register Parent do
     column :terms_accepted_at
 
     column :tag_list
-    column :selected_modules
 
     column :created_at
     column :updated_at

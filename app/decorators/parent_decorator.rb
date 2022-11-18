@@ -120,26 +120,6 @@ class ParentDecorator < BaseDecorator
     model.children.decorate.map(&:group_name).join("\n")
   end
 
-  def available_support_module_list
-    arbre do
-      model.available_support_modules.each do |support_module|
-        span support_module.name,
-          class: 'support_module'
-        text_node "&nbsp;".html_safe
-      end
-    end
-  end
-
-  def selected_support_module_list
-    arbre do
-      ChildrenSupportModule.where(parent: model).each do |children_support_module|
-        span children_support_module.support_module&.name,
-             class: 'support_module'
-        text_node "&nbsp;".html_safe
-      end
-    end
-  end
-
   private
 
   def child(child)

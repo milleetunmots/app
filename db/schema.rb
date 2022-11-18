@@ -151,6 +151,8 @@ ActiveRecord::Schema.define(version: 2022_11_14_160502) do
     t.text "call3_goals_tracking"
     t.text "call4_goals_tracking"
     t.text "call5_goals_tracking"
+    t.string "parent1_available_support_module_list", array: true
+    t.string "parent2_available_support_module_list", array: true
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
@@ -164,6 +166,8 @@ ActiveRecord::Schema.define(version: 2022_11_14_160502) do
     t.index ["call5_language_awareness"], name: "index_child_supports_on_call5_language_awareness"
     t.index ["call5_parent_progress"], name: "index_child_supports_on_call5_parent_progress"
     t.index ["discarded_at"], name: "index_child_supports_on_discarded_at"
+    t.index ["parent1_available_support_module_list"], name: "index_child_supports_on_parent1_available_support_module_list", using: :gin
+    t.index ["parent2_available_support_module_list"], name: "index_child_supports_on_parent2_available_support_module_list", using: :gin
     t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
     t.index ["supporter_id"], name: "index_child_supports_on_supporter_id"
   end
@@ -334,9 +338,7 @@ ActiveRecord::Schema.define(version: 2022_11_14_160502) do
     t.string "would_receive_advices"
     t.boolean "family_followed", default: false
     t.string "security_code"
-    t.string "available_support_module_list", array: true
     t.index ["address"], name: "index_parents_on_address"
-    t.index ["available_support_module_list"], name: "index_parents_on_available_support_module_list", using: :gin
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
     t.index ["email"], name: "index_parents_on_email"

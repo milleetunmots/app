@@ -226,7 +226,8 @@ ActiveAdmin.register ChildSupport do
           end
         end
         column class:'column flex-column' do
-          render "available_modules", parent: f.object.parent1.decorate, label_text: 'Modules disponibles'
+          available_support_module_input(f, 'parent1')
+          available_support_module_input(f, 'parent2')
           f.input :availability, label: 'Disponibilités générales', input_html: { style: "width: 70%"}
           f.input :call_infos, label: 'Tentatives d’appels', input_html: { style: "width: 70%"}
           f.input :book_not_received,
@@ -357,7 +358,6 @@ ActiveAdmin.register ChildSupport do
                     parent_f.input :city_name
                     parent_f.input :is_ambassador
                     parent_f.input :job
-                    available_support_module_input(parent_f)
                   end
                 end
               end
@@ -402,12 +402,12 @@ ActiveAdmin.register ChildSupport do
     notes
     availability
     call_infos
-  ] + [tags_params] + [{book_not_received: []}]
+  ] + [tags_params.merge(book_not_received: []).merge(parent1_available_support_module_list: []).merge(parent2_available_support_module_list: [])]
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
     is_ambassador present_on_whatsapp present_on_facebook follow_us_on_whatsapp follow_us_on_facebook job
-  ] + [{selected_module_list: []}]
+  ]
   first_child_attributes = [{
     first_child_attributes: [
       :id,
@@ -462,6 +462,10 @@ ActiveAdmin.register ChildSupport do
           end
           row :created_at
           row :updated_at
+          row :parent1_available_support_module_list
+          row :parent2_available_support_module_list
+          row :parent1_selected_support_module_list
+          row :parent2_selected_support_module_list
         end
       end
       (1..5).each do |call_idx|

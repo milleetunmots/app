@@ -274,6 +274,10 @@ fr:
         supporter: Responsable
         to_call: Accompagnement renforcé
         children_land: Territoire
+        parent1_available_support_module_list: Modules disponibles du parent 1
+        parent2_available_support_module_list: Modules disponibles du parent 2
+        parent1_selected_support_module_list: Modules choisis du parent 1
+        parent2_selected_support_module_list: Modules choisis du parent 2
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
         2_awareness: A conscience de son impact
@@ -442,8 +446,6 @@ fr:
         redirection_visit_rate: "Taux de visites d'URL courtes"
         terms_accepted_at: Acceptation des conditions d'utilisation
         text_messages_sent_count: SMS envoyés
-        available_support_module_list: Modules disponibles
-        selected_support_module_list: Modules choisis
       parent/gender:
         f: Femme
         m: Homme
