@@ -120,6 +120,18 @@ class ParentDecorator < BaseDecorator
     model.children.decorate.map(&:group_name).join("\n")
   end
 
+  def selected_support_module
+    arbre do
+      model.support_modules.each do |support_module|
+        span support_module.name,
+          class: 'support_module'
+        text_node "&nbsp;".html_safe
+      end
+
+    end
+    # model.support_modules.pluck(:name).join("\n")
+  end
+
   private
 
   def child(child)

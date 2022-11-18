@@ -85,6 +85,10 @@ class Parent < ApplicationRecord
 
   has_many :events, as: :related
 
+  has_many :children_support_modules, dependent: :destroy
+
+  has_many :support_modules, through: :children_support_modules
+
   has_and_belongs_to_many :workshops
 
   # ---------------------------------------------------------------------------

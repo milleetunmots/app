@@ -6,8 +6,21 @@ div class: 'card card-parent' do
   ) + (
     div parent.full_address
   ) + (
+    div class: 'should-be-contacted' do
+      status_tag 'no', label: t('should_not_be_contacted') unless should_contact_parent
+    end
+  ) + (
   div class: 'tags' do
-    parent.tags
+    parent.tags({context: :tags})
+  end
+  ) + (
+  div do
+    span do
+      "Module choisis : "
+    end +
+    span do
+      parent.selected_support_module
+    end
   end
   )
 end
