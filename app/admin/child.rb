@@ -276,6 +276,12 @@ ActiveAdmin.register Child do
     end
   end
 
+  batch_action :excel_export do |ids|
+    service = Child::ExportBookExcelService.new(children: batch_action_collection.where(id: ids)).call
+
+    send_data(service.workbook.read_string, filename: "#{Date.today.strftime('%d-%m-%Y')}.xlsx")
+  end
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------
