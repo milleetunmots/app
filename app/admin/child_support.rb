@@ -193,13 +193,11 @@ ActiveAdmin.register ChildSupport do
               next if p[0].nil?
               parent = p[0].decorate
               should_contact_parent = p[1]
-              selected_module_list = ChildrenSupportModule.where(parent: p).pluck(:support_module_id)
 
               column do
                 render "parent",
                   parent: parent,
-                  should_contact_parent: should_contact_parent,
-                  selected_module_list: selected_module_list
+                  should_contact_parent: should_contact_parent
               end
             end
             column do

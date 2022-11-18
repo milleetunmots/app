@@ -14,16 +14,15 @@ class Child::SelectModuleService
       return self
     end
 
-    send_select_module_message(@child.parent1) if @child.should_contact_parent1
-    send_select_module_message(@child.parent2) if @child.parent2 && @child.should_contact_parent2
-
+    send_select_module_message(@child.parent1, @child.child_support.parent1_available_support_module_list) if @child.should_contact_parent1
+    send_select_module_message(@child.parent2, @child.child_support.parent2_available_support_module_list) if @child.parent2 && @child.should_contact_parent2
     self
   end
 
   private
 
-  def send_select_module_message(parent)
-    @child_support_module = ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id)
+  def send_select_module_message(parent, available_support_module_list)
+    @child_support_module = ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id, available_support_module_list: available_support_module_list)
 
     selection_link = Rails.application.routes.url_helpers.edit_children_support_module_url(
       @child_support_module.id,

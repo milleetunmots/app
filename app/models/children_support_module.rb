@@ -2,12 +2,13 @@
 #
 # Table name: children_support_modules
 #
-#  id                :bigint           not null, primary key
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  child_id          :bigint
-#  parent_id         :bigint
-#  support_module_id :bigint
+#  id                            :bigint           not null, primary key
+#  available_support_module_list :string           is an Array
+#  created_at                    :datetime         not null
+#  updated_at                    :datetime         not null
+#  child_id                      :bigint
+#  parent_id                     :bigint
+#  support_module_id             :bigint
 #
 # Indexes
 #
@@ -25,4 +26,7 @@ class ChildrenSupportModule < ApplicationRecord
   belongs_to :parent
   belongs_to :support_module, optional: true
 
+  def available_support_modules
+    SupportModule.where(id: available_support_module_list)
+  end
 end
