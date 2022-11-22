@@ -468,7 +468,7 @@ ActiveAdmin.register Child do
                         end
 
     Child.all.each do |child|
-      child.update! available_for_workshops: children_available.include?(child) ? true : false
+      child.update_attribute('available_for_workshops', children_available.include?(child) ? true : false)
     end
     redirect_to admin_children_path, notice: "Enfants mis à jour"
   end
