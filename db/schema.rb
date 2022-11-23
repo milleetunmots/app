@@ -10,7 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_23_085654) do
+
+ActiveRecord::Schema.define(version: 2022_11_23_121242) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -383,12 +384,6 @@ ActiveRecord::Schema.define(version: 2022_11_23_085654) do
     t.bigint "medium_id"
     t.index ["discarded_at"], name: "index_redirection_targets_on_discarded_at"
     t.index ["medium_id"], name: "index_redirection_targets_on_medium_id", unique: true
-  end
-
-  create_table "redirection_url_sents", force: :cascade do |t|
-    t.bigint "redirection_url_id"
-    t.datetime "occurred_at"
-    t.index ["redirection_url_id"], name: "index_redirection_url_sents_on_redirection_url_id"
   end
 
   create_table "redirection_url_visits", force: :cascade do |t|
