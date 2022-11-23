@@ -15,7 +15,7 @@ class ChildrenSupportModuleDecorator < BaseDecorator
   def name_with_date
     [
       support_module.name,
-      choice_date.strftime('%d/%m/%Y')
+      choice_date&.strftime('%d/%m/%Y')
     ].reject(&:blank?).join(' - ')
   end
 
