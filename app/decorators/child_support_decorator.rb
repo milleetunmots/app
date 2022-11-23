@@ -193,6 +193,18 @@ class ChildSupportDecorator < BaseDecorator
       end
     end
 
+    define_method("call#{call_idx}_family_progress") do
+      if v = model.send("call#{call_idx}_family_progress")
+        ChildSupport.human_attribute_name("call_family_progress.#{v}")
+      end
+    end
+
+    define_method("call#{call_idx}_previous_goals_follow_up") do
+      if v = model.send("call#{call_idx}_previous_goals_follow_up")
+        ChildSupport.human_attribute_name("call_previous_goals_follow_up.#{v}")
+      end
+    end
+
     define_method("call#{call_idx}_technical_information_text") do
       model.send("call#{call_idx}_technical_information")
     end
