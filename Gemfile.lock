@@ -166,6 +166,8 @@ GEM
       railties (>= 5.0.0)
     faker (2.17.0)
       i18n (>= 1.6, < 2)
+    fast_excel (0.4.0)
+      ffi (> 1.9, < 2)
     ffi (1.15.0)
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
@@ -446,6 +448,7 @@ DEPENDENCIES
   draper
   factory_bot_rails
   faker
+  fast_excel
   figaro
   http
   image_processing
@@ -484,4 +487,4 @@ RUBY VERSION
    ruby 2.6.6p146
 
 BUNDLED WITH
-   2.2.16
+   2.2.32
