@@ -5,6 +5,7 @@
 #  id                            :bigint           not null, primary key
 #  available_support_module_list :string           is an Array
 #  choice_date                   :date
+#  is_completed                  :boolean          default(FALSE)
 #  created_at                    :datetime         not null
 #  updated_at                    :datetime         not null
 #  child_id                      :bigint

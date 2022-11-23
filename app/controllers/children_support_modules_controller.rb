@@ -11,6 +11,7 @@ class ChildrenSupportModulesController < ApplicationController
   def update
     if @children_support_module.update(children_support_module_params)
       @children_support_module.update_attribute('choice_date', Date.today)
+      @children_support_module.update_attribute('is_completed', true)
       redirect_to updated_children_support_modules_path
     else
       render action: :edit
