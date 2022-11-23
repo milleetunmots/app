@@ -212,7 +212,7 @@ class ChildDecorator < BaseDecorator
     arbre do
       ChildrenSupportModule.where(child: model).each do |children_support_module|
         span children_support_module.support_module&.name,
-             class: 'support_module'
+             class: 'available_support_module'
         text_node "&nbsp;".html_safe
       end
     end

@@ -4,6 +4,7 @@
 #
 #  id                            :bigint           not null, primary key
 #  available_support_module_list :string           is an Array
+#  choice_date                   :date
 #  created_at                    :datetime         not null
 #  updated_at                    :datetime         not null
 #  child_id                      :bigint
@@ -29,4 +30,11 @@ class ChildrenSupportModule < ApplicationRecord
   def available_support_modules
     SupportModule.where(id: available_support_module_list)
   end
+
+  def name
+    return unless support_module
+
+    support_module&.name
+  end
+
 end

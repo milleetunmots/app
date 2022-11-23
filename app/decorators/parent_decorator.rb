@@ -126,11 +126,11 @@ class ParentDecorator < BaseDecorator
         div do
           if children_support_module.support_module
             a children_support_module.decorate.name_with_date, href: admin_support_module_path(children_support_module.support_module),
-              class: 'support_module', target: '_blank'
+              class: 'available_support_module', target: '_blank'
             text_node "&nbsp;".html_safe
           else
             span "Pas encore choisi - #{children_support_module.created_at.strftime("%d/%m/%Y")}",
-              class: 'support_module'
+              class: 'available_support_module'
             text_node "&nbsp;".html_safe
           end
         end

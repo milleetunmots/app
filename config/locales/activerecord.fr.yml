@@ -4,6 +4,7 @@ fr:
       admin_user: Utilisateur
       child: Enfant
       child_support: Suivi
+      children_support_module: Module choisi
       events_other_event: Autre
       events_survey_response: Questionnaire
       events_text_message: SMS
@@ -148,6 +149,17 @@ fr:
         active: Active
         paused: En pause
         stopped: Arrêtée
+      children_support_module:
+        name: Nom
+        parent_name: Parent
+        child_name: Enfant
+        group: Cohorte
+        created_at: Date d'envoi du formulaire
+        choice_date: Date de choix du module
+        support_module_name: Module
+        child_last_name: Nom de famille
+        child_first_name: Prénom de l'enfant
+        parent_first_name: Prénom du parent
       child_support:
         << : *SHARED
         address: Adresse
