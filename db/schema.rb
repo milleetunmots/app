@@ -10,6 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+
 ActiveRecord::Schema.define(version: 2022_11_23_121242) do
 
   # These are extensions that must be enabled in order to support this database
@@ -151,6 +152,10 @@ ActiveRecord::Schema.define(version: 2022_11_23_121242) do
     t.text "call3_goals_tracking"
     t.text "call4_goals_tracking"
     t.text "call5_goals_tracking"
+    t.string "parent1_available_support_module_list", array: true
+    t.string "parent2_available_support_module_list", array: true
+    t.string "call2_family_progress"
+    t.string "call2_previous_goals_follow_up"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
@@ -164,6 +169,8 @@ ActiveRecord::Schema.define(version: 2022_11_23_121242) do
     t.index ["call5_language_awareness"], name: "index_child_supports_on_call5_language_awareness"
     t.index ["call5_parent_progress"], name: "index_child_supports_on_call5_parent_progress"
     t.index ["discarded_at"], name: "index_child_supports_on_discarded_at"
+    t.index ["parent1_available_support_module_list"], name: "index_child_supports_on_parent1_available_support_module_list", using: :gin
+    t.index ["parent2_available_support_module_list"], name: "index_child_supports_on_parent2_available_support_module_list", using: :gin
     t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
     t.index ["supporter_id"], name: "index_child_supports_on_supporter_id"
   end
@@ -203,6 +210,18 @@ ActiveRecord::Schema.define(version: 2022_11_23_121242) do
     t.index ["group_id"], name: "index_children_on_group_id"
     t.index ["parent1_id"], name: "index_children_on_parent1_id"
     t.index ["parent2_id"], name: "index_children_on_parent2_id"
+  end
+
+  create_table "children_support_modules", force: :cascade do |t|
+    t.bigint "child_id"
+    t.bigint "support_module_id"
+    t.bigint "parent_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "available_support_module_list", array: true
+    t.index ["child_id"], name: "index_children_support_modules_on_child_id"
+    t.index ["parent_id"], name: "index_children_support_modules_on_parent_id"
+    t.index ["support_module_id"], name: "index_children_support_modules_on_support_module_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -322,6 +341,7 @@ ActiveRecord::Schema.define(version: 2022_11_23_121242) do
     t.string "would_like_to_do_more"
     t.string "would_receive_advices"
     t.boolean "family_followed", default: false
+    t.string "security_code"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
