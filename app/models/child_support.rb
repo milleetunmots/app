@@ -22,6 +22,7 @@
 #  call1_technical_information     :text
 #  call1_tv_frequency              :string
 #  call2_duration                  :integer
+#  call2_family_progress           :string
 #  call2_goals                     :text
 #  call2_goals_tracking            :text
 #  call2_language_awareness        :string
@@ -29,6 +30,7 @@
 #  call2_notes                     :text
 #  call2_parent_actions            :text
 #  call2_parent_progress           :string
+#  call2_previous_goals_follow_up  :string
 #  call2_reading_frequency         :string
 #  call2_sendings_benefits         :string
 #  call2_sendings_benefits_details :text
@@ -132,6 +134,8 @@ class ChildSupport < ApplicationRecord
   BOOKS_QUANTITY = %w[1_none 2_three_or_less 3_between_four_and_ten 4_more_than_ten].freeze
   BOOK_NOT_RECEIVED = %w[1_first_book 2_second_book 3_third_book 4_fourth_book 5_fifth_book].freeze
   CALL_STATUS = %w[1_ok 2_ko 3_unassigned_number 4_dont_call].freeze
+  FAMILY_PROGRESS = %w[1_yes 2_no 3_no_information].freeze
+  GOALS_FOLLOW_UP = %w[1_succeed 2_tried 3_no_tried 4_no_goal].freeze
 
   # ---------------------------------------------------------------------------
   # relations

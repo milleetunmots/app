@@ -44,14 +44,8 @@ class ProgramMessageService
       SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, file: @file, event_params: @event_params).call
     end
 
-    if service.errors.any?
-      @errors = service.errors
-    else
-      if @url
-        @url.build_redirection_url_sent(occurred_at: Time.now)
-        @url.save!
-      end
-    end
+    @errors = service.errors if service.errors.any?
+
     self
   end
 

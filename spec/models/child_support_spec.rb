@@ -22,6 +22,7 @@
 #  call1_technical_information     :text
 #  call1_tv_frequency              :string
 #  call2_duration                  :integer
+#  call2_family_progress           :string
 #  call2_goals                     :text
 #  call2_goals_tracking            :text
 #  call2_language_awareness        :string
@@ -29,6 +30,7 @@
 #  call2_notes                     :text
 #  call2_parent_actions            :text
 #  call2_parent_progress           :string
+#  call2_previous_goals_follow_up  :string
 #  call2_reading_frequency         :string
 #  call2_sendings_benefits         :string
 #  call2_sendings_benefits_details :text
