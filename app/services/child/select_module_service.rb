@@ -29,7 +29,7 @@ class Child::SelectModuleService
       :security_code => parent.security_code
     )
 
-    message = "Lien: #{selection_link}"
+    message = "1001mots : C'est le moment de choisir votre thème pour #{@child.first_name}. Cliquez ici pour recevoir le prochain livre et les messages #{selection_link}"
 
     sms_service = SpotHit::SendSmsService.new(
       parent.id,
