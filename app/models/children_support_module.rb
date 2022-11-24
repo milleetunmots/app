@@ -33,9 +33,6 @@ class ChildrenSupportModule < ApplicationRecord
   end
 
   def name
-    return unless support_module
-
-    support_module&.name
+    support_module ? support_module&.name : "Laisse le choix à 1001mots"
   end
-
 end

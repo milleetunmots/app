@@ -5,17 +5,30 @@
     <%= simple_form_for @children_support_module, url: @action_path do |f| %>
 
     <h1>Sur quel thème voulez-vous recevoir des conseils (et un livre) ?</h1>
-        <div style="width: 30%; margin: 0 auto;">
-            <% @support_modules.each do |support_module| %>
+      <div style="display: flex; flex-flow: row wrap; justify-content: center; align-items: stretch; align-content: stretch; gap: 10px ">
+        <% @support_modules.each do |support_module| %>
+          <div class="card" style="width: 15rem;">
+            <img class="card-img-top" src="..." alt="image">
+            <div class="card-body">
               <input type="radio" id=<%= support_module.name %> name="children_support_module[support_module_id]" value=<%= support_module.id %>>
               <label for=<%= support_module.name %>><%= support_module.name %></label><br>
-            <% end %>
+            </div>
+          </div>
+        <% end %>
+        <div class="card" style="width: 15rem;">
+          <img class="card-img-top" src="..." alt="image">
+          <div class="card-body">
             <input type="radio" id="1001mots_choice" name="children_support_module[support_module_id]" value = 0>
             <label for="1001mots_choice">Je laisse 1001mots choisir pour moi</label><br>
-            <button type="submit" class="btn-primary btn-sm" style="margin: 2rem 0">
-              Choisir
-            </button>
+          </div>
         </div>
+      </div>
+
+      <div>
+        <button type="submit" class="btn-primary btn-sm" style="margin: 2rem auto;">
+          Choisir
+        </button>
+      </div>
     </div>
 
     <% end %>

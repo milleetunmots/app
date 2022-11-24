@@ -23,7 +23,7 @@ ActiveAdmin.register ChildrenSupportModule do
 
   controller do
     def scoped_collection
-      end_of_association_chain.where.not(support_module: nil)
+      end_of_association_chain.where(is_completed: true)
     end
   end
 end
