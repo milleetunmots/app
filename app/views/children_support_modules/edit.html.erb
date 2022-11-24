@@ -4,15 +4,18 @@
 
     <%= simple_form_for @children_support_module, url: @action_path do |f| %>
 
-    <h1> Choix de module </h1>
-    <div class="text-center">
-      <% @support_modules.each do |support_module| %>
-        <input type="radio" id=<%= support_module.name %> name="children_support_module[support_module_id]" value=<%= support_module.id %>>
-        <label for=<%= support_module.name %>><%= support_module.name %></label><br>
-      <% end %>
-      <button type="submit" class="btn-primary btn-sm">
-        Choisir
-      </button>
+    <h1>Sur quel thème voulez-vous recevoir des conseils (et un livre) ?</h1>
+        <div style="width: 30%; margin: 0 auto;">
+            <% @support_modules.each do |support_module| %>
+              <input type="radio" id=<%= support_module.name %> name="children_support_module[support_module_id]" value=<%= support_module.id %>>
+              <label for=<%= support_module.name %>><%= support_module.name %></label><br>
+            <% end %>
+            <input type="radio" id="1001mots_choice" name="children_support_module[support_module_id]" value = 0>
+            <label for="1001mots_choice">Je laisse 1001mots choisir pour moi</label><br>
+            <button type="submit" class="btn-primary btn-sm" style="margin: 2rem 0">
+              Choisir
+            </button>
+        </div>
     </div>
 
     <% end %>
