@@ -22,10 +22,10 @@ class ChildSupport::SelectModuleService
   private
 
   def send_select_module_message(parent, available_support_module_list)
-    @child_support_module = ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id, available_support_module_list: available_support_module_list)
+    @children_support_module = ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id, available_support_module_list: available_support_module_list)
 
     selection_link = Rails.application.routes.url_helpers.edit_children_support_module_url(
-      @child_support_module.id,
+      @children_support_module.id,
       :security_code => parent.security_code
     )
 
@@ -37,7 +37,11 @@ class ChildSupport::SelectModuleService
       message
     ).call
 
-    @errors += sms_service.errors if sms_service.errors.any?
+    if sms_service.errors.any?
+      @errors += sms_service.errors
+    else
+      ChildrenSupportModule::CheckToSendReminder.set(wait: 1.week).perform_later(@children_support_module.id)
+    end
   end
 
 end
