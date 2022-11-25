@@ -127,6 +127,7 @@ GEM
     childprocess (3.0.0)
     choice (0.2.0)
     concurrent-ruby (1.1.8)
+    connection_pool (2.3.0)
     crack (0.4.5)
       rexml
     crass (1.0.6)
@@ -176,6 +177,7 @@ GEM
       thor (>= 0.14.0, < 2)
     font-awesome-sass (5.15.1)
       sassc (>= 1.11)
+    foreman (0.87.2)
     formtastic (4.0.0)
       actionpack (>= 5.2.0)
     formtastic_i18n (0.6.0)
@@ -306,6 +308,7 @@ GEM
     rb-fsevent (0.10.4)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
+    redis (4.8.0)
     regexp_parser (2.1.1)
     request_store (1.5.0)
       rack (>= 1.4)
@@ -364,6 +367,10 @@ GEM
     selenium-webdriver (3.142.7)
       childprocess (>= 0.5, < 4.0)
       rubyzip (>= 1.2.2)
+    sidekiq (6.5.8)
+      connection_pool (>= 2.2.5, < 3)
+      rack (~> 2.0)
+      redis (>= 4.5.0, < 5)
     simple_form (5.1.0)
       actionpack (>= 5.2)
       activemodel (>= 5.2)
@@ -450,6 +457,7 @@ DEPENDENCIES
   faker
   fast_excel
   figaro
+  foreman
   http
   image_processing
   jbuilder (~> 2.5)
@@ -469,6 +477,7 @@ DEPENDENCIES
   sass-rails (~> 5)
   select2-rails
   selenium-webdriver
+  sidekiq
   simple_form
   simplecov
   stackprof (>= 0.2.9)

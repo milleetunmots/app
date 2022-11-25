@@ -48,6 +48,7 @@ group :development do
   gem "listen", ">= 3.0.5", "< 3.2"
 
   gem "annotate"
+  gem "foreman"
   gem "rails-erd"
 end
 
@@ -125,6 +126,9 @@ gem "figaro"
 
 # Excel file
 gem 'fast_excel'
+
+# Asynchrone jobs
+gem 'sidekiq'
 
 group :production do
   # for assets compilation
