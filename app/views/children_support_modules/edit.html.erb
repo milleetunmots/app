@@ -6,9 +6,9 @@
 
     <h1>Sur quel thème voulez-vous recevoir des conseils (et un livre) ?</h1>
       <div style="display: flex; flex-flow: row wrap; justify-content: center; align-items: stretch; align-content: stretch; gap: 10px ">
-        <% @support_modules.each do |support_module| %>
+        <% @support_modules.decorate.each do |support_module| %>
           <div class="card" style="width: 15rem;">
-            <%= image_tag("child-picture.jpg", class:"card-img-top")%>
+            <%= support_module.picture_tag(class: "card-img-top") %>
             <div class="card-body">
               <input type="radio" id=<%= support_module.name %> name="children_support_module[support_module_id]" value=<%= support_module.id %>>
               <label for=<%= support_module.name %>><%= support_module.name %></label><br>
@@ -18,7 +18,7 @@
         <div class="card" style="width: 15rem;">
           <%= image_tag("child-picture.jpg", class:"card-img-top")%>
           <div class="card-body">
-            <input type="radio" id="1001mots_choice" name="children_support_module[support_module_id]" value = 0>
+            <input type="radio" id="1001mots_choice" name="children_support_module[support_module_id]" value="">
             <label for="1001mots_choice">Je laisse 1001mots choisir pour moi</label><br>
           </div>
         </div>
