@@ -226,8 +226,8 @@ ActiveAdmin.register ChildSupport do
           end
         end
         column class:'column flex-column' do
-          available_support_module_input(f, 'parent1')
-          available_support_module_input(f, 'parent2')
+          available_support_module_input(f, :parent1_available_support_module_list)
+          available_support_module_input(f, :parent2_available_support_module_list)
           f.input :availability, label: 'Disponibilités générales', input_html: { style: "width: 70%"}
           f.input :call_infos, label: 'Tentatives d’appels', input_html: { style: "width: 70%"}
           f.input :book_not_received,

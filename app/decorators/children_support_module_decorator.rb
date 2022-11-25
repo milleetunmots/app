@@ -19,4 +19,8 @@ class ChildrenSupportModuleDecorator < BaseDecorator
     ].reject(&:blank?).join(' - ')
   end
 
+  def available_support_module_names
+    model.available_support_modules.pluck(:name)
+  end
+
 end

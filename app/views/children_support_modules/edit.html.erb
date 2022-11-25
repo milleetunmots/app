@@ -8,7 +8,7 @@
       <div style="display: flex; flex-flow: row wrap; justify-content: center; align-items: stretch; align-content: stretch; gap: 10px ">
         <% @support_modules.each do |support_module| %>
           <div class="card" style="width: 15rem;">
-            <img class="card-img-top" src="..." alt="image">
+            <%= image_tag("child-picture.jpg", class:"card-img-top")%>
             <div class="card-body">
               <input type="radio" id=<%= support_module.name %> name="children_support_module[support_module_id]" value=<%= support_module.id %>>
               <label for=<%= support_module.name %>><%= support_module.name %></label><br>
@@ -16,7 +16,7 @@
           </div>
         <% end %>
         <div class="card" style="width: 15rem;">
-          <img class="card-img-top" src="..." alt="image">
+          <%= image_tag("child-picture.jpg", class:"card-img-top")%>
           <div class="card-body">
             <input type="radio" id="1001mots_choice" name="children_support_module[support_module_id]" value = 0>
             <label for="1001mots_choice">Je laisse 1001mots choisir pour moi</label><br>
@@ -24,8 +24,8 @@
         </div>
       </div>
 
-      <div>
-        <button type="submit" class="btn-primary btn-sm" style="margin: 2rem auto;">
+      <div style="display: flex; justify-content: center; margin-top: 2rem" >
+        <button type="submit" class="btn-primary btn-sm">
           Choisir
         </button>
       </div>

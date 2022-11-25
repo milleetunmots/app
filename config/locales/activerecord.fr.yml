@@ -160,6 +160,7 @@ fr:
         child_last_name: Nom de famille
         child_first_name: Prénom de l'enfant
         parent_first_name: Prénom du parent
+        is_completed: Choisi par le parent?
       child_support:
         << : *SHARED
         address: Adresse
@@ -552,7 +553,6 @@ fr:
         parents_without_response: Parents n'ayant pas repondu à l'invitation
         parents_without_response_csv: Parents n'ayant pas repondu à l'invitation
         workshop_land: Terrain
-
       workshop/topic:
         meal: Repas
         sleep: Coucher
