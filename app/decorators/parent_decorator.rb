@@ -124,21 +124,9 @@ class ParentDecorator < BaseDecorator
     arbre do
       model.children_support_modules.includes(:support_module).each do |children_support_module|
         div do
-          if children_support_module.is_completed
-            if children_support_module.support_module
-              a children_support_module.decorate.name_with_date, href: admin_support_module_path(children_support_module.support_module),
-                class: 'available_support_module', target: '_blank'
-              text_node "&nbsp;".html_safe
-            else
-              span children_support_module.name,
-                class: 'available_support_module'
-              text_node "&nbsp;".html_safe
-            end
-          else
-            span "Pas encore choisi - #{children_support_module.created_at.strftime("%d/%m/%Y")}",
-                 class: 'available_support_module'
-            text_node "&nbsp;".html_safe
-          end
+          a "#{children_support_module.name} - #{children_support_module.created_at.strftime("%d/%m/%Y")}", href: admin_children_support_module_path(children_support_module),
+            class: 'available_support_module', target: '_blank'
+          text_node "&nbsp;".html_safe
         end
       end
     end

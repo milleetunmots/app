@@ -33,6 +33,9 @@ class ChildrenSupportModule < ApplicationRecord
   end
 
   def name
-    support_module ? support_module&.name : "Laisse le choix à 1001mots"
+    return support_module.name if support_module
+    return "Laisse le choix à 1001mots" if is_completed
+
+    "Pas encore choisi"
   end
 end
