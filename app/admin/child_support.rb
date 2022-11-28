@@ -587,4 +587,21 @@ ActiveAdmin.register ChildSupport do
       end
     end
   end
+
+  action_item :select_module, only: [:show, :edit] do
+    link_to I18n.t("child_support.select_module"), [:select_module, :admin, resource]
+  end
+
+  member_action :select_module do
+
+    service = ChildSupport::SelectModuleService.new(
+      resource.model.first_child
+    ).call
+
+    if service.errors.empty?
+      redirect_to [:admin, resource], notice: 'SMS envoyé'
+    else
+      redirect_to [:admin, resource], alert: service.errors.join("\n")
+    end
+  end
 end

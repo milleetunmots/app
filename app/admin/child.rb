@@ -417,22 +417,6 @@ ActiveAdmin.register Child do
     redirect_to [:admin, resource]
   end
 
-  action_item :select_module, only: :show do
-    link_to I18n.t("child.select_module"), [:select_module, :admin, resource]
-  end
-  member_action :select_module do
-
-    service = Child::SelectModuleService.new(
-      resource.model
-    ).call
-
-    if service.errors.empty?
-      redirect_to [:admin, resource], notice: 'SMS envoyé'
-    else
-      redirect_to [:admin, resource], alert: service.errors.join("\n")
-    end
-  end
-
   # ---------------------------------------------------------------------------
   # IMPORT
   # ---------------------------------------------------------------------------

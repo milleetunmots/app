@@ -1,4 +1,4 @@
-class Child::SelectModuleService
+class ChildSupport::SelectModuleService
 
   attr_reader :errors
 

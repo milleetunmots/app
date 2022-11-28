@@ -5,7 +5,6 @@ fr:
     show_support_link: Voir le suivi
     support_already_existed: Suivi déjà en cours
     supports_created: Suivis créés
-    select_module: "Envoyer message de selection de module"
   child_age:
     months: "%{months} mois"
     years: "%{years} ans"
@@ -18,6 +17,7 @@ fr:
     parent1: Parent 1
     parent2: Parent 2
     parents: Parents
+    select_module: "Envoyer message de selection de module"
   survey_response:
     new_import_link: Import CSV
   "false": Non
