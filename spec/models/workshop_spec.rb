@@ -75,7 +75,7 @@ RSpec.describe Workshop, type: :model do
         expect(workshop.name).to eq "Atelier du #{Date.today.next_day.month}/#{Date.today.next_day.year}"
       end
       it "if land is given is 'Atelier_land_year_month'" do
-        expect(paris_18_workshop.name).to eq "Atelier du #{Date.today.next_day.month}/#{Date.today.next_day.year} à Paris 18 eme"
+        expect(paris_18_workshop.name).to eq "Atelier du #{Date.today.next_day(2).month}/#{Date.today.next_day(2).year} à Paris 18 eme"
       end
     end
   end
