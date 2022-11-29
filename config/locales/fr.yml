@@ -17,7 +17,8 @@ fr:
     parent1: Parent 1
     parent2: Parent 2
     parents: Parents
-    select_module: "Envoyer message de selection de module"
+    send_select_module_message: "Envoyer les messages de selection de module"
+    select_module: "Choisir module"
   survey_response:
     new_import_link: Import CSV
   "false": Non

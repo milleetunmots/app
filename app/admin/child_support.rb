@@ -588,11 +588,11 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
-  action_item :select_module, only: [:show, :edit] do
-    link_to I18n.t("child_support.select_module"), [:select_module, :admin, resource]
+  action_item :send_select_module_message, only: [:show, :edit] do
+    link_to I18n.t("child_support.send_select_module_message"), [:send_select_module_message, :admin, resource]
   end
 
-  member_action :select_module do
+  member_action :send_select_module_message do
 
     service = ChildSupport::SelectModuleService.new(
       resource.model.first_child
@@ -603,5 +603,22 @@ ActiveAdmin.register ChildSupport do
     else
       redirect_to [:admin, resource], alert: service.errors.join("\n")
     end
+  end
+
+  action_item :tools, only: [:show, :edit] do
+    dropdown_menu "Choisir un module" do
+      item "Pour le parent 1", [:select_module_for_parent1, :admin, :child_support], { target: "_blank" }
+      item "Pour le parent 2", [:select_module_for_parent2, :admin, :child_support], { target: "_blank" }
+    end
+  end
+
+  member_action :select_module_for_parent1 do
+    new_child_support_module = ChildrenSupportModule.create(parent: resource.model.parent1, child: resource.model.first_child)
+    redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
+  end
+
+  member_action :select_module_for_parent2 do
+    new_child_support_module = ChildrenSupportModule.create(parent: resource.model.parent2, child: resource.model.first_child)
+    redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
   end
 end

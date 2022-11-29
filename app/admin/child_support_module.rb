@@ -1,10 +1,8 @@
 ActiveAdmin.register ChildrenSupportModule do
 
-  actions :all, :except => [:new]
-
   decorate_with ChildrenSupportModuleDecorator
 
-  includes :support_module
+  includes :child, :parent, :support_module
 
   index do
     column :name
@@ -31,13 +29,19 @@ ActiveAdmin.register ChildrenSupportModule do
   form do |f|
     f.semantic_errors *f.object.errors.keys
     f.inputs do
-      f.input :support_module
-      available_support_module_input(f, :available_support_module_list)
+      f.input :is_completed
+      f.input :child,
+              collection: child_selection_collection,
+              input_html: {data: {select2: {}}}
+      f.input :parent,
+              collection: child_parent_select_collection,
+              input_html: {data: {select2: {}}}
+      f.input :support_module, input_html: {data: {select2: {}}}
     end
     f.actions
   end
 
-  permit_params :support_module_id, available_support_module_list: []
+  permit_params :child_id, :parent_id, :support_module_id
 
   filter :is_completed, as: :boolean
   filter :support_module_name, as: :string

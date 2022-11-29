@@ -446,8 +446,7 @@ ActiveAdmin.register Child do
   # TOOLS
   # ---------------------------------------------------------------------------
 
-  action_item :tools,
-    only: :index do
+  action_item :tools, only: :index do
     dropdown_menu "Outils" do
       item "Nettoyer les précisions sur l'origine", [:new_clean_registration_source_details, :admin, :children]
       item "Mettre à jour les enfants n'ayant pas l'âge d'aller à l'école", [:set_age_ok, :admin, :children]

@@ -35,6 +35,10 @@ module ActiveAdmin::ChildrenHelper
     Parent.order(:first_name, :last_name).map(&:decorate)
   end
 
+  def child_selection_collection
+    Child.order(:first_name, :last_name).map(&:decorate)
+  end
+
   def child_registration_source_select_collection
     Child::REGISTRATION_SOURCES.map do |v|
       [

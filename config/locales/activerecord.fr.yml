@@ -161,6 +161,10 @@ fr:
         child_first_name: Prénom de l'enfant
         parent_first_name: Prénom du parent
         is_completed: Choisi par le parent?
+        child: Enfant
+        parent: Parent
+        support_module: Module
+        available_support_module_names: Modules disponibles
       child_support:
         << : *SHARED
         address: Adresse
