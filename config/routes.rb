@@ -1,3 +1,5 @@
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
 
   devise_for :admin_users, ActiveAdmin::Devise.config
@@ -45,6 +47,9 @@ Rails.application.routes.draw do
     get "updated", on: :collection
   end
 
-  root to: redirect("/admin")
+  authenticate :admin_user do
+    mount Sidekiq::Web => "/sidekiq"
+  end
 
+  root to: redirect("/admin")
 end

@@ -40,7 +40,7 @@ class ChildSupport::SelectModuleService
     if sms_service.errors.any?
       @errors += sms_service.errors
     else
-      ChildrenSupportModule::CheckToSendReminder.set(wait: 1.week).perform_later(@children_support_module.id)
+      ChildrenSupportModule::CheckToSendReminder.set(wait: 2.minutes).perform_later(@children_support_module.id)
     end
   end
 

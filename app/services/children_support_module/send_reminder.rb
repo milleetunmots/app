@@ -18,7 +18,7 @@ class ChildrenSupportModule
       message = "1001mots : N'oubliez pas de choisir votre prochain thème pour que #{@child.first_name} reçoive son prochain livre ! #{selection_link}"
 
       sms_service = SpotHit::SendSmsService.new(
-        parent.id,
+        @parent.id,
         DateTime.now,
         message
       ).call
