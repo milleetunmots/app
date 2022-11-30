@@ -190,8 +190,8 @@ ActiveAdmin.register ChildSupport do
     back_url = params[:back_url]
 
     ChildSupport.where(id: ids).each do |object|
-      object.parent1_available_support_module_list  ||= []
-      object.parent2_available_support_module_list ||= []
+      object.parent1_available_support_module_list = []
+      object.parent2_available_support_module_list = []
 
       object.parent1_available_support_module_list += modules
       object.parent2_available_support_module_list += modules
