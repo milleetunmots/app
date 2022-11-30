@@ -608,9 +608,9 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
-  action_item :send_select_module_message, only: [:show, :edit] do
-    link_to I18n.t("child_support.send_select_module_message"), [:send_select_module_message, :admin, resource]
-  end
+  # action_item :send_select_module_message, only: [:show, :edit] do
+  #   link_to I18n.t("child_support.send_select_module_message"), [:send_select_module_message, :admin, resource]
+  # end
 
   member_action :send_select_module_message do
 
