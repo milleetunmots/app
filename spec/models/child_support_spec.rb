@@ -101,21 +101,23 @@
 #
 # Indexes
 #
-#  index_child_supports_on_book_not_received         (book_not_received)
-#  index_child_supports_on_call1_parent_progress     (call1_parent_progress)
-#  index_child_supports_on_call1_reading_frequency   (call1_reading_frequency)
-#  index_child_supports_on_call1_tv_frequency        (call1_tv_frequency)
-#  index_child_supports_on_call2_language_awareness  (call2_language_awareness)
-#  index_child_supports_on_call2_parent_progress     (call2_parent_progress)
-#  index_child_supports_on_call3_language_awareness  (call3_language_awareness)
-#  index_child_supports_on_call3_parent_progress     (call3_parent_progress)
-#  index_child_supports_on_call4_language_awareness  (call4_language_awareness)
-#  index_child_supports_on_call4_parent_progress     (call4_parent_progress)
-#  index_child_supports_on_call5_language_awareness  (call5_language_awareness)
-#  index_child_supports_on_call5_parent_progress     (call5_parent_progress)
-#  index_child_supports_on_discarded_at              (discarded_at)
-#  index_child_supports_on_should_be_read            (should_be_read)
-#  index_child_supports_on_supporter_id              (supporter_id)
+#  index_child_supports_on_book_not_received                      (book_not_received)
+#  index_child_supports_on_call1_parent_progress                  (call1_parent_progress)
+#  index_child_supports_on_call1_reading_frequency                (call1_reading_frequency)
+#  index_child_supports_on_call1_tv_frequency                     (call1_tv_frequency)
+#  index_child_supports_on_call2_language_awareness               (call2_language_awareness)
+#  index_child_supports_on_call2_parent_progress                  (call2_parent_progress)
+#  index_child_supports_on_call3_language_awareness               (call3_language_awareness)
+#  index_child_supports_on_call3_parent_progress                  (call3_parent_progress)
+#  index_child_supports_on_call4_language_awareness               (call4_language_awareness)
+#  index_child_supports_on_call4_parent_progress                  (call4_parent_progress)
+#  index_child_supports_on_call5_language_awareness               (call5_language_awareness)
+#  index_child_supports_on_call5_parent_progress                  (call5_parent_progress)
+#  index_child_supports_on_discarded_at                           (discarded_at)
+#  index_child_supports_on_parent1_available_support_module_list  (parent1_available_support_module_list) USING gin
+#  index_child_supports_on_parent2_available_support_module_list  (parent2_available_support_module_list) USING gin
+#  index_child_supports_on_should_be_read                         (should_be_read)
+#  index_child_supports_on_supporter_id                           (supporter_id)
 #
 # Foreign Keys
 #

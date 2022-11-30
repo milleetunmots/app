@@ -43,6 +43,7 @@ ActiveAdmin.register Child do
       model.tags(context: 'tags')
     end
     column :land
+    column :selected_support_module_list
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -378,6 +379,7 @@ ActiveAdmin.register Child do
             decorated.public_edit_link(target: "_blank")
           end
           row :available_for_workshops
+          row :selected_support_module_list
           row :tags do |model|
             model.tags(context: 'tags')
           end
@@ -450,8 +452,7 @@ ActiveAdmin.register Child do
   # TOOLS
   # ---------------------------------------------------------------------------
 
-  action_item :tools,
-    only: :index do
+  action_item :tools, only: :index do
     dropdown_menu "Outils" do
       item "Nettoyer les précisions sur l'origine", [:new_clean_registration_source_details, :admin, :children]
       item "Mettre à jour les enfants n'ayant pas l'âge d'aller à l'école", [:set_age_ok, :admin, :children]

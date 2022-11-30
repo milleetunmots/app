@@ -120,6 +120,18 @@ class ParentDecorator < BaseDecorator
     model.children.decorate.map(&:group_name).join("\n")
   end
 
+  def selected_support_module
+    arbre do
+      model.children_support_modules.includes(:support_module).each do |children_support_module|
+        div do
+          a "#{children_support_module.name} - #{children_support_module.created_at.strftime("%d/%m/%Y")}", href: admin_children_support_module_path(children_support_module),
+            class: 'available_support_module', target: '_blank'
+          text_node "&nbsp;".html_safe
+        end
+      end
+    end
+  end
+
   private
 
   def child(child)

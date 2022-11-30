@@ -4,6 +4,7 @@ fr:
       admin_user: Utilisateur
       child: Enfant
       child_support: Suivi
+      children_support_module: Module choisi
       events_other_event: Autre
       events_survey_response: Questionnaire
       events_text_message: SMS
@@ -118,6 +119,7 @@ fr:
         child_group_months: Durée de l'accompagnement (en mois)
         months_between_registration_and_group_start: Temps entre l'inscription et le debut de la cohorte (en mois)
         months_since_group_start: Temps depuis le debut de l'accompagnement (en mois)
+        selected_support_module_list: Modules choisis
       child/gender:
         f: Fille
         m: Garçon
@@ -149,6 +151,22 @@ fr:
         active: Active
         paused: En pause
         stopped: Arrêtée
+      children_support_module:
+        name: Nom
+        parent_name: Parent
+        child_name: Enfant
+        group: Cohorte
+        created_at: Date d'envoi du formulaire
+        choice_date: Date de choix du module
+        support_module_name: Module
+        child_last_name: Nom de famille
+        child_first_name: Prénom de l'enfant
+        parent_first_name: Prénom du parent
+        is_completed: Choisi par le parent?
+        child: Enfant
+        parent: Parent
+        support_module: Module
+        available_support_module_names: Modules disponibles
       child_support:
         << : *SHARED
         address: Adresse
@@ -277,6 +295,10 @@ fr:
         supporter: Responsable
         to_call: Accompagnement renforcé
         children_land: Territoire
+        parent1_available_support_module_list: Modules disponibles du parent 1
+        parent2_available_support_module_list: Modules disponibles du parent 2
+        parent1_selected_support_module_list: Modules choisis du parent 1
+        parent2_selected_support_module_list: Modules choisis du parent 2
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
         2_awareness: A conscience de son impact
@@ -454,8 +476,6 @@ fr:
         redirection_visit_rate: "Taux de visites d'URL courtes"
         terms_accepted_at: Acceptation des conditions d'utilisation
         text_messages_sent_count: SMS envoyés
-        selected_modules: Modules choisis
-        available_modules: Modules disponibles
       parent/gender:
         f: Femme
         m: Homme
@@ -550,7 +570,6 @@ fr:
         parents_without_response: Parents n'ayant pas repondu à l'invitation
         parents_without_response_csv: Parents n'ayant pas repondu à l'invitation
         workshop_land: Terrain
-
       workshop/topic:
         meal: Repas
         sleep: Coucher
