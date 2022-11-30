@@ -44,14 +44,8 @@ class ProgramMessageService
       SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, file: @file, event_params: @event_params).call
     end
 
-    if service.errors.any?
-      @errors = service.errors
-    else
-      if @url
-        @url.build_redirection_url_sent(occurred_at: Time.now)
-        @url.save!
-      end
-    end
+    @errors = service.errors if service.errors.any?
+
     self
   end
 
@@ -126,7 +120,7 @@ class ProgramMessageService
   def check_all_fields_are_present
     @errors << "La date n'est pas complétée." unless @planned_timestamp.present?
     @errors << "Les destinataires ne sont pas complétés." if @recipients.empty?
-    @errors << "Le message n'est pas complétés." if @message.empty?
+    @errors << "Le message n'est pas complété." if @message.empty?
   end
 
   def sort_recipients

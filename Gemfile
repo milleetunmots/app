@@ -123,6 +123,9 @@ gem "image_processing"
 # ENV
 gem "figaro"
 
+# Excel file
+gem 'fast_excel'
+
 group :production do
   # for assets compilation
   gem "activerecord-nulldb-adapter"

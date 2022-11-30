@@ -51,6 +51,24 @@ module ActiveAdmin::ChildSupportsHelper
     end
   end
 
+  def child_support_call_family_progress_select_collection
+    ChildSupport::FAMILY_PROGRESS.map do |v|
+      [
+        ChildSupport.human_attribute_name("call_family_progress.#{v}"),
+        v
+      ]
+    end
+  end
+
+  def child_support_call_previous_goals_follow_up_select_collection
+    ChildSupport::GOALS_FOLLOW_UP.map do |v|
+      [
+        ChildSupport.human_attribute_name("call_previous_goals_follow_up.#{v}"),
+        v
+      ]
+    end
+  end
+
   def child_support_books_quantity
     ChildSupport::BOOKS_QUANTITY.map do |v|
       [
