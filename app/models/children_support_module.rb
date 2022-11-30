@@ -38,4 +38,8 @@ class ChildrenSupportModule < ApplicationRecord
 
     "Pas encore choisi"
   end
+
+  def support_module_collection
+    SupportModule.where(id: available_support_module_list).map(&:decorate)
+  end
 end

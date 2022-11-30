@@ -36,7 +36,9 @@ ActiveAdmin.register ChildrenSupportModule do
       f.input :parent,
               collection: child_parent_select_collection,
               input_html: {data: {select2: {}}}
-      f.input :support_module, input_html: {data: {select2: {}}}
+      f.input :support_module,
+              collection: resource.support_module_collection,
+              input_html: {data: {select2: {}}}
     end
     f.actions
   end

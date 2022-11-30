@@ -633,7 +633,11 @@ ActiveAdmin.register ChildSupport do
   end
 
   member_action :select_module_for_parent1 do
-    new_child_support_module = ChildrenSupportModule.create(parent: resource.model.parent1, child: resource.model.first_child)
+    new_child_support_module = ChildrenSupportModule.create(
+      parent: resource.model.parent1,
+      child: resource.model.first_child,
+      available_support_module_list: resource.parent1_available_support_module_list
+    )
     redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
   end
 
