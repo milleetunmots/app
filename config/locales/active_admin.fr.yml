@@ -21,8 +21,9 @@ fr:
         excel_export: Exporter un fichier Excel pour
         generate_buzz_expert: Export Buzz Expert pour
         generate_quit_sms: Mettre en pause et envoyer le message de continuation pour
-        remove_book_not_received: "Enlever les livres non reçus"
-        remove_call_infos: "Effacer les informations"
+        remove_book_not_received: "Enlever les livres non reçus pour"
+        remove_call_infos: "Effacer les informations pour"
+        select_available_support_module: Selectionner modules disponibles pour
     edit_model: Modifier
     delete_model: Supprimer
     filters:

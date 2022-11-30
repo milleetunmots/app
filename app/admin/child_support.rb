@@ -172,6 +172,34 @@ ActiveAdmin.register ChildSupport do
     redirect_to request.referer, notice: "Informations éffacées"
   end
 
+  batch_action :select_available_support_module do |ids|
+    session[:select_available_support_module_ids] = ids
+    redirect_to action: :select_available_support_module
+  end
+
+  collection_action :select_available_support_module do
+    @ids = session.delete(:select_available_support_module_ids) || []
+    @form_action = url_for(action: :perform_selecting_available_support_modules)
+    @back_url = request.referer
+    render "active_admin/available_support_modules/add_available_modules"
+  end
+
+  collection_action :perform_selecting_available_support_modules, method: :post do
+    ids = params[:ids]
+    modules = params[:available_support_module_list]
+    back_url = params[:back_url]
+
+    ChildSupport.where(id: ids).each do |object|
+      object.parent1_available_support_module_list  ||= []
+      object.parent2_available_support_module_list ||= []
+
+      object.parent1_available_support_module_list += modules
+      object.parent2_available_support_module_list += modules
+      object.save(validate: false)
+    end
+    redirect_to back_url, notice: "Modules disponibles ajoutés"
+  end
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------
