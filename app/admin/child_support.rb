@@ -172,6 +172,34 @@ ActiveAdmin.register ChildSupport do
     redirect_to request.referer, notice: "Informations éffacées"
   end
 
+  batch_action :select_available_support_module do |ids|
+    session[:select_available_support_module_ids] = ids
+    redirect_to action: :select_available_support_module
+  end
+
+  collection_action :select_available_support_module do
+    @ids = session.delete(:select_available_support_module_ids) || []
+    @form_action = url_for(action: :perform_selecting_available_support_modules)
+    @back_url = request.referer
+    render "active_admin/available_support_modules/add_available_modules"
+  end
+
+  collection_action :perform_selecting_available_support_modules, method: :post do
+    ids = params[:ids]
+    modules = params[:available_support_module_list]
+    back_url = params[:back_url]
+
+    ChildSupport.where(id: ids).each do |object|
+      object.parent1_available_support_module_list = []
+      object.parent2_available_support_module_list = []
+
+      object.parent1_available_support_module_list += modules
+      object.parent2_available_support_module_list += modules
+      object.save(validate: false)
+    end
+    redirect_to back_url, notice: "Modules disponibles ajoutés"
+  end
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------
@@ -608,9 +636,9 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
-  action_item :send_select_module_message, only: [:show, :edit] do
-    link_to I18n.t("child_support.send_select_module_message"), [:send_select_module_message, :admin, resource]
-  end
+  # action_item :send_select_module_message, only: [:show, :edit] do
+  #   link_to I18n.t("child_support.send_select_module_message"), [:send_select_module_message, :admin, resource]
+  # end
 
   member_action :send_select_module_message do
 
@@ -633,7 +661,11 @@ ActiveAdmin.register ChildSupport do
   end
 
   member_action :select_module_for_parent1 do
-    new_child_support_module = ChildrenSupportModule.create(parent: resource.model.parent1, child: resource.model.first_child)
+    new_child_support_module = ChildrenSupportModule.create(
+      parent: resource.model.parent1,
+      child: resource.model.first_child,
+      available_support_module_list: resource.parent1_available_support_module_list
+    )
     redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
   end
 
