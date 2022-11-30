@@ -11,9 +11,8 @@ class ChildrenSupportModulesController < ApplicationController
   def update
     @children_support_module.choice_date = Date.today
     @children_support_module.is_completed = true
-    @children_support_module.support_module_id = params[:children_support_module][:support_module_id].to_i
 
-    if @children_support_module.save
+    if @children_support_module.update(children_support_module_params)
       redirect_to updated_children_support_modules_path(child_first_name: @children_support_module.child.first_name )
     else
       render action: :edit
