@@ -210,7 +210,7 @@ class ChildDecorator < BaseDecorator
 
   def selected_support_module_list
     arbre do
-      ChildrenSupportModule.where(child: model).each do |children_support_module|
+      ChildrenSupportModule.where(child: model).where.not(support_module: nil).each do |children_support_module|
         span children_support_module.support_module&.name,
              class: 'available_support_module'
         text_node "&nbsp;".html_safe
