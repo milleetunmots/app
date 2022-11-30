@@ -183,6 +183,10 @@ class ChildDecorator < BaseDecorator
     model.parent1.decorate.full_address
   end
 
+  def address_with_letterbox_name
+    [letterbox_name, address].reject(&:blank?).join(' ')
+  end
+
   def child_group_name
     model.group&.name
   end

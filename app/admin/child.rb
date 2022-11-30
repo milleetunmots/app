@@ -277,6 +277,12 @@ ActiveAdmin.register Child do
     end
   end
 
+  batch_action :excel_export do |ids|
+    service = Child::ExportBookExcelService.new(children: batch_action_collection.where(id: ids)).call
+
+    send_data(service.workbook.read_string, filename: "#{Date.today.strftime('%d-%m-%Y')}.xlsx")
+  end
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------
@@ -469,7 +475,7 @@ ActiveAdmin.register Child do
                         end
 
     Child.all.each do |child|
-      child.update! available_for_workshops: children_available.include?(child) ? true : false
+      child.update_attribute('available_for_workshops', children_available.include?(child) ? true : false)
     end
     redirect_to admin_children_path, notice: "Enfants mis à jour"
   end

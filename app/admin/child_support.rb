@@ -336,6 +336,18 @@ ActiveAdmin.register ChildSupport do
                         as: :radio,
                         collection: child_support_call_sendings_benefits_select_collection
               end
+              if call_idx == 2
+                column do
+                  f.input "call#{call_idx}_family_progress",
+                          as: :radio,
+                          collection: child_support_call_family_progress_select_collection
+                end
+                column do
+                  f.input "call#{call_idx}_previous_goals_follow_up",
+                          as: :radio,
+                          collection: child_support_call_previous_goals_follow_up_select_collection
+                end
+              end
             end
             f.input "call#{call_idx}_sendings_benefits_details", input_html: {rows: 5, style: "width: 100%"}
           end
@@ -480,6 +492,10 @@ ActiveAdmin.register ChildSupport do
             row "call#{call_idx}_parent_progress"
             row "call#{call_idx}_sendings_benefits"
             row "call#{call_idx}_sendings_benefits_details"
+            if call_idx == 2
+              row :call2_family_progress
+              row :call2_previous_goals_follow_up
+            end
             row "call#{call_idx}_language_development"
             if call_idx == 1
               row :books_quantity
@@ -561,6 +577,10 @@ ActiveAdmin.register ChildSupport do
       column "call#{call_idx}_parent_progress"
       column "call#{call_idx}_sendings_benefits"
       column "call#{call_idx}_sendings_benefits_details"
+      if call_idx == 2
+        column :call2_family_progress
+        column :call2_previous_goals_follow_up
+      end
       column("call#{call_idx}_language_development") { |cs| cs.send("call#{call_idx}_language_development_text") }
       if call_idx == 1
         column :books_quantity

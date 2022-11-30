@@ -18,6 +18,7 @@ fr:
         addresses_pdf: Générer les étiquettes pour
         quit_group: Mettre en pause la cohorte pour
         reactive_group: Réactiver la cohorte pour
+        excel_export: Exporter un fichier Excel pour
         generate_buzz_expert: Export Buzz Expert pour
         generate_quit_sms: Mettre en pause et envoyer le message de continuation pour
         remove_book_not_received: "Enlever les livres non reçus"

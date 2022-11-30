@@ -21,7 +21,6 @@ class ChildrenImportService
           when 'pmi' then :pmi
           when 'orthophoniste' then :therapist
           when 'creche' then :nursery
-          when 'reinscription' then :resubscribing
           else :other
           end,
           registration_source_details: row['registration_source_details']&.strip || '?',

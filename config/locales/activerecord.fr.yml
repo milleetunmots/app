@@ -125,14 +125,14 @@ fr:
         m: Garçon
         x: Inconnu
       child/registration_source:
-        caf: CAF
-        doctor: Docteur
-        friends: Par des amis / de la famille
-        nursery: Crèche
+        caf: J'ai reçu un mail/SMS de la CAF
+        doctor: Par mon centre social/ maison des familles
+        friends: Par mon entourage (famille, amis…)
+        nursery: A la crèche
         other: Autre
-        pmi: Mon/ma professionnel·le de santé
-        resubscribing: J'ai déjà reçu les SMS et je réinscris un enfant
+        pmi: Mon/Ma professionnel.le de santé (puéricultrice, médecin, pédiatre)
         therapist: Mon orthophoniste
+        resubscribing: J'ai déjà participé au programme 1001 Mots et je réinscris un enfant
         unknown: Inconnue
       child/pmi_detail:
         trappes: PMI Trappes
@@ -144,6 +144,8 @@ fr:
         pithiviers: PMI Pithiviers
         sarreguemines: PMI Sarreguemines
         forbach: PMI Forbach
+        mantes_la_jolie_clemenceau: PMI Mantes-la-Jolie Clémenceau
+        mantes_la_jolie_leclerc: PMI Mantes-la-Jolie Leclerc
       child/group_status:
         waiting: En attente
         active: Active
@@ -170,7 +172,7 @@ fr:
         address: Adresse
         availability: Disponibilités
         book_not_received: Livre non reçu
-        books_quantity: Nombre de livres dans le foyer
+        books_quantity: Nombre de livres dans le foyer pour l'enfant suivi
         call_infos: Informations
         call1_duration: Durée de l'appel 1 (en minutes)
         call1_status: Statut de l'appel 1
@@ -190,11 +192,13 @@ fr:
         call2_status: Statut de l'appel 2
         call2_status_details: Suivi de l'appel 2
         call2_parent_actions: Pratiques parentales
+        call2_family_progress: Diriez-vous que la famille a réalisé une forte progression ?
         call2_goals: Nouveau mini-objectif
         call2_language_awareness: Conscience langagière
         call2_language_development: "Informations sur l'enfant"
         call2_notes: Notes appel 2
         call2_parent_progress: Niveau de pratiques parentales
+        call2_previous_goals_follow_up: Mini-objectif de l’appel 1
         call2_reading_frequency: Fréquence de lecture
         call2_tv_frequency: Fréquence écran
         call2_sendings_benefits: Apport des envois
@@ -341,8 +345,17 @@ fr:
       child_support/call_status:
         1_ok: OK
         2_ko: KO
-        3_unassigned_number: Numéro non-attribué
+        3_unassigned_number: Numéro erroné
         4_dont_call: Ne pas appeler
+      child_support/call_family_progress:
+        1_yes: Oui
+        2_no: Non
+        3_no_information: Pas assez d'info
+      child_support/call_previous_goals_follow_up:
+        1_succeed: Atteint
+        2_tried: Essayé
+        3_no_tried: Pas essayé
+        4_no_goal: Pas de mini-objectif
       event: &EVENT
         << : *SHARED
         address: Adresse
