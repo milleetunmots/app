@@ -402,7 +402,7 @@ ActiveAdmin.register ChildSupport do
     notes
     availability
     call_infos
-  ] + [tags_params.merge(book_not_received: []).merge(parent1_available_support_module_list: []).merge(parent2_available_support_module_list: [])]
+  ] + [tags_params.merge(book_not_received: [], parent1_available_support_module_list: [], parent2_available_support_module_list: [])]
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
