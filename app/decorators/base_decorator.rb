@@ -57,7 +57,7 @@ class BaseDecorator < Draper::Decorator
   def land
     return unless postal_code
 
-    return "Paris 18 eme" if postal_code == Parent::PARIS_18_EME_POSTAL_CODE
+    return "Paris 18 eme" if Parent::PARIS_18_EME_POSTAL_CODE.include? postal_code
     return "Paris 20 eme" if postal_code == Parent::PARIS_20_EME_POSTAL_CODE
     return "Plaisir" if Parent::PLAISIR_POSTAL_CODE.include? postal_code
     return "Trappes" if Parent::TRAPPES_POSTAL_CODE.include? postal_code
