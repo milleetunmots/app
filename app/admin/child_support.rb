@@ -255,7 +255,7 @@ ActiveAdmin.register ChildSupport do
         end
         column class:'column flex-column' do
           available_support_module_input(f, :parent1_available_support_module_list)
-          available_support_module_input(f, :parent2_available_support_module_list)
+          available_support_module_input(f, :parent2_available_support_module_list) unless resource.parent2.nil?
           f.input :availability, label: 'Disponibilités générales', input_html: { style: "width: 70%"}
           f.input :call_infos, label: 'Tentatives d’appels', input_html: { style: "width: 70%"}
           f.input :book_not_received,
@@ -502,10 +502,6 @@ ActiveAdmin.register ChildSupport do
           end
           row :created_at
           row :updated_at
-          row :parent1_available_support_module_list
-          row :parent2_available_support_module_list
-          row :parent1_selected_support_module_list
-          row :parent2_selected_support_module_list
         end
       end
       (1..5).each do |call_idx|
@@ -656,21 +652,35 @@ ActiveAdmin.register ChildSupport do
   action_item :tools, only: [:show, :edit] do
     dropdown_menu "Choisir un module" do
       item "Pour le parent 1", [:select_module_for_parent1, :admin, :child_support], { target: "_blank" }
-      item "Pour le parent 2", [:select_module_for_parent2, :admin, :child_support], { target: "_blank" }
+      item "Pour le parent 2", [:select_module_for_parent2, :admin, :child_support], { target: "_blank" } unless resource.parent2.nil?
     end
   end
 
   member_action :select_module_for_parent1 do
-    new_child_support_module = ChildrenSupportModule.create(
-      parent: resource.model.parent1,
-      child: resource.model.first_child,
-      available_support_module_list: resource.parent1_available_support_module_list
-    )
-    redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
+    if resource.parent1_available_support_module_list.reject(&:blank?).empty?
+      redirect_back(fallback_location: root_path, alert: "Aucun module disponible n'est choisi")
+    else
+      new_child_support_module = ChildrenSupportModule.create(
+        is_completed: true,
+        parent: resource.model.parent1,
+        child: resource.model.first_child,
+        available_support_module_list: resource.parent1_available_support_module_list
+      )
+      redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
+    end
   end
 
   member_action :select_module_for_parent2 do
-    new_child_support_module = ChildrenSupportModule.create(parent: resource.model.parent2, child: resource.model.first_child)
-    redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
+    if resource.parent2_available_support_module_list.reject(&:blank?).empty?
+      redirect_back(fallback_location: root_path, alert: "Aucun module disponible n'est choisi")
+    else
+      new_child_support_module = ChildrenSupportModule.create(
+        is_completed: true,
+        parent: resource.model.parent2,
+        child: resource.model.first_child,
+        available_support_module_list: resource.parent2_available_support_module_list
+      )
+      redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
+    end
   end
 end
