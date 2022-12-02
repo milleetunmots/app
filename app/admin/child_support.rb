@@ -632,23 +632,6 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
-  # action_item :send_select_module_message, only: [:show, :edit] do
-  #   link_to I18n.t("child_support.send_select_module_message"), [:send_select_module_message, :admin, resource]
-  # end
-
-  member_action :send_select_module_message do
-
-    service = ChildSupport::SelectModuleService.new(
-      resource.model.first_child
-    ).call
-
-    if service.errors.empty?
-      redirect_to [:admin, resource], notice: 'SMS envoyé'
-    else
-      redirect_to [:admin, resource], alert: service.errors.join("\n")
-    end
-  end
-
   action_item :tools, only: [:show, :edit] do
     dropdown_menu "Choisir un module" do
       item "Pour le parent 1", [:select_module_for_parent1, :admin, :child_support], { target: "_blank" }
@@ -681,6 +664,22 @@ ActiveAdmin.register ChildSupport do
         available_support_module_list: resource.parent2_available_support_module_list
       )
       redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
+    end
+  end
+
+  controller do
+    after_save do
+      if resource.saved_change_to_call2_status? && resource.call2_status == "KO"
+        service = ChildSupport::SelectModuleService.new(
+          resource.first_child
+        ).call
+
+        if service.errors.empty?
+          logger.debug "SMS de selection de module envoyé aux parents"
+        else
+          logger.debug service.errors.join("\n")
+        end
+      end
     end
   end
 end
