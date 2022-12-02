@@ -172,6 +172,34 @@ ActiveAdmin.register ChildSupport do
     redirect_to request.referer, notice: "Informations éffacées"
   end
 
+  batch_action :select_available_support_module do |ids|
+    session[:select_available_support_module_ids] = ids
+    redirect_to action: :select_available_support_module
+  end
+
+  collection_action :select_available_support_module do
+    @ids = session.delete(:select_available_support_module_ids) || []
+    @form_action = url_for(action: :perform_selecting_available_support_modules)
+    @back_url = request.referer
+    render "active_admin/available_support_modules/add_available_modules"
+  end
+
+  collection_action :perform_selecting_available_support_modules, method: :post do
+    ids = params[:ids]
+    modules = params[:available_support_module_list]
+    back_url = params[:back_url]
+
+    ChildSupport.where(id: ids).each do |object|
+      object.parent1_available_support_module_list = []
+      object.parent2_available_support_module_list = []
+
+      object.parent1_available_support_module_list += modules
+      object.parent2_available_support_module_list += modules
+      object.save(validate: false)
+    end
+    redirect_to back_url, notice: "Modules disponibles ajoutés"
+  end
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------
@@ -226,7 +254,8 @@ ActiveAdmin.register ChildSupport do
           end
         end
         column class:'column flex-column' do
-          render "available_modules", parent: f.object.parent1.decorate, label_text: 'Modules disponibles'
+          available_support_module_input(f, :parent1_available_support_module_list)
+          available_support_module_input(f, :parent2_available_support_module_list) unless resource.parent2.nil?
           f.input :availability, label: 'Disponibilités générales', input_html: { style: "width: 70%"}
           f.input :call_infos, label: 'Tentatives d’appels', input_html: { style: "width: 70%"}
           f.input :book_not_received,
@@ -369,7 +398,6 @@ ActiveAdmin.register ChildSupport do
                     parent_f.input :city_name
                     parent_f.input :is_ambassador
                     parent_f.input :job
-                    tags_input(parent_f, context_list = 'selected_module_list', label: 'Modules choisis')
                   end
                 end
               end
@@ -414,12 +442,12 @@ ActiveAdmin.register ChildSupport do
     notes
     availability
     call_infos
-  ] + [tags_params] + [{book_not_received: []}]
+  ] + [tags_params.merge(book_not_received: [], parent1_available_support_module_list: [], parent2_available_support_module_list: [])]
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
     is_ambassador present_on_whatsapp present_on_facebook follow_us_on_whatsapp follow_us_on_facebook job
-  ] + [{selected_module_list: []}]
+  ]
   first_child_attributes = [{
     first_child_attributes: [
       :id,
@@ -601,6 +629,58 @@ ActiveAdmin.register ChildSupport do
       resource.other_family_child_supports.each do |other_child_support|
         item other_child_support.decorate.dropdown_menu_item, url_for(id: other_child_support.id)
       end
+    end
+  end
+
+  # action_item :send_select_module_message, only: [:show, :edit] do
+  #   link_to I18n.t("child_support.send_select_module_message"), [:send_select_module_message, :admin, resource]
+  # end
+
+  member_action :send_select_module_message do
+
+    service = ChildSupport::SelectModuleService.new(
+      resource.model.first_child
+    ).call
+
+    if service.errors.empty?
+      redirect_to [:admin, resource], notice: 'SMS envoyé'
+    else
+      redirect_to [:admin, resource], alert: service.errors.join("\n")
+    end
+  end
+
+  action_item :tools, only: [:show, :edit] do
+    dropdown_menu "Choisir un module" do
+      item "Pour le parent 1", [:select_module_for_parent1, :admin, :child_support], { target: "_blank" }
+      item "Pour le parent 2", [:select_module_for_parent2, :admin, :child_support], { target: "_blank" } unless resource.parent2.nil?
+    end
+  end
+
+  member_action :select_module_for_parent1 do
+    if resource.parent1_available_support_module_list.reject(&:blank?).empty?
+      redirect_back(fallback_location: root_path, alert: "Aucun module disponible n'est choisi")
+    else
+      new_child_support_module = ChildrenSupportModule.create(
+        is_completed: true,
+        parent: resource.model.parent1,
+        child: resource.model.first_child,
+        available_support_module_list: resource.parent1_available_support_module_list
+      )
+      redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
+    end
+  end
+
+  member_action :select_module_for_parent2 do
+    if resource.parent2_available_support_module_list.reject(&:blank?).empty?
+      redirect_back(fallback_location: root_path, alert: "Aucun module disponible n'est choisi")
+    else
+      new_child_support_module = ChildrenSupportModule.create(
+        is_completed: true,
+        parent: resource.model.parent2,
+        child: resource.model.first_child,
+        available_support_module_list: resource.parent2_available_support_module_list
+      )
+      redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
     end
   end
 end

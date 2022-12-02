@@ -48,6 +48,7 @@ group :development do
   gem "listen", ">= 3.0.5", "< 3.2"
 
   gem "annotate"
+  gem "foreman"
   gem "rails-erd"
 end
 
@@ -62,6 +63,8 @@ group :test do
   gem "ruby-prof", ">= 0.17.0", require: false
   gem "stackprof", ">= 0.2.9", require: false
   gem "test-prof"
+  # avoid having Redis instances up just for running tests
+  gem 'mock_redis'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
@@ -125,6 +128,9 @@ gem "figaro"
 
 # Excel file
 gem 'fast_excel'
+
+# Asynchrone jobs
+gem 'sidekiq'
 
 group :production do
   # for assets compilation

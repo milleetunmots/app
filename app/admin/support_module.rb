@@ -43,6 +43,8 @@ ActiveAdmin.register SupportModule do
     f.inputs do
       f.input :name
       f.input :start_at, as: :datepicker
+      f.input :picture, as: :file,
+              hint: f.object.id && "Laissez ce champ vide pour ne pas modifier l'image"
       tags_input(f)
     end
     f.inputs do
@@ -67,7 +69,7 @@ ActiveAdmin.register SupportModule do
     f.actions
   end
 
-  permit_params :name, :start_at, :support_module_weeks,
+  permit_params :name, :start_at, :picture, :support_module_weeks,
                 {
                   support_module_weeks_attributes: [
                     :id, :medium_id, :position,
@@ -86,6 +88,9 @@ ActiveAdmin.register SupportModule do
     attributes_table do
       row :name
       row :start_at
+      row :picture do |decorated|
+        decorated.picture_tag(max_height: '100px')
+      end
       row :tags
       row :created_at
       row :updated_at

@@ -29,6 +29,8 @@ class SupportModule < ApplicationRecord
 
   accepts_nested_attributes_for :support_module_weeks, allow_destroy: true
 
+  has_one_attached :picture
+
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
