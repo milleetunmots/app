@@ -484,7 +484,7 @@ ActiveAdmin.register Child do
   collection_action :download_book_files_v1 do
     service = Child::ExportBooksV1Service.new.call
 
-    # send_data(service.zip_file, filename: "#{Date.today.strftime('%d-%m-%Y')}.zip")
+    send_data(service.zip_file.read, filename: "#{Date.today.strftime('%d-%m-%Y')}.zip")
   end
 
   collection_action :perform_clean_registration_source_details, method: :post do
