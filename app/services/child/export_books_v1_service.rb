@@ -12,11 +12,6 @@ class Child
     def call
       children_lists = find_children_lists
 
-      puts '##############################'
-      puts '##############################'
-      puts '##############################'
-      puts children_lists.inspect
-
       excel_files = children_lists.map do |children|
         service = Child::ExportBookExcelService.new(children: children).call
 
