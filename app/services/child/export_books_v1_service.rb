@@ -34,14 +34,18 @@ class Child
       self
     end
 
-    private
+    # private
 
     def find_children_lists
-      [:months_between_0_and_12, :months_between_12_and_24, :months_more_than_24].map do |age_period|
-        Group.not_ended.map do |group|
-          group.children.where(group_status: "active").send(:age_period)
+      children_list_sorted_by_age_and_group = {}
+      [:months_between_0_and_12, :months_between_12_and_24, :months_more_than_24].each do |age_period|
+        children_list_sorted_by_group = {}
+        Group.not_ended.each do |group|
+          children_list = group.children.where(group_status: "active").send(age_period).pluck(:id)
+          children_list_sorted_by_group[group.name.to_sym] = children_list unless children_list.empty?
         end
-      end.flatten.compact
+        children_list_sorted_by_age_and_group[age_period] = children_list_sorted_by_group unless children_list_sorted_by_group.empty?
+      end
     end
 
     def create_zip_file(excel_files)
