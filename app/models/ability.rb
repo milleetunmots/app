@@ -10,7 +10,7 @@ class Ability
       return
     end
 
-    can :manage, [Task, Parent]
+    can :manage, [Task, Parent, ChildrenSupportModule]
     can :update, AdminUser, id: user.id
     can :read, ActiveAdmin::Page, name: "Dashboard"
     can :read, ActiveAdmin::Page, name: "Search"
