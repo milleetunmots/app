@@ -456,6 +456,7 @@ ActiveAdmin.register Child do
     dropdown_menu "Outils" do
       item "Nettoyer les précisions sur l'origine", [:new_clean_registration_source_details, :admin, :children]
       item "Mettre à jour les enfants n'ayant pas l'âge d'aller à l'école", [:set_age_ok, :admin, :children]
+      item "Télécharger les listes d'enfants par livre au format Excel V1", [:download_book_files_v1, :admin, :children]
     end
   end
   collection_action :new_clean_registration_source_details do
@@ -478,6 +479,12 @@ ActiveAdmin.register Child do
       child.update_attribute('available_for_workshops', children_available.include?(child) ? true : false)
     end
     redirect_to admin_children_path, notice: "Enfants mis à jour"
+  end
+
+  collection_action :download_book_files_v1 do
+    service = Child::ExportBooksV1Service.new.call
+
+    # send_data(service.zip_file, filename: "#{Date.today.strftime('%d-%m-%Y')}.zip")
   end
 
   collection_action :perform_clean_registration_source_details, method: :post do
