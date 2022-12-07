@@ -36,11 +36,12 @@ class Child
       [:months_between_0_and_12, :months_between_12_and_24, :months_more_than_24].each do |age_period|
         children_list_sorted_by_group = {}
         Group.not_ended.each do |group|
-          children_list = group.children.where(group_status: "active").send(age_period).pluck(:id)
+          children_list = group.children.where(group_status: "active").send(age_period).to_a
           children_list_sorted_by_group[group.name.to_sym] = children_list unless children_list.empty?
         end
         children_list_sorted_by_age_and_group[age_period] = children_list_sorted_by_group unless children_list_sorted_by_group.empty?
       end
+      children_list_sorted_by_age_and_group
     end
 
     def create_zip_file(excel_files)
