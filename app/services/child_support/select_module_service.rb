@@ -2,8 +2,9 @@ class ChildSupport::SelectModuleService
 
   attr_reader :errors
 
-  def initialize(child)
+  def initialize(child, planned_timestamp)
     @child = child
+    @planned_timestamp = planned_timestamp
     @errors = []
   end
 
@@ -33,7 +34,7 @@ class ChildSupport::SelectModuleService
 
     sms_service = SpotHit::SendSmsService.new(
       parent.id,
-      DateTime.now,
+      @planned_timestamp,
       message
     ).call
 

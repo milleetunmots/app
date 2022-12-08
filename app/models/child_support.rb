@@ -158,6 +158,15 @@ class ChildSupport < ApplicationRecord
     first_child.parent2&.save
   end
 
+  after_save do
+    if saved_change_to_call2_status && call2_status == "KO"
+      ChildSupport::SelectModuleService.new(
+        first_child,
+        Date.tomorrow.in_time_zone.change(hour: 12, min: 30)
+      ).call
+    end
+  end
+
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
