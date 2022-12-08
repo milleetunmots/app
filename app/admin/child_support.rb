@@ -636,18 +636,18 @@ ActiveAdmin.register ChildSupport do
   #   link_to I18n.t("child_support.send_select_module_message"), [:send_select_module_message, :admin, resource]
   # end
 
-  member_action :send_select_module_message do
-
-    service = ChildSupport::SelectModuleService.new(
-      resource.model.first_child
-    ).call
-
-    if service.errors.empty?
-      redirect_to [:admin, resource], notice: 'SMS envoyé'
-    else
-      redirect_to [:admin, resource], alert: service.errors.join("\n")
-    end
-  end
+  # member_action :send_select_module_message do
+  #
+  #   service = ChildSupport::SelectModuleService.new(
+  #     resource.model.first_child
+  #   ).call
+  #
+  #   if service.errors.empty?
+  #     redirect_to [:admin, resource], notice: 'SMS envoyé'
+  #   else
+  #     redirect_to [:admin, resource], alert: service.errors.join("\n")
+  #   end
+  # end
 
   action_item :tools, only: [:show, :edit] do
     dropdown_menu "Choisir un module" do
