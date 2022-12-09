@@ -2,8 +2,10 @@ class ChildSupport::SelectModuleService
 
   attr_reader :errors
 
-  def initialize(child)
+  def initialize(child, planned_date, planned_hour)
     @child = child
+    @planned_date = planned_date
+    @planned_hour = planned_hour
     @errors = []
   end
 
@@ -31,9 +33,10 @@ class ChildSupport::SelectModuleService
 
     message = "1001mots : C'est le moment de choisir votre thème pour #{@child.first_name}. Cliquez ici pour recevoir le prochain livre et les messages #{selection_link}"
 
-    sms_service = SpotHit::SendSmsService.new(
-      parent.id,
-      DateTime.now,
+    sms_service = ProgramMessageService.new(
+      @planned_date,
+      @planned_hour,
+      ["parent.#{parent.id}"],
       message
     ).call
 

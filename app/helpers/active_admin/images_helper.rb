@@ -22,7 +22,12 @@ module ActiveAdmin::ImagesHelper
 
     # tag itself
 
-    tag = image_tag source, options.merge(style: style.join)
+    if Rails.application.config.active_storage.service == 'minio'
+      url = source.service_url.gsub('http://minio:9000', "https://#{ENV['DEFAULT_HOSTNAME']}").split('?').first
+      tag = image_tag url, options.merge(style: style.join)
+    else
+      tag = image_tag source, options.merge(style: style.join)
+    end
 
     # link
 
