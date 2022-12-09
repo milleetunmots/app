@@ -164,7 +164,7 @@ class ChildSupport < ApplicationRecord
     if saved_change_to_call2_status && call2_status == "KO"
       ChildSupport::SelectModuleService.new(
         first_child,
-        Date.today.next_day.sunday? ? Date.today.next_day : Date.today.next_day(2),
+        Date.today.next_day.sunday? ? Date.today.next_day(2) : Date.today.next_day,
         "12:30"
       ).call
     end
