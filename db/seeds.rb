@@ -150,9 +150,7 @@ if Rails.env.development?
     child = FactoryBot.create(
       :child,
       parent1: FactoryBot.create(:parent, postal_code: postal_code.sample),
-      should_contact_parent1: true,
-      parent2: FactoryBot.create(:parent, postal_code: postal_code.sample),
-      should_contact_parent2: true
+      parent2: FactoryBot.create(:parent, postal_code: postal_code.sample)
     )
     print "\t\t#{child.decorate.name}"
     puts " ✓"

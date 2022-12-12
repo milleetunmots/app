@@ -30,6 +30,7 @@
 #  redirection_urls_count              :integer
 #  redirection_visit_rate              :float
 #  security_code                       :string
+#  should_be_contacted                 :boolean          default(TRUE), not null
 #  terms_accepted_at                   :datetime
 #  would_like_to_do_more               :string
 #  would_receive_advices               :string
