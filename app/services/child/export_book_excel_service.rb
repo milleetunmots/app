@@ -40,10 +40,14 @@ class Child
     def add_children
       even_format = workbook.add_format(bg_color: :'#e2eFDA')
       odd_format = workbook.add_format(bg_color: :white)
+      duplicate_format = workbook.add_format(bg_color: :orange)
 
       @children.decorate.each_with_index do |child, index|
         format = index % 2 == 0 ? even_format : odd_format
         row = COLUMNS.map { |column| child.public_send(column[:method]) }
+
+        is_probably_duplicate = @children.kinda_spelled_like(child.name).size > 1
+        format = duplicate_format if is_probably_duplicate
 
         @worksheet.append_row(row, format)
       end
