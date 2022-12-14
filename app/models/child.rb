@@ -66,7 +66,7 @@ class Child < ApplicationRecord
   multisearchable against: %i[first_name last_name]
   pg_search_scope :kinda_spelled_like,
                   against: %i[first_name last_name],
-                  using: { trigram: { threshold: 0.75 } },
+                  using: { trigram: { threshold: ENV["CHILD_DUPLICATE_TREE_HOLD"].to_f } },
                   ignoring: :accents
 
 
