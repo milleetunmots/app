@@ -64,6 +64,11 @@ class Child < ApplicationRecord
 
   include PgSearch
   multisearchable against: %i[first_name last_name]
+  pg_search_scope :kinda_spelled_like,
+                  against: %i[first_name last_name],
+                  using: { trigram: { threshold: 0.75 } },
+                  ignoring: :accents
+
 
   # ---------------------------------------------------------------------------
   # versions history
