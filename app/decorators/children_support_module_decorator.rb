@@ -9,7 +9,7 @@ class ChildrenSupportModuleDecorator < BaseDecorator
   end
 
   def child_name
-    child.decorate.name
+    child&.decorate.name
   end
 
   def name_with_date
