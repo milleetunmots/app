@@ -48,12 +48,11 @@ class EventsController < ApplicationController
       if child.should_contact_parent1 == false && child.should_contact_parent2 == false
         child.group_status = "stopped"
         child.group_end = Time.now
-        child.save(validate: false)
       end
+      child.save(validate: false)
     end
 
     head :ok
-
   end
 
   def spot_hit_response
