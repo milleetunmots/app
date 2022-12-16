@@ -550,6 +550,12 @@ ActiveAdmin.register ChildSupport do
     column(:parent1_gender) { |cs| Parent.human_attribute_name("gender.#{cs.parent1_gender}") }
     column :children_registration_sources
     column :child_support_groups
+    column :children_land
+    column :parent1_available_support_modules
+    column :parent1_selected_support_modules
+    column :parent2_available_support_modules
+    column :parent2_selected_support_modules
+
     column :parent1_first_name
     column :parent1_last_name
     column :parent1_phone_number_national
@@ -563,7 +569,6 @@ ActiveAdmin.register ChildSupport do
     column :city_name
     column :postal_code
 
-    column :children_land
 
     column(:parent2_gender) { |cs| cs.parent2_gender && Parent.human_attribute_name("gender.#{cs.parent2_gender}") }
     column :parent2_first_name

@@ -275,6 +275,10 @@ fr:
         parent1_follow_us_on_whatsapp: Parent 1 nous suit sur Whatsapp ?
         parent1_last_name: Nom du parent 1
         parent1_phone_number_national: Numéro du parent 1
+        parent1_available_support_modules: Modules disponibles du parent 1
+        parent2_available_support_modules: Modules disponibles du parent 2
+        parent1_selected_support_modules: Modules choisis par le parent 1
+        parent2_selected_support_modules: Modules choisis par le parent 2
         parent2: Parent 2
         parent2_first_name: Prénom du parent 2
         parent2_gender: Sexe du parent 2
