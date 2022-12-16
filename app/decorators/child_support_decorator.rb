@@ -256,6 +256,8 @@ class ChildSupportDecorator < BaseDecorator
   end
 
   def parent2_selected_support_modules
+    return nil unless model.parent2
+
     model.parent2.children_support_modules.includes(:support_module).pluck(:name).reject(&:blank?).join(", ")
   end
 
