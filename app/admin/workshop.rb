@@ -18,7 +18,6 @@ ActiveAdmin.register Workshop do
     column :workshop_date
     column :workshop_address
     column :workshop_land
-    column :parents_who_accepted
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args

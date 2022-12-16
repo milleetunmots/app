@@ -48,6 +48,10 @@ RSpec.describe Workshop, type: :model do
         expect(FactoryBot.build_stubbed(:workshop, workshop_date: nil)).not_to be_valid
       end
 
+      it "if workshop_date has already passed" do
+        expect(FactoryBot.build(:workshop, workshop_date: Date.today.prev_day(3))).not_to be_valid
+      end
+
       it "if address is not given" do
         expect(FactoryBot.build_stubbed(:workshop, address: nil)).not_to be_valid
       end
@@ -62,6 +66,10 @@ RSpec.describe Workshop, type: :model do
 
       it "if invitation_message is not given" do
         expect(FactoryBot.build_stubbed(:workshop, invitation_message: nil)).not_to be_valid
+      end
+
+      it "if workshop_land is not included in children's lands" do
+        expect(FactoryBot.build_stubbed(:workshop, workshop_land: "New York")).not_to be_valid
       end
     end
   end
