@@ -88,6 +88,7 @@ class Child < ApplicationRecord
 
   has_many :redirection_urls, dependent: :destroy # TODO: use nullify instead?
   has_many :siblings, class_name: :Child, primary_key: :parent1_id, foreign_key: :parent1_id
+  has_many :children_support_modules, dependent: :destroy
 
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
