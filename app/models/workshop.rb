@@ -44,6 +44,7 @@ class Workshop < ApplicationRecord
   validates :postal_code, presence: true
   validates :city_name, presence: true
   validates :invitation_message, presence: true
+  validates :workshop_land, inclusion: { in: Child::LANDS, allow_blank: true }
 
   def set_name
     self.name = "#{workshop_date.month}/#{workshop_date.year}"
