@@ -132,35 +132,36 @@ puts " ✓"
 # puts " ✓"
 
 # Group
+puts "\tGroup"
 
 5.times do
-  FactoryBot.create(:group)
+  group = FactoryBot.create(:group)
+  print "\t\t#{group.name}"
+  puts " ✓"
 end
-
-puts " ✓"
 
 # Child
 if Rails.env.development?
   postal_code = Parent::ORELANS_POSTAL_CODE + Parent::PLAISIR_POSTAL_CODE + Parent::MONTARGIS_POSTAL_CODE + Parent::TRAPPES_POSTAL_CODE + [Parent::AULNAY_SOUS_BOIS_POSTAL_CODE, Parent::PARIS_18_EME_POSTAL_CODE, Parent::PARIS_20_EME_POSTAL_CODE]
 
-  print "\t20 Children"
+  puts "\tChildren"
 
   20.times do
-    FactoryBot.create(
+    child = FactoryBot.create(
       :child,
       parent1: FactoryBot.create(:parent, postal_code: postal_code.sample),
-      should_contact_parent1: true,
-      parent2: FactoryBot.create(:parent, postal_code: postal_code.sample),
-      should_contact_parent2: true
+      parent2: FactoryBot.create(:parent, postal_code: postal_code.sample)
     )
+    print "\t\t#{child.decorate.name}"
+    puts " ✓"
   end
-  puts " ✓"
 end
 
 # Support Module
+puts "\tSupport module"
 
 5. times do
-  FactoryBot.create(:support_module)
+  support_module = FactoryBot.create(:support_module)
+  print "\t\t#{support_module.name}"
+  puts " ✓"
 end
-
-puts " ✓"
