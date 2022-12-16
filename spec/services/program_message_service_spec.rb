@@ -20,6 +20,7 @@ RSpec.describe ProgramMessageService do
     FactoryBot.create(
       :child,
       parent1_id: parent_2.id,
+      should_contact_parent1: true,
       group_id: group.id,
       group_status: "active",
       first_name: 'Kevin'
@@ -30,6 +31,7 @@ RSpec.describe ProgramMessageService do
     FactoryBot.create(
       :child,
       parent1_id: parent_3.id,
+      should_contact_parent1: false,
       group_id: group.id,
       group_status: "active",
       first_name: 'Joe'
@@ -204,8 +206,7 @@ RSpec.describe ProgramMessageService do
 
   context 'when no parent numbers found' do
     before do
-      parent_2.update!(should_be_contacted: false)
-      parent_3.update!(should_be_contacted: false)
+      child_1.update!(should_contact_parent1: false)
     end
 
     it 'returns errors' do

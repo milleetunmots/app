@@ -145,9 +145,13 @@ class ProgramMessageService
   end
 
   def find_parent_ids_from_groups
-    Child.where(group_status: 'active').joins(:group).where(groups: {id: @group_ids}).includes(:parent1, :parent2).find_each do |child|
-      @parent_ids << child.parent1.id if child.parent1.should_be_contacted
-      @parent_ids << child.parent2&.id if child.parent2&.should_be_contacted
+    Group.includes(:children).where(id: @group_ids).find_each do |group|
+      group.children.each do |child|
+        next unless child.group_status == "active"
+
+        @parent_ids << child.parent1_id if child.parent1_id && child.should_contact_parent1
+        @parent_ids << child.parent2_id if child.parent2_id && child.should_contact_parent2
+      end
     end
   end
 
