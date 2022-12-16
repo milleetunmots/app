@@ -243,6 +243,24 @@ class ChildSupportDecorator < BaseDecorator
   #   end
   # end
 
+  def parent1_available_support_modules
+    SupportModule.where(id: parent1_available_support_module_list).pluck(:name).join(", ")
+  end
+
+  def parent2_available_support_modules
+    SupportModule.where(id: parent2_available_support_module_list).pluck(:name).join(", ")
+  end
+
+  def parent1_selected_support_modules
+    model.parent1.children_support_modules.includes(:support_module).pluck(:name).reject(&:blank?).join(", ")
+  end
+
+  def parent2_selected_support_modules
+    return nil unless model.parent2
+
+    model.parent2.children_support_modules.includes(:support_module).pluck(:name).reject(&:blank?).join(", ")
+  end
+
   private
 
   def children_attribute(key, glue)
