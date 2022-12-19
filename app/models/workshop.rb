@@ -37,7 +37,7 @@ class Workshop < ApplicationRecord
   before_validation :set_name, on: :create
   after_create :set_workshop_participation
 
-  validates :topic, presence: true, inclusion: {in: TOPICS}
+  validates :topic, inclusion: { in: TOPICS, allow_blank: true }
   validates :animator, presence: true
   validates :workshop_date, presence: true
   validates :workshop_date, date: { after: proc { Date.today } }, on: :create
