@@ -11,7 +11,7 @@
 #  location           :string
 #  name               :string
 #  postal_code        :string           not null
-#  topic              :string           not null
+#  topic              :string
 #  workshop_date      :date             not null
 #  workshop_land      :string
 #  created_at         :datetime         not null
@@ -71,17 +71,18 @@ RSpec.describe Workshop, type: :model do
     end
   end
 
-  # describe ".name" do
-  #   context "format" do
-  #     let(:workshop) { FactoryBot.create(:workshop, workshop_date: Date.today.next_day) }
-  #     let(:paris_18_workshop) { FactoryBot.create(:workshop, workshop_date: Date.today.next_day(2), workshop_land: "Paris 18 eme") }
-  #
-  #     it "is 'Atelier_year_month' if land is not given" do
-  #       expect(workshop.name).to eq "Atelier du #{Date.today.next_day.month}/#{Date.today.next_day.year}"
-  #     end
-  #     it "if land is given is 'Atelier_land_year_month'" do
-  #       expect(paris_18_workshop.name).to eq "Atelier du #{Date.today.next_day(2).month}/#{Date.today.next_day(2).year} à Paris 18 eme"
-  #     end
-  #   end
-  # end
+  describe ".name" do
+    context "format" do
+      let(:animator) { FactoryBot.create(:admin_user, name: "Angela") }
+      let(:workshop) { FactoryBot.create(:workshop, animator: animator, workshop_date: Date.today.next_day) }
+      let(:meal_workshop) { FactoryBot.create(:workshop, animator: animator, workshop_date: Date.today.next_day(4), location: "Merlun", topic: "Repas") }
+      let(:paris_workshop) { FactoryBot.create(:workshop, animator: animator, workshop_date: Date.today.next_day(2), location: "Paris") }
+
+      it "is 'Atelier du workshop_date à location, avec animator, sur le thème topic'" do
+        expect(workshop.name).to eq "Atelier du #{Date.today.next_day.day}/#{Date.today.next_day.month}/#{Date.today.next_day.year}, avec Angela"
+        expect(paris_workshop.name).to eq "Atelier du #{Date.today.next_day(2).day}/#{Date.today.next_day(2).month}/#{Date.today.next_day(2).year} à Paris, avec Angela"
+        expect(meal_workshop.name).to eq "Atelier du #{Date.today.next_day(4).day}/#{Date.today.next_day(4).month}/#{Date.today.next_day(4).year} à Merlun, avec Angela, sur le thème Repas"
+      end
+    end
+  end
 end

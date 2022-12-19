@@ -575,15 +575,6 @@ fr:
         parents_without_response: Parents n'ayant pas repondu à l'invitation
         parents_without_response_csv: Parents n'ayant pas repondu à l'invitation
         workshop_land: Terrain
-      workshop/topic:
-        meal: Repas
-        sleep: Coucher
-        nursery_rhymes: Comptines
-        books: Livres
-        games: Jeux de recup'
-        outside: Sorties
-        bath: Bain / Habillage / Change
-        emotion: Emotions
     errors:
       models:
         parent:
