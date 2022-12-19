@@ -8,6 +8,7 @@
 #  co_animator        :string
 #  discarded_at       :datetime
 #  invitation_message :text             not null
+#  location           :string
 #  name               :string
 #  postal_code        :string           not null
 #  topic              :string           not null
