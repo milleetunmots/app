@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_12_19_150006) do
+ActiveRecord::Schema.define(version: 2022_12_19_160653) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -494,7 +494,7 @@ ActiveRecord::Schema.define(version: 2022_12_19_150006) do
   end
 
   create_table "workshops", force: :cascade do |t|
-    t.string "topic", null: false
+    t.string "topic"
     t.string "co_animator"
     t.date "workshop_date", null: false
     t.string "address", null: false

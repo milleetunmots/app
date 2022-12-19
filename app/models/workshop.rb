@@ -11,7 +11,7 @@
 #  location           :string
 #  name               :string
 #  postal_code        :string           not null
-#  topic              :string           not null
+#  topic              :string
 #  workshop_date      :date             not null
 #  workshop_land      :string
 #  created_at         :datetime         not null
@@ -29,7 +29,7 @@
 class Workshop < ApplicationRecord
   include Discard::Model
 
-  TOPICS = %w[meal sleep nursery_rhymes books games outside bath emotion]
+  TOPICS = ["Repas", "Coucher", "Comptines Livres", "Jeux de recup'", "Sorties", "Bain / Habillage / Change", "Emotions"]
 
   belongs_to :animator, class_name: "AdminUser"
   has_one :event, dependent: :destroy
@@ -49,8 +49,10 @@ class Workshop < ApplicationRecord
   validates :workshop_land, inclusion: { in: Child::LANDS, allow_blank: true }
 
   def set_name
-    self.name = "#{workshop_date.month}/#{workshop_date.year}"
-    self.name = workshop_land ? "Atelier du #{name} à #{workshop_land}" : "Atelier du #{name}"
+    self.name = "#{workshop_date.day}/#{workshop_date.month}/#{workshop_date.year}"
+    self.name = location.nil? ? "Atelier du #{name}" : "Atelier du #{name} à #{location}"
+    self.name = "#{name}, avec #{animator.name}"
+    self.name = "#{name}, sur le thème #{topic}" unless topic.nil?
   end
 
   def set_workshop_participation
