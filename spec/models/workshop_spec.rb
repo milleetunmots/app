@@ -36,10 +36,6 @@ RSpec.describe Workshop, type: :model do
     end
 
     context "fail" do
-      it "if topic is not given" do
-        expect(FactoryBot.build_stubbed(:workshop, topic: nil)).not_to be_valid
-      end
-
       it "if animator is not given" do
         expect(FactoryBot.build_stubbed(:workshop, animator: nil)).not_to be_valid
       end
@@ -74,17 +70,17 @@ RSpec.describe Workshop, type: :model do
     end
   end
 
-  describe ".name" do
-    context "format" do
-      let(:workshop) { FactoryBot.create(:workshop, workshop_date: Date.today.next_day) }
-      let(:paris_18_workshop) { FactoryBot.create(:workshop, workshop_date: Date.today.next_day(2), workshop_land: "Paris 18 eme") }
-
-      it "is 'Atelier_year_month' if land is not given" do
-        expect(workshop.name).to eq "Atelier du #{Date.today.next_day.month}/#{Date.today.next_day.year}"
-      end
-      it "if land is given is 'Atelier_land_year_month'" do
-        expect(paris_18_workshop.name).to eq "Atelier du #{Date.today.next_day(2).month}/#{Date.today.next_day(2).year} à Paris 18 eme"
-      end
-    end
-  end
+  # describe ".name" do
+  #   context "format" do
+  #     let(:workshop) { FactoryBot.create(:workshop, workshop_date: Date.today.next_day) }
+  #     let(:paris_18_workshop) { FactoryBot.create(:workshop, workshop_date: Date.today.next_day(2), workshop_land: "Paris 18 eme") }
+  #
+  #     it "is 'Atelier_year_month' if land is not given" do
+  #       expect(workshop.name).to eq "Atelier du #{Date.today.next_day.month}/#{Date.today.next_day.year}"
+  #     end
+  #     it "if land is given is 'Atelier_land_year_month'" do
+  #       expect(paris_18_workshop.name).to eq "Atelier du #{Date.today.next_day(2).month}/#{Date.today.next_day(2).year} à Paris 18 eme"
+  #     end
+  #   end
+  # end
 end
