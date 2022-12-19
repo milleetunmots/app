@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_23_121242) do
+ActiveRecord::Schema.define(version: 2022_12_19_150006) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -507,6 +507,7 @@ ActiveRecord::Schema.define(version: 2022_11_23_121242) do
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "animator_id", null: false
     t.string "workshop_land"
+    t.string "location"
     t.index ["animator_id"], name: "index_workshops_on_animator_id"
   end
 
