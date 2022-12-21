@@ -96,8 +96,4 @@ class WorkshopDecorator < BaseDecorator
     end
     result.join("\n")
   end
-
-  def topic
-    Workshop.human_attribute_name("topic.#{model.topic}")
-  end
 end
