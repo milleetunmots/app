@@ -13,7 +13,7 @@ class Events::WorkshopParticipationDecorator < EventDecorator
       if parent_response == "Oui"
         "a accepté l'invitation à un atelier le #{acceptation_date}"
       elsif parent_response == "Non"
-        "a refusé l'invitation à un atelier"
+        "a refusé l'invitation à un atelier le #{acceptation_date}"
       else
         'a été invité à un atelier'
       end

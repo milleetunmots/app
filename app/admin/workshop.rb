@@ -64,10 +64,8 @@ ActiveAdmin.register Workshop do
           row :workshop_address
           row :location
           row :invitation_message
-          row :workshop_participants
           row :parents_who_accepted
           row :parents_who_refused
-          row :parents_without_response
           row :workshop_land
         end
       end
