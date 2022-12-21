@@ -66,6 +66,10 @@ ActiveAdmin.register Workshop do
           row :invitation_message
           row :parents_who_accepted
           row :parents_who_refused
+          row :parent_invited_number
+          row :parent_who_accepted_number
+          row :parent_who_refused_number
+          row :parent_who_ignored_number
           row :workshop_land
         end
       end

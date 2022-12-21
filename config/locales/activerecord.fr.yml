@@ -576,6 +576,10 @@ fr:
         parents_without_response: Parents n'ayant pas repondu à l'invitation
         parents_without_response_csv: Parents n'ayant pas repondu à l'invitation
         workshop_land: Terrain
+        parent_invited_number: Nombre de parents invités
+        parent_who_accepted_number: Nombre de parents ayant accepté
+        parent_who_refused_number: Nombre de parents ayant refusé
+        parent_who_ignored_number: Nombre de parents n'ayant pas repondu
     errors:
       models:
         parent:

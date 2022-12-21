@@ -26,12 +26,9 @@ class WorkshopDecorator < BaseDecorator
   def parents_who_accepted
     arbre do
       ul do
-        parents.decorate.each do |participant|
-          response = Event.workshop_participations.find_by(
-            workshop_id: model.id,
-            related_id: participant.id)&.parent_response
+        events.where(parent_response: "Oui").each do |event|
           li do
-            participant.admin_link if response == "Oui"
+            event.related.decorate.admin_link
           end
         end
       end
@@ -39,23 +36,15 @@ class WorkshopDecorator < BaseDecorator
   end
 
   def parents_who_accepted_csv
-    result = []
-    parents.each do |parent|
-      response = Event.workshop_participations.find_by(
-        workshop_id: model.id,
-        related_id: parent.id)&.parent_response
-      result << parent.decorate.name if response == "Oui"
-    end
-    result.join("\n")
+    events.where(parent_response: "Oui").map { |event| event.related.decorate.name }.join("\n")
   end
 
   def parents_who_refused
     arbre do
       ul do
-        parents.decorate.each do |participant|
-          response = Event.workshop_participations.find_by(workshop_id: model.id, related_id: participant.id)&.parent_response
+        events.where(parent_response: "Non").each do |event|
           li do
-            participant.admin_link if response == "Non"
+            event.related.decorate.admin_link
           end
         end
       end
@@ -63,23 +52,15 @@ class WorkshopDecorator < BaseDecorator
   end
 
   def parents_who_refused_csv
-    result = []
-    parents.each do |parent|
-      response = Event.workshop_participations.find_by(
-        workshop_id: model.id,
-        related_id: parent.id)&.parent_response
-      result << parent.decorate.name if response == "Non"
-    end
-    result.join("\n")
+    events.where(parent_response: "Non").map { |event| event.related.decorate.name }.join("\n")
   end
 
   def parents_without_response
     arbre do
       ul do
-        parents.decorate.each do |participant|
-          response = Event.workshop_participations.find_by(workshop_id: model.id, related_id: participant.id)&.parent_response
+        events.where(parent_response: nil).each do |event|
           li do
-            participant.admin_link unless response
+            event.related.decorate.admin_link
           end
         end
       end
@@ -87,13 +68,22 @@ class WorkshopDecorator < BaseDecorator
   end
 
   def parents_without_response_csv
-    result = []
-    parents.each do |parent|
-      response = Event.workshop_participations.find_by(
-        workshop_id: model.id,
-        related_id: parent.id)&.parent_response
-      result << parent.decorate.name unless response
-    end
-    result.join("\n")
+    events.where(parent_response: nil).map { |event| event.related.decorate.name }.join("\n")
+  end
+
+  def parent_invited_number
+    events.count
+  end
+
+  def parent_who_accepted_number
+    events.where(parent_response: "Oui").count
+  end
+
+  def parent_who_refused_number
+    events.where(parent_response: "Non").count
+  end
+
+  def parent_who_ignored_number
+    events.where(parent_response: nil).count
   end
 end

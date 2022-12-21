@@ -32,7 +32,7 @@ class Workshop < ApplicationRecord
   TOPICS = ["Repas", "Coucher", "Comptines Livres", "Jeux de recup'", "Sorties", "Bain / Habillage / Change", "Emotions"]
 
   belongs_to :animator, class_name: "AdminUser"
-  has_one :event, dependent: :destroy
+  has_many :events, dependent: :destroy
   has_and_belongs_to_many :parents
 
   before_validation :set_name
