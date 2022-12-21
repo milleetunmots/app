@@ -52,7 +52,7 @@ class Workshop < ApplicationRecord
     self.name = "#{workshop_date.day}/#{workshop_date.month}/#{workshop_date.year}"
     self.name = location.nil? ? "Atelier du #{name}" : "Atelier du #{name} à #{location}"
     self.name = "#{name}, avec #{animator.name}"
-    self.name = "#{name}, sur le thème #{topic}" unless topic.nil?
+    self.name = "#{name}, sur le thème #{topic}" unless topic.blank?
   end
 
   def set_workshop_participation
