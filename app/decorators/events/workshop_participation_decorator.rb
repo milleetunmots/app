@@ -10,7 +10,13 @@ class Events::WorkshopParticipationDecorator < EventDecorator
   def timeline_description
     [
       related_link,
-      'a participé à un atelier'
+      if parent_response == "Oui"
+        "a accepté l'invitation à un atelier le #{acceptation_date}"
+      elsif parent_response == "Non"
+        "a refusé l'invitation à un atelier"
+      else
+        'a été invité à un atelier'
+      end
     ].join(' ').html_safe
   end
 

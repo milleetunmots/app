@@ -3,10 +3,12 @@
 # Table name: events
 #
 #  id                  :bigint           not null, primary key
+#  acceptation_date    :date
 #  body                :text
 #  discarded_at        :datetime
 #  occurred_at         :datetime
 #  originated_by_app   :boolean          default(TRUE), not null
+#  parent_presence     :boolean          default(FALSE)
 #  parent_response     :string
 #  related_type        :string
 #  spot_hit_status     :integer
@@ -61,9 +63,8 @@ class Event < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   delegate :first_child,
-    to: :related,
-    prefix: true,
-    allow_nil: true
+           :security_code,
+           to: :related, prefix: true, allow_nil: true
 
   delegate :id,
     :group,
