@@ -85,4 +85,10 @@ RSpec.describe Workshop, type: :model do
       end
     end
   end
+
+  # describe ".set_workshop_participation" do
+  #   context "create workshop_participation for each parent invited" do
+  #
+  #   end
+  # end
 end

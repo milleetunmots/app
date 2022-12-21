@@ -392,7 +392,7 @@ fr:
         << : *EVENT
         comments: Infos
         workshop_invitation_response: Réponse à l'invitation
-        workshop_presence: Présent
+        parent_presence: Présent(e) à l'atelier
       field_comment:
         << : *SHARED
         author: Auteur

@@ -95,16 +95,22 @@ class Workshop < ApplicationRecord
 
       response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
         parent_id: parent.id,
+        parent_security_code: parent.security_code,
         workshop_id: id
       )
 
-      message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquer sur ce lien: #{response_link}"
+      message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquez sur ce lien: #{response_link}"
 
-      SpotHit::SendSmsService.new(
+      service = SpotHit::SendSmsService.new(
         parent.id,
         DateTime.current.middle_of_day,
         message
       ).call
+
+      if service.errors.any?
+        logger.debug service.errors
+        logger.debug parent
+      end
     end
   end
 end
