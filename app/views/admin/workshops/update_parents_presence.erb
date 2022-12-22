@@ -1,0 +1,42 @@
+<%= form_tag(@perform_action) do %>
+
+  <div class="fbg-container-fluid">
+
+    <% @values.each do |event| %>
+
+      <div class="fbg-row middle-xs">
+
+        <div class="fbg-col-xs-3">
+          <div class="box text-right">
+            <%== event.related.decorate.name %>
+          </div>
+        </div>
+
+        <div class="fbg-col-xs-1">
+          <div class="box text-center">
+            ⇒
+          </div>
+        </div>
+
+        <div class="fbg-col-xs-5">
+          <div class="box">
+            <select name="presence[<%=event.related.id%>]">
+              <option value="present">Présent</option>
+              <option value="planned_absence">Abscence prévue</option>
+              <option value="not_planned_absence">Absence non prévue</option>
+              <option value="queue">Sur liste d'attentec</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    <div class="fbg-row space-row"></div>
+    <div class="fbg-row middle-xs">
+      <div class="fbg-col-xs-2 fbg-col-xs-offset-4">
+        <div class="box">
+          <%= submit_tag 'Valider' %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

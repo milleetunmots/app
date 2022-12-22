@@ -91,4 +91,18 @@ ActiveAdmin.register Workshop do
     column :parents_who_refused_csv
     column :parents_without_response_csv
   end
+
+  action_item :update_parents_presence, only: :show do
+    link_to "Indiquer la présence des parents", [:update_parents_presence, :admin, resource]
+  end
+
+  member_action :update_parents_presence do
+    @values = resource.events.where(parent_response: "Oui").to_a
+    @perform_action = perform_update_parents_presence_admin_workshop_path
+  end
+
+  member_action :perform_update_parents_presence, method: :post do
+    byebug
+    redirect_to admin_workshop_path, notice: "Présences indiquées"
+  end
 end
