@@ -20,7 +20,7 @@ Rails.application.routes.draw do
     patch "/", to: "children#update", as: :update_child
   end
 
-  scope "w/:parent_id/:workshop_id" do
+  scope "w/:parent_id/:parent_security_code/:workshop_id" do
     get "/", to: "workshop_participation#edit", as: :edit_workshop_participation
     patch "/", to: "workshop_participation#update", as: :update_workshop_participation
   end

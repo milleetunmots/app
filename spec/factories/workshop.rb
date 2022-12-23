@@ -2,7 +2,6 @@ FactoryBot.define do
   factory :workshop do
     animator factory: :admin_user
 
-    topic { Workshop::TOPICS.sample }
     workshop_date { Faker::Date.forward(days: 23) }
     address { Faker::Address.street_address }
     postal_code { Faker::Address.postcode }
