@@ -35,7 +35,7 @@ class Workshop < ApplicationRecord
   has_many :events, dependent: :destroy
   has_and_belongs_to_many :parents
 
-  before_validation :set_name
+  after_create :set_name
   after_create :set_workshop_participation
 
   validates :topic, inclusion: { in: TOPICS, allow_blank: true }
