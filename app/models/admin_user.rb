@@ -34,6 +34,7 @@ class AdminUser < ApplicationRecord
 
   has_many :reported_tasks, class_name: "Task", foreign_key: "reporter_id", dependent: :nullify
   has_many :assigned_tasks, class_name: "Task", foreign_key: "assignee_id", dependent: :nullify
+  has_many :workshops, dependent: :nullify
 
   # ---------------------------------------------------------------------------
   # validations

@@ -139,7 +139,7 @@ ActiveAdmin.register Parent do
         end
       end
       tab 'Historique' do
-        render 'admin/events/history', events: resource.events.where.not(type: "Events::WorkshopParticipation").order(occurred_at: :desc).decorate
+        render 'admin/events/history', events: resource.events.order(occurred_at: :desc).decorate
       end
     end
   end

@@ -392,7 +392,14 @@ fr:
         << : *EVENT
         comments: Infos
         workshop_invitation_response: Réponse à l'invitation
-        workshop_presence: Présent
+        parent_presence: Présent(e) à l'atelier
+        workshop_name: Atelier
+        display_parent_presence: Presence du parent
+      event/parents_presence:
+        present: Présent
+        planned_absence: Absence prévue
+        not_planned_absence: Absence non prévue
+        queue: Sur liste d'attente
       field_comment:
         << : *SHARED
         author: Auteur
@@ -554,11 +561,13 @@ fr:
         reporter: Ajoutée par
         title: Intitulé
       workshop:
+        << : *SHARED
         topic: Thème
         animator: Animateur
         co_animator: Binôme
         address: Adresse
         land: Terrain
+        location: Lieu de l'atelier
         name: Atelier
         postal_code: Code postal
         city_name: Ville
@@ -568,21 +577,16 @@ fr:
         workshop_participants : Parents invités
         workshop_participants_csv: Parents invités
         parents_who_accepted: Parents ayant accepté l'invitation
-        parents_who_accepted_csv: Parents ayant accépté l'invitation
+        parents_who_accepted_csv: Parents ayant accepté l'invitation
         parents_who_refused: Parents ayant refusé l'invitation
         parents_who_refused_csv: Parents ayant refusé l'invitation
         parents_without_response: Parents n'ayant pas repondu à l'invitation
         parents_without_response_csv: Parents n'ayant pas repondu à l'invitation
         workshop_land: Terrain
-      workshop/topic:
-        meal: Repas
-        sleep: Coucher
-        nursery_rhymes: Comptines
-        books: Livres
-        games: Jeux de recup'
-        outside: Sorties
-        bath: Bain / Habillage / Change
-        emotion: Emotions
+        parent_invited_number: Nombre de parents invités
+        parent_who_accepted_number: Nombre de parents ayant accepté
+        parent_who_refused_number: Nombre de parents ayant refusé
+        parent_who_ignored_number: Nombre de parents n'ayant pas repondu
     errors:
       models:
         parent:

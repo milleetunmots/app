@@ -3,10 +3,12 @@
 # Table name: events
 #
 #  id                  :bigint           not null, primary key
+#  acceptation_date    :date
 #  body                :text
 #  discarded_at        :datetime
 #  occurred_at         :datetime
 #  originated_by_app   :boolean          default(TRUE), not null
+#  parent_presence     :string
 #  parent_response     :string
 #  related_type        :string
 #  spot_hit_status     :integer
@@ -34,12 +36,15 @@
 
 class Events::WorkshopParticipation < Event
 
+  delegate :name,
+           to: :workshop,
+           prefix: true
   # ---------------------------------------------------------------------------
   # attributes
   # ---------------------------------------------------------------------------
 
   alias_attribute :comments, :body
-  alias_attribute :workshop_invitation_response, :response
-  alias_attribute :workshop_presence, :presence
 
+  scope :only_accepted, -> { where(parent_response: "Oui") }
+  scope :only_refused, -> { where(parent_response: "Non") }
 end

@@ -11,7 +11,7 @@ ActiveAdmin.register Events::WorkshopParticipation do
   # INDEX
   # ---------------------------------------------------------------------------
 
-  includes :related
+  includes :related, :workshop
 
   index do
     selectable_column
@@ -24,13 +24,9 @@ ActiveAdmin.register Events::WorkshopParticipation do
     end
     column :related_first_child_group
     column :occurred_at
-    column :comments do |decorated|
-      decorated.truncated_comments
-    end
+    column :workshop_name
     column :parent_response
-    column :created_at do |decorated|
-      l decorated.created_at.to_date, format: :default
-    end
+    column :display_parent_presence
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -66,6 +62,8 @@ ActiveAdmin.register Events::WorkshopParticipation do
       end
       row :occurred_at
       row :comments, class: "row-pre"
+      row :parent_response
+      row :display_parent_presence
       row :created_at
       row :discarded_at
     end
@@ -85,6 +83,7 @@ ActiveAdmin.register Events::WorkshopParticipation do
 
   form do |f|
     f.semantic_errors *f.object.errors.keys
+    f.input :workshop
     f.inputs do
       if f.object.related
         li class: :input do
@@ -101,11 +100,17 @@ ActiveAdmin.register Events::WorkshopParticipation do
       f.input :occurred_at
 
       f.input :comments, as: :text, input_html: {rows: 10}
+
+      f.input :parent_response,
+              collection: %w[Oui Non], input_html: { data: { select2: {}}}
+      f.input :parent_presence,
+              collection: workshop_participation_parent_presence,
+              input_html: {data: {select2: {}}}
     end
     f.actions
   end
 
-  permit_params :related_type, :related_id, :occurred_at, :comments
+  permit_params :related_type, :related_id, :occurred_at, :comments, :parent_response, :parent_presence, :workshop_id
 
   # ---------------------------------------------------------------------------
   # CSV EXPORT
