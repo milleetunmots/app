@@ -10,8 +10,8 @@ class WorkshopParticipationController < ApplicationController
   end
 
   def update
+    @workshop_participation.acceptation_date = Date.today if workshop_participation_params[:parent_response] == "Oui"
     if @workshop_participation.update(workshop_participation_params)
-      @workshop_participation.update(acceptation_date: Date.today) if @workshop_participation.parent_response == "Oui"
       redirect_to updated_workshop_participation_path
     else
       render action: :edit
