@@ -8,7 +8,7 @@
 
         <div class="fbg-col-xs-3">
           <div class="box text-right">
-            <%== event.related.decorate.name %>
+            <%= event.related.decorate.name %>
           </div>
         </div>
 
@@ -21,10 +21,9 @@
         <div class="fbg-col-xs-5">
           <div class="box">
             <select name="presence[<%=event.related.id%>]">
-              <option value="present">Présent</option>
-              <option value="planned_absence">Abscence prévue</option>
-              <option value="not_planned_absence">Absence non prévue</option>
-              <option value="queue">Sur liste d'attentec</option>
+              <% Event::PARENT_PRESENCES.each do |presence| %>
+                <option value=<%=presence%>><%=Event.human_attribute_name("parents_presence.#{presence}") %></option>
+              <% end %>
             </select>
           </div>
         </div>

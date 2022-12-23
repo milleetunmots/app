@@ -241,7 +241,7 @@ ActiveRecord::Schema.define(version: 2022_12_21_081242) do
     t.bigint "workshop_id"
     t.string "parent_response"
     t.bigint "quit_group_child_id"
-    t.boolean "parent_presence", default: false
+    t.string "parent_presence"
     t.date "acceptation_date"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["quit_group_child_id"], name: "index_events_on_quit_group_child_id"

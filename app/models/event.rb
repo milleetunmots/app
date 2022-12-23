@@ -8,7 +8,7 @@
 #  discarded_at        :datetime
 #  occurred_at         :datetime
 #  originated_by_app   :boolean          default(TRUE), not null
-#  parent_presence     :boolean          default(FALSE)
+#  parent_presence     :string
 #  parent_response     :string
 #  related_type        :string
 #  spot_hit_status     :integer
@@ -43,6 +43,7 @@ class Event < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   SPOT_HIT_STATUS = ["En attente","Livré","Envoyé","En cours","Echec","Expiré"].freeze
+  PARENT_PRESENCES = %w[present planned_absence not_planned_absence queue].freeze
 
   # ---------------------------------------------------------------------------
   # relations

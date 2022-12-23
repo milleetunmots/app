@@ -393,6 +393,11 @@ fr:
         comments: Infos
         workshop_invitation_response: Réponse à l'invitation
         parent_presence: Présent(e) à l'atelier
+      event/parents_presence:
+        present: Présent
+        planned_absence: Absence prévue
+        not_planned_absence: Absence non prévue
+        queue: Sur liste d'attente
       field_comment:
         << : *SHARED
         author: Auteur
