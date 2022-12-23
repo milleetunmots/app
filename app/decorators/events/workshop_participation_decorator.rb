@@ -40,4 +40,10 @@ class Events::WorkshopParticipationDecorator < EventDecorator
       omission: ' (…)'
   end
 
+  def display_parent_presence
+    return if model.parent_presence.blank?
+
+    Event.human_attribute_name("parents_presence.#{model.parent_presence}")
+  end
+
 end

@@ -393,6 +393,8 @@ fr:
         comments: Infos
         workshop_invitation_response: Réponse à l'invitation
         parent_presence: Présent(e) à l'atelier
+        workshop_name: Atelier
+        display_parent_presence: Presence du parent
       event/parents_presence:
         present: Présent
         planned_absence: Absence prévue
