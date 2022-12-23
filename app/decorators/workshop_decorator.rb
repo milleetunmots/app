@@ -26,7 +26,7 @@ class WorkshopDecorator < BaseDecorator
   def parents_who_accepted
     arbre do
       ul do
-        events.where(parent_response: "Oui").each do |event|
+        workshop_participations.only_accepted.each do |event|
           li do
             event.related.decorate.admin_link
           end
@@ -36,13 +36,13 @@ class WorkshopDecorator < BaseDecorator
   end
 
   def parents_who_accepted_csv
-    events.where(parent_response: "Oui").map { |event| event.related.decorate.name }.join("\n")
+    workshop_participations.only_accepted.map { |event| event.related.decorate.name }.join("\n")
   end
 
   def parents_who_refused
     arbre do
       ul do
-        events.where(parent_response: "Non").each do |event|
+        workshop_participations.only_refused.each do |event|
           li do
             event.related.decorate.admin_link
           end
@@ -52,13 +52,13 @@ class WorkshopDecorator < BaseDecorator
   end
 
   def parents_who_refused_csv
-    events.where(parent_response: "Non").map { |event| event.related.decorate.name }.join("\n")
+    workshop_participations.only_refused.map { |event| event.related.decorate.name }.join("\n")
   end
 
   def parents_without_response
     arbre do
       ul do
-        events.where(parent_response: nil).each do |event|
+        workshop_participations.where(parent_response: nil).each do |event|
           li do
             event.related.decorate.admin_link
           end
@@ -68,22 +68,22 @@ class WorkshopDecorator < BaseDecorator
   end
 
   def parents_without_response_csv
-    events.where(parent_response: nil).map { |event| event.related.decorate.name }.join("\n")
+    workshop_participations.where(parent_response: nil).map { |event| event.related.decorate.name }.join("\n")
   end
 
   def parent_invited_number
-    events.count
+    workshop_participations.count
   end
 
   def parent_who_accepted_number
-    events.where(parent_response: "Oui").count
+    workshop_participations.only_accepted.count
   end
 
   def parent_who_refused_number
-    events.where(parent_response: "Non").count
+    workshop_participations.only_refused.count
   end
 
   def parent_who_ignored_number
-    events.where(parent_response: nil).count
+    workshop_participations.where(parent_response: nil).count
   end
 end

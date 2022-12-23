@@ -33,6 +33,7 @@ class Workshop < ApplicationRecord
 
   belongs_to :animator, class_name: "AdminUser"
   has_many :events, dependent: :destroy
+  has_many :workshop_participations, class_name: "Events::WorkshopParticipation"
   has_and_belongs_to_many :parents
 
   before_save :set_name
