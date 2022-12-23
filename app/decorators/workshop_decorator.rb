@@ -86,4 +86,10 @@ class WorkshopDecorator < BaseDecorator
   def parent_who_ignored_number
     workshop_participations.where(parent_response: nil).count
   end
+
+  def display_topic
+    return if model.topic.blank?
+
+    Workshop.human_attribute_name("topic.#{model.topic}")
+  end
 end
