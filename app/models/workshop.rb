@@ -29,7 +29,7 @@
 class Workshop < ApplicationRecord
   include Discard::Model
 
-  TOPICS = ["Repas", "Coucher", "Comptines Livres", "Jeux de recup'", "Sorties", "Bain / Habillage / Change", "Emotions"]
+  TOPICS = %w[meal sleep nursery_rhymes books games outside bath emotion].freeze
 
   belongs_to :animator, class_name: "AdminUser"
   has_many :events, dependent: :destroy
@@ -53,7 +53,7 @@ class Workshop < ApplicationRecord
     self.name = "#{workshop_date.day}/#{workshop_date.month}/#{workshop_date.year}"
     self.name = location.nil? ? "Atelier du #{name}" : "Atelier du #{name} à #{location}"
     self.name = "#{name}, avec #{animator.name}"
-    self.name = "#{name}, sur le thème #{topic}" unless topic.blank?
+    self.name = "#{name}, sur le thème #{Workshop.human_attribute_name("topic.#{topic}")}" unless topic.blank?
   end
 
   def set_workshop_participation

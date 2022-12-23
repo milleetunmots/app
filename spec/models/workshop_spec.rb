@@ -75,7 +75,7 @@ RSpec.describe Workshop, type: :model do
     context "format" do
       let(:animator) { FactoryBot.create(:admin_user, name: "Angela") }
       let(:workshop) { FactoryBot.create(:workshop, animator: animator, workshop_date: Date.today.next_day) }
-      let(:meal_workshop) { FactoryBot.create(:workshop, animator: animator, workshop_date: Date.today.next_day(4), location: "Merlun", topic: "Repas") }
+      let(:meal_workshop) { FactoryBot.create(:workshop, animator: animator, workshop_date: Date.today.next_day(4), location: "Merlun", topic: "meal") }
       let(:paris_workshop) { FactoryBot.create(:workshop, animator: animator, workshop_date: Date.today.next_day(2), location: "Paris") }
 
       it "is 'Atelier du workshop_date à location, avec animator, sur le thème topic'" do

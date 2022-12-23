@@ -12,7 +12,7 @@ ActiveAdmin.register Workshop do
     selectable_column
     id_column
     column :name
-    column :topic
+    column :display_topic
     column :animator
     column :co_animator
     column :workshop_date
@@ -57,7 +57,7 @@ ActiveAdmin.register Workshop do
       tab "Infos" do
         attributes_table do
           row :name
-          row :topic
+          row :display_topic
           row :workshop_date
           row :animator
           row :co_animator
@@ -79,7 +79,7 @@ ActiveAdmin.register Workshop do
   csv do
     column :id
     column :name
-    column :topic
+    column :display_topic
     column :animator_csv
     column :co_animator
     column :workshop_date
