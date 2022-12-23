@@ -12,6 +12,15 @@ class Events::WorkshopParticipationDecorator < EventDecorator
       related_link,
       if parent_response == "Oui"
         "a accepté l'invitation à un atelier le #{acceptation_date}"
+        if parent_presence == "present"
+          "a été présent à l'atelier"
+        elsif parent_presence == "planned_absence"
+          "a été absent à l'atelier (absence prévue)"
+        elsif parent_presence == "not_planned_absence"
+          "a été absent à l'atelier (absence non prévue)"
+        else
+          "est sur la file d'atente de l'atelier"
+        end
       elsif parent_response == "Non"
         "a refusé l'invitation à un atelier le #{acceptation_date}"
       else

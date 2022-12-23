@@ -102,7 +102,9 @@ ActiveAdmin.register Workshop do
   end
 
   member_action :perform_update_parents_presence, method: :post do
-    byebug
+    params[:presence].each do |parent_id, presence|
+      resource.events.find_by(related_id: parent_id).update(parent_presence: presence)
+    end
     redirect_to admin_workshop_path, notice: "Présences indiquées"
   end
 end
