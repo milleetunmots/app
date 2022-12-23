@@ -8,24 +8,29 @@ class Events::WorkshopParticipationDecorator < EventDecorator
   end
 
   def timeline_description
-    [
-      related_link,
+    participation_state =
       if parent_response == "Oui"
-        "a accepté l'invitation à un atelier le #{acceptation_date}"
-        if parent_presence == "present"
+        case parent_presence
+        when "present"
           "a été présent à l'atelier"
-        elsif parent_presence == "planned_absence"
+        when "planned_absence"
           "a été absent à l'atelier (absence prévue)"
-        elsif parent_presence == "not_planned_absence"
+        when "not_planned_absence"
           "a été absent à l'atelier (absence non prévue)"
+        when "queue"
+          "est sur la file d'attente de l'atelier"
         else
-          "est sur la file d'atente de l'atelier"
+          "a accepté l'invitation à un atelier le #{acceptation_date}"
         end
       elsif parent_response == "Non"
         "a refusé l'invitation à un atelier le #{acceptation_date}"
       else
-        'a été invité à un atelier'
+        "a été invité à un atelier"
       end
+
+    [
+      related_link,
+      participation_state
     ].join(' ').html_safe
   end
 

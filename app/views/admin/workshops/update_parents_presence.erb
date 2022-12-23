@@ -20,11 +20,7 @@
 
         <div class="fbg-col-xs-5">
           <div class="box">
-            <select name="presence[<%=event.related.id%>]">
-              <% Event::PARENT_PRESENCES.each do |presence| %>
-                <option value=<%=presence%>><%=Event.human_attribute_name("parents_presence.#{presence}") %></option>
-              <% end %>
-            </select>
+            <%= select_tag "presence[#{event.related.id}]", options_for_select(Event::PARENT_PRESENCES.map{|v| [Event.human_attribute_name("parents_presence.#{v}"), v]}, event.parent_presence), include_blank: true %>
           </div>
         </div>
       </div>
