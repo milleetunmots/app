@@ -477,7 +477,6 @@ DEPENDENCIES
   rspec-rails
   rspec_junit_formatter
   ruby-prof (>= 0.17.0)
-  rubyzip
   sass-rails (~> 5)
   select2-rails
   selenium-webdriver

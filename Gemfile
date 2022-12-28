@@ -132,9 +132,6 @@ gem "fast_excel"
 # Asynchrone jobs
 gem "sidekiq"
 
-# Zip file
-gem "rubyzip"
-
 group :production do
   # for assets compilation
   gem "activerecord-nulldb-adapter"
