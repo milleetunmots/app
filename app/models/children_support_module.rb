@@ -6,6 +6,7 @@
 #  available_support_module_list :string           is an Array
 #  choice_date                   :date
 #  is_completed                  :boolean          default(FALSE)
+#  is_programmed                 :boolean          default(FALSE), not null
 #  created_at                    :datetime         not null
 #  updated_at                    :datetime         not null
 #  child_id                      :bigint
@@ -27,6 +28,9 @@ class ChildrenSupportModule < ApplicationRecord
   belongs_to :child
   belongs_to :parent
   belongs_to :support_module, optional: true
+
+  scope :not_programmed, -> { where(is_programmed: false) }
+  scope :with_support_module, -> { joins(:support_module) }
 
   def available_support_modules
     SupportModule.where(id: available_support_module_list)

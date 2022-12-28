@@ -11,6 +11,7 @@ ActiveAdmin.register ChildrenSupportModule do
     column :child_name
     column :created_at
     column :choice_date
+    column :is_programmed
     actions
   end
 
@@ -23,6 +24,7 @@ ActiveAdmin.register ChildrenSupportModule do
       row :available_support_module_names
       row :created_at
       row :choice_date
+      row :is_programmed
     end
   end
 
@@ -46,6 +48,7 @@ ActiveAdmin.register ChildrenSupportModule do
   permit_params :child_id, :parent_id, :support_module_id
 
   filter :is_completed, as: :boolean
+  filter :is_programmed, as: :boolean
   filter :support_module_name, as: :string
   filter :child_last_name, as: :string
   filter :child_first_name, as: :string
@@ -53,5 +56,21 @@ ActiveAdmin.register ChildrenSupportModule do
   filter :parent_first_name, as: :string
   filter :created_at
   filter :choice_date, as: :date_range
+
+  action_item :program, only: :index do
+    link_to "Programmer les modules", [:program, :admin, :children_support_modules], method: :post
+  end
+
+  collection_action :program, method: :post do
+    service = ChildSupport::ProgramChosenModulesService.new.call
+
+    if service.errors.empty?
+      redirect_to admin_children_support_modules_path, notice: "modules programmés avec succès"
+    else
+      flash[:error] = service.errors
+
+      redirect_to admin_children_support_modules_path
+    end
+  end
 
 end
