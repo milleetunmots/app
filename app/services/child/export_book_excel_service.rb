@@ -4,7 +4,7 @@ class Child
 
     COLUMNS = [
       { name: 'Nom', method: :last_name },
-      { name: 'Adresse', method: :address_with_letterbox_name},
+      { name: 'Adresse', method: :address},
       { name: 'Code postal', method: :postal_code },
       { name: 'Ville', method: :city_name },
       { name: 'Prénom enfant', method: :first_name }
