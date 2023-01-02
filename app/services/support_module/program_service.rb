@@ -14,11 +14,13 @@ class SupportModule::ProgramService
     @errors << "La date de démarrage doit être un mardi" unless @support_module.start_at&.tuesday?
     return self if @errors.any?
 
-    @support_module.support_module_weeks.each do |support_module_week|
+    @support_module.support_module_weeks.each_with_index do |support_module_week, week_index|
+      @date = nil
+      @hour = nil
       next if support_module_week.medium.nil?
 
       (1..3).each do |index|
-        next_date_and_hour(support_module_week)
+        next_date_and_hour(support_module_week, week_index)
 
         next if support_module_week.medium.send("body#{index}").blank?
 
@@ -37,7 +39,7 @@ class SupportModule::ProgramService
 
       next if support_module_week.additional_medium.nil?
 
-      next_date_and_hour(support_module_week)
+      next_date_and_hour(support_module_week, week_index)
 
       image = Media::Image.find_by(id: support_module_week.additional_medium.image1_id)
       redirection_target = RedirectionTarget.find_by(medium_id: support_module_week.additional_medium.link1_id)
@@ -69,10 +71,10 @@ class SupportModule::ProgramService
     @errors += service.errors
   end
 
-  def next_date_and_hour(support_module_week)
+  def next_date_and_hour(support_module_week, week_index)
     if @hour.nil? || @date.nil?
       @hour = "12:30"
-      @date = @support_module.start_at
+      @date = @support_module.start_at + week_index.weeks
     else
       sms_count = 0
       sms_count += 1 if support_module_week.medium.body1
