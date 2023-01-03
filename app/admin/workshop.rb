@@ -97,7 +97,7 @@ ActiveAdmin.register Workshop do
   end
 
   member_action :update_parents_presence do
-    @values = resource.events.only_accepted.to_a
+    @values = resource.events.where(parent_response: "Oui").to_a
     @perform_action = perform_update_parents_presence_admin_workshop_path
   end
 
