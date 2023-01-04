@@ -44,15 +44,24 @@ class Child
     def create_zip_file(excel_files)
       @zip_file = Tempfile.new("test.zip")
 
+      temp_files = []
+
       Zip::File.open(@zip_file.path, Zip::File::CREATE) do |zipfile|
         excel_files.each_with_index do |excel_file, index|
           temp = Tempfile.new("file-#{index}.xlsx", binmode: true)
+          temp_files << temp
           temp.write(excel_file[:file].read_string)
           temp.rewind
 
           zipfile.add excel_file[:filename], temp.path
         end
       end
+
+      # Store tempfiles in an array so they are not automatically removed by the garbage collector
+      # before the end of the creation of the zipfile
+      # see: https://stackoverflow.com/questions/31237809/ruby-auto-deleting-temp-file
+
+      temp_files = nil
     end
   end
 end
