@@ -44,15 +44,20 @@ class Child
     def create_zip_file(excel_files)
       @zip_file = Tempfile.new("test.zip")
 
+      temp_files = []
+
       Zip::File.open(@zip_file.path, Zip::File::CREATE) do |zipfile|
         excel_files.each_with_index do |excel_file, index|
           temp = Tempfile.new("file-#{index}.xlsx", binmode: true)
+          temp_files << temp
           temp.write(excel_file[:file].read_string)
           temp.rewind
 
           zipfile.add excel_file[:filename], temp.path
         end
       end
+
+      temp_files = nil
     end
   end
 end
