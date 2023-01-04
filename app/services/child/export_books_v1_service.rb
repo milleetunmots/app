@@ -57,6 +57,10 @@ class Child
         end
       end
 
+      # Store tempfiles in an array so they are not automatically removed by the garbage collector
+      # before the end of the creation of the zipfile
+      # see: https://stackoverflow.com/questions/31237809/ruby-auto-deleting-temp-file
+
       temp_files = nil
     end
   end
