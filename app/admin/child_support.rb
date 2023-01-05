@@ -133,7 +133,7 @@ ActiveAdmin.register ChildSupport do
       child_support.supporter_id = supporter_id
       child_support.save!
     end
-    redirect_to admin_child_supports_path, notice: "Responsable mis à jour"
+    redirect_to request.referer, notice: "Responsable mis à jour"
   end
 
   batch_action :remove_book_not_received do |ids|
