@@ -47,6 +47,15 @@ ActiveAdmin.register ChildrenSupportModule do
 
   permit_params :child_id, :parent_id, :support_module_id, :is_completed
 
+  scope :all, default: true
+
+  scope :with_support_module, group: :support_module_choice
+  scope :with_the_choice_to_make_by_us, group: :support_module_choice
+  scope :without_choice, group: :support_module_choice
+
+  scope :programmed, group: :programming
+  scope :not_programmed, group: :programming
+
   filter :is_completed, as: :boolean
   filter :is_programmed, as: :boolean
   filter :support_module_name, as: :string
