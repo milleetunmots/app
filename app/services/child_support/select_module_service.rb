@@ -28,7 +28,7 @@ class ChildSupport::SelectModuleService
 
     @child_support_module = ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id, available_support_module_list: available_support_module_list)
 
-    selection_link = Rails.application.routes.url_helpers.edit_children_support_module_url(
+    selection_link = Rails.application.routes.url_helpers.children_support_module_link_url(
       @child_support_module.id,
       :security_code => parent.security_code
     )

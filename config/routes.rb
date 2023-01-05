@@ -45,6 +45,8 @@ Rails.application.routes.draw do
     get "updated", on: :collection
   end
 
+  get "s/:id", to: 'children_support_modules#edit', as: :children_support_module_link
+
   root to: redirect("/admin")
 
 end
