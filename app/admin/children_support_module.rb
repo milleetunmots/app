@@ -45,7 +45,7 @@ ActiveAdmin.register ChildrenSupportModule do
     f.actions
   end
 
-  permit_params :child_id, :parent_id, :support_module_id
+  permit_params :child_id, :parent_id, :support_module_id, :is_completed
 
   filter :is_completed, as: :boolean
   filter :is_programmed, as: :boolean
