@@ -5,7 +5,7 @@ class ChildrenSupportModulesController < ApplicationController
   def edit
     @support_modules = @children_support_module.available_support_modules
 
-    @action_path = children_support_module_path(@children_support_module, security_code: @children_support_module.parent.security_code)
+    @action_path = children_support_module_path(@children_support_module, sc: @children_support_module.parent.security_code)
   end
 
   def update
@@ -15,6 +15,8 @@ class ChildrenSupportModulesController < ApplicationController
     if @children_support_module.update(children_support_module_params)
       redirect_to updated_children_support_modules_path(child_first_name: @children_support_module.child.first_name )
     else
+      @support_modules = @children_support_module.available_support_modules
+      @action_path = children_support_module_path(@children_support_module, sc: @children_support_module.parent.security_code)
       render action: :edit
     end
   end
@@ -30,8 +32,9 @@ class ChildrenSupportModulesController < ApplicationController
   end
 
   def find_children_support_module
+    @security_code = params[:sc] || params[:security_code]
     @children_support_module = ChildrenSupportModule.find_by(id: params[:id])
     not_found and return if @children_support_module.nil?
-    not_found and return if @children_support_module.parent.security_code != params[:security_code]
+    not_found and return if @children_support_module.parent.security_code != @security_code
   end
 end

@@ -32,7 +32,7 @@ class ChildrenSupportModule < ApplicationRecord
   scope :not_programmed, -> { where(is_programmed: false) }
   scope :with_support_module, -> { joins(:support_module) }
 
-  validate :support_module_not_programmed
+  validate :support_module_not_programmed, on: :create
   validate :valid_child_parent
 
   def available_support_modules
@@ -51,14 +51,14 @@ class ChildrenSupportModule < ApplicationRecord
   end
 
   def support_module_not_programmed
-    if ChildrenSupportModule.exists?(child_id: child, parent: parent, is_programmed: false)
+    if ChildrenSupportModule.exists?(child: child, parent: parent, is_programmed: false)
       errors.add(:base, :invalid, message: "Un module choisi par le parent pour cet enfant n'a pas encore été programmé")
     end
   end
 
   def valid_child_parent
     unless parent.children.to_a.include? child
-      errors.add(:base, :invalid, message: "Le parent et l'enfant ne sont pas valides")
+      errors.add(:base, :invalid, message: "Cet enfant n'appartient pas à ce parent")
     end
   end
 end

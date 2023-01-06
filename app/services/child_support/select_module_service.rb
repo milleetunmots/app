@@ -31,7 +31,7 @@ class ChildSupport::SelectModuleService
 
     selection_link = Rails.application.routes.url_helpers.children_support_module_link_url(
       @child_support_module.id,
-      :security_code => parent.security_code
+      :sc => parent.security_code
     )
 
     message = "1001mots : C'est le moment de choisir votre thème pour #{@child.first_name}. Cliquez ici pour recevoir le prochain livre et les messages #{selection_link}"
