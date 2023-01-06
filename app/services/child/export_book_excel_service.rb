@@ -3,7 +3,7 @@ class Child
     attr_reader :workbook
 
     COLUMNS = [
-      { name: 'Nom', method: :last_name },
+      { name: 'Nom', method: :letterbox_name },
       { name: 'Adresse', method: :address},
       { name: 'Code postal', method: :postal_code },
       { name: 'Ville', method: :city_name },
