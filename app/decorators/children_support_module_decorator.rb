@@ -1,15 +1,18 @@
 class ChildrenSupportModuleDecorator < BaseDecorator
 
-  def group
-    child.group&.name
+  def name
+    return support_module.decorate&.admin_link if support_module
+    return "Laisse le choix à 1001mots" if is_completed
+
+    "Pas encore choisi"
   end
 
   def parent_name
-    parent.decorate.name
+    parent.decorate.admin_link
   end
 
   def child_name
-    child.decorate.name
+    child.decorate.admin_link
   end
 
   def name_with_date
@@ -20,7 +23,7 @@ class ChildrenSupportModuleDecorator < BaseDecorator
   end
 
   def available_support_module_names
-    model.available_support_modules.pluck(:name)
+    model.available_support_modules.map { |support| support.decorate&.admin_link }
   end
 
 end

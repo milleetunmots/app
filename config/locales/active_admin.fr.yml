@@ -53,6 +53,8 @@ fr:
       months_between_12_and_24: 1-2 ans
       months_more_than_24: 2+ ans
       not_ended: En cours
+      not_programmed: Pas encore programmé
+      programmed: Programmé
       single_message: Messages uniques
       todo: À faire
       call_2_4: Accompagnement renforcé
@@ -65,3 +67,6 @@ fr:
       without_parent_to_contact: Sans parent à contacter
       without_support: Non suivis
       without_supporter: Sans responsable
+      with_support_module: Module déjà choisi
+      with_the_choice_to_make_by_us: Laisse le choix à 1001mots
+      without_choice: Pas encore choisi
