@@ -162,7 +162,8 @@ fr:
         child_last_name: Nom de famille
         child_first_name: Prénom de l'enfant
         parent_first_name: Prénom du parent
-        is_completed: Choisi par le parent?
+        is_completed: Choisi par le parent ?
+        is_programmed: Programmé ?
         child: Enfant
         parent: Parent
         support_module: Module
