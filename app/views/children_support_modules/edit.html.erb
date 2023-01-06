@@ -4,6 +4,12 @@
 
     <%= simple_form_for @children_support_module, url: @action_path do |f| %>
 
+    <div class="row justify-content-sm-center accepted-fields">
+      <div class="col-sm-8">
+        <%= f.error_notification message: "Une erreur est survenue, veuillez transmettre votre choix à votre appelante, nous sommes désolé pour la gêne occasionnée." %>
+      </div>
+    </div>
+
     <h1>Sur quel thème voulez-vous recevoir des conseils (et un livre) ?</h1>
       <div style="display: flex; flex-flow: row wrap; justify-content: center; align-items: stretch; align-content: stretch; gap: 2rem ">
         <% @support_modules.decorate.each do |support_module| %>
