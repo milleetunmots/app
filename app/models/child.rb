@@ -150,7 +150,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   scope :with_support, -> { joins(:child_support) }
-  scope :without_support, -> { left_outer_joins(:child_support).where(child_supports: {id: nil}) }
+  scope :without_support, -> { where(child_support_id: nil) }
   scope :with_group, -> { where.not(group_id: nil) }
   scope :without_group, -> { where(group_id: nil) }
   scope :available_for_the_workshops, -> { where(available_for_workshops:  true)}

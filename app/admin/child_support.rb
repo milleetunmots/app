@@ -688,4 +688,11 @@ ActiveAdmin.register ChildSupport do
       redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
     end
   end
+
+  controller do
+  def apply_filtering(chain)
+    super(chain).distinct
+  end
+end
+
 end
