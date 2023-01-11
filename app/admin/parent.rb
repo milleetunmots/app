@@ -238,4 +238,9 @@ ActiveAdmin.register Parent do
     column :updated_at
   end
 
+  controller do
+    def apply_filtering(chain)
+      super(chain).distinct
+    end
+  end
 end
