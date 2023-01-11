@@ -152,6 +152,7 @@ class Child < ApplicationRecord
   scope :with_support, -> { joins(:child_support) }
   scope :without_support, -> { where(child_support_id: nil) }
   scope :with_group, -> { where.not(group_id: nil) }
+  scope :with_stopped_group, -> { where.not(group_id: nil).where(group_status: 'stopped')}
   scope :without_group, -> { where(group_id: nil) }
   scope :available_for_the_workshops, -> { where(available_for_workshops:  true)}
   scope :active_group, -> { where(group_status: 'active')}
