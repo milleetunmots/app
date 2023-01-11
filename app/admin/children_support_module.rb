@@ -5,7 +5,7 @@ ActiveAdmin.register ChildrenSupportModule do
   includes :child, :parent, :support_module
 
   index do
-    column :name
+    column :name_display
     column :is_completed
     column :parent_name
     column :child_name
@@ -20,7 +20,7 @@ ActiveAdmin.register ChildrenSupportModule do
       row :is_completed
       row :child_name
       row :parent_name
-      row :name
+      row :name_display
       row :available_support_module_names
       row :created_at
       row :choice_date
