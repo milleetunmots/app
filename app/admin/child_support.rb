@@ -690,9 +690,8 @@ ActiveAdmin.register ChildSupport do
   end
 
   controller do
-  def apply_filtering(chain)
-    super(chain).distinct
+    def apply_filtering(chain)
+      super(chain).distinct
+    end
   end
-end
-
 end
