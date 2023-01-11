@@ -22,41 +22,32 @@ class ChildrenController < ApplicationController
   end
 
   def create
-    attributes = child_creation_params.merge(
-      src_url: session[:src_url]
-    )
-    # Tags
 
-    attributes[:tag_list] =
-      case current_registration_origin
-      when 3 then 'form-pro'
-      when 2 then 'form-2'
-      else 'site'
-      end
+    service = Child::CreateService.new(
+      child_creation_params.merge(src_url: session[:src_url]),
+      siblings_params,
+      parent1_params,
+      mother_params,
+      father_params,
+      current_registration_origin
 
-    # Siblings
+    ).call
 
-    siblings_attributes = siblings_params
-
-    # Parents
-
-    parent1_attributes = parent1_params
-    mother_attributes = mother_params.merge(
-      gender: 'f',
-      terms_accepted_at: Time.now
-    )
-    father_attributes = father_params.merge(
-      gender: 'm',
-      terms_accepted_at: Time.now
-    )
+    if service.errors.any?
+      flash.now[:error] = service.errors
+      render action: :new
+    else
+      redirect_to created_child_path(sms_url_form: service.sms_url_form)
+    end
 
     mother_attributes_available = !mother_attributes[:first_name].blank? || !mother_attributes[:last_name].blank? || !mother_attributes[:phone_number].blank?
     mother_attributes_valid = !mother_attributes[:first_name].blank? && !mother_attributes[:last_name].blank? && !mother_attributes[:phone_number].blank?
     father_attributes_available = !father_attributes[:first_name].blank? || !father_attributes[:last_name].blank? || !father_attributes[:phone_number].blank?
     father_attributes_valid = !father_attributes[:first_name].blank? && !father_attributes[:last_name].blank? && !father_attributes[:phone_number].blank?
+
     creation_impossible = (mother_attributes_available && !mother_attributes_valid) || (father_attributes_available && !father_attributes_valid) || (!mother_attributes_available && !father_attributes_available)
     if creation_impossible
-      flash.now[:error] = "Inscription refusée"
+
       @child = Child.new(attributes.merge(
         parent1_attributes: parent1_attributes.merge(mother_attributes),
         parent2_attributes: father_attributes
