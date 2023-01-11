@@ -612,9 +612,5 @@ ActiveAdmin.register Child do
         Time.zone.now.to_date.to_s(:default)
       ].compact.join(" - ") + ".csv"
     end
-
-    def apply_filtering(chain)
-      super(chain).distinct
-    end
   end
 end
