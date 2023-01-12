@@ -60,8 +60,6 @@ class ChildrenSupportModule < ApplicationRecord
   end
 
   def valid_child_parent
-    unless parent.children.to_a.include? child
-      errors.add(:base, :invalid, message: "Cet enfant n'appartient pas à ce parent")
-    end
+    errors.add(:base, :invalid, message: "Cet enfant n'appartient pas à ce parent") unless parent.children.to_a.include? child
   end
 end
