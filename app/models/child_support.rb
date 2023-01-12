@@ -168,6 +168,12 @@ class ChildSupport < ApplicationRecord
         "12:30"
       ).call
     end
+
+    (1..5).each do |call_idx|
+      if send("saved_change_to_call#{call_idx}_status") && ["KO", "OK", "Numéro erroné"].include?(send("call#{call_idx}_status"))
+        update_columns("call#{call_idx}_status_details": "#{send("call#{call_idx}_status_details")} \n Dernière tentative d'appel le #{Date.today.strftime("%d/%m/%Y")} à #{Time.now.strftime("%Hh%M")} (#{send("call#{call_idx}_status")})")
+      end
+    end
   end
 
   # ---------------------------------------------------------------------------
