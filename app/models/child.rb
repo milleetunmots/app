@@ -272,6 +272,18 @@ class Child < ApplicationRecord
     months_gteq(24)
   end
 
+  def self.months_between_6_and_12
+    months_between(6, 12)
+  end
+
+  def self.months_between_12_and_18
+    months_between(12, 18)
+  end
+
+  def self.months_between_18_and_24
+    months_between(18, 24)
+  end
+
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------

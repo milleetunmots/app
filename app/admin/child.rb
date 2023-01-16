@@ -472,7 +472,8 @@ ActiveAdmin.register Child do
     dropdown_menu "Outils" do
       item "Nettoyer les précisions sur l'origine", [:new_clean_registration_source_details, :admin, :children]
       item "Mettre à jour les enfants n'ayant pas l'âge d'aller à l'école", [:set_age_ok, :admin, :children]
-      item "Télécharger les listes d'enfants par livre au format Excel V1", [:download_book_files_v1, :admin, :children]
+      item "Télécharger les listes d'enfants par cohorte au format Excel V1", [:download_book_files_v1, :admin, :children]
+      item "Télécharger les listes d'enfants par module au format Excel V2", [:download_book_files_v2, :admin, :children]
     end
   end
   collection_action :new_clean_registration_source_details do
@@ -500,8 +501,25 @@ ActiveAdmin.register Child do
   collection_action :download_book_files_v1 do
     service = Child::ExportBooksV1Service.new.call
 
-    send_file service.zip_file.path, type: "application/zip", x_sendfile: true,
-      disposition: "attachment", filename: "#{Date.today.strftime('%d-%m-%Y')}.zip"
+    if service.errors.empty?
+      send_file service.zip_file.path, type: "application/zip", x_sendfile: true,
+        disposition: "attachment", filename: "#{Date.today.strftime('%d-%m-%Y')}.zip"
+    else
+      flash[:alert] = service.errors
+      redirect_back(fallback_location: root_path)
+    end
+  end
+
+  collection_action :download_book_files_v2 do
+    service = Child::ExportBooksV2Service.new.call
+
+    if service.errors.empty?
+      send_file service.zip_file.path, type: "application/zip", x_sendfile: true,
+        disposition: "attachment", filename: "#{Date.today.strftime('%d-%m-%Y')}.zip"
+    else
+      flash[:alert] = service.errors
+      redirect_back(fallback_location: root_path)
+    end
   end
 
   collection_action :perform_clean_registration_source_details, method: :post do
