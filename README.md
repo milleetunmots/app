@@ -12,3 +12,12 @@
 * yarn installed
 ### Configuration
 * bundle install
+
+### Run a local version
+
+#### With docker
+
+#### Without docker
+
+### Run tests
+
