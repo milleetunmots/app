@@ -10,129 +10,28 @@ class ChildrenController < ApplicationController
   def new
     puts "FORM ORIGIN: #{current_registration_origin}"
     @child = Child.new
-    @child.build_parent1
-    @child.build_parent2
-    @child.build_child_support
-    until @child.siblings.size >= SIBLINGS_COUNT do
-      @child.siblings.build
-    end
-    @child.siblings.each do |sibling|
-      sibling.build_child_support
-    end
+    build_child_for_form
   end
 
   def create
-    attributes = child_creation_params.merge(
-      src_url: session[:src_url]
-    )
-    # Tags
+    service = Child::CreateService.new(
+      child_creation_params.merge(src_url: session[:src_url]),
+      siblings_params,
+      parent1_params,
+      mother_params,
+      father_params,
+      current_registration_origin,
+      @child_min_birthdate
+    ).call
 
-    attributes[:tag_list] =
-      case current_registration_origin
-      when 3 then 'form-pro'
-      when 2 then 'form-2'
-      else 'site'
-      end
+    @child = service.child
 
-    # Siblings
-
-    siblings_attributes = siblings_params
-
-    # Parents
-
-    parent1_attributes = parent1_params
-    mother_attributes = mother_params.merge(
-      gender: 'f',
-      terms_accepted_at: Time.now
-    )
-    father_attributes = father_params.merge(
-      gender: 'm',
-      terms_accepted_at: Time.now
-    )
-
-    mother_attributes_available = !mother_attributes[:first_name].blank? || !mother_attributes[:last_name].blank? || !mother_attributes[:phone_number].blank?
-    mother_attributes_valid = !mother_attributes[:first_name].blank? && !mother_attributes[:last_name].blank? && !mother_attributes[:phone_number].blank?
-    father_attributes_available = !father_attributes[:first_name].blank? || !father_attributes[:last_name].blank? || !father_attributes[:phone_number].blank?
-    father_attributes_valid = !father_attributes[:first_name].blank? && !father_attributes[:last_name].blank? && !father_attributes[:phone_number].blank?
-    creation_impossible = (mother_attributes_available && !mother_attributes_valid) || (father_attributes_available && !father_attributes_valid) || (!mother_attributes_available && !father_attributes_available)
-    if creation_impossible
-      flash.now[:error] = "Inscription refusée"
-      @child = Child.new(attributes.merge(
-        parent1_attributes: parent1_attributes.merge(mother_attributes),
-        parent2_attributes: father_attributes
-      ))
-      @child.build_child_support if @child.child_support.nil?
-      @child.siblings.build(siblings_attributes)
-      until @child.siblings.size >= SIBLINGS_COUNT do
-        @child.siblings.build
-      end
-      @child.siblings.each do |sibling|
-        sibling.build_child_support if sibling.child_support.nil?
-      end
-      @child.errors.add(:base, :invalid_parents, message: 'Infos des parents non valides')
-      # @child.build_parent2 if @child.parent2.nil?
-      render action: :new and return
-    end
-
-    if mother_attributes_available
-      # mother data is available: use it as parent 1 (we know for sure that it is valid)
-      attributes[:parent1_attributes] = parent1_attributes.merge(mother_attributes)
-      attributes[:should_contact_parent1] = true
-
-      if father_attributes_available
-        # father data is also available: use it as parent 2 (we know for sure that it is valid)
-        attributes[:parent2_attributes] = parent1_attributes.merge(father_attributes)
-        attributes[:should_contact_parent2] = true
-      end
-    else
-      # mother data is not available: use father as parent 1 (we know for sure that it is present and valid)
-      attributes[:parent1_attributes] = parent1_attributes.merge(father_attributes)
-      attributes[:should_contact_parent1] = true
-    end
-
-    # Base
-    @child = Child.new(attributes)
-    if @child.birthdate < @child_min_birthdate
-      @child.errors.add(:birthdate, :invalid, message: "minimale: #{l(@child_min_birthdate)}")
-    end
-    if current_registration_origin == 3 && @child.registration_source == "pmi" && @child.pmi_detail.blank?
-      @child.errors.add(:pmi_detail, :invalid, message: "Précisez votre PMI svp!")
-    end
-    if current_registration_origin == 2 && @child.registration_source == "caf" && @child.registration_source_details.blank?
-      @child.errors.add(:caf_detail, :invalid, message: "Précisez votre CAF svp!")
-    end
-    if @child.errors.none? && @child.save
-      sms_url_form = "#{ENV['TYPEFORM_URL']}#child_support_id=#{@child.child_support.id}"
-      message = "Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{sms_url_form}"
-
-      SpotHit::SendSmsService.new([@child.parent1_id], Time.now.to_i, message).call if current_registration_origin == 2
-      SpotHit::SendSmsService.new([@child.parent1_id], DateTime.now.change({hour: 19}).to_i, message).call if current_registration_origin == 3
-
-      siblings_attributes.each do |sibling_attributes|
-        Child.create!(sibling_attributes.merge(
-          registration_source: @child.registration_source,
-          registration_source_details: @child.registration_source_details,
-          parent1: @child.parent1,
-          parent2: @child.parent2,
-          should_contact_parent1: @child.should_contact_parent1,
-          should_contact_parent2: @child.should_contact_parent2,
-          pmi_detail: @child.pmi_detail,
-          child_support: @child.child_support
-        ))
-      end
-      redirect_to created_child_path(sms_url_form: sms_url_form)
-    else
-      flash.now[:error] = "Inscription refusée"
-      @child.build_parent2 if @child.parent2.nil?
-      @child.build_child_support if @child.child_support.nil?
-      @child.siblings.build(siblings_attributes)
-      until @child.siblings.size >= SIBLINGS_COUNT do
-        @child.siblings.build
-      end
-      @child.siblings.each do |sibling|
-        sibling.build_child_support if sibling.child_support.nil?
-      end
+    if @child.errors.any?
+      flash.now[:error] = "L'inscription de l'enfant a échoué"
+      build_child_for_form
       render action: :new
+    else
+      redirect_to created_child_path(sms_url_form: service.sms_url_form)
     end
   end
 
@@ -260,5 +159,17 @@ class ChildrenController < ApplicationController
 
   def set_src_url
     session[:src_url] ||= request.url
+  end
+
+  def build_child_for_form
+    @child.build_parent1 if @child.parent1.nil?
+    @child.build_parent2 if @child.parent2.nil?
+    @child.build_child_support if @child.child_support.nil?
+    until @child.siblings.size >= SIBLINGS_COUNT do
+      @child.siblings.build
+    end
+    @child.siblings.each do |sibling|
+      sibling.build_child_support if sibling.child_support.nil?
+    end
   end
 end
