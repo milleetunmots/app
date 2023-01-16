@@ -9,15 +9,17 @@
 ## How to get set up locally ?
 ### Prerequisite
 * bundler gem installed
-* yarn installed
 ### Configuration
 * bundle install
-
+* cp config/database.yml.example config/database.yml
+* change values to match your local postgreSQL configuration
+* cp config/application.yml.example config/application.yml
+* change values to enable third-party tools
+* rails db:reset
 ### Run a local version
-
 #### With docker
-
 #### Without docker
-
+```rails s```
 ### Run tests
+### Run sidekiq
 
