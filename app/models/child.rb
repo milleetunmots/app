@@ -105,7 +105,9 @@ class Child < ApplicationRecord
 
   validates :gender, inclusion: {in: GENDERS, allow_blank: true}
   validates :first_name, presence: true
+  validates :first_name, format: {with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE}
   validates :last_name, presence: true
+  validates :last_name, format: {with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE}
   validates :birthdate, presence: true
   validates :birthdate, date: {
     after: proc { min_birthdate },
