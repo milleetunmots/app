@@ -233,7 +233,7 @@ class Child < ApplicationRecord
     # < x months
     # means being at most 1 day less than x months old
     # which means a birthdate strictly greater than exactly x months ago
-    where("birthdate >= ?", Time.zone.today - x.to_i.months)
+    where("birthdate > ?", Time.zone.today - x.to_i.months)
   end
 
   def self.months_equals(x)
