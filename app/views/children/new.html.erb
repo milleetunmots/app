@@ -34,11 +34,13 @@
         </div>
       </div>
 
-      <div class="row justify-content-sm-center accepted-fields">
-        <div class="col-sm-8">
-          <%= f.error_notification message: f.object.errors.full_messages.join('<br/>') %>
+      <% if f.object.errors[:base].any? %>
+        <div class="row justify-content-sm-center accepted-fields">
+          <div class="col-sm-8">
+            <%= f.error_notification message: f.object.errors[:base].join('<br/>') %>
+          </div>
         </div>
-      </div>
+      <% end  %>
 
       <div class="row accepted-fields">
         <div class="col-sm-4">

@@ -127,6 +127,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def initialize(attributes = {})
+
     super
     self.security_code = SecureRandom.hex(1)
   end
