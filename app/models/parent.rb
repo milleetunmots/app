@@ -99,11 +99,13 @@ class Parent < ApplicationRecord
 
   validates :gender, presence: true, inclusion: {in: GENDERS}
   validates :first_name, presence: true
+  validates_format_of :first_name, :with => NAME_REGEX, message: "ne peut pas contenir une adresse email. Merci de renseigner votre nom de famille."
   validates :last_name, presence: true
+  validates_format_of :last_name, :with => NAME_REGEX
   validates :letterbox_name, presence: true
-  validates_format_of :letterbox_name, :with => NAME_REGEX
+  validates_format_of :letterbox_name, :with => ADDRESS_REGEX
   validates :address, presence: true
-  validates_format_of :address, :with => NAME_REGEX
+  validates_format_of :address, :with => ADDRESS_REGEX
   validates :city_name, presence: true
   validates :postal_code, presence: true
   validates :phone_number,
