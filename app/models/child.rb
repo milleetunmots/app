@@ -234,7 +234,7 @@ class Child < ApplicationRecord
     # < x months
     # means being at most 1 day less than x months old
     # which means a birthdate strictly greater than exactly x months ago
-    where("birthdate >= ?", Time.zone.today - x.to_i.months)
+    where("birthdate > ?", Time.zone.today - x.to_i.months)
   end
 
   def self.months_equals(x)
@@ -271,6 +271,18 @@ class Child < ApplicationRecord
 
   def self.months_more_than_24
     months_gteq(24)
+  end
+
+  def self.months_between_6_and_12
+    months_between(6, 12)
+  end
+
+  def self.months_between_12_and_18
+    months_between(12, 18)
+  end
+
+  def self.months_between_18_and_24
+    months_between(18, 24)
   end
 
   # ---------------------------------------------------------------------------
