@@ -1,4 +1,7 @@
 class ApplicationRecord < ActiveRecord::Base
+
+  NAME_REGEX = /\A[^0-9`!@#\$%\^&*+_=]+\z/
+
   self.abstract_class = true
 
   # ---------------------------------------------------------------------------

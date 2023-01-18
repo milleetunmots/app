@@ -101,7 +101,9 @@ class Parent < ApplicationRecord
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :letterbox_name, presence: true
+  validates_format_of :letterbox_name, :with => NAME_REGEX
   validates :address, presence: true
+  validates_format_of :address, :with => NAME_REGEX
   validates :city_name, presence: true
   validates :postal_code, presence: true
   validates :phone_number,
