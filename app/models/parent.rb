@@ -97,24 +97,29 @@ class Parent < ApplicationRecord
   before_validation :format_phone_number
 
   validates :gender, presence: true, inclusion: {in: GENDERS}
-  validates :first_name, presence: true, format: {with: REGEX_VALID_NAME}
-  validates :last_name, presence: true, format: {with: REGEX_VALID_NAME}
-  validates :letterbox_name, presence: true, format: {with: REGEX_VALID_ADDRESS}
-  validates :address, presence: true, format: {with: REGEX_VALID_ADDRESS}
+  validates :first_name, presence: true
+  validates :first_name, format: {with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE}
+  validates :last_name, presence: true
+  validates :last_name, format: {with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE}
+  validates :letterbox_name, presence: true
+  validates :letterbox_name, format: {with: REGEX_VALID_ADDRESS, allow_blank: true, message: INVALID_ADDRESS_MESSAGE}
+  validates :address, presence: true
+  validates :address, format: {with: REGEX_VALID_ADDRESS, allow_blank: true, message: INVALID_ADDRESS_MESSAGE}
   validates :city_name, presence: true
   validates :postal_code, presence: true
   validates :phone_number,
     phone: {
       possible: true,
       types: :mobile,
-      countries: :fr
-    },
-    presence: true
+      countries: :fr,
+      allow_blank: true,
+      message: "doit être composé de 10 chiffres"
+    }
+  validates :phone_number, presence: true
   validates :email,
     format: {with: REGEX_VALID_EMAIL, allow_blank: true, message: "Les informations doivent être renseignées au format adresse email (xxxx@xx.com)."},
     uniqueness: {case_sensitive: false, allow_blank: true}
   validates :terms_accepted_at, presence: true
-  validate :no_e_mail_in_name_fields
 
   def initialize(attributes = {})
     super
@@ -267,12 +272,5 @@ class Parent < ApplicationRecord
       self.phone_number = phone.e164
       self.phone_number_national = phone.national(false)
     end
-  end
-
-  def no_e_mail_in_name_fields
-    errors.add(:last_name, :invalid, message: "ne peut pas contenir une adresse email.") if last_name&.match?(REGEX_VALID_EMAIL)
-    errors.add(:first_name, :invalid, message: "ne peut pas contenir une adresse email.") if first_name&.match?(REGEX_VALID_EMAIL)
-    errors.add(:letterbox_name, :invalid, message: "ne peut pas contenir une adresse email.") if letterbox_name&.match?(REGEX_VALID_EMAIL)
-    errors.add(:address, :invalid, message: "ne peut pas contenir une adresse email.") if address&.match?(REGEX_VALID_EMAIL)
   end
 end
