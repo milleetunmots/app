@@ -58,7 +58,6 @@ class Parent < ApplicationRecord
   GENDER_FEMALE = "f".freeze
   GENDER_MALE = "m".freeze
   GENDERS = [GENDER_FEMALE, GENDER_MALE].freeze
-  REGEX_VALID_EMAIL = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
   ORELANS_POSTAL_CODE = %w[45000 45100 45140 45160 45240 45380 45400 45430 45470 45650 45770 45800]
   PLAISIR_POSTAL_CODE = %w[78570 78540 78650 78700 78710 78711 78760 78800 78820 78860 78910 78955 78610 78980 78520 78490 78420 78410 78390 78380 78330 78300 78260 78220 78210 78200 78180 78150 78140 78130 78370 78340 78310 78280 78114 78320 78450 78960 78100 78640 78850]
   MONTARGIS_POSTAL_CODE = %w[45110 45120 45200 45210 45220 45230 45260 45270 45290 45320 45490 45500 45520 45680 45700 49800 77460 77570]
@@ -98,14 +97,10 @@ class Parent < ApplicationRecord
   before_validation :format_phone_number
 
   validates :gender, presence: true, inclusion: {in: GENDERS}
-  validates :first_name, presence: true
-  validates_format_of :first_name, :with => NAME_REGEX, message: "ne peut pas contenir une adresse email. Merci de renseigner votre nom de famille."
-  validates :last_name, presence: true
-  validates_format_of :last_name, :with => NAME_REGEX
-  validates :letterbox_name, presence: true
-  validates_format_of :letterbox_name, :with => ADDRESS_REGEX
-  validates :address, presence: true
-  validates_format_of :address, :with => ADDRESS_REGEX
+  validates :first_name, presence: true, format: {with: REGEX_VALID_NAME}
+  validates :last_name, presence: true, format: {with: REGEX_VALID_NAME}
+  validates :letterbox_name, presence: true, format: {with: REGEX_VALID_ADDRESS}
+  validates :address, presence: true, format: {with: REGEX_VALID_ADDRESS}
   validates :city_name, presence: true
   validates :postal_code, presence: true
   validates :phone_number,
@@ -116,9 +111,10 @@ class Parent < ApplicationRecord
     },
     presence: true
   validates :email,
-    format: {with: REGEX_VALID_EMAIL, allow_blank: true},
+    format: {with: REGEX_VALID_EMAIL, allow_blank: true, message: "Les informations doivent être renseignées au format adresse email (xxxx@xx.com)."},
     uniqueness: {case_sensitive: false, allow_blank: true}
   validates :terms_accepted_at, presence: true
+  validate :no_e_mail_in_name_fields
 
   def initialize(attributes = {})
     super
@@ -271,5 +267,12 @@ class Parent < ApplicationRecord
       self.phone_number = phone.e164
       self.phone_number_national = phone.national(false)
     end
+  end
+
+  def no_e_mail_in_name_fields
+    errors.add(:last_name, :invalid, message: "ne peut pas contenir une adresse email.") if last_name&.match?(REGEX_VALID_EMAIL)
+    errors.add(:first_name, :invalid, message: "ne peut pas contenir une adresse email.") if first_name&.match?(REGEX_VALID_EMAIL)
+    errors.add(:letterbox_name, :invalid, message: "ne peut pas contenir une adresse email.") if letterbox_name&.match?(REGEX_VALID_EMAIL)
+    errors.add(:address, :invalid, message: "ne peut pas contenir une adresse email.") if address&.match?(REGEX_VALID_EMAIL)
   end
 end

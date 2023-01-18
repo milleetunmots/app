@@ -1,7 +1,8 @@
 class ApplicationRecord < ActiveRecord::Base
 
-  NAME_REGEX = /\A[^0-9`!@#\$%\^&*+_=]+\z/
-  ADDRESS_REGEX = /\A[^`!@#\$%\^&*+_=]+\z/
+  REGEX_VALID_NAME = /\A[^0-9`!@#\$%\^&*+_=]+\z/
+  REGEX_VALID_ADDRESS = /\A[^`!@#\$%\^&*+_=]+\z/
+  REGEX_VALID_EMAIL = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
 
   self.abstract_class = true
 

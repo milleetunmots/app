@@ -104,10 +104,8 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   validates :gender, inclusion: {in: GENDERS, allow_blank: true}
-  validates :first_name, presence: true
-  validates_format_of :first_name, :with => NAME_REGEX
-  validates :last_name, presence: true
-  validates_format_of :last_name, :with => NAME_REGEX
+  validates :first_name, presence: true, format: {with: REGEX_VALID_NAME}
+  validates :last_name, presence: true, format: {with: REGEX_VALID_NAME}
   validates :birthdate, presence: true
   validates :birthdate, date: {
     after: proc { min_birthdate },
@@ -121,6 +119,7 @@ class Child < ApplicationRecord
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
   validate :valid_group_status
+  validate :no_e_mail_in_name_fields
 
   # ---------------------------------------------------------------------------
   # callbacks
@@ -555,5 +554,10 @@ class Child < ApplicationRecord
     else
       diff
     end
+  end
+
+  def no_e_mail_in_name_fields
+    errors.add(:last_name, :invalid, message: "ne peut pas contenir une adresse email.") if last_name&.match?(REGEX_VALID_EMAIL)
+    errors.add(:first_name, :invalid, message: "ne peut pas contenir une adresse email.") if first_name&.match?(REGEX_VALID_EMAIL)
   end
 end
