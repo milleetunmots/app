@@ -1,5 +1,5 @@
 class ChildrenSupportModule
-  class CheckToSendReminder < ApplicationJob
+  class CheckToSendReminderJob < ApplicationJob
     def perform(children_support_module_id)
       children_support_module = ChildrenSupportModule.find(children_support_module_id)
 

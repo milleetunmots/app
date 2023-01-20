@@ -413,6 +413,8 @@ fr:
         ended_at: Date de fin
         name: Nom
         started_at: Date de début
+        support_modules_count: Nombre de modules prévu
+        is_programmed: A déjà été programmé
       media_folder:
         << : *SHARED
         name: Nom
