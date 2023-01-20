@@ -152,6 +152,8 @@ fr:
         paused: En pause
         stopped: Arrêtée
       children_support_module:
+        << : *SHARED
+        name_display: Nom
         name: Nom
         parent_name: Parent
         child_name: Enfant

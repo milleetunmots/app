@@ -5,6 +5,8 @@ ActiveAdmin.register ChildrenSupportModule do
   includes :child, :parent, :support_module
 
   index do
+    selectable_column
+    id_column
     column :name_display
     column :is_completed
     column :parent_name
@@ -65,6 +67,28 @@ ActiveAdmin.register ChildrenSupportModule do
   filter :parent_first_name, as: :string
   filter :created_at
   filter :choice_date, as: :date_range
+
+  batch_action :select_module, form: -> {
+    {
+      # I18n.t("activerecord.models.children_support_module") => Group.not_ended.order(:name).pluck(:name, :id)
+      I18n.t("activerecord.models.children_support_module") => SupportModule.pluck(:name, :id)
+    }
+  } do |ids, inputs|
+    byebug
+    #   group = Group.find(inputs[I18n.t("activerecord.models.group")])
+    #   batch_action_collection.where(id: ids).update_all(
+    #     group_id: group.id,
+    #     group_status: "active",
+    #     group_start: group.started_at
+    #   )
+    #
+    #   Child.where(id: ids).parents.each do |parent|
+    #     parent.update family_followed: true
+    #   end
+    #
+    #   redirect_to request.referer, notice: "Enfants ajoutés à la cohorte"
+    # end
+  end
 
   action_item :program, only: :index do
     link_to "Programmer les modules", [:program, :admin, :children_support_modules], method: :post
