@@ -27,10 +27,10 @@ class ChildSupport::SelectModuleService
     return if available_support_module_list.reject(&:blank?).empty?
     return if ChildrenSupportModule.exists?(child_id: @child.id, parent_id: parent.id, is_programmed: false)
 
-    @child_support_module = ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id, available_support_module_list: available_support_module_list)
+    @children_support_module = ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id, available_support_module_list: available_support_module_list)
 
     selection_link = Rails.application.routes.url_helpers.children_support_module_link_url(
-      @child_support_module.id,
+      @children_support_module.id,
       :sc => parent.security_code
     )
 

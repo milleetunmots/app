@@ -53,7 +53,5 @@ services:
     volumes:
       - .:/rails
       - ./docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
-    ports:
-      - 3000:3000
     environment:
       <<: *RAILS_ENV
