@@ -22,7 +22,7 @@ Rails.application.routes.draw do
     patch "/", to: "children#update", as: :update_child
   end
 
-  scope "w/:parent_id/:workshop_id" do
+  scope "w/:parent_id/:parent_security_code/:workshop_id" do
     get "/", to: "workshop_participation#edit", as: :edit_workshop_participation
     patch "/", to: "workshop_participation#update", as: :update_workshop_participation
   end
@@ -46,6 +46,8 @@ Rails.application.routes.draw do
   resources :children_support_modules, only: [:edit, :update] do
     get "updated", on: :collection
   end
+
+  get "s/:id", to: 'children_support_modules#edit', as: :children_support_module_link
 
   authenticate :admin_user do
     mount Sidekiq::Web => "/sidekiq"

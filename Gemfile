@@ -127,10 +127,13 @@ gem "image_processing"
 gem "figaro"
 
 # Excel file
-gem 'fast_excel'
+gem "fast_excel"
 
 # Asynchrone jobs
-gem 'sidekiq'
+gem "sidekiq"
+
+# Zip file
+gem "rubyzip"
 
 group :production do
   # for assets compilation

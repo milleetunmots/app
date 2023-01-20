@@ -89,6 +89,7 @@ ActiveAdmin.register Media::Image do
       #         collection: medium_theme_suggestions
       tags_input(f)
       f.input :file,
+              label: "Image module",
               as: :file,
               hint: f.object.id && "Laissez ce champ vide pour ne pas modifier l'image"
     end

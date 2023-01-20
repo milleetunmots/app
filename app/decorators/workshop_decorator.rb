@@ -26,13 +26,9 @@ class WorkshopDecorator < BaseDecorator
   def parents_who_accepted
     arbre do
       ul do
-        parents.decorate.each do |participant|
-          response = Event.workshop_participations.find_by(
-            workshop_id: model.id,
-            related_id: participant.id)&.parent_response
-          puts model.id, participant.id if response.nil?
+        workshop_participations.only_accepted.each do |event|
           li do
-            participant.admin_link if response == "Oui"
+            event.related.decorate.admin_link
           end
         end
       end
@@ -40,25 +36,15 @@ class WorkshopDecorator < BaseDecorator
   end
 
   def parents_who_accepted_csv
-    result = []
-    parents.each do |parent|
-      response = Event.workshop_participations.find_by(
-        workshop_id: model.id,
-        related_id: parent.id)&.parent_response
-      puts model.id, parent.id if response.nil?
-      result << parent.decorate.name if response == "Oui"
-    end
-    result.join("\n")
+    workshop_participations.only_accepted.map { |event| event.related.decorate.name }.join("\n")
   end
 
   def parents_who_refused
     arbre do
       ul do
-        parents.decorate.each do |participant|
-          response = Event.workshop_participations.find_by(workshop_id: model.id, related_id: participant.id)&.parent_response
-          puts model.id, participant.id if response.nil?
+        workshop_participations.only_refused.each do |event|
           li do
-            participant.admin_link if response == "Non"
+            event.related.decorate.admin_link
           end
         end
       end
@@ -66,25 +52,15 @@ class WorkshopDecorator < BaseDecorator
   end
 
   def parents_who_refused_csv
-    result = []
-    parents.each do |parent|
-      response = Event.workshop_participations.find_by(
-        workshop_id: model.id,
-        related_id: parent.id)&.parent_response
-      puts model.id, parent.id if response.nil?
-      result << parent.decorate.name if response == "Non"
-    end
-    result.join("\n")
+    workshop_participations.only_refused.map { |event| event.related.decorate.name }.join("\n")
   end
 
   def parents_without_response
     arbre do
       ul do
-        parents.decorate.each do |participant|
-          response = Event.workshop_participations.find_by(workshop_id: model.id, related_id: participant.id)&.parent_response
-          puts model.id, participant.id if response.nil?
+        workshop_participations.where(parent_response: nil).each do |event|
           li do
-            participant.admin_link unless response
+            event.related.decorate.admin_link
           end
         end
       end
@@ -92,18 +68,28 @@ class WorkshopDecorator < BaseDecorator
   end
 
   def parents_without_response_csv
-    result = []
-    parents.each do |parent|
-      response = Event.workshop_participations.find_by(
-        workshop_id: model.id,
-        related_id: parent.id)&.parent_response
-      puts model.id, parent.id if response.nil?
-      result << parent.decorate.name unless response
-    end
-    result.join("\n")
+    workshop_participations.where(parent_response: nil).map { |event| event.related.decorate.name }.join("\n")
   end
 
-  def topic
+  def parent_invited_number
+    workshop_participations.count
+  end
+
+  def parent_who_accepted_number
+    workshop_participations.only_accepted.count
+  end
+
+  def parent_who_refused_number
+    workshop_participations.only_refused.count
+  end
+
+  def parent_who_ignored_number
+    workshop_participations.where(parent_response: nil).count
+  end
+
+  def display_topic
+    return if model.topic.blank?
+
     Workshop.human_attribute_name("topic.#{model.topic}")
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_23_121242) do
+ActiveRecord::Schema.define(version: 2022_12_28_175332) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -220,6 +220,7 @@ ActiveRecord::Schema.define(version: 2022_11_23_121242) do
     t.string "available_support_module_list", array: true
     t.date "choice_date"
     t.boolean "is_completed", default: false
+    t.boolean "is_programmed", default: false, null: false
     t.index ["child_id"], name: "index_children_support_modules_on_child_id"
     t.index ["parent_id"], name: "index_children_support_modules_on_parent_id"
     t.index ["support_module_id"], name: "index_children_support_modules_on_support_module_id"
@@ -241,6 +242,8 @@ ActiveRecord::Schema.define(version: 2022_11_23_121242) do
     t.bigint "workshop_id"
     t.string "parent_response"
     t.bigint "quit_group_child_id"
+    t.string "parent_presence"
+    t.date "acceptation_date"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["quit_group_child_id"], name: "index_events_on_quit_group_child_id"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
@@ -494,7 +497,7 @@ ActiveRecord::Schema.define(version: 2022_11_23_121242) do
   end
 
   create_table "workshops", force: :cascade do |t|
-    t.string "topic", null: false
+    t.string "topic"
     t.string "co_animator"
     t.date "workshop_date", null: false
     t.string "address", null: false
@@ -507,6 +510,7 @@ ActiveRecord::Schema.define(version: 2022_11_23_121242) do
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "animator_id", null: false
     t.string "workshop_land"
+    t.string "location"
     t.index ["animator_id"], name: "index_workshops_on_animator_id"
   end
 

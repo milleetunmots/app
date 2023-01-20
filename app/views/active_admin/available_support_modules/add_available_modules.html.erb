@@ -1,4 +1,4 @@
-<%= semantic_form_for(@klass.new, url: @form_action) do |f| %>
+<%= semantic_form_for(ChildSupport.new, url: @form_action) do |f| %>
 
   <%= f.inputs do %>
 
@@ -13,6 +13,8 @@
                         value: @back_url %>
 
     <%= available_support_module_input f,
+                                       :parent1_available_support_module_list,
+                                       label: 'Modules disponibles',
                    input_html: {
                       name: 'available_support_module_list[]'
                    }

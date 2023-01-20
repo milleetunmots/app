@@ -64,6 +64,11 @@ class Child < ApplicationRecord
 
   include PgSearch
   multisearchable against: %i[first_name last_name]
+  pg_search_scope :kinda_spelled_like,
+                  against: %i[first_name last_name],
+                  using: { trigram: { threshold: ENV["CHILD_DUPLICATE_TREE_HOLD"].to_f } },
+                  ignoring: :accents
+
 
   # ---------------------------------------------------------------------------
   # versions history
@@ -88,6 +93,7 @@ class Child < ApplicationRecord
 
   has_many :redirection_urls, dependent: :destroy # TODO: use nullify instead?
   has_many :siblings, class_name: :Child, primary_key: :parent1_id, foreign_key: :parent1_id
+  has_many :children_support_modules, dependent: :destroy
 
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
@@ -144,8 +150,9 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   scope :with_support, -> { joins(:child_support) }
-  scope :without_support, -> { left_outer_joins(:child_support).where(child_supports: {id: nil}) }
+  scope :without_support, -> { where(child_support_id: nil) }
   scope :with_group, -> { where.not(group_id: nil) }
+  scope :with_stopped_group, -> { where.not(group_id: nil).where(group_status: 'stopped')}
   scope :without_group, -> { where(group_id: nil) }
   scope :available_for_the_workshops, -> { where(available_for_workshops:  true)}
   scope :active_group, -> { where(group_status: 'active')}

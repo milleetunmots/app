@@ -2,8 +2,10 @@ class ChildSupport::SelectModuleService
 
   attr_reader :errors
 
-  def initialize(child)
+  def initialize(child, planned_date, planned_hour)
     @child = child
+    @planned_date = planned_date
+    @planned_hour = planned_hour
     @errors = []
   end
 
@@ -22,18 +24,22 @@ class ChildSupport::SelectModuleService
   private
 
   def send_select_module_message(parent, available_support_module_list)
-    @children_support_module = ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id, available_support_module_list: available_support_module_list)
+    return if available_support_module_list.reject(&:blank?).empty?
+    return if ChildrenSupportModule.exists?(child_id: @child.id, parent_id: parent.id, is_programmed: false)
 
-    selection_link = Rails.application.routes.url_helpers.edit_children_support_module_url(
-      @children_support_module.id,
-      :security_code => parent.security_code
+    @child_support_module = ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id, available_support_module_list: available_support_module_list)
+
+    selection_link = Rails.application.routes.url_helpers.children_support_module_link_url(
+      @child_support_module.id,
+      :sc => parent.security_code
     )
 
     message = "1001mots : C'est le moment de choisir votre thème pour #{@child.first_name}. Cliquez ici pour recevoir le prochain livre et les messages #{selection_link}"
 
-    sms_service = SpotHit::SendSmsService.new(
-      parent.id,
-      DateTime.now,
+    sms_service = ProgramMessageService.new(
+      @planned_date,
+      @planned_hour,
+      ["parent.#{parent.id}"],
       message
     ).call
 

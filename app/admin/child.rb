@@ -157,13 +157,22 @@ ActiveAdmin.register Child do
   end
 
   batch_action :quit_group do |ids|
+    if batch_action_collection.where(id: ids).with_stopped_group.any?
+      flash[:error] = "Certains enfants sont déjà dans une cohorte arrêtée"
+      redirect_to request.referer
+    end
     batch_action_collection.where(id: ids).update_all(group_status: "paused")
     redirect_to request.referer, notice: "Modification effectuée"
   end
 
   batch_action :reactive_group do |ids|
-    batch_action_collection.where(id: ids).update_all(group_status: "active")
-    redirect_to request.referer, notice: "Modification effectuée"
+    if batch_action_collection.where(id: ids).with_stopped_group.any?
+      flash[:error] = "Certains enfants sont déjà dans une cohorte arrêtée"
+      redirect_to request.referer
+    else
+      batch_action_collection.where(id: ids).update_all(group_status: "active")
+      redirect_to request.referer, notice: "Modification effectuée"
+    end
   end
 
   batch_action :create_redirection_url, form: -> {
@@ -239,7 +248,6 @@ ActiveAdmin.register Child do
   # end
 
   batch_action :generate_quit_sms do |ids|
-
     ids.reject! do |id|
       child = Child.find(id)
       child.child_support.will_stay_in_group  || child.group_status != 'active'
@@ -249,6 +257,9 @@ ActiveAdmin.register Child do
 
     if @children.without_parent_to_contact.any?
       flash[:error] = "Certains enfants n'ont aucun parent à contacter"
+      redirect_to request.referer
+    elsif @children.with_stopped_group.any?
+      flash[:error] = "Certains enfants sont déjà dans une cohorte arrêtée"
       redirect_to request.referer
     else
       next_saturday = Date.today.beginning_of_week.next_day(5)
@@ -278,9 +289,14 @@ ActiveAdmin.register Child do
   end
 
   batch_action :excel_export do |ids|
-    service = Child::ExportBookExcelService.new(children: batch_action_collection.where(id: ids)).call
+    if @children.with_stopped_group.any?
+      flash[:error] = "Certains enfants sont déjà dans une cohorte arrêtée"
+      redirect_to request.referer
+    else
+      service = Child::ExportBookExcelService.new(children: batch_action_collection.where(id: ids)).call
 
-    send_data(service.workbook.read_string, filename: "#{Date.today.strftime('%d-%m-%Y')}.xlsx")
+      send_data(service.workbook.read_string, filename: "#{Date.today.strftime('%d-%m-%Y')}.xlsx")
+    end
   end
 
   # ---------------------------------------------------------------------------
@@ -456,6 +472,7 @@ ActiveAdmin.register Child do
     dropdown_menu "Outils" do
       item "Nettoyer les précisions sur l'origine", [:new_clean_registration_source_details, :admin, :children]
       item "Mettre à jour les enfants n'ayant pas l'âge d'aller à l'école", [:set_age_ok, :admin, :children]
+      item "Télécharger les listes d'enfants par livre au format Excel V1", [:download_book_files_v1, :admin, :children]
     end
   end
   collection_action :new_clean_registration_source_details do
@@ -478,6 +495,13 @@ ActiveAdmin.register Child do
       child.update_attribute('available_for_workshops', children_available.include?(child) ? true : false)
     end
     redirect_to admin_children_path, notice: "Enfants mis à jour"
+  end
+
+  collection_action :download_book_files_v1 do
+    service = Child::ExportBooksV1Service.new.call
+
+    send_file service.zip_file.path, type: "application/zip", x_sendfile: true,
+      disposition: "attachment", filename: "#{Date.today.strftime('%d-%m-%Y')}.zip"
   end
 
   collection_action :perform_clean_registration_source_details, method: :post do

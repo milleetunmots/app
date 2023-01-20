@@ -139,7 +139,7 @@ ActiveAdmin.register Parent do
         end
       end
       tab 'Historique' do
-        render 'admin/events/history', events: resource.events.where.not(type: "Events::WorkshopParticipation").order(occurred_at: :desc).decorate
+        render 'admin/events/history', events: resource.events.order(occurred_at: :desc).decorate
       end
     end
   end
@@ -238,4 +238,9 @@ ActiveAdmin.register Parent do
     column :updated_at
   end
 
+  controller do
+    def apply_filtering(chain)
+      super(chain).distinct
+    end
+  end
 end

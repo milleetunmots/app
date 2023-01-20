@@ -8,9 +8,10 @@
 #  co_animator        :string
 #  discarded_at       :datetime
 #  invitation_message :text             not null
+#  location           :string
 #  name               :string
 #  postal_code        :string           not null
-#  topic              :string           not null
+#  topic              :string
 #  workshop_date      :date             not null
 #  workshop_land      :string
 #  created_at         :datetime         not null
@@ -28,15 +29,17 @@
 class Workshop < ApplicationRecord
   include Discard::Model
 
-  TOPICS = %w[meal sleep nursery_rhymes books games outside bath emotion]
+  TOPICS = %w[meal sleep nursery_rhymes books games outside bath emotion].freeze
 
   belongs_to :animator, class_name: "AdminUser"
+  has_many :events, dependent: :destroy
+  has_many :workshop_participations, class_name: "Events::WorkshopParticipation"
   has_and_belongs_to_many :parents
 
-  before_validation :set_name, on: :create
+  before_save :set_name
   after_create :set_workshop_participation
 
-  validates :topic, presence: true, inclusion: {in: TOPICS}
+  validates :topic, inclusion: { in: TOPICS, allow_blank: true }
   validates :animator, presence: true
   validates :workshop_date, presence: true
   validates :workshop_date, date: { after: proc { Date.today } }, on: :create
@@ -44,10 +47,13 @@ class Workshop < ApplicationRecord
   validates :postal_code, presence: true
   validates :city_name, presence: true
   validates :invitation_message, presence: true
+  validates :workshop_land, inclusion: { in: Child::LANDS, allow_blank: true }
 
   def set_name
-    self.name = "#{workshop_date.month}/#{workshop_date.year}"
-    self.name = workshop_land ? "Atelier du #{name} à #{workshop_land}" : "Atelier du #{name}"
+    self.name = "#{workshop_date.day}/#{workshop_date.month}/#{workshop_date.year}"
+    self.name = location.nil? ? "Atelier du #{name}" : "Atelier du #{name} à #{location}"
+    self.name = "#{name}, avec #{animator.name}"
+    self.name = "#{name}, sur le thème #{Workshop.human_attribute_name("topic.#{topic}")}" unless topic.blank?
   end
 
   def set_workshop_participation
@@ -90,16 +96,22 @@ class Workshop < ApplicationRecord
 
       response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
         parent_id: parent.id,
+        parent_security_code: parent.security_code,
         workshop_id: id
       )
 
-      message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquer sur ce lien: #{response_link}"
+      message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquez sur ce lien: #{response_link}"
 
-      SpotHit::SendSmsService.new(
+      service = SpotHit::SendSmsService.new(
         parent.id,
         DateTime.current.middle_of_day,
         message
       ).call
+
+      if service.errors.any?
+        logger.debug service.errors
+        logger.debug parent
+      end
     end
   end
 end
