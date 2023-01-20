@@ -30,10 +30,10 @@ class Group
     def program_sms_to_choose_module_to_parents
       return if @group.support_modules_count < 3
 
-      (2..@group.support_modules_count).each do |module_index|
+      (3..@group.support_modules_count).each do |module_index|
         start_module_date = @group.started_at + (module_index - 1) * 8.weeks - 3.weeks
 
-        ChildrenSupportModule::SelectModuleJob.set(wait_until: start_module_date).perform_later(@group.id)
+        ChildrenSupportModule::SelectModuleJob.set(wait_until: start_module_date.noon).perform_later(@group.id)
       end
     end
   end
