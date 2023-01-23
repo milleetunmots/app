@@ -2,16 +2,17 @@ class SupportModule::ProgramService
 
   attr_reader :errors
 
-  def initialize(support_module, recipients:)
+  def initialize(support_module, date, recipients:)
     @support_module = support_module
     @recipients = recipients
     @errors = []
     @hour = nil
     @date = nil
+    @start_date = date
   end
 
   def call
-    @errors << "La date de démarrage doit être un mardi" unless @support_module.start_at&.tuesday?
+    @errors << "La date de démarrage doit être un lundi" unless @start_date.monday?
     return self if @errors.any?
 
     @support_module.support_module_weeks.each_with_index do |support_module_week, week_index|
@@ -74,7 +75,7 @@ class SupportModule::ProgramService
   def next_date_and_hour(support_module_week, week_index)
     if @hour.nil? || @date.nil?
       @hour = "12:30"
-      @date = @support_module.start_at + week_index.weeks
+      @date = @start_date + week_index.weeks + 1.day
     else
       sms_count = 0
       sms_count += 1 if support_module_week.medium.body1

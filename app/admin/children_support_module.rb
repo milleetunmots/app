@@ -78,21 +78,4 @@ ActiveAdmin.register ChildrenSupportModule do
     )
     redirect_to request.referer, notice: "Modules choisis"
   end
-
-  action_item :program, only: :index do
-    link_to "Programmer les modules", [:program, :admin, :children_support_modules], method: :post
-  end
-
-  collection_action :program, method: :post do
-    service = ChildSupport::ProgramChosenModulesService.new.call
-
-    if service.errors.empty?
-      redirect_to admin_children_support_modules_path, notice: "modules programmés avec succès"
-    else
-      flash[:error] = service.errors
-
-      redirect_to admin_children_support_modules_path
-    end
-  end
-
 end
