@@ -31,7 +31,7 @@ class Group
       return if @group.support_modules_count < 3
 
       (3..@group.support_modules_count).each do |module_index|
-        start_module_date = @group.started_at + (module_index - 1) * 8.weeks - 3.weeks
+        start_module_date = @group.started_at + (module_index - 1) * 8.weeks - 4.weeks
 
         ChildrenSupportModule::SelectModuleJob.set(wait_until: start_module_date.noon).perform_later(@group.id)
       end
