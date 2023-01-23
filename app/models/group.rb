@@ -36,6 +36,7 @@ class Group < ApplicationRecord
   validates :name,
     presence: true,
     uniqueness: {case_sensitive: false}
+  validate :started_at_only_monday
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -62,6 +63,10 @@ class Group < ApplicationRecord
 
   def self.not_target_group
     where("unaccent(name) ILIKE unaccent(?)", "%popi%")
+  end
+
+  def started_at_only_monday
+    errors.add(:started_at, :invalid, message: "La date de début doit être un lundi") if started_at && !started_at.monday?
   end
 
   # ---------------------------------------------------------------------------
