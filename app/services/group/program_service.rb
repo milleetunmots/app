@@ -11,6 +11,7 @@ class Group
     def call
       check_group_is_ready
       program_sms_to_choose_module_to_parents if @errors.empty?
+      program_support_module_sms if @errors.empty?
       @group.update(is_programmed: true) if @errors.empty?
 
       self
@@ -34,6 +35,16 @@ class Group
         start_module_date = @group.started_at + (module_index - 1) * 8.weeks - 4.weeks
 
         ChildrenSupportModule::SelectModuleJob.set(wait_until: start_module_date.noon).perform_later(@group.id)
+      end
+    end
+
+    def program_support_module_sms
+      return if @group.support_modules_count < 2
+
+      (2..@group.support_modules_count).each do |module_index|
+        start_module_date = @group.started_at + (module_index - 1) * 8.weeks
+
+        ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: start_module_date.noon).perform_later(@group.id)
       end
     end
   end
