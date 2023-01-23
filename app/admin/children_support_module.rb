@@ -73,7 +73,7 @@ ActiveAdmin.register ChildrenSupportModule do
       I18n.t("activerecord.models.children_support_module") => SupportModule.pluck(:name, :id)
     }
   } do |ids, inputs|
-    batch_action_collection.where(id: ids).update_all(
+    batch_action_collection.where(id: ids, is_programmed: false).update_all(
       support_module_id: inputs[I18n.t("activerecord.models.children_support_module")].to_i
     )
     redirect_to request.referer, notice: "Modules choisis"
