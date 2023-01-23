@@ -66,7 +66,7 @@ class Group < ApplicationRecord
   end
 
   def started_at_only_monday
-    errors.add(:started_at, :invalid, message: "La date de début doit être un lundi") if started_at && !started_at.monday?
+    errors.add(:started_at, :invalid, message: "doit être un lundi") if started_at && !started_at.monday?
   end
 
   # ---------------------------------------------------------------------------
