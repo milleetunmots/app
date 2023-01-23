@@ -70,24 +70,13 @@ ActiveAdmin.register ChildrenSupportModule do
 
   batch_action :select_module, form: -> {
     {
-      # I18n.t("activerecord.models.children_support_module") => Group.not_ended.order(:name).pluck(:name, :id)
       I18n.t("activerecord.models.children_support_module") => SupportModule.pluck(:name, :id)
     }
   } do |ids, inputs|
-    byebug
-    #   group = Group.find(inputs[I18n.t("activerecord.models.group")])
-    #   batch_action_collection.where(id: ids).update_all(
-    #     group_id: group.id,
-    #     group_status: "active",
-    #     group_start: group.started_at
-    #   )
-    #
-    #   Child.where(id: ids).parents.each do |parent|
-    #     parent.update family_followed: true
-    #   end
-    #
-    #   redirect_to request.referer, notice: "Enfants ajoutés à la cohorte"
-    # end
+    batch_action_collection.where(id: ids).update_all(
+      support_module_id: inputs[I18n.t("activerecord.models.children_support_module")].to_i
+    )
+    redirect_to request.referer, notice: "Modules choisis"
   end
 
   action_item :program, only: :index do
