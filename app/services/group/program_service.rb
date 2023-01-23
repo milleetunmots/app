@@ -44,7 +44,7 @@ class Group
       (2..@group.support_modules_count).each do |module_index|
         start_module_date = @group.started_at + (module_index - 1) * 8.weeks
 
-        ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: start_module_date.noon).perform_later(@group.id)
+        ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: start_module_date.noon).perform_later(@group.id, start_module_date)
       end
     end
   end
