@@ -5,6 +5,8 @@ ActiveAdmin.register ChildrenSupportModule do
   includes :child, :parent, :support_module
 
   index do
+    selectable_column
+    id_column
     column :name_display
     column :is_completed
     column :parent_name
@@ -65,6 +67,17 @@ ActiveAdmin.register ChildrenSupportModule do
   filter :parent_first_name, as: :string
   filter :created_at
   filter :choice_date, as: :date_range
+
+  batch_action :select_module, form: -> {
+    {
+      I18n.t("activerecord.models.children_support_module") => SupportModule.pluck(:name, :id)
+    }
+  } do |ids, inputs|
+    batch_action_collection.where(id: ids, is_programmed: false).update_all(
+      support_module_id: inputs[I18n.t("activerecord.models.children_support_module")].to_i
+    )
+    redirect_to request.referer, notice: "Modules choisis"
+  end
 
   action_item :program, only: :index do
     link_to "Programmer les modules", [:program, :admin, :children_support_modules], method: :post
