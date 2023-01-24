@@ -45,9 +45,8 @@ class ParentDecorator < BaseDecorator
     phone = Phonelib.parse model.phone_number
     r = [phone.national]
     if with_icon
-      if model.is_lycamobile?
-        r << h.image_tag('lycamobile.png', class: 'phone-number-icon')
-      end
+      r << h.image_tag('whatsapp.png', class: 'phone-number-icon') if model.follow_us_on_whatsapp?
+      r << h.image_tag('facebook.png', class: 'phone-number-icon') if model.follow_us_on_facebook?
     end
     r.join.html_safe
   end
@@ -121,16 +120,16 @@ class ParentDecorator < BaseDecorator
     model.children.decorate.map(&:group_name).join("\n")
   end
 
-  def parent_present_on
-    model.first_child&.decorate&.child_present_on
-  end
-
-  def parent_follow_us_on
-    model.first_child.decorate&.child_follow_us_on
-  end
-
-  def land
-    model.first_child.land
+  def selected_support_module
+    arbre do
+      model.children_support_modules.includes(:support_module).decorate.each do |children_support_module|
+        div do
+          a "#{children_support_module.name} - #{children_support_module.created_at.strftime("%d/%m/%Y")}", href: admin_children_support_module_path(children_support_module),
+            class: 'available_support_module', target: '_blank'
+          text_node "&nbsp;".html_safe
+        end
+      end
+    end
   end
 
   private

@@ -5,24 +5,34 @@
 #  id                                  :bigint           not null, primary key
 #  address                             :string           not null
 #  city_name                           :string           not null
+#  degree                              :string
+#  degree_in_france                    :boolean
 #  discarded_at                        :datetime
 #  email                               :string
+#  family_followed                     :boolean          default(FALSE)
 #  first_name                          :string           not null
+#  follow_us_on_facebook               :boolean
+#  follow_us_on_whatsapp               :boolean
 #  gender                              :string           not null
+#  help_my_child_to_learn_is_important :string
 #  is_ambassador                       :boolean
-#  is_lycamobile                       :boolean
 #  job                                 :string
 #  last_name                           :string           not null
 #  letterbox_name                      :string
 #  phone_number                        :string           not null
 #  phone_number_national               :string
 #  postal_code                         :string           not null
+#  present_on_facebook                 :boolean
+#  present_on_whatsapp                 :boolean
 #  redirection_unique_visit_rate       :float
 #  redirection_url_unique_visits_count :integer
 #  redirection_url_visits_count        :integer
 #  redirection_urls_count              :integer
 #  redirection_visit_rate              :float
+#  security_code                       :string
 #  terms_accepted_at                   :datetime
+#  would_like_to_do_more               :string
+#  would_receive_advices               :string
 #  created_at                          :datetime         not null
 #  updated_at                          :datetime         not null
 #

@@ -22,7 +22,10 @@ ActiveAdmin.register Parent do
     column :last_name
     column :children
     column :phone_number
-    column :tags
+    column :family_followed
+    column :tags do |model|
+      model.tags(context: 'tags')
+    end
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -39,7 +42,11 @@ ActiveAdmin.register Parent do
   filter :first_name
   filter :last_name
   filter :phone_number
-  filter :is_lycamobile
+  filter :family_followed, as: :check_boxes
+  filter :present_on_whatsapp
+  filter :present_on_facebook
+  filter :follow_us_on_whatsapp
+  filter :follow_us_on_facebook
   filter :email
   filter :letterbox_name
   filter :address
@@ -64,7 +71,11 @@ ActiveAdmin.register Parent do
       f.input :last_name
       f.input :phone_number,
         input_html: { value: f.object.decorate.phone_number }
-      f.input :is_lycamobile
+      f.input :family_followed
+      f.input :present_on_whatsapp
+      f.input :present_on_facebook
+      f.input :follow_us_on_whatsapp
+      f.input :follow_us_on_facebook
       f.input :email
       f.input :letterbox_name
       address_input f
@@ -77,9 +88,9 @@ ActiveAdmin.register Parent do
   end
 
   permit_params :gender, :first_name, :last_name,
-    :phone_number, :is_lycamobile, :email,
+    :phone_number, :present_on_whatsapp, :present_on_facebook, :follow_us_on_facebook, :follow_us_on_whatsapp, :email,
     :letterbox_name, :address, :postal_code, :city_name,
-    :is_ambassador, :job, :terms_accepted_at,
+    :is_ambassador, :job, :terms_accepted_at, :family_followed,
     tags_params
 
   # ---------------------------------------------------------------------------
@@ -96,7 +107,11 @@ ActiveAdmin.register Parent do
           row :first_name
           row :last_name
           row :phone_number
-          row :is_lycamobile
+          row :family_followed
+          row :present_on_whatsapp
+          row :present_on_facebook
+          row :follow_us_on_whatsapp
+          row :follow_us_on_facebook
           row :email do |decorated|
             decorated.email_link
           end
@@ -116,7 +131,11 @@ ActiveAdmin.register Parent do
           row :redirection_url_unique_visits_count
           row :redirection_unique_visit_rate
           row :redirection_visit_rate
-          row :tags
+          row :territory
+          row :land
+          row :tags do |model|
+            model.tags(context: 'tags')
+          end
         end
       end
       tab 'Historique' do
@@ -183,21 +202,23 @@ ActiveAdmin.register Parent do
 
     column :email
     column :phone_number_national
-    column :is_lycamobile
+    column :present_on_whatsapp
+    column :present_on_facebook
+    column :follow_us_on_whatsapp
+    column :follow_us_on_facebook
 
     column :letterbox_name
     column :address
     column :city_name
     column :postal_code
 
+    column :territory
+    column :land
+
     column :parent_groups
 
     column :job
     column :is_ambassador
-
-    column :parent_present_on
-    column :parent_follow_us_on
-    column :land
 
     column :children_count
 
@@ -217,4 +238,9 @@ ActiveAdmin.register Parent do
     column :updated_at
   end
 
+  controller do
+    def apply_filtering(chain)
+      super(chain).distinct
+    end
+  end
 end

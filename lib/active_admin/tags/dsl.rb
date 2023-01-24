@@ -51,7 +51,6 @@ module ActiveAdmin
           tag_list: []
         }
       end
-
     end
   end
 end

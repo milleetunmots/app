@@ -51,14 +51,6 @@ class ChildSupportDecorator < BaseDecorator
     children_attribute(:registration_source, glue)
   end
 
-  def children_present_on
-    model.decorate.present_on&.join(", ")
-  end
-
-  def children_follow_us_on
-    model.decorate.follow_us_on&.join(", ")
-  end
-
   def children_land(glue = "\n")
     children_attribute(:land, glue)
   end
@@ -173,6 +165,12 @@ class ChildSupportDecorator < BaseDecorator
       end
     end
 
+    define_method("call#{call_idx}_tv_frequency") do
+      if v = model.send("call#{call_idx}_tv_frequency")
+        ChildSupport.human_attribute_name("call_tv_frequency.#{v}")
+      end
+    end
+
     define_method("call#{call_idx}_goals_text") do
       model.send("call#{call_idx}_goals")
     end
@@ -192,6 +190,18 @@ class ChildSupportDecorator < BaseDecorator
     define_method("call#{call_idx}_sendings_benefits") do
       if v = model.send("call#{call_idx}_sendings_benefits")
         ChildSupport.human_attribute_name("call_sendings_benefits.#{v}")
+      end
+    end
+
+    define_method("call#{call_idx}_family_progress") do
+      if v = model.send("call#{call_idx}_family_progress")
+        ChildSupport.human_attribute_name("call_family_progress.#{v}")
+      end
+    end
+
+    define_method("call#{call_idx}_previous_goals_follow_up") do
+      if v = model.send("call#{call_idx}_previous_goals_follow_up")
+        ChildSupport.human_attribute_name("call_previous_goals_follow_up.#{v}")
       end
     end
 
@@ -233,6 +243,26 @@ class ChildSupportDecorator < BaseDecorator
   #   end
   # end
 
+  def parent1_available_support_modules
+    SupportModule.where(id: parent1_available_support_module_list).pluck(:name).join(", ")
+  end
+
+  def parent2_available_support_modules
+    SupportModule.where(id: parent2_available_support_module_list).pluck(:name).join(", ")
+  end
+
+  def parent1_selected_support_modules
+    return unless model.parent1
+
+    model.parent1.children_support_modules.includes(:support_module).pluck(:name).reject(&:blank?).join(", ")
+  end
+
+  def parent2_selected_support_modules
+    return nil unless model.parent2
+
+    model.parent2.children_support_modules.includes(:support_module).pluck(:name).reject(&:blank?).join(", ")
+  end
+
   private
 
   def children_attribute(key, glue)
@@ -251,6 +281,11 @@ class ChildSupportDecorator < BaseDecorator
   def parent(parent)
     return nil unless parent
     parent.decorate.admin_link
+  end
+
+  def first_child_pmi_detail
+    return nil if model.first_child.pmi_detail.blank?
+    Child.human_attribute_name("pmi_detail.#{model.first_child.pmi_detail}")
   end
 
   # def parent_card(parent, should_contact_parent)

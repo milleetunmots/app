@@ -1,0 +1,52 @@
+<div id="update">
+
+  <div class="container" id="update-content">
+
+    <%= simple_form_for @children_support_module, url: @action_path do |f| %>
+
+    <div class="row justify-content-sm-center accepted-fields">
+      <div class="col-sm-8">
+        <%= f.error_notification message: "Une erreur est survenue, veuillez transmettre votre choix à votre appelante, nous sommes désolé pour la gêne occasionnée." %>
+      </div>
+    </div>
+
+    <h1>Sur quel thème voulez-vous recevoir des conseils (et un livre) ?</h1>
+      <div style="display: flex; flex-flow: row wrap; justify-content: center; align-items: stretch; align-content: stretch; gap: 2rem ">
+        <% @support_modules.decorate.each do |support_module| %>
+          <div class="card" style="width: 15rem; height: 20rem">
+            <div style="height: 75%">
+              <% if support_module.picture.attached? %>
+                <%= support_module.picture_tag(class: "card-img-top", style: 'width:100%;height:100%;') %>
+              <% else %>
+                <%= image_tag("child-picture.jpg", class: "card-img-top", style: 'width:100%;height:100%;') %>
+              <% end %>
+            </div>
+            <div class="card-body" style="height: 25%; display: flex; flex-flow: row nowrap; justify-content: flex-start; align-items: center; align-content: center; gap: 10px">
+              <input type="radio" id=<%= support_module.name %> name="children_support_module[support_module_id]" value=<%= support_module.id %>>
+              <label style="margin: 0px" for=<%= support_module.name %>><%= support_module.name %></label><br>
+            </div>
+          </div>
+        <% end %>
+        <div class="card" style="width: 15rem; height: 20rem">
+          <div style="height: 75%">
+            <%= image_tag("child-picture.jpg", class:"card-img-top", style: 'width:100%;height:100%;')%>
+          </div>
+          <div class="card-body" style="height: 25%; display: flex; flex-flow: row nowrap; justify-content: flex-start; align-items: center; align-content: center; gap: 10px">
+            <input type="radio" id="1001mots_choice" name="children_support_module[support_module_id]" value="">
+            <label for="1001mots_choice">Je laisse 1001mots choisir pour moi</label><br>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: center; margin-top: 2rem" >
+        <button type="submit" class="btn-primary btn-sm">
+          Choisir
+        </button>
+      </div>
+    </div>
+
+    <% end %>
+
+  </div>
+
+</div>

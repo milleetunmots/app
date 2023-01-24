@@ -1,40 +1,40 @@
 <div class="data-row">
   <div class="data-col">
-    <p>Objectif de famille inscrites ou accompagnées</p>
+    <p>Objectif d'enfants inscrits ou accompagnés</p>
     <hr>
     <p class="data-number"><%= data_count_values["goal"] %></p>
   </div>
 </div>
 <div class="data-row">
   <div class="data-col">
-    <p>Familles (hors popi) inscrites</p>
+    <p>Familles inscrites (hors popi)</p>
     <hr>
-    <p class="data-number"><%= data_count_values["no_popi_families_count"] %></p>
+    <p class="data-number"><%= data_count_values["target_families_count"] %></p>
   </div>
   <div class="data-col">
-    <p>Enfants (hors popi) inscrits</p>
+    <p>Enfants inscrits (hors popi)</p>
     <hr>
-    <p class="data-number"><%= data_count_values["no_popi_children_count"] %></p>
+    <p class="data-number"><%= data_count_values["target_children_count"] %></p>
   </div>
   <div class="data-col">
-    <p>Pères (hors popi) inscrits</p>
+    <p>Pères inscrits (hors popi)</p>
     <hr>
-    <p class="data-number"><%= data_count_values["no_popi_fathers_count"] %></p>
+    <p class="data-number"><%= data_count_values["target_fathers_count"] %></p>
   </div>
 </div>
 <div class="data-row">
   <div class="data-col">
-    <p>Familles inscrites</p>
+    <p>Familles inscrites (popi inclus)</p>
     <hr>
     <p class="data-number"><%= data_count_values["families_count"] %></p>
   </div>
   <div class="data-col">
-    <p>Enfants inscrits</p>
+    <p>Enfants inscrits (popi inclus)</p>
     <hr>
     <p class="data-number"><%= data_count_values["children_count"] %></p>
   </div>
   <div class="data-col">
-    <p>Pères inscrits</p>
+    <p>Pères inscrits (popi inclus)</p>
     <hr>
     <p class="data-number"><%= data_count_values["fathers_count"] %></p>
   </div>
@@ -42,7 +42,7 @@
     <p>Taux d'enfants cibles</p>
     <hr>
     <% if data_count_values["children_count"] != 0 %>
-      <p class="data-number"><%= data_count_values["no_popi_rate"] %>%</p>
+      <p class="data-number"><%= data_count_values["target_rate"] %> %</p>
     <% end %>
   </div>
 </div>

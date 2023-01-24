@@ -24,7 +24,8 @@ class EventsController < ApplicationController
   end
 
   def update_status
-    Event.where(spot_hit_message_id: params[:id_message]).update_all(spot_hit_status: params[:statut])
+    Event::UpdateTextMessageStatusService.new(message_id_from_spot_hit: params[:id_message], status: params[:statut]).call
+
     head :ok
   end
 
@@ -43,28 +44,24 @@ class EventsController < ApplicationController
     head :unprocessable_entity and return unless event.save
 
     parent.children.where.not(group_id: nil).where(group_status: %w[active paused]).each do |child|
-      if child.parent2
-        child.parent1 == parent ? child.should_contact_parent1 = false : child.should_contact_parent2 = false
-      else
+      child.parent1 == parent ? child.should_contact_parent1 = false : child.should_contact_parent2 = false
+      if child.should_contact_parent1 == false && child.should_contact_parent2 == false
         child.group_status = "stopped"
         child.group_end = Time.now
-        child.save(validate: false)
       end
-
+      child.save(validate: false)
     end
 
     head :ok
-
   end
 
   def spot_hit_response
     parsed_phone = Phonelib.parse(params[:numero])
-    event = Event.new({
+    event = Events::TextMessage.new({
       related: Parent.find_by(phone_number: parsed_phone.e164),
       body: params[:message],
       spot_hit_message_id: params[:id],
       spot_hit_status: 1,
-      type: 'Events::TextMessage',
       occurred_at: Time.at(params[:date].to_i),
       originated_by_app: false
     })

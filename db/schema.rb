@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_28_164853) do
+ActiveRecord::Schema.define(version: 2023_01_20_102434) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -134,15 +134,31 @@ ActiveRecord::Schema.define(version: 2022_01_28_164853) do
     t.text "call1_technical_information"
     t.boolean "to_call"
     t.string "books_quantity"
-    t.string "present_on"
-    t.string "follow_us_on"
     t.text "notes"
     t.boolean "will_stay_in_group", default: false, null: false
     t.string "availability"
     t.string "call_infos"
+    t.string "other_phone_number"
+    t.integer "child_count"
+    t.string "call1_tv_frequency"
+    t.string "call2_tv_frequency"
+    t.string "call3_tv_frequency"
+    t.string "call4_tv_frequency"
+    t.string "call5_tv_frequency"
+    t.string "most_present_parent"
+    t.boolean "already_working_with"
+    t.text "call2_goals_tracking"
+    t.text "call3_goals_tracking"
+    t.text "call4_goals_tracking"
+    t.text "call5_goals_tracking"
+    t.string "parent1_available_support_module_list", array: true
+    t.string "parent2_available_support_module_list", array: true
+    t.string "call2_family_progress"
+    t.string "call2_previous_goals_follow_up"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
+    t.index ["call1_tv_frequency"], name: "index_child_supports_on_call1_tv_frequency"
     t.index ["call2_language_awareness"], name: "index_child_supports_on_call2_language_awareness"
     t.index ["call2_parent_progress"], name: "index_child_supports_on_call2_parent_progress"
     t.index ["call3_language_awareness"], name: "index_child_supports_on_call3_language_awareness"
@@ -152,6 +168,8 @@ ActiveRecord::Schema.define(version: 2022_01_28_164853) do
     t.index ["call5_language_awareness"], name: "index_child_supports_on_call5_language_awareness"
     t.index ["call5_parent_progress"], name: "index_child_supports_on_call5_parent_progress"
     t.index ["discarded_at"], name: "index_child_supports_on_discarded_at"
+    t.index ["parent1_available_support_module_list"], name: "index_child_supports_on_parent1_available_support_module_list", using: :gin
+    t.index ["parent2_available_support_module_list"], name: "index_child_supports_on_parent2_available_support_module_list", using: :gin
     t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
     t.index ["supporter_id"], name: "index_child_supports_on_supporter_id"
   end
@@ -183,7 +201,7 @@ ActiveRecord::Schema.define(version: 2022_01_28_164853) do
     t.string "group_status", default: "waiting"
     t.date "group_start"
     t.date "group_end"
-    t.string "land"
+    t.boolean "available_for_workshops", default: false
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["discarded_at"], name: "index_children_on_discarded_at"
@@ -191,6 +209,21 @@ ActiveRecord::Schema.define(version: 2022_01_28_164853) do
     t.index ["group_id"], name: "index_children_on_group_id"
     t.index ["parent1_id"], name: "index_children_on_parent1_id"
     t.index ["parent2_id"], name: "index_children_on_parent2_id"
+  end
+
+  create_table "children_support_modules", force: :cascade do |t|
+    t.bigint "child_id"
+    t.bigint "support_module_id"
+    t.bigint "parent_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "available_support_module_list", array: true
+    t.date "choice_date"
+    t.boolean "is_completed", default: false
+    t.boolean "is_programmed", default: false, null: false
+    t.index ["child_id"], name: "index_children_support_modules_on_child_id"
+    t.index ["parent_id"], name: "index_children_support_modules_on_parent_id"
+    t.index ["support_module_id"], name: "index_children_support_modules_on_support_module_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -208,7 +241,11 @@ ActiveRecord::Schema.define(version: 2022_01_28_164853) do
     t.boolean "originated_by_app", default: true, null: false
     t.bigint "workshop_id"
     t.string "parent_response"
+    t.bigint "quit_group_child_id"
+    t.string "parent_presence"
+    t.date "acceptation_date"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
+    t.index ["quit_group_child_id"], name: "index_events_on_quit_group_child_id"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
     t.index ["type"], name: "index_events_on_type"
     t.index ["workshop_id"], name: "index_events_on_workshop_id"
@@ -233,6 +270,8 @@ ActiveRecord::Schema.define(version: 2022_01_28_164853) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.datetime "discarded_at"
+    t.integer "support_modules_count", default: 0, null: false
+    t.boolean "is_programmed", default: false, null: false
     t.index ["discarded_at"], name: "index_groups_on_discarded_at"
     t.index ["ended_at"], name: "index_groups_on_ended_at"
     t.index ["started_at"], name: "index_groups_on_started_at"
@@ -297,8 +336,18 @@ ActiveRecord::Schema.define(version: 2022_01_28_164853) do
     t.integer "redirection_url_unique_visits_count"
     t.float "redirection_unique_visit_rate"
     t.float "redirection_visit_rate"
-    t.boolean "is_lycamobile"
     t.datetime "discarded_at"
+    t.boolean "present_on_facebook"
+    t.boolean "present_on_whatsapp"
+    t.boolean "follow_us_on_whatsapp"
+    t.boolean "follow_us_on_facebook"
+    t.string "degree"
+    t.boolean "degree_in_france"
+    t.string "help_my_child_to_learn_is_important"
+    t.string "would_like_to_do_more"
+    t.string "would_receive_advices"
+    t.boolean "family_followed", default: false
+    t.string "security_code"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
@@ -310,6 +359,13 @@ ActiveRecord::Schema.define(version: 2022_01_28_164853) do
     t.index ["last_name"], name: "index_parents_on_last_name"
     t.index ["phone_number_national"], name: "index_parents_on_phone_number_national"
     t.index ["postal_code"], name: "index_parents_on_postal_code"
+  end
+
+  create_table "parents_workshops", id: false, force: :cascade do |t|
+    t.bigint "parent_id"
+    t.bigint "workshop_id"
+    t.index ["parent_id"], name: "index_parents_workshops_on_parent_id"
+    t.index ["workshop_id"], name: "index_parents_workshops_on_workshop_id"
   end
 
   create_table "pg_search_documents", force: :cascade do |t|
@@ -443,7 +499,7 @@ ActiveRecord::Schema.define(version: 2022_01_28_164853) do
   end
 
   create_table "workshops", force: :cascade do |t|
-    t.string "topic", null: false
+    t.string "topic"
     t.string "co_animator"
     t.date "workshop_date", null: false
     t.string "address", null: false
@@ -455,6 +511,8 @@ ActiveRecord::Schema.define(version: 2022_01_28_164853) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "animator_id", null: false
+    t.string "workshop_land"
+    t.string "location"
     t.index ["animator_id"], name: "index_workshops_on_animator_id"
   end
 

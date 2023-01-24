@@ -1,3 +1,5 @@
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
 
   devise_for :admin_users, ActiveAdmin::Devise.config
@@ -5,11 +7,14 @@ Rails.application.routes.draw do
   ActiveAdmin.routes(self)
 
   get "inscription", to: "children#new", as: :new_child
-  get "inscription1", to: "children#new1"
-  get "inscription2", to: "children#new2"
-  get "inscription3", to: "children#new3"
+  get "inscription1", to: "children#new", as: :new_child1
+  get "inscription2", to: "children#new", as: :new_child2
+  get "inscription3", to: "children#new", as: :new_child3
 
   post "inscription", to: "children#create", as: :children
+  post "inscription1", to: "children#create", as: :children1
+  post "inscription2", to: "children#create", as: :children2
+  post "inscription3", to: "children#create", as: :children3
   get "inscrit", to: "children#created", as: :created_child
 
   scope "c/:id/:security_code" do
@@ -17,7 +22,7 @@ Rails.application.routes.draw do
     patch "/", to: "children#update", as: :update_child
   end
 
-  scope "w/:parent_id/:workshop_id" do
+  scope "w/:parent_id/:parent_security_code/:workshop_id" do
     get "/", to: "workshop_participation#edit", as: :edit_workshop_participation
     patch "/", to: "workshop_participation#update", as: :update_workshop_participation
   end
@@ -34,8 +39,19 @@ Rails.application.routes.draw do
 
   get "parent/:id/first_child", to: "parents#first_child"
 
+  post "/typeform/webhooks", to: 'typeform#webhooks'
+
   resources :events, only: [:index, :create]
 
-  root to: redirect("/admin")
+  resources :children_support_modules, only: [:edit, :update] do
+    get "updated", on: :collection
+  end
 
+  get "s/:id", to: 'children_support_modules#edit', as: :children_support_module_link
+
+  authenticate :admin_user do
+    mount Sidekiq::Web => "/sidekiq"
+  end
+
+  root to: redirect("/admin")
 end

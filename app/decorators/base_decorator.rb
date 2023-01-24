@@ -21,12 +21,14 @@ class BaseDecorator < Draper::Decorator
     h.link_to txt, [:admin, model], options
   end
 
-  def tags
+  def tags(options = {})
+    return unless options[:context]
+
     config = h.active_admin_resource_for(model.class)
     return unless config
 
     arbre do
-      model.tags.each do |tag|
+      model.send(options[:context]).each do |tag|
         a tag.name,
           href: config.route_collection_path(nil, q: {tagged_with_all: [tag.name]}),
           class: 'tag',
@@ -34,6 +36,34 @@ class BaseDecorator < Draper::Decorator
         text_node "&nbsp;".html_safe
       end
     end
+  end
+
+  def territory
+    return unless postal_code
+
+    return "Loiret" if [49800, 77460, 77570].include? postal_code.to_i
+
+    case postal_code.to_i / 1000
+    when 45 then "Loiret"
+    when 78 then "Yvelines"
+    when 93 then "Seine-Saint-Denis"
+    when 75 then "Paris"
+    when 57 then "Moselle"
+    else
+      nil
+    end
+  end
+
+  def land
+    return unless postal_code
+
+    return "Paris 18 eme" if Parent::PARIS_18_EME_POSTAL_CODE.include? postal_code
+    return "Paris 20 eme" if postal_code == Parent::PARIS_20_EME_POSTAL_CODE
+    return "Plaisir" if Parent::PLAISIR_POSTAL_CODE.include? postal_code
+    return "Trappes" if Parent::TRAPPES_POSTAL_CODE.include? postal_code
+    return "Aulnay sous bois" if postal_code == Parent::AULNAY_SOUS_BOIS_POSTAL_CODE
+    return "Orleans" if Parent::ORELANS_POSTAL_CODE.include? postal_code
+    return "Montargis" if Parent::MONTARGIS_POSTAL_CODE.include? postal_code
   end
 
   def created_at_date

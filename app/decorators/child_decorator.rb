@@ -25,14 +25,6 @@ class ChildDecorator < BaseDecorator
     h.link_to txt, url, options
   end
 
-  def child_present_on
-    model.child_support&.decorate&.children_present_on
-  end
-
-  def child_follow_us_on
-    model.child_support&.decorate&.children_follow_us_on
-  end
-
   def age
     h.t "child_age.months", months: model.months
   end
@@ -179,8 +171,20 @@ class ChildDecorator < BaseDecorator
     model.family_text_messages.kept.count
   end
 
+  def family_text_messages_received_count
+    model.family_text_messages_received.kept.count
+  end
+
+  def family_text_messages_sent_count
+    model.family_text_messages_sent.kept.count
+  end
+
   def full_address
     model.parent1.decorate.full_address
+  end
+
+  def address_with_letterbox_name
+    [letterbox_name, address].reject(&:blank?).join(' ')
   end
 
   def child_group_name
@@ -193,16 +197,28 @@ class ChildDecorator < BaseDecorator
   end
 
   def registration_months_range
-    if registration_months >= 36
+    return unless registration_months
+
+    if registration_months >= 37
       "Plus de 36 mois"
-    elsif registration_months >= 24
-      "24 - 36 mois"
-    elsif registration_months >= 12
-      "12 - 24 mois"
-    elsif registration_months >= 6
-      "6 - 12 mois"
+    elsif registration_months >= 25
+      "25 à 36 mois"
+    elsif registration_months >= 13
+      "13 à 24 mois"
+    elsif registration_months >= 7
+      "7 - 12 mois"
     else
       "Moins de 6 mois"
+    end
+  end
+
+  def selected_support_module_list
+    arbre do
+      ChildrenSupportModule.where(child: model).where.not(support_module: nil).each do |children_support_module|
+        span children_support_module.support_module&.name,
+             class: 'available_support_module'
+        text_node "&nbsp;".html_safe
+      end
     end
   end
 

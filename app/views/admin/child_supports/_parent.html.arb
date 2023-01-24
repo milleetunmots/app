@@ -7,18 +7,20 @@ div class: 'card card-parent' do
     div parent.full_address
   ) + (
     div class: 'should-be-contacted' do
-      if should_contact_parent
-        status_tag 'yes', label: t('should_be_contacted')
-      else
-        status_tag 'no', label: t('should_not_be_contacted')
-      end
+      status_tag 'no', label: t('should_not_be_contacted') unless should_contact_parent
     end
   ) + (
-    div class: 'specific_tags' do
-      parent.specific_tags.each do |tag|
-        a_tag = Tag.find_by(name: tag)
-        div status_tag tag, label: tag, style: "background-color: #{a_tag.color}"
-      end
+  div class: 'tags' do
+    parent.tags({context: :tags})
+  end
+  ) + (
+  div do
+    span do
+      "Module choisis : "
+    end +
+    span do
+      parent.selected_support_module
     end
+  end
   )
 end

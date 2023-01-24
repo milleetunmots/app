@@ -33,10 +33,37 @@ module ActiveAdmin::ChildSupportsHelper
     end
   end
 
+  def child_support_call_tv_frequency_select_collection
+    ChildSupport::TV_FREQUENCY.reverse.map do |v|
+      [
+        ChildSupport.human_attribute_name("call_tv_frequency.#{v}"),
+        v
+      ]
+    end
+  end
+
   def child_support_call_sendings_benefits_select_collection
     ChildSupport::SENDINGS_BENEFITS.map do |v|
       [
         ChildSupport.human_attribute_name("call_sendings_benefits.#{v}"),
+        v
+      ]
+    end
+  end
+
+  def child_support_call_family_progress_select_collection
+    ChildSupport::FAMILY_PROGRESS.map do |v|
+      [
+        ChildSupport.human_attribute_name("call_family_progress.#{v}"),
+        v
+      ]
+    end
+  end
+
+  def child_support_call_previous_goals_follow_up_select_collection
+    ChildSupport::GOALS_FOLLOW_UP.map do |v|
+      [
+        ChildSupport.human_attribute_name("call_previous_goals_follow_up.#{v}"),
         v
       ]
     end

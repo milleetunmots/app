@@ -30,15 +30,20 @@ ActiveAdmin.register Child do
     column :age, sortable: :birthdate
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
+    column :parent1_phone_number_national
     column :postal_code
-    column :land
+    column :territory
     column :child_support, sortable: :child_support_id do |model|
       model.child_support_status
     end
     column :group, sortable: :group_id
     column :group_status
     column :pmi_detail
-    column :tags
+    column :tags do |model|
+      model.tags(context: 'tags')
+    end
+    column :land
+    column :selected_support_module_list
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -48,18 +53,16 @@ ActiveAdmin.register Child do
 
   scope :all, default: true
 
-  scope :without_group_and_not_waiting_second_group, group: :group
-  scope :with_group, group: :group
-  scope :waiting_second_group, group: :group
+  scope :active_group, group: :group
+  scope :without_group, group: :group
 
   scope :months_between_0_and_12, group: :months
   scope :months_between_12_and_24, group: :months
   scope :months_more_than_24, group: :months
 
-  scope :with_support, group: :support
-  scope :without_support, group: :support
-
   scope :without_parent_to_contact, group: :parent
+
+  scope :available_for_the_workshops, group: :workshop
 
   filter :gender,
     as: :check_boxes,
@@ -121,34 +124,6 @@ ActiveAdmin.register Child do
   filter :created_at
   filter :updated_at
 
-  batch_action :add_tags do |ids|
-    session[:add_tags_ids] = ids
-    redirect_to action: :add_tags
-  end
-
-  collection_action :add_tags do
-    @klass = collection.object.klass
-    @ids = session.delete(:add_tags_ids) || []
-    @form_action = url_for(action: :perform_adding_tags)
-    @back_url = request.referer
-    render "active_admin/tags/add_tags"
-  end
-
-  collection_action :perform_adding_tags, method: :post do
-    ids = params[:ids]
-    tags = params[:tag_list]
-    back_url = params[:back_url]
-
-    Child.where(id: ids).each do |child|
-      child.tag_list.add(tags)
-      child.save(validate: false)
-      child.child_support&.update! tag_list: child.tag_list
-      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
-      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
-    end
-    redirect_to back_url, notice: "Tags ajoutés"
-  end
-
   batch_action :create_support do |ids|
     batch_action_collection.find(ids).each do |child|
       next if already_existing_child_support = child.child_support
@@ -174,8 +149,7 @@ ActiveAdmin.register Child do
       )
 
       Child.where(id: ids).parents.each do |parent|
-        parent.tag_list.add("Famille suivie")
-        parent.save
+        parent.update family_followed: true
       end
 
       redirect_to request.referer, notice: "Enfants ajoutés à la cohorte"
@@ -183,8 +157,22 @@ ActiveAdmin.register Child do
   end
 
   batch_action :quit_group do |ids|
+    if batch_action_collection.where(id: ids).with_stopped_group.any?
+      flash[:error] = "Certains enfants sont déjà dans une cohorte arrêtée"
+      redirect_to request.referer
+    end
     batch_action_collection.where(id: ids).update_all(group_status: "paused")
     redirect_to request.referer, notice: "Modification effectuée"
+  end
+
+  batch_action :reactive_group do |ids|
+    if batch_action_collection.where(id: ids).with_stopped_group.any?
+      flash[:error] = "Certains enfants sont déjà dans une cohorte arrêtée"
+      redirect_to request.referer
+    else
+      batch_action_collection.where(id: ids).update_all(group_status: "active")
+      redirect_to request.referer, notice: "Modification effectuée"
+    end
   end
 
   batch_action :create_redirection_url, form: -> {
@@ -246,58 +234,68 @@ ActiveAdmin.register Child do
            progress: proc { |output| puts output }
   end
 
-  batch_action :generate_buzz_expert do |ids|
-    @children = batch_action_collection.where(id: ids)
-
-    service = BuzzExpert::ExportChildrenService.new(children: @children).call
-    if service.errors.any?
-      puts "Error: #{service.errors}"
-      flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
-      redirect_to request.referer
-    else
-      send_data service.csv, filename: "Buzz-Expert - #{csv_filename}"
-    end
-  end
+  # batch_action :generate_buzz_expert do |ids|
+  #   @children = batch_action_collection.where(id: ids)
+  #
+  #   service = BuzzExpert::ExportChildrenService.new(children: @children).call
+  #   if service.errors.any?
+  #     puts "Error: #{service.errors}"
+  #     flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
+  #     redirect_to request.referer
+  #   else
+  #     send_data service.csv, filename: "Buzz-Expert - #{csv_filename}"
+  #   end
+  # end
 
   batch_action :generate_quit_sms do |ids|
+    ids.reject! do |id|
+      child = Child.find(id)
+      child.child_support.will_stay_in_group  || child.group_status != 'active'
+    end
+
     @children = batch_action_collection.where(id: ids)
 
     if @children.without_parent_to_contact.any?
       flash[:error] = "Certains enfants n'ont aucun parent à contacter"
       redirect_to request.referer
-    end
-
-    latest_parent_id = nil
-    begin
-      @children.order(:parent1_id).each do |child|
-        next if child.child_support&.will_stay_in_group?
-        next if latest_parent_id == child.parent1_id
-        latest_parent_id = child.parent1_id
-
-        next_saturday = Time.now.beginning_of_week.next_day(5).change({hour: 14, min: 30, sec: 0})
-        quit_link = Rails.application.routes.url_helpers.edit_child_url(
-          id: child.id,
-          security_code: child.security_code
-        )
-        message = "Bonjour ! Ca fait 4 mois que je vous envoie des SMS pour votre enfant. Bravo pour tout ce que vous faites pour lui :) Voulez vous continuer à recevoir ces SMS et livres ? Cliquez sur le lien ci-dessous et répondez OUI ! Ca reprendra prochainement ! Je vous souhaite de beaux moments avec vos enfants :) #{quit_link}"
-
-        service = SpotHit::SendSmsService.new(
-          [latest_parent_id],
-          next_saturday.to_i,
-          message
-        ).call
-        if service.errors.any?
-          alert = service.errors.join("\n")
-          raise StandardError, alert
-        else
-          child.update! group_status: "paused"
-        end
-      end
-    rescue StandardError => e
-      redirect_back(fallback_location: root_path, alert: e.message.truncate(200))
+    elsif @children.with_stopped_group.any?
+      flash[:error] = "Certains enfants sont déjà dans une cohorte arrêtée"
+      redirect_to request.referer
     else
-      flash[:notice] = "Message de continuation envoyé"
-      redirect_to admin_sent_by_app_text_messages_url
+      next_saturday = Date.today.beginning_of_week.next_day(5)
+      hour = Time.parse("14:30").strftime("%H:%M")
+      recipients = ids.map {|id| "child.#{id}"}
+      message = "Bonjour ! Ca fait 4 mois que je vous envoie des SMS pour votre enfant. Bravo pour tout ce que vous faites pour lui :) Voulez vous continuer à recevoir ces SMS et livres ? Cliquez sur le lien ci-dessous et répondez OUI ! Ca reprendra prochainement ! Je vous souhaite de beaux moments avec vos enfants :) {QUIT_LINK}"
+
+      service = ProgramMessageService.new(
+        next_saturday,
+        hour,
+        recipients,
+        message,
+        nil,
+        nil,
+         true
+      ).call
+
+      if service.errors.any?
+        flash[:alert] = service.errors
+        redirect_back(fallback_location: root_path)
+      else
+        @children.update_all(group_status: 'paused')
+        flash[:notice] = "Message de continuation envoyé"
+        redirect_to admin_sent_by_app_text_messages_url
+      end
+    end
+  end
+
+  batch_action :excel_export do |ids|
+    if @children.with_stopped_group.any?
+      flash[:error] = "Certains enfants sont déjà dans une cohorte arrêtée"
+      redirect_to request.referer
+    else
+      service = Child::ExportBookExcelService.new(children: batch_action_collection.where(id: ids)).call
+
+      send_data(service.workbook.read_string, filename: "#{Date.today.strftime('%d-%m-%Y')}.xlsx")
     end
   end
 
@@ -327,6 +325,7 @@ ActiveAdmin.register Child do
           min_date: Child.min_birthdate,
           max_date: Child.max_birthdate
         }
+      f.input :available_for_workshops
       f.input :registration_source,
         collection: child_registration_source_select_collection,
         input_html: {data: {select2: {}}}
@@ -347,7 +346,7 @@ ActiveAdmin.register Child do
 
   permit_params :parent1_id, :parent2_id, :group_id,
     :should_contact_parent1, :should_contact_parent2,
-    :gender, :first_name, :last_name, :birthdate,
+    :gender, :first_name, :last_name, :birthdate, :available_for_workshops,
     :registration_source, :registration_source_details, :pmi_detail, :group_status,
     tags_params
 
@@ -370,7 +369,9 @@ ActiveAdmin.register Child do
           row :gender do |decorated|
             decorated.gender_status
           end
+          row :territory
           row :land
+          row :available_for_workshops
           row :registration_source
           row :registration_source_details
           row :pmi_detail
@@ -393,7 +394,11 @@ ActiveAdmin.register Child do
           row :public_edit_url do |decorated|
             decorated.public_edit_link(target: "_blank")
           end
-          row :tags
+          row :available_for_workshops
+          row :selected_support_module_list
+          row :tags do |model|
+            model.tags(context: 'tags')
+          end
           row :src_url
           row :created_at
           row :updated_at
@@ -438,36 +443,37 @@ ActiveAdmin.register Child do
   # IMPORT
   # ---------------------------------------------------------------------------
 
-  action_item :new_import,
-    only: :index do
-    link_to I18n.t("child.new_import_link"), [:new_import, :admin, :children]
-  end
-  collection_action :new_import do
-    @import_action = perform_import_admin_children_path
-  end
-  collection_action :perform_import, method: :post do
-    @csv_file = params[:import][:csv_file]
-
-    service = ChildrenImportService.new(csv_file: @csv_file).call
-
-    if service.errors.empty?
-      redirect_to admin_children_path, notice: "Import terminé"
-    else
-      @import_action = perform_import_admin_children_path
-      @errors = service.errors
-      render :new_import
-    end
-  end
+  # action_item :new_import,
+  #   only: :index do
+  #   link_to I18n.t("child.new_import_link"), [:new_import, :admin, :children]
+  # end
+  # collection_action :new_import do
+  #   @import_action = perform_import_admin_children_path
+  # end
+  # collection_action :perform_import, method: :post do
+  #   @csv_file = params[:import][:csv_file]
+  #
+  #   service = ChildrenImportService.new(csv_file: @csv_file).call
+  #
+  #   if service.errors.empty?
+  #     redirect_to admin_children_path, notice: "Import terminé"
+  #   else
+  #     @import_action = perform_import_admin_children_path
+  #     @errors = service.errors
+  #     render :new_import
+  #   end
+  # end
 
   # ---------------------------------------------------------------------------
   # TOOLS
   # ---------------------------------------------------------------------------
 
-  action_item :tools,
-    only: :index do
+  action_item :tools, only: :index do
     dropdown_menu "Outils" do
       item "Nettoyer les précisions sur l'origine", [:new_clean_registration_source_details, :admin, :children]
-      item "Mettre à jour le tag des enfants pas à l'école", [:set_age_ok, :admin, :children]
+      item "Mettre à jour les enfants n'ayant pas l'âge d'aller à l'école", [:set_age_ok, :admin, :children]
+      item "Télécharger les listes d'enfants par cohorte au format Excel V1", [:download_book_files_v1, :admin, :children]
+      item "Télécharger les listes d'enfants par module au format Excel V2", [:download_book_files_v2, :admin, :children]
     end
   end
   collection_action :new_clean_registration_source_details do
@@ -480,16 +486,40 @@ ActiveAdmin.register Child do
   end
 
   collection_action :set_age_ok do
-    child_with_age_ok = Child.where(birthdate: Date.new(Date.today.year - 2, 1, 1)..Date.new(Date.today.year, 12, 31))
+    children_available = if Date.today.month <= 8
+                          Child.where(birthdate: Date.new(Date.today.year - 3, 1, 1)..Date.new(Date.today.year, 12, 31))
+                        else
+                          Child.where(birthdate: Date.new(Date.today.year - 2, 1, 1)..Date.new(Date.today.year, 12, 31))
+                        end
 
     Child.all.each do |child|
-      if child_with_age_ok.include? child
-        child.update! tag_list: (child.tag_list + "age_ok").uniq
-      elsif child.tag_list.include? "age_ok"
-        child.tag_list.remove("age_ok")
-      end
+      child.update_attribute('available_for_workshops', children_available.include?(child) ? true : false)
     end
-    redirect_to admin_children_path, notice: "Tags mis à jour"
+    redirect_to admin_children_path, notice: "Enfants mis à jour"
+  end
+
+  collection_action :download_book_files_v1 do
+    service = Child::ExportBooksV1Service.new.call
+
+    if service.errors.empty?
+      send_file service.zip_file.path, type: "application/zip", x_sendfile: true,
+        disposition: "attachment", filename: "#{Date.today.strftime('%d-%m-%Y')}.zip"
+    else
+      flash[:alert] = service.errors
+      redirect_back(fallback_location: root_path)
+    end
+  end
+
+  collection_action :download_book_files_v2 do
+    service = Child::ExportBooksV2Service.new.call
+
+    if service.errors.empty?
+      send_file service.zip_file.path, type: "application/zip", x_sendfile: true,
+        disposition: "attachment", filename: "#{Date.today.strftime('%d-%m-%Y')}.zip"
+    else
+      flash[:alert] = service.errors
+      redirect_back(fallback_location: root_path)
+    end
   end
 
   collection_action :perform_clean_registration_source_details, method: :post do
@@ -526,10 +556,8 @@ ActiveAdmin.register Child do
     column :address
     column :city_name
     column :postal_code
+    column :territory
     column :land
-
-    column :child_present_on
-    column :child_follow_us_on
 
     column :child_group_name
     column :child_group_months
@@ -541,7 +569,10 @@ ActiveAdmin.register Child do
     column :parent1_last_name
     column :parent1_email
     column :parent1_phone_number_national
-    column :parent1_is_lycamobile
+    column :parent1_present_on_facebook
+    column :parent1_follow_us_on_facebook
+    column :parent1_present_on_whatsapp
+    column :parent1_follow_us_on_whatsapp
     column :should_contact_parent1
 
     column :parent2_gender
@@ -549,7 +580,10 @@ ActiveAdmin.register Child do
     column :parent2_last_name
     column :parent2_email
     column :parent2_phone_number_national
-    column :parent2_is_lycamobile
+    column :parent2_present_on_facebook
+    column :parent2_follow_us_on_facebook
+    column :parent2_present_on_whatsapp
+    column :parent2_follow_us_on_whatsapp
     column :should_contact_parent2
 
     column :registration_source
@@ -559,6 +593,8 @@ ActiveAdmin.register Child do
     column :group_status
 
     column :family_text_messages_count
+    column :family_text_messages_received_count
+    column :family_text_messages_sent_count
 
     column :family_redirection_urls_count
     column :family_redirection_url_visits_count
@@ -576,15 +612,10 @@ ActiveAdmin.register Child do
     after_save do |child|
       if child.group && %w[active stopped paused].include?(child.group_status) && child.group_start.nil?
         child.update!(group_start: child.group.started_at)
-        child.parent1&.tag_list&.add("Famille suivie")
-        child.parent2&.tag_list&.add("Famille suivie")
-        child.parent1&.save
-        child.parent2&.save
+        child.parent1&.update family_followed: true
+        child.parent2&.update family_followed: true
       end
       child.update!(group_end: child.group.ended_at, group_status: "stopped") if child.group&.ended_at&.past?
-      child.child_support&.update! tag_list: child.tag_list
-      child.parent1&.update! tag_list: (child.parent1&.tag_list + child.tag_list).uniq
-      child.parent2&.update! tag_list: (child.parent2&.tag_list + child.tag_list).uniq
     end
 
     def csv_filename

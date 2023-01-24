@@ -39,6 +39,7 @@
     inputSourceDetails.type = "text";
     inputSourceDetails.name = "child[registration_source_details]";
     inputSourceDetails.setAttribute('aria-required', true);
+    inputSourceDetails.setAttribute('required', 'required');
 
     var $label = $('label[for="child_registration_source_details"]')
 

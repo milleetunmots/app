@@ -131,13 +131,39 @@ puts " ✓"
 # )
 # puts " ✓"
 
+# Group
+
+print "\tGroup"
+
+5.times do
+  FactoryBot.create(:group)
+end
+
+puts " ✓"
+
 # Child
+if Rails.env.development?
+  postal_code = Parent::ORELANS_POSTAL_CODE + Parent::PLAISIR_POSTAL_CODE + Parent::MONTARGIS_POSTAL_CODE + Parent::TRAPPES_POSTAL_CODE + Parent::PARIS_18_EME_POSTAL_CODE + [Parent::AULNAY_SOUS_BOIS_POSTAL_CODE, Parent::PARIS_20_EME_POSTAL_CODE]
 
-print "\t50 Children"
+  print "\t20 Children"
 
-50.times do
-  child = FactoryBot.create(:child)
-  child.update_column(:created_at, Faker::Date.backward(days: 720))
+  20.times do
+    FactoryBot.create(
+      :child,
+      parent1: FactoryBot.create(:parent, postal_code: postal_code.sample, phone_number: "0755802002"),
+      should_contact_parent1: true,
+      parent2: FactoryBot.create(:parent, postal_code: postal_code.sample, phone_number: "0667945009"),
+      should_contact_parent2: true
+    )
+  end
+  puts " ✓"
+end
+
+# Support Module
+print "\tSupport Module"
+
+5. times do
+  FactoryBot.create(:support_module)
 end
 
 puts " ✓"

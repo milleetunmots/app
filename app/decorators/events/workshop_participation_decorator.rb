@@ -8,9 +8,29 @@ class Events::WorkshopParticipationDecorator < EventDecorator
   end
 
   def timeline_description
+    participation_state =
+      if parent_response == "Oui"
+        case parent_presence
+        when "present"
+          "a été présent à l'atelier"
+        when "planned_absence"
+          "a été absent à l'atelier (absence prévue)"
+        when "not_planned_absence"
+          "a été absent à l'atelier (absence non prévue)"
+        when "queue"
+          "est sur la file d'attente de l'atelier"
+        else
+          "a accepté l'invitation à un atelier le #{acceptation_date}"
+        end
+      elsif parent_response == "Non"
+        "a refusé l'invitation à un atelier le #{acceptation_date}"
+      else
+        "a été invité à un atelier"
+      end
+
     [
       related_link,
-      'a participé à un atelier'
+      participation_state
     ].join(' ').html_safe
   end
 
@@ -18,6 +38,12 @@ class Events::WorkshopParticipationDecorator < EventDecorator
     model.comments&.truncate 30,
       separator: /\s/,
       omission: ' (…)'
+  end
+
+  def display_parent_presence
+    return if model.parent_presence.blank?
+
+    Event.human_attribute_name("parents_presence.#{model.parent_presence}")
   end
 
 end

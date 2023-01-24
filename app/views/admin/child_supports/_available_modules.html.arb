@@ -1,0 +1,5 @@
+li class: 'string input optional stringish' do
+  label class: 'label' do
+    label_text
+  end
+end

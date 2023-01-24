@@ -5,24 +5,34 @@
 #  id                                  :bigint           not null, primary key
 #  address                             :string           not null
 #  city_name                           :string           not null
+#  degree                              :string
+#  degree_in_france                    :boolean
 #  discarded_at                        :datetime
 #  email                               :string
+#  family_followed                     :boolean          default(FALSE)
 #  first_name                          :string           not null
+#  follow_us_on_facebook               :boolean
+#  follow_us_on_whatsapp               :boolean
 #  gender                              :string           not null
+#  help_my_child_to_learn_is_important :string
 #  is_ambassador                       :boolean
-#  is_lycamobile                       :boolean
 #  job                                 :string
 #  last_name                           :string           not null
 #  letterbox_name                      :string
 #  phone_number                        :string           not null
 #  phone_number_national               :string
 #  postal_code                         :string           not null
+#  present_on_facebook                 :boolean
+#  present_on_whatsapp                 :boolean
 #  redirection_unique_visit_rate       :float
 #  redirection_url_unique_visits_count :integer
 #  redirection_url_visits_count        :integer
 #  redirection_urls_count              :integer
 #  redirection_visit_rate              :float
+#  security_code                       :string
 #  terms_accepted_at                   :datetime
+#  would_like_to_do_more               :string
+#  would_receive_advices               :string
 #  created_at                          :datetime         not null
 #  updated_at                          :datetime         not null
 #
@@ -48,7 +58,13 @@ class Parent < ApplicationRecord
   GENDER_FEMALE = "f".freeze
   GENDER_MALE = "m".freeze
   GENDERS = [GENDER_FEMALE, GENDER_MALE].freeze
-  REGEX_VALID_EMAIL = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
+  ORELANS_POSTAL_CODE = %w[45000 45100 45140 45160 45240 45380 45400 45430 45470 45650 45770 45800]
+  PLAISIR_POSTAL_CODE = %w[78570 78540 78650 78700 78710 78711 78760 78800 78820 78860 78910 78955 78610 78980 78520 78490 78420 78410 78390 78380 78330 78300 78260 78220 78210 78200 78180 78150 78140 78130 78370 78340 78310 78280 78114 78320 78450 78960 78100 78640 78850]
+  MONTARGIS_POSTAL_CODE = %w[45110 45120 45200 45210 45220 45230 45260 45270 45290 45320 45490 45500 45520 45680 45700 49800 77460 77570]
+  TRAPPES_POSTAL_CODE = %w[78190 78990]
+  AULNAY_SOUS_BOIS_POSTAL_CODE = "93600"
+  PARIS_18_EME_POSTAL_CODE = %w[75017 75018 75019]
+  PARIS_20_EME_POSTAL_CODE = "75020"
 
   # ---------------------------------------------------------------------------
   # relations
@@ -68,7 +84,11 @@ class Parent < ApplicationRecord
 
   has_many :events, as: :related
 
-  has_many :workshops, through: :events
+  has_many :children_support_modules, dependent: :destroy
+
+  has_many :support_modules, through: :children_support_modules
+
+  has_and_belongs_to_many :workshops
 
   # ---------------------------------------------------------------------------
   # validations
@@ -78,22 +98,33 @@ class Parent < ApplicationRecord
 
   validates :gender, presence: true, inclusion: {in: GENDERS}
   validates :first_name, presence: true
+  validates :first_name, format: {with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE}
   validates :last_name, presence: true
+  validates :last_name, format: {with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE}
   validates :letterbox_name, presence: true
+  validates :letterbox_name, format: {with: REGEX_VALID_ADDRESS, allow_blank: true, message: INVALID_ADDRESS_MESSAGE}
   validates :address, presence: true
+  validates :address, format: {with: REGEX_VALID_ADDRESS, allow_blank: true, message: INVALID_ADDRESS_MESSAGE}
   validates :city_name, presence: true
   validates :postal_code, presence: true
   validates :phone_number,
     phone: {
       possible: true,
       types: :mobile,
-      countries: :fr
-    },
-    presence: true
+      countries: :fr,
+      allow_blank: true,
+      message: "doit être composé de 10 chiffres"
+    }
+  validates :phone_number, presence: true
   validates :email,
-    format: {with: REGEX_VALID_EMAIL, allow_blank: true},
+    format: {with: REGEX_VALID_EMAIL, allow_blank: true, message: "Les informations doivent être renseignées au format adresse email (xxxx@xx.com)."},
     uniqueness: {case_sensitive: false, allow_blank: true}
   validates :terms_accepted_at, presence: true
+
+  def initialize(attributes = {})
+    super
+    self.security_code = SecureRandom.hex(1)
+  end
 
   # ---------------------------------------------------------------------------
   # helpers
@@ -201,8 +232,23 @@ class Parent < ApplicationRecord
     I18n.transliterate(first_name).capitalize == I18n.transliterate(other_parent.first_name).capitalize && I18n.transliterate(last_name).capitalize == I18n.transliterate(other_parent.last_name).capitalize
   end
 
-  def specific_tags
-    tag_list - first_child.all_tags
+  def available_for_workshops?
+    children.each {|child| return true if child.available_for_workshops }
+
+    false
+  end
+
+  def should_be_contacted?
+    parent1_children.each {|child| return false unless child.should_contact_parent1 }
+    parent2_children.each {|child| return false unless child.should_contact_parent2 }
+
+    true
+  end
+
+  def target_parent?
+    return unless first_child.group
+
+    first_child.target_child?
   end
 
   # ---------------------------------------------------------------------------

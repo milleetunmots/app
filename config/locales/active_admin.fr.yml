@@ -4,10 +4,11 @@ fr:
       default_confirmation: Action groupée
       labels:
         add_tags: Taguer
+        add_available_modules: Ajouter des modules disponibles
         add_to_group: Ajouter à une cohorte
         assign_supporter: Assigner un(e) responsable pour
-        check_call_2_4: "Sélectionner 'Appel 2 ou 4' pour"
-        uncheck_call_2_4: "Désélectionner 'Appel 2 ou 4' pour"
+        check_call_2_4: "Sélectionner l'accompagnement renforcé pour"
+        uncheck_call_2_4: "Désélectionner l'accompagnement renforcé pour"
         check_potential_ambassador: "Sélectionner 'Potentiel parent ambassadeur' pour"
         uncheck_potential_ambassador: "Désélectionner 'Potentiel parent ambassadeur' pour"
         check_should_be_read: "Sélectionner 'Témoignage marquant' pour"
@@ -16,10 +17,14 @@ fr:
         create_support: Créer le suivi pour
         addresses_pdf: Générer les étiquettes pour
         quit_group: Mettre en pause la cohorte pour
+        reactive_group: Réactiver la cohorte pour
+        excel_export: Exporter un fichier Excel pour
         generate_buzz_expert: Export Buzz Expert pour
         generate_quit_sms: Mettre en pause et envoyer le message de continuation pour
-        remove_book_not_received: "Enlever les livres non reçus"
-        remove_call_infos: "Effacer les informations"
+        remove_book_not_received: "Enlever les livres non reçus pour"
+        remove_call_infos: "Effacer les informations pour"
+        select_available_support_module: Selectionner les modules disponibles pour
+        select_module: Selectionner un module pour
     edit_model: Modifier
     delete_model: Supprimer
     filters:
@@ -40,6 +45,8 @@ fr:
         new_model: Créer SMS
     scopes:
       all: Tous
+      active_group: Dans une cohorte active
+      available_for_the_workshops: N'ayant pas encore l'âge d'aller à l'école
       done: Fait
       ended: Terminées
       mine: Sous ma responsabilité
@@ -47,9 +54,11 @@ fr:
       months_between_12_and_24: 1-2 ans
       months_more_than_24: 2+ ans
       not_ended: En cours
+      not_programmed: Pas encore programmé
+      programmed: Programmé
       single_message: Messages uniques
       todo: À faire
-      call_2_4: Appel 2/4
+      call_2_4: Accompagnement renforcé
       waiting_second_group: Attente de 2eme cohorte
       with_book_not_received: Ayant un livre non reçu
       with_group: Dans une cohorte
@@ -59,3 +68,6 @@ fr:
       without_parent_to_contact: Sans parent à contacter
       without_support: Non suivis
       without_supporter: Sans responsable
+      with_support_module: Module déjà choisi
+      with_the_choice_to_make_by_us: Laisse le choix à 1001mots
+      without_choice: Pas encore choisi

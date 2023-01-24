@@ -129,7 +129,8 @@ GEM
       xpath (~> 3.2)
     childprocess (3.0.0)
     choice (0.2.0)
-    concurrent-ruby (1.1.8)
+    concurrent-ruby (1.1.10)
+    connection_pool (2.3.0)
     crack (0.4.5)
       rexml
     crass (1.0.6)
@@ -169,6 +170,8 @@ GEM
       railties (>= 5.0.0)
     faker (2.17.0)
       i18n (>= 1.6, < 2)
+    fast_excel (0.4.0)
+      ffi (> 1.9, < 2)
     ffi (1.15.0)
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
@@ -177,11 +180,12 @@ GEM
       thor (>= 0.14.0, < 2)
     font-awesome-sass (5.15.1)
       sassc (>= 1.11)
+    foreman (0.87.2)
     formtastic (4.0.0)
       actionpack (>= 5.2.0)
     formtastic_i18n (0.6.0)
-    globalid (0.4.2)
-      activesupport (>= 4.2.0)
+    globalid (1.0.1)
+      activesupport (>= 5.0)
     has_scope (0.8.0)
       actionpack (>= 5.2)
       activesupport (>= 5.2)
@@ -194,7 +198,7 @@ GEM
     http-cookie (1.0.4)
       domain_name (~> 0.5)
     http-form_data (2.3.0)
-    i18n (1.8.10)
+    i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     image_processing (1.12.1)
       mini_magick (>= 4.9.5, < 5)
@@ -206,7 +210,7 @@ GEM
       responders (>= 2, < 4)
     jbuilder (2.11.2)
       activesupport (>= 5.0.0)
-    jmespath (1.4.0)
+    jmespath (1.6.1)
     jquery-rails (4.4.0)
       rails-dom-testing (>= 1, < 3)
       railties (>= 4.2.0)
@@ -230,7 +234,7 @@ GEM
     llhttp-ffi (0.3.1)
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
-    loofah (2.9.1)
+    loofah (2.19.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.7.1)
@@ -239,12 +243,14 @@ GEM
     method_source (1.0.0)
     mini_magick (4.11.0)
     mini_mime (1.1.0)
-    mini_portile2 (2.6.1)
-    minitest (5.14.4)
+    mini_portile2 (2.8.0)
+    minitest (5.17.0)
+    mock_redis (0.34.0)
+      ruby2_keywords
     msgpack (1.4.2)
     nio4r (2.5.8)
-    nokogiri (1.12.5)
-      mini_portile2 (~> 2.6.1)
+    nokogiri (1.13.10)
+      mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     orm_adapter (0.5.0)
     paper_trail (12.0.0)
@@ -259,8 +265,8 @@ GEM
     public_suffix (4.0.6)
     puma (4.3.11)
       nio4r (~> 2.0)
-    racc (1.5.2)
-    rack (2.2.3)
+    racc (1.6.1)
+    rack (2.2.6.2)
     rack-proxy (0.6.5)
       rack
     rack-test (1.1.0)
@@ -288,8 +294,8 @@ GEM
       activesupport (>= 4.2)
       choice (~> 0.2.0)
       ruby-graphviz (~> 1.2)
-    rails-html-sanitizer (1.3.0)
-      loofah (~> 2.3)
+    rails-html-sanitizer (1.4.4)
+      loofah (~> 2.19, >= 2.19.1)
     rails-i18n (6.0.0)
       i18n (>= 0.7, < 2)
       railties (>= 6.0.0, < 7)
@@ -307,6 +313,7 @@ GEM
     rb-fsevent (0.10.4)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
+    redis (4.8.0)
     regexp_parser (2.1.1)
     request_store (1.5.0)
       rack (>= 1.4)
@@ -365,6 +372,10 @@ GEM
     selenium-webdriver (3.142.7)
       childprocess (>= 0.5, < 4.0)
       rubyzip (>= 1.2.2)
+    sidekiq (6.5.8)
+      connection_pool (>= 2.2.5, < 3)
+      rack (~> 2.0)
+      redis (>= 4.5.0, < 5)
     simple_form (5.1.0)
       actionpack (>= 5.2)
       activemodel (>= 5.2)
@@ -391,7 +402,7 @@ GEM
     turbolinks (5.2.1)
       turbolinks-source (~> 5.2)
     turbolinks-source (5.2.0)
-    tzinfo (1.2.9)
+    tzinfo (1.2.10)
       thread_safe (~> 0.1)
     unf (0.1.4)
       unf_ext
@@ -424,7 +435,7 @@ GEM
     wkhtmltopdf-binary (0.12.6.5)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    zeitwerk (2.4.2)
+    zeitwerk (2.6.6)
 
 PLATFORMS
   ruby
@@ -451,11 +462,14 @@ DEPENDENCIES
   draper
   factory_bot_rails
   faker
+  fast_excel
   figaro
+  foreman
   http
   image_processing
   jbuilder (~> 2.5)
   listen (>= 3.0.5, < 3.2)
+  mock_redis
   paper_trail
   pg (>= 0.18, < 2.0)
   pg_search
@@ -468,9 +482,11 @@ DEPENDENCIES
   rspec-rails
   rspec_junit_formatter
   ruby-prof (>= 0.17.0)
+  rubyzip
   sass-rails (~> 5)
   select2-rails
   selenium-webdriver
+  sidekiq
   simple_form
   simplecov
   stackprof (>= 0.2.9)
@@ -489,4 +505,4 @@ RUBY VERSION
    ruby 2.6.6p146
 
 BUNDLED WITH
-   2.2.16
+   2.2.32

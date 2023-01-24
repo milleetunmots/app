@@ -3,10 +3,12 @@
 # Table name: events
 #
 #  id                  :bigint           not null, primary key
+#  acceptation_date    :date
 #  body                :text
 #  discarded_at        :datetime
 #  occurred_at         :datetime
 #  originated_by_app   :boolean          default(TRUE), not null
+#  parent_presence     :string
 #  parent_response     :string
 #  related_type        :string
 #  spot_hit_status     :integer
@@ -14,6 +16,7 @@
 #  type                :string
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
+#  quit_group_child_id :bigint
 #  related_id          :bigint
 #  spot_hit_message_id :string
 #  workshop_id         :bigint
@@ -21,6 +24,7 @@
 # Indexes
 #
 #  index_events_on_discarded_at                 (discarded_at)
+#  index_events_on_quit_group_child_id          (quit_group_child_id)
 #  index_events_on_related_type_and_related_id  (related_type,related_id)
 #  index_events_on_type                         (type)
 #  index_events_on_workshop_id                  (workshop_id)
@@ -39,6 +43,7 @@ class Event < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   SPOT_HIT_STATUS = ["En attente","Livré","Envoyé","En cours","Echec","Expiré"].freeze
+  PARENT_PRESENCES = %w[present planned_absence not_planned_absence queue].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -46,6 +51,7 @@ class Event < ApplicationRecord
 
   belongs_to :related, polymorphic: true
   belongs_to :workshop, optional: true
+  belongs_to :quit_group_child, optional: true, class_name: :Child
 
   # ---------------------------------------------------------------------------
   # validations
@@ -58,9 +64,8 @@ class Event < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   delegate :first_child,
-    to: :related,
-    prefix: true,
-    allow_nil: true
+           :security_code,
+           to: :related, prefix: true, allow_nil: true
 
   delegate :id,
     :group,
@@ -78,6 +83,8 @@ class Event < ApplicationRecord
   scope :other_events, -> { where(type: "Events::OtherEvent") }
   scope :survey_responses, -> { where(type: "Events::SurveyResponse") }
   scope :text_messages, -> { where(type: "Events::TextMessage") }
+  scope :text_messages_send_by_app, -> { where(type: "Events::TextMessage", originated_by_app: true) }
+  scope :text_messages_send_by_parent, -> { where(type: "Events::TextMessage", originated_by_app: false) }
   scope :sent_by_app_text_messages, -> { where(type: "Events::TextMessage", originated_by_app: true) }
   scope :received_text_messages, -> { where(type: "Events::TextMessage", originated_by_app: false) }
   scope :workshop_participations, -> { where(type: "Events::WorkshopParticipation") }
