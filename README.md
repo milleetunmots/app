@@ -10,16 +10,17 @@
 ### Prerequisite
 * bundler gem installed
 ### Configuration
-* bundle install
-* cp config/database.yml.example config/database.yml
+* ```bundle install```
+* ```cp config/database.yml.example config/database.yml```
 * change values to match your local postgreSQL configuration
-* cp config/application.yml.example config/application.yml
+* ```cp config/application.yml.example config/application.yml```
 * change values to enable third-party tools
-* rails db:reset
+* ```rails db:create```
+* ```rails db:migrate```
+* ```rails db:seed```
 ### Run a local version
-#### With docker
-#### Without docker
 ```rails s```
 ### Run tests
-### Run sidekiq
-
+```bundle exec rspec ./spec```
+### Run with sidekiq
+```bin/dev```
