@@ -40,7 +40,6 @@ group :development, :test do
   gem "factory_bot_rails"
   gem "faker"
   gem "database_cleaner-active_record"
-  gem "bullet"
 end
 
 group :development do
@@ -51,6 +50,7 @@ group :development do
   gem "annotate"
   gem "foreman"
   gem "rails-erd"
+  gem "bullet", ">= 4.0"
 end
 
 group :test do
@@ -66,6 +66,7 @@ group :test do
   gem "test-prof"
   # avoid having Redis instances up just for running tests
   gem 'mock_redis'
+  gem 'shoulda-matchers', '~> 5.0'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
