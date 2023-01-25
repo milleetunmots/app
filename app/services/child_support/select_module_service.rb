@@ -46,7 +46,8 @@ class ChildSupport::SelectModuleService
     if sms_service.errors.any?
       @errors += sms_service.errors
     else
-      # ChildrenSupportModule::CheckToSendReminderJob.set(wait: 2.minutes).perform_later(@children_support_module.id)
+      reminder_date = @planned_date.advance(days: 3)
+      ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: reminder_date.to_datetime.change(hour: 6)).perform_later(@children_support_module.id, reminder_date)
     end
   end
 
