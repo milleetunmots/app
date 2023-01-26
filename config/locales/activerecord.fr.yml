@@ -400,8 +400,8 @@ fr:
         display_parent_presence: Presence du parent
       event/parents_presence:
         present: Présent
-        planned_absence: Absence prévue
-        not_planned_absence: Absence non prévue
+        planned_absence: Absence prévenue
+        not_planned_absence: Absence non prévenue
         queue: Sur liste d'attente
       field_comment:
         << : *SHARED

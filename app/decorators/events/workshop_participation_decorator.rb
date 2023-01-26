@@ -18,7 +18,7 @@ class Events::WorkshopParticipationDecorator < EventDecorator
         when "not_planned_absence"
           "a été absent à l'atelier (absence non prévue)"
         when "queue"
-          "est sur la file d'attente de l'atelier"
+          "est sur la liste d'attente pour cet atelier"
         else
           "a accepté l'invitation à un atelier le #{acceptation_date}"
         end
