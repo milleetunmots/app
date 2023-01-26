@@ -55,6 +55,7 @@ fr:
       admin_user/user_role:
         super_admin: Administrateur.rice
         team_member: Membre de l'équipe
+        logistics_team: Membre du pôle logistique
         caller: Appelant.e
       child:
         << : *SHARED

@@ -26,7 +26,7 @@
 
 class AdminUser < ApplicationRecord
 
-  ROLES = %w[super_admin team_member caller].freeze
+  ROLES = %w[super_admin team_member logistics_team caller].freeze
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
@@ -51,6 +51,10 @@ class AdminUser < ApplicationRecord
 
   def team_member?
     user_role == "team_member"
+  end
+
+  def logistics_team?
+    user_role == "logistics_team"
   end
 
   def caller?
