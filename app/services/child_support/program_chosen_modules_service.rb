@@ -30,7 +30,16 @@ class ChildSupport::ProgramChosenModulesService
       @errors << "Erreur en programmant le module #{support_module.name} pour les parents suivant: #{parent_names}.\n il est possible qu'une partie des messages ai été programmé. Erreur technique : #{e.message}"
     end
 
+    clean_support_module_list
     self
   end
 
+  private
+
+  def clean_support_module_list
+    @chosen_modules_service.pluck(:child_id).each do |child_id|
+      child = Child.find(child_id)
+      child.child_support.update(parent1_available_support_module_list: [""], parent2_available_support_module_list: [""])
+    end
+  end
 end
