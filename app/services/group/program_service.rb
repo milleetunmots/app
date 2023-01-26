@@ -32,9 +32,9 @@ class Group
       return if @group.support_modules_count < 3
 
       (3..@group.support_modules_count).each do |module_index|
-        start_module_date = @group.started_at + (module_index - 1) * 8.weeks - 4.weeks
+        select_module_date = (@group.started_at + (module_index - 1) * 8.weeks - 4.weeks).next_occurring(:saturday)
 
-        ChildrenSupportModule::SelectModuleJob.set(wait_until: start_module_date.noon).perform_later(@group.id)
+        ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date)
       end
     end
 
@@ -42,9 +42,9 @@ class Group
       return if @group.support_modules_count < 2
 
       (2..@group.support_modules_count).each do |module_index|
-        start_module_date = @group.started_at + (module_index - 1) * 8.weeks
+        program_module_date = @group.started_at + (module_index - 1) * 8.weeks
 
-        ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: start_module_date.noon).perform_later(@group.id, start_module_date)
+        ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: program_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, program_module_date)
       end
     end
   end
