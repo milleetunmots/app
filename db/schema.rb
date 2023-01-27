@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_12_28_175332) do
+ActiveRecord::Schema.define(version: 2023_01_20_102434) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -270,6 +270,8 @@ ActiveRecord::Schema.define(version: 2022_12_28_175332) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.datetime "discarded_at"
+    t.integer "support_modules_count", default: 0, null: false
+    t.boolean "is_programmed", default: false, null: false
     t.index ["discarded_at"], name: "index_groups_on_discarded_at"
     t.index ["ended_at"], name: "index_groups_on_ended_at"
     t.index ["started_at"], name: "index_groups_on_started_at"

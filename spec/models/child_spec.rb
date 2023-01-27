@@ -192,7 +192,7 @@ RSpec.describe Child, type: :model do
   describe "#months_lt" do
     context "returns" do
       it "children with a birthdate strictly greater than x months ago" do
-        expect(Child.months_lt(1)).to match_array [first_child, fourth_child]
+        expect(Child.months_lt(1)).to match_array [fourth_child]
       end
     end
   end

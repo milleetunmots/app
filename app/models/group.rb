@@ -2,13 +2,15 @@
 #
 # Table name: groups
 #
-#  id           :bigint           not null, primary key
-#  discarded_at :datetime
-#  ended_at     :date
-#  name         :string
-#  started_at   :date
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
+#  id                    :bigint           not null, primary key
+#  discarded_at          :datetime
+#  ended_at              :date
+#  is_programmed         :boolean          default(FALSE), not null
+#  name                  :string
+#  started_at            :date
+#  support_modules_count :integer          default(0), not null
+#  created_at            :datetime         not null
+#  updated_at            :datetime         not null
 #
 # Indexes
 #
@@ -34,6 +36,7 @@ class Group < ApplicationRecord
   validates :name,
     presence: true,
     uniqueness: {case_sensitive: false}
+  validate :started_at_only_monday
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -60,6 +63,10 @@ class Group < ApplicationRecord
 
   def self.not_target_group
     where("unaccent(name) ILIKE unaccent(?)", "%popi%")
+  end
+
+  def started_at_only_monday
+    errors.add(:started_at, :invalid, message: "doit être un lundi") if started_at && !started_at.monday?
   end
 
   # ---------------------------------------------------------------------------

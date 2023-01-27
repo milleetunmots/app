@@ -2,13 +2,15 @@
 #
 # Table name: groups
 #
-#  id           :bigint           not null, primary key
-#  discarded_at :datetime
-#  ended_at     :date
-#  name         :string
-#  started_at   :date
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
+#  id                    :bigint           not null, primary key
+#  discarded_at          :datetime
+#  ended_at              :date
+#  is_programmed         :boolean          default(FALSE), not null
+#  name                  :string
+#  started_at            :date
+#  support_modules_count :integer          default(0), not null
+#  created_at            :datetime         not null
+#  updated_at            :datetime         not null
 #
 # Indexes
 #

@@ -152,6 +152,8 @@ fr:
         paused: En pause
         stopped: Arrêtée
       children_support_module:
+        << : *SHARED
+        name_display: Nom
         name: Nom
         parent_name: Parent
         child_name: Enfant
@@ -413,6 +415,8 @@ fr:
         ended_at: Date de fin
         name: Nom
         started_at: Date de début
+        support_modules_count: Nombre de modules prévu
+        is_programmed: A déjà été programmé
       media_folder:
         << : *SHARED
         name: Nom

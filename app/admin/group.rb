@@ -18,6 +18,8 @@ ActiveAdmin.register Group do
     column :children
     column :started_at
     column :ended_at
+    column :support_modules_count
+    column :is_programmed
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -34,6 +36,8 @@ ActiveAdmin.register Group do
   filter :name
   filter :started_at
   filter :ended_at
+  filter :support_modules_count
+  filter :is_programmed
   filter :created_at
   filter :updated_at
 
@@ -51,11 +55,12 @@ ActiveAdmin.register Group do
       f.input :name
       f.input :started_at, as: :datepicker
       f.input :ended_at, as: :datepicker
+      f.input :support_modules_count
     end
     f.actions
   end
 
-  permit_params :name, :started_at, :ended_at
+  permit_params :name, :started_at, :ended_at, :support_modules_count
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -67,6 +72,29 @@ ActiveAdmin.register Group do
       row :children
       row :started_at
       row :ended_at
+      row :support_modules_count
+      row :is_programmed
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # MEMBER ACTIONS
+  # ---------------------------------------------------------------------------
+
+  action_item :program,
+    only: :show,
+    if: proc { !resource.is_programmed } do
+    link_to I18n.t("group.program_link"), [:program, :admin, resource]
+  end
+
+  member_action :program do
+    service = Group::ProgramService.new(resource).call
+
+    if service.errors.empty?
+      redirect_to [:admin, resource], notice: "Les futurs tâches, envois de sms ont été programmé avec succès."
+    else
+      flash[:alert] = service.errors
+      redirect_to [:admin, resource]
     end
   end
 

@@ -1,3 +1,5 @@
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
 
   devise_for :admin_users, ActiveAdmin::Devise.config
@@ -47,6 +49,9 @@ Rails.application.routes.draw do
 
   get "s/:id", to: 'children_support_modules#edit', as: :children_support_module_link
 
-  root to: redirect("/admin")
+  authenticate :admin_user do
+    mount Sidekiq::Web => "/sidekiq"
+  end
 
+  root to: redirect("/admin")
 end
