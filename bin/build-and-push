@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+docker build -t milleetunmots/app -f Dockerfile.release .
+docker tag milleetunmots/app:latest milleetunmots/app:develop_local
+docker push milleetunmots/app:develop_local
