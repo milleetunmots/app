@@ -16,23 +16,13 @@ class ChildrenSupportModule
                 child.child_support.parent2_available_support_module_list.reject(&:blank?).empty?
               )
           )
-
-          child_support_link[:"#{child.decorate.name}"] = Rails.application.routes.url_helpers.edit_admin_child_support_url(
-            id: child.child_support.id
-          )
+          child_support_link[:"#{child.decorate.name}"] = Rails.application.routes.url_helpers.edit_admin_child_support_url(id: child.child_support.id)
         end
       end
 
-      description = "Vérifier le choix de modules disponibles pour:"
-      child_support_link.each { |name, link| description << "\n- #{name} : #{link}" }
-      logistics_team_members.each do |ltm|
-        Task.create(
-          assignee_id: ltm.id,
-          title: "Vérification du choix de modules disponibles",
-          description: description,
-          due_date: Date.today
-        )
-      end
+      description_text = "Vérifier le choix de modules disponibles pour:"
+      child_support_link.each { |name, link| description_text << "\n- #{name} : #{link}" }
+      logistics_team_members.each { |ltm| Task.create(assignee_id: ltm.id, title: "Vérification du choix de modules disponibles", description: description_text, due_date: Date.today ) }
     end
   end
 end
