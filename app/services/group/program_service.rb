@@ -47,5 +47,15 @@ class Group
         ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: program_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, program_module_date)
       end
     end
+
+    def verify_available_module_list
+      return if @group.support_modules_count < 2
+
+      (2..@group.support_modules_count).each do |module_index|
+        verification_date = @group.started_at + (module_index - 1) * 8.weeks - 4.weeks
+
+        ChildrenSupportModule::VerifyAvailableModuleTaskJob.set(wait_until: verification_date.to_datetime.change(hour: 6)).perform_later(@group.id, verification_date)
+      end
+    end
   end
 end

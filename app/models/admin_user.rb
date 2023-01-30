@@ -45,6 +45,8 @@ class AdminUser < ApplicationRecord
     uniqueness: {case_sensitive: false}
   validates :user_role, inclusion: {in: ROLES}
 
+  scope :all_logistics_team_members, -> { where(user_role: "logistics_team") }
+
   def admin?
     user_role == "super_admin"
   end
