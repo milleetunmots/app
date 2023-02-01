@@ -21,7 +21,7 @@ class ChildrenSupportModule
       end
 
       description_text = "Compléter le choix de modules disponibles pour :"
-      child_support_link.each { |name, link| description_text << "\n- #{name} : #{link}" }
+      child_support_link.each { |name, link| description_text << "<br>#{ActionController::Base.helpers.link_to(name, link, target: '_blank', class: 'blue')}" }
       logistics_team_members.each { |ltm| Task.create(assignee_id: ltm.id, title: "Il manque des choix à préparer pour la cohorte \"#{group.name}\"", description: description_text, due_date: Date.today ) }
     end
   end

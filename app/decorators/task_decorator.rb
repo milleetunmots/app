@@ -43,7 +43,7 @@ class TaskDecorator < BaseDecorator
   end
 
   def display_description
-    model.description.gsub("\n", "<br>").html_safe
+    model.description.html_safe
   end
 
 end
