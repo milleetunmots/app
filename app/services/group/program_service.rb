@@ -10,8 +10,8 @@ class Group
 
     def call
       check_group_is_ready
-      verify_available_module_list
-      verify_chosen_modules
+      verify_available_module_list if @errors.empty?
+      verify_chosen_modules if @errors.empty?
       program_sms_to_choose_module_to_parents if @errors.empty?
       program_support_module_sms if @errors.empty?
       @group.update(is_programmed: true) if @errors.empty?
@@ -54,20 +54,20 @@ class Group
       return if @group.support_modules_count < 2
 
       (2..@group.support_modules_count).each do |module_index|
-        verification_date = @group.started_at + (module_index - 1) * 8.weeks - 4.weeks
+        verification_date = @group.started_at + (module_index - 1) * 8.weeks - 5.weeks
 
         ChildrenSupportModule::VerifyAvailableModulesTaskJob.set(wait_until: verification_date.to_datetime.change(hour: 6)).perform_later(@group.id, verification_date)
       end
     end
-  end
 
-  def verify_chosen_modules
-    return if @group.support_modules_count < 2
+    def verify_chosen_modules
+      return if @group.support_modules_count < 2
 
-    (2..@group.support_modules_count).each do |module_index|
-      verification_date = @group.started_at + (module_index - 1) * 8.weeks - 1.weeks
+      (2..@group.support_modules_count).each do |module_index|
+        verification_date = @group.started_at + (module_index - 1) * 8.weeks - 2.weeks
 
-      ChildrenSupportModule::VerifyChosenModulesTaskJob.set(wait_until: verification_date.to_datetime.change(hour: 6)).perform_later(@group.id, verification_date)
+        ChildrenSupportModule::VerifyChosenModulesTaskJob.set(wait_until: verification_date.to_datetime.change(hour: 6)).perform_later(@group.id, verification_date)
+      end
     end
   end
 end

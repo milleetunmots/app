@@ -20,9 +20,9 @@ class ChildrenSupportModule
         end
       end
 
-      description_text = "Vérifier le choix de modules disponibles pour:"
+      description_text = "Compléter le choix de modules disponibles pour :"
       child_support_link.each { |name, link| description_text << "\n- #{name} : #{link}" }
-      logistics_team_members.each { |ltm| Task.create(assignee_id: ltm.id, title: "Vérification du choix de modules disponibles", description: description_text, due_date: Date.today ) }
+      logistics_team_members.each { |ltm| Task.create(assignee_id: ltm.id, title: "Il manque des choix à préparer pour la cohorte \"#{group.name}\"", description: description_text, due_date: Date.today ) }
     end
   end
 end
