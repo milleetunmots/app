@@ -124,7 +124,7 @@ ActiveAdmin.register Task do
       row :assignee
       row :related
       row :title
-      row :description
+      row :display_description
       row :due_date
       row :done_at
       row :created_at

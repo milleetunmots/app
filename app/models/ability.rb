@@ -17,7 +17,7 @@ class Ability
     can :manage, ActiveAdmin::Page, name: "Message"
 
 
-    if user.team_member?
+    if user.team_member? || user.logistics_team?
       can :manage, ActiveAdmin::Page, name: "Module"
       can :manage, ActiveAdmin::Page, name: "Messages"
       can :manage, [Medium, SupportModule, MediaFolder, FieldComment, Tag, Event, Child, Workshop, ChildSupport]
