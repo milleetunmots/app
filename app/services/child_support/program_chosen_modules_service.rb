@@ -3,7 +3,7 @@ class ChildSupport::ProgramChosenModulesService
   attr_reader :errors
 
   def initialize(children_support_module_ids, first_message_date)
-    @chosen_modules_service = ChildrenSupportModule.includes(:parent).with_support_module.not_programmed.where(id: children_support_module_ids)
+    @chosen_modules_service = ChildrenSupportModule.includes(:parent, child: :child_support).with_support_module.not_programmed.where(id: children_support_module_ids)
     @first_message_date = first_message_date
     @errors = []
   end
@@ -37,9 +37,8 @@ class ChildSupport::ProgramChosenModulesService
   private
 
   def clean_support_module_list
-    @chosen_modules_service.pluck(:child_id).each do |child_id|
-      child = Child.find(child_id)
-      child.child_support.update(parent1_available_support_module_list: [""], parent2_available_support_module_list: [""])
+    @chosen_modules_service.each do |csm|
+      csm.child.child_support.update(parent1_available_support_module_list: [], parent2_available_support_module_list: [])
     end
   end
 end

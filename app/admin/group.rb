@@ -88,7 +88,7 @@ ActiveAdmin.register Group do
   end
 
   member_action :program do
-    service = Group::ProgramService.new(resource).call
+    service = Group::ProgramService.new(resource.object).call
 
     if service.errors.empty?
       redirect_to [:admin, resource], notice: "Les futurs tâches, envois de sms ont été programmé avec succès."
