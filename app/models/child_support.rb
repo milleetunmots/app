@@ -168,6 +168,18 @@ class ChildSupport < ApplicationRecord
         "12:30"
       ).call
     end
+
+    if saved_change_to_parent1_available_support_module_list?
+      ChildrenSupportModule.where(child: first_child, parent: parent1, is_programmed: false).each do |csm|
+        csm.update!(available_support_module_list: parent1_available_support_module_list)
+      end
+    end
+
+    if saved_change_to_parent2_available_support_module_list?
+      ChildrenSupportModule.where(child: first_child, parent: parent2, is_programmed: false).each do |csm|
+        csm.update!(available_support_module_list: parent2_available_support_module_list)
+      end
+    end
   end
 
   # ---------------------------------------------------------------------------

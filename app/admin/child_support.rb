@@ -662,11 +662,11 @@ ActiveAdmin.register ChildSupport do
   end
 
   member_action :select_module_for_parent1 do
-    children_support_module = ChildrenSupportModule.where(child: resource.model.first_child, parent: resource.model.parent1, is_programmed: false)
+    children_support_module = ChildrenSupportModule.find_by(child: resource.model.first_child, parent: resource.model.parent1, is_programmed: false)
     if resource.parent1_available_support_module_list.nil? || resource.parent1_available_support_module_list.reject(&:blank?).empty?
       redirect_back(fallback_location: root_path, alert: "Aucun module disponible n'est choisi")
-    elsif children_support_module.any?
-      redirect_to admin_children_support_module_path(id: children_support_module.first.id)
+    elsif children_support_module
+      redirect_to admin_children_support_module_path(id: children_support_module.id)
     else
       new_child_support_module = ChildrenSupportModule.create(
         is_completed: false,
@@ -679,14 +679,14 @@ ActiveAdmin.register ChildSupport do
   end
 
   member_action :select_module_for_parent2 do
-    children_support_module = ChildrenSupportModule.where(child: resource.model.first_child, parent: resource.model.parent2, is_programmed: false)
+    children_support_module = ChildrenSupportModule.find_by(child: resource.model.first_child, parent: resource.model.parent2, is_programmed: false)
     if resource.parent2_available_support_module_list.reject(&:blank?).empty?
       redirect_back(fallback_location: root_path, alert: "Aucun module disponible n'est choisi")
-    elsif children_support_module.any?
-      redirect_to admin_children_support_module_path(id: children_support_module.first.id)
+    elsif children_support_module
+      redirect_to admin_children_support_module_path(id: children_support_module.id)
     else
       new_child_support_module = ChildrenSupportModule.create(
-        is_completed: true,
+        is_completed: false,
         parent: resource.model.parent2,
         child: resource.model.first_child,
         available_support_module_list: resource.parent2_available_support_module_list
