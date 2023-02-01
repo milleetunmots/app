@@ -81,7 +81,7 @@ RSpec.describe Workshop, type: :model do
       it "is 'Atelier du workshop_date à location, avec animator, sur le thème topic'" do
         expect(workshop.name).to eq "Atelier du #{Date.today.next_day.day}/#{Date.today.next_day.month}/#{Date.today.next_day.year}, avec Angela"
         expect(paris_workshop.name).to eq "Atelier du #{Date.today.next_day(2).day}/#{Date.today.next_day(2).month}/#{Date.today.next_day(2).year} à Paris, avec Angela"
-        expect(meal_workshop.name).to eq "Atelier du #{Date.today.next_day(4).day}/#{Date.today.next_day(4).month}/#{Date.today.next_day(4).year} à Merlun, avec Angela, sur le thème Repas"
+        expect(meal_workshop.name).to eq "Atelier du #{Date.today.next_day(4).day}/#{Date.today.next_day(4).month}/#{Date.today.next_day(4).year} à Merlun, avec Angela, sur le thème \"Repas\""
       end
     end
   end
