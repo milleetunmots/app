@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+docker pull milleetunmots/app:develop
+docker tag milleetunmots/app:develop milleetunmots/app:develop_local
+docker push milleetunmots/app:develop_local
