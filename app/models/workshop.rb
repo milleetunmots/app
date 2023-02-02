@@ -38,6 +38,7 @@ class Workshop < ApplicationRecord
 
   before_save :set_name
   after_create :set_workshop_participation
+  after_save :update_workshop_participation
 
   validates :topic, inclusion: { in: TOPICS, allow_blank: true }
   validates :animator, presence: true
@@ -48,6 +49,8 @@ class Workshop < ApplicationRecord
   validates :city_name, presence: true
   validates :invitation_message, presence: true
   validates :workshop_land, inclusion: { in: Child::LANDS, allow_blank: true }
+
+  private
 
   def set_name
     self.name = "#{workshop_date.day}/#{workshop_date.month}/#{workshop_date.year}"
@@ -113,5 +116,10 @@ class Workshop < ApplicationRecord
         logger.debug parent
       end
     end
+  end
+
+  def update_workshop_participation
+    events.update_all(occurred_at: workshop_date) if saved_change_to_workshop_date
+    events.update_all(body: name) if saved_change_to_name
   end
 end
