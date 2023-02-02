@@ -107,4 +107,39 @@ ActiveAdmin.register Workshop do
     end
     redirect_to admin_workshop_path, notice: "Présences indiquées"
   end
+
+  action_item :register_parents, only: :show do
+    link_to "Inscrire des parents", [:register_parents, :admin, resource]
+  end
+
+  member_action :register_parents do
+    @workshop_id = resource.id
+    @perform_action = perform_parents_registration_admin_workshop_path
+  end
+
+  member_action :perform_parents_registration, method: :post do
+    workshop = Workshop.find(params[:workshop_id])
+    parent_to_register_ids = params[:workshop][:parent_ids].reject(&:blank?)
+    workshop.parents << Parent.where(id: parent_to_register_ids)
+
+    workshop.parents = workshop.parents.uniq
+
+    parent_to_register_ids.each do |parent_id|
+      event = Event.find_by(related: Parent.find(parent_id), workshop: workshop)
+      if event
+        event.parent_response == "Oui" ? next : event.update!(parent_response: "Oui")
+      else
+        Event.create(
+          type: "Events::WorkshopParticipation",
+          related: Parent.find(parent_id),
+          body: workshop.name,
+          occurred_at: workshop.workshop_date,
+          workshop: workshop,
+          parent_response: "Oui"
+        )
+      end
+    end
+
+    redirect_to admin_workshop_path, notice: "Parent(s) inscrit(s)"
+  end
 end
