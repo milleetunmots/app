@@ -571,6 +571,7 @@ fr:
         animator: Animateur
         co_animator: Binôme
         address: Adresse
+        canceled: Annulé
         display_topic: Thème
         land: Terrain
         location: Lieu de l'atelier

@@ -19,6 +19,7 @@ ActiveAdmin.register Workshop do
     column :workshop_address
     column :location
     column :workshop_land
+    column :canceled
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -32,6 +33,7 @@ ActiveAdmin.register Workshop do
   filter :postal_code
   filter :city_name
   filter :location
+  filter :canceled
 
   form do |f|
     f.semantic_errors *f.object.errors.keys
@@ -45,12 +47,13 @@ ActiveAdmin.register Workshop do
       f.input :parents, collection: parent_select_collection, input_html: {data: {select2: {}}}
       f.input :workshop_land, collection: Child::LANDS, input_html: {data: {select2: {}}}
       f.input :invitation_message, input_html: {rows: 5}
+      f.input :canceled
     end
     f.actions
   end
 
   permit_params :topic, :workshop_date, :animator_id, :co_animator, :address, :postal_code, :city_name,
-                :invitation_message, :workshop_land, :location, tags_params, parent_ids: []
+                :invitation_message, :workshop_land, :location, :canceled, tags_params, parent_ids: []
 
   show do
     tabs do
@@ -71,6 +74,7 @@ ActiveAdmin.register Workshop do
           row :parent_who_refused_number
           row :parent_who_ignored_number
           row :workshop_land
+          row :canceled
         end
       end
     end
@@ -90,6 +94,7 @@ ActiveAdmin.register Workshop do
     column :parents_who_accepted_csv
     column :parents_who_refused_csv
     column :parents_without_response_csv
+    column :canceled
   end
 
   action_item :update_parents_presence, only: :show do
