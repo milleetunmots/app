@@ -11,6 +11,7 @@ ActiveAdmin.register ChildrenSupportModule do
     column :is_completed
     column :parent_name
     column :child_name
+    column :child_group_name
     column :created_at
     column :choice_date
     column :is_programmed
