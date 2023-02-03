@@ -124,23 +124,23 @@ ActiveAdmin.register Workshop do
 
   member_action :perform_parents_registration, method: :post do
     workshop = Workshop.find(params[:workshop_id])
-    parent_to_register_ids = params[:workshop][:parent_ids].reject(&:blank?)
-    workshop.parents << Parent.where(id: parent_to_register_ids)
+    parent_to_register_ids = params[:workshop][:parent_ids].reject(&:blank?) - workshop.parents.ids.map(&:to_s)
+    parents_to_register = Parent.where(id: parent_to_register_ids)
+    workshop.parents << parents_to_register
 
-    workshop.parents = workshop.parents.uniq
-
-    parent_to_register_ids.each do |parent_id|
-      event = Event.find_by(related: Parent.find(parent_id), workshop: workshop)
+    parents_to_register.each do |parent|
+      event = Event.find_by(related: parent, workshop: workshop)
       if event
-        event.parent_response == "Oui" ? next : event.update!(parent_response: "Oui")
+        event.parent_response == "Oui" ? next : event.update!(parent_response: "Oui", acceptation_date: Date.today)
       else
         Event.create(
           type: "Events::WorkshopParticipation",
-          related: Parent.find(parent_id),
+          related: parent,
           body: workshop.name,
           occurred_at: workshop.workshop_date,
           workshop: workshop,
-          parent_response: "Oui"
+          parent_response: "Oui",
+          acceptation_date: Date.today
         )
       end
     end
