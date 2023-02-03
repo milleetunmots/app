@@ -38,6 +38,11 @@ class ChildrenSupportModule < ApplicationRecord
   validate :support_module_not_programmed, on: :create
   validate :valid_child_parent
 
+  delegate :group_name,
+           to: :child,
+           prefix: true,
+           allow_nil: true
+
   def name
     return support_module.decorate&.name if support_module
     return "Laisse le choix à 1001mots" if is_completed

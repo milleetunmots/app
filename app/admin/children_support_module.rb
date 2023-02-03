@@ -11,6 +11,7 @@ ActiveAdmin.register ChildrenSupportModule do
     column :is_completed
     column :parent_name
     column :child_name
+    column :child_group_name
     column :created_at
     column :choice_date
     column :is_programmed
@@ -60,6 +61,7 @@ ActiveAdmin.register ChildrenSupportModule do
 
   filter :is_completed, as: :boolean
   filter :is_programmed, as: :boolean
+  filter :child_group_name, as: :string
   filter :support_module_name, as: :string
   filter :child_last_name, as: :string
   filter :child_first_name, as: :string

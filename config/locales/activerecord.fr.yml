@@ -162,8 +162,10 @@ fr:
         created_at: Date d'envoi du formulaire
         choice_date: Date de choix du module
         support_module_name: Module
-        child_last_name: Nom de famille
+        child_group_name: Cohorte
+        child_last_name: Nom de l'enfant
         child_first_name: Prénom de l'enfant
+        parent_last_name: Nom du parent
         parent_first_name: Prénom du parent
         is_completed: Choisi par le parent ?
         is_programmed: Programmé ?
@@ -572,6 +574,7 @@ fr:
         animator: Animateur
         co_animator: Binôme
         address: Adresse
+        canceled: Annulé
         display_topic: Thème
         land: Terrain
         location: Lieu de l'atelier
