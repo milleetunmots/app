@@ -25,9 +25,9 @@ class ChildSupport::SelectModuleService
 
   def send_select_module_message(parent, available_support_module_list)
     return if available_support_module_list.reject(&:blank?).empty?
-    return if ChildrenSupportModule.exists?(child_id: @child.id, parent_id: parent.id, is_programmed: false)
 
-    @children_support_module = ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id, available_support_module_list: available_support_module_list)
+    @children_support_module = ChildrenSupportModule.find_by(child_id: @child.id, parent_id: parent.id, is_programmed: false)
+    @children_support_module ||= ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id, available_support_module_list: available_support_module_list)
 
     selection_link = Rails.application.routes.url_helpers.children_support_module_link_url(
       @children_support_module.id,
