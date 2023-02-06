@@ -30,6 +30,9 @@ class ProgramMessageService
     find_parent_ids_from_tags
     find_parent_ids_from_groups
     find_parent_ids_from_children
+    verify_parent_and_children_validity
+
+    return self if @errors.any?
 
     @errors << "Aucun parent à contacter." and return self if @parent_ids.empty?
 
@@ -160,6 +163,19 @@ class ProgramMessageService
 
       @parent_ids << child.parent1_id if child.parent1_id && child.should_contact_parent1
       @parent_ids << child.parent2_id if child.parent2_id && child.should_contact_parent2
+    end
+  end
+
+  def verify_parent_and_children_validity
+    parents = Parent.includes(:parent1_children, :parent2_children).where(id: @parent_ids)
+
+    parents.each do |parent|
+      unless parent.valid?
+        @errors << "Le parent #{parent.decorate.name} n'est pas valide"
+      end
+      parent.children.each do |child|
+        @errors << "L'enfant #{child.decorate.name} n'est pas valide"
+      end
     end
   end
 end
