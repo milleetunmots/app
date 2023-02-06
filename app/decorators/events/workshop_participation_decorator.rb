@@ -14,9 +14,9 @@ class Events::WorkshopParticipationDecorator < EventDecorator
         when "present"
           "a été présent à l'atelier"
         when "planned_absence"
-          "a été absent à l'atelier (absence prévue)"
+          "a été absent à l'atelier (absence prévenue)"
         when "not_planned_absence"
-          "a été absent à l'atelier (absence non prévue)"
+          "a été absent à l'atelier (absence non prévenue)"
         when "queue"
           "est sur la liste d'attente pour cet atelier"
         else
@@ -27,6 +27,8 @@ class Events::WorkshopParticipationDecorator < EventDecorator
       else
         "a été invité à un atelier"
       end
+
+    participation_state << ", mais celui-ci a été annulé" if workshop.canceled
 
     [
       related_link,

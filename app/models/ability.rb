@@ -5,7 +5,7 @@ class Ability
 
   def initialize(user)
     return unless user.present?
-    if user.admin?
+    if user.admin? || user.logistics_team?
       can :manage, :all
       return
     end
@@ -17,7 +17,7 @@ class Ability
     can :manage, ActiveAdmin::Page, name: "Message"
 
 
-    if user.team_member? || user.logistics_team?
+    if user.team_member?
       can :manage, ActiveAdmin::Page, name: "Module"
       can :manage, ActiveAdmin::Page, name: "Messages"
       can :manage, [Medium, SupportModule, MediaFolder, FieldComment, Tag, Event, Child, Workshop, ChildSupport]

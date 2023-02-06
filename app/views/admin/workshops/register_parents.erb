@@ -1,0 +1,33 @@
+<%= semantic_form_for(Workshop.new, url: @perform_action) do |f| %>
+
+  <%= f.inputs do %>
+
+    <%= f.hidden_field  :workshop_id,
+                        name: 'workshop_id',
+                        value: @workshop_id %>
+
+    <%= f.input :parents,
+                multiple: true,
+                label: "Parents",
+                collection: parent_select_collection,
+                input_html: {
+                  data: {
+                    select2: {
+                      tags: true,
+                      tokenSeparators: [","]
+                    }
+                  }
+                }
+    %>
+
+    <%= f.actions do %>
+      <%= f.action :submit, label: 'Valider' %>
+    <% end %>
+
+  <% end %>
+
+<% end %>
+
+<%= javascript_tag do %>
+  $('body').addClass('edit');
+<% end %>
