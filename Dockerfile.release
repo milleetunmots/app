@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 leikir/ruby-bundler-node-yarn-and-extras:ruby-2.6.6-node-10.16.0-slim
+FROM leikir/ruby-bundler-node-yarn-and-extras:ruby-2.6.6-node-10.16.0-slim
 
 MAINTAINER Yann Hourdel "yann@hourdel.fr"
 
