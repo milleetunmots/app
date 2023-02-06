@@ -13,6 +13,7 @@ class Group
       verify_available_module_list if @errors.empty?
       verify_chosen_modules if @errors.empty?
       program_sms_to_choose_module_to_parents if @errors.empty?
+      program_check_spothit_credits if @errors.empty?
       program_support_module_sms if @errors.empty?
       @group.update(is_programmed: true) if @errors.empty?
 
@@ -67,6 +68,16 @@ class Group
         verification_date = @group.started_at + (module_index - 1) * 8.weeks - 2.weeks
 
         ChildrenSupportModule::VerifyChosenModulesTaskJob.set(wait_until: verification_date.to_datetime.change(hour: 6)).perform_later(@group.id, verification_date)
+      end
+    end
+
+    def program_check_spothit_credits
+      return if @group.support_modules_count < 2
+
+      (2..@group.support_modules_count).each do |module_index|
+        check_date = @group.started_at + (module_index - 1) * 8.weeks - 1.week
+
+        ChildrenSupportModule::CheckCreditsForGroupJob.set(wait_until: check_date.to_datetime.change(hour: 6)).perform_later(@group.id)
       end
     end
   end
