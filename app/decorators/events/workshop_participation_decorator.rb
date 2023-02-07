@@ -28,7 +28,7 @@ class Events::WorkshopParticipationDecorator < EventDecorator
         "a été invité à un atelier"
       end
 
-    participation_state << ", mais celui-ci a été annulé" if workshop.canceled
+    participation_state << ", mais celui-ci a été annulé" if workshop&.canceled
 
     [
       related_link,
