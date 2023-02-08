@@ -289,11 +289,12 @@ ActiveAdmin.register Child do
   end
 
   batch_action :excel_export do |ids|
-    if @children.with_stopped_group.any?
-      flash[:error] = "Certains enfants sont déjà dans une cohorte arrêtée"
+    children = batch_action_collection.where(id: ids)
+    if children.with_stopped_group.any?
+      flash[:error] = "Certains enfants sont dans une cohorte arrêtée"
       redirect_to request.referer
     else
-      service = Child::ExportBookExcelService.new(children: batch_action_collection.where(id: ids)).call
+      service = Child::ExportBookExcelService.new(children: children).call
 
       send_data(service.workbook.read_string, filename: "#{Date.today.strftime('%d-%m-%Y')}.xlsx")
     end
