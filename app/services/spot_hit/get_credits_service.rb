@@ -1,13 +1,13 @@
 module SpotHit
   class GetCreditsService
-    attr_reader :errors, :premium, :mms
+    attr_reader :errors, :sms, :mms
 
     def initialize
       @uri = URI("https://www.spot-hit.fr/api/credits")
       @form = { "key" => ENV["SPOT_HIT_API_KEY"] }
 
       @errors = []
-      @premium = 0
+      @sms = 0
       @mms = 0
     end
 
@@ -17,7 +17,7 @@ module SpotHit
       if credits.key?("erreurs")
         @errors << "Erreur lors du check du nombre de crédit spot-hit. [Réponse SPOT_HIT API #{response.body.to_s}]"
       else
-        @premium = credits["premium"].to_i
+        @sms = credits["premium"].to_i
         @mms = credits["mms"].to_i
       end
 
