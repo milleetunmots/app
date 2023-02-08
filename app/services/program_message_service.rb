@@ -174,7 +174,7 @@ class ProgramMessageService
         @errors << "Le parent #{parent.decorate.name} n'est pas valide"
       end
       parent.children.each do |child|
-        @errors << "L'enfant #{child.decorate.name} n'est pas valide"
+        @errors << "L'enfant #{child.decorate.name} n'est pas valide" unless child.valid?
       end
     end
   end
