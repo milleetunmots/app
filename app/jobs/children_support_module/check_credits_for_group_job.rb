@@ -7,7 +7,18 @@ class ChildrenSupportModule
       children_support_module_ids = ChildrenSupportModule.where(child_id: group.children.where(group_status: "active").ids)
 
       check_service = ChildrenSupportModule::CheckCreditsService.new(children_support_module_ids).call
-      raise check_service.errors.to_json if check_service.errors.any?
+
+      if check_service.errors.any?
+        logistics_team_members = AdminUser.all_logistics_team_members
+        logistics_team_members.each do |ltm|
+          Task.create(
+            assignee_id: ltm.id,
+            title: "Il n'y a pas assez de crédits pour la programmation des modules de la cohorte : \"#{group.name}\"",
+            description: check_service.errors.joins("<br>"),
+            due_date: Date.today
+          )
+        end
+      end
     end
   end
 end

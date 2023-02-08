@@ -11,7 +11,6 @@ class ChildrenSupportModule
       service = ChildSupport::ProgramChosenModulesService.new(children_support_module_ids, first_message_date).call
       errors[group.id] = service.errors if service.errors.any?
 
-
       raise errors.to_json if errors.any?
     end
   end
