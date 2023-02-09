@@ -284,10 +284,10 @@ ActiveAdmin.register ChildSupport do
             end
 
             columns style: 'justify-content:space-between;'do
-              column max_width: '8%' do
-                f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
-              end
               if call_idx == 1
+                column max_width: '8%' do
+                  f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
+                end
                 column do
                   f.input :books_quantity,
                     as: :radio,
