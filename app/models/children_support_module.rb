@@ -54,8 +54,11 @@ class ChildrenSupportModule < ApplicationRecord
     SupportModule.where(id: available_support_module_list)
   end
 
-  def support_module_collection
-    SupportModule.where(id: available_support_module_list).map(&:decorate)
+  def available_support_module_collection
+    SupportModule.where(id: available_support_module_list).map do |sm|
+      sm.decorate.object.name = "#{sm.decorate.object.name} #{sm.decorate.object.tag_list.join(" ")}"
+      sm.decorate
+    end
   end
 
   def support_module_not_programmed
