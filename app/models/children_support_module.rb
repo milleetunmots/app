@@ -67,4 +67,12 @@ class ChildrenSupportModule < ApplicationRecord
   def valid_child_parent
     errors.add(:base, :invalid, message: "Cet enfant n'appartient pas à ce parent") unless parent.children.to_a.include? child
   end
+
+  def self.group_id_in(*v)
+    includes(child: :group).where("children.group_id IN (?)", v).references(:children)
+  end
+
+  def self.ransackable_scopes(auth_object = nil)
+    super + %i[group_id_in]
+  end
 end
