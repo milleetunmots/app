@@ -178,7 +178,7 @@ fr:
         address: Adresse
         availability: Disponibilités
         book_not_received: Livre non reçu
-        books_quantity: Nombre de livres dans le foyer pour l'enfant suivi
+        books_quantity: Nombre de livres pour l'enfant suivi
         call_infos: Informations
         call1_duration: Durée de l'appel 1 (en minutes)
         call1_status: Statut de l'appel 1
@@ -347,11 +347,11 @@ fr:
         2_local_facebook: Facebook local
         3_whatsapp: WhatsApp
       child_support/book_not_received:
-        1_first_book: Livre 1
-        2_second_book: Livre 2
-        3_third_book: Livre 3
-        4_fourth_book: Livre 4
-        5_fifth_book: Livre 5
+        1_first_book: Livre module 1 sonore
+        2_second_book: Livre module 1 autre
+        3_third_book: Livre module 2
+        4_fourth_book: Livre module 3
+        5_fifth_book: Livre module 4
       child_support/call_status:
         1_ok: OK
         2_ko: KO
