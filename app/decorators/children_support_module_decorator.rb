@@ -1,7 +1,7 @@
 class ChildrenSupportModuleDecorator < BaseDecorator
 
   def name_display
-    return support_module.decorate&.admin_link if support_module
+    return support_module.decorate.admin_link(label: support_module.decorate.name_with_tags) if support_module
     return "Laisse le choix à 1001mots" if is_completed
 
     "Pas encore choisi"
@@ -23,6 +23,6 @@ class ChildrenSupportModuleDecorator < BaseDecorator
   end
 
   def available_support_module_names
-    model.available_support_modules.map { |support| support.decorate&.admin_link }
+    model.available_support_modules.decorate.map { |support_module| support_module.admin_link(label: support_module.name_with_tags) }
   end
 end

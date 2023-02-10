@@ -44,7 +44,7 @@ class ChildrenSupportModule < ApplicationRecord
            allow_nil: true
 
   def name
-    return support_module.decorate&.name if support_module
+    return support_module.decorate.name_with_tags if support_module
     return "Laisse le choix à 1001mots" if is_completed
 
     "Pas encore choisi"
@@ -54,8 +54,8 @@ class ChildrenSupportModule < ApplicationRecord
     SupportModule.where(id: available_support_module_list)
   end
 
-  def support_module_collection
-    SupportModule.where(id: available_support_module_list).map(&:decorate)
+  def available_support_module_collection
+    available_support_modules.decorate.map { |sm| [sm.name_with_tags, sm.id] }
   end
 
   def support_module_not_programmed
