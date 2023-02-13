@@ -33,10 +33,12 @@ ActiveAdmin.register ChildrenSupportModule do
 
   form do |f|
     f.semantic_errors *f.object.errors.keys
-    f.object.is_completed = params[:is_completed]
-    f.object.parent_id = params[:parent_id]
-    f.object.child_id = params[:child_id]
-    f.object.available_support_module_list = params[:available_support_module_list]
+    if params[:action] == "new" && params[:is_completed] && params[:parent_id] && params[:child_id] && params[:available_support_module_list]
+      f.object.is_completed = params[:is_completed]
+      f.object.parent_id = params[:parent_id]
+      f.object.child_id = params[:child_id]
+      f.object.available_support_module_list = params[:available_support_module_list]
+    end
     f.inputs do
       f.input :is_completed
       f.input :child,
