@@ -33,6 +33,10 @@ ActiveAdmin.register ChildrenSupportModule do
 
   form do |f|
     f.semantic_errors *f.object.errors.keys
+    f.object.is_completed = params[:is_completed]
+    f.object.parent_id = params[:parent_id]
+    f.object.child_id = params[:child_id]
+    f.object.available_support_module_list = params[:available_support_module_list]
     f.inputs do
       f.input :is_completed
       f.input :child,
