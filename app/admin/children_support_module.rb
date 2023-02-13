@@ -51,11 +51,12 @@ ActiveAdmin.register ChildrenSupportModule do
       f.input :support_module,
               collection: resource.support_module_collection,
               input_html: {data: {select2: {}}}
-      f.object.available_support_module_list.reject(&:blank?).each do |asm|
-        f.input :available_support_module_list,
-                multiple: true,
-                value: asm
-                # as: :hidden
+      if params[:available_support_module_list]
+        f.object.available_support_module_list.reject(&:blank?).each do |asm|
+          f.input :available_support_module_list,
+                  input_html: { multiple: true, value: asm },
+                  as: :hidden
+        end
       end
 
   end
