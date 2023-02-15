@@ -668,13 +668,12 @@ ActiveAdmin.register ChildSupport do
     elsif children_support_module
       redirect_to admin_children_support_module_path(id: children_support_module.id)
     else
-      new_child_support_module = ChildrenSupportModule.create(
-        is_completed: false,
-        parent: resource.model.parent1,
-        child: resource.model.first_child,
-        available_support_module_list: resource.parent1_available_support_module_list
-      )
-      redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
+      redirect_to new_admin_children_support_module_path(
+                    is_completed: false,
+                    parent_id: resource.model.parent1,
+                    child_id: resource.model.first_child,
+                    available_support_module_list: resource.parent1_available_support_module_list
+                  )
     end
   end
 
@@ -685,13 +684,12 @@ ActiveAdmin.register ChildSupport do
     elsif children_support_module
       redirect_to admin_children_support_module_path(id: children_support_module.id)
     else
-      new_child_support_module = ChildrenSupportModule.create(
-        is_completed: false,
-        parent: resource.model.parent2,
-        child: resource.model.first_child,
-        available_support_module_list: resource.parent2_available_support_module_list
-      )
-      redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
+      redirect_to new_admin_children_support_module_path(
+                    is_completed: false,
+                    parent_id: resource.model.parent2,
+                    child_id: resource.model.first_child,
+                    available_support_module_list: resource.parent2_available_support_module_list
+                  )
     end
   end
 

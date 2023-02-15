@@ -12,6 +12,7 @@ ActiveAdmin.register ChildrenSupportModule do
     column :parent_name
     column :child_name
     column :child_group_name
+    column :available_support_module_names
     column :created_at
     column :choice_date
     column :is_programmed
@@ -33,6 +34,12 @@ ActiveAdmin.register ChildrenSupportModule do
 
   form do |f|
     f.semantic_errors *f.object.errors.keys
+    if params[:action] == "new"
+      f.object.is_completed = params[:is_completed] if params[:is_completed]
+      f.object.parent_id = params[:parent_id] if params[:parent_id]
+      f.object.child_id = params[:child_id] if params[:child_id]
+      f.object.available_support_module_list = params[:available_support_module_list] if params[:available_support_module_list]
+    end
     f.inputs do
       f.input :is_completed
       f.input :child,
@@ -44,11 +51,19 @@ ActiveAdmin.register ChildrenSupportModule do
       f.input :support_module,
               collection: resource.available_support_module_collection,
               input_html: {data: {select2: {}}}
-    end
+      if params[:available_support_module_list]
+        f.object.available_support_module_list.reject(&:blank?).each do |asm|
+          f.input :available_support_module_list,
+                  input_html: { multiple: true, value: asm },
+                  as: :hidden
+        end
+      end
+
+  end
     f.actions
   end
 
-  permit_params :child_id, :parent_id, :support_module_id, :is_completed
+  permit_params :child_id, :parent_id, :support_module_id, :is_completed, available_support_module_list: []
 
   scope :all, default: true
 
