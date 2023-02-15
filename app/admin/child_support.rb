@@ -255,8 +255,11 @@ ActiveAdmin.register ChildSupport do
         column class:'column flex-column' do
           available_support_module_input(f, :parent1_available_support_module_list)
           available_support_module_input(f, :parent2_available_support_module_list) unless resource.parent2.nil?
-          f.input :availability, input_html: { style: "width: 70%"}
-          f.input :call_infos, input_html: { style: "width: 70%"}
+          div class: 'border' do
+            span "Ces informations apparaissent dans l'index des suivis"
+            f.input :availability, input_html: { style: "width: 70%"}
+            f.input :call_infos, input_html: { style: "width: 70%"}
+          end
           f.input :book_not_received,
             collection: book_not_received_collection,
             multiple: true,
