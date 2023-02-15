@@ -94,7 +94,7 @@ ActiveAdmin.register ChildrenSupportModule do
 
   batch_action :select_module, form: -> {
     {
-      I18n.t("activerecord.models.children_support_module") => SupportModule.pluck(:name, :id)
+      I18n.t("activerecord.models.children_support_module") => SupportModule.order("LOWER(name)").decorate.map { |sm| [sm.name_with_tags, sm.id] }
     }
   } do |ids, inputs|
     batch_action_collection.where(id: ids, is_programmed: false).update_all(
