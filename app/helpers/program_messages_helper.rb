@@ -31,7 +31,7 @@ module ProgramMessagesHelper
       .map do |result|
       {
         id: result.id,
-        text: result.name
+        text: result.name_with_tags
       }
     end
   end
