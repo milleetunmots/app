@@ -28,9 +28,9 @@ ActiveAdmin.register ChildSupport do
         ].join(" ").html_safe
       end
     end
+    column :availability
     column :call_infos
     column :groups
-    # column :will_stay_in_group
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -255,8 +255,8 @@ ActiveAdmin.register ChildSupport do
         column class:'column flex-column' do
           available_support_module_input(f, :parent1_available_support_module_list)
           available_support_module_input(f, :parent2_available_support_module_list) unless resource.parent2.nil?
-          f.input :availability, label: 'Disponibilités générales', input_html: { style: "width: 70%"}
-          f.input :call_infos, label: 'Tentatives d’appels', input_html: { style: "width: 70%"}
+          f.input :availability, input_html: { style: "width: 70%"}
+          f.input :call_infos, input_html: { style: "width: 70%"}
           f.input :book_not_received,
             collection: book_not_received_collection,
             multiple: true,
