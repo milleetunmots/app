@@ -20,7 +20,6 @@ ActiveAdmin.register ChildSupport do
     selectable_column
     id_column
     column :children
-    column :supporter, sortable: :supporter_id
     (1..5).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         [
