@@ -12,7 +12,7 @@ class ChildSupportDecorator < BaseDecorator
   end
 
   def display_name
-    first_child&.decorate&.name
+    current_child&.decorate&.name
   end
 
   def children
@@ -283,9 +283,9 @@ class ChildSupportDecorator < BaseDecorator
     parent.decorate.admin_link
   end
 
-  def first_child_pmi_detail
-    return nil if model.first_child.pmi_detail.blank?
-    Child.human_attribute_name("pmi_detail.#{model.first_child.pmi_detail}")
+  def current_child_pmi_detail
+    return nil if model.current_child.pmi_detail.blank?
+    Child.human_attribute_name("pmi_detail.#{model.current_child.pmi_detail}")
   end
 
   # def parent_card(parent, should_contact_parent)

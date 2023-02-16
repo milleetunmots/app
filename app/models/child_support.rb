@@ -147,36 +147,36 @@ class ChildSupport < ApplicationRecord
 
   belongs_to :supporter, class_name: :AdminUser, optional: true
   has_many :children, dependent: :nullify
-  has_one :first_child, class_name: :Child
-  has_one :parent1, through: :first_child
-  has_one :parent2, through: :first_child
+  has_one :current_child, class_name: :Child
+  has_one :parent1, through: :current_child
+  has_one :parent2, through: :current_child
 
-  accepts_nested_attributes_for :first_child
+  accepts_nested_attributes_for :current_child
 
   before_update do
-    first_child.parent1.tag_list.add(self.tag_list)
-    first_child.parent1.save
-    first_child.parent2&.tag_list&.add(self.tag_list)
-    first_child.parent2&.save
+    current_child.parent1.tag_list.add(self.tag_list)
+    current_child.parent1.save
+    current_child.parent2&.tag_list&.add(self.tag_list)
+    current_child.parent2&.save
   end
 
   after_save do
     if saved_change_to_call2_status && call2_status == "KO"
       ChildSupport::SelectModuleService.new(
-        first_child,
+        current_child,
         Date.today.next_day.sunday? ? Date.today.next_day(2) : Date.today.next_day,
         "12:30"
       ).call
     end
 
     if saved_change_to_parent1_available_support_module_list?
-      ChildrenSupportModule.where(child: first_child, parent: parent1, is_programmed: false).each do |csm|
+      ChildrenSupportModule.where(child: current_child, parent: parent1, is_programmed: false).each do |csm|
         csm.update!(available_support_module_list: parent1_available_support_module_list)
       end
     end
 
     if saved_change_to_parent2_available_support_module_list?
-      ChildrenSupportModule.where(child: first_child, parent: parent2, is_programmed: false).each do |csm|
+      ChildrenSupportModule.where(child: current_child, parent: parent2, is_programmed: false).each do |csm|
         csm.update!(available_support_module_list: parent2_available_support_module_list)
       end
     end
@@ -353,7 +353,7 @@ class ChildSupport < ApplicationRecord
            :should_contact_parent1?,
            :should_contact_parent2,
            :should_contact_parent2?,
-           to: :first_child,
+           to: :current_child,
            allow_nil: true
 
   delegate :name,
