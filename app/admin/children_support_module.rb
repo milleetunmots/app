@@ -12,6 +12,7 @@ ActiveAdmin.register ChildrenSupportModule do
     column :parent_name
     column :child_name
     column :child_group_name
+    column :available_support_module_names
     column :created_at
     column :choice_date
     column :is_programmed
@@ -33,6 +34,12 @@ ActiveAdmin.register ChildrenSupportModule do
 
   form do |f|
     f.semantic_errors *f.object.errors.keys
+    if params[:action] == "new"
+      f.object.is_completed = params[:is_completed] if params[:is_completed]
+      f.object.parent_id = params[:parent_id] if params[:parent_id]
+      f.object.child_id = params[:child_id] if params[:child_id]
+      f.object.available_support_module_list = params[:available_support_module_list] if params[:available_support_module_list]
+    end
     f.inputs do
       f.input :is_completed
       f.input :child,
@@ -42,13 +49,21 @@ ActiveAdmin.register ChildrenSupportModule do
               collection: child_parent_select_collection,
               input_html: {data: {select2: {}}}
       f.input :support_module,
-              collection: resource.support_module_collection,
+              collection: resource.available_support_module_collection,
               input_html: {data: {select2: {}}}
-    end
+      if params[:available_support_module_list]
+        f.object.available_support_module_list.reject(&:blank?).each do |asm|
+          f.input :available_support_module_list,
+                  input_html: { multiple: true, value: asm },
+                  as: :hidden
+        end
+      end
+
+  end
     f.actions
   end
 
-  permit_params :child_id, :parent_id, :support_module_id, :is_completed
+  permit_params :child_id, :parent_id, :support_module_id, :is_completed, available_support_module_list: []
 
   scope :all, default: true
 
@@ -61,8 +76,15 @@ ActiveAdmin.register ChildrenSupportModule do
 
   filter :is_completed, as: :boolean
   filter :is_programmed, as: :boolean
-  filter :child_group_name, as: :string
-  filter :support_module_name, as: :string
+  filter :group_id_in,
+         as: :select,
+         collection: proc { child_group_select_collection },
+         input_html: {multiple: true, data: {select2: {}}},
+         label: "Cohorte"
+  filter :support_module,
+         as: :select,
+         collection: proc { support_module_collection },
+         input_html: {multiple: true, data: {select2: {}}}
   filter :child_last_name, as: :string
   filter :child_first_name, as: :string
   filter :parent_last_name, as: :string
@@ -72,7 +94,7 @@ ActiveAdmin.register ChildrenSupportModule do
 
   batch_action :select_module, form: -> {
     {
-      I18n.t("activerecord.models.children_support_module") => SupportModule.pluck(:name, :id)
+      I18n.t("activerecord.models.children_support_module") => SupportModule.order("LOWER(name)").decorate.map { |sm| [sm.name_with_tags, sm.id] }
     }
   } do |ids, inputs|
     batch_action_collection.where(id: ids, is_programmed: false).update_all(

@@ -20,7 +20,6 @@ ActiveAdmin.register ChildSupport do
     selectable_column
     id_column
     column :children
-    column :supporter, sortable: :supporter_id
     (1..5).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         [
@@ -29,12 +28,12 @@ ActiveAdmin.register ChildSupport do
         ].join(" ").html_safe
       end
     end
+    column :availability
     column :call_infos
     column :groups
-    # column :will_stay_in_group
-    actions dropdown: true do |decorated|
-      discard_links_args(decorated.model).each do |args|
-        item *args
+    column :actions do |item|
+      div class: 'table_actions' do
+        link_to('Modifier', edit_admin_child_support_path(item), class: 'edit_link member_link')
       end
     end
   end
@@ -256,8 +255,11 @@ ActiveAdmin.register ChildSupport do
         column class:'column flex-column' do
           available_support_module_input(f, :parent1_available_support_module_list)
           available_support_module_input(f, :parent2_available_support_module_list) unless resource.parent2.nil?
-          f.input :availability, label: 'Disponibilités générales', input_html: { style: "width: 70%"}
-          f.input :call_infos, label: 'Tentatives d’appels', input_html: { style: "width: 70%"}
+          div class: 'border' do
+            span "Ces informations apparaissent dans l'index des suivis"
+            f.input :availability, input_html: { style: "width: 70%"}
+            f.input :call_infos, input_html: { style: "width: 70%"}
+          end
           f.input :book_not_received,
             collection: book_not_received_collection,
             multiple: true,
@@ -284,10 +286,10 @@ ActiveAdmin.register ChildSupport do
             end
 
             columns style: 'justify-content:space-between;'do
-              column max_width: '8%' do
-                f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
-              end
               if call_idx == 1
+                column max_width: '8%' do
+                  f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
+                end
                 column do
                   f.input :books_quantity,
                     as: :radio,
@@ -668,13 +670,12 @@ ActiveAdmin.register ChildSupport do
     elsif children_support_module
       redirect_to admin_children_support_module_path(id: children_support_module.id)
     else
-      new_child_support_module = ChildrenSupportModule.create(
-        is_completed: false,
-        parent: resource.model.parent1,
-        child: resource.model.first_child,
-        available_support_module_list: resource.parent1_available_support_module_list
-      )
-      redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
+      redirect_to new_admin_children_support_module_path(
+                    is_completed: false,
+                    parent_id: resource.model.parent1,
+                    child_id: resource.model.first_child,
+                    available_support_module_list: resource.parent1_available_support_module_list
+                  )
     end
   end
 
@@ -685,13 +686,12 @@ ActiveAdmin.register ChildSupport do
     elsif children_support_module
       redirect_to admin_children_support_module_path(id: children_support_module.id)
     else
-      new_child_support_module = ChildrenSupportModule.create(
-        is_completed: false,
-        parent: resource.model.parent2,
-        child: resource.model.first_child,
-        available_support_module_list: resource.parent2_available_support_module_list
-      )
-      redirect_to edit_admin_children_support_module_path(id: new_child_support_module.id)
+      redirect_to new_admin_children_support_module_path(
+                    is_completed: false,
+                    parent_id: resource.model.parent2,
+                    child_id: resource.model.first_child,
+                    available_support_module_list: resource.parent2_available_support_module_list
+                  )
     end
   end
 

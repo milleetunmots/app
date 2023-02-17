@@ -14,7 +14,7 @@ class ChildrenSupportModule
           Task.create(
             assignee_id: ltm.id,
             title: "Il n'y a pas assez de crédits pour la programmation des modules de la cohorte : \"#{group.name}\"",
-            description: check_service.errors.joins("<br>"),
+            description: check_service.errors.join("<br>"),
             due_date: Date.today
           )
         end
