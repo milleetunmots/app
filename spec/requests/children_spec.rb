@@ -15,11 +15,17 @@ RSpec.describe ChildrenController, type: :request do
     end
 
     context "when URL is inscription2" do
+      it "renders specific wording" do
+      end
+
       it "sets session[:registration_origin]" do
       end
     end
 
     context "when URL is inscription3" do
+      it "renders specific wording" do
+      end
+
       it "sets session[:registration_origin]" do
       end
     end
@@ -27,7 +33,7 @@ RSpec.describe ChildrenController, type: :request do
 
   describe "#create" do
     context "when params are valid" do
-      it "redirects to created page" do
+      it "redirects to created page with right sms_url_form" do
       end
     end
 

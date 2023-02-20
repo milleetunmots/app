@@ -46,4 +46,60 @@ RSpec.describe Child::CreateService do
     end
   end
 
+  context "when params are not valid" do
+    context "when child attributes are not valid" do
+      it "does not create child" do
+      end
+
+      context "when registration_origin = 2" do
+        it "does not send sms" do
+        end
+
+        context "when registration_source = 'caf' and registration_source_details is blank" do
+          it "returns validation error" do
+          end
+        end
+      end
+
+      context "when registration_origin = 3" do
+        it "does not send sms" do
+        end
+
+        context "when registration_source = 'pmi' and pmi_detail is blank" do
+          it "returns validation error" do
+          end
+        end
+      end
+    end
+
+    context "when parents attributes are not valid" do
+      it "does not create child" do
+      end
+
+      context "when registration_origin = 2" do
+        it "does not send sms" do
+        end
+      end
+    end
+
+    context "when there are no parents" do
+      it "does not create child" do
+      end
+
+      context "when registration_origin = 2" do
+        it "does not send sms" do
+        end
+      end
+    end
+
+    context "when siblings are not valid" do
+      it "does not create child" do
+      end
+
+      context "when registration_origin = 2" do
+        it "does not send sms" do
+        end
+      end
+    end
+  end
 end
