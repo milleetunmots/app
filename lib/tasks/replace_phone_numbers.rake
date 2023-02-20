@@ -5,3 +5,4 @@ namespace :db do
     Parent.update_all(phone_number: '+33755802002', phone_number_national: '+33755802002')
   end
 end
+
