@@ -11,7 +11,7 @@ class ChildSupport::SelectModuleService
 
   def call
     if !@child.should_contact_parent1 && !@child.should_contact_parent2
-      @errors << "Aucun des parents ne veut être contacté"
+      @errors << 'Aucun des parents ne veut être contacté'
 
       return self
     end
@@ -31,7 +31,7 @@ class ChildSupport::SelectModuleService
 
     selection_link = Rails.application.routes.url_helpers.children_support_module_link_url(
       @children_support_module.id,
-      :sc => parent.security_code
+      sc: parent.security_code
     )
 
     message = "1001mots : C'est le moment de choisir votre thème pour #{@child.first_name}. Cliquez ici pour recevoir le prochain livre et les messages #{selection_link}"
@@ -50,5 +50,4 @@ class ChildSupport::SelectModuleService
       ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: reminder_date.to_datetime.change(hour: 6)).perform_later(@children_support_module.id, reminder_date)
     end
   end
-
 end
