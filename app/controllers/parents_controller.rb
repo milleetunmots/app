@@ -1,8 +1,8 @@
 class ParentsController < ApplicationController
 
-  def first_child
+  def current_child
     if params[:id]
-      response = Parent.find(params[:id]).first_child || {}
+      response = Parent.find(params[:id]).current_child || {}
       render json: response.to_json
     end
   end

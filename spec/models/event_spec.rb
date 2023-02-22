@@ -99,18 +99,18 @@ RSpec.describe Event, type: :model do
   #   end
   # end
   #
-  # describe "#parent_first_child_group_id_in" do
+  # describe "#parent_current_child_group_id_in" do
   #   context "returns" do
   #     it "table of events with parent's first child in the group" do
-  #       expect(Event.parent_first_child_group_id_in(@group.id)).to match_array [@event]
+  #       expect(Event.parent_current_child_group_id_in(@group.id)).to match_array [@event]
   #     end
   #   end
   # end
 
-  # describe "#parent_first_child_supporter_id_in" do
+  # describe "#parent_current_child_supporter_id_in" do
   #   context "returns" do
   #     it "table of events with parent's first child supported by the parameter" do
-  #       expect(Event.parent_first_child_supporter_id_in(@admin)).to match_array [@event]
+  #       expect(Event.parent_current_child_supporter_id_in(@admin)).to match_array [@event]
   #     end
   #   end
   # end
@@ -118,7 +118,7 @@ RSpec.describe Event, type: :model do
   # describe "#ransackable_scopes" do
   #   context "returns" do
   #     it "ransackable scopes" do
-  #       expect(Event.ransackable_scopes).to match_array %i[parent_first_child_group_id_in parent_first_child_supporter_id_in]
+  #       expect(Event.ransackable_scopes).to match_array %i[parent_current_child_group_id_in parent_current_child_supporter_id_in]
   #     end
   #   end
   # end

@@ -19,13 +19,13 @@ ActiveAdmin.register Events::TextMessage, as: 'Sent By App TextMessage' do
     column :related do |decorated|
       decorated.related_link
     end
-    column :related_first_child do |decorated|
-      decorated.related_first_child_link
+    column :related_current_child do |decorated|
+      decorated.related_current_child_link
     end
     column :spot_hit_status do |decorated|
       decorated.spot_hit_status_value
     end
-    column :related_first_child_group
+    column :related_current_child_group
     column :occurred_at
     column :body do |decorated|
       decorated.truncated_body
@@ -40,13 +40,13 @@ ActiveAdmin.register Events::TextMessage, as: 'Sent By App TextMessage' do
     end
   end
 
-  filter :parent_first_child_group_id_in,
+  filter :parent_current_child_group_id_in,
          as: :select,
          collection: proc { child_group_select_collection },
          input_html: { multiple: true, data: { select2: {} } },
          label: 'Cohorte'
 
-  filter :parent_first_child_supporter_id_in,
+  filter :parent_current_child_supporter_id_in,
          as: :select,
          collection: proc { child_support_supporter_select_collection },
          input_html: { multiple: true, data: { select2: {} } },
@@ -66,8 +66,8 @@ ActiveAdmin.register Events::TextMessage, as: 'Sent By App TextMessage' do
       row :related do |model|
         model.related_link
       end
-      row :related_first_child do |model|
-        model.related_first_child_link
+      row :related_current_child do |model|
+        model.related_current_child_link
       end
       row :spot_hit_status do |decorated|
         decorated.spot_hit_status_value
@@ -129,11 +129,11 @@ ActiveAdmin.register Events::TextMessage, as: 'Sent By App TextMessage' do
     column :related_id
     column :related_name
 
-    column :related_first_child_id
-    column :related_first_child_name
+    column :related_current_child_id
+    column :related_current_child_name
 
-    column :related_first_child_group_name
-    column :related_first_child_group_status
+    column :related_current_child_group_name
+    column :related_current_child_group_status
 
     column :occurred_at
     column :body

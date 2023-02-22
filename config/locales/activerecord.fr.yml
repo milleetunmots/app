@@ -267,7 +267,7 @@ fr:
         children_registration_sources: Origines des enfants
         groups: Cohortes
         child_support_groups: Cohortes
-        first_child_pmi_detail: PMI du premier enfant
+        current_child_pmi_detail: PMI de l'enfant suivi
         important_information: Infos importantes
         is_bilingual: Bilinguisme
         letterbox_name: Nom sur la boîte aux lettres
@@ -374,13 +374,13 @@ fr:
         occurred_at: Date
         postal_code: Code postal
         related: Parent
-        related_first_child: Famille
-        related_first_child_group: Cohorte
-        related_first_child_group_id: Cohorte
-        related_first_child_group_name: Cohorte
-        related_first_child_group_status: Statut de la cohorte
-        related_first_child_id: Famille
-        related_first_child_name: Famille
+        related_current_child: Famille
+        related_current_child_group: Cohorte
+        related_current_child_group_id: Cohorte
+        related_current_child_group_name: Cohorte
+        related_current_child_group_status: Statut de la cohorte
+        related_current_child_id: Famille
+        related_current_child_name: Famille
         related_id: Parent
         related_name: Parent
         parent_response: Inscription à l'atelier

@@ -37,7 +37,7 @@ Rails.application.routes.draw do
   get "spot_hit/response", to: "events#spot_hit_response"
   get "spot_hit/stop", to: "events#spot_hit_stop"
 
-  get "parent/:id/first_child", to: "parents#first_child"
+  get "parent/:id/current_child", to: "parents#current_child"
 
   post "/typeform/webhooks", to: 'typeform#webhooks'
 

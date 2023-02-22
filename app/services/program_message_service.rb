@@ -68,9 +68,9 @@ class ProgramMessageService
       Parent.where(id: @parent_ids).find_each do |parent|
         @recipient_data[parent.id.to_s] = {}
 
-        @recipient_data[parent.id.to_s]["PRENOM_ENFANT"] = parent.first_child&.first_name || "votre enfant"
+        @recipient_data[parent.id.to_s]["PRENOM_ENFANT"] = parent.current_child&.first_name || "votre enfant"
 
-        if @redirection_target && parent.first_child.present?
+        if @redirection_target && parent.current_child.present?
           @recipient_data[parent.id.to_s]["URL"] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
 
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
@@ -104,13 +104,13 @@ class ProgramMessageService
   end
 
   def redirection_url_for_a_parent(parent)
-    redirection_url = parent.redirection_urls.find_by(child_id: parent.first_child.id, parent_id: parent.id, redirection_target_id: @redirection_target.id)
+    redirection_url = parent.redirection_urls.find_by(child_id: parent.current_child.id, parent_id: parent.id, redirection_target_id: @redirection_target.id)
 
     if redirection_url.nil?
       redirection_url = RedirectionUrl.new(
         redirection_target_id: @redirection_target.id,
         parent_id: parent.id,
-        child_id: parent.first_child.id
+        child_id: parent.current_child.id
       )
       unless redirection_url.save
         @errors << "Problème(s) avec l'url courte."
