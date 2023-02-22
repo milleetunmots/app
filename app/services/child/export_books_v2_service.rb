@@ -30,7 +30,9 @@ class Child
 
     def find_children_lists
       children_list_sorted_by_age_and_module = {}
-      chosen_modules = ChildrenSupportModule.includes(:child).with_support_module #.not_programmed
+      chosen_modules = ChildrenSupportModule.includes(:child).with_support_module.not_programmed
+
+      chosen_modules = chosen_modules.uniq {|csm| [csm.child_id, csm.parent_id] }
 
       chosen_modules.group_by(&:support_module_id).each do |support_module_id, children_support_modules|
         support_module = SupportModule.find(support_module_id)
