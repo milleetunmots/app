@@ -147,7 +147,7 @@ class ChildSupport < ApplicationRecord
 
   belongs_to :supporter, class_name: :AdminUser, optional: true
   has_many :children, dependent: :nullify
-  has_one :current_child, class_name: :Child
+  has_one :current_child, -> { order(birthdate: :desc) }, class_name: :Child
   has_one :parent1, through: :current_child
   has_one :parent2, through: :current_child
 
