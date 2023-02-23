@@ -34,18 +34,18 @@ class ProgramMessageService
 
     return self if @errors.any?
 
-    @errors << "Aucun parent à contacter." and return self if @parent_ids.empty?
+    @errors << 'Aucun parent à contacter.' and return self if @parent_ids.empty?
 
     format_data_for_spot_hit
     return self if @errors.any?
 
-    @message += " {URL}" if @redirection_target && !@variables.include?("URL")
+    @message += ' {URL}' if @redirection_target && !@variables.include?('URL')
 
     service = if @file.nil?
-      SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, event_params: @event_params).call
-    else
-      SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, file: @file, event_params: @event_params).call
-    end
+                SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, event_params: @event_params).call
+              else
+                SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, file: @file, event_params: @event_params).call
+              end
 
     @errors = service.errors if service.errors.any?
 
@@ -57,21 +57,21 @@ class ProgramMessageService
   def get_all_variables
     @variables += @message.scan(/\{(.*?)\}/).transpose[0].uniq
 
-    @errors << "Veuillez choisir un lien cible." if @redirection_target.nil? && @variables.include?("URL")
+    @errors << 'Veuillez choisir un lien cible.' if @redirection_target.nil? && @variables.include?('URL')
   end
 
   def format_data_for_spot_hit
     # we need to format phone_numbers as hash inn order to include variables
-    if @redirection_target || @variables.include?("PRENOM_ENFANT")
+    if @redirection_target || @variables.include?('PRENOM_ENFANT')
       @recipient_data = {}
 
       Parent.where(id: @parent_ids).find_each do |parent|
         @recipient_data[parent.id.to_s] = {}
 
-        @recipient_data[parent.id.to_s]["PRENOM_ENFANT"] = parent.current_child&.first_name || "votre enfant"
+        @recipient_data[parent.id.to_s]['PRENOM_ENFANT'] = parent.current_child&.first_name || 'votre enfant'
 
         if @redirection_target && parent.current_child.present?
-          @recipient_data[parent.id.to_s]["URL"] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
+          @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
 
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
         end
@@ -81,21 +81,21 @@ class ProgramMessageService
       @child_ids.each do |child_id|
         child = Child.find(child_id)
         @recipient_data[child.parent1_id.to_s] = {}
-        @recipient_data[child.parent1_id.to_s]["QUIT_LINK"] = Rails.application.routes.url_helpers.edit_child_url(
+        @recipient_data[child.parent1_id.to_s]['QUIT_LINK'] = Rails.application.routes.url_helpers.edit_child_url(
           id: child_id,
           security_code: child.security_code
         )
 
         @event_params[child.parent1_id.to_s] = { quit_group_child_id: child_id }
 
-        if child.parent2
-          @recipient_data[child.parent2_id&.to_s] = {}
-          @recipient_data[child.parent2_id&.to_s]["QUIT_LINK"] = Rails.application.routes.url_helpers.edit_child_url(
-            id: child_id,
-            security_code: child.security_code
-          )
-          @event_params[child.parent2_id.to_s] = { quit_group_child_id: child_id }
-        end
+        next unless child.parent2
+
+        @recipient_data[child.parent2_id&.to_s] = {}
+        @recipient_data[child.parent2_id&.to_s]['QUIT_LINK'] = Rails.application.routes.url_helpers.edit_child_url(
+          id: child_id,
+          security_code: child.security_code
+        )
+        @event_params[child.parent2_id.to_s] = { quit_group_child_id: child_id }
       end
     else
       # If no variables, we can just sent an array of parent ids
@@ -112,9 +112,7 @@ class ProgramMessageService
         parent_id: parent.id,
         child_id: parent.current_child.id
       )
-      unless redirection_url.save
-        @errors << "Problème(s) avec l'url courte."
-      end
+      @errors << "Problème(s) avec l'url courte." unless redirection_url.save
     end
 
     redirection_url
@@ -122,19 +120,19 @@ class ProgramMessageService
 
   def check_all_fields_are_present
     @errors << "La date n'est pas complétée." unless @planned_timestamp.present?
-    @errors << "Les destinataires ne sont pas complétés." if @recipients.empty?
+    @errors << 'Les destinataires ne sont pas complétés.' if @recipients.empty?
     @errors << "Le message n'est pas complété." if @message.empty?
   end
 
   def sort_recipients
     @recipients.each do |recipient_id|
-      if recipient_id.include? "parent."
+      if recipient_id.include? 'parent.'
         @parent_ids << recipient_id[/\d+/].to_i
-      elsif recipient_id.include? "tag."
+      elsif recipient_id.include? 'tag.'
         @tag_ids << recipient_id[/\d+/].to_i
-      elsif recipient_id.include? "group."
+      elsif recipient_id.include? 'group.'
         @group_ids << recipient_id[/\d+/].to_i
-      elsif recipient_id.include? "child."
+      elsif recipient_id.include? 'child.'
         @child_ids << recipient_id[/\d+/].to_i
       end
     end
@@ -143,14 +141,14 @@ class ProgramMessageService
   def find_parent_ids_from_tags
     @tag_ids.each do |tag_id|
       # taggable_id = id of the parent in our case
-      @parent_ids += Tagging.by_taggable_type("Parent").by_tag_id(tag_id).pluck(:taggable_id)
+      @parent_ids += Tagging.by_taggable_type('Parent').by_tag_id(tag_id).pluck(:taggable_id)
     end
   end
 
   def find_parent_ids_from_groups
     Group.includes(:children).where(id: @group_ids).find_each do |group|
       group.children.each do |child|
-        next unless child.group_status == "active"
+        next unless child.group_status == 'active'
 
         @parent_ids << child.parent1_id if child.parent1_id && child.should_contact_parent1
         @parent_ids << child.parent2_id if child.parent2_id && child.should_contact_parent2
@@ -160,7 +158,6 @@ class ProgramMessageService
 
   def find_parent_ids_from_children
     Child.where(id: @child_ids).find_each do |child|
-
       @parent_ids << child.parent1_id if child.parent1_id && child.should_contact_parent1
       @parent_ids << child.parent2_id if child.parent2_id && child.should_contact_parent2
     end
@@ -170,9 +167,7 @@ class ProgramMessageService
     parents = Parent.includes(:parent1_children, :parent2_children).where(id: @parent_ids)
 
     parents.each do |parent|
-      unless parent.valid?
-        @errors << "Le parent #{parent.decorate.name} n'est pas valide"
-      end
+      @errors << "Le parent #{parent.decorate.name} n'est pas valide" unless parent.valid?
       parent.children.each do |child|
         @errors << "L'enfant #{child.decorate.name} n'est pas valide" unless child.valid?
       end
