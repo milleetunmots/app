@@ -136,17 +136,21 @@ fr:
         resubscribing: J'ai déjà participé au programme 1001 Mots et je réinscris un enfant
         unknown: Inconnue
       child/pmi_detail:
-        trappes: PMI Trappes
-        plaisir: PMI Plaisir
-        orleans: PMI Orléans
-        orleans_est: PMI Orléans Est
-        montargis: PMI Montargis
-        gien: PMI Gien
-        pithiviers: PMI Pithiviers
-        sarreguemines: PMI Sarreguemines
-        forbach: PMI Forbach
-        mantes_la_jolie_clemenceau: PMI Mantes-la-Jolie Clémenceau
-        mantes_la_jolie_leclerc: PMI Mantes-la-Jolie Leclerc
+        trappes: "[78] PMI Trappes"
+        plaisir: "[78] PMI Plaisir"
+        orleans: "[45] PMI Orléans"
+        orleans_est: "[45] PMI Orléans Est"
+        montargis: "[45] PMI Montargis"
+        gien: "[45] PMI Gien"
+        pithiviers: "[45] PMI Pithiviers"
+        sarreguemines: "[57] PMI Sarreguemines"
+        forbach: "[57] PMI Forbach"
+        mantes_la_jolie_clemenceau: "[78] PMI Mantes-la-Jolie Clémenceau"
+        mantes_la_jolie_leclerc: "[78] PMI Mantes-la-Jolie Leclerc"
+        gennevilliers_zucman_gabison: "[92] PMI de Gennevilliers - Zucman-Gabison"
+        gennevilliers_timsit: "[92] PMI de Gennevilliers - Timsit"
+        asnieres_gennevilliers_sst2: "[92] PMI d'Asnières / Gennevilliers - SST2"
+        villeneuve_la_garenne: "[92] PMI de Villeneuve-la-Garenne"
       child/group_status:
         waiting: En attente
         active: Active
