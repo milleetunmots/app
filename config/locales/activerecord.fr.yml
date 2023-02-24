@@ -65,6 +65,7 @@ fr:
         available_for_workshops: Pas encore l'âge d'aller à l'école
         birthdate: Date de naissance
         child_support: Suivi
+        child_support_id: Fiche de suivi
         city_name: Ville
         family_redirection_unique_visit_rate: "Taux de visites uniques familiales d'URL courtes"
         family_redirection_unique_visits: URL visitées

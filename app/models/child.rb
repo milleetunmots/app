@@ -396,6 +396,11 @@ class Child < ApplicationRecord
            prefix: true,
            allow_nil: true
 
+  delegate :id,
+           to: :child_support,
+           prefix: true,
+           allow_nil: true
+
   # computes an (integer) number of months old
   def months
     duration_in_months(birthdate)

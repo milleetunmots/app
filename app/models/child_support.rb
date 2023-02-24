@@ -130,16 +130,16 @@ class ChildSupport < ApplicationRecord
 
   include Discard::Model
 
-  LANGUAGE_AWARENESS = %w[1_none 2_awareness].freeze
-  PARENT_PROGRESS = %w[1_low 2_medium 3_high 4_excellent].freeze
-  READING_FREQUENCY = %w[1_rarely 2_weekly 3_frequently 4_daily].freeze
-  TV_FREQUENCY = %w[1_never 2_weekly 3_frequently 4_daily].freeze
-  SENDINGS_BENEFITS = %w[1_none 2_far 3_remind 4_frequent 5_frequent_helps].freeze
-  BOOKS_QUANTITY = %w[1_none 2_three_or_less 3_between_four_and_ten 4_more_than_ten].freeze
-  BOOK_NOT_RECEIVED = %w[1_first_book 2_second_book 3_third_book 4_fourth_book 5_fifth_book].freeze
-  CALL_STATUS = %w[1_ok 2_ko 3_unassigned_number 4_dont_call].freeze
-  FAMILY_PROGRESS = %w[1_yes 2_no 3_no_information].freeze
-  GOALS_FOLLOW_UP = %w[1_succeed 2_tried 3_no_tried 4_no_goal].freeze
+  LANGUAGE_AWARENESS = %w(1_none 2_awareness).freeze
+  PARENT_PROGRESS = %w(1_low 2_medium 3_high 4_excellent).freeze
+  READING_FREQUENCY = %w(1_rarely 2_weekly 3_frequently 4_daily).freeze
+  TV_FREQUENCY = %w(1_never 2_weekly 3_frequently 4_daily).freeze
+  SENDINGS_BENEFITS = %w(1_none 2_far 3_remind 4_frequent 5_frequent_helps).freeze
+  BOOKS_QUANTITY = %w(1_none 2_three_or_less 3_between_four_and_ten 4_more_than_ten).freeze
+  BOOK_NOT_RECEIVED = %w(1_first_book 2_second_book 3_third_book 4_fourth_book 5_fifth_book).freeze
+  CALL_STATUS = %w(1_ok 2_ko 3_unassigned_number 4_dont_call).freeze
+  FAMILY_PROGRESS = %w(1_yes 2_no 3_no_information).freeze
+  GOALS_FOLLOW_UP = %w(1_succeed 2_tried 3_no_tried 4_no_goal).freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -154,18 +154,18 @@ class ChildSupport < ApplicationRecord
   accepts_nested_attributes_for :current_child
 
   before_update do
-    current_child.parent1.tag_list.add(self.tag_list)
+    current_child.parent1.tag_list.add(tag_list)
     current_child.parent1.save
-    current_child.parent2&.tag_list&.add(self.tag_list)
+    current_child.parent2&.tag_list&.add(tag_list)
     current_child.parent2&.save
   end
 
   after_save do
-    if saved_change_to_call2_status && call2_status == "KO"
+    if saved_change_to_call2_status && call2_status == 'KO'
       ChildSupport::SelectModuleService.new(
         current_child,
         Date.today.next_day.sunday? ? Date.today.next_day(2) : Date.today.next_day,
-        "12:30"
+        '12:30'
       ).call
     end
 
@@ -187,13 +187,13 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   (1..5).each do |call_idx|
-    validates "call#{call_idx}_status", inclusion: {in: CALL_STATUS, allow_blank: true}, on: :create
-    validates "call#{call_idx}_language_awareness", inclusion: {in: LANGUAGE_AWARENESS, allow_blank: true}
-    validates "call#{call_idx}_parent_progress", inclusion: {in: PARENT_PROGRESS, allow_blank: true}
-    validates "call#{call_idx}_sendings_benefits", inclusion: {in: SENDINGS_BENEFITS, allow_blank: true}
+    validates "call#{call_idx}_status", inclusion: { in: CALL_STATUS, allow_blank: true }, on: :create
+    validates "call#{call_idx}_language_awareness", inclusion: { in: LANGUAGE_AWARENESS, allow_blank: true }
+    validates "call#{call_idx}_parent_progress", inclusion: { in: PARENT_PROGRESS, allow_blank: true }
+    validates "call#{call_idx}_sendings_benefits", inclusion: { in: SENDINGS_BENEFITS, allow_blank: true }
   end
 
-  validates :books_quantity, inclusion: {in: BOOKS_QUANTITY, allow_blank: true}
+  validates :books_quantity, inclusion: { in: BOOKS_QUANTITY, allow_blank: true }
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -202,12 +202,12 @@ class ChildSupport < ApplicationRecord
   scope :supported_by, ->(model) { where(supporter: model) }
   scope :without_supporter, -> { where(supporter_id: nil) }
   scope :call_2_4, -> {
-    where("call1_status ILIKE ? AND call3_status = ?", "ko", "")
-      .or(where("call3_status ILIKE ?", "ko"))
-      .or(where("call1_parent_progress = ? AND call3_parent_progress = ?", "1_low", ""))
-      .or(where("call1_parent_progress = ? AND call3_parent_progress = ?", "2_medium", ""))
-      .or(where(call3_parent_progress: "1_low"))
-      .or(where(call3_parent_progress: "2_medium"))
+    where('call1_status ILIKE ? AND call3_status = ?', 'ko', '')
+      .or(where('call3_status ILIKE ?', 'ko'))
+      .or(where('call1_parent_progress = ? AND call3_parent_progress = ?', '1_low', ''))
+      .or(where('call1_parent_progress = ? AND call3_parent_progress = ?', '2_medium', ''))
+      .or(where(call3_parent_progress: '1_low'))
+      .or(where(call3_parent_progress: '2_medium'))
       .or(where(to_call: true))
   }
 
@@ -233,45 +233,45 @@ class ChildSupport < ApplicationRecord
   end
 
   def self.groups_in(*v)
-    where(id: Child.where(group_id: v).select("DISTINCT child_support_id"))
+    where(id: Child.where(group_id: v).select('DISTINCT child_support_id'))
   end
 
   def self.group_id_in(*v)
-    where(id: Child.group_id_in(v).select("DISTINCT child_support_id"))
+    where(id: Child.group_id_in(v).select('DISTINCT child_support_id'))
   end
 
   def self.active_group_id_in(*v)
-    where(id: Child.active_group_id_in(v).select("DISTINCT child_support_id"))
+    where(id: Child.active_group_id_in(v).select('DISTINCT child_support_id'))
   end
 
   def self.registration_sources_in(*v)
-    where(id: Child.where(registration_source: v).select("DISTINCT child_support_id"))
+    where(id: Child.where(registration_source: v).select('DISTINCT child_support_id'))
   end
 
   def self.registration_sources_details_in(*v)
-    where(id: Child.where(registration_source_details: v).select("DISTINCT child_support_id"))
+    where(id: Child.where(registration_source_details: v).select('DISTINCT child_support_id'))
   end
 
   def self.postal_code_contains(v)
-    where(id: Child.postal_code_contains(v).select("DISTINCT child_support_id"))
+    where(id: Child.postal_code_contains(v).select('DISTINCT child_support_id'))
   end
 
   def self.postal_code_ends_with(v)
-    where(id: Child.postal_code_ends_with(v).select("DISTINCT child_support_id"))
+    where(id: Child.postal_code_ends_with(v).select('DISTINCT child_support_id'))
   end
 
   def self.postal_code_equals(v)
-    where(id: Child.postal_code_equals(v).select("DISTINCT child_support_id"))
+    where(id: Child.postal_code_equals(v).select('DISTINCT child_support_id'))
   end
 
   def self.postal_code_starts_with(v)
-    where(id: Child.postal_code_starts_with(v).select("DISTINCT child_support_id"))
+    where(id: Child.postal_code_starts_with(v).select('DISTINCT child_support_id'))
   end
 
-  scope :with_book_not_received, -> { where.not(book_not_received: [nil, ""]) }
+  scope :with_book_not_received, -> { where.not(book_not_received: [nil, '']) }
 
   def self.without_parent_text_message_since(v)
-    where(id: Child.without_parent_text_message_since(v).select("DISTINCT child_support_id"))
+    where(id: Child.without_parent_text_message_since(v).select('DISTINCT child_support_id'))
   end
 
   # ---------------------------------------------------------------------------
@@ -279,7 +279,8 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with registration_sources_in registration_sources_details_in group_id_in active_group_id_in without_parent_text_message_since]
+    super + %i[groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with registration_sources_in registration_sources_details_in
+               group_id_in active_group_id_in without_parent_text_message_since]
   end
 
   # ---------------------------------------------------------------------------
@@ -288,18 +289,18 @@ class ChildSupport < ApplicationRecord
 
   (1..5).each do |call_idx|
     define_method("call#{call_idx}_parent_progress_index") do
-      (send("call#{call_idx}_parent_progress") || "").split("_").first&.to_i
+      (send("call#{call_idx}_parent_progress") || '').split('_').first&.to_i
     end
   end
 
   def self.call_attributes
-    new.attributes.keys.select{|a| a.starts_with?("call")}
+    new.attributes.keys.select { |a| a.starts_with?('call') }
   rescue ArgumentError
     []
   end
 
   def other_children
-    all_parent_ids = children.pluck(:parent1_id, :parent2_id).join(",").split(",").uniq
+    all_parent_ids = children.pluck(:parent1_id, :parent2_id).join(',').split(',').uniq
     Child.parent_id_in(all_parent_ids).where.not(child_support: self)
   end
 
@@ -362,11 +363,11 @@ class ChildSupport < ApplicationRecord
            allow_nil: true
 
   def book_not_received
-    super&.split(";")
+    super&.split(';')
   end
 
   def book_not_received=(val)
-    super(val.reject(&:blank?).join(";"))
+    super(val.reject(&:blank?).join(';'))
   end
 
   # ---------------------------------------------------------------------------
@@ -380,5 +381,4 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   acts_as_taggable
-
 end
