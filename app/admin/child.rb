@@ -29,7 +29,6 @@ ActiveAdmin.register Child do
     column :age, sortable: :birthdate
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
-    column :parent1_phone_number_national
     column :postal_code
     column :territory
     column :child_support, sortable: :child_support_id, &:child_support_status
@@ -123,7 +122,7 @@ ActiveAdmin.register Child do
 
   batch_action :create_support do |ids|
     batch_action_collection.find(ids).each do |child|
-      next if already_existing_child_support = child.child_support
+      next if child.child_support
 
       child.create_support!
     end
@@ -249,7 +248,8 @@ ActiveAdmin.register Child do
   batch_action :generate_quit_sms do |ids|
     ids.reject! do |id|
       child = Child.find(id)
-      child.child_support.will_stay_in_group || child.group_status != 'active'
+
+      child.child_support&.will_stay_in_group || child.group_status != 'active'
     end
 
     @children = batch_action_collection.where(id: ids)
@@ -401,7 +401,8 @@ ActiveAdmin.register Child do
         end
       end
       tab 'Historique' do
-        render 'admin/events/history', events: resource.parent_events.order(occurred_at: :desc).decorate
+        render 'admin/events/history',
+               events: resource.parent_events.order(occurred_at: :desc).decorate
       end
     end
   end
@@ -409,9 +410,8 @@ ActiveAdmin.register Child do
   action_item :show_support, only: :show, if: proc { resource.child_support } do
     link_to I18n.t('child.show_support_link'), [:admin, resource.child_support]
   end
-  action_item :create_support,
-              only: :show,
-              if: proc { !resource.child_support } do
+
+  action_item :create_support, only: :show, if: proc { !resource.child_support } do
     link_to I18n.t('child.create_support_link'), [:create_support, :admin, resource]
   end
   member_action :create_support do
@@ -422,6 +422,7 @@ ActiveAdmin.register Child do
       redirect_to [:edit, :admin, resource.child_support]
     end
   end
+
   action_item :quit_group,
               only: :show,
               if: proc { resource.group && %w(paused active).include?(resource.model.group_status) } do
@@ -464,10 +465,14 @@ ActiveAdmin.register Child do
 
   action_item :tools, only: :index do
     dropdown_menu 'Outils' do
-      item "Nettoyer les précisions sur l'origine", %i[new_clean_registration_source_details admin children]
-      item "Mettre à jour les enfants n'ayant pas l'âge d'aller à l'école", %i[set_age_ok admin children]
-      item "Télécharger les listes d'enfants par cohorte au format Excel V1", %i[download_book_files_v1 admin children]
-      item "Télécharger les listes d'enfants par module au format Excel V2", %i[download_book_files_v2 admin children]
+      item "Nettoyer les précisions sur l'origine",
+           %i[new_clean_registration_source_details admin children]
+      item "Mettre à jour les enfants n'ayant pas l'âge d'aller à l'école",
+           %i[set_age_ok admin children]
+      item "Télécharger les listes d'enfants par cohorte au format Excel V1",
+           %i[download_book_files_v1 admin children]
+      item "Télécharger les listes d'enfants par module au format Excel V2",
+           %i[download_book_files_v2 admin children]
     end
   end
   collection_action :new_clean_registration_source_details do
