@@ -30,7 +30,7 @@ class SpotHit::SendMessageService
       event_attributes = {
         related_id: parent_id,
         related_type: 'Parent',
-        body: @message,
+        body: @message.dup,
         spot_hit_message_id: message_id,
         spot_hit_status: 0,
         type: 'Events::TextMessage',
@@ -38,7 +38,7 @@ class SpotHit::SendMessageService
       }.merge(@event_params[parent_id] || {})
       keys&.map { |key, value| event_attributes[:body].gsub!("{#{key}}", value) }
       event = Event.create(event_attributes)
-      keys&.map { |key, value| event_attributes[:body].gsub!(value, "{#{key}}") }
+
       @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
     end
   end
