@@ -248,6 +248,7 @@ ActiveAdmin.register Child do
   batch_action :generate_quit_sms do |ids|
     ids.reject! do |id|
       child = Child.find(id)
+
       child.child_support&.will_stay_in_group || child.group_status != 'active'
     end
 
@@ -409,6 +410,7 @@ ActiveAdmin.register Child do
   action_item :show_support, only: :show, if: proc { resource.child_support } do
     link_to I18n.t('child.show_support_link'), [:admin, resource.child_support]
   end
+
   action_item :create_support, only: :show, if: proc { !resource.child_support } do
     link_to I18n.t('child.create_support_link'), [:create_support, :admin, resource]
   end
@@ -420,8 +422,10 @@ ActiveAdmin.register Child do
       redirect_to [:edit, :admin, resource.child_support]
     end
   end
-  action_item :quit_group, only: :show,
-                           if: proc { resource.group && %w(paused active).include?(resource.model.group_status) } do
+
+  action_item :quit_group,
+              only: :show,
+              if: proc { resource.group && %w(paused active).include?(resource.model.group_status) } do
     link_to 'Quitter la cohorte', [:quit_group, :admin, resource]
   end
   member_action :quit_group do
@@ -540,6 +544,7 @@ ActiveAdmin.register Child do
 
   csv do
     column :id
+    column :child_support_id
 
     column :first_name
     column :last_name
