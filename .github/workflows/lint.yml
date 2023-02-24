@@ -15,4 +15,4 @@ jobs:
         with:
           bundler-cache: true
       - run: gem install rubocop rubocop-performance rubocop-rails rubocop-rspec
-      - run: git diff-tree -r --name-only HEAD~1 HEAD | grep -E '\.rb$' | xargs -r rubocop
+      - run: git diff-tree -r --name-only HEAD~1 HEAD | grep -E '\.rb$' | xargs -r bundle exec rubocop
