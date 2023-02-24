@@ -53,7 +53,8 @@ class Child < ApplicationRecord
 
   GENDERS = %w(m f).freeze
   REGISTRATION_SOURCES = %w(caf pmi friends therapist nursery doctor resubscribing other).freeze
-  PMI_LIST = %w(trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach mantes_la_jolie_clemenceau mantes_la_jolie_leclerc).freeze
+  PMI_LIST = %w(orleans orleans_est montargis gien pithiviers sarreguemines forbach trappes plaisir mantes_la_jolie_clemenceau mantes_la_jolie_leclerc
+                gennevilliers_zucman_gabison gennevilliers_timsit asnieres_gennevilliers_sst2 villeneuve_la_garenne).freeze
   GROUP_STATUS = %w(waiting active paused stopped).freeze
   TERRITORIES = %w(Loiret Yvelines Seine-Saint-Denis Paris Moselle).freeze
   LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Orleans', 'Montargis'].freeze
