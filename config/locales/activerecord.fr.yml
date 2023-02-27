@@ -568,6 +568,7 @@ fr:
         games: Jeux
         screen: Écran
         songs: Chansons
+        language: Language
       support_module_week:
         << : *SHARED
         additional_medium: Message 4

@@ -22,7 +22,7 @@ class SupportModule < ApplicationRecord
 
   include Discard::Model
 
-  THEME_LIST = %w(reading conversation games screen songs).freeze
+  THEME_LIST = %w(reading conversation games screen songs language).freeze
   AGE_RANGE_LIST = %w(less_than_five six_to_eleven twelve_to_seventeen eighteen_to_twenty_three).freeze
 
   # ---------------------------------------------------------------------------
@@ -40,6 +40,8 @@ class SupportModule < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   validates :name, presence: true
+
+  validates :theme, inclusion: { in: THEME_LIST, allow_blank: true }
 
   # ---------------------------------------------------------------------------
   # helpers
