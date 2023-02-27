@@ -1,5 +1,4 @@
 ActiveAdmin.register SupportModule do
-
   menu parent: 'Médiathèque', label: 'Modules', priority: 0
 
   decorate_with SupportModuleDecorator
@@ -18,6 +17,9 @@ ActiveAdmin.register SupportModule do
     id_column
     column :name
     column :start_at
+    column :display_theme
+    column :display_age_ranges
+    column :for_bilingual
     column :tags do |model|
       model.tags(context: 'tags')
     end
@@ -26,25 +28,38 @@ ActiveAdmin.register SupportModule do
     end
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
-        item *args
+        item(*args)
       end
     end
   end
 
   filter :name
+  filter :for_bilingual,
+         input_html: { data: { select2: {} } }
   filter :start_at
+  filter :theme,
+         as: :select,
+         collection: proc { support_module_theme_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
+  filter :age_ranges,
+         as: :select,
+         collection: proc { support_module_age_range_select_collection },
+         input_html: { multiple: true, data: { select2: {} } }
 
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------
 
   form do |f|
-    f.semantic_errors *f.object.errors.keys
+    f.semantic_errors(*f.object.errors.keys)
     f.inputs do
       f.input :name
+      f.input :for_bilingual
+      f.input :theme, collection: support_module_theme_select_collection, input_html: { data: { select2: {} } }
+      f.input :age_ranges, multiple: true, collection: support_module_age_range_select_collection, input_html: { data: { select2: {} } }
       f.input :start_at, as: :datepicker
       f.input :picture, as: :file,
-              hint: f.object.id && "Laissez ce champ vide pour ne pas modifier l'image"
+                        hint: f.object.id && "Laissez ce champ vide pour ne pas modifier l'image"
       tags_input(f)
     end
     f.inputs do
@@ -69,16 +84,16 @@ ActiveAdmin.register SupportModule do
     f.actions
   end
 
-  permit_params :name, :start_at, :picture, :support_module_weeks,
-                {
-                  support_module_weeks_attributes: [
-                    :id, :medium_id, :position,
-                    :has_been_sent1, :has_been_sent2, :has_been_sent3,
-                    :additional_medium_id,
-                    :has_been_sent4,
-                    :_destroy
-                  ]
-                }.merge(tags_params)
+  permit_params :name, :start_at, :picture, :support_module_weeks, :for_bilingual, :theme, age_ranges: []
+  {
+    support_module_weeks_attributes: %i[
+      id medium_id position
+      has_been_sent1 has_been_sent2 has_been_sent3
+      additional_medium_id
+      has_been_sent4
+      _destroy
+    ]
+  }.merge(tags_params)
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -87,6 +102,9 @@ ActiveAdmin.register SupportModule do
   show do
     attributes_table do
       row :name
+      row :for_bilingual
+      row :display_theme
+      row :display_age_ranges
       row :start_at
       row :picture do |decorated|
         decorated.picture_tag(max_height: '100px')
@@ -96,7 +114,7 @@ ActiveAdmin.register SupportModule do
       row :updated_at
     end
     panel '', class: 'support-module-week-lines' do
-      resource.support_module_weeks.decorate.each_with_index do |support_module_week, idx|
+      resource.support_module_weeks.decorate.each_with_index do |support_module_week, _idx|
         panel support_module_week.title, class: 'support-module-week-line' do
           if support_module_week.medium
             columns do
@@ -108,10 +126,10 @@ ActiveAdmin.register SupportModule do
                             target: '_blank'
                   else
                     classes = if support_module_week.send("has_been_sent#{msg_idx}?")
-                      'sent'
-                    else
-                      'not-sent'
-                    end
+                                'sent'
+                              else
+                                'not-sent'
+                              end
                     support_module_week.medium.decorate.as_card(msg_idx, class: classes)
                   end
                 end
@@ -119,10 +137,10 @@ ActiveAdmin.register SupportModule do
               if support_module_week.additional_medium
                 column do
                   classes = if support_module_week.has_been_sent4?
-                    'sent'
-                  else
-                    'not-sent'
-                  end
+                              'sent'
+                            else
+                              'not-sent'
+                            end
                   support_module_week.additional_medium.decorate.as_card(1, class: classes)
                 end
               end
@@ -144,5 +162,4 @@ ActiveAdmin.register SupportModule do
     new_resource.save!
     redirect_to [:admin, new_resource]
   end
-
 end
