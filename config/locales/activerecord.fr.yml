@@ -65,6 +65,7 @@ fr:
         available_for_workshops: Pas encore l'âge d'aller à l'école
         birthdate: Date de naissance
         child_support: Suivi
+        child_support_id: Fiche de suivi
         city_name: Ville
         family_redirection_unique_visit_rate: "Taux de visites uniques familiales d'URL courtes"
         family_redirection_unique_visits: URL visitées
@@ -136,17 +137,21 @@ fr:
         resubscribing: J'ai déjà participé au programme 1001 Mots et je réinscris un enfant
         unknown: Inconnue
       child/pmi_detail:
-        trappes: PMI Trappes
-        plaisir: PMI Plaisir
-        orleans: PMI Orléans
-        orleans_est: PMI Orléans Est
-        montargis: PMI Montargis
-        gien: PMI Gien
-        pithiviers: PMI Pithiviers
-        sarreguemines: PMI Sarreguemines
-        forbach: PMI Forbach
-        mantes_la_jolie_clemenceau: PMI Mantes-la-Jolie Clémenceau
-        mantes_la_jolie_leclerc: PMI Mantes-la-Jolie Leclerc
+        trappes: "[78] PMI Trappes"
+        plaisir: "[78] PMI Plaisir"
+        orleans: "[45] PMI Orléans"
+        orleans_est: "[45] PMI Orléans Est"
+        montargis: "[45] PMI Montargis"
+        gien: "[45] PMI Gien"
+        pithiviers: "[45] PMI Pithiviers"
+        sarreguemines: "[57] PMI Sarreguemines"
+        forbach: "[57] PMI Forbach"
+        mantes_la_jolie_clemenceau: "[78] PMI Mantes-la-Jolie Clémenceau"
+        mantes_la_jolie_leclerc: "[78] PMI Mantes-la-Jolie Leclerc"
+        gennevilliers_zucman_gabison: "[92] PMI de Gennevilliers - Zucman-Gabison"
+        gennevilliers_timsit: "[92] PMI de Gennevilliers - Timsit"
+        asnieres_gennevilliers_sst2: "[92] PMI d'Asnières / Gennevilliers - SST2"
+        villeneuve_la_garenne: "[92] PMI de Villeneuve-la-Garenne"
       child/group_status:
         waiting: En attente
         active: Active
@@ -267,7 +272,7 @@ fr:
         children_registration_sources: Origines des enfants
         groups: Cohortes
         child_support_groups: Cohortes
-        first_child_pmi_detail: PMI du premier enfant
+        current_child_pmi_detail: PMI de l'enfant suivi
         important_information: Infos importantes
         is_bilingual: Bilinguisme
         letterbox_name: Nom sur la boîte aux lettres
@@ -374,13 +379,13 @@ fr:
         occurred_at: Date
         postal_code: Code postal
         related: Parent
-        related_first_child: Famille
-        related_first_child_group: Cohorte
-        related_first_child_group_id: Cohorte
-        related_first_child_group_name: Cohorte
-        related_first_child_group_status: Statut de la cohorte
-        related_first_child_id: Famille
-        related_first_child_name: Famille
+        related_current_child: Famille
+        related_current_child_group: Cohorte
+        related_current_child_group_id: Cohorte
+        related_current_child_group_name: Cohorte
+        related_current_child_group_status: Statut de la cohorte
+        related_current_child_id: Famille
+        related_current_child_name: Famille
         related_id: Parent
         related_name: Parent
         parent_response: Inscription à l'atelier
@@ -544,9 +549,26 @@ fr:
         name: Nom
         start_at: Démarrage
         support_module_weeks: Semaines
-      support_module/ages:
+        for_bilingual: Bilingue
+        display_theme: Thème
+        theme: Thème
+        age_ranges: Ages
+        display_age_ranges: Ages
+      support_module/age_range:
+        less_than_five: 0 - 5 mois
+        six_to_eleven: 6 - 11 mois
+        twelve_to_seventeen: 12 - 17 mois
+        eighteen_to_twenty_three: 18 - 23 mois
+      support_module/age:
         a0_1: 0 - 1 ans
         a1_2 : 1 - 2 ans
+      support_module/theme:
+        reading: Lecture
+        conversation: Conversation
+        games: Jeux
+        screen: Écran
+        songs: Chansons
+        language: Language
       support_module_week:
         << : *SHARED
         additional_medium: Message 4

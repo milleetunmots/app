@@ -70,7 +70,7 @@ ActiveAdmin.register ChildSupport do
     as: :select,
     collection: proc { child_registration_source_details_suggestions },
     input_html: {multiple: true, data: {select2: {}}}
-  filter :first_child_pmi_detail,
+  filter :current_child_pmi_detail,
          as: :select,
          collection: proc { child_registration_pmi_detail_collection },
          input_html: {multiple: true, data: {select2: {}}}
@@ -382,12 +382,12 @@ ActiveAdmin.register ChildSupport do
             f.input "call#{call_idx}_sendings_benefits_details", input_html: {rows: 5, style: "width: 100%"}
           end
         end
-        if f.object.first_child
+        if f.object.current_child
           %i[parent1 parent2].each do |k|
-            if f.object.first_child.send(k)
+            if f.object.current_child.send(k)
               tab I18n.t("child_support.#{k}") do
-                f.semantic_fields_for :first_child do |first_child_f|
-                  first_child_f.semantic_fields_for k do |parent_f|
+                f.semantic_fields_for :current_child do |current_child_f|
+                  current_child_f.semantic_fields_for k do |parent_f|
                     parent_f.input :phone_number
                     parent_f.input :present_on_whatsapp
                     parent_f.input :follow_us_on_whatsapp
@@ -406,18 +406,18 @@ ActiveAdmin.register ChildSupport do
             end
           end
         end
-        if f.object.first_child
-          tab f.object.first_child.decorate.name do
-            f.semantic_fields_for :first_child do |first_child_f|
-              first_child_f.input :gender,
+        if f.object.current_child
+          tab f.object.current_child.decorate.name do
+            f.semantic_fields_for :current_child do |current_child_f|
+              current_child_f.input :gender,
                 as: :radio,
                 collection: child_gender_select_collection
-              first_child_f.input :should_contact_parent1
-              first_child_f.input :should_contact_parent2
-              first_child_f.input :registration_source,
+              current_child_f.input :should_contact_parent1
+              current_child_f.input :should_contact_parent2
+              current_child_f.input :registration_source,
                 collection: child_registration_source_select_collection,
                 input_html: {data: {select2: {}}}
-              first_child_f.input :registration_source_details
+              current_child_f.input :registration_source_details
             end
           end
           tab "Historique" do
@@ -450,8 +450,8 @@ ActiveAdmin.register ChildSupport do
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
     is_ambassador present_on_whatsapp present_on_facebook follow_us_on_whatsapp follow_us_on_facebook job
   ]
-  first_child_attributes = [{
-    first_child_attributes: [
+  current_child_attributes = [{
+    current_child_attributes: [
       :id,
       :gender, :should_contact_parent1, :should_contact_parent2,
       :registration_source, :registration_source_details,
@@ -463,7 +463,7 @@ ActiveAdmin.register ChildSupport do
   }]
   # block is mandatory here because ChildSupport.call_attributes hits DB
   permit_params do
-    base_attributes + ChildSupport.call_attributes + first_child_attributes
+    base_attributes + ChildSupport.call_attributes + current_child_attributes
   end
 
   # ---------------------------------------------------------------------------
@@ -533,7 +533,7 @@ ActiveAdmin.register ChildSupport do
           end
         end
       end
-      if resource.first_child
+      if resource.current_child
         tab "Historique" do
           render "admin/events/history", events: resource.parent_events.order(occurred_at: :desc).decorate
         end
@@ -646,7 +646,7 @@ ActiveAdmin.register ChildSupport do
   # member_action :send_select_module_message do
   #
   #   service = ChildSupport::SelectModuleService.new(
-  #     resource.model.first_child
+  #     resource.model.current_child
   #   ).call
   #
   #   if service.errors.empty?
@@ -664,7 +664,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   member_action :select_module_for_parent1 do
-    children_support_module = ChildrenSupportModule.find_by(child: resource.model.first_child, parent: resource.model.parent1, is_programmed: false)
+    children_support_module = ChildrenSupportModule.find_by(child: resource.model.current_child, parent: resource.model.parent1, is_programmed: false)
     if resource.parent1_available_support_module_list.nil? || resource.parent1_available_support_module_list.reject(&:blank?).empty?
       redirect_back(fallback_location: root_path, alert: "Aucun module disponible n'est choisi")
     elsif children_support_module
@@ -673,14 +673,14 @@ ActiveAdmin.register ChildSupport do
       redirect_to new_admin_children_support_module_path(
                     is_completed: false,
                     parent_id: resource.model.parent1,
-                    child_id: resource.model.first_child,
+                    child_id: resource.model.current_child,
                     available_support_module_list: resource.parent1_available_support_module_list
                   )
     end
   end
 
   member_action :select_module_for_parent2 do
-    children_support_module = ChildrenSupportModule.find_by(child: resource.model.first_child, parent: resource.model.parent2, is_programmed: false)
+    children_support_module = ChildrenSupportModule.find_by(child: resource.model.current_child, parent: resource.model.parent2, is_programmed: false)
     if resource.parent2_available_support_module_list.reject(&:blank?).empty?
       redirect_back(fallback_location: root_path, alert: "Aucun module disponible n'est choisi")
     elsif children_support_module
@@ -689,7 +689,7 @@ ActiveAdmin.register ChildSupport do
       redirect_to new_admin_children_support_module_path(
                     is_completed: false,
                     parent_id: resource.model.parent2,
-                    child_id: resource.model.first_child,
+                    child_id: resource.model.current_child,
                     available_support_module_list: resource.parent2_available_support_module_list
                   )
     end

@@ -21,7 +21,7 @@ Style/FrozenStringLiteralComment:
 Layout/EmptyLinesAroundClassBody:
   EnforcedStyle: beginning_only
 
-Layout/IndentHeredoc:
+Layout/HeredocIndentation:
   EnforcedStyle: powerpack
 
 Lint/AmbiguousBlockAssociation:
@@ -40,15 +40,15 @@ Metrics/BlockLength:
     - 'spec/**/*.rb'
     - 'spec/**/*'
   CountComments: false  # count full line comments?
-    Max: 55
-    ExcludedMethods: [ ]
+  Max: 55
+  ExcludedMethods: [ ]
 
 
 Metrics/ModuleLength:
   Exclude:
     - 'spec/**/*.rb'
   CountComments: false  # count full line comments?
-    Max: 500
+  Max: 500
 
 Metrics/AbcSize:
   # The ABC size is a calculated magnitude, so this number can be an Integer or
@@ -60,8 +60,8 @@ Metrics/ClassLength:
   Max: 500
 
 
-Metrics/LineLength:
-  Max: 100
+Layout/LineLength:
+  Max: 175
   # To make it possible to copy or click on URIs in the code, we allow lines
   # containing a URI to be longer than Max.
   AllowHeredoc: true

@@ -12,20 +12,20 @@ class EventDecorator < BaseDecorator
     end
   end
 
-  def related_first_child_group
-    decorated_related_first_child&.group
+  def related_current_child_group
+    decorated_related_current_child&.group
   end
 
-  def related_first_child_group_status
-    decorated_related_first_child&.group_status
+  def related_current_child_group_status
+    decorated_related_current_child&.group_status
   end
 
-  def related_first_child_link
-    decorated_related_first_child&.admin_link
+  def related_current_child_link
+    decorated_related_current_child&.admin_link
   end
 
-  def related_first_child_name
-    decorated_related_first_child&.name
+  def related_current_child_name
+    decorated_related_current_child&.name
   end
 
   def related_name
@@ -50,8 +50,8 @@ class EventDecorator < BaseDecorator
     @decorated_related ||= model.related&.decorate
   end
 
-  def decorated_related_first_child
-    @decorated_related_first_child ||= model.related_first_child&.decorate
+  def decorated_related_current_child
+    @decorated_related_current_child ||= model.related_current_child&.decorate
   end
 
 end

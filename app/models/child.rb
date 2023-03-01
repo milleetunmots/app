@@ -51,12 +51,13 @@ class Child < ApplicationRecord
 
   include Discard::Model
 
-  GENDERS = %w[m f].freeze
-  REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
-  PMI_LIST = %w[trappes plaisir orleans orleans_est montargis gien pithiviers sarreguemines forbach mantes_la_jolie_clemenceau mantes_la_jolie_leclerc].freeze
-  GROUP_STATUS = %w[waiting active paused stopped].freeze
-  TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
-  LANDS = ["Paris 18 eme", "Paris 20 eme", "Plaisir", "Trappes", "Aulnay sous bois", "Orleans", "Montargis"].freeze
+  GENDERS = %w(m f).freeze
+  REGISTRATION_SOURCES = %w(caf pmi friends therapist nursery doctor resubscribing other).freeze
+  PMI_LIST = %w(orleans orleans_est montargis gien pithiviers sarreguemines forbach trappes plaisir mantes_la_jolie_clemenceau mantes_la_jolie_leclerc
+                gennevilliers_zucman_gabison gennevilliers_timsit asnieres_gennevilliers_sst2 villeneuve_la_garenne).freeze
+  GROUP_STATUS = %w(waiting active paused stopped).freeze
+  TERRITORIES = %w(Loiret Yvelines Seine-Saint-Denis Paris Moselle).freeze
+  LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Orleans', 'Montargis'].freeze
 
   # ---------------------------------------------------------------------------
   # global search
@@ -66,9 +67,8 @@ class Child < ApplicationRecord
   multisearchable against: %i[first_name last_name]
   pg_search_scope :kinda_spelled_like,
                   against: %i[first_name last_name],
-                  using: { trigram: { threshold: ENV["CHILD_DUPLICATE_TREE_HOLD"].to_f } },
+                  using: { trigram: { threshold: ENV['CHILD_DUPLICATE_TREE_HOLD'].to_f } },
                   ignoring: :accents
-
 
   # ---------------------------------------------------------------------------
   # versions history
@@ -103,21 +103,21 @@ class Child < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  validates :gender, inclusion: {in: GENDERS, allow_blank: true}
+  validates :gender, inclusion: { in: GENDERS, allow_blank: true }
   validates :first_name, presence: true
-  validates :first_name, format: {with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE}
+  validates :first_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
   validates :last_name, presence: true
-  validates :last_name, format: {with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE}
+  validates :last_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
   validates :birthdate, presence: true
   validates :birthdate, date: {
     after: proc { min_birthdate },
     before: proc { max_birthdate }
   }, on: :create
-  validates :registration_source, presence: true, inclusion: {in: REGISTRATION_SOURCES}
+  validates :registration_source, presence: true, inclusion: { in: REGISTRATION_SOURCES }
   validates :registration_source_details, presence: true
   validates :security_code, presence: true
-  validates :pmi_detail, inclusion: {in: PMI_LIST, allow_blank: true}
-  validates :group_status, inclusion: {in: GROUP_STATUS}
+  validates :pmi_detail, inclusion: { in: PMI_LIST, allow_blank: true }
+  validates :group_status, inclusion: { in: GROUP_STATUS }
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
   validate :valid_group_status
@@ -127,22 +127,19 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def initialize(attributes = {})
-
     super
     self.security_code = SecureRandom.hex(1)
   end
 
   before_update do
-    unless (self.tag_list - parent1.tag_list).empty?
-      parent1.tag_list.add(self.tag_list)
+    unless (tag_list - parent1.tag_list).empty?
+      parent1.tag_list.add(tag_list)
       parent1.save
     end
 
-    if parent2
-      unless (self.tag_list - parent2&.tag_list).empty?
-        parent2&.tag_list&.add(self.tag_list)
-        parent2&.save
-      end
+    if parent2 && !(tag_list - parent2&.tag_list).empty?
+      parent2&.tag_list&.add(tag_list)
+      parent2&.save
     end
   end
 
@@ -155,18 +152,18 @@ class Child < ApplicationRecord
   scope :with_support, -> { joins(:child_support) }
   scope :without_support, -> { where(child_support_id: nil) }
   scope :with_group, -> { where.not(group_id: nil) }
-  scope :with_stopped_group, -> { where.not(group_id: nil).where(group_status: 'stopped')}
+  scope :with_stopped_group, -> { where.not(group_id: nil).where(group_status: 'stopped') }
   scope :without_group, -> { where(group_id: nil) }
-  scope :available_for_the_workshops, -> { where(available_for_workshops:  true)}
-  scope :active_group, -> { where(group_status: 'active')}
+  scope :available_for_the_workshops, -> { where(available_for_workshops: true) }
+  scope :active_group, -> { where(group_status: 'active') }
 
   def self.without_group_and_not_waiting_second_group
-    second_group_children_ids = Child.tagged_with("2eme cohorte").pluck(:id)
+    second_group_children_ids = Child.tagged_with('2eme cohorte').pluck(:id)
     where(group_id: nil).where.not(id: second_group_children_ids)
   end
 
   def self.waiting_second_group
-    waiting_second_group_children_ids = Child.tagged_with("2eme cohorte").pluck(:id)
+    waiting_second_group_children_ids = Child.tagged_with('2eme cohorte').pluck(:id)
     where(id: waiting_second_group_children_ids)
   end
 
@@ -209,17 +206,17 @@ class Child < ApplicationRecord
   end
 
   def self.active_group_id_in(*v)
-    where(group_id: v).where(group_status: "active")
+    where(group_id: v).where(group_status: 'active')
   end
 
   def self.without_parent_text_message_since(v)
     parent_id_not_in(
-      Events::TextMessage.where(related_type: :Parent).where("occurred_at >= ?", v).pluck("DISTINCT related_id")
+      Events::TextMessage.where(related_type: :Parent).where('occurred_at >= ?', v).pluck('DISTINCT related_id')
     )
   end
 
   def self.registration_source_details_matches_any(*v)
-    where("registration_source_details ILIKE ?", v)
+    where('registration_source_details ILIKE ?', v)
   end
 
   # ---------------------------------------------------------------------------
@@ -229,14 +226,14 @@ class Child < ApplicationRecord
   def self.months_gteq(x)
     # >= x months
     # means a birthdate at the most equal to x months ago
-    where("birthdate <= ?", Time.zone.today - x.to_i.months)
+    where('birthdate <= ?', Time.zone.today - x.to_i.months)
   end
 
   def self.months_lt(x)
     # < x months
     # means being at most 1 day less than x months old
     # which means a birthdate strictly greater than exactly x months ago
-    where("birthdate > ?", Time.zone.today - x.to_i.months)
+    where('birthdate > ?', Time.zone.today - x.to_i.months)
   end
 
   def self.months_equals(x)
@@ -304,7 +301,7 @@ class Child < ApplicationRecord
   end
 
   def self.families_count
-    count("DISTINCT children.parent1_id")
+    count('DISTINCT children.parent1_id')
   end
 
   def self.fathers_count
@@ -327,15 +324,15 @@ class Child < ApplicationRecord
     pluck(:registration_source_details).compact.uniq.each do |value|
       normalized_value = I18n.transliterate(
         value.unicode_normalize
-      ).downcase.gsub(/[\s-]+/, " ").strip
+      ).downcase.gsub(/[\s-]+/, ' ').strip
       values[normalized_value] ||= []
       values[normalized_value] << value
     end
 
     # use first found value as map key and remove duplicates
     Hash[
-      values.map do |k, v|
-        [ v.first, v.uniq ]
+      values.map do |_k, v|
+        [v.first, v.uniq]
       end
     ]
   end
@@ -345,27 +342,27 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   delegate :email,
-    :first_name,
-    :last_name,
-    :gender,
-    :phone_number_national,
-    to: :parent1,
-    prefix: true
+           :first_name,
+           :last_name,
+           :gender,
+           :phone_number_national,
+           to: :parent1,
+           prefix: true
 
   delegate :email,
-    :first_name,
-    :last_name,
-    :gender,
-    :phone_number_national,
-    to: :parent2,
-    prefix: true,
-    allow_nil: true
+           :first_name,
+           :last_name,
+           :gender,
+           :phone_number_national,
+           to: :parent2,
+           prefix: true,
+           allow_nil: true
 
   delegate :address,
-    :city_name,
-    :letterbox_name,
-    :postal_code,
-    to: :parent1
+           :city_name,
+           :letterbox_name,
+           :postal_code,
+           to: :parent1
 
   delegate :is_ambassador,
            :is_ambassador?,
@@ -377,8 +374,8 @@ class Child < ApplicationRecord
            :follow_us_on_facebook?,
            :follow_us_on_whatsapp,
            :follow_us_on_whatsapp?,
-    to: :parent1,
-    prefix: true
+           to: :parent1,
+           prefix: true
 
   delegate :is_ambassador,
            :is_ambassador?,
@@ -390,14 +387,19 @@ class Child < ApplicationRecord
            :follow_us_on_facebook?,
            :follow_us_on_whatsapp,
            :follow_us_on_whatsapp?,
-    to: :parent2,
-    prefix: true,
-    allow_nil: true
+           to: :parent2,
+           prefix: true,
+           allow_nil: true
 
   delegate :name,
-    to: :group,
-    prefix: true,
-    allow_nil: true
+           to: :group,
+           prefix: true,
+           allow_nil: true
+
+  delegate :id,
+           to: :child_support,
+           prefix: true,
+           allow_nil: true
 
   # computes an (integer) number of months old
   def months
@@ -425,10 +427,13 @@ class Child < ApplicationRecord
   # we do not call this 'siblings' because real siblings may have only
   # one parent in common
   def strict_siblings
-    parent2_id ? self.class.where(parent1_id: parent1_id, parent2_id: parent2_id)
-                     .or(self.class.where(parent1_id: parent2_id, parent2_id: parent1_id)).where.not(id: id) :
+    if parent2_id
+      self.class.where(parent1_id: parent1_id, parent2_id: parent2_id)
+          .or(self.class.where(parent1_id: parent2_id, parent2_id: parent1_id)).where.not(id: id)
+    else
       self.class.where(parent1_id: parent1_id)
           .or(self.class.where(parent2_id: parent1_id)).where.not(id: id)
+    end
   end
 
   def true_siblings
@@ -462,7 +467,7 @@ class Child < ApplicationRecord
   end
 
   def update_counters!
-    self.family_redirection_urls_count = family_redirection_urls.count("DISTINCT redirection_target_id")
+    self.family_redirection_urls_count = family_redirection_urls.count('DISTINCT redirection_target_id')
 
     if family_redirection_urls_count.zero?
       self.family_redirection_url_unique_visits_count = 0
@@ -473,7 +478,7 @@ class Child < ApplicationRecord
       # family counters : if both parents receive a link and only
       # 1 parent opens it, we consider it 100% visited
 
-      self.family_redirection_url_unique_visits_count = family_redirection_urls.with_visits.count("DISTINCT redirection_target_id")
+      self.family_redirection_url_unique_visits_count = family_redirection_urls.with_visits.count('DISTINCT redirection_target_id')
       self.family_redirection_unique_visit_rate = family_redirection_url_unique_visits_count / family_redirection_urls_count.to_f
       self.family_redirection_url_visits_count = family_redirection_urls.sum(:redirection_url_visits_count)
       self.family_redirection_visit_rate = family_redirection_urls_count / family_redirection_urls_count.to_f
@@ -483,7 +488,7 @@ class Child < ApplicationRecord
   end
 
   def parent_events
-    Event.where(related_type: "Parent", related_id: [parent1_id, parent2_id].compact)
+    Event.where(related_type: 'Parent', related_id: [parent1_id, parent2_id].compact)
   end
 
   def target_child?
@@ -491,6 +496,7 @@ class Child < ApplicationRecord
 
     group.target_group?
   end
+
   def self.popi_parents
     parents.tagged_with('hors cible')
   end
@@ -526,15 +532,14 @@ class Child < ApplicationRecord
     end
   end
 
-
   # --------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in without_parent_text_message_since registration_source_details_matches_any]
+    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in
+               without_parent_text_message_since registration_source_details_matches_any]
   end
-
 
   private
 
@@ -548,14 +553,16 @@ class Child < ApplicationRecord
 
   def different_phone_number
     return unless parent2&.phone_number
+
     if parent1.phone_number == parent2.phone_number
-      errors.add(:base, :invalid, message: "Nous avons besoin des coordonnées d'au moins un parent. Si l'autre parent ne souhaite pas recevoir les messages, merci de ne pas l'inscrire car nous n'avons pas besoin de son nom.")
+      errors.add(:base, :invalid,
+                 message: "Nous avons besoin des coordonnées d'au moins un parent. Si l'autre parent ne souhaite pas recevoir les messages, merci de ne pas l'inscrire car nous n'avons pas besoin de son nom.")
     end
   end
 
   def valid_group_status
-    errors.add(:base, :invalid, message: "L'enfant ne peut pas être en attente en étant dans une cohorte") if group_id && group_status == "waiting"
-    errors.add(:base, :invalid, message: "L'enfant doit être dans une cohorte") if group_id.nil? && group_status != "waiting"
+    errors.add(:base, :invalid, message: "L'enfant ne peut pas être en attente en étant dans une cohorte") if group_id && group_status == 'waiting'
+    errors.add(:base, :invalid, message: "L'enfant doit être dans une cohorte") if group_id.nil? && group_status != 'waiting'
   end
 
   def duration_in_months(started_at, ended_at = Time.now)

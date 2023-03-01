@@ -75,7 +75,8 @@ class ChildrenController < ApplicationController
   private
 
   def child_creation_params
-    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, :pmi_detail, child_support_attributes: %i[important_information])
+    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, :pmi_detail,
+                                           child_support_attributes: %i[important_information])
     result.delete(:child_support_attributes) if result[:child_support_attributes][:important_information].blank?
     result
   end
@@ -98,8 +99,8 @@ class ChildrenController < ApplicationController
 
   def siblings_params
     params.require(:child).permit(siblings: [
-      [:gender, :first_name, :last_name, :birthdate]
-    ])[:siblings]&.values || []
+                                    %i[gender first_name last_name birthdate]
+                                  ])[:siblings]&.values || []
   end
 
   def find_child
@@ -165,9 +166,7 @@ class ChildrenController < ApplicationController
     @child.build_parent1 if @child.parent1.nil?
     @child.build_parent2 if @child.parent2.nil?
     @child.build_child_support if @child.child_support.nil?
-    until @child.siblings.size >= SIBLINGS_COUNT do
-      @child.siblings.build
-    end
+    @child.siblings.build until @child.siblings.size >= SIBLINGS_COUNT
     @child.siblings.each do |sibling|
       sibling.build_child_support if sibling.child_support.nil?
     end

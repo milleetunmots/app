@@ -113,7 +113,7 @@ RSpec.describe ProgramMessageService do
   #     expect(SpotHit::SendSmsService).to(
   #       receive(:new).
   #       with(
-  #         { parent_2.id.to_s => {'PRENOM_ENFANT' => parent_2.first_child.first_name} },
+  #         { parent_2.id.to_s => {'PRENOM_ENFANT' => parent_2.current_child.first_name} },
   #         Time.zone.parse("#{Date.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
   #         'N\'oubliez pas que {PRENOM_ENFANT} doit faire du sport.'
   #       ).
@@ -143,7 +143,7 @@ RSpec.describe ProgramMessageService do
   #       receive(:new).
   #       with(
   #         { parent_2.id.to_s => {
-  #           'PRENOM_ENFANT' => parent_2.first_child.first_name,
+  #           'PRENOM_ENFANT' => parent_2.current_child.first_name,
   #           'URL' => 'http://localhost:3000/r/95/c6'
   #           }
   #         },
@@ -168,7 +168,7 @@ RSpec.describe ProgramMessageService do
   #       receive(:new).
   #       with(
   #         { parent_2.id.to_s => {
-  #           'PRENOM_ENFANT' => parent_2.first_child.first_name,
+  #           'PRENOM_ENFANT' => parent_2.current_child.first_name,
   #           'URL' => 'http://localhost:3000/r/95/c6'
   #           }
   #         },
