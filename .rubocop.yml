@@ -5,12 +5,21 @@
 
 AllCops:
   TargetRubyVersion: 2.6.6
-  TargetRailsVersion: 5.1.4
+  NewCops: enable
   Exclude:
     - 'vendor/**/*'
-    - 'spec/fixtures/**/*'
+    - 'spec/**/*'
     - 'tmp/**/*'
     - 'db/**/*'
+
+Style/Documentation:
+  Enabled: false
+
+Style/GuardClause:
+  Enabled: false
+
+Style/IfUnlessModifier: 
+  Enabled: false
 
 Style/ClassAndModuleChildren:
   Enabled: false
@@ -22,7 +31,7 @@ Layout/EmptyLinesAroundClassBody:
   EnforcedStyle: beginning_only
 
 Layout/HeredocIndentation:
-  EnforcedStyle: powerpack
+  Enabled: true
 
 Lint/AmbiguousBlockAssociation:
   Exclude:
@@ -41,7 +50,7 @@ Metrics/BlockLength:
     - 'spec/**/*'
   CountComments: false  # count full line comments?
   Max: 55
-  ExcludedMethods: [ ]
+  IgnoredMethods: [ ]
 
 
 Metrics/ModuleLength:
