@@ -49,7 +49,7 @@ Metrics/BlockLength:
     - 'spec/**/*.rb'
     - 'spec/**/*'
   CountComments: false  # count full line comments?
-  Max: 55
+  Max: 80
   IgnoredMethods: [ ]
 
 
