@@ -1,5 +1,4 @@
 ActiveAdmin.register Group do
-
   decorate_with GroupDecorator
 
   has_better_csv
@@ -28,7 +27,7 @@ ActiveAdmin.register Group do
     end
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
-        item *args
+        item(*args)
       end
     end
   end
@@ -50,7 +49,7 @@ ActiveAdmin.register Group do
   # ---------------------------------------------------------------------------
 
   form do |f|
-    f.semantic_errors *f.object.errors.keys
+    f.semantic_errors(*f.object.errors.keys)
     f.inputs do
       f.input :name
       f.input :started_at, as: :datepicker
@@ -81,21 +80,18 @@ ActiveAdmin.register Group do
   # MEMBER ACTIONS
   # ---------------------------------------------------------------------------
 
-  action_item :program,
-    only: :show,
-    if: proc { !resource.is_programmed } do
-    link_to I18n.t("group.program_link"), [:program, :admin, resource]
+  action_item :program, only: :show, if: proc { !resource.is_programmed } do
+    link_to I18n.t('group.program_link'), [:program, :admin, resource]
   end
 
   member_action :program do
     service = Group::ProgramService.new(resource.object).call
 
     if service.errors.empty?
-      redirect_to [:admin, resource], notice: "Les futurs tâches, envois de sms ont été programmé avec succès."
+      redirect_to [:admin, resource], notice: 'Les futurs tâches, envois de sms ont été programmé avec succès.'
     else
       flash[:alert] = service.errors
       redirect_to [:admin, resource]
     end
   end
-
 end
