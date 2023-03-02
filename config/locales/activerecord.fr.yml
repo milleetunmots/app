@@ -549,9 +549,26 @@ fr:
         name: Nom
         start_at: Démarrage
         support_module_weeks: Semaines
-      support_module/ages:
+        for_bilingual: Bilingue
+        display_theme: Thème
+        theme: Thème
+        age_ranges: Ages
+        display_age_ranges: Ages
+      support_module/age_range:
+        less_than_five: 0 - 5 mois
+        six_to_eleven: 6 - 11 mois
+        twelve_to_seventeen: 12 - 17 mois
+        eighteen_to_twenty_three: 18 - 23 mois
+      support_module/age:
         a0_1: 0 - 1 ans
         a1_2 : 1 - 2 ans
+      support_module/theme:
+        reading: Lecture
+        conversation: Conversation
+        games: Jeux
+        screen: Écran
+        songs: Chansons
+        language: Language
       support_module_week:
         << : *SHARED
         additional_medium: Message 4
