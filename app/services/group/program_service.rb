@@ -12,6 +12,7 @@ class Group
     def call
       check_group_is_ready
       if @errors.empty?
+        program_first_support_module
         verify_available_module_list
         create_call2_children_support_module
         verify_chosen_modules
@@ -33,6 +34,15 @@ class Group
       @errors << "Il n'y a pas d'enfant dans la cohorte." if @group.children.size.zero?
       @errors << 'Il faut au moins 2 modules de prévu.' if @group.support_modules_count < 2
       @errors << 'La cohorte a déjà été programmé.' if @group.is_programmed
+    end
+
+    def program_first_support_module
+      return if @group.support_modules_count < 1
+
+      program_module_date = @group.started_at
+
+      ChildrenSupportModule::ProgramFirstSupportModuleJob.set(wait_until: program_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, program_module_date)
+
     end
 
     def program_sms_to_choose_module_to_parents
