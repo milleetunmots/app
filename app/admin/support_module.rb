@@ -84,7 +84,7 @@ ActiveAdmin.register SupportModule do
     f.actions
   end
 
-  permit_params :name, :start_at, :picture, :support_module_weeks, :for_bilingual, :theme, age_ranges: []
+  permit_params :name, :start_at, :picture, :support_module_weeks, :for_bilingual, :theme,
   {
     support_module_weeks_attributes: %i[
       id medium_id position
@@ -93,7 +93,7 @@ ActiveAdmin.register SupportModule do
       has_been_sent4
       _destroy
     ]
-  }.merge(tags_params)
+  }.merge(tags_params, age_ranges: [])
 
   # ---------------------------------------------------------------------------
   # SHOW
