@@ -44,6 +44,15 @@ class SupportModule < ApplicationRecord
   validates :theme, inclusion: { in: THEME_LIST, allow_blank: true }
 
   # ---------------------------------------------------------------------------
+  # scopes
+  # ---------------------------------------------------------------------------
+
+  scope :less_than_five, -> { where("'less_than_five' = ANY (age_ranges)") }
+  scope :six_to_eleven, -> { where("'six_to_eleven' = ANY (age_ranges)") }
+  scope :twelve_to_seventeen, -> { where("'twelve_to_seventeen' = ANY (age_ranges)") }
+  scope :eighteen_to_twenty_three, -> { where("'eighteen_to_twenty_three' = ANY (age_ranges)") }
+
+  # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
 
