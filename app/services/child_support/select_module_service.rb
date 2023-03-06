@@ -29,6 +29,14 @@ class ChildSupport::SelectModuleService
     @children_support_module = ChildrenSupportModule.find_by(child_id: @child.id, parent_id: parent.id, is_programmed: false)
     @children_support_module ||= ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id, available_support_module_list: available_support_module_list)
 
+    if @children_support_module.available_support_module_list.reject(&:blank?).size == 1
+      chose_support_module
+    else
+      send_message_to_parent(parent)
+    end
+  end
+
+  def send_message_to_parent(parent)
     selection_link = Rails.application.routes.url_helpers.children_support_module_link_url(
       @children_support_module.id,
       sc: parent.security_code
@@ -49,5 +57,10 @@ class ChildSupport::SelectModuleService
       reminder_date = @planned_date.advance(days: 3)
       ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: reminder_date.to_datetime.change(hour: 6)).perform_later(@children_support_module.id, reminder_date)
     end
+  end
+
+  def chose_support_module
+    @children_support_module.update(support_module_id: @children_support_module.available_support_module_list.reject(&:blank?).first)
+    @errors += @children_support_module.errors.full_messages if @children_support_module.errors.any?
   end
 end
