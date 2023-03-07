@@ -13,7 +13,7 @@ class Group
       check_group_is_ready
       if @errors.empty?
         program_first_support_module
-        fill_parents_available_support_module
+        fill_parents_available_support_modules
         verify_available_module_list
         create_call2_children_support_module
         verify_chosen_modules
@@ -34,7 +34,7 @@ class Group
       (2..@group.support_modules_count).each do |module_index|
         fill_date = @group.started_at + (module_index - 1) * 8.weeks - 6.weeks
 
-        ChildrenSupportModule::FillParentsAvailableSupportModules.set(wait_until: fill_date.ta_datetime.change(hour: 6)).perform_later(@group.id, fill_date, module_index == 2)
+        ChildrenSupportModule::FillParentsAvailableSupportModulesJob.set(wait_until: fill_date.to_datetime.change(hour: 6)).perform_later(@group.id, module_index == 2)
       end
     end
 
