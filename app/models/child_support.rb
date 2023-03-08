@@ -162,6 +162,10 @@ class ChildSupport < ApplicationRecord
 
   after_save do
     if saved_change_to_call2_status && call2_status == 'KO'
+      update(
+        parent1_available_support_module_list: parent1_available_support_module_list.reject(&:blank?).first(3),
+        parent2_available_support_module_list: parent2_available_support_module_list.reject(&:blank?).first(3)
+      )
       ChildSupport::SelectModuleService.new(
         current_child,
         Date.today.next_day.sunday? ? Date.today.next_day(2) : Date.today.next_day,

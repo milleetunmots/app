@@ -30,6 +30,7 @@ class SupportModule < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   has_many :support_module_weeks, -> { positioned }, inverse_of: :support_module, dependent: :destroy
+  has_many :children_support_modules, dependent: :nullify
 
   accepts_nested_attributes_for :support_module_weeks, allow_destroy: true
 

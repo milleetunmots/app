@@ -55,7 +55,9 @@ class ChildrenSupportModule < ApplicationRecord
   end
 
   def available_support_module_collection
-    available_support_modules.decorate.map { |sm| [sm.name_with_tags, sm.id] }
+    available_support_modules.decorate.map { |sm| [sm.name_with_tags, sm.id.to_s] }
+
+    available_support_modules.sort_by { |e| available_support_module_list.index(e[1]) || Float::INFINITY }
   end
 
   def support_module_not_programmed
