@@ -54,6 +54,7 @@ class ChildrenSupportModule
 
       def create_children_support_module(child, support_module, parent)
         return unless parent
+        return unless support_module
 
         parent_children_support_module = ChildrenSupportModule.create(
             child_id: child.id,
