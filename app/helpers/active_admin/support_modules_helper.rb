@@ -1,5 +1,5 @@
 module ActiveAdmin::SupportModulesHelper
-  def support_module_collection(selected_values)
+  def support_module_collection(selected_values = [])
     # puts selected values in order first so they appear in the input in the right order
 
     support_modules = SupportModule.decorate.map { |sm| [sm.name_with_tags, sm.id.to_s] }
