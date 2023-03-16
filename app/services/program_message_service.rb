@@ -16,6 +16,7 @@ class ProgramMessageService
     @child_ids = []
     @quit_message = quit_message
     @event_params = {}
+    @invalid_parent_ids = []
     @errors = []
   end
 
@@ -47,7 +48,34 @@ class ProgramMessageService
                 SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, file: @file, event_params: @event_params).call
               end
 
-    @errors = service.errors if service.errors.any?
+    if service.errors.any?
+      @errors = service.errors
+    else
+      invalid_parents = Parent.includes(:parent1_children, :parent2_children).where(id: @invalid_parent_ids)
+      description_text = "Le message \"#{@message}\" n'a pas été envoyé aux parents pour les raisons suivantes :"
+
+      invalid_parents.each do |parent|
+        if parent.valid?
+          parent.children.each do |child|
+            unless child.valid?
+              @errors << "Message non envoyé à #{parent.decorate.name} parce que son enfant #{child.decorate.name} n'est pas valide"
+              description_text << "<br>#{ActionController::Base.helpers.link_to(child.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: child.id), target: '_blank')} : #{child.errors.messages.to_json}"
+            end
+          end
+        else
+          @errors << "Message non envoyé à #{parent.decorate.name} parce qu'il n'est pas valide"
+          description_text << "<br>#{ActionController::Base.helpers.link_to(parent.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: parent.id), target: '_blank')} : #{parent.errors.messages.to_json}"
+        end
+      end
+      AdminUser.all_logistics_team_members.each do |admin_user|
+        Task.create(
+          assignee_id: admin_user.id,
+          title: 'Message non envoyé à des parents',
+          description: description_text,
+          due_date: Time.zone.today
+        )
+      end
+    end
 
     self
   end
@@ -167,9 +195,12 @@ class ProgramMessageService
     parents = Parent.includes(:parent1_children, :parent2_children).where(id: @parent_ids)
 
     parents.each do |parent|
-      @errors << "Le parent #{parent.decorate.name} n'est pas valide" unless parent.valid?
-      parent.children.each do |child|
-        @errors << "L'enfant #{child.decorate.name} n'est pas valide" unless child.valid?
+      if parent.valid?
+        parent.children.each do |child|
+          @invalid_parent_ids << @parent_ids.delete(parent.id) unless child.valid?
+        end
+      else
+        @invalid_parent_ids << @parent_ids.delete(parent.id)
       end
     end
   end

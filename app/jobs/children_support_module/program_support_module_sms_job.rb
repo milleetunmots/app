@@ -1,5 +1,7 @@
 class ChildrenSupportModule
+
   class ProgramSupportModuleSmsJob < ApplicationJob
+
     def perform(group_id, first_message_date)
       errors = {}
       group = Group.find(group_id)
