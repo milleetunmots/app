@@ -610,6 +610,8 @@ ActiveAdmin.register Child do
 
   controller do
     after_save do |child|
+      next if child.errors.any?
+
       if child.group && %w(active stopped paused).include?(child.group_status) && child.group_start.nil?
         child.update!(group_start: child.group.started_at)
         child.parent1&.update family_followed: true
