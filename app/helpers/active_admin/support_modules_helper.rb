@@ -4,7 +4,7 @@ module ActiveAdmin::SupportModulesHelper
 
     support_modules = SupportModule.decorate.map { |sm| [sm.name_with_tags, sm.id.to_s] }
 
-    support_modules.sort_by { |e| selected_values.index(e[1]) || Float::INFINITY }
+    support_modules&.sort_by { |e| selected_values&.index(e[1]) || Float::INFINITY }
   end
 
   def available_support_module_input(form, input_name, options = {})

@@ -3,8 +3,8 @@ class ChildrenSupportModulesController < ApplicationController
   before_action :find_children_support_module, only: %i[edit update]
 
   def edit
+    @child_name = @children_support_module.child.first_name
     @support_modules = @children_support_module.available_support_modules
-
     @action_path = children_support_module_path(@children_support_module, sc: @children_support_module.parent.security_code)
   end
 
