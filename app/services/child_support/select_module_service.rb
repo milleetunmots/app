@@ -42,7 +42,7 @@ class ChildSupport::SelectModuleService
       sc: parent.security_code
     )
 
-    message = "1001mots : Cliquez sur le lien pour choisir votre prochain thème pour #{@child.first_name} et recevoir un nouveau livre. Attention après le #{Time.zone.today.next_day(14).strftime('%d %B')}, nous choisirons à votre place ! #{selection_link}"
+    message = "1001mots : Cliquez sur le lien pour choisir votre prochain thème pour #{@child.first_name} et recevoir un nouveau livre. Attention après le #{I18n.l(Time.zone.today.next_day(14), format: '%d %B')}, nous choisirons à votre place ! #{selection_link}"
 
     sms_service = ProgramMessageService.new(
       @planned_date,
