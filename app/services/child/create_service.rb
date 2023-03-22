@@ -74,8 +74,8 @@ class Child
     end
 
     def send_form_by_sms
-      sms_url_form = "#{ENV['TYPEFORM_URL']}#child_support_id=#{@child.child_support.id}"
-      message = "Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{sms_url_form}"
+      @sms_url_form = "#{ENV['TYPEFORM_URL']}#child_support_id=#{@child.child_support.id}"
+      message = "Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{@sms_url_form}"
 
       SpotHit::SendSmsService.new([@child.parent1_id], Time.now.to_i, message).call if @registration_origin == 2
       SpotHit::SendSmsService.new([@child.parent1_id], DateTime.now.change({hour: 19}).to_i, message).call if @registration_origin == 3
