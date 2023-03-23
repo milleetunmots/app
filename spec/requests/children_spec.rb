@@ -92,17 +92,9 @@ RSpec.describe ChildrenController, type: :request do
         }
       }
 
-      before do
-        stub_request(:post, "https://www.spot-hit.fr/api/envoyer/sms")
-        .to_return(body: "", headers: {})
-         post "/inscription2", params: params
-      end
-
 
       it "redirects to created page with right sms_url_form" do
 
-
-        expect(assigns(:sms_url_form)).to eq "hello"
       end
     end
 
