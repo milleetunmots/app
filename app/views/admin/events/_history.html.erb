@@ -32,9 +32,9 @@
 
       <% end %>
 
-      <% if event.is_received_text_message? %>
+      <% if event.received_text_message? %>
         <%= link_to 'Détails', admin_events_text_message_path(event), class: 'admin-link' %>
-      <% elsif event.is_sent_by_app_text_message? %>
+      <% elsif event.sent_by_app_text_message? %>
         <%= link_to 'Détails', admin_sent_by_app_text_message_path(event), class: 'admin-link' %>
       <% else %>
         <%= link_to 'Détails', [:admin, event], class: 'admin-link' %>

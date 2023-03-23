@@ -72,15 +72,9 @@ class Parent < ApplicationRecord
   # relations
   # ---------------------------------------------------------------------------
 
-  has_many :parent1_children,
-    class_name: :Child,
-    foreign_key: :parent1_id,
-    dependent: :nullify
+  has_many :parent1_children, class_name: :Child, foreign_key: :parent1_id, dependent: :nullify
 
-  has_many :parent2_children,
-    class_name: :Child,
-    foreign_key: :parent2_id,
-    dependent: :nullify
+  has_many :parent2_children, class_name: :Child, foreign_key: :parent2_id, dependent: :nullify
 
   has_many :redirection_urls, dependent: :destroy
 
