@@ -32,14 +32,14 @@ class Workshop < ApplicationRecord
 
   TOPICS = %w[meal sleep nursery_rhymes books games outside bath emotion].freeze
 
-  belongs_to :animator, class_name: "AdminUser"
-  has_many :events, dependent: :destroy
-  has_many :workshop_participations, class_name: "Events::WorkshopParticipation"
+  belongs_to :animator, class_name: 'AdminUser'
+  has_many :workshop_participations, class_name: 'Events::WorkshopParticipation', dependent: :destroy
   has_and_belongs_to_many :parents
 
   before_save :set_name
-  after_create :set_workshop_participation
-  after_save :update_workshop_participation
+  before_create :set_workshop_participation
+  # after_create :send_message
+  # after_save :update_workshop_participation
 
   validates :topic, inclusion: { in: TOPICS, allow_blank: true }
   validates :animator, presence: true
@@ -57,70 +57,94 @@ class Workshop < ApplicationRecord
     self.name = "#{workshop_date.day}/#{workshop_date.month}/#{workshop_date.year}"
     self.name = location.nil? ? "Atelier du #{name}" : "Atelier du #{name} à #{location}"
     self.name = "#{name}, avec #{animator.name}"
-    self.name = "#{name}, sur le thème \"#{Workshop.human_attribute_name("topic.#{topic}")}\"" unless topic.blank?
+    self.name = "#{name}, sur le thème \"#{Workshop.human_attribute_name("topic.#{topic}")}\"" if topic.present?
   end
 
   def set_workshop_participation
-    land_parents = if workshop_land == "Paris 18 eme"
-                     Parent.where(postal_code: Parent::PARIS_18_EME_POSTAL_CODE)
-                   elsif workshop_land == "Paris 20 eme"
-                     Parent.where(postal_code: Parent::PARIS_20_EME_POSTAL_CODE)
-                   elsif workshop_land == "Plaisir"
-                     Parent.where(postal_code: Parent::PLAISIR_POSTAL_CODE)
-                   elsif workshop_land == "Trappes"
-                     Parent.where(postal_code: Parent::TRAPPES_POSTAL_CODE)
-                   elsif workshop_land == "Aulnay sous bois"
-                     Parent.where(postal_code: Parent::AULNAY_SOUS_BOIS_POSTAL_CODE)
-                   elsif workshop_land == "Orleans"
-                     Parent.where(postal_code: Parent::ORELANS_POSTAL_CODE)
-                   elsif workshop_land == "Montargis"
-                     Parent.where(postal_code: Parent::MONTARGIS_POSTAL_CODE)
-                   end
+    land_parents =  case workshop_land
+                    when 'Paris 18 eme'
+                      Parent.where(postal_code: Parent::PARIS_18_EME_POSTAL_CODE)
+                    when 'Paris 20 eme'
+                      Parent.where(postal_code: Parent::PARIS_20_EME_POSTAL_CODE)
+                    when 'Plaisir'
+                      Parent.where(postal_code: Parent::PLAISIR_POSTAL_CODE)
+                    when 'Trappes'
+                      Parent.where(postal_code: Parent::TRAPPES_POSTAL_CODE)
+                    when 'Aulnay sous bois'
+                      Parent.where(postal_code: Parent::AULNAY_SOUS_BOIS_POSTAL_CODE)
+                    when 'Orleans'
+                      Parent.where(postal_code: Parent::ORELANS_POSTAL_CODE)
+                    when 'Montargis'
+                      Parent.where(postal_code: Parent::MONTARGIS_POSTAL_CODE)
+                    end
 
     if land_parents
-      land_parents.each do |parent|
-        next unless parent.available_for_workshops?
+      land_parents.to_a.each do |parent|
+        # next unless parent.available_for_workshops?
 
-        next unless parent.should_be_contacted?
+        # next unless parent.should_be_contacted?
 
-        next unless parent.target_parent?
+        # next unless parent.target_parent?
 
-        parents << parent
+        workshop_participations.build(
+          type: "Events::WorkshopParticipation",
+          related: parent,
+          body: name,
+          occurred_at: workshop_date
+        )
       end
     end
 
-    parents.each do |parent|
-      Event.create(
+    parents.to_a.each do |parent|
+      workshop_participations.build(
         type: "Events::WorkshopParticipation",
         related: parent,
         body: name,
-        occurred_at: workshop_date,
-        workshop: self
+        occurred_at: workshop_date
       )
-
-      response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
-        parent_id: parent.id,
-        parent_security_code: parent.security_code,
-        workshop_id: id
-      )
-
-      message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquez sur ce lien: #{response_link}"
-
-      service = SpotHit::SendSmsService.new(
-        parent.id,
-        DateTime.current.middle_of_day,
-        message
-      ).call
-
-      if service.errors.any?
-        logger.debug service.errors
-        logger.debug parent
-      end
     end
+
+    byebug
+
+
   end
 
-  def update_workshop_participation
-    events.update_all(occurred_at: workshop_date) if saved_change_to_workshop_date
-    events.update_all(body: name) if saved_change_to_name
-  end
+    # parents.each do |parent|
+    #   Event.create(
+    #     type: "Events::WorkshopParticipation",
+    #     related: parent,
+    #     body: name,
+    #     occurred_at: workshop_date,
+    #     workshop: self
+    #   )
+
+    #   response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
+    #     parent_id: parent.id,
+    #     parent_security_code: parent.security_code,
+    #     workshop_id: id
+    #   )
+
+    #   message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquez sur ce lien: #{response_link}"
+
+    #   service = SpotHit::SendSmsService.new(
+    #     parent.id,
+    #     DateTime.current.middle_of_day,
+    #     message
+    #   ).call
+
+    #   if service.errors.any?
+    #     logger.debug service.errors
+    #     logger.debug parent
+    #   end
+    # end
+  # end
+
+  # def send_message
+
+  # end
+
+  # def update_workshop_participation
+  #   events.update_all(occurred_at: workshop_date) if saved_change_to_workshop_date
+  #   events.update_all(body: name) if saved_change_to_name
+  # end
 end
