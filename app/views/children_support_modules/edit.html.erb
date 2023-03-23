@@ -12,17 +12,24 @@
 
     <% if @children_support_module.support_module_id%>
     <div style="text-align: center">
-      <h4>Mauvaise nouvelle : Il est trop tard pour choisir un thème mais…</h4>
-      <h4>Bonne nouvelle : On en a choisi un pour vous ! Et on est sûr qu’il va plaire à <%= @child_name %>.</h4>
-      <h4>Vous recevrez le livre et les SMS de ce thème d’ici 2 ou 3 semaines. A bientôt !</h4>
+      <h4>Mauvaise nouvelle : il est trop tard pour choisir un thème mais…</h4>
+      <h4>Bonne nouvelle : on en a choisi un pour vous !</h4>
       <div style="display: flex; flex-flow: row wrap; justify-content: center; align-items: stretch; align-content: stretch; gap: 2rem ">
-        <div style="width: 15rem; height: 20rem">
+        <div class="card" style="width: 15rem; height: 20rem">
           <div style="height: 75%">
-            <%= image_tag("child-with-support-module-picture.gif", class: "card-img-top", style: 'width:100%;height:100%;') %>
+            <% if @support_module_selected.picture.attached? %>
+              <%= @support_module_selected.picimage_tag(class: "card-img-top", style: 'width:100%;height:100%;') %>
+            <% else %>
+              <%= image_tag("child-picture.jpg", class: "card-img-top", style: 'width:100%;height:100%;') %>
+            <% end %>
+            </div>
+            <div class="card-body" style="height: 25%; display: flex; flex-flow: row nowrap; justify-content: flex-start; align-items: center; align-content: center; gap: 10px">
+              <%= @support_module_selected.name %>
+            </div>
           </div>
         </div>
-      </div>
-
+        <br>
+      <h4>Vous recevrez le livre et les SMS de ce thème d’ici 2 ou 3 semaines. A bientôt !</h4>
     </div>
     <%else%>
       <h1>Sur quel thème voulez-vous recevoir des conseils (et un livre) ?</h1>
