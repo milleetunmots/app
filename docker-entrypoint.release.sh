@@ -14,8 +14,11 @@ host="$(echo ${host_with_port/:$port/})"
 echo "Waiting for pg:" $proto$url
 dockerize -wait tcp://$host:$port -timeout 1m
 
-echo "Running migrations..."
-bundle exec rails db:migrate
+DO_RUN_DB_MIGRATE=${RUN_DB_MIGRATE:-1}
+if [ $DO_RUN_DB_MIGRATE -ne 0 ]; then
+  echo "Running DB migrations"
+  bundle exec rails db:migrate
+fi
 
 echo "$@"
 eval "$@"

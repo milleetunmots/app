@@ -10,10 +10,12 @@ class ChildrenSupportModule
         parent1_children_support_module = ChildrenSupportModule.create(child_id: child.id,
                                                                        parent_id: child.parent1.id,
                                                                        available_support_module_list: child.child_support.parent1_available_support_module_list)
-        parent2_children_support_module = ChildrenSupportModule.create(child_id: child.id,
-                                                                       parent_id: child.parent2.id,
-                                                                       available_support_module_list: child.child_support.parent2_available_support_module_list)
-        if parent1_children_support_module.errors.any? || parent2_children_support_module.errors.any?
+        if child.parent2
+          parent2_children_support_module = ChildrenSupportModule.create(child_id: child.id,
+                                                                         parent_id: child.parent2.id,
+                                                                         available_support_module_list: child.child_support.parent2_available_support_module_list)
+        end
+        if parent1_children_support_module.errors.any? || parent2_children_support_module&.errors&.any?
           errors[child.id] = handle_errors([parent1_children_support_module, parent2_children_support_module])
         end
       end
