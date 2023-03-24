@@ -4,3 +4,8 @@
   - active_storage_purge
   - default
   - mailers
+
+:schedule:
+  update_children_workshop_availability:
+    cron: '0 3 * * *' # every day at 3am
+    class: Child::UpdateChildrenWorkshopAvailabilityJob

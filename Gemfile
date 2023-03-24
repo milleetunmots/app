@@ -135,6 +135,7 @@ gem "fast_excel"
 
 # Asynchrone jobs
 gem "sidekiq"
+gem "sidekiq-scheduler"
 
 # Zip file
 gem "rubyzip"

@@ -38,8 +38,8 @@ class Workshop < ApplicationRecord
 
   before_save :set_name
   before_create :set_workshop_participation
-  # after_create :send_message
-  # after_save :update_workshop_participation
+  after_create :send_message
+  after_save :update_workshop_participation
 
   validates :topic, inclusion: { in: TOPICS, allow_blank: true }
   validates :animator, presence: true
@@ -61,90 +61,66 @@ class Workshop < ApplicationRecord
   end
 
   def set_workshop_participation
-    land_parents =  case workshop_land
-                    when 'Paris 18 eme'
-                      Parent.where(postal_code: Parent::PARIS_18_EME_POSTAL_CODE)
-                    when 'Paris 20 eme'
-                      Parent.where(postal_code: Parent::PARIS_20_EME_POSTAL_CODE)
-                    when 'Plaisir'
-                      Parent.where(postal_code: Parent::PLAISIR_POSTAL_CODE)
-                    when 'Trappes'
-                      Parent.where(postal_code: Parent::TRAPPES_POSTAL_CODE)
-                    when 'Aulnay sous bois'
-                      Parent.where(postal_code: Parent::AULNAY_SOUS_BOIS_POSTAL_CODE)
-                    when 'Orleans'
-                      Parent.where(postal_code: Parent::ORELANS_POSTAL_CODE)
-                    when 'Montargis'
-                      Parent.where(postal_code: Parent::MONTARGIS_POSTAL_CODE)
-                    end
+    land_parents.each do |parent|
+      # next unless parent.available_for_workshops?
 
-    if land_parents
-      land_parents.to_a.each do |parent|
-        # next unless parent.available_for_workshops?
+      # next unless parent.should_be_contacted?
 
-        # next unless parent.should_be_contacted?
+      # next unless parent.target_parent?
 
-        # next unless parent.target_parent?
-
-        workshop_participations.build(
-          type: "Events::WorkshopParticipation",
-          related: parent,
-          body: name,
-          occurred_at: workshop_date
-        )
-      end
-    end
-
-    parents.to_a.each do |parent|
       workshop_participations.build(
-        type: "Events::WorkshopParticipation",
+        type: 'Events::WorkshopParticipation',
         related: parent,
         body: name,
         occurred_at: workshop_date
       )
     end
 
-    byebug
-
-
+    (parents.to_a - land_parents.to_a).each do |parent|
+      workshop_participations.build(
+        type: 'Events::WorkshopParticipation',
+        related: parent,
+        body: name,
+        occurred_at: workshop_date
+      )
+    end
   end
 
-    # parents.each do |parent|
-    #   Event.create(
-    #     type: "Events::WorkshopParticipation",
-    #     related: parent,
-    #     body: name,
-    #     occurred_at: workshop_date,
-    #     workshop: self
-    #   )
+  def send_message
+    recipients = workshop_participations.map { |wp| "parent.#{wp.related_id}" }
 
-    #   response_link = Rails.application.routes.url_helpers.edit_workshop_participation_url(
-    #     parent_id: parent.id,
-    #     parent_security_code: parent.security_code,
-    #     workshop_id: id
-    #   )
+    message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquez sur ce lien: {RESPONSE_LINK}"
 
-    #   message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquez sur ce lien: #{response_link}"
+    service = Workshop::ProgramWorkshopInvitationService.new(Date.today, Time.now.strftime('%H:%M'), recipients, message, nil, nil, nil, id).call
 
-    #   service = SpotHit::SendSmsService.new(
-    #     parent.id,
-    #     DateTime.current.middle_of_day,
-    #     message
-    #   ).call
+    Rollbar.error(service.errors) if service.errors.any?
+  end
 
-    #   if service.errors.any?
-    #     logger.debug service.errors
-    #     logger.debug parent
-    #   end
-    # end
-  # end
+  def update_workshop_participation
+    workshop_participations.update_all(occurred_at: workshop_date) if saved_change_to_workshop_date
+    workshop_participations.update_all(body: name) if saved_change_to_name
+  end
 
-  # def send_message
+  def land_parents
+    postal_codes =  case workshop_land
+                    when 'Paris 18 eme'
+                      Parent::PARIS_18_EME_POSTAL_CODE
+                    when 'Paris 20 eme'
+                      Parent::PARIS_20_EME_POSTAL_CODE
+                    when 'Plaisir'
+                      Parent::PLAISIR_POSTAL_CODE
+                    when 'Trappes'
+                      Parent::TRAPPES_POSTAL_CODE
+                    when 'Aulnay sous bois'
+                      Parent::AULNAY_SOUS_BOIS_POSTAL_CODE
+                    when 'Orleans'
+                      Parent::ORELANS_POSTAL_CODE
+                    when 'Montargis'
+                      Parent::MONTARGIS_POSTAL_CODE
+                    else
+                      nil
+                    end
 
-  # end
-
-  # def update_workshop_participation
-  #   events.update_all(occurred_at: workshop_date) if saved_change_to_workshop_date
-  #   events.update_all(body: name) if saved_change_to_name
-  # end
+    Parent.where(postal_code: postal_codes)
+  end
 end

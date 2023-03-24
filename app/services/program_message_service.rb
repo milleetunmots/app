@@ -2,7 +2,7 @@ class ProgramMessageService
 
   attr_reader :errors
 
-  def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil, quit_message = false)
+  def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil)
     @planned_timestamp = Time.zone.parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []
     @message = message
@@ -15,6 +15,7 @@ class ProgramMessageService
     @variables = []
     @child_ids = []
     @quit_message = quit_message
+    @workshop_id = workshop_id
     @event_params = {}
     @invalid_parent_ids = []
     @errors = []
@@ -103,27 +104,6 @@ class ProgramMessageService
 
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
         end
-      end
-    elsif @quit_message
-      @recipient_data = {}
-      @child_ids.each do |child_id|
-        child = Child.find(child_id)
-        @recipient_data[child.parent1_id.to_s] = {}
-        @recipient_data[child.parent1_id.to_s]['QUIT_LINK'] = Rails.application.routes.url_helpers.edit_child_url(
-          id: child_id,
-          security_code: child.security_code
-        )
-
-        @event_params[child.parent1_id.to_s] = { quit_group_child_id: child_id }
-
-        next unless child.parent2
-
-        @recipient_data[child.parent2_id&.to_s] = {}
-        @recipient_data[child.parent2_id&.to_s]['QUIT_LINK'] = Rails.application.routes.url_helpers.edit_child_url(
-          id: child_id,
-          security_code: child.security_code
-        )
-        @event_params[child.parent2_id.to_s] = { quit_group_child_id: child_id }
       end
     else
       # If no variables, we can just sent an array of parent ids
