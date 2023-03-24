@@ -45,6 +45,6 @@ class Events::WorkshopParticipation < Event
 
   alias_attribute :comments, :body
 
-  scope :only_accepted, -> { where(parent_response: "Oui") }
-  scope :only_refused, -> { where(parent_response: "Non") }
+  scope :only_accepted, -> { where(parent_response: 'Oui') }
+  scope :only_refused, -> { where(parent_response: 'Non') }
 end

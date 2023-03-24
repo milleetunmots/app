@@ -160,6 +160,8 @@ GEM
       activesupport (>= 5.0)
       request_store (>= 1.0)
     erubi (1.10.0)
+    et-orbi (1.2.7)
+      tzinfo
     execjs (2.7.0)
     factory_bot (6.1.0)
       activesupport (>= 5.0.0)
@@ -182,6 +184,9 @@ GEM
     formtastic (4.0.0)
       actionpack (>= 5.2.0)
     formtastic_i18n (0.6.0)
+    fugit (1.8.1)
+      et-orbi (~> 1, >= 1.2.7)
+      raabro (~> 1.4)
     globalid (1.0.1)
       activesupport (>= 5.0)
     has_scope (0.8.0)
@@ -266,6 +271,7 @@ GEM
     public_suffix (4.0.6)
     puma (4.3.11)
       nio4r (~> 2.0)
+    raabro (1.4.0)
     racc (1.6.1)
     rack (2.2.6.4)
     rack-proxy (0.6.5)
@@ -372,6 +378,8 @@ GEM
     ruby2_keywords (0.0.4)
     ruby_dep (1.5.0)
     rubyzip (2.3.0)
+    rufus-scheduler (3.8.2)
+      fugit (~> 1.1, >= 1.1.6)
     sass (3.7.4)
       sass-listen (~> 4.0.0)
     sass-listen (4.0.0)
@@ -399,6 +407,11 @@ GEM
       connection_pool (>= 2.2.5, < 3)
       rack (~> 2.0)
       redis (>= 4.5.0, < 5)
+    sidekiq-scheduler (4.0.3)
+      redis (>= 4.2.0)
+      rufus-scheduler (~> 3.2)
+      sidekiq (>= 4, < 7)
+      tilt (>= 1.4.0)
     simple_form (5.1.0)
       actionpack (>= 5.2)
       activemodel (>= 5.2)
@@ -513,6 +526,7 @@ DEPENDENCIES
   select2-rails
   selenium-webdriver
   sidekiq
+  sidekiq-scheduler
   simple_form
   simplecov
   stackprof (>= 0.2.9)

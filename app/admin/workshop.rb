@@ -44,9 +44,9 @@ ActiveAdmin.register Workshop do
       f.input :co_animator
       address_input f
       f.input :location
-      f.input :parents, collection: parent_select_collection, input_html: {data: {select2: {}}}
-      f.input :workshop_land, collection: Child::LANDS, input_html: {data: {select2: {}}}
-      f.input :invitation_message, input_html: {rows: 5}
+      f.input :parents, collection: parent_select_collection, input_html: {data: {select2: {}}, disabled: !object.new_record?}
+      f.input :workshop_land, collection: Child::LANDS, input_html: {data: {select2: {}}, disabled: !object.new_record?}
+      f.input :invitation_message, input_html: {rows: 5, disabled: !object.new_record?}
       f.input :canceled
     end
     f.actions
@@ -102,19 +102,19 @@ ActiveAdmin.register Workshop do
   end
 
   member_action :update_parents_presence do
-    @values = resource.events.where(parent_response: "Oui").to_a
+    @values = resource.workshop_participations.where(parent_response: "Oui").to_a
     @perform_action = perform_update_parents_presence_admin_workshop_path
   end
 
   member_action :perform_update_parents_presence, method: :post do
     params[:presence].each do |parent_id, presence|
-      resource.events.find_by(related_id: parent_id).update(parent_presence: presence)
+      resource.workshop_participations.find_by(related_id: parent_id).update(parent_presence: presence)
     end
     redirect_to admin_workshop_path, notice: "Présences indiquées"
   end
 
   action_item :register_parents, only: :show do
-    link_to "Inscrire des parents", [:register_parents, :admin, resource]
+    link_to 'Inscrire des parents', [:register_parents, :admin, resource]
   end
 
   member_action :register_parents do
@@ -124,27 +124,27 @@ ActiveAdmin.register Workshop do
 
   member_action :perform_parents_registration, method: :post do
     workshop = Workshop.find(params[:workshop_id])
-    parent_to_register_ids = params[:workshop][:parent_ids].reject(&:blank?) - workshop.parents.ids.map(&:to_s)
+    parent_to_register_ids = params[:workshop][:parent_ids].reject(&:blank?)
     parents_to_register = Parent.where(id: parent_to_register_ids)
     workshop.parents << parents_to_register
 
     parents_to_register.each do |parent|
       event = Event.find_by(related: parent, workshop: workshop)
       if event
-        event.parent_response == "Oui" ? next : event.update!(parent_response: "Oui", acceptation_date: Date.today)
+        event.parent_response == 'Oui' ? next : event.update!(parent_response: 'Oui', acceptation_date: Date.today)
       else
         Event.create(
-          type: "Events::WorkshopParticipation",
+          type: 'Events::WorkshopParticipation',
           related: parent,
           body: workshop.name,
           occurred_at: workshop.workshop_date,
           workshop: workshop,
-          parent_response: "Oui",
+          parent_response: 'Oui',
           acceptation_date: Date.today
         )
       end
     end
 
-    redirect_to admin_workshop_path, notice: "Parent(s) inscrit(s)"
+    redirect_to admin_workshop_path, notice: 'Parent(s) inscrit(s)'
   end
 end

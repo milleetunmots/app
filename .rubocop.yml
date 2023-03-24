@@ -10,15 +10,20 @@ require:
 AllCops:
   TargetRubyVersion: 2.6.6
   NewCops: enable
+  Exclude:
+    - 'Gemfile'
+    - 'spec/**/*.rb'
 
 Rails:
   Enable: true
 
+Rails/HasAndBelongsToMany:
+  Enabled: false
 
 Style/GuardClause:
   Enabled: true
 
-Style/IfUnlessModifier: 
+Style/IfUnlessModifier:
   Enabled: true
 
 Style/FrozenStringLiteralComment:
@@ -33,10 +38,6 @@ Layout/EmptyLinesAroundClassBody:
 
 Layout/HeredocIndentation:
   Enabled: true
-
-Lint/AmbiguousBlockAssociation:
-  Exclude:
-    - 'spec/**/*.rb'
 
 Lint/UselessAccessModifier:
   MethodCreatingMethods:
