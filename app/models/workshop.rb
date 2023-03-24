@@ -62,11 +62,11 @@ class Workshop < ApplicationRecord
 
   def set_workshop_participation
     land_parents.each do |parent|
-      # next unless parent.available_for_workshops?
+      next unless parent.available_for_workshops?
 
-      # next unless parent.should_be_contacted?
+      next unless parent.should_be_contacted?
 
-      # next unless parent.target_parent?
+      next unless parent.target_parent?
 
       workshop_participations.build(
         type: 'Events::WorkshopParticipation',
