@@ -6,6 +6,7 @@
 #  age_ranges    :string           is an Array
 #  discarded_at  :datetime
 #  for_bilingual :boolean
+#  level         :string
 #  name          :string
 #  start_at      :date
 #  theme         :string
@@ -22,8 +23,16 @@ class SupportModule < ApplicationRecord
 
   include Discard::Model
 
-  THEME_LIST = %w(reading language games screen songs).freeze
-  AGE_RANGE_LIST = %w(less_than_five six_to_eleven twelve_to_seventeen eighteen_to_twenty_three).freeze
+  LESS_THAN_SIX = 'less_than_six'.freeze
+  SIX_TO_ELEVEN = 'six_to_eleven'.freeze
+  TWELVE_TO_SEVENTEEN = 'twelve_to_seventeen'.freeze
+  EIGHTEEN_TO_TWENTY_THREE = 'eighteen_to_twenty_three'.freeze
+  LEVEL_ONE = 'Niveau 1'.freeze
+  LEVEL_TWO = 'Niveau 2'.freeze
+  LEVEL_THREE = 'Niveau 3'.freeze
+  THEME_LIST = %w[reading language games screen songs].freeze
+  AGE_RANGE_LIST = [LESS_THAN_SIX, SIX_TO_ELEVEN, TWELVE_TO_SEVENTEEN, EIGHTEEN_TO_TWENTY_THREE].freeze
+  LEVEL_LIST = [LEVEL_ONE, LEVEL_TWO, LEVEL_THREE].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -31,9 +40,7 @@ class SupportModule < ApplicationRecord
 
   has_many :support_module_weeks, -> { positioned }, inverse_of: :support_module, dependent: :destroy
   has_many :children_support_modules, dependent: :nullify
-
   accepts_nested_attributes_for :support_module_weeks, allow_destroy: true
-
   has_one_attached :picture
 
   # ---------------------------------------------------------------------------
@@ -41,17 +48,20 @@ class SupportModule < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   validates :name, presence: true
-
   validates :theme, inclusion: { in: THEME_LIST, allow_blank: true }
+  validates :level, inclusion: { in: LEVEL_LIST, allow_blank: true }
 
   # ---------------------------------------------------------------------------
   # scopes
   # ---------------------------------------------------------------------------
 
-  scope :less_than_five, -> { where("'less_than_five' = ANY (age_ranges)") }
-  scope :six_to_eleven, -> { where("'six_to_eleven' = ANY (age_ranges)") }
-  scope :twelve_to_seventeen, -> { where("'twelve_to_seventeen' = ANY (age_ranges)") }
-  scope :eighteen_to_twenty_three, -> { where("'eighteen_to_twenty_three' = ANY (age_ranges)") }
+  scope :less_than_six, -> { where("'#{LESS_THAN_SIX}' = ANY (age_ranges)") }
+  scope :six_to_eleven, -> { where("'#{SIX_TO_ELEVEN}' = ANY (age_ranges)") }
+  scope :twelve_to_seventeen, -> { where("'#{TWELVE_TO_SEVENTEEN}' = ANY (age_ranges)") }
+  scope :eighteen_to_twenty_three, -> { where("'#{EIGHTEEN_TO_TWENTY_THREE}' = ANY (age_ranges)") }
+  scope :level_one, -> { where("level = '#{LEVEL_ONE}'") }
+  scope :level_two, -> { where("level = '#{LEVEL_TWO}'") }
+  scope :level_three, -> { where("level = '#{LEVEL_THREE}'") }
 
   # ---------------------------------------------------------------------------
   # helpers

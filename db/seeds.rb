@@ -176,6 +176,6 @@ FactoryBot.create(:support_module, age_ranges: %w[twelve_to_seventeen eighteen_t
 FactoryBot.create(:support_module, age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], theme: "screen", name: "Occuper mon enfant (sans les écrans) 🧩")
 FactoryBot.create(:support_module, age_ranges: ["twelve_to_seventeen"], theme: "reading", name: "Intéresser mon enfant aux livres 📚")
 FactoryBot.create(:support_module, age_ranges: ["twelve_to_seventeen"], theme: "reading", name: "Garder l'intérêt de mon enfant avec les livres 📚")
-FactoryBot.create(:support_module, age_ranges: %w[less_than_five six_to_eleven], theme: "language", name: "Parler plusieurs langues à la maison 🏠")
+FactoryBot.create(:support_module, age_ranges: %w[less_than_six six_to_eleven], theme: "language", name: "Parler plusieurs langues à la maison 🏠")
 
 puts " ✓"

@@ -6,34 +6,34 @@ class ChildrenSupportModule
       @errors = {}
       group = Group.find(group_id)
 
-      less_than_five_children = group.children.months_lt(6).where(group_status: 'active')
+      less_than_six_children = group.children.months_lt(6).where(group_status: 'active')
       six_to_eleven_children = group.children.months_between(6, 12).where(group_status: 'active')
       twelve_to_seventeen_children = group.children.months_between(12, 18).where(group_status: 'active')
       eighteen_to_twenty_three_children = group.children.months_between(18, 24).where(group_status: 'active')
 
-      less_than_five_reading_support_module = SupportModule.less_than_five.find_by(theme: 'reading')
-      six_to_eleven_reading_support_module = SupportModule.six_to_eleven.find_by(theme: 'reading')
-      twelve_to_seventeen_reading_support_module = SupportModule.twelve_to_seventeen.find_by(theme: 'reading')
-      eighteen_to_twenty_three_reading_support_module = SupportModule.eighteen_to_twenty_three.find_by(theme: 'reading')
+      less_than_six_reading_level_one_support_module = SupportModule.less_than_six.level_one.find_by(theme: 'reading')
+      six_to_eleven_reading_level_one_support_module = SupportModule.six_to_eleven.level_one.find_by(theme: 'reading')
+      twelve_to_seventeen_reading_level_one_support_module = SupportModule.twelve_to_seventeen.level_one.find_by(theme: 'reading')
+      eighteen_to_twenty_three_reading_level_one_support_module = SupportModule.eighteen_to_twenty_three.level_one.find_by(theme: 'reading')
 
-      less_than_five_children.each do |child|
-        create_children_support_module(child, less_than_five_reading_support_module, child.parent1)
-        create_children_support_module(child, less_than_five_reading_support_module, child.parent2)
+      less_than_six_children.each do |child|
+        create_children_support_module(child, less_than_six_reading_level_one_support_module, child.parent1)
+        create_children_support_module(child, less_than_six_reading_level_one_support_module, child.parent2)
       end
 
       six_to_eleven_children.each do |child|
-        create_children_support_module(child, six_to_eleven_reading_support_module, child.parent1)
-        create_children_support_module(child, six_to_eleven_reading_support_module, child.parent2)
+        create_children_support_module(child, six_to_eleven_reading_level_one_support_module, child.parent1)
+        create_children_support_module(child, six_to_eleven_reading_level_one_support_module, child.parent2)
       end
 
       twelve_to_seventeen_children.each do |child|
-        create_children_support_module(child, twelve_to_seventeen_reading_support_module, child.parent1)
-        create_children_support_module(child, twelve_to_seventeen_reading_support_module, child.parent2)
+        create_children_support_module(child, twelve_to_seventeen_reading_level_one_support_module, child.parent1)
+        create_children_support_module(child, twelve_to_seventeen_reading_level_one_support_module, child.parent2)
       end
 
       eighteen_to_twenty_three_children.each do |child|
-        create_children_support_module(child, eighteen_to_twenty_three_reading_support_module, child.parent1)
-        create_children_support_module(child, eighteen_to_twenty_three_reading_support_module, child.parent2)
+        create_children_support_module(child, eighteen_to_twenty_three_reading_level_one_support_module, child.parent1)
+        create_children_support_module(child, eighteen_to_twenty_three_reading_level_one_support_module, child.parent2)
       end
 
       ChildrenSupportModule::ProgramSupportModuleSmsJob.perform_later(group_id, program_date)

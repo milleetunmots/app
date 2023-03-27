@@ -21,13 +21,13 @@ class ChildrenSupportModule
     def find_available_support_modules(child, parent)
       child_age_range = case child.months
                         when 0..5
-                          'less_than_five'
+                          LESS_THAN_SIX
                         when 6..11
-                          'six_to_eleven'
+                          SIX_TO_ELEVEN
                         when 12..17
-                          'twelve_to_seventeen'
+                          TWELVE_TO_SEVENTEEN
                         when 18..23
-                          'eighteen_to_twenty_three'
+                          EIGHTEEN_TO_TWENTY_THREE
                         else
                           ''
                         end
