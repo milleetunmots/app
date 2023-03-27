@@ -20,5 +20,6 @@ FactoryBot.define do
     for_bilingual { Faker::Boolean.boolean }
     theme { SupportModule::THEME_LIST.sample }
     age_ranges { SupportModule::AGE_RANGE_LIST.sample }
+    level { 1 }
   end
 end

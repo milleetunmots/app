@@ -21,13 +21,13 @@ class ChildrenSupportModule
     def find_available_support_modules(child, parent)
       child_age_range = case child.months
                         when 0..5
-                          'less_than_five'
+                          SupportModule::LESS_THAN_SIX
                         when 6..11
-                          'six_to_eleven'
+                          SupportModule::SIX_TO_ELEVEN
                         when 12..17
-                          'twelve_to_seventeen'
+                          SupportModule::TWELVE_TO_SEVENTEEN
                         when 18..23
-                          'eighteen_to_twenty_three'
+                          SupportModule::EIGHTEEN_TO_TWENTY_THREE
                         else
                           ''
                         end
@@ -44,13 +44,14 @@ class ChildrenSupportModule
       available_support_modules_group_by_themes_already_done = {}
       available_support_modules_ordered = []
 
-      already_done_themes = SupportModule.joins(:children_support_modules).where(children_support_modules: { parent: parent, child: child }).pluck(:theme).uniq
+      already_done_themes_and_levels = SupportModule.joins(:children_support_modules).where(children_support_modules: { parent: parent, child: child }).pluck(:theme, :level).uniq
 
       SupportModule::THEME_LIST.each do |theme|
-        if theme.in?(already_done_themes)
-          available_support_modules_group_by_themes_already_done[theme] = support_modules.where(theme: theme).pluck(:id)
+        if theme.in?(already_done_themes_and_levels.map(&:first))
+          level = already_done_themes_and_levels.select { |item| item.first == theme }.map(&:second).max + 1
+          available_support_modules_group_by_themes_already_done[theme] = support_modules.where(theme: theme, level: level).pluck(:id)
         else
-          available_support_modules_group_by_themes[theme] = support_modules.where(theme: theme).pluck(:id)
+          available_support_modules_group_by_themes[theme] = support_modules.where(theme: theme, level: 1).pluck(:id)
         end
       end
 
