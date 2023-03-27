@@ -110,7 +110,7 @@ class Child
     end
 
     def birthdate_validation
-      @child.errors.add(:birthdate, :invalid, message: "minimale: #{l(@child_min_birthdate)}") if @child.birthdate < @child_min_birthdate
+      @child.errors.add(:birthdate, :invalid, message: "minimale: #{(@child_min_birthdate)}") if @child.birthdate < @child_min_birthdate
     end
 
     def pmi_detail_validation
