@@ -437,7 +437,7 @@ ActiveRecord::Schema.define(version: 2023_03_27_095734) do
     t.boolean "for_bilingual"
     t.string "theme"
     t.string "age_ranges", array: true
-    t.string "level"
+    t.integer "level"
     t.index ["age_ranges"], name: "index_support_modules_on_age_ranges", using: :gin
     t.index ["discarded_at"], name: "index_support_modules_on_discarded_at"
   end

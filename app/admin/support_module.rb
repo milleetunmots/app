@@ -41,10 +41,7 @@ ActiveAdmin.register SupportModule do
           as: :select,
           collection: proc { support_module_theme_select_collection },
           input_html: { multiple: true, data: { select2: {} } }
-  filter  :level,
-          as: :select,
-          collection: proc { SupportModule::LEVEL_LIST },
-          input_html: { multiple: true, data: { select2: {} } }
+  filter  :level
   filter  :age_ranges,
           as: :select,
           collection: proc { support_module_age_range_select_collection },
@@ -60,7 +57,7 @@ ActiveAdmin.register SupportModule do
       f.input :name
       f.input :for_bilingual
       f.input :theme, collection: support_module_theme_select_collection, input_html: { data: { select2: {} } }
-      f.input :level, collection: SupportModule::LEVEL_LIST, input_html: { data: { select2: {} } }
+      f.input :level
       f.input :age_ranges, multiple: true, collection: support_module_age_range_select_collection, input_html: { data: { select2: {} } }
       f.input :start_at, as: :datepicker
       f.input :picture, as: :file,

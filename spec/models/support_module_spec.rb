@@ -6,7 +6,7 @@
 #  age_ranges    :string           is an Array
 #  discarded_at  :datetime
 #  for_bilingual :boolean
-#  level         :string
+#  level         :integer
 #  name          :string
 #  start_at      :date
 #  theme         :string
