@@ -261,7 +261,7 @@ ActiveAdmin.register Child do
       flash[:error] = 'Certains enfants sont déjà dans une cohorte arrêtée'
       redirect_to request.referer
     else
-      next_saturday = Date.today.beginning_of_week.next_day(5)
+      next_saturday = Date.today.next_occurring(:saturday)
       hour = Time.parse('14:30').strftime('%H:%M')
       recipients = ids.map { |id| "child.#{id}" }
       message = 'Bonjour ! Ca fait 4 mois que je vous envoie des SMS pour votre enfant. Bravo pour tout ce que vous faites pour lui :) Voulez vous continuer à recevoir ces SMS et livres ? Cliquez sur le lien ci-dessous et répondez OUI ! Ca reprendra prochainement ! Je vous souhaite de beaux moments avec vos enfants :) {QUIT_LINK}'
