@@ -22,7 +22,7 @@ class SupportModule < ApplicationRecord
 
   include Discard::Model
 
-  THEME_LIST = %w(reading conversation games screen songs language).freeze
+  THEME_LIST = %w(reading language games screen songs).freeze
   AGE_RANGE_LIST = %w(less_than_five six_to_eleven twelve_to_seventeen eighteen_to_twenty_three).freeze
 
   # ---------------------------------------------------------------------------
@@ -30,6 +30,7 @@ class SupportModule < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   has_many :support_module_weeks, -> { positioned }, inverse_of: :support_module, dependent: :destroy
+  has_many :children_support_modules, dependent: :nullify
 
   accepts_nested_attributes_for :support_module_weeks, allow_destroy: true
 
@@ -42,6 +43,15 @@ class SupportModule < ApplicationRecord
   validates :name, presence: true
 
   validates :theme, inclusion: { in: THEME_LIST, allow_blank: true }
+
+  # ---------------------------------------------------------------------------
+  # scopes
+  # ---------------------------------------------------------------------------
+
+  scope :less_than_five, -> { where("'less_than_five' = ANY (age_ranges)") }
+  scope :six_to_eleven, -> { where("'six_to_eleven' = ANY (age_ranges)") }
+  scope :twelve_to_seventeen, -> { where("'twelve_to_seventeen' = ANY (age_ranges)") }
+  scope :eighteen_to_twenty_three, -> { where("'eighteen_to_twenty_three' = ANY (age_ranges)") }
 
   # ---------------------------------------------------------------------------
   # helpers

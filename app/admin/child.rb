@@ -266,21 +266,23 @@ ActiveAdmin.register Child do
       recipients = ids.map { |id| "child.#{id}" }
       message = 'Bonjour ! Ca fait 4 mois que je vous envoie des SMS pour votre enfant. Bravo pour tout ce que vous faites pour lui :) Voulez vous continuer à recevoir ces SMS et livres ? Cliquez sur le lien ci-dessous et répondez OUI ! Ca reprendra prochainement ! Je vous souhaite de beaux moments avec vos enfants :) {QUIT_LINK}'
 
-      service = ProgramMessageService.new(
+      service = Child::ProgramQuitMessageService.new(
         next_saturday,
         hour,
         recipients,
         message,
         nil,
         nil,
-        true
+        true,
+        nil
       ).call
+
+      @children.update_all(group_status: 'paused')
 
       if service.errors.any?
         flash[:alert] = service.errors
         redirect_back(fallback_location: root_path)
       else
-        @children.update_all(group_status: 'paused')
         flash[:notice] = 'Message de continuation envoyé'
         redirect_to admin_sent_by_app_text_messages_url
       end
@@ -467,8 +469,6 @@ ActiveAdmin.register Child do
     dropdown_menu 'Outils' do
       item "Nettoyer les précisions sur l'origine",
            %i[new_clean_registration_source_details admin children]
-      item "Mettre à jour les enfants n'ayant pas l'âge d'aller à l'école",
-           %i[set_age_ok admin children]
       item "Télécharger les listes d'enfants par cohorte au format Excel V1",
            %i[download_book_files_v1 admin children]
       item "Télécharger les listes d'enfants par module au format Excel V2",
@@ -482,19 +482,6 @@ ActiveAdmin.register Child do
       ).downcase.gsub(/[\s-]+/, ' ').strip
     end
     @perform_action = perform_clean_registration_source_details_admin_children_path
-  end
-
-  collection_action :set_age_ok do
-    children_available = if Date.today.month <= 8
-                           Child.where(birthdate: Date.new(Date.today.year - 3, 1, 1)..Date.new(Date.today.year, 12, 31))
-                         else
-                           Child.where(birthdate: Date.new(Date.today.year - 2, 1, 1)..Date.new(Date.today.year, 12, 31))
-                         end
-
-    Child.all.each do |child|
-      child.update_attribute('available_for_workshops', children_available.include?(child) ? true : false)
-    end
-    redirect_to admin_children_path, notice: 'Enfants mis à jour'
   end
 
   collection_action :download_book_files_v1 do
@@ -610,6 +597,8 @@ ActiveAdmin.register Child do
 
   controller do
     after_save do |child|
+      next if child.errors.any?
+
       if child.group && %w(active stopped paused).include?(child.group_status) && child.group_start.nil?
         child.update!(group_start: child.group.started_at)
         child.parent1&.update family_followed: true

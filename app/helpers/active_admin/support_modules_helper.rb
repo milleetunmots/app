@@ -1,6 +1,10 @@
 module ActiveAdmin::SupportModulesHelper
-  def support_module_collection
-    SupportModule.order('LOWER(name)').decorate.map { |sm| [sm.name_with_tags, sm.id] }
+  def support_module_collection(selected_values = [])
+    # puts selected values in order first so they appear in the input in the right order
+
+    support_modules = SupportModule.decorate.map { |sm| [sm.name_with_tags, sm.id.to_s] }
+
+    support_modules&.sort_by { |e| selected_values&.index(e[1]) || Float::INFINITY }
   end
 
   def available_support_module_input(form, input_name, options = {})
@@ -10,10 +14,12 @@ module ActiveAdmin::SupportModulesHelper
       }
     }
 
+    selected_values = form.object.send(input_name)
+
     form.input input_name,
                {
                  multiple: true,
-                 collection: support_module_collection,
+                 collection: support_module_collection(selected_values),
                  input_html: input_html
                }.deep_merge(options)
   end

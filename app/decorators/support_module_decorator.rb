@@ -5,7 +5,7 @@ class SupportModuleDecorator < BaseDecorator
   end
 
   def display_theme
-    return unless model.theme
+    return if model.theme.nil?
 
     SupportModule.human_attribute_name("theme.#{model.theme}")
   end
