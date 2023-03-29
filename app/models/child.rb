@@ -459,11 +459,11 @@ class Child < ApplicationRecord
   end
 
   def family_text_messages_received
-    parent_events.text_messages_send_by_app
+    parent_events.sent_by_app_text_messages
   end
 
   def family_text_messages_sent
-    parent_events.text_messages_send_by_parent
+    parent_events.received_text_messages
   end
 
   def update_counters!
