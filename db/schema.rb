@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_02_27_102502) do
+ActiveRecord::Schema.define(version: 2023_03_27_095734) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -437,6 +437,7 @@ ActiveRecord::Schema.define(version: 2023_02_27_102502) do
     t.boolean "for_bilingual"
     t.string "theme"
     t.string "age_ranges", array: true
+    t.integer "level"
     t.index ["age_ranges"], name: "index_support_modules_on_age_ranges", using: :gin
     t.index ["discarded_at"], name: "index_support_modules_on_discarded_at"
   end

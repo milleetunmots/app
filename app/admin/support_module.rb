@@ -18,6 +18,7 @@ ActiveAdmin.register SupportModule do
     column :name
     column :start_at
     column :display_theme
+    column :level
     column :display_age_ranges
     column :for_bilingual
     column :tags do |model|
@@ -33,18 +34,18 @@ ActiveAdmin.register SupportModule do
     end
   end
 
-  filter :name
-  filter :for_bilingual,
-         input_html: { data: { select2: {} } }
-  filter :start_at
-  filter :theme,
-         as: :select,
-         collection: proc { support_module_theme_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :age_ranges,
-         as: :select,
-         collection: proc { support_module_age_range_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
+  filter  :name
+  filter  :for_bilingual, input_html: { data: { select2: {} } }
+  filter  :start_at
+  filter  :theme,
+          as: :select,
+          collection: proc { support_module_theme_select_collection },
+          input_html: { multiple: true, data: { select2: {} } }
+  filter  :level
+  filter  :age_ranges,
+          as: :select,
+          collection: proc { support_module_age_range_select_collection },
+          input_html: { multiple: true, data: { select2: {} } }
 
   # ---------------------------------------------------------------------------
   # FORM
@@ -56,6 +57,7 @@ ActiveAdmin.register SupportModule do
       f.input :name
       f.input :for_bilingual
       f.input :theme, collection: support_module_theme_select_collection, input_html: { data: { select2: {} } }
+      f.input :level
       f.input :age_ranges, multiple: true, collection: support_module_age_range_select_collection, input_html: { data: { select2: {} } }
       f.input :start_at, as: :datepicker
       f.input :picture, as: :file,
@@ -84,7 +86,7 @@ ActiveAdmin.register SupportModule do
     f.actions
   end
 
-  permit_params :name, :start_at, :picture, :support_module_weeks, :for_bilingual, :theme,
+  permit_params :name, :start_at, :picture, :support_module_weeks, :for_bilingual, :level, :theme,
   {
     support_module_weeks_attributes: %i[
       id medium_id position
@@ -105,6 +107,7 @@ ActiveAdmin.register SupportModule do
       row :for_bilingual
       row :display_theme
       row :display_age_ranges
+      row :level
       row :start_at
       row :picture do |decorated|
         decorated.picture_tag(max_height: '100px')

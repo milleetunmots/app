@@ -554,8 +554,9 @@ fr:
         theme: Thème
         age_ranges: Ages
         display_age_ranges: Ages
+        level: Niveau
       support_module/age_range:
-        less_than_five: 0 - 5 mois
+        less_than_six: 0 - 5 mois
         six_to_eleven: 6 - 11 mois
         twelve_to_seventeen: 12 - 17 mois
         eighteen_to_twenty_three: 18 - 23 mois

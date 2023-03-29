@@ -51,7 +51,7 @@ class ProgramMessageService
 
     if service.errors.any?
       @errors = service.errors
-    else
+    elsif @invalid_parent_ids.any?
       invalid_parents = Parent.includes(:parent1_children, :parent2_children).where(id: @invalid_parent_ids)
       description_text = "Le message \"#{@message}\" n'a pas été envoyé aux parents pour les raisons suivantes :"
 
