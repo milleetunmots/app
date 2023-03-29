@@ -93,12 +93,12 @@ RSpec.describe ChildrenController, type: :request do
       }
 
       before do
-        stub_request(:post, "https://www.spot-hit.fr/api/envoyer/sms").to_return(status: 200, body: "")
+        expect_any_instance_of(SpotHit::SendSmsService).to receive(:call)
         post "/inscription2", params: params
       end
 
       it "redirects to created page with right sms_url_form" do
-        expect(response).to redirect_to(created_child_path)
+        expect(response).to redirect_to(created_child_path(sms_url_form: "#{ENV['TYPEFORM_URL']}#child_support_id=#{Child.last.child_support.id}"))
       end
     end
 
