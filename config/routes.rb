@@ -45,7 +45,7 @@ Rails.application.routes.draw do
   resources :events, only: [:index, :create]
 
   resources :children_support_modules, only: [:edit, :update] do
-    get "updated", on: :collection
+    get "updated", on: :member
   end
 
   get "s/:id", to: 'children_support_modules#edit', as: :children_support_module_link

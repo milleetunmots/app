@@ -7,6 +7,13 @@
       <h1>Merci beaucoup pour vos réponses.</h1><br>
       <h2>Nous vous souhaitons de beaux moments avec <%= @child_first_name %> 😊</h2>
 
+      <%- if @third_choice %>
+        <h2>
+          Vous avez aimé ce qu’on vous envoie ? Dites le nous en répondant à&nbsp;
+          <%= link_to 'ce petit questionnaire', @typeform_link, target: '_blank' %>
+        </h2>
+      <% end %>
+
     </div>
 
   </div>
