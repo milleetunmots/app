@@ -44,8 +44,8 @@
               <% end %>
             </div>
             <div class="card-body" style="height: 25%; display: flex; flex-flow: row nowrap; justify-content: flex-start; align-items: center; align-content: center; gap: 10px">
-              <input type="radio" id=<%= support_module.name %> name="children_support_module[support_module_id]" value=<%= support_module.id %>>
-              <label style="margin: 0px" for=<%= support_module.name %>><%= support_module.name %></label><br>
+              <input type="radio" id=<%= support_module.id %> name="children_support_module[support_module_id]" value=<%= support_module.id %>>
+              <label style="margin: 0px" for=<%= support_module.id %>><%= support_module.name %></label><br>
             </div>
           </div>
         <% end %>
@@ -65,6 +65,13 @@
           Choisir
         </button>
       </div>
+
+      <%- if @third_choice %>
+        <div style="display: flex; justify-content: center; margin-top: 2rem" >
+          Vous avez aimé ce qu’on vous envoie ? Dites le nous en répondant à&nbsp;
+          <%= link_to 'ce petit questionnaire', @typeform_link, target: '_blank' %>
+        </div>
+      <% end %>
     </div>
     <% end %>
   <% end %>

@@ -3,6 +3,10 @@ class ChildrenSupportModulesController < ApplicationController
   before_action :find_children_support_module, only: %i[edit update]
 
   def edit
+    # link only for third choice
+    @third_choice = ChildrenSupportModule.where(child_id: @children_support_module.child_id, parent_id: @children_support_module.parent_id).size == 3
+
+    @typeform_link = "https://wr1q9w7z4ro.typeform.com/to/YzlXcWSJ#child_support_id=#{@children_support_module.child.child_support.id}"
     @support_module_selected = @children_support_module.support_module
     @support_modules = @children_support_module.available_support_modules
     @action_path = children_support_module_path(@children_support_module, sc: @children_support_module.parent.security_code)
