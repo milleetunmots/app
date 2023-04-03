@@ -87,7 +87,8 @@ RSpec.describe ChildrenController, type: :request do
             parent2_attributes: {
               first_name: "",
               last_name: "",
-              phone_number: ""}
+              phone_number: ""
+            }
           }
         }
       }
@@ -103,44 +104,97 @@ RSpec.describe ChildrenController, type: :request do
     end
 
     context "when there are errors" do
+      let(:birthdate) { Faker::Date.between(from: Child.min_birthdate.tomorrow, to: Child.max_birthdate.yesterday) }
+      let(:params) {
+        {
+          child: {
+            parent1_attributes: {
+              terms_accepted_at: DateTime.now,
+              first_name: nil,
+              last_name: nil,
+              phone_number: Faker::PhoneNumber.phone_number,
+              letterbox_name: Faker::Name.name,
+              address: Faker::Address.street_address,
+              postal_code: Faker::Address.postcode,
+              city_name: Faker::Address.city
+            },
+            registration_source: Child::REGISTRATION_SOURCES.sample,
+            registration_source_details: Faker::Movies::StarWars.planet,
+            gender: "",
+            first_name: Faker::Name.first_name,
+            last_name: Faker::Name.last_name,
+            "birthdate(3i)" => birthdate.day.to_s,
+            "birthdate(2i)" => birthdate.month.to_s,
+            "birthdate(1i)" => birthdate.year.to_s,
+            child_support_attributes: { important_information: "" },
+            parent2_attributes: {
+              first_name: "",
+              last_name: "",
+              phone_number: ""
+            }
+          }
+        }
+      }
+
+      before { post "/inscription", params: params }
+
       it "renders forms" do
+        expect(response).to render_template(:new)
       end
     end
   end
 
   describe "#created" do
     it "renders created template" do
+      get "/inscrit"
+      expect(response).to render_template(:created)
     end
 
     context "when session[:registration_origin] is not set" do
-      it "renders specific wording" do
-      end
+      before { get "/inscrit" }
 
-      it "renders widget" do
+      it "renders specific wording" do
+        expect(response.body).to include I18n.t('inscription_success.with_widget')
       end
     end
 
     context "when session[:registration_origin] = 1" do
-      it "renders specific wording" do
+      before do
+        ApplicationController.any_instance.stub(:session).and_return({ registration_origin: 1 })
+        get "/inscrit"
       end
 
       it "renders widget" do
+        expect(response.body).to include I18n.t('inscription_success.with_widget')
       end
     end
 
     context "when session[:registration_origin] = 2" do
+      before do
+        ApplicationController.any_instance.stub(:session).and_return({ registration_origin: 2 })
+        get "/inscrit", params: { sms_url_form: nil }
+      end
+
       it "renders specific wording" do
+        expect(response.body).to include I18n.t('inscription_success.without_widget', typeform_url: nil)
       end
 
       it "does not render widget" do
+        expect(response.body).not_to include I18n.t('inscription_success.with_widget')
       end
     end
 
     context "when session[:registration_origin] = 3" do
+      before do
+        ApplicationController.any_instance.stub(:session).and_return({ registration_origin: 3 })
+        get "/inscrit", params: { sms_url_form: nil }
+      end
       it "renders specific wording" do
+        expect(response.body).to include I18n.t('inscription_success.pro')
       end
 
       it "does not render widget" do
+        expect(response.body).not_to include I18n.t('inscription_success.with_widget')
       end
     end
   end
