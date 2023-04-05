@@ -28,6 +28,12 @@ class ChildrenSupportModule
                           SupportModule::TWELVE_TO_SEVENTEEN
                         when 18..23
                           SupportModule::EIGHTEEN_TO_TWENTY_THREE
+                        when 24..29
+                          SupportModule::TWENTY_FOUR_TO_TWENTY_NINE
+                        when 30..35
+                          SupportModule::THIRTY_TO_THIRTY_FIVE
+                        when 36..40
+                          SupportModule::THIRTY_SIX_TO_FORTY
                         else
                           ''
                         end

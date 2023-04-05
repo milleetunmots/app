@@ -23,12 +23,24 @@ class SupportModule < ApplicationRecord
 
   include Discard::Model
 
+  THEME_LIST = %w[reading language games screen songs].freeze
+
   LESS_THAN_SIX = 'less_than_six'.freeze
   SIX_TO_ELEVEN = 'six_to_eleven'.freeze
   TWELVE_TO_SEVENTEEN = 'twelve_to_seventeen'.freeze
   EIGHTEEN_TO_TWENTY_THREE = 'eighteen_to_twenty_three'.freeze
-  THEME_LIST = %w[reading language games screen songs].freeze
-  AGE_RANGE_LIST = [LESS_THAN_SIX, SIX_TO_ELEVEN, TWELVE_TO_SEVENTEEN, EIGHTEEN_TO_TWENTY_THREE].freeze
+  TWENTY_FOUR_TO_TWENTY_NINE = 'twenty_four_to_twenty_nine'.freeze
+  THIRTY_TO_THIRTY_FIVE = 'thirty_to_thirty_five'.freeze
+  THIRTY_SIX_TO_FORTY = 'thirty_six_to_forty'.freeze
+  AGE_RANGE_LIST = [
+    LESS_THAN_SIX,
+    SIX_TO_ELEVEN,
+    TWELVE_TO_SEVENTEEN,
+    EIGHTEEN_TO_TWENTY_THREE,
+    TWENTY_FOUR_TO_TWENTY_NINE,
+    THIRTY_TO_THIRTY_FIVE,
+    THIRTY_SIX_TO_FORTY
+  ].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -55,6 +67,9 @@ class SupportModule < ApplicationRecord
   scope :six_to_eleven, -> { where("'#{SIX_TO_ELEVEN}' = ANY (age_ranges)") }
   scope :twelve_to_seventeen, -> { where("'#{TWELVE_TO_SEVENTEEN}' = ANY (age_ranges)") }
   scope :eighteen_to_twenty_three, -> { where("'#{EIGHTEEN_TO_TWENTY_THREE}' = ANY (age_ranges)") }
+  scope :twenty_four_to_twenty_nine, -> { where("'#{TWENTY_FOUR_TO_TWENTY_NINE}' = ANY (age_ranges)") }
+  scope :thirty_to_thirty_five, -> { where("'#{THIRTY_TO_THIRTY_FIVE}' = ANY (age_ranges)") }
+  scope :thirty_six_to_forty, -> { where("'#{THIRTY_SIX_TO_FORTY}' = ANY (age_ranges)") }
   scope :level_one, -> { where(level: 1) }
 
   # ---------------------------------------------------------------------------
