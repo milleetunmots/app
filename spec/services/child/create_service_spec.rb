@@ -22,7 +22,7 @@ RSpec.describe Child::CreateService do
   context "when params are valid" do
     let(:registration_origin) { nil }
     let(:father_attributes) { {} }
-    let(:siblings_attributes) { {} }
+    let(:siblings_attributes) { [] }
     let(:attributes) {
       {
         gender: "",
@@ -35,7 +35,7 @@ RSpec.describe Child::CreateService do
         "birthdate(1i)" => birthdate.year.to_s
       }
     }
-    let(:create_service) {
+    subject {
       Child::CreateService.new(
         attributes,
         siblings_attributes,
@@ -47,13 +47,13 @@ RSpec.describe Child::CreateService do
       ).call
     }
     it "creates a child" do
-      expect(create_service.child).to be_new_record
+      expect { subject }.to change(Child, :count).by(1)
     end
 
     context "when registration_origin = 3" do
       let(:registration_origin) { 3 }
       let(:father_attributes) { {} }
-      let(:siblings_attributes) { {} }
+      let(:siblings_attributes) { [] }
       let(:create_service) {
         Child::CreateService.new(
           attributes,
@@ -66,18 +66,17 @@ RSpec.describe Child::CreateService do
         ).call
       }
 
+      before { expect_any_instance_of(SpotHit::SendSmsService).to receive(:call) }
+
       it "adds 'form-pro' tag" do
         expect(create_service.child.tag_list).to include "form-pro"
       end
-
-      # it "sends sms at a specific time" do
-      # end
     end
 
     context "when registration_origin = 2" do
       let(:registration_origin) { 2 }
       let(:father_attributes) { {} }
-      let(:siblings_attributes) { {} }
+      let(:siblings_attributes) { [] }
       let(:create_service) {
         Child::CreateService.new(
           attributes,
@@ -90,18 +89,17 @@ RSpec.describe Child::CreateService do
         ).call
       }
 
+      before { expect_any_instance_of(SpotHit::SendSmsService).to receive(:call) }
+
       it "adds 'form-2' tag" do
         expect(create_service.child.tag_list).to include "form-2"
       end
-
-    #   it "sends sms at a specific time" do
-    #   end
     end
 
     context "when registration_origin is not 2 or 3" do
       let(:registration_origin) { nil }
       let(:father_attributes) { {} }
-      let(:siblings_attributes) { {} }
+      let(:siblings_attributes) { [] }
       let(:create_service) {
         Child::CreateService.new(
           attributes,
@@ -131,7 +129,7 @@ RSpec.describe Child::CreateService do
           phone_number: Faker::PhoneNumber.phone_number
         }
       }
-      let(:siblings_attributes) { {} }
+      let(:siblings_attributes) { [] }
       let(:create_service) {
         Child::CreateService.new(
           attributes,
@@ -158,7 +156,7 @@ RSpec.describe Child::CreateService do
           phone_number: Faker::PhoneNumber.phone_number
         }
       }
-      let(:siblings_attributes) { {} }
+      let(:siblings_attributes) { [] }
       let(:create_service) {
         Child::CreateService.new(
           attributes,
@@ -231,7 +229,7 @@ RSpec.describe Child::CreateService do
   context "when params are not valid" do
     let(:registration_origin) { nil }
     let(:father_attributes) { {} }
-    let(:siblings_attributes) { {} }
+    let(:siblings_attributes) { [] }
     let(:attributes) {
       {
         gender: "",
