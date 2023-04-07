@@ -28,14 +28,21 @@ class ChildrenSupportModule
                           SupportModule::TWELVE_TO_SEVENTEEN
                         when 18..23
                           SupportModule::EIGHTEEN_TO_TWENTY_THREE
+                        when 24..29
+                          SupportModule::TWENTY_FOUR_TO_TWENTY_NINE
+                        when 30..35
+                          SupportModule::THIRTY_TO_THIRTY_FIVE
+                        when 36..40
+                          SupportModule::THIRTY_SIX_TO_FORTY
                         else
                           ''
                         end
 
-      bilingual_child = child.child_support.is_bilingual || false
       already_done_ids = child.children_support_modules.where(parent: parent).pluck(:support_module_id)
 
-      SupportModule.where("'#{child_age_range}' = ANY (age_ranges)").where(for_bilingual: bilingual_child).where.not(id: already_done_ids)
+      support_modules = SupportModule.where("'#{child_age_range}' = ANY (age_ranges)").where.not(id: already_done_ids)
+      support_modules = support_modules.where(for_bilingual: false) unless child.child_support.is_bilingual
+      support_modules
     end
 
     def order_available_support_modules(child, parent)
@@ -44,7 +51,7 @@ class ChildrenSupportModule
       available_support_modules_group_by_themes_already_done = {}
       available_support_modules_ordered = []
 
-      already_done_themes_and_levels = SupportModule.joins(:children_support_modules).where(children_support_modules: { parent: parent, child: child }).pluck(:theme, :level).uniq
+      already_done_themes_and_levels = SupportModule.joins(:children_support_modules).where(children_support_modules: { parent: parent, child: child }).order(for_bilingual: :desc).pluck(:theme, :level).uniq
 
       SupportModule::THEME_LIST.each do |theme|
         if theme.in?(already_done_themes_and_levels.map(&:first))

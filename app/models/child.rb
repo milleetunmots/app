@@ -219,6 +219,34 @@ class Child < ApplicationRecord
     where('registration_source_details ILIKE ?', v)
   end
 
+  def self.by_lands(lands)
+    postal_codes = []
+    lands.each do |land|
+      case land
+      when 'Paris 18 eme'
+        postal_codes += Parent::PARIS_18_EME_POSTAL_CODE
+      when 'Paris 20 eme'
+        postal_codes += [Parent::PARIS_20_EME_POSTAL_CODE]
+      when 'Plaisir'
+        postal_codes += Parent::PLAISIR_POSTAL_CODE
+      when 'Trappes'
+        postal_codes += Parent::TRAPPES_POSTAL_CODE
+      when 'Aulnay sous bois'
+        postal_codes += [Parent::AULNAY_SOUS_BOIS_POSTAL_CODE]
+      when 'Orleans'
+        postal_codes += Parent::ORELANS_POSTAL_CODE
+      when 'Montargis'
+        postal_codes += Parent::MONTARGIS_POSTAL_CODE
+      when 'Gien'
+        postal_codes += Parent::GIEN_POSTAL_CODE
+      when 'Pithiviers'
+        postal_codes += Parent::PITHIVIERS_POSTAL_CODE
+      end
+    end
+
+    joins(:parent1).where(parents: { postal_code: postal_codes })
+  end
+
   # ---------------------------------------------------------------------------
   # search by age (in months)
   # ---------------------------------------------------------------------------

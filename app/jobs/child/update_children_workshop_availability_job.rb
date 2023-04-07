@@ -3,14 +3,12 @@ require 'sidekiq-scheduler'
 class Child::UpdateChildrenWorkshopAvailabilityJob < ApplicationJob
 
   def perform
-    children_available =  if Date.today.month <= 8
-                            Child.where(birthdate: Date.new(Date.today.year - 3, 1, 1)..Date.new(Date.today.year, 12, 31))
-                          else
-                            Child.where(birthdate: Date.new(Date.today.year - 2, 1, 1)..Date.new(Date.today.year, 12, 31))
-                          end
+    Child.update_all(available_for_workshops: false)
 
-    Child.all.each do |child|
-      child.update_attribute('available_for_workshops', children_available.include?(child) ? true : false)
+    if Time.zone.today.month <= 8
+      Child.where(birthdate: Date.new(Time.zone.today.year - 3, 1, 1)..Date.new(Time.zone.today.year, 12, 31)).update_all(available_for_workshops: true)
+    else
+      Child.where(birthdate: Date.new(Time.zone.today.year - 2, 1, 1)..Date.new(Time.zone.today.year, 12, 31)).update_all(available_for_workshops: true)
     end
   end
 end
