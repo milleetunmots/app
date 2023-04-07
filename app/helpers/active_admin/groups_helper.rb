@@ -23,7 +23,7 @@ module ActiveAdmin::GroupsHelper
       children = groups.include?("Sans cohorte") ? children.without_group.or(children.where(group_id: group_ids)) : children.where(group_id: group_ids)
     end
 
-    children = children.where(land: lands) if lands
+    children = children.by_lands(lands) if lands
 
     if call3_sending_benefits
       support_ids = ChildSupport.where(call3_sendings_benefits: call3_sending_benefits).pluck(:id)

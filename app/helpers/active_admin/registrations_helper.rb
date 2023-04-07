@@ -10,7 +10,7 @@ module ActiveAdmin::RegistrationsHelper
       children = groups.include?("Sans cohorte") ? children.without_group.or(children.where(group_id: group_ids)) : children.where(group_id: group_ids)
     end
 
-    children = children.where(land: lands) if lands
+    children = children.by_lands(lands) if lands
     children = children.where(registration_source: registration_sources) if registration_sources
 
     not_target_children = children.where(group_id: Group.not_target_group.pluck(:id))
