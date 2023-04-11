@@ -42,10 +42,10 @@ ActiveAdmin.register SupportModule do
           collection: proc { support_module_theme_select_collection },
           input_html: { multiple: true, data: { select2: {} } }
   filter  :level
-  filter  :age_ranges,
-          as: :select,
-          collection: proc { support_module_age_range_select_collection },
-          input_html: { multiple: true, data: { select2: {} } }
+  # filter  :age_ranges,
+  #         as: :select,
+  #         collection: proc { support_module_age_range_select_collection },
+  #         input_html: { multiple: true, data: { select2: {} } }
 
   # ---------------------------------------------------------------------------
   # FORM
