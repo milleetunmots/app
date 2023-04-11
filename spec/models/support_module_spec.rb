@@ -2,15 +2,20 @@
 #
 # Table name: support_modules
 #
-#  id           :bigint           not null, primary key
-#  discarded_at :datetime
-#  name         :string
-#  start_at     :date
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
+#  id            :bigint           not null, primary key
+#  age_ranges    :string           is an Array
+#  discarded_at  :datetime
+#  for_bilingual :boolean
+#  level         :integer
+#  name          :string
+#  start_at      :date
+#  theme         :string
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
 #
 # Indexes
 #
+#  index_support_modules_on_age_ranges    (age_ranges) USING gin
 #  index_support_modules_on_discarded_at  (discarded_at)
 #
 

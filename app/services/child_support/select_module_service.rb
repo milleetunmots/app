@@ -11,7 +11,7 @@ class ChildSupport::SelectModuleService
 
   def call
     if !@child.should_contact_parent1 && !@child.should_contact_parent2
-      @errors << "Aucun des parents ne veut être contacté"
+      @errors << 'Aucun des parents ne veut être contacté'
 
       return self
     end
@@ -29,12 +29,20 @@ class ChildSupport::SelectModuleService
     @children_support_module = ChildrenSupportModule.find_by(child_id: @child.id, parent_id: parent.id, is_programmed: false)
     @children_support_module ||= ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id, available_support_module_list: available_support_module_list)
 
+    if @children_support_module.available_support_module_list.reject(&:blank?).size == 1
+      chose_support_module
+    else
+      send_message_to_parent(parent)
+    end
+  end
+
+  def send_message_to_parent(parent)
     selection_link = Rails.application.routes.url_helpers.children_support_module_link_url(
       @children_support_module.id,
-      :sc => parent.security_code
+      sc: parent.security_code
     )
 
-    message = "1001mots : C'est le moment de choisir votre thème pour #{@child.first_name}. Cliquez ici pour recevoir le prochain livre et les messages #{selection_link}"
+    message = "1001mots : Cliquez sur le lien pour choisir votre prochain thème pour #{@child.first_name} et recevoir un nouveau livre. Attention après le #{I18n.l(Time.zone.today.next_day(14), format: '%d %B')}, nous choisirons à votre place ! #{selection_link}"
 
     sms_service = ProgramMessageService.new(
       @planned_date,
@@ -51,4 +59,8 @@ class ChildSupport::SelectModuleService
     end
   end
 
+  def chose_support_module
+    @children_support_module.update(support_module_id: @children_support_module.available_support_module_list.reject(&:blank?).first)
+    @errors += @children_support_module.errors.full_messages if @children_support_module.errors.any?
+  end
 end

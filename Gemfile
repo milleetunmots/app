@@ -37,6 +37,10 @@ group :development, :test do
   gem "rspec-rails"
   gem "rspec_junit_formatter"
   gem "rails-controller-testing"
+  gem 'rubocop'
+  gem 'rubocop-performance'
+  gem 'rubocop-rails'
+  gem 'rubocop-rspec'
   gem "simplecov", require: false
   gem "factory_bot_rails"
   gem "faker"
@@ -132,6 +136,7 @@ gem "fast_excel"
 
 # Asynchrone jobs
 gem "sidekiq"
+gem "sidekiq-scheduler"
 
 # Zip file
 gem "rubyzip"

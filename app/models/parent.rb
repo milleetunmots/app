@@ -58,27 +58,23 @@ class Parent < ApplicationRecord
   GENDER_FEMALE = "f".freeze
   GENDER_MALE = "m".freeze
   GENDERS = [GENDER_FEMALE, GENDER_MALE].freeze
-  ORELANS_POSTAL_CODE = %w[45000 45100 45140 45160 45240 45380 45400 45430 45470 45650 45770 45800]
-  PLAISIR_POSTAL_CODE = %w[78570 78540 78650 78700 78710 78711 78760 78800 78820 78860 78910 78955 78610 78980 78520 78490 78420 78410 78390 78380 78330 78300 78260 78220 78210 78200 78180 78150 78140 78130 78370 78340 78310 78280 78114 78320 78450 78960 78100 78640 78850]
-  MONTARGIS_POSTAL_CODE = %w[45110 45120 45200 45210 45220 45230 45260 45270 45290 45320 45490 45500 45520 45680 45700 49800 77460 77570]
-  TRAPPES_POSTAL_CODE = %w[78190 78990]
-  AULNAY_SOUS_BOIS_POSTAL_CODE = "93600"
-  PARIS_18_EME_POSTAL_CODE = %w[75017 75018 75019]
-  PARIS_20_EME_POSTAL_CODE = "75020"
+  ORELANS_POSTAL_CODE = %w[45000 45100 45140 45160 45240 45380 45400 45430 45470 45650 45770 45800].freeze
+  PLAISIR_POSTAL_CODE = %w[78570 78540 78650 78700 78710 78711 78760 78800 78820 78860 78910 78955 78610 78980 78520 78490 78420 78410 78390 78380 78330 78300 78260 78220 78210 78200 78180 78150 78140 78130 78370 78340 78310 78280 78114 78320 78450 78960 78100 78640 78850].freeze
+  MONTARGIS_POSTAL_CODE = %w[45110 45120 45200 45210 45220 45230 45260 45270 45320 45490 45520 45680 45700 49800 77460 77570].freeze
+  TRAPPES_POSTAL_CODE = %w[78190 78990].freeze
+  AULNAY_SOUS_BOIS_POSTAL_CODE = '93600'
+  PARIS_18_EME_POSTAL_CODE = %w[75017 75018 75019].freeze
+  PARIS_20_EME_POSTAL_CODE = '75020'
+  GIEN_POSTAL_CODE = %w[45290 45500 45720].freeze
+  PITHIVIERS_POSTAL_CODE = %w[45300 45480 45170].freeze
 
   # ---------------------------------------------------------------------------
   # relations
   # ---------------------------------------------------------------------------
 
-  has_many :parent1_children,
-    class_name: :Child,
-    foreign_key: :parent1_id,
-    dependent: :nullify
+  has_many :parent1_children, class_name: :Child, foreign_key: :parent1_id, dependent: :nullify
 
-  has_many :parent2_children,
-    class_name: :Child,
-    foreign_key: :parent2_id,
-    dependent: :nullify
+  has_many :parent2_children, class_name: :Child, foreign_key: :parent2_id, dependent: :nullify
 
   has_many :redirection_urls, dependent: :destroy
 
@@ -148,12 +144,12 @@ class Parent < ApplicationRecord
     save!
   end
 
-  def self.first_child_couples
-    # Gets table of parent_id, first_child_id couples
+  def self.current_child_couples
+    # Gets table of parent_id, current_child_id couples
     #
     # Make sure this is working properly with something like
-    # Parent.first_child_couples.all? do |couple|
-    #   Parent.find(couple['parent_id']).first_child&.id === couple['first_child_id']
+    # Parent.current_child_couples.all? do |couple|
+    #   Parent.find(couple['parent_id']).current_child&.id === couple['current_child_id']
     # end
 
     Parent.joins(
@@ -163,24 +159,24 @@ class Parent < ApplicationRecord
       :id
     ).select(
       "parents.id AS parent_id,
-      MIN(children.id) AS first_child_id"
+      MIN(children.id) AS current_child_id"
     )
   end
 
-  def self.left_outer_joins_first_child
-    # Joins with first_child, for example to extract group_id
+  def self.left_outer_joins_current_child
+    # Joins with current_child, for example to extract group_id
     #
     # Make sure this is working with something like
-    # Parent.left_outer_joins_first_child.select("parents.*, first_child.group_id").all? do |parent|
-    #   parent.group_id == Parent.find(parent.id).first_child&.group_id
+    # Parent.left_outer_joins_current_child.select("parents.*, current_child.group_id").all? do |parent|
+    #   parent.group_id == Parent.find(parent.id).current_child&.group_id
     # end
 
     joins(
-      "INNER JOIN (#{first_child_couples.to_sql}) first_child_couples
-               ON id = first_child_couples.parent_id"
+      "INNER JOIN (#{current_child_couples.to_sql}) current_child_couples
+               ON id = current_child_couples.parent_id"
     ).joins(
-      "LEFT OUTER JOIN children first_child
-                    ON first_child.id = first_child_couples.first_child_id"
+      "LEFT OUTER JOIN children current_child
+                    ON current_child.id = current_child_couples.current_child_id"
     )
   end
 
@@ -195,16 +191,16 @@ class Parent < ApplicationRecord
   # scopes
   # ---------------------------------------------------------------------------
 
-  def self.where_first_child(conditions)
-    left_outer_joins_first_child.where(first_child: conditions)
+  def self.where_current_child(conditions)
+    left_outer_joins_current_child.where(current_child: conditions)
   end
 
-  def self.first_child_group_id_in(*v)
-    where_first_child(group_id: v)
+  def self.current_child_group_id_in(*v)
+    where_current_child(group_id: v)
   end
 
-  def self.first_child_supported_by(v)
-    where_first_child(child_support_id: ChildSupport.supported_by(v).select(:id))
+  def self.current_child_supported_by(v)
+    where_current_child(child_support_id: ChildSupport.supported_by(v).select(:id))
   end
 
   def self.mothers
@@ -219,8 +215,8 @@ class Parent < ApplicationRecord
     parent1_children.or(parent2_children)
   end
 
-  def first_child
-    children.order(:id).first
+  def current_child
+    children.order(:birthdate).last
   end
 
   def duplicate_of?(other_parent)
@@ -246,9 +242,9 @@ class Parent < ApplicationRecord
   end
 
   def target_parent?
-    return unless first_child.group
+    return unless current_child.group
 
-    first_child.target_child?
+    current_child.target_child?
   end
 
   # ---------------------------------------------------------------------------

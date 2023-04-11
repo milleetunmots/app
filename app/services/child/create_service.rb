@@ -1,4 +1,5 @@
 class Child
+
   class CreateService
 
     attr_reader :child, :sms_url_form
@@ -19,9 +20,7 @@ class Child
       set_should_contact_parent
       build_siblings
       detect_errors
-      if @child.errors.empty?
-        send_form_by_sms if @child.save
-      end
+      send_form_by_sms if @child.errors.empty? && @child.save
 
       self
     end
@@ -37,18 +36,18 @@ class Child
     end
 
     def build
-      parent1_attributes = @parent1_attributes.merge( mother_present? ? @mother_attributes : @father_attributes)
-      parent2_attributes = @parent1_attributes.merge( @father_attributes ) if father_present? && mother_present?
+      parent1_attributes = @parent1_attributes.merge(mother_present? ? @mother_attributes : @father_attributes)
+      parent2_attributes = @parent1_attributes.merge(@father_attributes) if father_present? && mother_present?
 
-      if parent2_attributes.nil?
-        @child = Child.new(@attributes.merge(parent1_attributes: parent1_attributes))
-      else
-        @child = Child.new(@attributes.merge(parent1_attributes: parent1_attributes, parent2_attributes: parent2_attributes))
-      end
+      @child = if parent2_attributes.nil?
+                 Child.new(@attributes.merge(parent1_attributes: parent1_attributes))
+               else
+                 Child.new(@attributes.merge(parent1_attributes: parent1_attributes, parent2_attributes: parent2_attributes))
+               end
     end
 
     def set_should_contact_parent
-      @child.should_contact_parent1 =  true
+      @child.should_contact_parent1 = true
       @child.should_contact_parent2 = father_present? && mother_present?
     end
 
@@ -71,7 +70,7 @@ class Child
       message = "Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{@sms_url_form}"
 
       SpotHit::SendSmsService.new([@child.parent1_id], Time.now.to_i, message).call if @registration_origin == 2
-      SpotHit::SendSmsService.new([@child.parent1_id], DateTime.now.change({hour: 19}).to_i, message).call if @registration_origin == 3
+      SpotHit::SendSmsService.new([@child.parent1_id], DateTime.now.change({ hour: 19 }).to_i, message).call if @registration_origin == 3
     end
 
     def mother_present?
@@ -91,32 +90,38 @@ class Child
     end
 
     def mother_validation
-      @child.errors.add("parent1_first_name", :blank) unless @mother_attributes[:first_name].present?
-      @child.errors.add("parent1_last_name", :blank) unless @mother_attributes[:last_name].present?
-      @child.errors.add("parent1_phone_number_national", :blank) unless @mother_attributes[:phone_number].present?
+      @child.errors.add('parent1_first_name', :blank) unless @mother_attributes[:first_name].present?
+      @child.errors.add('parent1_last_name', :blank) unless @mother_attributes[:last_name].present?
+      @child.errors.add('parent1_phone_number_national', :blank) unless @mother_attributes[:phone_number].present?
     end
 
     def father_validation
-      @child.errors.add("parent2_first_name", :blank) unless @father_attributes[:first_name].present?
-      @child.errors.add("parent2_last_name", :blank) unless @father_attributes[:last_name].present?
-      @child.errors.add("parent2_phone_number_national", :blank) unless @father_attributes[:phone_number].present?
+      @child.errors.add('parent2_first_name', :blank) unless @father_attributes[:first_name].present?
+      @child.errors.add('parent2_last_name', :blank) unless @father_attributes[:last_name].present?
+      @child.errors.add('parent2_phone_number_national', :blank) unless @father_attributes[:phone_number].present?
     end
 
     def birthdate_validation
-      if @child.birthdate < @child_min_birthdate
-        @child.errors.add(:birthdate, :invalid, message: "minimale: #{(@child_min_birthdate)}")
-      end
+      @child.errors.add(:birthdate, :invalid, message: "minimale: #{(@child_min_birthdate)}") if @child.birthdate < @child_min_birthdate
     end
 
     def pmi_detail_validation
-      if @registration_origin == 3 && @child.registration_source == "pmi" && @child.pmi_detail.blank?
-        @child.errors.add(:pmi_detail, :invalid, message: "Précisez votre PMI svp!")
+      if @registration_origin == 3 && @child.registration_source == 'pmi' && @child.pmi_detail.blank?
+        @child.errors.add(:pmi_detail, :invalid, message: 'Précisez votre PMI svp!')
       end
     end
 
     def caf_detail_validation
-      if @registration_origin == 2 && @child.registration_source == "caf" && @child.registration_source_details.blank?
-        @child.errors.add(:caf_detail, :invalid, message: "Précisez votre CAF svp!")
+      if @registration_origin == 2 && @child.registration_source == 'caf' && @child.registration_source_details.blank?
+        @child.errors.add(:caf_detail, :invalid, message: 'Précisez votre CAF svp!')
+      end
+    end
+
+    def overseas_child_validation
+      if @parent1_attributes[:postal_code].to_i / 1000 == 97
+        @child.errors.add(:base,
+                          :invalid,
+                          message: "L'accompagnement 1001 mots n'est pas encore disponible dans votre région. N'hésitez pas à suivre nos actualités sur notre site et notre page facebook !")
       end
     end
 
@@ -130,6 +135,7 @@ class Child
       birthdate_validation
       pmi_detail_validation
       caf_detail_validation
+      overseas_child_validation
     end
   end
 end

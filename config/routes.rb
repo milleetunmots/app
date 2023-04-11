@@ -1,4 +1,5 @@
 require 'sidekiq/web'
+require 'sidekiq-scheduler/web'
 
 Rails.application.routes.draw do
 
@@ -37,14 +38,14 @@ Rails.application.routes.draw do
   get "spot_hit/response", to: "events#spot_hit_response"
   get "spot_hit/stop", to: "events#spot_hit_stop"
 
-  get "parent/:id/first_child", to: "parents#first_child"
+  get "parent/:id/current_child", to: "parents#current_child"
 
   post "/typeform/webhooks", to: 'typeform#webhooks'
 
   resources :events, only: [:index, :create]
 
   resources :children_support_modules, only: [:edit, :update] do
-    get "updated", on: :collection
+    get "updated", on: :member
   end
 
   get "s/:id", to: 'children_support_modules#edit', as: :children_support_module_link

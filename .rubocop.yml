@@ -3,30 +3,41 @@
 # uncomment the following line if you get blocked by rubocop
 #inherit_from: .rubocop_todo.yml
 
+require:
+  - rubocop-performance
+  - rubocop-rails
+
 AllCops:
   TargetRubyVersion: 2.6.6
-  TargetRailsVersion: 5.1.4
+  NewCops: enable
   Exclude:
-    - 'vendor/**/*'
-    - 'spec/fixtures/**/*'
-    - 'tmp/**/*'
-    - 'db/**/*'
+    - 'Gemfile'
+    - 'spec/**/*.rb'
 
-Style/ClassAndModuleChildren:
+Rails:
+  Enable: true
+
+Rails/HasAndBelongsToMany:
   Enabled: false
+
+Style/GuardClause:
+  Enabled: true
+
+Style/IfUnlessModifier:
+  Enabled: true
 
 Style/FrozenStringLiteralComment:
   EnforcedStyle: never
 
+Style/Lambda:
+  Enabled: true
+  EnforcedStyle: literal
+
 Layout/EmptyLinesAroundClassBody:
   EnforcedStyle: beginning_only
 
-Layout/IndentHeredoc:
-  EnforcedStyle: powerpack
-
-Lint/AmbiguousBlockAssociation:
-  Exclude:
-    - 'spec/**/*.rb'
+Layout/HeredocIndentation:
+  Enabled: true
 
 Lint/UselessAccessModifier:
   MethodCreatingMethods:
@@ -40,15 +51,14 @@ Metrics/BlockLength:
     - 'spec/**/*.rb'
     - 'spec/**/*'
   CountComments: false  # count full line comments?
-    Max: 55
-    ExcludedMethods: [ ]
+  Max: 80
 
 
 Metrics/ModuleLength:
   Exclude:
     - 'spec/**/*.rb'
   CountComments: false  # count full line comments?
-    Max: 500
+  Max: 500
 
 Metrics/AbcSize:
   # The ABC size is a calculated magnitude, so this number can be an Integer or
@@ -60,8 +70,8 @@ Metrics/ClassLength:
   Max: 500
 
 
-Metrics/LineLength:
-  Max: 100
+Layout/LineLength:
+  Max: 175
   # To make it possible to copy or click on URIs in the code, we allow lines
   # containing a URI to be longer than Max.
   AllowHeredoc: true
@@ -72,10 +82,6 @@ Metrics/LineLength:
   # The IgnoreCopDirectives option causes the LineLength rule to ignore cop
   # directives like '# rubocop: enable ...' when calculating a line's length.
   IgnoreCopDirectives: false
-  # The IgnoredPatterns option is a list of !ruby/regexp and/or string
-  # elements. Strings will be converted to Regexp objects. A line that matches
-  # any regular expression listed in this option will be ignored by LineLength.
-  IgnoredPatterns: []
 
 Metrics/MethodLength:
   CountComments: false  # count full line comments?
@@ -85,13 +91,7 @@ Metrics/MethodLength:
 Metrics/PerceivedComplexity:
   Max: 10
 
-Style/PercentLiteralDelimiters:
-  PreferredDelimiters:
-    '%w': ()
-    '%W': ()
-
 Documentation:
   Enabled: false
 
-Style/Lambda:
-  Enabled: false
+
