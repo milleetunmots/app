@@ -12,7 +12,8 @@ class ChildrenSupportModule
       eighteen_to_twenty_three_children = group.children.months_between(18, 24).where(group_status: 'active')
       twenty_four_to_twenty_nine_children = group.children.months_between(24, 30).where(group_status: 'active')
       thirty_to_thirty_five_children = group.children.months_between(30, 36).where(group_status: 'active')
-      thirty_six_to_forty_children = group.children.months_between(37, 41).where(group_status: 'active')
+      thirty_six_to_forty_children = group.children.months_between(36, 41).where(group_status: 'active')
+      forty_one_to_forty_four_children = group.children.months_between(41, 45).where(group_status: 'active')
 
       less_than_six_reading_level_one_support_module = SupportModule.less_than_six.level_one.find_by(theme: 'reading')
       six_to_eleven_reading_level_one_support_module = SupportModule.six_to_eleven.level_one.find_by(theme: 'reading')
@@ -21,6 +22,7 @@ class ChildrenSupportModule
       twenty_four_to_twenty_nine_reading_level_one_support_module = SupportModule.twenty_four_to_twenty_nine.level_one.find_by(theme: 'reading')
       thirty_to_thirty_five_reading_level_one_support_module = SupportModule.thirty_to_thirty_five.level_one.find_by(theme: 'reading')
       thirty_six_to_forty_children_reading_level_one_support_module = SupportModule.thirty_six_to_forty.level_one.find_by(theme: 'reading')
+      forty_one_to_forty_four_children_reading_level_one_support_module = SupportModule.forty_one_to_forty_four.level_one.find_by(theme: 'reading')
 
       less_than_six_children.each do |child|
         create_children_support_module(child, less_than_six_reading_level_one_support_module, child.parent1)
@@ -55,6 +57,11 @@ class ChildrenSupportModule
       thirty_six_to_forty_children.each do |child|
         create_children_support_module(child, thirty_six_to_forty_children_reading_level_one_support_module, child.parent1)
         create_children_support_module(child, thirty_six_to_forty_children_reading_level_one_support_module, child.parent2)
+      end
+
+      forty_one_to_forty_four_children.each do |child|
+        create_children_support_module(child, forty_one_to_forty_four_children_reading_level_one_support_module, child.parent1)
+        create_children_support_module(child, forty_one_to_forty_four_children_reading_level_one_support_module, child.parent2)
       end
 
       ChildrenSupportModule::ProgramSupportModuleSmsJob.perform_later(group_id, program_date)
