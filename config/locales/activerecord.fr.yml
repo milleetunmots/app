@@ -569,10 +569,13 @@ fr:
         a1_2 : 1 - 2 ans
       support_module/theme:
         reading: Lecture
+        bilingualism: Bilinguisme
         games: Jeux
         screen: Écran
         songs: Chansons
-        language: Language
+        langage: Langage
+        anger: Colère
+        ride: Sortie
       support_module_week:
         << : *SHARED
         additional_medium: Message 4
