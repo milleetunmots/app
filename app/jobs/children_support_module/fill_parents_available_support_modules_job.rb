@@ -35,7 +35,7 @@ class ChildrenSupportModule
                         when 36..40
                           SupportModule::THIRTY_SIX_TO_FORTY
                         when 41..44
-                          SupportModule::FORTY_TO_FORTY_FOUR
+                          SupportModule::FORTY_ONE_TO_FORTY_FOUR
                         else
                           ''
                         end
