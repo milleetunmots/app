@@ -24,3 +24,9 @@
 ```bundle exec rspec ./spec```
 ### Run with sidekiq
 ```bin/dev```
+## Description
+Cette plateforme est utilisée pour organiser le suivi d'enfants de bas âge par les équipes de l'association 1001mots après leurs inscriptions par leurs parents ou par les professionnels de PMI partenaires. À part les ateliers qui se font en présentiel, les appels téléphoniques des orthophonistes et l'envoi de livres depuis la poste, le suivi consiste à envoyer des messages aux parents depuis la plateforme. Le contenu des messages, les informations liées aux ateliers et celles receuillies lors des appels sont gérés grâce à la plateforme.
+## Principaux cas d'utilisation
+
+
+
