@@ -36,6 +36,7 @@ group :development, :test do
   gem "byebug", platforms: [:mri, :mingw, :x64_mingw]
   gem "rspec-rails"
   gem "rspec_junit_formatter"
+  gem "rails-controller-testing"
   gem 'rubocop'
   gem 'rubocop-performance'
   gem 'rubocop-rails'

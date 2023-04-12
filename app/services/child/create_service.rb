@@ -4,15 +4,7 @@ class Child
 
     attr_reader :child, :sms_url_form
 
-    def initialize(
-      attributes,
-      siblings_attributes,
-      parent1_attributes,
-      mother_attributes,
-      father_attributes,
-      registration_origin,
-      child_min_birthdate
-    )
+    def initialize(attributes, siblings_attributes, parent1_attributes, mother_attributes, father_attributes, registration_origin, child_min_birthdate)
       @attributes = attributes
       @registration_origin = registration_origin
       @child_min_birthdate = child_min_birthdate
@@ -121,7 +113,7 @@ class Child
 
     def caf_detail_validation
       if @registration_origin == 2 && @child.registration_source == 'caf' && @child.registration_source_details.blank?
-        @child.errors.add(:caf_detail, :invalid, message: 'Précisez votre CAF svp!')
+        @child.errors.add(:registration_source_details, :invalid, message: 'Précisez votre CAF svp!')
       end
     end
 
