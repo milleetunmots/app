@@ -113,7 +113,7 @@ class Child
 
     def caf_detail_validation
       if @registration_origin == 2 && @child.registration_source == 'caf' && @child.registration_source_details.blank?
-        @child.errors.add(:caf_detail, :invalid, message: 'Précisez votre CAF svp!')
+        @child.errors.add(:registration_source_details, :invalid, message: 'Précisez votre CAF svp!')
       end
     end
 
