@@ -144,6 +144,7 @@ class Child < ApplicationRecord
   end
 
   after_create :create_support!
+  after_save :update_support
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -558,6 +559,15 @@ class Child < ApplicationRecord
         child.save(validate: false)
       end
     end
+  end
+
+  def update_support
+    return unless saved_change_to_parent1_id? || saved_change_to_parent2_id?
+
+    return if true_siblings.empty?
+
+    self.child_support_id = true_siblings.with_support.first.child_support.id
+    save(validate: false)
   end
 
   # --------------------------------------------------------------------------
