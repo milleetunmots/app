@@ -8,18 +8,19 @@ module Events
           params = {
             key: ENV['SPOT_HIT_API_KEY'],
             id: text_message.spot_hit_message_id,
-            date_start: text_message.occured_at.prev_day.to_i,
-            date_end: text_message.occured_at.next_day.to_i
+            date_start: text_message.occurred_at.prev_day.to_i,
+            date_end: text_message.occurred_at.next_day.to_i
           }
           check = spothit_check(params.merge(product: 'sms')) || spothit_check(params.merge(product: 'mms'))
           text_message.destroy if check.nil?
+          sleep(1)
         end
       end
 
       def spothit_check(params)
         raw_response = HTTP.get('https://www.spot-hit.fr/api/campaign/list', params: params)
         response = JSON.parse(raw_response.body.to_s)
-        if response.key? 'erreurs'
+        if response.is_a?(Hash) && response.key?('erreurs')
           raise "Error: #{response.body}]"
         elsif response.size.zero?
           nil
