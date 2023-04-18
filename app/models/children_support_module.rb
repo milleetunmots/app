@@ -43,6 +43,8 @@ class ChildrenSupportModule < ApplicationRecord
            prefix: true,
            allow_nil: true
 
+  after_save :select_for_the_other_parent
+
   def name
     return support_module.decorate.name_with_tags if support_module
     return "Laisse le choix à 1001mots" if is_completed
@@ -71,6 +73,21 @@ class ChildrenSupportModule < ApplicationRecord
 
   def self.group_id_in(*v)
     includes(child: :group).where("children.group_id IN (?)", v).references(:children)
+  end
+
+  def select_for_the_other_parent
+    the_other_parent = parent == child.parent1 ? child.parent2 : child.parent1
+    return unless the_other_parent.children_support_modules.count == 1 && child.child_support.call2_status != 'KO'
+
+    ChildrenSupportModule.create(
+      child: child,
+      parent: the_other_parent,
+      support_module: support_module,
+      available_support_module_list: available_support_module_list,
+      choice_date: choice_date,
+      is_completed: is_completed,
+      is_programmed: is_programmed
+    )
   end
 
   def self.ransackable_scopes(auth_object = nil)
