@@ -34,6 +34,7 @@ class ChildrenSupportModule < ApplicationRecord
   scope :with_support_module, -> { joins(:support_module) }
   scope :with_the_choice_to_make_by_us, -> { where(support_module: nil).where(is_completed: true) }
   scope :without_choice, -> { where(support_module: nil).where(is_completed: false) }
+  scope :latest_first, -> { order(created_at: :desc) }
 
   validate :support_module_not_programmed, on: :create
   validate :valid_child_parent
@@ -42,6 +43,8 @@ class ChildrenSupportModule < ApplicationRecord
            to: :child,
            prefix: true,
            allow_nil: true
+
+  after_save :select_for_the_other_parent
 
   def name
     return support_module.decorate.name_with_tags if support_module
@@ -71,6 +74,22 @@ class ChildrenSupportModule < ApplicationRecord
 
   def self.group_id_in(*v)
     includes(child: :group).where("children.group_id IN (?)", v).references(:children)
+  end
+
+  def select_for_the_other_parent
+    the_other_parent = parent == child.parent1 ? child.parent2 : child.parent1
+
+    return if the_other_parent.nil?
+    return unless the_other_parent.children_support_modules.count == 2
+    return if child.child_support.call2_status == 'KO'
+
+    the_other_parent.children_support_modules.latest_first.first.update_columns(
+      is_completed: is_completed,
+      choice_date: choice_date,
+      is_programmed: is_programmed,
+      available_support_module_list: available_support_module_list,
+      support_module_id: support_module_id
+    )
   end
 
   def self.ransackable_scopes(auth_object = nil)
