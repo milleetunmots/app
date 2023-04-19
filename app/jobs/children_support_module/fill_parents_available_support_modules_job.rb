@@ -60,7 +60,8 @@ class ChildrenSupportModule
           level = already_done_themes_and_levels.select { |item| item.first == theme }.map(&:second).max + 1
           available_support_modules_group_by_themes_already_done[theme] = support_modules.where(theme: theme, level: level).pluck(:id)
         else
-          available_support_modules_group_by_themes[theme] = support_modules.where(theme: theme, level: 1).pluck(:id)
+          level = support_modules.where(theme: theme).minimum(:level)
+          available_support_modules_group_by_themes[theme] = support_modules.where(theme: theme, level: level).pluck(:id)
         end
       end
 
