@@ -34,6 +34,7 @@ class ChildrenSupportModule < ApplicationRecord
   scope :with_support_module, -> { joins(:support_module) }
   scope :with_the_choice_to_make_by_us, -> { where(support_module: nil).where(is_completed: true) }
   scope :without_choice, -> { where(support_module: nil).where(is_completed: false) }
+  scope :latest_first, -> { order(created_at: :desc) }
 
   validate :support_module_not_programmed, on: :create
   validate :valid_child_parent
@@ -77,16 +78,17 @@ class ChildrenSupportModule < ApplicationRecord
 
   def select_for_the_other_parent
     the_other_parent = parent == child.parent1 ? child.parent2 : child.parent1
-    return unless the_other_parent.children_support_modules.count == 1 && child.child_support.call2_status != 'KO'
 
-    ChildrenSupportModule.create(
-      child: child,
-      parent: the_other_parent,
-      support_module: support_module,
-      available_support_module_list: available_support_module_list,
-      choice_date: choice_date,
+    return if the_other_parent.nil?
+    return unless the_other_parent.children_support_modules.count == 2
+    return if child.child_support.call2_status == 'KO'
+
+    the_other_parent.children_support_modules.latest_first.first.update_columns(
       is_completed: is_completed,
-      is_programmed: is_programmed
+      choice_date: choice_date,
+      is_programmed: is_programmed,
+      available_support_module_list: available_support_module_list,
+      support_module_id: support_module_id
     )
   end
 

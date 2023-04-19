@@ -40,13 +40,13 @@ class ChildrenSupportModule
       end
 
       eighteen_to_twenty_three_children.each do |child|
-        create_children_support_module(child, twenty_four_to_twenty_nine_reading_level_one_support_module, child.parent1)
-        create_children_support_module(child, twenty_four_to_twenty_nine_reading_level_one_support_module, child.parent2)
+        create_children_support_module(child, eighteen_to_twenty_three_reading_level_one_support_module, child.parent1)
+        create_children_support_module(child, eighteen_to_twenty_three_reading_level_one_support_module, child.parent2)
       end
 
       twenty_four_to_twenty_nine_children.each do |child|
-        create_children_support_module(child, eighteen_to_twenty_three_reading_level_one_support_module, child.parent1)
-        create_children_support_module(child, eighteen_to_twenty_three_reading_level_one_support_module, child.parent2)
+        create_children_support_module(child, twenty_four_to_twenty_nine_reading_level_one_support_module, child.parent1)
+        create_children_support_module(child, twenty_four_to_twenty_nine_reading_level_one_support_module, child.parent2)
       end
 
       thirty_to_thirty_five_children.each do |child|
@@ -63,6 +63,8 @@ class ChildrenSupportModule
         create_children_support_module(child, forty_one_to_forty_four_children_reading_level_one_support_module, child.parent1)
         create_children_support_module(child, forty_one_to_forty_four_children_reading_level_one_support_module, child.parent2)
       end
+
+
 
       ChildrenSupportModule::ProgramSupportModuleSmsJob.perform_later(group_id, program_date)
 
