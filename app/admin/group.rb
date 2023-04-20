@@ -94,4 +94,20 @@ ActiveAdmin.register Group do
       redirect_to [:admin, resource]
     end
   end
+
+  action_item :export, only: :show do
+    link_to I18n.t('group.export_link'), [:export, :admin, resource]
+  end
+
+  member_action :export do
+    service = Child::ExportBooksV2Service.new(group_id: resource.id).call
+
+    if service.errors.empty?
+      send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
+                                       disposition: 'attachment', filename: "#{Date.today.strftime('%d-%m-%Y')}.zip"
+    else
+      flash[:alert] = service.errors
+      redirect_back(fallback_location: root_path)
+    end
+  end
 end

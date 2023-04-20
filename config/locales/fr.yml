@@ -20,6 +20,7 @@ fr:
     send_select_module_message: "Envoyer les messages de selection de module"
     select_module: "Choisir module"
   group:
+    export_link: Télécharger les listes d'enfants par module au format Excel V2
     program_link: Programmer la cohorte
   survey_response:
     new_import_link: Import CSV
