@@ -5,8 +5,9 @@ class Child
     attr_reader :errors
     attr_reader :zip_file
 
-    def initialize
+    def initialize(group_id: nil)
       @errors = []
+      @group_id = group_id
     end
 
     def call
@@ -30,7 +31,8 @@ class Child
 
     def find_children_lists
       children_list_sorted_by_age_and_module = {}
-      chosen_modules = ChildrenSupportModule.includes(:child).with_support_module.not_programmed
+      chosen_modules = ChildrenSupportModule.includes(:child).references(:child).with_support_module.not_programmed
+      chosen_modules = chosen_modules.where(children: { group_id: @group_id }) if @group_id.present?
 
       chosen_modules = chosen_modules.uniq {|csm| [csm.child_id, csm.parent_id] }
 
@@ -39,7 +41,7 @@ class Child
         children_ids = children_support_modules.map(&:child).select { |child| child.group_status == "active" }.map(&:id)
         children = Child.where(id: children_ids)
 
-        [:months_between_6_and_12, :months_between_12_and_18, :months_between_18_and_24].each do |age_period|
+        [:months_between_6_and_12, :months_between_12_and_18, :months_between_18_and_24, :months_more_than_24].each do |age_period|
           children_list = children.send(age_period)
 
           if children_list.any?
@@ -51,6 +53,8 @@ class Child
                 '12_18'
               when :months_between_18_and_24
                 '18_24'
+              when :months_more_than_24
+                '24+'
               end
             children_list_sorted_by_age_and_module[period_name] ||= {}
             children_list_sorted_by_age_and_module[period_name][support_module.name.to_sym] = children_list
