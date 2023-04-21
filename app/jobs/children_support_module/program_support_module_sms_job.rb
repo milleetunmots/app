@@ -14,7 +14,7 @@ class ChildrenSupportModule
         child == child.siblings.where(group: group, group_status: 'active').order(:birthdate).last
       end
 
-      children_support_module_ids = ChildrenSupportModule.where(child_id: current_children)
+      children_support_module_ids = ChildrenSupportModule.where(child_id: current_children).ids
 
       check_service = ChildrenSupportModule::CheckCreditsService.new(children_support_module_ids).call
       raise check_service.errors.to_json if check_service.errors.any?
