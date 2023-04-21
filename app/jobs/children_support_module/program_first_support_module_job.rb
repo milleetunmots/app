@@ -6,8 +6,8 @@ class ChildrenSupportModule
       @errors = {}
       group = Group.find(group_id)
 
-      less_than_six_children = group.children.months_lt(6).where(group_status: 'active')
-      six_to_eleven_children = group.children.months_between(6, 12).where(group_status: 'active')
+      less_than_five_children = group.children.months_lt(5).where(group_status: 'active')
+      five_to_eleven_children = group.children.months_between(5, 12).where(group_status: 'active')
       twelve_to_seventeen_children = group.children.months_between(12, 18).where(group_status: 'active')
       eighteen_to_twenty_three_children = group.children.months_between(18, 24).where(group_status: 'active')
       twenty_four_to_twenty_nine_children = group.children.months_between(24, 30).where(group_status: 'active')
@@ -15,8 +15,8 @@ class ChildrenSupportModule
       thirty_six_to_forty_children = group.children.months_between(36, 41).where(group_status: 'active')
       forty_one_to_forty_four_children = group.children.months_between(41, 45).where(group_status: 'active')
 
-      less_than_six_reading_level_one_support_module = SupportModule.less_than_six.level_one.find_by(theme: 'reading')
-      six_to_eleven_reading_level_one_support_module = SupportModule.six_to_eleven.level_one.find_by(theme: 'reading')
+      less_than_five_reading_level_one_support_module = SupportModule.less_than_five.level_one.find_by(theme: 'reading')
+      five_to_eleven_reading_level_one_support_module = SupportModule.five_to_eleven.level_one.find_by(theme: 'reading')
       twelve_to_seventeen_reading_level_one_support_module = SupportModule.twelve_to_seventeen.level_one.find_by(theme: 'reading')
       eighteen_to_twenty_three_reading_level_one_support_module = SupportModule.eighteen_to_twenty_three.level_one.find_by(theme: 'reading')
       twenty_four_to_twenty_nine_reading_level_one_support_module = SupportModule.twenty_four_to_twenty_nine.level_one.find_by(theme: 'reading')
@@ -24,14 +24,14 @@ class ChildrenSupportModule
       thirty_six_to_forty_children_reading_level_one_support_module = SupportModule.thirty_six_to_forty.level_one.find_by(theme: 'reading')
       forty_one_to_forty_four_children_reading_level_one_support_module = SupportModule.forty_one_to_forty_four.level_one.find_by(theme: 'reading')
 
-      less_than_six_children.each do |child|
-        create_children_support_module(child, less_than_six_reading_level_one_support_module, child.parent1)
-        create_children_support_module(child, less_than_six_reading_level_one_support_module, child.parent2)
+      less_than_five_children.each do |child|
+        create_children_support_module(child, less_than_five_reading_level_one_support_module, child.parent1)
+        create_children_support_module(child, less_than_five_reading_level_one_support_module, child.parent2)
       end
 
-      six_to_eleven_children.each do |child|
-        create_children_support_module(child, six_to_eleven_reading_level_one_support_module, child.parent1)
-        create_children_support_module(child, six_to_eleven_reading_level_one_support_module, child.parent2)
+      five_to_eleven_children.each do |child|
+        create_children_support_module(child, five_to_eleven_reading_level_one_support_module, child.parent1)
+        create_children_support_module(child, five_to_eleven_reading_level_one_support_module, child.parent2)
       end
 
       twelve_to_seventeen_children.each do |child|
