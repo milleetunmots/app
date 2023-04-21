@@ -21,9 +21,9 @@ class ChildrenSupportModule
     def find_available_support_modules(child, parent)
       child_age_range = case child.months
                         when 0..5
-                          SupportModule::LESS_THAN_SIX
+                          SupportModule::LESS_THAN_FIVE
                         when 6..11
-                          SupportModule::SIX_TO_ELEVEN
+                          SupportModule::FIVE_TO_ELEVEN
                         when 12..17
                           SupportModule::TWELVE_TO_SEVENTEEN
                         when 18..23
@@ -60,7 +60,8 @@ class ChildrenSupportModule
           level = already_done_themes_and_levels.select { |item| item.first == theme }.map(&:second).max + 1
           available_support_modules_group_by_themes_already_done[theme] = support_modules.where(theme: theme, level: level).pluck(:id)
         else
-          available_support_modules_group_by_themes[theme] = support_modules.where(theme: theme, level: 1).pluck(:id)
+          level = support_modules.where(theme: theme).minimum(:level)
+          available_support_modules_group_by_themes[theme] = support_modules.where(theme: theme, level: level).pluck(:id)
         end
       end
 

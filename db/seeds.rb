@@ -162,13 +162,13 @@ end
 # Support Module
 print "\tSupport Module"
 
-FactoryBot.create(:support_module, age_ranges: ["six_to_eleven"], theme: "songs", level: 1, name: "Chanter avec mon bébé 🎶" )
-FactoryBot.create(:support_module, age_ranges: ["six_to_eleven"], theme: "games", level: 1, name: "Des idées pour jouer avec mon bébé 🧩" )
-FactoryBot.create(:support_module, age_ranges: ["six_to_eleven"], theme: "reading", level: 1, name: "Intéresser mon enfant aux livres 📚" )
-FactoryBot.create(:support_module, age_ranges: ["six_to_eleven"], theme: "screen", level: 1, name: "Occuper mon enfant (sans les écrans) 🧩" )
-FactoryBot.create(:support_module, age_ranges: ["six_to_eleven"], theme: "language", name: "Parler avec mon bébé 👶" )
-FactoryBot.create(:support_module, age_ranges: ["six_to_eleven"], theme: "songs", level: 2, name: "Chanter souvent avec mon bébé 🎶" )
-FactoryBot.create(:support_module, age_ranges: ["six_to_eleven"], theme: "reading", level: 2, name: "Garder l’intérêt de mon enfant avec les livres 📚" )
+FactoryBot.create(:support_module, age_ranges: ["five_to_eleven"], theme: "songs", level: 1, name: "Chanter avec mon bébé 🎶" )
+FactoryBot.create(:support_module, age_ranges: ["five_to_eleven"], theme: "games", level: 1, name: "Des idées pour jouer avec mon bébé 🧩" )
+FactoryBot.create(:support_module, age_ranges: ["five_to_eleven"], theme: "reading", level: 1, name: "Intéresser mon enfant aux livres 📚" )
+FactoryBot.create(:support_module, age_ranges: ["five_to_eleven"], theme: "screen", level: 1, name: "Occuper mon enfant (sans les écrans) 🧩" )
+FactoryBot.create(:support_module, age_ranges: ["five_to_eleven"], theme: "language", name: "Parler avec mon bébé 👶" )
+FactoryBot.create(:support_module, age_ranges: ["five_to_eleven"], theme: "songs", level: 2, name: "Chanter souvent avec mon bébé 🎶" )
+FactoryBot.create(:support_module, age_ranges: ["five_to_eleven"], theme: "reading", level: 2, name: "Garder l’intérêt de mon enfant avec les livres 📚" )
 FactoryBot.create(:support_module, age_ranges: ["eighteen_to_twenty_three"], theme: "reading", level: 1, name: "Intéresser mon enfant aux livres 📚")
 FactoryBot.create(:support_module, age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], theme: "language", level: 1, name: "Comprendre et gérer sa colère 😠")
 FactoryBot.create(:support_module, age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], theme: "language", level: 1, name: "Découvrir le monde avec mon enfant pendant les sorties 🌳")
@@ -176,6 +176,6 @@ FactoryBot.create(:support_module, age_ranges: %w[twelve_to_seventeen eighteen_t
 FactoryBot.create(:support_module, age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], theme: "screen", level: 1, name: "Occuper mon enfant (sans les écrans) 🧩")
 FactoryBot.create(:support_module, age_ranges: ["twelve_to_seventeen"], theme: "reading", level: 1, name: "Intéresser mon enfant aux livres 📚")
 FactoryBot.create(:support_module, age_ranges: ["twelve_to_seventeen"], theme: "reading", level: 2, name: "Garder l'intérêt de mon enfant avec les livres 📚")
-FactoryBot.create(:support_module, age_ranges: %w[less_than_six six_to_eleven], theme: "language", level: 1, name: "Parler plusieurs langues à la maison 🏠")
+FactoryBot.create(:support_module, age_ranges: %w[less_than_five five_to_eleven], theme: "language", level: 1, name: "Parler plusieurs langues à la maison 🏠")
 
 puts " ✓"

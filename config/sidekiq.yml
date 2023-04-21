@@ -9,3 +9,6 @@
   update_children_workshop_availability:
     cron: '0 3 * * *' # every day at 3am
     class: Child::UpdateChildrenWorkshopAvailabilityJob
+  remove_unprogrammed_job:
+    cron: '0 4 * * *'
+    class: Events::TextMessage::RemoveUnprogrammedJob

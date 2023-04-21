@@ -23,10 +23,10 @@ class SupportModule < ApplicationRecord
 
   include Discard::Model
 
-  THEME_LIST = %w[reading bilingualism language games screen songs anger ride].freeze
+  THEME_LIST = %w[reading bilingualism language songs screen ride anger games].freeze
 
-  LESS_THAN_SIX = 'less_than_six'.freeze
-  SIX_TO_ELEVEN = 'six_to_eleven'.freeze
+  LESS_THAN_FIVE = 'less_than_five'.freeze
+  FIVE_TO_ELEVEN = 'five_to_eleven'.freeze
   TWELVE_TO_SEVENTEEN = 'twelve_to_seventeen'.freeze
   EIGHTEEN_TO_TWENTY_THREE = 'eighteen_to_twenty_three'.freeze
   TWENTY_FOUR_TO_TWENTY_NINE = 'twenty_four_to_twenty_nine'.freeze
@@ -34,8 +34,8 @@ class SupportModule < ApplicationRecord
   THIRTY_SIX_TO_FORTY = 'thirty_six_to_forty'.freeze
   FORTY_ONE_TO_FORTY_FOUR = 'forty_one_to_forty_four'.freeze
   AGE_RANGE_LIST = [
-    LESS_THAN_SIX,
-    SIX_TO_ELEVEN,
+    LESS_THAN_FIVE,
+    FIVE_TO_ELEVEN,
     TWELVE_TO_SEVENTEEN,
     EIGHTEEN_TO_TWENTY_THREE,
     TWENTY_FOUR_TO_TWENTY_NINE,
@@ -59,14 +59,14 @@ class SupportModule < ApplicationRecord
 
   validates :name, presence: true
   validates :theme, inclusion: { in: THEME_LIST, allow_blank: true }
-  validates :level, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+  validates :level, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_blank: true
 
   # ---------------------------------------------------------------------------
   # scopes
   # ---------------------------------------------------------------------------
 
-  scope :less_than_six, -> { where("'#{LESS_THAN_SIX}' = ANY (age_ranges)") }
-  scope :six_to_eleven, -> { where("'#{SIX_TO_ELEVEN}' = ANY (age_ranges)") }
+  scope :less_than_five, -> { where("'#{LESS_THAN_FIVE}' = ANY (age_ranges)") }
+  scope :five_to_eleven, -> { where("'#{FIVE_TO_ELEVEN}' = ANY (age_ranges)") }
   scope :twelve_to_seventeen, -> { where("'#{TWELVE_TO_SEVENTEEN}' = ANY (age_ranges)") }
   scope :eighteen_to_twenty_three, -> { where("'#{EIGHTEEN_TO_TWENTY_THREE}' = ANY (age_ranges)") }
   scope :twenty_four_to_twenty_nine, -> { where("'#{TWENTY_FOUR_TO_TWENTY_NINE}' = ANY (age_ranges)") }
