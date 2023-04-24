@@ -567,6 +567,8 @@ class Child < ApplicationRecord
     return if true_siblings.empty?
 
     self.child_support_id = true_siblings.with_support.first.child_support.id
+
+    true_siblings.copy_fields(self)
     save(validate: false)
   end
 
