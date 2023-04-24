@@ -117,6 +117,10 @@ class Workshop < ApplicationRecord
                       Parent::ORELANS_POSTAL_CODE
                     when 'Montargis'
                       Parent::MONTARGIS_POSTAL_CODE
+                    when 'Pithiviers'
+                      Parent::PITHIVIERS_POSTAL_CODE
+                    when 'Gien'
+                      Parent::GIEN_POSTAL_CODE
                     else
                       nil
                     end
