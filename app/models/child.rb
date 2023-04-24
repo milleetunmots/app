@@ -57,7 +57,7 @@ class Child < ApplicationRecord
                 gennevilliers_zucman_gabison gennevilliers_timsit asnieres_gennevilliers_sst2 villeneuve_la_garenne).freeze
   GROUP_STATUS = %w(waiting active paused stopped).freeze
   TERRITORIES = %w(Loiret Yvelines Seine-Saint-Denis Paris Moselle).freeze
-  LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Orleans', 'Montargis'].freeze
+  LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Orleans', 'Montargis', 'Pithiviers', 'Gien'].freeze
 
   # ---------------------------------------------------------------------------
   # global search
