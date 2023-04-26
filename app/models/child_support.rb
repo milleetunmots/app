@@ -214,6 +214,7 @@ class ChildSupport < ApplicationRecord
       .or(where(call3_parent_progress: '2_medium'))
       .or(where(to_call: true))
   }
+  scope :multiple_children, -> { joins(:children).group('child_supports.id').having('count(children.id) > 1') }
 
   class << self
 
