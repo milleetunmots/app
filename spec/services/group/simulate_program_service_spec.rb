@@ -46,27 +46,30 @@ RSpec.describe Group::ProgramService do
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[twelve_to_seventeen], name: "Chanter avec mon bébé 🎶")
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[six_to_eleven], name: "Chanter avec mon bébé 🎶")
 
-    (1..1600).each do |index|
-      birthdate =
-        case index
-        when 1..200
-          3.months.ago
-        when 201..400
-          9.months.ago
-        when 401..600
-          14.months.ago
-        when 601..800
-          19.months.ago
-        when 801..1000
-          26.months.ago
-        when 1001..1200
-          31.months.ago
-        when 1201..1400
-          39.months.ago
-        when 1401..1600
-          43.months.ago
-        end
-      child = FactoryBot.create(:child, group: group, group_status: 'active', birthdate: birthdate)
+    (1..1000).each do |index|
+      # birthdate =
+      #   case index
+      #   when 1..200
+      #     3.months.ago
+      #   when 201..400
+      #     9.months.ago
+      #   when 401..600
+      #     14.months.ago
+      #   when 601..800
+      #     19.months.ago
+      #   when 801..1000
+      #     26.months.ago
+      #   when 1001..1200
+      #     31.months.ago
+      #   when 1201..1400
+      #     39.months.ago
+      #   when 1401..1600
+      #     43.months.ago
+      #   end
+      birthdate = Faker::Date.between(from: 2.months.ago, to: 43.months.ago)
+      child = FactoryBot.create(:child, group: group, group_status: 'active')
+      child.birthdate = birthdate
+      child.save(validate: false)
       child.child_support.update!(is_bilingual: (index / 100).odd?)
 
       children << child
@@ -85,6 +88,8 @@ RSpec.describe Group::ProgramService do
       extract_first_module_choices
       checks
 
+      make_children_older(2.weeks)
+
       set_module_availabilites(2)
       extract_modules_availabilites(2)
       choose_module
@@ -92,12 +97,16 @@ RSpec.describe Group::ProgramService do
       program_modules
       checks
 
+      make_children_older(8.weeks)
+
       set_module_availabilites(3)
       extract_modules_availabilites(3)
       choose_module
       extract_module_choices(3)
       program_modules
       checks
+
+      make_children_older(8.weeks)
 
       set_module_availabilites(4)
       extract_modules_availabilites(4)
@@ -140,6 +149,13 @@ RSpec.describe Group::ProgramService do
       end
     end
     "theme #{support_module.theme} | #{ages.join(',')} | #{support_module.for_bilingual ? 'bilingue' : 'non-bilingue'} | level #{support_module.level} | #{support_module.name}"
+  end
+
+  def make_children_older(weeks_nb)
+    children.each do |child|
+      child.birthdate = child.birthdate - weeks_nb.weeks
+      child.save(validate: false)
+    end
   end
 
   def checks
