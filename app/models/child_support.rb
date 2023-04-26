@@ -376,9 +376,47 @@ class ChildSupport < ApplicationRecord
 
   def copy_fields(child_support)
     self.notes ||= ''
-    self.notes << "\n#{child_support.current_child.first_name}\n"
-    child_support.attributes.except('id', 'created_at', 'updated_at', 'supporter_id', 'parent1_available_support_module_list', 'parent2_available_support_module_list').each do |attribute, value|
+    self.notes << "\n#{I18n.l(DateTime.now)} - #{child_support.current_child.first_name}\n\n"
+    self.notes << "Informations générales\n\n"
+    child_support.attributes.slice(
+      'is_bilingual',
+      'second_language',
+      'important_information',
+      'availability',
+      'call_infos',
+      'book_not_received',
+      'should_be_read',
+      'to_call',
+      'will_stay_in_group',
+      'tag_list'
+    ).each do |attribute, value|
       self.notes << "#{I18n.t("activerecord.attributes.child_support.#{attribute}")} : #{value}\n"
+    end
+
+    self.notes << "\nInformations de chaque appel\n"
+    (1..5).each do |call_idx|
+      self.notes << "\n-----Appel #{call_idx}-----\n"
+
+      call_attributes = [
+        "call#{call_idx}_status",
+        "call#{call_idx}_status_details",
+        "call#{call_idx}_duration",
+        "call#{call_idx}_technical_information",
+        "call#{call_idx}_parent_actions",
+        "call#{call_idx}_parent_progress",
+        "call#{call_idx}_sendings_benefits",
+        "call#{call_idx}_sendings_benefits_details",
+        "call#{call_idx}_language_development",
+        "call#{call_idx}_reading_frequency",
+        "call#{call_idx}_goals",
+        "call#{call_idx}_notes"
+      ]
+      call_attributes += ['call2_family_progress', 'call2_previous_goals_follow_up'] if call_idx == 2
+      call_attributes += ['books_quantity'] if call_idx == 1
+
+      call_attributes.each do |call_attr|
+        self.notes << "#{I18n.t("activerecord.attributes.child_support.#{call_attr}")} : #{send(call_attr)}\n"
+      end
     end
   end
 

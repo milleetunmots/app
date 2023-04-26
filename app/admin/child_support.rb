@@ -540,7 +540,9 @@ ActiveAdmin.register ChildSupport do
       end
       tab "Notes" do
         attributes_table title: "Notes" do
-          row :notes
+          row :notes do
+            simple_format resource.notes
+          end
         end
       end
     end
@@ -664,15 +666,20 @@ ActiveAdmin.register ChildSupport do
   end
 
   action_item :clean_child_support, only: [:show, :edit] do
-    link_to "Nettoyer la fiche de suivi", [:clean_child_support, :admin, resource]
+    dropdown_menu "Logistique" do
+      item "Nettoyer la fiche de suivi", [:clean_child_support, :admin, resource], { data: { confirm: "Êtes-vous sûr de vouloir nettoyer la fiche de suivi ? Cette action est Irréversible, toutes les informations des appels vont être vidées et reportées danns les notes" } }
+    end
   end
 
   member_action :clean_child_support do
-    resource.notes ||= ''
-    resource.attributes.except('id', 'created_at', 'updated_at', 'supporter_id', 'parent1_available_support_module_list', 'parent2_available_support_module_list', 'notes').each do |attribute, value|
-      resource.notes << "#{I18n.t("activerecord.attributes.child_support.#{attribute}")} : #{value}\n"
+    resource.copy_fields(resource)
+
+    ChildSupport.call_attributes.each do |attribute|
+      next if attribute == 'call_infos'
+
       resource.assign_attributes({ attribute.to_sym => ChildSupport.column_defaults[attribute.to_s] })
     end
+    resource.books_quantity = ChildSupport.column_defaults['books_quantity']
     resource.save
     redirect_to [:admin, resource], notice: 'Fiche de suivi nettoyée'
   end
