@@ -663,6 +663,20 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
+  action_item :clean_child_support, only: [:show, :edit] do
+    link_to "Nettoyer la fiche de suivi", [:clean_child_support, :admin, resource]
+  end
+
+  member_action :clean_child_support do
+    resource.notes ||= ''
+    resource.attributes.except('id', 'created_at', 'updated_at', 'supporter_id', 'parent1_available_support_module_list', 'parent2_available_support_module_list', 'notes').each do |attribute, value|
+      resource.notes << "#{I18n.t("activerecord.attributes.child_support.#{attribute}")} : #{value}\n"
+      resource.assign_attributes({ attribute.to_sym => ChildSupport.column_defaults[attribute.to_s] })
+    end
+    resource.save
+    redirect_to [:admin, resource], notice: 'Fiche de suivi nettoyée'
+  end
+
   member_action :select_module_for_parent1 do
     children_support_module = ChildrenSupportModule.find_by(child: resource.model.current_child, parent: resource.model.parent1, is_programmed: false)
     if resource.parent1_available_support_module_list.nil? || resource.parent1_available_support_module_list.reject(&:blank?).empty?

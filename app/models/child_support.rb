@@ -371,13 +371,13 @@ class ChildSupport < ApplicationRecord
   end
 
   def book_not_received=(val)
-    super(val.reject(&:blank?).join(';'))
+    super((val || []).reject(&:blank?).join(';'))
   end
 
   def copy_fields(child_support)
     self.notes ||= ''
     self.notes << "\n#{child_support.current_child.first_name}\n"
-    child_support.attributes.except('id', 'created_at', 'updated_at', 'supporter_id').each do |attribute, value|
+    child_support.attributes.except('id', 'created_at', 'updated_at', 'supporter_id', 'parent1_available_support_module_list', 'parent2_available_support_module_list').each do |attribute, value|
       self.notes << "#{I18n.t("activerecord.attributes.child_support.#{attribute}")} : #{value}\n"
     end
   end
