@@ -46,36 +46,45 @@ RSpec.describe Group::ProgramService do
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[twelve_to_seventeen], name: "Chanter avec mon bébé 🎶")
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[six_to_eleven], name: "Chanter avec mon bébé 🎶")
 
-    (1..1000).each do |index|
-      # birthdate =
-      #   case index
-      #   when 1..200
-      #     3.months.ago
-      #   when 201..400
-      #     9.months.ago
-      #   when 401..600
-      #     14.months.ago
-      #   when 601..800
-      #     19.months.ago
-      #   when 801..1000
-      #     26.months.ago
-      #   when 1001..1200
-      #     31.months.ago
-      #   when 1201..1400
-      #     39.months.ago
-      #   when 1401..1600
-      #     43.months.ago
-      #   end
-      birthdate = Faker::Date.between(from: 2.months.ago, to: 43.months.ago)
+    # (1..1000).each do |index|
+    #   # birthdate =
+    #   #   case index
+    #   #   when 1..200
+    #   #     3.months.ago
+    #   #   when 201..400
+    #   #     9.months.ago
+    #   #   when 401..600
+    #   #     14.months.ago
+    #   #   when 601..800
+    #   #     19.months.ago
+    #   #   when 801..1000
+    #   #     26.months.ago
+    #   #   when 1001..1200
+    #   #     31.months.ago
+    #   #   when 1201..1400
+    #   #     39.months.ago
+    #   #   when 1401..1600
+    #   #     43.months.ago
+    #   #   end
+    #   birthdate = Faker::Date.between(from: 2.months.ago, to: 43.months.ago)
+    #   child = FactoryBot.create(:child, group: group, group_status: 'active')
+    #   child.birthdate = birthdate
+    #   child.save(validate: false)
+    #   child.child_support.update!(is_bilingual: (index / 100).odd?)
+
+    #   children << child
+    #   csv_data << { child_id: child.id, birthdate: child.birthdate, child_months: child.months, child_bilingual: child.child_support.is_bilingual }
+    # end
+
+    JSON.parse(File.read('spec/fixtures/group_mai_23.json')).each do |child_attributes|
       child = FactoryBot.create(:child, group: group, group_status: 'active')
-      child.birthdate = birthdate
+      child.birthdate = child_attributes[0]
       child.save(validate: false)
-      child.child_support.update!(is_bilingual: (index / 100).odd?)
+      child.child_support.update!(is_bilingual: child_attributes[1])
 
       children << child
       csv_data << { child_id: child.id, birthdate: child.birthdate, child_months: child.months, child_bilingual: child.child_support.is_bilingual }
     end
-
   end
 
   after do
