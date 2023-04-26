@@ -60,6 +60,8 @@ ActiveAdmin.register Child do
 
   scope :available_for_the_workshops, group: :workshop
 
+  scope :only_siblings, group: :siblings
+
   filter :gender,
          as: :check_boxes,
          collection: proc { child_gender_select_collection(with_unknown: true) }
