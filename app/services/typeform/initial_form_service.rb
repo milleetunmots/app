@@ -68,7 +68,7 @@ module Typeform
           when 'Moi'
             @data[:most_present_parent] = "#{@child_support.parent1.first_name} #{@child_support.parent1.last_name} passe plus plus de temps avec l'enfant"
           when "Plutôt l'autre parent"
-            parent_name = @child_support.parent2 ? "#{@child_support.parent2.first_name child_support.parent2.last_name}" : "L'autre parent"
+            parent_name = @child_support.parent2 ? "#{@child_support.parent2.first_name} #{@child_support.parent2.last_name}" : "L'autre parent"
             @data[:most_present_parent] = "#{parent_name} passe le plus de temps avec l'enfant"
           when 'Les deux pareil !'
             @data[:most_present_parent] = 'Les deux parents passent le plus de temps avec l\'enfant'
