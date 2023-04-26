@@ -570,7 +570,8 @@ class Child < ApplicationRecord
     siblings_child_support = true_siblings.with_support.first.child_support
     old_child_support = self.child_support
     siblings_child_support.copy_fields(self.child_support)
-    self.child_support_id = sublings_child_support.id
+    siblings_child_support.save
+    self.child_support_id = siblings_child_support.id
     old_child_support.destroy
     save(validate: false)
   end
