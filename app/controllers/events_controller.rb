@@ -23,11 +23,10 @@ class EventsController < ApplicationController
     end
   end
 
-  # def update_status
-  #   Event::UpdateTextMessageStatusService.new(message_id_from_spot_hit: params[:id_message], status: params[:statut]).call
-
-  #   head :ok
-  # end
+  def update_status
+    Events::TextMessage::UpdateTextMessageStatusJob.set(wait_until: DateTime.now.next_day.change(hour: 1)).perform_later(params[:id_message], params[:statut])
+    head :ok
+  end
 
   def spot_hit_stop
     parsed_phone = Phonelib.parse(params[:numero])
