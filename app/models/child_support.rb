@@ -377,7 +377,8 @@ class ChildSupport < ApplicationRecord
 
   def copy_fields(child_support)
     self.notes ||= ''
-    self.notes << "\n#{I18n.l(DateTime.now)} - #{child_support.current_child.first_name}\n\n"
+    self.notes << '-'*100 + "\n"
+    self.notes << "\n#{I18n.l(DateTime.now)} - Sauvegarde des informations de la fiche de suivie\n\n"
     self.notes << "Informations générales\n\n"
     child_support.attributes.slice(
       'is_bilingual',
@@ -395,8 +396,9 @@ class ChildSupport < ApplicationRecord
     end
 
     self.notes << "\nInformations de chaque appel\n"
+    self.notes << '='*22 + "\n"
     (1..5).each do |call_idx|
-      self.notes << "\n-----Appel #{call_idx}-----\n"
+      self.notes << "\n--------Appel #{call_idx}--------\n"
 
       call_attributes = [
         "call#{call_idx}_status",
@@ -419,6 +421,7 @@ class ChildSupport < ApplicationRecord
         self.notes << "#{I18n.t("activerecord.attributes.child_support.#{call_attr}")} : #{send(call_attr)}\n"
       end
     end
+    self.notes << '='*22 + "\n"
   end
 
   # ---------------------------------------------------------------------------

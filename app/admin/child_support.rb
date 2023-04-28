@@ -666,8 +666,10 @@ ActiveAdmin.register ChildSupport do
   end
 
   action_item :clean_child_support, only: [:show, :edit] do
-    dropdown_menu "Logistique" do
-      item "Nettoyer la fiche de suivi", [:clean_child_support, :admin, resource], { data: { confirm: "Êtes-vous sûr de vouloir nettoyer la fiche de suivi ? Cette action est Irréversible, toutes les informations des appels vont être vidées et reportées danns les notes" } }
+    if !current_admin_user.caller?
+      dropdown_menu "Logistique" do
+        item "Nettoyer la fiche de suivi", [:clean_child_support, :admin, resource], { data: { confirm: "Êtes-vous sûr de vouloir nettoyer la fiche de suivi ? Cette action est Irréversible, toutes les informations des appels vont être vidées et reportées danns les notes" } }
+      end
     end
   end
 
