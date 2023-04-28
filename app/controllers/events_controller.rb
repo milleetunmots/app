@@ -24,7 +24,7 @@ class EventsController < ApplicationController
   end
 
   def update_status
-    Events::TextMessage::UpdateTextMessageStatusJob.set(wait_until: DateTime.now.next_day.change(hour: 1)).perform_later(params[:id_message], params[:statut])
+    Events::TextMessage::UpdateTextMessageStatusJob.perform_later(params[:id_message], params[:statut])
     head :ok
   end
 
