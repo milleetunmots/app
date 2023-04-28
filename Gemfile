@@ -141,6 +141,9 @@ gem "sidekiq-scheduler"
 # Zip file
 gem "rubyzip"
 
+# Rate limiting
+gem 'rack-attack'
+
 group :production do
   # for assets compilation
   gem "activerecord-nulldb-adapter"

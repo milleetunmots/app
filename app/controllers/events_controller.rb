@@ -24,8 +24,7 @@ class EventsController < ApplicationController
   end
 
   def update_status
-    Event::UpdateTextMessageStatusService.new(message_id_from_spot_hit: params[:id_message], status: params[:statut]).call
-
+    Events::TextMessage::UpdateTextMessageStatusJob.perform_later(params[:id_message], params[:statut])
     head :ok
   end
 

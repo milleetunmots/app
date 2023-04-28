@@ -157,6 +157,7 @@ class Child < ApplicationRecord
   scope :without_group, -> { where(group_id: nil) }
   scope :available_for_the_workshops, -> { where(available_for_workshops: true) }
   scope :active_group, -> { where(group_status: 'active') }
+  scope :only_siblings, -> { where(child_support_id: ChildSupport.multiple_children.select(:id)) }
 
   def self.without_group_and_not_waiting_second_group
     second_group_children_ids = Child.tagged_with('2eme cohorte').pluck(:id)
@@ -566,7 +567,12 @@ class Child < ApplicationRecord
 
     return if true_siblings.empty?
 
-    self.child_support_id = true_siblings.with_support.first.child_support.id
+    siblings_child_support = true_siblings.with_support.first.child_support
+    old_child_support = self.child_support
+    siblings_child_support.copy_fields(self.child_support)
+    siblings_child_support.save
+    self.child_support_id = siblings_child_support.id
+    old_child_support.destroy
     save(validate: false)
   end
 

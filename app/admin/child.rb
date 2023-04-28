@@ -60,6 +60,8 @@ ActiveAdmin.register Child do
 
   scope :available_for_the_workshops, group: :workshop
 
+  scope :only_siblings, group: :siblings
+
   filter :gender,
          as: :check_boxes,
          collection: proc { child_gender_select_collection(with_unknown: true) }
@@ -254,7 +256,10 @@ ActiveAdmin.register Child do
 
     @children = batch_action_collection.where(id: ids)
 
-    if @children.without_parent_to_contact.any?
+    if ids.empty?
+      flash[:error] = "Ces enfants sont déjà indiqués comme voulant poursuivre l'accompagnement ou ne sont pas actifs dans la cohorte"
+      redirect_to request.referer
+    elsif @children.without_parent_to_contact.any?
       flash[:error] = "Certains enfants n'ont aucun parent à contacter"
       redirect_to request.referer
     elsif @children.with_stopped_group.any?
