@@ -22,9 +22,9 @@ RSpec.describe Group::ProgramService do
     FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "bilingualism", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Parler plusieurs langues à la maison 🏠")
     FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "bilingualism", age_ranges: %w[five_to_eleven], name: "Parler plusieurs langues à la maison 🏠")
 
-    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "language", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Parler encore plus avec mon enfant")
+    FactoryBot.create(:support_module, level: 3, for_bilingual: false, theme: "language", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Parler encore plus avec mon enfant")
     # FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language", age_ranges: %w[], name: "Parler encore plus avec mon bébé")
-    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "language", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Parler encore plus avec mon bébé")
+    FactoryBot.create(:support_module, level: 3, for_bilingual: false, theme: "language", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Parler encore plus avec mon bébé")
     FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "language", age_ranges: %w[five_to_eleven twelve_to_seventeen], name: "Parler plus avec mon bébé")
     # FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language", age_ranges: %w[], name: "Parler plus avec mon bébé")
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language", age_ranges: %w[five_to_eleven], name: "Parler avec mon bébé 👶")
