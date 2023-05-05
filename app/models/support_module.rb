@@ -23,7 +23,7 @@ class SupportModule < ApplicationRecord
 
   include Discard::Model
 
-  THEME_LIST = %w[reading bilingualism language songs screen ride anger games].freeze
+  THEME_LIST = %w[reading bilingualism language songs games screen ride anger].freeze
 
   LESS_THAN_FIVE = 'less_than_five'.freeze
   FIVE_TO_ELEVEN = 'five_to_eleven'.freeze
@@ -74,6 +74,15 @@ class SupportModule < ApplicationRecord
   scope :thirty_six_to_forty, -> { where("'#{THIRTY_SIX_TO_FORTY}' = ANY (age_ranges)") }
   scope :forty_one_to_forty_four, -> { where("'#{FORTY_ONE_TO_FORTY_FOUR}' = ANY (age_ranges)") }
   scope :level_one, -> { where(level: 1) }
+  scope :with_theme_level_and_age_range, -> { where.not(theme: [nil, '']).where.not(level: nil).where('ARRAY_LENGTH(age_ranges, 1) > 0') }
+
+  # ---------------------------------------------------------------------------
+  # callbacks
+  # ---------------------------------------------------------------------------
+
+  before_save do
+    self.age_ranges = age_ranges&.reject(&:blank?)
+  end
 
   # ---------------------------------------------------------------------------
   # helpers

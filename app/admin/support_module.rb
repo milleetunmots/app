@@ -12,6 +12,9 @@ ActiveAdmin.register SupportModule do
   # INDEX
   # ---------------------------------------------------------------------------
 
+  scope :all, default: true
+  scope :with_theme_level_and_age_range
+
   index do
     selectable_column
     id_column
