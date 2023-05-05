@@ -585,6 +585,12 @@ class Child < ApplicationRecord
                without_parent_text_message_since registration_source_details_matches_any]
   end
 
+  def siblings_on_same_group
+    return unless group_id
+
+    siblings.where(group_id: group_id)
+  end
+
   private
 
   def no_duplicate
@@ -618,11 +624,5 @@ class Child < ApplicationRecord
     else
       diff
     end
-  end
-
-  def siblings_on_same_group
-    return unless group_id
-
-    siblings.where(group_id: group_id)
   end
 end
