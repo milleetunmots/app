@@ -12,7 +12,22 @@ module Events
             date_end: text_message.occurred_at.next_day.to_i
           }
           check = spothit_check(params.merge(product: 'sms')) || spothit_check(params.merge(product: 'mms'))
-          text_message.destroy if check.nil?
+          if check.nil?
+            text_message.destroy
+          else
+            status =
+              case check[5].to_i
+              when 0
+                0
+              when 1
+                3
+              when 2
+                2
+              when 3
+                4
+              end
+            text_message.update!(spot_hit_status: status)
+          end
           sleep(1)
         end
       end
