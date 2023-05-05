@@ -12,39 +12,40 @@ RSpec.describe Group::ProgramService do
 
     FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "reading", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Garder l'intérêt de mon enfant avec les livres 📚")
     FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "reading", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Garder l'intérêt de mon enfant avec les livres 📚")
-    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "reading", age_ranges: %w[six_to_eleven], name: "Garder l'intérêt de mon enfant avec les livres 📚")
+    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "reading", age_ranges: %w[five_to_eleven], name: "Garder l'intérêt de mon enfant avec les livres 📚")
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Intéresser mon enfant aux livres 📚")
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[eighteen_to_twenty_three], name: "Intéresser mon enfant aux livres 📚")
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[twelve_to_seventeen], name: "Intéresser mon enfant aux livres 📚")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[less_than_six six_to_eleven], name: "Intéresser mon enfant aux livres 📚")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[less_than_five five_to_eleven], name: "Intéresser mon enfant aux livres 📚")
 
     FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "bilingualism", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Parler plusieurs langues à la maison 🏠")
     FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "bilingualism", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Parler plusieurs langues à la maison 🏠")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "bilingualism", age_ranges: %w[six_to_eleven], name: "Parler plusieurs langues à la maison 🏠")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "bilingualism", age_ranges: %w[five_to_eleven], name: "Parler plusieurs langues à la maison 🏠")
 
     FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "language", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Parler encore plus avec mon enfant")
     # FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language", age_ranges: %w[], name: "Parler encore plus avec mon bébé")
     FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "language", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Parler encore plus avec mon bébé")
-    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "language", age_ranges: %w[six_to_eleven twelve_to_seventeen], name: "Parler plus avec mon bébé")
+    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "language", age_ranges: %w[five_to_eleven twelve_to_seventeen], name: "Parler plus avec mon bébé")
     # FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language", age_ranges: %w[], name: "Parler plus avec mon bébé")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language", age_ranges: %w[six_to_eleven], name: "Parler avec mon bébé 👶")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language", age_ranges: %w[five_to_eleven], name: "Parler avec mon bébé 👶")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language", age_ranges: %w[less_than_five], name: "Conversation spécial - de 4 mois")
 
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "anger", age_ranges: %w[eighteen_to_twenty_three twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Parler pour mieux gérer les colères")
 
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "ride", age_ranges: %w[twelve_to_seventeen], name: "Découvrir le monde avec mon enfant pendant les sorties 🌳")
 
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "games", age_ranges: %w[six_to_eleven], name: "Des idées pour jouer avec mon bébé 🧩")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "games", age_ranges: %w[five_to_eleven], name: "Des idées pour jouer avec mon bébé 🧩")
 
     FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "screen", age_ranges: %w[eighteen_to_twenty_three twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Mieux gérer les écrans avec mon enfant 🖥")
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "screen", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Occuper mon enfant (sans les écrans) 🧩")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "screen", age_ranges: %w[six_to_eleven], name: "Occuper mon enfant (sans les écrans) 🧩")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "screen", age_ranges: %w[five_to_eleven], name: "Occuper mon enfant (sans les écrans) 🧩")
 
     FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "songs", age_ranges: %w[eighteen_to_twenty_three twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Chanter souvent avec mon bébé 🎶")
     FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "songs", age_ranges: %w[twelve_to_seventeen], name: "Chanter souvent avec mon bébé 🎶")
-    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "songs", age_ranges: %w[six_to_eleven], name: "Chanter plus avec mon bébé 🎶")
+    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "songs", age_ranges: %w[five_to_eleven], name: "Chanter plus avec mon bébé 🎶")
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[eighteen_to_twenty_three twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Chanter avec mon bébé 🎶")
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[twelve_to_seventeen], name: "Chanter avec mon bébé 🎶")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[six_to_eleven], name: "Chanter avec mon bébé 🎶")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[five_to_eleven], name: "Chanter avec mon bébé 🎶")
 
     # (1..1000).each do |index|
     #   # birthdate =
@@ -137,10 +138,10 @@ RSpec.describe Group::ProgramService do
 
     ages = support_module.age_ranges.map do |value|
       case value
-      when 'less_than_six'
-        '0-5'
-      when 'six_to_eleven'
-        '6-11'
+      when 'less_than_five'
+        '0-4'
+      when 'five_to_eleven'
+        '5-11'
       when 'twelve_to_seventeen'
         '12-17'
       when 'eighteen_to_twenty_three'
@@ -160,9 +161,9 @@ RSpec.describe Group::ProgramService do
     "theme #{support_module.theme} | #{ages.join(',')} | #{support_module.for_bilingual ? 'bilingue' : 'non-bilingue'} | level #{support_module.level} | #{support_module.name}"
   end
 
-  def make_children_older(weeks_nb)
+  def make_children_older(weeks)
     children.each do |child|
-      child.birthdate = child.birthdate - weeks_nb.weeks
+      child.birthdate = child.birthdate - weeks
       child.save(validate: false)
     end
   end
