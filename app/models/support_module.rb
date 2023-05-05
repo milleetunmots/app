@@ -81,7 +81,7 @@ class SupportModule < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   before_save do
-    self.age_ranges = age_ranges.reject(&:blank?)
+    self.age_ranges = age_ranges&.reject(&:blank?)
   end
 
   # ---------------------------------------------------------------------------
