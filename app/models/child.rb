@@ -619,4 +619,10 @@ class Child < ApplicationRecord
       diff
     end
   end
+
+  def siblings_on_same_group
+    return unless group_id
+
+    siblings.where(group_id: group_id)
+  end
 end

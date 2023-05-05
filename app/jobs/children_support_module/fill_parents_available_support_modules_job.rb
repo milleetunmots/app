@@ -6,6 +6,8 @@ class ChildrenSupportModule
       group = Group.includes(children: :child_support).find(group_id)
 
       group.children.each do |child|
+        next if child.siblings_on_same_group.count > 1 && child.child_support.current_child != child
+
         parent1_support_module_ids = order_available_support_modules(child, child.parent1)
         parent2_support_module_ids = order_available_support_modules(child, child.parent2)
         if second_support_module
