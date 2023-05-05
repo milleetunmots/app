@@ -23,7 +23,7 @@ class SupportModule < ApplicationRecord
 
   include Discard::Model
 
-  THEME_LIST = %w[reading bilingualism language songs screen ride anger games].freeze
+  THEME_LIST = %w[reading bilingualism language songs games screen ride anger].freeze
 
   LESS_THAN_FIVE = 'less_than_five'.freeze
   FIVE_TO_ELEVEN = 'five_to_eleven'.freeze
