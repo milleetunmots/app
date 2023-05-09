@@ -20,8 +20,13 @@ fr:
     send_select_module_message: "Envoyer les messages de selection de module"
     select_module: "Choisir module"
   group:
+    base: Informations
     export_link: Télécharger les listes d'enfants par module au format Excel V2
+    panel_supporters_title: Nombre d'enfants suivis par chaque responsable
     program_link: Programmer la cohorte
+    supporter_children_count: Enfants
+    supporter_name: Responsable
+    supporters: Responsables
   survey_response:
     new_import_link: Import CSV
   "false": Non

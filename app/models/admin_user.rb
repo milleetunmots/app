@@ -35,6 +35,8 @@ class AdminUser < ApplicationRecord
   has_many :reported_tasks, class_name: "Task", foreign_key: "reporter_id", dependent: :nullify
   has_many :assigned_tasks, class_name: "Task", foreign_key: "assignee_id", dependent: :nullify
   has_many :workshops, dependent: :nullify
+  has_many :child_supports, foreign_key: 'supporter_id', inverse_of: :supporter, dependent: :nullify
+  has_many :children, through: :child_supports
 
   # ---------------------------------------------------------------------------
   # validations
