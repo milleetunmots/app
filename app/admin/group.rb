@@ -79,7 +79,7 @@ ActiveAdmin.register Group do
       end
       tab I18n.t('group.supporters') do
         panel I18n.t('group.panel_supporters_title') do
-          table_for resource.supporters.distinct do
+          table_for resource.supporters.distinct.order(:name) do
             column I18n.t('group.supporter_name') do |supporter|
               link_to supporter.name, [:admin, supporter]
             end
