@@ -51,7 +51,7 @@ class ChildSupport::SelectModuleService
       message
     ).call
 
-    if sms_service.errors.any?
+    if sms_service&.errors&.any?
       @errors += sms_service.errors
     else
       reminder_date = @planned_date.advance(days: 3)
