@@ -95,6 +95,8 @@ class Child < ApplicationRecord
   has_many :siblings, class_name: :Child, primary_key: :parent1_id, foreign_key: :parent1_id
   has_many :children_support_modules, dependent: :destroy
 
+  has_one :supporter, through: :child_support, class_name: :AdminUser
+
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
   accepts_nested_attributes_for :parent2
@@ -201,6 +203,10 @@ class Child < ApplicationRecord
     # info: AR simplifies this
     where(should_contact_parent1: [nil, false], should_contact_parent2: [nil, false])
       .or(where(should_contact_parent1: [nil, false], should_contact_parent2: true, parent2_id: nil))
+  end
+
+  def self.supporter_id_in(*v)
+    joins(:child_support).where(child_supports: { supporter_id: v })
   end
 
   def self.group_id_in(*v)

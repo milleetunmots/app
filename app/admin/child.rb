@@ -87,6 +87,11 @@ ActiveAdmin.register Child do
          collection: proc { child_registration_source_details_suggestions },
          input_html: { multiple: true, data: { select2: {} } },
          label: "Précisions sur l'origine"
+  filter :supporter_id_in,
+         as: :select,
+         collection: proc { child_supporter_select_collection },
+         input_html: { multiple: true, data: { select2: {} } },
+         label: 'Responsable'
   filter :group_id_in,
          as: :select,
          collection: proc { child_group_select_collection },

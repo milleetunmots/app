@@ -66,13 +66,29 @@ ActiveAdmin.register Group do
   # ---------------------------------------------------------------------------
 
   show do
-    attributes_table do
-      row :name
-      row :children
-      row :started_at
-      row :ended_at
-      row :support_modules_count
-      row :is_programmed
+    tabs do
+      tab I18n.t('group.base') do
+        attributes_table do
+          row :name
+          row :children
+          row :started_at
+          row :ended_at
+          row :support_modules_count
+          row :is_programmed
+        end
+      end
+      tab I18n.t('group.supporters') do
+        panel I18n.t('group.panel_supporters_title') do
+          table_for resource.supporters.distinct do
+            column I18n.t('group.supporter_name') do |supporter|
+              link_to supporter.name, [:admin, supporter]
+            end
+            column I18n.t('group.supporter_children_count') do |supporter|
+              link_to supporter.children.where(group_id: resource.id).size, [:admin, :children, { q: { group_id_in: [resource.id], supporter_id_in: [supporter.id] } }]
+            end
+          end
+        end
+      end
     end
   end
 
