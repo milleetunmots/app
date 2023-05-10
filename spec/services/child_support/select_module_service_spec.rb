@@ -19,6 +19,7 @@ RSpec.describe ChildSupport::SelectModuleService do
     it 'gets an error message' do
       child.should_contact_parent1 = false
       expect(subject.errors).to include 'Aucun des parents ne veut être contacté'
+      expect_any_instance_of(ProgramMessageService).not_to receive(:call)
     end
   end
 
@@ -26,12 +27,12 @@ RSpec.describe ChildSupport::SelectModuleService do
     it "selection messages aren't sent to parents" do
       child_support.update!(parent1_available_support_module_list: [])
       subject
-      expect_any_instance_of(SpotHit::SendSmsService).not_to receive(:call)
+      expect_any_instance_of(ProgramMessageService).not_to receive(:call)
     end
   end
 
   context "when there aren't children support module not programmed for the child and their parent" do
-    before { expect_any_instance_of(ProgramMessageService).to receive(:call) }
+    before { expect_any_instance_of(ProgramMessageService).to receive(:call).and_return(ProgramMessageService.new("01/01/2020", "12:30", [], '')) }
     it "it's created" do
       child_support
       expect { subject }.to change { ChildrenSupportModule.count }.by(1)
