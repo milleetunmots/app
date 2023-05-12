@@ -19,7 +19,7 @@ module ActiveAdmin
           def scoped_collection
             if params[:action] == 'index'
               if params[:discards]
-                super.discarded
+                super.unscoped.discarded
               else
                 super.kept
               end

@@ -32,7 +32,7 @@ class Event::UpdateTextMessageStatusService
     result = @receipts.map { |receipt| {phone_number: receipt[0], status: receipt[1] } }
 
     Events::TextMessage.where(spot_hit_message_id: campaign_id).each do |message|
-      receipt = result.find { |item| item[:phone_number] == message.related.phone_number }
+      receipt = result.find { |item| message.related.present? && item[:phone_number] == message.related.phone_number }
 
       receipt.nil? ? message.update!(spot_hit_status: 4): message.update!(spot_hit_status: receipt[:status])
     end
