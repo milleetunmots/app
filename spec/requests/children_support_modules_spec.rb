@@ -29,18 +29,19 @@ RSpec.describe ChildrenSupportModulesController, type: :request do
       end
     end
 
-    # context "when the security code in URL parameters is not a good" do
-    #   it "fails" do
-    #     get "/s/#{children_support_module.id}", params: { sc: nil }
-    #     expect(response).to have_http_status(404)
-    #   end
-    # end
+    context "when the security code in URL parameters is not a good" do
+      it "fails" do
+        get "/s/#{children_support_module.id}", params: { sc: nil }
+        expect(response).to have_http_status(404)
+      end
+    end
 
     context "when a support module is already selected" do
       it "displays the support module selected" do
         children_support_module.update!(support_module: support_module_list.first)
         get "/s/#{children_support_module.id}", params: { sc: child.parent1.security_code }
         expect(assigns(:support_module_selected)).to eq support_module_list.first
+        expect(response.body).to include 'Mauvaise nouvelle : il est trop tard pour choisir un thème mais'
       end
     end
   end
