@@ -26,9 +26,12 @@ module Events
               when 3
                 4
               end
-            text_message.update!(spot_hit_status: status)
+            text_message.spot_hit_status = status
+            text_message.save(validate: false)
           end
           sleep(1)
+        rescue StandardError => e
+          next
         end
       end
 
