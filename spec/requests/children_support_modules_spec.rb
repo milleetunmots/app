@@ -2,19 +2,19 @@ require "rails_helper"
 
 RSpec.describe ChildrenSupportModulesController, type: :request do
 
-  describe "#edit" do
-    let(:child) { FactoryBot.create(:child) }
-    let(:support_module_list) { FactoryBot.create_list(:support_module, 3) }
-    let!(:children_support_module) do
-      FactoryBot.create(
-        :children_support_module,
-        child: child,
-        parent: child.parent1,
-        support_module: nil,
-        available_support_module_list: support_module_list.map(&:id)
-      )
-    end
+  let(:child) { FactoryBot.create(:child) }
+  let(:support_module_list) { FactoryBot.create_list(:support_module, 3) }
+  let!(:children_support_module) do
+    FactoryBot.create(
+      :children_support_module,
+      child: child,
+      parent: child.parent1,
+      support_module: nil,
+      available_support_module_list: support_module_list.map(&:id)
+    )
+  end
 
+  describe "#edit" do
     it "renders edit template" do
       get "/s/#{children_support_module.id}", params: { sc: child.parent1.security_code }
       expect(response).to render_template(:edit)
@@ -47,10 +47,23 @@ RSpec.describe ChildrenSupportModulesController, type: :request do
   end
 
   describe "#update" do
+    let(:params) { { children_support_module: { support_module_id: support_module_list.first.id } } }
+
     it "updates the children support module" do
+      put children_support_module_path(children_support_module, sc: child.parent1.security_code), params: params
+      children_support_module.reload
+
+      expect(children_support_module.choice_date).to eq Date.today
+      expect(children_support_module.is_completed).to be true
+      expect(response).to redirect_to(updated_children_support_module_path(children_support_module.id, child_first_name: child.first_name, sc: child.parent1.security_code))
     end
   end
 
   describe "#updated" do
+    it "displays thanks" do
+      get "/children_support_modules/#{children_support_module.id}/updated", params: { child_first_name: child.first_name, sc: child.parent1.security_code }
+
+      expect(assigns(:child_first_name)).to eq child.first_name
+    end
   end
 end
