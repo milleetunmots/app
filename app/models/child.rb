@@ -597,6 +597,10 @@ class Child < ApplicationRecord
     siblings.where(group_id: group_id)
   end
 
+  def have_siblings_on_same_group?
+    siblings_on_same_group.count > 1
+  end
+
   private
 
   def no_duplicate

@@ -123,9 +123,12 @@ class ParentDecorator < BaseDecorator
   def selected_support_module
     arbre do
       model.children_support_modules.includes(:support_module).decorate.each do |children_support_module|
+        display_selected_module = "#{children_support_module.name} - #{children_support_module.created_at.strftime("%d/%m/%Y")}"
+        display_selected_module = "#{display_selected_module} - #{children_support_module.child.first_name}" if children_support_module.child.have_siblings_on_same_group?
         div do
-          a "#{children_support_module.name} - #{children_support_module.created_at.strftime("%d/%m/%Y")}", href: admin_children_support_module_path(children_support_module),
-            class: 'available_support_module', target: '_blank'
+          a "#{display_selected_module}",
+          href: admin_children_support_module_path(children_support_module),
+          class: 'available_support_module', target: '_blank'
           text_node "&nbsp;".html_safe
         end
       end
