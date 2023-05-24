@@ -5,7 +5,7 @@
 #  id            :bigint           not null, primary key
 #  age_ranges    :string           is an Array
 #  discarded_at  :datetime
-#  for_bilingual :boolean
+#  for_bilingual :boolean          default(FALSE), not null
 #  level         :integer
 #  name          :string
 #  start_at      :date
