@@ -11,7 +11,7 @@ WORKDIR $INSTALL_PATH
 # Install dependencies
 RUN apt-get update \
   && apt-get install -qq -y --no-install-recommends \
-    libxrender-dev
+    libxrender1:i386
 
 # Copy the package.json as well as the yarn.lock and install
 # the node modules. This is a separate step so the dependencies
