@@ -67,6 +67,7 @@ class Parent < ApplicationRecord
   PARIS_20_EME_POSTAL_CODE = '75020'
   GIEN_POSTAL_CODE = %w[45290 45500 45720].freeze
   PITHIVIERS_POSTAL_CODE = %w[45300 45480 45170].freeze
+  ALL_POSTAL_CODE = Parent::ORELANS_POSTAL_CODE + Parent::PLAISIR_POSTAL_CODE + Parent::MONTARGIS_POSTAL_CODE + Parent::TRAPPES_POSTAL_CODE + Parent::PARIS_18_EME_POSTAL_CODE + [Parent::AULNAY_SOUS_BOIS_POSTAL_CODE, Parent::PARIS_20_EME_POSTAL_CODE]
 
   # ---------------------------------------------------------------------------
   # relations
