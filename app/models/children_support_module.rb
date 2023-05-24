@@ -83,7 +83,7 @@ class ChildrenSupportModule < ApplicationRecord
     return unless the_other_parent.children_support_modules.where(child_id: child.id).count == 2
     return if child.child_support.call2_status == 'KO'
 
-    the_other_parent.children_support_modules.latest_first.first.update_columns(
+    the_other_parent.children_support_modules.where(child_id: child.id).latest_first.first.update_columns(
       is_completed: is_completed,
       choice_date: choice_date,
       is_programmed: is_programmed,
