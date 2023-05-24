@@ -44,7 +44,7 @@ class ChildrenSupportModule < ApplicationRecord
            prefix: true,
            allow_nil: true
 
-  after_save :select_for_the_other_parent
+  after_update :select_for_the_other_parent
 
   def name
     return support_module.decorate.name_with_tags if support_module
@@ -80,7 +80,7 @@ class ChildrenSupportModule < ApplicationRecord
     the_other_parent = parent == child.parent1 ? child.parent2 : child.parent1
 
     return if the_other_parent.nil?
-    return unless the_other_parent.children_support_modules.count == 2
+    return unless the_other_parent.children_support_modules.where(child_id: child.id).count == 2
     return if child.child_support.call2_status == 'KO'
 
     the_other_parent.children_support_modules.latest_first.first.update_columns(
