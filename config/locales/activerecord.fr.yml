@@ -161,9 +161,12 @@ fr:
       children_support_module:
         << : *SHARED
         name_display: Nom
+        name_display_for_csv: Nom
         name: Nom
         parent_name: Parent
+        parent_name_for_csv: Parent
         child_name: Enfant
+        child_name_for_csv: Enfant
         group: Cohorte
         created_at: Date d'envoi du formulaire
         choice_date: Date de choix du module
@@ -179,6 +182,7 @@ fr:
         parent: Parent
         support_module: Module
         available_support_module_names: Modules disponibles
+        available_support_module_names_for_csv: Modules disponibles
       child_support:
         << : *SHARED
         address: Adresse
