@@ -598,6 +598,8 @@ class Child < ApplicationRecord
   end
 
   def have_siblings_on_same_group?
+    return false unless siblings_on_same_group
+
     siblings_on_same_group.count > 1
   end
 
