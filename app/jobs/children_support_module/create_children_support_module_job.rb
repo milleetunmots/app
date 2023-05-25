@@ -28,7 +28,7 @@ class ChildrenSupportModule
     def handle_errors(children_support_modules)
       errors = []
 
-      children_support_modules.each do |csm|
+      children_support_modules.compact.each do |csm|
         errors << csm.errors if csm.errors.any?
       end
 

@@ -58,8 +58,7 @@ ActiveAdmin.register ChildrenSupportModule do
                   as: :hidden
         end
       end
-
-  end
+    end
     f.actions
   end
 
@@ -101,5 +100,17 @@ ActiveAdmin.register ChildrenSupportModule do
       support_module_id: inputs[I18n.t("activerecord.models.children_support_module")].to_i
     )
     redirect_to request.referer, notice: "Modules choisis"
+  end
+
+  csv do
+    column :id
+    column :name_display_for_csv
+    column :choice_date
+    column :available_support_module_names_for_csv
+    column :is_completed
+    column :is_programmed
+    column :parent_name_for_csv
+    column :child_name_for_csv
+    column :child_group_name
   end
 end
