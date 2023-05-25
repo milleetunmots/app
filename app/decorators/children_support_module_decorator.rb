@@ -43,6 +43,6 @@ class ChildrenSupportModuleDecorator < BaseDecorator
   end
 
   def available_support_module_names_for_csv
-    model.available_support_modules.decorate.map(&:name_with_tags)
+    model.available_support_modules.decorate.map(&:name_with_tags).join("\n")
   end
 end
