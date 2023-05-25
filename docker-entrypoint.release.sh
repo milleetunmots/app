@@ -12,7 +12,10 @@ port="$(echo $host_with_port | sed -e 's,^.*:,:,g' -e 's,.*:\([0-9]*\).*,\1,g' -
 host="$(echo ${host_with_port/:$port/})"
 
 echo "Waiting for pg:" $proto$url
-dockerize -wait tcp://$host:$port -timeout 1m
+
+until nc -z $host $port; do
+    sleep 2
+done
 
 DO_RUN_DB_MIGRATE=${RUN_DB_MIGRATE:-1}
 if [ $DO_RUN_DB_MIGRATE -ne 0 ]; then
