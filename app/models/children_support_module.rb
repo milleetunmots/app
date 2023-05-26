@@ -45,7 +45,7 @@ class ChildrenSupportModule < ApplicationRecord
            allow_nil: true
 
   after_update :select_for_the_other_parent
-  after_save :select_for_siblings
+  after_update :select_for_siblings
 
   def name
     return support_module.decorate.name_with_tags if support_module
@@ -95,16 +95,17 @@ class ChildrenSupportModule < ApplicationRecord
 
   def select_for_siblings
     return unless saved_change_to_support_module_id?
-
+    return if support_module.nil?
     return unless child.have_siblings_on_same_group?
+    return unless child.current_child?
 
     theme = support_module.theme
     child.siblings_on_same_group.each do |sibling|
       next if child == sibling
 
       sibling_age = child_age_range(sibling.months)
-      sibling_support_module = sibling_support_module(sibling_age, support_module.for_bilingual, theme: theme) || sibling_support_module(sibling_age, support_module.for_bilingual)
-      find_or_create_children_support_module(sibling.id, self, sibling_support_module)
+      sibling_support_module = find_sibling_support_module(sibling.id, sibling_age, support_module.for_bilingual, theme: theme) || find_sibling_support_module(sibling.id, sibling_age, support_module.for_bilingual)
+      find_or_create_children_support_module(sibling.id, sibling_support_module)
     end
   end
 
@@ -135,24 +136,25 @@ class ChildrenSupportModule < ApplicationRecord
     end
   end
 
-  def sibling_support_module(age, for_bilingual, theme: nil)
+  def find_sibling_support_module(sibling_id, age, for_bilingual, theme: nil)
     support_module = SupportModule.by_theme
     support_module = theme.nil? ? support_module.where("'#{age}' = ANY(age_ranges)") : support_module.where("'#{age}' = ANY(age_ranges) AND theme = '#{theme}'")
     support_module = support_module.where(for_bilingual: for_bilingual) if for_bilingual == false
+    support_module = support_module.where.not(id: ChildrenSupportModule.where(child_id: sibling_id, is_programmed: true).pluck(:support_module_id))
     support_module.first
   end
 
-  def find_or_create_children_support_module(sibling_id, children_support_module, sibling_support_module)
-    children_support_module = ChildrenSupportModule.find_or_create_by(
+  def find_or_create_children_support_module(sibling_id, sibling_support_module)
+    sibling_children_support_module = ChildrenSupportModule.find_or_create_by(
       child_id: sibling_id,
-      parent_id: children_support_module.parent_id,
+      parent_id: parent_id,
       is_programmed: false
     )
-    children_support_module.update(
-      available_support_module_list: children_support_module.available_support_module_list,
+    sibling_children_support_module.update(
+      available_support_module_list: available_support_module_list,
       support_module: sibling_support_module,
-      choice_date: children_support_module.choice_date,
-      is_completed: children_support_module.is_completed
+      choice_date: choice_date,
+      is_completed: is_completed
     )
   end
 end

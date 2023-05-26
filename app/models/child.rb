@@ -603,6 +603,10 @@ class Child < ApplicationRecord
     siblings_on_same_group.count > 1
   end
 
+  def current_child?
+    self == child_support&.current_child
+  end
+
   private
 
   def no_duplicate
