@@ -5,6 +5,8 @@ class ChildrenSupportModule
     def perform(group_id)
       group = Group.find(group_id)
       group.children.where(group_status: 'active').find_each do |child|
+        next if child.siblings_on_same_group.count > 1 && child.current_child?
+
         child.children_support_modules.where(support_module: nil).each do |csm|
           # when there is no support_module chosen for a parent, we take the one chosen by the other parent
           # if there is no support_module chosen by the other parent, we take the first one available

@@ -598,7 +598,13 @@ class Child < ApplicationRecord
   end
 
   def have_siblings_on_same_group?
+    return false unless siblings_on_same_group
+
     siblings_on_same_group.count > 1
+  end
+
+  def current_child?
+    self == child_support&.current_child
   end
 
   private

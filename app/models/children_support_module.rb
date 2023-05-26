@@ -45,12 +45,13 @@ class ChildrenSupportModule < ApplicationRecord
            allow_nil: true
 
   after_update :select_for_the_other_parent
+  after_update :select_for_siblings
 
   def name
     return support_module.decorate.name_with_tags if support_module
-    return "Laisse le choix à 1001mots" if is_completed
+    return 'Laisse le choix à 1001mots' if is_completed
 
-    "Pas encore choisi"
+    'Pas encore choisi'
   end
 
   def available_support_modules
@@ -63,17 +64,17 @@ class ChildrenSupportModule < ApplicationRecord
   end
 
   def support_module_not_programmed
-    if ChildrenSupportModule.exists?(child: child, parent: parent, is_programmed: false)
-      errors.add(:base, :invalid, message: "Un module choisi par le parent pour cet enfant n'a pas encore été programmé")
-    end
+    return unless ChildrenSupportModule.exists?(child: child, parent: parent, is_programmed: false)
+
+    errors.add(:base, :invalid, message: "Un module choisi par le parent pour cet enfant n'a pas encore été programmé")
   end
 
   def valid_child_parent
     errors.add(:base, :invalid, message: "Cet enfant n'appartient pas à ce parent") unless parent.children.to_a.include? child
   end
 
-  def self.group_id_in(*v)
-    includes(child: :group).where("children.group_id IN (?)", v).references(:children)
+  def self.group_id_in(*ids)
+    includes(child: :group).where('children.group_id IN (?)', ids).references(:children)
   end
 
   def select_for_the_other_parent
@@ -92,7 +93,68 @@ class ChildrenSupportModule < ApplicationRecord
     )
   end
 
+  def select_for_siblings
+    return unless saved_change_to_support_module_id?
+    return if support_module.nil?
+    return unless child.have_siblings_on_same_group?
+    return unless child.current_child?
+
+    theme = support_module.theme
+    child.siblings_on_same_group.each do |sibling|
+      next if child == sibling
+
+      sibling_age = child_age_range(sibling.months)
+      sibling_support_module = find_sibling_support_module(sibling.id, sibling_age, support_module.for_bilingual, theme: theme) || find_sibling_support_module(sibling.id, sibling_age, support_module.for_bilingual)
+      find_or_create_children_support_module(sibling.id, sibling_support_module)
+    end
+  end
+
   def self.ransackable_scopes(auth_object = nil)
     super + %i[group_id_in]
+  end
+
+  private
+
+  def child_age_range(months)
+    case months
+    when 0..4
+      SupportModule::LESS_THAN_FIVE
+    when 5..11
+      SupportModule::FIVE_TO_ELEVEN
+    when 12..17
+      SupportModule::TWELVE_TO_SEVENTEEN
+    when 18..23
+      SupportModule::EIGHTEEN_TO_TWENTY_THREE
+    when 24..29
+      SupportModule::TWENTY_FOUR_TO_TWENTY_NINE
+    when 30..35
+      SupportModule::THIRTY_TO_THIRTY_FIVE
+    when 36..40
+      SupportModule::THIRTY_SIX_TO_FORTY
+    when 41..44
+      SupportModule::FORTY_ONE_TO_FORTY_FOUR
+    end
+  end
+
+  def find_sibling_support_module(sibling_id, age, for_bilingual, theme: nil)
+    support_module = SupportModule.by_theme
+    support_module = theme.nil? ? support_module.where("'#{age}' = ANY(age_ranges)") : support_module.where("'#{age}' = ANY(age_ranges) AND theme = '#{theme}'")
+    support_module = support_module.where(for_bilingual: for_bilingual) if for_bilingual == false
+    support_module = support_module.where.not(id: ChildrenSupportModule.where(child_id: sibling_id, is_programmed: true).pluck(:support_module_id))
+    support_module.first
+  end
+
+  def find_or_create_children_support_module(sibling_id, sibling_support_module)
+    sibling_children_support_module = ChildrenSupportModule.find_or_create_by(
+      child_id: sibling_id,
+      parent_id: parent_id,
+      is_programmed: false
+    )
+    sibling_children_support_module.update(
+      available_support_module_list: available_support_module_list,
+      support_module: sibling_support_module,
+      choice_date: choice_date,
+      is_completed: is_completed
+    )
   end
 end
