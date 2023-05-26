@@ -355,6 +355,7 @@ class ChildSupport < ApplicationRecord
            :parent2_last_name,
            :parent2_phone_number_national,
            :postal_code,
+           :registration_source,
            :should_contact_parent1,
            :should_contact_parent1?,
            :should_contact_parent2,
