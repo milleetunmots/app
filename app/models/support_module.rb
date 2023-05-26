@@ -5,7 +5,7 @@
 #  id            :bigint           not null, primary key
 #  age_ranges    :string           is an Array
 #  discarded_at  :datetime
-#  for_bilingual :boolean
+#  for_bilingual :boolean          default(FALSE), not null
 #  level         :integer
 #  name          :string
 #  start_at      :date
@@ -113,4 +113,14 @@ class SupportModule < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   acts_as_taggable
+
+  def self.order_by_theme
+    ret = "CASE"
+    THEME_LIST.each_with_index do |theme, index|
+      ret << " WHEN theme = '#{theme}' THEN #{index}"
+    end
+    ret << " END"
+  end
+
+  scope :by_theme, -> { order(order_by_theme) }
 end
