@@ -30,6 +30,7 @@ ActiveAdmin.register Child do
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
     column :postal_code
+    column :registration_source
     column :territory
     column :child_support, sortable: :child_support_id, &:child_support_status
     column :group, sortable: :group_id
