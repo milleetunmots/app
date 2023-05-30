@@ -49,3 +49,4 @@ yarn-debug.log*
 .env
 
 *.rdb
+dump.sql
