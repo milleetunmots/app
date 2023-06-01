@@ -2,7 +2,7 @@ class Group
 
   class DistributeChildSupportsToSupportersService
 
-    # children_count_by_supporter = [
+    # child_supports_count_by_supporter = [
     #   { admin_user_id: 1, child_supports_count: 15 },
     #   { admin_user_id: 2, child_supports_count: 10 },
     #   ...
@@ -103,19 +103,19 @@ class Group
                   siblings_by_supporter[supporter_with_capacity[:admin_user_id]] += 1
                 end
 
-                # if registration_source[0] == 'other'
-                #   other_by_supporter[supporter_with_capacity[:admin_user_id]] ||= 0
-                #   other_by_supporter[supporter_with_capacity[:admin_user_id]] += 1
-                #   break if other_by_supporter[supporter_with_capacity[:admin_user_id]] > 4
-                # end
+                if registration_source[0] == 'other'
+                  other_by_supporter[supporter_with_capacity[:admin_user_id]] ||= 0
+                  other_by_supporter[supporter_with_capacity[:admin_user_id]] += 1
+                  break if other_by_supporter[supporter_with_capacity[:admin_user_id]] > 4
+                end
 
-                # if registration_source[0].in?(%w[therapist nursery doctor resubscribing other])
-                #   not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] ||= registration_source[0]
-                #   break if registration_source[0] != not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]]
-                #   # not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] ||= []
-                #   # not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] << registration_source[0]
-                #   # break if not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]].uniq.size > 2
-                # end
+                if registration_source[0].in?(%w[therapist nursery doctor resubscribing other])
+                  not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] ||= registration_source[0]
+                  break if registration_source[0] != not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]]
+                  # not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] ||= []
+                  # not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] << registration_source[0]
+                  # break if not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]].uniq.size > 2
+                end
 
                 child_support.update!(supporter_id: supporter_with_capacity[:admin_user_id])
                 supporter_with_capacity[:child_supports_count] -= 1
@@ -126,9 +126,9 @@ class Group
         end
       end
 
-      smallest_registration_sources_first
+      # smallest_registration_sources_first
 
-      # siblings_by_supporter
+      siblings_by_supporter
     end
   end
 end
