@@ -36,6 +36,8 @@ ActiveAdmin.register Child do
     column :group, sortable: :group_id
     column :group_status
     column :pmi_detail
+    column :registration_source_details
+    column :supporter
     column :tags do |model|
       model.tags(context: 'tags')
     end

@@ -25,6 +25,7 @@ fr:
     panel_supporters_title: Nombre d'enfants suivis par chaque responsable
     program_link: Programmer la cohorte
     supporter_children_count: Enfants
+    supporter_child_supports_count: Familles
     supporter_name: Responsable
     supporters: Responsables
   survey_response:
