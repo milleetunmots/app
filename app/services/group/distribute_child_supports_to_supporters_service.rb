@@ -86,35 +86,38 @@ class Group
       other_by_supporter = {}
       not_pmi_caf_or_friends = {}
       siblings_by_supporter = {}
+      @child_supports_count_by_supporter.each do |supporter_with_capacity|
+        siblings_by_supporter[supporter_with_capacity[:admin_user_id]] = 0
+      end
 
-      4.times do |index|
+      6.times do |index|
         smallest_registration_sources_first.each do |registration_source|
           registration_source[1].each do |land, child_supports|
             @child_supports_count_by_supporter.each do |supporter_with_capacity|
-              siblings_by_supporter[supporter_with_capacity[:admin_user_id]] ||= 0
-
               child_supports.each do |child_support|
                 break if supporter_with_capacity[:child_supports_count].zero?
                 next if child_support.children.count == 1 && index < 1
 
-                if child_support.children.count > 1
-                  next if siblings_by_supporter[supporter_with_capacity[:admin_user_id]] == 4
+                if index < 4
+                  if child_support.children.count > 1
+                    next if siblings_by_supporter[supporter_with_capacity[:admin_user_id]] == 3 + (index.zero? ? 0 : 1)
 
-                  siblings_by_supporter[supporter_with_capacity[:admin_user_id]] += 1
-                end
+                    siblings_by_supporter[supporter_with_capacity[:admin_user_id]] += 1
+                  end
 
-                if registration_source[0] == 'other'
-                  other_by_supporter[supporter_with_capacity[:admin_user_id]] ||= 0
-                  other_by_supporter[supporter_with_capacity[:admin_user_id]] += 1
-                  break if other_by_supporter[supporter_with_capacity[:admin_user_id]] > 4
-                end
+                  if registration_source[0] == 'other'
+                    other_by_supporter[supporter_with_capacity[:admin_user_id]] ||= 0
+                    other_by_supporter[supporter_with_capacity[:admin_user_id]] += 1
+                    break if other_by_supporter[supporter_with_capacity[:admin_user_id]] > 4
+                  end
 
-                if registration_source[0].in?(%w[therapist nursery doctor resubscribing other])
-                  not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] ||= registration_source[0]
-                  break if registration_source[0] != not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]]
-                  # not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] ||= []
-                  # not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] << registration_source[0]
-                  # break if not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]].uniq.size > 2
+                  if registration_source[0].in?(%w[therapist nursery doctor resubscribing other])
+                    not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] ||= registration_source[0]
+                    break if registration_source[0] != not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]]
+                    # not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] ||= []
+                    # not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] << registration_source[0]
+                    # break if not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]].uniq.size > 2
+                  end
                 end
 
                 child_support.update!(supporter_id: supporter_with_capacity[:admin_user_id])
@@ -126,8 +129,7 @@ class Group
         end
       end
 
-      # smallest_registration_sources_first
-
+      puts smallest_registration_sources_first
       siblings_by_supporter
     end
   end
