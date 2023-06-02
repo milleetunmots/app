@@ -30,14 +30,11 @@ ActiveAdmin.register Child do
     column :parent1, sortable: :parent1_id
     column :parent2, sortable: :parent2_id
     column :postal_code
-    column :registration_source
     column :territory
     column :child_support, sortable: :child_support_id, &:child_support_status
     column :group, sortable: :group_id
     column :group_status
     column :pmi_detail
-    column :registration_source_details
-    column :supporter
     column :tags do |model|
       model.tags(context: 'tags')
     end
