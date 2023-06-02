@@ -49,3 +49,5 @@ yarn-debug.log*
 .env
 
 *.rdb
+dump.sql
+routes.txt

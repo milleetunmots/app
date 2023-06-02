@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_05_24_091902) do
+ActiveRecord::Schema.define(version: 2023_06_02_003851) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -151,10 +151,10 @@ ActiveRecord::Schema.define(version: 2023_05_24_091902) do
     t.text "call3_goals_tracking"
     t.text "call4_goals_tracking"
     t.text "call5_goals_tracking"
-    t.string "parent1_available_support_module_list", array: true
-    t.string "parent2_available_support_module_list", array: true
     t.string "call2_family_progress"
     t.string "call2_previous_goals_follow_up"
+    t.string "parent1_available_support_module_list", array: true
+    t.string "parent2_available_support_module_list", array: true
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
@@ -348,6 +348,9 @@ ActiveRecord::Schema.define(version: 2023_05_24_091902) do
     t.string "would_receive_advices"
     t.boolean "family_followed", default: false
     t.string "security_code"
+    t.integer "rate"
+    t.string "reaction"
+    t.text "speech"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"

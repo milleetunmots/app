@@ -8,14 +8,57 @@
       <h2>Nous vous souhaitons de beaux moments avec <%= @child_first_name %> 😊</h2>
 
       <%- if @third_choice %>
-        <h2>
-          Vous avez aimé ce qu’on vous envoie ? Dites le nous en répondant à&nbsp;
-          <%= link_to 'ce petit questionnaire', @typeform_link, target: '_blank' %>
-        </h2>
+      <div id="if-third-choice">
+        <h3> Vous avez aimé ce qu’on vous envoie ? Dites le nous en répondant à ces trois questions :</h2>
+        <div id="mid-term-form">
+          <input id="parent-id" name="parent-id" type="hidden" value=<%= @parent_id %>>
+          <div class="mid-term-question">
+            <h5 class="mid-term-question-label">Ces derniers mois, avez-vous fait de nouvelles choses avec votre enfant grâce à 1001mots ? </h5>
+            <div class="mid-term-response">
+              <div id="rates">
+                <button type="button" class="rate btn btn-outline-primary" id="one">1</button>
+                <button type="button" class="rate btn btn-outline-primary" id="two">2</button>
+                <button type="button" class="rate btn btn-outline-primary" id="three">3</button>
+                <button type="button" class="rate btn btn-outline-primary" id="for">4</button>
+                <button type="button" class="rate btn btn-outline-primary" id="five">5</button>
+                <button type="button" class="rate btn btn-outline-primary" id="six">6</button>
+                <button type="button" class="rate btn btn-outline-primary" id="seven">7</button>
+                <button type="button" class="rate btn btn-outline-primary" id="eight">8</button>
+                <button type="button" class="rate btn btn-outline-primary" id="nine">9</button>
+                <button type="button" class="rate btn btn-outline-primary" id="ten">10</button>
+              </div>
+              <div id="rate-values">
+                <span class="rate-value">Non, pas du tout.</span>
+                <span class="rate-value">Oui, beaucoup!</span>
+              </div>
+            </div>
+          </div>
+          <div class="mid-term-question">
+            <h5 class="mid-term-question-label">Quelle serait votre réaction si vous ne receviez plus les SMS, les appels et les livres de 1001mots ?</h5>
+            <div class="mid-term-response">
+              <div id="reactions">
+                <button type="button" class="reaction btn btn-outline-primary">Très déçu(e)</button>
+                <button type="button" class="reaction btn btn-outline-primary">Un peu déçu(e)</button>
+                <button type="button" class="reaction btn btn-outline-primary">Pas déçu(e)</button>
+                <button type="button" class="reaction btn btn-outline-primary">Je ne sais pas</button>
+              </div>
+            </div>
+          </div>
+          <div class="mid-term-question">
+            <h5 class="mid-term-question-label">Vous voulez nous en dire plus ?</h5>
+            <div class="mid-term-response">
+              <div id="speech-area">
+                <textarea class="form-control" id="speech">
+                </textarea>
+              </div>
+            </div>
+          </div>
+          <div>
+            <button type="button" class="submit btn btn-outline-primary"> Envoyer </button>
+          </div>
+        </div>
+      </div>
       <% end %>
-
     </div>
-
   </div>
-
 </div>
