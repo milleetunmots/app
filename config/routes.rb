@@ -54,5 +54,7 @@ Rails.application.routes.draw do
     mount Sidekiq::Web => "/sidekiq"
   end
 
+  post '/children_support_modules/update_parent', to: 'children_support_modules#update_parent'
+
   root to: redirect("/admin")
 end

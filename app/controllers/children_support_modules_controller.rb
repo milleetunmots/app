@@ -24,9 +24,15 @@ class ChildrenSupportModulesController < ApplicationController
   def updated
     # link only for third choice
     @third_choice = ChildrenSupportModule.where(child_id: @children_support_module.child_id, parent_id: @children_support_module.parent_id).size == 3
+    @parent_id = @children_support_module.parent_id
     @typeform_link = "https://wr1q9w7z4ro.typeform.com/to/YzlXcWSJ#child_support_id=#{@children_support_module.child.child_support.id}"
 
     @child_first_name = params[:child_first_name]
+  end
+
+  def update_parent
+    parent = Parent.find(params[:parent_id])
+    parent.update(mid_term_rate: params[:rate], mid_term_reaction: params[:reaction], mid_term_speech: params[:speech])
   end
 
   private

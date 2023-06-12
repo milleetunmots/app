@@ -10,6 +10,7 @@
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
     <%= google_places_api_tag %>
+    <%= csrf_meta_tags %>
   </head>
   <body>
     <%= render partial: 'layouts/gtm_body' %>
