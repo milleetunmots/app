@@ -32,7 +32,7 @@ class ChildrenSupportModulesController < ApplicationController
 
   def update_parent
     parent = Parent.find(params[:parent_id])
-    parent.update(rate: params[:rate], reaction: params[:reaction], speech: params[:speech])
+    parent.update(mid_term_rate: params[:rate], mid_term_reaction: params[:reaction], mid_term_speech: params[:speech])
   end
 
   private

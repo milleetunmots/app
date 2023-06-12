@@ -348,9 +348,9 @@ ActiveRecord::Schema.define(version: 2023_06_02_003851) do
     t.string "would_receive_advices"
     t.boolean "family_followed", default: false
     t.string "security_code"
-    t.integer "rate"
-    t.string "reaction"
-    t.text "speech"
+    t.integer "mid_term_rate"
+    t.string "mid_term_reaction"
+    t.text "mid_term_speech"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"

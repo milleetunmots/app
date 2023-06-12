@@ -505,6 +505,9 @@ fr:
         redirection_visit_rate: "Taux de visites d'URL courtes"
         terms_accepted_at: Acceptation des conditions d'utilisation
         text_messages_sent_count: SMS envoyés
+        mid_term_rate: Note de l'accompagnement
+        mid_term_reaction: Réaction si les SMS s'arretaient
+        mid_term_speech: Avis
       parent/gender:
         f: Femme
         m: Homme

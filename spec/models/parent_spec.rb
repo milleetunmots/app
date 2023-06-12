@@ -19,20 +19,20 @@
 #  job                                 :string
 #  last_name                           :string           not null
 #  letterbox_name                      :string
+#  mid_term_rate                       :integer
+#  mid_term_reaction                   :string
+#  mid_term_speech                     :text
 #  phone_number                        :string           not null
 #  phone_number_national               :string
 #  postal_code                         :string           not null
 #  present_on_facebook                 :boolean
 #  present_on_whatsapp                 :boolean
-#  rate                                :integer
-#  reaction                            :string
 #  redirection_unique_visit_rate       :float
 #  redirection_url_unique_visits_count :integer
 #  redirection_url_visits_count        :integer
 #  redirection_urls_count              :integer
 #  redirection_visit_rate              :float
 #  security_code                       :string
-#  speech                              :text
 #  terms_accepted_at                   :datetime
 #  would_like_to_do_more               :string
 #  would_receive_advices               :string

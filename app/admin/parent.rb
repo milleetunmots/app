@@ -133,6 +133,9 @@ ActiveAdmin.register Parent do
           row :redirection_visit_rate
           row :territory
           row :land
+          row :mid_term_rate
+          row :mid_term_reaction
+          row :mid_term_speech
           row :tags do |model|
             model.tags(context: 'tags')
           end
