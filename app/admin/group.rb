@@ -83,6 +83,9 @@ ActiveAdmin.register Group do
             column I18n.t('group.supporter_name') do |supporter|
               link_to supporter.name, [:admin, supporter]
             end
+            column I18n.t('group.supporter_child_supports_count') do |supporter|
+              link_to supporter.child_supports.joins(:children).where(children: { group_id: resource.id }).uniq.size, [:admin, :child_supports, { q: { group_id_in: [resource.id], supporter_id_in: [supporter.id] } }]
+            end
             column I18n.t('group.supporter_children_count') do |supporter|
               link_to supporter.children.where(group_id: resource.id).size, [:admin, :children, { q: { group_id_in: [resource.id], supporter_id_in: [supporter.id] } }]
             end
