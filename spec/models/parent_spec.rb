@@ -19,6 +19,9 @@
 #  job                                 :string
 #  last_name                           :string           not null
 #  letterbox_name                      :string
+#  mid_term_rate                       :integer
+#  mid_term_reaction                   :string
+#  mid_term_speech                     :text
 #  phone_number                        :string           not null
 #  phone_number_national               :string
 #  postal_code                         :string           not null
