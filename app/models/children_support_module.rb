@@ -104,7 +104,7 @@ class ChildrenSupportModule < ApplicationRecord
       next if child == sibling
 
       sibling_age = child_age_range(sibling.months)
-      sibling_support_module = find_sibling_support_module(sibling.id, sibling_age, support_module.for_bilingual, theme: theme) || find_sibling_support_module(sibling.id, sibling_age, support_module.for_bilingual)
+      sibling_support_module = find_sibling_support_module(sibling.id, sibling_age, parent_id, support_module.for_bilingual, theme: theme) || find_sibling_support_module(sibling.id, sibling_age, parent_id, support_module.for_bilingual)
       find_or_create_children_support_module(sibling.id, sibling_support_module)
     end
   end
@@ -136,12 +136,14 @@ class ChildrenSupportModule < ApplicationRecord
     end
   end
 
-  def find_sibling_support_module(sibling_id, age, for_bilingual, theme: nil)
-    support_module = SupportModule.by_theme
-    support_module = theme.nil? ? support_module.where("'#{age}' = ANY(age_ranges)") : support_module.where("'#{age}' = ANY(age_ranges) AND theme = '#{theme}'")
-    support_module = support_module.where(for_bilingual: for_bilingual) if for_bilingual == false
-    support_module = support_module.where.not(id: ChildrenSupportModule.where(child_id: sibling_id, is_programmed: true).pluck(:support_module_id))
-    support_module.first
+  def find_sibling_support_module(sibling_id, age, parent_id, for_bilingual, theme: nil)
+    support_modules = SupportModule.by_theme
+    support_modules = theme.nil? ? support_modules.where("'#{age}' = ANY(age_ranges)") : support_modules.where("'#{age}' = ANY(age_ranges) AND theme = '#{theme}'")
+    support_modules = support_modules.where(for_bilingual: for_bilingual) if for_bilingual == false
+    support_modules = support_modules.where.not(id: ChildrenSupportModule.where(child_id: sibling_id, parent_id: parent_id, is_programmed: true).pluck(:support_module_id))
+
+    # try to not redo the same theme if possible
+    support_modules.select {|sm| !sm.theme.in?(ChildrenSupportModule.where(child_id: sibling_id, parent_id: parent_id, is_programmed: true).map(&:support_module).map(&:theme)) }.first || support_modules.first
   end
 
   def find_or_create_children_support_module(sibling_id, sibling_support_module)
