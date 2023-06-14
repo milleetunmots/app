@@ -13,13 +13,11 @@ class Child
     def call
       children_lists = find_children_lists
 
-      excel_files = children_lists.map do |period, modules|
-        modules.map do |module_name, children|
-          service = Child::ExportBookExcelService.new(children: children).call
+      excel_files = children_lists.map do |filename, children|
+        service = Child::ExportBookExcelService.new(children: children).call
 
-          { filename: "#{module_name} - #{period}.xlsx", file: service.workbook }
-        end
-      end.flatten
+        { filename: "#{filename}.xlsx", file: service.workbook }
+      end
 
       @errors << 'Aucun choix de module à programmer n\'a été trouvé' if excel_files.empty?
 
@@ -30,7 +28,7 @@ class Child
     # private
 
     def find_children_lists
-      children_list_sorted_by_age_and_module = {}
+      children_list_sorted_by_module = {}
       chosen_modules = ChildrenSupportModule.includes(:child).references(:child).with_support_module.not_programmed
       chosen_modules = chosen_modules.where(children: { group_id: @group_id }) if @group_id.present?
 
@@ -38,35 +36,17 @@ class Child
 
       chosen_modules.group_by(&:support_module_id).each do |support_module_id, children_support_modules|
         support_module = SupportModule.find(support_module_id)
-        children_ids = children_support_modules.map(&:child).select { |child| child.group_status == "active" }.map(&:id)
-        children = Child.where(id: children_ids)
+        children = Child.where(group_status: 'active', id: children_support_modules.map(&:child_id).uniq)
 
-        [:months_between_6_and_12, :months_between_12_and_18, :months_between_18_and_24, :months_more_than_24].each do |age_period|
-          children_list = children.send(age_period)
-
-          if children_list.any?
-            period_name =
-              case age_period
-              when :months_between_6_and_12
-                '6_12'
-              when :months_between_12_and_18
-                '12_18'
-              when :months_between_18_and_24
-                '18_24'
-              when :months_more_than_24
-                '24+'
-              end
-            children_list_sorted_by_age_and_module[period_name] ||= {}
-            children_list_sorted_by_age_and_module[period_name][support_module.name.to_sym] = children_list
-          end
-        end
+        filename = "#{support_module.name} - #{support_module.decorate.display_age_ranges.gsub('/', '_')}"
+        children_list_sorted_by_module[filename] = children
       end
 
-      children_list_sorted_by_age_and_module
+      children_list_sorted_by_module
     end
 
     def create_zip_file(excel_files)
-      @zip_file = Tempfile.new("test.zip")
+      @zip_file = Tempfile.new('test.zip')
 
       temp_files = []
 
