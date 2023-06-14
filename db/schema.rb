@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_06_02_003851) do
+ActiveRecord::Schema.define(version: 2023_06_14_035846) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -55,6 +55,17 @@ ActiveRecord::Schema.define(version: 2023_06_02_003851) do
     t.string "user_role"
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
+  end
+
+  create_table "airtables", force: :cascade do |t|
+    t.string "type"
+    t.string "status"
+    t.string "siret_number"
+    t.bigint "admin_user_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["admin_user_id"], name: "index_airtables_on_admin_user_id"
+    t.index ["type"], name: "index_airtables_on_type"
   end
 
   create_table "child_supports", force: :cascade do |t|
