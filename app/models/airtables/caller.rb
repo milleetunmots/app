@@ -6,4 +6,7 @@ class Airtables::Caller < Airrecord::Table
   has_many :call_missions, class: "Airtables::CallMission", column: "Missions d'appels"
 
 
+  def caller_id
+    self["N° suivi base"]
+  end
 end

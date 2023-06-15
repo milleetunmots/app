@@ -129,4 +129,17 @@ ActiveAdmin.register Group do
       redirect_back(fallback_location: root_path)
     end
   end
+
+  action_item :distribute_child_support, only: :show do
+    link_to I18n.t('group.distribute_child_support'), %i[distribute_child_supports admin group]
+  end
+
+  member_action :distribute_child_supports do
+    @perform_action = perform_distribute_child_support_admin_group_path
+    @calls = Airtables::Call.all_call_names
+  end
+
+  member_action :perform_distribute_child_support, method: :post do
+    byebug
+  end
 end
