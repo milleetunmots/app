@@ -9,4 +9,7 @@ class Airtables::CallMission < Airrecord::Table
     self["Nb familles"]
   end
 
+  def airtable_caller_id
+    self["Appelantes"].first
+  end
 end
