@@ -45,7 +45,8 @@
           speech: speech
         },
       });
-      $("#if-third-choice").html("<h3>Merci beaucoup pour vos réponses, votre avis compte beaucoup pour nous !</h3>");
+      $("#if-third-choice").empty();
+      $("#thanks").html("<h5>Merci beaucoup pour vos réponses, votre avis compte beaucoup pour nous !</h5>");
     });
   }
 
