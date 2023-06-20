@@ -30,12 +30,6 @@ class ChildrenSupportModulesController < ApplicationController
     @child_first_name = params[:child_first_name]
   end
 
-  def update_parent
-    head :no_content
-    parent = Parent.find(params[:parent_id])
-    parent.update(mid_term_rate: params[:rate], mid_term_reaction: params[:reaction], mid_term_speech: params[:speech])
-  end
-
   private
 
   def children_support_module_params
