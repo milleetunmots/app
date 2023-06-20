@@ -24,7 +24,7 @@ class ChildSupport::ProgramChosenModulesService
       ChildrenSupportModule.where(id: children_support_modules.map(&:id)).update_all(is_programmed: true)
 
       # to avoid sending to many api calls to spot-hit, sleep 60 seconds between each module
-      # sleep(60)
+      sleep(60)
     rescue StandardError => e
       parent_names = children_support_modules.map { |csm| csm.parent.decorate.name }.join(", ")
       @errors << "Erreur en programmant le module #{support_module.name} pour les parents suivant: #{parent_names}.\n il est possible qu'une partie des messages ai été programmé. Erreur technique : #{e.message}"

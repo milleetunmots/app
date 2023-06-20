@@ -92,7 +92,7 @@ RSpec.describe Group::ProgramService do
     clear_enqueued_jobs
   end
 
-  it 'simulates choices for 1000 children' do
+  xit 'simulates choices for 1000 children' do
     perform_enqueued_jobs do
       choose_first_module
       extract_first_module_choices
