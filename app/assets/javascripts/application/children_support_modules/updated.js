@@ -33,19 +33,21 @@
       parentId = $("#parent-id").val();
 
       $.ajax({
-        url: "/children_support_modules/update_parent",
-        type: "POST",
+        url: `/parents/${parentId}`,
+        type: "PUT",
         headers: {
           "X-CSRF-Token": $("meta[name='csrf-token']").attr("content")
         },
         data: {
-          parent_id: parentId,
-          rate: selectedRate,
-          reaction: selectedReaction,
-          speech: speech
+          parent: {
+            mid_term_rate: selectedRate,
+            mid_term_reaction: selectedReaction,
+            mid_term_speech: speech
+          }
         },
       });
-      $("#if-third-choice").html("<h3>Merci beaucoup pour vos réponses, votre avis compte beaucoup pour nous !</h3>");
+      $("#if-third-choice").empty();
+      $("#thanks").html("<h5>Merci beaucoup pour vos réponses, votre avis compte beaucoup pour nous !</h5>");
     });
   }
 

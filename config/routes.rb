@@ -38,8 +38,6 @@ Rails.application.routes.draw do
   get "spot_hit/response", to: "events#spot_hit_response"
   get "spot_hit/stop", to: "events#spot_hit_stop"
 
-  get "parent/:id/current_child", to: "parents#current_child"
-
   post "/typeform/webhooks", to: 'typeform#webhooks'
 
   resources :events, only: [:index, :create]
@@ -54,7 +52,9 @@ Rails.application.routes.draw do
     mount Sidekiq::Web => "/sidekiq"
   end
 
-  post '/children_support_modules/update_parent', to: 'children_support_modules#update_parent'
+  resources :parents do
+    member { get :current_child }
+  end
 
   root to: redirect("/admin")
 end

@@ -146,7 +146,7 @@ class Child < ApplicationRecord
   end
 
   after_create :create_support!
-  after_save :update_support
+  after_update :update_support
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -570,8 +570,7 @@ class Child < ApplicationRecord
 
   def update_support
     return unless saved_change_to_parent1_id? || saved_change_to_parent2_id?
-
-    return if true_siblings.empty?
+    return if true_siblings.with_support.empty?
 
     siblings_child_support = true_siblings.with_support.first.child_support
     old_child_support = self.child_support

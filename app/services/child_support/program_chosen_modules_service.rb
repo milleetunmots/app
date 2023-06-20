@@ -38,7 +38,7 @@ class ChildSupport::ProgramChosenModulesService
 
   def clean_support_module_list
     @chosen_modules_service.each do |csm|
-      csm.child.child_support.update(parent1_available_support_module_list: [], parent2_available_support_module_list: [])
+      csm.child.child_support&.update(parent1_available_support_module_list: [], parent2_available_support_module_list: [])
     end
   end
 end

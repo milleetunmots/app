@@ -4,7 +4,7 @@ $(document).ready(function() {
 
   let autocompletion = function($input, id) {
     $input.change(function() {
-      $.getJSON(`/parent/${$(id).val()}/current_child`, function(child) {
+      $.getJSON(`/parents/${$(id).val()}/current_child`, function(child) {
         if ("registration_source" in child) {
           $('#child_registration_source').val(child.registration_source).change();
           addTags(["fratrie ajoutée"])

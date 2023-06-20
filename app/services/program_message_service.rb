@@ -3,7 +3,7 @@ class ProgramMessageService
   attr_reader :errors
 
   def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil)
-    @planned_timestamp = Time.parse("#{planned_date} #{planned_hour}").in_time_zone('Europe/Paris').to_i
+    @planned_timestamp = ActiveSupport::TimeZone['Europe/Paris'].parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []
     @message = message
     @file = file
