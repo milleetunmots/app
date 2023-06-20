@@ -1,21 +1,21 @@
 <div id="update-success">
   <div class="text-center" id="update-success-content">
     <div id="update-success-content-top" class="p-0">
-      <h5 id="thanks">Merci beaucoup pour vos réponses.</h5>
-      <h5>Nous vous souhaitons de beaux moments avec <%= @child_first_name %> 😊</h5>
+      <h3>Merci beaucoup pour vos réponses.</h3><br>
+      <h3>Nous vous souhaitons de beaux moments avec <%= @child_first_name %> 😊</h3>
       <%- if @third_choice %>
-      <div class="row d-flex align-items-center justify-content-center" id="if-third-choice">
+      <div class="row d-flex align-items-center justify-content-center">
         <div class="col-md-7 col-12">
-          <div id="mid-term-card" class="card border-primary text-left">
+          <div id="if-third-choice" class="card border-primary text-left">
             <div class="card-header bg-primary text-white">
-              <h5> Vous avez aimé ce qu’on vous envoie ?</h5>
-              <h5> Dites-le nous en répondant à ces trois questions :</h5>
+              <h3> Vous avez aimé ce qu’on vous envoie ?</h3>
+              <h3> Dites le nous en répondant à ces trois questions :</h3>
             </div>
             <div class="card-body container-fluid">
               <input id="parent-id" name="parent-id" type="hidden" value=<%= @parent_id %>>
               <div class="mid-term-question row">
                 <div class="mid-term-question-label col">
-                  <h6 class="text-left">Ces derniers mois, avez-vous fait de nouvelles choses avec votre enfant grâce à 1001mots ?</h6>
+                  <h5 class="text-left">Ces derniers mois, avez-vous fait de nouvelles choses avec votre enfant grâce à 1001mots ?</h5>
                 </div>
               </div>
             <div class="mid-term-response row d-flex flex-wrap align-items-center justify-content-center">
@@ -40,7 +40,7 @@
             </div>
             <div class="mid-term-question row">
               <div class="mid-term-question-label col">
-                <h6>Quelle serait votre réaction si vous ne receviez plus les SMS, les appels et les livres de 1001mots ?</h6>
+                <h5>Quelle serait votre réaction si vous ne receviez plus les SMS, les appels et les livres de 1001mots ?</h5>
               </div>
             </div>
             <div class="mid-term-response row d-flex flex-wrap align-items-center justify-content-center gap-y">
@@ -58,11 +58,12 @@
               </div>
             </div>
             <div class="mid-term-question">
-              <h6 class="mid-term-question-label">Vous voulez nous en dire plus ?</h6>
+              <h5 class="mid-term-question-label">Vous voulez nous en dire plus ?</h5>
             </div>
             <div class="mid-term-response">
               <div id="speech-area">
-                <textarea class="form-control" id="speech"></textarea>
+                <textarea class="form-control" id="speech">
+                </textarea>
               </div>
             </div>
           </div>
