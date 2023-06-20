@@ -1,10 +1,8 @@
 class ParentsController < ApplicationController
 
   def current_child
-    if params[:id]
-      response = Parent.find(params[:id]).current_child || {}
-      render json: response.to_json
-    end
+    response = Parent.find_by(id: params[:id])&.current_child || {}
+    render json: response.to_json
   end
 
   def update
@@ -15,4 +13,3 @@ class ParentsController < ApplicationController
     parent.save(validate: false)
   end
 end
-
