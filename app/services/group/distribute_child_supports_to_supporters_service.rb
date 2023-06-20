@@ -28,11 +28,11 @@ class Group
       total_capacity = @child_supports_count_by_supporter.sum { |h| h[:child_supports_count] }
       total_child_supports_count = @group.child_supports.joins(:children).where(children: { group_status: 'active' }).uniq.count
 
-      if total_capacity < total_child_supports_count
-        @child_supports_count_by_supporter.sort_by! { |child_support_count_by_supporter| child_support_count_by_supporter[:child_supports_count] }
-      else
+      # if total_capacity < total_child_supports_count
+        # @child_supports_count_by_supporter.sort_by! { |child_support_count_by_supporter| child_support_count_by_supporter[:child_supports_count] }
+      # else
         @child_supports_count_by_supporter.sort! { |first, second| second[:child_supports_count] <=> first[:child_supports_count] }
-      end
+      # end
 
       while total_capacity != total_child_supports_count
         @child_supports_count_by_supporter.each do |supporter_capacity|
