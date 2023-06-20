@@ -1,0 +1,28 @@
+<%= semantic_form_for(Group.new, url: @perform_action) do |f| %>
+
+  <%= f.inputs do %>
+
+    <%= f.input :name,
+            label: "Nom de la cohorte sur airtable",
+            collection: @calls,
+            input_html: {
+              data: {
+                select2: {
+                  tags: true,
+                  tokenSeparators: [","]
+                }
+              }
+            }
+    %>
+
+    <%= f.actions do %>
+      <%= f.action :submit, label: 'Valider' %>
+    <% end %>
+
+  <% end %>
+
+<% end %>
+
+<%= javascript_tag do %>
+  $('body').addClass('edit');
+<% end %>

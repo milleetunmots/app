@@ -77,6 +77,10 @@ GEM
       activerecord (>= 5.0, < 6.1)
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
+    airrecord (1.0.12)
+      faraday (>= 1.0, < 3.0)
+      faraday-net_http_persistent
+      net-http-persistent
     annotate (3.1.1)
       activerecord (>= 3.2, < 7.0)
       rake (>= 10.4, < 14.0)
@@ -170,6 +174,13 @@ GEM
       railties (>= 5.0.0)
     faker (2.17.0)
       i18n (>= 1.6, < 2)
+    faraday (2.7.6)
+      faraday-net_http (>= 2.0, < 3.1)
+      ruby2_keywords (>= 0.0.4)
+    faraday-net_http (3.0.2)
+    faraday-net_http_persistent (2.1.0)
+      faraday (~> 2.5)
+      net-http-persistent (~> 4.0)
     fast_excel (0.4.0)
       ffi (> 1.9, < 2)
     ffi (1.15.0)
@@ -251,6 +262,8 @@ GEM
     mock_redis (0.34.0)
       ruby2_keywords
     msgpack (1.4.2)
+    net-http-persistent (4.0.2)
+      connection_pool (~> 2.2)
     nio4r (2.5.8)
     nokogiri (1.13.10)
       mini_portile2 (~> 2.8.0)
@@ -487,6 +500,7 @@ DEPENDENCIES
   activeadmin
   activerecord-nulldb-adapter
   acts-as-taggable-on (~> 6.0)
+  airrecord
   annotate
   arctic_admin
   aws-sdk-s3
