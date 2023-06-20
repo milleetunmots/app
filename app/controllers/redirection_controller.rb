@@ -23,7 +23,7 @@ class RedirectionController < ApplicationController
     uri_string = uri.to_s
 
     if uri.host == 'wr1q9w7z4ro.typeform.com'
-      uri_string << "#child_support_id=#{@redirection_url.child&.child_support_id}"
+      uri_string << "#child_support_id=#{@redirection_url.child&.child_support_id}&parent_id=#{@redirection_url.parent_id}"
     end
 
     redirect_to uri_string
