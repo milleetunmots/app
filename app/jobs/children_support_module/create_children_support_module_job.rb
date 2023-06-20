@@ -15,7 +15,7 @@ class ChildrenSupportModule
                                                                          parent_id: child.parent2.id,
                                                                          available_support_module_list: child.child_support.parent2_available_support_module_list)
         end
-        if parent1_children_support_module.errors.any? || parent2_children_support_module&.errors&.any?
+        if parent1_children_support_module&.errors&.any? || parent2_children_support_module&.errors&.any?
           errors[child.id] = handle_errors([parent1_children_support_module, parent2_children_support_module])
         end
       end
