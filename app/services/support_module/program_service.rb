@@ -13,7 +13,7 @@ class SupportModule::ProgramService
   end
 
   def call
-    @errors << "La date de démarrage doit être un lundi" unless @start_date.monday?
+    @errors << 'La date de démarrage doit être un lundi' unless @start_date.monday?
     return self if @errors.any?
 
     @support_module.support_module_weeks.each_with_index do |support_module_week, week_index|
@@ -75,11 +75,10 @@ class SupportModule::ProgramService
   end
 
   def next_date_and_hour(support_module_week, week_index, first_support_module = false)
-    byebug
     if @hour.nil? || @date.nil?
       @hour = "12:30"
       @date = @start_date + week_index.weeks
-      @date += 1.day unless first_support_module
+      @date += 1.day unless first_support_module && week_index.zero?
     else
       sms_count = 0
       sms_count += 1 if support_module_week.medium.body1
@@ -93,7 +92,6 @@ class SupportModule::ProgramService
   end
 
   def next_date(date, sms_count)
-    byebug
     return date.next_day(3) if date.monday?
 
     return date.next_day(2) if date.tuesday?
