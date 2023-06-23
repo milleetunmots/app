@@ -73,7 +73,7 @@ class Group
     def select_default_support_module
       return if @group.support_modules_count < 1
 
-      (2..@group.support_modxules_count).each do |module_index|
+      (2..@group.support_modules_count).each do |module_index|
         selection_date = @group.started_at + ((module_index - 1) * 8.weeks) - 2.weeks - 1.day
         ChildrenSupportModule::SelectDefaultSupportModuleJob.set(wait_until: selection_date.to_datetime.change(hour: 6)).perform_later(@group.id)
       end
