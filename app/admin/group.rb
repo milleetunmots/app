@@ -129,4 +129,25 @@ ActiveAdmin.register Group do
       redirect_back(fallback_location: root_path)
     end
   end
+
+  action_item :distribute_child_support, only: :show do
+    link_to I18n.t('group.distribute_child_support'), %i[distribute_child_supports admin group]
+  end
+
+  member_action :distribute_child_supports do
+    @perform_action = perform_distribute_child_support_admin_group_path
+    @calls = Airtables::Call.all_call_missions
+  end
+
+  member_action :perform_distribute_child_support, method: :post do
+    name = params[:group][:name]
+    child_supports_count_by_supporter = Airtables::Call.call_missions_by_name(name).map do |call_mission|
+      {
+        admin_user_id: Airtables::Caller.caller_id_by_airtable_caller_id(call_mission.airtable_caller_id),
+        child_supports_count: call_mission.child_supports_count
+      }
+    end
+    Group::DistributeChildSupportsToSupportersService.new(resource.model, child_supports_count_by_supporter).call
+    redirect_to admin_group_path, notice: 'Appelantes attribuées'
+  end
 end

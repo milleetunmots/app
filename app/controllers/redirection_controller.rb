@@ -20,6 +20,12 @@ class RedirectionController < ApplicationController
       uri.query = URI.encode_www_form(new_query_ar)
     end
 
-    redirect_to uri.to_s
+    uri_string = uri.to_s
+
+    if uri.host == 'wr1q9w7z4ro.typeform.com'
+      uri_string << "#child_support_id=#{@redirection_url.child&.child_support_id}&parent_id=#{@redirection_url.parent_id}"
+    end
+
+    redirect_to uri_string
   end
 end

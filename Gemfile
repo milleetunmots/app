@@ -144,6 +144,9 @@ gem "rubyzip"
 # Rate limiting
 gem 'rack-attack'
 
+# Airtable
+gem 'airrecord'
+
 group :production do
   # for assets compilation
   gem "activerecord-nulldb-adapter"

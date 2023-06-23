@@ -13,24 +13,26 @@ class Group
     end
 
     def call
-      balance_capacity_of_each_supporter
-
-      child_supports_order_by_registration_source = order_child_supports
-
-      associate_child_support_to_supporters(child_supports_order_by_registration_source)
-      # associate_child_support_to_supporters(child_supports_order_by_registration_source)
+      # use a transaction to make sure that if something goes wrong, we don't end up with a partially distributed group
+      ActiveRecord::Base.transaction do
+        balance_capacity_of_each_supporter
+        child_supports_order_by_registration_source = order_child_supports
+        associate_child_support_to_supporters(child_supports_order_by_registration_source)
+        check_all_child_supports_are_associated
+      end
     end
 
     private
 
-    def order_by_child_supports_count
-      @child_supports_count_by_supporter.sort! { |first, second| second[:child_supports_count] <=> first[:child_supports_count] }
-    end
-
     def balance_capacity_of_each_supporter
       total_capacity = @child_supports_count_by_supporter.sum { |h| h[:child_supports_count] }
       total_child_supports_count = @group.child_supports.joins(:children).where(children: { group_status: 'active' }).uniq.count
-      order_by_child_supports_count
+
+      # if total_capacity < total_child_supports_count
+        # @child_supports_count_by_supporter.sort_by! { |child_support_count_by_supporter| child_support_count_by_supporter[:child_supports_count] }
+      # else
+        @child_supports_count_by_supporter.sort! { |first, second| second[:child_supports_count] <=> first[:child_supports_count] }
+      # end
 
       while total_capacity != total_child_supports_count
         @child_supports_count_by_supporter.each do |supporter_capacity|
@@ -73,15 +75,30 @@ class Group
         # we merge them back into the hash
         child_supports_order_by_registration_source[registration_source].merge!(child_supports_by_department)
       end
+
+      child_supports_order_by_registration_source
     end
 
     def associate_child_support_to_supporters(child_supports_order_by_registration_source)
+      # the idea is to distribute child_supports by registration_source and by land
+      # we try to distribute them evenly considering 3 factors:
+      # - the number of siblings distributed to a supporter
+      # - the diversity of registration_source for each supporter, to avoid having a supporter with child_supports from many registration_sources
+      #   while other supporters have child_supports from only one registration_source.
+      # - child_supports from the registration_source 'other' are distributed evenly among supporters
+
       smallest_registration_sources_first = child_supports_order_by_registration_source.to_a.sort do |first, second|
         # first = [registration_source, { land => [child_supports], other_land => [child_supports] }]
         # second = [registration_source, { land => [child_supports], other_land => [child_supports] }]
 
         first[1].values.sum(&:size) <=> second[1].values.sum(&:size)
       end
+
+      child_supports_with_sibling = @group.child_supports.joins(:children).where(children: { group_status: 'active' }).group(:id).having('COUNT(child_supports.id) > 1').pluck(:id)
+      max_siblings_by_supporter_count = child_supports_with_sibling.count / @child_supports_count_by_supporter.count
+
+      other_child_supports_count = child_supports_order_by_registration_source['other'].values.sum(&:size)
+      max_other_child_supports_by_supporter_count = (other_child_supports_count.to_f / @child_supports_count_by_supporter.count).ceil
 
       other_by_supporter = {}
       not_pmi_caf_or_friends = {}
@@ -90,33 +107,39 @@ class Group
         siblings_by_supporter[supporter_with_capacity[:admin_user_id]] = 0
       end
 
+      # we do several passes to be sure all child_supports are distributed
       6.times do |index|
+        break if @group.child_supports.joins(:children).where(supporter_id: nil, children: { group_status: 'active' }).count.zero?
+
         smallest_registration_sources_first.each do |registration_source|
-          registration_source[1].each do |land, child_supports|
+          registration_source[1].each do |_land, child_supports|
             @child_supports_count_by_supporter.each do |supporter_with_capacity|
               child_supports.each do |child_support|
                 break if supporter_with_capacity[:child_supports_count].zero?
+                # on the first pass, we distribute only siblings to supporters
+                # to be sure to distribute them evenly
                 next if child_support.children.count == 1 && index < 1
 
+                # after the first 4 passes, we stop using rules to be sure to distribute all child_supports
                 if index < 4
+                  # rule to distribute siblings evenly
                   if child_support.children.count > 1
-                    next if siblings_by_supporter[supporter_with_capacity[:admin_user_id]] == 3 + (index.zero? ? 0 : 1)
+                    next if siblings_by_supporter[supporter_with_capacity[:admin_user_id]] == max_siblings_by_supporter_count + (index.zero? ? 0 : 1)
 
                     siblings_by_supporter[supporter_with_capacity[:admin_user_id]] += 1
                   end
 
+                  # rule to distribute child_supports from the registration_source 'other' evenly
                   if registration_source[0] == 'other'
                     other_by_supporter[supporter_with_capacity[:admin_user_id]] ||= 0
                     other_by_supporter[supporter_with_capacity[:admin_user_id]] += 1
-                    break if other_by_supporter[supporter_with_capacity[:admin_user_id]] > 4
+                    break if other_by_supporter[supporter_with_capacity[:admin_user_id]] > max_other_child_supports_by_supporter_count
                   end
 
+                  # rule to distribute child_supports from different registration_sources evenly
                   if registration_source[0].in?(%w[therapist nursery doctor resubscribing other])
                     not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] ||= registration_source[0]
                     break if registration_source[0] != not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]]
-                    # not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] ||= []
-                    # not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] << registration_source[0]
-                    # break if not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]].uniq.size > 2
                   end
                 end
 
@@ -128,9 +151,13 @@ class Group
           end
         end
       end
+    end
 
-      puts smallest_registration_sources_first
-      siblings_by_supporter
+    def check_all_child_supports_are_associated
+      child_supports_without_supporter_count = @group.child_supports.joins(:children).where(supporter_id: nil, children: { group_status: 'active' }).count
+      return if child_supports_without_supporter_count.zero?
+
+      raise "#{child_supports_without_supporter_count} familles n'ont pas pu être associées à une appelante, l'opération est annulée, veuillez contacter le pôle technique."
     end
   end
 end
