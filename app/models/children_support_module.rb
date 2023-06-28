@@ -55,7 +55,7 @@ class ChildrenSupportModule < ApplicationRecord
   end
 
   def available_support_modules
-    SupportModule.find(available_support_module_list)
+    SupportModule.find(available_support_module_list.reject(&:blank?))
   end
 
   def available_support_module_collection
