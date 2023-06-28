@@ -2,17 +2,18 @@ class SupportModule::ProgramService
 
   attr_reader :errors
 
-  def initialize(support_module, date, recipients:)
+  def initialize(support_module, date, recipients:, first_support_module: false)
     @support_module = support_module
     @recipients = recipients
     @errors = []
     @hour = nil
     @date = nil
     @start_date = date
+    @first_support_module = first_support_module
   end
 
   def call
-    @errors << "La date de démarrage doit être un lundi" unless @start_date.monday?
+    @errors << 'La date de démarrage doit être un lundi' unless @start_date.monday?
     return self if @errors.any?
 
     @support_module.support_module_weeks.each_with_index do |support_module_week, week_index|
@@ -20,8 +21,9 @@ class SupportModule::ProgramService
       @hour = nil
       next if support_module_week.medium.nil?
 
+
       (1..3).each do |index|
-        next_date_and_hour(support_module_week, week_index)
+        next_date_and_hour(support_module_week, week_index, @first_support_module)
 
         next if support_module_week.medium.send("body#{index}").blank?
 
@@ -72,10 +74,11 @@ class SupportModule::ProgramService
     @errors += service.errors
   end
 
-  def next_date_and_hour(support_module_week, week_index)
+  def next_date_and_hour(support_module_week, week_index, first_support_module = false)
     if @hour.nil? || @date.nil?
       @hour = "12:30"
-      @date = @start_date + week_index.weeks + 1.day
+      @date = @start_date + week_index.weeks
+      @date += 1.day unless first_support_module && week_index.zero?
     else
       sms_count = 0
       sms_count += 1 if support_module_week.medium.body1
@@ -89,13 +92,20 @@ class SupportModule::ProgramService
   end
 
   def next_date(date, sms_count)
+    return date.next_day(3) if date.monday?
+
     return date.next_day(2) if date.tuesday?
+
     return date.next_day(3) if date.saturday?
+
     if sms_count < 4
       return date.next_day(2) if date.thursday?
+
     else
       return date.next_day if date.thursday?
+
       return date.next_day if date.friday?
+
     end
   end
 end
