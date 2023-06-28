@@ -195,7 +195,7 @@ fr:
         call1_status_details: Suivi de l'appel 1
         call1_language_awareness: Conscience langagière
         call1_language_development: "Informations sur l'enfant"
-        call1_goals: Mini-objectif
+        call1_goals: Petite mission
         call1_notes: Notes appel 1
         call1_parent_actions: Pratiques parentales
         call1_parent_progress: Niveau de pratiques parentales
@@ -209,23 +209,23 @@ fr:
         call2_status_details: Suivi de l'appel 2
         call2_parent_actions: Pratiques parentales
         call2_family_progress: Diriez-vous que la famille a réalisé une forte progression ?
-        call2_goals: Nouveau mini-objectif
+        call2_goals: Nouvelle petite mission
         call2_language_awareness: Conscience langagière
         call2_language_development: "Informations sur l'enfant"
         call2_notes: Notes appel 2
         call2_parent_progress: Niveau de pratiques parentales
-        call2_previous_goals_follow_up: Mini-objectif de l’appel 1
+        call2_previous_goals_follow_up: Petite mission de l’appel 1
         call2_reading_frequency: Fréquence de lecture
         call2_tv_frequency: Fréquence écran
         call2_sendings_benefits: Apport des envois
         call2_sendings_benefits_details: Verbatim
         call2_technical_information: Retour sur les envois
-        call2_goals_tracking: Suivi mini objectif
+        call2_goals_tracking: Suivi petite mission
         call3_duration: Durée de l'appel 3 (en minutes)
         call3_status: Statut de l'appel 3
         call3_status_details: Suivi de l'appel 3
         call3_parent_actions: Pratiques parentales
-        call3_goals: Nouveau mini-objectif
+        call3_goals: Nouvelle petite mission
         call3_language_awareness: Conscience langagière
         call3_language_development: "Informations sur l'enfant"
         call3_notes: Notes appel 3
@@ -235,12 +235,12 @@ fr:
         call3_sendings_benefits: Apport des envois
         call3_sendings_benefits_details: Verbatim
         call3_technical_information: Retour sur les envois
-        call3_goals_tracking: Suivi mini objectif
+        call3_goals_tracking: Suivi petite mission
         call4_duration: Durée de l'appel 4 (en minutes)
         call4_status: Statut de l'appel 4
         call4_status_details: Suivi de l'appel 4
         call4_parent_actions: Pratiques parentales
-        call4_goals: Nouveau mini-objectif
+        call4_goals: Nouvelle petite mission
         call4_language_awareness: Conscience langagière
         call4_language_development: "Informations sur l'enfant"
         call4_notes: Notes appel 4
@@ -250,12 +250,12 @@ fr:
         call4_sendings_benefits: Apport des envois
         call4_sendings_benefits_details: Verbatim
         call4_technical_information: Retour sur les envois
-        call4_goals_tracking: Suivi mini objectif
+        call4_goals_tracking: Suivi petite mission
         call5_duration: Durée de l'appel 5 (en minutes)
         call5_status: Statut de l'appel 5
         call5_status_details: Suivi de l'appel 5
         call5_parent_actions: Pratiques parentales
-        call5_goals: Nouveau mini-objectif
+        call5_goals: Nouvelle petite mission
         call5_language_awareness: Conscience langagière
         call5_language_development: "Informations sur l'enfant"
         call5_notes: Notes appel 5
@@ -265,7 +265,7 @@ fr:
         call5_sendings_benefits: Apport des envois
         call5_sendings_benefits_details: Verbatim
         call5_technical_information: Retour sur les envois
-        call5_goals_tracking: Suivi mini objectif
+        call5_goals_tracking: Suivi petite mission
         city_name: Ville
         children: Enfants
         children_registration_months_range: Tranche d'âge à l'inscription
@@ -372,10 +372,10 @@ fr:
         2_no: Non
         3_no_information: Pas assez d'info
       child_support/call_previous_goals_follow_up:
-        1_succeed: Atteint
-        2_tried: Essayé
-        3_no_tried: Pas essayé
-        4_no_goal: Pas de mini-objectif
+        1_succeed: Réalisée
+        2_tried: Essayée
+        3_no_tried: Pas essayée
+        4_no_goal: Pas de petite mission
       event: &EVENT
         << : *SHARED
         address: Adresse
