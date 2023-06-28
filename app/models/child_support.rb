@@ -161,7 +161,7 @@ class ChildSupport < ApplicationRecord
   end
 
   after_save do
-    if saved_change_to_call2_status && call2_status == 'KO'
+    if saved_change_to_call2_status && call2_status.in?(['KO', 'Ne pas appeler'])
       update(
         parent1_available_support_module_list: parent1_available_support_module_list&.reject(&:blank?)&.first(3),
         parent2_available_support_module_list: parent2_available_support_module_list&.reject(&:blank?)&.first(3)
