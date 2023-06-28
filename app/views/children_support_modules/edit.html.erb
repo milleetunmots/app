@@ -34,7 +34,7 @@
     <%else%>
       <h1>Sur quel thème voulez-vous recevoir des conseils (et un livre) ?</h1>
       <div style="display: flex; flex-flow: row wrap; justify-content: center; align-items: stretch; align-content: stretch; gap: 2rem ">
-        <% @support_modules.decorate.each do |support_module| %>
+        <% @support_modules.each do |support_module| %>
           <div class="card" style="width: 15rem; height: 20rem">
             <div style="height: 75%">
               <% if support_module.picture.attached? %>
