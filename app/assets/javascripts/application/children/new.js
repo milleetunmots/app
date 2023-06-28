@@ -1,10 +1,4 @@
 (function($) {
-
-  var onToggleTerms = function() {
-    var hasAccepted = $(this).is(':checked');
-    $('.accepted-fields').toggleClass('hidden', !hasAccepted);
-  };
-
   var onSelectChildRegistrationSource = function() {
     $(this).on('change', ()=>{
       $('.child_pmi_detail').hide();
@@ -92,9 +86,7 @@
   };
 
   var init = function() {
-    onToggleTerms.apply($('input[type="checkbox"][name="child[parent1_attributes][terms_accepted_at]"]')[0]);
     onSelectChildRegistrationSource.apply($('#child_registration_source'));
-    $(document).on('change', 'input[type="checkbox"][name="child[parent1_attributes][terms_accepted_at]"]', onToggleTerms);
 
     onChangeRegistrationSource.apply($('select[name="child[registration_source]"]')[0]);
     $(document).on('change', 'select[name="child[registration_source]"]', onChangeRegistrationSource);
