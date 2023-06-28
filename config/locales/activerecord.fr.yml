@@ -362,6 +362,8 @@ fr:
         3_third_book: Livre module 2
         4_fourth_book: Livre module 3
         5_fifth_book: Livre module 4
+        6_sixth_book: Livre module 5
+        7_seventh_book: Livre module 6
       child_support/call_status:
         1_ok: OK
         2_ko: KO
