@@ -76,9 +76,8 @@ RSpec.describe ChildrenSupportModule::CreateChildrenSupportModuleJob, type: :job
     end
 
     context 'two children with two parents each' do
-      let!(:parent2) { FactoryBot.create(:parent) }
-      let!(:child1) { FactoryBot.create(:child, group: group, group_status: 'active', parent2: parent2) }
-      let!(:child2) { FactoryBot.create(:child, group: group, group_status: 'active', parent2: parent2) }
+      let!(:child1) { FactoryBot.create(:child, group: group, group_status: 'active', parent2: FactoryBot.create(:parent)) }
+      let!(:child2) { FactoryBot.create(:child, group: group, group_status: 'active', parent2: FactoryBot.create(:parent)) }
 
       before do
         child1.child_support.update!(
