@@ -55,12 +55,12 @@ class ChildrenSupportModule < ApplicationRecord
   end
 
   def available_support_modules
-    SupportModule.where(id: available_support_module_list)
+    SupportModule.find(available_support_module_list.reject(&:blank?))
   end
 
   def available_support_module_collection
     available_support_modules.sort_by { |e| available_support_module_list.index(e[1]) || Float::INFINITY }
-    available_support_modules.decorate.map { |sm| [sm.name_with_tags, sm.id.to_s] }
+    available_support_modules.map(&:decorate).map { |sm| [sm.name_with_tags, sm.id.to_s] }
   end
 
   def support_module_not_programmed

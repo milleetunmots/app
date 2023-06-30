@@ -9,11 +9,11 @@ class ChildrenSupportModule
       group.children.includes(:parent1, :parent2, :child_support).where(group_status: 'active').find_each do |child|
         parent1_children_support_module = ChildrenSupportModule.create(child_id: child.id,
                                                                        parent_id: child.parent1.id,
-                                                                       available_support_module_list: child.child_support.parent1_available_support_module_list)
+                                                                       available_support_module_list: child.child_support&.parent1_available_support_module_list)
         if child.parent2
           parent2_children_support_module = ChildrenSupportModule.create(child_id: child.id,
                                                                          parent_id: child.parent2.id,
-                                                                         available_support_module_list: child.child_support.parent2_available_support_module_list)
+                                                                         available_support_module_list: child.child_support&.parent2_available_support_module_list)
         end
         if parent1_children_support_module&.errors&.any? || parent2_children_support_module&.errors&.any?
           errors[child.id] = handle_errors([parent1_children_support_module, parent2_children_support_module])

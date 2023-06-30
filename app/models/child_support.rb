@@ -136,7 +136,7 @@ class ChildSupport < ApplicationRecord
   TV_FREQUENCY = %w(1_never 2_weekly 3_frequently 4_daily).freeze
   SENDINGS_BENEFITS = %w(1_none 2_far 3_remind 4_frequent 5_frequent_helps).freeze
   BOOKS_QUANTITY = %w(1_none 2_three_or_less 3_between_four_and_ten 4_more_than_ten).freeze
-  BOOK_NOT_RECEIVED = %w(1_first_book 2_second_book 3_third_book 4_fourth_book 5_fifth_book).freeze
+  BOOK_NOT_RECEIVED = %w(1_first_book 2_second_book 3_third_book 4_fourth_book 5_fifth_book 6_sixth_book 7_seventh_book).freeze
   CALL_STATUS = %w(1_ok 2_ko 3_unassigned_number 4_dont_call).freeze
   FAMILY_PROGRESS = %w(1_yes 2_no 3_no_information).freeze
   GOALS_FOLLOW_UP = %w(1_succeed 2_tried 3_no_tried 4_no_goal).freeze
@@ -161,7 +161,7 @@ class ChildSupport < ApplicationRecord
   end
 
   after_save do
-    if saved_change_to_call2_status && call2_status == 'KO'
+    if saved_change_to_call2_status && call2_status.in?(['KO', 'Ne pas appeler'])
       update(
         parent1_available_support_module_list: parent1_available_support_module_list&.reject(&:blank?)&.first(3),
         parent2_available_support_module_list: parent2_available_support_module_list&.reject(&:blank?)&.first(3)

@@ -12,11 +12,11 @@ class ChildSupport::ProgramChosenModulesService
     @chosen_modules_service.group_by(&:support_module_id).each do |support_module_id, children_support_modules|
       support_module = SupportModule.find(support_module_id)
 
-
       service = SupportModule::ProgramService.new(
         support_module,
         @first_message_date,
-        recipients: children_support_modules.map {|csm| "parent.#{csm.parent_id}"}
+        recipients: children_support_modules.map {|csm| "parent.#{csm.parent_id}"},
+        first_support_module: @chosen_modules_service.first.child.group&.support_module_programmed&.zero?
       ).call
 
       raise service.errors.join("\n") if service.errors.any?
