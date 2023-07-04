@@ -27,17 +27,22 @@ class Group
       jobs.each do |job|
         next unless job.args.any?
 
-        job_class_name = job.args[0]['job_class']
-        job_group_id = job.args[0]['arguments']&.first
-        job_scheduled_date = job.at
-        if GROUP_JOB_CLASS_NAMES.key?(job_class_name) && job_group_id == @group_id.to_i
-          @scheduled_jobs << { name: GROUP_JOB_CLASS_NAMES[job_class_name], scheduled_date: job_scheduled_date }
-        end
+        add_scheduled_job(job)
       end
-
       @scheduled_jobs.sort_by! { |hash| hash[:scheduled_date] }
 
       self
+    end
+
+    private
+
+    def add_scheduled_job(job)
+      job_class_name = job.args[0]['job_class']
+      job_group_id = job.args[0]['arguments']&.first
+      job_scheduled_date = job.at
+      return unless GROUP_JOB_CLASS_NAMES.key?(job_class_name) && job_group_id == @group_id.to_i
+
+      @scheduled_jobs << { name: GROUP_JOB_CLASS_NAMES[job_class_name], scheduled_date: job_scheduled_date }
     end
   end
 end
