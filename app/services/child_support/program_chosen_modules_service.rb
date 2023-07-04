@@ -11,17 +11,18 @@ class ChildSupport::ProgramChosenModulesService
   def call
     @chosen_modules_service.group_by(&:support_module_id).each do |support_module_id, children_support_modules|
       support_module = SupportModule.find(support_module_id)
+      group = @chosen_modules_service.first.child.group
 
       service = SupportModule::ProgramService.new(
         support_module,
         @first_message_date,
         recipients: children_support_modules.map {|csm| "parent.#{csm.parent_id}"},
-        first_support_module: @chosen_modules_service.first.child.group&.support_module_programmed&.zero?
+        first_support_module: group&.support_module_programmed&.zero?
       ).call
 
       raise service.errors.join("\n") if service.errors.any?
 
-      ChildrenSupportModule.where(id: children_support_modules.map(&:id)).update_all(is_programmed: true)
+      ChildrenSupportModule.where(id: children_support_modules.map(&:id)).update_all(is_programmed: true, module_index: group&.support_module_programmed)
 
       # to avoid sending to many api calls to spot-hit, sleep 60 seconds between each module
       sleep(60)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_06_20_143020) do
+ActiveRecord::Schema.define(version: 2023_07_04_220014) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -221,6 +221,7 @@ ActiveRecord::Schema.define(version: 2023_06_20_143020) do
     t.date "choice_date"
     t.boolean "is_completed", default: false
     t.boolean "is_programmed", default: false, null: false
+    t.integer "module_index"
     t.index ["child_id"], name: "index_children_support_modules_on_child_id"
     t.index ["parent_id"], name: "index_children_support_modules_on_parent_id"
     t.index ["support_module_id"], name: "index_children_support_modules_on_support_module_id"
