@@ -7,14 +7,14 @@ class Group
 
     GROUP_JOB_CLASS_NAMES = {
       'ChildrenSupportModule::ProgramFirstSupportModuleJob' => 'Programmation du 1er module',
-      'ChildrenSupportModule::FillParentsAvailableSupportModulesJob' => 'Ajout des choix du module suivant sur les fiches de suivi',
-      'ChildrenSupportModule::VerifyAvailableModulesTaskJob' => 'Vérification que tous les enfants ont des choix disponibles',
+      'ChildrenSupportModule::FillParentsAvailableSupportModulesJob' => 'Ajout des modules disponibles sur les fiches de suivi',
+      'ChildrenSupportModule::VerifyAvailableModulesTaskJob' => 'Vérification que tous les enfants ont des modules disponibles sur leur fiche de suivi',
       'ChildrenSupportModule::CreateChildrenSupportModuleJob' => 'Préparation préalable au choix des parents',
       'ChildrenSupportModule::SelectDefaultSupportModuleJob' => 'Assignation des modules par défaut',
       'ChildrenSupportModule::VerifyChosenModulesTaskJob' => 'Détection des modules sans choix',
       'ChildrenSupportModule::CheckCreditsForGroupJob' => 'Vérification du nombre suffisant de crédits pour la programmation des modules',
       'ChildrenSupportModule::SelectModuleJob' => 'Programmation des SMS de choix du module',
-      'ChildrenSupportModule::ProgramSupportModuleSmsJob' => 'Programmation des SMS en fonction du module choisi'
+      'ChildrenSupportModule::ProgramSupportModuleSmsJob' => 'Programmation des SMS du module choisi'
     }.freeze
 
     def initialize(group_id)

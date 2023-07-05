@@ -94,7 +94,7 @@ ActiveAdmin.register Group do
       end
       tab I18n.t('group.scheduled_jobs') do
         panel I18n.t('group.panel_scheduled_jobs') do
-          render 'admin/events/group_scheduled_jobs', scheduled_jobs: Group::GetScheduledJobsService.new(resource.id).call.scheduled_jobs
+          render 'admin/groups/group_scheduled_jobs', scheduled_jobs: Group::GetScheduledJobsService.new(resource.id).call.scheduled_jobs
         end
       end
     end
