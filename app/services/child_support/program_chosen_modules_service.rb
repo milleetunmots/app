@@ -27,7 +27,7 @@ class ChildSupport::ProgramChosenModulesService
 
       raise service.errors.join("\n") if service.errors.any?
 
-      ChildrenSupportModule.where(id: children_support_modules.map(&:id)).update_all(is_programmed: true, module_index: group.support_module_programmed)
+      ChildrenSupportModule.where(id: children_support_modules.map(&:id)).update_all(is_programmed: true)
 
       # to avoid sending to many api calls to spot-hit, sleep 60 seconds between each module
       sleep(60)
