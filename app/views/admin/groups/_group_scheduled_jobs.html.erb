@@ -1,0 +1,7 @@
+<% scheduled_jobs.each do |job| %>
+  <div>
+    <strong><%= job[:scheduled_date].strftime('%d/%m/%Y - %H:%M') %></strong>
+  </div>
+  <div><%= job[:name] %></div>
+  <hr class="dashed">
+<% end %>
