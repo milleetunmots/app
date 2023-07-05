@@ -33,11 +33,11 @@ class ChildrenSupportModule
       service = ChildSupport::ProgramChosenModulesService.new(children_support_module_ids, first_message_date).call
       errors[group.id] = service.errors if service.errors.any?
 
-      ChildrenSupportModule.where(child_id: not_current_children).update_all(is_programmed: true, module_index: group&.support_module_programmed)
+      raise errors.to_json if errors.any?
+
+      ChildrenSupportModule.where(child_id: not_current_children).update_all(is_programmed: true, module_index: group.support_module_programmed)
       group.support_module_programmed += 1
       group.save(validate: false)
-
-      raise errors.to_json if errors.any?
     end
   end
 end
