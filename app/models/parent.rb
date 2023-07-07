@@ -82,7 +82,7 @@ class Parent < ApplicationRecord
 
   has_many :redirection_urls, dependent: :destroy
 
-  has_many :events, as: :related
+  has_many :events, as: :related, dependent: :destroy
 
   has_many :children_support_modules, dependent: :destroy
 
