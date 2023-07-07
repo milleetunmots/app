@@ -3,6 +3,7 @@ class WorkshopDecorator < BaseDecorator
   def animator_csv
     animator.name
   end
+
   def workshop_address
     "#{address} #{postal_code} #{city_name}"
   end
@@ -28,6 +29,8 @@ class WorkshopDecorator < BaseDecorator
       ul do
         workshop_participations.only_accepted.each do |event|
           li do
+            next unless event.related
+
             event.related.decorate.admin_link
           end
         end
@@ -44,6 +47,8 @@ class WorkshopDecorator < BaseDecorator
       ul do
         workshop_participations.only_refused.each do |event|
           li do
+            next unless event.related
+
             event.related.decorate.admin_link
           end
         end
@@ -60,6 +65,8 @@ class WorkshopDecorator < BaseDecorator
       ul do
         workshop_participations.where(parent_response: nil).each do |event|
           li do
+            next unless event.related
+
             event.related.decorate.admin_link
           end
         end
