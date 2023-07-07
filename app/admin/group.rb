@@ -19,6 +19,7 @@ ActiveAdmin.register Group do
     column :ended_at
     column :support_modules_count
     column :is_programmed
+    column :support_module_programmed
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -74,6 +75,7 @@ ActiveAdmin.register Group do
           row :started_at
           row :ended_at
           row :support_modules_count
+          row :support_module_programmed
           row :is_programmed
         end
       end
