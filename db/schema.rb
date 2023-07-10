@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_07_07_100659) do
+ActiveRecord::Schema.define(version: 2023_07_10_140808) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -59,18 +59,29 @@ ActiveRecord::Schema.define(version: 2023_07_07_100659) do
 
   create_table "bubble_modules", force: :cascade do |t|
     t.text "description"
+    t.string "niveau"
+    t.string "theme"
+    t.string "titre"
     t.date "created_date", null: false
-    t.integer "niveau"
+    t.string "age", array: true
+    t.bigint "module_precedent_id"
+    t.bigint "module_suivant_id"
+    t.index ["age"], name: "index_bubble_modules_on_age", using: :gin
+    t.index ["module_precedent_id"], name: "index_bubble_modules_on_module_precedent_id"
+    t.index ["module_suivant_id"], name: "index_bubble_modules_on_module_suivant_id"
   end
 
   create_table "bubble_videos", force: :cascade do |t|
     t.integer "like"
     t.integer "dislike"
     t.integer "views"
-    t.text "commentaires"
     t.string "lien"
     t.string "video"
+    t.string "types"
     t.date "created_date", null: false
+    t.string "avis_nouveaute"
+    t.string "avis_pas_adapte"
+    t.string "avis_rappel"
   end
 
   create_table "child_supports", force: :cascade do |t|
@@ -544,6 +555,8 @@ ActiveRecord::Schema.define(version: 2023_07_07_100659) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "bubble_modules", "bubble_modules", column: "module_precedent_id"
+  add_foreign_key "bubble_modules", "bubble_modules", column: "module_suivant_id"
   add_foreign_key "child_supports", "admin_users", column: "supporter_id"
   add_foreign_key "children", "parents", column: "parent1_id"
   add_foreign_key "children", "parents", column: "parent2_id"

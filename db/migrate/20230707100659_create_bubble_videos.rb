@@ -4,10 +4,13 @@ class CreateBubbleVideos < ActiveRecord::Migration[6.0]
       t.integer :like
       t.integer :dislike
       t.integer :views
-      t.text :commentaires
       t.string :lien
       t.string :video
+      t.string :types
       t.date :created_date, null: false
+      t.string :avis_nouveaute
+      t.string :avis_pas_adapte
+      t.string :avis_rappel
     end
   end
 end
