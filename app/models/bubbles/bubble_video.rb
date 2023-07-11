@@ -10,8 +10,8 @@
 #  dislike         :integer
 #  lien            :string
 #  like            :integer
-#  types           :string
 #  video           :string
+#  video_type      :string
 #  views           :integer
 #
 module Bubbles

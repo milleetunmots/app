@@ -20,10 +20,23 @@ module Bubble
     # private
 
     def all_videos
-      response = HTTP.headers(@headers).get(@uri)
-      return JSON.parse(response.body.to_s)['response']['results'] if response.code == 200
+      all_datas = []
+      params = { cursor: 0 }
+      loop do
+        response = HTTP.headers(@headers).get(@uri, params: params)
+        raise "Impossible de récupérer toutes les vidéos de bubble. Erreur lors de l'appel à l'API : #{response.code}" unless response.code == 200
 
-      raise "Impossible de récupérer toutes les vidéos de bubble. Erreur lors de l'appel à l'API : #{response.code}"
+        response = JSON.parse(response.body.to_s)['response']
+
+        all_datas.concat response['results']
+        items_count = response['count']
+        items_remaining_count = response['remaining']
+        break if items_remaining_count.zero?
+
+        params[:cursor] = items_count
+      end
+
+      all_datas
     end
 
     def retrieve_a_video(uid)
@@ -36,7 +49,7 @@ module Bubble
 
     def bubble_video_attributes(uid)
       video_retrieved = retrieve_a_video(uid)
-      video_retrieved.slice('like', 'dislike', 'views', 'lien', 'video', 'types', 'avis_nouveaute', 'avis_pas_adapte', 'avis_rappel').merge('created_date' => video_retrieved['Created Date'])
+      video_retrieved.slice('like', 'dislike', 'views', 'lien', 'video', 'avis_nouveaute', 'avis_pas_adapte', 'avis_rappel').merge('created_date' => video_retrieved['Created Date'], 'video_type' => video_retrieved['type'])
     end
   end
 end
