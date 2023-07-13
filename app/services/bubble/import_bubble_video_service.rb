@@ -6,18 +6,28 @@ module Bubble
       @headers = {
         'Authorization' => "Bearer #{ENV.fetch('BUBBLE_TOKEN')}"
       }
-      @count = 0
     end
 
     def call
       all_videos.each do |item|
-        video = Bubbles::BubbleVideo.find_or_create_by(bubble_video_attributes(item['_id']))
+        new_video = Bubbles::BubbleVideo.find_or_create_by(bubble_video_attributes(item['_id']))
+        new_video.avis_nouveaute = bubble_video_updated_attribute(item['_id'], 'avis_nouveaute') if item['avis_nouveaute']
+        new_video.avis_pas_adapte = bubble_video_updated_attribute(item['_id'], 'avis_pas_adapte') if item['avis_pas_adapte']
+        new_video.avis_rappel = bubble_video_updated_attribute(item['_id'], 'avis_rappel') if item['avis_rappel']
+        new_video.like = bubble_video_updated_attribute(item['_id'], 'like') if item['like']
+        new_video.dislike = bubble_video_updated_attribute(item['_id'], 'dislike') if item['dislike']
+        new_video.avis_rappel = bubble_video_updated_attribute(item['_id'], 'views') if item['views']
 
-        @count += 1 if video.save!
+        new_video.save
       end
     end
 
-    # private
+    def bubble_video_attributes(uid)
+      video_retrieved = retrieve_a_video(uid)
+      video_retrieved.slice('lien', 'video').merge('created_date' => video_retrieved['Created Date'], 'video_type' => video_retrieved['type'])
+    end
+
+    private
 
     def all_videos
       all_datas = []
@@ -40,16 +50,16 @@ module Bubble
     end
 
     def retrieve_a_video(uid)
-      module_uri = URI("#{ENV.fetch('BUBBLE_DATA_API_URL')}/video/#{uid}")
-      response = HTTP.headers(@headers).get(module_uri)
+      video_uri = URI("#{ENV.fetch('BUBBLE_DATA_API_URL')}/video/#{uid}")
+      response = HTTP.headers(@headers).get(video_uri)
       return JSON.parse(response.body.to_s)['response'] if response.code == 200
 
       raise "Impossible de récupérer la vidéo #{uid} de bubble. Erreur lors de l'appel à l'API : #{response.code}"
     end
 
-    def bubble_video_attributes(uid)
+    def bubble_video_updated_attribute(uid, attribute)
       video_retrieved = retrieve_a_video(uid)
-      video_retrieved.slice('like', 'dislike', 'views', 'lien', 'video', 'avis_nouveaute', 'avis_pas_adapte', 'avis_rappel').merge('created_date' => video_retrieved['Created Date'], 'video_type' => video_retrieved['type'])
+      video_retrieved.slice(attribute)[attribute]
     end
   end
 end
