@@ -15,6 +15,8 @@ module Bubble
         new_content.avis_nouveaute = bubble_content_updated_attribute(item['_id'], 'avis_nouveaute') if item['avis_nouveaute']
         new_content.avis_pas_adapte = bubble_content_updated_attribute(item['_id'], 'avis_pas_adapte') if item['avis_pas_adapte']
         new_content.avis_rappel = bubble_content_updated_attribute(item['_id'], 'avis_rappel') if item['avis_rappel']
+
+        new_content.save
       end
     end
 

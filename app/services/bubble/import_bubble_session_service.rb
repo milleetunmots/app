@@ -14,11 +14,12 @@ module Bubble
         new_session.module_session = Bubbles::BubbleModule.find_by(Bubble::ImportBubbleModuleService.new.bubble_module_attributes(item['module'])) if item['module']
         new_session.video = Bubbles::BubbleVideo.find_by(Bubble::ImportBubbleVideoService.new.bubble_video_attributes(item['video'])) if item['video']
 
-        if new_session.save
-          p new_session.id
-        else
-          p item
-        end
+        new_session.avis_contenu = bubble_session_updated_attribute(item['_id'], 'avis_contenu') if item['avis_contenu']
+        new_session.avis_rappel = bubble_session_updated_attribute(item['_id'], 'avis_rappel') if item['avis_rappel']
+        new_session.avis_video = bubble_session_updated_attribute(item['_id'], 'avis_video') if item['avis_video']
+        new_session.pourcentage_video = bubble_session_updated_attribute(item['_id'], 'pourcentage_video') if item['pourcentage_video']
+
+        new_session.save
       end
     end
 
@@ -32,7 +33,7 @@ module Bubble
     def all_sessions
       all_datas = []
       items_count = 0
-      params = { cursor: 0 }
+      params = { cursor: 0, constraints: [ { key: 'child_id', constraint_type: 'is_not_empty' } ] }
       loop do
         response = HTTP.headers(@headers).get(@uri, params: params)
         raise "Impossible de récupérer toutes les sesisons de bubble. Erreur lors de l'appel à l'API : #{response.code}" unless response.code == 200
@@ -42,7 +43,6 @@ module Bubble
         all_datas.concat response['results']
         items_count += response['count']
         items_remaining_count = response['remaining']
-        p items_count
         break if items_remaining_count.zero?
 
         params[:cursor] = items_count
