@@ -1,6 +1,7 @@
 class CreateBubbleVideos < ActiveRecord::Migration[6.0]
   def change
     create_table :bubble_videos do |t|
+      t.string :bubble_id, null: false
       t.integer :like
       t.integer :dislike
       t.integer :views

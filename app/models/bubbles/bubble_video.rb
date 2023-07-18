@@ -13,8 +13,12 @@
 #  video           :string
 #  video_type      :string
 #  views           :integer
+#  bubble_id       :string           not null
 #
 module Bubbles
   class BubbleVideo < ApplicationRecord
+    has_many :bubble_sessions, dependent: :nullify
+    has_many :buble_modules_princs, class_name: 'Bubbles::BubbleModule', foreign_key: :video_princ_id, dependent: :nullify, inverse_of: :video_princ
+    has_many :buble_modules_tems, class_name: 'Bubbles::BubbleModule', foreign_key: :video_tem_id, dependent: :nullify, inverse_of: :video_tem
   end
 end

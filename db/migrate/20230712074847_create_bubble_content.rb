@@ -1,6 +1,7 @@
 class CreateBubbleContent < ActiveRecord::Migration[6.0]
   def change
     create_table :bubble_contents do |t|
+      t.string :bubble_id, null: false
       t.string :age, array: true
       t.index :age, using: 'gin'
       t.string :titre

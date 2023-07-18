@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_07_13_110832) do
+ActiveRecord::Schema.define(version: 2023_07_17_095021) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -58,6 +58,7 @@ ActiveRecord::Schema.define(version: 2023_07_13_110832) do
   end
 
   create_table "bubble_contents", force: :cascade do |t|
+    t.string "bubble_id", null: false
     t.string "age", array: true
     t.string "titre"
     t.string "content_type"
@@ -72,6 +73,7 @@ ActiveRecord::Schema.define(version: 2023_07_13_110832) do
   end
 
   create_table "bubble_modules", force: :cascade do |t|
+    t.string "bubble_id", null: false
     t.text "description"
     t.string "niveau"
     t.string "theme"
@@ -90,6 +92,7 @@ ActiveRecord::Schema.define(version: 2023_07_13_110832) do
   end
 
   create_table "bubble_sessions", force: :cascade do |t|
+    t.string "bubble_id", null: false
     t.string "avis_contenu"
     t.string "avis_video"
     t.string "child_session"
@@ -100,11 +103,13 @@ ActiveRecord::Schema.define(version: 2023_07_13_110832) do
     t.integer "avis_rappel"
     t.bigint "module_session_id"
     t.bigint "video_id"
+    t.datetime "import_date"
     t.index ["module_session_id"], name: "index_bubble_sessions_on_module_session_id"
     t.index ["video_id"], name: "index_bubble_sessions_on_video_id"
   end
 
   create_table "bubble_videos", force: :cascade do |t|
+    t.string "bubble_id", null: false
     t.integer "like"
     t.integer "dislike"
     t.integer "views"
@@ -211,10 +216,10 @@ ActiveRecord::Schema.define(version: 2023_07_13_110832) do
     t.text "call3_goals_tracking"
     t.text "call4_goals_tracking"
     t.text "call5_goals_tracking"
-    t.string "call2_family_progress"
-    t.string "call2_previous_goals_follow_up"
     t.string "parent1_available_support_module_list", array: true
     t.string "parent2_available_support_module_list", array: true
+    t.string "call2_family_progress"
+    t.string "call2_previous_goals_follow_up"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
@@ -281,7 +286,6 @@ ActiveRecord::Schema.define(version: 2023_07_13_110832) do
     t.date "choice_date"
     t.boolean "is_completed", default: false
     t.boolean "is_programmed", default: false, null: false
-    t.integer "module_index"
     t.index ["child_id"], name: "index_children_support_modules_on_child_id"
     t.index ["parent_id"], name: "index_children_support_modules_on_parent_id"
     t.index ["support_module_id"], name: "index_children_support_modules_on_support_module_id"

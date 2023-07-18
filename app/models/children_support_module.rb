@@ -7,7 +7,6 @@
 #  choice_date                   :date
 #  is_completed                  :boolean          default(FALSE)
 #  is_programmed                 :boolean          default(FALSE), not null
-#  module_index                  :integer
 #  created_at                    :datetime         not null
 #  updated_at                    :datetime         not null
 #  child_id                      :bigint

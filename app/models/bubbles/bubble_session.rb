@@ -9,8 +9,10 @@
 #  child_session      :string
 #  created_date       :date
 #  derniere_ouverture :datetime
+#  import_date        :datetime
 #  lien               :string
 #  pourcentage_video  :integer
+#  bubble_id          :string           not null
 #  module_session_id  :bigint
 #  video_id           :bigint
 #

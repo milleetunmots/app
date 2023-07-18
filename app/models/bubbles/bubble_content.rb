@@ -11,6 +11,7 @@
 #  created_date      :date             not null
 #  description       :text
 #  titre             :string
+#  bubble_id         :string           not null
 #  module_content_id :bigint
 #
 # Indexes
