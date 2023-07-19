@@ -286,6 +286,7 @@ ActiveRecord::Schema.define(version: 2023_07_17_095021) do
     t.date "choice_date"
     t.boolean "is_completed", default: false
     t.boolean "is_programmed", default: false, null: false
+    t.integer "module_index"
     t.index ["child_id"], name: "index_children_support_modules_on_child_id"
     t.index ["parent_id"], name: "index_children_support_modules_on_parent_id"
     t.index ["support_module_id"], name: "index_children_support_modules_on_support_module_id"

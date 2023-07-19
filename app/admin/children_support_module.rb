@@ -12,6 +12,7 @@ ActiveAdmin.register ChildrenSupportModule do
     column :parent_name
     column :child_name
     column :child_group_name
+    column :module_index
     column :available_support_module_names
     column :created_at
     column :choice_date
@@ -25,6 +26,7 @@ ActiveAdmin.register ChildrenSupportModule do
       row :child_name
       row :parent_name
       row :name_display
+      row :module_index
       row :available_support_module_names
       row :created_at
       row :choice_date
@@ -109,6 +111,7 @@ ActiveAdmin.register ChildrenSupportModule do
     column :available_support_module_names_for_csv
     column :is_completed
     column :is_programmed
+    column :module_index
     column :parent_name_for_csv
     column :child_name_for_csv
     column :child_group_name
