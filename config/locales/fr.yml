@@ -29,6 +29,8 @@ fr:
     supporter_child_supports_count: Familles
     supporter_name: Responsable
     supporters: Responsables
+    scheduled_jobs: Tâches programmées
+    panel_scheduled_jobs: Liste des tâches actuellement programmées pour la cohorte
   survey_response:
     new_import_link: Import CSV
   "false": Non

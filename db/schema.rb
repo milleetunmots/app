@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_06_20_143020) do
+ActiveRecord::Schema.define(version: 2023_07_17_095021) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -55,6 +55,71 @@ ActiveRecord::Schema.define(version: 2023_06_20_143020) do
     t.string "user_role"
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
+  end
+
+  create_table "bubble_contents", force: :cascade do |t|
+    t.string "bubble_id", null: false
+    t.string "age", array: true
+    t.string "titre"
+    t.string "content_type"
+    t.integer "avis_nouveaute"
+    t.integer "avis_pas_adapte"
+    t.integer "avis_rappel"
+    t.text "description"
+    t.date "created_date", null: false
+    t.bigint "module_content_id"
+    t.index ["age"], name: "index_bubble_contents_on_age", using: :gin
+    t.index ["module_content_id"], name: "index_bubble_contents_on_module_content_id"
+  end
+
+  create_table "bubble_modules", force: :cascade do |t|
+    t.string "bubble_id", null: false
+    t.text "description"
+    t.string "niveau"
+    t.string "theme"
+    t.string "titre"
+    t.date "created_date", null: false
+    t.string "age", array: true
+    t.bigint "module_precedent_id"
+    t.bigint "module_suivant_id"
+    t.bigint "video_princ_id"
+    t.bigint "video_tem_id"
+    t.index ["age"], name: "index_bubble_modules_on_age", using: :gin
+    t.index ["module_precedent_id"], name: "index_bubble_modules_on_module_precedent_id"
+    t.index ["module_suivant_id"], name: "index_bubble_modules_on_module_suivant_id"
+    t.index ["video_princ_id"], name: "index_bubble_modules_on_video_princ_id"
+    t.index ["video_tem_id"], name: "index_bubble_modules_on_video_tem_id"
+  end
+
+  create_table "bubble_sessions", force: :cascade do |t|
+    t.string "bubble_id", null: false
+    t.string "avis_contenu"
+    t.string "avis_video"
+    t.string "child_session"
+    t.datetime "derniere_ouverture"
+    t.date "created_date"
+    t.string "lien"
+    t.integer "pourcentage_video"
+    t.integer "avis_rappel"
+    t.bigint "module_session_id"
+    t.bigint "video_id"
+    t.datetime "import_date"
+    t.index ["module_session_id"], name: "index_bubble_sessions_on_module_session_id"
+    t.index ["video_id"], name: "index_bubble_sessions_on_video_id"
+  end
+
+  create_table "bubble_videos", force: :cascade do |t|
+    t.string "bubble_id", null: false
+    t.integer "like"
+    t.integer "dislike"
+    t.integer "views"
+    t.string "lien"
+    t.string "video"
+    t.string "video_type"
+    t.date "created_date", null: false
+    t.string "avis_nouveaute"
+    t.string "avis_pas_adapte"
+    t.string "avis_rappel"
   end
 
   create_table "child_supports", force: :cascade do |t|
@@ -151,10 +216,10 @@ ActiveRecord::Schema.define(version: 2023_06_20_143020) do
     t.text "call3_goals_tracking"
     t.text "call4_goals_tracking"
     t.text "call5_goals_tracking"
-    t.string "call2_family_progress"
-    t.string "call2_previous_goals_follow_up"
     t.string "parent1_available_support_module_list", array: true
     t.string "parent2_available_support_module_list", array: true
+    t.string "call2_family_progress"
+    t.string "call2_previous_goals_follow_up"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
@@ -221,6 +286,7 @@ ActiveRecord::Schema.define(version: 2023_06_20_143020) do
     t.date "choice_date"
     t.boolean "is_completed", default: false
     t.boolean "is_programmed", default: false, null: false
+    t.integer "module_index"
     t.index ["child_id"], name: "index_children_support_modules_on_child_id"
     t.index ["parent_id"], name: "index_children_support_modules_on_parent_id"
     t.index ["support_module_id"], name: "index_children_support_modules_on_support_module_id"
@@ -527,6 +593,13 @@ ActiveRecord::Schema.define(version: 2023_06_20_143020) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "bubble_contents", "bubble_modules", column: "module_content_id"
+  add_foreign_key "bubble_modules", "bubble_modules", column: "module_precedent_id"
+  add_foreign_key "bubble_modules", "bubble_modules", column: "module_suivant_id"
+  add_foreign_key "bubble_modules", "bubble_videos", column: "video_princ_id"
+  add_foreign_key "bubble_modules", "bubble_videos", column: "video_tem_id"
+  add_foreign_key "bubble_sessions", "bubble_modules", column: "module_session_id"
+  add_foreign_key "bubble_sessions", "bubble_videos", column: "video_id"
   add_foreign_key "child_supports", "admin_users", column: "supporter_id"
   add_foreign_key "children", "parents", column: "parent1_id"
   add_foreign_key "children", "parents", column: "parent2_id"

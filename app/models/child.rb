@@ -573,6 +573,8 @@ class Child < ApplicationRecord
     return if true_siblings.with_support.empty?
 
     siblings_child_support = true_siblings.with_support.first.child_support
+    return if self.child_support.nil?
+
     old_child_support = self.child_support
     siblings_child_support.copy_fields(self.child_support)
     siblings_child_support.save

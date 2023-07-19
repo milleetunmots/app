@@ -183,6 +183,7 @@ fr:
         support_module: Module
         available_support_module_names: Modules disponibles
         available_support_module_names_for_csv: Modules disponibles
+        module_index: Index
       child_support:
         << : *SHARED
         address: Adresse
@@ -432,6 +433,7 @@ fr:
         started_at: Date de début
         support_modules_count: Nombre de modules prévu
         is_programmed: A déjà été programmé
+        support_module_programmed: Nombre de modules programmés
       media_folder:
         << : *SHARED
         name: Nom
