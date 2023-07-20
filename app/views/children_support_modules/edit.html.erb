@@ -18,7 +18,7 @@
         <div class="card" style="width: 15rem; height: 20rem">
           <div style="height: 75%">
             <% if @support_module_selected.picture.attached? %>
-              <%= @support_module_selected.picture_tag(class: "card-img-top", style: 'width:100%;height:100%;') %>
+              <%= @support_module_selected.decorate.picture_tag(class: "card-img-top", style: 'width:100%;height:100%;') %>
             <% else %>
               <%= image_tag("child-picture.jpg", class: "card-img-top", style: 'width:100%;height:100%;') %>
             <% end %>
