@@ -17,5 +17,8 @@ module Mots
     # the framework and any gems in your application.
 
     config.active_job.queue_adapter = :sidekiq
+
+    Rails.logger = Logger.new($stdout)
+    config.logger = ActiveSupport::Logger.new("log/#{Rails.env}.log")
   end
 end

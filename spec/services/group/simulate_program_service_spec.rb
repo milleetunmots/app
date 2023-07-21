@@ -3,49 +3,15 @@ require 'rails_helper'
 RSpec.describe Group::ProgramService do
   include ActiveJob::TestHelper
 
-  let!(:group) { FactoryBot.create(:group) }
+  let!(:group) { FactoryBot.create(:group, support_modules_count: 6) }
   let!(:children) { [] }
   let!(:csv_data) { [] }
 
   before do
     allow_any_instance_of(ChildrenSupportModule::CheckCreditsService).to receive(:call).and_return(ChildrenSupportModule::CheckCreditsService.new([]))
+    allow_any_instance_of(ChildSupport::ProgramChosenModulesService).to receive(:call).and_return(ChildSupport::ProgramChosenModulesService.new(group.id, Date.today.next_occurring(:monday)))
 
-    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "reading", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Garder l'intérêt de mon enfant avec les livres 📚")
-    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "reading", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Garder l'intérêt de mon enfant avec les livres 📚")
-    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "reading", age_ranges: %w[five_to_eleven], name: "Garder l'intérêt de mon enfant avec les livres 📚")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Intéresser mon enfant aux livres 📚")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[eighteen_to_twenty_three], name: "Intéresser mon enfant aux livres 📚")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[twelve_to_seventeen], name: "Intéresser mon enfant aux livres 📚")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[less_than_five five_to_eleven], name: "Intéresser mon enfant aux livres 📚")
 
-    FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "bilingualism", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Parler plusieurs langues à la maison 🏠")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "bilingualism", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Parler plusieurs langues à la maison 🏠")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "bilingualism", age_ranges: %w[five_to_eleven], name: "Parler plusieurs langues à la maison 🏠")
-
-    FactoryBot.create(:support_module, level: 3, for_bilingual: false, theme: "language", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Parler encore plus avec mon enfant")
-    # FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language", age_ranges: %w[], name: "Parler encore plus avec mon bébé")
-    FactoryBot.create(:support_module, level: 3, for_bilingual: false, theme: "language", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Parler encore plus avec mon bébé")
-    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "language", age_ranges: %w[five_to_eleven twelve_to_seventeen], name: "Parler plus avec mon bébé")
-    # FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language", age_ranges: %w[], name: "Parler plus avec mon bébé")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language", age_ranges: %w[five_to_eleven], name: "Parler avec mon bébé 👶")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language", age_ranges: %w[less_than_five], name: "Conversation spécial - de 4 mois")
-
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "anger", age_ranges: %w[eighteen_to_twenty_three twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Parler pour mieux gérer les colères")
-
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "ride", age_ranges: %w[twelve_to_seventeen], name: "Découvrir le monde avec mon enfant pendant les sorties 🌳")
-
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "games", age_ranges: %w[five_to_eleven], name: "Des idées pour jouer avec mon bébé 🧩")
-
-    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "screen", age_ranges: %w[eighteen_to_twenty_three twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Mieux gérer les écrans avec mon enfant 🖥")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "screen", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Occuper mon enfant (sans les écrans) 🧩")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "screen", age_ranges: %w[five_to_eleven], name: "Occuper mon enfant (sans les écrans) 🧩")
-
-    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "songs", age_ranges: %w[eighteen_to_twenty_three twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Chanter souvent avec mon bébé 🎶")
-    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "songs", age_ranges: %w[twelve_to_seventeen], name: "Chanter souvent avec mon bébé 🎶")
-    FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "songs", age_ranges: %w[five_to_eleven], name: "Chanter plus avec mon bébé 🎶")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[eighteen_to_twenty_three twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Chanter avec mon bébé 🎶")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[twelve_to_seventeen], name: "Chanter avec mon bébé 🎶")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[five_to_eleven], name: "Chanter avec mon bébé 🎶")
 
     # (1..1000).each do |index|
     #   # birthdate =
@@ -77,7 +43,24 @@ RSpec.describe Group::ProgramService do
     #   csv_data << { child_id: child.id, birthdate: child.birthdate, child_months: child.months, child_bilingual: child.child_support.is_bilingual }
     # end
 
+    Rails.logger.info 'Création des supports modules'
+
+    JSON.parse(File.read('spec/fixtures/support_modules_attributes.json')).each do |support_module_attributes|
+      Rails.logger.info support_module_attributes
+      FactoryBot.create(
+        :support_module,
+        level: support_module_attributes[0],
+        for_bilingual: support_module_attributes[1],
+        theme: support_module_attributes[2],
+        age_ranges: support_module_attributes[3],
+        name: support_module_attributes[4]
+      )
+    end
+
+    Rails.logger.info 'Création des enfants'
+
     JSON.parse(File.read('spec/fixtures/group_mai_23.json')).each do |child_attributes|
+      Rails.logger.info child_attributes
       child = FactoryBot.create(:child, group: group, group_status: 'active')
       child.birthdate = child_attributes[0]
       child.save(validate: false)
@@ -89,10 +72,11 @@ RSpec.describe Group::ProgramService do
   end
 
   after do
+    Rails.logger.info 'Nettoyage de la file des jobs'
     clear_enqueued_jobs
   end
 
-  xit 'simulates choices for 1000 children' do
+  it 'simulates choices for 1000 children' do
     perform_enqueued_jobs do
       choose_first_module
       extract_first_module_choices
@@ -122,6 +106,24 @@ RSpec.describe Group::ProgramService do
       extract_modules_availabilites(4)
       choose_module
       extract_module_choices(4)
+      program_modules
+      checks
+
+      make_children_older(8.weeks)
+
+      set_module_availabilites(5)
+      extract_modules_availabilites(5)
+      choose_module
+      extract_module_choices(5)
+      program_modules
+      checks
+
+      make_children_older(8.weeks)
+
+      set_module_availabilites(6)
+      extract_modules_availabilites(6)
+      choose_module
+      extract_module_choices(6)
       program_modules
       checks
 
@@ -162,6 +164,7 @@ RSpec.describe Group::ProgramService do
   end
 
   def make_children_older(weeks)
+    Rails.logger.info 'Make children older'
     children.each do |child|
       child.birthdate = child.birthdate - weeks
       child.save(validate: false)
@@ -180,26 +183,30 @@ RSpec.describe Group::ProgramService do
   end
 
   def choose_first_module
+    Rails.logger.info 'Program First Support Module Job'
     ChildrenSupportModule::ProgramFirstSupportModuleJob.perform_now(group.id, Date.today.next_occurring(:monday))
   end
 
   def extract_first_module_choices
+    Rails.logger.info 'Extract first module choices'
     children.each do |child|
       csv_data_child_hash(child)[:'1_module_choice'] = display_support_module(child.children_support_modules.order(created_at: :desc).first&.support_module)
     end
   end
 
   def set_module_availabilites(index)
+    Rails.logger.info 'Set module availabilites'
     ChildrenSupportModule::FillParentsAvailableSupportModulesJob.perform_now(group.id, index == 2)
   end
 
   def extract_modules_availabilites(index)
+    Rails.logger.info "Extract modules availabilites #{index}"
     children.each do |child|
       child.reload
       csv_data_child_hash(child)[:"#{index}_module_availabilities"] =
         child.child_support.parent1_available_support_module_list&.reject(&:blank?)&.map do |sm_id|
           display_support_module(SupportModule.find(sm_id))
-        end&.join("\n")
+        end&.join('\n')
     end
   end
 
@@ -222,11 +229,12 @@ RSpec.describe Group::ProgramService do
   end
 
   def program_modules
+    Rails.logger.info 'Program modules'
     ChildrenSupportModule::ProgramSupportModuleSmsJob.perform_now(group.id, Date.today.next_occurring(:monday))
   end
 
   def write_csv_file
-    CSV.open("tmp/cohorte-simulation.csv", "w") do |csv|
+    CSV.open('tmp/cohorte-simulation.csv', 'w') do |csv|
       csv << [
         'id',
         'date de naissance',
@@ -239,6 +247,10 @@ RSpec.describe Group::ProgramService do
         '3ème : choix',
         '4ème : modules disponibles',
         '4ème : choix',
+        '5ème : modules disponibles',
+        '5ème : choix',
+        '6ème : modules disponibles',
+        '6ème : choix'
       ]
 
       csv_data.each do |child_data|
@@ -254,6 +266,10 @@ RSpec.describe Group::ProgramService do
           child_data[:'3_module_choice'],
           child_data[:'4_module_availabilities'],
           child_data[:'4_module_choice'],
+          child_data[:'5_module_availabilities'],
+          child_data[:'5_module_choice'],
+          child_data[:'6_module_availabilities'],
+          child_data[:'6_module_choice']
         ]
       end
     end
