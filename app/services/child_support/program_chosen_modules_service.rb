@@ -27,7 +27,13 @@ class ChildSupport::ProgramChosenModulesService
 
       raise service.errors.join("\n") if service.errors.any?
 
-      ChildrenSupportModule.where(id: children_support_modules.map(&:id)).update_all(is_programmed: true)
+      # support_module_programmed has not been incremented yet at this moment
+      # so we add +1 to the current count. It will be incremented after this service in ProgramSupportModuleSmsJob
+      # if there is no error
+      ChildrenSupportModule.where(id: children_support_modules.map(&:id)).update_all(
+        is_programmed: true,
+        module_index: group.support_module_programmed + 1
+      )
 
       # to avoid sending to many api calls to spot-hit, sleep 60 seconds between each module
       sleep(60)
