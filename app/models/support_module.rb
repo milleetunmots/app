@@ -25,6 +25,8 @@ class SupportModule < ApplicationRecord
   default_scope -> { kept }
 
   THEME_LIST = %w[reading bilingualism language songs games screen ride anger].freeze
+  MODULE_ZERO_THEME_LIST = %w[language-module-zero].freeze
+  THEME_LIST_INCLUDING_MODULE_ZERO = THEME_LIST + MODULE_ZERO_THEME_LIST
 
   LESS_THAN_FIVE = 'less_than_five'.freeze
   FIVE_TO_ELEVEN = 'five_to_eleven'.freeze
@@ -59,7 +61,7 @@ class SupportModule < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   validates :name, presence: true
-  validates :theme, inclusion: { in: THEME_LIST, allow_blank: true }
+  validates :theme, inclusion: { in: THEME_LIST_INCLUDING_MODULE_ZERO, allow_blank: true }
   validates :level, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_blank: true
 
   # ---------------------------------------------------------------------------
