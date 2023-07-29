@@ -39,7 +39,7 @@ class ChildrenSupportModule
       group.support_module_programmed += 1
       group.save(validate: false)
 
-      ChildrenSupportModule.where(child_id: current_children + not_current_children).update_all(module_index: group.support_module_programmed)
+      ChildrenSupportModule.not_programmed.where(child_id: not_current_children).update_all(module_index: group.support_module_programmed)
     end
   end
 end
