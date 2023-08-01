@@ -35,11 +35,12 @@ class ChildrenSupportModule
 
       raise errors.to_json if errors.any?
 
+      ChildrenSupportModule.not_programmed.where(child_id: not_current_children).update_all(
+        module_index: group.support_module_programmed + 1
+      )
       ChildrenSupportModule.where(child_id: not_current_children).update_all(is_programmed: true)
       group.support_module_programmed += 1
       group.save(validate: false)
-
-      ChildrenSupportModule.not_programmed.where(child_id: not_current_children).update_all(module_index: group.support_module_programmed)
     end
   end
 end
