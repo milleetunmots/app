@@ -12,6 +12,7 @@ class Group
     def call
       check_group_is_ready
       if @errors.empty?
+        # to do : program_support_module_zero
         program_first_support_module
         fill_parents_available_support_modules
         verify_available_module_list
