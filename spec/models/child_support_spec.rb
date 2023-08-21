@@ -23,6 +23,7 @@
 #  call0_tv_frequency                    :string
 #  call1_duration                        :integer
 #  call1_goals                           :text
+#  call1_goals_tracking                  :text
 #  call1_language_awareness              :string
 #  call1_language_development            :text
 #  call1_notes                           :text

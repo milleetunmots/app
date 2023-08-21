@@ -77,7 +77,7 @@ ActiveAdmin.register ChildSupport do
   filter :postal_code,
          as: :string
   filter :supporter,
-    input_html: {data: {select2: {}}}
+         input_html: { data: { select2: {} } }
   (0..5).each do |call_idx|
     filter "call#{call_idx}_status",
            as: :select,
@@ -281,8 +281,8 @@ ActiveAdmin.register ChildSupport do
               end
             end
 
-            columns style: 'justify-content:space-between;'do
-              if call_idx.in?([0, 1])
+            columns style: 'justify-content:space-between;' do
+              if call_idx.zero?
                 column max_width: '8%' do
                   f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
                 end
@@ -519,9 +519,7 @@ ActiveAdmin.register ChildSupport do
               row :call2_previous_goals_follow_up
             end
             row "call#{call_idx}_language_development"
-            if call_idx.in?([0, 1])
-              row :books_quantity
-            end
+            row :books_quantity if call_idx.in?([0, 1])
             row "call#{call_idx}_reading_frequency"
             # row "call#{call_idx}_tv_frequency"
             row "call#{call_idx}_goals"
@@ -593,7 +591,6 @@ ActiveAdmin.register ChildSupport do
     column :second_language
 
     (0..5).each do |call_idx|
-
       column "call#{call_idx}_status"
       column "call#{call_idx}_status_details"
       column "call#{call_idx}_duration"
@@ -610,9 +607,7 @@ ActiveAdmin.register ChildSupport do
         column :call2_previous_goals_follow_up
       end
       column("call#{call_idx}_language_development") { |cs| cs.send("call#{call_idx}_language_development_text") }
-      if call_idx.in?([0, 1])
-        column :books_quantity
-      end
+      column :books_quantity if call_idx.in?([0, 1])
       column "call#{call_idx}_reading_frequency"
       column("call#{call_idx}_goals") { |cs| cs.send("call#{call_idx}_goals_text") }
       column("call#{call_idx}_notes") { |cs| cs.send("call#{call_idx}_notes_text") }

@@ -7,12 +7,13 @@ class Group
     def initialize(group)
       @errors = []
       @group = group
+      @support_module_weeks = group.children.first.next_unprogrammed_children_support_module.support_module.support_module_weeks.count
     end
 
     def call
       check_group_is_ready
       if @errors.empty?
-        # to do : program_support_module_zero
+        program_support_module_zero
         program_first_support_module
         fill_parents_available_support_modules
         verify_available_module_list
@@ -40,10 +41,17 @@ class Group
       @errors << 'La cohorte a déjà été programmé.' if @group.is_programmed
     end
 
+    def program_support_module_zero
+      return unless @group.support_modules_count.zero?
+
+      program_module_date = @group.started_at
+      ChildrenSupportModule::ProgramSupportModuleZeroJob.set(wait_until: program_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, program_module_date)
+    end
+
     def program_first_support_module
       return if @group.support_modules_count < 1
 
-      program_module_date = @group.started_at
+      program_module_date = @group.started_at + @support_module_weeks
       ChildrenSupportModule::ProgramFirstSupportModuleJob.set(wait_until: program_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, program_module_date)
     end
 

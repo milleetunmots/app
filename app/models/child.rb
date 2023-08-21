@@ -615,6 +615,10 @@ class Child < ApplicationRecord
     self == child_support&.current_child
   end
 
+  def next_unprogrammed_children_support_module
+    children_support_modules.where.not(support_module: nil).find_by(is_programmed: false)
+  end
+
   private
 
   def no_duplicate
