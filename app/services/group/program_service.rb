@@ -7,7 +7,7 @@ class Group
     def initialize(group)
       @errors = []
       @group = group
-      @support_module_weeks = group.children.first.next_unprogrammed_children_support_module.support_module.support_module_weeks.count
+      @support_module_weeks = group.children.first.next_unprogrammed_children_support_module.support_module.support_module_weeks.count || 4
     end
 
     def call

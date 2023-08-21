@@ -10,6 +10,14 @@ RSpec.describe Group::ProgramService do
   before do
     allow_any_instance_of(ChildrenSupportModule::CheckCreditsService).to receive(:call).and_return(ChildrenSupportModule::CheckCreditsService.new([]))
 
+    FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "language-module-zero", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Test module 0 first")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Test module 0 second")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[five_to_eleven], name: "Test module 0 third")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Test module 0 fourth")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[eighteen_to_twenty_three], name: "Test module 0 fifth")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[twelve_to_seventeen], name: "Test module 0 sixth")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[less_than_five five_to_eleven], name: "Test module 0 seventh")
+
     FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "reading", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Garder l'intérêt de mon enfant avec les livres 📚")
     FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "reading", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Garder l'intérêt de mon enfant avec les livres 📚")
     FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "reading", age_ranges: %w[five_to_eleven], name: "Garder l'intérêt de mon enfant avec les livres 📚")
@@ -94,6 +102,12 @@ RSpec.describe Group::ProgramService do
 
   xit 'simulates choices for 1000 children' do
     perform_enqueued_jobs do
+      choose_module_zero
+      extract_module_zero_choices
+      checks
+
+      make_children_older(4)
+
       choose_first_module
       extract_first_module_choices
       checks
@@ -179,8 +193,18 @@ RSpec.describe Group::ProgramService do
     # end
   end
 
+  def choose_module_zero
+    ChildrenSupportModule::ProgramSupportModuleZeroJob.perform_now(group.id, Date.today.next_occurring(:monday))
+  end
+
   def choose_first_module
     ChildrenSupportModule::ProgramFirstSupportModuleJob.perform_now(group.id, Date.today.next_occurring(:monday))
+  end
+
+  def extract_module_zero_choices
+    children.each do |child|
+      csv_data_child_hash(child)[:'0_module_choice'] = display_support_module(child.children_support_modules.order(created_at: :desc).first&.support_module)
+    end
   end
 
   def extract_first_module_choices
@@ -232,6 +256,7 @@ RSpec.describe Group::ProgramService do
         'date de naissance',
         'nombre de mois',
         'bilingue',
+        '0 : choix',
         '1er : choix',
         '2ème : modules disponibles',
         '2ème : choix',
@@ -247,6 +272,7 @@ RSpec.describe Group::ProgramService do
           child_data[:birthdate],
           child_data[:child_months],
           child_data[:child_bilingual],
+          child_data[:'0_module_choice'],
           child_data[:'1_module_choice'],
           child_data[:'2_module_availabilities'],
           child_data[:'2_module_choice'],
