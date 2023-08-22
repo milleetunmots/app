@@ -21,5 +21,10 @@ FactoryBot.define do
     theme { SupportModule::THEME_LIST.sample }
     age_ranges { SupportModule::AGE_RANGE_LIST.sample }
     level { 1 }
+    after :create do |support_module|
+      (1..3).each do |i|
+        create :support_module_week, position: i, support_module: support_module
+      end
+    end
   end
 end

@@ -218,10 +218,10 @@ ActiveRecord::Schema.define(version: 2023_10_03_121152) do
     t.text "call3_goals_tracking"
     t.text "call4_goals_tracking"
     t.text "call5_goals_tracking"
-    t.string "parent1_available_support_module_list", array: true
-    t.string "parent2_available_support_module_list", array: true
     t.string "call2_family_progress"
     t.string "call2_previous_goals_follow_up"
+    t.string "parent1_available_support_module_list", array: true
+    t.string "parent2_available_support_module_list", array: true
     t.text "call0_parent_actions"
     t.text "call0_language_development"
     t.text "call0_notes"

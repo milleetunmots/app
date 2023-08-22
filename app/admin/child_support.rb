@@ -316,7 +316,7 @@ ActiveAdmin.register ChildSupport do
                                  I18n.t('child_support.default.call_technical_information')
                         }
 
-                unless call_idx == 0
+                unless call_idx.zero?
                   f.input "call#{call_idx}_goals_tracking",
                           input_html: {
                             rows: 8,
