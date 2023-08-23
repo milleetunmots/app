@@ -21,6 +21,7 @@
 #
 
 class Group < ApplicationRecord
+
   include Discard::Model
 
   # ---------------------------------------------------------------------------
@@ -32,21 +33,28 @@ class Group < ApplicationRecord
   has_many :parent2, through: :children
   has_many :child_supports, through: :children
   has_many :supporters, through: :child_supports
+
+  # ---------------------------------------------------------------------------
+  # callbacks
+  # ---------------------------------------------------------------------------
+
+  after_create :add_waiting_children
+
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
 
   validates :name,
-    presence: true,
-    uniqueness: {case_sensitive: false}
+            presence: true,
+            uniqueness: { case_sensitive: false }
   validate :started_at_only_monday
 
   # ---------------------------------------------------------------------------
   # scopes
   # ---------------------------------------------------------------------------
 
-  scope :not_ended, -> { where("ended_at IS NULL OR ended_at > ?", Date.today) }
-  scope :ended, -> { where("ended_at <= ?", Date.today) }
+  scope :not_ended, -> { where('ended_at IS NULL OR ended_at > ?', Date.today) }
+  scope :ended, -> { where('ended_at <= ?', Date.today) }
 
   # ---------------------------------------------------------------------------
   # helpers
@@ -61,15 +69,23 @@ class Group < ApplicationRecord
   end
 
   def target_group?
-    !self.name.match?("Popi")
+    !name.match?('Popi')
   end
 
   def self.not_target_group
-    where("unaccent(name) ILIKE unaccent(?)", "%popi%")
+    where('unaccent(name) ILIKE unaccent(?)', '%popi%')
+  end
+
+  def self.next_available
+    where(is_programmed: false).where('started_at > ?', Date.today).order(:started_at).first || nil
   end
 
   def started_at_only_monday
-    errors.add(:started_at, :invalid, message: "doit être un lundi") if started_at && !started_at.monday?
+    errors.add(:started_at, :invalid, message: 'doit être un lundi') if started_at && !started_at.monday?
+  end
+
+  def add_waiting_children
+    Child.waiting_for_the_next_group.update(group: self, group_status: 'active')
   end
 
   # ---------------------------------------------------------------------------
