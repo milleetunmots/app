@@ -7,7 +7,6 @@ class Group
     def initialize(group)
       @errors = []
       @group = group
-      @support_module_weeks = group.children.first.next_unprogrammed_children_support_module.support_module.support_module_weeks.count || 4
     end
 
     def call
@@ -42,7 +41,7 @@ class Group
     end
 
     def program_support_module_zero
-      return unless @group.support_modules_count.zero?
+      return unless @group.support_module_programmed.zero?
 
       program_module_date = @group.started_at
       ChildrenSupportModule::ProgramSupportModuleZeroJob.set(wait_until: program_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, program_module_date)
@@ -51,7 +50,8 @@ class Group
     def program_first_support_module
       return if @group.support_modules_count < 1
 
-      program_module_date = @group.started_at + @support_module_weeks
+      program_module_date = @group.started_at + 4.weeks
+
       ChildrenSupportModule::ProgramFirstSupportModuleJob.set(wait_until: program_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, program_module_date)
     end
 
@@ -59,7 +59,7 @@ class Group
       return if @group.support_modules_count < 2
 
       (2..@group.support_modules_count).each do |module_index|
-        fill_date = @group.started_at + ((module_index - 1) * 8.weeks) - 6.weeks
+        fill_date = @group.started_at + ((module_index - 1) * 8.weeks) - 6.weeks + 4.weeks
         ChildrenSupportModule::FillParentsAvailableSupportModulesJob.set(wait_until: fill_date.to_datetime.change(hour: 6)).perform_later(@group.id, module_index == 2)
       end
     end
@@ -68,7 +68,7 @@ class Group
       return if @group.support_modules_count < 2
 
       (2..@group.support_modules_count).each do |module_index|
-        verification_date = @group.started_at + ((module_index - 1) * 8.weeks) - 5.weeks
+        verification_date = @group.started_at + ((module_index - 1) * 8.weeks) - 5.weeks + 4.weeks
         ChildrenSupportModule::VerifyAvailableModulesTaskJob.set(wait_until: verification_date.to_datetime.change(hour: 6)).perform_later(@group.id)
       end
     end
@@ -76,7 +76,7 @@ class Group
     def create_call2_children_support_module
       return if @group.support_modules_count < 2
 
-      creation_date = @group.started_at + 3.weeks + 2.days
+      creation_date = @group.started_at + 3.weeks + 2.days + 4.weeks
       ChildrenSupportModule::CreateChildrenSupportModuleJob.set(wait_until: creation_date.to_datetime.change(hour: 6)).perform_later(@group.id)
     end
 
@@ -89,7 +89,7 @@ class Group
       return if @group.support_modules_count < 3
 
       (3..@group.support_modules_count).each do |module_index|
-        select_module_date = (@group.started_at + ((module_index - 1) * 8.weeks) - 4.weeks).next_occurring(:saturday)
+        select_module_date = (@group.started_at + ((module_index - 1) * 8.weeks) - 4.weeks + 4.weeks).next_occurring(:saturday)
         ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date)
       end
     end
@@ -98,7 +98,7 @@ class Group
       return if @group.support_modules_count < 1
 
       (2..@group.support_modules_count).each do |module_index|
-        selection_date = @group.started_at + ((module_index - 1) * 8.weeks) - 2.weeks - 1.day
+        selection_date = @group.started_at + ((module_index - 1) * 8.weeks) - 2.weeks - 1.day + 4.weeks
         ChildrenSupportModule::SelectDefaultSupportModuleJob.set(wait_until: selection_date.to_datetime.change(hour: 6)).perform_later(@group.id)
       end
     end
@@ -107,7 +107,7 @@ class Group
       return if @group.support_modules_count < 2
 
       (2..@group.support_modules_count).each do |module_index|
-        verification_date = @group.started_at + ((module_index - 1) * 8.weeks) - 2.weeks
+        verification_date = @group.started_at + ((module_index - 1) * 8.weeks) - 2.weeks + 4.weeks
         ChildrenSupportModule::VerifyChosenModulesTaskJob.set(wait_until: verification_date.to_datetime.change(hour: 6)).perform_later(@group.id)
       end
     end
@@ -116,7 +116,7 @@ class Group
       return if @group.support_modules_count < 2
 
       (2..@group.support_modules_count).each do |module_index|
-        check_date = @group.started_at + ((module_index - 1) * 8.weeks) - 1.week
+        check_date = @group.started_at + ((module_index - 1) * 8.weeks) - 1.week + 4.weeks
         ChildrenSupportModule::CheckCreditsForGroupJob.set(wait_until: check_date.to_datetime.change(hour: 6)).perform_later(@group.id)
       end
     end
@@ -125,7 +125,7 @@ class Group
       return if @group.support_modules_count < 2
 
       (2..@group.support_modules_count).each do |module_index|
-        program_module_date = @group.started_at + ((module_index - 1) * 8.weeks)
+        program_module_date = @group.started_at + ((module_index - 1) * 8.weeks) + 4.weeks
         ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: program_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, program_module_date)
       end
     end

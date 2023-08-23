@@ -6,6 +6,7 @@ class Group
     attr_reader :scheduled_jobs
 
     GROUP_JOB_CLASS_NAMES = {
+      'ChildrenSupportModule::ProgramSupportModuleZeroJob' => 'Programmation du module zero',
       'ChildrenSupportModule::ProgramFirstSupportModuleJob' => 'Programmation du 1er module',
       'ChildrenSupportModule::FillParentsAvailableSupportModulesJob' => 'Ajout des modules disponibles sur les fiches de suivi',
       'ChildrenSupportModule::VerifyAvailableModulesTaskJob' => 'Vérification que tous les enfants ont des modules disponibles sur leur fiche de suivi',

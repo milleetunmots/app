@@ -23,7 +23,7 @@ class ChildrenSupportModule
           Task.create(
             assignee_id: ltm.id,
             title: "La programmation des sms de la cohorte \"#{group.name}\" a été annulé car il n'y a pas assez de crédits",
-            description: check_service.errors.join("<br>"),
+            description: check_service.errors.join('<br>'),
             due_date: Date.today
           )
         end

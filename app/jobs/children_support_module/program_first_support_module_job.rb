@@ -64,8 +64,6 @@ class ChildrenSupportModule
         create_children_support_module(child, forty_one_to_forty_four_children_reading_level_one_support_module, child.parent2)
       end
 
-
-
       ChildrenSupportModule::ProgramSupportModuleSmsJob.perform_later(group_id, program_date)
 
       if @errors.any?
@@ -93,9 +91,7 @@ class ChildrenSupportModule
         support_module: support_module
       )
 
-      if parent_children_support_module.errors.any?
-        @errors["child: #{child.id} - parent: #{parent.id}"] = parent_children_support_module.errors
-      end
+      @errors["child: #{child.id} - parent: #{parent.id}"] = parent_children_support_module.errors if parent_children_support_module.errors.any?
     end
   end
 end
