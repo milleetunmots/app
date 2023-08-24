@@ -51,7 +51,7 @@ fr:
   inscription_pmi:
     detail: "Précisez votre PMI"
   inscription_terms_accepted_at_label:
-    parent: "Je donne mon accord pour que mes données soient gardées par 1001mots"
+    parent: "Je donne mon accord pour que mes données soient collectées par 1001mots en vue de pouvoir bénéficier du programme d’accompagnement 1001mots."
     pro: "Les parents donnent leur accord pour que les données soient gardées par 1001mots"
   inscription_registration_source_label:
     parent: "Comment nous avez-vous connu&nbsp;?"
