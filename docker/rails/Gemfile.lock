@@ -228,7 +228,7 @@ GEM
     minitest (5.18.0)
     msgpack (1.2.10)
     multi_json (1.13.1)
-    nio4r (2.5.8)
+    nio4r (2.5.9)
     nokogiri (1.13.10)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
@@ -243,7 +243,7 @@ GEM
     phonelib (0.6.35)
     popper_js (1.14.5)
     public_suffix (4.0.6)
-    puma (4.3.11)
+    puma (5.6.7)
       nio4r (~> 2.0)
     racc (1.6.2)
     rack (2.2.7)
@@ -430,7 +430,7 @@ DEPENDENCIES
   pg (>= 0.18, < 2.0)
   pg_search
   phonelib
-  puma (~> 4.3)
+  puma (~> 5.6)
   rails (~> 6.0.0.rc1)
   rails-i18n
   rollbar
