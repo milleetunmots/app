@@ -20,7 +20,7 @@ class Group
 
     def initialize(group_id)
       @group_id = group_id
-      @module_number = Group.find(group_id).support_modules_count
+      @module_number = Group.find(group_id).support_modules_count - 1
       @scheduled_jobs = []
     end
 
@@ -56,6 +56,8 @@ class Group
     def update_scheduled_jobs(job, name)
       job_scheduled_date = job.at
       @scheduled_jobs << { name: name, scheduled_date: job_scheduled_date }
+      @module_number -= 1 if ['Programmation du 1er module', 'Préparation préalable au choix des parents pour l’appel 2'].include? GROUP_JOB_CLASS_NAMES[job_class_name]
+      @module_number -= 1 if GROUP_JOB_CLASS_NAMES[job_class_name] == 'Ajout des modules disponibles sur les fiches de suivi' && job.args[0]['arguments']&.second == false
     end
 
     def set_module_numbers

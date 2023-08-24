@@ -1,8 +1,8 @@
-<% scheduled_jobs_group_by_module_number.each do |(module_number, jobs)| %>
+<% scheduled_jobs_group_by_module_number.each do |module_number_jobs| %>
   <div>
-    <h3>Module <%= module_number %></h3>
+    <h3>Module <%= module_number_jobs.first %></h3>
     <div>
-      <% jobs.each do |job| %>
+      <% module_number_jobs.second.each do |job| %>
         <div>
           <strong><%= job[:scheduled_date].strftime('%d/%m/%Y - %H:%M') %></strong>
           <%= job[:name] %>
