@@ -5,6 +5,7 @@ class Group
     require 'sidekiq/api'
     attr_reader :scheduled_jobs
 
+    MODULE_ZERO_FEATURE_START = DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
     GROUP_JOB_CLASS_NAMES = {
       'ChildrenSupportModule::ProgramSupportModuleZeroJob' => 'Programmation du module zero',
       'ChildrenSupportModule::ProgramFirstSupportModuleJob' => 'Programmation du 1er module',
@@ -21,7 +22,7 @@ class Group
     def initialize(group_id)
       group = Group.find(group_id)
       @group_id = group_id
-      @module_number = group.created_at > DateTime.new(2023, 8, 24, 0, 0) ? group.support_modules_count - 1 : group.support_modules_count
+      @module_number = group.created_at > MODULE_ZERO_FEATURE_START ? group.support_modules_count - 1 : group.support_modules_count
       @scheduled_jobs = []
     end
 
@@ -51,12 +52,12 @@ class Group
                GROUP_JOB_CLASS_NAMES[job_class_name]
              end
 
-      @module_number = case GROUP_JOB_CLASS_NAMES[job_class_name]
-                       when 'Programmation du module zero'
+      @module_number = case job_class_name
+                       when ChildrenSupportModule::ProgramSupportModuleZeroJob.to_s
                          0
-                       when 'Programmation du 1er module'
+                       when ChildrenSupportModule::ProgramFirstSupportModuleJob.to_s
                          1
-                       when 'Préparation préalable au choix des parents pour l’appel 2'
+                       when ChildrenSupportModule::CreateChildrenSupportModuleJob.to_s
                          2
                        else
                          @module_number
