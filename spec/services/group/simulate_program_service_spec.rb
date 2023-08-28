@@ -9,14 +9,13 @@ RSpec.describe Group::ProgramService do
 
   before do
     allow_any_instance_of(ChildrenSupportModule::CheckCreditsService).to receive(:call).and_return(ChildrenSupportModule::CheckCreditsService.new([]))
+    stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms').to_return(status: 200, body: '{}')
 
-    FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "language-module-zero", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Test module 0 first")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Test module 0 second")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[five_to_eleven], name: "Test module 0 third")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Test module 0 fourth")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[eighteen_to_twenty_three], name: "Test module 0 fifth")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[twelve_to_seventeen], name: "Test module 0 sixth")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[less_than_five five_to_eleven], name: "Test module 0 seventh")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "language-module-zero", age_ranges: %w[less_than_five], name: "Enrichir la conversation 0-4")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[five_to_eleven], name: "Enrichir la conversation 5-11")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[twelve_to_seventeen], name: "Enrichir la conversation 12-17")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[eighteen_to_twenty_three], name: "Enrichir la conversation 18-23")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language-module-zero", age_ranges: %w[twenty_four_to_twenty_nine], name: "Enrichir la conversation 24-29")
 
     FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "reading", age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Garder l'intérêt de mon enfant avec les livres 📚")
     FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: "reading", age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three], name: "Garder l'intérêt de mon enfant avec les livres 📚")
@@ -100,7 +99,7 @@ RSpec.describe Group::ProgramService do
     clear_enqueued_jobs
   end
 
-  xit 'simulates choices for 1000 children' do
+  it 'simulates choices for children' do
     perform_enqueued_jobs do
       choose_module_zero
       extract_module_zero_choices
@@ -136,6 +135,24 @@ RSpec.describe Group::ProgramService do
       extract_modules_availabilites(4)
       choose_module
       extract_module_choices(4)
+      program_modules
+      checks
+
+      make_children_older(8.weeks)
+
+      set_module_availabilites(5)
+      extract_modules_availabilites(5)
+      choose_module
+      extract_module_choices(5)
+      program_modules
+      checks
+
+      make_children_older(8.weeks)
+
+      set_module_availabilites(6)
+      extract_modules_availabilites(6)
+      choose_module
+      extract_module_choices(6)
       program_modules
       checks
 
@@ -264,6 +281,10 @@ RSpec.describe Group::ProgramService do
         '3ème : choix',
         '4ème : modules disponibles',
         '4ème : choix',
+        '5ème : modules disponibles',
+        '5ème : choix',
+        '6ème : modules disponibles',
+        '6ème : choix'
       ]
 
       csv_data.each do |child_data|
@@ -280,6 +301,10 @@ RSpec.describe Group::ProgramService do
           child_data[:'3_module_choice'],
           child_data[:'4_module_availabilities'],
           child_data[:'4_module_choice'],
+          child_data[:'5_module_availabilities'],
+          child_data[:'5_module_choice'],
+          child_data[:'6_module_availabilities'],
+          child_data[:'6_module_choice'],
         ]
       end
     end
