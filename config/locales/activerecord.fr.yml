@@ -597,6 +597,10 @@ fr:
         thirty_to_thirty_five: 30 - 35 mois
         thirty_six_to_forty: 36 - 40 mois
         forty_one_to_forty_four: 41 - 44 mois
+        four_to_nine: 4 - 9 mois
+        ten_to_fifteen: 10 - 15 mois
+        sixteen_to_twenty_three: 16 - 23 mois
+        more_than_twenty_four: 24 mois et +
       support_module/age:
         a0_1: 0 - 1 ans
         a1_2 : 1 - 2 ans
