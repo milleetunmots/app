@@ -5,6 +5,7 @@
 #  id                        :bigint           not null, primary key
 #  discarded_at              :datetime
 #  ended_at                  :date
+#  expected_children_number  :integer
 #  is_programmed             :boolean          default(FALSE), not null
 #  name                      :string
 #  started_at                :date
@@ -35,18 +36,14 @@ class Group < ApplicationRecord
   has_many :supporters, through: :child_supports
 
   # ---------------------------------------------------------------------------
-  # callbacks
-  # ---------------------------------------------------------------------------
-
-  after_create :add_waiting_children
-
-  # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
 
   validates :name,
             presence: true,
             uniqueness: { case_sensitive: false }
+  validates :expected_children_number, presence: true, on: :create
+  validates :started_at, presence: true, on: :create
   validate :started_at_only_monday
 
   # ---------------------------------------------------------------------------
@@ -76,16 +73,18 @@ class Group < ApplicationRecord
     where('unaccent(name) ILIKE unaccent(?)', '%popi%')
   end
 
-  def self.next_available
-    where(is_programmed: false).where('started_at > ?', Date.today).order(:started_at).first || nil
+  def self.next_available_at(date)
+    next_available_groups = where(is_programmed: false).where('started_at > ?', date).order(:started_at)
+
+    next_available_groups.each do |next_available_group|
+      return next_available_group if next_available_group.children.count < next_available_group.expected_children_number
+
+      next
+    end
   end
 
   def started_at_only_monday
     errors.add(:started_at, :invalid, message: 'doit être un lundi') if started_at && !started_at.monday?
-  end
-
-  def add_waiting_children
-    Child.waiting_for_the_next_group.update(group: self, group_status: 'active')
   end
 
   # ---------------------------------------------------------------------------

@@ -372,10 +372,6 @@ class Child < ApplicationRecord
     end.to_h
   end
 
-  def self.waiting_for_the_next_group
-    months_gteq(4).where(group_status: 'waiting')
-  end
-
   # ---------------------------------------------------------------------------
   # methods
   # ---------------------------------------------------------------------------
@@ -587,9 +583,11 @@ class Child < ApplicationRecord
   end
 
   def add_to_group
-    return if months < 4
+    return unless group.nil?
 
-    self.group = Group.next_available
+    self.group = months > 4 ? Group.next_available_at(Time.zone.today) : Group.next_available_at(Time.zone.today + (4 - months).months)
+    self.group_status = 'active'
+
     save(validate: false)
   end
 

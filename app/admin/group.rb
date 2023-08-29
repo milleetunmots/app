@@ -20,6 +20,7 @@ ActiveAdmin.register Group do
     column :support_modules_count
     column :is_programmed
     column :support_module_programmed
+    column :expected_children_number
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -38,6 +39,7 @@ ActiveAdmin.register Group do
   filter :ended_at
   filter :support_modules_count
   filter :is_programmed
+  filter :expected_children_number
   filter :created_at
   filter :updated_at
 
@@ -56,11 +58,12 @@ ActiveAdmin.register Group do
       f.input :started_at, as: :datepicker
       f.input :ended_at, as: :datepicker
       f.input :support_modules_count
+      f.input :expected_children_number
     end
     f.actions
   end
 
-  permit_params :name, :started_at, :ended_at, :support_modules_count
+  permit_params :name, :started_at, :ended_at, :support_modules_count, :expected_children_number
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -76,6 +79,7 @@ ActiveAdmin.register Group do
           row :ended_at
           row :support_modules_count
           row :support_module_programmed
+          row :expected_children_number
           row :is_programmed
         end
       end

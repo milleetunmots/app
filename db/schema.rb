@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_07_17_095021) do
+ActiveRecord::Schema.define(version: 2023_08_29_221615) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -216,11 +216,29 @@ ActiveRecord::Schema.define(version: 2023_07_17_095021) do
     t.text "call3_goals_tracking"
     t.text "call4_goals_tracking"
     t.text "call5_goals_tracking"
-    t.string "parent1_available_support_module_list", array: true
-    t.string "parent2_available_support_module_list", array: true
     t.string "call2_family_progress"
     t.string "call2_previous_goals_follow_up"
+    t.string "parent1_available_support_module_list", array: true
+    t.string "parent2_available_support_module_list", array: true
+    t.text "call0_parent_actions"
+    t.text "call0_language_development"
+    t.text "call0_notes"
+    t.string "call0_status"
+    t.string "call0_parent_progress"
+    t.integer "call0_duration"
+    t.string "call0_reading_frequency"
+    t.string "call0_language_awareness"
+    t.text "call0_goals"
+    t.string "call0_sendings_benefits"
+    t.text "call0_sendings_benefits_details"
+    t.text "call0_technical_information"
+    t.string "call0_tv_frequency"
+    t.text "call0_status_details"
+    t.text "call1_goals_tracking"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
+    t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
+    t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
+    t.index ["call0_tv_frequency"], name: "index_child_supports_on_call0_tv_frequency"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
     t.index ["call1_tv_frequency"], name: "index_child_supports_on_call1_tv_frequency"
@@ -339,6 +357,7 @@ ActiveRecord::Schema.define(version: 2023_07_17_095021) do
     t.integer "support_modules_count", default: 0, null: false
     t.boolean "is_programmed", default: false, null: false
     t.integer "support_module_programmed", default: 0
+    t.integer "expected_children_number"
     t.index ["discarded_at"], name: "index_groups_on_discarded_at"
     t.index ["ended_at"], name: "index_groups_on_ended_at"
     t.index ["started_at"], name: "index_groups_on_started_at"
