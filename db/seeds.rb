@@ -187,16 +187,13 @@ end
 # Support Module
 print "\tSupport Modules"
 
-FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: 'language-module-zero',
-                                   age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: 'Test module 0 first')
-FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'language-module-zero', age_ranges: %w[twelve_to_seventeen eighteen_to_twenty_three],
-                                   name: 'Test module 0 second')
-FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'language-module-zero', age_ranges: %w[five_to_eleven], name: 'Test module 0 third')
-FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'language-module-zero',
-                                   age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: 'Test module 0 fourth')
-FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'language-module-zero', age_ranges: %w[eighteen_to_twenty_three], name: 'Test module 0 fifth')
-FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'language-module-zero', age_ranges: %w[twelve_to_seventeen], name: 'Test module 0 sixth')
-FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'language-module-zero', age_ranges: %w[less_than_five five_to_eleven], name: 'Test module 0 seventh')
+FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: 'language_module_zero',
+                                   age_ranges: %w[four_to_nine], name: 'Test module 0 (4 - 9)')
+FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'language_module_zero', age_ranges: %w[ten_to_fifteen],
+                                   name: 'Test module 0 (10 - 15)')
+FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'language_module_zero', age_ranges: %w[sixteen_to_twenty_three], name: 'Test module 0 (16 - 23)')
+FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'language_module_zero',
+                                   age_ranges: %w[more_than_twenty_four], name: 'Test module 0 (24 +)')
 
 FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: 'reading',
                                    age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: "Garder l'intérêt de mon enfant avec les livres 📚")

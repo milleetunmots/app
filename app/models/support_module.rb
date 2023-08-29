@@ -24,8 +24,18 @@ class SupportModule < ApplicationRecord
   include Discard::Model
   default_scope -> { kept }
 
-  THEME_LIST = %w[reading bilingualism language songs games screen ride anger].freeze
-  MODULE_ZERO_THEME_LIST = %w[language-module-zero].freeze
+  READING = 'reading'.freeze
+  SONGS = 'songs'.freeze
+  BILINGUALISM = 'bilingualism'.freeze
+  LANGUAGE = 'language'.freeze
+  GAMES = 'games'.freeze
+  SCREEN = 'screen'.freeze
+  RIDE = 'ride'.freeze
+  ANGER = 'anger'.freeze
+  LANGUAGE_MODULE_ZERO = 'language_module_zero'.freeze
+
+  THEME_LIST = [READING, BILINGUALISM, LANGUAGE, SONGS, GAMES, SCREEN, RIDE, ANGER].freeze
+  MODULE_ZERO_THEME_LIST = [LANGUAGE_MODULE_ZERO].freeze
   THEME_LIST_INCLUDING_MODULE_ZERO = THEME_LIST + MODULE_ZERO_THEME_LIST
 
   LESS_THAN_FIVE = 'less_than_five'.freeze
