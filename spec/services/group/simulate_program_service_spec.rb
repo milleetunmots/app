@@ -11,11 +11,9 @@ RSpec.describe Group::ProgramService do
     allow_any_instance_of(ChildrenSupportModule::CheckCreditsService).to receive(:call).and_return(ChildrenSupportModule::CheckCreditsService.new([]))
     stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms').to_return(status: 200, body: '{}')
 
-    FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "language_module_zero", age_ranges: %w[less_than_five], name: "Enrichir la conversation 0-4")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[five_to_eleven], name: "Enrichir la conversation 5-11")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[twelve_to_seventeen], name: "Enrichir la conversation 12-17")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[eighteen_to_twenty_three], name: "Enrichir la conversation 18-23")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[twenty_four_to_twenty_nine], name: "Enrichir la conversation 24-29")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "language_module_zero", age_ranges: %w[four_to_nine], name: "Enrichir la conversation 4-9")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[ten_to_fifteen], name: "Enrichir la conversation 10-15")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[sixteen_to_twenty_three], name: "Enrichir la conversation 16-23")
 
     JSON.parse(File.read('spec/fixtures/support_modules_staging.json')).each do |support_module|
       FactoryBot.create(
@@ -43,7 +41,7 @@ RSpec.describe Group::ProgramService do
     clear_enqueued_jobs
   end
 
-  xit 'simulates choices for children' do
+  it 'simulates choices for children' do
     perform_enqueued_jobs do
       choose_module_zero
       extract_module_zero_choices
