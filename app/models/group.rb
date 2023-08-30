@@ -81,6 +81,7 @@ class Group < ApplicationRecord
 
       next
     end
+    nil
   end
 
   def started_at_only_monday

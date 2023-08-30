@@ -229,7 +229,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#groups_in(*v)" do
     context "returns" do
       it "child supports for child with group in v" do
-        expect(ChildSupport.groups_in(group)).to match_array [first_child_support, third_child_support]
+        expect(ChildSupport.groups_in(group)).to match_array [first_child_support, second_child_support, third_child_support]
       end
     end
   end
@@ -237,7 +237,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#group_id_in(*v)" do
     context "returns" do
       it "child supports for child with group id in v" do
-        expect(ChildSupport.group_id_in(group.id)).to match_array [first_child_support, third_child_support]
+        expect(ChildSupport.group_id_in(group.id)).to match_array [first_child_support, second_child_support, third_child_support]
       end
     end
   end
@@ -245,7 +245,7 @@ RSpec.describe ChildSupport, type: :model do
   describe "#active_group_id_in(*v)" do
     context "returns" do
       it "child supports for unpaused child with group id in v" do
-        expect(ChildSupport.active_group_id_in(group.id)).to match_array [first_child_support]
+        expect(ChildSupport.active_group_id_in(group.id)).to match_array [first_child_support, second_child_support]
       end
     end
   end

@@ -585,9 +585,8 @@ class Child < ApplicationRecord
   def add_to_group
     return unless group.nil?
 
-    self.group = months > 4 ? Group.next_available_at(Time.zone.today) : Group.next_available_at(Time.zone.today + (4 - months).months)
-    self.group_status = 'active'
-
+    self.group = months > 4 ? Group.next_available_at(Time.zone.today) : Group.next_available_at(birthdate + 4.months)
+    self.group_status = 'active' if group
     save(validate: false)
   end
 
