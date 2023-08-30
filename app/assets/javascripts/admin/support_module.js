@@ -22,7 +22,7 @@ $(document).ready(function() {
     let $ages = $("#support_module_age_ranges");
     $ages.empty();
 
-    if ($supportModuleTheme.val() == 'language-module-zero') {
+    if ($supportModuleTheme.val() === 'language_module_zero') {
       module_zero_age_ranges.forEach(function(age) {
         $ages.append($('<option>', {
           value: age.value,
