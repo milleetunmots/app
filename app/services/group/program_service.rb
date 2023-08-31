@@ -70,6 +70,11 @@ class Group
       ChildrenSupportModule::CreateChildrenSupportModuleJob.set(wait_until: creation_date.to_datetime.change(hour: 6)).perform_later(@group.id)
     end
 
+    def program_sms_to_choose_module2_to_parents
+      select_module_date = ((@group.started_at + 8.weeks) - 4.weeks).next_occurring(:saturday)
+      ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date, true)
+    end
+
     def select_default_support_module
       return if @group.support_modules_count < 1
 
@@ -92,7 +97,7 @@ class Group
       return if @group.support_modules_count < 2
 
       (2..@group.support_modules_count).each do |module_index|
-        check_date = @group.started_at + (module_index - 1) * 8.weeks - 1.week
+        check_date = @group.started_at + ((module_index - 1) * 8.weeks) - 1.week
         ChildrenSupportModule::CheckCreditsForGroupJob.set(wait_until: check_date.to_datetime.change(hour: 6)).perform_later(@group.id)
       end
     end
@@ -101,7 +106,7 @@ class Group
       return if @group.support_modules_count < 3
 
       (3..@group.support_modules_count).each do |module_index|
-        select_module_date = (@group.started_at + (module_index - 1) * 8.weeks - 4.weeks).next_occurring(:saturday)
+        select_module_date = (@group.started_at + ((module_index - 1) * 8.weeks) - 4.weeks).next_occurring(:saturday)
         ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date)
       end
     end
@@ -110,7 +115,7 @@ class Group
       return if @group.support_modules_count < 2
 
       (2..@group.support_modules_count).each do |module_index|
-        program_module_date = @group.started_at + (module_index - 1) * 8.weeks
+        program_module_date = @group.started_at + ((module_index - 1) * 8.weeks)
         ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: program_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, program_module_date)
       end
     end
