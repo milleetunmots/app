@@ -600,7 +600,6 @@ fr:
         four_to_nine: 4 - 9 mois
         ten_to_fifteen: 10 - 15 mois
         sixteen_to_twenty_three: 16 - 23 mois
-        more_than_twenty_four: 24 mois et +
       support_module/age:
         a0_1: 0 - 1 ans
         a1_2 : 1 - 2 ans
@@ -613,7 +612,7 @@ fr:
         language: Langage
         anger: Colère
         ride: Sortie
-        language-module-zero: Langage (Module 0)
+        language_module_zero: Langage (Module 0)
       support_module_week:
         << : *SHARED
         additional_medium: Message 4

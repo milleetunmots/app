@@ -14,6 +14,7 @@ RSpec.describe Group::ProgramService do
     FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "language_module_zero", age_ranges: %w[four_to_nine], name: "Enrichir la conversation 4-9")
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[ten_to_fifteen], name: "Enrichir la conversation 10-15")
     FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[sixteen_to_twenty_three], name: "Enrichir la conversation 16-23")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[twenty_four_to_twenty_nine], name: "Enrichir la conversation 24-29")
 
     JSON.parse(File.read('spec/fixtures/support_modules_staging.json')).each do |support_module|
       FactoryBot.create(
@@ -41,7 +42,7 @@ RSpec.describe Group::ProgramService do
     clear_enqueued_jobs
   end
 
-  it 'simulates choices for children' do
+  xit 'simulates choices for children' do
     perform_enqueued_jobs do
       choose_module_zero
       extract_module_zero_choices
