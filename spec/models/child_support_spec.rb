@@ -7,23 +7,8 @@
 #  availability                          :string
 #  book_not_received                     :string
 #  books_quantity                        :string
-#  call0_duration                        :integer
-#  call0_goals                           :text
-#  call0_language_awareness              :string
-#  call0_language_development            :text
-#  call0_notes                           :text
-#  call0_parent_actions                  :text
-#  call0_parent_progress                 :string
-#  call0_reading_frequency               :string
-#  call0_sendings_benefits               :string
-#  call0_sendings_benefits_details       :text
-#  call0_status                          :string
-#  call0_status_details                  :text
-#  call0_technical_information           :text
-#  call0_tv_frequency                    :string
 #  call1_duration                        :integer
 #  call1_goals                           :text
-#  call1_goals_tracking                  :text
 #  call1_language_awareness              :string
 #  call1_language_development            :text
 #  call1_notes                           :text
@@ -119,9 +104,6 @@
 # Indexes
 #
 #  index_child_supports_on_book_not_received                      (book_not_received)
-#  index_child_supports_on_call0_parent_progress                  (call0_parent_progress)
-#  index_child_supports_on_call0_reading_frequency                (call0_reading_frequency)
-#  index_child_supports_on_call0_tv_frequency                     (call0_tv_frequency)
 #  index_child_supports_on_call1_parent_progress                  (call1_parent_progress)
 #  index_child_supports_on_call1_reading_frequency                (call1_reading_frequency)
 #  index_child_supports_on_call1_tv_frequency                     (call1_tv_frequency)
