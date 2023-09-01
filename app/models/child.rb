@@ -51,12 +51,12 @@ class Child < ApplicationRecord
 
   include Discard::Model
 
-  GENDERS = %w(m f).freeze
-  REGISTRATION_SOURCES = %w(caf pmi friends therapist nursery doctor resubscribing other).freeze
-  PMI_LIST = %w(orleans orleans_est montargis gien pithiviers olivet sarreguemines forbach trappes plaisir mantes_la_jolie_clemenceau mantes_la_jolie_leclerc
-                gennevilliers_zucman_gabison gennevilliers_timsit asnieres_gennevilliers_sst2 villeneuve_la_garenne).freeze
-  GROUP_STATUS = %w(waiting active paused stopped).freeze
-  TERRITORIES = %w(Loiret Yvelines Seine-Saint-Denis Paris Moselle).freeze
+  GENDERS = %w[m f].freeze
+  REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
+  PMI_LIST = %w[orleans orleans_est montargis gien pithiviers olivet sarreguemines forbach trappes plaisir mantes_la_jolie_clemenceau mantes_la_jolie_leclerc
+                gennevilliers_zucman_gabison gennevilliers_timsit asnieres_gennevilliers_sst2 villeneuve_la_garenne].freeze
+  GROUP_STATUS = %w[waiting active paused stopped].freeze
+  TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
   LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Orleans', 'Montargis', 'Pithiviers', 'Gien'].freeze
 
   # ---------------------------------------------------------------------------
@@ -146,6 +146,7 @@ class Child < ApplicationRecord
   end
 
   after_create :create_support!
+  after_create :add_to_group
   after_update :update_support
 
   # ---------------------------------------------------------------------------
@@ -366,11 +367,9 @@ class Child < ApplicationRecord
     end
 
     # use first found value as map key and remove duplicates
-    Hash[
-      values.map do |_k, v|
-        [v.first, v.uniq]
-      end
-    ]
+    values.map do |_k, v|
+      [v.first, v.uniq]
+    end.to_h
   end
 
   # ---------------------------------------------------------------------------
@@ -573,13 +572,21 @@ class Child < ApplicationRecord
     return if true_siblings.with_support.empty?
 
     siblings_child_support = true_siblings.with_support.first.child_support
-    return if self.child_support.nil?
+    return if child_support.nil?
 
-    old_child_support = self.child_support
-    siblings_child_support.copy_fields(self.child_support)
+    old_child_support = child_support
+    siblings_child_support.copy_fields(child_support)
     siblings_child_support.save
     self.child_support_id = siblings_child_support.id
     old_child_support.destroy
+    save(validate: false)
+  end
+
+  def add_to_group
+    return unless group.nil?
+
+    self.group = months > 4 ? Group.next_available_at(Time.zone.today) : Group.next_available_at(birthdate + 4.months)
+    self.group_status = 'active' if group
     save(validate: false)
   end
 
@@ -611,7 +618,7 @@ class Child < ApplicationRecord
   private
 
   def no_duplicate
-    self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).each do |child|
+    self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).find_each do |child|
       if parent1.duplicate_of?(child.parent1) || parent1.duplicate_of?(child.parent2) || parent2&.duplicate_of?(child.parent1) || parent2&.duplicate_of?(child.parent2)
         errors.add(:base, :invalid, message: "L'enfant est déjà enregistré")
       end
@@ -635,7 +642,7 @@ class Child < ApplicationRecord
   def duration_in_months(started_at, ended_at = Time.now)
     return unless started_at && ended_at && ended_at > started_at
 
-    diff = ended_at.month + ended_at.year * 12 - (started_at.month + started_at.year * 12)
+    diff = ended_at.month + (ended_at.year * 12) - (started_at.month + (started_at.year * 12))
     if ended_at.day < started_at.day
       diff - 1
     else
