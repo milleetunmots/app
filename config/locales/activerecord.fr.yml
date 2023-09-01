@@ -434,6 +434,7 @@ fr:
         support_modules_count: Nombre de modules prévu
         is_programmed: A déjà été programmé
         support_module_programmed: Nombre de modules programmés
+        expected_children_number: Nombre d'enfants prévus
       media_folder:
         << : *SHARED
         name: Nom
