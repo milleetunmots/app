@@ -16,6 +16,7 @@ class Group
         fill_parents_available_support_modules
         verify_available_module_list
         create_call2_children_support_module
+        program_sms_to_choose_module2_to_parents
         select_default_support_module
         verify_chosen_modules
         program_check_spothit_credits
@@ -71,7 +72,7 @@ class Group
     end
 
     def program_sms_to_choose_module2_to_parents
-      select_module_date = ((@group.started_at + 8.weeks) - 4.weeks).next_occurring(:saturday)
+      select_module_date = (@group.started_at + 4.weeks).next_occurring(:saturday)
       ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date, true)
     end
 
