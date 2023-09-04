@@ -73,11 +73,13 @@ RSpec.describe Media::TextMessagesBundle, type: :model do
     end
     it 'if no body2 is given but image2 is given' do
       image = FactoryBot.build(:media_image)
+      @text_messages_bundle.body2 = nil
       @text_messages_bundle.image2 = image
       expect(@text_messages_bundle).to_not be_valid
     end
     it 'if no body3 is given but image3 is given' do
       image = FactoryBot.build(:media_image)
+      @text_messages_bundle.body3 = nil
       @text_messages_bundle.image3 = image
       expect(@text_messages_bundle).to_not be_valid
     end
