@@ -1,6 +1,19 @@
 module ProgramMessagesHelper
 
-  def get_recipients(term)
+  def get_recipients(term, parent_id = nil)
+    if parent_id
+      result = Parent.find(parent_id)&.decorate
+      return [
+        {
+          id: "#{result.object.class.name.underscore}.#{result.id}",
+          name: result.name,
+          type: result.object.class.name.underscore,
+          icon: result.icon_class,
+          html: result.as_autocomplete_result,
+          selected: true
+        }
+      ]
+    end
     (Parent.where("unaccent(CONCAT(first_name, last_name)) ILIKE unaccent(?)", "%#{term}%").decorate +
         Tag.where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate +
         Group.where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate
