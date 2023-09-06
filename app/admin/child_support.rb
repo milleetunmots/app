@@ -667,6 +667,13 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
+  action_item :send_message, only: %i[show edit] do
+    dropdown_menu 'Envoyer un SMS' do
+      item 'Pour le parent 1', %i[send_message_to_parent1 admin child_support], { target: '_blank' }
+      item 'Pour le parent 2', %i[send_message_to_parent2 admin child_support], { target: '_blank' } unless resource.parent2.nil?
+    end
+  end
+
   member_action :clean_child_support do
     resource.copy_fields(resource)
 
@@ -710,6 +717,14 @@ ActiveAdmin.register ChildSupport do
         available_support_module_list: resource.parent2_available_support_module_list
       )
     end
+  end
+
+  member_action :send_message_to_parent1 do
+    redirect_to admin_message_path(parent_id: resource.model.parent1.id)
+  end
+
+  member_action :send_message_to_parent2 do
+    redirect_to admin_message_path(parent_id: resource.model.parent2&.id)
   end
 
   controller do
