@@ -720,28 +720,11 @@ ActiveAdmin.register ChildSupport do
   end
 
   member_action :send_message_to_parent1 do
-    redirect_to admin_message_path(
-                  parent_id: resource.model.parent1.id
-                )
-    # children_support_module = ChildrenSupportModule.find_by(child: resource.model.current_child, parent: resource.model.parent1, is_programmed: false)
-    # if resource.parent1_available_support_module_list.nil? || resource.parent1_available_support_module_list.reject(&:blank?).empty?
-    #   redirect_back(fallback_location: root_path, alert: "Aucun module disponible n'est choisi")
-    #
-    #
-    # elsif children_support_module
-    #   redirect_to admin_children_support_module_path(id: children_support_module.id)
-    # else
-    #   redirect_to new_admin_children_support_module_path(
-    #                 is_completed: false,
-    #                 parent_id: resource.model.parent1,
-    #                 child_id: resource.model.current_child,
-    #                 available_support_module_list: resource.parent1_available_support_module_list
-    #               )
-    # end
+    redirect_to admin_message_path(parent_id: resource.model.parent1.id)
   end
 
   member_action :send_message_to_parent2 do
-    redirect_to admin_message_path
+    redirect_to admin_message_path(parent_id: resource.model.parent2&.id)
   end
 
   controller do
