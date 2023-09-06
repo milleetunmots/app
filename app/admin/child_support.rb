@@ -667,6 +667,13 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
+  action_item :send_message, only: %i[show edit] do
+    dropdown_menu 'Envoyer un SMS' do
+      item 'Pour le parent 1', %i[send_message_to_parent1 admin child_support], { target: '_blank' }
+      item 'Pour le parent 2', %i[send_message_to_parent2 admin child_support], { target: '_blank' } unless resource.parent2.nil?
+    end
+  end
+
   member_action :clean_child_support do
     resource.copy_fields(resource)
 
@@ -710,6 +717,31 @@ ActiveAdmin.register ChildSupport do
         available_support_module_list: resource.parent2_available_support_module_list
       )
     end
+  end
+
+  member_action :send_message_to_parent1 do
+    redirect_to admin_message_path(
+                  parent_id: resource.model.parent1.id
+                )
+    # children_support_module = ChildrenSupportModule.find_by(child: resource.model.current_child, parent: resource.model.parent1, is_programmed: false)
+    # if resource.parent1_available_support_module_list.nil? || resource.parent1_available_support_module_list.reject(&:blank?).empty?
+    #   redirect_back(fallback_location: root_path, alert: "Aucun module disponible n'est choisi")
+    #
+    #
+    # elsif children_support_module
+    #   redirect_to admin_children_support_module_path(id: children_support_module.id)
+    # else
+    #   redirect_to new_admin_children_support_module_path(
+    #                 is_completed: false,
+    #                 parent_id: resource.model.parent1,
+    #                 child_id: resource.model.current_child,
+    #                 available_support_module_list: resource.parent1_available_support_module_list
+    #               )
+    # end
+  end
+
+  member_action :send_message_to_parent2 do
+    redirect_to admin_message_path
   end
 
   controller do

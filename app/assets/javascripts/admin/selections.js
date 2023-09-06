@@ -1,5 +1,4 @@
 $(document).ready(function() {
-
   var formatResult = function(result) {
     var $a = $('<div class="search-result search-result-'+(result.type || '').toLowerCase()+'">');
 
@@ -18,18 +17,41 @@ $(document).ready(function() {
     return $a;
   }
 
-  $('#recipients').select2({
-    width: '100%',
-    placeholder: "Entrez le nom d'une cohorte, d'un tag ou d'un parent directement",
-    ajax: {
-      url: '/admin/message/recipients',
-      dataType: 'json',
-      delay: 250
-    },
-    templateResult: formatResult,
-    templateSelection: formatSelection,
-    minimumInputLength: 3
-  });
+  var $parentId = $('#parent_id').val()
+
+  if ($parentId === '') {
+
+    // ON le recupere
+
+    // on le place comme value dans select 2
+    $('#recipients').select2({
+      width: '100%',
+      placeholder: "Entrez le nom d'une cohorte, d'un tag ou d'un parent directement",
+      ajax: {
+        url: '/admin/message/recipients',
+        dataType: 'json',
+        delay: 250
+      },
+      templateResult: formatResult,
+      templateSelection: formatSelection,
+      minimumInputLength: 3
+    });
+  } else {
+    $('#recipients').select2({
+      width: '100%',
+      ajax: {
+        url: '/admin/message/recipients?parent_id='+$parentId,
+        dataType: 'json',
+        delay: 250
+      },
+      templateResult: formatResult,
+      templateSelection: formatSelection,
+      minimumInputLength: 0
+    });
+
+    // $('#recipients').select2().trigger('change');
+
+  }
 
   //  redirection_target
 
