@@ -24,7 +24,7 @@ class SupportModule < ApplicationRecord
   include Discard::Model
   default_scope -> { kept }
 
-  THEME_LIST = %w[reading songs bilingualism language games screen ride anger].freeze
+  THEME_LIST = %w[reading bilingualism language songs games screen ride anger].freeze
 
   LESS_THAN_FIVE = 'less_than_five'.freeze
   FIVE_TO_ELEVEN = 'five_to_eleven'.freeze
