@@ -1,42 +1,86 @@
 module ProgramMessagesHelper
 
-  def get_recipients(term, parent_id = nil)
-    if parent_id
-      result = Parent.find(parent_id)&.decorate
-      return [
-        {
-          id: "#{result.object.class.name.underscore}.#{result.id}",
-          name: result.name,
-          type: result.object.class.name.underscore,
-          icon: result.icon_class,
-          html: result.as_autocomplete_result,
-          selected: true
-        }
-      ]
-    end
-    (Parent.where("unaccent(CONCAT(first_name, last_name)) ILIKE unaccent(?)", "%#{term}%").decorate +
-        Tag.where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate +
-        Group.where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate
-    ).map do |result|
-      {
-        id: "#{result.object.class.name.underscore}.#{result.id}",
-        name: result.name,
-        type: result.object.class.name.underscore,
-        icon: result.icon_class,
-        html: result.as_autocomplete_result
-      }
+  def format_recipient(recipient)
+    {
+      id: "#{recipient.object.class.name.underscore}.#{recipient.id}",
+      name: recipient.name,
+      type: recipient.object.class.name.underscore,
+      icon: recipient.icon_class,
+      html: recipient.as_autocomplete_result,
+      selected: true
+    }
+  end
+
+  def format_result(result)
+    {
+      id: result.id,
+      text: result.medium.name
+    }
+  end
+
+  def child_age_range(parent_decorated)
+    case parent_decorated.object.current_child&.months
+    when 6..11
+      '06-11'
+    when 12..17
+      '12-17'
+    when 18..23
+      '18-23'
+    when 24..31
+      '24-31'
     end
   end
 
-  def get_redirection_targets(term)
-    RedirectionTarget.joins(:medium)
-      .where("media.name ILIKE unaccent(?) and media.url IS NOT NULL", "%#{term}%")
-      .decorate.map do |result|
-      {
-        id: result.id,
-        text: result.medium.name
-      }
+  def module_zero_suggested_video(child_age_range)
+    video = RedirectionTarget.joins(:medium).find_by(media: {name: "Module 0 - Conversations - #{child_age_range}"})
+    video&.decorate
+  end
+
+  def module_one_suggested_video(child_age_range)
+    video = RedirectionTarget.joins(:medium).find_by(media: {name: "Lecture - Pour debuter - #{child_age_range}"})
+    video&.decorate
+  end
+
+  def suggested_videos(parent_decorated)
+    suggested_videos = []
+    current_child_age_range = child_age_range(parent_decorated)
+    module_zero_video = module_zero_suggested_video(current_child_age_range)
+    module_one_video = module_one_suggested_video(current_child_age_range)
+    suggested_videos << format_result(module_zero_video) if module_zero_video
+    suggested_videos << format_result(module_one_video) if module_one_video
+    suggested_videos
+  end
+
+  def get_recipients(term, parent_decorated = nil)
+    unless parent_decorated
+      return (Parent.where("unaccent(CONCAT(first_name, last_name)) ILIKE unaccent(?)", "%#{term}%").decorate +
+        Tag.where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate +
+        Group.where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate
+      ).map { |result| format_recipient(result) }
     end
+
+    [format_recipient(parent_decorated).merge({ selected: true })]
+  end
+
+  def get_redirection_targets(term, parent_decorated = nil)
+    unless parent_decorated
+      return RedirectionTarget.joins(:medium)
+                       .where("media.name ILIKE unaccent(?) and media.url IS NOT NULL", "%#{term}%")
+                       .decorate.map { |result| format_result(result) }
+    end
+
+    [
+      {
+        text: 'Vidéos suggérées pour ce parent',
+        children: suggested_videos(parent_decorated)
+      },
+      {
+        text: 'Autres vidéos',
+        children: RedirectionTarget.joins(:medium)
+                                   .where("media.name ILIKE unaccent(?) and media.url IS NOT NULL", "%#{term}%")
+                                   .decorate.map { |result| format_result(result) }
+      }
+    ]
   end
 
   def get_module(term)
