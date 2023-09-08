@@ -92,7 +92,7 @@
       <div class="row justify-content-sm-center end-buttons">
         <div class="col-sm-8">
           <%= f.simple_fields_for :parent1 do |parent1_f| %>
-            <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label, checked_value: Time.now %>
+            <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label.html_safe, checked_value: Time.now %>
           <% end %>
         </div>
         <div class="col-sm-4">
