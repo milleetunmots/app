@@ -58,8 +58,8 @@ class Parent < ApplicationRecord
 
   include Discard::Model
 
-  GENDER_FEMALE = "f".freeze
-  GENDER_MALE = "m".freeze
+  GENDER_FEMALE = 'f'.freeze
+  GENDER_MALE = 'm'.freeze
   GENDERS = [GENDER_FEMALE, GENDER_MALE].freeze
   ORELANS_POSTAL_CODE = %w[45000 45100 45140 45160 45380 45400 45430 45560 45590 45650 45750 45760 45770 45800].freeze
   PLAISIR_POSTAL_CODE = %w[78570 78540 78650 78700 78710 78711 78760 78800 78820 78860 78910 78955 78610 78980 78520 78490 78420 78410 78390 78380 78330 78300 78260 78220 78210 78200 78180 78150 78140 78130 78370 78340 78310 78280 78114 78320 78450 78960 78100 78640 78850].freeze
@@ -70,7 +70,9 @@ class Parent < ApplicationRecord
   PARIS_20_EME_POSTAL_CODE = '75020'
   GIEN_POSTAL_CODE = %w[45290 45500 45720].freeze
   PITHIVIERS_POSTAL_CODE = %w[45300 45480 45170].freeze
-  ALL_POSTAL_CODE = Parent::ORELANS_POSTAL_CODE + Parent::PLAISIR_POSTAL_CODE + Parent::MONTARGIS_POSTAL_CODE + Parent::TRAPPES_POSTAL_CODE + Parent::PARIS_18_EME_POSTAL_CODE + [Parent::AULNAY_SOUS_BOIS_POSTAL_CODE, Parent::PARIS_20_EME_POSTAL_CODE]
+  ALL_POSTAL_CODE = Parent::ORELANS_POSTAL_CODE + Parent::PLAISIR_POSTAL_CODE + Parent::MONTARGIS_POSTAL_CODE + Parent::TRAPPES_POSTAL_CODE + Parent::PARIS_18_EME_POSTAL_CODE + [
+    Parent::AULNAY_SOUS_BOIS_POSTAL_CODE, Parent::PARIS_20_EME_POSTAL_CODE
+  ]
 
   # ---------------------------------------------------------------------------
   # relations
@@ -96,29 +98,29 @@ class Parent < ApplicationRecord
 
   before_validation :format_phone_number
 
-  validates :gender, presence: true, inclusion: {in: GENDERS}
+  validates :gender, presence: true, inclusion: { in: GENDERS }
   validates :first_name, presence: true
-  validates :first_name, format: {with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE}
+  validates :first_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
   validates :last_name, presence: true
-  validates :last_name, format: {with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE}
+  validates :last_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
   validates :letterbox_name, presence: true
-  validates :letterbox_name, format: {with: REGEX_VALID_ADDRESS, allow_blank: true, message: INVALID_ADDRESS_MESSAGE}
+  validates :letterbox_name, format: { with: REGEX_VALID_ADDRESS, allow_blank: true, message: INVALID_ADDRESS_MESSAGE }
   validates :address, presence: true
-  validates :address, format: {with: REGEX_VALID_ADDRESS, allow_blank: true, message: INVALID_ADDRESS_MESSAGE}
+  validates :address, format: { with: REGEX_VALID_ADDRESS, allow_blank: true, message: INVALID_ADDRESS_MESSAGE }
   validates :city_name, presence: true
   validates :postal_code, presence: true
   validates :phone_number,
-    phone: {
-      possible: true,
-      types: :mobile,
-      countries: :fr,
-      allow_blank: true,
-      message: "doit être composé de 10 chiffres"
-    }
+            phone: {
+              possible: true,
+              types: :mobile,
+              countries: :fr,
+              allow_blank: true,
+              message: 'doit être composé de 10 chiffres'
+            }
   validates :phone_number, presence: true
   validates :email,
-    format: {with: REGEX_VALID_EMAIL, allow_blank: true, message: "Les informations doivent être renseignées au format adresse email (xxxx@xx.com)."},
-    uniqueness: {case_sensitive: false, allow_blank: true}
+            format: { with: REGEX_VALID_EMAIL, allow_blank: true, message: 'Les informations doivent être renseignées au format adresse email (xxxx@xx.com).' },
+            uniqueness: { case_sensitive: false, allow_blank: true }
   validates :terms_accepted_at, presence: true
 
   def initialize(attributes = {})
@@ -133,7 +135,7 @@ class Parent < ApplicationRecord
   def update_counters!
     self.redirection_urls_count = redirection_urls.count
 
-    if self.redirection_urls_count.zero?
+    if redirection_urls_count.zero?
       self.redirection_url_unique_visits_count = 0
       self.redirection_unique_visit_rate = 0
       self.redirection_url_visits_count = 0
@@ -225,6 +227,7 @@ class Parent < ApplicationRecord
 
   def duplicate_of?(other_parent)
     return false if other_parent.nil?
+
     if other_parent.phone_number
       format_phone_number
       return true if phone_number == other_parent.phone_number
@@ -233,14 +236,14 @@ class Parent < ApplicationRecord
   end
 
   def available_for_workshops?
-    children.each {|child| return true if child.available_for_workshops }
+    children.each { |child| return true if child.available_for_workshops }
 
     false
   end
 
   def should_be_contacted?
-    parent1_children.each {|child| return false unless child.should_contact_parent1 }
-    parent2_children.each {|child| return false unless child.should_contact_parent2 }
+    parent1_children.each { |child| return false unless child.should_contact_parent1 }
+    parent2_children.each { |child| return false unless child.should_contact_parent2 }
 
     true
   end
@@ -267,7 +270,7 @@ class Parent < ApplicationRecord
 
   def format_phone_number
     # format phone number to e164
-    if attribute_present?("phone_number")
+    if attribute_present?('phone_number')
       phone = Phonelib.parse(phone_number)
       self.phone_number = phone.e164
       self.phone_number_national = phone.national(false)
