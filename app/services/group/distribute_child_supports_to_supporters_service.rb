@@ -155,7 +155,15 @@ class Group
       child_supports_without_supporter_count = @group.child_supports.joins(:children).where(supporter_id: nil, children: { group_status: 'active' }).count
       return if child_supports_without_supporter_count.zero?
 
-      raise "#{child_supports_without_supporter_count} familles n'ont pas pu être associées à une appelante, l'opération est annulée, veuillez contacter le pôle technique."
+      Rollbar.error("#{child_supports_without_supporter_count} familles n'ont pas pu être associées à une appelante, l'opération est annulée, veuillez contacter le pôle technique.")
+      logistics_team_members.each do |ltm|
+        Task.create(
+          assignee_id: ltm.id,
+          title: "Toutes les fiches de suivi n'ont pas d'appelante",
+          description: "#{child_supports_without_supporter_count} familles n'ont pas pu être associées à une appelante. Filtrez les fiches de suivi de la cohorte sans appelante et procédez à une attribution manuelle depuis l'action groupée",
+          due_date: Time.zone.today
+        )
+      end
     end
   end
 end
