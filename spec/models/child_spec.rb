@@ -50,19 +50,19 @@
 require "rails_helper"
 
 RSpec.describe Child, type: :model do
-  let_it_be(:first_parent, reload: true) { FactoryBot.create(:parent, postal_code: 75018) }
-  let_it_be(:second_parent, reload: true) { FactoryBot.create(:parent, postal_code: 75020) }
-  let_it_be(:third_parent, reload: true) { FactoryBot.create(:parent, postal_code: 45380) }
-  let_it_be(:fourth_parent, reload: true) { FactoryBot.create(:parent, postal_code: 93600) }
-  let_it_be(:fifth_parent, reload: true) { FactoryBot.create(:parent, postal_code: 45290) }
+  let_it_be(:first_group, reload: true) { FactoryBot.create(:group, expected_children_number: 1) }
+  let_it_be(:second_group, reload: true) { FactoryBot.create(:group, expected_children_number: 2) }
 
-  let_it_be(:first_group, reload: true) { FactoryBot.create(:group) }
-  let_it_be(:second_group, reload: true) { FactoryBot.create(:group) }
+  let_it_be(:first_parent, reload: true) { FactoryBot.create(:parent, postal_code: 75_018) }
+  let_it_be(:second_parent, reload: true) { FactoryBot.create(:parent, postal_code: 75_020) }
+  let_it_be(:third_parent, reload: true) { FactoryBot.create(:parent, postal_code: 45_380) }
+  let_it_be(:fourth_parent, reload: true) { FactoryBot.create(:parent, postal_code: 93_600) }
+  let_it_be(:fifth_parent, reload: true) { FactoryBot.create(:parent, postal_code: 45_290) }
 
   let_it_be(:first_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: second_parent, birthdate: Date.today.prev_month, group: first_group, group_status: 'active') }
   let_it_be(:second_child, reload: true) { FactoryBot.create(:child, parent1: third_parent, parent2: second_parent, birthdate: Date.today.prev_month(8), group: second_group, group_status: 'paused') }
   let_it_be(:third_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: second_parent, birthdate: Date.today.prev_month(14), group: second_group, group_status: 'active') }
-  let_it_be(:fourth_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: third_parent, birthdate: Date.today.yesterday) }
+  let_it_be(:fourth_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: third_parent, birthdate: Date.today.prev_day(3)) }
   let_it_be(:fifth_child, reload: true) { FactoryBot.create(:child, parent1: fourth_parent, parent2: fifth_parent, birthdate: Date.today.prev_month(27)) }
 
   describe "Validations" do
@@ -322,20 +322,12 @@ RSpec.describe Child, type: :model do
     end
   end
 
-  describe "#group_id_in" do
-    context "returns" do
-      it "children with the group in parameter" do
-        expect(Child.group_id_in(second_group.id)).to match_array [second_child, third_child]
-      end
-    end
-  end
-
   describe "#without_parent_text_message_since" do
     context "returns" do
-      let_it_be(:text_message) { FactoryBot.create(:text_message, related: third_parent, occurred_at: Date.today.prev_month(1)) }
+      let_it_be(:text_message) { FactoryBot.create(:text_message, related: third_parent, occurred_at: Time.zone.today.prev_month(1)) }
 
       it "children with parents who don't have text message since the parameter" do
-        expect(Child.without_parent_text_message_since(Date.today.prev_month(2))).to match_array [first_child, third_child, fifth_child]
+        expect(Child.without_parent_text_message_since(Time.zone.today.prev_month(2))).to match_array [first_child, third_child, fifth_child]
       end
     end
   end

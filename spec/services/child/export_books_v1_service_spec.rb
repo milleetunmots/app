@@ -9,7 +9,6 @@ RSpec.describe Child::ExportBooksV1Service do
     let_it_be(:first_group_between_0_and_12_children, reload: true) { FactoryBot.create_list(:child, 3, birthdate: Date.today.prev_month(5), group: first_group, group_status: 'active')}
     let_it_be(:second_group_between_0_and_12_children, reload: true) { FactoryBot.create_list(:child, 4, birthdate: Date.today.prev_month(5), group: second_group, group_status: 'active')}
     let_it_be(:third_group_between_0_and_12_children, reload: true) { FactoryBot.create_list(:child, 2, birthdate: Date.today.prev_month(3), group: third_group, group_status: 'active')}
-    let_it_be(:no_group_between_0_and_12_children, reload: true) { FactoryBot.create_list(:child, 2, birthdate: Date.today.prev_month(4))}
     let_it_be(:second_group_between_12_and_24_children, reload: true) { FactoryBot.create_list(:child, 4, birthdate: Date.today.prev_month(15), group: second_group, group_status: 'active')}
     let_it_be(:third_group_between_12_and_24_children, reload: true) { FactoryBot.create_list(:child, 2, birthdate: Date.today.prev_month(14), group: third_group, group_status: 'active')}
     let_it_be(:third_group_more_than_24_children, reload: true) { FactoryBot.create_list(:child, 2, birthdate: Date.today.prev_month(25), group: third_group, group_status: 'active')}
