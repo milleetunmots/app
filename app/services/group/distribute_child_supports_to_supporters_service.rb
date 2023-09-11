@@ -18,7 +18,7 @@ class Group
         balance_capacity_of_each_supporter
         child_supports_order_by_registration_source = order_child_supports
         associate_child_support_to_supporters(child_supports_order_by_registration_source)
-        # check_all_child_supports_are_associated
+        check_all_child_supports_are_associated
       end
     end
 
@@ -155,7 +155,7 @@ class Group
       child_supports_without_supporter_count = @group.child_supports.joins(:children).where(supporter_id: nil, children: { group_status: 'active' }).count
       return if child_supports_without_supporter_count.zero?
 
-      raise "#{child_supports_without_supporter_count} familles n'ont pas pu être associées à une appelante, l'opération est annulée, veuillez contacter le pôle technique."
+      Rollbar.error("#{child_supports_without_supporter_count} familles n'ont pas pu être associées à une appelante, l'opération est annulée, veuillez contacter le pôle technique.")
     end
   end
 end
