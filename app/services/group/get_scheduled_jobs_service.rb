@@ -42,12 +42,7 @@ class Group
       job_scheduled_date = job.at
       return unless GROUP_JOB_CLASS_NAMES.key?(job_class_name) && job_group_id == @group_id.to_i
 
-      name = if job_class_name == ChildrenSupportModule::SelectModuleJob.to_s && job.args[0]['arguments']&.third.eql?(true)
-               "Programmation des SMS de choix du module aux parents n'ayant pas reçu d'appel 2"
-             else
-               GROUP_JOB_CLASS_NAMES[job_class_name]
-             end
-      @scheduled_jobs << { name: name, scheduled_date: job_scheduled_date }
+      @scheduled_jobs << { name: GROUP_JOB_CLASS_NAMES[job_class_name], scheduled_date: job_scheduled_date }
     end
   end
 end

@@ -8,7 +8,6 @@ ActiveAdmin.register_page "Message" do
 
     form action: admin_message_program_sms_path, method: :post, id: "sms-form" do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
-      f.input :parent_id, type: :hidden, name: :parent_id, id: :parent_id, value: params[:parent_id]
 
       label "Date et heure d'envoi du message"
       div class: "datetime-container" do
@@ -66,7 +65,7 @@ ActiveAdmin.register_page "Message" do
 
   page_action :recipients do
     render json: {
-      results: get_recipients(params[:term], params[:parent_id])
+      results: get_recipients(params[:term])
     }
   end
 

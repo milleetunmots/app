@@ -1,4 +1,5 @@
 ActiveAdmin.register ChildSupport do
+
   decorate_with ChildSupportDecorator
 
   has_better_csv
@@ -24,7 +25,7 @@ ActiveAdmin.register ChildSupport do
         [
           decorated.send("call#{call_idx}_status"),
           decorated.send("call#{call_idx}_parent_progress_index")
-        ].join(' ').html_safe
+        ].join(" ").html_safe
       end
     end
     column :availability
@@ -48,126 +49,126 @@ ActiveAdmin.register ChildSupport do
   filter :availability, as: :string
   filter :call_infos, as: :string
   filter :group_id_in,
-         as: :select,
-         collection: proc { child_group_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
-         label: 'Cohorte'
+    as: :select,
+    collection: proc { child_group_select_collection },
+    input_html: {multiple: true, data: {select2: {}}},
+    label: "Cohorte"
   filter :active_group_id_in,
-         as: :select,
-         collection: proc { child_group_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
-         label: 'Cohorte active'
+    as: :select,
+    collection: proc { child_group_select_collection },
+    input_html: {multiple: true, data: {select2: {}}},
+    label: "Cohorte active"
   filter :without_parent_text_message_since,
-         as: :datepicker,
-         required: false,
-         label: 'Parent sans SMS depuis'
+    as: :datepicker,
+    required: false,
+    label: "Parent sans SMS depuis"
   filter :registration_sources,
-         as: :select,
-         collection: proc { child_registration_source_select_collection },
-         input_html: { multiple: true, data: { select2: {} } }
+    as: :select,
+    collection: proc { child_registration_source_select_collection },
+    input_html: {multiple: true, data: {select2: {}}}
   filter :registration_sources_details,
-         as: :select,
-         collection: proc { child_registration_source_details_suggestions },
-         input_html: { multiple: true, data: { select2: {} } }
+    as: :select,
+    collection: proc { child_registration_source_details_suggestions },
+    input_html: {multiple: true, data: {select2: {}}}
   filter :current_child_pmi_detail,
          as: :select,
          collection: proc { child_registration_pmi_detail_collection },
-         input_html: { multiple: true, data: { select2: {} } }
+         input_html: {multiple: true, data: {select2: {}}}
   filter :should_be_read,
-         input_html: { data: { select2: { width: '100%' } } }
+    input_html: {data: {select2: {width: "100%"}}}
   filter :book_not_received
   filter :is_bilingual
   filter :second_language
   filter :postal_code,
-         as: :string
+    as: :string
   filter :supporter,
-         input_html: { data: { select2: {} } }
+    input_html: {data: {select2: {}}}
   (1..5).each do |call_idx|
     filter "call#{call_idx}_status",
-           as: :select,
-           collection: proc { call_status_collection },
-           input_html: { data: { select2: {} } }
+      as: :select,
+      collection: proc { call_status_collection },
+      input_html: {data: {select2: {}}}
     filter "call#{call_idx}_duration"
     filter "call#{call_idx}_parent_progress_present",
-           as: :boolean,
-           label: "Note appel #{call_idx} présente"
+      as: :boolean,
+      label: "Note appel #{call_idx} présente"
     filter "call#{call_idx}_parent_progress",
-           as: :select,
-           collection: proc { child_support_call_parent_progress_select_collection },
-           input_html: { multiple: true, data: { select2: {} } }
+      as: :select,
+      collection: proc { child_support_call_parent_progress_select_collection },
+      input_html: {multiple: true, data: {select2: {}}}
     # filter "call#{call_idx}_language_awareness",
     #   as: :select,
     #   collection: proc { child_support_call_language_awareness_select_collection },
     #   input_html: {multiple: true, data: {select2: {}}}
     filter "call#{call_idx}_sendings_benefits",
-           as: :select,
-           collection: proc { child_support_call_sendings_benefits_select_collection },
-           input_html: { multiple: true, data: { select2: {} } }
+      as: :select,
+      collection: proc { child_support_call_sendings_benefits_select_collection },
+      input_html: {multiple: true, data: {select2: {}}}
     if call_idx == 1
       filter :books_quantity,
-             as: :select,
-             collection: proc { child_support_books_quantity },
-             input_html: { multiple: true, data: { select2: {} } }
+        as: :select,
+        collection: proc { child_support_books_quantity },
+        input_html: {multiple: true, data: {select2: {}}}
     end
     filter "call#{call_idx}_reading_frequency",
-           as: :select,
-           collection: proc { child_support_call_reading_frequency_select_collection },
-           input_html: { multiple: true, data: { select2: {} } }
+      as: :select,
+      collection: proc { child_support_call_reading_frequency_select_collection },
+      input_html: {multiple: true, data: {select2: {}}}
     filter "call#{call_idx}_tv_frequency",
-           as: :select,
-           collection: proc { child_support_call_tv_frequency_select_collection },
-           input_html: { multiple: true, data: { select2: {} } }
+      as: :select,
+      collection: proc { child_support_call_tv_frequency_select_collection },
+      input_html: {multiple: true, data: {select2: {}}}
   end
   filter :created_at
   filter :updated_at
 
   batch_action :assign_supporter, form: -> {
     {
-      I18n.t('activerecord.attributes.child_support.supporter') => AdminUser.pluck(:name, :id)
+      I18n.t("activerecord.attributes.child_support.supporter") => AdminUser.pluck(:name, :id)
     }
   } do |ids, inputs|
     batch_action_collection.find(ids).each do |child_support|
-      supporter_id = inputs[I18n.t('activerecord.attributes.child_support.supporter')]
+      supporter_id = inputs[I18n.t("activerecord.attributes.child_support.supporter")]
       child_support.supporter_id = supporter_id
       child_support.save!
     end
-    redirect_to request.referer, notice: 'Responsable mis à jour'
+    redirect_to request.referer, notice: "Responsable mis à jour"
   end
 
   batch_action :remove_book_not_received do |ids|
     child_supports = batch_action_collection.where(id: ids)
     child_supports.each { |child_support| child_support.update! book_not_received: [] }
-    redirect_to request.referer, notice: 'Livres non reçus enlevés'
+    redirect_to request.referer, notice: "Livres non reçus enlevés"
   end
 
   batch_action :check_should_be_read do |ids|
     child_supports = batch_action_collection.where(id: ids)
     child_supports.each { |child_support| child_support.should_be_read? ? next : child_support.update!(should_be_read: true) }
-    redirect_to collection_path, notice: 'Témoignages marquants ajoutés.'
+    redirect_to collection_path, notice: "Témoignages marquants ajoutés."
   end
 
   batch_action :uncheck_should_be_read do |ids|
     child_supports = batch_action_collection.where(id: ids)
-    child_supports.each { |child_support| child_support.should_be_read? ? child_support.update!(should_be_read: false) : next }
-    redirect_to collection_path, notice: 'Témoignages marquants retirés.'
+    child_supports.each { |child_support| !child_support.should_be_read? ? next : child_support.update!(should_be_read: false) }
+    redirect_to collection_path, notice: "Témoignages marquants retirés."
   end
 
   batch_action :check_call_2_4 do |ids|
     child_supports = batch_action_collection.where(id: ids)
     child_supports.each { |child_support| child_support.to_call? ? next : child_support.update!(to_call: true) }
-    redirect_to collection_path, notice: 'Appels 2 ou 4 ajoutés.'
+    redirect_to collection_path, notice: "Appels 2 ou 4 ajoutés."
   end
 
   batch_action :uncheck_call_2_4 do |ids|
     child_supports = batch_action_collection.where(id: ids)
-    child_supports.each { |child_support| child_support.to_call? ? child_support.update!(to_call: false) : next }
-    redirect_to collection_path, notice: 'Appels 2 ou 4 retirés.'
+    child_supports.each { |child_support| !child_support.to_call? ? next : child_support.update!(to_call: false) }
+    redirect_to collection_path, notice: "Appels 2 ou 4 retirés."
   end
 
   batch_action :remove_call_infos do |ids|
     child_supports = batch_action_collection.where(id: ids)
-    child_supports.each { |child_support| child_support.update! call_infos: '' }
-    redirect_to request.referer, notice: 'Informations éffacées'
+    child_supports.each { |child_support| child_support.update! call_infos: "" }
+    redirect_to request.referer, notice: "Informations éffacées"
   end
 
   batch_action :select_available_support_module do |ids|
@@ -179,7 +180,7 @@ ActiveAdmin.register ChildSupport do
     @ids = session.delete(:select_available_support_module_ids) || []
     @form_action = url_for(action: :perform_selecting_available_support_modules)
     @back_url = request.referer
-    render 'active_admin/available_support_modules/add_available_modules'
+    render "active_admin/available_support_modules/add_available_modules"
   end
 
   collection_action :perform_selecting_available_support_modules, method: :post do
@@ -195,7 +196,7 @@ ActiveAdmin.register ChildSupport do
       object.parent2_available_support_module_list += modules
       object.save(validate: false)
     end
-    redirect_to back_url, notice: 'Modules disponibles ajoutés'
+    redirect_to back_url, notice: "Modules disponibles ajoutés"
   end
 
   # ---------------------------------------------------------------------------
@@ -203,12 +204,12 @@ ActiveAdmin.register ChildSupport do
   # ---------------------------------------------------------------------------
 
   form(remote: true) do |f|
-    f.semantic_errors(*f.object.errors.keys)
+    f.semantic_errors *f.object.errors.keys
     f.inputs do
       columns do
         column do
           f.input :supporter,
-                  input_html: { data: { select2: {} } }
+            input_html: {data: {select2: {}}}
           # parents & children
           columns do
             # parents
@@ -217,14 +218,13 @@ ActiveAdmin.register ChildSupport do
               [f.object.parent2, f.object.should_contact_parent2]
             ].each do |p|
               next if p[0].nil?
-
               parent = p[0].decorate
               should_contact_parent = p[1]
 
               column do
-                render 'parent',
-                       parent: parent,
-                       should_contact_parent: should_contact_parent
+                render "parent",
+                  parent: parent,
+                  should_contact_parent: should_contact_parent
               end
             end
             column do
@@ -232,7 +232,7 @@ ActiveAdmin.register ChildSupport do
               f.object.children.each do |c|
                 child = c.decorate
 
-                render 'child', child: child
+                render "child", child: child
               end
             end
           end
@@ -248,26 +248,26 @@ ActiveAdmin.register ChildSupport do
           columns do
             column do
               f.label :important_information
-              f.input :important_information, label: false, input_html: { rows: 7, style: 'width: 100%; margin-top:20px;' }
+              f.input :important_information, label: false, input_html: { rows: 7, style: "width: 100%; margin-top:20px;" }
             end
           end
         end
-        column class: 'column flex-column' do
+        column class:'column flex-column' do
           available_support_module_input(f, :parent1_available_support_module_list)
           available_support_module_input(f, :parent2_available_support_module_list) unless resource.parent2.nil?
           div class: 'border' do
             span "Ces informations apparaissent dans l'index des suivis"
-            f.input :availability, input_html: { style: 'width: 70%' }
-            f.input :call_infos, input_html: { style: 'width: 70%' }
+            f.input :availability, input_html: { style: "width: 70%"}
+            f.input :call_infos, input_html: { style: "width: 70%"}
           end
           f.input :book_not_received,
-                  collection: book_not_received_collection,
-                  multiple: true,
-                  input_html: { data: { select2: { tokenSeparators: [';'] } } }
+            collection: book_not_received_collection,
+            multiple: true,
+            input_html: {data: {select2: {tokenSeparators: [";"]}}}
           f.input :should_be_read
           f.input :to_call
           f.input :will_stay_in_group
-          tags_input(f, context_list = 'tag_list', label: 'Tags fiche de suivi')
+          tags_input(f, context_list = 'tag_list', label: "Tags fiche de suivi")
         end
       end
       tabs do
@@ -276,83 +276,83 @@ ActiveAdmin.register ChildSupport do
             columns do
               column do
                 f.input "call#{call_idx}_status",
-                        collection: call_status_collection,
-                        input_html: { data: { select2: {} } }
-                f.input "call#{call_idx}_duration", input_html: { style: 'width: 70%' }
+                  collection: call_status_collection,
+                  input_html: {data: {select2: {}}}
+                f.input "call#{call_idx}_duration", input_html: {style: "width: 70%"}
               end
               column do
-                f.input "call#{call_idx}_status_details", input_html: { rows: 5, style: 'width: 70%' }
+                f.input "call#{call_idx}_status_details", input_html: {rows: 5, style: "width: 70%"}
               end
             end
 
-            columns style: 'justify-content:space-between;' do
+            columns style: 'justify-content:space-between;'do
               if call_idx == 1
                 column max_width: '8%' do
                   f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
                 end
                 column do
                   f.input :books_quantity,
-                          as: :radio,
-                          collection: child_support_books_quantity
+                    as: :radio,
+                    collection: child_support_books_quantity
                 end
               end
               column do
                 f.input "call#{call_idx}_reading_frequency",
-                        as: :radio,
-                        collection: child_support_call_reading_frequency_select_collection
+                  as: :radio,
+                  collection: child_support_call_reading_frequency_select_collection
               end
               column do
                 f.input "call#{call_idx}_tv_frequency",
-                        as: :radio,
-                        collection: child_support_call_tv_frequency_select_collection
+                  as: :radio,
+                  collection: child_support_call_tv_frequency_select_collection
               end
             end
 
-            f.input "call#{call_idx}_notes", input_html: { rows: 5, style: 'width: 100%' }
+            f.input "call#{call_idx}_notes", input_html: { rows: 5, style: "width: 100%" }
 
             columns do
               column do
                 f.input "call#{call_idx}_technical_information",
-                        input_html: {
-                          rows: 8,
-                          style: 'width: 70%',
-                          value: f.object.send("call#{call_idx}_technical_information").presence ||
-                                 I18n.t('child_support.default.call_technical_information')
-                        }
+                  input_html: {
+                    rows: 8,
+                    style: "width: 70%",
+                    value: f.object.send("call#{call_idx}_technical_information").presence ||
+                      I18n.t("child_support.default.call_technical_information")
+                  }
 
                 unless call_idx == 1
                   f.input "call#{call_idx}_goals_tracking",
                           input_html: {
                             rows: 8,
-                            style: 'width: 70%',
+                            style: "width: 70%",
                             value: case call_idx
                                    when 2
-                                     f.object.send(:call1_goals)
+                                     f.object.send("call1_goals")
                                    when 3
-                                     f.object.send(:call2_goals).presence || f.object.send(:call1_goals)
+                                     f.object.send("call2_goals").presence || f.object.send("call1_goals")
                                    when 4
-                                     f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals)
+                                     f.object.send("call3_goals").presence || f.object.send("call2_goals").presence || f.object.send("call1_goals")
                                    else
-                                     f.object.send(:call4_goals).presence || f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals)
+                                     f.object.send("call4_goals").presence || f.object.send("call3_goals").presence || f.object.send("call2_goals").presence || f.object.send("call1_goals")
                                    end
                           }
                 end
 
                 f.input "call#{call_idx}_parent_actions",
-                        input_html: {
-                          rows: 8,
-                          style: 'width: 70%'
-                          # value: f.object.send("call#{call_idx}_parent_actions").presence ||
-                          #   I18n.t("child_support.default.call_parent_actions")
+                  input_html: {
+                    rows: 8,
+                    style: "width: 70%"
+                    # value: f.object.send("call#{call_idx}_parent_actions").presence ||
+                    #   I18n.t("child_support.default.call_parent_actions")
 
-                        }
+                  }
                 # f.input "call#{call_idx}_language_awareness",
                 #   as: :radio,
                 #   collection: child_support_call_language_awareness_select_collection
               end
               column do
-                f.input "call#{call_idx}_goals", input_html: { rows: 8, style: 'width: 70%' }
-                f.input "call#{call_idx}_language_development", input_html: { rows: 8, style: 'width: 70%' }
+                f.input "call#{call_idx}_goals", input_html: {rows: 8, style: "width: 70%"}
+                f.input "call#{call_idx}_language_development", input_html: {rows: 8, style: "width: 70%"}
               end
             end
             columns do
@@ -379,28 +379,28 @@ ActiveAdmin.register ChildSupport do
                 end
               end
             end
-            f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, style: 'width: 100%' }
+            f.input "call#{call_idx}_sendings_benefits_details", input_html: {rows: 5, style: "width: 100%"}
           end
         end
         if f.object.current_child
           %i[parent1 parent2].each do |k|
-            next unless f.object.current_child.send(k)
-
-            tab I18n.t("child_support.#{k}") do
-              f.semantic_fields_for :current_child do |current_child_f|
-                current_child_f.semantic_fields_for k do |parent_f|
-                  parent_f.input :phone_number
-                  parent_f.input :present_on_whatsapp
-                  parent_f.input :follow_us_on_whatsapp
-                  parent_f.input :present_on_facebook
-                  parent_f.input :follow_us_on_facebook
-                  parent_f.input :email
-                  parent_f.input :letterbox_name
-                  parent_f.input :address
-                  parent_f.input :postal_code
-                  parent_f.input :city_name
-                  parent_f.input :is_ambassador
-                  parent_f.input :job
+            if f.object.current_child.send(k)
+              tab I18n.t("child_support.#{k}") do
+                f.semantic_fields_for :current_child do |current_child_f|
+                  current_child_f.semantic_fields_for k do |parent_f|
+                    parent_f.input :phone_number
+                    parent_f.input :present_on_whatsapp
+                    parent_f.input :follow_us_on_whatsapp
+                    parent_f.input :present_on_facebook
+                    parent_f.input :follow_us_on_facebook
+                    parent_f.input :email
+                    parent_f.input :letterbox_name
+                    parent_f.input :address
+                    parent_f.input :postal_code
+                    parent_f.input :city_name
+                    parent_f.input :is_ambassador
+                    parent_f.input :job
+                  end
                 end
               end
             end
@@ -410,21 +410,21 @@ ActiveAdmin.register ChildSupport do
           tab f.object.current_child.decorate.name do
             f.semantic_fields_for :current_child do |current_child_f|
               current_child_f.input :gender,
-                                    as: :radio,
-                                    collection: child_gender_select_collection
+                as: :radio,
+                collection: child_gender_select_collection
               current_child_f.input :should_contact_parent1
               current_child_f.input :should_contact_parent2
               current_child_f.input :registration_source,
-                                    collection: child_registration_source_select_collection,
-                                    input_html: { data: { select2: {} } }
+                collection: child_registration_source_select_collection,
+                input_html: {data: {select2: {}}}
               current_child_f.input :registration_source_details
             end
           end
-          tab 'Historique' do
-            render 'admin/events/history', events: f.object.parent_events.order(occurred_at: :desc).decorate
+          tab "Historique" do
+            render "admin/events/history", events: f.object.parent_events.order(occurred_at: :desc).decorate
           end
         end
-        tab 'Notes' do
+        tab "Notes" do
           f.input :notes, as: :text
         end
       end
@@ -472,21 +472,21 @@ ActiveAdmin.register ChildSupport do
 
   show do
     tabs do
-      tab I18n.t('child_support.base') do
-        attributes_table title: I18n.t('child_support.base') do
+      tab I18n.t("child_support.base") do
+        attributes_table title: I18n.t("child_support.base") do
           row :supporter
           row :parent1 do |decorated|
             if decorated.model.parent1
-              render 'parent',
-                     parent: decorated.model.parent1.decorate,
-                     should_contact_parent: decorated.should_contact_parent1?
+              render "parent",
+                parent: decorated.model.parent1.decorate,
+                should_contact_parent: decorated.should_contact_parent1?
             end
           end
           row :parent2 do |decorated|
             if decorated.model.parent2
-              render 'parent',
-                     parent: decorated.model.parent2.decorate,
-                     should_contact_parent: decorated.should_contact_parent2?
+              render "parent",
+                parent: decorated.model.parent2.decorate,
+                should_contact_parent: decorated.should_contact_parent2?
             end
           end
           row :children
@@ -523,7 +523,9 @@ ActiveAdmin.register ChildSupport do
               row :call2_previous_goals_follow_up
             end
             row "call#{call_idx}_language_development"
-            row :books_quantity if call_idx == 1
+            if call_idx == 1
+              row :books_quantity
+            end
             row "call#{call_idx}_reading_frequency"
             # row "call#{call_idx}_tv_frequency"
             row "call#{call_idx}_goals"
@@ -532,12 +534,12 @@ ActiveAdmin.register ChildSupport do
         end
       end
       if resource.current_child
-        tab 'Historique' do
-          render 'admin/events/history', events: resource.parent_events.order(occurred_at: :desc).decorate
+        tab "Historique" do
+          render "admin/events/history", events: resource.parent_events.order(occurred_at: :desc).decorate
         end
       end
-      tab 'Notes' do
-        attributes_table title: 'Notes' do
+      tab "Notes" do
+        attributes_table title: "Notes" do
           row :notes do
             simple_format resource.notes
           end
@@ -571,6 +573,7 @@ ActiveAdmin.register ChildSupport do
     column :city_name
     column :postal_code
 
+
     column(:parent2_gender) { |cs| cs.parent2_gender && Parent.human_attribute_name("gender.#{cs.parent2_gender}") }
     column :parent2_first_name
     column :parent2_last_name
@@ -595,6 +598,7 @@ ActiveAdmin.register ChildSupport do
     column :second_language
 
     (1..5).each do |call_idx|
+
       column "call#{call_idx}_status"
       column "call#{call_idx}_status_details"
       column "call#{call_idx}_duration"
@@ -611,10 +615,13 @@ ActiveAdmin.register ChildSupport do
         column :call2_previous_goals_follow_up
       end
       column("call#{call_idx}_language_development") { |cs| cs.send("call#{call_idx}_language_development_text") }
-      column :books_quantity if call_idx == 1
+      if call_idx == 1
+        column :books_quantity
+      end
       column "call#{call_idx}_reading_frequency"
       column("call#{call_idx}_goals") { |cs| cs.send("call#{call_idx}_goals_text") }
       column("call#{call_idx}_notes") { |cs| cs.send("call#{call_idx}_notes_text") }
+
     end
 
     column :tag_list
@@ -625,9 +632,9 @@ ActiveAdmin.register ChildSupport do
   end
 
   action_item :other_family_child_supports,
-              only: %i[show edit],
-              if: proc { resource.has_other_family_child_supports? } do
-    dropdown_menu 'Autres suivis' do
+    only: %i[show edit],
+    if: proc { resource.has_other_family_child_supports? } do
+    dropdown_menu "Autres suivis" do
       resource.other_family_child_supports.each do |other_child_support|
         item other_child_support.decorate.dropdown_menu_item, url_for(id: other_child_support.id)
       end
@@ -651,10 +658,10 @@ ActiveAdmin.register ChildSupport do
   #   end
   # end
 
-  action_item :tools, only: %i[show edit] do
-    dropdown_menu 'Choisir un module' do
-      item 'Pour le parent 1', %i[select_module_for_parent1 admin child_support], { target: '_blank' }
-      item 'Pour le parent 2', %i[select_module_for_parent2 admin child_support], { target: '_blank' } unless resource.parent2.nil?
+  action_item :tools, only: [:show, :edit] do
+    dropdown_menu "Choisir un module" do
+      item "Pour le parent 1", [:select_module_for_parent1, :admin, :child_support], { target: "_blank" }
+      item "Pour le parent 2", [:select_module_for_parent2, :admin, :child_support], { target: "_blank" } unless resource.parent2.nil?
     end
   end
 
@@ -664,13 +671,6 @@ ActiveAdmin.register ChildSupport do
         item "Nettoyer la fiche de suivi", [:clean_child_support, :admin, resource],
         { data: { confirm: "Êtes-vous sûr de vouloir nettoyer la fiche de suivi ? Cette action est Irréversible, toutes les informations des appels vont être vidées et reportées danns les notes" }, method: 'GET' }
       end
-    end
-  end
-
-  action_item :send_message, only: %i[show edit] do
-    dropdown_menu 'Envoyer un SMS' do
-      item 'Pour le parent 1', %i[send_message_to_parent1 admin child_support], { target: '_blank' }
-      item 'Pour le parent 2', %i[send_message_to_parent2 admin child_support], { target: '_blank' } unless resource.parent2.nil?
     end
   end
 
@@ -695,11 +695,11 @@ ActiveAdmin.register ChildSupport do
       redirect_to admin_children_support_module_path(id: children_support_module.id)
     else
       redirect_to new_admin_children_support_module_path(
-        is_completed: false,
-        parent_id: resource.model.parent1,
-        child_id: resource.model.current_child,
-        available_support_module_list: resource.parent1_available_support_module_list
-      )
+                    is_completed: false,
+                    parent_id: resource.model.parent1,
+                    child_id: resource.model.current_child,
+                    available_support_module_list: resource.parent1_available_support_module_list
+                  )
     end
   end
 
@@ -711,20 +711,12 @@ ActiveAdmin.register ChildSupport do
       redirect_to admin_children_support_module_path(id: children_support_module.id)
     else
       redirect_to new_admin_children_support_module_path(
-        is_completed: false,
-        parent_id: resource.model.parent2,
-        child_id: resource.model.current_child,
-        available_support_module_list: resource.parent2_available_support_module_list
-      )
+                    is_completed: false,
+                    parent_id: resource.model.parent2,
+                    child_id: resource.model.current_child,
+                    available_support_module_list: resource.parent2_available_support_module_list
+                  )
     end
-  end
-
-  member_action :send_message_to_parent1 do
-    redirect_to admin_message_path(parent_id: resource.model.parent1.id)
-  end
-
-  member_action :send_message_to_parent2 do
-    redirect_to admin_message_path(parent_id: resource.model.parent2&.id)
   end
 
   controller do
