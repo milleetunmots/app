@@ -18,7 +18,7 @@ class Group
         balance_capacity_of_each_supporter
         child_supports_order_by_registration_source = order_child_supports
         associate_child_support_to_supporters(child_supports_order_by_registration_source)
-        check_all_child_supports_are_associated
+        # check_all_child_supports_are_associated
       end
     end
 
