@@ -5,7 +5,6 @@
 #  id                        :bigint           not null, primary key
 #  discarded_at              :datetime
 #  ended_at                  :date
-#  expected_children_number  :integer
 #  is_programmed             :boolean          default(FALSE), not null
 #  name                      :string
 #  started_at                :date

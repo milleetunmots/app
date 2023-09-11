@@ -5,7 +5,6 @@
 #  id                        :bigint           not null, primary key
 #  discarded_at              :datetime
 #  ended_at                  :date
-#  expected_children_number  :integer
 #  is_programmed             :boolean          default(FALSE), not null
 #  name                      :string
 #  started_at                :date
@@ -22,7 +21,6 @@
 #
 
 class Group < ApplicationRecord
-
   include Discard::Model
 
   # ---------------------------------------------------------------------------
@@ -34,24 +32,21 @@ class Group < ApplicationRecord
   has_many :parent2, through: :children
   has_many :child_supports, through: :children
   has_many :supporters, through: :child_supports
-
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
 
   validates :name,
-            presence: true,
-            uniqueness: { case_sensitive: false }
-  validates :expected_children_number, presence: true, on: :create
-  validates :started_at, presence: true, on: :create
+    presence: true,
+    uniqueness: {case_sensitive: false}
   validate :started_at_only_monday
 
   # ---------------------------------------------------------------------------
   # scopes
   # ---------------------------------------------------------------------------
 
-  scope :not_ended, -> { where('ended_at IS NULL OR ended_at > ?', Date.today) }
-  scope :ended, -> { where('ended_at <= ?', Date.today) }
+  scope :not_ended, -> { where("ended_at IS NULL OR ended_at > ?", Date.today) }
+  scope :ended, -> { where("ended_at <= ?", Date.today) }
 
   # ---------------------------------------------------------------------------
   # helpers
@@ -66,26 +61,15 @@ class Group < ApplicationRecord
   end
 
   def target_group?
-    !name.match?('Popi')
+    !self.name.match?("Popi")
   end
 
   def self.not_target_group
-    where('unaccent(name) ILIKE unaccent(?)', '%popi%')
-  end
-
-  def self.next_available_at(date)
-    next_available_groups = where(is_programmed: false).where('started_at > ?', date).order(:started_at)
-
-    next_available_groups.each do |next_available_group|
-      return next_available_group if next_available_group.children.count < next_available_group.expected_children_number
-
-      next
-    end
-    nil
+    where("unaccent(name) ILIKE unaccent(?)", "%popi%")
   end
 
   def started_at_only_monday
-    errors.add(:started_at, :invalid, message: 'doit être un lundi') if started_at && !started_at.monday?
+    errors.add(:started_at, :invalid, message: "doit être un lundi") if started_at && !started_at.monday?
   end
 
   # ---------------------------------------------------------------------------
