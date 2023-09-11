@@ -156,6 +156,14 @@ class Group
       return if child_supports_without_supporter_count.zero?
 
       Rollbar.error("#{child_supports_without_supporter_count} familles n'ont pas pu être associées à une appelante, l'opération est annulée, veuillez contacter le pôle technique.")
+      logistics_team_members.each do |ltm|
+        Task.create(
+          assignee_id: ltm.id,
+          title: "Toutes les fiches de suivi n'ont pas d'appelante",
+          description: "#{child_supports_without_supporter_count} familles n'ont pas pu être associées à une appelante, l'opération est annulée, veuillez contacter le pôle technique.",
+          due_date: Time.zone.today
+        )
+      end
     end
   end
 end
