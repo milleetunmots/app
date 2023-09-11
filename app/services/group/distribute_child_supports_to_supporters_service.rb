@@ -160,7 +160,7 @@ class Group
         Task.create(
           assignee_id: ltm.id,
           title: "Toutes les fiches de suivi n'ont pas d'appelante",
-          description: "#{child_supports_without_supporter_count} familles n'ont pas pu être associées à une appelante, l'opération est annulée, veuillez contacter le pôle technique.",
+          description: "#{child_supports_without_supporter_count} familles n'ont pas pu être associées à une appelante. Filtrez les fiches de suivi de la cohorte sans appelante et procédez à une attribution manuelle depuis l'action groupée",
           due_date: Time.zone.today
         )
       end
