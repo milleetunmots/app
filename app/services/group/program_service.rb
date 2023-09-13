@@ -57,14 +57,14 @@ class Group
 
     def fill_parents_available_support_modules
       (3..@group.support_modules_count).each do |module_index|
-        fill_date = @group.started_at + ((module_index - 1) * 8.weeks) - 6.weeks + MODULE_ZERO_DURATION
+        fill_date = @group.started_at + ((module_index - 2) * 8.weeks) - 6.weeks + MODULE_ZERO_DURATION
         ChildrenSupportModule::FillParentsAvailableSupportModulesJob.set(wait_until: fill_date.to_datetime.change(hour: 6)).perform_later(@group.id, module_index == 3)
       end
     end
 
     def verify_available_module_list
       (3..@group.support_modules_count).each do |module_index|
-        verification_date = @group.started_at + ((module_index - 1) * 8.weeks) - 5.weeks + MODULE_ZERO_DURATION
+        verification_date = @group.started_at + ((module_index - 2) * 8.weeks) - 5.weeks + MODULE_ZERO_DURATION
         ChildrenSupportModule::VerifyAvailableModulesTaskJob.set(wait_until: verification_date.to_datetime.change(hour: 6)).perform_later(@group.id)
       end
     end
@@ -75,7 +75,7 @@ class Group
     end
 
     def program_sms_to_choose_module2_to_parents
-      select_module_date = @group.started_at + 6.weeks - 3.days
+      select_module_date = (@group.started_at + 4.weeks).next_occurring(:saturday) + MODULE_ZERO_DURATION
       ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date, true)
     end
 
@@ -90,21 +90,21 @@ class Group
 
     def select_default_support_module
       (3..@group.support_modules_count).each do |module_index|
-        selection_date = @group.started_at + ((module_index - 1) * 8.weeks) - 2.weeks - 1.day + MODULE_ZERO_DURATION
+        selection_date = @group.started_at + ((module_index - 2) * 8.weeks) - 2.weeks - 1.day + MODULE_ZERO_DURATION
         ChildrenSupportModule::SelectDefaultSupportModuleJob.set(wait_until: selection_date.to_datetime.change(hour: 6)).perform_later(@group.id)
       end
     end
 
     def verify_chosen_modules
       (3..@group.support_modules_count).each do |module_index|
-        verification_date = @group.started_at + ((module_index - 1) * 8.weeks) - 2.weeks + MODULE_ZERO_DURATION
+        verification_date = @group.started_at + ((module_index - 2) * 8.weeks) - 2.weeks + MODULE_ZERO_DURATION
         ChildrenSupportModule::VerifyChosenModulesTaskJob.set(wait_until: verification_date.to_datetime.change(hour: 6)).perform_later(@group.id)
       end
     end
 
     def program_check_spothit_credits
       (3..@group.support_modules_count).each do |module_index|
-        check_date = @group.started_at + ((module_index - 1) * 8.weeks) - 1.week + MODULE_ZERO_DURATION
+        check_date = @group.started_at + ((module_index - 2) * 8.weeks) - 1.week + MODULE_ZERO_DURATION
         ChildrenSupportModule::CheckCreditsForGroupJob.set(wait_until: check_date.to_datetime.change(hour: 6)).perform_later(@group.id)
       end
     end
@@ -113,7 +113,7 @@ class Group
       return if @group.support_modules_count < 3
 
       (4..@group.support_modules_count).each do |module_index|
-        select_module_date = (@group.started_at + ((module_index - 1) * 8.weeks) - 4.weeks + MODULE_ZERO_DURATION).next_occurring(:saturday)
+        select_module_date = (@group.started_at + ((module_index - 2) * 8.weeks) - 4.weeks + MODULE_ZERO_DURATION).next_occurring(:saturday)
         ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date)
       end
     end
@@ -122,7 +122,7 @@ class Group
       return if @group.support_modules_count < 2
 
       (3..@group.support_modules_count).each do |module_index|
-        program_module_date = @group.started_at + ((module_index - 1) * 8.weeks) + MODULE_ZERO_DURATION
+        program_module_date = @group.started_at + ((module_index - 2) * 8.weeks) + MODULE_ZERO_DURATION
         ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: program_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, program_module_date)
       end
     end

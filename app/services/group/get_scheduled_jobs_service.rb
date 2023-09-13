@@ -52,28 +52,21 @@ class Group
                GROUP_JOB_CLASS_NAMES[job_class_name]
              end
 
-      update_module_number(job, job_class_name)
       update_scheduled_jobs(job, name)
-    end
-
-    def update_module_number(job, job_class_name)
-      @module_number =  case job_class_name
-                        when ChildrenSupportModule::ProgramSupportModuleZeroJob.to_s
-                          0
-                        when ChildrenSupportModule::ProgramFirstSupportModuleJob.to_s
-                          1
-                        when ChildrenSupportModule::CreateChildrenSupportModuleJob.to_s
-                          2
-                        else
-                          @module_number
-                        end
-      @module_number -= 1 if ['Programmation du 1er module', 'Préparation préalable au choix des parents pour l’appel 2'].include? GROUP_JOB_CLASS_NAMES[job_class_name]
-      @module_number -= 1 if GROUP_JOB_CLASS_NAMES[job_class_name] == 'Ajout des modules disponibles sur les fiches de suivi' && job.args[0]['arguments']&.second == false
     end
 
     def update_scheduled_jobs(job, name)
       job_scheduled_date = job.at
-      @scheduled_jobs << { name: name, scheduled_date: job_scheduled_date, module_number: @module_number }
+      @scheduled_jobs << { name: name, scheduled_date: job_scheduled_date }
+    end
+
+    def set_module_numbers
+      @scheduled_jobs.reverse.each do |scheduled_job|
+        scheduled_job[:module_number] = @module_number
+        @module_number -= 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::FillParentsAvailableSupportModulesJob']
+        scheduled_job[:module_number] = 0 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::ProgramSupportModuleZeroJob']
+        scheduled_job[:module_number] = 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::ProgramFirstSupportModuleJob']
+      end
     end
 
     def set_module_numbers

@@ -451,7 +451,7 @@ fr:
         ended_at: Date de fin
         name: Nom
         started_at: Date de début
-        support_modules_count: Nombre de modules prévu
+        support_modules_count: Nombre de modules prévu (en comptant les modules 0 et 1)
         is_programmed: A déjà été programmé
         support_module_programmed: Nombre de modules programmés
         expected_children_number: Nombre d'enfants prévus
