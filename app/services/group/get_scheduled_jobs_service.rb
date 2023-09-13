@@ -22,7 +22,7 @@ class Group
     def initialize(group_id)
       group = Group.find(group_id)
       @group_id = group_id
-      @module_number = group.created_at > MODULE_ZERO_FEATURE_START ? group.support_modules_count - 1 : group.support_modules_count
+      @module_number = group.started_at > MODULE_ZERO_FEATURE_START ? group.support_modules_count - 1 : group.support_modules_count
       @scheduled_jobs = []
     end
 
