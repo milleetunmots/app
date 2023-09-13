@@ -65,21 +65,23 @@ ActiveAdmin.register_page "Message" do
   end
 
   page_action :recipients do
-    render json: { results: get_recipients(params[:term]) } unless params[:parent_id]
-    parent = Parent.find_by(id: params[:parent_id])
-
-    render json: {
-      results: parent ? get_recipients(params[:term], parent.decorate) : []
-    }
+    if params[:parent_id]
+      parent = Parent.find_by(id: params[:parent_id])
+      render json: { results: parent ? get_recipients(params[:term], parent.decorate) : [] }
+    else
+      render json: { results: get_recipients(params[:term]) }
+    end
   end
 
   page_action :redirection_targets do
-    render json: { results: get_redirection_targets(params[:term]) } unless params[:parent_id]
-    parent = Parent.find_by(id: params[:parent_id])
-
-    render json: {
-      results: parent ? get_redirection_targets(params[:term], parent.decorate) : []
-    }
+    if params[:parent_id]
+      parent = Parent.find_by(id: params[:parent_id])
+      render json: {
+        results: parent ? get_redirection_targets(params[:term], parent.decorate) : []
+      }
+    else
+      render json: { results: get_redirection_targets(params[:term]) }
+    end
   end
 
   page_action :image_to_send do
