@@ -26,11 +26,15 @@ ActiveAdmin.register_page "Message" do
         select name: "redirection_target", id: "redirection_target"
       end
 
-
       div do
         label "Message"
         textarea name: "message"
         small "Variables disponibles: {PRENOM_ENFANT}, {URL}"
+      end
+
+      div do
+        label "SMS de petite mission ?"
+        select name: "call_goals_sms", id: "call_goals_sms"
       end
 
       div do
