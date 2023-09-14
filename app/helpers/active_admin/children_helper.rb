@@ -62,9 +62,7 @@ module ActiveAdmin::ChildrenHelper
   end
 
   def child_registration_pmi_detail_collection
-    Child::PMI_LIST.map do |v|
-      [Child.human_attribute_name("pmi_detail.#{v}"), v]
-    end
+    Child::PMI_LIST.map { |v| [Child.human_attribute_name("pmi_detail.#{v}"), v] }.sort
   end
 
   def child_registration_source_details_suggestions
