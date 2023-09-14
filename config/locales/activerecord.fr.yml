@@ -153,6 +153,10 @@ fr:
         gennevilliers_timsit: "[92] PMI de Gennevilliers - Timsit"
         asnieres_gennevilliers_sst2: "[92] PMI d'Asnières / Gennevilliers - SST2"
         villeneuve_la_garenne: "[92] PMI de Villeneuve-la-Garenne"
+        chanteloup: "[78] PMI Chanteloup"
+        sartrouville: "[78] PMI Sartrouville"
+        les_mureaux: "[78] PMI Les Mureaux"
+        seine_st_denis: "[93] PMI Seine-St-Denis"
       child/group_status:
         waiting: En attente
         active: Active
@@ -434,6 +438,7 @@ fr:
         support_modules_count: Nombre de modules prévu
         is_programmed: A déjà été programmé
         support_module_programmed: Nombre de modules programmés
+        expected_children_number: Nombre d'enfants prévus
       media_folder:
         << : *SHARED
         name: Nom
