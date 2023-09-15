@@ -58,7 +58,7 @@ ActiveAdmin.register Group do
       f.input :started_at, as: :datepicker
       f.input :ended_at, as: :datepicker
       f.input :support_modules_count
-      f.input :expected_children_number
+      f.input :expected_children_number, hint: "Il n'y aura plus d'assignation automatique d'enfant à l'inscription une fois ce nombre atteint."
     end
     f.actions
   end
