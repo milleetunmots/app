@@ -121,6 +121,8 @@ class Workshop < ApplicationRecord
                       Parent::PITHIVIERS_POSTAL_CODE
                     when 'Gien'
                       Parent::GIEN_POSTAL_CODE
+                    when 'Villeneuve-la-Garenne'
+                      Parent::VILLENEUVE_LA_GARENNE_POSTAL_CODE
                     else
                       nil
                     end
