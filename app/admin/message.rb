@@ -40,8 +40,8 @@ ActiveAdmin.register_page "Message" do
             option 'Appel 1', value: 'call1_goals'
             option 'Appel 2', value: 'call2_goals'
             option 'Appel 3', value: 'call3_goals'
-            option 'Appel 4', value: 'call3_goals'
-            option 'Appel 5', value: 'call3_goals'
+            option 'Appel 4', value: 'call4_goals'
+            option 'Appel 5', value: 'call5_goals'
           end
         end
       end
