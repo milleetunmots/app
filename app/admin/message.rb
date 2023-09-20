@@ -26,11 +26,24 @@ ActiveAdmin.register_page "Message" do
         select name: "redirection_target", id: "redirection_target"
       end
 
-
       div do
         label "Message"
         textarea name: "message"
         small "Variables disponibles: {PRENOM_ENFANT}, {URL}"
+      end
+
+      if params[:parent_id].present?
+        div do
+          label "SMS de petite mission ?"
+          select name: "call_goals_sms", id: "call_goals_sms" do
+            option 'Non', value: nil
+            option 'Appel 1', value: 'call1_goals'
+            option 'Appel 2', value: 'call2_goals'
+            option 'Appel 3', value: 'call3_goals'
+            option 'Appel 4', value: 'call4_goals'
+            option 'Appel 5', value: 'call5_goals'
+          end
+        end
       end
 
       div do
@@ -46,7 +59,6 @@ ActiveAdmin.register_page "Message" do
     end
   end
 
-
   page_action :program_sms, method: :post do
     service = ProgramMessageService.new(
       params[:planned_date],
@@ -60,13 +72,17 @@ ActiveAdmin.register_page "Message" do
     if service.errors.any?
       redirect_back(fallback_location: root_path, alert: service.errors.join("\n"))
     else
-      redirect_back(fallback_location: root_path, notice: "Message(s) programmé(s)")
+      notice = 'Message(s) programmé(s)'
+      if params[:call_goals_sms] && params[:call_goals_sms] != "Non"
+        child_support.update_column(params[:call_goals_sms], params[:message])
+        notice += '. Et petite mission définie'
+      end
+      redirect_back(fallback_location: root_path, notice: notice)
     end
   end
 
   page_action :recipients do
     if params[:parent_id]
-      parent = Parent.find_by(id: params[:parent_id])
       render json: { results: parent ? get_recipients(params[:term], parent.decorate) : [] }
     else
       render json: { results: get_recipients(params[:term]) }
@@ -75,7 +91,6 @@ ActiveAdmin.register_page "Message" do
 
   page_action :redirection_targets do
     if params[:parent_id]
-      parent = Parent.find_by(id: params[:parent_id])
       render json: {
         results: parent ? get_redirection_targets(params[:term], parent.decorate) : []
       }
@@ -88,5 +103,15 @@ ActiveAdmin.register_page "Message" do
     render json: {
       results: get_image_to_send(params[:term])
     }
+  end
+
+  controller do
+    def parent
+      Parent.find_by(id: params[:parent_id])
+    end
+
+    def child_support
+      parent.current_child.child_support
+    end
   end
 end
