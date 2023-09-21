@@ -56,4 +56,5 @@ class Media::Video < Medium
   include PgSearch
   multisearchable against: :name
 
+  after_create { RedirectionTarget.create(medium: self) }
 end

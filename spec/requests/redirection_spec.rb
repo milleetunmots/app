@@ -3,8 +3,8 @@ require "rails_helper"
 RSpec.describe RedirectionController, type: :request do
 
   before do
-    @video = FactoryBot.build(:media_video)
-    @redirection_target = RedirectionTarget.create!(medium: @video)
+    @video = FactoryBot.create(:media_video)
+    @redirection_target = RedirectionTarget.find_by(medium: @video)
     @child = FactoryBot.build(:child)
     @redirection_url = RedirectionUrl.create!(
       redirection_target: @redirection_target,
