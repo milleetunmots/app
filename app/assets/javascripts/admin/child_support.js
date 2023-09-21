@@ -37,7 +37,7 @@ $(document).ready(function() {
   autocompletion($parent2, '#child_parent2_id');
 
   const updateCallStatusDetail = function(event, index) {
-    if (['OK', 'KO', 'Numéro erroné'].includes(event.target.value)) {
+    if (['OK', 'KO', 'Numéro erroné', 'Incomplet'].includes(event.target.value)) {
       let details = $(`#child_support_call${index}_status_details`).val();
 
       if (details.length > 0) {

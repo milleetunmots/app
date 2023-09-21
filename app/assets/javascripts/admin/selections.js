@@ -81,5 +81,8 @@ $(document).ready(function() {
     },
   });
 
+  $('#call_goals_sms').select2({
+    width: "100%"
+  });
 
 });

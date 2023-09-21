@@ -57,7 +57,7 @@ class Child < ApplicationRecord
                 gennevilliers_zucman_gabison gennevilliers_timsit asnieres_gennevilliers_sst2 villeneuve_la_garenne chanteloup sartrouville les_mureaux seine_st_denis].freeze
   GROUP_STATUS = %w[waiting active paused stopped].freeze
   TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
-  LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Orleans', 'Montargis', 'Pithiviers', 'Gien'].freeze
+  LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Orleans', 'Montargis', 'Pithiviers', 'Gien', 'Villeneuve-la-Garenne'].freeze
 
   # ---------------------------------------------------------------------------
   # global search
@@ -235,13 +235,13 @@ class Child < ApplicationRecord
       when 'Paris 18 eme'
         postal_codes += Parent::PARIS_18_EME_POSTAL_CODE
       when 'Paris 20 eme'
-        postal_codes += [Parent::PARIS_20_EME_POSTAL_CODE]
+        postal_codes += Parent::PARIS_20_EME_POSTAL_CODE
       when 'Plaisir'
         postal_codes += Parent::PLAISIR_POSTAL_CODE
       when 'Trappes'
         postal_codes += Parent::TRAPPES_POSTAL_CODE
       when 'Aulnay sous bois'
-        postal_codes += [Parent::AULNAY_SOUS_BOIS_POSTAL_CODE]
+        postal_codes += Parent::AULNAY_SOUS_BOIS_POSTAL_CODE
       when 'Orleans'
         postal_codes += Parent::ORELANS_POSTAL_CODE
       when 'Montargis'
