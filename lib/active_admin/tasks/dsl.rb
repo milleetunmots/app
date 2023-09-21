@@ -16,7 +16,7 @@ module ActiveAdmin
       #   # Add member actions for tasking
       #   has_tasks
       # end
-      def has_tasks
+      def has_tasks(with_quick_task = true)
 
         # add TODO sidebar on show page
         sidebar I18n.t('active_admin.tasks.sidebar.title'),
@@ -49,18 +49,19 @@ module ActiveAdmin
         end
 
         # add 'Quick add task' button on edit page
-        action_item :task, only: :edit do
-          link_to I18n.t('active_admin.tasks.quick.link'),
-                  { action: :quick_task },
-                  target: '_blank',
-                  class: 'quick-task-btn',
-                  data: {
-                    prompt: I18n.t('active_admin.tasks.quick.prompt'),
-                    success: I18n.t('active_admin.tasks.quick.success'),
-                    error: I18n.t('active_admin.tasks.quick.error')
-                  }
+        if with_quick_task
+          action_item :task, only: :edit do
+            link_to I18n.t('active_admin.tasks.quick.link'),
+                    { action: :quick_task },
+                    target: '_blank',
+                    class: 'quick-task-btn',
+                    data: {
+                      prompt: I18n.t('active_admin.tasks.quick.prompt'),
+                      success: I18n.t('active_admin.tasks.quick.success'),
+                      error: I18n.t('active_admin.tasks.quick.error')
+                    }
+          end
         end
-
       end
 
     end
