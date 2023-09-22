@@ -42,10 +42,10 @@ ActiveAdmin.register ChildSupport do
   scope(:mine, default: true, group: :supporter) { |scope| scope.supported_by(current_admin_user) }
   scope :without_supporter, group: :supporter
 
-  scope :with_book_not_received, group: :book
-  scope :call_2_4, group: :call
-
-  scope :with_active_group, group: :group
+  scope :with_book_not_received
+  scope :call_2_4
+  scope :with_a_child_in_active_group
+  scope :paused_or_stopped
 
   filter :availability, as: :string
   filter :call_infos, as: :string
