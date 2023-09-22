@@ -192,7 +192,7 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   scope :with_a_child_in_active_group, -> { joins(children: :group).where(children: { group_status: 'active' }).distinct }
-  scope :supported_by, ->(model) { with_a_child_in_active_group.joins(:children).where(children: { group_status: 'active' }).where(supporter: model) }
+  scope :supported_by, ->(supporter) { with_a_child_in_active_group.joins(:children).where(children: { group_status: 'active' }).where(supporter: supporter) }
   scope :without_supporter, -> { where(supporter_id: nil) }
   scope :call_2_4, -> {
     where('call1_status ILIKE ? AND call3_status = ?', 'ko', '')
@@ -206,8 +206,8 @@ class ChildSupport < ApplicationRecord
   }
   scope :multiple_children, -> { joins(:children).group('child_supports.id').having('count(children.id) > 1') }
   scope :paused_or_stopped, -> {
-    where.not(id: joins(children: :group)
-      .where.not(children: { group_status: %w[paused stopped] })
+    where(id: joins(children: :group)
+      .where(children: { group_status: %w[paused stopped] })
       .select('child_supports.id'))
   }
 

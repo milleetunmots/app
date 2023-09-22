@@ -44,7 +44,6 @@ ActiveAdmin.register ChildSupport do
 
   scope :with_book_not_received
   scope :call_2_4
-  scope :with_a_child_in_active_group
   scope :paused_or_stopped
 
   filter :availability, as: :string
