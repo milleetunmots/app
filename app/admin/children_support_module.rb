@@ -77,6 +77,7 @@ ActiveAdmin.register ChildrenSupportModule do
 
   filter :is_completed, as: :boolean
   filter :is_programmed, as: :boolean
+  filter :module_index
   filter :group_id_in,
          as: :select,
          collection: proc { child_group_select_collection },
