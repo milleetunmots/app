@@ -144,7 +144,7 @@ class ChildrenSupportModule < ApplicationRecord
     support_modules = support_modules.where.not(id: ChildrenSupportModule.where(child_id: sibling_id, parent_id: parent_id, is_programmed: true).pluck(:support_module_id))
 
     # try to not redo the same theme if possible
-    support_modules.select {|sm| !sm.theme.in?(ChildrenSupportModule.where(child_id: sibling_id, parent_id: parent_id, is_programmed: true).map(&:support_module).map(&:theme)) }.first || support_modules.first
+    support_modules.select {|sm| !sm.theme.in?(ChildrenSupportModule.with_support_module.where(child_id: sibling_id, parent_id: parent_id, is_programmed: true).map(&:support_module).map(&:theme)) }.first || support_modules.first
   end
 
   def find_or_create_children_support_module(sibling_id, sibling_support_module)
