@@ -18,6 +18,7 @@ RSpec.describe ChildrenSupportModule::ProgramFirstSupportModuleJob, type: :job d
 
   describe '#perform_now' do
     it 'enqueue the job ChildrenSupportModule::ProgramSupportModuleSmsJob' do
+      ActiveJob::Base.queue_adapter = :test
       expect { subject.perform_now(group.id, program_module_date) }.to(
         have_enqueued_job(ChildrenSupportModule::ProgramSupportModuleSmsJob)
           .on_queue('default')
