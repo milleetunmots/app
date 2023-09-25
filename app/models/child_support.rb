@@ -205,10 +205,17 @@ class ChildSupport < ApplicationRecord
       .with_a_child_in_active_group
   }
   scope :multiple_children, -> { joins(:children).group('child_supports.id').having('count(children.id) > 1') }
+
   scope :paused_or_stopped, -> {
-    where(id: joins(children: :group)
-      .where(children: { group_status: %w[paused stopped] })
-      .select('child_supports.id'))
+    where(
+      'NOT EXISTS (
+        SELECT 1
+        FROM children
+        WHERE children.child_support_id = child_supports.id
+        AND children.group_status IN (?, ?)
+      )',
+      'waiting', 'active'
+    )
   }
 
   class << self
