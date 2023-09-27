@@ -191,7 +191,8 @@ class ChildSupport < ApplicationRecord
   # scopes
   # ---------------------------------------------------------------------------
 
-  scope :supported_by, ->(model) { where(supporter: model) }
+  scope :with_a_child_in_active_group, -> { joins(children: :group).where(children: { group_status: 'active' }).distinct }
+  scope :supported_by, ->(supporter) { with_a_child_in_active_group.joins(:children).where(children: { group_status: 'active' }).where(supporter: supporter) }
   scope :without_supporter, -> { where(supporter_id: nil) }
   scope :call_2_4, -> {
     where('call1_status ILIKE ? AND call3_status = ?', 'ko', '')
@@ -201,8 +202,21 @@ class ChildSupport < ApplicationRecord
       .or(where(call3_parent_progress: '1_low'))
       .or(where(call3_parent_progress: '2_medium'))
       .or(where(to_call: true))
+      .with_a_child_in_active_group
   }
   scope :multiple_children, -> { joins(:children).group('child_supports.id').having('count(children.id) > 1') }
+
+  scope :paused_or_stopped, -> {
+    where(
+      'NOT EXISTS (
+        SELECT 1
+        FROM children
+        WHERE children.child_support_id = child_supports.id
+        AND children.group_status IN (?, ?)
+      )',
+      'waiting', 'active'
+    )
+  }
 
   class << self
 
