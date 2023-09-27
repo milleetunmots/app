@@ -100,7 +100,7 @@ ActiveAdmin.register Group do
       end
       tab I18n.t('group.scheduled_jobs') do
         panel I18n.t('group.panel_scheduled_jobs') do
-          render 'admin/groups/group_scheduled_jobs', scheduled_jobs: Group::GetScheduledJobsService.new(resource.id).call.scheduled_jobs
+          render 'admin/groups/group_scheduled_jobs', scheduled_jobs_group_by_module_number: Group::GetScheduledJobsService.new(resource.id).call.scheduled_jobs.group_by { |job| job[:module_number] }
         end
       end
     end

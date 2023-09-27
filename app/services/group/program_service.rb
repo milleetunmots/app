@@ -17,10 +17,10 @@ class Group
         verify_available_module_list
         create_call2_children_support_module
         program_sms_to_choose_module2_to_parents
+        program_sms_to_choose_module_to_parents
         select_default_support_module
         verify_chosen_modules
         program_check_spothit_credits
-        program_sms_to_choose_module_to_parents
         program_support_module_sms
         @group.update(is_programmed: true)
       end
