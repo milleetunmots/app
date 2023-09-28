@@ -43,7 +43,8 @@ ActiveAdmin.register ChildSupport do
   scope :without_supporter, group: :supporter
 
   scope :with_book_not_received
-  scope :call_2_4, group: :call
+  scope :call_2_4
+  scope :paused_or_stopped
 
   filter :availability, as: :string
   filter :call_infos, as: :string
@@ -52,11 +53,6 @@ ActiveAdmin.register ChildSupport do
          collection: proc { child_group_select_collection },
          input_html: { multiple: true, data: { select2: {} } },
          label: 'Cohorte'
-  filter :active_group_id_in,
-         as: :select,
-         collection: proc { child_group_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
-         label: 'Cohorte active'
   filter :without_parent_text_message_since,
          as: :datepicker,
          required: false,
