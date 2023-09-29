@@ -30,5 +30,7 @@ module Bubbles
   class BubbleSession < ApplicationRecord
     belongs_to :module_session, class_name: 'Bubbles::BubbleModule', optional: true
     belongs_to :video, class_name: 'Bubbles::BubbleVideo', optional: true
+
+    has_many :contents, class_name: 'Bubbles::BubbleContent', through: :module_session
   end
 end
