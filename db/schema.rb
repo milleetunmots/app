@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_08_29_221615) do
+ActiveRecord::Schema.define(version: 2023_09_29_080905) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -117,9 +117,9 @@ ActiveRecord::Schema.define(version: 2023_08_29_221615) do
     t.string "video"
     t.string "video_type"
     t.date "created_date", null: false
-    t.string "avis_nouveaute"
-    t.string "avis_pas_adapte"
-    t.string "avis_rappel"
+    t.integer "avis_rappel"
+    t.integer "avis_nouveaute"
+    t.integer "avis_pas_adapte"
   end
 
   create_table "child_supports", force: :cascade do |t|
@@ -216,10 +216,10 @@ ActiveRecord::Schema.define(version: 2023_08_29_221615) do
     t.text "call3_goals_tracking"
     t.text "call4_goals_tracking"
     t.text "call5_goals_tracking"
-    t.string "parent1_available_support_module_list", array: true
-    t.string "parent2_available_support_module_list", array: true
     t.string "call2_family_progress"
     t.string "call2_previous_goals_follow_up"
+    t.string "parent1_available_support_module_list", array: true
+    t.string "parent2_available_support_module_list", array: true
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
