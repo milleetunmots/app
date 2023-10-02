@@ -2,10 +2,11 @@ class ChildSupport::SelectModuleService
 
   attr_reader :errors
 
-  def initialize(child, planned_date, planned_hour)
+  def initialize(child, planned_date, planned_hour, second_support_module = false)
     @child = child
     @planned_date = planned_date
     @planned_hour = planned_hour
+    @second_support_module = second_support_module
     @errors = []
   end
 
@@ -42,7 +43,9 @@ class ChildSupport::SelectModuleService
       sc: parent.security_code
     )
 
-    message = "1001mots : Cliquez sur le lien pour choisir votre prochain thème pour #{@child.first_name} et recevoir un nouveau livre. Attention après le #{I18n.l(Time.zone.today.next_day(14), format: '%d %B')}, nous choisirons à votre place ! #{selection_link}"
+    date = @second_support_module ? 'deux jours' : 'quelques jours'
+
+    message = "1001mots : Cliquez sur le lien pour choisir votre prochain thème pour #{@child.first_name} et recevoir un nouveau livre. Attention dans #{date}, nous choisirons à votre place ! #{selection_link}"
 
     sms_service = ProgramMessageService.new(
       @planned_date,
