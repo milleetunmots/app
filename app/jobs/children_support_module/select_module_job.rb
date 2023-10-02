@@ -21,7 +21,8 @@ class ChildrenSupportModule
         service = ChildSupport::SelectModuleService.new(
           child,
           select_module_date.sunday? ? select_module_date.next_day : select_module_date,
-          '12:30'
+          '12:30',
+          second_support_module
         ).call
         errors[child.id] = service.errors if service.errors.any?
       end

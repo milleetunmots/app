@@ -3,9 +3,9 @@
 # Table name: bubble_videos
 #
 #  id              :bigint           not null, primary key
-#  avis_nouveaute  :string
-#  avis_pas_adapte :string
-#  avis_rappel     :string
+#  avis_nouveaute  :integer
+#  avis_pas_adapte :integer
+#  avis_rappel     :integer
 #  created_date    :date             not null
 #  dislike         :integer
 #  lien            :string
