@@ -13,16 +13,19 @@
 #  lien               :string
 #  pourcentage_video  :integer
 #  bubble_id          :string           not null
+#  content_id         :bigint
 #  module_session_id  :bigint
 #  video_id           :bigint
 #
 # Indexes
 #
+#  index_bubble_sessions_on_content_id         (content_id)
 #  index_bubble_sessions_on_module_session_id  (module_session_id)
 #  index_bubble_sessions_on_video_id           (video_id)
 #
 # Foreign Keys
 #
+#  fk_rails_...  (content_id => bubble_contents.id)
 #  fk_rails_...  (module_session_id => bubble_modules.id)
 #  fk_rails_...  (video_id => bubble_videos.id)
 #
@@ -30,7 +33,6 @@ module Bubbles
   class BubbleSession < ApplicationRecord
     belongs_to :module_session, class_name: 'Bubbles::BubbleModule', optional: true
     belongs_to :video, class_name: 'Bubbles::BubbleVideo', optional: true
-
-    has_many :contents, class_name: 'Bubbles::BubbleContent', through: :module_session
+    belongs_to :content, class_name: 'Bubbles::BubbleContent', optional: true
   end
 end

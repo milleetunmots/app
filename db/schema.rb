@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_09_29_080905) do
+ActiveRecord::Schema.define(version: 2023_10_03_121152) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -104,6 +104,8 @@ ActiveRecord::Schema.define(version: 2023_09_29_080905) do
     t.bigint "module_session_id"
     t.bigint "video_id"
     t.datetime "import_date"
+    t.bigint "content_id"
+    t.index ["content_id"], name: "index_bubble_sessions_on_content_id"
     t.index ["module_session_id"], name: "index_bubble_sessions_on_module_session_id"
     t.index ["video_id"], name: "index_bubble_sessions_on_video_id"
   end
@@ -599,6 +601,7 @@ ActiveRecord::Schema.define(version: 2023_09_29_080905) do
   add_foreign_key "bubble_modules", "bubble_modules", column: "module_suivant_id"
   add_foreign_key "bubble_modules", "bubble_videos", column: "video_princ_id"
   add_foreign_key "bubble_modules", "bubble_videos", column: "video_tem_id"
+  add_foreign_key "bubble_sessions", "bubble_contents", column: "content_id"
   add_foreign_key "bubble_sessions", "bubble_modules", column: "module_session_id"
   add_foreign_key "bubble_sessions", "bubble_videos", column: "video_id"
   add_foreign_key "child_supports", "admin_users", column: "supporter_id"
