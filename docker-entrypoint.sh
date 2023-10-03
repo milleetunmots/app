@@ -20,8 +20,12 @@ host="$(echo ${host_with_port/:$port/})"
 echo "Waiting for pg:" $proto$url
 dockerize -wait tcp://$host:$port -timeout 1m
 
-echo "Running migrations..."
-bundle exec rails db:migrate
+sleep 2
+DO_RUN_DB_MIGRATE=${RUN_DB_MIGRATE:-1}
+if [ $DO_RUN_DB_MIGRATE -ne 0 ]; then
+    echo "Running migrations..."
+    bundle exec rails db:migrate
+fi
 
 echo "Rebuild indexes"
 bundle exec rails pg_search:multisearch:rebuild[Child]
