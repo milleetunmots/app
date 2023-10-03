@@ -40,6 +40,8 @@ FactoryBot.define do
 
     name { Faker::Movies::StarWars.planet }
     body1 { Faker::Quotes::Shakespeare.romeo_and_juliet_quote }
+    body2 { Faker::Quotes::Shakespeare.romeo_and_juliet_quote }
+    body3 { Faker::Quotes::Shakespeare.romeo_and_juliet_quote }
 
   end
 end

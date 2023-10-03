@@ -53,6 +53,10 @@ $(document).ready(function() {
     }
   }
 
+  const onChildSupportCall0StatusUpdated = function(event) {
+    updateCallStatusDetail(event, 0);
+  }
+
   const onChildSupportCall1StatusUpdated = function(event) {
     updateCallStatusDetail(event, 1);
   }
@@ -69,6 +73,7 @@ $(document).ready(function() {
     updateCallStatusDetail(event, 5);
   }
 
+  $("#child_support_call0_status").on("change", onChildSupportCall0StatusUpdated);
   $("#child_support_call1_status").on("change", onChildSupportCall1StatusUpdated);
   $("#child_support_call2_status").on("change", onChildSupportCall2StatusUpdated);
   $("#child_support_call3_status").on("change", onChildSupportCall3StatusUpdated);

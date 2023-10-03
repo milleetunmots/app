@@ -7,8 +7,23 @@
 #  availability                          :string
 #  book_not_received                     :string
 #  books_quantity                        :string
+#  call0_duration                        :integer
+#  call0_goals                           :text
+#  call0_language_awareness              :string
+#  call0_language_development            :text
+#  call0_notes                           :text
+#  call0_parent_actions                  :text
+#  call0_parent_progress                 :string
+#  call0_reading_frequency               :string
+#  call0_sendings_benefits               :string
+#  call0_sendings_benefits_details       :text
+#  call0_status                          :string
+#  call0_status_details                  :text
+#  call0_technical_information           :text
+#  call0_tv_frequency                    :string
 #  call1_duration                        :integer
 #  call1_goals                           :text
+#  call1_goals_tracking                  :text
 #  call1_language_awareness              :string
 #  call1_language_development            :text
 #  call1_notes                           :text
@@ -104,6 +119,9 @@
 # Indexes
 #
 #  index_child_supports_on_book_not_received                      (book_not_received)
+#  index_child_supports_on_call0_parent_progress                  (call0_parent_progress)
+#  index_child_supports_on_call0_reading_frequency                (call0_reading_frequency)
+#  index_child_supports_on_call0_tv_frequency                     (call0_tv_frequency)
 #  index_child_supports_on_call1_parent_progress                  (call1_parent_progress)
 #  index_child_supports_on_call1_reading_frequency                (call1_reading_frequency)
 #  index_child_supports_on_call1_tv_frequency                     (call1_tv_frequency)
@@ -178,7 +196,7 @@ class ChildSupport < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  (1..5).each do |call_idx|
+  (0..5).each do |call_idx|
     validates "call#{call_idx}_status", inclusion: { in: CALL_STATUS, allow_blank: true }, on: :create
     validates "call#{call_idx}_language_awareness", inclusion: { in: LANGUAGE_AWARENESS, allow_blank: true }
     validates "call#{call_idx}_parent_progress", inclusion: { in: PARENT_PROGRESS, allow_blank: true }
@@ -220,7 +238,7 @@ class ChildSupport < ApplicationRecord
 
   class << self
 
-    (1..5).each do |call_idx|
+    (0..5).each do |call_idx|
       define_method("call#{call_idx}_parent_progress_present") do |bool|
         if bool
           where("call#{call_idx}_parent_progress" => PARENT_PROGRESS)
@@ -294,7 +312,7 @@ class ChildSupport < ApplicationRecord
   # helpers
   # ---------------------------------------------------------------------------
 
-  (1..5).each do |call_idx|
+  (0..5).each do |call_idx|
     define_method("call#{call_idx}_parent_progress_index") do
       (send("call#{call_idx}_parent_progress") || '').split('_').first&.to_i
     end
@@ -401,8 +419,8 @@ class ChildSupport < ApplicationRecord
     end
 
     self.notes << "\nInformations de chaque appel\n"
-    self.notes << (('=' * 22) + "\n")
-    (1..5).each do |call_idx|
+    self.notes << '='*22 + "\n"
+    (0..5).each do |call_idx|
       self.notes << "\n--------Appel #{call_idx}--------\n"
 
       call_attributes = [
