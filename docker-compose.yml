@@ -38,6 +38,9 @@ services:
       MAILCATCHER_SMTP_ADDRESS: mailcatcher
       MAILCATCHER_SMTP_PORT: 1025
       REDIS_URL: redis://redis:6379/1
+    restart: always
+    depends_on:
+      - postgres
 
   sidekiq:
     depends_on:
@@ -55,3 +58,4 @@ services:
       - ./docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
     environment:
       <<: *RAILS_ENV
+      RUN_DB_MIGRATE: 0
