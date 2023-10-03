@@ -68,13 +68,5 @@ class Group
         scheduled_job[:module_number] = 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::ProgramFirstSupportModuleJob']
       end
     end
-
-    def set_module_numbers
-      @scheduled_jobs.reverse.each do |scheduled_job|
-        scheduled_job[:module_number] = @module_number
-        @module_number -= 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::FillParentsAvailableSupportModulesJob']
-        scheduled_job[:module_number] = 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::ProgramFirstSupportModuleJob']
-      end
-    end
   end
 end
