@@ -56,6 +56,8 @@ class ChildrenSupportModule < ApplicationRecord
   end
 
   def available_support_modules
+    return [] if available_support_module_list.blank?
+
     SupportModule.find(available_support_module_list.reject(&:blank?))
   end
 
