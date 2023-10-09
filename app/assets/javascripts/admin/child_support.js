@@ -39,6 +39,7 @@ $(document).ready(function() {
   const updateCallStatusDetail = function(event, index) {
     if (['OK', 'KO', 'Numéro erroné', 'Incomplet'].includes(event.target.value)) {
       let details = $(`#child_support_call${index}_status_details`).val();
+      let supporter = $("#select2-child_support_supporter_id-container").attr('title') || '';
 
       if (details.length > 0) {
         details += "\n"
@@ -47,7 +48,7 @@ $(document).ready(function() {
       let currentdate = new Date();
       let date = $.datepicker.formatDate('dd/mm/yy', new Date());
 
-      details += `Dernière tentative d'appel le ${date} à ${currentdate.getHours()}h${currentdate.getMinutes()} (${event.target.value})`
+      details += `Dernière tentative d'appel le ${date} à ${currentdate.getHours()}h${currentdate.getMinutes()} (${event.target.value}), par ${supporter}`
 
       $(`#child_support_call${index}_status_details`).val(details);
     }
