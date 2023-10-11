@@ -5,7 +5,7 @@ $(document).ready(function() {
     { value: 'four_to_nine', text: '4 - 9 mois' },
     { value: 'ten_to_fifteen', text: '10 - 15 mois' },
     { value: 'sixteen_to_twenty_three', text: '16 - 23 mois' },
-    { value: 'twenty_four_to_twenty_nine', text: '24 - 29 mois' }
+    { value: 'more_than_twenty_four', text: '24 mois et plus' }
   ];
   const age_ranges = [
     { value: 'less_than_five', text: '0 - 4 mois' },
