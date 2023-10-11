@@ -37,6 +37,7 @@ ActiveAdmin.register_page "Message" do
           label "SMS de petite mission ?"
           select name: "call_goals_sms", id: "call_goals_sms" do
             option 'Non', value: nil
+            option 'Appel 0', value: 'call0_goals'
             option 'Appel 1', value: 'call1_goals'
             option 'Appel 2', value: 'call2_goals'
             option 'Appel 3', value: 'call3_goals'

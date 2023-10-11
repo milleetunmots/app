@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_03_121152) do
+ActiveRecord::Schema.define(version: 2023_10_11_092110) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -237,6 +237,8 @@ ActiveRecord::Schema.define(version: 2023_10_03_121152) do
     t.string "call0_tv_frequency"
     t.text "call0_status_details"
     t.text "call1_goals_tracking"
+    t.string "call1_family_progress"
+    t.string "call1_previous_goals_follow_up"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
