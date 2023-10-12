@@ -333,7 +333,7 @@ class Child < ApplicationRecord
     months_between(16, 24).where(group_status: 'active')
   end
 
-  def self.more_than_twenty_four
+  def self.twenty_four_and_more
     months_gteq(24).where(group_status: 'active')
   end
 
