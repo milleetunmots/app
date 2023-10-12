@@ -53,11 +53,16 @@ class Medium < ApplicationRecord
   # relations
   # ---------------------------------------------------------------------------
 
-  belongs_to :folder,
-    class_name: :MediaFolder,
-    optional: true
+  belongs_to :folder, class_name: :MediaFolder, optional: true
+  has_one :redirection_target, dependent: :destroy
 
-  has_one :redirection_target
+  # ---------------------------------------------------------------------------
+  # relations
+  # ---------------------------------------------------------------------------
+
+  after_discard do
+    redirection_target&.discard
+  end
 
   # ---------------------------------------------------------------------------
   # validations
