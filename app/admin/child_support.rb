@@ -323,15 +323,15 @@ ActiveAdmin.register ChildSupport do
                             style: 'width: 70%',
                             value: case call_idx
                                    when 1
-                                     f.object.send(:call0_goals)
+                                    f.object.send(:call0_goals)
                                    when 2
-                                     f.object.send(:call1_goals)
+                                    f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
                                    when 3
-                                     f.object.send(:call2_goals).presence || f.object.send(:call1_goals)
+                                    f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
                                    when 4
-                                     f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals)
+                                    f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
                                    else
-                                     f.object.send(:call4_goals).presence || f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals) || f.object.send(:call0_goals)
+                                    f.object.send(:call4_goals).presence || f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
                                    end
                           }
                 end
@@ -364,7 +364,7 @@ ActiveAdmin.register ChildSupport do
                         as: :radio,
                         collection: child_support_call_sendings_benefits_select_collection
               end
-              if call_idx == 2
+              if [1, 2].include? call_idx
                 column do
                   f.input "call#{call_idx}_family_progress",
                           as: :radio,
@@ -516,6 +516,7 @@ ActiveAdmin.register ChildSupport do
             row "call#{call_idx}_parent_progress"
             row "call#{call_idx}_sendings_benefits"
             row "call#{call_idx}_sendings_benefits_details"
+            row :call2_family_progress if call_idx == 1
             if call_idx == 2
               row :call2_family_progress
               row :call2_previous_goals_follow_up
