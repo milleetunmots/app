@@ -104,6 +104,15 @@ module ProgramMessagesHelper
     end
   end
 
+  def get_supporter(term)
+    AdminUser.callers.where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate.map do |result|
+      {
+        id: result.id,
+        text: result.name
+      }
+    end
+  end
+
   def get_spot_hit_file(image_id)
     Medium.find(image_id).spot_hit_id unless image_id.nil?
   end
