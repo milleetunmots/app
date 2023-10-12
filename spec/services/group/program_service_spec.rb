@@ -9,6 +9,7 @@ RSpec.describe Group::ProgramService do
   let!(:ten_months_child) { FactoryBot.create(:child, birthdate: Time.zone.now.months_ago(10)) } # ten_to_fifteen
   let!(:fifteen_months_child) { FactoryBot.create(:child, birthdate: Time.zone.now.months_ago(15)) } # ten_to_fifteen
   let!(:twenty_months_child) { FactoryBot.create(:child, birthdate: Time.zone.now.months_ago(20)) } # sixteen_to_twenty_three
+
   let!(:twenty_six_months_child) { FactoryBot.create(:child, birthdate: Time.zone.now.months_ago(26)) } # twenty_four_and_more
   let!(:thirty_two_months_child) { FactoryBot.create(:child) } # twenty_four_and_more
   let!(:thirty_seven_months_child) { FactoryBot.create(:child) } # twenty_four_and_more

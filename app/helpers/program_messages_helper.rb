@@ -65,7 +65,7 @@ module ProgramMessagesHelper
   def get_redirection_targets(term, parent_decorated = nil)
     unless parent_decorated
       return RedirectionTarget.joins(:medium)
-                       .where("media.name ILIKE unaccent(?) and media.url IS NOT NULL", "%#{term}%")
+                       .where("media.name ILIKE unaccent(?) and media.url IS NOT NULL", "%#{term}%").kept
                        .decorate.map { |result| format_result(result) }
     end
 
