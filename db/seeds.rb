@@ -159,7 +159,7 @@ end
 
 puts ' ✓'
 
-Child
+# Child
 if Rails.env.development?
   postal_code = Parent::ALL_POSTAL_CODE
 
