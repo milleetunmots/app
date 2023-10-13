@@ -27,6 +27,6 @@
 FactoryBot.define do
   factory :support_module_week do
     association :support_module, factory: :support_module
-
+    association :medium, factory: :media_text_messages_bundle
   end
 end

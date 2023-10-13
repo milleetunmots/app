@@ -195,20 +195,37 @@ fr:
         book_not_received: Livre non reçu
         books_quantity: Nombre de livres pour l'enfant suivi
         call_infos: Autres informations
+        call0_duration: Durée de l'appel 0 (en minutes)
+        call0_status: Statut de l'appel 0
+        call0_status_details: Suivi de l'appel 0
+        call0_language_awareness: Conscience langagière
+        call0_language_development: "Informations sur l'enfant"
+        call0_goals: Petite mission
+        call0_notes: Notes appel 0
+        call0_parent_actions: Pratiques parentales
+        call0_parent_progress: Niveau de pratiques parentales
+        call0_reading_frequency: Fréquence de lecture
+        call0_tv_frequency: Fréquence écran
+        call0_sendings_benefits: Apport des envois
+        call0_sendings_benefits_details: Verbatim
+        call0_technical_information: Retour sur les envois
         call1_duration: Durée de l'appel 1 (en minutes)
         call1_status: Statut de l'appel 1
         call1_status_details: Suivi de l'appel 1
         call1_language_awareness: Conscience langagière
         call1_language_development: "Informations sur l'enfant"
-        call1_goals: Petite mission
+        call1_goals: Nouvelle petite mission
         call1_notes: Notes appel 1
         call1_parent_actions: Pratiques parentales
+        call1_family_progress: Diriez-vous que la famille a réalisé une forte progression ?
         call1_parent_progress: Niveau de pratiques parentales
         call1_reading_frequency: Fréquence de lecture
         call1_tv_frequency: Fréquence écran
         call1_sendings_benefits: Apport des envois
         call1_sendings_benefits_details: Verbatim
         call1_technical_information: Retour sur les envois
+        call1_goals_tracking: Suivi petite mission
+        call1_previous_goals_follow_up: Petite mission de l’appel 0
         call2_duration: Durée de l'appel 2 (en minutes)
         call2_status: Statut de l'appel 2
         call2_status_details: Suivi de l'appel 2
@@ -436,7 +453,7 @@ fr:
         ended_at: Date de fin
         name: Nom
         started_at: Date de début
-        support_modules_count: Nombre de modules prévu
+        support_modules_count: Nombre de modules prévu (en comptant les modules 0 et 1)
         is_programmed: A déjà été programmé
         support_module_programmed: Nombre de modules programmés
         expected_children_number: Nombre d'enfants prévus
@@ -582,6 +599,9 @@ fr:
         thirty_to_thirty_five: 30 - 35 mois
         thirty_six_to_forty: 36 - 40 mois
         forty_one_to_forty_four: 41 - 44 mois
+        four_to_nine: 4 - 9 mois
+        ten_to_fifteen: 10 - 15 mois
+        sixteen_to_twenty_three: 16 - 23 mois
       support_module/age:
         a0_1: 0 - 1 ans
         a1_2 : 1 - 2 ans
@@ -594,6 +614,7 @@ fr:
         language: Langage
         anger: Colère
         ride: Sortie
+        language_module_zero: Langage (Module 0)
       support_module_week:
         << : *SHARED
         additional_medium: Message 4

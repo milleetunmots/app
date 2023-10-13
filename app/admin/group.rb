@@ -90,7 +90,8 @@ ActiveAdmin.register Group do
               link_to supporter.name, [:admin, supporter]
             end
             column I18n.t('group.supporter_child_supports_count') do |supporter|
-              link_to supporter.child_supports.joins(:children).where(children: { group_id: resource.id }).uniq.size, [:admin, :child_supports, { q: { group_id_in: [resource.id], supporter_id_in: [supporter.id] } }]
+              link_to supporter.child_supports.joins(:children).where(children: { group_id: resource.id }).uniq.size,
+                      [:admin, :child_supports, { q: { group_id_in: [resource.id], supporter_id_in: [supporter.id] } }]
             end
             column I18n.t('group.supporter_children_count') do |supporter|
               link_to supporter.children.where(group_id: resource.id).size, [:admin, :children, { q: { group_id_in: [resource.id], supporter_id_in: [supporter.id] } }]
@@ -100,7 +101,9 @@ ActiveAdmin.register Group do
       end
       tab I18n.t('group.scheduled_jobs') do
         panel I18n.t('group.panel_scheduled_jobs') do
-          render 'admin/groups/group_scheduled_jobs', scheduled_jobs_group_by_module_number: Group::GetScheduledJobsService.new(resource.id).call.scheduled_jobs.group_by { |job| job[:module_number] }
+          render 'admin/groups/group_scheduled_jobs', scheduled_jobs_group_by_module_number: Group::GetScheduledJobsService.new(resource.id).call.scheduled_jobs.group_by { |job|
+                                                                                               job[:module_number]
+                                                                                             }
         end
       end
     end

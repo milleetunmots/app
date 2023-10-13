@@ -19,7 +19,7 @@ ActiveAdmin.register ChildSupport do
     selectable_column
     id_column
     column :children
-    (1..5).each do |call_idx|
+    (0..5).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         [
           decorated.send("call#{call_idx}_status"),
@@ -78,7 +78,7 @@ ActiveAdmin.register ChildSupport do
          as: :string
   filter :supporter,
          input_html: { data: { select2: {} } }
-  (1..5).each do |call_idx|
+  (0..5).each do |call_idx|
     filter "call#{call_idx}_status",
            as: :select,
            collection: proc { call_status_collection },
@@ -267,7 +267,7 @@ ActiveAdmin.register ChildSupport do
         end
       end
       tabs do
-        (1..5).each do |call_idx|
+        (0..5).each do |call_idx|
           tab "Appel #{call_idx}" do
             columns do
               column do
@@ -282,7 +282,7 @@ ActiveAdmin.register ChildSupport do
             end
 
             columns style: 'justify-content:space-between;' do
-              if call_idx == 1
+              if call_idx.zero?
                 column max_width: '8%' do
                   f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
                 end
@@ -316,20 +316,22 @@ ActiveAdmin.register ChildSupport do
                                  I18n.t('child_support.default.call_technical_information')
                         }
 
-                unless call_idx == 1
+                unless call_idx.zero?
                   f.input "call#{call_idx}_goals_tracking",
                           input_html: {
                             rows: 8,
                             style: 'width: 70%',
                             value: case call_idx
+                                   when 1
+                                    f.object.send(:call0_goals)
                                    when 2
-                                     f.object.send(:call1_goals)
+                                    f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
                                    when 3
-                                     f.object.send(:call2_goals).presence || f.object.send(:call1_goals)
+                                    f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
                                    when 4
-                                     f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals)
+                                    f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
                                    else
-                                     f.object.send(:call4_goals).presence || f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals)
+                                    f.object.send(:call4_goals).presence || f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
                                    end
                           }
                 end
@@ -362,7 +364,7 @@ ActiveAdmin.register ChildSupport do
                         as: :radio,
                         collection: child_support_call_sendings_benefits_select_collection
               end
-              if call_idx == 2
+              if [1, 2].include? call_idx
                 column do
                   f.input "call#{call_idx}_family_progress",
                           as: :radio,
@@ -502,7 +504,7 @@ ActiveAdmin.register ChildSupport do
           row :updated_at
         end
       end
-      (1..5).each do |call_idx|
+      (0..5).each do |call_idx|
         tab "Appel #{call_idx}" do
           attributes_table title: "Appel #{call_idx}" do
             row "call#{call_idx}_status"
@@ -514,12 +516,13 @@ ActiveAdmin.register ChildSupport do
             row "call#{call_idx}_parent_progress"
             row "call#{call_idx}_sendings_benefits"
             row "call#{call_idx}_sendings_benefits_details"
+            row :call2_family_progress if call_idx == 1
             if call_idx == 2
               row :call2_family_progress
               row :call2_previous_goals_follow_up
             end
             row "call#{call_idx}_language_development"
-            row :books_quantity if call_idx == 1
+            row :books_quantity if call_idx.in?([0, 1])
             row "call#{call_idx}_reading_frequency"
             # row "call#{call_idx}_tv_frequency"
             row "call#{call_idx}_goals"
@@ -590,7 +593,7 @@ ActiveAdmin.register ChildSupport do
     column :is_bilingual
     column :second_language
 
-    (1..5).each do |call_idx|
+    (0..5).each do |call_idx|
       column "call#{call_idx}_status"
       column "call#{call_idx}_status_details"
       column "call#{call_idx}_duration"
@@ -607,7 +610,7 @@ ActiveAdmin.register ChildSupport do
         column :call2_previous_goals_follow_up
       end
       column("call#{call_idx}_language_development") { |cs| cs.send("call#{call_idx}_language_development_text") }
-      column :books_quantity if call_idx == 1
+      column :books_quantity if call_idx.in?([0, 1])
       column "call#{call_idx}_reading_frequency"
       column("call#{call_idx}_goals") { |cs| cs.send("call#{call_idx}_goals_text") }
       column("call#{call_idx}_notes") { |cs| cs.send("call#{call_idx}_notes_text") }

@@ -5,7 +5,9 @@ class Group
     require 'sidekiq/api'
     attr_reader :scheduled_jobs
 
+    MODULE_ZERO_FEATURE_START = DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
     GROUP_JOB_CLASS_NAMES = {
+      'ChildrenSupportModule::ProgramSupportModuleZeroJob' => 'Programmation du module zero',
       'ChildrenSupportModule::ProgramFirstSupportModuleJob' => 'Programmation du 1er module',
       'ChildrenSupportModule::FillParentsAvailableSupportModulesJob' => 'Ajout des modules disponibles sur les fiches de suivi',
       'ChildrenSupportModule::VerifyAvailableModulesTaskJob' => 'Vérification que tous les enfants ont des modules disponibles sur leur fiche de suivi',
@@ -18,8 +20,9 @@ class Group
     }.freeze
 
     def initialize(group_id)
+      group = Group.find(group_id)
       @group_id = group_id
-      @module_number = Group.find(group_id).support_modules_count
+      @module_number = group.started_at > MODULE_ZERO_FEATURE_START ? group.support_modules_count - 1 : group.support_modules_count
       @scheduled_jobs = []
     end
 
@@ -61,6 +64,7 @@ class Group
       @scheduled_jobs.reverse.each do |scheduled_job|
         scheduled_job[:module_number] = @module_number
         @module_number -= 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::FillParentsAvailableSupportModulesJob']
+        scheduled_job[:module_number] = 0 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::ProgramSupportModuleZeroJob']
         scheduled_job[:module_number] = 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::ProgramFirstSupportModuleJob']
       end
     end

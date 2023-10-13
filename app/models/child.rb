@@ -321,6 +321,54 @@ class Child < ApplicationRecord
     months_between(18, 24)
   end
 
+  def self.four_to_nine
+    months_between(4, 10).where(group_status: 'active')
+  end
+
+  def self.ten_to_fifteen
+    months_between(10, 16).where(group_status: 'active')
+  end
+
+  def self.sixteen_to_twenty_three
+    months_between(16, 24).where(group_status: 'active')
+  end
+
+  def self.twenty_four_and_more
+    months_gteq(24).where(group_status: 'active')
+  end
+
+  def self.less_than_five
+    months_lt(5).where(group_status: 'active')
+  end
+
+  def self.five_to_eleven
+    months_between(5, 12).where(group_status: 'active')
+  end
+
+  def self.twelve_to_seventeen
+    months_between(12, 18).where(group_status: 'active')
+  end
+
+  def self.eighteen_to_twenty_three
+    months_between(18, 24).where(group_status: 'active')
+  end
+
+  def self.twenty_four_to_twenty_nine
+    months_between(24, 30).where(group_status: 'active')
+  end
+
+  def self.thirty_to_thirty_five
+    months_between(30, 36).where(group_status: 'active')
+  end
+
+  def self.thirty_six_to_forty
+    months_between(36, 41).where(group_status: 'active')
+  end
+
+  def self.forty_one_to_forty_four
+    months_between(41, 44).where(group_status: 'active')
+  end
+
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
@@ -613,6 +661,10 @@ class Child < ApplicationRecord
 
   def current_child?
     self == child_support&.current_child
+  end
+
+  def next_unprogrammed_children_support_module
+    children_support_modules.where.not(support_module: nil).find_by(is_programmed: false)
   end
 
   private
