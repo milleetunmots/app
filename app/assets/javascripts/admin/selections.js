@@ -85,4 +85,15 @@ $(document).ready(function() {
     width: "100%"
   });
 
+  $('#supporter').select2({
+    width: '100%',
+    placeholder: "Limitez l'envoi du message aux enfants sous sa responsabilité dans la cohorte choisie",
+    allowClear: true,
+    ajax: {
+      url: '/admin/message/supporter',
+      dataType: 'json',
+      delay: 250
+    },
+  });
+
 });

@@ -22,6 +22,11 @@ ActiveAdmin.register_page "Message" do
       end
 
       div do
+        label "Responsable"
+        select name: "supporter", id: "supporter"
+      end
+
+      div do
         label "Url cible"
         select name: "redirection_target", id: "redirection_target"
       end
@@ -67,7 +72,10 @@ ActiveAdmin.register_page "Message" do
       params[:recipients],
       params[:message],
       get_spot_hit_file(params[:image_to_send]),
-      params[:redirection_target]
+      params[:redirection_target],
+      false,
+      nil,
+      params[:supporter]
     ).call
 
     if service.errors.any?
@@ -104,6 +112,12 @@ ActiveAdmin.register_page "Message" do
   page_action :image_to_send do
     render json: {
       results: get_image_to_send(params[:term])
+    }
+  end
+
+  page_action :supporter do
+    render json: {
+      results: get_supporter(params[:term])
     }
   end
 
