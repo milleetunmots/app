@@ -63,23 +63,16 @@ module ProgramMessagesHelper
   end
 
   def get_redirection_targets(term, parent_decorated = nil)
-    unless parent_decorated
-      return RedirectionTarget.joins(:medium)
-                       .where("media.name ILIKE unaccent(?) and media.url IS NOT NULL", "%#{term}%").kept
-                       .decorate.map { |result| format_result(result) }
-    end
+    redirection_targets = RedirectionTarget.kept
+                                           .joins(:medium)
+                                           .where("media.name ILIKE unaccent(?) and media.url IS NOT NULL and media.discarded_at IS NULL", "%#{term}%")
+                                           .decorate.map { |result| format_result(result) }
+
+    return redirection_targets unless parent_decorated
 
     [
-      {
-        text: 'Vidéos suggérées pour ce parent',
-        children: suggested_videos(parent_decorated)
-      },
-      {
-        text: 'Autres vidéos',
-        children: RedirectionTarget.joins(:medium)
-                                   .where("media.name ILIKE unaccent(?) and media.url IS NOT NULL", "%#{term}%")
-                                   .decorate.map { |result| format_result(result) }
-      }
+      { text: 'Vidéos suggérées pour ce parent', children: suggested_videos(parent_decorated) },
+      { text: 'Autres vidéos', children: redirection_targets }
     ]
   end
 
