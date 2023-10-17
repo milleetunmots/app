@@ -24,6 +24,7 @@ class Ability
       can [:create, :read, :update], [Group, RedirectionUrl]
     else
       can :manage, ChildSupport, supporter_id: user.id
+      cannot :discard, ChildSupport
       can :read, [Group, Medium, RedirectionUrl, Tag, Event, SupportModule, MediaFolder, FieldComment]
       can [:create, :read, :update], Child
     end
