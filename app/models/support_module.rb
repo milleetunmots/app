@@ -102,6 +102,7 @@ class SupportModule < ApplicationRecord
   scope :twenty_four_and_more, -> { where("'#{TWENTY_FOUR_AND_MORE}' = ANY (age_ranges)") }
   scope :level_one, -> { where(level: 1) }
   scope :with_theme_level_and_age_range, -> { where.not(theme: [nil, '']).where.not(level: nil).where('ARRAY_LENGTH(age_ranges, 1) > 0') }
+  scope :by_theme, -> { order(order_by_theme) }
 
   # ---------------------------------------------------------------------------
   # callbacks
@@ -147,6 +148,4 @@ class SupportModule < ApplicationRecord
     end
     ret << ' END'
   end
-
-  scope :by_theme, -> { order(order_by_theme) }
 end
