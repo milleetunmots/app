@@ -88,6 +88,10 @@ class Group < ApplicationRecord
     errors.add(:started_at, :invalid, message: 'doit être un lundi') if started_at && !started_at.monday?
   end
 
+  def bilingual_children
+    children.joins(:child_support).where(child_supports: { is_bilingual: true })
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------
