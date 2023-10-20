@@ -18,6 +18,19 @@ module ProgramMessagesHelper
     }
   end
 
+  def child_age_range_for_module_zero(parent_decorated)
+    case parent_decorated.object.current_child&.months
+    when 4..9
+      '4-9'
+    when 10..15
+      '10-15'
+    when 16..23
+      '16-23'
+    when 24..31
+      '24-31'
+    end
+  end
+
   def child_age_range(parent_decorated)
     case parent_decorated.object.current_child&.months
     when 6..11
@@ -32,20 +45,21 @@ module ProgramMessagesHelper
   end
 
   def module_zero_suggested_video(child_age_range)
-    video = RedirectionTarget.joins(:medium).find_by(media: {name: "Module 0 - Conversations - #{child_age_range}"})
+    return unless child_age_range
+
+    video = RedirectionTarget.joins(:medium).where("media.name LIKE ?", "Module 0 - Conversations - #{child_age_range}%").first
     video&.decorate
   end
 
   def module_one_suggested_video(child_age_range)
-    video = RedirectionTarget.joins(:medium).find_by(media: {name: "Lecture - Pour debuter - #{child_age_range}"})
+    video = RedirectionTarget.joins(:medium).find_by(media: { name: "Lecture - Pour debuter - #{child_age_range}" })
     video&.decorate
   end
 
   def suggested_videos(parent_decorated)
     suggested_videos = []
-    current_child_age_range = child_age_range(parent_decorated)
-    module_zero_video = module_zero_suggested_video(current_child_age_range)
-    module_one_video = module_one_suggested_video(current_child_age_range)
+    module_zero_video = module_zero_suggested_video(child_age_range_for_module_zero(parent_decorated))
+    module_one_video = module_one_suggested_video(child_age_range(parent_decorated))
     suggested_videos << format_result(module_zero_video) if module_zero_video
     suggested_videos << format_result(module_one_video) if module_one_video
     suggested_videos

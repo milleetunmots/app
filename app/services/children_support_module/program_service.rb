@@ -17,6 +17,7 @@ class ChildrenSupportModule
           due_date: Time.zone.today
         )
       end
+      Rollbar.error(@errors.to_json)
     end
 
     private
@@ -38,6 +39,7 @@ class ChildrenSupportModule
 
     def create_children_support_module(child, support_module, parent)
       return unless parent
+
       return unless support_module
 
       parent_children_support_module = ChildrenSupportModule.create(
@@ -46,7 +48,6 @@ class ChildrenSupportModule
         available_support_module_list: [support_module.id],
         support_module: support_module
       )
-
       @errors["child: #{child.id} - parent: #{parent.id}"] = parent_children_support_module.errors if parent_children_support_module.errors.any?
     end
   end

@@ -15,6 +15,7 @@ class Group
       check_group_is_ready
       if @errors.empty?
         program_support_module_zero
+        program_sms_to_bilinguals
         program_first_support_module
         fill_parents_available_support_modules
         verify_available_module_list
@@ -49,9 +50,13 @@ class Group
       ChildrenSupportModule::ProgramSupportModuleZeroJob.set(wait_until: program_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, program_module_date)
     end
 
+    def program_sms_to_bilinguals
+      bilinguals_first_sms_date = @group.started_at
+      Group::ProgramSmsToBilingualsJob.set(wait_until: bilinguals_first_sms_date.to_datetime.change(hour: 7)).perform_later(@group.id, bilinguals_first_sms_date)
+    end
+
     def program_first_support_module
       program_module_date = @group.started_at + MODULE_ZERO_DURATION
-
       ChildrenSupportModule::ProgramFirstSupportModuleJob.set(wait_until: program_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, program_module_date)
     end
 
