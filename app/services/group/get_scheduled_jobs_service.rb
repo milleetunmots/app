@@ -8,6 +8,7 @@ class Group
     MODULE_ZERO_FEATURE_START = DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
     GROUP_JOB_CLASS_NAMES = {
       'ChildrenSupportModule::ProgramSupportModuleZeroJob' => 'Programmation du module zero',
+      'Group::ProgramSmsToBilingualsJob' => 'Programmation des messages aux familles bilingues',
       'ChildrenSupportModule::ProgramFirstSupportModuleJob' => 'Programmation du 1er module',
       'ChildrenSupportModule::FillParentsAvailableSupportModulesJob' => 'Ajout des modules disponibles sur les fiches de suivi',
       'ChildrenSupportModule::VerifyAvailableModulesTaskJob' => 'Vérification que tous les enfants ont des modules disponibles sur leur fiche de suivi',
@@ -64,7 +65,7 @@ class Group
       @scheduled_jobs.reverse.each do |scheduled_job|
         scheduled_job[:module_number] = @module_number
         @module_number -= 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::FillParentsAvailableSupportModulesJob']
-        scheduled_job[:module_number] = 0 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::ProgramSupportModuleZeroJob']
+        scheduled_job[:module_number] = 0 if [GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::ProgramSupportModuleZeroJob'], GROUP_JOB_CLASS_NAMES['Group::ProgramSmsToBilingualsJob']].include? scheduled_job[:name]
         scheduled_job[:module_number] = 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::ProgramFirstSupportModuleJob']
       end
     end
