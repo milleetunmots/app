@@ -602,6 +602,7 @@ fr:
         four_to_nine: 4 - 9 mois
         ten_to_fifteen: 10 - 15 mois
         sixteen_to_twenty_three: 16 - 23 mois
+        twenty_four_and_more: 24 mois et plus
       support_module/age:
         a0_1: 0 - 1 ans
         a1_2 : 1 - 2 ans
