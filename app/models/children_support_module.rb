@@ -36,6 +36,7 @@ class ChildrenSupportModule < ApplicationRecord
   scope :with_the_choice_to_make_by_us, -> { where(support_module: nil).where(is_completed: true) }
   scope :without_choice, -> { where(support_module: nil).where(is_completed: false) }
   scope :latest_first, -> { order(created_at: :desc) }
+  scope :using_support_module, ->(support_module_id) { where('available_support_module_list::text[] @> ARRAY[?]::text[]', [support_module_id]) }
 
   validate :support_module_not_programmed, on: :create
   validate :valid_child_parent

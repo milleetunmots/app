@@ -170,7 +170,7 @@ ActiveAdmin.register SupportModule do
   end
 
   member_action :discard, method: :put do
-    if resource.children_support_modules.any? || ChildrenSupportModule.where('available_support_module_list::text[] @> ARRAY[?]::text[]', [resource.id]).any?
+    if resource.currently_used?
       flash[:error] = "Impossible à mettre à la corbeille car ce module est utilisé dans l'accompagnement de certains enfants."
       redirect_to request.referer
     else

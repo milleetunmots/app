@@ -148,4 +148,8 @@ class SupportModule < ApplicationRecord
     end
     ret << ' END'
   end
+
+  def currently_used?
+    children_support_modules.any? || ChildrenSupportModule.using_support_module(id).any?
+  end
 end
