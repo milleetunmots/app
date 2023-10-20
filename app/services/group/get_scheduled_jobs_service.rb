@@ -7,17 +7,17 @@ class Group
 
     MODULE_ZERO_FEATURE_START = DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
     GROUP_JOB_CLASS_NAMES = {
-      'ChildrenSupportModule::ProgramSupportModuleZeroJob' => 'Programmation du module zero',
-      'Group::ProgramSmsToBilingualsJob' => 'Programmation des messages aux familles bilingues',
-      'ChildrenSupportModule::ProgramFirstSupportModuleJob' => 'Programmation du 1er module',
-      'ChildrenSupportModule::FillParentsAvailableSupportModulesJob' => 'Ajout des modules disponibles sur les fiches de suivi',
-      'ChildrenSupportModule::VerifyAvailableModulesTaskJob' => 'Vérification que tous les enfants ont des modules disponibles sur leur fiche de suivi',
-      'ChildrenSupportModule::CreateChildrenSupportModuleJob' => 'Préparation préalable au choix des parents pour l’appel 2',
-      'ChildrenSupportModule::SelectDefaultSupportModuleJob' => 'Assignation des modules par défaut',
-      'ChildrenSupportModule::VerifyChosenModulesTaskJob' => 'Détection des modules sans choix',
-      'ChildrenSupportModule::CheckCreditsForGroupJob' => 'Vérification du nombre suffisant de crédits pour la programmation des modules',
-      'ChildrenSupportModule::SelectModuleJob' => 'Programmation des SMS de choix du module',
-      'ChildrenSupportModule::ProgramSupportModuleSmsJob' => 'Programmation des SMS du module choisi'
+      ChildrenSupportModule::ProgramSupportModuleZeroJob.to_s => 'Programmation du module zero',
+      Group::ProgramSmsToBilingualsJob.to_s => 'Programmation des messages aux familles bilingues',
+      ChildrenSupportModule::ProgramFirstSupportModuleJob.to_s => 'Programmation du 1er module',
+      ChildrenSupportModule::FillParentsAvailableSupportModulesJob.to_s => 'Ajout des modules disponibles sur les fiches de suivi',
+      ChildrenSupportModule::VerifyAvailableModulesTaskJob.to_s => 'Vérification que tous les enfants ont des modules disponibles sur leur fiche de suivi',
+      ChildrenSupportModule::CreateChildrenSupportModuleJob.to_s => 'Préparation préalable au choix des parents pour l’appel 2',
+      ChildrenSupportModule::SelectDefaultSupportModuleJob.to_s => 'Assignation des modules par défaut',
+      ChildrenSupportModule::VerifyChosenModulesTaskJob.to_s => 'Détection des modules sans choix',
+      ChildrenSupportModule::CheckCreditsForGroupJob.to_s => 'Vérification du nombre suffisant de crédits pour la programmation des modules',
+      ChildrenSupportModule::SelectModuleJob.to_s => 'Programmation des SMS de choix du module',
+      ChildrenSupportModule::ProgramSupportModuleSmsJob.to_s => 'Programmation des SMS du module choisi'
     }.freeze
 
     def initialize(group_id)
@@ -64,9 +64,9 @@ class Group
     def set_module_numbers
       @scheduled_jobs.reverse.each do |scheduled_job|
         scheduled_job[:module_number] = @module_number
-        @module_number -= 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::FillParentsAvailableSupportModulesJob']
-        scheduled_job[:module_number] = 0 if [GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::ProgramSupportModuleZeroJob'], GROUP_JOB_CLASS_NAMES['Group::ProgramSmsToBilingualsJob']].include? scheduled_job[:name]
-        scheduled_job[:module_number] = 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES['ChildrenSupportModule::ProgramFirstSupportModuleJob']
+        @module_number -= 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::FillParentsAvailableSupportModulesJob.to_s]
+        scheduled_job[:module_number] = 0 if [GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::ProgramSupportModuleZeroJob.to_s], GROUP_JOB_CLASS_NAMES[Group::ProgramSmsToBilingualsJob.to_s]].include? scheduled_job[:name]
+        scheduled_job[:module_number] = 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::ProgramFirstSupportModuleJob.to_s]
       end
     end
   end
