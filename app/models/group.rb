@@ -92,6 +92,10 @@ class Group < ApplicationRecord
     children.joins(:child_support).where(child_supports: { is_bilingual: true })
   end
 
+  def children_with_seven_support_modules
+    children.select { |child| child.has_seven_support_modules? == true }
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------

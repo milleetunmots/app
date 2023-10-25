@@ -369,6 +369,14 @@ class Child < ApplicationRecord
     months_between(41, 44).where(group_status: 'active')
   end
 
+  def self.more_than_thirty_six
+    months_gteq(36).where(group_status: 'active')
+  end
+
+  def self.more_than_thirty_five
+    months_gteq(35).where(group_status: 'active')
+  end
+
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
@@ -636,6 +644,15 @@ class Child < ApplicationRecord
     self.group = months > 4 ? Group.next_available_at(Time.zone.today) : Group.next_available_at(birthdate + 4.months)
     self.group_status = 'active' if group
     save(validate: false)
+  end
+
+  def has_seven_support_modules?
+    parent1_children_support_modules = children_support_modules.where(parent: parent1)
+    parent2_children_support_modules = children_support_modules.where(parent: parent2) if parent2
+
+    return parent1_children_support_modules.count >= 7 unless parent2
+
+    parent1_children_support_modules.count >= 7 || parent2_children_support_modules.count >= 7
   end
 
   # --------------------------------------------------------------------------
