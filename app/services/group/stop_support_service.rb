@@ -8,9 +8,9 @@ class Group
 
     def initialize(group_id, initial_modules = false)
       @group = Group.find(group_id)
-      @children_with_seven_support_modules = @group.children_with_seven_support_modules
+      @children_with_enough_support_modules = @group.children_with_enough_support_modules
       @olders_children = initial_modules ? @group.children.more_than_thirty_six : @group.children.more_than_thirty_five # TODO, Explications
-      @olders_children -= @children_with_seven_support_modules
+      @olders_children -= @children_with_enough_support_modules
       @link_id = RedirectionTarget.joins(:medium).where(media: { url: END_SUPPORT_LINK }).first.id
       @errors = []
       @stopped_count = 0
@@ -33,16 +33,16 @@ class Group
     def stop_supports
       stop_children_with_seven_support_modules_supports
       stop_more_than_thirty_six_children_supports
-      @stopped_count = @children_with_seven_support_modules.count + @olders_children.count
+      @stopped_count = @children_with_enough_support_modules.count + @olders_children.count
     end
 
     def send_sms_to_children_with_seven_support_modules
-      return if @children_with_seven_support_modules.count.zero?
+      return if @children_with_enough_support_modules.count.zero?
 
-      check_credits(WITH_SEVEN_SUPPORT_MODULES_SMS, @children_with_seven_support_modules.count)
+      check_credits(WITH_SEVEN_SUPPORT_MODULES_SMS, @children_with_enough_support_modules.count)
       raise "Impossible de programmer les messages de fin d'accompagnement car il n'y a pas assez de crédit spot-hit" if @errors.any?
 
-      program_message(message: WITH_SEVEN_SUPPORT_MODULES_SMS, children: @children_with_seven_support_modules)
+      program_message(message: WITH_SEVEN_SUPPORT_MODULES_SMS, children: @children_with_enough_support_modules)
     end
 
     def send_sms_to_more_than_thirty_six_chilren
@@ -55,7 +55,7 @@ class Group
     end
 
     def stop_children_with_seven_support_modules_supports
-      @children_with_seven_support_modules.each { |child| child.update(group_status: 'stopped', group_end: Time.zone.today) }
+      @children_with_enough_support_modules.each { |child| child.update(group_status: 'stopped', group_end: Time.zone.today) }
     end
 
     def stop_more_than_thirty_six_children_supports

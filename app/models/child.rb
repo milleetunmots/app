@@ -646,15 +646,6 @@ class Child < ApplicationRecord
     save(validate: false)
   end
 
-  def has_seven_support_modules?
-    parent1_children_support_modules = children_support_modules.where(parent: parent1)
-    parent2_children_support_modules = children_support_modules.where(parent: parent2) if parent2
-
-    return parent1_children_support_modules.count >= 7 unless parent2
-
-    parent1_children_support_modules.count >= 7 || parent2_children_support_modules.count >= 7
-  end
-
   # --------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
