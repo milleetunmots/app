@@ -2,18 +2,14 @@ class Group
 
   class StopSupportService
 
-    WITH_SEVEN_SUPPORT_MODULES_SMS = 'Déjà un an que vous recevez nos idées, c’est maintenant la fin des SMS et des livres 1001mots pour {PRENOM_ENFANT}. Nous espérons que ça vous a apporté des idées et de la confiance en vous en tant que parent ! Pour retrouver plein d’autres conseils RDV sur cette page {URL}. Je vous souhaite une bonne continuation et plein de beaux moments avec votre enfant !'.freeze
     MORE_THAN_THIRTY_SIX_SMS = 'Votre enfant a 3 ans, c’est la fin des SMS et des livres 1001mots pour {PRENOM_ENFANT}. Nous espérons que ça vous a apporté des idées et de la confiance en vous en tant que parent ! Pour retrouver plein d’autres conseils RDV sur cette page {URL}. Je vous souhaite une bonne continuation et plein de beaux moments avec votre enfant !'.freeze
     END_SUPPORT_LINK = 'https://magical-bull-428.notion.site/C-est-la-fin-des-SMS-et-des-livres-1001mots-2826d144b6b04e658f4ea090529fb708?pvs=4'.freeze
 
     def initialize(group_id, initial_modules = false)
       @group = Group.find(group_id)
-      @children_with_enough_support_modules = @group.children_with_enough_support_modules
       @olders_children = initial_modules ? @group.children.more_than_thirty_six : @group.children.more_than_thirty_five # TODO, Explications
-      @olders_children -= @children_with_enough_support_modules
       @link_id = RedirectionTarget.joins(:medium).where(media: { url: END_SUPPORT_LINK }).first.id
       @errors = []
-      @stopped_count = 0
     end
 
     def call
@@ -26,26 +22,6 @@ class Group
     private
 
     def send_end_of_support_message
-      send_sms_to_children_with_seven_support_modules
-      send_sms_to_more_than_thirty_six_chilren
-    end
-
-    def stop_supports
-      stop_children_with_seven_support_modules_supports
-      stop_more_than_thirty_six_children_supports
-      @stopped_count = @children_with_enough_support_modules.count + @olders_children.count
-    end
-
-    def send_sms_to_children_with_seven_support_modules
-      return if @children_with_enough_support_modules.count.zero?
-
-      check_credits(WITH_SEVEN_SUPPORT_MODULES_SMS, @children_with_enough_support_modules.count)
-      raise "Impossible de programmer les messages de fin d'accompagnement car il n'y a pas assez de crédit spot-hit" if @errors.any?
-
-      program_message(message: WITH_SEVEN_SUPPORT_MODULES_SMS, children: @children_with_enough_support_modules)
-    end
-
-    def send_sms_to_more_than_thirty_six_chilren
       return if @olders_children.count.zero?
 
       check_credits(MORE_THAN_THIRTY_SIX_SMS, @olders_children.count)
@@ -54,11 +30,7 @@ class Group
       program_message(message: MORE_THAN_THIRTY_SIX_SMS, children: @olders_children)
     end
 
-    def stop_children_with_seven_support_modules_supports
-      @children_with_enough_support_modules.each { |child| child.update(group_status: 'stopped', group_end: Time.zone.today) }
-    end
-
-    def stop_more_than_thirty_six_children_supports
+    def stop_supports
       @olders_children.each { |child| child.update(group_status: 'stopped', group_end: Time.zone.today) }
     end
 
