@@ -4,19 +4,22 @@ class ChildSupport::VerifyAvailableModulesTaskService
     @group = Group.includes(children: :child_support).find(group_id)
     @child_support_link = {}
     @logistics_team_members = AdminUser.all_logistics_team_members
-    @errors = {}
+    @children_with_missing_child_support = []
   end
 
   def call
     @group.children.each do |child|
-      unless child.child_support
-        @errors["child: #{child.id}"] = "Cet enfant n'a pas de fiche de suivi"
-        next
-      end
+      @children_with_missing_child_support << child.id and next unless child.child_support
 
       create_child_support_link(child)
     end
-    Rollbar.error(@errors) if @errors.any?
+
+    Rollbar.error(
+      "Certains enfants de la cohorte #{@group.id} n'ont pas de fiche de suivi",
+      children: @children_with_missing_child_support,
+      source: 'ChildSupport::VerifyAvailableModulesTaskService'
+    ) if @children_with_missing_child_support.any?
+
     return if @child_support_link.blank?
 
     description_text = 'Compléter le choix de modules disponibles pour :'

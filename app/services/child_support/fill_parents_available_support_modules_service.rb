@@ -3,15 +3,12 @@ class ChildSupport::FillParentsAvailableSupportModulesService
   def initialize(group_id, second_support_module)
     @group = Group.includes(children: :child_support).find(group_id)
     @second_support_module = second_support_module
-    @errors = {}
+    @children_with_missing_child_support = []
   end
 
   def call
     @group.children.each do |child|
-      unless child.child_support
-        @errors["child: #{child.id}"] = "Cet enfant n'a pas de fiche de suivi"
-        next
-      end
+      @children_with_missing_child_support << child.id and next unless child.child_support
 
       next if child.siblings_on_same_group.count > 1 && child.child_support.current_child != child
 
@@ -23,7 +20,11 @@ class ChildSupport::FillParentsAvailableSupportModulesService
         filling_child_support(child, parent1_support_module_ids.first(3), parent2_support_module_ids.first(3))
       end
     end
-    Rollbar.error(@errors) if @errors.any?
+    Rollbar.error(
+      "Certains enfants de la cohorte #{@group.id} n'ont pas de fiche de suivi",
+      children: @children_with_missing_child_support,
+      source: 'ChildSupport::FillParentsAvailableSupportModulesService'
+    ) if @children_with_missing_child_support.any?
     self
   end
 

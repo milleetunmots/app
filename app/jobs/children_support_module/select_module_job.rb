@@ -8,7 +8,7 @@ class ChildrenSupportModule
       children = if second_support_module
                    group.children.where(group_status: 'active').joins(:child_support).where(child_supports: { call2_status: ['KO', 'Ne pas appeler'] })
                  else
-                   group.children.where(group_status: 'active').joins(:child_support)
+                   group.children.where(group_status: 'active')
                  end
 
       children.each do |child|

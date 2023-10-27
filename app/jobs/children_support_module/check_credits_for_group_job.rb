@@ -15,7 +15,7 @@ class ChildrenSupportModule
           due_date: Date.today
         )
       end
-      Rollbar.error(check_service.errors.join("<br>"))
+      Rollbar.error("Pas assez de crédits pour la programmation des modules de la cohorte #{group_id}", errors: check_service.errors)
     end
   end
 end
