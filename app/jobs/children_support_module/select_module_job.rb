@@ -12,6 +12,11 @@ class ChildrenSupportModule
                  end
 
       children.each do |child|
+        unless child.child_support
+          errors["child: #{child.id}"] = "Cet enfant n'a pas de fiche de suivi"
+          next
+        end
+
         next if child.siblings_on_same_group.count > 1 && child.child_support.current_child != child
 
         child.child_support.update(

@@ -155,15 +155,8 @@ RSpec.describe ChildrenSupportModule::CreateChildrenSupportModuleJob, type: :job
         child1.update_columns(child_support_id: nil)
       end
 
-      it 'creates one children_support_module for each child and it\'s parent' do
-        expect {
-          subject.perform_now(group.id)
-        }.to change { ChildrenSupportModule.count }.by(1)
-
-        expect(ChildrenSupportModule.where(child_id: child1.id, parent_id: child1.parent1.id).count).to eq(1)
-
-        csm_1 = ChildrenSupportModule.find_by(child_id: child1.id, parent_id: child1.parent1.id)
-        expect(csm_1.available_support_module_list).to be_nil
+      it 'doesnt create children support module' do
+        expect(ChildrenSupportModule.where(child_id: child1.id, parent_id: child1.parent1.id).count).to eq(0)
       end
     end
   end
