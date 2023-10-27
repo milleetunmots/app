@@ -598,9 +598,15 @@ ActiveAdmin.register ChildSupport do
       column "call#{call_idx}_status_details"
       column "call#{call_idx}_duration"
       column("call#{call_idx}_technical_information") do |cs|
+        next if call_idx.zero?
+
         cs.send("call#{call_idx}_technical_information_text")
       end
-      column("call#{call_idx}_parent_actions") { |cs| cs.send("call#{call_idx}_parent_actions_text") }
+      column("call#{call_idx}_parent_actions") do |cs|
+        next if call_idx.zero?
+
+        cs.send("call#{call_idx}_parent_actions_text")
+      end
       # column "call#{call_idx}_language_awareness"
       column "call#{call_idx}_parent_progress"
       column "call#{call_idx}_sendings_benefits"
@@ -609,11 +615,23 @@ ActiveAdmin.register ChildSupport do
         column :call2_family_progress
         column :call2_previous_goals_follow_up
       end
-      column("call#{call_idx}_language_development") { |cs| cs.send("call#{call_idx}_language_development_text") }
+      column("call#{call_idx}_language_development") do |cs|
+        next if call_idx.zero?
+
+        cs.send("call#{call_idx}_language_development_text")
+      end
       column :books_quantity if call_idx.in?([0, 1])
       column "call#{call_idx}_reading_frequency"
-      column("call#{call_idx}_goals") { |cs| cs.send("call#{call_idx}_goals_text") }
-      column("call#{call_idx}_notes") { |cs| cs.send("call#{call_idx}_notes_text") }
+      column("call#{call_idx}_goals") do |cs|
+        next if call_idx.zero?
+
+        cs.send("call#{call_idx}_goals_text")
+      end
+      column("call#{call_idx}_notes") do |cs|
+        next if call_idx.zero?
+
+        cs.send("call#{call_idx}_notes_text")
+      end
     end
 
     column :tag_list
