@@ -53,6 +53,8 @@ class Group
     end
 
     def program_message(date:, message:, link_id: nil, hour: '12:31', children: @children)
+      return if @children.count.zero?
+
       service = ProgramMessageService.new(date, hour, children, message, nil, link_id).call
       raise service.errors.join("\n") if service.errors.any?
     end

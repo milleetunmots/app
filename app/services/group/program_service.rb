@@ -35,7 +35,7 @@ class Group
     private
 
     def check_group_is_ready
-      @errors << 'Date de début obligatoire.' unless @group.started_at.present?
+      @errors << 'Date de début obligatoire.' if @group.started_at.blank?
       @errors << 'Date de début ne pas être dans le passé.' if @group.started_at.present? && @group.started_at.past?
       @errors << 'Date de début doit être un Lundi.' if @group.started_at.present? && !@group.started_at.monday?
       @errors << "Il n'y a pas d'enfant dans la cohorte." if @group.children.size.zero?
