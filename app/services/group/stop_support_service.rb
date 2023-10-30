@@ -6,14 +6,14 @@ class Group
     MORE_THAN_THIRTY_SIX_SMS = 'Votre enfant a 3 ans, c’est la fin des SMS et des livres 1001mots pour {PRENOM_ENFANT}. Nous espérons que ça vous a apporté des idées et de la confiance en vous en tant que parent ! Pour retrouver plein d’autres conseils RDV sur cette page {URL}. Je vous souhaite une bonne continuation et plein de beaux moments avec votre enfant !'.freeze
     END_SUPPORT_LINK = 'https://magical-bull-428.notion.site/C-est-la-fin-des-SMS-et-des-livres-1001mots-2826d144b6b04e658f4ea090529fb708?pvs=4'.freeze
 
-    def initialize(group_id, end_for_support: true, initial_modules: false)
+    def initialize(group_id, end_of_support: true, initial_modules: false)
       @group = Group.find(group_id)
-      @children = if end_for_support
+      @children = if end_of_support
                     @group.children.where(group_status: 'active')
                   else
                     initial_modules ? @group.children.more_than_thirty_six : @group.children.more_than_thirty_five
                   end
-      @message = end_for_support ? END_OF_SUPPORT_SMS : MORE_THAN_THIRTY_SIX_SMS
+      @message = end_of_support ? END_OF_SUPPORT_SMS : MORE_THAN_THIRTY_SIX_SMS
       @link_id = RedirectionTarget.joins(:medium).where(media: { url: END_SUPPORT_LINK }).first&.id
       @errors = []
     end
