@@ -14,7 +14,7 @@ class Group
                     initial_modules ? @group.children.more_than_thirty_six : @group.children.more_than_thirty_five
                   end
       @message = end_for_support ? END_OF_SUPPORT_SMS : MORE_THAN_THIRTY_SIX_SMS
-      @link_id = RedirectionTarget.joins(:medium).where(media: { url: END_SUPPORT_LINK }).first.id
+      @link_id = RedirectionTarget.joins(:medium).where(media: { url: END_SUPPORT_LINK }).first&.id
       @errors = []
     end
 

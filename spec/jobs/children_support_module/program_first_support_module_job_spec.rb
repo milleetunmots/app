@@ -44,6 +44,8 @@ RSpec.describe ChildrenSupportModule::ProgramFirstSupportModuleJob, type: :job d
           child.birthdate = month.months.ago
           child.save(valide: false)
         end
+
+        allow_any_instance_of(Group::StopSupportService).to receive(:call).and_return(Group::StopSupportService.new(group.id))
       end
 
       it 'gives a reading support module to each children' do
