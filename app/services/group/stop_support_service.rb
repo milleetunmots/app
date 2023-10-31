@@ -6,13 +6,9 @@ class Group
     MORE_THAN_THIRTY_SIX_SMS = 'Votre enfant a 3 ans, c’est la fin des SMS et des livres 1001mots pour {PRENOM_ENFANT}. Nous espérons que ça vous a apporté des idées et de la confiance en vous en tant que parent ! Pour retrouver plein d’autres conseils RDV sur cette page {URL}. Je vous souhaite une bonne continuation et plein de beaux moments avec votre enfant !'.freeze
     END_SUPPORT_LINK = 'https://magical-bull-428.notion.site/C-est-la-fin-des-SMS-et-des-livres-1001mots-2826d144b6b04e658f4ea090529fb708?pvs=4'.freeze
 
-    def initialize(group_id, end_of_support: true, initial_modules: false)
+    def initialize(group_id, end_of_support: true)
       @group = Group.find(group_id)
-      @children = if end_of_support
-                    @group.children.where(group_status: 'active')
-                  else
-                    initial_modules ? @group.children.more_than_thirty_six : @group.children.more_than_thirty_five
-                  end
+      @children = end_of_support ? @group.children.where(group_status: 'active') : @group.children.more_than_thirty_five
       @message = end_of_support ? END_OF_SUPPORT_SMS : MORE_THAN_THIRTY_SIX_SMS
       @link_id = RedirectionTarget.joins(:medium).where(media: { url: END_SUPPORT_LINK }).first&.id
       @errors = []
@@ -21,7 +17,7 @@ class Group
     def call
       send_end_of_support_message
       stop_supports
-
+      Rollbar.error(@errors) if @errors.any?
       self
     end
 
@@ -68,7 +64,7 @@ class Group
 
     def program_message(children, message, date: Time.zone.today, link_id: @link_id, hour: '12:30')
       service = ProgramMessageService.new(date, hour, children.map { |child| "child.#{child.id}" }, message, nil, link_id).call
-      raise service.errors.join("\n") if service.errors.any?
+      @errors += service.errors if service.errors.any?
     end
   end
 end
