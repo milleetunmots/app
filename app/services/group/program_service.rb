@@ -26,6 +26,7 @@ class Group
         verify_chosen_modules
         program_check_spothit_credits
         program_support_module_sms
+        stop_support
         @group.update(is_programmed: true)
       end
 
@@ -121,6 +122,11 @@ class Group
         program_module_date = @group.started_at + ((module_index - 2) * 8.weeks) + MODULE_ZERO_DURATION
         ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: program_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, program_module_date)
       end
+    end
+
+    def stop_support
+      end_support_date = @group.started_at + ((@group.support_modules_count - 2) * 8.weeks) + 4.weeks + MODULE_ZERO_DURATION
+      Group::StopSupportJob.set(wait_until: end_support_date.to_datetime.change(hour: 6)).perform_later(@group.id)
     end
   end
 end
