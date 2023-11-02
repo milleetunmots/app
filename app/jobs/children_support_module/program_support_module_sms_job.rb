@@ -31,7 +31,7 @@ class ChildrenSupportModule
     def create_tasks(group, check_service)
       logistics_team_members = AdminUser.all_logistics_team_members
       logistics_team_members.each do |ltm|
-        task.create(
+        Task.create(
           assignee_id: ltm.id,
           title: "la programmation des sms de la cohorte \"#{group.name}\" a été annulé car il n'y a pas assez de crédits",
           description: check_service.errors.join('<br>'),
