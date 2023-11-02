@@ -164,4 +164,27 @@ ActiveAdmin.register Group do
     Group::DistributeChildSupportsToSupportersService.new(resource.model, child_supports_count_by_supporter).call
     redirect_to admin_group_path, notice: 'Appelantes attribuées'
   end
+
+  action_item :children_support_modules_informations, only: :show do
+    if resource.model.support_module_programmed.positive?
+      dropdown_menu 'Récupérer les informations des modules choisis' do
+        (0..resource.model.support_module_programmed - 1).each do |index|
+          item "Module #{index}", children_support_modules_informations_admin_group_path(index: index + 1)
+        end
+      end
+    end
+  end
+
+  member_action :children_support_modules_informations do
+    service = Group::ChildrenSupportModulesInformationsService.new(resource.id, index).call
+
+    send_data(service.workbook.read_string, filename: "#{resource.model.name} - Module #{index}.xlsx") and return
+
+    # if service.errors.any?
+    #   flash[:error] = 'Une erreur est survenue'
+    #   redirect_to request.referer
+    # else
+
+    # end
+  end
 end
