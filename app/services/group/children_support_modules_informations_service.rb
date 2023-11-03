@@ -1,8 +1,10 @@
 class Group
 
   class ChildrenSupportModulesInformationsService
+    require 'fast_excel'
+    require 'zip'
 
-    attr_reader :workbook
+    attr_reader :zip_file
 
     COLUMNS = %w[Module Effectif].freeze
 
@@ -10,18 +12,18 @@ class Group
       @group = Group.find(group_id)
       @index = index
       @support_modules_count = Hash.new(0)
-      @workbook = FastExcel.open("test.xlsx")
-      @errors = []
+      @workbook = FastExcel.open
     end
 
     def call
       child_and_parent1_ids.each do |child_id, parent1_id|
-        csm = ChildrenSupportModule.find_by(child_id: child_id, parent_id: parent1_id, module_index: @index)
+        csm = ChildrenSupportModule.with_support_module.find_by(child_id: child_id, parent_id: parent1_id, module_index: @index)
         @support_modules_count[csm.support_module.name.to_sym] += 1 if csm
       end
 
       init_excel_file
       fill_exel_file
+      create_zip_file
 
       self
     end
@@ -44,6 +46,27 @@ class Group
       end
       @worksheet.set_column_width(0, width = 25)
       @worksheet.set_columns_width(1, 4, width = 20)
+    end
+
+    def create_zip_file
+      @zip_file = Tempfile.new('export-children-support-module-infos.zip')
+
+      temp_files = []
+
+      Zip::File.open(@zip_file.path, Zip::File::CREATE) do |zipfile|
+        temp = Tempfile.new("choix-modules.xlsx", binmode: true)
+        temp_files << temp
+        temp.write(@workbook.read_string)
+        temp.rewind
+
+        zipfile.add "choix-modules-#{@index}.xlsx", temp.path
+      end
+
+      # Store tempfiles in an array so they are not automatically removed by the garbage collector
+      # before the end of the creation of the zipfile
+      # see: https://stackoverflow.com/questions/31237809/ruby-auto-deleting-temp-file
+
+      temp_files = nil
     end
   end
 end

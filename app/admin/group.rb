@@ -176,15 +176,14 @@ ActiveAdmin.register Group do
   end
 
   member_action :children_support_modules_informations do
+    index = params[:index]
     service = Group::ChildrenSupportModulesInformationsService.new(resource.id, index).call
-
-    send_data(service.workbook.read_string, filename: "#{resource.model.name} - Module #{index}.xlsx") and return
-
-    # if service.errors.any?
-    #   flash[:error] = 'Une erreur est survenue'
-    #   redirect_to request.referer
-    # else
-
-    # end
+    send_file(
+      service.zip_file.path,
+      type: 'application/zip',
+      x_sendfile: true,
+      disposition: 'attachment',
+      filename: "Cohorte #{resource.name} - Choix modules #{index}.zip"
+    )
   end
 end
