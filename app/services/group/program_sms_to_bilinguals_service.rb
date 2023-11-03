@@ -5,7 +5,7 @@ class Group
     FIRST_MESSAGE = "Si vous parlez une autre langue que le français à la maison, c'est une chance pour votre enfant ! Sentez-vous libre de parler dans VOTRE LANGUE si vous êtes plus à l'aise, l'important c'est de lui parler souvent !".freeze
     SECOND_MESSAGE = "Un enfant qui entend d'autres langues que le français à la maison n'aura pas de retard de langage et apprendra le français le moment venu. Il peut mélanger plusieurs langues mais ne les confond pas. Je vous en dis plus dans cette vidéo ! {URL}".freeze
     THIRD_MESSAGE = "La maman d'Hanaé, qui parle le créole avec sa fille, témoigne : \"N'hésitez pas à partager ce que vous êtes, et ce que ses grands-parents sont, vos valeurs, en parlant vos langues maternelles, pour savoir d'où l'on vient et pour pouvoir avancer au mieux dans le futur.\" Et chez vous, quelle langue parlez-vous avec votre enfant ?".freeze
-    SECOND_MESSAGE_LINK_ID = RedirectionTarget.joins(:medium).find_by(media: { name: 'Bilinguisme - Pour debuter - 12-17' }).id
+    SECOND_MESSAGE_LINK_ID = RedirectionTarget.joins(:medium).find_by(media: { name: 'Bilinguisme - Pour debuter - 12-17' })&.id
 
     def initialize(group_id, first_message_date)
       @group = Group.find(group_id)
@@ -19,6 +19,8 @@ class Group
       sms_count
       check_credits
       raise "Impossible de programmer les messages aux familles bilingues car il n'y a pas assez de crédit spot-hit" if @errors.any?
+
+      raise "La vidéo 'Bilinguisme - Pour debuter - 12-17' n'existe pas" unless SECOND_MESSAGE_LINK_ID
 
       program_message(date: @first_message_date, message: FIRST_MESSAGE)
       program_message(date: @first_message_date + 7.days, message: SECOND_MESSAGE, link_id: SECOND_MESSAGE_LINK_ID)
