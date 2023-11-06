@@ -12,8 +12,13 @@ class ChildDecorator < BaseDecorator
   }
 
   def admin_link(options = {})
+    super(options.merge(class: GENDER_COLORS[safe_gender.to_sym]))
+  end
+
+  def child_link
+    options = { with_icon: true, target: '_blank' }
     txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + name
-    txt = txt + "&nbsp;".html_safe + h.content_tag(:i, '', class: "fas fa-sms") if model.current_child? && model.group_status == 'active'
+    txt = txt + "&nbsp;".html_safe + h.content_tag(:i, '', class: "fas fa-sms") if model.current_child?
     txt = txt + "&nbsp;".html_safe + h.content_tag(:i, '', class: "fas fa-book") if model.group_status == 'active'
     options[:class] = [
       options[:class],
