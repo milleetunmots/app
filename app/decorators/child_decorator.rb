@@ -12,7 +12,16 @@ class ChildDecorator < BaseDecorator
   }
 
   def admin_link(options = {})
-    super(options.merge(class: GENDER_COLORS[safe_gender.to_sym]))
+    txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + name
+    txt = txt + "&nbsp;".html_safe + h.content_tag(:i, '', class: "fas fa-sms") if model.current_child? && model.group_status == 'active'
+    txt = txt + "&nbsp;".html_safe + h.content_tag(:i, '', class: "fas fa-book") if model.group_status == 'active'
+    options[:class] = [
+      options[:class],
+      model.respond_to?(:discarded?) && (model.discarded? ? 'discarded' : 'kept'),
+      options[:class],
+      GENDER_COLORS[safe_gender.to_sym]
+    ].compact.join(' ')
+    h.link_to txt, [:admin, model], options
   end
 
   def public_edit_url
