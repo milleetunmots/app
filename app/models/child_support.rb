@@ -167,17 +167,18 @@ class ChildSupport < ApplicationRecord
 
   belongs_to :supporter, class_name: :AdminUser, optional: true
   has_many :children, dependent: :nullify
-  has_one :current_child, -> { order(birthdate: :desc) }, class_name: :Child
-  has_one :parent1, through: :current_child
-  has_one :parent2, through: :current_child
+  has_one :current_child, -> { where(group_status: 'active').order(birthdate: :desc) }, class_name: :Child
+  has_one :oldest_child, -> { order(birthdate: :asc) }, class_name: :Child
+  has_one :parent1, through: :oldest_child
+  has_one :parent2, through: :oldest_child
 
   accepts_nested_attributes_for :current_child
 
   before_update do
-    current_child.parent1.tag_list.add(tag_list)
-    current_child.parent1.save
-    current_child.parent2&.tag_list&.add(tag_list)
-    current_child.parent2&.save
+    oldest_child.parent1.tag_list.add(tag_list)
+    oldest_child.parent1.save
+    oldest_child.parent2&.tag_list&.add(tag_list)
+    oldest_child.parent2&.save
   end
 
   after_save do
