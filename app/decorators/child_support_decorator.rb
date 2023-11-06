@@ -20,7 +20,7 @@ class ChildSupportDecorator < BaseDecorator
       ul do
         model.children.decorate.each do |child|
           li do
-            child.admin_link + ' (' + child.age + ')'
+            child.child_link + ' (' + child.age + ')'
           end
         end
       end
