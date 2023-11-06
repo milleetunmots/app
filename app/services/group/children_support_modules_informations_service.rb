@@ -18,7 +18,7 @@ class Group
     def call
       child_and_parent1_ids.each do |child_id, parent1_id|
         csm = ChildrenSupportModule.with_support_module.find_by(child_id: child_id, parent_id: parent1_id, module_index: @index)
-        @support_modules_count[csm.support_module.name.to_sym] += 1 if csm
+        @support_modules_count[csm.support_module.name.to_sym] += 1 if csm&.support_module
       end
 
       init_excel_file
@@ -44,8 +44,8 @@ class Group
       @support_modules_count.each do |support_module, count|
         @worksheet.append_row([support_module, count])
       end
-      @worksheet.set_column_width(0, width = 25)
-      @worksheet.set_columns_width(1, 4, width = 20)
+      @worksheet.set_columns_width(0, 1, width = 25)
+      # @worksheet.set_columns_width(1, 2, width = 20)
     end
 
     def create_zip_file
