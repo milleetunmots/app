@@ -16,9 +16,17 @@ class Group
     end
 
     def call
-      child_and_parent1_ids.each do |child_id, parent1_id|
-        csm = ChildrenSupportModule.with_support_module.find_by(child_id: child_id, parent_id: parent1_id, module_index: @index)
-        @support_modules_count[csm.support_module.name.to_sym] += 1 if csm&.support_module
+      if @index.to_i.zero?
+        last_csm_programmed_date = ChildrenSupportModule.joins(child: :group).where(groups: { id: @group.id }).where(children_support_modules: { is_programmed: true }).order('children_support_modules.created_at DESC').first.created_at
+        child_and_parent1_ids.each do |child_id, parent1_id|
+          csm = ChildrenSupportModule.with_support_module.find_by('child_id = ? AND parent_id = ? AND children_support_modules.created_at >= ? AND is_programmed = ? AND module_index = ?', child_id, parent1_id, last_csm_programmed_date.to_date, false, nil)
+          @support_modules_count[csm.support_module.name.to_sym] += 1 if csm
+        end
+      else
+        child_and_parent1_ids.each do |child_id, parent1_id|
+          csm = ChildrenSupportModule.with_support_module.find_by(child_id: child_id, parent_id: parent1_id, module_index: @index)
+          @support_modules_count[csm.support_module.name.to_sym] += 1 if csm
+        end
       end
 
       init_excel_file
@@ -59,7 +67,7 @@ class Group
         temp.write(@workbook.read_string)
         temp.rewind
 
-        zipfile.add "choix-modules-#{@index}.xlsx", temp.path
+        zipfile.add "choix-modules-#{@index.to_i.positive? ? @index.to_i - 1 : 'pas-programmé'}.xlsx", temp.path
       end
 
       # Store tempfiles in an array so they are not automatically removed by the garbage collector

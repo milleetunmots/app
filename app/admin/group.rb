@@ -169,8 +169,11 @@ ActiveAdmin.register Group do
     if resource.model.support_module_programmed.positive?
       dropdown_menu 'Récupérer les informations des modules choisis' do
         (0..resource.model.support_module_programmed - 1).each do |index|
+          next if index.zero? && resource.model.started_at < DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
+
           item "Module #{index}", children_support_modules_informations_admin_group_path(index: index + 1)
         end
+        item 'Module en préparation', children_support_modules_informations_admin_group_path(index: 0)
       end
     end
   end
