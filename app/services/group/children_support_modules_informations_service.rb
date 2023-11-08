@@ -17,9 +17,9 @@ class Group
 
     def call
       if @index.to_i.zero?
-        last_csm_programmed_date = ChildrenSupportModule.joins(child: :group).where(groups: { id: @group.id }).where(children_support_modules: { is_programmed: true }).order('children_support_modules.created_at DESC').first.created_at
+        last_csm_programmed_date = ChildrenSupportModule.joins(child: :group).where(groups: { id: @group.id }).where(children_support_modules: { is_programmed: true }).maximum(:created_at)
         child_and_parent1_ids.each do |child_id, parent1_id|
-          csm = ChildrenSupportModule.with_support_module.find_by('child_id = ? AND parent_id = ? AND children_support_modules.created_at >= ? AND is_programmed = ? AND module_index = ?', child_id, parent1_id, last_csm_programmed_date.to_date, false, nil)
+          csm = ChildrenSupportModule.with_support_module.find_by('child_id = ? AND parent_id = ? AND children_support_modules.created_at >= ? AND is_programmed = ? AND module_index IS NULL', child_id, parent1_id, last_csm_programmed_date.to_date, false)
           @support_modules_count[csm.support_module.name.to_sym] += 1 if csm
         end
       else
