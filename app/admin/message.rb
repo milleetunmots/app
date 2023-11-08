@@ -76,7 +76,7 @@ ActiveAdmin.register_page "Message" do
       params[:redirection_target],
       false,
       nil,
-      params[:supporter]
+      current_admin_user.caller? ? current_admin_user.id : params[:supporter]
     ).call
 
     if service.errors.any?
