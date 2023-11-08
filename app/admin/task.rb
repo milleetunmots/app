@@ -31,7 +31,7 @@ ActiveAdmin.register Task do
     end
   end
 
-  config.sort_order = 'default_asc'
+  # config.sort_order = 'default_asc'
   order_by(:default) do |order_clause|
     if order_clause.order == 'desc'
       'done_at ASC, due_date DESC'
@@ -47,12 +47,10 @@ ActiveAdmin.register Task do
     end
   end
 
-  scope(:mine, default: true, group: :assignee) { |scope| scope.assigned_to(current_admin_user) }
+  scope(:mine, default: true, group: :assignee) { |scope| scope.todo.assigned_to(current_admin_user) }
   scope :all, group: :assignee
   scope :todo
-
-  # scope :done
-  # scope :all
+  scope :done
 
   filter :title
   filter :assignee,
@@ -61,6 +59,7 @@ ActiveAdmin.register Task do
          input_html: { data: { select2: {} } }
   filter :description
   filter :due_date
+  filter :done_at
   filter :created_at
   filter :updated_at
 
