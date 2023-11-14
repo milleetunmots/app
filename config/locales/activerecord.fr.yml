@@ -288,6 +288,12 @@ fr:
         call5_sendings_benefits_details: Verbatim
         call5_technical_information: Retour sur les envois
         call5_goals_tracking: Suivi petite mission
+        call0_goals_sms: SMS petite mission
+        call1_goals_sms: SMS petite mission
+        call2_goals_sms: SMS petite mission
+        call3_goals_sms: SMS petite mission
+        call4_goals_sms: SMS petite mission
+        call5_goals_sms: SMS petite mission
         city_name: Ville
         children: Enfants
         children_registration_months_range: Tranche d'âge à l'inscription

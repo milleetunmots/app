@@ -323,15 +323,15 @@ ActiveAdmin.register ChildSupport do
                             style: 'width: 70%',
                             value: case call_idx
                                    when 1
-                                    f.object.send(:call0_goals)
+                                     f.object.send(:call0_goals)
                                    when 2
-                                    f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
+                                     f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
                                    when 3
-                                    f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
+                                     f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
                                    when 4
-                                    f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
+                                     f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
                                    else
-                                    f.object.send(:call4_goals).presence || f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
+                                     f.object.send(:call4_goals).presence || f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
                                    end
                           }
                 end
@@ -349,6 +349,7 @@ ActiveAdmin.register ChildSupport do
                 #   collection: child_support_call_language_awareness_select_collection
               end
               column do
+                f.input "call#{call_idx}_goals_sms", input_html: { rows: 8, style: 'width: 70%', readonly: true }
                 f.input "call#{call_idx}_goals", input_html: { rows: 8, style: 'width: 70%' }
                 f.input "call#{call_idx}_language_development", input_html: { rows: 8, style: 'width: 70%' }
               end
@@ -675,11 +676,11 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
-  action_item :clean_child_support, only: [:show, :edit] do
-    if !current_admin_user.caller?
-      dropdown_menu "Logistique" do
-        item "Nettoyer la fiche de suivi", [:clean_child_support, :admin, resource],
-        { data: { confirm: "Êtes-vous sûr de vouloir nettoyer la fiche de suivi ? Cette action est Irréversible, toutes les informations des appels vont être vidées et reportées danns les notes" }, method: 'GET' }
+  action_item :clean_child_support, only: %i[show edit] do
+    unless current_admin_user.caller?
+      dropdown_menu 'Logistique' do
+        item 'Nettoyer la fiche de suivi', [:clean_child_support, :admin, resource],
+             { data: { confirm: 'Êtes-vous sûr de vouloir nettoyer la fiche de suivi ? Cette action est Irréversible, toutes les informations des appels vont être vidées et reportées danns les notes' }, method: 'GET' }
       end
     end
   end
