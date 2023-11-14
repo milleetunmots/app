@@ -17,16 +17,18 @@ class ChildDecorator < BaseDecorator
 
   def child_link
     options = { with_icon: true, target: '_blank' }
-    txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + name
+    txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + '&nbsp;'.html_safe + name
     is_current_child = model.current_child?
-    if is_current_child
-      txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-sms')
-      options[:title] = 'Enfant principal'
-    end
-    if model.group_status == 'active'
-      txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-book')
-      is_current_child ? options[:title] += ' et reçoit des livres' : options[:title] = 'Reçoit des livres'
-    end
+    txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-sms') if is_current_child
+    txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-book') if model.group_status == 'active'
+    options[:title] = if is_current_child && model.group_status == 'active'
+                        'Les SMS sont envoyés pour moi et je reçois les livres'
+                      elsif is_current_child
+                        'Les SMS sont envoyés pour moi'
+                      elsif model.group_status == 'active'
+                        'Je reçois les livres'
+                      end
+
     options[:class] = [
       options[:class],
       model.respond_to?(:discarded?) && (model.discarded? ? 'discarded' : 'kept'),
@@ -87,17 +89,15 @@ class ChildDecorator < BaseDecorator
     with_icon = options.delete(:with_icon)
 
     txt = options.delete(:label) || name
-    if with_icon
-      txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + '&nbsp;'.html_safe + txt
-    end
+    txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + '&nbsp;'.html_safe + txt if with_icon
     h.content_tag :span do
-      h.content_tag(:span, txt, {class: "txt-#{GENDER_COLORS[safe_gender.to_sym]}"}.merge(options))
+      h.content_tag(:span, txt, { class: "txt-#{GENDER_COLORS[safe_gender.to_sym]}" }.merge(options))
       + ' (' + age + ')'
     end
   end
 
   def name
-    [model.first_name, model.last_name].join " "
+    [model.first_name, model.last_name].join ' '
   end
 
   def parent1
@@ -170,21 +170,25 @@ class ChildDecorator < BaseDecorator
 
   def family_redirection_visit_rate
     return nil if family_redirection_urls_count.zero?
+
     h.number_to_percentage(model.family_redirection_visit_rate * 100, precision: 0)
   end
 
   def family_redirection_unique_visit_rate
     return nil if family_redirection_urls_count.zero?
+
     h.number_to_percentage(model.family_redirection_unique_visit_rate * 100, precision: 0)
   end
 
   def family_redirection_visits
     return nil if family_redirection_urls_count.zero?
+
     "#{model.family_redirection_url_visits_count}/#{family_redirection_urls_count} (#{family_redirection_visit_rate})"
   end
 
   def family_redirection_unique_visits
     return nil if family_redirection_urls_count.zero?
+
     "#{model.family_redirection_url_unique_visits_count}/#{family_redirection_urls_count} (#{family_redirection_unique_visit_rate})"
   end
 
@@ -214,6 +218,7 @@ class ChildDecorator < BaseDecorator
 
   def pmi_detail
     return nil if model.pmi_detail.blank?
+
     Child.human_attribute_name("pmi_detail.#{model.pmi_detail}")
   end
 
@@ -255,6 +260,7 @@ class ChildDecorator < BaseDecorator
 
   def parent(decorated_parent, should_contact_parent)
     return nil unless decorated_parent
+
     options = {}
     options[:class] = 'txt-underline' if should_contact_parent
     decorated_parent.admin_link(options)
@@ -263,5 +269,4 @@ class ChildDecorator < BaseDecorator
   def parent_attribute(decorated_parent, key)
     decorated_parent&.send(key)
   end
-
 end
