@@ -175,9 +175,8 @@ class ChildrenSupportModule < ApplicationRecord
   
   def save_chosen_module_to_child_support
     return unless saved_change_to_support_module_id? && support_module.present?
-    return if is_programmed
-    return unless child.current_child?
-    return unless child.group
+    return unless child.current_child? && child.group
+    return if is_programmed || !is_completed
 
     programmed_support_modules = child.group.support_module_programmed
     # Handle groups with no module 0
