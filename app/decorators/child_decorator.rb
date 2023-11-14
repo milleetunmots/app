@@ -18,8 +18,15 @@ class ChildDecorator < BaseDecorator
   def child_link
     options = { with_icon: true, target: '_blank' }
     txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + name
-    txt = txt + "&nbsp;".html_safe + h.content_tag(:i, '', class: "fas fa-sms") if model.current_child?
-    txt = txt + "&nbsp;".html_safe + h.content_tag(:i, '', class: "fas fa-book") if model.group_status == 'active'
+    is_current_child = model.current_child?
+    if is_current_child
+      txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-sms')
+      options[:title] = 'Enfant principal'
+    end
+    if model.group_status == 'active'
+      txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-book')
+      is_current_child ? options[:title] += ' et reçoit des livres' : options[:title] = 'Reçoit des livres'
+    end
     options[:class] = [
       options[:class],
       model.respond_to?(:discarded?) && (model.discarded? ? 'discarded' : 'kept'),
@@ -40,15 +47,15 @@ class ChildDecorator < BaseDecorator
   end
 
   def age
-    h.t "child_age.months", months: model.months
+    h.t 'child_age.months', months: model.months
   end
 
   def age_in_months_or_years
     months = model.months
     if months < 24
-      h.t "child_age.months", months: months
+      h.t 'child_age.months', months: months
     else
-      h.t "child_age.years", years: (months / 12).floor
+      h.t 'child_age.years', years: (months / 12).floor
     end
   end
 
@@ -57,7 +64,7 @@ class ChildDecorator < BaseDecorator
   end
 
   def safe_gender
-    model.gender.presence || "x"
+    model.gender.presence || 'x'
   end
 
   def gender_status
@@ -81,11 +88,11 @@ class ChildDecorator < BaseDecorator
 
     txt = options.delete(:label) || name
     if with_icon
-      txt = h.content_tag(:i, "", class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + txt
+      txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + '&nbsp;'.html_safe + txt
     end
     h.content_tag :span do
       h.content_tag(:span, txt, {class: "txt-#{GENDER_COLORS[safe_gender.to_sym]}"}.merge(options))
-      + " (" + age + ")"
+      + ' (' + age + ')'
     end
   end
 
@@ -111,12 +118,12 @@ class ChildDecorator < BaseDecorator
 
   def group
     options = {}
-    if model.group_status == "stopped"
-      options[:class] = "stop"
-    elsif model.group_status == "paused"
-      options[:class] = "pause"
-    elsif model.group_status == "waiting"
-      options[:class] = "wait"
+    if model.group_status == 'stopped'
+      options[:class] = 'stop'
+    elsif model.group_status == 'paused'
+      options[:class] = 'pause'
+    elsif model.group_status == 'waiting'
+      options[:class] = 'wait'
     end
     model.group&.decorate&.admin_link(options)
   end
@@ -214,15 +221,15 @@ class ChildDecorator < BaseDecorator
     return unless registration_months
 
     if registration_months >= 37
-      "Plus de 36 mois"
+      'Plus de 36 mois'
     elsif registration_months >= 25
-      "25 à 36 mois"
+      '25 à 36 mois'
     elsif registration_months >= 13
-      "13 à 24 mois"
+      '13 à 24 mois'
     elsif registration_months >= 7
-      "7 - 12 mois"
+      '7 - 12 mois'
     else
-      "Moins de 6 mois"
+      'Moins de 6 mois'
     end
   end
 
@@ -231,7 +238,7 @@ class ChildDecorator < BaseDecorator
       ChildrenSupportModule.where(child: model).where.not(support_module: nil).each do |children_support_module|
         span children_support_module.support_module&.name,
              class: 'available_support_module'
-        text_node "&nbsp;".html_safe
+        text_node '&nbsp;'.html_safe
       end
     end
   end
@@ -249,7 +256,7 @@ class ChildDecorator < BaseDecorator
   def parent(decorated_parent, should_contact_parent)
     return nil unless decorated_parent
     options = {}
-    options[:class] = "txt-underline" if should_contact_parent
+    options[:class] = 'txt-underline' if should_contact_parent
     decorated_parent.admin_link(options)
   end
 
