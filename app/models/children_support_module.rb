@@ -49,6 +49,7 @@ class ChildrenSupportModule < ApplicationRecord
   after_update :select_for_the_other_parent
   after_update :select_for_siblings
   before_create :set_module_index
+  after_save :save_chosen_module_to_child_support, if: :saved_change_to_support_module_id?
 
   def name
     return support_module.decorate.name_with_tags if support_module
@@ -170,5 +171,31 @@ class ChildrenSupportModule < ApplicationRecord
 
     next_module_index = child.group.support_module_programmed + 1
     self.module_index = next_module_index
+  end
+  
+  def save_chosen_module_to_child_support
+    return unless saved_change_to_support_module_id? && support_module.present?
+    return if is_programmed
+    return unless child.current_child?
+    return unless child.group
+
+    programmed_support_modules = child.group.support_module_programmed
+    # Handle groups with no module 0
+    # To retrieve the module number (which can be different from module_index because of Module 0)
+    # ie. In new groups, Module 0 == module_index 1 // Module 1 == module_index 1 in previous groups w/o Module 0
+    current_choice_module =
+      if child.group.started_at < DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
+        programmed_support_modules + 1
+      else
+        programmed_support_modules
+      end
+    # we don't care about module 0 & 1 choices
+    return if current_choice_module < 2
+
+    child_support = child.child_support
+    if parent == child.parent1 || child_support.send("module#{current_choice_module}_chosen_by_parents").blank?
+      child_support.send("module#{current_choice_module}_chosen_by_parents=", support_module)
+    end
+    child_support.save
   end
 end
