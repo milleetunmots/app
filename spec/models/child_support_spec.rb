@@ -9,6 +9,7 @@
 #  books_quantity                        :string
 #  call0_duration                        :integer
 #  call0_goals                           :text
+#  call0_goals_sms                       :text
 #  call0_language_awareness              :string
 #  call0_language_development            :text
 #  call0_notes                           :text
@@ -24,6 +25,7 @@
 #  call1_duration                        :integer
 #  call1_family_progress                 :string
 #  call1_goals                           :text
+#  call1_goals_sms                       :text
 #  call1_goals_tracking                  :text
 #  call1_language_awareness              :string
 #  call1_language_development            :text
@@ -41,6 +43,7 @@
 #  call2_duration                        :integer
 #  call2_family_progress                 :string
 #  call2_goals                           :text
+#  call2_goals_sms                       :text
 #  call2_goals_tracking                  :text
 #  call2_language_awareness              :string
 #  call2_language_development            :text
@@ -57,6 +60,7 @@
 #  call2_tv_frequency                    :string
 #  call3_duration                        :integer
 #  call3_goals                           :text
+#  call3_goals_sms                       :text
 #  call3_goals_tracking                  :text
 #  call3_language_awareness              :string
 #  call3_language_development            :text
@@ -72,6 +76,7 @@
 #  call3_tv_frequency                    :string
 #  call4_duration                        :integer
 #  call4_goals                           :text
+#  call4_goals_sms                       :text
 #  call4_goals_tracking                  :text
 #  call4_language_awareness              :string
 #  call4_language_development            :text
@@ -87,6 +92,7 @@
 #  call4_tv_frequency                    :string
 #  call5_duration                        :integer
 #  call5_goals                           :text
+#  call5_goals_sms                       :text
 #  call5_goals_tracking                  :text
 #  call5_language_awareness              :string
 #  call5_language_development            :text
