@@ -8,7 +8,7 @@ class ChildrenSupportModule
       @errors = {}
       @group = Group.find(group_id)
       children_support_module_ids = ChildrenSupportModule.where(child_id: current_children).ids
-      check_credits(children_support_module_ids)
+      # check_credits(children_support_module_ids)
       program_chosen_modules(children_support_module_ids, first_message_date)
       update_children_support_module(not_current_children)
       update_group(group)
@@ -31,7 +31,7 @@ class ChildrenSupportModule
     def create_tasks(group, check_service)
       logistics_team_members = AdminUser.all_logistics_team_members
       logistics_team_members.each do |ltm|
-        task.create(
+        Task.create(
           assignee_id: ltm.id,
           title: "la programmation des sms de la cohorte \"#{group.name}\" a été annulé car il n'y a pas assez de crédits",
           description: check_service.errors.join('<br>'),

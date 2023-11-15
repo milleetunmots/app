@@ -17,7 +17,8 @@ class Group
       ChildrenSupportModule::VerifyChosenModulesTaskJob.to_s => 'Détection des modules sans choix',
       ChildrenSupportModule::CheckCreditsForGroupJob.to_s => 'Vérification du nombre suffisant de crédits pour la programmation des modules',
       ChildrenSupportModule::SelectModuleJob.to_s => 'Programmation des SMS de choix du module',
-      ChildrenSupportModule::ProgramSupportModuleSmsJob.to_s => 'Programmation des SMS du module choisi'
+      ChildrenSupportModule::ProgramSupportModuleSmsJob.to_s => 'Programmation des SMS du module choisi',
+      Group::StopSupportJob.to_s => "Arrêt de la cohorte : Fin de l'accompagnement"
     }.freeze
 
     def initialize(group_id)

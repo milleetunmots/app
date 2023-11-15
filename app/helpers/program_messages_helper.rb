@@ -111,13 +111,17 @@ module ProgramMessagesHelper
     end
   end
 
-  def get_supporter(term)
-    AdminUser.callers.where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate.map do |result|
-      {
-        id: result.id,
-        text: result.name
-      }
+  def get_supporter(term, supporter_decorated = nil)
+    unless supporter_decorated
+      return AdminUser.supporters.where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate.map do |result|
+        {
+          id: result.id,
+          text: result.name
+        }
+      end
     end
+
+    [{ id: supporter_decorated.id, text: supporter_decorated.name, selected: true }]
   end
 
   def get_spot_hit_file(image_id)

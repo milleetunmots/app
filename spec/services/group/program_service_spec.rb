@@ -36,6 +36,7 @@ RSpec.describe Group::ProgramService do
 
     allow_any_instance_of(ChildrenSupportModule::CheckCreditsService).to receive(:call).and_return(ChildrenSupportModule::CheckCreditsService.new([]))
     stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms').to_return(status: 200, body: '{}')
+    allow_any_instance_of(Group::StopSupportService).to receive(:call).and_return(Group::StopSupportService.new(group.id))
   end
 
   after do

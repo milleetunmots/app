@@ -9,6 +9,7 @@ ActiveAdmin.register_page "Message" do
     form action: admin_message_program_sms_path, method: :post, id: "sms-form" do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
       f.input :parent_id, type: :hidden, name: :parent_id, id: :parent_id, value: params[:parent_id]
+      f.input :supporter_id, type: :hidden, name: :supporter_id, id: :supporter_id, value: current_admin_user.caller? ? current_admin_user.id : nil
 
       label "Date et heure d'envoi du message"
       div class: "datetime-container" do
@@ -75,7 +76,7 @@ ActiveAdmin.register_page "Message" do
       params[:redirection_target],
       false,
       nil,
-      params[:supporter]
+      current_admin_user.caller? ? current_admin_user.id : params[:supporter]
     ).call
 
     if service.errors.any?
@@ -116,14 +117,20 @@ ActiveAdmin.register_page "Message" do
   end
 
   page_action :supporter do
-    render json: {
-      results: get_supporter(params[:term])
-    }
+    if params[:supporter_id]
+      render json: { results: current_supporter ? get_supporter(params[:term], current_supporter.decorate) : [] }
+    else
+      render json: { results: get_supporter(params[:term]) }
+    end
   end
 
   controller do
     def parent
       Parent.find_by(id: params[:parent_id])
+    end
+
+    def current_supporter
+      AdminUser.find_by(id: params[:supporter_id])
     end
 
     def child_support

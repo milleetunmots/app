@@ -369,6 +369,14 @@ class Child < ApplicationRecord
     months_between(41, 44).where(group_status: 'active')
   end
 
+  def self.more_than_thirty_six
+    months_gteq(36).where(group_status: 'active')
+  end
+
+  def self.more_than_thirty_five
+    months_gteq(35).where(group_status: 'active')
+  end
+
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
