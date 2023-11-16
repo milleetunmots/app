@@ -82,8 +82,6 @@ ActiveAdmin.register_page 'Message' do
     else
       notice = 'Message(s) programmé(s)'
       if params[:call_goals_sms] && params[:call_goals_sms] != 'Non'
-        call_goals_sms = "#{child_support.send(params[:call_goals_sms])}\n#{params[:message]}"
-        child_support.update_column(params[:call_goals_sms], call_goals_sms)
         child_support.update_column("#{params[:call_goals_sms]}_sms".to_sym, params[:message])
         notice += '. Et petite mission définie'
       end

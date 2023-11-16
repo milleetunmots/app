@@ -398,6 +398,14 @@ class ChildSupport < ApplicationRecord
            prefix: true,
            allow_nil: true
 
+  def previous_call_goals(index)
+    (0..(index - 1)).reverse_each do |i|
+      previous_call_goals = "#{send("call#{i}_goals_sms".to_sym)}\n#{send("call#{i}_goals")}"
+      return previous_call_goals if previous_call_goals != "\n"
+    end
+    ''
+  end
+
   def book_not_received
     super&.split(';')
   end
