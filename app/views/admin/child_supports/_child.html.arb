@@ -1,6 +1,6 @@
 div class: 'card card-child' do
   (
-    div child.admin_link(with_icon: true, target: '_blank')
+    div child.child_link
   ) + (
     div child.age
   ) + (
