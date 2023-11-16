@@ -323,15 +323,15 @@ ActiveAdmin.register ChildSupport do
                             style: 'width: 70%',
                             value: case call_idx
                                    when 1
-                                     f.object.send(:call0_goals)
+                                    resource.previous_call_goals(1)
                                    when 2
-                                     f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
+                                    resource.previous_call_goals(2)
                                    when 3
-                                     f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
+                                    resource.previous_call_goals(3)
                                    when 4
-                                     f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
+                                    resource.previous_call_goals(4)
                                    else
-                                     f.object.send(:call4_goals).presence || f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals).presence || f.object.send(:call0_goals)
+                                    resource.previous_call_goals(5)
                                    end
                           }
                 end
@@ -462,7 +462,7 @@ ActiveAdmin.register ChildSupport do
   }]
   # block is mandatory here because ChildSupport.call_attributes hits DB
   permit_params do
-    base_attributes + ChildSupport.call_attributes + current_child_attributes
+    base_attributes + ChildSupport.call_attributes + current_child_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms]
   end
 
   # ---------------------------------------------------------------------------
