@@ -2,7 +2,7 @@ class ChildrenSupportModule
   class CheckCreditsForGroupJob < ApplicationJob
     def perform(group_id)
       group = Group.find(group_id)
-      children_support_module_ids = ChildrenSupportModule.where(child_id: group.children.where(group_status: "active").ids)
+      children_support_module_ids = ChildrenSupportModule.not_programmed.where(child_id: group.children.where(group_status: "active").ids)
       check_service = ChildrenSupportModule::CheckCreditsService.new(children_support_module_ids).call
       return unless check_service.errors.any?
 

@@ -7,8 +7,8 @@ class ChildrenSupportModule
     def perform(group_id, first_message_date)
       @errors = {}
       @group = Group.find(group_id)
-      children_support_module_ids = ChildrenSupportModule.where(child_id: current_children).ids
-      # check_credits(children_support_module_ids)
+      children_support_module_ids = ChildrenSupportModule.not_programmed.where(child_id: current_children).ids
+      check_credits(children_support_module_ids)
       program_chosen_modules(children_support_module_ids, first_message_date)
       update_children_support_module(not_current_children)
       update_group(group)
