@@ -2,11 +2,11 @@ class ChildSupport::SelectModuleService
 
   attr_reader :errors
 
-  def initialize(child, planned_date, planned_hour, second_support_module = false)
+  def initialize(child, planned_date, planned_hour, module_index)
     @child = child
     @planned_date = planned_date
     @planned_hour = planned_hour
-    @second_support_module = second_support_module
+    @module_index = module_index
     @errors = []
   end
 
@@ -28,7 +28,7 @@ class ChildSupport::SelectModuleService
     return if available_support_module_list.reject(&:blank?).empty?
 
     @children_support_module = ChildrenSupportModule.find_by(child_id: @child.id, parent_id: parent.id, is_programmed: false)
-    @children_support_module ||= ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id, available_support_module_list: available_support_module_list)
+    @children_support_module ||= ChildrenSupportModule.create!(child_id: @child.id, parent_id: parent.id, available_support_module_list: available_support_module_list, module_index: @module_index)
 
     if @children_support_module.available_support_module_list.reject(&:blank?).size == 1
       chose_support_module
@@ -43,7 +43,9 @@ class ChildSupport::SelectModuleService
       sc: parent.security_code
     )
 
-    date = @second_support_module ? 'deux jours' : 'quelques jours'
+    # module_index starts with 1
+    # so if module_index == 3 it means this is "Module 2" (that comes after "Module 0" and "Module 1")
+    date = @module_index.eql?(3) ? 'deux jours' : 'quelques jours'
 
     message = "1001mots : Cliquez sur le lien pour choisir votre prochain thème pour #{@child.first_name} et recevoir un nouveau livre. Attention dans #{date}, nous choisirons à votre place ! #{selection_link}"
 
