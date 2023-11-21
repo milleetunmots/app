@@ -178,18 +178,17 @@ class ChildrenSupportModule < ApplicationRecord
     return unless child.current_child? && child.group
     return if is_programmed || !is_completed
 
-    programmed_support_modules = child.group.support_module_programmed
     # Handle groups with no module 0
     # To retrieve the module number (which can be different from module_index because of Module 0)
     # ie. In new groups, Module 0 == module_index 1 // Module 1 == module_index 1 in previous groups w/o Module 0
-    current_choice_module =
+    current_choice_module_number =
       if child.group.started_at < DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
-        programmed_support_modules + 1
+        module_index
       else
-        programmed_support_modules
+        module_index.to_i - 1
       end
-    # we don't care about module 0 & 1 choices
-    return if current_choice_module < 2
+    # we don't care about module 0 & 1 choices, and we don't handle modules after the fifth for now
+    return if current_choice_module.to_i < 2 || current_choice_module > 5
 
     child_support = child.child_support
     if parent == child.parent1 || child_support.send("module#{current_choice_module}_chosen_by_parents").blank?
