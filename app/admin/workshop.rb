@@ -45,7 +45,7 @@ ActiveAdmin.register Workshop do
       address_input f
       f.input :location
       f.input :parents, collection: parent_select_collection, input_html: {data: {select2: {}}, disabled: !object.new_record?}
-      f.input :workshop_land, collection: Child::LANDS, input_html: {data: {select2: {}}, disabled: !object.new_record?}
+      f.input :workshop_land, collection: Child::LANDS.sort, input_html: {data: {select2: {}}, disabled: !object.new_record?}
       f.input :invitation_message, input_html: {rows: 5, disabled: !object.new_record?}
       f.input :canceled
     end

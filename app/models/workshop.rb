@@ -123,6 +123,8 @@ class Workshop < ApplicationRecord
                       Parent::GIEN_POSTAL_CODE
                     when 'Villeneuve-la-Garenne'
                       Parent::VILLENEUVE_LA_GARENNE_POSTAL_CODE
+                    when 'Bondy'
+                      Parent::BONDY_POSTAL_CODE
                     else
                       nil
                     end
