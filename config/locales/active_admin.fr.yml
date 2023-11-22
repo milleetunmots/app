@@ -47,7 +47,7 @@ fr:
       all: Tous
       active_group: Dans une cohorte active
       available_for_the_workshops: N'ayant pas encore l'âge d'aller à l'école
-      done: Fait
+      done: Résolu
       ended: Terminées
       mine: Sous ma responsabilité
       months_between_0_and_12: 0-1 an
@@ -59,6 +59,8 @@ fr:
       single_message: Messages uniques
       todo: À faire
       call_2_4: Accompagnement renforcé
+      with_a_child_in_active_group: Cohorte active
+      paused_or_stopped: Cohorte en pause ou arrêtée
       only_siblings: Seulement les fratries
       waiting_second_group: Attente de 2eme cohorte
       with_book_not_received: Ayant un livre non reçu

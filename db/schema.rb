@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_08_29_221615) do
+ActiveRecord::Schema.define(version: 2023_11_14_104415) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -104,6 +104,8 @@ ActiveRecord::Schema.define(version: 2023_08_29_221615) do
     t.bigint "module_session_id"
     t.bigint "video_id"
     t.datetime "import_date"
+    t.bigint "content_id"
+    t.index ["content_id"], name: "index_bubble_sessions_on_content_id"
     t.index ["module_session_id"], name: "index_bubble_sessions_on_module_session_id"
     t.index ["video_id"], name: "index_bubble_sessions_on_video_id"
   end
@@ -117,9 +119,9 @@ ActiveRecord::Schema.define(version: 2023_08_29_221615) do
     t.string "video"
     t.string "video_type"
     t.date "created_date", null: false
-    t.string "avis_nouveaute"
-    t.string "avis_pas_adapte"
-    t.string "avis_rappel"
+    t.integer "avis_rappel"
+    t.integer "avis_nouveaute"
+    t.integer "avis_pas_adapte"
   end
 
   create_table "child_supports", force: :cascade do |t|
@@ -216,11 +218,37 @@ ActiveRecord::Schema.define(version: 2023_08_29_221615) do
     t.text "call3_goals_tracking"
     t.text "call4_goals_tracking"
     t.text "call5_goals_tracking"
-    t.string "parent1_available_support_module_list", array: true
-    t.string "parent2_available_support_module_list", array: true
     t.string "call2_family_progress"
     t.string "call2_previous_goals_follow_up"
+    t.string "parent1_available_support_module_list", array: true
+    t.string "parent2_available_support_module_list", array: true
+    t.text "call0_parent_actions"
+    t.text "call0_language_development"
+    t.text "call0_notes"
+    t.string "call0_status"
+    t.string "call0_parent_progress"
+    t.integer "call0_duration"
+    t.string "call0_reading_frequency"
+    t.string "call0_language_awareness"
+    t.text "call0_goals"
+    t.string "call0_sendings_benefits"
+    t.text "call0_sendings_benefits_details"
+    t.text "call0_technical_information"
+    t.string "call0_tv_frequency"
+    t.text "call0_status_details"
+    t.text "call1_goals_tracking"
+    t.string "call1_family_progress"
+    t.string "call1_previous_goals_follow_up"
+    t.text "call0_goals_sms"
+    t.text "call1_goals_sms"
+    t.text "call2_goals_sms"
+    t.text "call3_goals_sms"
+    t.text "call4_goals_sms"
+    t.text "call5_goals_sms"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
+    t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
+    t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
+    t.index ["call0_tv_frequency"], name: "index_child_supports_on_call0_tv_frequency"
     t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
     t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
     t.index ["call1_tv_frequency"], name: "index_child_supports_on_call1_tv_frequency"
@@ -599,6 +627,7 @@ ActiveRecord::Schema.define(version: 2023_08_29_221615) do
   add_foreign_key "bubble_modules", "bubble_modules", column: "module_suivant_id"
   add_foreign_key "bubble_modules", "bubble_videos", column: "video_princ_id"
   add_foreign_key "bubble_modules", "bubble_videos", column: "video_tem_id"
+  add_foreign_key "bubble_sessions", "bubble_contents", column: "content_id"
   add_foreign_key "bubble_sessions", "bubble_modules", column: "module_session_id"
   add_foreign_key "bubble_sessions", "bubble_videos", column: "video_id"
   add_foreign_key "child_supports", "admin_users", column: "supporter_id"

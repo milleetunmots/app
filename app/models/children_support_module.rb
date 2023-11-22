@@ -36,6 +36,7 @@ class ChildrenSupportModule < ApplicationRecord
   scope :with_the_choice_to_make_by_us, -> { where(support_module: nil).where(is_completed: true) }
   scope :without_choice, -> { where(support_module: nil).where(is_completed: false) }
   scope :latest_first, -> { order(created_at: :desc) }
+  scope :using_support_module, ->(support_module_id) { where('available_support_module_list::text[] @> ARRAY[?]::text[]', [support_module_id]) }
 
   validate :support_module_not_programmed, on: :create
   validate :valid_child_parent
@@ -56,6 +57,8 @@ class ChildrenSupportModule < ApplicationRecord
   end
 
   def available_support_modules
+    return [] if available_support_module_list.blank?
+
     SupportModule.find(available_support_module_list.reject(&:blank?))
   end
 
@@ -144,7 +147,7 @@ class ChildrenSupportModule < ApplicationRecord
     support_modules = support_modules.where.not(id: ChildrenSupportModule.where(child_id: sibling_id, parent_id: parent_id, is_programmed: true).pluck(:support_module_id))
 
     # try to not redo the same theme if possible
-    support_modules.select {|sm| !sm.theme.in?(ChildrenSupportModule.where(child_id: sibling_id, parent_id: parent_id, is_programmed: true).map(&:support_module).map(&:theme)) }.first || support_modules.first
+    support_modules.select {|sm| !sm.theme.in?(ChildrenSupportModule.with_support_module.where(child_id: sibling_id, parent_id: parent_id, is_programmed: true).map(&:support_module).map(&:theme)) }.first || support_modules.first
   end
 
   def find_or_create_children_support_module(sibling_id, sibling_support_module)

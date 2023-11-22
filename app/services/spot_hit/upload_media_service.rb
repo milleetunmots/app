@@ -7,7 +7,7 @@ class SpotHit::UploadMediaService
     @uri = URI('https://www.spot-hit.fr/api/mms/upload')
     @media = media
   end
-  
+
   def call
     tmp_file_path =
       if @media.attachment_changes['file'].present?

@@ -77,7 +77,7 @@ class Group < ApplicationRecord
     next_available_groups = where(is_programmed: false).where('started_at > ?', date).order(:started_at)
 
     next_available_groups.each do |next_available_group|
-      return next_available_group if next_available_group.children.count < next_available_group.expected_children_number
+      return next_available_group if next_available_group.children.count < next_available_group.expected_children_number.to_i
 
       next
     end
@@ -86,6 +86,10 @@ class Group < ApplicationRecord
 
   def started_at_only_monday
     errors.add(:started_at, :invalid, message: 'doit être un lundi') if started_at && !started_at.monday?
+  end
+
+  def bilingual_children
+    children.joins(:child_support).where(child_supports: { is_bilingual: true })
   end
 
   # ---------------------------------------------------------------------------

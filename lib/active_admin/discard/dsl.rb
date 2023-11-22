@@ -75,10 +75,8 @@ module ActiveAdmin
           end
         end
 
-        action_item :discard,
-                    only: :show,
-                    if: proc { !resource.discarded? } do
-          link_to_discard_resource
+        action_item :discard, only: :show, if: proc { !resource.discarded? } do
+          link_to_discard_resource if authorized?(:discard, resource)
         end
 
         action_item :undiscard,

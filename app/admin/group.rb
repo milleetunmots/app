@@ -58,7 +58,7 @@ ActiveAdmin.register Group do
       f.input :started_at, as: :datepicker
       f.input :ended_at, as: :datepicker
       f.input :support_modules_count
-      f.input :expected_children_number
+      f.input :expected_children_number, hint: "Il n'y aura plus d'assignation automatique d'enfant à l'inscription une fois ce nombre atteint."
     end
     f.actions
   end
@@ -90,7 +90,8 @@ ActiveAdmin.register Group do
               link_to supporter.name, [:admin, supporter]
             end
             column I18n.t('group.supporter_child_supports_count') do |supporter|
-              link_to supporter.child_supports.joins(:children).where(children: { group_id: resource.id }).uniq.size, [:admin, :child_supports, { q: { group_id_in: [resource.id], supporter_id_in: [supporter.id] } }]
+              link_to supporter.child_supports.joins(:children).where(children: { group_id: resource.id }).uniq.size,
+                      [:admin, :child_supports, { q: { group_id_in: [resource.id], supporter_id_in: [supporter.id] } }]
             end
             column I18n.t('group.supporter_children_count') do |supporter|
               link_to supporter.children.where(group_id: resource.id).size, [:admin, :children, { q: { group_id_in: [resource.id], supporter_id_in: [supporter.id] } }]
@@ -100,7 +101,9 @@ ActiveAdmin.register Group do
       end
       tab I18n.t('group.scheduled_jobs') do
         panel I18n.t('group.panel_scheduled_jobs') do
-          render 'admin/groups/group_scheduled_jobs', scheduled_jobs: Group::GetScheduledJobsService.new(resource.id).call.scheduled_jobs
+          render 'admin/groups/group_scheduled_jobs', scheduled_jobs_group_by_module_number: Group::GetScheduledJobsService.new(resource.id).call.scheduled_jobs.group_by { |job|
+                                                                                               job[:module_number]
+                                                                                             }
         end
       end
     end
@@ -160,5 +163,30 @@ ActiveAdmin.register Group do
     end
     Group::DistributeChildSupportsToSupportersService.new(resource.model, child_supports_count_by_supporter).call
     redirect_to admin_group_path, notice: 'Appelantes attribuées'
+  end
+
+  action_item :children_support_modules_informations, only: :show do
+    if resource.model.support_module_programmed.positive?
+      dropdown_menu 'Récupérer les informations des modules choisis' do
+        (0..resource.model.support_module_programmed - 1).each do |index|
+          next if index.zero? && resource.model.started_at < DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
+
+          item "Module #{index}", children_support_modules_informations_admin_group_path(index: index + 1)
+        end
+        item 'Module en préparation', children_support_modules_informations_admin_group_path(index: 0)
+      end
+    end
+  end
+
+  member_action :children_support_modules_informations do
+    index = params[:index]
+    service = Group::ChildrenSupportModulesInformationsService.new(resource.id, index).call
+    send_file(
+      service.zip_file.path,
+      type: 'application/zip',
+      x_sendfile: true,
+      disposition: 'attachment',
+      filename: "Cohorte #{resource.name} - Choix modules #{index}.zip"
+    )
   end
 end

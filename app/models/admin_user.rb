@@ -48,6 +48,8 @@ class AdminUser < ApplicationRecord
   validates :user_role, inclusion: {in: ROLES}
 
   scope :all_logistics_team_members, -> { where(user_role: "logistics_team") }
+  scope :callers, -> { where(user_role: "caller") }
+  scope :supporters, -> { joins(:child_supports).distinct }
 
   def admin?
     user_role == "super_admin"
@@ -63,5 +65,9 @@ class AdminUser < ApplicationRecord
 
   def caller?
     user_role == "caller"
+  end
+
+  def supporter?
+    child_supports.any?
   end
 end

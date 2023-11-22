@@ -25,7 +25,7 @@ module ActiveAdmin::SupportModulesHelper
   end
 
   def support_module_theme_select_collection
-    SupportModule::THEME_LIST.map do |v|
+    SupportModule::THEME_LIST_INCLUDING_MODULE_ZERO.map do |v|
       [
         SupportModule.human_attribute_name("theme.#{v}"),
         v

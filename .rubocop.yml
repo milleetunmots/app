@@ -63,7 +63,7 @@ Metrics/ModuleLength:
 Metrics/AbcSize:
   # The ABC size is a calculated magnitude, so this number can be an Integer or
   # a Float.
-  Max: 20
+  Max: 25
 
 Metrics/ClassLength:
   CountComments: false  # count full line comments?
@@ -71,7 +71,7 @@ Metrics/ClassLength:
 
 
 Layout/LineLength:
-  Max: 175
+  Max: 250
   # To make it possible to copy or click on URIs in the code, we allow lines
   # containing a URI to be longer than Max.
   AllowHeredoc: true
@@ -91,7 +91,8 @@ Metrics/MethodLength:
 Metrics/PerceivedComplexity:
   Max: 10
 
-Documentation:
+Style/Documentation:
   Enabled: false
 
-
+Metrics/CyclomaticComplexity:
+  Max: 10

@@ -37,8 +37,9 @@ $(document).ready(function() {
   autocompletion($parent2, '#child_parent2_id');
 
   const updateCallStatusDetail = function(event, index) {
-    if (['OK', 'KO', 'Numéro erroné'].includes(event.target.value)) {
+    if (['OK', 'KO', 'Numéro erroné', 'Incomplet'].includes(event.target.value)) {
       let details = $(`#child_support_call${index}_status_details`).val();
+      let supporter = $("#select2-child_support_supporter_id-container").attr('title') || '';
 
       if (details.length > 0) {
         details += "\n"
@@ -47,10 +48,14 @@ $(document).ready(function() {
       let currentdate = new Date();
       let date = $.datepicker.formatDate('dd/mm/yy', new Date());
 
-      details += `Dernière tentative d'appel le ${date} à ${currentdate.getHours()}h${currentdate.getMinutes()} (${event.target.value})`
+      details += `Dernière tentative d'appel le ${date} à ${currentdate.getHours()}h${currentdate.getMinutes()} (${event.target.value}), par ${supporter}`
 
       $(`#child_support_call${index}_status_details`).val(details);
     }
+  }
+
+  const onChildSupportCall0StatusUpdated = function(event) {
+    updateCallStatusDetail(event, 0);
   }
 
   const onChildSupportCall1StatusUpdated = function(event) {
@@ -69,6 +74,7 @@ $(document).ready(function() {
     updateCallStatusDetail(event, 5);
   }
 
+  $("#child_support_call0_status").on("change", onChildSupportCall0StatusUpdated);
   $("#child_support_call1_status").on("change", onChildSupportCall1StatusUpdated);
   $("#child_support_call2_status").on("change", onChildSupportCall2StatusUpdated);
   $("#child_support_call3_status").on("change", onChildSupportCall3StatusUpdated);

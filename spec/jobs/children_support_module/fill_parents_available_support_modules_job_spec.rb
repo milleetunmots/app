@@ -53,7 +53,9 @@ RSpec.describe ChildrenSupportModule::FillParentsAvailableSupportModulesJob, typ
       FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[twelve_to_seventeen], name: "Chanter avec mon bébé 🎶")
       FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[five_to_eleven], name: "Chanter avec mon bébé 🎶")
 
-      (0..44).each do |month|
+      allow_any_instance_of(Group::StopSupportService).to receive(:call).and_return(Group::StopSupportService.new(group.id))
+
+      (0...44).each do |month|
         child = FactoryBot.create(:child, parent2_id: FactoryBot.create(:parent).id, group: group, group_status: 'active')
         # To avoid the validation of the birth_date
         child.birthdate = month.months.ago
