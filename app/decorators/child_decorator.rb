@@ -19,14 +19,15 @@ class ChildDecorator < BaseDecorator
     options = { with_icon: true, target: '_blank' }
     txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + name
     is_current_child = model.current_child?
-    if is_current_child
-      txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-sms')
-      options[:title] = 'Enfant principal'
-    end
-    if model.group_status == 'active'
-      txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-book')
-      is_current_child ? options[:title] += ' et reçoit des livres' : options[:title] = 'Reçoit des livres'
-    end
+    txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-sms') if is_current_child
+    txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-book') if model.group_status == 'active'
+    options[:title] = if is_current_child && model.group_status == 'active'
+                        'Les SMS sont envoyés pour moi et je reçois les livres'
+                      elsif is_current_child
+                        'Les SMS sont envoyés pour moi'
+                      elsif model.group_status == 'active'
+                        'Je reçois les livres'
+                      end
     options[:class] = [
       options[:class],
       model.respond_to?(:discarded?) && (model.discarded? ? 'discarded' : 'kept'),
