@@ -157,6 +157,7 @@ fr:
         sartrouville: "[78] PMI Sartrouville"
         les_mureaux: "[78] PMI Les Mureaux"
         seine_st_denis: "[93] PMI Seine-St-Denis"
+        vernouillet: "[78] PMI Vernouillet"
       child/group_status:
         waiting: En attente
         active: Active
