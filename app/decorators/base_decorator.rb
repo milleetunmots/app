@@ -63,6 +63,8 @@ class BaseDecorator < Draper::Decorator
 
     return 'Plaisir' if Parent::PLAISIR_POSTAL_CODE.include? postal_code
 
+    return 'Bondy' if Parent::BONDY_POSTAL_CODE.include? postal_code
+
     return 'Trappes' if Parent::TRAPPES_POSTAL_CODE.include? postal_code
 
     return 'Aulnay sous bois' if Parent::AULNAY_SOUS_BOIS_POSTAL_CODE.include? postal_code
