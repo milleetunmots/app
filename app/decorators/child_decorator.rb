@@ -15,6 +15,27 @@ class ChildDecorator < BaseDecorator
     super(options.merge(class: GENDER_COLORS[safe_gender.to_sym]))
   end
 
+  def child_link
+    options = { with_icon: true, target: '_blank' }
+    txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + name
+    is_current_child = model.current_child?
+    if is_current_child
+      txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-sms')
+      options[:title] = 'Enfant principal'
+    end
+    if model.group_status == 'active'
+      txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-book')
+      is_current_child ? options[:title] += ' et reçoit des livres' : options[:title] = 'Reçoit des livres'
+    end
+    options[:class] = [
+      options[:class],
+      model.respond_to?(:discarded?) && (model.discarded? ? 'discarded' : 'kept'),
+      options[:class],
+      GENDER_COLORS[safe_gender.to_sym]
+    ].compact.join(' ')
+    h.link_to txt, [:admin, model], options
+  end
+
   def public_edit_url
     h.edit_child_url(id: model.id, security_code: model.security_code)
   end
