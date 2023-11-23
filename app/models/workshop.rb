@@ -125,6 +125,8 @@ class Workshop < ApplicationRecord
                       Parent::VILLENEUVE_LA_GARENNE_POSTAL_CODE
                     when 'Bondy'
                       Parent::BONDY_POSTAL_CODE
+                    when 'Mantes La Joie'
+                      Parent::MANTES_LA_JOLIE_POSTAL_CODE
                     else
                       nil
                     end

@@ -57,7 +57,7 @@ class Child < ApplicationRecord
                 gennevilliers_zucman_gabison gennevilliers_timsit asnieres_gennevilliers_sst2 villeneuve_la_garenne chanteloup sartrouville les_mureaux seine_st_denis].freeze
   GROUP_STATUS = %w[waiting active paused stopped].freeze
   TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
-  LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Bondy', 'Orleans', 'Montargis', 'Pithiviers', 'Gien', 'Villeneuve-la-Garenne'].freeze
+  LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Bondy', 'Orleans', 'Montargis', 'Pithiviers', 'Gien', 'Villeneuve-la-Garenne', 'Mantes La Jolie'].freeze
 
   # ---------------------------------------------------------------------------
   # global search
@@ -252,6 +252,8 @@ class Child < ApplicationRecord
         postal_codes += Parent::PITHIVIERS_POSTAL_CODE
       when 'Bondy'
         postal_codes += Parent::BONDY_POSTAL_CODE
+      when 'Mantes La Jolie'
+        postal_codes += Parent::MANTES_LA_JOLIE_POSTAL_CODE
       end
     end
 
