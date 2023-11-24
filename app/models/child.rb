@@ -97,6 +97,8 @@ class Child < ApplicationRecord
   has_many :children_support_modules, dependent: :destroy
 
   has_one :supporter, through: :child_support, class_name: :AdminUser
+  has_one :children_source
+  has_one :source, through: :children_source
 
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
