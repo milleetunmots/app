@@ -5,6 +5,8 @@
 #  id                      :bigint           not null, primary key
 #  detail                  :text
 #  registration_department :integer
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
 #  child_id                :bigint
 #  source_id               :bigint
 #

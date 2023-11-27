@@ -72,4 +72,15 @@ module ActiveAdmin::ChildrenHelper
   def child_supporter_select_collection
     AdminUser.order(:name).map(&:decorate)
   end
+
+  def child_registration_source_select_for_caf
+    [
+      ['La CAF', 'caf'],
+      ['Mon entourage', 'bao']
+    ]
+  end
+
+  def source_select_for_pmi
+    Source.by_pmi.map { |pmi| [pmi.name, pmi.id]}
+  end
 end

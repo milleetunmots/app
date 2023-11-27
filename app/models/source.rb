@@ -8,6 +8,8 @@
 #  department :integer
 #  name       :string           not null
 #  utm        :string
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
 #
 class Source < ApplicationRecord
 
@@ -19,7 +21,7 @@ class Source < ApplicationRecord
   # relations
   # ---------------------------------------------------------------------------
 
-  has_many :children_sources
+  has_many :children_sources, dependent: :nullify
   has_many :children, through: :children_sources
 
   # ---------------------------------------------------------------------------
@@ -30,11 +32,17 @@ class Source < ApplicationRecord
   validates :channel, presence: true, inclusion: { in: CHANNEL_LIST }
   validate :department_required_if_pmi_or_caf, on: :create
 
+  # ---------------------------------------------------------------------------
+  # scopes
+  # ---------------------------------------------------------------------------
+
+  scope :by_pmi, -> { where(channel: 'pmi').order(:name) }
+
   private
 
   def department_required_if_pmi_or_caf
-    if %w[pmi caf].include?(channel) && department.blank?
-      errors.add(:department, "doit être spécifié lorsque le canal est 'PMI' ou 'CAF'")
-    end
+    return unless %w[pmi caf].include?(channel) && department.blank?
+
+    errors.add(:department, "doit être spécifié lorsque le canal est 'PMI' ou 'CAF'")
   end
 end

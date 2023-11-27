@@ -7,15 +7,18 @@ Rails.application.routes.draw do
 
   ActiveAdmin.routes(self)
 
-  get "inscription", to: "children#new", as: :new_child
-  get "inscription1", to: "children#new", as: :new_child1
-  get "inscription2", to: "children#new", as: :new_child2
-  get "inscription3", to: "children#new", as: :new_child3
+  get "inscription", to: "children#new", as: :new_child   # formulaire site
+  get "inscription1", to: "children#new", as: :new_child1 # formulaire site
+  get "inscription2", to: "children#new", as: :new_child2 # formulaire caf, à modifier
+  get "inscription3", to: "children#new", as: :new_pmi_registration # fomulaire pmi, à modifier
+
+  # Créer formulaire bao
+  # Créer formulaire partenaire locaux
 
   post "inscription", to: "children#create", as: :children
   post "inscription1", to: "children#create", as: :children1
   post "inscription2", to: "children#create", as: :children2
-  post "inscription3", to: "children#create", as: :children3
+  post "inscription3", to: "children#create", as: :pmi_registration
   get "inscrit", to: "children#created", as: :created_child
 
   scope "c/:id/:security_code" do

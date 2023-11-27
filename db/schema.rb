@@ -319,6 +319,8 @@ ActiveRecord::Schema.define(version: 2023_12_18_141318) do
     t.bigint "child_id"
     t.text "detail"
     t.integer "registration_department"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.index ["child_id"], name: "index_children_sources_on_child_id"
     t.index ["source_id"], name: "index_children_sources_on_source_id"
   end
@@ -537,6 +539,8 @@ ActiveRecord::Schema.define(version: 2023_12_18_141318) do
     t.integer "department"
     t.string "utm"
     t.text "comment"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "support_module_weeks", force: :cascade do |t|
