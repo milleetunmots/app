@@ -4,14 +4,15 @@ class Child
 
     attr_reader :child, :sms_url_form
 
-    def initialize(attributes, siblings_attributes, parent1_attributes, mother_attributes, father_attributes, registration_origin, child_min_birthdate)
+    def initialize(attributes, siblings_attributes, parent1_attributes, mother_attributes, father_attributes, registration_origin, children_source_attributes, child_min_birthdate)
       @attributes = attributes
       @registration_origin = registration_origin
       @child_min_birthdate = child_min_birthdate
       @siblings_attributes = siblings_attributes
       @parent1_attributes = parent1_attributes
-      @mother_attributes = mother_attributes.merge(gender: 'f', terms_accepted_at: Time.zone.now)
-      @father_attributes = father_attributes.merge(gender: 'm', terms_accepted_at: Time.zone.now)
+      @children_source_attributes = children_source_attributes
+      @mother_attributes = mother_attributes.merge(gender: 'f', terms_accepted_at: Time.now)
+      @father_attributes = father_attributes.merge(gender: 'm', terms_accepted_at: Time.now)
     end
 
     def call
@@ -20,8 +21,10 @@ class Child
       set_should_contact_parent
       build_siblings
       detect_errors
-      send_form_by_sms if @child.errors.empty? && @child.save
-
+      if @child.errors.empty? && @child.save
+        ChildrenSource.create(@children_source_attributes.merge(child_id: @child.id))
+        send_form_by_sms
+      end
       self
     end
 
@@ -66,7 +69,7 @@ class Child
     end
 
     def send_form_by_sms
-      @sms_url_form = "#{ENV['TYPEFORM_URL']}#child_support_id=#{@child.child_support.id}"
+      @sms_url_form = "#{ENV.fetch('TYPEFORM_URL', nil)}#child_support_id=#{@child.child_support.id}"
       message = "1001mots: Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{@sms_url_form}"
 
       SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, message).call if @registration_origin == 2
@@ -102,39 +105,40 @@ class Child
     end
 
     def birthdate_validation
-      @child.errors.add(:birthdate, :invalid, message: "minimale: #{(@child_min_birthdate)}") if @child.birthdate < @child_min_birthdate
+      @child.errors.add(:birthdate, :invalid, message: "minimale: #{@child_min_birthdate}") if @child.birthdate < @child_min_birthdate
     end
 
     def pmi_detail_validation
-      if @registration_origin == 3 && @child.registration_source == 'pmi' && @child.pmi_detail.blank?
-        @child.errors.add(:pmi_detail, :invalid, message: 'Précisez votre PMI svp!')
-      end
+      return unless @registration_origin == 3 && @child.registration_source == 'pmi' && @child.pmi_detail.blank?
+
+      @child.errors.add(:pmi_detail, :invalid, message: 'Précisez votre PMI svp!')
     end
 
     def caf_detail_validation
-      if @registration_origin == 2 && @child.registration_source == 'caf' && @child.registration_source_details.blank?
-        @child.errors.add(:registration_source_details, :invalid, message: 'Précisez votre CAF svp!')
-      end
+      return unless @registration_origin == 2 && @child.registration_source == 'caf' && @child.registration_source_details.blank?
+
+      @child.errors.add(:registration_source_details, :invalid, message: 'Précisez votre CAF svp!')
     end
 
     def overseas_child_validation
-      if @parent1_attributes[:postal_code].to_i / 1000 == 97
-        @child.errors.add(:base,
-                          :invalid,
-                          message: "L'accompagnement 1001 mots n'est pas encore disponible dans votre région. N'hésitez pas à suivre nos actualités sur notre site et notre page facebook !")
-      end
+      return unless @parent1_attributes[:postal_code].to_i / 1000 == 97
+
+      @child.errors.add(:base,
+                        :invalid,
+                        message: "L'accompagnement 1001 mots n'est pas encore disponible dans votre région. N'hésitez pas à suivre nos actualités sur notre site et notre page facebook !")
     end
 
     def detect_errors
       @child.valid?
+      Source.exists?(@children_source_attributes[:source_id])
       if any_parent?
         mother_validation if mother_present?
         father_validation if father_present?
       end
 
       birthdate_validation
-      pmi_detail_validation
-      caf_detail_validation
+      # pmi_detail_validation
+      # caf_detail_validation
       overseas_child_validation
     end
   end

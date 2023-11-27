@@ -25,6 +25,7 @@ class ChildrenController < ApplicationController
       mother_params,
       father_params,
       current_registration_origin,
+      children_source_params,
       @child_min_birthdate
     ).call
 
@@ -103,6 +104,10 @@ class ChildrenController < ApplicationController
                                   ])[:siblings]&.values || []
   end
 
+  def children_source_params
+    params.require(:child).permit(children_source: %i[source_id detail])[:children_source]
+  end
+
   def find_child
     @child = Child.where(
       id: params[:id],
@@ -166,9 +171,9 @@ class ChildrenController < ApplicationController
     @child.build_parent2 if @child.parent2.nil?
     @child.build_child_support if @child.child_support.nil?
     @child.build_children_source
-    @child.siblings.build until @child.siblings.size >= SIBLINGS_COUNT
-    @child.siblings.each do |sibling|
-      sibling.build_child_support if sibling.child_support.nil?
-    end
+    # @child.siblings.build until @child.siblings.size >= SIBLINGS_COUNT
+    # @child.siblings.each do |sibling|
+    #   sibling.build_child_support if sibling.child_support.nil?
+    # end
   end
 end
