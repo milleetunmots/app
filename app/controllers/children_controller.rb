@@ -13,6 +13,10 @@ class ChildrenController < ApplicationController
     build_child_for_form
   end
 
+  def edit
+    @action_path = update_child_path(id: @child.id, security_code: @child.security_code)
+  end
+
   def create
     service = Child::CreateService.new(
       child_creation_params.merge(src_url: session[:src_url]),
@@ -43,7 +47,7 @@ class ChildrenController < ApplicationController
       @message = I18n.t('inscription_success.pro')
       @again = true
       @widget = false
-      @new_link = new_child3_path
+      @new_link = new_pmi_registration_path
     when 2
       session.delete(:registration_origin)
       @message = I18n.t('inscription_success.without_widget', typeform_url: params[:sms_url_form])
@@ -57,10 +61,6 @@ class ChildrenController < ApplicationController
       @new_link = new_child1_path
     end
     session.delete(:src_url)
-  end
-
-  def edit
-    @action_path = update_child_path(id: @child.id, security_code: @child.security_code)
   end
 
   def update
@@ -109,7 +109,7 @@ class ChildrenController < ApplicationController
       security_code: params[:security_code]
     ).first
 
-    head 404 and return if @child.nil?
+    head :not_found and return if @child.nil?
   end
 
   def build_variables
@@ -122,30 +122,29 @@ class ChildrenController < ApplicationController
       @form_path = children2_path
     when '/inscription3'
       session[:registration_origin] = 3
-      @form_path = children3_path
+      @form_path = new_pmi_registration_path
     end
     @title = I18n.t("inscription_title.form#{current_registration_origin}")
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
     case current_registration_origin
     when 3
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.pro')
-      @registration_source_label = I18n.t('inscription_registration_source_label.pro')
-      @registration_source_collection = :pro
-      @registration_pmi_detail = I18n.t('inscription_pmi.detail')
-      @registration_source_details_label = I18n.t('inscription_registration_source_details_label.pro')
+      @source_label = I18n.t('source_label.pmi')
+      @source_collection = :pmi
+      @source_details_label = I18n.t('inscription_registration_source_details_label.pro')
       @child_min_birthdate = Time.zone.today - 30.months
     when 2
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
-      @registration_source_label = I18n.t('inscription_registration_source_label.parent')
-      @registration_source_collection = :parent
+      @source_label = I18n.t('inscription_registration_source_label.caf')
+      @source_collection = :caf
       @registration_caf_detail = I18n.t('inscription_caf.detail')
-      @registration_source_details_label = I18n.t('inscription_registration_source_details_label.parent')
+      @source_details_label = I18n.t('inscription_registration_source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate
     else
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
-      @registration_source_label = I18n.t('inscription_registration_source_label.parent')
-      @registration_source_collection = :parent
-      @registration_source_details_label = I18n.t('inscription_registration_source_details_label.parent')
+      @source_label = I18n.t('inscription_registration_source_label.parent')
+      @source_collection = :parent
+      @source_details_label = I18n.t('inscription_registration_source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate_alt
     end
   end
@@ -166,6 +165,7 @@ class ChildrenController < ApplicationController
     @child.build_parent1 if @child.parent1.nil?
     @child.build_parent2 if @child.parent2.nil?
     @child.build_child_support if @child.child_support.nil?
+    @child.build_children_source
     @child.siblings.build until @child.siblings.size >= SIBLINGS_COUNT
     @child.siblings.each do |sibling|
       sibling.build_child_support if sibling.child_support.nil?

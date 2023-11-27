@@ -1,0 +1,3 @@
+class SourceDecorator < BaseDecorator
+
+end
