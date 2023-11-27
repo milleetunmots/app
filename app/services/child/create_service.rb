@@ -4,12 +4,13 @@ class Child
 
     attr_reader :child, :sms_url_form
 
-    def initialize(attributes, siblings_attributes, parent1_attributes, mother_attributes, father_attributes, registration_origin, child_min_birthdate)
+    def initialize(attributes, siblings_attributes, parent1_attributes, mother_attributes, father_attributes, registration_origin, children_source_attributes, child_min_birthdate)
       @attributes = attributes
       @registration_origin = registration_origin
       @child_min_birthdate = child_min_birthdate
       @siblings_attributes = siblings_attributes
       @parent1_attributes = parent1_attributes
+      @children_source_attributes = children_source_attributes
       @mother_attributes = mother_attributes.merge(gender: 'f', terms_accepted_at: Time.now)
       @father_attributes = father_attributes.merge(gender: 'm', terms_accepted_at: Time.now)
     end
@@ -20,8 +21,10 @@ class Child
       set_should_contact_parent
       build_siblings
       detect_errors
-      send_form_by_sms if @child.errors.empty? && @child.save
-
+      if @child.errors.empty? && @child.save
+        ChildrenSource.create(@children_source_attributes.merge(child_id: @child.id))
+        send_form_by_sms
+      end
       self
     end
 
@@ -127,14 +130,15 @@ class Child
 
     def detect_errors
       @child.valid?
+      Source.exists?(@children_source_attributes[:source_id])
       if any_parent?
         mother_validation if mother_present?
         father_validation if father_present?
       end
 
       birthdate_validation
-      pmi_detail_validation
-      caf_detail_validation
+      # pmi_detail_validation
+      # caf_detail_validation
       overseas_child_validation
     end
   end
