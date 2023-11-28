@@ -161,6 +161,7 @@ class Child < ApplicationRecord
   scope :available_for_the_workshops, -> { where(available_for_workshops: true) }
   scope :active_group, -> { where(group_status: 'active') }
   scope :only_siblings, -> { where(child_support_id: ChildSupport.multiple_children.select(:id)) }
+  scope :with_ongoing_group, -> { joins(:group).merge(Group.started) }
 
   def self.without_group_and_not_waiting_second_group
     second_group_children_ids = Child.tagged_with('2eme cohorte').pluck(:id)
