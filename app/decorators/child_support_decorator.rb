@@ -125,7 +125,7 @@ class ChildSupportDecorator < BaseDecorator
     end
   end
 
-  (1..5).each do |call_idx|
+  (0..5).each do |call_idx|
 
     define_method("call#{call_idx}_parent_progress_index") do
       progress model.send("call#{call_idx}_parent_progress_index")
