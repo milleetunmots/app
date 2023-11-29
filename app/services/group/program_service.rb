@@ -52,7 +52,7 @@ class Group
     end
 
     def program_sms_to_bilinguals
-      bilinguals_first_sms_date = @group.started_at
+      bilinguals_first_sms_date = @group.started_at + 2.weeks
       Group::ProgramSmsToBilingualsJob.set(wait_until: bilinguals_first_sms_date.to_datetime.change(hour: 7)).perform_later(@group.id, bilinguals_first_sms_date)
     end
 
