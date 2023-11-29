@@ -4,7 +4,7 @@ class Child
 
     attr_reader :child, :sms_url_form
 
-    def initialize(attributes, siblings_attributes, parent1_attributes, mother_attributes, father_attributes, registration_origin, children_source_attributes, child_min_birthdate, utm_caf=nil)
+    def initialize(attributes, siblings_attributes, parent1_attributes, mother_attributes, father_attributes, registration_origin, children_source_attributes, child_min_birthdate)
       @attributes = attributes
       @registration_origin = registration_origin
       @child_min_birthdate = child_min_birthdate

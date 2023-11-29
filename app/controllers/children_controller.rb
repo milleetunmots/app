@@ -26,8 +26,7 @@ class ChildrenController < ApplicationController
       father_params,
       current_registration_origin,
       children_source_params,
-      @child_min_birthdate,
-      utm_caf
+      @child_min_birthdate
     ).call
 
     @child = service.child

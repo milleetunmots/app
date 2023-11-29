@@ -382,6 +382,7 @@ ActiveAdmin.register Child do
           row :birthdate
           row :age
           row :gender, &:gender_status
+          row :source
           row :territory
           row :land
           row :available_for_workshops

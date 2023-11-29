@@ -1,36 +1,31 @@
 (function($) {
 
   var showCafSelection = function() {
-    console.log('fonction show caf ')
     var value = $(this).val();
-
     var url = new URL(window.location.href);
     var params = url.searchParams;
     var utmCaf = params.get('utm_caf') || undefined;
 
-    console.log(utmCaf)
-    console.log(value)
-
-
     if (value === 'caf') {
-      console.log("hello")
       $.ajax({
         type: 'GET',
         url: '/sources/caf_by_utm?utm_caf='+utmCaf
       }).done(function(data) {
-        console.log("on est la")
-        console.log(data)
         $('#child_children_source_source_id').val(data.id)
         $('#child_children_source_source_id').trigger('change')
       })
     } else if (value === 'bao' ) {
-      console.log("bao")
+
+
       $.ajax({
         type: 'GET',
         url: '/sources/friends'
       }).done(function(data) {
-        console.log("on est la dans bao")
-        console.log(data)
+        var childrenSourceSelect = $('#child_children_source_source_id')
+        var option = document.createElement("option");
+        option.value = data.id;
+        option.text = data.name;
+        childrenSourceSelect.append(option);
         $('#child_children_source_source_id').val(data.id)
         $('#child_children_source_source_id').trigger('change')
       })
@@ -38,7 +33,7 @@
     }
 
 
-    // var caf_list = ["CAF Paris", "CAF Seine-Saint-Denis", "CAF Loiret","CAF Moselle"];
+    //
     // var selectCafList = document.createElement("select");
     // selectCafList.id = "child_registration_source_details";
     // selectCafList.classList = "form-control select required";
@@ -47,9 +42,8 @@
 
 
     // for (var i = 0; i < caf_list.length; i++) {
-    //   var option = document.createElement("option");
-    //   option.value = caf_list[i];
-    //   option.text = caf_list[i];
+    //   var option =
+    //
     //   selectCafList.appendChild(option);
     // }
 
