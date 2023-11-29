@@ -5,6 +5,7 @@ class ChildrenSupportModule
     def perform(group_id)
       errors = {}
       group = Group.find(group_id)
+      next_module_index = group.support_module_programmed + 1
 
       group.children.includes(:parent1, :parent2, :child_support).where(group_status: 'active').find_each do |child|
         unless child.child_support
@@ -14,11 +15,13 @@ class ChildrenSupportModule
 
         parent1_children_support_module = ChildrenSupportModule.create(child_id: child.id,
                                                                        parent_id: child.parent1.id,
-                                                                       available_support_module_list: child.child_support&.parent1_available_support_module_list)
+                                                                       available_support_module_list: child.child_support&.parent1_available_support_module_list,
+                                                                       module_index: next_module_index)
         if child.parent2
           parent2_children_support_module = ChildrenSupportModule.create(child_id: child.id,
                                                                          parent_id: child.parent2.id,
-                                                                         available_support_module_list: child.child_support&.parent2_available_support_module_list)
+                                                                         available_support_module_list: child.child_support&.parent2_available_support_module_list,
+                                                                         module_index: next_module_index)
         end
 
         errors[child.id] = handle_errors([parent1_children_support_module, parent2_children_support_module]) if parent1_children_support_module&.errors&.any? || parent2_children_support_module&.errors&.any?

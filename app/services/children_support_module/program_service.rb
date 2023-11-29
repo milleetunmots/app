@@ -6,6 +6,7 @@ class ChildrenSupportModule
       @errors = {}
       group = Group.find(group_id)
       module_number = group.support_module_programmed
+      @module_index = group.support_module_programmed.to_i + 1
       create_group_children_support_module(group, age_ranges, theme)
       ChildrenSupportModule::ProgramSupportModuleSmsJob.perform_later(group_id, program_date)
       return unless @errors.any?
@@ -47,7 +48,8 @@ class ChildrenSupportModule
         child_id: child.id,
         parent_id: parent.id,
         available_support_module_list: [support_module.id],
-        support_module: support_module
+        support_module: support_module,
+        module_index: @module_index
       )
       @errors["child: #{child.id} - parent: #{parent.id}"] = parent_children_support_module.errors if parent_children_support_module.errors.any?
     end

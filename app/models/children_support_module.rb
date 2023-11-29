@@ -48,6 +48,7 @@ class ChildrenSupportModule < ApplicationRecord
 
   after_update :select_for_the_other_parent
   after_update :select_for_siblings
+  before_create :set_module_index
 
   def name
     return support_module.decorate.name_with_tags if support_module
@@ -162,5 +163,12 @@ class ChildrenSupportModule < ApplicationRecord
       choice_date: choice_date,
       is_completed: is_completed
     )
+  end
+
+  def set_module_index
+    return unless child&.group.present? && self.module_index.blank?
+
+    next_module_index = child.group.support_module_programmed + 1
+    self.module_index = next_module_index
   end
 end
