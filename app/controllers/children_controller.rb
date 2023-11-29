@@ -22,7 +22,8 @@ class ChildrenController < ApplicationController
       father_params,
       current_registration_origin,
       children_source_params,
-      @child_min_birthdate
+      @child_min_birthdate,
+      utm_caf
     ).call
 
     @child = service.child
@@ -108,6 +109,10 @@ class ChildrenController < ApplicationController
     params.require(:child).permit(children_source: %i[source_id detail])[:children_source]
   end
 
+  def utm_caf_params
+    params[:utm_caf] || nil
+  end
+
   def find_child
     @child = Child.where(
       id: params[:id],
@@ -140,7 +145,9 @@ class ChildrenController < ApplicationController
       @child_min_birthdate = Time.zone.today - 30.months
     when 2
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
-      @source_label = I18n.t('inscription_registration_source_label.caf')
+      @form_received_from = I18n.t('form_received_from')
+      @source_label = I18n.t('source_label.caf')
+      @utm_caf = utm_caf_params
       @source_collection = :caf
       @registration_caf_detail = I18n.t('inscription_caf.detail')
       @source_details_label = I18n.t('inscription_registration_source_details_label.parent')
@@ -171,9 +178,9 @@ class ChildrenController < ApplicationController
     @child.build_parent2 if @child.parent2.nil?
     @child.build_child_support if @child.child_support.nil?
     @child.build_children_source
-    # @child.siblings.build until @child.siblings.size >= SIBLINGS_COUNT
-    # @child.siblings.each do |sibling|
-    #   sibling.build_child_support if sibling.child_support.nil?
-    # end
+    @child.siblings.build until @child.siblings.size >= SIBLINGS_COUNT
+    @child.siblings.each do |sibling|
+      sibling.build_child_support if sibling.child_support.nil?
+    end
   end
 end

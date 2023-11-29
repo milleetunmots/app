@@ -59,5 +59,12 @@ Rails.application.routes.draw do
     member { get :current_child }
   end
 
+  resources :sources do
+    collection do
+      get :caf_by_utm
+      get :friends
+    end
+  end
+
   root to: redirect("/admin")
 end

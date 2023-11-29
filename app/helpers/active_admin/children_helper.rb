@@ -73,7 +73,7 @@ module ActiveAdmin::ChildrenHelper
     AdminUser.order(:name).map(&:decorate)
   end
 
-  def child_registration_source_select_for_caf
+  def caf_form_received_from
     [
       ['La CAF', 'caf'],
       ['Mon entourage', 'bao']
@@ -82,5 +82,9 @@ module ActiveAdmin::ChildrenHelper
 
   def source_select_for_pmi
     Source.by_pmi.map { |pmi| [pmi.name, pmi.id]}
+  end
+
+  def source_select_for_caf
+    Source.by_caf.map { |caf| [caf.name, caf.id]}
   end
 end
