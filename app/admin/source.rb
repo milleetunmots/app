@@ -1,20 +1,5 @@
 ActiveAdmin.register Source do
 
-  # See permitted parameters documentation:
-  # https://github.com/activeadmin/activeadmin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
-  #
-  # Uncomment all parameters which should be permitted for assignment
-  #
-  # permit_params :name, :channel, :department, :utm, :comment
-  #
-  # or
-  #
-  # permit_params do
-  #   permitted = [:name, :channel, :department, :utm, :comment]
-  #   permitted << :other if params[:action] == 'create' && current_user.admin?
-  #   permitted
-  # end
-
   decorate_with SourceDecorator
 
   # ---------------------------------------------------------------------------
@@ -27,6 +12,7 @@ ActiveAdmin.register Source do
     column :name
     column :channel
     column :department
+    column :utm
     column :comment
     actions
   end
@@ -34,6 +20,7 @@ ActiveAdmin.register Source do
   filter :name
   filter :channel
   filter :department
+  filter :utm
   filter :created_at
   filter :updated_at
 
@@ -47,12 +34,13 @@ ActiveAdmin.register Source do
       f.input :name
       f.input :channel, collection: Source::CHANNEL_LIST
       f.input :department
+      f.input :utm
       f.input :comment
     end
     f.actions
   end
 
-  permit_params :name, :channel, :department, :comment
+  permit_params :name, :channel, :department, :comment, :utm
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -63,6 +51,7 @@ ActiveAdmin.register Source do
       row :name
       row :channel
       row :department
+      row :utm
       row :comment
       row :created_at
       row :updated_at

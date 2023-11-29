@@ -34,6 +34,7 @@ fr:
   survey_response:
     new_import_link: Import CSV
   "false": Non
+  form_received_from: "J'ai reçu ce formulaire par&nbsp;:"
   inscription_title:
     form1: "Découvrez nos idées pour éveiller votre enfant"
     form2: "Recevez des livres et des idées pour éveiller votre enfant"
@@ -52,7 +53,7 @@ fr:
     parent: "Je donne mon accord pour que mes données soient collectées par 1001mots en vue de pouvoir bénéficier du programme d’accompagnement 1001mots. Les données sont collectées dans le seul but de vous faire bénéficier des services 1001mots.<br/>Pour en savoir plus sur la gestion de vos données personnelles et pour exercer vos droits, reportez-vous à la <a href='https://1001mots.org/mentions-legales/#:~:text=la%20protection%20de%20vos%20' target='_blank'>notice ci-jointe</a>."
     pro: "Les parents donnent leur accord pour que les données soient gardées par 1001mots"
   source_label:
-    caf: "J'ai reçu ce formulaire par&nbsp;:"
+    caf: "Précisez votre CAF&nbsp;:"
     parent: "Comment nous avez-vous connu&nbsp;?"
     pmi: "Sélectionnez votre PMI&nbsp;"
     pro: "Vous êtes&nbsp;:"
