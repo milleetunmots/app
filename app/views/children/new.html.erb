@@ -14,8 +14,8 @@
         </div>
       </div>
 
-      <div class="row justify-content-sm-center accepted-fields">
-        <%= f.simple_fields_for :children_source do |children_source_form| %>
+      <%= f.simple_fields_for :children_source do |children_source_form| %>
+        <div class="row justify-content-sm-center accepted-fields">
           <% if @source_collection == :caf %>
             <div class="col-sm-6">
               <label class="select required" for="form_received_from"><%= @form_received_from.html_safe %></label>
@@ -38,10 +38,10 @@
                 collection: case @source_collection
                             when :pmi
                               source_select_for_pmi
-                            when :pro
-                              child_registration_source_select_collection_for_pros
                             when :bao
                               source_select_for_bao
+                            when :local_partner
+                              source_select_for_local_partner
                             else
                               child_registration_source_select_collection
                             end
@@ -51,8 +51,15 @@
               <%= children_source_form.input :detail, required: true, label: @source_details_label.html_safe %>
             </div>
           <% end %>
+        </div>
+        <% if @source_collection == :local_partner %>
+          <div class="row" id="registration_department_select">
+            <div class="col-sm-6">
+              <%= children_source_form.input :registration_department, as: :select, label: @source_registration_department_label.html_safe, collection: local_partner_source_departements %>
+            </div>
+          </div>
         <% end %>
-      </div>
+      <% end %>
 
       <% if f.object.errors[:base].any? %>
         <div class="row justify-content-sm-center accepted-fields">
@@ -100,10 +107,10 @@
               <h3>Parent 2 (optionnel)</h3>
               <div id="parent2-fields">
                 <%= f.simple_fields_for :parent2 do |parent2_f| %>
-                  <%= parent2_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: true %>
-                  <%= parent2_f.input :first_name, required: true %>
-                  <%= parent2_f.input :last_name, required: true %>
-                  <%= parent2_f.input :phone_number, required: true %>
+                  <%= parent2_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection %>
+                  <%= parent2_f.input :first_name %>
+                  <%= parent2_f.input :last_name %>
+                  <%= parent2_f.input :phone_number %>
                 <% end %>
               </div>
             </div>

@@ -110,7 +110,7 @@ class ChildrenController < ApplicationController
   end
 
   def children_source_params
-    params.require(:child).permit(children_source: %i[source_id detail])[:children_source]
+    params.require(:child).permit(children_source: %i[source_id detail registration_department])[:children_source]
   end
 
   def utm_caf_params
@@ -140,10 +140,20 @@ class ChildrenController < ApplicationController
     when '/inscription4'
       session[:registration_origin] = 4
       @form_path = boa_registration_path
+    when '/inscription5'
+      session[:registration_origin] = 5
+      @form_path = local_partner_registration_path
     end
     @title = I18n.t("inscription_title.form#{current_registration_origin}")
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
     case current_registration_origin
+    when 5
+      @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.pro')
+      @source_collection = :local_partner
+      @source_label = I18n.t('source_label.local_partner')
+      @source_details_label = I18n.t('inscription_registration_source_details_label.pro')
+      @source_registration_department_label = I18n.t('source_registration_department_label')
+      @child_min_birthdate = Time.zone.today - 30.months
     when 4
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
       @source_collection = :bao

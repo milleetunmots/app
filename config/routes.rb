@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   get 'inscription2', to: 'children#new', as: :new_caf_registration
   get 'inscription3', to: 'children#new', as: :new_pmi_registration
   get 'inscription4', to: 'children#new', as: :new_bao_registration
+  get 'inscription5', to: 'children#new', as: :new_local_partner_registration
 
   # Créer formulaire bao
   # Créer formulaire partenaire locaux
@@ -20,6 +21,7 @@ Rails.application.routes.draw do
   post 'inscription2', to: 'children#create', as: :caf_registration
   post 'inscription3', to: 'children#create', as: :pmi_registration
   post 'inscription4', to: 'children#create', as: :boa_registration
+  post 'inscription5', to: 'children#create', as: :local_partner_registration
   get 'inscrit', to: 'children#created', as: :created_child
 
   scope 'c/:id/:security_code' do
@@ -62,6 +64,7 @@ Rails.application.routes.draw do
     collection do
       get :caf_by_utm
       get :friends
+      get :local_partner_has_department
     end
   end
 
