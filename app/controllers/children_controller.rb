@@ -38,6 +38,11 @@ class ChildrenController < ApplicationController
 
   def created
     case current_registration_origin
+    when 4
+      @message = I18n.t('inscription_success.without_widget', typeform_url: params[:sms_url_form])
+      @again = true
+      @widget = false
+      @new_link = new_bao_registration_path
     when 3
       # for this form we keep the registration_origin
       # so that multiple children can be registered
@@ -50,7 +55,7 @@ class ChildrenController < ApplicationController
       @message = I18n.t('inscription_success.without_widget', typeform_url: params[:sms_url_form])
       @again = false
       @widget = false
-      @new_link = new_child2_path
+      @new_link = new_caf_registration_path
     else
       @message = I18n.t('inscription_success.with_widget')
       @again = false
@@ -128,26 +133,35 @@ class ChildrenController < ApplicationController
       @form_path = children1_path
     when '/inscription2'
       session[:registration_origin] = 2
-      @form_path = children2_path
+      @form_path = caf_registration_path
     when '/inscription3'
       session[:registration_origin] = 3
-      @form_path = new_pmi_registration_path
+      @form_path = pmi_registration_path
+    when '/inscription4'
+      session[:registration_origin] = 4
+      @form_path = boa_registration_path
     end
     @title = I18n.t("inscription_title.form#{current_registration_origin}")
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
     case current_registration_origin
+    when 4
+      @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
+      @source_collection = :bao
+      @source_label = I18n.t('source_label.parent')
+      @source_details_label = I18n.t('inscription_registration_source_details_label.parent')
+      @child_min_birthdate = Child.min_birthdate
     when 3
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.pro')
-      @source_label = I18n.t('source_label.pmi')
       @source_collection = :pmi
+      @source_label = I18n.t('source_label.pmi')
       @source_details_label = I18n.t('inscription_registration_source_details_label.pro')
       @child_min_birthdate = Time.zone.today - 30.months
     when 2
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
+      @source_collection = :caf
       @form_received_from = I18n.t('form_received_from')
       @source_label = I18n.t('source_label.caf')
       @utm_caf = utm_caf_params
-      @source_collection = :caf
       @registration_caf_detail = I18n.t('inscription_caf.detail')
       @source_details_label = I18n.t('inscription_registration_source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate
