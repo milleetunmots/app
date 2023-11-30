@@ -8,16 +8,18 @@ Rails.application.routes.draw do
 
   get 'inscription', to: 'children#new', as: :new_child   # formulaire site
   get 'inscription1', to: 'children#new', as: :new_child1 # formulaire site
-  get 'inscription2', to: 'children#new', as: :new_child2 # formulaire caf, à modifier
-  get 'inscription3', to: 'children#new', as: :new_pmi_registration # fomulaire pmi, à modifier
+  get 'inscription2', to: 'children#new', as: :new_caf_registration
+  get 'inscription3', to: 'children#new', as: :new_pmi_registration
+  get 'inscription4', to: 'children#new', as: :new_bao_registration
 
   # Créer formulaire bao
   # Créer formulaire partenaire locaux
 
   post 'inscription', to: 'children#create', as: :children
   post 'inscription1', to: 'children#create', as: :children1
-  post 'inscription2', to: 'children#create', as: :children2
+  post 'inscription2', to: 'children#create', as: :caf_registration
   post 'inscription3', to: 'children#create', as: :pmi_registration
+  post 'inscription4', to: 'children#create', as: :boa_registration
   get 'inscrit', to: 'children#created', as: :created_child
 
   scope 'c/:id/:security_code' do
@@ -31,27 +33,18 @@ Rails.application.routes.draw do
   end
 
   get 'mis-a-jour', to: 'children#updated', as: :updated_child
-
   get 'mis-a-jour-invitation', to: 'workshop_participation#updated', as: :updated_workshop_participation
-
   get 'r/:id/:security_code', to: 'redirection#visit', as: :visit_redirection
-
   get 'spot_hit/status', to: 'events#update_status'
   get 'spot_hit/response', to: 'events#spot_hit_response'
   get 'spot_hit/stop', to: 'events#spot_hit_stop'
-
+  get 's/:id', to: 'children_support_modules#edit', as: :children_support_module_link
   post '/typeform/webhooks', to: 'typeform#webhooks'
 
   resources :events, only: %i[index create]
 
   resources :children_support_modules, only: %i[edit update] do
     get 'updated', on: :member
-  end
-
-  get 's/:id', to: 'children_support_modules#edit', as: :children_support_module_link
-
-  authenticate :admin_user do
-    mount Sidekiq::Web => '/sidekiq'
   end
 
   resources :parents do
@@ -70,6 +63,10 @@ Rails.application.routes.draw do
       get :caf_by_utm
       get :friends
     end
+  end
+
+  authenticate :admin_user do
+    mount Sidekiq::Web => '/sidekiq'
   end
 
   root to: redirect('/admin')

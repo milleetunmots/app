@@ -81,10 +81,14 @@ module ActiveAdmin::ChildrenHelper
   end
 
   def source_select_for_pmi
-    Source.by_pmi.map { |pmi| [pmi.name, pmi.id]}
+    Source.by_pmi.map { |pmi| [pmi.name, pmi.id] }
   end
 
   def source_select_for_caf
-    Source.by_caf.map { |caf| [caf.name, caf.id]}
+    Source.by_caf.map { |caf| [caf.name, caf.id] }
+  end
+
+  def source_select_for_bao
+    Source.by_bao.map { |bao| [bao.name, bao.id] }
   end
 end
