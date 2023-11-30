@@ -10,4 +10,9 @@ class SourcesController < ApplicationController
     source = Source.find(34)
     render json: { id: source.id, name: source.name }.to_json
   end
+
+  def local_partner_has_department
+    department = Source.find(params[:id]).department
+    render json: { result: department.present? }.to_json
+  end
 end
