@@ -7,8 +7,8 @@ Rails.application.routes.draw do
 
   ActiveAdmin.routes(self)
 
-  get 'inscription', to: 'children#new', as: :new_child   # formulaire site
-  get 'inscription1', to: 'children#new', as: :new_child1 # formulaire site
+  get 'inscription', to: 'children#new', as: :new_child
+  get 'inscription1', to: 'children#new', as: :new_child1
   get 'inscription2', to: 'children#new', as: :new_caf_registration
   get 'inscription3', to: 'children#new', as: :new_pmi_registration
   get 'inscription4', to: 'children#new', as: :new_bao_registration
@@ -44,9 +44,9 @@ Rails.application.routes.draw do
   get 's/:id', to: 'children_support_modules#edit', as: :children_support_module_link
   post '/typeform/webhooks', to: 'typeform#webhooks'
 
-  resources :events, only: [:index, :create]
+  resources :events, only: %i[index create]
 
-  resources :children_support_modules, only: [:edit, :update] do
+  resources :children_support_modules, only: %i[edit update] do
     get 'updated', on: :member
   end
 

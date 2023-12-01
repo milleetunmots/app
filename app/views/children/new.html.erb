@@ -23,7 +23,7 @@
               </select>
             </div>
             <div class="col-sm-6">
-              <div <%= 'hidden' unless @utm_caf.nil? %> >
+              <div <%= 'hidden' unless @utm_caf.nil? %> id="child_children_source_source_id_div">
                 <%= children_source_form.input :source_id, label: @source_label.html_safe, required: true, collection: source_select_for_caf %>
               </div>
             </div>
@@ -53,7 +53,7 @@
         <% if @source_collection == :local_partner %>
           <div class="row" id="registration_department_select">
             <div class="col-sm-6">
-              <%= children_source_form.input :registration_department, as: :select, label: @source_registration_department_label.html_safe, collection: local_partner_source_departements %>
+              <%= children_source_form.input :registration_department, as: :select, label: @source_registration_department_label.html_safe, collection: local_partner_source_departements, required: false %>
             </div>
           </div>
         <% end %>
@@ -105,10 +105,10 @@
               <h3>Parent 2 (optionnel)</h3>
               <div id="parent2-fields">
                 <%= f.simple_fields_for :parent2 do |parent2_f| %>
-                  <%= parent2_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection %>
-                  <%= parent2_f.input :first_name %>
-                  <%= parent2_f.input :last_name %>
-                  <%= parent2_f.input :phone_number %>
+                  <%= parent2_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: false %>
+                  <%= parent2_f.input :first_name, required: false  %>
+                  <%= parent2_f.input :last_name, required: false %>
+                  <%= parent2_f.input :phone_number, required: false %>
                 <% end %>
               </div>
             </div>
