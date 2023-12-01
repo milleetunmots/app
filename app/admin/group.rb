@@ -167,13 +167,17 @@ ActiveAdmin.register Group do
 
   action_item :children_support_modules_informations, only: :show do
     if resource.model.support_module_programmed.positive?
+      group_without_module_zero = resource.model.started_at < DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
       dropdown_menu 'Récupérer les informations des modules choisis' do
-        (0..resource.model.support_module_programmed - 1).each do |index|
-          next if index.zero? && resource.model.started_at < DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
+        (0..resource.model.support_modules_count).each do |index|
+          next if index.zero? && group_without_module_zero
 
-          item "Module #{index}", children_support_modules_informations_admin_group_path(index: index + 1)
+          ajusted_index = group_without_module_zero ? index - 1 : index
+          current_module = ajusted_index == resource.model.support_module_programmed
+          not_programmed = ajusted_index >= resource.model.support_module_programmed
+          item_text = "Module #{index} #{'- en cours de programmation' if current_module}#{'- à venir' if not_programmed && !current_module}"
+          item item_text, children_support_modules_informations_admin_group_path(index: group_without_module_zero ? index : index + 1)
         end
-        item 'Module en préparation', children_support_modules_informations_admin_group_path(index: 0)
       end
     end
   end

@@ -52,6 +52,8 @@ class Group < ApplicationRecord
 
   scope :not_ended, -> { where('ended_at IS NULL OR ended_at > ?', Date.today) }
   scope :ended, -> { where('ended_at <= ?', Date.today) }
+  scope :not_started, -> { where('started_at >= ? AND support_module_programmed = ?', Date.today, 0) }
+  scope :started, -> { where('started_at < ? OR support_module_programmed > ?', Date.today, 0) }
 
   # ---------------------------------------------------------------------------
   # helpers

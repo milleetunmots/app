@@ -138,11 +138,11 @@ ActiveAdmin.register Child do
 
   batch_action :add_to_group, form: -> {
     {
-      I18n.t('activerecord.models.group') => Group.not_ended.order(:name).pluck(:name, :id)
+      I18n.t('activerecord.models.group') => Group.not_started.order(:name).pluck(:name, :id)
     }
   } do |ids, inputs|
-    if batch_action_collection.where(id: ids).with_group.any?
-      flash[:error] = 'Certains enfants sont déjà dans une cohorte'
+    if batch_action_collection.where(id: ids).with_ongoing_group.any?
+      flash[:error] = 'Certains enfants sont dans une cohorte déjà lancée'
       redirect_to request.referer
     else
       group = Group.find(inputs[I18n.t('activerecord.models.group')])

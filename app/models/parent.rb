@@ -224,7 +224,7 @@ class Parent < ApplicationRecord
   end
 
   def current_child
-    children.order(:birthdate).last
+    children.order("CASE WHEN group_status = 'active' THEN 0 ELSE 1 END, birthdate DESC").first
   end
 
   def duplicate_of?(other_parent)

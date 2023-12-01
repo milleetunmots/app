@@ -52,7 +52,7 @@ class Group
     end
 
     def program_sms_to_bilinguals
-      bilinguals_first_sms_date = @group.started_at
+      bilinguals_first_sms_date = @group.started_at + 2.weeks
       Group::ProgramSmsToBilingualsJob.set(wait_until: bilinguals_first_sms_date.to_datetime.change(hour: 7)).perform_later(@group.id, bilinguals_first_sms_date)
     end
 
@@ -81,8 +81,9 @@ class Group
     end
 
     def program_sms_to_choose_module2_to_parents
+      # "Module 2" ==> module_index 3
       select_module_date = @group.started_at + 6.weeks - 3.days + MODULE_ZERO_DURATION
-      ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date, true)
+      ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date, 3)
     end
 
     def select_default_support_module
@@ -111,7 +112,7 @@ class Group
 
       (4..@group.support_modules_count).each do |module_index|
         select_module_date = (@group.started_at + ((module_index - 2) * 8.weeks) - 4.weeks + MODULE_ZERO_DURATION).next_occurring(:saturday)
-        ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date)
+        ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date, module_index)
       end
     end
 

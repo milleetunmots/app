@@ -55,9 +55,6 @@ class ChildrenSupportModule
     end
 
     def update_children_support_module(children)
-      ChildrenSupportModule.not_programmed.where(child_id: children).update(
-        module_index: group.support_module_programmed + 1
-      )
       ChildrenSupportModule.where(child_id: children).update(is_programmed: true)
     end
 
