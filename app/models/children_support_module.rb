@@ -48,6 +48,8 @@ class ChildrenSupportModule < ApplicationRecord
 
   after_update :select_for_the_other_parent
   after_update :select_for_siblings
+  before_create :set_module_index
+  after_save :save_chosen_module_to_child_support, if: :saved_change_to_support_module_id?
 
   def name
     return support_module.decorate.name_with_tags if support_module
@@ -162,5 +164,36 @@ class ChildrenSupportModule < ApplicationRecord
       choice_date: choice_date,
       is_completed: is_completed
     )
+  end
+
+  def set_module_index
+    return unless child&.group.present? && self.module_index.blank?
+
+    next_module_index = child.group.support_module_programmed + 1
+    self.module_index = next_module_index
+  end
+  
+  def save_chosen_module_to_child_support
+    return unless saved_change_to_support_module_id? && support_module.present?
+    return unless child.current_child? && child.group
+    return if is_programmed || !is_completed
+
+    # Handle groups with no module 0
+    # To retrieve the module number (which can be different from module_index because of Module 0)
+    # ie. In new groups, Module 0 == module_index 1 // Module 1 == module_index 1 in previous groups w/o Module 0
+    current_choice_module_number =
+      if child.group.started_at < DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
+        module_index
+      else
+        module_index.to_i - 1
+      end
+    # we don't care about module 0 & 1 choices, and we don't handle modules after the fifth for now
+    return if current_choice_module_number.to_i < 2 || current_choice_module_number.to_i > 5
+    return unless parent == child.parent1 || (parent == child.parent2 &&
+      ChildrenSupportModule.where(parent: child.parent1, child: child, module_index: module_index, is_completed: true).none?)
+
+    child_support = child.child_support
+    child_support.send("module#{current_choice_module_number}_chosen_by_parents=", support_module)
+    child_support.save
   end
 end

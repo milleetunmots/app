@@ -2,10 +2,12 @@ class ChildrenSupportModule
 
   class SelectModuleJob < ApplicationJob
 
-    def perform(group_id, select_module_date, second_support_module = false)
+    def perform(group_id, select_module_date, module_index)
       errors = {}
       group = Group.find(group_id)
-      children = if second_support_module
+      # module_index starts with 1
+      # so if module_index == 3 it means this is Module 2 (that comes after Module 0 and 1)
+      children = if module_index.eql?(3)
                    group.children.where(group_status: 'active').joins(:child_support).where(child_supports: { call2_status: ['KO', 'Ne pas appeler'] })
                  else
                    group.children.where(group_status: 'active')
@@ -27,7 +29,7 @@ class ChildrenSupportModule
           child,
           select_module_date.sunday? ? select_module_date.next_day : select_module_date,
           '12:30',
-          second_support_module
+          module_index
         ).call
         errors[child.id] = service.errors if service.errors.any?
       end
