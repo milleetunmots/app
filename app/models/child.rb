@@ -58,7 +58,7 @@ class Child < ApplicationRecord
                 plaine_de_l_ain_cotiere bugey_pays_de_gex bresse_revermont].freeze
   GROUP_STATUS = %w[waiting active paused stopped].freeze
   TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
-  LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Orleans', 'Montargis', 'Pithiviers', 'Gien'].freeze
+  LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Orleans', 'Montargis', 'Pithiviers', 'Gien', 'Villeneuve-la-Garenne'].freeze
 
   # ---------------------------------------------------------------------------
   # global search
@@ -236,13 +236,13 @@ class Child < ApplicationRecord
       when 'Paris 18 eme'
         postal_codes += Parent::PARIS_18_EME_POSTAL_CODE
       when 'Paris 20 eme'
-        postal_codes += [Parent::PARIS_20_EME_POSTAL_CODE]
+        postal_codes += Parent::PARIS_20_EME_POSTAL_CODE
       when 'Plaisir'
         postal_codes += Parent::PLAISIR_POSTAL_CODE
       when 'Trappes'
         postal_codes += Parent::TRAPPES_POSTAL_CODE
       when 'Aulnay sous bois'
-        postal_codes += [Parent::AULNAY_SOUS_BOIS_POSTAL_CODE]
+        postal_codes += Parent::AULNAY_SOUS_BOIS_POSTAL_CODE
       when 'Orleans'
         postal_codes += Parent::ORELANS_POSTAL_CODE
       when 'Montargis'
@@ -320,6 +320,62 @@ class Child < ApplicationRecord
 
   def self.months_between_18_and_24
     months_between(18, 24)
+  end
+
+  def self.four_to_nine
+    months_between(4, 10).where(group_status: 'active')
+  end
+
+  def self.ten_to_fifteen
+    months_between(10, 16).where(group_status: 'active')
+  end
+
+  def self.sixteen_to_twenty_three
+    months_between(16, 24).where(group_status: 'active')
+  end
+
+  def self.twenty_four_and_more
+    months_gteq(24).where(group_status: 'active')
+  end
+
+  def self.less_than_five
+    months_lt(5).where(group_status: 'active')
+  end
+
+  def self.five_to_eleven
+    months_between(5, 12).where(group_status: 'active')
+  end
+
+  def self.twelve_to_seventeen
+    months_between(12, 18).where(group_status: 'active')
+  end
+
+  def self.eighteen_to_twenty_three
+    months_between(18, 24).where(group_status: 'active')
+  end
+
+  def self.twenty_four_to_twenty_nine
+    months_between(24, 30).where(group_status: 'active')
+  end
+
+  def self.thirty_to_thirty_five
+    months_between(30, 36).where(group_status: 'active')
+  end
+
+  def self.thirty_six_to_forty
+    months_between(36, 41).where(group_status: 'active')
+  end
+
+  def self.forty_one_to_forty_four
+    months_between(41, 44).where(group_status: 'active')
+  end
+
+  def self.more_than_thirty_six
+    months_gteq(36).where(group_status: 'active')
+  end
+
+  def self.more_than_thirty_five
+    months_gteq(35).where(group_status: 'active')
   end
 
   # ---------------------------------------------------------------------------
@@ -614,6 +670,10 @@ class Child < ApplicationRecord
 
   def current_child?
     self == child_support&.current_child
+  end
+
+  def next_unprogrammed_children_support_module
+    children_support_modules.where.not(support_module: nil).find_by(is_programmed: false)
   end
 
   private

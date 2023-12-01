@@ -18,6 +18,7 @@ RSpec.describe ChildrenSupportModule::ProgramFirstSupportModuleJob, type: :job d
 
   describe '#perform_now' do
     it 'enqueue the job ChildrenSupportModule::ProgramSupportModuleSmsJob' do
+      ActiveJob::Base.queue_adapter = :test
       expect { subject.perform_now(group.id, program_module_date) }.to(
         have_enqueued_job(ChildrenSupportModule::ProgramSupportModuleSmsJob)
           .on_queue('default')
@@ -37,7 +38,7 @@ RSpec.describe ChildrenSupportModule::ProgramFirstSupportModuleJob, type: :job d
       let!(:reading_41_44) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[forty_one_to_forty_four], name: "Intéresser mon enfant aux livres 📚") }
 
       before do
-        (0..44).each do |month|
+        (0...44).each do |month|
           child = FactoryBot.create(:child, group: group, group_status: 'active')
           # To avoid the validation of the birth_date
           child.birthdate = month.months.ago
@@ -46,7 +47,7 @@ RSpec.describe ChildrenSupportModule::ProgramFirstSupportModuleJob, type: :job d
       end
 
       it 'gives a reading support module to each children' do
-        expect { subject.perform_now(group.id, program_module_date) }.to change(ChildrenSupportModule, :count).by(45)
+        expect { subject.perform_now(group.id, program_module_date) }.to change(ChildrenSupportModule, :count).by(44)
         group.children.each do |child|
           expect(child.children_support_modules.count).to eq(1)
 

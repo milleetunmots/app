@@ -7,6 +7,11 @@ class ChildrenSupportModule
       group = Group.find(group_id)
 
       group.children.includes(:parent1, :parent2, :child_support).where(group_status: 'active').find_each do |child|
+        unless child.child_support
+          errors["child: #{child.id}"] = "Cet enfant n'a pas de fiche de suivi"
+          next
+        end
+
         parent1_children_support_module = ChildrenSupportModule.create(child_id: child.id,
                                                                        parent_id: child.parent1.id,
                                                                        available_support_module_list: child.child_support&.parent1_available_support_module_list)
@@ -15,9 +20,8 @@ class ChildrenSupportModule
                                                                          parent_id: child.parent2.id,
                                                                          available_support_module_list: child.child_support&.parent2_available_support_module_list)
         end
-        if parent1_children_support_module&.errors&.any? || parent2_children_support_module&.errors&.any?
-          errors[child.id] = handle_errors([parent1_children_support_module, parent2_children_support_module])
-        end
+
+        errors[child.id] = handle_errors([parent1_children_support_module, parent2_children_support_module]) if parent1_children_support_module&.errors&.any? || parent2_children_support_module&.errors&.any?
       end
 
       raise errors.to_json if errors.any?

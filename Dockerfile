@@ -7,8 +7,11 @@ RUN mkdir -p $INSTALL_PATH
 WORKDIR $INSTALL_PATH
 
 # Install dependencies
-RUN apt-get update \
-  && apt-get install -qq -y --no-install-recommends \
+RUN sed -i -e 's/deb.debian.org/archive.debian.org/g' \
+           -e 's|security.debian.org|archive.debian.org/|g' \
+           -e '/stretch-updates/d' /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install -qq -y --no-install-recommends \
     libxrender1
 
 # Copy the package.json as well as the yarn.lock and install

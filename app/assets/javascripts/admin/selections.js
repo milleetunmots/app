@@ -1,5 +1,7 @@
 $(document).ready(function() {
   var $parentId = $('#parent_id').val() || undefined
+  var $supporterId = $('#supporter_id').val() || undefined
+
   var formatResult = function(result) {
     var $a = $('<div class="search-result search-result-'+(result.type || '').toLowerCase()+'">');
 
@@ -48,7 +50,7 @@ $(document).ready(function() {
     let $recipients = $('#recipients');
     $.ajax({
       type: 'GET',
-      url: '/admin/message/recipients?parent_id='+$parentId,
+      url: '/admin/message/recipients?parent_id='+$parentId
     }).done(function(data) {
       newOptions.data = data.results.map(item => {
         return { id: item.id, text: item.name }
@@ -81,5 +83,32 @@ $(document).ready(function() {
     },
   });
 
+  $('#call_goals_sms').select2({
+    width: "100%"
+  });
 
+  if ($supporterId === undefined) {
+    $('#supporter').select2({
+      width: '100%',
+      placeholder: "Limitez l'envoi du message aux enfants sous sa responsabilité dans la cohorte choisie",
+      allowClear: true,
+      ajax: {
+        url: '/admin/message/supporter',
+        dataType: 'json',
+        delay: 250
+      },
+    });
+  } else {
+    let $supporter = $('#supporter');
+    let newOptions = {data: [], width: '100%'}
+    $.ajax({
+      type: 'GET',
+      url: '/admin/message/supporter?supporter_id='+$supporterId
+    }).done(function(data) {
+      newOptions.data = data.results
+      $supporter.select2(newOptions);
+      $supporter.val($supporterId);
+      $supporter.trigger('change');
+    });
+  }
 });

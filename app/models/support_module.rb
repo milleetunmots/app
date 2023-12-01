@@ -24,7 +24,19 @@ class SupportModule < ApplicationRecord
   include Discard::Model
   default_scope -> { kept }
 
-  THEME_LIST = %w[reading bilingualism language songs games screen ride anger].freeze
+  READING = 'reading'.freeze
+  SONGS = 'songs'.freeze
+  BILINGUALISM = 'bilingualism'.freeze
+  LANGUAGE = 'language'.freeze
+  GAMES = 'games'.freeze
+  SCREEN = 'screen'.freeze
+  RIDE = 'ride'.freeze
+  ANGER = 'anger'.freeze
+  LANGUAGE_MODULE_ZERO = 'language_module_zero'.freeze
+
+  THEME_LIST = [READING, SONGS, BILINGUALISM, LANGUAGE, GAMES, SCREEN, RIDE, ANGER].freeze
+  MODULE_ZERO_THEME_LIST = [LANGUAGE_MODULE_ZERO].freeze
+  THEME_LIST_INCLUDING_MODULE_ZERO = THEME_LIST + MODULE_ZERO_THEME_LIST
 
   LESS_THAN_FIVE = 'less_than_five'.freeze
   FIVE_TO_ELEVEN = 'five_to_eleven'.freeze
@@ -34,6 +46,10 @@ class SupportModule < ApplicationRecord
   THIRTY_TO_THIRTY_FIVE = 'thirty_to_thirty_five'.freeze
   THIRTY_SIX_TO_FORTY = 'thirty_six_to_forty'.freeze
   FORTY_ONE_TO_FORTY_FOUR = 'forty_one_to_forty_four'.freeze
+  FOUR_TO_NINE = 'four_to_nine'.freeze
+  TEN_TO_FIFTEEN = 'ten_to_fifteen'.freeze
+  SIXTEEN_TO_TWENTY_THREE = 'sixteen_to_twenty_three'.freeze
+  TWENTY_FOUR_AND_MORE = 'twenty_four_and_more'.freeze
   AGE_RANGE_LIST = [
     LESS_THAN_FIVE,
     FIVE_TO_ELEVEN,
@@ -43,6 +59,12 @@ class SupportModule < ApplicationRecord
     THIRTY_TO_THIRTY_FIVE,
     THIRTY_SIX_TO_FORTY,
     FORTY_ONE_TO_FORTY_FOUR
+  ].freeze
+  MODULE_ZERO_AGE_RANGE_LIST = [
+    FOUR_TO_NINE,
+    TEN_TO_FIFTEEN,
+    SIXTEEN_TO_TWENTY_THREE,
+    TWENTY_FOUR_AND_MORE
   ].freeze
 
   # ---------------------------------------------------------------------------
@@ -59,7 +81,7 @@ class SupportModule < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   validates :name, presence: true
-  validates :theme, inclusion: { in: THEME_LIST, allow_blank: true }
+  validates :theme, inclusion: { in: THEME_LIST_INCLUDING_MODULE_ZERO, allow_blank: true }
   validates :level, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_blank: true
 
   # ---------------------------------------------------------------------------
@@ -74,8 +96,13 @@ class SupportModule < ApplicationRecord
   scope :thirty_to_thirty_five, -> { where("'#{THIRTY_TO_THIRTY_FIVE}' = ANY (age_ranges)") }
   scope :thirty_six_to_forty, -> { where("'#{THIRTY_SIX_TO_FORTY}' = ANY (age_ranges)") }
   scope :forty_one_to_forty_four, -> { where("'#{FORTY_ONE_TO_FORTY_FOUR}' = ANY (age_ranges)") }
+  scope :four_to_nine, -> { where("'#{FOUR_TO_NINE}' = ANY (age_ranges)") }
+  scope :ten_to_fifteen, -> { where("'#{TEN_TO_FIFTEEN}' = ANY (age_ranges)") }
+  scope :sixteen_to_twenty_three, -> { where("'#{SIXTEEN_TO_TWENTY_THREE}' = ANY (age_ranges)") }
+  scope :twenty_four_and_more, -> { where("'#{TWENTY_FOUR_AND_MORE}' = ANY (age_ranges)") }
   scope :level_one, -> { where(level: 1) }
   scope :with_theme_level_and_age_range, -> { where.not(theme: [nil, '']).where.not(level: nil).where('ARRAY_LENGTH(age_ranges, 1) > 0') }
+  scope :by_theme, -> { order(order_by_theme) }
 
   # ---------------------------------------------------------------------------
   # callbacks
@@ -115,12 +142,14 @@ class SupportModule < ApplicationRecord
   acts_as_taggable
 
   def self.order_by_theme
-    ret = "CASE"
+    ret = 'CASE'
     THEME_LIST.each_with_index do |theme, index|
       ret << " WHEN theme = '#{theme}' THEN #{index}"
     end
-    ret << " END"
+    ret << ' END'
   end
 
-  scope :by_theme, -> { order(order_by_theme) }
+  def currently_used?
+    children_support_modules.any? || ChildrenSupportModule.using_support_module(id).any?
+  end
 end

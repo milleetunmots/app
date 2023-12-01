@@ -2,7 +2,7 @@ class ProgramMessageService
 
   attr_reader :errors
 
-  def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil)
+  def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil)
     @planned_timestamp = ActiveSupport::TimeZone['Europe/Paris'].parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []
     @message = message
@@ -18,6 +18,7 @@ class ProgramMessageService
     @workshop_id = workshop_id
     @event_params = {}
     @invalid_parent_ids = []
+    @supporter_id = supporter.to_i
     @errors = []
   end
 
@@ -157,6 +158,8 @@ class ProgramMessageService
     Group.includes(:children).where(id: @group_ids).find_each do |group|
       group.children.each do |child|
         next unless child.group_status == 'active'
+
+        next if @supporter_id.present? && child.child_support.supporter_id != @supporter_id
 
         @parent_ids << child.parent1_id if child.parent1_id && child.should_contact_parent1
         @parent_ids << child.parent2_id if child.parent2_id && child.should_contact_parent2

@@ -7,13 +7,32 @@
 #  availability                          :string
 #  book_not_received                     :string
 #  books_quantity                        :string
+#  call0_duration                        :integer
+#  call0_goals                           :text
+#  call0_goals_sms                       :text
+#  call0_language_awareness              :string
+#  call0_language_development            :text
+#  call0_notes                           :text
+#  call0_parent_actions                  :text
+#  call0_parent_progress                 :string
+#  call0_reading_frequency               :string
+#  call0_sendings_benefits               :string
+#  call0_sendings_benefits_details       :text
+#  call0_status                          :string
+#  call0_status_details                  :text
+#  call0_technical_information           :text
+#  call0_tv_frequency                    :string
 #  call1_duration                        :integer
+#  call1_family_progress                 :string
 #  call1_goals                           :text
+#  call1_goals_sms                       :text
+#  call1_goals_tracking                  :text
 #  call1_language_awareness              :string
 #  call1_language_development            :text
 #  call1_notes                           :text
 #  call1_parent_actions                  :text
 #  call1_parent_progress                 :string
+#  call1_previous_goals_follow_up        :string
 #  call1_reading_frequency               :string
 #  call1_sendings_benefits               :string
 #  call1_sendings_benefits_details       :text
@@ -24,6 +43,7 @@
 #  call2_duration                        :integer
 #  call2_family_progress                 :string
 #  call2_goals                           :text
+#  call2_goals_sms                       :text
 #  call2_goals_tracking                  :text
 #  call2_language_awareness              :string
 #  call2_language_development            :text
@@ -40,6 +60,7 @@
 #  call2_tv_frequency                    :string
 #  call3_duration                        :integer
 #  call3_goals                           :text
+#  call3_goals_sms                       :text
 #  call3_goals_tracking                  :text
 #  call3_language_awareness              :string
 #  call3_language_development            :text
@@ -55,6 +76,7 @@
 #  call3_tv_frequency                    :string
 #  call4_duration                        :integer
 #  call4_goals                           :text
+#  call4_goals_sms                       :text
 #  call4_goals_tracking                  :text
 #  call4_language_awareness              :string
 #  call4_language_development            :text
@@ -70,6 +92,7 @@
 #  call4_tv_frequency                    :string
 #  call5_duration                        :integer
 #  call5_goals                           :text
+#  call5_goals_sms                       :text
 #  call5_goals_tracking                  :text
 #  call5_language_awareness              :string
 #  call5_language_development            :text
@@ -104,6 +127,9 @@
 # Indexes
 #
 #  index_child_supports_on_book_not_received                      (book_not_received)
+#  index_child_supports_on_call0_parent_progress                  (call0_parent_progress)
+#  index_child_supports_on_call0_reading_frequency                (call0_reading_frequency)
+#  index_child_supports_on_call0_tv_frequency                     (call0_tv_frequency)
 #  index_child_supports_on_call1_parent_progress                  (call1_parent_progress)
 #  index_child_supports_on_call1_reading_frequency                (call1_reading_frequency)
 #  index_child_supports_on_call1_tv_frequency                     (call1_tv_frequency)
@@ -137,7 +163,7 @@ class ChildSupport < ApplicationRecord
   SENDINGS_BENEFITS = %w[1_none 2_far 3_remind 4_frequent 5_frequent_helps].freeze
   BOOKS_QUANTITY = %w[1_none 2_three_or_less 3_between_four_and_ten 4_more_than_ten].freeze
   BOOK_NOT_RECEIVED = %w[1_first_book 2_second_book 3_third_book 4_fourth_book 5_fifth_book 6_sixth_book 7_seventh_book].freeze
-  CALL_STATUS = %w[1_ok 2_ko 3_unassigned_number 4_dont_call].freeze
+  CALL_STATUS = %w[1_ok 2_ko 3_unassigned_number 4_dont_call 5_unfinished].freeze
   FAMILY_PROGRESS = %w[1_yes 2_no 3_no_information].freeze
   GOALS_FOLLOW_UP = %w[1_succeed 2_tried 3_no_tried 4_no_goal].freeze
 
@@ -178,7 +204,7 @@ class ChildSupport < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  (1..5).each do |call_idx|
+  (0..5).each do |call_idx|
     validates "call#{call_idx}_status", inclusion: { in: CALL_STATUS, allow_blank: true }, on: :create
     validates "call#{call_idx}_language_awareness", inclusion: { in: LANGUAGE_AWARENESS, allow_blank: true }
     validates "call#{call_idx}_parent_progress", inclusion: { in: PARENT_PROGRESS, allow_blank: true }
@@ -191,7 +217,8 @@ class ChildSupport < ApplicationRecord
   # scopes
   # ---------------------------------------------------------------------------
 
-  scope :supported_by, ->(model) { where(supporter: model) }
+  scope :with_a_child_in_active_group, -> { joins(children: :group).where(children: { group_status: 'active' }).distinct }
+  scope :supported_by, ->(supporter) { with_a_child_in_active_group.joins(:children).where(children: { group_status: 'active' }).where(supporter: supporter) }
   scope :without_supporter, -> { where(supporter_id: nil) }
   scope :call_2_4, -> {
     where('call1_status ILIKE ? AND call3_status = ?', 'ko', '')
@@ -201,12 +228,25 @@ class ChildSupport < ApplicationRecord
       .or(where(call3_parent_progress: '1_low'))
       .or(where(call3_parent_progress: '2_medium'))
       .or(where(to_call: true))
+      .with_a_child_in_active_group
   }
   scope :multiple_children, -> { joins(:children).group('child_supports.id').having('count(children.id) > 1') }
 
+  scope :paused_or_stopped, -> {
+    where(
+      'NOT EXISTS (
+        SELECT 1
+        FROM children
+        WHERE children.child_support_id = child_supports.id
+        AND children.group_status IN (?, ?)
+      )',
+      'waiting', 'active'
+    )
+  }
+
   class << self
 
-    (1..5).each do |call_idx|
+    (0..5).each do |call_idx|
       define_method("call#{call_idx}_parent_progress_present") do |bool|
         if bool
           where("call#{call_idx}_parent_progress" => PARENT_PROGRESS)
@@ -280,7 +320,7 @@ class ChildSupport < ApplicationRecord
   # helpers
   # ---------------------------------------------------------------------------
 
-  (1..5).each do |call_idx|
+  (0..5).each do |call_idx|
     define_method("call#{call_idx}_parent_progress_index") do
       (send("call#{call_idx}_parent_progress") || '').split('_').first&.to_i
     end
@@ -358,6 +398,14 @@ class ChildSupport < ApplicationRecord
            prefix: true,
            allow_nil: true
 
+  def previous_call_goals(index)
+    (0..(index - 1)).reverse_each do |i|
+      previous_call_goals = "#{send("call#{i}_goals_sms".to_sym)}\n#{send("call#{i}_goals")}"
+      return previous_call_goals if previous_call_goals != "\n"
+    end
+    ''
+  end
+
   def book_not_received
     super&.split(';')
   end
@@ -387,8 +435,8 @@ class ChildSupport < ApplicationRecord
     end
 
     self.notes << "\nInformations de chaque appel\n"
-    self.notes << (('=' * 22) + "\n")
-    (1..5).each do |call_idx|
+    self.notes << '='*22 + "\n"
+    (0..5).each do |call_idx|
       self.notes << "\n--------Appel #{call_idx}--------\n"
 
       call_attributes = [

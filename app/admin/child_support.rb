@@ -4,7 +4,7 @@ ActiveAdmin.register ChildSupport do
   has_better_csv
   has_paper_trail
   has_tags
-  has_tasks
+  has_tasks(false)
   use_discard
 
   actions :all, except: [:new]
@@ -19,7 +19,7 @@ ActiveAdmin.register ChildSupport do
     selectable_column
     id_column
     column :children
-    (1..5).each do |call_idx|
+    (0..5).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         [
           decorated.send("call#{call_idx}_status"),
@@ -43,7 +43,8 @@ ActiveAdmin.register ChildSupport do
   scope :without_supporter, group: :supporter
 
   scope :with_book_not_received
-  scope :call_2_4, group: :call
+  scope :call_2_4
+  scope :paused_or_stopped
 
   filter :availability, as: :string
   filter :call_infos, as: :string
@@ -52,11 +53,6 @@ ActiveAdmin.register ChildSupport do
          collection: proc { child_group_select_collection },
          input_html: { multiple: true, data: { select2: {} } },
          label: 'Cohorte'
-  filter :active_group_id_in,
-         as: :select,
-         collection: proc { child_group_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
-         label: 'Cohorte active'
   filter :without_parent_text_message_since,
          as: :datepicker,
          required: false,
@@ -82,7 +78,7 @@ ActiveAdmin.register ChildSupport do
          as: :string
   filter :supporter,
          input_html: { data: { select2: {} } }
-  (1..5).each do |call_idx|
+  (0..5).each do |call_idx|
     filter "call#{call_idx}_status",
            as: :select,
            collection: proc { call_status_collection },
@@ -271,7 +267,7 @@ ActiveAdmin.register ChildSupport do
         end
       end
       tabs do
-        (1..5).each do |call_idx|
+        (0..5).each do |call_idx|
           tab "Appel #{call_idx}" do
             columns do
               column do
@@ -286,7 +282,7 @@ ActiveAdmin.register ChildSupport do
             end
 
             columns style: 'justify-content:space-between;' do
-              if call_idx == 1
+              if call_idx.zero?
                 column max_width: '8%' do
                   f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
                 end
@@ -320,20 +316,22 @@ ActiveAdmin.register ChildSupport do
                                  I18n.t('child_support.default.call_technical_information')
                         }
 
-                unless call_idx == 1
+                unless call_idx.zero?
                   f.input "call#{call_idx}_goals_tracking",
                           input_html: {
                             rows: 8,
                             style: 'width: 70%',
                             value: case call_idx
+                                   when 1
+                                    resource.previous_call_goals(1)
                                    when 2
-                                     f.object.send(:call1_goals)
+                                    resource.previous_call_goals(2)
                                    when 3
-                                     f.object.send(:call2_goals).presence || f.object.send(:call1_goals)
+                                    resource.previous_call_goals(3)
                                    when 4
-                                     f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals)
+                                    resource.previous_call_goals(4)
                                    else
-                                     f.object.send(:call4_goals).presence || f.object.send(:call3_goals).presence || f.object.send(:call2_goals).presence || f.object.send(:call1_goals)
+                                    resource.previous_call_goals(5)
                                    end
                           }
                 end
@@ -351,6 +349,7 @@ ActiveAdmin.register ChildSupport do
                 #   collection: child_support_call_language_awareness_select_collection
               end
               column do
+                f.input "call#{call_idx}_goals_sms", input_html: { rows: 8, style: 'width: 70%', readonly: true }
                 f.input "call#{call_idx}_goals", input_html: { rows: 8, style: 'width: 70%' }
                 f.input "call#{call_idx}_language_development", input_html: { rows: 8, style: 'width: 70%' }
               end
@@ -366,7 +365,7 @@ ActiveAdmin.register ChildSupport do
                         as: :radio,
                         collection: child_support_call_sendings_benefits_select_collection
               end
-              if call_idx == 2
+              if [1, 2].include? call_idx
                 column do
                   f.input "call#{call_idx}_family_progress",
                           as: :radio,
@@ -463,7 +462,7 @@ ActiveAdmin.register ChildSupport do
   }]
   # block is mandatory here because ChildSupport.call_attributes hits DB
   permit_params do
-    base_attributes + ChildSupport.call_attributes + current_child_attributes
+    base_attributes + ChildSupport.call_attributes + current_child_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms]
   end
 
   # ---------------------------------------------------------------------------
@@ -506,7 +505,7 @@ ActiveAdmin.register ChildSupport do
           row :updated_at
         end
       end
-      (1..5).each do |call_idx|
+      (0..5).each do |call_idx|
         tab "Appel #{call_idx}" do
           attributes_table title: "Appel #{call_idx}" do
             row "call#{call_idx}_status"
@@ -518,12 +517,13 @@ ActiveAdmin.register ChildSupport do
             row "call#{call_idx}_parent_progress"
             row "call#{call_idx}_sendings_benefits"
             row "call#{call_idx}_sendings_benefits_details"
+            row :call2_family_progress if call_idx == 1
             if call_idx == 2
               row :call2_family_progress
               row :call2_previous_goals_follow_up
             end
             row "call#{call_idx}_language_development"
-            row :books_quantity if call_idx == 1
+            row :books_quantity if call_idx.in?([0, 1])
             row "call#{call_idx}_reading_frequency"
             # row "call#{call_idx}_tv_frequency"
             row "call#{call_idx}_goals"
@@ -594,14 +594,20 @@ ActiveAdmin.register ChildSupport do
     column :is_bilingual
     column :second_language
 
-    (1..5).each do |call_idx|
+    (0..5).each do |call_idx|
       column "call#{call_idx}_status"
       column "call#{call_idx}_status_details"
       column "call#{call_idx}_duration"
       column("call#{call_idx}_technical_information") do |cs|
+        next if call_idx.zero?
+
         cs.send("call#{call_idx}_technical_information_text")
       end
-      column("call#{call_idx}_parent_actions") { |cs| cs.send("call#{call_idx}_parent_actions_text") }
+      column("call#{call_idx}_parent_actions") do |cs|
+        next if call_idx.zero?
+
+        cs.send("call#{call_idx}_parent_actions_text")
+      end
       # column "call#{call_idx}_language_awareness"
       column "call#{call_idx}_parent_progress"
       column "call#{call_idx}_sendings_benefits"
@@ -610,11 +616,23 @@ ActiveAdmin.register ChildSupport do
         column :call2_family_progress
         column :call2_previous_goals_follow_up
       end
-      column("call#{call_idx}_language_development") { |cs| cs.send("call#{call_idx}_language_development_text") }
-      column :books_quantity if call_idx == 1
+      column("call#{call_idx}_language_development") do |cs|
+        next if call_idx.zero?
+
+        cs.send("call#{call_idx}_language_development_text")
+      end
+      column :books_quantity if call_idx.in?([0, 1])
       column "call#{call_idx}_reading_frequency"
-      column("call#{call_idx}_goals") { |cs| cs.send("call#{call_idx}_goals_text") }
-      column("call#{call_idx}_notes") { |cs| cs.send("call#{call_idx}_notes_text") }
+      column("call#{call_idx}_goals") do |cs|
+        next if call_idx.zero?
+
+        cs.send("call#{call_idx}_goals_text")
+      end
+      column("call#{call_idx}_notes") do |cs|
+        next if call_idx.zero?
+
+        cs.send("call#{call_idx}_notes_text")
+      end
     end
 
     column :tag_list
@@ -658,11 +676,11 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
-  action_item :clean_child_support, only: [:show, :edit] do
-    if !current_admin_user.caller?
-      dropdown_menu "Logistique" do
-        item "Nettoyer la fiche de suivi", [:clean_child_support, :admin, resource],
-        { data: { confirm: "Êtes-vous sûr de vouloir nettoyer la fiche de suivi ? Cette action est Irréversible, toutes les informations des appels vont être vidées et reportées danns les notes" }, method: 'GET' }
+  action_item :clean_child_support, only: %i[show edit] do
+    unless current_admin_user.caller?
+      dropdown_menu 'Logistique' do
+        item 'Nettoyer la fiche de suivi', [:clean_child_support, :admin, resource],
+             { data: { confirm: 'Êtes-vous sûr de vouloir nettoyer la fiche de suivi ? Cette action est Irréversible, toutes les informations des appels vont être vidées et reportées danns les notes' }, method: 'GET' }
       end
     end
   end

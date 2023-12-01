@@ -80,6 +80,12 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+
+  # Skip DatabaseCleaner's safeguard in order to be able to connect to a database using an URL (ie. Docker container)
+  if Rails.env.test?
+    DatabaseCleaner.allow_remote_database_url = true
+  end
+
   config.before(:suite) do
     DatabaseCleaner.clean_with(:truncation)
   end
