@@ -158,6 +158,10 @@ fr:
         les_mureaux: "[78] PMI Les Mureaux"
         seine_st_denis: "[93] PMI Seine-St-Denis"
         vernouillet: "[78] PMI Vernouillet"
+        val_de_saone_dombes: "[01] PMI Val de Saône Dombes"
+        plaine_de_l_ain_cotiere: "[01] PMI Plaine de l'Ain Côtière"
+        bugey_pays_de_gex: "[01] PMI Bugey Pays de Gex"
+        bresse_revermont: "[01] PMI Bresse Revermont"
       child/group_status:
         waiting: En attente
         active: Active
