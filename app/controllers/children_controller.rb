@@ -42,6 +42,11 @@ class ChildrenController < ApplicationController
 
   def created
     case current_registration_origin
+    when 5
+      @message = I18n.t('inscription_success.pro')
+      @again = true
+      @widget = false
+      @new_link = new_local_partner_registration_path
     when 4
       @message = I18n.t('inscription_success.without_widget', typeform_url: params[:sms_url_form])
       @again = true
@@ -92,6 +97,7 @@ class ChildrenController < ApplicationController
   end
 
   def parent1_params
+    byebug
     params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name])[:parent1_attributes]
   end
 
@@ -114,7 +120,7 @@ class ChildrenController < ApplicationController
   end
 
   def utm_caf_params
-    params[:utm_caf] || nil
+    params[:utm_caf] && Source.exists?(utm: params[:utm_caf]) ? params[:utm_caf] : nil
   end
 
   def find_child
@@ -177,7 +183,7 @@ class ChildrenController < ApplicationController
       @child_min_birthdate = Child.min_birthdate
     else
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
-      @source_label = I18n.t('inscription_registration_source_label.parent')
+      @source_label = I18n.t('source_label.parent')
       @source_collection = :parent
       @source_details_label = I18n.t('inscription_registration_source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate_alt

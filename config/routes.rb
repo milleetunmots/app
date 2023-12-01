@@ -6,8 +6,8 @@ Rails.application.routes.draw do
 
   ActiveAdmin.routes(self)
 
-  get 'inscription', to: 'children#new', as: :new_child   # formulaire site
-  get 'inscription1', to: 'children#new', as: :new_child1 # formulaire site
+  get 'inscription', to: 'children#new', as: :new_child
+  get 'inscription1', to: 'children#new', as: :new_child1
   get 'inscription2', to: 'children#new', as: :new_caf_registration
   get 'inscription3', to: 'children#new', as: :new_pmi_registration
   get 'inscription4', to: 'children#new', as: :new_bao_registration

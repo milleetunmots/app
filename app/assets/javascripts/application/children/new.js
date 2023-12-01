@@ -27,8 +27,9 @@
           option.value = data.id;
           option.text = data.name;
           childrenSourceSelect.append(option);
-          $('#child_children_source_source_id').val(data.id)
-          $('#child_children_source_source_id').trigger('change')
+          childrenSourceSelect.val(data.id);
+          childrenSourceSelect.trigger('change');
+          $('#child_children_source_source_id_div').hide();
         });
       }
     } else if (pathName === '/inscription5') {
@@ -39,9 +40,8 @@
           type: 'GET',
           url: '/sources/local_partner_has_department?id='+selectedValue
         }).done(function(data) {
-          // TO DO : à revoir
-          $('#registration_department_select').val('');
-          $('#registration_department_select').trigger('change')
+          $('#child_children_source_registration_department').val('');
+          $('#child_children_source_registration_department').trigger('change')
           if (data.result === false) {
             $('#registration_department_select').show();
           } else {
@@ -86,6 +86,36 @@
   };
 
   var init = function() {
+
+
+
+
+    $(document).on('change', "input[id^='child_parent2_attributes_']", () => {
+      var parent2Inputs = $("input[id^='child_parent2_attributes_']");
+      var parent2Fields= $("[class*='child_parent2_']");
+      console.log(parent2Fields);
+      var atLeastOneHasValue = false;
+      parent2Inputs.each(function() {
+        if ($(this).val() !== '') {
+          atLeastOneHasValue = true;
+          return;
+        }
+      });
+
+      parent2Inputs.attr("required", atLeastOneHasValue);
+
+      if (atLeastOneHasValue === true) {
+        parent2Fields.each(function() {
+          if ($(this).children().first().find('abbr').length === 0) {
+            var abbrElement = document.createElement('abbr');
+            abbrElement.setAttribute('title', 'required');
+            abbrElement.innerHTML = ' *'
+            $(this).children().first().append(abbrElement);
+          }
+        });
+      }
+    });
+
     showCafSelection.apply($('#form_received_from'));
 
     $(document).on('change', 'select[id="form_received_from"]', showCafSelection);
