@@ -68,10 +68,12 @@ class Parent < ApplicationRecord
   AULNAY_SOUS_BOIS_POSTAL_CODE = %w[93600].freeze
   PARIS_18_EME_POSTAL_CODE = %w[75017 75018 75019].freeze
   PARIS_20_EME_POSTAL_CODE = %w[75020].freeze
+  BONDY_POSTAL_CODE = %w[93140].freeze
   GIEN_POSTAL_CODE = %w[45290 45500 45720].freeze
   PITHIVIERS_POSTAL_CODE = %w[45300 45480 45170].freeze
   VILLENEUVE_LA_GARENNE_POSTAL_CODE = %w[92390].freeze
-  ALL_POSTAL_CODE = Parent::ORELANS_POSTAL_CODE + Parent::PLAISIR_POSTAL_CODE + Parent::MONTARGIS_POSTAL_CODE + Parent::TRAPPES_POSTAL_CODE + Parent::PARIS_18_EME_POSTAL_CODE + Parent::AULNAY_SOUS_BOIS_POSTAL_CODE + Parent::PARIS_20_EME_POSTAL_CODE
+  MANTES_LA_JOLIE_POSTAL_CODE = %w[78520 78200].freeze
+  ALL_POSTAL_CODE = ORELANS_POSTAL_CODE + PLAISIR_POSTAL_CODE + MONTARGIS_POSTAL_CODE + TRAPPES_POSTAL_CODE + PARIS_18_EME_POSTAL_CODE + AULNAY_SOUS_BOIS_POSTAL_CODE + PARIS_20_EME_POSTAL_CODE + BONDY_POSTAL_CODE
 
 
   # ---------------------------------------------------------------------------
@@ -222,7 +224,7 @@ class Parent < ApplicationRecord
   end
 
   def current_child
-    children.order(:birthdate).last
+    children.order("CASE WHEN group_status = 'active' THEN 0 ELSE 1 END, birthdate DESC").first
   end
 
   def duplicate_of?(other_parent)

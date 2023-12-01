@@ -63,6 +63,8 @@ class BaseDecorator < Draper::Decorator
 
     return 'Plaisir' if Parent::PLAISIR_POSTAL_CODE.include? postal_code
 
+    return 'Bondy' if Parent::BONDY_POSTAL_CODE.include? postal_code
+
     return 'Trappes' if Parent::TRAPPES_POSTAL_CODE.include? postal_code
 
     return 'Aulnay sous bois' if Parent::AULNAY_SOUS_BOIS_POSTAL_CODE.include? postal_code
@@ -76,6 +78,9 @@ class BaseDecorator < Draper::Decorator
     return 'Pithiviers' if Parent::PITHIVIERS_POSTAL_CODE.include? postal_code
 
     return 'Villeneuve-la-Garenne' if Parent::VILLENEUVE_LA_GARENNE_POSTAL_CODE.include? postal_code
+
+    return 'Mantes La Jolie' if Parent::MANTES_LA_JOLIE_POSTAL_CODE.include? postal_code
+
   end
 
   def created_at_date

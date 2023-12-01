@@ -5,6 +5,8 @@ class ChildrenSupportModule
     def call(group_id, program_date, age_ranges, theme)
       @errors = {}
       group = Group.find(group_id)
+      module_number = group.support_module_programmed
+      @module_index = group.support_module_programmed.to_i + 1
       create_group_children_support_module(group, age_ranges, theme)
       ChildrenSupportModule::ProgramSupportModuleSmsJob.perform_later(group_id, program_date)
       return unless @errors.any?
@@ -12,7 +14,7 @@ class ChildrenSupportModule
       AdminUser.all_logistics_team_members.each do |admin_user|
         Task.create(
           assignee_id: admin_user.id,
-          title: "Il y a eu des erreurs lors de la programmation du module 0 pour la cohorte \"#{group.name}\"",
+          title: "Il y a eu des erreurs lors de la programmation du module #{module_number} pour la cohorte \"#{group.name}\"",
           description: @errors.to_json,
           due_date: Time.zone.today
         )
@@ -25,7 +27,7 @@ class ChildrenSupportModule
     def create_group_children_support_module(group, ages_ranges, theme)
       ages_ranges.each do |ages_range|
         children = group.children.send(ages_range)
-        support_module = SupportModule.send(ages_range).find_by(theme: theme)
+        support_module = SupportModule.send(ages_range).level_one.find_by(theme: theme)
         create_ages_range_children_support_module(children, support_module)
       end
     end
@@ -46,7 +48,8 @@ class ChildrenSupportModule
         child_id: child.id,
         parent_id: parent.id,
         available_support_module_list: [support_module.id],
-        support_module: support_module
+        support_module: support_module,
+        module_index: @module_index
       )
       @errors["child: #{child.id} - parent: #{parent.id}"] = parent_children_support_module.errors if parent_children_support_module.errors.any?
     end

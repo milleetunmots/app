@@ -20,7 +20,7 @@ class ChildSupportDecorator < BaseDecorator
       ul do
         model.children.decorate.each do |child|
           li do
-            child.admin_link + ' (' + child.age + ')'
+            child.child_link + ' (' + child.age + ')'
           end
         end
       end
@@ -125,7 +125,7 @@ class ChildSupportDecorator < BaseDecorator
     end
   end
 
-  (1..5).each do |call_idx|
+  (0..5).each do |call_idx|
 
     define_method("call#{call_idx}_parent_progress_index") do
       progress model.send("call#{call_idx}_parent_progress_index")

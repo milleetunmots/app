@@ -13,7 +13,7 @@ RSpec.describe ChildSupport::SelectModuleService do
   let(:planned_date) { Time.zone.today }
   let(:planned_hour) { Time.zone.now.strftime('%H:%M') }
 
-  subject { ChildSupport::SelectModuleService.new(child, planned_date, planned_hour).call }
+  subject { ChildSupport::SelectModuleService.new(child, planned_date, planned_hour, 1).call }
 
   context 'when no parent should be contacted' do
     it 'gets an error message' do
