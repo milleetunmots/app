@@ -7,7 +7,7 @@ class SourcesController < ApplicationController
   end
 
   def friends
-    source = Source.find(34)
+    source = Source.find_by(utm: 'friends')
     render json: { id: source.id, name: source.name }.to_json
   end
 

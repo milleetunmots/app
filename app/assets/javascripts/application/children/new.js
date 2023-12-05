@@ -10,27 +10,32 @@
       var utmCaf = params.get('utm_caf') || undefined;
 
       if (value === 'caf') {
-        $.ajax({
-          type: 'GET',
-          url: '/sources/caf_by_utm?utm_caf='+utmCaf
-        }).done(function(data) {
-          $('#child_children_source_source_id').val(data.id)
-          $('#child_children_source_source_id').trigger('change')
-        });
+        $('#child_children_source_source_id_div').show();
+        if (utmCaf !== undefined) {
+          $.ajax({
+            type: 'GET',
+            url: '/sources/caf_by_utm?utm_caf='+utmCaf
+          }).done(function(data) {
+            $('#child_children_source_source_id').val(data.id)
+            $('#child_children_source_source_id').trigger('change')
+          });
+        }
       } else if (value === 'bao' ) {
-        $.ajax({
-          type: 'GET',
-          url: '/sources/friends'
-        }).done(function(data) {
-          var childrenSourceSelect = $('#child_children_source_source_id')
-          var option = document.createElement("option");
-          option.value = data.id;
-          option.text = data.name;
-          childrenSourceSelect.append(option);
-          childrenSourceSelect.val(data.id);
-          childrenSourceSelect.trigger('change');
-          $('#child_children_source_source_id_div').hide();
-        });
+        var childrenSourceSelect = $('#child_children_source_source_id');
+        if (!Array.from(childrenSourceSelect.children()).some(option => option.text === 'Mon entourage')) {
+          $.ajax({
+            type: 'GET',
+            url: '/sources/friends'
+          }).done(function(data) {
+            var option = document.createElement("option");
+            option.value = data.id;
+            option.text = data.name;
+            childrenSourceSelect.append(option);
+            childrenSourceSelect.val(data.id);
+            childrenSourceSelect.trigger('change');
+          });
+        }
+        $('#child_children_source_source_id_div').hide();
       }
     } else if (pathName === '/inscription5') {
       $('#registration_department_select').hide();
