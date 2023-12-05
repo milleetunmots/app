@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe ChildSupport::SelectModuleService do
-  let(:child) { FactoryBot.create(:child, should_contact_parent1: true) }
+  let!(:group) { FactoryBot.create(:group)}
+  let!(:child) { FactoryBot.create(:child, should_contact_parent1: true, group: group, group_status: 'active') }
   let(:support_module_list) { FactoryBot.create_list(:support_module, 3) }
   let!(:child_support) do
     FactoryBot.create(
