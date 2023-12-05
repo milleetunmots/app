@@ -23,7 +23,7 @@ class ChildrenSupportModulesController < ApplicationController
 
   def updated
     # link only for third choice
-    @third_choice = ChildrenSupportModule.where(child_id: @children_support_module.child_id, parent_id: @children_support_module.parent_id).size == 3
+    @third_choice = @children_support_module.child.group.with_module_zero? ? @children_support_module.module_index.eql?(4) : @children_support_module.module_index.eql?(3)
     @parent_id = @children_support_module.parent_id
     @typeform_link = "https://wr1q9w7z4ro.typeform.com/to/YzlXcWSJ#child_support_id=#{@children_support_module.child.child_support.id}"
 
