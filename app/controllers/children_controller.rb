@@ -97,7 +97,6 @@ class ChildrenController < ApplicationController
   end
 
   def parent1_params
-    byebug
     params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name])[:parent1_attributes]
   end
 

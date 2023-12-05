@@ -28,9 +28,11 @@ class Source < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  validates :name, presence: true, uniqueness: { case_sensitive: false }
+  validates :name, presence: true
   validates :channel, presence: true, inclusion: { in: CHANNEL_LIST }
+  validates_uniqueness_of :utm, allow_blank: true
   validate :department_required_if_pmi_or_caf, on: :create
+  validate :uniq_name_by_channel
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -48,5 +50,11 @@ class Source < ApplicationRecord
     return unless %w[pmi caf].include?(channel) && department.blank?
 
     errors.add(:department, "doit être spécifié lorsque le canal est 'PMI' ou 'CAF'")
+  end
+
+  def uniq_name_by_channel
+    return unless Source.exists?(channel: channel, name: name)
+
+    errors.add(:name, "doit être unique par canal d'inscription")
   end
 end

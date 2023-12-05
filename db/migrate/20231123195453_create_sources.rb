@@ -1,7 +1,7 @@
 class CreateSources < ActiveRecord::Migration[6.0]
   def change
     create_table :sources do |t|
-      t.string :name, null: false, unique: true
+      t.string :name, null: false
       t.string :channel, null: false
       t.integer :department
       t.string :utm
