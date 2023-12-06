@@ -76,20 +76,16 @@ ActiveAdmin.register Child do
   filter :months,
          as: :numeric,
          filters: %i[equals gteq lt]
-  filter :registration_source,
-         as: :select,
-         collection: proc { child_registration_source_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
-         label: 'Origine'
-  filter :pmi_detail,
-         as: :select,
-         collection: proc { child_registration_pmi_detail_collection },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :registration_source_details_matches_any,
-         as: :select,
-         collection: proc { child_registration_source_details_suggestions },
-         input_html: { multiple: true, data: { select2: {} } },
-         label: "Précisions sur l'origine"
+  filter :source_id_in,
+          as: :select,
+          collection: proc { source_select_collection },
+          input_html: { multiple: true, data: { select2: {} } },
+          label: "Source d'inscription"
+  filter :source_channel_in,
+          as: :select,
+          collection: proc { source_channel_select_collection },
+          input_html: { multiple: true, data: { select2: {} } },
+          label: "Canal d'inscription"
   filter :supporter_id_in,
          as: :select,
          collection: proc { child_supporter_select_collection },
@@ -341,13 +337,12 @@ ActiveAdmin.register Child do
                 max_date: Child.max_birthdate
               }
       f.input :available_for_workshops
-      f.input :registration_source,
-              collection: child_registration_source_select_collection,
-              input_html: { data: { select2: {} } }
-      f.input :pmi_detail,
-              collection: child_registration_pmi_detail_collection,
-              input_html: { data: { select2: {} } }
-      f.input :registration_source_details
+      f.semantic_fields_for :children_source do |children_source_f|
+        children_source_f.input :source,
+                                as: :select,
+                                collection: source_select_collection
+        children_source_f.input :details
+      end
       f.input :group,
               collection: child_group_select_collection,
               input_html: { data: { select2: {} } }
@@ -361,9 +356,7 @@ ActiveAdmin.register Child do
 
   permit_params :parent1_id, :parent2_id, :group_id,
                 :should_contact_parent1, :should_contact_parent2,
-                :gender, :first_name, :last_name, :birthdate, :available_for_workshops,
-                :registration_source, :registration_source_details, :pmi_detail, :group_status,
-                tags_params
+                :gender, :first_name, :last_name, :birthdate, :available_for_workshops, :group_status, tags_params
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -386,9 +379,6 @@ ActiveAdmin.register Child do
           row :territory
           row :land
           row :available_for_workshops
-          row :registration_source
-          row :registration_source_details
-          row :pmi_detail
           row :group
           row :group_status
           row :group_start
@@ -586,10 +576,6 @@ ActiveAdmin.register Child do
     column :parent2_present_on_whatsapp
     column :parent2_follow_us_on_whatsapp
     column :should_contact_parent2
-
-    column :registration_source
-    column :pmi_detail
-    column :registration_source_details
 
     column :group_status
 

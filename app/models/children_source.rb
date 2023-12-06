@@ -3,7 +3,7 @@
 # Table name: children_sources
 #
 #  id                      :bigint           not null, primary key
-#  detail                  :text
+#  details                 :text
 #  registration_department :integer
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null

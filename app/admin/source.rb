@@ -18,11 +18,24 @@ ActiveAdmin.register Source do
   end
 
   filter :name
-  filter :channel
+  filter :channel,
+        as: :select,
+        collection: proc { source_channel_select_collection },
+        input_html: { multiple: true, data: { select2: {} } }
   filter :department
   filter :utm
   filter :created_at
   filter :updated_at
+
+  # ---------------------------------------------------------------------------
+  # scopes
+  # ---------------------------------------------------------------------------
+
+  scope :all, group: :all
+  scope :by_bao, group: :canal
+  scope :by_caf, group: :canal
+  scope :by_local_partner, group: :canal
+  scope :by_pmi, group: :canal
 
   # ---------------------------------------------------------------------------
   # FORM
@@ -32,9 +45,9 @@ ActiveAdmin.register Source do
     f.semantic_errors *f.object.errors.keys
     f.inputs do
       f.input :name
-      f.input :channel, collection: Source::CHANNEL_LIST
+      f.input :channel, collection: source_channel_select_collection
       f.input :department
-      f.input :utm
+      f.input :utm, hint: "Identifiant unique envoyé dans le lien d'inscription pour détecter la source. Utilisé pour sélectionner automatiquement les cafs par exemple"
       f.input :comment
     end
     f.actions

@@ -103,6 +103,7 @@ class Child < ApplicationRecord
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
   accepts_nested_attributes_for :parent2
+  # accepts_nested_attributes_for :children_source
 
   # ---------------------------------------------------------------------------
   # validations
@@ -221,6 +222,14 @@ class Child < ApplicationRecord
 
   def self.active_group_id_in(*v)
     where(group_id: v).where(group_status: 'active')
+  end
+
+  def self.source_id_in(*v)
+    joins(:children_source).where(children_sources: { source_id: v })
+  end
+
+  def self.source_channel_in(*v)
+    joins(:children_source).where(children_sources: { channel: v })
   end
 
   def self.without_parent_text_message_since(v)

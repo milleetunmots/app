@@ -39,30 +39,9 @@ module ActiveAdmin::ChildrenHelper
     Child.order(:first_name, :last_name).map(&:decorate)
   end
 
-  def child_registration_source_select_collection
-    Child::REGISTRATION_SOURCES.map do |v|
-      [
-        Child.human_attribute_name("registration_source.#{v}"),
-        v
-      ]
-    end
-  end
 
   def child_land_select_collection
     Child::LANDS
-  end
-
-  def child_registration_source_select_collection_for_pros
-    [
-      ['un·e professionnel·le de PMI', :pmi],
-      ['un·e orthophoniste', :therapist],
-      ['un·e professionnel·le de santé', :doctor],
-      ['un·e autre partenaire de 1001mots (centre social, association, crèche...)', :other]
-    ]
-  end
-
-  def child_registration_pmi_detail_collection
-    Child::PMI_LIST.map { |v| [Child.human_attribute_name("pmi_detail.#{v}"), v] }.sort
   end
 
   def child_registration_source_details_suggestions
@@ -78,22 +57,6 @@ module ActiveAdmin::ChildrenHelper
       ['La CAF', 'caf'],
       ['Mon entourage', 'bao']
     ]
-  end
-
-  def source_select_for_pmi
-    Source.by_pmi.map { |pmi| [pmi.name, pmi.id] }
-  end
-
-  def source_select_for_caf
-    Source.by_caf.map { |caf| [caf.name, caf.id] }
-  end
-
-  def source_select_for_bao
-    Source.by_bao.map { |bao| [bao.name, bao.id] }
-  end
-
-  def source_select_for_local_partner
-    Source.by_local_partner.map { |local_partner| [local_partner.name, local_partner.id] }
   end
 
   def local_partner_source_departements
