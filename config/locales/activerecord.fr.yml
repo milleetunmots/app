@@ -32,6 +32,7 @@ fr:
       parent: Parent
       redirection_target: URL cible
       redirection_url: URL courte
+      source: Source d'inscription
       support_module: Module
       support_module_week: Semaine
       task: Tâche
@@ -88,7 +89,7 @@ fr:
         territory: Territoire
         last_name: Nom
         land_tag: Terrain
-        letterbox_name: Nom sur la boîte aux lettres
+        letterbox_name: Nom de famille sur la boîte aux lettres
         months: Age (en mois)
         parent1: Parent 1
         parent1_email: Email du parent 1
@@ -321,7 +322,7 @@ fr:
         current_child_pmi_detail: PMI de l'enfant suivi
         important_information: Infos importantes
         is_bilingual: Bilinguisme
-        letterbox_name: Nom sur la boîte aux lettres
+        letterbox_name: Nom de famille sur la boîte aux lettres
         other_family_child_supports: Autres suivis de la famille
         parent1: Parent 1
         parent1_first_name: Prénom du parent 1
@@ -536,7 +537,7 @@ fr:
         family_followed: Famille suivie
         job: Métier
         last_name: Nom
-        letterbox_name: Nom sur la boîte aux lettres
+        letterbox_name: Nom de famille sur la boîte aux lettres
         phone_number: Téléphone
         phone_number_national: Téléphone
         postal_code: Code postal
@@ -588,7 +589,7 @@ fr:
         parent_gender: Sexe du parent
         parent_first_name: Prénom du parent
         parent_last_name: Nom du parent
-        parent_letterbox_name: Nom sur la boîte aux lettres
+        parent_letterbox_name: Nom de famille sur la boîte aux lettres
         parent_phone_number_national: Numéro du parent
         parent_postal_code: Code postal
         redirection_target: URL cible
@@ -597,6 +598,18 @@ fr:
         redirection_url_visits_count: Visites
         security_code: Sécurité
         visit_url: Lien court
+      source:
+        << : *SHARED
+        name: Source
+        channel: Canal
+        department: Département
+        comment: Commentaire
+        utm: Utm
+      source/channel_list:
+        bao: Bouche à oreille
+        caf: CAF
+        pmi: PMI
+        local_partner: Partenaire locaux
       support_module:
         << : *SHARED
         ages: Tranche d'âge

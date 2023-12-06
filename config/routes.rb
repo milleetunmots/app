@@ -50,7 +50,7 @@ Rails.application.routes.draw do
   end
 
   resources :parents do
-    member { get :current_child }
+    member { get :current_child_source }
   end
 
   resources :admin_users do

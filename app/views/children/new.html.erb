@@ -43,12 +43,12 @@
                             when :local_partner
                               source_select_for_local_partner
                             else
-                              child_registration_source_select_collection
+                              []
                             end
               %>
             </div>
             <div class="col-sm-6">
-              <%= children_source_form.input :detail, required: false, label: @source_details_label.html_safe %>
+              <%= children_source_form.input :details, required: false, label: @source_details_label.html_safe %>
             </div>
           <% end %>
         </div>

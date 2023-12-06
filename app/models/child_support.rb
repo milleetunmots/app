@@ -226,7 +226,7 @@ class ChildSupport < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  (0..5).each do |call_idx|
+  6.times do |call_idx|
     validates "call#{call_idx}_status", inclusion: { in: CALL_STATUS, allow_blank: true }, on: :create
     validates "call#{call_idx}_language_awareness", inclusion: { in: LANGUAGE_AWARENESS, allow_blank: true }
     validates "call#{call_idx}_parent_progress", inclusion: { in: PARENT_PROGRESS, allow_blank: true }
@@ -268,8 +268,8 @@ class ChildSupport < ApplicationRecord
 
   class << self
 
-    (0..5).each do |call_idx|
-      define_method("call#{call_idx}_parent_progress_present") do |bool|
+    6.times do |call_idx|
+      define_method(:"call#{call_idx}_parent_progress_present") do |bool|
         if bool
           where("call#{call_idx}_parent_progress" => PARENT_PROGRESS)
         else
@@ -277,7 +277,7 @@ class ChildSupport < ApplicationRecord
         end
       end
 
-      define_method("call#{call_idx}_sendings_benefits_present") do |bool|
+      define_method(:"call#{call_idx}_sendings_benefits_present") do |bool|
         if bool
           where("call#{call_idx}_sendings_benefits" => SENDINGS_BENEFITS)
         else
@@ -352,12 +352,12 @@ class ChildSupport < ApplicationRecord
     end
   end
 
-  (0..5).each do |call_idx|
-    define_method("call#{call_idx}_parent_progress_index") do
-      (send("call#{call_idx}_parent_progress") || '').split('_').first&.to_i
+  6.times do |call_idx|
+    define_method(:"call#{call_idx}_parent_progress_index") do
+      (send(:"call#{call_idx}_parent_progress") || '').split('_').first&.to_i
     end
 
-    define_method("call#{call_idx}_previous_call_goals") do
+    define_method(:"call#{call_idx}_previous_call_goals") do
       call_idx.zero? ? '' : previous_call_goals(call_idx).strip
     end
 
@@ -438,7 +438,7 @@ class ChildSupport < ApplicationRecord
 
   def previous_call_goals(index)
     (0..(index - 1)).reverse_each do |i|
-      previous_call_goals = "#{send("call#{i}_goals_sms".to_sym)}\n#{send("call#{i}_goals")}"
+      previous_call_goals = "#{send(:"call#{i}_goals_sms")}\n#{send(:"call#{i}_goals")}"
       return previous_call_goals if previous_call_goals != "\n"
     end
     ''
@@ -473,8 +473,8 @@ class ChildSupport < ApplicationRecord
     end
 
     self.notes << "\nInformations de chaque appel\n"
-    self.notes << '='*22 + "\n"
-    (0..5).each do |call_idx|
+    self.notes << (('=' * 22) + "\n")
+    6.times do |call_idx|
       self.notes << "\n--------Appel #{call_idx}--------\n"
 
       call_attributes = [

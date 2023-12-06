@@ -1,7 +1,13 @@
 class ParentsController < ApplicationController
 
-  def current_child
-    response = Parent.find_by(id: params[:id])&.current_child || {}
+  def current_child_source
+    current_child = Parent.find_by(id: params[:id])&.current_child
+    render json: {} unless current_child
+
+    source = current_child.children_source&.source_id
+    source_details = current_child.children_source&.details
+    byebug
+    response = { group_id: current_child.group_id, source: source, source_details: source_details }
     render json: response.to_json
   end
 

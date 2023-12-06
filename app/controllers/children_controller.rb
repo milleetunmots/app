@@ -115,7 +115,7 @@ class ChildrenController < ApplicationController
   end
 
   def children_source_params
-    params.require(:child).permit(children_source: %i[source_id detail registration_department])[:children_source]
+    params.require(:child).permit(children_source: %i[source_id details registration_department])[:children_source]
   end
 
   def utm_caf_params
@@ -177,7 +177,7 @@ class ChildrenController < ApplicationController
       @form_received_from = I18n.t('form_received_from')
       @source_label = I18n.t('source_label.caf')
       @utm_caf = utm_caf_params
-      @registration_caf_detail = I18n.t('inscription_caf.detail')
+      @registration_caf_detail = I18n.t('inscription_caf.details')
       @source_details_label = I18n.t('inscription_registration_source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate
     else
