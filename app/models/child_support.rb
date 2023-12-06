@@ -433,7 +433,7 @@ class ChildSupport < ApplicationRecord
   def copy_fields(child_support)
     self.notes ||= ''
     self.notes << (('-' * 100) + "\n")
-    self.notes << "\n#{I18n.l(DateTime.now)} - Sauvegarde des informations de la fiche de suivie\n\n"
+    self.notes << "\n#{I18n.l(DateTime.now)} - Sauvegarde des informations de la fiche de suivi\n\n"
     self.notes << "Informations générales\n\n"
     child_support.attributes.slice(
       'is_bilingual',
