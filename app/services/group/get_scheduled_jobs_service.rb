@@ -16,13 +16,14 @@ class Group
       ChildrenSupportModule::SelectDefaultSupportModuleJob.to_s => 'Assignation des modules par défaut',
       ChildrenSupportModule::VerifyChosenModulesTaskJob.to_s => 'Détection des modules sans choix',
       ChildrenSupportModule::CheckCreditsForGroupJob.to_s => 'Vérification du nombre suffisant de crédits pour la programmation des modules',
-      ChildrenSupportModule::SelectModuleJob.to_s => 'Programmation des SMS de choix du module',
+      ChildrenSupportModule::SelectModuleJob.to_s => 'Programmation des SMS de choix du module et du rappel J+3 (puis J+5 pour module 3)',
       ChildrenSupportModule::ProgramSupportModuleSmsJob.to_s => 'Programmation des SMS du module choisi',
       Group::StopSupportJob.to_s => "Arrêt de la cohorte : Fin de l'accompagnement"
     }.freeze
 
     def initialize(group_id)
       group = Group.find(group_id)
+      @group_with_module_zero = group.with_module_zero?
       @group_id = group_id
       @module_number = group.started_at > MODULE_ZERO_FEATURE_START ? group.support_modules_count - 1 : group.support_modules_count
       @scheduled_jobs = []
@@ -48,7 +49,7 @@ class Group
       job_group_id = job.args[0]['arguments']&.first
       return unless GROUP_JOB_CLASS_NAMES.key?(job_class_name) && job_group_id == @group_id.to_i
 
-      name = if job_class_name == ChildrenSupportModule::SelectModuleJob.to_s && job.args[0]['arguments']&.third.eql?(true)
+      name = if job_class_name == ChildrenSupportModule::SelectModuleJob.to_s && job.args[0]['arguments']&.third.eql?(@group_with_module_zero ? 3 : 2)
                "Programmation des SMS de choix du module aux parents n'ayant pas reçu d'appel 2"
              else
                GROUP_JOB_CLASS_NAMES[job_class_name]

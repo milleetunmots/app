@@ -121,7 +121,7 @@ ActiveAdmin.register Group do
     service = Group::ProgramService.new(resource.object).call
 
     if service.errors.empty?
-      redirect_to [:admin, resource], notice: 'Les futurs tâches, envois de sms ont été programmé avec succès.'
+      redirect_to [:admin, resource], notice: 'Les futures tâches, envois de SMS ont été programmés avec succès.'
     else
       flash[:alert] = service.errors
       redirect_to [:admin, resource]
