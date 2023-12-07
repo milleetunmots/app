@@ -471,21 +471,11 @@ ActiveAdmin.register Child do
 
   action_item :tools, only: :index do
     dropdown_menu 'Outils' do
-      item "Nettoyer les précisions sur l'origine",
-           %i[new_clean_registration_source_details admin children]
       item "Télécharger les listes d'enfants par cohorte au format Excel V1",
            %i[download_book_files_v1 admin children]
       item "Télécharger les listes d'enfants par module au format Excel V2",
            %i[download_book_files_v2 admin children]
     end
-  end
-  collection_action :new_clean_registration_source_details do
-    @values = Child.registration_source_details_map.to_a.sort_by do |o|
-      I18n.transliterate(
-        o.first.unicode_normalize
-      ).downcase.gsub(/[\s-]+/, ' ').strip
-    end
-    @perform_action = perform_clean_registration_source_details_admin_children_path
   end
 
   collection_action :download_book_files_v1 do
@@ -510,19 +500,6 @@ ActiveAdmin.register Child do
       flash[:alert] = service.errors
       redirect_back(fallback_location: root_path)
     end
-  end
-
-  collection_action :perform_clean_registration_source_details, method: :post do
-    params[:changes].each do |_idx, change|
-      wanted_value = change[:wanted]
-      existing_values = change[:existing]
-      Child.where(
-        registration_source_details: existing_values
-      ).update_all(
-        registration_source_details: wanted_value
-      )
-    end
-    redirect_to admin_children_path, notice: 'Nettoyage effectué'
   end
 
   action_item :view do

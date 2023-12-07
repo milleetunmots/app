@@ -1,15 +1,8 @@
 class ChildDecorator < BaseDecorator
 
-  GENDER_COLORS = {
-    m: :blue,
-    f: :rose,
-    x: :grey
-  }
-  GENDER_CLASSES = {
-    m: :male,
-    f: :female,
-    x: :unknown
-  }
+  GENDER_COLORS = { m: :blue, f: :rose, x: :grey }.freeze
+
+  GENDER_CLASSES = { m: :male, f: :female, x: :unknown }.freeze
 
   def admin_link(options = {})
     super(options.merge(class: GENDER_COLORS[safe_gender.to_sym]))
@@ -17,7 +10,7 @@ class ChildDecorator < BaseDecorator
 
   def child_link
     options = { with_icon: true, target: '_blank' }
-    txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + name
+    txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + '&nbsp;'.html_safe + name
     is_current_child = model.current_child?
     txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-sms') if is_current_child
     txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-book') if model.group_status == 'active'
@@ -48,15 +41,15 @@ class ChildDecorator < BaseDecorator
   end
 
   def age
-    h.t "child_age.months", months: model.months
+    h.t 'child_age.months', months: model.months
   end
 
   def age_in_months_or_years
     months = model.months
     if months < 24
-      h.t "child_age.months", months: months
+      h.t 'child_age.months', months: months
     else
-      h.t "child_age.years", years: (months / 12).floor
+      h.t 'child_age.years', years: (months / 12).floor
     end
   end
 
@@ -65,7 +58,7 @@ class ChildDecorator < BaseDecorator
   end
 
   def safe_gender
-    model.gender.presence || "x"
+    model.gender.presence || 'x'
   end
 
   def gender_status
@@ -79,26 +72,22 @@ class ChildDecorator < BaseDecorator
   end
 
   def group_status
-    if v = model.group_status
-      Child.human_attribute_name("group_status.#{v}")
-    end
+    Child.human_attribute_name("group_status.#{v}") if v = model.group_status
   end
 
   def gendered_name_with_age(options = {})
     with_icon = options.delete(:with_icon)
-
     txt = options.delete(:label) || name
-    if with_icon
-      txt = h.content_tag(:i, "", class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + txt
-    end
+    txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + '&nbsp;'.html_safe + txt if with_icon
+
     h.content_tag :span do
-      h.content_tag(:span, txt, {class: "txt-#{GENDER_COLORS[safe_gender.to_sym]}"}.merge(options))
-      + " (" + age + ")"
+      h.content_tag(:span, txt, { class: "txt-#{GENDER_COLORS[safe_gender.to_sym]}" }.merge(options))
+      + ' (' + age + ')'
     end
   end
 
   def name
-    [model.first_name, model.last_name].join " "
+    [model.first_name, model.last_name].join ' '
   end
 
   def parent1
@@ -122,17 +111,17 @@ class ChildDecorator < BaseDecorator
     if %w[stopped disengaged].include? model.group_status
       options[:class] = 'stop'
     elsif model.group_status == 'paused'
-      options[:class] = "pause"
-    elsif model.group_status == "waiting"
-      options[:class] = "wait"
+      options[:class] = 'pause'
+    elsif model.group_status == 'waiting'
+      options[:class] = 'wait'
     end
     model.group&.decorate&.admin_link(options)
   end
 
-  def registration_source
-    if v = model.registration_source
-      Child.human_attribute_name("registration_source.#{v}")
-    end
+  def source
+    return unless model.source
+
+    model.source.decorate.name
   end
 
   def icon_class
@@ -171,21 +160,25 @@ class ChildDecorator < BaseDecorator
 
   def family_redirection_visit_rate
     return nil if family_redirection_urls_count.zero?
+
     h.number_to_percentage(model.family_redirection_visit_rate * 100, precision: 0)
   end
 
   def family_redirection_unique_visit_rate
     return nil if family_redirection_urls_count.zero?
+
     h.number_to_percentage(model.family_redirection_unique_visit_rate * 100, precision: 0)
   end
 
   def family_redirection_visits
     return nil if family_redirection_urls_count.zero?
+
     "#{model.family_redirection_url_visits_count}/#{family_redirection_urls_count} (#{family_redirection_visit_rate})"
   end
 
   def family_redirection_unique_visits
     return nil if family_redirection_urls_count.zero?
+
     "#{model.family_redirection_url_unique_visits_count}/#{family_redirection_urls_count} (#{family_redirection_unique_visit_rate})"
   end
 
@@ -215,6 +208,7 @@ class ChildDecorator < BaseDecorator
 
   def pmi_detail
     return nil if model.pmi_detail.blank?
+
     Child.human_attribute_name("pmi_detail.#{model.pmi_detail}")
   end
 
@@ -222,15 +216,15 @@ class ChildDecorator < BaseDecorator
     return unless registration_months
 
     if registration_months >= 37
-      "Plus de 36 mois"
+      'Plus de 36 mois'
     elsif registration_months >= 25
-      "25 à 36 mois"
+      '25 à 36 mois'
     elsif registration_months >= 13
-      "13 à 24 mois"
+      '13 à 24 mois'
     elsif registration_months >= 7
-      "7 - 12 mois"
+      '7 - 12 mois'
     else
-      "Moins de 6 mois"
+      'Moins de 6 mois'
     end
   end
 
@@ -239,7 +233,7 @@ class ChildDecorator < BaseDecorator
       ChildrenSupportModule.where(child: model).where.not(support_module: nil).each do |children_support_module|
         span children_support_module.support_module&.name,
              class: 'available_support_module'
-        text_node "&nbsp;".html_safe
+        text_node '&nbsp;'.html_safe
       end
     end
   end
@@ -256,13 +250,13 @@ class ChildDecorator < BaseDecorator
 
   def parent(decorated_parent, should_contact_parent)
     return nil unless decorated_parent
+
     options = {}
-    options[:class] = "txt-underline" if should_contact_parent
+    options[:class] = 'txt-underline' if should_contact_parent
     decorated_parent.admin_link(options)
   end
 
   def parent_attribute(decorated_parent, key)
     decorated_parent&.send(key)
   end
-
 end
