@@ -214,6 +214,20 @@ class ChildSupport < ApplicationRecord
         csm.update!(available_support_module_list: parent2_available_support_module_list)
       end
     end
+
+    # (0..(index - 1)).reverse_each do |i|
+    #   previous_call_goals = "#{send("call#{i}_goals_sms".to_sym)}\n#{send("call#{i}_goals")}"
+    #   return previous_call_goals if previous_call_goals != "\n"
+    # end
+    # ''
+
+    (0..4).each do |call_idx|
+      send("call#{call_idx + 1}_goals_tracking=", '')
+      byebug
+      if saved_changes.key?("call#{call_idx}_goals_sms") && !send("call#{call_idx + 1}_goals_tracking").start_with?(send("call#{call_idx}_goals_sms"))
+        send("call#{call_idx + 1}_goals_tracking=", "#{send("call#{call_idx}_goals_sms")}\n#{send("call#{call_idx + 1}_goals_tracking")}")
+      end
+    end
   end
 
   # ---------------------------------------------------------------------------

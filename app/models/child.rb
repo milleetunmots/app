@@ -116,8 +116,6 @@ class Child < ApplicationRecord
     after: proc { min_birthdate },
     before: proc { max_birthdate }
   }, on: :create
-  validates :registration_source, presence: true, inclusion: { in: REGISTRATION_SOURCES }
-  validates :registration_source_details, presence: true
   validates :security_code, presence: true
   validates :pmi_detail, inclusion: { in: PMI_LIST, allow_blank: true }
   validates :group_status, inclusion: { in: GROUP_STATUS }

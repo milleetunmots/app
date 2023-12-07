@@ -320,19 +320,7 @@ ActiveAdmin.register ChildSupport do
                   f.input "call#{call_idx}_goals_tracking",
                           input_html: {
                             rows: 8,
-                            style: 'width: 70%',
-                            value: case call_idx
-                                   when 1
-                                    resource.previous_call_goals(1)
-                                   when 2
-                                    resource.previous_call_goals(2)
-                                   when 3
-                                    resource.previous_call_goals(3)
-                                   when 4
-                                    resource.previous_call_goals(4)
-                                   else
-                                    resource.previous_call_goals(5)
-                                   end
+                            style: 'width: 70%'
                           }
                 end
 
@@ -349,7 +337,7 @@ ActiveAdmin.register ChildSupport do
                 #   collection: child_support_call_language_awareness_select_collection
               end
               column do
-                f.input "call#{call_idx}_goals_sms", input_html: { rows: 8, style: 'width: 70%', readonly: true }
+                f.input "call#{call_idx}_goals_sms", input_html: { rows: 8, style: 'width: 70%', readonly: false }
                 f.input "call#{call_idx}_goals", input_html: { rows: 8, style: 'width: 70%' }
                 f.input "call#{call_idx}_language_development", input_html: { rows: 8, style: 'width: 70%' }
               end
@@ -453,7 +441,6 @@ ActiveAdmin.register ChildSupport do
     current_child_attributes: [
       :id,
       :gender, :should_contact_parent1, :should_contact_parent2,
-      :registration_source, :registration_source_details,
       {
         parent1_attributes: parent_attributes,
         parent2_attributes: parent_attributes
