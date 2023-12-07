@@ -110,11 +110,8 @@ fr:
         parent2_follow_us_on_whatsapp: Parent 2 nous suit sur Whatsapp ?
         parent2_last_name: Nom du parent 2
         parent2_phone_number_national: Numéro du parent 2
-        pmi_detail: PMI
         postal_code: Code postal
         public_edit_url: Lien de continuation
-        registration_source: Comment nous avez-vous connu ?
-        registration_source_details: Précisez votre nom ou celui de votre structure
         security_code: Sécurité
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?
@@ -127,42 +124,6 @@ fr:
         f: Fille
         m: Garçon
         x: Inconnu
-      child/registration_source:
-        caf: J'ai reçu un mail/SMS de la CAF
-        doctor: Par mon centre social/ maison des familles
-        friends: Par mon entourage (famille, amis…)
-        nursery: A la crèche
-        other: Autre
-        pmi: Mon/Ma professionnel.le de santé (puéricultrice, médecin, pédiatre)
-        therapist: Mon orthophoniste
-        resubscribing: J'ai déjà participé au programme 1001 Mots et je réinscris un enfant
-        unknown: Inconnue
-      child/pmi_detail:
-        trappes: "[78] PMI Trappes"
-        plaisir: "[78] PMI Plaisir"
-        orleans: "[45] PMI Orléans"
-        orleans_est: "[45] PMI Orléans Est"
-        montargis: "[45] PMI Montargis"
-        gien: "[45] PMI Gien"
-        pithiviers: "[45] PMI Pithiviers"
-        olivet: "[45] PMI Olivet"
-        sarreguemines: "[57] PMI Sarreguemines"
-        forbach: "[57] PMI Forbach"
-        mantes_la_jolie_clemenceau: "[78] PMI Mantes-la-Jolie Clémenceau"
-        mantes_la_jolie_leclerc: "[78] PMI Mantes-la-Jolie Leclerc"
-        gennevilliers_zucman_gabison: "[92] PMI de Gennevilliers - Zucman-Gabison"
-        gennevilliers_timsit: "[92] PMI de Gennevilliers - Timsit"
-        asnieres_gennevilliers_sst2: "[92] PMI d'Asnières / Gennevilliers - SST2"
-        villeneuve_la_garenne: "[92] PMI de Villeneuve-la-Garenne"
-        chanteloup: "[78] PMI Chanteloup"
-        sartrouville: "[78] PMI Sartrouville"
-        les_mureaux: "[78] PMI Les Mureaux"
-        seine_st_denis: "[93] PMI Seine-St-Denis"
-        vernouillet: "[78] PMI Vernouillet"
-        val_de_saone_dombes: "[01] PMI Val de Saône Dombes"
-        plaine_de_l_ain_cotiere: "[01] PMI Plaine de l'Ain Côtière"
-        bugey_pays_de_gex: "[01] PMI Bugey Pays de Gex"
-        bresse_revermont: "[01] PMI Bresse Revermont"
       child/group_status:
         waiting: En attente
         active: Active
@@ -317,7 +278,6 @@ fr:
         children_registration_sources: Origines des enfants
         groups: Cohortes
         child_support_groups: Cohortes
-        current_child_pmi_detail: PMI de l'enfant suivi
         important_information: Infos importantes
         is_bilingual: Bilinguisme
         letterbox_name: Nom de famille sur la boîte aux lettres

@@ -72,7 +72,9 @@ class ChildDecorator < BaseDecorator
   end
 
   def group_status
-    Child.human_attribute_name("group_status.#{v}") if v = model.group_status
+    return unless model.group_status
+
+    Child.human_attribute_name("group_status.#{model.group_status}")
   end
 
   def gendered_name_with_age(options = {})
@@ -205,12 +207,6 @@ class ChildDecorator < BaseDecorator
 
   def child_group_name
     model.group&.name
-  end
-
-  def pmi_detail
-    return nil if model.pmi_detail.blank?
-
-    Child.human_attribute_name("pmi_detail.#{model.pmi_detail}")
   end
 
   def registration_months_range

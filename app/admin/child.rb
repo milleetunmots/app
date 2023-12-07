@@ -34,7 +34,6 @@ ActiveAdmin.register Child do
     column :child_support, sortable: :child_support_id, &:child_support_status
     column :group, sortable: :group_id
     column :group_status
-    column :pmi_detail
     column :tags do |model|
       model.tags(context: 'tags')
     end
@@ -86,11 +85,16 @@ ActiveAdmin.register Child do
           collection: proc { source_channel_select_collection },
           input_html: { multiple: true, data: { select2: {} } },
           label: "Canal d'inscription"
+  filter :source_details_matches_any,
+          as: :select,
+          collection: proc { source_details_suggestions },
+          input_html: { multiple: true, data: { select2: {} } },
+          label: "Précisions sur l'origine"
   filter :supporter_id_in,
-         as: :select,
-         collection: proc { child_supporter_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
-         label: 'Responsable'
+          as: :select,
+          collection: proc { child_supporter_select_collection },
+          input_html: { multiple: true, data: { select2: {} } },
+          label: 'Responsable'
   filter :group_id_in,
          as: :select,
          collection: proc { child_group_select_collection },

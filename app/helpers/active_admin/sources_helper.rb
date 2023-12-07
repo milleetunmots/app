@@ -23,4 +23,8 @@ module ActiveAdmin::SourcesHelper
   def source_select_collection
     Source.all.map { |source| [source.decorate.name, source.id] }.sort
   end
+
+  def source_details_suggestions
+    ChildrenSource.pluck('DISTINCT ON (LOWER(details)) details').compact.sort_by(&:downcase)
+  end
 end

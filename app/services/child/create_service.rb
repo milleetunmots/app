@@ -62,7 +62,6 @@ class Child
         attributes[:parent2] = @child.parent2
         attributes[:should_contact_parent1] = @child.should_contact_parent1
         attributes[:should_contact_parent2] = @child.should_contact_parent2
-        attributes[:pmi_detail] = @child.pmi_detail
         attributes[:child_support] = @child.child_support
       end
       @child.siblings.build(@siblings_attributes)
@@ -108,17 +107,6 @@ class Child
       @child.errors.add(:birthdate, :invalid, message: "minimale: #{(@child_min_birthdate)}") if @child.birthdate < @child_min_birthdate
     end
 
-    def pmi_detail_validation
-      if @registration_origin == 3 && @child.registration_source == 'pmi' && @child.pmi_detail.blank?
-        @child.errors.add(:pmi_detail, :invalid, message: 'Précisez votre PMI svp!')
-      end
-    end
-
-    def caf_detail_validation
-      if @registration_origin == 2 && @child.registration_source == 'caf' && @child.registration_source_details.blank?
-        @child.errors.add(:registration_source_details, :invalid, message: 'Précisez votre CAF svp!')
-      end
-    end
 
     def overseas_child_validation
       if @parent1_attributes[:postal_code].to_i / 1000 == 97
@@ -137,8 +125,6 @@ class Child
       end
 
       birthdate_validation
-      # pmi_detail_validation
-      # caf_detail_validation
       overseas_child_validation
     end
   end

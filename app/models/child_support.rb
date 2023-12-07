@@ -283,12 +283,16 @@ class ChildSupport < ApplicationRecord
     where(id: Child.active_group_id_in(v).select('DISTINCT child_support_id'))
   end
 
-  def self.sources_in(*v)
+  def self.source_in(*v)
     where(id: Child.source_id_in(v).select('DISTINCT child_support_id'))
   end
 
-  def self.sources_details_in(*v)
-    where(id: Child.where(registration_source_details: v).select('DISTINCT child_support_id'))
+  def self.source_channel_in(*v)
+    where(id: Child.source_channel_in(v).select('DISTINCT child_support_id'))
+  end
+
+  def self.source_details_matches_any(*v)
+    where(id: Child.source_details_matches_any(v).select('DISTINCT child_support_id'))
   end
 
   def self.postal_code_contains(v)
@@ -318,8 +322,8 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with registration_sources_in registration_sources_details_in
-               group_id_in active_group_id_in without_parent_text_message_since]
+    super + %i[groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_in source_channel_in
+                source_details_matches_any group_id_in active_group_id_in without_parent_text_message_since]
   end
 
   # ---------------------------------------------------------------------------
@@ -392,7 +396,6 @@ class ChildSupport < ApplicationRecord
            :parent2_follow_us_on_whatsapp?,
            :parent2_last_name,
            :parent2_phone_number_national,
-           :pmi_detail,
            :postal_code,
            :registration_source,
            :registration_source_details,

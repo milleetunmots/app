@@ -46,20 +46,14 @@ class Group
 
     def order_child_supports
       # we want to order child_supports by registration_source, then by land, then by department
-      child_supports_order_by_registration_source = @group.child_supports.joins(:children).where(children: { group_status: 'active' }).uniq.group_by(&:registration_source)
+      child_supports_order_by_registration_source = @group.child_supports.joins(children: :source).where(children: { group_status: 'active' }).uniq.group_by { |cs| cs.current_child.source.channel }
 
       child_supports_order_by_registration_source.each do |registration_source, child_supports|
-        case registration_source
-        when 'pmi'
-          # order each registration_source by pmi_detail
-          child_supports_order_by_registration_source[registration_source] = child_supports.group_by { |child_support| child_support.pmi_detail }
-        when 'caf'
-          # order each registration_source by registration_source_details
-          child_supports_order_by_registration_source[registration_source] = child_supports.group_by { |child_support| child_support.registration_source_details }
-        else
-          # order each registration_source by land
-          child_supports_order_by_registration_source[registration_source] = child_supports.group_by { |child_support| child_support.decorate.land }
-        end
+        child_supports_order_by_registration_source[registration_source] = if %w[pmi caf].include? registration_source
+                                                                            child_supports.group_by { |child_support| child_support.current_child.source.name }
+                                                                           else
+                                                                            child_supports.group_by { |child_support| child_support.decorate.land }
+                                                                           end
 
         # some child_supports doesn't have a land, so they are present in a key nil
         # we take them out of the hash
