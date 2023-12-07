@@ -60,14 +60,21 @@ ActiveAdmin.register ChildSupport do
          as: :datepicker,
          required: false,
          label: 'Parent sans SMS depuis'
-  filter :registration_sources_details,
-         as: :select,
-         collection: proc { child_registration_source_details_suggestions },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :current_child_pmi_detail,
-         as: :select,
-         collection: proc { child_registration_pmi_detail_collection },
-         input_html: { multiple: true, data: { select2: {} } }
+  filter :source_in,
+          as: :select,
+          collection: proc { source_select_collection },
+          input_html: { multiple: true, data: { select2: {} } },
+          label: "Source d'inscription"
+  filter :source_channel_in,
+          as: :select,
+          collection: proc { source_channel_select_collection },
+          input_html: { multiple: true, data: { select2: {} } },
+          label: "Canal d'inscription"
+  filter :source_details_matches_any,
+          as: :select,
+          collection: proc { source_details_suggestions },
+          input_html: { multiple: true, data: { select2: {} } },
+          label: "Précisions sur l'origine"
   filter :should_be_read,
          input_html: { data: { select2: { width: '100%' } } }
   filter :book_not_received

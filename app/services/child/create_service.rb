@@ -62,7 +62,6 @@ class Child
         attributes[:parent2] = @child.parent2
         attributes[:should_contact_parent1] = @child.should_contact_parent1
         attributes[:should_contact_parent2] = @child.should_contact_parent2
-        attributes[:pmi_detail] = @child.pmi_detail
         attributes[:child_support] = @child.child_support
       end
       @child.siblings.build(@siblings_attributes)
@@ -137,8 +136,6 @@ class Child
       end
 
       birthdate_validation
-      # pmi_detail_validation
-      # caf_detail_validation
       overseas_child_validation
     end
   end
