@@ -62,8 +62,8 @@ fr:
     local_partner: "Sélectionnez votre structure / nom&nbsp;"
     parent: "Comment nous avez-vous connu&nbsp;?"
     pro: "Vous êtes&nbsp;:"
-  source_registration_department_label: "Précisez le département où vous travaillez"
-  inscription_registration_source_details_label:
+  source_department_label: "Précisez le département où vous travaillez"
+  source_details_label:
     parent: "Précisez le nom de la personne qui vous a parlé de 1001mots"
     pro: "Préciser votre nom ou celui de votre structure"
   inscription_success:

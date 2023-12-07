@@ -579,8 +579,6 @@ fr:
         child_group_name: Cohorte
         child_group_status: Statut de la cohorte
         child_last_name: "Nom de l'enfant"
-        child_registration_source: Origine
-        child_registration_source_details: "Précisions sur l'origine"
         parent: Parent
         parent_address: Adresse
         parent_city_name: Ville

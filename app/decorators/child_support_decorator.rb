@@ -47,10 +47,6 @@ class ChildSupportDecorator < BaseDecorator
     children_attribute(:gender, glue)
   end
 
-  def children_registration_sources(glue = "\n")
-    children_attribute(:registration_source, glue)
-  end
-
   def children_land(glue = "\n")
     children_attribute(:land, glue)
   end
@@ -113,19 +109,7 @@ class ChildSupportDecorator < BaseDecorator
     children_attribute(:group_name, glue)
   end
 
-  def registration_sources
-    arbre do
-      ul do
-        model.children.decorate.each do |child|
-          li do
-            child.registration_source
-          end
-        end
-      end
-    end
-  end
-
-  (0..5).each do |call_idx|
+  (1..5).each do |call_idx|
 
     define_method("call#{call_idx}_parent_progress_index") do
       progress model.send("call#{call_idx}_parent_progress_index")

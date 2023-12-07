@@ -52,10 +52,6 @@ class Child < ApplicationRecord
   include Discard::Model
 
   GENDERS = %w[m f].freeze
-  REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
-  PMI_LIST = %w[orleans orleans_est montargis gien pithiviers olivet sarreguemines forbach trappes plaisir mantes_la_jolie_clemenceau mantes_la_jolie_leclerc
-                gennevilliers_zucman_gabison gennevilliers_timsit asnieres_gennevilliers_sst2 villeneuve_la_garenne chanteloup sartrouville les_mureaux seine_st_denis vernouillet val_de_saone_dombes
-                plaine_de_l_ain_cotiere bugey_pays_de_gex bresse_revermont].freeze
   GROUP_STATUS = %w[waiting active paused stopped].freeze
   TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
   LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Bondy', 'Orleans', 'Montargis', 'Pithiviers', 'Gien', 'Villeneuve-la-Garenne', 'Mantes La Jolie'].freeze
@@ -120,7 +116,6 @@ class Child < ApplicationRecord
     before: proc { max_birthdate }
   }, on: :create
   validates :security_code, presence: true
-  validates :pmi_detail, inclusion: { in: PMI_LIST, allow_blank: true }
   validates :group_status, inclusion: { in: GROUP_STATUS }
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
@@ -236,10 +231,6 @@ class Child < ApplicationRecord
     parent_id_not_in(
       Events::TextMessage.where(related_type: :Parent).where('occurred_at >= ?', v).pluck('DISTINCT related_id')
     )
-  end
-
-  def self.registration_source_details_matches_any(*v)
-    where('registration_source_details ILIKE ?', v)
   end
 
   def self.by_lands(lands)
@@ -422,28 +413,6 @@ class Child < ApplicationRecord
   def self.parents
     parent_ids = pluck(:parent1_id) + pluck(:parent2_id)
     Parent.where(id: parent_ids.compact.uniq)
-  end
-
-  # returns a Hash k => v where
-  # - k is a possible value
-  # - v is an Array of all corresponding values
-  # e.g. { "Noémie" => ["Noémie", Noemie"] }
-  def self.registration_source_details_map
-    values = {}
-
-    # input all values
-    pluck(:registration_source_details).compact.uniq.each do |value|
-      normalized_value = I18n.transliterate(
-        value.unicode_normalize
-      ).downcase.gsub(/[\s-]+/, ' ').strip
-      values[normalized_value] ||= []
-      values[normalized_value] << value
-    end
-
-    # use first found value as map key and remove duplicates
-    values.map do |_k, v|
-      [v.first, v.uniq]
-    end.to_h
   end
 
   # ---------------------------------------------------------------------------
@@ -669,8 +638,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in
-               without_parent_text_message_since registration_source_details_matches_any]
+    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in without_parent_text_message_since]
   end
 
   def siblings_on_same_group

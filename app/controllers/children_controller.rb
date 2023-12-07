@@ -86,8 +86,7 @@ class ChildrenController < ApplicationController
   private
 
   def child_creation_params
-    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :registration_source, :registration_source_details, :pmi_detail,
-                                           child_support_attributes: %i[important_information])
+    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, child_support_attributes: %i[important_information])
     result.delete(:child_support_attributes) if result[:child_support_attributes][:important_information].blank?
     result
   end
@@ -156,20 +155,20 @@ class ChildrenController < ApplicationController
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.pro')
       @source_collection = :local_partner
       @source_label = I18n.t('source_label.local_partner')
-      @source_details_label = I18n.t('inscription_registration_source_details_label.pro')
-      @source_registration_department_label = I18n.t('source_registration_department_label')
+      @source_details_label = I18n.t('source_details_label.pro')
+      @source_registration_department_label = I18n.t('source_department_label')
       @child_min_birthdate = Time.zone.today - 30.months
     when 4
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
       @source_collection = :bao
       @source_label = I18n.t('source_label.parent')
-      @source_details_label = I18n.t('inscription_registration_source_details_label.parent')
+      @source_details_label = I18n.t('source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate
     when 3
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.pro')
       @source_collection = :pmi
       @source_label = I18n.t('source_label.pmi')
-      @source_details_label = I18n.t('inscription_registration_source_details_label.pro')
+      @source_details_label = I18n.t('source_details_label.pro')
       @child_min_birthdate = Time.zone.today - 30.months
     when 2
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
@@ -178,13 +177,13 @@ class ChildrenController < ApplicationController
       @source_label = I18n.t('source_label.caf')
       @utm_caf = utm_caf_params
       @registration_caf_detail = I18n.t('inscription_caf.details')
-      @source_details_label = I18n.t('inscription_registration_source_details_label.parent')
+      @source_details_label = I18n.t('source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate
     else
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
       @source_label = I18n.t('source_label.parent')
       @source_collection = :parent
-      @source_details_label = I18n.t('inscription_registration_source_details_label.parent')
+      @source_details_label = I18n.t('source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate_alt
     end
   end

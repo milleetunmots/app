@@ -283,11 +283,11 @@ class ChildSupport < ApplicationRecord
     where(id: Child.active_group_id_in(v).select('DISTINCT child_support_id'))
   end
 
-  def self.registration_sources_in(*v)
-    where(id: Child.where(registration_source: v).select('DISTINCT child_support_id'))
+  def self.sources_in(*v)
+    where(id: Child.source_id_in(v).select('DISTINCT child_support_id'))
   end
 
-  def self.registration_sources_details_in(*v)
+  def self.sources_details_in(*v)
     where(id: Child.where(registration_source_details: v).select('DISTINCT child_support_id'))
   end
 
