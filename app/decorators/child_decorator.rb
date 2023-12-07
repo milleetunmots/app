@@ -127,6 +127,12 @@ class ChildDecorator < BaseDecorator
     model.source.decorate.name
   end
 
+  def source_details
+    return unless model.children_source&.details
+
+    model.children_source.details
+  end
+
   def icon_class
     :baby
   end

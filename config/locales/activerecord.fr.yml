@@ -120,6 +120,8 @@ fr:
         months_between_registration_and_group_start: Temps entre l'inscription et le debut de la cohorte (en mois)
         months_since_group_start: Temps depuis le debut de l'accompagnement (en mois)
         selected_support_module_list: Modules choisis
+        source: Source d'inscription
+        source_details: Précisions sur l'origine
       child/gender:
         f: Fille
         m: Garçon

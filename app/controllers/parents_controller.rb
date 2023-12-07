@@ -6,7 +6,6 @@ class ParentsController < ApplicationController
 
     source = current_child.children_source&.source_id
     source_details = current_child.children_source&.details
-    byebug
     response = { group_id: current_child.group_id, source: source, source_details: source_details }
     render json: response.to_json
   end

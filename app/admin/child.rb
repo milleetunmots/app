@@ -34,6 +34,7 @@ ActiveAdmin.register Child do
     column :child_support, sortable: :child_support_id, &:child_support_status
     column :group, sortable: :group_id
     column :group_status
+    column :source
     column :tags do |model|
       model.tags(context: 'tags')
     end
@@ -242,19 +243,6 @@ ActiveAdmin.register Child do
            progress: proc { |output| puts output }
   end
 
-  # batch_action :generate_buzz_expert do |ids|
-  #   @children = batch_action_collection.where(id: ids)
-  #
-  #   service = BuzzExpert::ExportChildrenService.new(children: @children).call
-  #   if service.errors.any?
-  #     puts "Error: #{service.errors}"
-  #     flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
-  #     redirect_to request.referer
-  #   else
-  #     send_data service.csv, filename: "Buzz-Expert - #{csv_filename}"
-  #   end
-  # end
-
   batch_action :generate_quit_sms do |ids|
     ids.reject! do |id|
       child = Child.find(id)
@@ -380,6 +368,7 @@ ActiveAdmin.register Child do
           row :age
           row :gender, &:gender_status
           row :source
+          row :source_details
           row :territory
           row :land
           row :available_for_workshops
@@ -443,31 +432,6 @@ ActiveAdmin.register Child do
     resource.update_attribute :group_end, resource.model.group.ended_at&.past? ? resource.model.group.ended_at : Time.now
     redirect_to [:admin, resource]
   end
-
-  # ---------------------------------------------------------------------------
-  # IMPORT
-  # ---------------------------------------------------------------------------
-
-  # action_item :new_import,
-  #   only: :index do
-  #   link_to I18n.t("child.new_import_link"), [:new_import, :admin, :children]
-  # end
-  # collection_action :new_import do
-  #   @import_action = perform_import_admin_children_path
-  # end
-  # collection_action :perform_import, method: :post do
-  #   @csv_file = params[:import][:csv_file]
-  #
-  #   service = ChildrenImportService.new(csv_file: @csv_file).call
-  #
-  #   if service.errors.empty?
-  #     redirect_to admin_children_path, notice: "Import terminé"
-  #   else
-  #     @import_action = perform_import_admin_children_path
-  #     @errors = service.errors
-  #     render :new_import
-  #   end
-  # end
 
   # ---------------------------------------------------------------------------
   # TOOLS
