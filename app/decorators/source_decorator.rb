@@ -1,10 +1,11 @@
 class SourceDecorator < BaseDecorator
 
   def name
-    if model.channel == 'pmi' && model.department
-      "[#{model.department}] #{model.name}"
+    name = model.channel == 'pmi' && model.department ? "[#{model.department}] #{model.name}" : model.name.to_s
+    if model.name == 'Autre'
+      "#{name} - #{channel}"
     else
-      model.name.to_s
+      name
     end
   end
 
