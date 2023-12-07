@@ -83,6 +83,9 @@ class SupportModule < ApplicationRecord
   validates :name, presence: true
   validates :theme, inclusion: { in: THEME_LIST_INCLUDING_MODULE_ZERO, allow_blank: true }
   validates :level, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_blank: true
+  validates :theme, presence: true, on: :create
+  validates :level, presence: true, on: :create
+  validates :age_ranges, presence: true, on: :create
 
   # ---------------------------------------------------------------------------
   # scopes
