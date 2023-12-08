@@ -103,7 +103,7 @@ class Child < ApplicationRecord
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
   accepts_nested_attributes_for :parent2
-  # accepts_nested_attributes_for :children_source
+  accepts_nested_attributes_for :children_source
 
   # ---------------------------------------------------------------------------
   # validations

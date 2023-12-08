@@ -348,7 +348,8 @@ ActiveAdmin.register Child do
 
   permit_params :parent1_id, :parent2_id, :group_id,
                 :should_contact_parent1, :should_contact_parent2,
-                :gender, :first_name, :last_name, :birthdate, :available_for_workshops, :group_status, tags_params
+                :gender, :first_name, :last_name, :birthdate, :available_for_workshops, :group_status,
+                tags_params.merge(children_source: [:source, :details])
 
   # ---------------------------------------------------------------------------
   # SHOW
