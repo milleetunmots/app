@@ -33,8 +33,9 @@ module ActiveAdmin::SupportModulesHelper
     end
   end
 
-  def support_module_age_range_select_collection
-    SupportModule::AGE_RANGE_LIST.map do |v|
+  def support_module_age_range_select_collection(theme)
+    age_range_list = SupportModule::MODULE_ZERO_THEME_LIST.include?(theme) ? SupportModule::MODULE_ZERO_AGE_RANGE_LIST : SupportModule::AGE_RANGE_LIST
+    age_range_list.map do |v|
       [
         SupportModule.human_attribute_name("age_range.#{v}"),
         v

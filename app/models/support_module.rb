@@ -81,11 +81,10 @@ class SupportModule < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   validates :name, presence: true
-  validates :theme, inclusion: { in: THEME_LIST_INCLUDING_MODULE_ZERO, allow_blank: true }
-  validates :level, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_blank: true
-  validates :theme, presence: true, on: :create
-  validates :level, presence: true, on: :create
-  validates :age_ranges, presence: true, on: :create
+  validates :theme, inclusion: { in: THEME_LIST_INCLUDING_MODULE_ZERO }, allow_blank: false
+  validates :level, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, presence: true
+  validates :age_ranges, presence: true
+  validate :valid_age_ranges
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -154,5 +153,17 @@ class SupportModule < ApplicationRecord
 
   def currently_used?
     children_support_modules.any? || ChildrenSupportModule.using_support_module(id).any?
+  end
+
+  private
+
+  def valid_age_ranges
+    errors.add(:age_ranges, :invalid, message: 'doit être rempli(e)') if age_ranges.reject(&:blank?).empty?
+
+    return if THEME_LIST.include?(theme) && (age_ranges.reject(&:blank?) - AGE_RANGE_LIST).empty?
+
+    return if MODULE_ZERO_THEME_LIST.include?(theme) && (age_ranges.reject(&:blank?) - MODULE_ZERO_AGE_RANGE_LIST).empty?
+
+    errors.add(:age_ranges, :invalid, message: 'ne correspond pas au thème')
   end
 end
