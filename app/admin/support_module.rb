@@ -61,7 +61,7 @@ ActiveAdmin.register SupportModule do
       f.input :for_bilingual
       f.input :theme, collection: support_module_theme_select_collection, input_html: { data: { select2: {} } }
       f.input :level
-      f.input :age_ranges, multiple: true, collection: support_module_age_range_select_collection, input_html: { data: { select2: {} } }
+      f.input :age_ranges, multiple: true, collection: support_module_age_range_select_collection(f.object.theme), input_html: { data: { select2: {} } }
       f.input :start_at, as: :datepicker
       f.input :picture, as: :file,
                         hint: f.object.id && "Laissez ce champ vide pour ne pas modifier l'image"

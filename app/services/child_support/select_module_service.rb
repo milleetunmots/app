@@ -45,7 +45,7 @@ class ChildSupport::SelectModuleService
 
     # module_index starts with 1
     # so if module_index == 3 it means this is "Module 2" (that comes after "Module 0" and "Module 1")
-    date = @module_index.eql?(3) ? 'deux jours' : 'quelques jours'
+    date = @module_index.eql?(3) && @child.group.with_module_zero? ? 'deux jours' : 'quelques jours'
 
     message = "1001mots : Cliquez sur le lien pour choisir votre prochain thème pour #{@child.first_name} et recevoir un nouveau livre. Attention dans #{date}, nous choisirons à votre place ! #{selection_link}"
 
@@ -60,7 +60,10 @@ class ChildSupport::SelectModuleService
       @errors += sms_service.errors
     else
       reminder_date = @planned_date.advance(days: 3)
+      is_module_3 = @child.group.with_module_zero? ? @module_index.eql?(4) : @module_index.eql?(3)
       ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: reminder_date.to_datetime.change(hour: 6)).perform_later(@children_support_module.id, reminder_date)
+      # second reminder only for Module 3
+      ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: reminder_date.to_datetime.change(hour: 6)).perform_later(@children_support_module.id, reminder_date + 2.days, true) if is_module_3
     end
   end
 

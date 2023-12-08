@@ -94,6 +94,10 @@ class Group < ApplicationRecord
     children.joins(:child_support).where(child_supports: { is_bilingual: true })
   end
 
+  def with_module_zero?
+    started_at >= DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------

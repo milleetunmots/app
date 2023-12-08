@@ -86,6 +86,15 @@ class Group
       ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date, 3)
     end
 
+    def program_sms_to_choose_module_to_parents
+      return if @group.support_modules_count < 3
+
+      (4..@group.support_modules_count).each do |module_index|
+        select_module_date = (@group.started_at + ((module_index - 2) * 8.weeks) - 4.weeks + MODULE_ZERO_DURATION).next_occurring(:saturday)
+        ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date, module_index)
+      end
+    end
+
     def select_default_support_module
       (3..@group.support_modules_count).each do |module_index|
         selection_date = @group.started_at + ((module_index - 2) * 8.weeks) - 2.weeks - 1.day + MODULE_ZERO_DURATION
@@ -104,15 +113,6 @@ class Group
       (3..@group.support_modules_count).each do |module_index|
         check_date = @group.started_at + ((module_index - 2) * 8.weeks) - 1.week + MODULE_ZERO_DURATION
         ChildrenSupportModule::CheckCreditsForGroupJob.set(wait_until: check_date.to_datetime.change(hour: 6)).perform_later(@group.id)
-      end
-    end
-
-    def program_sms_to_choose_module_to_parents
-      return if @group.support_modules_count < 3
-
-      (4..@group.support_modules_count).each do |module_index|
-        select_module_date = (@group.started_at + ((module_index - 2) * 8.weeks) - 4.weeks + MODULE_ZERO_DURATION).next_occurring(:saturday)
-        ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date, module_index)
       end
     end
 

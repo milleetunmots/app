@@ -2,11 +2,12 @@ class ChildrenSupportModule
   class SendReminder
     attr_reader :errors
 
-    def initialize(children_support_module, reminder_date)
+    def initialize(children_support_module, reminder_date, second_reminder)
       @children_support_module = children_support_module
       @child = children_support_module.child
       @parent = children_support_module.parent
       @reminder_date = reminder_date
+      @second_reminder = second_reminder
       @errors = []
     end
 
@@ -16,7 +17,12 @@ class ChildrenSupportModule
         sc: @parent.security_code
       )
 
-      message = "1001mots : N'oubliez pas de choisir votre prochain thème pour que #{@child.first_name} reçoive son prochain livre ! #{selection_link}"
+      message =
+        if @second_reminder
+          "1001mots : dernière chance pour choisir votre prochain thème pour que #{@child.first_name} reçoive son prochain livre ! #{selection_link}"
+        else
+          "1001mots : pour recevoir le prochain livre de 1001mots pour #{@child.first_name}, n'oubliez pas de choisir votre thème en cliquant sur ce lien : #{selection_link}"
+        end
 
       sms_service = ProgramMessageService.new(
         @reminder_date,

@@ -1,8 +1,8 @@
 require "rails_helper"
 
 RSpec.describe ChildrenSupportModulesController, type: :request do
-
-  let(:child) { FactoryBot.create(:child) }
+  let!(:group) { FactoryBot.create(:group)}
+  let(:child) { FactoryBot.create(:child, group: group, group_status: 'active') }
   let(:support_module_list) { FactoryBot.create_list(:support_module, 3) }
   let!(:children_support_module) do
     FactoryBot.create(
