@@ -19,7 +19,7 @@ FactoryBot.define do
     name { Faker::Lorem.word }
     for_bilingual { Faker::Boolean.boolean }
     theme { SupportModule::THEME_LIST.sample }
-    age_ranges { SupportModule::AGE_RANGE_LIST.sample }
+    age_ranges { [SupportModule::AGE_RANGE_LIST.sample] }
     level { 1 }
     trait :with_support_module_weeks do
       after :create do |support_module|
