@@ -2,9 +2,9 @@ module ActiveAdmin::SourcesHelper
 
   def source_select_for_pmi(dpt = nil)
     if dpt.nil?
-      Source.by_pmi.map { |pmi| [pmi.decorate.name, pmi.id] }.sort
+      Source.by_pmi.map { |pmi| [pmi.decorate.name, pmi.id] }
     else
-      Source.by_pmi.where(department: dpt).map { |pmi| [pmi.decorate.name, pmi.id] }.sort
+      Source.by_pmi.where(department: dpt).map { |pmi| [pmi.decorate.name, pmi.id] }
     end
   end
 

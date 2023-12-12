@@ -73,6 +73,6 @@ module ActiveAdmin::ChildrenHelper
       ['Tarn-et-Garonne', 82], ['Var', 83], ['Vaucluse', 84], ['Vendée', 85], ['Vienne', 86],
       ['Haute-Vienne', 87], ['Vosges', 88], ['Yonne', 89], ['Territoire de Belfort', 90],
       ['Essonne', 91], ['Hauts-de-Seine', 92], ['Seine-Saint-Denis', 93], ['Val-de-Marne', 94],
-      ['Val-d\'Oise', 95]].map { |dpt| ["#{dpt[1].to_s.rjust(2, '0')} - #{dpt[0]}", dpt[1]] }
+      ['Val-d\'Oise', 95]].map { |dpt| ["[#{dpt[1].to_s.rjust(2, '0')}] #{dpt[0]}", dpt[1]] }
   end
 end

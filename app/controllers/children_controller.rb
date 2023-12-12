@@ -122,7 +122,7 @@ class ChildrenController < ApplicationController
   end
 
   def pmi_dpt_params
-    params[:pmi_dpt] && Source.where(department: params[:pmi_dpt]).any? ? params[:pmi_dpt] : nil
+    params[:pmi_dpt] && Source.by_pmi.where(department: params[:pmi_dpt]).any? ? params[:pmi_dpt] : nil
   end
 
   def find_child
