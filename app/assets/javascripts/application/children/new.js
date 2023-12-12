@@ -91,10 +91,8 @@
   };
 
   var init = function() {
-    if (pathName === '/inscription3' || pathName === '/inscription5' ) {
-      var $source_select2 = $('#child_children_source_attributes_source_id').select2();
-      $source_select2.data().select2.$container.addClass("form-control");
-    }
+    var $source_select2 = $('#child_children_source_attributes_source_id').select2();
+    $source_select2.data().select2.$container.addClass("form-control");
 
     if (pathName === '/inscription5') {
       var $source_department_select2 = $('#child_children_source_attributes_registration_department').select2();
