@@ -114,11 +114,15 @@ class ChildrenController < ApplicationController
   end
 
   def children_source_params
-    params.require(:child).permit(children_source: %i[source_id details registration_department])[:children_source]
+    params.require(:child).permit(children_source_attributes: %i[source_id details registration_department])[:children_source_attributes]
   end
 
   def utm_caf_params
     params[:utm_caf] && Source.exists?(utm: params[:utm_caf]) ? params[:utm_caf] : nil
+  end
+
+  def pmi_dpt_params
+    params[:pmi_dpt] && Source.where(department: params[:pmi_dpt]).any? ? params[:pmi_dpt] : nil
   end
 
   def find_child
@@ -167,6 +171,7 @@ class ChildrenController < ApplicationController
     when 3
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.pro')
       @source_collection = :pmi
+      @pmi_dpt = pmi_dpt_params
       @source_label = I18n.t('source_label.pmi')
       @source_details_label = I18n.t('source_details_label.pro')
       @child_min_birthdate = Time.zone.today - 30.months

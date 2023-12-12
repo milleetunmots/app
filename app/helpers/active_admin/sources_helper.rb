@@ -1,7 +1,11 @@
 module ActiveAdmin::SourcesHelper
 
-  def source_select_for_pmi
-    Source.by_pmi.map { |pmi| [pmi.decorate.name, pmi.id] }.sort
+  def source_select_for_pmi(dpt = nil)
+    if dpt.nil?
+      Source.by_pmi.map { |pmi| [pmi.decorate.name, pmi.id] }.sort
+    else
+      Source.by_pmi.where(department: dpt).map { |pmi| [pmi.decorate.name, pmi.id] }.sort
+    end
   end
 
   def source_select_for_caf

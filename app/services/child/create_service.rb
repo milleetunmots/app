@@ -24,6 +24,9 @@ class Child
       if @child.errors.empty? && @child.save
         ChildrenSource.create(@children_source_attributes.merge(child_id: @child.id))
         send_form_by_sms
+        @child.siblings.each do |sibling|
+          ChildrenSource.create(@children_source_attributes.merge(child_id: sibling.id))
+        end
       end
       self
     end
@@ -56,8 +59,6 @@ class Child
 
     def build_siblings
       @siblings_attributes.each do |attributes|
-        attributes[:registration_source] = @child.registration_source
-        attributes[:registration_source_details] = @child.registration_source_details
         attributes[:parent1] = @child.parent1
         attributes[:parent2] = @child.parent2
         attributes[:should_contact_parent1] = @child.should_contact_parent1

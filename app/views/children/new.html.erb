@@ -37,7 +37,7 @@
                 required: true,
                 collection: case @source_collection
                             when :pmi
-                              source_select_for_pmi
+                              source_select_for_pmi(@pmi_dpt)
                             when :bao
                               source_select_for_bao
                             when :local_partner

@@ -98,8 +98,8 @@ ActiveAdmin.register RedirectionUrl do
     column :child_birthdate
     column :child_age
     column :child_gender
-    column :child_registration_source
-    column :child_registration_source_details
+    column :child_children_source_name
+    column :child_children_source_details
     column :child_group_name
     column :child_group_status
 

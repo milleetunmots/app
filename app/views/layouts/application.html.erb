@@ -6,10 +6,7 @@
 
     <title>1001mots</title>
     <%= render partial: 'layouts/gtm_head' %>
-
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
-    <%= google_places_api_tag %>
     <%= csrf_meta_tags %>
   </head>
   <body>
@@ -18,4 +15,11 @@
 
     <%= yield %>
   </body>
+
+  <footer>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= google_places_api_tag %>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  </footer>
 </html>

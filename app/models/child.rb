@@ -228,11 +228,11 @@ class Child < ApplicationRecord
   end
 
   def self.source_channel_in(*v)
-    joins(:source).where(source: { channel: v })
+    joins(:source).where(sources: { channel: v })
   end
 
   def self.source_details_matches_any(*v)
-    joins(:children_source).where('children_sources.details ILIKE ?', v)
+    joins(:children_source).where(children_sources: { details: v })
   end
 
   def self.without_parent_text_message_since(v)
@@ -486,6 +486,9 @@ class Child < ApplicationRecord
            to: :child_support,
            prefix: true,
            allow_nil: true
+
+
+  delegate :name, :details, to: :children_source, prefix: true, allow_nil: true
 
   # computes an (integer) number of months old
   def months

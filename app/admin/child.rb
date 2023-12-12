@@ -11,7 +11,7 @@ ActiveAdmin.register Child do
   # INDEX
   # ---------------------------------------------------------------------------
 
-  includes :parent1, :parent2, :child_support, :group
+  includes :parent1, :parent2, :child_support, :group, :children_source
 
   index do
     div do
@@ -329,12 +329,24 @@ ActiveAdmin.register Child do
                 max_date: Child.max_birthdate
               }
       f.input :available_for_workshops
-      f.semantic_fields_for :children_source do |children_source_f|
-        children_source_f.input :source,
-                                as: :select,
-                                collection: source_select_collection
-        children_source_f.input :details
+      # f.input :source_id, as: :select, collection: source_select_collection
+      # f.input :details
+      f.inputs do
+        f.semantic_fields_for :children_source, (f.object.children_source || ChildrenSource.new) do |children_source_f|
+          children_source_f.input :source_id,
+            as: :select,
+            collection: source_select_collection
+          children_source_f.input :details
+        end
       end
+      # f.fields_for :children_source_attributes do |children_source_f|
+      #   children_source_f.inputs "toto", for: [:children_source, f.object.children_source || ChildrenSource.new] do
+      #     children_source_f.input :source_id,
+      #       as: :select,
+      #       collection: source_select_collection
+      #     children_source_f.input :details
+      #   end
+      # end
       f.input :group,
               collection: child_group_select_collection,
               input_html: { data: { select2: {} } }
@@ -349,7 +361,7 @@ ActiveAdmin.register Child do
   permit_params :parent1_id, :parent2_id, :group_id,
                 :should_contact_parent1, :should_contact_parent2,
                 :gender, :first_name, :last_name, :birthdate, :available_for_workshops, :group_status,
-                tags_params.merge(children_source: [:source, :details])
+                tags_params.merge(children_source_attributes: [:id, :source_id, :details])
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -542,6 +554,15 @@ ActiveAdmin.register Child do
   end
 
   controller do
+    # def new
+    #   super
+    #   @child.build_children_source
+    # end
+
+    # def edit
+    #   super
+    # end
+
     after_save do |child|
       next if child.errors.any?
 

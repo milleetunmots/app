@@ -3,7 +3,7 @@
 # Table name: children_sources
 #
 #  id                      :bigint           not null, primary key
-#  details                 :text
+#  details                 :string
 #  registration_department :integer
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
@@ -18,4 +18,7 @@
 class ChildrenSource < ApplicationRecord
   belongs_to :source
   belongs_to :child
+
+  delegate :name, to: :source, prefix: false
+
 end

@@ -28,11 +28,19 @@ RSpec.describe Child::CreateService do
       gender: "",
       first_name: Faker::Name.first_name,
       last_name: Faker::Name.last_name,
-      registration_source: Child::REGISTRATION_SOURCES.sample,
-      registration_source_details: Faker::Movies::StarWars.planet,
       "birthdate(3i)" => birthdate.day.to_s,
       "birthdate(2i)" => birthdate.month.to_s,
       "birthdate(1i)" => birthdate.year.to_s
+    }
+  }
+
+  let(:source) { FactoryBot.create(:source) }
+
+  let(:source_attributes) {
+    {
+      source_id: source.id,
+      details: "",
+      registration_department: source.department,
     }
   }
 
@@ -44,8 +52,9 @@ RSpec.describe Child::CreateService do
       mother_attributes,
       father_attributes,
       registration_origin,
-      child_min_birthdate
-    )
+      source_attributes,
+      child_min_birthdate,
+    ).call
   }
 
   context "when params are valid" do
