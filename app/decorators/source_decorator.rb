@@ -3,9 +3,9 @@ class SourceDecorator < BaseDecorator
   def name
     name = model.channel == 'pmi' && model.department ? "[#{model.department}] #{model.name}" : model.name.to_s
     if model.name == 'Autre'
-      "#{name} - #{channel}"
+      h.link_to "#{name} - #{channel}", [:admin, model]
     else
-      name
+      h.link_to name, [:admin, model]
     end
   end
 

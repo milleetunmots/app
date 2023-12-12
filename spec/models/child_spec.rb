@@ -100,16 +100,6 @@ RSpec.describe Child, type: :model do
         expect(first_child).not_to be_valid
       end
 
-      it "if the child doesn't have registration source" do
-        first_child.registration_source = nil
-        expect(first_child).not_to be_valid
-      end
-
-      it "if the child doesn't have registration source detail" do
-        first_child.registration_source_details = nil
-        expect(first_child).not_to be_valid
-      end
-
       it "if the child doesn't have security code" do
         first_child.security_code = nil
         expect(first_child).not_to be_valid

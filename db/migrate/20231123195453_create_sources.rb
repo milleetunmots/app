@@ -13,7 +13,7 @@ class CreateSources < ActiveRecord::Migration[6.0]
     create_table :children_sources do |t|
       t.belongs_to :source
       t.belongs_to :child
-      t.text :details
+      t.string :details
       t.integer :registration_department
 
       t.timestamps null: false

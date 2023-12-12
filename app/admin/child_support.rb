@@ -414,7 +414,6 @@ ActiveAdmin.register ChildSupport do
                                     collection: child_gender_select_collection
               current_child_f.input :should_contact_parent1
               current_child_f.input :should_contact_parent2
-              current_child_f.input :registration_source_details
             end
           end
           tab 'Historique' do
@@ -547,7 +546,6 @@ ActiveAdmin.register ChildSupport do
     column :id
     column(:supporter) { |cs| cs.supporter_name }
     column(:parent1_gender) { |cs| Parent.human_attribute_name("gender.#{cs.parent1_gender}") }
-    column :children_registration_sources
     column :child_support_groups
     column :children_land
     column :parent1_available_support_modules

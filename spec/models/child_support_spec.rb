@@ -124,6 +124,10 @@
 #  will_stay_in_group                    :boolean          default(FALSE), not null
 #  created_at                            :datetime         not null
 #  updated_at                            :datetime         not null
+#  module2_chosen_by_parents_id          :bigint
+#  module3_chosen_by_parents_id          :bigint
+#  module4_chosen_by_parents_id          :bigint
+#  module5_chosen_by_parents_id          :bigint
 #  supporter_id                          :bigint
 #
 # Indexes
@@ -144,6 +148,10 @@
 #  index_child_supports_on_call5_language_awareness               (call5_language_awareness)
 #  index_child_supports_on_call5_parent_progress                  (call5_parent_progress)
 #  index_child_supports_on_discarded_at                           (discarded_at)
+#  index_child_supports_on_module2_chosen_by_parents_id           (module2_chosen_by_parents_id)
+#  index_child_supports_on_module3_chosen_by_parents_id           (module3_chosen_by_parents_id)
+#  index_child_supports_on_module4_chosen_by_parents_id           (module4_chosen_by_parents_id)
+#  index_child_supports_on_module5_chosen_by_parents_id           (module5_chosen_by_parents_id)
 #  index_child_supports_on_parent1_available_support_module_list  (parent1_available_support_module_list) USING gin
 #  index_child_supports_on_parent2_available_support_module_list  (parent2_available_support_module_list) USING gin
 #  index_child_supports_on_should_be_read                         (should_be_read)
@@ -151,6 +159,10 @@
 #
 # Foreign Keys
 #
+#  fk_rails_...  (module2_chosen_by_parents_id => support_modules.id)
+#  fk_rails_...  (module3_chosen_by_parents_id => support_modules.id)
+#  fk_rails_...  (module4_chosen_by_parents_id => support_modules.id)
+#  fk_rails_...  (module5_chosen_by_parents_id => support_modules.id)
 #  fk_rails_...  (supporter_id => admin_users.id)
 #
 
@@ -166,9 +178,9 @@ RSpec.describe ChildSupport, type: :model do
 
   let_it_be(:group, reload: true) { FactoryBot.create(:group) }
 
-  let_it_be(:first_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: third_parent, registration_source: "other", group: group, group_status: "active") }
-  let_it_be(:second_child, reload: true) { FactoryBot.create(:child, parent1: second_parent, parent2: fourth_parent, registration_source: "caf") }
-  let_it_be(:third_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, registration_source: "pmi", registration_source_details: "Aristide Bamenou", group: group, group_status: "paused") }
+  let_it_be(:first_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: third_parent, group: group, group_status: "active") }
+  let_it_be(:second_child, reload: true) { FactoryBot.create(:child, parent1: second_parent, parent2: fourth_parent) }
+  let_it_be(:third_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, group: group, group_status: "paused") }
 
   let_it_be(:first_child_support, reload: true) { FactoryBot.create(:child_support, current_child: first_child, supporter: admin_user) }
   let_it_be(:second_child_support, reload: true) { second_child.child_support }
@@ -256,22 +268,6 @@ RSpec.describe ChildSupport, type: :model do
     context "returns" do
       it "child supports for unpaused child with group id in v" do
         expect(ChildSupport.active_group_id_in(group.id)).to match_array [first_child_support, second_child_support]
-      end
-    end
-  end
-
-  describe "#registration_sources_in(*v)" do
-    context "returns" do
-      it "child supports for child with registration sources in v" do
-        expect(ChildSupport.registration_sources_in("pmi")).to match_array [third_child_support]
-      end
-    end
-  end
-
-  describe "#registration_sources_details_in(*v)" do
-    context "returns" do
-      it "child supports for child with registration sources details in v" do
-        expect(ChildSupport.registration_sources_details_in("Aristide Bamenou")).to match_array [third_child_support]
       end
     end
   end

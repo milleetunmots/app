@@ -124,6 +124,10 @@
 #  will_stay_in_group                    :boolean          default(FALSE), not null
 #  created_at                            :datetime         not null
 #  updated_at                            :datetime         not null
+#  module2_chosen_by_parents_id          :bigint
+#  module3_chosen_by_parents_id          :bigint
+#  module4_chosen_by_parents_id          :bigint
+#  module5_chosen_by_parents_id          :bigint
 #  supporter_id                          :bigint
 #
 # Indexes
@@ -144,6 +148,10 @@
 #  index_child_supports_on_call5_language_awareness               (call5_language_awareness)
 #  index_child_supports_on_call5_parent_progress                  (call5_parent_progress)
 #  index_child_supports_on_discarded_at                           (discarded_at)
+#  index_child_supports_on_module2_chosen_by_parents_id           (module2_chosen_by_parents_id)
+#  index_child_supports_on_module3_chosen_by_parents_id           (module3_chosen_by_parents_id)
+#  index_child_supports_on_module4_chosen_by_parents_id           (module4_chosen_by_parents_id)
+#  index_child_supports_on_module5_chosen_by_parents_id           (module5_chosen_by_parents_id)
 #  index_child_supports_on_parent1_available_support_module_list  (parent1_available_support_module_list) USING gin
 #  index_child_supports_on_parent2_available_support_module_list  (parent2_available_support_module_list) USING gin
 #  index_child_supports_on_should_be_read                         (should_be_read)
@@ -151,6 +159,10 @@
 #
 # Foreign Keys
 #
+#  fk_rails_...  (module2_chosen_by_parents_id => support_modules.id)
+#  fk_rails_...  (module3_chosen_by_parents_id => support_modules.id)
+#  fk_rails_...  (module4_chosen_by_parents_id => support_modules.id)
+#  fk_rails_...  (module5_chosen_by_parents_id => support_modules.id)
 #  fk_rails_...  (supporter_id => admin_users.id)
 #
 
@@ -397,8 +409,6 @@ class ChildSupport < ApplicationRecord
            :parent2_last_name,
            :parent2_phone_number_national,
            :postal_code,
-           :registration_source,
-           :registration_source_details,
            :should_contact_parent1,
            :should_contact_parent1?,
            :should_contact_parent2,

@@ -15,8 +15,8 @@ RSpec.describe ChildrenController, type: :request do
         expect(assigns(:child_min_birthdate)).to eq Child.min_birthdate_alt
 
         expect(response.body).to include I18n.t('inscription_terms_accepted_at_label.parent')
-        expect(response.body).to include I18n.t('inscription_registration_source_label.parent')
-        expect(response.body).to include I18n.t('inscription_registration_source_details_label.parent')
+        expect(response.body).to include I18n.t('source_label.parent')
+        expect(response.body).to include I18n.t('source_details_label.parent')
       end
 
       it "sets session[:registration_origin]" do
@@ -29,11 +29,10 @@ RSpec.describe ChildrenController, type: :request do
 
       it "renders specific wording" do
         expect(assigns(:child_min_birthdate)).to eq Child.min_birthdate
-        expect(assigns(:registration_caf_detail)).to eq I18n.t('inscription_caf.detail')
+        expect(assigns(:registration_caf_detail)).to eq I18n.t('inscription_caf.details')
 
         expect(response.body).to include I18n.t('inscription_terms_accepted_at_label.parent')
-        expect(response.body).to include I18n.t('inscription_registration_source_label.parent')
-        expect(response.body).to include I18n.t('inscription_registration_source_details_label.parent')
+        expect(response.body).to include I18n.t('source_label.caf')
       end
 
       it "sets session[:registration_origin]" do
@@ -46,11 +45,10 @@ RSpec.describe ChildrenController, type: :request do
 
       it "renders specific wording" do
         expect(assigns(:child_min_birthdate)).to eq Date.today - 30.months
-        expect(assigns(:registration_pmi_detail)).to eq I18n.t('inscription_pmi.detail')
 
         expect(response.body).to include I18n.t('inscription_terms_accepted_at_label.pro')
-        expect(response.body).to include I18n.t('inscription_registration_source_label.pro')
-        expect(response.body).to include I18n.t('inscription_registration_source_details_label.pro')
+        expect(response.body).to include I18n.t('source_label.pmi')
+        expect(response.body).to include I18n.t('source_details_label.pro')
       end
 
       it "sets session[:registration_origin]" do
@@ -62,6 +60,7 @@ RSpec.describe ChildrenController, type: :request do
   describe "#create" do
     context "when params are valid" do
       let(:birthdate) { Faker::Date.between(from: Child.min_birthdate.tomorrow, to: Child.max_birthdate.yesterday) }
+      let(:source) { FactoryBot.create(:source) }
       let(:params) {
         {
           child: {
@@ -75,8 +74,6 @@ RSpec.describe ChildrenController, type: :request do
               postal_code: Faker::Address.postcode,
               city_name: Faker::Address.city
             },
-            registration_source: Child::REGISTRATION_SOURCES.sample,
-            registration_source_details: Faker::Movies::StarWars.planet,
             gender: "",
             first_name: Faker::Name.first_name,
             last_name: Faker::Name.last_name,
@@ -88,6 +85,11 @@ RSpec.describe ChildrenController, type: :request do
               first_name: "",
               last_name: "",
               phone_number: ""
+            },
+            children_source_attributes: {
+              source_id: source.id,
+              details: "",
+              registration_department: source.department
             }
           }
         }
@@ -105,6 +107,7 @@ RSpec.describe ChildrenController, type: :request do
 
     context "when there are errors" do
       let(:birthdate) { Faker::Date.between(from: Child.min_birthdate.tomorrow, to: Child.max_birthdate.yesterday) }
+      let(:source) { FactoryBot.create(:source) }
       let(:params) {
         {
           child: {
@@ -118,8 +121,6 @@ RSpec.describe ChildrenController, type: :request do
               postal_code: Faker::Address.postcode,
               city_name: Faker::Address.city
             },
-            registration_source: Child::REGISTRATION_SOURCES.sample,
-            registration_source_details: Faker::Movies::StarWars.planet,
             gender: "",
             first_name: Faker::Name.first_name,
             last_name: Faker::Name.last_name,
@@ -131,6 +132,11 @@ RSpec.describe ChildrenController, type: :request do
               first_name: "",
               last_name: "",
               phone_number: ""
+            },
+            children_source_attributes: {
+              source_id: source.id,
+              details: "",
+              registration_department: source.department
             }
           }
         }

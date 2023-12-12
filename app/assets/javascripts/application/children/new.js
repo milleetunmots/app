@@ -1,9 +1,9 @@
 (function($) {
+  var url = new URL(window.location.href);
+  var pathName = url.pathname;
 
   var showCafSelection = function() {
     var value = $(this).val();
-    var url = new URL(window.location.href);
-    var pathName = url.pathname;
 
     if (pathName === '/inscription2') {
       var params = url.searchParams;
@@ -16,12 +16,12 @@
             type: 'GET',
             url: '/sources/caf_by_utm?utm_caf='+utmCaf
           }).done(function(data) {
-            $('#child_children_source_source_id').val(data.id)
-            $('#child_children_source_source_id').trigger('change')
+            $('#child_children_source_attributes_source_id').val(data.id)
+            $('#child_children_source_attributes_source_id').trigger('change')
           });
         }
       } else if (value === 'bao' ) {
-        var childrenSourceSelect = $('#child_children_source_source_id');
+        var childrenSourceSelect = $('#child_children_source_attributes_source_id');
         if (!Array.from(childrenSourceSelect.children()).some(option => option.text === 'Mon entourage')) {
           $.ajax({
             type: 'GET',
@@ -37,10 +37,10 @@
         }
         $('#child_children_source_source_id_div').hide();
       }
-    } else if (pathName === '/inscription5') {
+    }else if (pathName === '/inscription5') {
       $('#registration_department_select').hide();
-      $(document).on('change', 'select[id="child_children_source_source_id"]', ()=> {
-        const selectedValue = $('select[id="child_children_source_source_id"]').val();
+      $(document).on('change', 'select[id="child_children_source_attributes_source_id"]', ()=> {
+        const selectedValue = $('select[id="child_children_source_attributes_source_id"]').val();
         $.ajax({
           type: 'GET',
           url: '/sources/local_partner_has_department?id='+selectedValue
@@ -91,14 +91,19 @@
   };
 
   var init = function() {
+    if (pathName === '/inscription3' || pathName === '/inscription5' ) {
+      var $source_select2 = $('#child_children_source_attributes_source_id').select2();
+      $source_select2.data().select2.$container.addClass("form-control");
+    }
 
-
-
+    if (pathName === '/inscription5') {
+      var $source_department_select2 = $('#child_children_source_attributes_registration_department').select2();
+      $source_department_select2.data().select2.$container.addClass("form-control");
+    }
 
     $(document).on('change', "input[id^='child_parent2_attributes_']", () => {
       var parent2Inputs = $("input[id^='child_parent2_attributes_']");
       var parent2Fields= $("[class*='child_parent2_']");
-      console.log(parent2Fields);
       var atLeastOneHasValue = false;
       parent2Inputs.each(function() {
         if ($(this).val() !== '') {

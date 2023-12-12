@@ -249,8 +249,15 @@ ActiveRecord::Schema.define(version: 2023_12_18_141318) do
     t.text "call3_goals_sms"
     t.text "call4_goals_sms"
     t.text "call5_goals_sms"
+<<<<<<< HEAD
     t.integer "parent_mid_term_rate"
     t.string "parent_mid_term_reaction"
+=======
+    t.bigint "module2_chosen_by_parents_id"
+    t.bigint "module3_chosen_by_parents_id"
+    t.bigint "module4_chosen_by_parents_id"
+    t.bigint "module5_chosen_by_parents_id"
+>>>>>>> cleaning
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
@@ -267,6 +274,10 @@ ActiveRecord::Schema.define(version: 2023_12_18_141318) do
     t.index ["call5_language_awareness"], name: "index_child_supports_on_call5_language_awareness"
     t.index ["call5_parent_progress"], name: "index_child_supports_on_call5_parent_progress"
     t.index ["discarded_at"], name: "index_child_supports_on_discarded_at"
+    t.index ["module2_chosen_by_parents_id"], name: "index_child_supports_on_module2_chosen_by_parents_id"
+    t.index ["module3_chosen_by_parents_id"], name: "index_child_supports_on_module3_chosen_by_parents_id"
+    t.index ["module4_chosen_by_parents_id"], name: "index_child_supports_on_module4_chosen_by_parents_id"
+    t.index ["module5_chosen_by_parents_id"], name: "index_child_supports_on_module5_chosen_by_parents_id"
     t.index ["parent1_available_support_module_list"], name: "index_child_supports_on_parent1_available_support_module_list", using: :gin
     t.index ["parent2_available_support_module_list"], name: "index_child_supports_on_parent2_available_support_module_list", using: :gin
     t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
@@ -313,7 +324,7 @@ ActiveRecord::Schema.define(version: 2023_12_18_141318) do
   create_table "children_sources", force: :cascade do |t|
     t.bigint "source_id"
     t.bigint "child_id"
-    t.text "details"
+    t.string "details"
     t.integer "registration_department"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -658,6 +669,10 @@ ActiveRecord::Schema.define(version: 2023_12_18_141318) do
   add_foreign_key "bubble_sessions", "bubble_modules", column: "module_session_id"
   add_foreign_key "bubble_sessions", "bubble_videos", column: "video_id"
   add_foreign_key "child_supports", "admin_users", column: "supporter_id"
+  add_foreign_key "child_supports", "support_modules", column: "module2_chosen_by_parents_id"
+  add_foreign_key "child_supports", "support_modules", column: "module3_chosen_by_parents_id"
+  add_foreign_key "child_supports", "support_modules", column: "module4_chosen_by_parents_id"
+  add_foreign_key "child_supports", "support_modules", column: "module5_chosen_by_parents_id"
   add_foreign_key "children", "parents", column: "parent1_id"
   add_foreign_key "children", "parents", column: "parent2_id"
   add_foreign_key "events", "workshops"
