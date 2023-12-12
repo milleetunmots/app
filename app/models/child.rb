@@ -163,6 +163,9 @@ class Child < ApplicationRecord
   scope :active_group, -> { where(group_status: 'active') }
   scope :only_siblings, -> { where(child_support_id: ChildSupport.multiple_children.select(:id)) }
   scope :with_ongoing_group, -> { joins(:group).merge(Group.started) }
+  scope :potential_duplicates, -> {
+    where("(unaccent(children.first_name), unaccent(children.last_name), children.birthdate) IN (SELECT unaccent(first_name), unaccent(last_name), birthdate FROM children GROUP BY unaccent(children.first_name), unaccent(children.last_name), children.birthdate HAVING COUNT(*) > 1)")
+  }
 
   def self.without_group_and_not_waiting_second_group
     second_group_children_ids = Child.tagged_with('2eme cohorte').pluck(:id)
