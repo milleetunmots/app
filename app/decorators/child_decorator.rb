@@ -132,6 +132,12 @@ class ChildDecorator < BaseDecorator
     model.children_source.details
   end
 
+  def channel
+    return unless model.source
+
+    model.source.decorate.channel
+  end
+
   def icon_class
     :baby
   end

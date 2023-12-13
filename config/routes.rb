@@ -14,7 +14,7 @@ Rails.application.routes.draw do
   get 'inscription5', to: 'children#new', as: :new_local_partner_registration
 
   # Créer formulaire bao
-  # Créer formulaire partenaire locaux
+  # Créer formulaire partenaires locaux
 
   post 'inscription', to: 'children#create', as: :children
   post 'inscription1', to: 'children#create', as: :children1

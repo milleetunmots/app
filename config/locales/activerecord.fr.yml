@@ -69,6 +69,7 @@ fr:
         child_support: Suivi
         child_support_id: Fiche de suivi
         city_name: Ville
+        channel : Canal d'inscription
         family_redirection_unique_visit_rate: "Taux de visites uniques familiales d'URL courtes"
         family_redirection_unique_visits: URL visitées
         family_redirection_url_unique_visits_count: "Visites familiales uniques d'URL courtes"
@@ -569,7 +570,7 @@ fr:
         bao: Bouche à oreille
         caf: CAF
         pmi: PMI
-        local_partner: Partenaire locaux
+        local_partner: Partenaire local
       support_module:
         << : *SHARED
         ages: Tranche d'âge

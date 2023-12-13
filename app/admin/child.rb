@@ -381,6 +381,7 @@ ActiveAdmin.register Child do
           row :age
           row :gender, &:gender_status
           row :source
+          row :channel
           row :source_details
           row :territory
           row :land
