@@ -7,11 +7,11 @@ $(document).ready(function() {
     $input.change(function() {
       $.getJSON(`/parents/${$(id).val()}/current_child_source`, function(child_informations) {
         if ("source" in child_informations) {
-          $('#child_children_source_source').val(child_informations.source).change();
+          $('#child_children_source_attributes_source_id').val(child_informations.source).change();
           addTags(["fratrie ajoutée"])
         }
         if ("source_details" in child_informations) {
-          $('#child_children_source_details').val(child_informations.source_details);
+          $('#child_children_source_attributes_details').val(child_informations.source_details);
         }
         if ("group_id" in child_informations) {
           $('#child_group_id').val(child_informations.group_id).change();
