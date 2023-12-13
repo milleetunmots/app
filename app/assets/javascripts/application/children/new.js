@@ -8,20 +8,24 @@
     if (pathName === '/inscription2') {
       var params = url.searchParams;
       var utmCaf = params.get('utm_caf') || undefined;
+      var childrenSourceSelect = $('#child_children_source_attributes_source_id');
+      var optionToRemove = Array.from(childrenSourceSelect.children()).find(option => option.text === 'Mon entourage')
 
       if (value === 'caf') {
         $('#child_children_source_source_id_div').show();
+        if (optionToRemove !== undefined) {
+          optionToRemove.remove();
+        }
         if (utmCaf !== undefined) {
           $.ajax({
             type: 'GET',
             url: '/sources/caf_by_utm?utm_caf='+utmCaf
           }).done(function(data) {
-            $('#child_children_source_attributes_source_id').val(data.id)
-            $('#child_children_source_attributes_source_id').trigger('change')
+            childrenSourceSelect.val(data.id)
+            childrenSourceSelect.trigger('change')
           });
         }
       } else if (value === 'bao' ) {
-        var childrenSourceSelect = $('#child_children_source_attributes_source_id');
         if (!Array.from(childrenSourceSelect.children()).some(option => option.text === 'Mon entourage')) {
           $.ajax({
             type: 'GET',
