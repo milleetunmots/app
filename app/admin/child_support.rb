@@ -306,33 +306,31 @@ ActiveAdmin.register ChildSupport do
 
             f.input "call#{call_idx}_notes", input_html: { rows: 5, style: 'width: 100%' }
 
-            columns do
-              column do
-                f.input "call#{call_idx}_technical_information",
+            f.input "call#{call_idx}_technical_information",
                         input_html: {
-                          rows: 8,
-                          style: 'width: 70%',
+                          rows: 5,
+                          style: 'width: 100%',
                           value: f.object.send("call#{call_idx}_technical_information").presence ||
                                  I18n.t('child_support.default.call_technical_information')
                         }
+
+            columns do
+              column do
+                unless call_idx.zero?
+                  f.input "call#{call_idx}_previous_call_goals", as: :text,
+                          input_html: {
+                            rows: 8,
+                            readonly: true,
+                            style: 'width: 70%',
+                            value: f.object.send("call#{call_idx}_previous_call_goals").html_safe
+                          }
+                end
 
                 unless call_idx.zero?
                   f.input "call#{call_idx}_goals_tracking",
                           input_html: {
                             rows: 8,
-                            style: 'width: 70%',
-                            value: case call_idx
-                                   when 1
-                                    resource.previous_call_goals(1)
-                                   when 2
-                                    resource.previous_call_goals(2)
-                                   when 3
-                                    resource.previous_call_goals(3)
-                                   when 4
-                                    resource.previous_call_goals(4)
-                                   else
-                                    resource.previous_call_goals(5)
-                                   end
+                            style: 'width: 70%'
                           }
                 end
 

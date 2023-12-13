@@ -214,6 +214,7 @@ fr:
         call0_sendings_benefits: Apport des envois
         call0_sendings_benefits_details: Verbatim
         call0_technical_information: Retour sur les envois
+        call0_previous_call_goals: Petite mission précédente (Non modifiable)
         call1_duration: Durée de l'appel 1 (en minutes)
         call1_status: Statut de l'appel 1
         call1_status_details: Suivi de l'appel 1
@@ -231,6 +232,7 @@ fr:
         call1_technical_information: Retour sur les envois
         call1_goals_tracking: Suivi petite mission
         call1_previous_goals_follow_up: Petite mission de l’appel 0
+        call1_previous_call_goals: Petite mission précédente (Non modifiable)
         call2_duration: Durée de l'appel 2 (en minutes)
         call2_status: Statut de l'appel 2
         call2_status_details: Suivi de l'appel 2
@@ -248,6 +250,7 @@ fr:
         call2_sendings_benefits_details: Verbatim
         call2_technical_information: Retour sur les envois
         call2_goals_tracking: Suivi petite mission
+        call2_previous_call_goals: Petite mission précédente (Non modifiable)
         call3_duration: Durée de l'appel 3 (en minutes)
         call3_status: Statut de l'appel 3
         call3_status_details: Suivi de l'appel 3
@@ -263,6 +266,7 @@ fr:
         call3_sendings_benefits_details: Verbatim
         call3_technical_information: Retour sur les envois
         call3_goals_tracking: Suivi petite mission
+        call3_previous_call_goals: Petite mission précédente (Non modifiable)
         call4_duration: Durée de l'appel 4 (en minutes)
         call4_status: Statut de l'appel 4
         call4_status_details: Suivi de l'appel 4
@@ -278,6 +282,7 @@ fr:
         call4_sendings_benefits_details: Verbatim
         call4_technical_information: Retour sur les envois
         call4_goals_tracking: Suivi petite mission
+        call4_previous_call_goals: Petite mission précédente (Non modifiable)
         call5_duration: Durée de l'appel 5 (en minutes)
         call5_status: Statut de l'appel 5
         call5_status_details: Suivi de l'appel 5
@@ -293,6 +298,7 @@ fr:
         call5_sendings_benefits_details: Verbatim
         call5_technical_information: Retour sur les envois
         call5_goals_tracking: Suivi petite mission
+        call5_previous_call_goals: Petite mission précédente (Non modifiable)
         call0_goals_sms: SMS petite mission
         call1_goals_sms: SMS petite mission
         call2_goals_sms: SMS petite mission
