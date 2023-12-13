@@ -61,6 +61,9 @@ ActiveAdmin.register Child do
   scope :available_for_the_workshops, group: :workshop
 
   scope :only_siblings, group: :siblings
+  scope('Doublons potentiels', if: proc { !current_admin_user.caller? }) do |scope|
+    scope.merge(Child.potential_duplicates)
+  end
 
   filter :gender,
          as: :check_boxes,
