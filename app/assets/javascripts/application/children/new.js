@@ -1,47 +1,31 @@
 (function($) {
   var url = new URL(window.location.href);
   var pathName = url.pathname;
+  var childrenSourceSelect = $('#child_children_source_attributes_source_id');
+
+  var changeChildrenSourceSelectOptions = function(options) {
+    childrenSourceSelect.empty();
+    childrenSourceSelect.select2({ data: options });
+    childrenSourceSelect.data().select2.$container.addClass("form-control");
+  }
 
   var showCafSelection = function() {
     var value = $(this).val();
 
     if (pathName === '/inscription2') {
-      var params = url.searchParams;
-      var utmCaf = params.get('utm_caf') || undefined;
-      var childrenSourceSelect = $('#child_children_source_attributes_source_id');
-      var optionToRemove = Array.from(childrenSourceSelect.children()).find(option => option.text === 'Mon entourage')
-
       if (value === 'caf') {
         $('#child_children_source_source_id_div').show();
-        if (optionToRemove !== undefined) {
-          optionToRemove.remove();
-        }
-        if (utmCaf !== undefined) {
-          $.ajax({
-            type: 'GET',
-            url: '/sources/caf_by_utm?utm_caf='+utmCaf
-          }).done(function(data) {
-            childrenSourceSelect.val(data.id)
-            childrenSourceSelect.trigger('change')
-          });
+        changeChildrenSourceSelectOptions(window.cafOptions);
+        if (window.utmCaf !== undefined) {
+          childrenSourceSelect.val(window.utmCaf)
+          childrenSourceSelect.trigger('change')
         }
       } else if (value === 'bao' ) {
-        if (!Array.from(childrenSourceSelect.children()).some(option => option.text === 'Mon entourage')) {
-          $.ajax({
-            type: 'GET',
-            url: '/sources/friends'
-          }).done(function(data) {
-            var option = document.createElement("option");
-            option.value = data.id;
-            option.text = data.name;
-            childrenSourceSelect.append(option);
-            childrenSourceSelect.val(data.id);
-            childrenSourceSelect.trigger('change');
-          });
-        }
+        changeChildrenSourceSelectOptions(window.friendOption);
+        childrenSourceSelect.val(window.friendOption[0].id).trigger('change');
         $('#child_children_source_source_id_div').hide();
       }
-    }else if (pathName === '/inscription5') {
+    } else if (pathName === '/inscription5') {
       $('#registration_department_select').hide();
       $(document).on('change', 'select[id="child_children_source_attributes_source_id"]', ()=> {
         const selectedValue = $('select[id="child_children_source_attributes_source_id"]').val();
@@ -95,8 +79,32 @@
   };
 
   var init = function() {
-    var $source_select2 = $('#child_children_source_attributes_source_id').select2();
-    $source_select2.data().select2.$container.addClass("form-control");
+    childrenSourceSelect.select2();
+    childrenSourceSelect.data().select2.$container.addClass("form-control");
+    window.friendOption = []; // setup "Mon entourage" option
+    // setup CAF options
+    window.utmCaf = undefined;
+    window.cafOptions = childrenSourceSelect.find('option').map(function() {
+      return { id: $(this).val(), text: $(this).text() };
+    }).get();
+    $.ajax({
+      type: 'GET',
+      url: '/sources/friends'
+    }).done(function(data) {
+      window.friendOption = [{ id: data.id, text: data.name }];
+    });
+
+    var utmCaf = url.searchParams.get('utm_caf') || undefined;
+    if (utmCaf !== undefined) {
+      $.ajax({
+        type: 'GET',
+        url: '/sources/caf_by_utm?utm_caf='+utmCaf
+      }).done(function(data) {
+        window.utmCaf = data.id;
+        childrenSourceSelect.val(window.utmCaf);
+        childrenSourceSelect.trigger('change');
+      });
+    }
 
     if (pathName === '/inscription5') {
       var $source_department_select2 = $('#child_children_source_attributes_registration_department').select2();
