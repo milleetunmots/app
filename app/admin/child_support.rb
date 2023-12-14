@@ -546,6 +546,7 @@ ActiveAdmin.register ChildSupport do
     column :id
     column(:supporter) { |cs| cs.supporter_name }
     column(:parent1_gender) { |cs| Parent.human_attribute_name("gender.#{cs.parent1_gender}") }
+    column :children_sources
     column :child_support_groups
     column :children_land
     column :parent1_available_support_modules
