@@ -329,8 +329,6 @@ ActiveAdmin.register Child do
                 max_date: Child.max_birthdate
               }
       f.input :available_for_workshops
-      # f.input :source_id, as: :select, collection: source_select_collection
-      # f.input :details
       f.inputs do
         f.semantic_fields_for :children_source, (f.object.children_source || ChildrenSource.new) do |children_source_f|
           children_source_f.input :source_id,
@@ -339,14 +337,6 @@ ActiveAdmin.register Child do
           children_source_f.input :details
         end
       end
-      # f.fields_for :children_source_attributes do |children_source_f|
-      #   children_source_f.inputs "toto", for: [:children_source, f.object.children_source || ChildrenSource.new] do
-      #     children_source_f.input :source_id,
-      #       as: :select,
-      #       collection: source_select_collection
-      #     children_source_f.input :details
-      #   end
-      # end
       f.input :group,
               collection: child_group_select_collection,
               input_html: { data: { select2: {} } }
@@ -555,15 +545,6 @@ ActiveAdmin.register Child do
   end
 
   controller do
-    # def new
-    #   super
-    #   @child.build_children_source
-    # end
-
-    # def edit
-    #   super
-    # end
-
     after_save do |child|
       next if child.errors.any?
 
