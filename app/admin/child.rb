@@ -499,6 +499,10 @@ ActiveAdmin.register Child do
     column :territory
     column :land
 
+    column :children_source_name
+    column :channel
+    column :source_details
+
     column :child_group_name
     column :child_group_months
     column :months_between_registration_and_group_start

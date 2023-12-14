@@ -483,7 +483,6 @@ class Child < ApplicationRecord
            prefix: true,
            allow_nil: true
 
-
   delegate :name, :details, to: :children_source, prefix: true, allow_nil: true
 
   # computes an (integer) number of months old

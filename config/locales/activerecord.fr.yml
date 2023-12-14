@@ -69,6 +69,7 @@ fr:
         child_support_id: Fiche de suivi
         city_name: Ville
         channel : Canal d'inscription
+        children_source_name: Source d'inscription
         family_redirection_unique_visit_rate: "Taux de visites uniques familiales d'URL courtes"
         family_redirection_unique_visits: URL visitées
         family_redirection_url_unique_visits_count: "Visites familiales uniques d'URL courtes"
