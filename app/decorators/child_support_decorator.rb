@@ -47,6 +47,10 @@ class ChildSupportDecorator < BaseDecorator
     children_attribute(:gender, glue)
   end
 
+  def children_sources
+    model.children.map(&:children_source_name).join("\n")
+  end
+
   def children_land(glue = "\n")
     children_attribute(:land, glue)
   end

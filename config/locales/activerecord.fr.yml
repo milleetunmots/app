@@ -281,7 +281,7 @@ fr:
         children_birthdates: Date de naissance des enfants
         children_ages: Age des enfants
         children_genders: Sexe des enfants
-        children_registration_sources: Origines des enfants
+        children_sources: Origines des enfants
         groups: Cohortes
         child_support_groups: Cohortes
         important_information: Infos importantes
