@@ -264,13 +264,7 @@ class ChildSupportDecorator < BaseDecorator
 
   def parent(parent)
     return nil unless parent
+
     parent.decorate.admin_link
   end
-
-  # def parent_card(parent, should_contact_parent)
-  #  if parent
-  #     h.render 'parent', parent: parent.decorate, should_contact_parent: should_contact_parent
-  #   end
-  # end
-
 end
