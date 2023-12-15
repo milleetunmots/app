@@ -125,6 +125,10 @@ class Parent < ApplicationRecord
             uniqueness: { case_sensitive: false, allow_blank: true }
   validates :terms_accepted_at, presence: true
 
+  scope :potential_duplicates, -> {
+    where("parents.phone_number IN (SELECT phone_number FROM parents GROUP BY parents.phone_number HAVING COUNT(*) > 1)")
+  }
+
   def initialize(attributes = {})
     super
     self.security_code = SecureRandom.hex(1)

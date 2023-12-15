@@ -63,7 +63,7 @@ class ChildSupport::SelectModuleService
       is_module_3 = @child.group.with_module_zero? ? @module_index.eql?(4) : @module_index.eql?(3)
       ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: reminder_date.to_datetime.change(hour: 6)).perform_later(@children_support_module.id, reminder_date)
       # second reminder only for Module 3
-      ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: reminder_date.to_datetime.change(hour: 6)).perform_later(@children_support_module.id, reminder_date + 2.days, true) if is_module_3
+      ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: (reminder_date + 2.days).to_datetime.change(hour: 6)).perform_later(@children_support_module.id, reminder_date + 2.days, true) if is_module_3
     end
   end
 

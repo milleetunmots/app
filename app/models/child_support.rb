@@ -340,6 +340,10 @@ class ChildSupport < ApplicationRecord
     define_method("call#{call_idx}_parent_progress_index") do
       (send("call#{call_idx}_parent_progress") || '').split('_').first&.to_i
     end
+
+    define_method("call#{call_idx}_previous_call_goals") do
+      call_idx.zero? ? '' : previous_call_goals(call_idx).strip
+    end
   end
 
   def self.call_attributes

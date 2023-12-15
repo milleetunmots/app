@@ -12,6 +12,11 @@ ActiveAdmin.register Parent do
   # INDEX
   # ---------------------------------------------------------------------------
 
+  scope :all, default: true
+  scope('Doublons potentiels - téléphone', if: proc { !current_admin_user.caller? }) do |scope|
+    scope.merge(Parent.potential_duplicates)
+  end
+
   index do
     selectable_column
     id_column
