@@ -45,30 +45,12 @@ class Group
     end
 
     def order_child_supports
-      # we want to order child_supports by registration_source, then by land, then by department
       child_supports_order_by_registration_source = @group.child_supports.joins(children: :source).where(children: { group_status: 'active' }).uniq.group_by { |cs| cs.current_child.source.channel }
-
       child_supports_order_by_registration_source.each do |registration_source, child_supports|
-        child_supports_order_by_registration_source[registration_source] = if %w[pmi caf].include? registration_source
-                                                                            child_supports.group_by { |child_support| child_support.current_child.source.name }
-                                                                           else
-                                                                            child_supports.group_by { |child_support| child_support.decorate.land }
-                                                                           end
-
-        # some child_supports doesn't have a land, so they are present in a key nil
-        # we take them out of the hash
-        left_overs_child_supports = child_supports_order_by_registration_source[registration_source].delete(nil)
-
-        next if left_overs_child_supports.nil?
-
-        # we sort them by department
-        child_supports_by_department = left_overs_child_supports.group_by { |child_support| child_support.postal_code.first(2) }
-
-        # we merge them back into the hash
-        child_supports_order_by_registration_source[registration_source].merge!(child_supports_by_department)
+        child_supports_order_by_registration_source[registration_source] = child_supports.group_by { |child_support| child_support.current_child.source.name }
       end
-
       child_supports_order_by_registration_source
+      # @group.child_supports.joins(children: :source).where(children: { group_status: 'active' }).uniq.group_by { |cs| cs.current_child.source.name }
     end
 
     def associate_child_support_to_supporters(child_supports_order_by_registration_source)
@@ -80,8 +62,8 @@ class Group
       # - child_supports from the registration_source 'other' are distributed evenly among supporters
 
       smallest_registration_sources_first = child_supports_order_by_registration_source.to_a.sort do |first, second|
-        # first = [registration_source, { land => [child_supports], other_land => [child_supports] }]
-        # second = [registration_source, { land => [child_supports], other_land => [child_supports] }]
+        # first = [registration_source_name, [child_supports]]
+        # second = [registration_source_name, { land => [child_supports], other_land => [child_supports] }]
 
         first[1].values.sum(&:size) <=> second[1].values.sum(&:size)
       end
@@ -89,7 +71,7 @@ class Group
       child_supports_with_sibling = @group.child_supports.joins(:children).where(children: { group_status: 'active' }).group(:id).having('COUNT(child_supports.id) > 1').pluck(:id)
       max_siblings_by_supporter_count = child_supports_with_sibling.count / @child_supports_count_by_supporter.count
 
-      other_child_supports_count = child_supports_order_by_registration_source['other'].values.sum(&:size)
+      other_child_supports_count = child_supports_order_by_registration_source['bao']['Autre'].size
       max_other_child_supports_by_supporter_count = (other_child_supports_count.to_f / @child_supports_count_by_supporter.count).ceil
 
       other_by_supporter = {}
@@ -104,7 +86,7 @@ class Group
         break if @group.child_supports.joins(:children).where(supporter_id: nil, children: { group_status: 'active' }).count.zero?
 
         smallest_registration_sources_first.each do |registration_source|
-          registration_source[1].each do |_land, child_supports|
+          registration_source[1].each do |source_name, child_supports|
             @child_supports_count_by_supporter.each do |supporter_with_capacity|
               child_supports.each do |child_support|
                 break if supporter_with_capacity[:child_supports_count].zero?
@@ -122,17 +104,17 @@ class Group
                   end
 
                   # rule to distribute child_supports from the registration_source 'other' evenly
-                  if registration_source[0] == 'other'
+                  if registration_source[0] == 'bao' && source_name == 'Autre'
                     other_by_supporter[supporter_with_capacity[:admin_user_id]] ||= 0
                     other_by_supporter[supporter_with_capacity[:admin_user_id]] += 1
                     break if other_by_supporter[supporter_with_capacity[:admin_user_id]] > max_other_child_supports_by_supporter_count
                   end
 
-                  # rule to distribute child_supports from different registration_sources evenly
-                  if registration_source[0].in?(%w[therapist nursery doctor resubscribing other])
-                    not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] ||= registration_source[0]
-                    break if registration_source[0] != not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]]
-                  end
+                  # # rule to distribute child_supports from different registration_sources evenly
+                  # if registration_source[0].in?(%w[therapist nursery doctor resubscribing other])
+                  #   not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]] ||= registration_source[0]
+                  #   break if registration_source[0] != not_pmi_caf_or_friends[supporter_with_capacity[:admin_user_id]]
+                  # end
                 end
 
                 child_support.update!(supporter_id: supporter_with_capacity[:admin_user_id])
