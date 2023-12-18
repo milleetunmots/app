@@ -112,14 +112,15 @@ class ProgramMessageService
     end
   end
 
-  def redirection_url_for_a_parent(parent)
-    redirection_url = parent.redirection_urls.find_by(child_id: parent.current_child.id, parent_id: parent.id, redirection_target_id: @redirection_target.id)
+  def redirection_url_for_a_parent(parent, child_id = nil)
+    targeted_child_id = child_id || parent.current_child.id
+    redirection_url = parent.redirection_urls.find_by(child_id: targeted_child_id, parent_id: parent.id, redirection_target_id: @redirection_target.id)
 
     if redirection_url.nil?
       redirection_url = RedirectionUrl.new(
         redirection_target_id: @redirection_target.id,
         parent_id: parent.id,
-        child_id: parent.current_child.id
+        child_id: targeted_child_id
       )
       @errors << "Problème(s) avec l'url courte." unless redirection_url.save
     end
