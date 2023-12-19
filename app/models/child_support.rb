@@ -116,6 +116,8 @@
 #  other_phone_number                    :string
 #  parent1_available_support_module_list :string           is an Array
 #  parent2_available_support_module_list :string           is an Array
+#  parent_mid_term_rate                  :integer
+#  parent_mid_term_reaction              :string
 #  second_language                       :string
 #  should_be_read                        :boolean
 #  to_call                               :boolean
