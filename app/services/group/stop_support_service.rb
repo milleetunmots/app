@@ -39,7 +39,7 @@ class Group
     def sms_count(message, children_count)
       sms_to_send_count = 0
       sms_to_send_count += (message.gsub('{URL}', 'https://app.1001mots.org/r/xxxxxx/xx').size / 160) + 1
-      sms_to_send_count *= children_count
+      sms_to_send_count *= @children.parents.count # account for potential parent 2
       sms_to_send_count
     end
 
@@ -63,7 +63,7 @@ class Group
     end
 
     def program_message(children, message, date: Time.zone.today, link_id: @link_id, hour: '12:30')
-      service = ProgramMessageService.new(date, hour, children.map { |child| "child.#{child.id}" }, message, nil, link_id).call
+      service = Child::StopSupportMessageService.new(date, hour, children.map { |child| "child.#{child.id}" }, message, nil, link_id).call
       @errors += service.errors if service.errors.any?
     end
   end
