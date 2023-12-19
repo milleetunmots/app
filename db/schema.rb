@@ -131,153 +131,161 @@ ActiveRecord::Schema.define(version: 2024_02_01_155257) do
     t.integer 'avis_pas_adapte'
   end
 
-  create_table 'child_supports', force: :cascade do |t|
-    t.text 'important_information'
-    t.text 'call1_parent_actions'
-    t.text 'call1_language_development'
-    t.string 'call1_parent_progress'
-    t.text 'call1_notes'
-    t.text 'call2_technical_information'
-    t.text 'call2_parent_actions'
-    t.text 'call2_language_development'
-    t.text 'call2_goals'
-    t.text 'call2_notes'
-    t.text 'call3_technical_information'
-    t.text 'call3_parent_actions'
-    t.text 'call3_language_development'
-    t.text 'call3_goals'
-    t.text 'call3_notes'
-    t.datetime 'created_at', precision: 6, null: false
-    t.datetime 'updated_at', precision: 6, null: false
-    t.bigint 'supporter_id'
-    t.boolean 'should_be_read'
-    t.string 'call1_status'
-    t.string 'call2_status'
-    t.string 'call3_status'
-    t.text 'call1_status_details'
-    t.text 'call2_status_details'
-    t.text 'call3_status_details'
-    t.integer 'call1_duration'
-    t.integer 'call2_duration'
-    t.integer 'call3_duration'
-    t.string 'call1_reading_frequency'
-    t.string 'call2_language_awareness'
-    t.string 'call2_parent_progress'
-    t.string 'call3_language_awareness'
-    t.string 'call3_parent_progress'
-    t.string 'book_not_received'
-    t.string 'call3_sendings_benefits'
-    t.text 'call3_sendings_benefits_details'
-    t.boolean 'is_bilingual'
-    t.string 'second_language'
-    t.string 'call1_language_awareness'
-    t.text 'call1_goals'
-    t.string 'call2_reading_frequency'
-    t.string 'call3_reading_frequency'
-    t.string 'call2_sendings_benefits'
-    t.text 'call2_sendings_benefits_details'
-    t.datetime 'discarded_at'
-    t.text 'call4_technical_information'
-    t.text 'call4_parent_actions'
-    t.text 'call4_language_development'
-    t.text 'call4_goals'
-    t.text 'call4_notes'
-    t.string 'call4_status'
-    t.text 'call4_status_details'
-    t.integer 'call4_duration'
-    t.string 'call4_language_awareness'
-    t.string 'call4_parent_progress'
-    t.string 'call4_sendings_benefits'
-    t.text 'call4_sendings_benefits_details'
-    t.string 'call4_reading_frequency'
-    t.text 'call5_technical_information'
-    t.text 'call5_parent_actions'
-    t.text 'call5_language_development'
-    t.text 'call5_goals'
-    t.text 'call5_notes'
-    t.string 'call5_status'
-    t.text 'call5_status_details'
-    t.integer 'call5_duration'
-    t.string 'call5_language_awareness'
-    t.string 'call5_parent_progress'
-    t.string 'call5_sendings_benefits'
-    t.text 'call5_sendings_benefits_details'
-    t.string 'call5_reading_frequency'
-    t.string 'call1_sendings_benefits'
-    t.text 'call1_sendings_benefits_details'
-    t.text 'call1_technical_information'
-    t.boolean 'to_call'
-    t.string 'books_quantity'
-    t.text 'notes'
-    t.boolean 'will_stay_in_group', default: false, null: false
-    t.string 'availability'
-    t.string 'call_infos'
-    t.string 'other_phone_number'
-    t.integer 'child_count'
-    t.string 'call1_tv_frequency'
-    t.string 'call2_tv_frequency'
-    t.string 'call3_tv_frequency'
-    t.string 'call4_tv_frequency'
-    t.string 'call5_tv_frequency'
-    t.string 'most_present_parent'
-    t.boolean 'already_working_with'
-    t.text 'call2_goals_tracking'
-    t.text 'call3_goals_tracking'
-    t.text 'call4_goals_tracking'
-    t.text 'call5_goals_tracking'
-    t.string 'call2_family_progress'
-    t.string 'call2_previous_goals_follow_up'
-    t.string 'parent1_available_support_module_list', array: true
-    t.string 'parent2_available_support_module_list', array: true
-    t.text 'call0_parent_actions'
-    t.text 'call0_language_development'
-    t.text 'call0_notes'
-    t.string 'call0_status'
-    t.string 'call0_parent_progress'
-    t.integer 'call0_duration'
-    t.string 'call0_reading_frequency'
-    t.string 'call0_language_awareness'
-    t.text 'call0_goals'
-    t.string 'call0_sendings_benefits'
-    t.text 'call0_sendings_benefits_details'
-    t.text 'call0_technical_information'
-    t.string 'call0_tv_frequency'
-    t.text 'call0_status_details'
-    t.text 'call1_goals_tracking'
-    t.string 'call1_family_progress'
-    t.string 'call1_previous_goals_follow_up'
-    t.bigint 'module2_chosen_by_parents_id'
-    t.bigint 'module3_chosen_by_parents_id'
-    t.bigint 'module4_chosen_by_parents_id'
-    t.bigint 'module5_chosen_by_parents_id'
-    t.text 'call0_goals_sms'
-    t.text 'call1_goals_sms'
-    t.text 'call2_goals_sms'
-    t.text 'call3_goals_sms'
-    t.text 'call4_goals_sms'
-    t.text 'call5_goals_sms'
-    t.integer 'parent_mid_term_rate'
-    t.string 'parent_mid_term_reaction'
-    t.index ['book_not_received'], name: 'index_child_supports_on_book_not_received'
-    t.index ['call0_parent_progress'], name: 'index_child_supports_on_call0_parent_progress'
-    t.index ['call0_reading_frequency'], name: 'index_child_supports_on_call0_reading_frequency'
-    t.index ['call0_tv_frequency'], name: 'index_child_supports_on_call0_tv_frequency'
-    t.index ['call1_parent_progress'], name: 'index_child_supports_on_call1_parent_progress'
-    t.index ['call1_reading_frequency'], name: 'index_child_supports_on_call1_reading_frequency'
-    t.index ['call1_tv_frequency'], name: 'index_child_supports_on_call1_tv_frequency'
-    t.index ['call2_language_awareness'], name: 'index_child_supports_on_call2_language_awareness'
-    t.index ['call2_parent_progress'], name: 'index_child_supports_on_call2_parent_progress'
-    t.index ['call3_language_awareness'], name: 'index_child_supports_on_call3_language_awareness'
-    t.index ['call3_parent_progress'], name: 'index_child_supports_on_call3_parent_progress'
-    t.index ['call4_language_awareness'], name: 'index_child_supports_on_call4_language_awareness'
-    t.index ['call4_parent_progress'], name: 'index_child_supports_on_call4_parent_progress'
-    t.index ['call5_language_awareness'], name: 'index_child_supports_on_call5_language_awareness'
-    t.index ['call5_parent_progress'], name: 'index_child_supports_on_call5_parent_progress'
-    t.index ['discarded_at'], name: 'index_child_supports_on_discarded_at'
-    t.index ['parent1_available_support_module_list'], name: 'index_child_supports_on_parent1_available_support_module_list', using: :gin
-    t.index ['parent2_available_support_module_list'], name: 'index_child_supports_on_parent2_available_support_module_list', using: :gin
-    t.index ['should_be_read'], name: 'index_child_supports_on_should_be_read'
-    t.index ['supporter_id'], name: 'index_child_supports_on_supporter_id'
+  create_table "child_supports", force: :cascade do |t|
+    t.text "important_information"
+    t.text "call1_parent_actions"
+    t.text "call1_language_development"
+    t.string "call1_parent_progress"
+    t.text "call1_notes"
+    t.text "call2_technical_information"
+    t.text "call2_parent_actions"
+    t.text "call2_language_development"
+    t.text "call2_goals"
+    t.text "call2_notes"
+    t.text "call3_technical_information"
+    t.text "call3_parent_actions"
+    t.text "call3_language_development"
+    t.text "call3_goals"
+    t.text "call3_notes"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "supporter_id"
+    t.boolean "should_be_read"
+    t.string "call1_status"
+    t.string "call2_status"
+    t.string "call3_status"
+    t.text "call1_status_details"
+    t.text "call2_status_details"
+    t.text "call3_status_details"
+    t.integer "call1_duration"
+    t.integer "call2_duration"
+    t.integer "call3_duration"
+    t.string "call1_reading_frequency"
+    t.string "call2_language_awareness"
+    t.string "call2_parent_progress"
+    t.string "call3_language_awareness"
+    t.string "call3_parent_progress"
+    t.string "book_not_received"
+    t.string "call3_sendings_benefits"
+    t.text "call3_sendings_benefits_details"
+    t.boolean "is_bilingual"
+    t.string "second_language"
+    t.string "call1_language_awareness"
+    t.text "call1_goals"
+    t.string "call2_reading_frequency"
+    t.string "call3_reading_frequency"
+    t.string "call2_sendings_benefits"
+    t.text "call2_sendings_benefits_details"
+    t.datetime "discarded_at"
+    t.text "call4_technical_information"
+    t.text "call4_parent_actions"
+    t.text "call4_language_development"
+    t.text "call4_goals"
+    t.text "call4_notes"
+    t.string "call4_status"
+    t.text "call4_status_details"
+    t.integer "call4_duration"
+    t.string "call4_language_awareness"
+    t.string "call4_parent_progress"
+    t.string "call4_sendings_benefits"
+    t.text "call4_sendings_benefits_details"
+    t.string "call4_reading_frequency"
+    t.text "call5_technical_information"
+    t.text "call5_parent_actions"
+    t.text "call5_language_development"
+    t.text "call5_goals"
+    t.text "call5_notes"
+    t.string "call5_status"
+    t.text "call5_status_details"
+    t.integer "call5_duration"
+    t.string "call5_language_awareness"
+    t.string "call5_parent_progress"
+    t.string "call5_sendings_benefits"
+    t.text "call5_sendings_benefits_details"
+    t.string "call5_reading_frequency"
+    t.string "call1_sendings_benefits"
+    t.text "call1_sendings_benefits_details"
+    t.text "call1_technical_information"
+    t.boolean "to_call"
+    t.string "books_quantity"
+    t.text "notes"
+    t.boolean "will_stay_in_group", default: false, null: false
+    t.string "availability"
+    t.string "call_infos"
+    t.string "other_phone_number"
+    t.integer "child_count"
+    t.string "call1_tv_frequency"
+    t.string "call2_tv_frequency"
+    t.string "call3_tv_frequency"
+    t.string "call4_tv_frequency"
+    t.string "call5_tv_frequency"
+    t.string "most_present_parent"
+    t.boolean "already_working_with"
+    t.text "call2_goals_tracking"
+    t.text "call3_goals_tracking"
+    t.text "call4_goals_tracking"
+    t.text "call5_goals_tracking"
+    t.string "call2_family_progress"
+    t.string "call2_previous_goals_follow_up"
+    t.string "parent1_available_support_module_list", array: true
+    t.string "parent2_available_support_module_list", array: true
+    t.text "call0_parent_actions"
+    t.text "call0_language_development"
+    t.text "call0_notes"
+    t.string "call0_status"
+    t.string "call0_parent_progress"
+    t.integer "call0_duration"
+    t.string "call0_reading_frequency"
+    t.string "call0_language_awareness"
+    t.text "call0_goals"
+    t.string "call0_sendings_benefits"
+    t.text "call0_sendings_benefits_details"
+    t.text "call0_technical_information"
+    t.string "call0_tv_frequency"
+    t.text "call0_status_details"
+    t.text "call1_goals_tracking"
+    t.string "call1_family_progress"
+    t.string "call1_previous_goals_follow_up"
+    t.bigint "module2_chosen_by_parents_id"
+    t.bigint "module3_chosen_by_parents_id"
+    t.bigint "module4_chosen_by_parents_id"
+    t.bigint "module5_chosen_by_parents_id"
+    t.text "call0_goals_sms"
+    t.text "call1_goals_sms"
+    t.text "call2_goals_sms"
+    t.text "call3_goals_sms"
+    t.text "call4_goals_sms"
+    t.text "call5_goals_sms"
+    t.integer "parent_mid_term_rate"
+    t.string "parent_mid_term_reaction"
+    t.bigint "module2_chosen_by_parents_id"
+    t.bigint "module3_chosen_by_parents_id"
+    t.bigint "module4_chosen_by_parents_id"
+    t.bigint "module5_chosen_by_parents_id"
+    t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
+    t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
+    t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
+    t.index ["call0_tv_frequency"], name: "index_child_supports_on_call0_tv_frequency"
+    t.index ["call1_parent_progress"], name: "index_child_supports_on_call1_parent_progress"
+    t.index ["call1_reading_frequency"], name: "index_child_supports_on_call1_reading_frequency"
+    t.index ["call1_tv_frequency"], name: "index_child_supports_on_call1_tv_frequency"
+    t.index ["call2_language_awareness"], name: "index_child_supports_on_call2_language_awareness"
+    t.index ["call2_parent_progress"], name: "index_child_supports_on_call2_parent_progress"
+    t.index ["call3_language_awareness"], name: "index_child_supports_on_call3_language_awareness"
+    t.index ["call3_parent_progress"], name: "index_child_supports_on_call3_parent_progress"
+    t.index ["call4_language_awareness"], name: "index_child_supports_on_call4_language_awareness"
+    t.index ["call4_parent_progress"], name: "index_child_supports_on_call4_parent_progress"
+    t.index ["call5_language_awareness"], name: "index_child_supports_on_call5_language_awareness"
+    t.index ["call5_parent_progress"], name: "index_child_supports_on_call5_parent_progress"
+    t.index ["discarded_at"], name: "index_child_supports_on_discarded_at"
+    t.index ["module2_chosen_by_parents_id"], name: "index_child_supports_on_module2_chosen_by_parents_id"
+    t.index ["module3_chosen_by_parents_id"], name: "index_child_supports_on_module3_chosen_by_parents_id"
+    t.index ["module4_chosen_by_parents_id"], name: "index_child_supports_on_module4_chosen_by_parents_id"
+    t.index ["module5_chosen_by_parents_id"], name: "index_child_supports_on_module5_chosen_by_parents_id"
+    t.index ["parent1_available_support_module_list"], name: "index_child_supports_on_parent1_available_support_module_list", using: :gin
+    t.index ["parent2_available_support_module_list"], name: "index_child_supports_on_parent2_available_support_module_list", using: :gin
+    t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
+    t.index ["supporter_id"], name: "index_child_supports_on_supporter_id"
   end
 
   create_table 'children', force: :cascade do |t|

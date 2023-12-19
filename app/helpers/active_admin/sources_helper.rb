@@ -25,7 +25,7 @@ module ActiveAdmin::SourcesHelper
   end
 
   def source_select_collection
-    Source.all.map { |source| [source.decorate.name, source.id] }.sort
+    Source.order(channel: :desc, department: :asc, name: :asc).map { |source| [source.decorate.name, source.id] }
   end
 
   def source_details_suggestions

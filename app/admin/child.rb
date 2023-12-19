@@ -307,14 +307,15 @@ ActiveAdmin.register Child do
   # ---------------------------------------------------------------------------
 
   form do |f|
+    parents_collection = child_parent_select_collection
     f.semantic_errors(*f.object.errors.keys)
     f.inputs do
       f.input :parent1,
-              collection: child_parent_select_collection,
+              collection: parents_collection,
               input_html: { data: { select2: {} } }
       f.input :should_contact_parent1
       f.input :parent2,
-              collection: child_parent_select_collection,
+              collection: parents_collection,
               input_html: { data: { select2: {} } }
       f.input :should_contact_parent2
       f.input :gender,
@@ -333,7 +334,8 @@ ActiveAdmin.register Child do
         f.semantic_fields_for :children_source, (f.object.children_source || ChildrenSource.new) do |children_source_f|
           children_source_f.input :source_id,
             as: :select,
-            collection: source_select_collection
+            collection: source_select_collection,
+            input_html: { data: { select2: {} } }
           children_source_f.input :details
         end
       end
