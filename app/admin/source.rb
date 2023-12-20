@@ -14,6 +14,7 @@ ActiveAdmin.register Source do
     column :department
     column :utm
     column :comment
+    column :children
     actions
   end
 
@@ -66,6 +67,7 @@ ActiveAdmin.register Source do
       row :department
       row :utm
       row :comment
+      row :children
       row :created_at
       row :updated_at
     end

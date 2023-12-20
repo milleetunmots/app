@@ -34,6 +34,7 @@ class Child
     private
 
     def add_registration_origin_as_tag
+      # add tags for bao / local_partner ?
       @attributes[:tag_list] = case @registration_origin
                                when 3 then 'form-pro'
                                when 2 then 'form-2'
