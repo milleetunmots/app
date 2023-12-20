@@ -34,6 +34,7 @@ class Child
     private
 
     def add_registration_origin_as_tag
+      # add tags for bao / local_partner ?
       @attributes[:tag_list] = case @registration_origin
                                when 3 then 'form-pro'
                                when 2 then 'form-2'
@@ -72,6 +73,7 @@ class Child
       @sms_url_form = "#{ENV['TYPEFORM_URL']}#child_support_id=#{@child.child_support.id}"
       message = "1001mots: Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{@sms_url_form}"
 
+      # send sms for new registration origins too ?
       SpotHit::SendSmsService.new([@child.parent1_id], Time.now.to_i, message).call if @registration_origin == 2
       SpotHit::SendSmsService.new([@child.parent1_id], DateTime.now.change({ hour: 19 }).to_i, message).call if @registration_origin == 3
     end

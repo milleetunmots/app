@@ -12,4 +12,8 @@ class SourceDecorator < BaseDecorator
   def channel
     Source.human_attribute_name("channel_list.#{model.channel}")
   end
+
+  def children
+    h.link_to model.children.count, admin_children_path(q: {source_id_in: [model.id]})
+  end
 end

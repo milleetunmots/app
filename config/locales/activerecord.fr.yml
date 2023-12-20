@@ -565,6 +565,7 @@ fr:
         department: Département
         comment: Commentaire
         utm: Utm
+        children: Enfants
       source/channel_list:
         bao: Bouche à oreille
         caf: CAF
