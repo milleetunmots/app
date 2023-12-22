@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_18_141318) do
+ActiveRecord::Schema.define(version: 2023_12_22_143634) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -239,16 +239,16 @@ ActiveRecord::Schema.define(version: 2023_12_18_141318) do
     t.text "call1_goals_tracking"
     t.string "call1_family_progress"
     t.string "call1_previous_goals_follow_up"
-    t.bigint "module2_chosen_by_parents_id"
-    t.bigint "module3_chosen_by_parents_id"
-    t.bigint "module4_chosen_by_parents_id"
-    t.bigint "module5_chosen_by_parents_id"
     t.text "call0_goals_sms"
     t.text "call1_goals_sms"
     t.text "call2_goals_sms"
     t.text "call3_goals_sms"
     t.text "call4_goals_sms"
     t.text "call5_goals_sms"
+    t.bigint "module2_chosen_by_parents_id"
+    t.bigint "module3_chosen_by_parents_id"
+    t.bigint "module4_chosen_by_parents_id"
+    t.bigint "module5_chosen_by_parents_id"
     t.integer "parent_mid_term_rate"
     t.string "parent_mid_term_reaction"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
