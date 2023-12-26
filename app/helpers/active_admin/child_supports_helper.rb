@@ -93,4 +93,13 @@ module ActiveAdmin::ChildSupportsHelper
   def call_status_collection
     ChildSupport::CALL_STATUS.map { |v| ChildSupport.human_attribute_name("call_status.#{v}") }
   end
+
+  def call_statuses_with_nil
+    ChildSupport::CALL_STATUS.map do |v|
+      [
+        ChildSupport.human_attribute_name("call_status.#{v}"),
+        ChildSupport.human_attribute_name("call_status.#{v}")
+      ]
+    end.push(['Non renseigné', 'nil'])
+  end
 end

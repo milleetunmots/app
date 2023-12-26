@@ -338,6 +338,16 @@ class ChildSupport < ApplicationRecord
   # helpers
   # ---------------------------------------------------------------------------
 
+  def self.create_call_status_ransacker(call)
+    ransacker :"#{call}_status_filter", formatter: proc { |value|
+      results = ChildSupport.where("#{call}_status": value).map(&:id) if value.in?(ChildSupport::CALL_STATUS.map { |v| ChildSupport.human_attribute_name("call_status.#{v}") })
+      results = ChildSupport.where("#{call}_status": nil).map(&:id) if value == 'nil'
+      results
+    } do |parent|
+      parent.table[:id]
+    end
+  end
+
   (0..5).each do |call_idx|
     define_method("call#{call_idx}_parent_progress_index") do
       (send("call#{call_idx}_parent_progress") || '').split('_').first&.to_i
@@ -346,6 +356,8 @@ class ChildSupport < ApplicationRecord
     define_method("call#{call_idx}_previous_call_goals") do
       call_idx.zero? ? '' : previous_call_goals(call_idx).strip
     end
+
+    create_call_status_ransacker("call#{call_idx}")
   end
 
   def self.call_attributes
