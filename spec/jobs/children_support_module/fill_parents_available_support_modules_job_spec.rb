@@ -63,7 +63,7 @@ RSpec.describe ChildrenSupportModule::FillParentsAvailableSupportModulesJob, typ
       end
 
       # Add first module to children
-      ChildrenSupportModule::ProgramFirstSupportModuleJob.perform_now(group.id, Date.today.next_occurring(:monday))
+      ChildrenSupportModule::ProgramFirstSupportModuleJob.perform_now(group.id, Time.zone.today.next_occurring(:monday))
 
       group.children.each do |child|
         expect(child.children_support_modules.count).to eq(2)

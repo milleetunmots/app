@@ -76,7 +76,7 @@ ActiveAdmin.register Events::WorkshopParticipation do
   controller do
     def build_new_resource
       resource = super
-      resource.occurred_at = Time.now
+      resource.occurred_at = Time.zone.now
       resource
     end
   end

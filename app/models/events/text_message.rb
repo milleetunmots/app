@@ -49,7 +49,7 @@ class Events::TextMessage < Event
   after_save :tag_children, if: -> { saved_change_to_spot_hit_status? && spot_hit_status == 4 && quit_group_child_id.present? }
 
   def tag_children
-    quit_group_child.tag_list.add("echec-sms-#{Date.today.strftime("%Y-%m-%d")}")
+    quit_group_child.tag_list.add("echec-sms-#{Time.zone.today.strftime("%Y-%m-%d")}")
     quit_group_child.group_status = 'active' if quit_group_child.group_status == 'paused'
     quit_group_child.save!
   end

@@ -53,7 +53,7 @@ RSpec.describe ChildrenSupportModulesController, type: :request do
       put children_support_module_path(children_support_module, sc: child.parent1.security_code), params: params
       children_support_module.reload
 
-      expect(children_support_module.choice_date).to eq Date.today
+      expect(children_support_module.choice_date).to eq Time.zone.today
       expect(children_support_module.is_completed).to be true
       expect(children_support_module.support_module_id).to eq(support_module_list.first.id)
       expect(response).to redirect_to(updated_children_support_module_path(children_support_module.id, child_first_name: child.first_name, sc: child.parent1.security_code))

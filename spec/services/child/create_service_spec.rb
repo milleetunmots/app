@@ -45,20 +45,19 @@ RSpec.describe Child::CreateService do
       father_attributes,
       registration_origin,
       child_min_birthdate
-    ).call
+    )
   }
 
   context "when params are valid" do
-    it "creates a child" do
-      expect { subject }.to change(Child, :count).by(1)
-    end
-
     context "when registration_origin = 3" do
       let(:registration_origin) { 3 }
 
       before { expect_any_instance_of(SpotHit::SendSmsService).to receive(:call) }
 
       it "adds 'form-pro' tag" do
+        child_count = Child.count
+        subject.call
+        expect(Child.count).to eq(child_count + 1)
         expect(subject.child.tag_list).to include "form-pro"
       end
     end
@@ -69,6 +68,9 @@ RSpec.describe Child::CreateService do
       before { expect_any_instance_of(SpotHit::SendSmsService).to receive(:call) }
 
       it "adds 'form-2' tag" do
+        child_count = Child.count
+        subject.call
+        expect(Child.count).to eq(child_count + 1)
         expect(subject.child.tag_list).to include "form-2"
       end
     end
@@ -77,10 +79,13 @@ RSpec.describe Child::CreateService do
       let(:registration_origin) { nil }
 
       it "adds 'site' tag" do
-        expect(subject.child.tag_list).to include "site"
+        expect(subject.call.child.tag_list).to include "site"
       end
 
       it "does not send a sms" do
+        child_count = Child.count
+        subject.call
+        expect(Child.count).to eq(child_count + 1)
         expect_any_instance_of(SpotHit::SendSmsService).not_to receive(:call)
       end
     end
@@ -95,7 +100,7 @@ RSpec.describe Child::CreateService do
       }
 
       it "sets should_contact_parent2 to true" do
-        expect(subject.child.should_contact_parent2).to be true
+        expect(subject.call.child.should_contact_parent2).to be true
       end
     end
 
@@ -110,9 +115,9 @@ RSpec.describe Child::CreateService do
       let(:mother_attributes) { {} }
 
       it "sets the second parent as first parent" do
-        expect(subject.child.parent1.first_name).to eq father_attributes[:first_name]
-        expect(subject.child.parent1.last_name).to eq father_attributes[:last_name]
-        expect(subject.child.parent2).to be nil
+        expect(subject.call.child.parent1.first_name).to eq father_attributes[:first_name]
+        expect(subject.call.child.parent1.last_name).to eq father_attributes[:last_name]
+        expect(subject.call.child.parent2).to be nil
       end
     end
 
@@ -149,7 +154,7 @@ RSpec.describe Child::CreateService do
       }
 
       it "creates siblings and add them on same child_support" do
-        expect(subject.child.child_support.children.count).to eq 3
+        expect(subject.call.child.child_support.children.count).to eq 3
       end
     end
   end
@@ -159,7 +164,9 @@ RSpec.describe Child::CreateService do
       let(:attributes) { super().merge(first_name: nil, last_name: nil) }
 
       it "does not create child" do
-        expect { subject }.to change(Child, :count).by(0)
+        child_count = Child.count
+        subject.call
+        expect(Child.count).to eq(child_count)
         expect(subject.child).not_to be_valid
       end
 
@@ -174,7 +181,7 @@ RSpec.describe Child::CreateService do
           let(:attributes) { super().merge(registration_source: 'caf', registration_source_details: '') }
 
           it "returns validation error" do
-            expect(subject.child.errors.keys).to include(:registration_source_details)
+            expect(subject.call.child.errors.keys).to include(:registration_source_details)
           end
         end
       end
@@ -190,7 +197,7 @@ RSpec.describe Child::CreateService do
           let(:attributes) { super().merge(registration_source: 'pmi', pmi_detail: '') }
 
           it "returns validation error" do
-            expect(subject.child.errors.keys).to include(:pmi_detail)
+            expect(subject.call.child.errors.keys).to include(:pmi_detail)
           end
         end
       end
@@ -199,7 +206,9 @@ RSpec.describe Child::CreateService do
         let(:mother_attributes) { super().merge(first_name: '') }
 
         it "does not create child" do
-          expect { subject }.to change(Child, :count).by(0)
+          child_count = Child.count
+          subject.call
+          expect(Child.count).to eq(child_count)
           expect(subject.child).not_to be_valid
         end
 
@@ -207,6 +216,7 @@ RSpec.describe Child::CreateService do
           let(:registration_origin) { 2 }
 
           it "does not send sms" do
+            subject.call
             expect_any_instance_of(SpotHit::SendSmsService).not_to receive(:call)
           end
         end
@@ -216,7 +226,9 @@ RSpec.describe Child::CreateService do
         let(:mother_attributes) { {} }
 
         it "does not create child" do
-          expect { subject }.to change(Child, :count).by(0)
+          child_count = Child.count
+          subject.call
+          expect(Child.count).to eq(child_count)
           expect(subject.child).not_to be_valid
         end
 
@@ -224,6 +236,7 @@ RSpec.describe Child::CreateService do
           let(:registration_origin) { 2 }
 
           it "does not send sms" do
+            subject.call
             expect_any_instance_of(SpotHit::SendSmsService).not_to receive(:call)
           end
         end
@@ -255,7 +268,9 @@ RSpec.describe Child::CreateService do
         }
 
         it "does not create child" do
-          expect { subject }.to change(Child, :count).by(0)
+          child_count = Child.count
+          subject.call
+          expect(Child.count).to eq(child_count)
           expect(subject.child).not_to be_valid
         end
 
@@ -263,6 +278,7 @@ RSpec.describe Child::CreateService do
           let(:registration_origin) { 2 }
 
           it "does not send sms" do
+            subject.call
             expect_any_instance_of(SpotHit::SendSmsService).not_to receive(:call)
           end
         end

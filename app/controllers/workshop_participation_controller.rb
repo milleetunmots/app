@@ -10,7 +10,7 @@ class WorkshopParticipationController < ApplicationController
   end
 
   def update
-    @workshop_participation.acceptation_date = Date.today if workshop_participation_params[:parent_response] == "Oui"
+    @workshop_participation.acceptation_date = Time.zone.today if workshop_participation_params[:parent_response] == "Oui"
     if @workshop_participation.update(workshop_participation_params)
       redirect_to updated_workshop_participation_path
     else

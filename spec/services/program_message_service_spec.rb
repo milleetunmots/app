@@ -51,14 +51,14 @@ RSpec.describe ProgramMessageService do
   #       receive(:new).
   #       with(
   #         [parent_3.id],
-  #         Time.zone.parse("#{Date.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+  #         Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
   #         message
   #       ).
   #       and_call_original
   #     )
   #
   #     ProgramMessageService.new(
-  #       Date.today,
+  #       Time.zone.today,
   #       Time.zone.now.strftime('%H:%M'),
   #       ["tag.#{tag_2.id}"],
   #       message
@@ -72,14 +72,14 @@ RSpec.describe ProgramMessageService do
   #       receive(:new).
   #       with(
   #         [parent_1.id, parent_3.id],
-  #         Time.zone.parse("#{Date.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+  #         Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
   #         message
   #       ).
   #       and_call_original
   #     )
   #
   #     ProgramMessageService.new(
-  #       Date.today,
+  #       Time.zone.today,
   #       Time.zone.now.strftime('%H:%M'),
   #       ["parent.#{parent_1.id}", "parent.#{parent_3.id}"],
   #       message
@@ -93,14 +93,14 @@ RSpec.describe ProgramMessageService do
   #       receive(:new).
   #       with(
   #         [parent_2.id],
-  #         Time.zone.parse("#{Date.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+  #         Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
   #         message
   #       ).
   #       and_call_original
   #     )
   #
   #     ProgramMessageService.new(
-  #       Date.today,
+  #       Time.zone.today,
   #       Time.zone.now.strftime('%H:%M'),
   #       ["group.#{group.id}"],
   #       message
@@ -114,14 +114,14 @@ RSpec.describe ProgramMessageService do
   #       receive(:new).
   #       with(
   #         { parent_2.id.to_s => {'PRENOM_ENFANT' => parent_2.current_child.first_name} },
-  #         Time.zone.parse("#{Date.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+  #         Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
   #         'N\'oubliez pas que {PRENOM_ENFANT} doit faire du sport.'
   #       ).
   #       and_call_original
   #     )
   #
   #     ProgramMessageService.new(
-  #       Date.today,
+  #       Time.zone.today,
   #       Time.zone.now.strftime('%H:%M'),
   #       ["parent.#{parent_2.id}"],
   #       'N\'oubliez pas que {PRENOM_ENFANT} doit faire du sport.',
@@ -147,14 +147,14 @@ RSpec.describe ProgramMessageService do
   #           'URL' => 'http://localhost:3000/r/95/c6'
   #           }
   #         },
-  #         Time.zone.parse("#{Date.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+  #         Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
   #         'N\'oubliez pas que {URL} doit faire du sport.'
   #       ).
   #       and_call_original
   #     )
   #
   #     ProgramMessageService.new(
-  #       Date.today,
+  #       Time.zone.today,
   #       Time.zone.now.strftime('%H:%M'),
   #       ["parent.#{parent_2.id}"],
   #       'N\'oubliez pas que {URL} doit faire du sport.',
@@ -172,14 +172,14 @@ RSpec.describe ProgramMessageService do
   #           'URL' => 'http://localhost:3000/r/95/c6'
   #           }
   #         },
-  #         Time.zone.parse("#{Date.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+  #         Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
   #         'N\'oubliez l\'importance du sport. {URL}'
   #       ).
   #       and_call_original
   #     )
   #
   #     ProgramMessageService.new(
-  #       Date.today,
+  #       Time.zone.today,
   #       Time.zone.now.strftime('%H:%M'),
   #       ["parent.#{parent_2.id}"],
   #       'N\'oubliez l\'importance du sport.',

@@ -92,7 +92,7 @@ ActiveAdmin.register RedirectionTarget do
       flash[:error] = 'Une erreur est survenue'
       redirect_to request.referer
     else
-      send_data service.csv, filename: "url-#{resource.id}-stats-#{Date.today}.csv"
+      send_data service.csv, filename: "url-#{resource.id}-stats-#{Time.zone.today}.csv"
     end
   end
 

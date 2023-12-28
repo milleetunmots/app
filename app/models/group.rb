@@ -50,17 +50,17 @@ class Group < ApplicationRecord
   # scopes
   # ---------------------------------------------------------------------------
 
-  scope :not_ended, -> { where('ended_at IS NULL OR ended_at > ?', Date.today) }
-  scope :ended, -> { where('ended_at <= ?', Date.today) }
-  scope :not_started, -> { where('started_at >= ? AND support_module_programmed = ?', Date.today, 0) }
-  scope :started, -> { where('started_at < ? OR support_module_programmed > ?', Date.today, 0) }
+  scope :not_ended, -> { where('ended_at IS NULL OR ended_at > ?', Time.zone.today) }
+  scope :ended, -> { where('ended_at <= ?', Time.zone.today) }
+  scope :not_started, -> { where('started_at >= ? AND support_module_programmed = ?', Time.zone.today, 0) }
+  scope :started, -> { where('started_at < ? OR support_module_programmed > ?', Time.zone.today, 0) }
 
   # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
 
   def is_ended?
-    ended_at && ended_at <= Date.today
+    ended_at && ended_at <= Time.zone.today
   end
 
   def is_not_ended?

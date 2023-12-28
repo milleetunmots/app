@@ -11,7 +11,7 @@ ActiveAdmin.register_page 'Message' do
 
       label "Date et heure d'envoi du message"
       div class: 'datetime-container' do
-        input type: 'text', name: 'planned_date', class: 'datepicker hasDatePicker', style: 'margin-right: 20px;', value: Date.today
+        input type: 'text', name: 'planned_date', class: 'datepicker hasDatePicker', style: 'margin-right: 20px;', value: Time.zone.today
         input type: 'time', name: 'planned_hour', value: Time.zone.now.strftime('%H:%M')
       end
 

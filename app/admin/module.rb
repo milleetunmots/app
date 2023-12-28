@@ -10,7 +10,7 @@ ActiveAdmin.register_page "Module" do
 
       label "Date de démarrage"
       div class: "datetime-container" do
-        input type: "text", name: "planned_date", class: "datepicker hasDatePicker", style: "margin-right: 20px;", value: Date.today
+        input type: "text", name: "planned_date", class: "datepicker hasDatePicker", style: "margin-right: 20px;", value: Time.zone.today
       end
 
       div do

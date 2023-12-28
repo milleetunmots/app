@@ -59,11 +59,11 @@ RSpec.describe Child, type: :model do
   let_it_be(:fourth_parent, reload: true) { FactoryBot.create(:parent, postal_code: 93_600) }
   let_it_be(:fifth_parent, reload: true) { FactoryBot.create(:parent, postal_code: 45_290) }
 
-  let_it_be(:first_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: second_parent, birthdate: Date.today.prev_month, group: first_group, group_status: 'active') }
-  let_it_be(:second_child, reload: true) { FactoryBot.create(:child, parent1: third_parent, parent2: second_parent, birthdate: Date.today.prev_month(8), group: second_group, group_status: 'paused') }
-  let_it_be(:third_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: second_parent, birthdate: Date.today.prev_month(14), group: second_group, group_status: 'active') }
-  let_it_be(:fourth_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: third_parent, birthdate: Date.today.prev_day(3)) }
-  let_it_be(:fifth_child, reload: true) { FactoryBot.create(:child, parent1: fourth_parent, parent2: fifth_parent, birthdate: Date.today.prev_month(27)) }
+  let_it_be(:first_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: second_parent, birthdate: Time.zone.today.prev_month, group: first_group, group_status: 'active') }
+  let_it_be(:second_child, reload: true) { FactoryBot.create(:child, parent1: third_parent, parent2: second_parent, birthdate: Time.zone.today.prev_month(8), group: second_group, group_status: 'paused') }
+  let_it_be(:third_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: second_parent, birthdate: Time.zone.today.prev_month(14), group: second_group, group_status: 'active') }
+  let_it_be(:fourth_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: third_parent, birthdate: Time.zone.today.prev_day(3)) }
+  let_it_be(:fifth_child, reload: true) { FactoryBot.create(:child, parent1: fourth_parent, parent2: fifth_parent, birthdate: Time.zone.today.prev_month(27)) }
 
   describe "Validations" do
     context "succeed" do
@@ -124,7 +124,7 @@ RSpec.describe Child, type: :model do
   describe "#min_birthdate" do
     context "returns" do
       it "the date 30 months ago" do
-        expect(Child.min_birthdate).to eq Date.today - 30.months
+        expect(Child.min_birthdate).to eq Time.zone.today - 30.months
       end
     end
   end
@@ -132,7 +132,7 @@ RSpec.describe Child, type: :model do
   describe "#min_birthdate_alt" do
     context "returns" do
       it "the date 2 years ago" do
-        expect(Child.min_birthdate_alt).to eq Date.today - 2.years
+        expect(Child.min_birthdate_alt).to eq Time.zone.today - 2.years
       end
     end
   end
@@ -140,7 +140,7 @@ RSpec.describe Child, type: :model do
   describe "#max_birthdate" do
     context "returns" do
       it "today date" do
-        expect(Child.max_birthdate).to eq Date.today
+        expect(Child.max_birthdate).to eq Time.zone.today
       end
     end
   end

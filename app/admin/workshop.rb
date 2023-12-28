@@ -131,7 +131,7 @@ ActiveAdmin.register Workshop do
     parents_to_register.each do |parent|
       event = Event.find_by(related: parent, workshop: workshop)
       if event
-        event.parent_response == 'Oui' ? next : event.update!(parent_response: 'Oui', acceptation_date: Date.today)
+        event.parent_response == 'Oui' ? next : event.update!(parent_response: 'Oui', acceptation_date: Time.zone.today)
       else
         Event.create(
           type: 'Events::WorkshopParticipation',
@@ -140,7 +140,7 @@ ActiveAdmin.register Workshop do
           occurred_at: workshop.workshop_date,
           workshop: workshop,
           parent_response: 'Oui',
-          acceptation_date: Date.today
+          acceptation_date: Time.zone.today
         )
       end
     end

@@ -86,7 +86,7 @@ ActiveAdmin.register Events::TextMessage, as: 'Sent By App TextMessage' do
   controller do
     def build_new_resource
       resource = super
-      resource.occurred_at = Time.now
+      resource.occurred_at = Time.zone.now
       resource
     end
 

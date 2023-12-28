@@ -30,9 +30,9 @@ RSpec.describe Group::ProgramService do
   let!(:forty_one_to_forty_four_module_one) { FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "reading", age_ranges: %w[forty_one_to_forty_four], name: "Intéresser mon enfant aux livres 📚") }
 
   before do
-    thirty_two_months_child.update(birthdate: Time.zone.now.months_ago(32))
-    thirty_seven_months_child.update(birthdate: Time.zone.now.months_ago(37))
-    forty_two_months_child.update(birthdate: Time.zone.now.months_ago(42))
+    thirty_two_months_child.update_column(:birthdate, Time.zone.now.months_ago(32))
+    thirty_seven_months_child.update_column(:birthdate, Time.zone.now.months_ago(37))
+    forty_two_months_child.update_column(:birthdate, Time.zone.now.months_ago(42))
 
     allow_any_instance_of(ChildrenSupportModule::CheckCreditsService).to receive(:call).and_return(ChildrenSupportModule::CheckCreditsService.new([]))
     stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms').to_return(status: 200, body: '{}')
