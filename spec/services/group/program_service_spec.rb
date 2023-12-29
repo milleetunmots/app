@@ -30,6 +30,8 @@ RSpec.describe Group::ProgramService do
   let!(:forty_one_to_forty_four_module_one) { FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "reading", age_ranges: %w[forty_one_to_forty_four], name: "Intéresser mon enfant aux livres 📚") }
 
   before do
+    # disable transaction to avoid case where updates made in the job are reverted or something else
+    self.use_transactional_tests = false
     thirty_two_months_child.update_column(:birthdate, Time.zone.now.months_ago(32))
     thirty_seven_months_child.update_column(:birthdate, Time.zone.now.months_ago(37))
     forty_two_months_child.update_column(:birthdate, Time.zone.now.months_ago(42))
@@ -41,6 +43,7 @@ RSpec.describe Group::ProgramService do
 
   after do
     clear_enqueued_jobs
+    self.use_transactional_tests = true
   end
 
   context 'when module zero is programmed' do
