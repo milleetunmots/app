@@ -8,7 +8,7 @@ class ChildrenSupportModule
       # module_index starts with 1
       # so if module_index == 3 it means this is Module 2 (that comes after Module 0 and 1)
       children = if module_index.eql?(3) && group.with_module_zero?
-                   group.children.where(group_status: 'active').joins(:child_support).where(child_supports: { call2_status: ['KO', 'Ne pas appeler'] })
+                   group.children.where(group_status: 'active').joins(:child_support).where(child_supports: { call2_status: ['KO', 'Ne pas appeler', 'Incomplet / Pas de choix de module'] })
                  else
                    group.children.where(group_status: 'active')
                  end
