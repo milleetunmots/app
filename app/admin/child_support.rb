@@ -79,10 +79,7 @@ ActiveAdmin.register ChildSupport do
   filter :supporter,
          input_html: { data: { select2: {} } }
   (0..5).each do |call_idx|
-    filter "call#{call_idx}_status",
-           as: :select,
-           collection: proc { call_status_collection },
-           input_html: { data: { select2: {} } }
+    filter "call#{call_idx}_status_filter", as: :check_boxes,  label: "Statut de l'appel #{call_idx}", collection: proc { call_statuses_with_nil }
     filter "call#{call_idx}_duration"
     filter "call#{call_idx}_parent_progress_present",
            as: :boolean,
