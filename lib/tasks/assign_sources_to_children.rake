@@ -1,28 +1,29 @@
 PMI_DETAILS_MATCHING_SOURCES = {
   'trappes' => 'PMI Trappes',
-  'val_de_saone_dombes' => '',
+  'val_de_saone_dombes' => 'PMI Val de Saône Dombes',
   'montargis' => 'PMI Montargis',
   'les_mureaux' => 'PMI Les Mureaux',
   'asnieres_gennevilliers_sst2' => 'PMI Asnières/ Gennevilliers - Pôle social',
-  'bugey_pays_de_gex' => '',
+  'bugey_pays_de_gex' => 'PMI Bugey Pays de Gex',
   'chanteloup' => 'PMI Chanteloup-les-Vignes',
   'gennevilliers_timsit' => 'PMI Gennevilliers - Timsit',
-  'mantes_la_jolie_leclerc' => 'PMI Mantes la Jolie Leclerc',
+  'mantes_la_jolie_leclerc' => 'PMI Mantes-la-Jolie Leclerc',
   'plaisir' => 'PMI Plaisir',
   'villeneuve_la_garenne' => 'PMI Villeneuve-la-Garenne',
-  'plaine_de_l_ain_cotiere' => '',
+  'plaine_de_l_ain_cotiere' => "PMI Plaine de l'Ain Côtière",
   'orleans_est' => 'PMI Orléans Est',
   'orleans' => 'PMI Orléans',
   'sartrouville' => 'PMI Sartrouville',
-  'mantes_la_jolie_clemenceau' => 'PMI Mantes la Jolie Clémenceau',
+  'mantes_la_jolie_clemenceau' => 'PMI Mantes-la-Jolie Clémenceau',
   'forbach' => 'PMI Forbach',
   'gien' => 'PMI Gien',
-  'gennevilliers_zucman_gabison' => 'PMI Gennevilliers - Zucman',
+  'gennevilliers_zucman_gabison' => 'PMI Gennevilliers - Zucman-Gabison',
   'pithiviers' => 'PMI Pithiviers',
-  'sarreguemines' => 'PMI de Sarreguemines',
+  'sarreguemines' => 'PMI Sarreguemines',
   'seine_st_denis' => 'PMI 93 Circonscription de Montfermeil/Clichy sous Bois/Coubron',
   'olivet' => 'PMI Olivet',
-  'vernouillet' => 'PMI Vernouillet'
+  'vernouillet' => 'PMI Vernouillet',
+  'bresse_revermont' => 'PMI Bresse Revermont'
 }.freeze
 
 def caf_territory_matching(territory)
