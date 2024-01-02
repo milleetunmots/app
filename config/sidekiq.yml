@@ -5,6 +5,8 @@
   - default
   - mailers
 
+:timezone: 'Europe/Paris'
+
 :schedule:
   update_children_workshop_availability:
     cron: '0 3 * * *' # every day at 3am

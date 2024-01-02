@@ -17,5 +17,6 @@ module Mots
     # the framework and any gems in your application.
 
     config.active_job.queue_adapter = :sidekiq
+    config.time_zone = 'Europe/Paris'
   end
 end

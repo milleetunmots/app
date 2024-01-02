@@ -11,7 +11,7 @@ class RedirectionController < ApplicationController
     if admin_user_signed_in?
       puts "Not tracking visit since an admin is connected"
     else
-      @redirection_url.redirection_url_visits.create!(occurred_at: Time.now)
+      @redirection_url.redirection_url_visits.create!(occurred_at: Time.zone.now)
     end
 
     uri = URI.parse(@redirection_url.redirection_target.medium_url)

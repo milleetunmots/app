@@ -391,15 +391,15 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.min_birthdate
-    Date.today - 30.months
+    Time.zone.today - 30.months
   end
 
   def self.min_birthdate_alt
-    Date.today - 2.years
+    Time.zone.today - 2.years
   end
 
   def self.max_birthdate
-    Date.today
+    Time.zone.today
   end
 
   def self.families_count
@@ -708,7 +708,7 @@ class Child < ApplicationRecord
     errors.add(:base, :invalid, message: "L'enfant doit être dans une cohorte") if group_id.nil? && group_status != 'waiting'
   end
 
-  def duration_in_months(started_at, ended_at = Time.now)
+  def duration_in_months(started_at, ended_at = Time.zone.now)
     return unless started_at && ended_at && ended_at > started_at
 
     diff = ended_at.month + (ended_at.year * 12) - (started_at.month + (started_at.year * 12))

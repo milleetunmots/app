@@ -34,8 +34,8 @@ module ActiveAdmin::GroupsHelper
     children = children.tagged_with(tags, any: true) if tags
 
     values["goal"] = 5100
-    values["active_groups_count"] = Group.where("started_at < ?", DateTime.now).where("ended_at > ?", DateTime.now).count
-    values["stopped_groups_count"] = Group.where("ended_at < ?", DateTime.now).count
+    values["active_groups_count"] = Group.where("started_at < ?", Time.zone.now).where("ended_at > ?", Time.zone.now).count
+    values["stopped_groups_count"] = Group.where("ended_at < ?", Time.zone.now).count
     values["families_count"] = children.families_count
     values["children_count"] = children.count
 

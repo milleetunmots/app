@@ -274,7 +274,7 @@ ActiveAdmin.register Child do
       flash[:error] = 'Certains enfants sont déjà dans une cohorte arrêtée'
       redirect_to request.referer
     else
-      next_saturday = Date.today.next_occurring(:saturday)
+      next_saturday = Time.zone.today.next_occurring(:saturday)
       hour = Time.parse('14:30').strftime('%H:%M')
       recipients = ids.map { |id| "child.#{id}" }
       message = 'Bonjour ! Ca fait 4 mois que je vous envoie des SMS pour votre enfant. Bravo pour tout ce que vous faites pour lui :) Voulez vous continuer à recevoir ces SMS et livres ? Cliquez sur le lien ci-dessous et répondez OUI ! Ca reprendra prochainement ! Je vous souhaite de beaux moments avec vos enfants :) {QUIT_LINK}'
@@ -310,7 +310,7 @@ ActiveAdmin.register Child do
     else
       service = Child::ExportBookExcelService.new(children: children).call
 
-      send_data(service.workbook.read_string, filename: "#{Date.today.strftime('%d-%m-%Y')}.xlsx")
+      send_data(service.workbook.read_string, filename: "#{Time.zone.today.strftime('%d-%m-%Y')}.xlsx")
     end
   end
 
@@ -445,7 +445,7 @@ ActiveAdmin.register Child do
   end
   member_action :quit_group do
     resource.update_attribute :group_status, 'stopped'
-    resource.update_attribute :group_end, resource.model.group.ended_at&.past? ? resource.model.group.ended_at : Time.now
+    resource.update_attribute :group_end, resource.model.group.ended_at&.past? ? resource.model.group.ended_at : Time.zone.now
     redirect_to [:admin, resource]
   end
 
@@ -502,7 +502,7 @@ ActiveAdmin.register Child do
 
     if service.errors.empty?
       send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
-                                       disposition: 'attachment', filename: "#{Date.today.strftime('%d-%m-%Y')}.zip"
+                                       disposition: 'attachment', filename: "#{Time.zone.today.strftime('%d-%m-%Y')}.zip"
     else
       flash[:alert] = service.errors
       redirect_back(fallback_location: root_path)
@@ -514,7 +514,7 @@ ActiveAdmin.register Child do
 
     if service.errors.empty?
       send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
-                                       disposition: 'attachment', filename: "#{Date.today.strftime('%d-%m-%Y')}.zip"
+                                       disposition: 'attachment', filename: "#{Time.zone.today.strftime('%d-%m-%Y')}.zip"
     else
       flash[:alert] = service.errors
       redirect_back(fallback_location: root_path)

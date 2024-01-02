@@ -1,4 +1,4 @@
-<li class="aat-task <%= 'aat-past' if task.due_date && task.due_date <= Date.today %>">
+<li class="aat-task <%= 'aat-past' if task.due_date && task.due_date <= Time.zone.today %>">
   <div class="aat-related-title">
     <span class="fa-li"><i class="far fa-square"></i></span>
     <% if (!defined?(show_related) || show_related) && task.related %>

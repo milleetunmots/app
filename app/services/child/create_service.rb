@@ -10,8 +10,8 @@ class Child
       @child_min_birthdate = child_min_birthdate
       @siblings_attributes = siblings_attributes
       @parent1_attributes = parent1_attributes
-      @mother_attributes = mother_attributes.merge(gender: 'f', terms_accepted_at: Time.now)
-      @father_attributes = father_attributes.merge(gender: 'm', terms_accepted_at: Time.now)
+      @mother_attributes = mother_attributes.merge(gender: 'f', terms_accepted_at: Time.zone.now)
+      @father_attributes = father_attributes.merge(gender: 'm', terms_accepted_at: Time.zone.now)
     end
 
     def call
@@ -69,8 +69,8 @@ class Child
       @sms_url_form = "#{ENV['TYPEFORM_URL']}#child_support_id=#{@child.child_support.id}"
       message = "1001mots: Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{@sms_url_form}"
 
-      SpotHit::SendSmsService.new([@child.parent1_id], Time.now.to_i, message).call if @registration_origin == 2
-      SpotHit::SendSmsService.new([@child.parent1_id], DateTime.now.change({ hour: 19 }).to_i, message).call if @registration_origin == 3
+      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, message).call if @registration_origin == 2
+      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.change({ hour: 19 }).to_i, message).call if @registration_origin == 3
     end
 
     def mother_present?

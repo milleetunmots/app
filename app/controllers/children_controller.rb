@@ -133,7 +133,7 @@ class ChildrenController < ApplicationController
       @registration_source_collection = :pro
       @registration_pmi_detail = I18n.t('inscription_pmi.detail')
       @registration_source_details_label = I18n.t('inscription_registration_source_details_label.pro')
-      @child_min_birthdate = Date.today - 30.months
+      @child_min_birthdate = Time.zone.today - 30.months
     when 2
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
       @registration_source_label = I18n.t('inscription_registration_source_label.parent')
