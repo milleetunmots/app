@@ -4,7 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby "3.0.6"
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem "rails", "~> 6.0.0.rc1"
+gem "rails", "~> 6.1.0"
 # Use postgresql as the database for Active Record
 gem "pg", ">= 0.18", "< 2.0"
 # Use Puma as the app server
@@ -54,15 +54,13 @@ group :development do
 
   gem "annotate"
   gem "foreman"
-  gem "rails-erd"
+  # gem "rails-erd"
 end
 
 group :test do
   # Adds support for Capybara system testing and selenium driver
   gem "capybara", ">= 2.15"
-  gem "selenium-webdriver"
-  # Easy installation and use of web drivers to run system tests with browsers
-  gem "webdrivers"
+  gem 'selenium-webdriver', '~> 4.11'
   gem "webmock"
   # ruby-prof
   gem "ruby-prof", ">= 0.17.0", require: false
@@ -117,7 +115,7 @@ gem "discard", "~> 1.0"
 gem "date_validator"
 
 # tags
-gem "acts-as-taggable-on", "~> 6.0"
+gem "acts-as-taggable-on", "~> 8.0"
 
 # AS validations
 gem "active_storage_validations"
@@ -139,7 +137,7 @@ gem "sidekiq"
 gem "sidekiq-scheduler"
 
 # Zip file
-gem "rubyzip"
+gem "rubyzip", "~> 2.3.0"
 
 # Rate limiting
 gem 'rack-attack'

@@ -323,8 +323,13 @@ ActiveAdmin.setup do |config|
   # config.order_clause = MyOrderClause
 end
 
-Rails.application.config.after_initialize do
-  javascripts = Array.wrap("https://maps.googleapis.com/maps/api/js?libraries=places&key=#{ENV["GOOGLE_MAPS_API_KEY"]}")
-  javascripts += ActiveAdmin.application.javascripts.to_a
-  ActiveAdmin.application.javascripts.replace javascripts
-end
+# Rails.application.config.after_initialize do
+#   javascripts = Array.wrap("https://maps.googleapis.com/maps/api/js?libraries=places&key=#{ENV["GOOGLE_MAPS_API_KEY"]}")
+#   javascripts += ActiveAdmin.application.javascripts.to_a.map(&:to_s)
+#   ActiveAdmin.application.javascripts.replace javascripts
+# end
+
+Rails.application.config.assets.precompile += [
+  "https://maps.googleapis.com/maps/api/js?libraries=places&key=#{ENV["GOOGLE_MAPS_API_KEY"]}",
+  "active_admin.js"
+]
