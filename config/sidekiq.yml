@@ -7,13 +7,14 @@
 
 :timezone: 'Europe/Paris'
 
-:schedule:
-  update_children_workshop_availability:
-    cron: '0 3 * * *' # every day at 3am
-    class: Child::UpdateChildrenWorkshopAvailabilityJob
-  remove_unprogrammed_job:
-    cron: '0 4 * * *'
-    class: Events::TextMessage::RemoveUnprogrammedJob
-  import_bubble_models_job:
-    cron: '0 5 * * *'
-    class: Bubble::ImportModelsJob
+:scheduler:
+  :schedule:
+    update_children_workshop_availability:
+      cron: '0 3 * * *' # every day at 3am
+      class: Child::UpdateChildrenWorkshopAvailabilityJob
+    remove_unprogrammed_job:
+      cron: '0 4 * * *'
+      class: Events::TextMessage::RemoveUnprogrammedJob
+    import_bubble_models_job:
+      cron: '0 5 * * *'
+      class: Bubble::ImportModelsJob
