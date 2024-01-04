@@ -328,7 +328,7 @@ end
 #   javascripts += ActiveAdmin.application.javascripts.to_a.map(&:to_s)
 #   ActiveAdmin.application.javascripts.replace javascripts
 # end
-
+# TO DO : run on active admin
 Rails.application.config.assets.precompile += [
   "https://maps.googleapis.com/maps/api/js?libraries=places&key=#{ENV["GOOGLE_MAPS_API_KEY"]}",
   "active_admin.js"

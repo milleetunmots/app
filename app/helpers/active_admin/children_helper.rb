@@ -66,7 +66,7 @@ module ActiveAdmin::ChildrenHelper
   end
 
   def child_registration_source_details_suggestions
-    Child.pluck('DISTINCT ON (LOWER(registration_source_details)) registration_source_details').compact.sort_by(&:downcase)
+    Child.pluck(Arel.sql('DISTINCT ON (LOWER(registration_source_details)) registration_source_details')).compact.sort_by(&:downcase)
   end
 
   def child_supporter_select_collection
