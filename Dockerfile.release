@@ -1,6 +1,4 @@
-FROM ruby:2.6.6-slim
-
-MAINTAINER Yann Hourdel "yann@hourdel.fr"
+FROM ruby:3.0.6-slim
 
 ENV INSTALL_PATH /rails
 ENV RAILS_ENV production
