@@ -4,7 +4,7 @@ ActiveAdmin.setup do |config|
   # Set the title that is displayed on the main layout
   # for each of the active admin pages.
   #
-  config.site_title = "1001 Mots"
+  config.site_title = '1001 Mots'
 
   # Set the link url for the title. For example, to take
   # users to your main site. Defaults to no link.
@@ -157,7 +157,7 @@ ActiveAdmin.setup do |config|
   # You can exclude possibly sensitive model attributes from being displayed,
   # added to forms, or exported by default by ActiveAdmin
   #
-  config.filter_attributes = [:encrypted_password, :password, :password_confirmation]
+  config.filter_attributes = %i[encrypted_password password password_confirmation]
 
   # == Localize Date/Time Format
   #
@@ -187,7 +187,7 @@ ActiveAdmin.setup do |config|
   # pages:
   #   config.meta_tags_for_logged_out_pages = {}
 
-  meta_tags_options = {viewport: "width=device-width, initial-scale=1"}
+  meta_tags_options = { viewport: 'width=device-width, initial-scale=1' }
   config.meta_tags = meta_tags_options
   config.meta_tags_for_logged_out_pages = meta_tags_options
 
@@ -218,17 +218,17 @@ ActiveAdmin.setup do |config|
   #   config.register_stylesheet 'my_print_stylesheet.css', media: :print
   #
   # To load a javascript file:
-  #   config.register_javascript 'my_javascript.js'
+  config.register_javascript "https://maps.googleapis.com/maps/api/js?libraries=places&key=#{ENV.fetch('GOOGLE_MAPS_API_KEY', nil)}"
 
   # == CSV options
 
   # Set the CSV builder separator
   config.csv_options = {
     byte_order_mark: "\xEF\xBB\xBF",
-    col_sep: ";"
+    col_sep: ';'
   }
 
-  config.disable_streaming_in = ['development', 'staging']
+  config.disable_streaming_in = %w[development staging]
 
   # Force the use of quotes
   # config.csv_options = { force_quotes: true }
@@ -322,14 +322,3 @@ ActiveAdmin.setup do |config|
   #
   # config.order_clause = MyOrderClause
 end
-
-# Rails.application.config.after_initialize do
-#   javascripts = Array.wrap("https://maps.googleapis.com/maps/api/js?libraries=places&key=#{ENV["GOOGLE_MAPS_API_KEY"]}")
-#   javascripts += ActiveAdmin.application.javascripts.to_a.map(&:to_s)
-#   ActiveAdmin.application.javascripts.replace javascripts
-# end
-# TO DO : run on active admin
-Rails.application.config.assets.precompile += [
-  "https://maps.googleapis.com/maps/api/js?libraries=places&key=#{ENV["GOOGLE_MAPS_API_KEY"]}",
-  "active_admin.js"
-]
