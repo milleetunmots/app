@@ -47,7 +47,7 @@ RSpec.describe Workshop, type: :model do
       end
 
       it "if workshop_date has already passed" do
-        expect(FactoryBot.build(:workshop, workshop_date: Date.today.prev_day(3))).not_to be_valid
+        expect(FactoryBot.build(:workshop, workshop_date: Time.zone.today.prev_day(3))).not_to be_valid
       end
 
       it "if address is not given" do
@@ -75,14 +75,14 @@ RSpec.describe Workshop, type: :model do
   describe ".name" do
     context "format" do
       let(:animator) { FactoryBot.create(:admin_user, name: "Angela") }
-      let(:workshop) { FactoryBot.create(:workshop, animator: animator, workshop_date: Date.today.next_day) }
-      let(:meal_workshop) { FactoryBot.create(:workshop, animator: animator, workshop_date: Date.today.next_day(4), location: "Merlun", topic: "meal") }
-      let(:paris_workshop) { FactoryBot.create(:workshop, animator: animator, workshop_date: Date.today.next_day(2), location: "Paris") }
+      let(:workshop) { FactoryBot.create(:workshop, animator: animator, workshop_date: Time.zone.today.next_day) }
+      let(:meal_workshop) { FactoryBot.create(:workshop, animator: animator, workshop_date: Time.zone.today.next_day(4), location: "Merlun", topic: "meal") }
+      let(:paris_workshop) { FactoryBot.create(:workshop, animator: animator, workshop_date: Time.zone.today.next_day(2), location: "Paris") }
 
       it "is 'Atelier du workshop_date à location, avec animator, sur le thème topic'" do
-        expect(workshop.name).to eq "Atelier du #{Date.today.next_day.day}/#{Date.today.next_day.month}/#{Date.today.next_day.year}, avec Angela"
-        expect(paris_workshop.name).to eq "Atelier du #{Date.today.next_day(2).day}/#{Date.today.next_day(2).month}/#{Date.today.next_day(2).year} à Paris, avec Angela"
-        expect(meal_workshop.name).to eq "Atelier du #{Date.today.next_day(4).day}/#{Date.today.next_day(4).month}/#{Date.today.next_day(4).year} à Merlun, avec Angela, sur le thème \"Repas\""
+        expect(workshop.name).to eq "Atelier du #{Time.zone.today.next_day.day}/#{Time.zone.today.next_day.month}/#{Time.zone.today.next_day.year}, avec Angela"
+        expect(paris_workshop.name).to eq "Atelier du #{Time.zone.today.next_day(2).day}/#{Time.zone.today.next_day(2).month}/#{Time.zone.today.next_day(2).year} à Paris, avec Angela"
+        expect(meal_workshop.name).to eq "Atelier du #{Time.zone.today.next_day(4).day}/#{Time.zone.today.next_day(4).month}/#{Time.zone.today.next_day(4).year} à Merlun, avec Angela, sur le thème \"Repas\""
       end
     end
   end

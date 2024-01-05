@@ -71,7 +71,7 @@ class Task < ApplicationRecord
 
   def is_done=(v)
     self.done_at = if %w[true t 1].include?((v || '').to_s.downcase)
-      Time.now
+      Time.zone.now
     end
   end
 

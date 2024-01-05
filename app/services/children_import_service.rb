@@ -69,7 +69,7 @@ class ChildrenImportService
             address: row['parent1_address']&.strip,
             city_name: row['parent1_city_name']&.strip,
             postal_code: row['parent1_postal_code']&.strip,
-            terms_accepted_at: Time.now
+            terms_accepted_at: Time.zone.now
           }
 
           # parent 2
@@ -92,7 +92,7 @@ class ChildrenImportService
               address: attributes[:parent1_attributes][:address],
               city_name: attributes[:parent1_attributes][:city_name],
               postal_code: attributes[:parent1_attributes][:postal_code],
-              terms_accepted_at: Time.now
+              terms_accepted_at: Time.zone.now
             }
           end
         end

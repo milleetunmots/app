@@ -154,11 +154,11 @@ RSpec.describe Group::ProgramService do
   end
 
   def choose_module_zero
-    ChildrenSupportModule::ProgramSupportModuleZeroJob.perform_now(group.id, Date.today.next_occurring(:monday))
+    ChildrenSupportModule::ProgramSupportModuleZeroJob.perform_now(group.id, Time.zone.today.next_occurring(:monday))
   end
 
   def choose_first_module
-    ChildrenSupportModule::ProgramFirstSupportModuleJob.perform_now(group.id, Date.today.next_occurring(:monday))
+    ChildrenSupportModule::ProgramFirstSupportModuleJob.perform_now(group.id, Time.zone.today.next_occurring(:monday))
   end
 
   def extract_module_zero_choices
@@ -206,7 +206,7 @@ RSpec.describe Group::ProgramService do
   end
 
   def program_modules
-    ChildrenSupportModule::ProgramSupportModuleSmsJob.perform_now(group.id, Date.today.next_occurring(:monday))
+    ChildrenSupportModule::ProgramSupportModuleSmsJob.perform_now(group.id, Time.zone.today.next_occurring(:monday))
   end
 
   def write_csv_file

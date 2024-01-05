@@ -44,7 +44,7 @@ class Workshop < ApplicationRecord
   validates :topic, inclusion: { in: TOPICS, allow_blank: true }
   validates :animator, presence: true
   validates :workshop_date, presence: true
-  validates :workshop_date, date: { after: proc { Date.today } }, on: :create
+  validates :workshop_date, date: { after: proc { Time.zone.today } }, on: :create
   validates :address, presence: true
   validates :postal_code, presence: true
   validates :city_name, presence: true
@@ -91,7 +91,7 @@ class Workshop < ApplicationRecord
 
     message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquez sur ce lien: {RESPONSE_LINK}"
 
-    service = Workshop::ProgramWorkshopInvitationService.new(Date.today, Time.now.strftime('%H:%M'), recipients, message, nil, nil, nil, id).call
+    service = Workshop::ProgramWorkshopInvitationService.new(Time.zone.today, Time.zone.now.strftime('%H:%M'), recipients, message, nil, nil, nil, id).call
 
     Rollbar.error(service.errors) if service.errors.any?
   end

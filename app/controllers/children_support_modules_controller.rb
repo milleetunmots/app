@@ -9,7 +9,7 @@ class ChildrenSupportModulesController < ApplicationController
   end
 
   def update
-    @children_support_module.choice_date = Date.today
+    @children_support_module.choice_date = Time.zone.today
     @children_support_module.is_completed = true
 
     if @children_support_module.update(children_support_module_params)

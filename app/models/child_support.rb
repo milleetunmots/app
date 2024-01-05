@@ -191,7 +191,7 @@ class ChildSupport < ApplicationRecord
   belongs_to :module4_chosen_by_parents, class_name: :SupportModule, optional: true
   belongs_to :module5_chosen_by_parents, class_name: :SupportModule, optional: true
   has_many :children, dependent: :nullify
-  has_one :current_child, -> { order("CASE WHEN group_status = 'active' THEN 0 ELSE 1 END, birthdate DESC") }, class_name: :Child
+  has_one :current_child, -> { order(Arel.sql("CASE WHEN group_status = 'active' THEN 0 ELSE 1 END, birthdate DESC")) }, class_name: :Child
   has_one :parent1, through: :current_child
   has_one :parent2, through: :current_child
 
@@ -338,6 +338,16 @@ class ChildSupport < ApplicationRecord
   # helpers
   # ---------------------------------------------------------------------------
 
+  def self.create_call_status_ransacker(call)
+    ransacker :"#{call}_status_filter", formatter: proc { |value|
+      results = ChildSupport.where("#{call}_status": value).map(&:id) if value.in?(ChildSupport::CALL_STATUS.map { |v| ChildSupport.human_attribute_name("call_status.#{v}") })
+      results = ChildSupport.where("#{call}_status": nil).map(&:id) if value == 'nil'
+      results
+    } do |parent|
+      parent.table[:id]
+    end
+  end
+
   (0..5).each do |call_idx|
     define_method("call#{call_idx}_parent_progress_index") do
       (send("call#{call_idx}_parent_progress") || '').split('_').first&.to_i
@@ -346,6 +356,8 @@ class ChildSupport < ApplicationRecord
     define_method("call#{call_idx}_previous_call_goals") do
       call_idx.zero? ? '' : previous_call_goals(call_idx).strip
     end
+
+    create_call_status_ransacker("call#{call_idx}")
   end
 
   def self.call_attributes
@@ -439,7 +451,7 @@ class ChildSupport < ApplicationRecord
   def copy_fields(child_support)
     self.notes ||= ''
     self.notes << (('-' * 100) + "\n")
-    self.notes << "\n#{I18n.l(DateTime.now)} - Sauvegarde des informations de la fiche de suivi\n\n"
+    self.notes << "\n#{I18n.l(Time.zone.now)} - Sauvegarde des informations de la fiche de suivi\n\n"
     self.notes << "Informations générales\n\n"
     child_support.attributes.slice(
       'is_bilingual',

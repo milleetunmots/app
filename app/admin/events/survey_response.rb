@@ -82,7 +82,7 @@ ActiveAdmin.register Events::SurveyResponse do
   controller do
     def build_new_resource
       resource = super
-      resource.occurred_at = Time.now
+      resource.occurred_at = Time.zone.now
       resource
     end
   end

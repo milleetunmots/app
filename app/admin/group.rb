@@ -137,7 +137,7 @@ ActiveAdmin.register Group do
 
     if service.errors.empty?
       send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
-                                       disposition: 'attachment', filename: "#{Date.today.strftime('%d-%m-%Y')}.zip"
+                                       disposition: 'attachment', filename: "#{Time.zone.today.strftime('%d-%m-%Y')}.zip"
     else
       flash[:alert] = service.errors
       redirect_back(fallback_location: root_path)

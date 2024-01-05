@@ -46,7 +46,7 @@ class EventsController < ApplicationController
       child.parent1 == parent ? child.should_contact_parent1 = false : child.should_contact_parent2 = false
       if child.should_contact_parent1 == false && child.should_contact_parent2 == false
         child.group_status = "stopped"
-        child.group_end = Time.now
+        child.group_end = Time.zone.now
       end
       child.save(validate: false)
     end

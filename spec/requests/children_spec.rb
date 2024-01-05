@@ -45,7 +45,7 @@ RSpec.describe ChildrenController, type: :request do
       before { get "/inscription3" }
 
       it "renders specific wording" do
-        expect(assigns(:child_min_birthdate)).to eq Date.today - 30.months
+        expect(assigns(:child_min_birthdate)).to eq Time.zone.today - 30.months
         expect(assigns(:registration_pmi_detail)).to eq I18n.t('inscription_pmi.detail')
 
         expect(response.body).to include I18n.t('inscription_terms_accepted_at_label.pro')
@@ -66,7 +66,7 @@ RSpec.describe ChildrenController, type: :request do
         {
           child: {
             parent1_attributes: {
-              terms_accepted_at: DateTime.now,
+              terms_accepted_at: Time.zone.now,
               first_name: Faker::Name.first_name,
               last_name: Faker::Name.last_name,
               phone_number: Faker::PhoneNumber.phone_number,
@@ -109,7 +109,7 @@ RSpec.describe ChildrenController, type: :request do
         {
           child: {
             parent1_attributes: {
-              terms_accepted_at: DateTime.now,
+              terms_accepted_at: Time.zone.now,
               first_name: nil,
               last_name: nil,
               phone_number: Faker::PhoneNumber.phone_number,

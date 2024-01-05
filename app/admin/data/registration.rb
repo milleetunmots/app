@@ -2,8 +2,8 @@ ActiveAdmin.register_page "Inscriptions" do
   menu priority: 12, parent: "Rapport"
 
   content do
-    @registration_start = params[:registration_start] ||= Time.now.prev_year.strftime("%Y-%m-%d")
-    @registration_end = params[:registration_end] ||= Time.now.strftime("%Y-%m-%d")
+    @registration_start = params[:registration_start] ||= Time.zone.now.prev_year.strftime("%Y-%m-%d")
+    @registration_end = params[:registration_end] ||= Time.zone.now.strftime("%Y-%m-%d")
     @age_start = params[:age_start] ||= "0 mois"
     @age_end = params[:age_end] ||= "48 mois"
     @groups = params[:groups] ||= nil

@@ -408,7 +408,7 @@ fr:
         2_ko: KO
         3_unassigned_number: Numéro erroné
         4_dont_call: Ne pas appeler
-        5_unfinished: Incomplet
+        5_unfinished: Incomplet / Pas de choix de module
       child_support/call_family_progress:
         1_yes: Oui
         2_no: Non
