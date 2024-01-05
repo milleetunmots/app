@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_22_143634) do
+ActiveRecord::Schema.define(version: 2024_01_05_142704) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -35,7 +35,14 @@ ActiveRecord::Schema.define(version: 2023_12_22_143634) do
     t.bigint "byte_size", null: false
     t.string "checksum", null: false
     t.datetime "created_at", null: false
+    t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
   create_table "admin_users", force: :cascade do |t|
@@ -314,17 +321,6 @@ ActiveRecord::Schema.define(version: 2023_12_22_143634) do
     t.index ["parent2_id"], name: "index_children_on_parent2_id"
   end
 
-  create_table "children_sources", force: :cascade do |t|
-    t.bigint "source_id"
-    t.bigint "child_id"
-    t.string "details"
-    t.integer "registration_department"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["child_id"], name: "index_children_sources_on_child_id"
-    t.index ["source_id"], name: "index_children_sources_on_source_id"
-  end
-
   create_table "children_support_modules", force: :cascade do |t|
     t.bigint "child_id"
     t.bigint "support_module_id"
@@ -533,16 +529,6 @@ ActiveRecord::Schema.define(version: 2023_12_22_143634) do
     t.index ["redirection_target_id"], name: "index_redirection_urls_on_redirection_target_id"
   end
 
-  create_table "sources", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "channel", null: false
-    t.integer "department"
-    t.string "utm"
-    t.text "comment"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
   create_table "support_module_weeks", force: :cascade do |t|
     t.bigint "support_module_id", null: false
     t.bigint "medium_id"
@@ -653,6 +639,7 @@ ActiveRecord::Schema.define(version: 2023_12_22_143634) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "bubble_contents", "bubble_modules", column: "module_content_id"
   add_foreign_key "bubble_modules", "bubble_modules", column: "module_precedent_id"
   add_foreign_key "bubble_modules", "bubble_modules", column: "module_suivant_id"
