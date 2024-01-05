@@ -32,7 +32,8 @@ class Child
       chosen_modules = ChildrenSupportModule.includes(:child).references(:child).with_support_module.not_programmed
       chosen_modules = chosen_modules.where(children: { group_id: @group_id }) if @group_id.present?
 
-      chosen_modules = chosen_modules.uniq {|csm| [csm.child_id, csm.parent_id] }
+      chosen_modules = chosen_modules.select { |csm| csm.parent_id == csm.child.parent1_id }
+      chosen_modules = chosen_modules.uniq { |csm| [csm.child_id, csm.parent_id] }
 
       chosen_modules.group_by(&:support_module_id).each do |support_module_id, children_support_modules|
         support_module = SupportModule.find(support_module_id)
