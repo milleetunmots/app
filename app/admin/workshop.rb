@@ -1,9 +1,7 @@
 ActiveAdmin.register Workshop do
-
   decorate_with WorkshopDecorator
 
   has_better_csv
-  has_tags
   use_discard
 
   includes :animator, :parents
@@ -22,7 +20,7 @@ ActiveAdmin.register Workshop do
     column :canceled
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
-        item *args
+        item(*args)
       end
     end
   end
@@ -36,17 +34,17 @@ ActiveAdmin.register Workshop do
   filter :canceled
 
   form do |f|
-    f.semantic_errors *f.object.errors.keys
+    f.semantic_errors(*f.object.errors.keys)
     f.inputs do
-      f.input :topic, collection: workshop_topic_select_collection, input_html: {data: {select2: {}}}
+      f.input :topic, collection: workshop_topic_select_collection, input_html: { data: { select2: {} } }
       f.input :workshop_date, as: :datepicker
-      f.input :animator, input_html: {data: {select2: {}}}
+      f.input :animator, input_html: { data: { select2: {} } }
       f.input :co_animator
       address_input f
       f.input :location
-      f.input :parents, collection: parent_select_collection, input_html: {data: {select2: {}}, disabled: !object.new_record?}
-      f.input :workshop_land, collection: Child::LANDS.sort, input_html: {data: {select2: {}}, disabled: !object.new_record?}
-      f.input :invitation_message, input_html: {rows: 5, disabled: !object.new_record?}
+      f.input :parents, collection: parent_select_collection, input_html: { data: { select2: {} }, disabled: !object.new_record? }
+      f.input :workshop_land, collection: Child::LANDS.sort, input_html: { data: { select2: {} }, disabled: !object.new_record? }
+      f.input :invitation_message, input_html: { rows: 5, disabled: !object.new_record? }
       f.input :canceled
     end
     f.actions
@@ -57,7 +55,7 @@ ActiveAdmin.register Workshop do
 
   show do
     tabs do
-      tab "Infos" do
+      tab 'Infos' do
         attributes_table do
           row :name
           row :display_topic
@@ -98,11 +96,11 @@ ActiveAdmin.register Workshop do
   end
 
   action_item :update_parents_presence, only: :show do
-    link_to "Indiquer la présence des parents", [:update_parents_presence, :admin, resource]
+    link_to 'Indiquer la présence des parents', [:update_parents_presence, :admin, resource]
   end
 
   member_action :update_parents_presence do
-    @values = resource.workshop_participations.where(parent_response: "Oui").to_a
+    @values = resource.workshop_participations.where(parent_response: 'Oui').to_a
     @perform_action = perform_update_parents_presence_admin_workshop_path
   end
 
@@ -110,7 +108,7 @@ ActiveAdmin.register Workshop do
     params[:presence].each do |parent_id, presence|
       resource.workshop_participations.find_by(related_id: parent_id).update(parent_presence: presence)
     end
-    redirect_to admin_workshop_path, notice: "Présences indiquées"
+    redirect_to admin_workshop_path, notice: 'Présences indiquées'
   end
 
   action_item :register_parents, only: :show do
