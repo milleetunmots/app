@@ -4,8 +4,8 @@
 
 # 1001mots
 ## Which versions ?
-* Ruby version : 2.6.6
-* Rails version : 6.0.3.6
+* Ruby version : 3.0.6
+* Rails version : 6.1
 ## How to get set up locally ?
 ### Prerequisite
 * bundler gem installed
