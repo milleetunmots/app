@@ -66,9 +66,7 @@ group :test do
   gem "ruby-prof", ">= 0.17.0", require: false
   gem "stackprof", ">= 0.2.9", require: false
   gem "test-prof"
-  # avoid having Redis instances up just for running tests
-  gem 'mock_redis'
-  gem 'redis'
+  gem 'rspec-sidekiq'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
