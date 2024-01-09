@@ -1,18 +1,41 @@
-FROM leikir/ruby-bundler-node-yarn-and-extras:ruby-2.6.6-node-10.16.0-slim
-
-MAINTAINER Yann Hourdel "yann@hourdel.fr"
+FROM ruby:3.0.6-slim
 
 ENV INSTALL_PATH /rails
+ENV DOCKERIZE_VERSION v0.7.0
 RUN mkdir -p $INSTALL_PATH
 WORKDIR $INSTALL_PATH
 
 # Install dependencies
-RUN sed -i -e 's/deb.debian.org/archive.debian.org/g' \
-           -e 's|security.debian.org|archive.debian.org/|g' \
-           -e '/stretch-updates/d' /etc/apt/sources.list
 RUN apt-get update
 RUN apt-get install -qq -y --no-install-recommends \
-    libxrender1
+    apt-transport-https \
+    build-essential \
+    curl \
+    git-core \
+    gnupg \
+    libcurl4-openssl-dev \
+    libpq-dev \
+    libxrender1 \
+    netcat \
+    imagemagick \
+    libpq-dev \
+    file \
+    git \
+    shared-mime-info \
+    python2 \
+    && gem install bundler --no-document
+
+RUN apt-get update \
+    && apt-get install -y wget \
+    && wget -O - https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz | tar xzf - -C /usr/local/bin \
+    && apt-get autoremove -yqq --purge wget && rm -rf /var/lib/apt/lists/*
+
+RUN curl https://deb.nodesource.com/setup_18.x | bash
+RUN curl https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+
+RUN apt-get update && apt-get install -y nodejs
+RUN apt-get --assume-yes install yarn && apt-mark hold yarn
 
 # Copy the package.json as well as the yarn.lock and install
 # the node modules. This is a separate step so the dependencies
