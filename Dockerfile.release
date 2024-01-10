@@ -71,7 +71,7 @@ RUN rm -rf  \
   swagger
 
 # Precompile Rails assets
-RUN bundle exec rake PRECOMPILING=true SECRET_KEY_BASE=secret DATABASE_URL=nulldb://null assets:precompile
+RUN bundle exec rake PRECOMPILING=true SECRET_KEY_BASE=secret DATABASE_URL=nulldb://null ASSETS_PRECOMPILE=1 assets:precompile
 RUN rm -rf \
   .browserslistrc \
   babel.config.js \
