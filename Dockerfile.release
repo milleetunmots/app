@@ -30,7 +30,7 @@ RUN apt-get update \
   && gem install bundler --no-document
 
 RUN wget https://dl.yarnpkg.com/debian/pubkey.gpg
-RUN curl https://deb.nodesource.com/setup_10.x | bash
+RUN curl https://deb.nodesource.com/setup_18.x | bash
 RUN cat pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 
