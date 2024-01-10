@@ -3,6 +3,8 @@ FROM ruby:3.0.6-slim
 ENV INSTALL_PATH /rails
 ENV RAILS_ENV production
 ENV RACK_ENV production
+# monkey patch to avoid cryptographic error on compile
+ENV NODE_OPTIONS=--openssl-legacy-provider
 RUN mkdir -p $INSTALL_PATH
 WORKDIR $INSTALL_PATH
 
@@ -71,7 +73,7 @@ RUN rm -rf  \
   swagger
 
 # Precompile Rails assets
-RUN bundle exec rake PRECOMPILING=true SECRET_KEY_BASE=secret DATABASE_URL=nulldb://null ASSETS_PRECOMPILE=1 assets:precompile
+RUN bundle exec rake SECRET_KEY_BASE=secret DATABASE_URL=nulldb://null ASSETS_PRECOMPILE=1 assets:precompile
 RUN rm -rf \
   .browserslistrc \
   babel.config.js \
