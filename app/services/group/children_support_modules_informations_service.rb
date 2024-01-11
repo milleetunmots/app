@@ -18,7 +18,10 @@ class Group
     def call
       child_and_parent1_ids.each do |child_id, parent1_id|
         csm = ChildrenSupportModule.with_support_module.find_by(child_id: child_id, parent_id: parent1_id, module_index: @index)
-        @support_modules_count[csm.support_module.name.to_sym] += 1 if csm
+        if csm
+          module_name_and_ages = "#{csm.support_module.name} #{csm.support_module.decorate.display_age_ranges}"
+          @support_modules_count[module_name_and_ages.to_sym] += 1
+        end
       end
 
       init_excel_file
@@ -35,7 +38,6 @@ class Group
     end
 
     def init_excel_file
-
       @worksheet = @workbook.add_worksheet
       @worksheet.append_row(COLUMNS, @workbook.add_format(bold: true, bg_color: :'#70AD47', font_color: :white))
     end
