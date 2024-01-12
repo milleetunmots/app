@@ -177,7 +177,7 @@ fr:
         child_name: Enfant
         child_name_for_csv: Enfant
         group: Cohorte
-        created_at: Date d'envoi du formulaire
+        created_at: Date de création
         choice_date: Date de choix du module
         support_module_name: Module
         child_group_name: Cohorte
