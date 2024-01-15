@@ -4,7 +4,7 @@ class Group
     require 'fast_excel'
     require 'zip'
 
-    attr_reader :zip_file
+    attr_reader :zip_file, :zip_filename
 
     COLUMNS = %w[Module Effectif].freeze
 
@@ -13,6 +13,9 @@ class Group
       @index = index
       @support_modules_count = Hash.new(0)
       @workbook = FastExcel.open
+      group_without_module_zero = @group.started_at < DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
+      @module_num = group_without_module_zero ? @index : @index.to_i - 1
+      @zip_filename = "Cohorte #{@group.name} - Choix modules #{@module_num}.zip"
     end
 
     def call
@@ -61,7 +64,7 @@ class Group
         temp.write(@workbook.read_string)
         temp.rewind
 
-        zipfile.add "choix-modules-#{@index.to_i.positive? ? @index.to_i - 1 : 'pas-programmé'}.xlsx", temp.path
+        zipfile.add "choix-modules-#{@index.to_i.positive? ? @module_num : 'pas-programmé'}.xlsx", temp.path
       end
 
       # Store tempfiles in an array so they are not automatically removed by the garbage collector

@@ -190,7 +190,7 @@ ActiveAdmin.register Group do
       type: 'application/zip',
       x_sendfile: true,
       disposition: 'attachment',
-      filename: "Cohorte #{resource.name} - Choix modules #{index}.zip"
+      filename: service.zip_filename
     )
   end
 end
