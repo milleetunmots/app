@@ -34,7 +34,7 @@ class Group
     private
 
     def child_and_parent1_ids
-      @group.children.pluck(:id, :parent1_id)
+      @group.children.active_group.pluck(:id, :parent1_id)
     end
 
     def init_excel_file
