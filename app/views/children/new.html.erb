@@ -1,5 +1,7 @@
 <div id="inscription">
-
+  <div id="logo">
+      <%= image_tag("mots-logo.png", id:"img-logo")  %>
+  </div>
   <div class="container" id="inscription-content">
 
     <%= simple_form_for @child, url: @form_path || children_path do |f| %>
