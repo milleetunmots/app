@@ -6,12 +6,12 @@ class Group
 
     attr_reader :zip_file, :zip_filename
 
-    COLUMNS = %w[Module Effectif].freeze
+    COLUMNS = %w[Module Âges Effectif].freeze
 
     def initialize(group_id, index)
       @group = Group.find(group_id)
       @index = index
-      @support_modules_count = Hash.new(0)
+      @support_modules_count = {}
       @workbook = FastExcel.open
       group_without_module_zero = @group.started_at < DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
       @module_num = group_without_module_zero ? @index : @index.to_i - 1
@@ -21,10 +21,10 @@ class Group
     def call
       child_and_parent1_ids.each do |child_id, parent1_id|
         csm = ChildrenSupportModule.with_support_module.find_by(child_id: child_id, parent_id: parent1_id, module_index: @index)
-        if csm
-          module_name_and_ages = "#{csm.support_module.name} #{csm.support_module.decorate.display_age_ranges}"
-          @support_modules_count[module_name_and_ages.to_sym] += 1
-        end
+        next unless csm
+
+        @support_modules_count[csm.support_module.name] ||= Hash.new(0)
+        @support_modules_count[csm.support_module.name][csm.support_module.decorate.display_age_ranges.to_sym] += 1
       end
 
       init_excel_file
@@ -46,8 +46,8 @@ class Group
     end
 
     def fill_exel_file
-      @support_modules_count.each do |support_module, count|
-        @worksheet.append_row([support_module, count])
+      @support_modules_count.each do |support_module, ages_count|
+        @worksheet.append_row([support_module, ages_count.keys.first, ages_count.values.first])
       end
       @worksheet.set_columns_width(0, 1, width = 25)
       # @worksheet.set_columns_width(1, 2, width = 20)
