@@ -14,7 +14,7 @@ class RedirectionController < ApplicationController
       @redirection_url.redirection_url_visits.create!(occurred_at: Time.zone.now)
     end
 
-    uri = URI.parse(@redirection_url.redirection_target.medium_url)
+    uri = URI.parse(URI.escape(@redirection_url.redirection_target.medium_url))
     if uri.host == '1001mots-app1.bubbleapps.io'
       new_query_ar = URI.decode_www_form(String(uri.query)) << ['child_support_id', @redirection_url.child&.child_support_id]
       uri.query = URI.encode_www_form(new_query_ar)
