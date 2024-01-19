@@ -39,7 +39,7 @@ class WorkshopDecorator < BaseDecorator
   end
 
   def parents_who_accepted_csv
-    workshop_participations.only_accepted.map { |event| event.related.decorate.name }.join("\n")
+    workshop_participations.only_accepted.map { |event| event.related&.decorate&.name }.join("\n")
   end
 
   def parents_who_refused
@@ -49,7 +49,7 @@ class WorkshopDecorator < BaseDecorator
           li do
             next unless event.related
 
-            event.related.decorate.admin_link
+            event.related&.decorate&.admin_link
           end
         end
       end
@@ -57,7 +57,7 @@ class WorkshopDecorator < BaseDecorator
   end
 
   def parents_who_refused_csv
-    workshop_participations.only_refused.map { |event| event.related.decorate.name }.join("\n")
+    workshop_participations.only_refused.map { |event| event.related&.decorate&.name }.join("\n")
   end
 
   def parents_without_response
@@ -75,7 +75,7 @@ class WorkshopDecorator < BaseDecorator
   end
 
   def parents_without_response_csv
-    workshop_participations.where(parent_response: nil).map { |event| event.related.decorate.name }.join("\n")
+    workshop_participations.where(parent_response: nil).map { |event| event.related&.decorate&.name }.join("\n")
   end
 
   def parent_invited_number

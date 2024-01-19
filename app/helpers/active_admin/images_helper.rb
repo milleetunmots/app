@@ -5,13 +5,13 @@ module ActiveAdmin::ImagesHelper
   # - max_height
   # - max_width
   # - with_link
-  def image_tag_with_max_size(source, options = {})
+  def image_tag_with_max_size(**options)
     options = options.symbolize_keys
-
     max_width = options.delete(:max_width)
     max_height = options.delete(:max_height)
     with_link = options.delete(:with_link)
     link_options = options.delete(:link_options)
+    source = options.delete(:source)
 
     # max size
 
