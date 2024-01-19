@@ -19,7 +19,8 @@ class SupportModuleDecorator < BaseDecorator
   def picture_tag(options = {})
     return nil unless model.picture.attached?
 
-    h.image_tag_with_max_size model.picture, options
+    options.merge!(source: model.picture)
+    h.image_tag_with_max_size **options
   end
 
   def name_with_tags
