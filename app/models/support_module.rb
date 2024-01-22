@@ -149,6 +149,7 @@ class SupportModule < ApplicationRecord
       ret << " WHEN theme = '#{theme}' THEN #{index}"
     end
     ret << ' END'
+    Arel.sql(ret)
   end
 
   def currently_used?
