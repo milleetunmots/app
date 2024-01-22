@@ -18,5 +18,6 @@ module Mots
 
     config.active_job.queue_adapter = :sidekiq
     config.time_zone = 'Europe/Paris'
+    config.active_record.yaml_column_permitted_classes = [Date, Time, Symbol]
   end
 end
