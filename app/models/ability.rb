@@ -5,8 +5,11 @@ class Ability
 
   def initialize(user)
     return unless user.present?
+    return if user.is_disabled?
+
     if user.admin? || user.logistics_team?
       can :manage, :all
+      cannot [:disable, :activate], AdminUser if user.logistics_team?
       return
     end
 

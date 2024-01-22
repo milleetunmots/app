@@ -56,5 +56,12 @@ Rails.application.routes.draw do
     member { get :current_child }
   end
 
+  resources :admin_users do
+    member do
+      put :disable
+      put :activate
+    end
+  end
+
   root to: redirect("/admin")
 end
