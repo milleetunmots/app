@@ -56,14 +56,7 @@ ActiveAdmin.register AdminUser do
 
   controller do
     def destroy
-      tasks_assigned_count = resource.assigned_tasks.todo.count
-      destroy! do |format|
-        redirect_to request.referer, alert: "Suppression impossible." and return unless resource.destroyed?
-        format.html do
-          redirect_to admin_admin_users_url, alert: "Utilisateur supprimé" and return if tasks_assigned_count.zero?
-          redirect_to admin_tasks_url(scope: 'todo'), alert: "L'utilisateur supprimé avait #{tasks_assigned_count} tâche assignée(s) et non executée(s)."
-        end
-      end
+      redirect_to request.referer, alert: "Suppression impossible : préférez la désactivation du compte." and return
     end
   end
 
@@ -75,6 +68,32 @@ ActiveAdmin.register AdminUser do
       parameters.push :password_confirmation
     end
     parameters
+  end
+
+  action_item :disable, only: :show do
+    unless resource.is_disabled? || current_admin_user.eql?(resource) || !authorized?(:disable, resource)
+      link_to('Désactiver le compte', disable_admin_admin_user_path(resource), method: :put)
+    end
+  end
+
+  action_item :activate, only: :show do
+    if resource.is_disabled? && !current_admin_user.eql?(resource) && authorized?(:activate, resource)
+      link_to('Réactiver le compte', activate_admin_admin_user_path(resource), method: :put)
+    end
+  end
+
+  member_action :disable, method: :put do
+    admin_user = AdminUser.find(params[:id])
+    admin_user.update(is_disabled: true)
+    flash['notice'] = "L'utilisateur a été désactivé."
+    redirect_to admin_admin_user_path(admin_user)
+  end
+
+  member_action :activate, method: :put do
+    admin_user = AdminUser.find(params[:id])
+    admin_user.update(is_disabled: false)
+    flash['notice'] = "L'utilisateur a été réactivé."
+    redirect_to admin_admin_user_path(admin_user)
   end
 
 end

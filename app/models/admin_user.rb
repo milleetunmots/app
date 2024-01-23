@@ -70,4 +70,12 @@ class AdminUser < ApplicationRecord
   def supporter?
     child_supports.any?
   end
+
+  def active_for_authentication?
+    super and !self.is_disabled?
+  end
+
+  def inactive_message
+    "Ce compte n'est pas activé."
+  end
 end

@@ -52,6 +52,7 @@ fr:
         password: Mot de passe
         password_confirmation: Confirmation du mot de passe
         sign_in_count: Connexions
+        is_disabled: Désactivé
       admin_user/user_role:
         super_admin: Administrateur.rice
         team_member: Membre de l'équipe
