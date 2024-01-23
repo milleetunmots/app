@@ -46,7 +46,7 @@ class Group
 
     def add_scheduled_job(job)
       job_class_name = job.args[0]['job_class']
-      job_group_id = job.args[0]['arguments']&.first
+      job_group_id = job.args[0]['arguments']&.first.to_i
       return unless GROUP_JOB_CLASS_NAMES.key?(job_class_name) && job_group_id == @group_id.to_i
 
       name = if job_class_name == ChildrenSupportModule::SelectModuleJob.to_s && job.args[0]['arguments']&.third.eql?(@group_with_module_zero ? 3 : 2)
@@ -64,7 +64,7 @@ class Group
     end
 
     def set_module_numbers
-      @scheduled_jobs.reverse.each do |scheduled_job|
+      @scheduled_jobs.reverse_each do |scheduled_job|
         scheduled_job[:module_number] = @module_number
         @module_number -= 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::FillParentsAvailableSupportModulesJob.to_s]
         scheduled_job[:module_number] = 0 if [GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::ProgramSupportModuleZeroJob.to_s], GROUP_JOB_CLASS_NAMES[Group::ProgramSmsToBilingualsJob.to_s]].include? scheduled_job[:name]
