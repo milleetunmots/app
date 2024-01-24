@@ -32,6 +32,9 @@ ActiveAdmin.register AdminUser do
   filter :sign_in_count
   filter :created_at
 
+  scope :account_not_disabled, default: true
+  scope :account_disabled
+
   # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------

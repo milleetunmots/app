@@ -50,6 +50,8 @@ class AdminUser < ApplicationRecord
   scope :all_logistics_team_members, -> { where(user_role: "logistics_team") }
   scope :callers, -> { where(user_role: "caller") }
   scope :supporters, -> { joins(:child_supports).distinct }
+  scope :account_disabled, -> { where(is_disabled: true) }
+  scope :account_not_disabled, -> { where(is_disabled: false) }
 
   def admin?
     user_role == "super_admin"
