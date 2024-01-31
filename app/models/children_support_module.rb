@@ -172,7 +172,7 @@ class ChildrenSupportModule < ApplicationRecord
     next_module_index = child.group.support_module_programmed + 1
     self.module_index = next_module_index
   end
-  
+
   def save_chosen_module_to_child_support
     return unless saved_change_to_support_module_id? && support_module.present?
     return unless child.current_child? && child.group

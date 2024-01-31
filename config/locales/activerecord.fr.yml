@@ -168,6 +168,7 @@ fr:
         active: Active
         paused: En pause
         stopped: Arrêtée
+        disengaged: Désengagé
       children_support_module:
         << : *SHARED
         name_display: Nom

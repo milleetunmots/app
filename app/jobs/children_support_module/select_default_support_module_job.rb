@@ -5,6 +5,9 @@ class ChildrenSupportModule
     def perform(group_id)
       children_with_missing_child_support = []
       group = Group.find(group_id)
+
+      ChildSupport::ChildrenDisengagementService.new(group).call
+
       group.children.where(group_status: 'active').find_each do |child|
         children_with_missing_child_support << child.id and next unless child.child_support
 
