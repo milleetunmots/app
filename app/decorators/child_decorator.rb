@@ -119,7 +119,7 @@ class ChildDecorator < BaseDecorator
 
   def group
     options = {}
-    if model.group_status == 'stopped' || 'disengaged'
+    if model.group_status == 'stopped' || model.group_status == 'disengaged'
       options[:class] = 'stop'
     elsif model.group_status == 'paused'
       options[:class] = "pause"
