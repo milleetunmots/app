@@ -27,7 +27,9 @@ class ChildrenSupportModule
 
         next if child.siblings_on_same_group.count > 1 && child.child_support.current_child != child
 
-        add_disengagement_tag_to_child(group, child) if (group.with_module_zero? && module_index == 5) || (!group.with_module_zero? && module_index == 4)
+        add_disengagement_tag_to_child(child) if (group.with_module_zero? && module_index == 5) || (!group.with_module_zero? && module_index == 4)
+        add_disengagement_tag_to_child(child) if group_id == 56 && module_index == 4
+        add_disengagement_tag_to_child(child) if group_id == 62 && module_index == 6
 
         child.child_support.update(
           parent1_available_support_module_list: child.child_support.parent1_available_support_module_list&.reject(&:blank?)&.first(3),
@@ -47,7 +49,7 @@ class ChildrenSupportModule
 
     private
 
-    def add_disengagement_tag_to_child(group, child)
+    def add_disengagement_tag_to_child(child)
       return if [I18n.t('activerecord.attributes.child_support/call_status.1_ok'), I18n.t('activerecord.attributes.child_support/call_status.5_unfinished')].include? child.child_support.call3_status
 
       return if child.child_support.module3_chosen_by_parents

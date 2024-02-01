@@ -188,7 +188,7 @@ class ChildrenSupportModule < ApplicationRecord
         module_index.to_i - 1
       end
     # we don't care about module 0 & 1 choices, and we don't handle modules after the fifth for now
-    return if current_choice_module_number.to_i < 2 || current_choice_module_number.to_i > 5
+    return if current_choice_module_number.to_i < 2 || current_choice_module_number.to_i > 6
     return unless parent == child.parent1 || (parent == child.parent2 &&
       ChildrenSupportModule.where(parent: child.parent1, child: child, module_index: module_index, is_completed: true).none?)
 
