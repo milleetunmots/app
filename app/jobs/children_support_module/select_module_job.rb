@@ -27,9 +27,7 @@ class ChildrenSupportModule
 
         next if child.siblings_on_same_group.count > 1 && child.child_support.current_child != child
 
-        add_disengagement_tag_to_child(child) if (group.with_module_zero? && module_index == 5) || (!group.with_module_zero? && module_index == 4)
-        add_disengagement_tag_to_child(child) if group_id == 56 && module_index == 4
-        add_disengagement_tag_to_child(child) if group_id == 62 && module_index == 6
+        add_disengagement_tag_to_child(child) if check_disengagement?(group, module_index)
 
         child.child_support.update(
           parent1_available_support_module_list: child.child_support.parent1_available_support_module_list&.reject(&:blank?)&.first(3),
@@ -56,6 +54,14 @@ class ChildrenSupportModule
 
       child.child_support.tag_list.add('estimé-desengagé')
       child.child_support.save!
+    end
+
+    def check_disengagement?(group, module_index)
+      return true if group.id == ENV['MAY_GROUP_ID'].to_i && module_index == 4
+
+      return true if group.id == ENV['JUNE_GROUP_ID'].to_i && module_index == 6
+
+      (group.with_module_zero? && module_index == 5) || (!group.with_module_zero? && module_index == 4 && group.started_at > DateTime.parse(ENV['DISENGAGEMENT_FEATURE_START_DATE']))
     end
   end
 end

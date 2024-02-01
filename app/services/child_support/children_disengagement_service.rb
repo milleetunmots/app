@@ -19,7 +19,7 @@ class ChildSupport::ChildrenDisengagementService
   private
 
   def module_chosen(child_support, group_id)
-    if group_id == 62
+    if group_id == ENV['JUNE_GROUP_ID']
       child_support.module6_chosen_by_parents
     else
       child_support.module4_chosen_by_parents
