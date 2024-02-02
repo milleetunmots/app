@@ -90,7 +90,7 @@ class Group
       return if @group.support_modules_count < 3
 
       (4..@group.support_modules_count).each do |module_index|
-        select_module_date = (@group.started_at + ((module_index - 2) * 8.weeks) - 4.weeks + MODULE_ZERO_DURATION).next_occurring(:saturday)
+        select_module_date = (@group.started_at + ((module_index - 2) * 8.weeks) - 4.weeks + MODULE_ZERO_DURATION).next_occurring(:monday)
         ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: 6)).perform_later(@group.id, select_module_date, module_index)
       end
     end

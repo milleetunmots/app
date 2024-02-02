@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_01_22_153634) do
+ActiveRecord::Schema.define(version: 2024_02_01_155257) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -259,6 +259,7 @@ ActiveRecord::Schema.define(version: 2024_01_22_153634) do
     t.bigint "module5_chosen_by_parents_id"
     t.integer "parent_mid_term_rate"
     t.string "parent_mid_term_reaction"
+    t.bigint "module6_chosen_by_parents_id"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
@@ -279,6 +280,7 @@ ActiveRecord::Schema.define(version: 2024_01_22_153634) do
     t.index ["module3_chosen_by_parents_id"], name: "index_child_supports_on_module3_chosen_by_parents_id"
     t.index ["module4_chosen_by_parents_id"], name: "index_child_supports_on_module4_chosen_by_parents_id"
     t.index ["module5_chosen_by_parents_id"], name: "index_child_supports_on_module5_chosen_by_parents_id"
+    t.index ["module6_chosen_by_parents_id"], name: "index_child_supports_on_module6_chosen_by_parents_id"
     t.index ["parent1_available_support_module_list"], name: "index_child_supports_on_parent1_available_support_module_list", using: :gin
     t.index ["parent2_available_support_module_list"], name: "index_child_supports_on_parent2_available_support_module_list", using: :gin
     t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
@@ -654,6 +656,7 @@ ActiveRecord::Schema.define(version: 2024_01_22_153634) do
   add_foreign_key "child_supports", "support_modules", column: "module3_chosen_by_parents_id"
   add_foreign_key "child_supports", "support_modules", column: "module4_chosen_by_parents_id"
   add_foreign_key "child_supports", "support_modules", column: "module5_chosen_by_parents_id"
+  add_foreign_key "child_supports", "support_modules", column: "module6_chosen_by_parents_id"
   add_foreign_key "children", "parents", column: "parent1_id"
   add_foreign_key "children", "parents", column: "parent2_id"
   add_foreign_key "events", "workshops"
