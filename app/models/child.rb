@@ -56,7 +56,7 @@ class Child < ApplicationRecord
   PMI_LIST = %w[orleans orleans_est montargis gien pithiviers olivet sarreguemines forbach trappes plaisir mantes_la_jolie_clemenceau mantes_la_jolie_leclerc
                 gennevilliers_zucman_gabison gennevilliers_timsit asnieres_gennevilliers_sst2 villeneuve_la_garenne chanteloup sartrouville les_mureaux seine_st_denis vernouillet val_de_saone_dombes
                 plaine_de_l_ain_cotiere bugey_pays_de_gex bresse_revermont].freeze
-  GROUP_STATUS = %w[waiting active paused stopped].freeze
+  GROUP_STATUS = %w[waiting active paused stopped disengaged].freeze
   TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
   LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Bondy', 'Orleans', 'Montargis', 'Pithiviers', 'Gien', 'Villeneuve-la-Garenne', 'Mantes La Jolie'].freeze
 

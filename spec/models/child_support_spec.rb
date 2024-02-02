@@ -128,6 +128,7 @@
 #  module3_chosen_by_parents_id          :bigint
 #  module4_chosen_by_parents_id          :bigint
 #  module5_chosen_by_parents_id          :bigint
+#  module6_chosen_by_parents_id          :bigint
 #  supporter_id                          :bigint
 #
 # Indexes
@@ -152,6 +153,7 @@
 #  index_child_supports_on_module3_chosen_by_parents_id           (module3_chosen_by_parents_id)
 #  index_child_supports_on_module4_chosen_by_parents_id           (module4_chosen_by_parents_id)
 #  index_child_supports_on_module5_chosen_by_parents_id           (module5_chosen_by_parents_id)
+#  index_child_supports_on_module6_chosen_by_parents_id           (module6_chosen_by_parents_id)
 #  index_child_supports_on_parent1_available_support_module_list  (parent1_available_support_module_list) USING gin
 #  index_child_supports_on_parent2_available_support_module_list  (parent2_available_support_module_list) USING gin
 #  index_child_supports_on_should_be_read                         (should_be_read)
@@ -163,6 +165,7 @@
 #  fk_rails_...  (module3_chosen_by_parents_id => support_modules.id)
 #  fk_rails_...  (module4_chosen_by_parents_id => support_modules.id)
 #  fk_rails_...  (module5_chosen_by_parents_id => support_modules.id)
+#  fk_rails_...  (module6_chosen_by_parents_id => support_modules.id)
 #  fk_rails_...  (supporter_id => admin_users.id)
 #
 
