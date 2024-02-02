@@ -24,9 +24,7 @@ class ChildrenSupportModule
           "1001mots : pour recevoir le prochain livre de 1001mots pour #{@child.first_name}, n'oubliez pas de choisir votre thème en cliquant sur ce lien : #{selection_link}"
         end
 
-      if @child.child_support.tagged_with('estimé-desengagé')
-        message += ". Si vous ne faites pas de choix, l’accompagnement 1001mots prendra fin."
-      end
+      message += '. Si vous ne faites pas de choix, l’accompagnement 1001mots prendra fin.' if @child.child_support.tag_list.include?('estimé-desengagé')
 
       sms_service = ProgramMessageService.new(
         @reminder_date,

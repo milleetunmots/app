@@ -30,6 +30,9 @@ ActiveAdmin.register ChildSupport do
     column :availability
     column :call_infos
     column :groups
+    column :tags do |model|
+      model.tags(context: 'tags')
+    end
     column :actions do |item|
       div class: 'table_actions' do
         link_to('Modifier', edit_admin_child_support_path(item), class: 'edit_link member_link')
