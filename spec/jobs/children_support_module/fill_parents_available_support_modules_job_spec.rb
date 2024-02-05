@@ -53,9 +53,8 @@ RSpec.describe ChildrenSupportModule::FillParentsAvailableSupportModulesJob, typ
       FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[twelve_to_seventeen], name: "Chanter avec mon bébé 🎶")
       FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "songs", age_ranges: %w[five_to_eleven], name: "Chanter avec mon bébé 🎶")
 
-      allow_any_instance_of(Group::StopSupportService).to receive(:call).and_return(Group::StopSupportService.new(group.id))
 
-      (0...44).each do |month|
+      (0...35).each do |month|
         child = FactoryBot.create(:child, parent2_id: FactoryBot.create(:parent).id, group: group, group_status: 'active')
         # To avoid the validation of the birth_date
         child.birthdate = month.months.ago
@@ -82,7 +81,7 @@ RSpec.describe ChildrenSupportModule::FillParentsAvailableSupportModulesJob, typ
 
         group.children.each do |child|
           # parent1 ----
-          expect(child.child_support.parent1_available_support_module_list).not_to be_empty
+          expect(child.child_support.parent1_available_support_module_list).not_to be_blank
           # check the reading module is not in the list
           expect(
             child.child_support.parent1_available_support_module_list & child.children_support_modules.where(parent_id: child.parent1.id).pluck(:support_module_id)
@@ -95,7 +94,7 @@ RSpec.describe ChildrenSupportModule::FillParentsAvailableSupportModulesJob, typ
 
           # parent2 ----
           # check the reading module is not in the list
-          expect(child.child_support.parent2_available_support_module_list).not_to be_empty
+          expect(child.child_support.parent2_available_support_module_list).not_to be_blank
           expect(
             child.child_support.parent2_available_support_module_list & child.children_support_modules.where(parent_id: child.parent2.id).pluck(:support_module_id)
           ).to be_empty

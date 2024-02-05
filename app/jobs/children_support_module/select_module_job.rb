@@ -5,6 +5,8 @@ class ChildrenSupportModule
     def perform(group_id, select_module_date, module_index)
       errors = {}
       group = Group.find(group_id)
+      # stop children of 36 months+ before sending next module choice SMS
+      Group::StopSupportService.new(group_id, end_of_support: false).call
       # module_index starts with 1
       # so if module_index == 3 it means this is Module 2 (that comes after Module 0 and 1)
       children = if module_index.eql?(3) && group.with_module_zero?
