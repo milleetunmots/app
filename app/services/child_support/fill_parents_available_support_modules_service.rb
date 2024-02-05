@@ -7,7 +7,7 @@ class ChildSupport::FillParentsAvailableSupportModulesService
   end
 
   def call
-    @group.children.each do |child|
+    @group.children.where(group_status: 'active').each do |child|
       @children_with_missing_child_support << child.id and next unless child.child_support
 
       next if child.siblings_on_same_group.count > 1 && child.child_support.current_child != child

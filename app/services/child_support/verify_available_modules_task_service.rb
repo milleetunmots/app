@@ -8,7 +8,7 @@ class ChildSupport::VerifyAvailableModulesTaskService
   end
 
   def call
-    @group.children.each do |child|
+    @group.children.where(group_status: 'active').each do |child|
       @children_with_missing_child_support << child.id and next unless child.child_support
 
       create_child_support_link(child)
