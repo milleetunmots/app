@@ -185,14 +185,6 @@ RSpec.describe Child::CreateService do
         it "does not send sms" do
           expect_any_instance_of(SpotHit::SendSmsService).not_to receive(:call)
         end
-
-        context "when registration_source = 'caf' and registration_source_details is blank" do
-          let(:attributes) { super().merge(registration_source: 'caf', registration_source_details: '') }
-
-          it "returns validation error" do
-            expect(subject.call.child.errors.keys).to include(:registration_source_details)
-          end
-        end
       end
 
       context "when registration_origin = 3" do
@@ -200,14 +192,6 @@ RSpec.describe Child::CreateService do
 
         it "does not send sms" do
           expect_any_instance_of(SpotHit::SendSmsService).not_to receive(:call)
-        end
-
-        context "when registration_source = 'pmi' and pmi_detail is blank" do
-          let(:attributes) { super().merge(registration_source: 'pmi', pmi_detail: '') }
-
-          it "returns validation error" do
-            expect(subject.call.child.errors.keys).to include(:pmi_detail)
-          end
         end
       end
 

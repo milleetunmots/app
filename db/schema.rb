@@ -246,16 +246,16 @@ ActiveRecord::Schema.define(version: 2024_02_01_155257) do
     t.text "call1_goals_tracking"
     t.string "call1_family_progress"
     t.string "call1_previous_goals_follow_up"
-    t.bigint "module2_chosen_by_parents_id"
-    t.bigint "module3_chosen_by_parents_id"
-    t.bigint "module4_chosen_by_parents_id"
-    t.bigint "module5_chosen_by_parents_id"
     t.text "call0_goals_sms"
     t.text "call1_goals_sms"
     t.text "call2_goals_sms"
     t.text "call3_goals_sms"
     t.text "call4_goals_sms"
     t.text "call5_goals_sms"
+    t.bigint "module2_chosen_by_parents_id"
+    t.bigint "module3_chosen_by_parents_id"
+    t.bigint "module4_chosen_by_parents_id"
+    t.bigint "module5_chosen_by_parents_id"
     t.integer "parent_mid_term_rate"
     t.string "parent_mid_term_reaction"
     t.bigint "module2_chosen_by_parents_id"
@@ -528,6 +528,7 @@ ActiveRecord::Schema.define(version: 2024_02_01_155257) do
     t.datetime 'occurred_at'
     t.index ['redirection_url_id'], name: 'index_redirection_url_visits_on_redirection_url_id'
   end
+
 
   create_table 'redirection_urls', force: :cascade do |t|
     t.bigint 'redirection_target_id'

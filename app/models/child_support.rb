@@ -338,8 +338,10 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_in source_channel_in
-               source_details_matches_any group_id_in active_group_id_in without_parent_text_message_since]
+    super + %i[
+      groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_in source_channel_in
+      source_details_matches_any group_id_in active_group_id_in without_parent_text_message_since
+    ]
   end
 
   # ---------------------------------------------------------------------------
