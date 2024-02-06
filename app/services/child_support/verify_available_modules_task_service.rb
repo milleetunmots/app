@@ -10,6 +10,8 @@ class ChildSupport::VerifyAvailableModulesTaskService
   def call
     @group.children.where(group_status: 'active').each do |child|
       @children_with_missing_child_support << child.id and next unless child.child_support
+      # this child will have its status set to "stopped" when SelectModuleJob runs, we can ignore
+      next if child.birthdate < 36.months.ago
 
       create_child_support_link(child)
     end
