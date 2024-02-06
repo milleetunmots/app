@@ -573,6 +573,7 @@ fr:
         caf: CAF
         pmi: PMI
         local_partner: Partenaire local
+        other: Autre
       support_module:
         << : *SHARED
         ages: Tranche d'âge

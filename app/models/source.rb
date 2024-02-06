@@ -15,7 +15,7 @@ class Source < ApplicationRecord
 
   include Discard::Model
 
-  CHANNEL_LIST = %w[bao caf pmi local_partner].freeze
+  CHANNEL_LIST = %w[bao caf pmi local_partner other].freeze
 
   # ---------------------------------------------------------------------------
   # relations
