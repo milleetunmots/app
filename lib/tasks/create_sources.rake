@@ -51,7 +51,7 @@ task create_source: :environment do
   Source.find_or_create_by(name: 'Ville de Grigny - service petite enfance', channel: 'local_partner', department: 91)
   Source.find_or_create_by(name: 'Professionnel(le) de santé en libéral - hors centre de santé', channel: 'local_partner')
   Source.find_or_create_by(name: 'Appelantes 1001mots', channel: 'local_partner')
-  Source.find_or_create_by(name: 'Croix rouge - Espace Bébé Parenrs', channel: 'local_partner')
+  Source.find_or_create_by(name: 'Croix rouge - Espace Bébé Parents', channel: 'local_partner')
   Source.find_or_create_by(name: 'Autre', channel: 'local_partner')
   Source.find_or_create_by(name: 'Mon entourage', channel: 'bao', utm: 'friends')
   Source.find_or_create_by(name: 'Je suis déjà inscrit à 1001mots', channel: 'bao')
