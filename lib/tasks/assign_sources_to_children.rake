@@ -1,3 +1,5 @@
+require 'csv'
+
 PMI_DETAILS_MATCHING_SOURCES = {
   'trappes' => 'PMI Trappes',
   'val_de_saone_dombes' => 'PMI Val de Saône Dombes',
@@ -26,6 +28,14 @@ PMI_DETAILS_MATCHING_SOURCES = {
   'bresse_revermont' => 'PMI Bresse Revermont'
 }.freeze
 
+CANAL_MATCHING = {
+  'PMI' => 'pmi',
+  'BAO' => 'bao',
+  'CAF' => 'caf',
+  'Partenaires Locaux' => 'local_partner',
+  'Autre' => 'other'
+}.freeze
+
 def caf_territory_matching(territory)
   case territory
   when 'Loiret'
@@ -41,6 +51,17 @@ def caf_territory_matching(territory)
   end
 end
 
+def matching(file, registration_source_details)
+  lines = CSV.read(file)
+
+  lines.each do |line|
+    next unless registration_source_details.strip == line[0].strip
+
+    return CANAL_MATCHING[line[1]&.strip] == 'other' ? Source.find_by(channel: CANAL_MATCHING[line[1]&.strip]) : Source.find_by(channel: CANAL_MATCHING[line[1]&.strip], name: line[2])
+  end
+  nil
+end
+
 namespace :sources do
 	desc 'Assign Sources to children, matching as closely as we can their registration_source / details'
 	task assign_to_children: :environment do
@@ -49,23 +70,26 @@ namespace :sources do
       matching_source =
         case child.registration_source
         when 'pmi'
-          Source.find_by(channel: 'pmi', name: PMI_DETAILS_MATCHING_SOURCES[child.pmi_detail])
+          Source.find_by(channel: 'pmi', name: PMI_DETAILS_MATCHING_SOURCES[child.pmi_detail]) || Source.find_by(channel: 'other')
         when 'caf'
-          caf_territory_matching(child.decorate.territory)
+          caf_territory_matching(child.decorate.territory) || Source.find_by(channel: 'other')
         when 'resubscribing'
           Source.find_by(channel: 'bao', name: 'Je suis déjà inscrit à 1001mots')
         when 'friends'
           Source.find_by(channel: 'bao', name: 'Mon entourage')
         when 'other'
-          Source.find_by(channel: 'bao', name: 'Autre')
-        when 'nursery'
-
-        when 'therapist'
-        when 'doctor'
+          matching(ENV['OTHER_CSV_PATH'], child.registration_source_details) || Source.find_by(channel: 'other')
+        when 'nursery', 'therapist', 'doctor'
+          matching(ENV['NURSERY_CSV_PATH'], child.registration_source_details) ||
+            matching(ENV['THERAPIST_CSV_PATH'], child.registration_source_details) ||
+            matching(ENV['DOCTOR_CSV_PATH'], child.registration_source_details) ||
+            Source.find_by(channel: 'local_partner', name: 'Autre')
+        else
+          Source.find_by(channel: 'other')
         end
       children_without_matching_source << child.id and next if matching_source.blank?
 
-      ChildrenSource.create!(child: child, source: matching_source, details: child.registration_source_details)
+      ChildrenSource.find_or_create_by!(child: child, source: matching_source, details: child.registration_source_details)
 		end
     puts "CHILDREN WITHOUT MATCHING SOURCE :"
     puts children_without_matching_source.inspect
