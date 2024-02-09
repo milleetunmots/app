@@ -7,7 +7,7 @@ class ChildSupport::FillParentsAvailableSupportModulesService
   end
 
   def call
-    @group.children.each do |child|
+    @group.children.where(group_status: 'active').each do |child|
       @children_with_missing_child_support << child.id and next unless child.child_support
 
       next if child.siblings_on_same_group.count > 1 && child.child_support.current_child != child
@@ -79,10 +79,10 @@ class ChildSupport::FillParentsAvailableSupportModulesService
                         SupportModule::TWENTY_FOUR_TO_TWENTY_NINE
                       when 30..35
                         SupportModule::THIRTY_TO_THIRTY_FIVE
-                      when 36..40
-                        SupportModule::THIRTY_SIX_TO_FORTY
-                      when 41..44
-                        SupportModule::FORTY_ONE_TO_FORTY_FOUR
+                      # when 36..40
+                      #   SupportModule::THIRTY_SIX_TO_FORTY
+                      # when 41..44
+                      #   SupportModule::FORTY_ONE_TO_FORTY_FOUR
                       else
                         ''
                       end
