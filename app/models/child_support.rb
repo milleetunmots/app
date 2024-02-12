@@ -226,7 +226,7 @@ class ChildSupport < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  (0..5).each do |call_idx|
+  6.times do |call_idx|
     validates "call#{call_idx}_status", inclusion: { in: CALL_STATUS, allow_blank: true }, on: :create
     validates "call#{call_idx}_language_awareness", inclusion: { in: LANGUAGE_AWARENESS, allow_blank: true }
     validates "call#{call_idx}_parent_progress", inclusion: { in: PARENT_PROGRESS, allow_blank: true }
@@ -268,8 +268,8 @@ class ChildSupport < ApplicationRecord
 
   class << self
 
-    (0..5).each do |call_idx|
-      define_method("call#{call_idx}_parent_progress_present") do |bool|
+    6.times do |call_idx|
+      define_method(:"call#{call_idx}_parent_progress_present") do |bool|
         if bool
           where("call#{call_idx}_parent_progress" => PARENT_PROGRESS)
         else
@@ -277,7 +277,7 @@ class ChildSupport < ApplicationRecord
         end
       end
 
-      define_method("call#{call_idx}_sendings_benefits_present") do |bool|
+      define_method(:"call#{call_idx}_sendings_benefits_present") do |bool|
         if bool
           where("call#{call_idx}_sendings_benefits" => SENDINGS_BENEFITS)
         else
@@ -299,12 +299,16 @@ class ChildSupport < ApplicationRecord
     where(id: Child.active_group_id_in(v).select('DISTINCT child_support_id'))
   end
 
-  def self.registration_sources_in(*v)
-    where(id: Child.where(registration_source: v).select('DISTINCT child_support_id'))
+  def self.source_in(*v)
+    where(id: Child.source_id_in(v).select('DISTINCT child_support_id'))
   end
 
-  def self.registration_sources_details_in(*v)
-    where(id: Child.where(registration_source_details: v).select('DISTINCT child_support_id'))
+  def self.source_channel_in(*v)
+    where(id: Child.source_channel_in(v).select('DISTINCT child_support_id'))
+  end
+
+  def self.source_details_matches_any(*v)
+    where(id: Child.source_details_matches_any(v).select('DISTINCT child_support_id'))
   end
 
   def self.postal_code_contains(v)
@@ -334,8 +338,10 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with registration_sources_in registration_sources_details_in
-               group_id_in active_group_id_in without_parent_text_message_since]
+    super + %i[
+      groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_in source_channel_in
+      source_details_matches_any group_id_in active_group_id_in without_parent_text_message_since
+    ]
   end
 
   # ---------------------------------------------------------------------------
@@ -352,12 +358,12 @@ class ChildSupport < ApplicationRecord
     end
   end
 
-  (0..5).each do |call_idx|
-    define_method("call#{call_idx}_parent_progress_index") do
-      (send("call#{call_idx}_parent_progress") || '').split('_').first&.to_i
+  6.times do |call_idx|
+    define_method(:"call#{call_idx}_parent_progress_index") do
+      (send(:"call#{call_idx}_parent_progress") || '').split('_').first&.to_i
     end
 
-    define_method("call#{call_idx}_previous_call_goals") do
+    define_method(:"call#{call_idx}_previous_call_goals") do
       call_idx.zero? ? '' : previous_call_goals(call_idx).strip
     end
 
@@ -420,10 +426,7 @@ class ChildSupport < ApplicationRecord
            :parent2_follow_us_on_whatsapp?,
            :parent2_last_name,
            :parent2_phone_number_national,
-           :pmi_detail,
            :postal_code,
-           :registration_source,
-           :registration_source_details,
            :should_contact_parent1,
            :should_contact_parent1?,
            :should_contact_parent2,
@@ -438,7 +441,7 @@ class ChildSupport < ApplicationRecord
 
   def previous_call_goals(index)
     (0..(index - 1)).reverse_each do |i|
-      previous_call_goals = "#{send("call#{i}_goals_sms".to_sym)}\n#{send("call#{i}_goals")}"
+      previous_call_goals = "#{send(:"call#{i}_goals_sms")}\n#{send(:"call#{i}_goals")}"
       return previous_call_goals if previous_call_goals != "\n"
     end
     ''
@@ -473,8 +476,8 @@ class ChildSupport < ApplicationRecord
     end
 
     self.notes << "\nInformations de chaque appel\n"
-    self.notes << '='*22 + "\n"
-    (0..5).each do |call_idx|
+    self.notes << (('=' * 22) + "\n")
+    6.times do |call_idx|
       self.notes << "\n--------Appel #{call_idx}--------\n"
 
       call_attributes = [

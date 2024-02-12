@@ -47,8 +47,8 @@ class ChildSupportDecorator < BaseDecorator
     children_attribute(:gender, glue)
   end
 
-  def children_registration_sources(glue = "\n")
-    children_attribute(:registration_source, glue)
+  def children_sources
+    model.children.map(&:children_source_name).join("\n")
   end
 
   def children_land(glue = "\n")
@@ -113,19 +113,7 @@ class ChildSupportDecorator < BaseDecorator
     children_attribute(:group_name, glue)
   end
 
-  def registration_sources
-    arbre do
-      ul do
-        model.children.decorate.each do |child|
-          li do
-            child.registration_source
-          end
-        end
-      end
-    end
-  end
-
-  (0..5).each do |call_idx|
+  (1..5).each do |call_idx|
 
     define_method("call#{call_idx}_parent_progress_index") do
       progress model.send("call#{call_idx}_parent_progress_index")
@@ -280,18 +268,7 @@ class ChildSupportDecorator < BaseDecorator
 
   def parent(parent)
     return nil unless parent
+
     parent.decorate.admin_link
   end
-
-  def current_child_pmi_detail
-    return nil if model.current_child.pmi_detail.blank?
-    Child.human_attribute_name("pmi_detail.#{model.current_child.pmi_detail}")
-  end
-
-  # def parent_card(parent, should_contact_parent)
-  #  if parent
-  #     h.render 'parent', parent: parent.decorate, should_contact_parent: should_contact_parent
-  #   end
-  # end
-
 end

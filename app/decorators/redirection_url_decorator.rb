@@ -24,10 +24,6 @@ class RedirectionUrlDecorator < BaseDecorator
     decorated_child&.gender
   end
 
-  def child_registration_source
-    decorated_child&.registration_source
-  end
-
   def visit_url
     h.visit_redirection_url(id: model.id, security_code: model.security_code)
   end
@@ -54,5 +50,4 @@ class RedirectionUrlDecorator < BaseDecorator
   def decorated_child
     @decorated_child ||= model.child&.decorate
   end
-
 end

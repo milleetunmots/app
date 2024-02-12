@@ -100,16 +100,6 @@ RSpec.describe Child, type: :model do
         expect(first_child).not_to be_valid
       end
 
-      it "if the child doesn't have registration source" do
-        first_child.registration_source = nil
-        expect(first_child).not_to be_valid
-      end
-
-      it "if the child doesn't have registration source detail" do
-        first_child.registration_source_details = nil
-        expect(first_child).not_to be_valid
-      end
-
       it "if the child doesn't have security code" do
         first_child.security_code = nil
         expect(first_child).not_to be_valid
@@ -328,15 +318,6 @@ RSpec.describe Child, type: :model do
 
       it "children with parents who don't have text message since the parameter" do
         expect(Child.without_parent_text_message_since(Time.zone.today.prev_month(2))).to match_array [first_child, third_child, fifth_child]
-      end
-    end
-  end
-
-  describe "#registration_source_details_matches_any" do
-    context "returns" do
-      it "children with registration source details matching with the parameter" do
-        fifth_child.update registration_source_details: "Plus de Details"
-        expect(Child.registration_source_details_matches_any("Plus de Details")).to match_array [fifth_child]
       end
     end
   end

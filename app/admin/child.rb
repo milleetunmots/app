@@ -11,7 +11,7 @@ ActiveAdmin.register Child do
   # INDEX
   # ---------------------------------------------------------------------------
 
-  includes :parent1, :parent2, :child_support, :group
+  includes :parent1, :parent2, :child_support, :group, :children_source
 
   index do
     div do
@@ -34,7 +34,7 @@ ActiveAdmin.register Child do
     column :child_support, sortable: :child_support_id, &:child_support_status
     column :group, sortable: :group_id
     column :group_status
-    column :pmi_detail
+    column :source
     column :tags do |model|
       model.tags(context: 'tags')
     end
@@ -76,25 +76,26 @@ ActiveAdmin.register Child do
   filter :months,
          as: :numeric,
          filters: %i[equals gteq lt]
-  filter :registration_source,
-         as: :select,
-         collection: proc { child_registration_source_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
-         label: 'Origine'
-  filter :pmi_detail,
-         as: :select,
-         collection: proc { child_registration_pmi_detail_collection },
-         input_html: { multiple: true, data: { select2: {} } }
-  filter :registration_source_details_matches_any,
-         as: :select,
-         collection: proc { child_registration_source_details_suggestions },
-         input_html: { multiple: true, data: { select2: {} } },
-         label: "Précisions sur l'origine"
+  filter :source_id_in,
+          as: :select,
+          collection: proc { source_select_collection },
+          input_html: { multiple: true, data: { select2: {} } },
+          label: "Source d'inscription"
+  filter :source_channel_in,
+          as: :select,
+          collection: proc { source_channel_select_collection },
+          input_html: { multiple: true, data: { select2: {} } },
+          label: "Canal d'inscription"
+  filter :source_details_matches_any,
+          as: :select,
+          collection: proc { source_details_suggestions },
+          input_html: { multiple: true, data: { select2: {} } },
+          label: "Précisions sur l'origine"
   filter :supporter_id_in,
-         as: :select,
-         collection: proc { child_supporter_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
-         label: 'Responsable'
+          as: :select,
+          collection: proc { child_supporter_select_collection },
+          input_html: { multiple: true, data: { select2: {} } },
+          label: 'Responsable'
   filter :group_id_in,
          as: :select,
          collection: proc { child_group_select_collection },
@@ -242,19 +243,6 @@ ActiveAdmin.register Child do
            progress: proc { |output| puts output }
   end
 
-  # batch_action :generate_buzz_expert do |ids|
-  #   @children = batch_action_collection.where(id: ids)
-  #
-  #   service = BuzzExpert::ExportChildrenService.new(children: @children).call
-  #   if service.errors.any?
-  #     puts "Error: #{service.errors}"
-  #     flash[:error] = "Une erreur est survenue: #{service.errors.join(', ')}"
-  #     redirect_to request.referer
-  #   else
-  #     send_data service.csv, filename: "Buzz-Expert - #{csv_filename}"
-  #   end
-  # end
-
   batch_action :generate_quit_sms do |ids|
     ids.reject! do |id|
       child = Child.find(id)
@@ -319,14 +307,15 @@ ActiveAdmin.register Child do
   # ---------------------------------------------------------------------------
 
   form do |f|
+    parents_collection = child_parent_select_collection
     f.semantic_errors(*f.object.errors.keys)
     f.inputs do
       f.input :parent1,
-              collection: child_parent_select_collection,
+              collection: parents_collection,
               input_html: { data: { select2: {} } }
       f.input :should_contact_parent1
       f.input :parent2,
-              collection: child_parent_select_collection,
+              collection: parents_collection,
               input_html: { data: { select2: {} } }
       f.input :should_contact_parent2
       f.input :gender,
@@ -341,13 +330,15 @@ ActiveAdmin.register Child do
                 max_date: Child.max_birthdate
               }
       f.input :available_for_workshops
-      f.input :registration_source,
-              collection: child_registration_source_select_collection,
-              input_html: { data: { select2: {} } }
-      f.input :pmi_detail,
-              collection: child_registration_pmi_detail_collection,
-              input_html: { data: { select2: {} } }
-      f.input :registration_source_details
+      f.inputs do
+        f.semantic_fields_for :children_source, (f.object.children_source || ChildrenSource.new) do |children_source_f|
+          children_source_f.input :source_id,
+            as: :select,
+            collection: source_select_collection,
+            input_html: { data: { select2: {} } }
+          children_source_f.input :details
+        end
+      end
       f.input :group,
               collection: child_group_select_collection,
               input_html: { data: { select2: {} } }
@@ -361,9 +352,8 @@ ActiveAdmin.register Child do
 
   permit_params :parent1_id, :parent2_id, :group_id,
                 :should_contact_parent1, :should_contact_parent2,
-                :gender, :first_name, :last_name, :birthdate, :available_for_workshops,
-                :registration_source, :registration_source_details, :pmi_detail, :group_status,
-                tags_params
+                :gender, :first_name, :last_name, :birthdate, :available_for_workshops, :group_status,
+                tags_params.merge(children_source_attributes: [:id, :source_id, :details])
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -382,12 +372,12 @@ ActiveAdmin.register Child do
           row :birthdate
           row :age
           row :gender, &:gender_status
+          row :source
+          row :channel
+          row :source_details
           row :territory
           row :land
           row :available_for_workshops
-          row :registration_source
-          row :registration_source_details
-          row :pmi_detail
           row :group
           row :group_status
           row :group_start
@@ -450,51 +440,16 @@ ActiveAdmin.register Child do
   end
 
   # ---------------------------------------------------------------------------
-  # IMPORT
-  # ---------------------------------------------------------------------------
-
-  # action_item :new_import,
-  #   only: :index do
-  #   link_to I18n.t("child.new_import_link"), [:new_import, :admin, :children]
-  # end
-  # collection_action :new_import do
-  #   @import_action = perform_import_admin_children_path
-  # end
-  # collection_action :perform_import, method: :post do
-  #   @csv_file = params[:import][:csv_file]
-  #
-  #   service = ChildrenImportService.new(csv_file: @csv_file).call
-  #
-  #   if service.errors.empty?
-  #     redirect_to admin_children_path, notice: "Import terminé"
-  #   else
-  #     @import_action = perform_import_admin_children_path
-  #     @errors = service.errors
-  #     render :new_import
-  #   end
-  # end
-
-  # ---------------------------------------------------------------------------
   # TOOLS
   # ---------------------------------------------------------------------------
 
   action_item :tools, only: :index do
     dropdown_menu 'Outils' do
-      item "Nettoyer les précisions sur l'origine",
-           %i[new_clean_registration_source_details admin children]
       item "Télécharger les listes d'enfants par cohorte au format Excel V1",
            %i[download_book_files_v1 admin children]
       item "Télécharger les listes d'enfants par module au format Excel V2",
            %i[download_book_files_v2 admin children]
     end
-  end
-  collection_action :new_clean_registration_source_details do
-    @values = Child.registration_source_details_map.to_a.sort_by do |o|
-      I18n.transliterate(
-        o.first.unicode_normalize
-      ).downcase.gsub(/[\s-]+/, ' ').strip
-    end
-    @perform_action = perform_clean_registration_source_details_admin_children_path
   end
 
   collection_action :download_book_files_v1 do
@@ -519,19 +474,6 @@ ActiveAdmin.register Child do
       flash[:alert] = service.errors
       redirect_back(fallback_location: root_path)
     end
-  end
-
-  collection_action :perform_clean_registration_source_details, method: :post do
-    params[:changes].each do |_idx, change|
-      wanted_value = change[:wanted]
-      existing_values = change[:existing]
-      Child.where(
-        registration_source_details: existing_values
-      ).update_all(
-        registration_source_details: wanted_value
-      )
-    end
-    redirect_to admin_children_path, notice: 'Nettoyage effectué'
   end
 
   action_item :view do
@@ -559,6 +501,10 @@ ActiveAdmin.register Child do
     column :territory
     column :land
 
+    column :children_source_name
+    column :channel
+    column :source_details
+
     column :child_group_name
     column :child_group_months
     column :months_between_registration_and_group_start
@@ -585,10 +531,6 @@ ActiveAdmin.register Child do
     column :parent2_present_on_whatsapp
     column :parent2_follow_us_on_whatsapp
     column :should_contact_parent2
-
-    column :registration_source
-    column :pmi_detail
-    column :registration_source_details
 
     column :group_status
 

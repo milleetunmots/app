@@ -52,11 +52,7 @@ class Child < ApplicationRecord
   include Discard::Model
 
   GENDERS = %w[m f].freeze
-  REGISTRATION_SOURCES = %w[caf pmi friends therapist nursery doctor resubscribing other].freeze
-  PMI_LIST = %w[orleans orleans_est montargis gien pithiviers olivet sarreguemines forbach trappes plaisir mantes_la_jolie_clemenceau mantes_la_jolie_leclerc
-                gennevilliers_zucman_gabison gennevilliers_timsit asnieres_gennevilliers_sst2 villeneuve_la_garenne chanteloup sartrouville les_mureaux seine_st_denis vernouillet val_de_saone_dombes
-                plaine_de_l_ain_cotiere bugey_pays_de_gex bresse_revermont].freeze
-  GROUP_STATUS = %w[waiting active paused stopped disengaged].freeze
+  GROUP_STATUS = %w[waiting active paused stopped].freeze
   TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
   LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Bondy', 'Orleans', 'Montargis', 'Pithiviers', 'Gien', 'Villeneuve-la-Garenne', 'Mantes La Jolie'].freeze
 
@@ -97,10 +93,13 @@ class Child < ApplicationRecord
   has_many :children_support_modules, dependent: :destroy
 
   has_one :supporter, through: :child_support, class_name: :AdminUser
+  has_one :children_source
+  has_one :source, through: :children_source
 
   accepts_nested_attributes_for :child_support
   accepts_nested_attributes_for :parent1
   accepts_nested_attributes_for :parent2
+  accepts_nested_attributes_for :children_source
 
   # ---------------------------------------------------------------------------
   # validations
@@ -116,10 +115,7 @@ class Child < ApplicationRecord
     after: proc { min_birthdate },
     before: proc { max_birthdate }
   }, on: :create
-  validates :registration_source, presence: true, inclusion: { in: REGISTRATION_SOURCES }
-  validates :registration_source_details, presence: true
   validates :security_code, presence: true
-  validates :pmi_detail, inclusion: { in: PMI_LIST, allow_blank: true }
   validates :group_status, inclusion: { in: GROUP_STATUS }
   validate :no_duplicate, on: :create
   validate :different_phone_number, on: :create
@@ -164,7 +160,7 @@ class Child < ApplicationRecord
   scope :only_siblings, -> { where(child_support_id: ChildSupport.multiple_children.select(:id)) }
   scope :with_ongoing_group, -> { joins(:group).merge(Group.started) }
   scope :potential_duplicates, -> {
-    where("(unaccent(children.first_name), unaccent(children.last_name), children.birthdate) IN (SELECT unaccent(first_name), unaccent(last_name), birthdate FROM children GROUP BY unaccent(children.first_name), unaccent(children.last_name), children.birthdate HAVING COUNT(*) > 1)")
+    where('(unaccent(children.first_name), unaccent(children.last_name), children.birthdate) IN (SELECT unaccent(first_name), unaccent(last_name), birthdate FROM children GROUP BY unaccent(children.first_name), unaccent(children.last_name), children.birthdate HAVING COUNT(*) > 1)')
   }
 
   def self.without_group_and_not_waiting_second_group
@@ -223,14 +219,22 @@ class Child < ApplicationRecord
     where(group_id: v).where(group_status: 'active')
   end
 
+  def self.source_id_in(*v)
+    joins(:children_source).where(children_sources: { source_id: v })
+  end
+
+  def self.source_channel_in(*v)
+    joins(:source).where(sources: { channel: v })
+  end
+
+  def self.source_details_matches_any(*v)
+    joins(:children_source).where(children_sources: { details: v })
+  end
+
   def self.without_parent_text_message_since(v)
     parent_id_not_in(
       Events::TextMessage.where(related_type: :Parent).where('occurred_at >= ?', v).pluck('DISTINCT related_id')
     )
-  end
-
-  def self.registration_source_details_matches_any(*v)
-    where('registration_source_details ILIKE ?', v)
   end
 
   def self.by_lands(lands)
@@ -415,28 +419,6 @@ class Child < ApplicationRecord
     Parent.where(id: parent_ids.compact.uniq)
   end
 
-  # returns a Hash k => v where
-  # - k is a possible value
-  # - v is an Array of all corresponding values
-  # e.g. { "Noémie" => ["Noémie", Noemie"] }
-  def self.registration_source_details_map
-    values = {}
-
-    # input all values
-    pluck(:registration_source_details).compact.uniq.each do |value|
-      normalized_value = I18n.transliterate(
-        value.unicode_normalize
-      ).downcase.gsub(/[\s-]+/, ' ').strip
-      values[normalized_value] ||= []
-      values[normalized_value] << value
-    end
-
-    # use first found value as map key and remove duplicates
-    values.map do |_k, v|
-      [v.first, v.uniq]
-    end.to_h
-  end
-
   # ---------------------------------------------------------------------------
   # methods
   # ---------------------------------------------------------------------------
@@ -500,6 +482,8 @@ class Child < ApplicationRecord
            to: :child_support,
            prefix: true,
            allow_nil: true
+
+  delegate :name, :details, to: :children_source, prefix: true, allow_nil: true
 
   # computes an (integer) number of months old
   def months
@@ -660,8 +644,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in
-               without_parent_text_message_since registration_source_details_matches_any]
+    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in without_parent_text_message_since source_details_matches_any]
   end
 
   def siblings_on_same_group
@@ -688,19 +671,17 @@ class Child < ApplicationRecord
 
   def no_duplicate
     self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).find_each do |child|
-      if parent1.duplicate_of?(child.parent1) || parent1.duplicate_of?(child.parent2) || parent2&.duplicate_of?(child.parent1) || parent2&.duplicate_of?(child.parent2)
-        errors.add(:base, :invalid, message: "L'enfant est déjà enregistré")
-      end
+      errors.add(:base, :invalid, message: "L'enfant est déjà enregistré") if parent1.duplicate_of?(child.parent1) || parent1.duplicate_of?(child.parent2) || parent2&.duplicate_of?(child.parent1) || parent2&.duplicate_of?(child.parent2)
     end
   end
 
   def different_phone_number
     return unless parent2&.phone_number
 
-    if parent1.phone_number == parent2.phone_number
-      errors.add(:base, :invalid,
-                 message: "Nous avons besoin des coordonnées d'au moins un parent. Si l'autre parent ne souhaite pas recevoir les messages, merci de ne pas l'inscrire car nous n'avons pas besoin de son nom.")
-    end
+    return unless parent1.phone_number == parent2.phone_number
+
+    errors.add(:base, :invalid,
+               message: "Nous avons besoin des coordonnées d'au moins un parent. Si l'autre parent ne souhaite pas recevoir les messages, merci de ne pas l'inscrire car nous n'avons pas besoin de son nom.")
   end
 
   def valid_group_status
