@@ -22,8 +22,7 @@ class ChildrenController < ApplicationController
       child_creation_params.merge(src_url: session[:src_url]),
       siblings_params,
       parent1_params,
-      mother_params,
-      father_params,
+      parent2_params,
       current_registration_origin,
       children_source_params,
       @child_min_birthdate
@@ -96,15 +95,11 @@ class ChildrenController < ApplicationController
   end
 
   def parent1_params
-    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name])[:parent1_attributes]
+    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name first_name last_name phone_number gender])[:parent1_attributes]
   end
 
-  def mother_params
-    params.require(:child).permit(parent1_attributes: %i[first_name last_name phone_number])[:parent1_attributes]
-  end
-
-  def father_params
-    params.require(:child).permit(parent2_attributes: %i[first_name last_name phone_number])[:parent2_attributes]
+  def parent2_params
+    params.require(:child).permit(parent2_attributes: %i[first_name last_name phone_number gender])[:parent2_attributes]
   end
 
   def siblings_params

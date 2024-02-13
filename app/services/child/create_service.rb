@@ -4,15 +4,14 @@ class Child
 
     attr_reader :child, :sms_url_form
 
-    def initialize(attributes, siblings_attributes, parent1_attributes, mother_attributes, father_attributes, registration_origin, children_source_attributes, child_min_birthdate)
+    def initialize(attributes, siblings_attributes, parent1_attributes, parent2_attributes, registration_origin, children_source_attributes, child_min_birthdate)
       @attributes = attributes
       @registration_origin = registration_origin
       @child_min_birthdate = child_min_birthdate
       @siblings_attributes = siblings_attributes
-      @parent1_attributes = parent1_attributes
+      @parent1_attributes = parent1_attributes.merge(terms_accepted_at: Time.zone.now)
+      @parent2_attributes = parent2_attributes.merge(terms_accepted_at: Time.zone.now)
       @children_source_attributes = children_source_attributes
-      @mother_attributes = mother_attributes.merge(gender: 'f', terms_accepted_at: Time.now)
-      @father_attributes = father_attributes.merge(gender: 'm', terms_accepted_at: Time.now)
     end
 
     def call
@@ -43,8 +42,8 @@ class Child
     end
 
     def build
-      parent1_attributes = @parent1_attributes.merge(mother_present? ? @mother_attributes : @father_attributes)
-      parent2_attributes = @parent1_attributes.merge(@father_attributes) if father_present? && mother_present?
+      parent1_attributes = @parent1_attributes.merge(parent1_present? ? @parent1_attributes : @parent2_attributes)
+      parent2_attributes = @parent1_attributes.merge(@parent2_attributes) if parent2_present? && parent1_present?
 
       @child = if parent2_attributes.nil?
                  Child.new(@attributes.merge(parent1_attributes: parent1_attributes))
@@ -55,7 +54,7 @@ class Child
 
     def set_should_contact_parent
       @child.should_contact_parent1 = true
-      @child.should_contact_parent2 = father_present? && mother_present?
+      @child.should_contact_parent2 = parent2_present? && parent1_present?
     end
 
     def build_siblings
@@ -77,32 +76,34 @@ class Child
       SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.change({ hour: 19 }).to_i, message).call if @registration_origin == 3
     end
 
-    def mother_present?
-      @mother_attributes[:first_name].present? || @mother_attributes[:last_name].present? || @mother_attributes[:phone_number].present?
+    def parent1_present?
+      @parent1_attributes[:first_name].present? || @parent1_attributes[:last_name].present? || @parent1_attributes[:phone_number].present? || @parent1_attributes[:gender].present?
     end
 
-    def father_present?
-      @father_attributes[:first_name].present? || @father_attributes[:last_name].present? || @father_attributes[:phone_number].present?
+    def parent2_present?
+      @parent2_attributes[:first_name].present? || @parent2_attributes[:last_name].present? || @parent2_attributes[:phone_number].present? || @parent2_attributes[:gender].present?
     end
 
     def any_parent?
-      if !mother_present? && !father_present?
+      if !parent1_present? && !parent2_present?
         @child.errors.add(:base, :invalid_parents, message: 'Au moins un parent est obligatoire.')
         return false
       end
       true
     end
 
-    def mother_validation
-      @child.errors.add('parent1_first_name', :blank) unless @mother_attributes[:first_name].present?
-      @child.errors.add('parent1_last_name', :blank) unless @mother_attributes[:last_name].present?
-      @child.errors.add('parent1_phone_number_national', :blank) unless @mother_attributes[:phone_number].present?
+    def parent1_validation
+      @child.errors.add('parent1_first_name', :blank) unless @parent1_attributes[:first_name].present?
+      @child.errors.add('parent1_last_name', :blank) unless @parent1_attributes[:last_name].present?
+      @child.errors.add('parent1_phone_number_national', :blank) unless @parent1_attributes[:phone_number].present?
+      @child.errors.add('parent1_gender', :invalid) unless @parent1_attributes[:gender].present? && @parent1_attributes[:gender].in?(Parent::GENDERS)
     end
 
-    def father_validation
-      @child.errors.add('parent2_first_name', :blank) unless @father_attributes[:first_name].present?
-      @child.errors.add('parent2_last_name', :blank) unless @father_attributes[:last_name].present?
-      @child.errors.add('parent2_phone_number_national', :blank) unless @father_attributes[:phone_number].present?
+    def parent2_validation
+      @child.errors.add('parent2_first_name', :blank) unless @parent2_attributes[:first_name].present?
+      @child.errors.add('parent2_last_name', :blank) unless @parent2_attributes[:last_name].present?
+      @child.errors.add('parent2_phone_number_national', :blank) unless @parent2_attributes[:phone_number].present?
+      @child.errors.add('parent2_gender', :invalid) unless @parent2_attributes[:gender].present? && @parent2_attributes[:gender].in?(Parent::GENDERS)
     end
 
     def birthdate_validation
@@ -121,8 +122,8 @@ class Child
       @child.valid?
       Source.exists?(@children_source_attributes[:source_id])
       if any_parent?
-        mother_validation if mother_present?
-        father_validation if father_present?
+        parent1_validation if parent1_present?
+        parent2_validation if parent2_present?
       end
 
       birthdate_validation

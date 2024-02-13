@@ -2,25 +2,22 @@ require 'rails_helper'
 
 RSpec.describe Child::CreateService do
   let(:birthdate) { Faker::Date.between(from: Child.min_birthdate.tomorrow, to: Child.max_birthdate.yesterday) }
-  let(:mother_attributes) {
-    {
-      first_name: Faker::Name.first_name,
-      last_name: Faker::Name.last_name,
-      phone_number: Faker::PhoneNumber.phone_number
-    }
-  }
   let(:parent1_attributes) {
     {
       letterbox_name: Faker::Name.name,
       address: Faker::Address.street_address,
       postal_code: Faker::Address.postcode,
-      city_name: Faker::Address.city
+      city_name: Faker::Address.city,
+      first_name: Faker::Name.first_name,
+      last_name: Faker::Name.last_name,
+      phone_number: Faker::PhoneNumber.phone_number,
+      gender: 'f'
     }
   }
   let(:child_min_birthdate) { Child.min_birthdate }
 
   let(:registration_origin) { nil }
-  let(:father_attributes) { {} }
+  let(:parent2_attributes) { {} }
   let(:siblings_attributes) { [] }
 
   let(:attributes) {
@@ -49,8 +46,7 @@ RSpec.describe Child::CreateService do
       attributes,
       siblings_attributes,
       parent1_attributes,
-      mother_attributes,
-      father_attributes,
+      parent2_attributes,
       registration_origin,
       source_attributes,
       child_min_birthdate,
@@ -100,11 +96,12 @@ RSpec.describe Child::CreateService do
     end
 
     context "when there are 2 parents" do
-      let(:father_attributes) {
+      let(:parent2_attributes) {
         {
           first_name: Faker::Name.first_name,
           last_name: Faker::Name.last_name,
-          phone_number: Faker::PhoneNumber.phone_number
+          phone_number: Faker::PhoneNumber.phone_number,
+          gender: 'm'
         }
       }
 
@@ -114,18 +111,19 @@ RSpec.describe Child::CreateService do
     end
 
     context "when only the second parent is filled" do
-      let(:father_attributes) {
+      let(:parent2_attributes) {
         {
           first_name: Faker::Name.first_name,
           last_name: Faker::Name.last_name,
-          phone_number: Faker::PhoneNumber.phone_number
+          phone_number: Faker::PhoneNumber.phone_number,
+          gender: 'm'
         }
       }
-      let(:mother_attributes) { {} }
+      let(:parent1_attributes) { {} }
 
       it "sets the second parent as first parent" do
-        expect(subject.call.child.parent1.first_name).to eq father_attributes[:first_name]
-        expect(subject.call.child.parent1.last_name).to eq father_attributes[:last_name]
+        expect(subject.call.child.parent1.first_name).to eq parent2_attributes[:first_name]
+        expect(subject.call.child.parent1.last_name).to eq parent2_attributes[:last_name]
         expect(subject.call.child.parent2).to be nil
       end
     end
@@ -134,11 +132,12 @@ RSpec.describe Child::CreateService do
       let(:first_sibling_birthdate) { Faker::Date.between(from: Child.min_birthdate.tomorrow, to: Child.max_birthdate.yesterday) }
       let(:second_sibling_birthdate) { Faker::Date.between(from: Child.min_birthdate.tomorrow, to: Child.max_birthdate.yesterday) }
 
-      let(:father_attributes) {
+      let(:parent2_attributes) {
         {
           first_name: Faker::Name.first_name,
           last_name: Faker::Name.last_name,
-          phone_number: Faker::PhoneNumber.phone_number
+          phone_number: Faker::PhoneNumber.phone_number,
+          gender: 'm'
         }
       }
       let(:siblings_attributes) {
@@ -196,7 +195,7 @@ RSpec.describe Child::CreateService do
       end
 
       context "when parents attributes are not valid" do
-        let(:mother_attributes) { super().merge(first_name: '') }
+        let(:parent1_attributes) { super().merge(first_name: '') }
 
         it "does not create child" do
           child_count = Child.count
@@ -216,7 +215,7 @@ RSpec.describe Child::CreateService do
       end
 
       context "when there are no parents" do
-        let(:mother_attributes) { {} }
+        let(:parent1_attributes) { {} }
 
         it "does not create child" do
           child_count = Child.count

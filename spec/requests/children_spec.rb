@@ -72,7 +72,8 @@ RSpec.describe ChildrenController, type: :request do
               letterbox_name: Faker::Name.name,
               address: Faker::Address.street_address,
               postal_code: Faker::Address.postcode,
-              city_name: Faker::Address.city
+              city_name: Faker::Address.city,
+              gender: 'f'
             },
             gender: "",
             first_name: Faker::Name.first_name,
