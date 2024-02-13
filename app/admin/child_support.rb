@@ -4,7 +4,6 @@ ActiveAdmin.register ChildSupport do
   has_better_csv
   has_paper_trail
   has_tags
-  has_tasks(false)
   use_discard
 
   actions :all, except: [:new]
@@ -636,6 +635,35 @@ ActiveAdmin.register ChildSupport do
 
     column :created_at
     column :updated_at
+  end
+
+  action_item :actions, only: :show do
+    dropdown_menu 'Actions' do
+      item "Ajout d'un frère / soeur", %i[add_child admin child_support], { target: '_blank' }
+      item "Ajout d'un parent", %i[add_parent admin child_support], { target: '_blank' } unless resource.model.parent2
+      item "Autre tâche", url_for_new_task(resource.decorate), { target: '_blank' }
+    end
+  end
+
+  member_action :add_child do
+    redirect_to new_admin_child_path(
+      parent1_id: resource.current_child.parent1_id,
+      parent2_id: resource.current_child.parent2_id,
+      should_contact_parent1: resource.current_child.should_contact_parent1,
+      should_contact_parent2: resource.current_child.should_contact_parent2,
+      registration_source: "resubscribing"
+      )
+  end
+
+  member_action :add_parent do
+    redirect_to new_admin_parent_path(
+      family_followed: resource.model.current_child.parent1.family_followed,
+      address: resource.model.current_child.parent1.address,
+      postal_code: resource.model.current_child.parent1.postal_code,
+      city_name: resource.model.current_child.parent1.city_name,
+      letterbox_name: resource.model.current_child.parent1.letterbox_name,
+      parent2_child_ids: resource.model.current_child.sibling_ids
+    )
   end
 
   action_item :other_family_child_supports,
