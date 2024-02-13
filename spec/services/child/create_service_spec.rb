@@ -50,7 +50,7 @@ RSpec.describe Child::CreateService do
       registration_origin,
       source_attributes,
       child_min_birthdate,
-    ).call
+    )
   }
 
   context "when params are valid" do
