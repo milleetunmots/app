@@ -651,7 +651,7 @@ ActiveAdmin.register ChildSupport do
       parent2_id: resource.current_child.parent2_id,
       should_contact_parent1: resource.current_child.should_contact_parent1,
       should_contact_parent2: resource.current_child.should_contact_parent2,
-      registration_source: "resubscribing"
+      source_id: Source.find_by(name: 'Je suis déjà inscrit à 1001mots', channel: 'bao').id
       )
   end
 
