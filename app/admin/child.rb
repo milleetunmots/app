@@ -312,8 +312,6 @@ ActiveAdmin.register Child do
     f.object.parent2_id = params[:parent2_id] if params[:parent2_id]
     f.object.should_contact_parent1 = params[:should_contact_parent1] if params[:should_contact_parent1]
     f.object.should_contact_parent2 = params[:should_contact_parent2] if params[:should_contact_parent1]
-    f.object.registration_source = params[:registration_source] if params[:registration_source]
-    f.object.registration_source_details = params[:registration_source_details] if params[:registration_source_details]
 
     f.semantic_errors(*f.object.errors.keys)
     f.inputs do
@@ -339,6 +337,7 @@ ActiveAdmin.register Child do
       f.input :available_for_workshops
       f.inputs do
         f.semantic_fields_for :children_source, (f.object.children_source || ChildrenSource.new) do |children_source_f|
+          children_source_f.object.source_id = params[:source_id] if params[:source_id]
           children_source_f.input :source_id,
             as: :select,
             collection: source_select_collection,
@@ -433,7 +432,7 @@ ActiveAdmin.register Child do
       parent2_id: resource.parent2_id,
       should_contact_parent1: resource.should_contact_parent1,
       should_contact_parent2: resource.should_contact_parent2,
-      registration_source: "resubscribing"
+      source_id: Source.find_by(name: 'Je suis déjà inscrit à 1001mots', channel: 'bao').id
       )
   end
 
