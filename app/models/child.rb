@@ -159,6 +159,7 @@ class Child < ApplicationRecord
   scope :available_for_the_workshops, -> { where(available_for_workshops: true) }
   scope :active_group, -> { where(group_status: 'active') }
   scope :only_siblings, -> { where(child_support_id: ChildSupport.multiple_children.select(:id)) }
+  scope :no_siblings, -> { where(child_support_id: ChildSupport.one_child.select(:id)) }
   scope :with_ongoing_group, -> { joins(:group).merge(Group.started) }
   scope :potential_duplicates, -> {
     where('(TRIM(LOWER(unaccent(children.first_name))), TRIM(LOWER(unaccent(children.last_name))),children.birthdate)
@@ -638,10 +639,25 @@ class Child < ApplicationRecord
   def add_to_group
     return unless group.nil?
 
-    self.group = months > 4 ? Group.next_available_at(Time.zone.today) : Group.next_available_at(birthdate + 4.months)
+    add_to_next_available_group(birthdate + 4.months) and return if months < 4
+
+    create_support! unless child_support
+    add_to_next_available_group(Time.zone.today) and return if current_child? || main_sibling&.months >= 36
+
+    return if main_sibling&.group.started?
+
+    self.group = main_sibling&.group
     self.group_status = 'active' if group
     save(validate: false)
   end
+
+  def main_sibling
+    return unless child_support
+
+    child_support.current_child
+  end
+
+
 
   # --------------------------------------------------------------------------
   # ransack
@@ -672,6 +688,12 @@ class Child < ApplicationRecord
   end
 
   private
+
+  def add_to_next_available_group(date)
+    self.group = Group.next_available_at(date)
+    self.group_status = 'active' if group
+    save(validate: false)
+  end
 
   def no_duplicate
     self.class.where('unaccent(first_name) ILIKE unaccent(?)', first_name).where(birthdate: birthdate).find_each do |child|

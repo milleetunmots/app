@@ -196,7 +196,7 @@ class ChildSupport < ApplicationRecord
   belongs_to :module5_chosen_by_parents, class_name: :SupportModule, optional: true
   belongs_to :module6_chosen_by_parents, class_name: :SupportModule, optional: true
   has_many :children, dependent: :nullify
-  has_one :current_child, -> { order(Arel.sql("CASE WHEN group_status = 'active' THEN 0 ELSE 1 END, birthdate DESC")) }, class_name: :Child
+  has_one :current_child, -> { where('birthdate < ?', 4.months.ago).order(Arel.sql("CASE WHEN group_status = 'active' THEN 0 ELSE 1 END, birthdate DESC")) }, class_name: :Child
   has_one :parent1, through: :current_child
   has_one :parent2, through: :current_child
 
