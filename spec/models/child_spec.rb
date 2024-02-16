@@ -159,6 +159,19 @@ RSpec.describe Child, type: :model do
     end
   end
 
+  describe ".main_sibling" do
+    context "returns" do
+      let(:sixth_child) { FactoryBot.create(:child, parent1: fourth_parent, parent2: fifth_parent, birthdate: Time.zone.today.prev_month) }
+      let(:seventh_child) { FactoryBot.create(:child, birthdate: Time.zone.today.prev_month(2)) }
+      let(:eighth_child) { FactoryBot.create(:child, parent1: seventh_child.parent1 , parent2: seventh_child.parent2, birthdate: Time.zone.today.prev_month) }
+      it "the child_support current_child if it exists" do
+        expect(sixth_child.main_sibling).to eq fifth_child
+        expect(seventh_child.child_support_id).to eq eighth_child.child_support_id
+        expect(seventh_child.main_sibling).to be_nil
+      end
+    end
+  end
+
   describe ".create_support!" do
     context "create" do
       it "child_support for the child and all their siblings" do
@@ -167,6 +180,62 @@ RSpec.describe Child, type: :model do
         first_child.true_siblings.each do |sibling|
           expect(sibling.child_support).to eq first_child.child_support
         end
+      end
+    end
+  end
+
+  describe ".add_to_group" do
+    context "if the child has less than 4 months add to" do
+      let(:date) { Time.zone.today.prev_day }
+      let!(:third_group) { FactoryBot.create(:group, expected_children_number: 1, started_at: date.next_occurring(:monday)) }
+      let!(:sixth_child) { FactoryBot.create(:child, birthdate: date.prev_month(4)) }
+      let!(:seventh_child) { FactoryBot.create(:child, birthdate: date) }
+
+      it "next available group in 4 months after its birthdate" do
+        sixth_child.add_to_group
+        expect(sixth_child.group_id).to eq third_group.id
+      end
+
+      it "no group if none will be available in 4 months after the its birthdate" do
+        seventh_child.add_to_group
+        expect(seventh_child.group_id).to be_nil
+      end
+    end
+
+    context "if the child has not siblings" do
+      let!(:eighth_child) { FactoryBot.create(:child, birthdate: Time.zone.today.prev_month(8)) }
+      let!(:fourth_group) { FactoryBot.create(:group)}
+
+      it "add it to the next available group" do
+        eighth_child.add_to_group
+        expect(eighth_child.group_id).to eq fourth_group.id
+      end
+    end
+
+    context "if the main sibling has more than 36 months" do
+      let!(:fifth_group) { FactoryBot.create(:group, expected_children_number: 1, started_at: Time.zone.today.next_occurring(:monday)) }
+      let!(:ninth_child) { FactoryBot.create(:child) }
+      let!(:tenth_child) { FactoryBot.create(:child, parent1: ninth_child.parent1, birthdate: Time.zone.today.prev_month(8)) }
+      let!(:eleventh_child) { FactoryBot.create(:child, parent1: ninth_child.parent1, birthdate: Time.zone.today.prev_month(9)) }
+
+      it "and if there are next available group, add the child to it or leave the child on waiting" do
+        ninth_child.update(birthdate: ninth_child.birthdate.prev_month(50))
+        tenth_child.add_to_group
+        expect(tenth_child.group_id).to eq fifth_group.id
+      end
+
+      it "and if there is no next available group, leave the child on waiting" do
+        # ninth_child.update(birthdate: ninth_child.birthdate.prev_month(50))
+        # eleventh_child.add_to_group
+        # expect(eleventh_child.group_id).to be_nil
+      end
+    end
+
+    context "if the are main sibling group" do
+      it "is started, leave the child on waiting" do
+      end
+
+      it "is not started, add the child to it" do
       end
     end
   end
