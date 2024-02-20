@@ -24,3 +24,6 @@
     stop_unassigned_number_job:
       cron: '0 2 * * *'
       class: Child::StopUnassignedNumberJob
+    add_waiting_children_to_group_job:
+      cron: '0 2 * * 1'
+      class: Child::AddWaitingChildrenToGroupJob
