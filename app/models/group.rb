@@ -69,10 +69,6 @@ class Group < ApplicationRecord
     started_at.past?
   end
 
-  def not_started?
-    !started_at.past?
-  end
-
   def is_ended?
     ended_at && ended_at <= Time.zone.today
   end
@@ -114,12 +110,6 @@ class Group < ApplicationRecord
 
   def add_waiting_children
     Child.no_siblings.where(group_status: 'waiting').where('birthdate <= ?', started_at - 4.months).order('birthdate ASC').limit(expected_children_number).update(group: self, group_status: 'active')
-    # Child.only_siblings.where(group_status: 'waiting').where('birthdate <= ?', started_at - 4.months).order('birthdate ASC').each do |child|
-    #   next if child.siblings.any(group_status: 'active')
-
-    #   child.group = self
-    #   child.group_status = 'active'
-    # end
   end
 
   # ---------------------------------------------------------------------------
