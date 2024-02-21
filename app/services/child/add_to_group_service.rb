@@ -15,11 +15,13 @@ class Child
         retrieve_next_available_group(@child)
         @child.update(group: @group, group_status: 'active') if @group
       else
-        # At the start of each module >= 2 (FillParentsAvailableSupportModulesJob), we add siblings >= 6 months to the group
-        return self if @child.siblings.any? { |sibling| sibling.group.started? && sibling.group_status == 'active' }
-
         # Aucun membre de la fratrie n'est suivi
         assign_group_to_all_siblings and return self if @child.siblings.none? { |sibling| sibling.group_status == 'active' }
+
+        return self if @child.siblings.none? { |sibling| sibling.group_id }
+
+        # At the start of each module >= 2 (FillParentsAvailableSupportModulesJob), we add siblings >= 6 months to the group
+        return self if @child.siblings.any? { |sibling| sibling.group&.started? && sibling.group_status == 'active' }
 
         # Au moins un membre de la fratrie est suivi mais le groupe n'a pas commencé
         join_sibling_group
@@ -38,7 +40,7 @@ class Child
       return self unless @group
 
       @child.siblings.each do |sibling|
-        next if sibling.birthdate + 30.months > @group.started_at
+        next if sibling.birthdate + 30.months < @group.started_at
 
         sibling.update(group: @group, group_status: 'active')
       end
