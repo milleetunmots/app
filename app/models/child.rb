@@ -639,7 +639,7 @@ class Child < ApplicationRecord
   def add_to_group
     return unless group.nil?
 
-    Child::AddToGroupService.new(self).call
+    Child::AddToGroupService.new(id).call
   end
 
   def main_sibling
