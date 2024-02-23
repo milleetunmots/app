@@ -627,7 +627,7 @@ class Child < ApplicationRecord
     siblings_child_support.copy_fields(child_support)
     siblings_child_support.save
     self.child_support_id = siblings_child_support.id
-    old_child_support.destroy
+    old_child_support.destroy if old_child_support.children.empty?
     save(validate: false)
   end
 
