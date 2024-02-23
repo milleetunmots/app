@@ -29,6 +29,6 @@ module ActiveAdmin::SourcesHelper
   end
 
   def source_details_suggestions
-    ChildrenSource.select('DISTINCT ON (LOWER(details)) details').pluck(:details).compact.sort_by(&:downcase)
+    ChildrenSource.select('DISTINCT ON (LOWER(details)) details').pluck(:details).uniq.compact.sort_by(&:downcase).reject(&:blank?)
   end
 end
