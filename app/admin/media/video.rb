@@ -30,6 +30,7 @@ ActiveAdmin.register Media::Video do
     column :updated_at do |decorated|
       decorated.updated_at_date
     end
+    column :airtable_id
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
