@@ -13,7 +13,7 @@ namespace :add_modules_to_group do
     ((old_support_modules_count + 1)..(group.support_modules_count)).each do |module_index|
       fill_parents_available_support_modules_date = date + ((module_index - 2) * 8.weeks) - 6.weeks + MODULE_ZERO_DURATION
       available_module_list_verification_date = date + ((module_index - 2) * 8.weeks) - 5.weeks + MODULE_ZERO_DURATION
-      select_module_date = (date + ((module_index - 2) * 8.weeks) - 4.weeks).next_occurring(:saturday) + MODULE_ZERO_DURATION
+      select_module_date = (date + ((module_index - 2) * 8.weeks) - 4.weeks).next_occurring(:monday) + MODULE_ZERO_DURATION
       defaul_support_module_selection_date = date + ((module_index - 2) * 8.weeks) - 2.weeks - 1.day + MODULE_ZERO_DURATION
       chosen_modules_verification_date = date + ((module_index - 2) * 8.weeks) - 2.weeks + MODULE_ZERO_DURATION
       check_spothit_credits_date = date + ((module_index - 2) * 8.weeks) - 1.week + MODULE_ZERO_DURATION
@@ -43,7 +43,7 @@ namespace :add_modules_to_group do
     ((old_support_modules_count + 1)..(group.support_modules_count)).each do |module_index|
       fill_parents_available_support_modules_date = date + ((module_index - 1) * 8.weeks) - 6.weeks
       available_module_list_verification_date = date + ((module_index - 1) * 8.weeks) - 5.weeks
-      select_module_date = (date + ((module_index - 1) * 8.weeks) - 4.weeks).next_occurring(:saturday)
+      select_module_date = (date + ((module_index - 1) * 8.weeks) - 4.weeks).next_occurring(:monday)
       defaul_support_module_selection_date = date + ((module_index - 1) * 8.weeks) - 2.weeks - 1.day
       chosen_modules_verification_date = date + ((module_index - 1) * 8.weeks) - 2.weeks
       check_spothit_credits_date = date + ((module_index - 1) * 8.weeks) - 1.week
