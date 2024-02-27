@@ -3,7 +3,7 @@ class Video::ImportFromAirtableService
   attr_reader :new_videos, :updated_videos
 
   def initialize
-    @airtable_videos = Airtables::Video.all.map { |video| { id: video.id, name: video['Titre'], url: video['lien'] } }
+    @airtable_videos = Airtables::Url.all.map { |video| { id: video.id, name: video['Nom URL base Yann'], url: video['Lien URL cible'] } }
     @new_videos = []
     @updated_videos = []
   end
