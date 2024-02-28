@@ -93,8 +93,8 @@ class RedirectionUrl < ApplicationRecord
     :group_name,
     :group_status,
     :last_name,
-    :registration_source,
-    :registration_source_details,
+    :children_source_name,
+    :children_source_details,
     to: :child,
     prefix: true
 end

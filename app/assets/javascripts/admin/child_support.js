@@ -3,17 +3,18 @@ $(document).ready(function() {
   let $parent2 = $('#child_parent2_id');
 
   let autocompletion = function($input, id) {
+
     $input.change(function() {
-      $.getJSON(`/parents/${$(id).val()}/current_child`, function(child) {
-        if ("registration_source" in child) {
-          $('#child_registration_source').val(child.registration_source).change();
+      $.getJSON(`/parents/${$(id).val()}/current_child_source`, function(child_informations) {
+        if ("source" in child_informations) {
+          $('#child_children_source_attributes_source_id').val(child_informations.source).change();
           addTags(["fratrie ajoutée"])
         }
-        if ("registration_source_details" in child) {
-          $('#child_registration_source_details').val(child.registration_source_details);
+        if ("source_details" in child_informations) {
+          $('#child_children_source_attributes_details').val(child_informations.source_details);
         }
-        if ("group_id" in child) {
-          $('#child_group_id').val(child.group_id).change();
+        if ("group_id" in child_informations) {
+          $('#child_group_id').val(child_informations.group_id).change();
         }
       });
     })

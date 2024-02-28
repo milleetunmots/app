@@ -324,6 +324,17 @@ ActiveRecord::Schema.define(version: 2024_02_01_155257) do
     t.index ["parent2_id"], name: "index_children_on_parent2_id"
   end
 
+  create_table "children_sources", force: :cascade do |t|
+    t.bigint "source_id"
+    t.bigint "child_id"
+    t.string "details"
+    t.integer "registration_department"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["child_id"], name: "index_children_sources_on_child_id"
+    t.index ["source_id"], name: "index_children_sources_on_source_id"
+  end
+
   create_table "children_support_modules", force: :cascade do |t|
     t.bigint "child_id"
     t.bigint "support_module_id"
@@ -530,6 +541,16 @@ ActiveRecord::Schema.define(version: 2024_02_01_155257) do
     t.index ["discarded_at"], name: "index_redirection_urls_on_discarded_at"
     t.index ["parent_id"], name: "index_redirection_urls_on_parent_id"
     t.index ["redirection_target_id"], name: "index_redirection_urls_on_redirection_target_id"
+  end
+
+  create_table "sources", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "channel", null: false
+    t.integer "department"
+    t.string "utm"
+    t.text "comment"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "support_module_weeks", force: :cascade do |t|

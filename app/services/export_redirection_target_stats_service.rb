@@ -27,8 +27,8 @@ class ExportRedirectionTargetStatsService
     parent2_phone_number_national
     should_contact_parent2
 
-    registration_source
-    registration_source_details
+    children_source_name
+    children_source_details
 
     group_name
     group_status

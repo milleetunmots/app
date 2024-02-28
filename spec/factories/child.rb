@@ -52,7 +52,5 @@ FactoryBot.define do
     }
     first_name { Faker::Name.first_name }
     last_name { parent1.last_name }
-    registration_source { Child::REGISTRATION_SOURCES.sample }
-    registration_source_details { Faker::Movies::StarWars.planet }
   end
 end

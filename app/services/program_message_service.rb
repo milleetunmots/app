@@ -159,8 +159,7 @@ class ProgramMessageService
     Group.includes(:children).where(id: @group_ids).find_each do |group|
       group.children.each do |child|
         next unless child.group_status == 'active'
-
-        next if @supporter_id.present? && child.child_support.supporter_id != @supporter_id
+        next if @supporter_id.present? && child.child_support&.supporter_id != @supporter_id
 
         @parent_ids << child.parent1_id if child.parent1_id && child.should_contact_parent1
         @parent_ids << child.parent2_id if child.parent2_id && child.should_contact_parent2
