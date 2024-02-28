@@ -51,9 +51,21 @@ def caf_territory_matching(territory)
   end
 end
 
+def pmi_loiret_matching(registration_source_details)
+  registration_source_details = registration_source_details.delete(' ').downcase
+  lines = CSV.read(ENV['PMI_LOIRET_CSV_PATH'])
+  lines.each do |line|
+    name = registration_source_details == "#{line[0]}#{line[1]}".downcase.delete(' ') ? "#{line[0]}#{line[1]}".downcase.delete(' ') : nil
+    name = registration_source_details == "#{line[1]}#{line[0]}".downcase.delete(' ') ? "#{line[1]}#{line[0]}".downcase.delete(' ') : nil
+    next unless registration_source_details == name
+
+    return Source.find_by(name: line[2])
+  end
+  nil
+end
+
 def matching(file, registration_source_details)
   lines = CSV.read(file)
-
   lines.each do |line|
     next unless registration_source_details.strip == line[0].strip
 
@@ -70,7 +82,7 @@ namespace :sources do
       matching_source =
         case child.registration_source
         when 'pmi'
-          Source.find_by(channel: 'pmi', name: PMI_DETAILS_MATCHING_SOURCES[child.pmi_detail]) || Source.find_by(channel: 'other')
+          pmi_loiret_matching(child.registration_source_details) ||Source.find_by(channel: 'pmi', name: PMI_DETAILS_MATCHING_SOURCES[child.pmi_detail]) || Source.find_by(channel: 'other')
         when 'caf'
           caf_territory_matching(child.decorate.territory) || Source.find_by(channel: 'other')
         when 'resubscribing'
@@ -89,7 +101,9 @@ namespace :sources do
         end
       children_without_matching_source << child.id and next if matching_source.blank?
 
-      ChildrenSource.find_or_create_by!(child: child, source: matching_source, details: child.registration_source_details)
+      children_source = ChildrenSource.find_by(child: child)
+      ChildrenSource.create!(child: child, source: matching_source, details: child.registration_source_details) and next unless children_source
+      children_source.update(source: matching_source, details: child.registration_source_details) if children_source.source.channel == 'other'
 		end
     puts "CHILDREN WITHOUT MATCHING SOURCE :"
     puts children_without_matching_source.inspect
