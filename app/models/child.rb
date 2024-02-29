@@ -52,7 +52,7 @@ class Child < ApplicationRecord
   include Discard::Model
 
   GENDERS = %w[m f].freeze
-  GROUP_STATUS = %w[waiting active paused stopped].freeze
+  GROUP_STATUS = %w[waiting active paused stopped disengaged].freeze
   TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
   LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Bondy', 'Orleans', 'Montargis', 'Pithiviers', 'Gien', 'Villeneuve-la-Garenne', 'Mantes La Jolie'].freeze
 
