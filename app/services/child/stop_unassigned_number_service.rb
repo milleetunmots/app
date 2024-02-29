@@ -15,5 +15,6 @@ class Child::StopUnassignedNumberService < ProgramMessageService
 
       child_support.children.update(group_status: 'stopped')
     end
+    self
   end
 end
