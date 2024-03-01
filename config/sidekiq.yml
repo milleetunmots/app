@@ -21,3 +21,6 @@
     import_from_airtable_job:
       cron: '0 1 * * *'
       class: Video::ImportFromAirtableJob
+    stop_unassigned_number_job:
+      cron: '0 2 * * *'
+      class: Child::StopUnassignedNumberJob
