@@ -543,6 +543,10 @@ class Child < ApplicationRecord
     siblings.order(:birthdate).last
   end
 
+  def self.first_active_group
+    active_group.first&.group
+  end
+
   def family_redirection_urls
     RedirectionUrl.where(parent_id: [parent1_id, parent2_id].compact)
   end
