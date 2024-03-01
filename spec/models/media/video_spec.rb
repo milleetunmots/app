@@ -13,6 +13,7 @@
 #  url          :string
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
+#  airtable_id  :string
 #  folder_id    :bigint
 #  image1_id    :bigint
 #  image2_id    :bigint
@@ -24,6 +25,7 @@
 #
 # Indexes
 #
+#  index_media_on_airtable_id   (airtable_id) UNIQUE
 #  index_media_on_discarded_at  (discarded_at)
 #  index_media_on_folder_id     (folder_id)
 #  index_media_on_image1_id     (image1_id)
