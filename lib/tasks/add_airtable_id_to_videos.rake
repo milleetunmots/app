@@ -6,7 +6,7 @@ namespace :video do
     video_ids = []
 
     airtable_videos.each do |airtable_video|
-      next unless airtable_video['Lien URL cible']
+      next unless airtable_video['Lien URL final']
 
       if Media::Video.where(name: airtable_video['Nom URL base Yann']).count > 1
         video_ids << Media::Video.where(name: airtable_video['Nom URL base Yann']).pluck(:id)
