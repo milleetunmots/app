@@ -18,3 +18,6 @@
     import_bubble_models_job:
       cron: '0 5 * * *'
       class: Bubble::ImportModelsJob
+    import_from_airtable_job:
+      cron: '0 1 * * *'
+      class: Video::ImportFromAirtableJob
