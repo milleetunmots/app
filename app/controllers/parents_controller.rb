@@ -2,7 +2,7 @@ class ParentsController < ApplicationController
 
   def current_child_source
     current_child = Parent.find_by(id: params[:id])&.current_child
-    render json: {} unless current_child
+    render json: {} and return unless current_child
 
     source = current_child.children_source&.source_id
     source_details = current_child.children_source&.details
