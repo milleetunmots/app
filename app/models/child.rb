@@ -163,6 +163,7 @@ class Child < ApplicationRecord
   scope :potential_duplicates, -> {
     where('(unaccent(children.first_name), unaccent(children.last_name), children.birthdate) IN (SELECT unaccent(first_name), unaccent(last_name), birthdate FROM children GROUP BY unaccent(children.first_name), unaccent(children.last_name), children.birthdate HAVING COUNT(*) > 1)')
   }
+  scope :less_than_thirty_months_old, -> { where('birthdate >= ?', Time.zone.today - 30.months) }
 
   def self.without_group_and_not_waiting_second_group
     second_group_children_ids = Child.tagged_with('2eme cohorte').pluck(:id)

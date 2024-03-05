@@ -109,7 +109,8 @@ class Group < ApplicationRecord
   end
 
   def add_waiting_children
-    Child.no_siblings.where(group_status: 'waiting').where('birthdate <= ?', started_at - 4.months).order('birthdate ASC').limit(expected_children_number).update(group: self, group_status: 'active')
+    # Add waiting children to next available group for them (could be another group)
+    Child::AddWaitingChildrenToGroupJob.perform_later
   end
 
   # ---------------------------------------------------------------------------
