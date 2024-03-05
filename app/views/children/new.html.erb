@@ -2,140 +2,145 @@
   <div id="logo">
       <%= image_tag("mots-logo.png", id:"img-logo")  %>
   </div>
-  <div class="container" id="inscription-content">
+  <% if ENV['BLOCK_NEW_REGISTRATIONS'].eql?('true') %>
+    <div id="registration-closed">
+      <p>Les inscriptions sont fermées.</p>
+    </div>
+  <% else %>
+    <div class="container" id="inscription-content">
+      <%= simple_form_for @child, url: @form_path || children_path do |f| %>
 
-    <%= simple_form_for @child, url: @form_path || children_path do |f| %>
+        <h1><%= @title.html_safe %></h1>
 
-      <h1><%= @title.html_safe %></h1>
-
-      <div class="row justify-content-sm-center">
-        <div class="col-sm-6">
-          <div id="description"><%= @banner.html_safe %></div>
+        <div class="row justify-content-sm-center">
+          <div class="col-sm-6">
+            <div id="description"><%= @banner.html_safe %></div>
+          </div>
         </div>
-      </div>
 
-      <%= f.simple_fields_for :children_source do |children_source_form| %>
-        <div class="row justify-content-sm-center accepted-fields">
-          <% if @source_collection == :caf %>
-            <div class="col-sm-6">
-              <label class="select required" for="form_received_from"><%= @form_received_from.html_safe %></label>
-              <select class="form-control select required" id="form_received_from">
-                <option value='caf'> La CAF </option>
-                <option value='bao'> Mon entourage </option>
-              </select>
-            </div>
-            <div class="col-sm-6">
-              <div <%= 'hidden' unless @utm_caf.nil? %> id="child_children_source_source_id_div">
-                <%= children_source_form.input :source_id, label: @source_label.html_safe, required: true, collection: source_select_for_caf %>
+        <%= f.simple_fields_for :children_source do |children_source_form| %>
+          <div class="row justify-content-sm-center accepted-fields">
+            <% if @source_collection == :caf %>
+              <div class="col-sm-6">
+                <label class="select required" for="form_received_from"><%= @form_received_from.html_safe %></label>
+                <select class="form-control select required" id="form_received_from">
+                  <option value='caf'> La CAF </option>
+                  <option value='bao'> Mon entourage </option>
+                </select>
+              </div>
+              <div class="col-sm-6">
+                <div <%= 'hidden' unless @utm_caf.nil? %> id="child_children_source_source_id_div">
+                  <%= children_source_form.input :source_id, label: @source_label.html_safe, required: true, collection: source_select_for_caf %>
+                </div>
+              </div>
+            <% else %>
+              <div class="col-sm-6">
+                <%=
+                  children_source_form.input :source_id,
+                  label: @source_label.html_safe,
+                  required: true,
+                  collection: case @source_collection
+                              when :pmi
+                                source_select_for_pmi(@pmi_dpt)
+                              when :bao
+                                source_select_for_bao
+                              when :local_partner
+                                source_select_for_local_partner
+                              else
+                                []
+                              end
+                %>
+              </div>
+              <div class="col-sm-6">
+                <%= children_source_form.input :details, required: false, label: @source_details_label.html_safe %>
+              </div>
+            <% end %>
+          </div>
+          <% if @source_collection == :local_partner %>
+            <div class="row" id="registration_department_select">
+              <div class="col-sm-6">
+                <%= children_source_form.input :registration_department, as: :select, label: @source_registration_department_label.html_safe, collection: local_partner_source_departements, required: false %>
               </div>
             </div>
-          <% else %>
-            <div class="col-sm-6">
-              <%=
-                children_source_form.input :source_id,
-                label: @source_label.html_safe,
-                required: true,
-                collection: case @source_collection
-                            when :pmi
-                              source_select_for_pmi(@pmi_dpt)
-                            when :bao
-                              source_select_for_bao
-                            when :local_partner
-                              source_select_for_local_partner
-                            else
-                              []
-                            end
-              %>
-            </div>
-            <div class="col-sm-6">
-              <%= children_source_form.input :details, required: false, label: @source_details_label.html_safe %>
-            </div>
           <% end %>
-        </div>
-        <% if @source_collection == :local_partner %>
-          <div class="row" id="registration_department_select">
-            <div class="col-sm-6">
-              <%= children_source_form.input :registration_department, as: :select, label: @source_registration_department_label.html_safe, collection: local_partner_source_departements, required: false %>
-            </div>
-          </div>
         <% end %>
-      <% end %>
 
-      <% if f.object.errors[:base].any? %>
-        <div class="row justify-content-sm-center accepted-fields">
+        <% if f.object.errors[:base].any? %>
+          <div class="row justify-content-sm-center accepted-fields">
+            <div class="col-sm-8">
+              <%= f.error_notification message: f.object.errors[:base].join('<br/>') %>
+            </div>
+          </div>
+        <% end  %>
+
+        <div class="row accepted-fields">
+          <div class="col-sm-4">
+            <h2>Enfant(s)</h2>
+            <div class="child-fields">
+              <%= render 'child_form', f: f, with_support: true %>
+            </div>
+            <% @child.siblings.each_with_index do |sibling, i| %>
+              <div class="child-fields-container <%= 'hidden' unless sibling.gender %>">
+                <div class="separator"></div>
+                <div class="add-child-btn-container">
+                  <%= link_to '+ Ajouter un autre enfant', '#', class: 'btn btn-primary add-child-btn' %>
+                </div>
+                <div class="child-fields">
+                  <%= link_to '- Annuler', '#', class: 'btn btn-danger float-right rm-child-btn' %>
+                  <%= f.simple_fields_for "siblings[#{i}]", sibling  do |sibling_f| %>
+                    <%= render 'child_form', f: sibling_f %>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
           <div class="col-sm-8">
-            <%= f.error_notification message: f.object.errors[:base].join('<br/>') %>
-          </div>
-        </div>
-      <% end  %>
-
-      <div class="row accepted-fields">
-        <div class="col-sm-4">
-          <h2>Enfant(s)</h2>
-          <div class="child-fields">
-            <%= render 'child_form', f: f, with_support: true %>
-          </div>
-          <% @child.siblings.each_with_index do |sibling, i| %>
-            <div class="child-fields-container <%= 'hidden' unless sibling.gender %>">
-              <div class="separator"></div>
-              <div class="add-child-btn-container">
-                <%= link_to '+ Ajouter un autre enfant', '#', class: 'btn btn-primary add-child-btn' %>
-              </div>
-              <div class="child-fields">
-                <%= link_to '- Annuler', '#', class: 'btn btn-danger float-right rm-child-btn' %>
-                <%= f.simple_fields_for "siblings[#{i}]", sibling  do |sibling_f| %>
-                  <%= render 'child_form', f: sibling_f %>
+            <h2>Parents qui recevront les SMS</h2>
+            <div class="row">
+              <div class="col-sm-6">
+                <h3>Parent 1</h3>
+                <%= f.simple_fields_for :parent1 do |parent1_f| %>
+                  <%= parent1_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: true %>
+                  <%= parent1_f.input :first_name, required: true %>
+                  <%= parent1_f.input :last_name, required: true %>
+                  <%= parent1_f.input :phone_number, required: true %>
                 <% end %>
               </div>
-            </div>
-          <% end %>
-        </div>
-
-        <div class="col-sm-8">
-          <h2>Parents qui recevront les SMS</h2>
-          <div class="row">
-            <div class="col-sm-6">
-              <h3>Parent 1</h3>
-              <%= f.simple_fields_for :parent1 do |parent1_f| %>
-                <%= parent1_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: true %>
-                <%= parent1_f.input :first_name, required: true %>
-                <%= parent1_f.input :last_name, required: true %>
-                <%= parent1_f.input :phone_number, required: true %>
-              <% end %>
-            </div>
-            <div class="col-sm-6">
-              <h3>Parent 2 (optionnel)</h3>
-              <div id="parent2-fields">
-                <%= f.simple_fields_for :parent2 do |parent2_f| %>
-                  <%= parent2_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: false %>
-                  <%= parent2_f.input :first_name, required: false  %>
-                  <%= parent2_f.input :last_name, required: false %>
-                  <%= parent2_f.input :phone_number, required: false %>
-                <% end %>
+              <div class="col-sm-6">
+                <h3>Parent 2 (optionnel)</h3>
+                <div id="parent2-fields">
+                  <%= f.simple_fields_for :parent2 do |parent2_f| %>
+                    <%= parent2_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: false %>
+                    <%= parent2_f.input :first_name, required: false  %>
+                    <%= parent2_f.input :last_name, required: false %>
+                    <%= parent2_f.input :phone_number, required: false %>
+                  <% end %>
+                </div>
               </div>
             </div>
-          </div>
 
-          <h3>Adresse</h3>
-          <%= f.simple_fields_for :parent1 do |parent1_f| %>
-            <%= address_input parent1_f %>
-            <%= parent1_f.input :letterbox_name %>
-          <% end %>
-        </div>
-      </div>
-
-      <div class="row justify-content-sm-center end-buttons">
-        <div class="col-sm-8">
-          <%= f.simple_fields_for :parent1 do |parent1_f| %>
-            <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label.html_safe, checked_value: Time.zone.now %>
-          <% end %>
-        </div>
-        <div class="col-sm-4">
-          <div class="text-right accepted-fields">
-            <%= f.button :submit, 'Valider', class: 'btn-primary btn-lg' %>
+            <h3>Adresse</h3>
+            <%= f.simple_fields_for :parent1 do |parent1_f| %>
+              <%= address_input parent1_f %>
+              <%= parent1_f.input :letterbox_name %>
+            <% end %>
           </div>
         </div>
-      </div>
-    <% end %>
-  </div>
+
+        <div class="row justify-content-sm-center end-buttons">
+          <div class="col-sm-8">
+            <%= f.simple_fields_for :parent1 do |parent1_f| %>
+              <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label.html_safe, checked_value: Time.zone.now %>
+            <% end %>
+          </div>
+          <div class="col-sm-4">
+            <div class="text-right accepted-fields">
+              <%= f.button :submit, 'Valider', class: 'btn-primary btn-lg' %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 </div>
