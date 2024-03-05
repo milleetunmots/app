@@ -12,10 +12,11 @@ class Group
 
         child.siblings.each do |sibling|
           next unless sibling.group_status == 'waiting' && sibling.months >= 6
+          # siblings of 36+ months will be stopped later on with SelectModuleJob
 
           sibling.group = @group
           sibling.group_status = 'active'
-          sibling.save
+          sibling.save(validate: false)
         end
       end
 
