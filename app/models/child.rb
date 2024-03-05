@@ -167,6 +167,7 @@ class Child < ApplicationRecord
                 FROM children GROUP BY TRIM(LOWER(unaccent(children.first_name))), TRIM(LOWER(unaccent(children.last_name))), children.birthdate HAVING COUNT(*) > 1)')
   }
   scope :supported, -> { where.not(group_status: 'not_supported') }
+  scope :less_than_thirty_months_old, -> { where('birthdate >= ?', Time.zone.today - 30.months) }
 
   def self.without_group_and_not_waiting_second_group
     second_group_children_ids = Child.tagged_with('2eme cohorte').pluck(:id)

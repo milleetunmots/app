@@ -345,12 +345,14 @@ ActiveAdmin.register Child do
           children_source_f.input :details
         end
       end
-      f.input :group,
-              collection: child_group_select_collection,
-              input_html: { data: { select2: {} } }
-      f.input :group_status,
-              collection: child_group_status_select_collection,
-              input_html: { data: { select2: {} } }
+      unless f.object.new_record?
+        f.input :group,
+                collection: child_group_select_collection,
+                input_html: { data: { select2: {} } }
+        f.input :group_status,
+                collection: child_group_status_select_collection,
+                input_html: { data: { select2: {} } }
+      end
       tags_input(f)
     end
     f.actions
