@@ -56,8 +56,18 @@ class Group < ApplicationRecord
   scope :started, -> { where('started_at < ? OR support_module_programmed > ?', Time.zone.today, 0) }
 
   # ---------------------------------------------------------------------------
+  # callbacks
+  # ---------------------------------------------------------------------------
+
+  after_create :add_waiting_children
+
+  # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
+
+  def started?
+    started_at.past?
+  end
 
   def is_ended?
     ended_at && ended_at <= Time.zone.today
@@ -96,6 +106,11 @@ class Group < ApplicationRecord
 
   def with_module_zero?
     started_at >= DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
+  end
+
+  def add_waiting_children
+    # Add waiting children to next available group for them (could be another group)
+    Child::AddWaitingChildrenToGroupJob.perform_later
   end
 
   # ---------------------------------------------------------------------------

@@ -158,10 +158,12 @@ class Child < ApplicationRecord
   scope :available_for_the_workshops, -> { where(available_for_workshops: true) }
   scope :active_group, -> { where(group_status: 'active') }
   scope :only_siblings, -> { where(child_support_id: ChildSupport.multiple_children.select(:id)) }
+  scope :no_siblings, -> { where(child_support_id: ChildSupport.one_child.select(:id)) }
   scope :with_ongoing_group, -> { joins(:group).merge(Group.started) }
   scope :potential_duplicates, -> {
     where('(unaccent(children.first_name), unaccent(children.last_name), children.birthdate) IN (SELECT unaccent(first_name), unaccent(last_name), birthdate FROM children GROUP BY unaccent(children.first_name), unaccent(children.last_name), children.birthdate HAVING COUNT(*) > 1)')
   }
+  scope :less_than_thirty_months_old, -> { where('birthdate >= ?', Time.zone.today - 30.months) }
 
   def self.without_group_and_not_waiting_second_group
     second_group_children_ids = Child.tagged_with('2eme cohorte').pluck(:id)
@@ -534,6 +536,14 @@ class Child < ApplicationRecord
     end
   end
 
+  def youngest_sibling
+    siblings.order(:birthdate).last
+  end
+
+  def self.first_active_group
+    active_group.first&.group
+  end
+
   def family_redirection_urls
     RedirectionUrl.where(parent_id: [parent1_id, parent2_id].compact)
   end
@@ -634,10 +644,16 @@ class Child < ApplicationRecord
   def add_to_group
     return unless group.nil?
 
-    self.group = months > 4 ? Group.next_available_at(Time.zone.today) : Group.next_available_at(birthdate + 4.months)
-    self.group_status = 'active' if group
-    save(validate: false)
+    Child::AddToGroupService.new(id).call
   end
+
+  def main_sibling
+    return unless child_support
+
+    child_support.current_child
+  end
+
+
 
   # --------------------------------------------------------------------------
   # ransack

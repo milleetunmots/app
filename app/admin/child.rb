@@ -4,7 +4,6 @@ ActiveAdmin.register Child do
   has_better_csv
   has_paper_trail
   has_tags
-  has_tasks
   use_discard
 
   # ---------------------------------------------------------------------------
@@ -308,6 +307,11 @@ ActiveAdmin.register Child do
 
   form do |f|
     parents_collection = child_parent_select_collection
+    f.object.parent1_id = params[:parent1_id] if params[:parent1_id]
+    f.object.parent2_id = params[:parent2_id] if params[:parent2_id]
+    f.object.should_contact_parent1 = params[:should_contact_parent1] if params[:should_contact_parent1]
+    f.object.should_contact_parent2 = params[:should_contact_parent2] if params[:should_contact_parent1]
+
     f.semantic_errors(*f.object.errors.keys)
     f.inputs do
       f.input :parent1,
@@ -332,6 +336,7 @@ ActiveAdmin.register Child do
       f.input :available_for_workshops
       f.inputs do
         f.semantic_fields_for :children_source, (f.object.children_source || ChildrenSource.new) do |children_source_f|
+          children_source_f.object.source_id = params[:source_id] if params[:source_id]
           children_source_f.input :source_id,
             as: :select,
             collection: source_select_collection,
@@ -339,12 +344,14 @@ ActiveAdmin.register Child do
           children_source_f.input :details
         end
       end
-      f.input :group,
-              collection: child_group_select_collection,
-              input_html: { data: { select2: {} } }
-      f.input :group_status,
-              collection: child_group_status_select_collection,
-              input_html: { data: { select2: {} } }
+      unless f.object.new_record?
+        f.input :group,
+                collection: child_group_select_collection,
+                input_html: { data: { select2: {} } }
+        f.input :group_status,
+                collection: child_group_status_select_collection,
+                input_html: { data: { select2: {} } }
+      end
       tags_input(f)
     end
     f.actions
@@ -412,6 +419,35 @@ ActiveAdmin.register Child do
     end
   end
 
+  action_item :actions, only: :show do
+    dropdown_menu 'Actions' do
+      item "Ajout d'un frère / soeur", %i[add_child admin child], { target: '_blank' }
+      item "Ajout d'un parent", %i[add_parent admin child], { target: '_blank' } unless resource.model.parent2
+      item "Autre tâche", url_for_new_task(resource.decorate), { target: '_blank' }
+    end
+  end
+
+  member_action :add_child do
+    redirect_to new_admin_child_path(
+      parent1_id: resource.parent1_id,
+      parent2_id: resource.parent2_id,
+      should_contact_parent1: resource.should_contact_parent1,
+      should_contact_parent2: resource.should_contact_parent2,
+      source_id: Source.find_by(name: 'Je suis déjà inscrit à 1001mots', channel: 'bao').id
+      )
+  end
+
+  member_action :add_parent do
+    redirect_to new_admin_parent_path(
+      family_followed: resource.model.parent1.family_followed,
+      address: resource.model.parent1.address,
+      postal_code: resource.model.parent1.postal_code,
+      city_name: resource.model.parent1.city_name,
+      letterbox_name: resource.model.parent1.letterbox_name,
+      parent2_child_ids: resource.model.sibling_ids
+    )
+  end
+
   action_item :show_support, only: :show, if: proc { resource.child_support } do
     link_to I18n.t('child.show_support_link'), [:admin, resource.child_support]
   end
@@ -419,6 +455,7 @@ ActiveAdmin.register Child do
   action_item :create_support, only: :show, if: proc { !resource.child_support } do
     link_to I18n.t('child.create_support_link'), [:create_support, :admin, resource]
   end
+
   member_action :create_support do
     if already_existing_child_support = resource.child_support
       redirect_to [:admin, already_existing_child_support], notice: I18n.t('child.support_already_existed')
