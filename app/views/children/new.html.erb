@@ -2,7 +2,7 @@
   <div id="logo">
       <%= image_tag("mots-logo.png", id:"img-logo")  %>
   </div>
-  <% if ENV['BLOCK_NEW_REGISTRATIONS'].eql?('true') %>
+  <% if @form_path.in?(ENV['BLOCKED_REGISTRATION_PATHS'].split(',')) %>
     <div id="registration-closed">
       <p>Les inscriptions sont fermées.</p>
     </div>
