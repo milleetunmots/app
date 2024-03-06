@@ -23,6 +23,7 @@ ENV['TYPEFORM_WOULD_LIKE_TO_DO_MORE'] = 'typeform_would_like_to_do_more_id'
 ENV['TYPEFORM_WOULD_LIKE_TO_RECEIVE_ADVICES'] = 'typeform_would_like_to_receive_advices_id'
 ENV["MODULE_ZERO_FEATURE_START"] ||= "01/09/2023"
 ENV['DISENGAGEMENT_FEATURE_START_DATE'] ||= "01/09/2023"
+ENV['BLOCKED_REGISTRATION_PATHS'] ||= ""
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production
