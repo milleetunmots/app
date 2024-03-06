@@ -18,7 +18,7 @@ class ChildrenController < ApplicationController
   end
 
   def create
-    render action: :new and return if ENV['BLOCK_NEW_REGISTRATIONS'].eql?('true')
+    render action: :new and return if @form_path.in?(ENV['BLOCKED_REGISTRATION_PATHS'].split(','))
     service = Child::CreateService.new(
       child_creation_params.merge(src_url: session[:src_url]),
       siblings_params,
