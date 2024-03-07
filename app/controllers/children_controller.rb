@@ -132,6 +132,8 @@ class ChildrenController < ApplicationController
 
   def build_variables
     case request.path
+    when '/inscription'
+      @form_path = children_path
     when '/inscription1'
       session[:registration_origin] = 1
       @form_path = children1_path
