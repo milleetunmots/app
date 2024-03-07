@@ -17,7 +17,16 @@ class Child::StopUnassignedNumberService < ProgramMessageService
       next if call_status.last != 'Numéro erroné'
 
       @child_supports_stopped << child_support.id
+      new_important_info = "Accompagnement arrêté le #{Time.zone.today.strftime("%d/%m/%Y")} pour cause de numéro erroné.\n\n" + child_support.important_information
+      child_support.update(important_information: new_important_info)
+      parent1 = child_support.parent1
+      parent2 = child_support.parent2
       child_support.children.update(group_status: 'stopped')
+      child_support.children.each do |c|
+        c.should_contact_parent1 = false if c.parent1 == parent1 || parent2
+        c.should_contact_parent2 = false if c.parent2 == parent1 || parent2
+        c.save(validate: false)
+      end
     end
     self
   end
