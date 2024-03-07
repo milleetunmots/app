@@ -30,6 +30,7 @@ ActiveAdmin.register Media::Video do
     column :updated_at do |decorated|
       decorated.updated_at_date
     end
+    column :airtable_id
     actions dropdown: true do |decorated|
       discard_links_args(decorated.model).each do |args|
         item *args
@@ -86,6 +87,15 @@ ActiveAdmin.register Media::Video do
     f.actions
   end
 
-  permit_params :folder_id, :name, :theme, :url, tags_params
+  action_item :new_videos, only: :index do
+    link_to 'Importer depuis Airtable', %i[import_from_airtable admin media videos]
+  end
 
+  collection_action :import_from_airtable do
+    service = Video::ImportFromAirtableService.new.call
+
+    redirect_back(fallback_location: root_path, notice: "Nouvelles vidéos: #{service.new_videos.count}. Vidéos modifiées: #{service.updated_videos.count}")
+  end
+
+  permit_params :folder_id, :name, :theme, :url, tags_params
 end

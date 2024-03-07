@@ -253,7 +253,6 @@ class ChildSupport < ApplicationRecord
       .with_a_child_in_active_group
   }
   scope :multiple_children, -> { joins(:children).group('child_supports.id').having('count(children.id) > 1') }
-
   scope :paused_or_stopped, -> {
     where(
       'NOT EXISTS (
@@ -265,6 +264,15 @@ class ChildSupport < ApplicationRecord
       'waiting', 'active'
     )
   }
+  scope :with_unassigned_number, -> {
+    where('call0_status ILIKE ?', 'Numéro erroné')
+      .or(where('call1_status ILIKE ?', 'Numéro erroné'))
+      .or(where('call2_status ILIKE ?', 'Numéro erroné'))
+      .or(where('call3_status ILIKE ?', 'Numéro erroné'))
+      .or(where('call4_status ILIKE ?', 'Numéro erroné'))
+      .or(where('call5_status ILIKE ?', 'Numéro erroné'))
+  }
+
 
   class << self
 
