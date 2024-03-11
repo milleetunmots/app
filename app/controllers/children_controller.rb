@@ -137,7 +137,7 @@ class ChildrenController < ApplicationController
     when '/inscription1'
       session[:registration_origin] = 1
       @form_path = children1_path
-    when '/inscription2'
+    when '/inscriptioncaf'
       session[:registration_origin] = 2
       @form_path = caf_registration_path
     when '/inscription3'

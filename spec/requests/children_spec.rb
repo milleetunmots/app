@@ -24,8 +24,8 @@ RSpec.describe ChildrenController, type: :request do
       end
     end
 
-    context "when URL is inscription2" do
-      before { get "/inscription2" }
+    context "when URL is inscriptioncaf" do
+      before { get "/inscriptioncaf" }
 
       it "renders specific wording" do
         expect(assigns(:child_min_birthdate)).to eq Child.min_birthdate
@@ -98,7 +98,7 @@ RSpec.describe ChildrenController, type: :request do
 
       before do
         expect_any_instance_of(SpotHit::SendSmsService).to receive(:call)
-        post "/inscription2", params: params
+        post "/inscriptioncaf", params: params
       end
 
       it "redirects to created page with right sms_url_form" do

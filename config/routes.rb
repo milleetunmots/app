@@ -8,7 +8,7 @@ Rails.application.routes.draw do
 
   get 'inscription', to: 'children#new', as: :new_child
   get 'inscription1', to: 'children#new', as: :new_child1
-  get 'inscription2', to: 'children#new', as: :new_caf_registration
+  get 'inscriptioncaf', to: 'children#new', as: :new_caf_registration
   get 'inscription3', to: 'children#new', as: :new_pmi_registration
   get 'inscription4', to: 'children#new', as: :new_bao_registration
   get 'inscription5', to: 'children#new', as: :new_local_partner_registration
@@ -18,7 +18,7 @@ Rails.application.routes.draw do
 
   post 'inscription', to: 'children#create', as: :children
   post 'inscription1', to: 'children#create', as: :children1
-  post 'inscription2', to: 'children#create', as: :caf_registration
+  post 'inscriptioncaf', to: 'children#create', as: :caf_registration
   post 'inscription3', to: 'children#create', as: :pmi_registration
   post 'inscription4', to: 'children#create', as: :boa_registration
   post 'inscription5', to: 'children#create', as: :local_partner_registration
