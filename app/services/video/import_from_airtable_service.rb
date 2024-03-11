@@ -11,13 +11,15 @@ class Video::ImportFromAirtableService
   def call
     @airtable_videos.each do |airtable_video|
       next if airtable_video[:url].nil? || airtable_video[:name].nil?
+      video_url = airtable_video[:url].first.strip
+      video_name = airtable_video[:name].first.strip
 
       video = Media::Video.find_by(airtable_id: airtable_video[:id])
       if video.nil?
-        new_video = Media::Video.create!(airtable_id: airtable_video[:id].strip, name: airtable_video[:name].strip, url: airtable_video[:url].strip)
+        new_video = Media::Video.create!(airtable_id: airtable_video[:id].strip, name: video_name, url: video_url)
         @new_videos << new_video.id
-      elsif airtable_video[:name].strip != video.name.strip || airtable_video[:url].strip != video.url.strip
-        video.update!(name: airtable_video[:name].strip, url: airtable_video[:url].strip)
+      elsif video_name != video.name.strip || video_url != video.url.strip
+        video.update!(name: video_name, url: video_url)
         @updated_videos << video.id
       end
     end
