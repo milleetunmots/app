@@ -120,8 +120,8 @@ class Group
     end
 
     def verify_chosen_modules2
-      select_module_date = @group.started_at + 7.weeks + 1.days + MODULE_ZERO_DURATION
-      ChildrenSupportModule::VerifyChosenModulesTaskJob.set(wait_until: select_module_date.to_datetime.change(hour: @hour)).perform_later(@group.id)
+      select_module_date = @group.started_at + 7.weeks + MODULE_ZERO_DURATION
+      ChildrenSupportModule::VerifyChosenModulesTaskJob.set(wait_until: select_module_date.to_datetime.change(hour: @hour + 1)).perform_later(@group.id)
     end
 
     def program_check_spothit_credits
