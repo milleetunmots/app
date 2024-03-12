@@ -4,7 +4,7 @@ namespace :add_modules_to_group do
 
     group = Group.find(args[:group_id])
     # Shift sidekiq jobs hours to avoid multiple jobs running at the same time
-    hour = group.started_at.month % 10
+    hour = (group.started_at.month % 10).clamp(1, 8)
     modules_number = args[:modules_number].to_i
     date = group.started_at
     old_support_modules_count = group.support_modules_count
@@ -34,7 +34,7 @@ namespace :add_modules_to_group do
   task :without_module_zero, %i[group_id modules_number] => :environment do |_, args|
     group = Group.find(args[:group_id])
     # Shift sidekiq jobs hours to avoid multiple jobs running at the same time
-    hour = group.started_at.month % 10
+    hour = (group.started_at.month % 10).clamp(1, 8)
     modules_number = args[:modules_number].to_i
     date = group.started_at
     old_support_modules_count = group.support_modules_count

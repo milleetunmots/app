@@ -12,7 +12,7 @@
   var showCafSelection = function() {
     var value = $(this).val();
 
-    if (pathName === '/inscription2') {
+    if (pathName === '/inscriptioncaf') {
       if (value === 'caf') {
         $('#child_children_source_source_id_div').show();
         changeChildrenSourceSelectOptions(window.cafOptions);
