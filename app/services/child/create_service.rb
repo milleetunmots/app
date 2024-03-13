@@ -24,6 +24,7 @@ class Child
         ChildrenSource.create(@children_source_attributes.merge(child_id: @child.id))
         send_form_by_sms
         @child.siblings.each do |sibling|
+          next if sibling.id.eql?(@child.id)
           ChildrenSource.create(@children_source_attributes.merge(child_id: sibling.id))
         end
       end
