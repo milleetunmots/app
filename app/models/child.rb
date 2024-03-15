@@ -52,7 +52,7 @@ class Child < ApplicationRecord
   include Discard::Model
 
   GENDERS = %w[m f].freeze
-  GROUP_STATUS = %w[waiting active paused stopped disengaged].freeze
+  GROUP_STATUS = %w[waiting active paused stopped disengaged not_supported].freeze
   TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
   LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Bondy', 'Orleans', 'Montargis', 'Pithiviers', 'Gien', 'Villeneuve-la-Garenne', 'Mantes La Jolie'].freeze
 
@@ -686,7 +686,7 @@ class Child < ApplicationRecord
 
   def valid_group_status
     errors.add(:base, :invalid, message: "L'enfant ne peut pas être en attente en étant dans une cohorte") if group_id && group_status == 'waiting'
-    errors.add(:base, :invalid, message: "L'enfant doit être dans une cohorte") if group_id.nil? && group_status != 'waiting'
+    errors.add(:base, :invalid, message: "L'enfant doit être dans une cohorte") if group_id.nil? && group_status.in?(%w[active paused stopped])
   end
 
   def duration_in_months(started_at, ended_at = Time.zone.now)
