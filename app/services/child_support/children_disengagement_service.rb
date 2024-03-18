@@ -14,6 +14,16 @@ class ChildSupport::ChildrenDisengagementService
       end
       child_support.save
     end
+
+    ChildSupport.includes(:children).where(children: { id: @group.children.map(&:id) }).tagged_with('estimées-désengagées-T1').uniq.each do |child_support|
+      if module_chosen(child_support, @group.id)
+        child_support.tag_list = child_support.tag_list.map { |tag| tag == 'estimées-désengagées-T1' ? 'estimées-désengagées-T1-conservées' : tag }
+      else
+        child_support.tag_list = child_support.tag_list.map { |tag| tag == 'estimées-désengagées-T1' ? 'désengagées-T1' : tag }
+        child_support.children.update(group_status: 'disengaged', group_end: Time.zone.today)
+      end
+      child_support.save
+    end
   end
 
   private
