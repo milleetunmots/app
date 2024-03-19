@@ -18,15 +18,19 @@ class Group
         @hour = (@group.started_at.month % 10).clamp(1, 8)
         program_support_module_zero
         program_sms_to_bilinguals
+        assign_default_call_status(0)
         program_first_support_module
+        assign_default_call_status(1)
         fill_parents_available_support_modules
         verify_available_module_list
         create_call2_children_support_module
         select_default_support_module2
         verify_chosen_modules2
         program_check_spothit_credits_module2
+        assign_default_call_status(2)
         program_sms_to_choose_module2_to_parents
         program_sms_to_choose_module_to_parents
+        assign_default_call_status(3)
         select_default_support_module
         verify_chosen_modules
         program_check_spothit_credits
@@ -64,6 +68,21 @@ class Group
     def program_first_support_module
       program_module_date = @group.started_at + MODULE_ZERO_DURATION
       ChildrenSupportModule::ProgramFirstSupportModuleJob.set(wait_until: program_module_date.to_datetime.change(hour: @hour)).perform_later(@group.id, program_module_date)
+    end
+
+    def assign_default_call_status(call_number)
+      default_status_date =
+        case call_number
+        when 0
+          @group.started_at + 3.weeks
+        when 1
+          @group.started_at + 7.weeks
+        when 2
+          @group.started_at + 11.weeks
+        when 3
+          @group.started_at + 26.weeks
+        end
+      ChildSupport::AssignDefaultCallStatusJob.set(wait_until: default_status_date.to_datetime.change(hour: @hour - 1)).perform_later(@group.id, call_number)
     end
 
     def fill_parents_available_support_modules

@@ -64,7 +64,7 @@ class ChildrenSupportModule
     def add_t1_disengagement_tag_to_child(child)
       family_responded_to_call_statuses = [I18n.t('activerecord.attributes.child_support/call_status.1_ok'), I18n.t('activerecord.attributes.child_support/call_status.5_unfinished')]
       return if [child.child_support.call0_status, child.child_support.call1_status, child.child_support.call2_status].any? do |status|
-        status.in?(family_responded_to_call_statuses)
+        status.in?(family_responded_to_call_statuses) || status.blank?
       end
 
       child.child_support.tag_list.add('estimées-désengagées-T1')
