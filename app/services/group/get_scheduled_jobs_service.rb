@@ -10,6 +10,7 @@ class Group
       ChildrenSupportModule::ProgramSupportModuleZeroJob.to_s => 'Programmation du module zero',
       Group::ProgramSmsToBilingualsJob.to_s => 'Programmation des messages aux familles bilingues',
       ChildrenSupportModule::ProgramFirstSupportModuleJob.to_s => 'Programmation du 1er module',
+      ChildSupport::AssignDefaultCallStatusJob.to_s => "Assignation d'un statut d'appel par défaut en cas d'absence",
       ChildrenSupportModule::FillParentsAvailableSupportModulesJob.to_s => 'Ajout des modules disponibles sur les fiches de suivi',
       ChildrenSupportModule::VerifyAvailableModulesTaskJob.to_s => 'Vérification que tous les enfants ont des modules disponibles sur leur fiche de suivi',
       ChildrenSupportModule::CreateChildrenSupportModuleJob.to_s => 'Préparation préalable au choix des parents pour l’appel 2',
@@ -51,6 +52,8 @@ class Group
 
       name = if job_class_name == ChildrenSupportModule::SelectModuleJob.to_s && job.args[0]['arguments']&.third.eql?(@group_with_module_zero ? 3 : 2)
                "Programmation des SMS de choix du module aux parents n'ayant pas reçu d'appel 2"
+             elsif job_class_name == ChildSupport::AssignDefaultCallStatusJob.to_s
+               "Assignation d'un statut par défaut aux appels #{job.args[0]['arguments']&.second} laissés vides"
              else
                GROUP_JOB_CLASS_NAMES[job_class_name]
              end

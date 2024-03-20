@@ -359,7 +359,7 @@ class ChildSupport < ApplicationRecord
   def self.create_call_status_ransacker(call)
     ransacker :"#{call}_status_filter", formatter: proc { |value|
       results = ChildSupport.where("#{call}_status": value).map(&:id) if value.in?(ChildSupport::CALL_STATUS.map { |v| ChildSupport.human_attribute_name("call_status.#{v}") })
-      results = ChildSupport.where("#{call}_status": nil).map(&:id) if value == 'nil'
+      results = ChildSupport.where("#{call}_status": [nil, '']).map(&:id) if value == 'nil'
       results
     } do |parent|
       parent.table[:id]
