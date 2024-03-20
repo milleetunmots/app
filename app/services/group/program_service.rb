@@ -74,13 +74,13 @@ class Group
       default_status_date =
         case call_number
         when 0
-          @group.started_at + 3.weeks
+          @group.started_at + 2.weeks
         when 1
-          @group.started_at + 7.weeks
+          @group.started_at + 6.weeks
         when 2
-          @group.started_at + 11.weeks
+          @group.started_at + 10.weeks
         when 3
-          @group.started_at + 26.weeks
+          @group.started_at + 25.weeks
         end
       ChildSupport::AssignDefaultCallStatusJob.set(wait_until: default_status_date.to_datetime.change(hour: @hour - 1)).perform_later(@group.id, call_number)
     end

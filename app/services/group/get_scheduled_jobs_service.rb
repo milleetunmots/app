@@ -52,6 +52,8 @@ class Group
 
       name = if job_class_name == ChildrenSupportModule::SelectModuleJob.to_s && job.args[0]['arguments']&.third.eql?(@group_with_module_zero ? 3 : 2)
                "Programmation des SMS de choix du module aux parents n'ayant pas reçu d'appel 2"
+             elsif job_class_name == ChildSupport::AssignDefaultCallStatusJob.to_s
+               "Assignation d'un statut par défaut aux appels #{job.args[0]['arguments']&.second} laissés vides"
              else
                GROUP_JOB_CLASS_NAMES[job_class_name]
              end
