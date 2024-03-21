@@ -135,6 +135,7 @@ fr:
         paused: En pause
         stopped: Arrêtée
         disengaged: Désengagé
+        not_supported: Non accompagné
       children_support_module:
         << : *SHARED
         name_display: Nom

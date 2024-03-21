@@ -25,6 +25,7 @@ class ChildSupport::SelectModuleService
   private
 
   def send_select_module_message(parent, available_support_module_list)
+    return if available_support_module_list.blank?
     return if available_support_module_list.reject(&:blank?).empty?
 
     @children_support_module = ChildrenSupportModule.find_by(child_id: @child.id, parent_id: parent.id, is_programmed: false)
@@ -49,6 +50,8 @@ class ChildSupport::SelectModuleService
 
     message = if @child.child_support.tag_list.include?('estimé-desengagé')
                 "1001mots: C’est le moment de choisir votre prochain thème pour #{@child.first_name} en cliquant sur le lien #{selection_link}. Si vous ne faites pas de choix, l’accompagnement 1001mots prendra fin."
+              elsif @child.child_support.tag_list.include?('estimées-désengagées-T1')
+                "1001mots : Cliquez sur le lien pour choisir votre prochain thème pour #{@child.first_name} et recevoir un nouveau livre. Attention l'accompagnement s'arrêtera si vous ne choisissez pas avant la fin de semaine. #{selection_link}"
               else
                 "1001mots : Cliquez sur le lien pour choisir votre prochain thème pour #{@child.first_name} et recevoir un nouveau livre. Attention dans #{date}, nous choisirons à votre place ! #{selection_link}"
               end
