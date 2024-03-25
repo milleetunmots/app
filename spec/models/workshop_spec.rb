@@ -95,10 +95,10 @@ RSpec.describe Workshop, type: :model do
 
     context "create workshop_participation for each parent invited" do
       let!(:group) { FactoryBot.create(:group) }
-      let!(:first_excluded_parent) { FactoryBot.create(:parent, exclude_to_workshop: true) }
+      let!(:first_excluded_parent) { FactoryBot.create(:parent, is_excluded_from_workshop: true) }
       let!(:first_parent) { FactoryBot.create(:parent, postal_code: 75018) }
       let!(:second_parent) { FactoryBot.create(:parent, postal_code: 75018) }
-      let!(:second_excluded_parent) { FactoryBot.create(:parent, exclude_to_workshop: true, postal_code: 75018) }
+      let!(:second_excluded_parent) { FactoryBot.create(:parent, is_excluded_from_workshop: true, postal_code: 75018) }
 
       let!(:first_child) { FactoryBot.create(:child, available_for_workshops: true, should_contact_parent1: true, group: group, group_status: 'active') }
       let!(:second_child) { FactoryBot.create(:child, available_for_workshops: true, should_contact_parent1: true, group: group, group_status: 'active', parent1: first_excluded_parent) }
@@ -107,7 +107,7 @@ RSpec.describe Workshop, type: :model do
       let!(:fifth_child) { FactoryBot.create(:child, available_for_workshops: true, should_contact_parent1: true, group: group, group_status: 'active', parent1: second_excluded_parent) }
       let!(:workshop) { FactoryBot.create(:workshop, parents: [first_child.parent1, first_excluded_parent ], workshop_land: 'Paris 18 eme') }
 
-      it "except parents with exclude_to_workshop at true" do
+      it "except parents with is_excluded_from_workshop at true" do
         expect(Events::WorkshopParticipation.exists?(related: first_excluded_parent)).to be_falsey
         expect(Events::WorkshopParticipation.exists?(related: second_excluded_parent)).to be_falsey
         expect(Events::WorkshopParticipation.exists?(related: first_parent)).to be_truthy

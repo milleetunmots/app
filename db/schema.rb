@@ -480,7 +480,7 @@ ActiveRecord::Schema.define(version: 2024_03_25_105535) do
     t.integer "mid_term_rate"
     t.string "mid_term_reaction"
     t.text "mid_term_speech"
-    t.boolean "exclude_to_workshop", default: false
+    t.boolean "is_excluded_from_workshop", default: false
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"

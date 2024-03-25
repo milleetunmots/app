@@ -9,7 +9,6 @@
 #  degree_in_france                    :boolean
 #  discarded_at                        :datetime
 #  email                               :string
-#  exclude_to_workshop                 :boolean          default(FALSE)
 #  family_followed                     :boolean          default(FALSE)
 #  first_name                          :string           not null
 #  follow_us_on_facebook               :boolean
@@ -17,6 +16,7 @@
 #  gender                              :string           not null
 #  help_my_child_to_learn_is_important :string
 #  is_ambassador                       :boolean
+#  is_excluded_from_workshop           :boolean          default(FALSE)
 #  job                                 :string
 #  last_name                           :string           not null
 #  letterbox_name                      :string

@@ -62,7 +62,7 @@ class Workshop < ApplicationRecord
 
   def set_workshop_participation
     land_parents.each do |parent|
-      next if parent.exclude_to_workshop
+      next if parent.is_excluded_from_workshop
 
       next unless parent.available_for_workshops?
 
@@ -79,7 +79,7 @@ class Workshop < ApplicationRecord
     end
 
     (parents.to_a - land_parents.to_a).each do |parent|
-      next if parent.exclude_to_workshop
+      next if parent.is_excluded_from_workshop
 
       workshop_participations.build(
         type: 'Events::WorkshopParticipation',
