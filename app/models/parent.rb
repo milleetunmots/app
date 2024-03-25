@@ -224,6 +224,14 @@ class Parent < ApplicationRecord
     where(gender: GENDER_MALE)
   end
 
+  def self.not_excluded_from_workshop
+    where(is_excluded_from_workshop: false)
+  end
+
+  def self.excluded_from_workshop
+    where(is_excluded_from_workshop: true)
+  end
+
   def children
     parent1_children.or(parent2_children)
   end
