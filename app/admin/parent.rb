@@ -47,6 +47,7 @@ ActiveAdmin.register Parent do
   filter :first_name
   filter :last_name
   filter :phone_number
+  filter :exclude_to_workshop
   filter :family_followed, as: :check_boxes
   filter :present_on_whatsapp
   filter :present_on_facebook
@@ -76,6 +77,7 @@ ActiveAdmin.register Parent do
       f.input :last_name
       f.input :phone_number,
         input_html: { value: f.object.decorate.phone_number }
+      f.input :exclude_to_workshop
       f.input :family_followed
       f.input :present_on_whatsapp
       f.input :present_on_facebook
@@ -93,7 +95,7 @@ ActiveAdmin.register Parent do
   end
 
   permit_params :gender, :first_name, :last_name,
-    :phone_number, :present_on_whatsapp, :present_on_facebook, :follow_us_on_facebook, :follow_us_on_whatsapp, :email,
+    :phone_number, :exclude_to_workshop, :present_on_whatsapp, :present_on_facebook, :follow_us_on_facebook, :follow_us_on_whatsapp, :email,
     :letterbox_name, :address, :postal_code, :city_name,
     :is_ambassador, :job, :terms_accepted_at, :family_followed,
     tags_params
@@ -112,6 +114,7 @@ ActiveAdmin.register Parent do
           row :first_name
           row :last_name
           row :phone_number
+          row :exclude_to_workshop
           row :family_followed
           row :present_on_whatsapp
           row :present_on_facebook

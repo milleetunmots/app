@@ -9,6 +9,7 @@
 #  degree_in_france                    :boolean
 #  discarded_at                        :datetime
 #  email                               :string
+#  exclude_to_workshop                 :boolean          default(FALSE)
 #  family_followed                     :boolean          default(FALSE)
 #  first_name                          :string           not null
 #  follow_us_on_facebook               :boolean
