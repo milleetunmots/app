@@ -42,7 +42,7 @@ ActiveAdmin.register Workshop do
       f.input :co_animator
       address_input f
       f.input :location
-      f.input :parents, collection: parent_select_collection, input_html: { data: { select2: {} }, disabled: !object.new_record? }
+      f.input :parents, collection: workshop_parent_select_collection, input_html: { data: { select2: {} }, disabled: !object.new_record? }
       f.input :workshop_land, collection: Child::LANDS.sort, input_html: { data: { select2: {} }, disabled: !object.new_record? }
       f.input :invitation_message, input_html: { rows: 5, disabled: !object.new_record? }
       f.input :canceled
@@ -123,7 +123,7 @@ ActiveAdmin.register Workshop do
   member_action :perform_parents_registration, method: :post do
     workshop = Workshop.find(params[:workshop_id])
     parent_to_register_ids = params[:workshop][:parent_ids].reject(&:blank?)
-    parents_to_register = Parent.where(id: parent_to_register_ids)
+    parents_to_register = Parent.not_excluded_from_workshop.where(id: parent_to_register_ids)
     workshop.parents << parents_to_register
 
     parents_to_register.each do |parent|

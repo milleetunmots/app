@@ -16,6 +16,7 @@
 #  gender                              :string           not null
 #  help_my_child_to_learn_is_important :string
 #  is_ambassador                       :boolean
+#  is_excluded_from_workshop           :boolean          default(FALSE)
 #  job                                 :string
 #  last_name                           :string           not null
 #  letterbox_name                      :string
@@ -221,6 +222,14 @@ class Parent < ApplicationRecord
 
   def self.fathers
     where(gender: GENDER_MALE)
+  end
+
+  def self.not_excluded_from_workshop
+    where(is_excluded_from_workshop: false)
+  end
+
+  def self.excluded_from_workshop
+    where(is_excluded_from_workshop: true)
   end
 
   def children

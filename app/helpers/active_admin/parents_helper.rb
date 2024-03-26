@@ -9,7 +9,7 @@ module ActiveAdmin::ParentsHelper
     end
   end
 
-  def parent_select_collection
-    Parent.order(:id).map(&:decorate)
+  def workshop_parent_select_collection
+    Parent.not_excluded_from_workshop.order(:id).map(&:decorate)
   end
 end

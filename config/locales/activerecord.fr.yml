@@ -492,6 +492,7 @@ fr:
         children_count: Enfants
         city_name: Ville
         email: Email
+        is_excluded_from_workshop: Exclu des ateliers
         first_name: Prénom
         gender: Sexe
         is_ambassador: Potentiel parent ambassadeur
