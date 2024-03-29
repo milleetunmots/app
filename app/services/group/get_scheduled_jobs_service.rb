@@ -16,7 +16,6 @@ class Group
       ChildrenSupportModule::CreateChildrenSupportModuleJob.to_s => 'Préparation préalable au choix des parents pour l’appel 2',
       ChildrenSupportModule::SelectDefaultSupportModuleJob.to_s => 'Assignation des modules par défaut',
       ChildrenSupportModule::VerifyChosenModulesTaskJob.to_s => 'Détection des modules sans choix',
-      ChildrenSupportModule::CheckCreditsForGroupJob.to_s => 'Vérification du nombre suffisant de crédits pour la programmation des modules',
       ChildrenSupportModule::SelectModuleJob.to_s => 'Programmation des SMS de choix du module et du rappel J+3 (puis J+5 pour module 3)',
       ChildrenSupportModule::ProgramSupportModuleSmsJob.to_s => 'Programmation des SMS du module choisi',
       Group::StopSupportJob.to_s => "Arrêt de la cohorte : Fin de l'accompagnement"

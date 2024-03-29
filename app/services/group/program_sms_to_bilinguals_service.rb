@@ -16,9 +16,6 @@ class Group
     end
 
     def call
-      sms_count
-      raise "Impossible de programmer les messages aux familles bilingues car il n'y a pas assez de crédit spot-hit" if @errors.any?
-
       raise "SECOND_MESSAGE_LINK_ID n'a pas pu être récupéré" unless SECOND_MESSAGE_LINK_ID
 
       program_message(date: @first_message_date, message: FIRST_MESSAGE)
