@@ -160,7 +160,9 @@ class Child < ApplicationRecord
   scope :only_siblings, -> { where(child_support_id: ChildSupport.multiple_children.select(:id)) }
   scope :with_ongoing_group, -> { joins(:group).merge(Group.started) }
   scope :potential_duplicates, -> {
-    where('(unaccent(children.first_name), unaccent(children.last_name), children.birthdate) IN (SELECT unaccent(first_name), unaccent(last_name), birthdate FROM children GROUP BY unaccent(children.first_name), unaccent(children.last_name), children.birthdate HAVING COUNT(*) > 1)')
+    where('(TRIM(LOWER(unaccent(children.first_name))), TRIM(LOWER(unaccent(children.last_name))),children.birthdate)
+            IN (SELECT TRIM(LOWER(unaccent(first_name))),TRIM(LOWER(unaccent(last_name))),birthdate
+                FROM children GROUP BY TRIM(LOWER(unaccent(children.first_name))), TRIM(LOWER(unaccent(children.last_name))), children.birthdate HAVING COUNT(*) > 1)')
   }
   scope :supported, -> { where.not(group_status: 'not_supported') }
 

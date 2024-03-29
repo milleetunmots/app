@@ -26,9 +26,6 @@ class Group
     def send_end_of_support_message
       return if @children.count.zero?
 
-      check_credits(@message, @children.count)
-      raise "Impossible de programmer les messages de fin d'accompagnement car il n'y a pas assez de crédit spot-hit" if @errors.any?
-
       program_message(@children, @message)
     end
 
@@ -41,25 +38,6 @@ class Group
       sms_to_send_count += (message.gsub('{URL}', 'https://app.1001mots.org/r/xxxxxx/xx').size / 160) + 1
       sms_to_send_count *= @children.parents.count # account for potential parent 2
       sms_to_send_count
-    end
-
-    def check_credits(message, children_count)
-      credit_service = SpotHit::GetCreditsService.new.call
-      raise credit_service.errors.join('\n') if credit_service.errors.any?
-
-      sms_count = sms_count(message, children_count)
-
-      return if sms_count <= credit_service.sms
-
-      @errors << "Pas assez de crédits sms sur SPOT-HIT : #{sms_count} crédits sont nécéssaires."
-      AdminUser.all_logistics_team_members.each do |ltm|
-        Task.create(
-          assignee_id: ltm.id,
-          title: "Il n'y a pas assez de crédits pour la programmation des messages de fin d'accompagnement de la cohorte : \"#{@group.name}\"",
-          description: @errors.join('\n'),
-          due_date: Time.zone.today
-        )
-      end
     end
 
     def program_message(children, message, date: Time.zone.today, link_id: @link_id, hour: '12:30')
