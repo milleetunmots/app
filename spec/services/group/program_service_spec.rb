@@ -36,7 +36,6 @@ RSpec.describe Group::ProgramService do
     thirty_seven_months_child.update_column(:birthdate, Time.zone.now.months_ago(37))
     forty_two_months_child.update_column(:birthdate, Time.zone.now.months_ago(42))
 
-    allow_any_instance_of(ChildrenSupportModule::CheckCreditsService).to receive(:call).and_return(ChildrenSupportModule::CheckCreditsService.new([]))
     stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms').to_return(status: 200, body: '{}')
     allow_any_instance_of(Group::StopSupportService).to receive(:call).and_return(Group::StopSupportService.new(group.id))
   end

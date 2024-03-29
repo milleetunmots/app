@@ -26,14 +26,12 @@ class Group
         create_call2_children_support_module
         select_default_support_module2
         verify_chosen_modules2
-        program_check_spothit_credits_module2
         assign_default_call_status(2)
         program_sms_to_choose_module2_to_parents
         program_sms_to_choose_module_to_parents
         assign_default_call_status(3)
         select_default_support_module
         verify_chosen_modules
-        program_check_spothit_credits
         program_support_module_sms
         stop_support
         @group.update(is_programmed: true)
@@ -141,18 +139,6 @@ class Group
     def verify_chosen_modules2
       select_module_date = @group.started_at + 7.weeks + MODULE_ZERO_DURATION
       ChildrenSupportModule::VerifyChosenModulesTaskJob.set(wait_until: select_module_date.to_datetime.change(hour: @hour + 1)).perform_later(@group.id)
-    end
-
-    def program_check_spothit_credits
-      (4..@group.support_modules_count).each do |module_index|
-        check_date = @group.started_at + ((module_index - 2) * 8.weeks) - 1.week + MODULE_ZERO_DURATION
-        ChildrenSupportModule::CheckCreditsForGroupJob.set(wait_until: check_date.to_datetime.change(hour: @hour)).perform_later(@group.id)
-      end
-    end
-
-    def program_check_spothit_credits_module2
-      select_module_date = @group.started_at + 7.weeks + 2.days + MODULE_ZERO_DURATION
-      ChildrenSupportModule::CheckCreditsForGroupJob.set(wait_until: select_module_date.to_datetime.change(hour: @hour)).perform_later(@group.id)
     end
 
     def program_support_module_sms

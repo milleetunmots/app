@@ -8,7 +8,6 @@ class ChildrenSupportModule
       @errors = {}
       @group = Group.find(group_id)
       children_support_module_ids = ChildrenSupportModule.not_programmed.where(child_id: current_children).ids
-      check_credits(children_support_module_ids)
       program_chosen_modules(children_support_module_ids, first_message_date)
       update_children_support_module(not_current_children)
       update_group(group)
@@ -38,14 +37,6 @@ class ChildrenSupportModule
           due_date: Time.zone.today
         )
       end
-    end
-
-    def check_credits(child_ids)
-      check_service = ChildrenSupportModule::CheckCreditsService.new(child_ids).call
-      return unless check_service.errors.any?
-
-      create_tasks(@group, check_service)
-      raise check_service.errors.to_json
     end
 
     def program_chosen_modules(child_ids, first_message_date)
