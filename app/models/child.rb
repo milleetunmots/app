@@ -145,6 +145,7 @@ class Child < ApplicationRecord
   after_create :create_support!
   after_create :add_to_group
   after_update :update_support
+  after_update :remove_group, if: -> { saved_change_to_group_status? && group_status.eql?('not_supported') }
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -701,5 +702,12 @@ class Child < ApplicationRecord
     else
       diff
     end
+  end
+
+  def remove_group
+    return unless group_id
+
+    self.group_id = nil
+    save(validate: false)
   end
 end
