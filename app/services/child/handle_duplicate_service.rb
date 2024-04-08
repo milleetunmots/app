@@ -2,103 +2,145 @@ class Child
 
   class HandleDuplicateService
 
-    attr_reader :children
-
     def initialize
-
-      ## group les parents en duplicate par numéro de téléphone
-# { numero => [parentX, parentY],
-#   numero2 => [parent3, parent4] }
-#   SI tous les parents ont des enfants déjà suivis, on next
-#   Sinon on met les enfants pas encore accompagnés dans la fiche des enfants déjà accompagnés
-
       @duplicated_parents_by_phone_number = Parent.kept.potential_duplicates.group_by(&:phone_number)
-      # @duplicate_children_by_name_and_birthdate = Child.potential_duplicates.group_by(&:last_name, &:first_name, &:birthdate)
-      @children = []
+      @children_duplicated_name_and_birthdate = Child.kept.potential_duplicates.group_by(&:name_and_birthdate)
     end
 
     def call
+      handle_duplicated_parents_by_phone_number
+      handle_children_duplicated_name_and_birthdate
+      self
+    end
+
+    private
+
+    def handle_duplicated_parents_by_phone_number
       @duplicated_parents_by_phone_number.each do |phone_number, parents|
-        if has_only_duplicated_children?(parents)
+        @parents = parents.sort_by(&:id)
+        @phone_number = phone_number
+        if only_duplicated_children?
           keep_only_one_family
         else
-          move_children_to_a_single_child_support(parents)
-          delete_empty_child_supports(parents)
-          delete_empty_parents(parents)
+          move_children_to_a_single_child_support
         end
       end
+    end
 
-    # @duplicate_children_by_name_and_birthdate.do |child|
+    def only_duplicated_children?
+      first_parent = @parents.first
+      all_parents_except_first = @parents.drop(1)
+      all_parents_except_first.all? { |parent| first_parent.only_duplicated_children_with?(parent) }
+    end
 
-    # end
+    def keep_only_one_family
+      all_parents_except_first = @parents.drop(1)
+      all_parents_except_first.each do |parent|
+        parent.children.each do |child|
+          child.group_status = 'not_supported'
+          child.save!
+          child.child_support&.discard
+          child.discard
+        end
+        parent.discard
+      end
+    end
 
+    def move_children_to_a_single_child_support
+      @child_support = single_child_support
+      return unless @child_support
 
+      @waiting_children.each do |child|
+        @child = child
+        next unless @child.child_support
 
+        retrieve_old_associations
+        change_parents_and_child_support
+        discard_old_associations
+      end
+    end
 
+    def single_child_support
+      @waiting_children = Child.kept.left_outer_joins(:parent1, :parent2).where(parents: { phone_number: @phone_number.to_s }).pending_support.sort_by(&:id)
+      not_waiting_children = Child.kept.left_outer_joins(:parent1, :parent2).where(parents: { phone_number: @phone_number.to_s }).where.not(group_status: %w[stopped disengaged]).not_pending_support.sort_by(&:id)
+      return nil if @waiting_children.empty?
 
+      first_child = not_waiting_children.empty? ? @waiting_children.shift : not_waiting_children.first
+      first_child.child_support
+    end
 
-      # @duplicated_parents_by_phone_number.each do |phone_number, _|
-      #   waiting_children = Child.kept.left_outer_joins(:parent1, :parent2).where(parents: { phone_number: phone_number.to_s }).pending_support.sort_by(&:id)
-      #   not_waiting_children = Child.kept.left_outer_joins(:parent1, :parent2).where(parents: { phone_number: phone_number.to_s }).not_pending_support.sort_by(&:id)
+    def retrieve_old_associations
+      @old_parent1 = @child.parent1
+      @old_parent2 = @child.parent2 if @child.parent2
+      @old_child_support = @child.child_support
+    end
 
-      #   next if waiting_children.empty?
+    def change_parents_and_child_support
+      @child_support.copy_fields(@child.child_support)
+      @child_support.save
 
-      #   first_child = not_waiting_children.empty? ? waiting_children.shift : not_waiting_children.shift
+      @child.parent1_id = @child_support.parent1.id
+      @child.parent2_id = @child_support.parent2.id if @child_support.parent2
+      @child.child_support_id = @child_support.id
+      @child.save(validate: false)
+    end
 
-      #   waiting_children.each do |child|
-      #     next unless first_child.child_support
-      #     next unless child.child_support
+    def discard_old_associations
+      @old_parent1.discard if @old_parent1.children.empty?
+      @old_parent2&.discard if @old_parent2 && @old_parent2&.children&.empty?
+      @old_child_support.discard if @old_child_support.children.empty?
+    end
 
-      #     old_parent1 = child.parent1
-      #     old_parent2 = child.parent2 if child.parent2
-      #     old_child_support = child.child_support
+    def handle_children_duplicated_name_and_birthdate
+      @children_duplicated_name_and_birthdate.each do |_, children|
+        @children = children
+        next if any_child_with_parent2?
 
-      #     first_child.child_support.copy_fields(child.child_support)
-      #     first_child.child_support.save
-      #     child.parent1_id = first_child.parent1_id
-      #     child.parent2_id = first_child.parent2_id if first_child.parent2
-      #     child.child_support_id = first_child.child_support_id
-      #     child.save(validate: false)
+        next if more_than_two_children_supported?
 
-      #     old_parent1.destroy if old_parent1.children.empty?
-      #     old_parent2&.destroy if old_parent2 && old_parent2&.children&.empty?
-      #     old_child_support.destroy if old_child_support.children.empty?
-      #   end
+        phone_numbers = parents_phone_numbers
+        next if phone_numbers.count != 2
 
-      #   (@duplicate_children_by_name_and_birthdate.to_a & first_child.siblings.to_a).drop(1).each { |child| child.destroy }
+        waiting_children = Child.where(id: @children.map(&:id)).pending_support.sort_by(&:id)
+        not_waiting_children = Child.where(id: @children.map(&:id)).where.not(group_status: %w[stopped disengaged]).not_pending_support.sort_by(&:id)
 
+        next if waiting_children.empty?
 
-      # end
+        @first_parent = Parent.find_by(phone_number: phone_numbers.first)
+        @second_parent = Parent.find_by(phone_number: phone_numbers.second)
+        @child = not_waiting_children.empty? ? waiting_children.first : not_waiting_children.first
+        link_families
+      end
+    end
 
+    def any_child_with_parent2?
+      @children.any? { |child| child.parent2.present? }
+    end
 
-      # @duplicate_phone_numbers.each do |number|
-      #   waiting_children = Child.kept.left_outer_joins(:parent1, :parent2).where(parents: { phone_number: number }).where(group_status: 'waiting').order(:created_at)
-      #   waiting_children_array = waiting_children.to_a
+    def more_than_two_children_supported?
+      @children.count { |child| child.group_status == 'active' && child.group.started_at <= Time.zone.today } >= 2
+    end
 
+    def parents_phone_numbers
+      phone_numbers = []
+      @children.each do |child|
+        phone_numbers << child.parent1.phone_number
+        phone_numbers << child.parent2.phone_number if child.parent2
+      end
+      phone_numbers.uniq
+    end
 
+    def link_families
+      @child.parent1 = @first_parent
+      @child.parent2 = @second_parent
+      @child.child_support = @child_support
+      @child.save
+      @children.each do |child|
+        next if child.id == @child.id
 
-      #   next if waiting_children.size <= 1
-
-      #   byebug
-
-      #   first_child = waiting_children_array.shift
-
-      #   waiting_children_array.each do |child|
-      #     next unless first_child.child_support
-
-      #     first_child.child_support.copy_fields(child.child_support)
-      #     first_child.child_support.save
-      #     child.parent1_id = first_child.parent1_id
-      #     child.parent2_id = first_child.parent2_id if first_child.parent2
-      #     child.child_support_id = first_child.child_support.id
-      #     child.save(validate: false)
-      #     child.child_support.destroy if child.child_support.children.empty?
-      #   end
-
-      #   @children << first_child.id
-
-      # end
-      self
+        child.discard
+        child.child_support.discard if child.child_support != @child_support && !child.child_support.discarded?
+      end
     end
   end
 end

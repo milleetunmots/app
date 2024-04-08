@@ -220,4 +220,21 @@ RSpec.describe Parent, type: :model do
       it { expect(subject.duplicate_of?(another_parent)).to be_truthy }
     end
   end
+
+  describe "#only_duplicated_children_with?(another_parent)" do
+    let!(:first_child) { FactoryBot.create(:child, parent1: subject) }
+    let!(:second_child) { FactoryBot.create(:child, parent1: subject) }
+    let!(:second_parent) { FactoryBot.create(:parent) }
+    let!(:third_child) { FactoryBot.create(:child, first_name: first_child.first_name, last_name: first_child.last_name, birthdate: first_child.birthdate, parent1: second_parent) }
+    let!(:fourth_child) { FactoryBot.create(:child, first_name: second_child.first_name, last_name: second_child.last_name, birthdate: second_child.birthdate, parent1: second_parent) }
+    let(:third_parent) { FactoryBot.build(:parent) }
+    let(:fifth_child) { FactoryBot.build(:child, parent1: third_parent) }
+    let(:sixth_child) { FactoryBot.build(:child, parent1: third_parent) }
+
+    context "returns true if another_parent has same children than the current parent" do
+      it { expect(subject.only_duplicated_children_with?(second_parent)).to be_truthy }
+      it { expect(subject.only_duplicated_children_with?(third_parent)).to be_falsey }
+    end
+
+  end
 end

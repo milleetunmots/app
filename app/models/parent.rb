@@ -232,6 +232,10 @@ class Parent < ApplicationRecord
     where(is_excluded_from_workshop: true)
   end
 
+  def self.phone_numbers
+    pluck(:phone_number)
+  end
+
   def children
     parent1_children.or(parent2_children)
   end
@@ -267,6 +271,14 @@ class Parent < ApplicationRecord
     return unless current_child.group
 
     current_child.target_child?
+  end
+
+  def children_name_and_birthdate
+    children.map(&:name_and_birthdate).sort_by { |name_and_birthdate| name_and_birthdate[:birthdate] }
+  end
+
+  def only_duplicated_children_with?(parent)
+    children_name_and_birthdate.eql? parent.children_name_and_birthdate
   end
 
   # ---------------------------------------------------------------------------
