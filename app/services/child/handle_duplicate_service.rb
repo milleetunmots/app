@@ -118,7 +118,7 @@ class Child
     end
 
     def more_than_two_children_supported?
-      @children.count { |child| child.group_status == 'active' && child.group.started_at <= Time.zone.today } >= 2
+      @children.count { |child| child.group_status == 'active' && child.group.started_at.present? && child.group.started_at <= Time.zone.today } >= 2
     end
 
     def parents_phone_numbers
