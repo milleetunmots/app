@@ -19,6 +19,7 @@ module Typeform
       help_my_child_to_learn_is_important: ENV['TYPEFORM_HELP_MY_CHILD_TO_LEARN_IS_IMPORTANT'],
       would_like_to_do_more: ENV['TYPEFORM_WOULD_LIKE_TO_DO_MORE'],
       would_receive_advices: ENV['TYPEFORM_WOULD_LIKE_TO_RECEIVE_ADVICES'],
+      parental_contexts: ENV['TYPEFORM_PARENTAL_CONTEXTS']
     }
 
 
@@ -37,7 +38,7 @@ module Typeform
 
     def call
       parse_answers
-      # update_parents
+      update_parents
       update_child_support
 
       self
@@ -77,14 +78,14 @@ module Typeform
           end
         when FIELD_IDS[:other_parent_phone]
           @data[:other_parent_phone] = Phonelib.parse(answer[:text]).e164
-        # when FIELD_IDS[:other_parent_degree]
-        #   @data[:other_parent_degree] = answer[:choice][:label]
-        # when FIELD_IDS[:other_parent_degree_in_france]
-        #   @data[:other_parent_degree_in_france] = answer[:choice][:label]
-        # when FIELD_IDS[:degree]
-        #   @data[:degree] = answer[:choice][:label]
-        # when FIELD_IDS[:degree_in_france]
-        #   @data[:degree_in_france] = answer[:choice][:label] == 'France'
+        when FIELD_IDS[:other_parent_degree]
+          @data[:other_parent_degree] = answer[:choice][:label]
+        when FIELD_IDS[:other_parent_degree_in_france]
+          @data[:other_parent_degree_in_france] = answer[:choice][:label]
+        when FIELD_IDS[:degree]
+          @data[:degree] = answer[:choice][:label]
+        when FIELD_IDS[:degree_in_france]
+          @data[:degree_in_france] = answer[:choice][:label] == 'France'
         when FIELD_IDS[:reading_frequency]
           if answer[:choices][:labels] == ['Aucun']
             @data[:call1_reading_frequency] = ChildSupport::READING_FREQUENCY[0]
@@ -113,12 +114,14 @@ module Typeform
           end
         when FIELD_IDS[:is_bilingual]
           @data[:is_bilingual] = answer[:choice][:label] == 'Oui'
-        # when FIELD_IDS[:help_my_child_to_learn_is_important]
-        #   @data[:help_my_child_to_learn_is_important] = answer[:choice][:label]
-        # when FIELD_IDS[:would_like_to_do_more]
-        #   @data[:would_like_to_do_more] = answer[:choice][:label]
-        # when FIELD_IDS[:would_receive_advices]
-        #   @data[:would_receive_advices] = answer[:choice][:label]
+        when FIELD_IDS[:help_my_child_to_learn_is_important]
+          @data[:help_my_child_to_learn_is_important] = answer[:choice][:label]
+        when FIELD_IDS[:would_like_to_do_more]
+          @data[:would_like_to_do_more] = answer[:choice][:label]
+        when FIELD_IDS[:would_receive_advices]
+          @data[:would_receive_advices] = answer[:choice][:label]
+        when FIELD_IDS[:parental_contexts]
+          @data[:parental_contexts] = answer[:choices][:labels]
         end
       end
     end
@@ -157,7 +160,8 @@ module Typeform
         call1_tv_frequency: @data[:call1_tv_frequency],
         child_count: @data[:child_count],
         most_present_parent: @data[:most_present_parent],
-        already_working_with: @data[:already_working_with]
+        already_working_with: @data[:already_working_with],
+        parental_contexts: @data[:parental_contexts]
       )
     end
 
