@@ -67,6 +67,8 @@ class Child
         else
           Group.next_available_at(@oldest_child.birthdate + 4.months)
         end
+      return unless @group
+
       @waiting_siblings.each do |child|
         next if child.birthdate + 4.months > @group.started_at
 
@@ -78,7 +80,7 @@ class Child
       sibling_group = @siblings.where(group_status: 'active').first.group
       @siblings.where(group_status: 'waiting').each do |child|
         next if child.birthdate + 4.months > sibling_group.started_at
-        
+
         child.update(group: sibling_group, group_status: 'active')
       end
     end
