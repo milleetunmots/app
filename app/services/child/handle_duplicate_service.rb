@@ -19,6 +19,9 @@ class Child
       @duplicated_parents_by_phone_number.each do |phone_number, parents|
         @parents = parents.sort_by(&:id)
         @phone_number = phone_number
+        @children = Child.kept.left_outer_joins(:parent1, :parent2).where(parents: { phone_number: @phone_number.to_s })
+        @waiting_children = @children.pending_support.sort_by(&:id)
+        @not_waiting_children = @children.where.not(group_status: %w[stopped disengaged]).not_pending_support.sort_by(&:id)
         if only_duplicated_children?
           keep_only_one_family
         else
@@ -34,8 +37,12 @@ class Child
     end
 
     def keep_only_one_family
-      all_parents_except_first = @parents.drop(1)
-      all_parents_except_first.each do |parent|
+      return if many_parents_with_supported_children?
+
+      parent_to_keep = @not_waiting_children.empty? ? @parent.first : @not_waiting_children.first.parent1
+      @parent.each do |parent|
+        next if parent.id == parent_to_keep.id
+
         parent.children.each do |child|
           child.group_status = 'not_supported'
           child.save!
@@ -44,6 +51,12 @@ class Child
         end
         parent.discard
       end
+    end
+
+    def many_parents_with_supported_children?
+      first_parent1_id = @not_waiting_children.first.parent1_id
+      not_waiting_children_except_first = @not_waiting_children.drop(1)
+      not_waiting_children_except_first.any? { |child| child.parent1_id != first_parent1_id }
     end
 
     def move_children_to_a_single_child_support
@@ -61,11 +74,9 @@ class Child
     end
 
     def single_child_support
-      @waiting_children = Child.kept.left_outer_joins(:parent1, :parent2).where(parents: { phone_number: @phone_number.to_s }).pending_support.sort_by(&:id)
-      not_waiting_children = Child.kept.left_outer_joins(:parent1, :parent2).where(parents: { phone_number: @phone_number.to_s }).where.not(group_status: %w[stopped disengaged]).not_pending_support.sort_by(&:id)
       return nil if @waiting_children.empty?
 
-      first_child = not_waiting_children.empty? ? @waiting_children.shift : not_waiting_children.first
+      first_child = @not_waiting_children.empty? ? @waiting_children.shift : @not_waiting_children.first
       first_child.child_support
     end
 
@@ -96,14 +107,15 @@ class Child
         @children = children
         next if any_child_with_parent2?
 
-        next if more_than_two_children_supported?
+        next if more_than_one_children_supported?
+
+        next if any_parent_have_others_children?
 
         phone_numbers = parents_phone_numbers
         next if phone_numbers.count != 2
 
         waiting_children = Child.where(id: @children.map(&:id)).pending_support.sort_by(&:id)
         not_waiting_children = Child.where(id: @children.map(&:id)).where.not(group_status: %w[stopped disengaged]).not_pending_support.sort_by(&:id)
-
         next if waiting_children.empty?
 
         @first_parent = Parent.find_by(phone_number: phone_numbers.first)
@@ -117,8 +129,14 @@ class Child
       @children.any? { |child| child.parent2.present? }
     end
 
-    def more_than_two_children_supported?
-      @children.count { |child| child.group_status == 'active' && child.group.started_at.present? && child.group.started_at <= Time.zone.today } >= 2
+    def more_than_one_children_supported?
+      @children.count { |child| child.group_status == 'active' && child.group.started_at.present? && child.group.started_at <= Time.zone.today } > 1
+    end
+
+    def any_parent_have_others_children?
+      @children.any? do |child|
+        child.siblings.any? { |sibling| !@children.include? sibling }
+      end
     end
 
     def parents_phone_numbers
@@ -133,13 +151,12 @@ class Child
     def link_families
       @child.parent1 = @first_parent
       @child.parent2 = @second_parent
-      @child.child_support = @child_support
       @child.save
       @children.each do |child|
         next if child.id == @child.id
 
         child.discard
-        child.child_support.discard if child.child_support != @child_support && !child.child_support.discarded?
+        child.child_support.discard if child.children.empty?
       end
     end
   end
