@@ -698,7 +698,7 @@ class Child < ApplicationRecord
   end
 
   def name_and_birthdate
-    { first_name: first_name.delete(' ').downcase, last_name: last_name.delete(' ').downcase, birthdate: birthdate }
+    { first_name: first_name.parameterize, last_name: last_name.parameterize, birthdate: birthdate }
   end
 
   private

@@ -39,8 +39,8 @@ class Child
     def keep_only_one_family
       return if many_parents_with_supported_children?
 
-      parent_to_keep = @not_waiting_children.empty? ? @parent.first : @not_waiting_children.first.parent1
-      @parent.each do |parent|
+      parent_to_keep = @not_waiting_children.empty? ? @parents.first : @not_waiting_children.first.parent1
+      @parents.each do |parent|
         next if parent.id == parent_to_keep.id
 
         parent.children.each do |child|
@@ -54,6 +54,8 @@ class Child
     end
 
     def many_parents_with_supported_children?
+      return false if @not_waiting_children.empty?
+
       first_parent1_id = @not_waiting_children.first.parent1_id
       not_waiting_children_except_first = @not_waiting_children.drop(1)
       not_waiting_children_except_first.any? { |child| child.parent1_id != first_parent1_id }
@@ -156,7 +158,7 @@ class Child
         next if child.id == @child.id
 
         child.discard
-        child.child_support.discard if child.children.empty?
+        child.child_support.discard if child.child_support.children.empty?
       end
     end
   end

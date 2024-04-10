@@ -127,7 +127,7 @@ class Parent < ApplicationRecord
   validates :terms_accepted_at, presence: true
 
   scope :potential_duplicates, -> {
-    where("parents.phone_number IN (SELECT phone_number FROM parents GROUP BY parents.phone_number HAVING COUNT(*) > 1)")
+    where("parents.phone_number IN (SELECT phone_number FROM parents WHERE parents.discarded_at IS NULL GROUP BY parents.phone_number HAVING COUNT(*) > 1)")
   }
 
   def initialize(attributes = {})
