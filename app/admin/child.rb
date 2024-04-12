@@ -48,6 +48,7 @@ ActiveAdmin.register Child do
   end
 
   scope :all, default: true
+  scope :supported
 
   scope :active_group, group: :group
   scope :without_group, group: :group

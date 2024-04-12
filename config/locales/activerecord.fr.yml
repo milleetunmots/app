@@ -86,7 +86,7 @@ fr:
         gender: Sexe
         group: Cohorte
         child_group_name: Cohorte
-        group_status: Statut de la cohorte
+        group_status: Statut
         land: Terrain
         territory: Territoire
         last_name: Nom
@@ -131,9 +131,9 @@ fr:
         x: Inconnu
       child/group_status:
         waiting: En attente
-        active: Active
+        active: Actif
         paused: En pause
-        stopped: Arrêtée
+        stopped: Arrêté
         disengaged: Désengagé
         not_supported: Non accompagné
       children_support_module:
@@ -545,7 +545,7 @@ fr:
         child_first_name: "Prénom de l'enfant"
         child_gender: "Sexe de l'enfant"
         child_group_name: Cohorte
-        child_group_status: Statut de la cohorte
+        child_group_status: "Statut de l'enfant"
         child_last_name: "Nom de l'enfant"
         parent: Parent
         parent_address: Adresse

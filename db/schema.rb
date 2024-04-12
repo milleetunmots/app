@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_03_25_105535) do
+ActiveRecord::Schema.define(version: 2024_04_08_100733) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -260,6 +260,7 @@ ActiveRecord::Schema.define(version: 2024_03_25_105535) do
     t.integer "parent_mid_term_rate"
     t.string "parent_mid_term_reaction"
     t.bigint "module6_chosen_by_parents_id"
+    t.string "parental_contexts", array: true
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
