@@ -22,6 +22,8 @@ class Child
         @children = Child.kept.left_outer_joins(:parent1, :parent2).where(parents: { phone_number: @phone_number.to_s })
         @waiting_children = @children.pending_support.sort_by(&:id)
         @not_waiting_children = @children.where.not(group_status: %w[stopped disengaged]).not_pending_support.sort_by(&:id)
+        next if any_child_with_parent2?
+
         if only_duplicated_children?
           keep_only_one_family
         else
@@ -31,9 +33,10 @@ class Child
     end
 
     def only_duplicated_children?
-      first_parent = @parents.first
-      all_parents_except_first = @parents.drop(1)
-      all_parents_except_first.all? { |parent| first_parent.only_duplicated_children_with?(parent) }
+      # returns true if all the parents have the "same" children or dont have one
+      first_parent = @parents.joins("JOIN children ON children.parent1_id = parents.id OR children.parent2_id = parents.id").first
+      all_parents_except_first = @parents.where.not(id: first_parent.id)
+      all_parents_except_first.all? { |parent| first_parent.only_duplicated_children_with?(parent) || parent.children.empty? }
     end
 
     def keep_only_one_family
