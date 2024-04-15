@@ -11,19 +11,19 @@ class Group
       @group = group
       @child_supports_count_by_supporter = child_supports_count_by_supporter
       @child_supports = @group.child_supports.with_a_child_in_active_group
-      @child_supports_with_source = @child_supports.joins(children: :source)
-      @child_supports_with_siblings = @child_supports_with_source.group(:id).having('COUNT(child_supports.id) > 1')
-      @pmi_and_caf_child_supports = @child_supports_with_source.group(:id).having('COUNT(child_supports.id) = 1').where(source: { channel: ['pmi', 'caf'] })
-      @bao_and_local_partner_child_supports = @child_supports_with_source.group(:id).having('COUNT(child_supports.id) = 1').where(source: { channel: ['bao', 'local_partner'] })
-      @other_sources_child_supports = @child_supports_with_source.group(:id).having('COUNT(child_supports.id) = 1').where(source: { channel: 'other' })
-      @child_supports_without_source = @child_supports.where.not(id: @child_supports_with_source.ids)
-      @other_or_missing_sources_child_supports = ChildSupport.where(id: [@other_sources_child_supports.ids + @child_supports_without_source.ids].uniq)
+      @child_supports_with_siblings = @child_supports.group(:id).having('COUNT(child_supports.id) > 1')
+      # @child_supports_with_source = @child_supports.joins(children: :source)
+      # @pmi_and_caf_child_supports = @child_supports_with_source.group(:id).having('COUNT(child_supports.id) = 1').where(source: { channel: ['pmi', 'caf'] })
+      # @bao_and_local_partner_child_supports = @child_supports_with_source.group(:id).having('COUNT(child_supports.id) = 1').where(source: { channel: ['bao', 'local_partner'] })
+      # @other_sources_child_supports = @child_supports_with_source.group(:id).having('COUNT(child_supports.id) = 1').where(source: { channel: 'other' })
+      # @child_supports_without_source = @child_supports.where.not(id: @child_supports_with_source.ids)
+      # @other_or_missing_sources_child_supports = ChildSupport.where(id: [@other_sources_child_supports.ids + @child_supports_without_source.ids].uniq)
     end
 
     def call
       # use a transaction to make sure that if something goes wrong, we don't end up with a partially distributed group
       ActiveRecord::Base.transaction do
-        balance_capacity_of_each_supporter
+        # balance_capacity_of_each_supporter
         add_supporters_capacities
         order_child_supports
         associate_child_support_to_supporters
@@ -48,9 +48,9 @@ class Group
     def add_supporters_capacities
       @child_supports_count_by_supporter.each do |count|
         count[:max_child_supports_with_siblings_count] = (@child_supports_with_siblings.pluck(:id).count.to_f * count[:child_supports_count].to_f / @child_supports.uniq.count).ceil
-        count[:max_pmi_and_caf_child_supports_count] = (@pmi_and_caf_child_supports.pluck(:id).count.to_f * count[:child_supports_count].to_f / @child_supports.uniq.count).ceil
-        count[:max_bao_and_local_partner_child_supports_count] = (@bao_and_local_partner_child_supports.pluck(:id).count.to_f * count[:child_supports_count].to_f / @child_supports.uniq.count).ceil
-        count[:max_other_sources_child_supports_count] = (@other_or_missing_sources_child_supports.pluck(:id).count.to_f * count[:child_supports_count].to_f / @child_supports.uniq.count).ceil
+        # count[:max_pmi_and_caf_child_supports_count] = (@pmi_and_caf_child_supports.pluck(:id).count.to_f * count[:child_supports_count].to_f / @child_supports.uniq.count).ceil
+        # count[:max_bao_and_local_partner_child_supports_count] = (@bao_and_local_partner_child_supports.pluck(:id).count.to_f * count[:child_supports_count].to_f / @child_supports.uniq.count).ceil
+        # count[:max_other_sources_child_supports_count] = (@other_or_missing_sources_child_supports.pluck(:id).count.to_f * count[:child_supports_count].to_f / @child_supports.uniq.count).ceil
       end
     end
 
@@ -65,22 +65,12 @@ class Group
       supporter_with_capacity[:assigned_child_supports_count] >= supporter_with_capacity[:child_supports_count]
     end
 
-    def assign_child_supports(child_supports, supporter_with_capacity, max_child_supports_count)
-      return unless child_supports
-
-      child_supports.shift(max_child_supports_count).each do |cs|
-        break if enough_child_support?(supporter_with_capacity)
-
-        supporter_with_capacity[:assigned_child_supports_count] += 1 if cs.update!(supporter_id: supporter_with_capacity[:admin_user_id])
-      end
-    end
-
     def associate_child_support_to_supporters
       child_support_sources = [
-        { supports: @child_supports_with_siblings, max_count: :max_child_supports_with_siblings_count },
-        { supports: @other_or_missing_sources_child_supports, max_count: :max_other_sources_child_supports_count },
-        { supports: @pmi_and_caf_child_supports, max_count: :max_pmi_and_caf_child_supports_count },
-        { supports: @bao_and_local_partner_child_supports, max_count: :max_bao_and_local_partner_child_supports_count }
+        { supports: @child_supports_with_siblings, max_count: :max_child_supports_with_siblings_count }
+        # { supports: @other_or_missing_sources_child_supports, max_count: :max_other_sources_child_supports_count },
+        # { supports: @pmi_and_caf_child_supports, max_count: :max_pmi_and_caf_child_supports_count },
+        # { supports: @bao_and_local_partner_child_supports, max_count: :max_bao_and_local_partner_child_supports_count }
       ]
       # order from smallest to biggest count to avoid maxing a supporter quota before all sources types could be assigned
       random_supporter_with_capacity = @child_supports_count_by_supporter.first
@@ -91,6 +81,16 @@ class Group
           assign_child_supports(source[:supports], supporter_with_capacity, supporter_with_capacity[source[:max_count]])
           break if enough_child_support?(supporter_with_capacity)
         end
+      end
+    end
+
+    def assign_child_supports(child_supports, supporter_with_capacity, max_child_supports_count)
+      return unless child_supports
+
+      child_supports.shift(max_child_supports_count).each do |cs|
+        break if enough_child_support?(supporter_with_capacity)
+
+        supporter_with_capacity[:assigned_child_supports_count] += 1 if cs.update!(supporter_id: supporter_with_capacity[:admin_user_id])
       end
     end
 

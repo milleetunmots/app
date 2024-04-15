@@ -12,4 +12,8 @@ class Airtables::CallMission < Airrecord::Table
   def airtable_caller_id
     self["Appelantes"].first
   end
+
+  def age_range
+    self["Tranche d'âge à privilégier"]&.first
+  end
 end
