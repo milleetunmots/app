@@ -18,7 +18,7 @@ class ProgramMessageService
     @workshop_id = workshop_id
     @event_params = {}
     @invalid_parent_ids = []
-    @supporter_id = supporter.to_i
+    @supporter_id = supporter.nil? ? nil : supporter.to_i
     @errors = []
   end
 
