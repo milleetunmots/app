@@ -151,7 +151,16 @@ class ProgramMessageService
   def find_parent_ids_from_tags
     @tag_ids.each do |tag_id|
       # taggable_id = id of the parent in our case
-      @parent_ids += Tagging.by_taggable_type('Parent').by_tag_id(tag_id).pluck(:taggable_id)
+      if @supporter_id.present?
+        Tagging.by_taggable_type('Parent').by_tag_id(tag_id).pluck(:taggable_id).each do |parent_id|
+          parent = Parent.find(parent_id)
+          next unless parent.current_child_supporter_id?(@supporter_id)
+
+          @parent_ids << parent_id
+        end
+      else
+        @parent_ids += Tagging.by_taggable_type('Parent').by_tag_id(tag_id).pluck(:taggable_id)
+      end
     end
   end
 

@@ -269,6 +269,16 @@ class Parent < ApplicationRecord
     current_child.target_child?
   end
 
+  def current_child_supporter_id?(supporter_id)
+    return false unless current_child
+
+    return false unless current_child.child_support
+
+    return false unless current_child.child_support.supporter_id
+
+    current_child.child_support.supporter_id == supporter_id
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------
