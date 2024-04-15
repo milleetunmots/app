@@ -110,6 +110,16 @@ class Group
       end
     end
 
+    def assign_child_supports(child_supports, supporter_with_capacity, max_child_supports_count)
+      return unless child_supports
+
+      child_supports.shift(max_child_supports_count).each do |cs|
+        break if enough_child_support?(supporter_with_capacity)
+
+        supporter_with_capacity[:assigned_child_supports_count] += 1 if cs.update!(supporter_id: supporter_with_capacity[:admin_user_id])
+      end
+    end
+
     def check_all_child_supports_are_associated
       child_supports_without_supporter = ChildSupport.groups_in(@group.id).with_a_child_in_active_group.without_supporter.to_a
       return if child_supports_without_supporter.count.zero?
