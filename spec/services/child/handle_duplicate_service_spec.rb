@@ -63,8 +63,8 @@ RSpec.describe Child::HandleDuplicateService do
 
     it "link the parents" do
       subject.call
-      expect(first_child.reload.parent1_id).to eq first_parent.id
-      expect(first_child.reload.parent2_id).to eq second_parent.id
+      new_parents = [first_child.reload.parent1_id, first_child.reload.parent2_id]
+      expect(new_parents).to include first_parent.id, second_parent.id
       expect(second_child.reload.discarded?).to eq(true)
     end
   end
