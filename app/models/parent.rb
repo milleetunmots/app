@@ -274,7 +274,7 @@ class Parent < ApplicationRecord
   end
 
   def children_name_and_birthdate
-    children.map(&:name_and_birthdate).sort_by { |name_and_birthdate| name_and_birthdate[:birthdate] }
+    children.kept.map(&:name_and_birthdate).sort_by { |name_and_birthdate| name_and_birthdate[:birthdate] }
   end
 
   def only_duplicated_children_with?(parent)

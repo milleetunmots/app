@@ -21,7 +21,7 @@ class Child
         @phone_number = phone_number
         @children = Child.kept.left_outer_joins(:parent1, :parent2).where(parents: { phone_number: @phone_number.to_s })
         @waiting_children = @children.pending_support.sort_by(&:id)
-        @not_waiting_children = @children.where.not(group_status: %w[stopped disengaged]).not_pending_support.sort_by(&:id)
+        @not_waiting_children = @children.where.not(group_status: %w[stopped disengaged not_supported]).not_pending_support.sort_by(&:id)
         next if any_child_with_parent2?
 
         if only_duplicated_children?
@@ -35,11 +35,11 @@ class Child
     def only_duplicated_children?
       # returns true if all the parents have the "same" children or dont have one
       parents = Parent.where(id: @parents.map(&:id))
-      first_parent = parents.joins("JOIN children ON children.parent1_id = parents.id OR children.parent2_id = parents.id").first
+      first_parent = parents.joins("JOIN children ON (children.parent1_id = parents.id OR children.parent2_id = parents.id) AND children.discarded_at IS NULL").first
       return true if first_parent.nil?
 
       all_parents_except_first = parents.where.not(id: first_parent.id)
-      all_parents_except_first.all? { |parent| first_parent.only_duplicated_children_with?(parent) || parent.children.empty? }
+      all_parents_except_first.all? { |parent| first_parent.only_duplicated_children_with?(parent) }
     end
 
     def keep_only_one_family
@@ -107,7 +107,7 @@ class Child
     def discard_old_associations
       @old_parent1.discard if @old_parent1.children.empty?
       @old_parent2&.discard if @old_parent2 && @old_parent2&.children&.empty?
-      @old_child_support.discard if @old_child_support.children.empty?
+      @old_child_support.discard if @old_child_support.children.kept.empty?
     end
 
     def handle_children_duplicated_name_and_birthdate
@@ -123,7 +123,7 @@ class Child
         next if phone_numbers.count != 2
 
         waiting_children = Child.where(id: @children.map(&:id)).pending_support.sort_by(&:id)
-        not_waiting_children = Child.where(id: @children.map(&:id)).where.not(group_status: %w[stopped disengaged]).not_pending_support.sort_by(&:id)
+        not_waiting_children = Child.where(id: @children.map(&:id)).where.not(group_status: %w[stopped disengaged not_supported]).not_pending_support.sort_by(&:id)
         next if waiting_children.empty?
 
         @first_parent = Parent.find_by(phone_number: phone_numbers.first)
@@ -138,12 +138,12 @@ class Child
     end
 
     def more_than_one_children_supported?
-      @children.count { |child| child.group_status == 'active' && child.group.started_at.present? && child.group.started_at <= Time.zone.today } > 1
+      @children.count { |child| child.group_status == 'active' && child.group&.started_at.present? && child.group.started_at <= Time.zone.today && child.group.support_module_programmed.to_i.positive? } > 1
     end
 
     def any_parent_have_others_children?
       @children.any? do |child|
-        child.siblings.any? { |sibling| !@children.include? sibling }
+        child.siblings.kept.any? { |sibling| !@children.include? sibling }
       end
     end
 
@@ -164,7 +164,7 @@ class Child
         next if child.id == @child.id
 
         child.discard
-        child.child_support.discard if child.child_support.children.empty?
+        child.child_support.discard if child.child_support.children.kept.empty?
       end
     end
   end

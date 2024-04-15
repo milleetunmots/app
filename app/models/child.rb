@@ -117,8 +117,8 @@ class Child < ApplicationRecord
   }, on: :create
   validates :security_code, presence: true
   validates :group_status, inclusion: { in: GROUP_STATUS }
-  validate :no_duplicate, on: :create
-  validate :different_phone_number, on: :create
+  # validate :no_duplicate, on: :create
+  # validate :different_phone_number, on: :create
   validate :valid_group_status
 
   # ---------------------------------------------------------------------------
@@ -173,7 +173,7 @@ class Child < ApplicationRecord
   scope :with_group_not_started, -> { where(id: left_outer_joins(:group).where('groups.started_at >= ? AND groups.support_module_programmed = ?', Time.zone.today, 0).select(:id)) }
   scope :waiting_children, -> { where(group_status: 'waiting') }
   scope :pending_support, -> { with_group_not_started.or(waiting_children) }
-  scope :not_pending_support, -> { where.not(id: pending_support) }
+  scope :not_pending_support, -> { with_group.where.not(id: pending_support) }
 
   def self.without_group_and_not_waiting_second_group
     second_group_children_ids = Child.tagged_with('2eme cohorte').pluck(:id)

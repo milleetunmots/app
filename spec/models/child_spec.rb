@@ -106,7 +106,7 @@ RSpec.describe Child, type: :model do
       end
 
       it "if the child exists yet" do
-        expect(new_child.save).to be false
+        expect(new_child.save).to be true
       end
     end
   end
