@@ -34,8 +34,11 @@ class Child
 
     def only_duplicated_children?
       # returns true if all the parents have the "same" children or dont have one
-      first_parent = @parents.joins("JOIN children ON children.parent1_id = parents.id OR children.parent2_id = parents.id").first
-      all_parents_except_first = @parents.where.not(id: first_parent.id)
+      parents = Parent.where(id: @parents.map(&:id))
+      first_parent = parents.joins("JOIN children ON children.parent1_id = parents.id OR children.parent2_id = parents.id").first
+      return true if first_parent.nil?
+
+      all_parents_except_first = parents.where.not(id: first_parent.id)
       all_parents_except_first.all? { |parent| first_parent.only_duplicated_children_with?(parent) || parent.children.empty? }
     end
 
