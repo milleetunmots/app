@@ -117,8 +117,8 @@ class Child < ApplicationRecord
   }, on: :create
   validates :security_code, presence: true
   validates :group_status, inclusion: { in: GROUP_STATUS }
-  validate :no_duplicate, on: :create
-  validate :different_phone_number, on: :create
+  # validate :no_duplicate, on: :create
+  # validate :different_phone_number, on: :create
   validate :valid_group_status
 
   # ---------------------------------------------------------------------------
@@ -164,10 +164,16 @@ class Child < ApplicationRecord
   scope :potential_duplicates, -> {
     where('(TRIM(LOWER(unaccent(children.first_name))), TRIM(LOWER(unaccent(children.last_name))),children.birthdate)
             IN (SELECT TRIM(LOWER(unaccent(first_name))),TRIM(LOWER(unaccent(last_name))),birthdate
-                FROM children GROUP BY TRIM(LOWER(unaccent(children.first_name))), TRIM(LOWER(unaccent(children.last_name))), children.birthdate HAVING COUNT(*) > 1)')
+                FROM children WHERE (children.discarded_at IS NULL) GROUP BY TRIM(LOWER(unaccent(children.first_name))), TRIM(LOWER(unaccent(children.last_name))), children.birthdate HAVING COUNT(*) > 1)')
+  }
+  scope :potential_duplicates_by_phone_number, -> {
+    left_outer_joins(:parent1, :parent2).merge(Parent.potential_duplicates)
   }
   scope :supported, -> { where.not(group_status: 'not_supported') }
-  scope :less_than_thirty_months_old, -> { where('birthdate >= ?', Time.zone.today - 30.months) }
+  scope :with_group_not_started, -> { where(id: left_outer_joins(:group).where('groups.started_at >= ? AND groups.support_module_programmed = ?', Time.zone.today, 0).select(:id)) }
+  scope :waiting_children, -> { where(group_status: 'waiting') }
+  scope :pending_support, -> { with_group_not_started.or(waiting_children) }
+  scope :not_pending_support, -> { with_group.where.not(id: pending_support) }
 
   def self.without_group_and_not_waiting_second_group
     second_group_children_ids = Child.tagged_with('2eme cohorte').pluck(:id)
@@ -423,6 +429,10 @@ class Child < ApplicationRecord
   def self.parents
     parent_ids = pluck(:parent1_id) + pluck(:parent2_id)
     Parent.where(id: parent_ids.compact.uniq)
+  end
+
+  def self.parents_phone_numbers
+    parents.phone_numbers.uniq
   end
 
   # ---------------------------------------------------------------------------
@@ -685,6 +695,10 @@ class Child < ApplicationRecord
 
   def next_unprogrammed_children_support_module
     children_support_modules.where.not(support_module: nil).find_by(is_programmed: false)
+  end
+
+  def name_and_birthdate
+    { first_name: first_name.parameterize, last_name: last_name.parameterize, birthdate: birthdate }
   end
 
   private

@@ -202,10 +202,12 @@ class ChildSupport < ApplicationRecord
   accepts_nested_attributes_for :current_child
 
   before_update do
-    current_child.parent1.tag_list.add(tag_list)
-    current_child.parent1.save
-    current_child.parent2&.tag_list&.add(tag_list)
-    current_child.parent2&.save
+    if current_child
+      current_child.parent1.tag_list.add(tag_list)
+      current_child.parent1.save
+      current_child.parent2&.tag_list&.add(tag_list)
+      current_child.parent2&.save
+    end
   end
 
   after_save do

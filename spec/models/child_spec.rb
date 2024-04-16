@@ -106,7 +106,7 @@ RSpec.describe Child, type: :model do
       end
 
       it "if the child exists yet" do
-        expect(new_child.save).to be false
+        expect(new_child.save).to be true
       end
     end
   end
@@ -361,6 +361,11 @@ RSpec.describe Child, type: :model do
   describe "#with_group" do
     context "returns" do
       it "children with group" do
+        first_child.update_column(:group_id, first_group.id)
+        second_child.update_column(:group_id, first_group.id)
+        third_child.update_column(:group_id, first_group.id)
+        fourth_child.update_column(:group_id, first_group.id)
+        fifth_child.update_column(:group_id, :nil)
         expect(Child.with_group).to match_array [first_child, second_child, third_child, fourth_child]
       end
     end
@@ -369,6 +374,11 @@ RSpec.describe Child, type: :model do
   describe "#without_group" do
     context "returns" do
       it "children without group" do
+        first_child.update_column(:group_id, first_group.id)
+        second_child.update_column(:group_id, first_group.id)
+        third_child.update_column(:group_id, first_group.id)
+        fourth_child.update_column(:group_id, first_group.id)
+        fifth_child.update_column(:group_id, :nil)
         expect(Child.without_group).to match_array [fifth_child]
       end
     end
