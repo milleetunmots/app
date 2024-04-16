@@ -18,7 +18,7 @@ class ProgramMessageService
     @workshop_id = workshop_id
     @event_params = {}
     @invalid_parent_ids = []
-    @supporter_id = supporter.to_i
+    @supporter_id = supporter.nil? ? nil : supporter.to_i
     @errors = []
   end
 
@@ -33,6 +33,7 @@ class ProgramMessageService
     find_parent_ids_from_tags
     find_parent_ids_from_groups
     find_parent_ids_from_children
+    filter_by_supporter
     verify_parent_and_children_validity
 
     return self if @errors.any?
@@ -155,11 +156,19 @@ class ProgramMessageService
     end
   end
 
+  def filter_by_supporter
+    return unless @supporter_id
+
+    parent1_ids = Parent.joins(parent1_children: :child_support).where(child_support: { supporter_id: @supporter_id }).ids
+    parent2_ids = Parent.joins(parent2_children: :child_support).where(child_support: { supporter_id: @supporter_id }).ids
+    @parent_ids_filtered_by_supporter = (parent1_ids + parent2_ids).uniq
+    @parent_ids &= @parent_ids_filtered_by_supporter
+  end
+
   def find_parent_ids_from_groups
     Group.includes(:children).where(id: @group_ids).find_each do |group|
       group.children.each do |child|
         next unless child.group_status == 'active'
-        next if @supporter_id.present? && child.child_support&.supporter_id != @supporter_id
 
         @parent_ids << child.parent1_id if child.parent1_id && child.should_contact_parent1
         @parent_ids << child.parent2_id if child.parent2_id && child.should_contact_parent2
