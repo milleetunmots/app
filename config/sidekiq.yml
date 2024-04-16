@@ -27,3 +27,6 @@
     add_waiting_children_to_group_job:
       cron: '0 2 * * 1'
       class: Child::AddWaitingChildrenToGroupJob
+    handle_duplicate_job:
+      cron: '0 6 * * 7'
+      class: Child::HandleDuplicateJob

@@ -27,7 +27,9 @@ ActiveAdmin.register Child do
     end
     column :age, sortable: :birthdate
     column :parent1, sortable: :parent1_id
+    column :parent1_phone_number_national
     column :parent2, sortable: :parent2_id
+    column :parent2_phone_number_national
     column :postal_code
     column :territory
     column :child_support, sortable: :child_support_id, &:child_support_status
@@ -63,6 +65,9 @@ ActiveAdmin.register Child do
   scope :only_siblings, group: :siblings
   scope('Doublons potentiels', if: proc { !current_admin_user.caller? }) do |scope|
     scope.merge(Child.potential_duplicates)
+  end
+  scope('Doubons potentiels via tel', if: proc { !current_admin_user.caller? }) do |scope|
+    scope.merge(Child.potential_duplicates_by_phone_number)
   end
 
   filter :gender,
