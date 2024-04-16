@@ -53,7 +53,13 @@ class Source < ApplicationRecord
   end
 
   def uniq_name_by_channel
-    return unless Source.exists?(channel: channel, name: name)
+    duplicate =
+      if new_record?
+        Source.where(channel: channel, name: name).any?
+      else
+        Source.where(channel: channel, name: name).where.not(id: id).any?
+      end
+    return unless duplicate
 
     errors.add(:name, "doit être unique par canal d'inscription")
   end
