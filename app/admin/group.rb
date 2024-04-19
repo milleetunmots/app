@@ -158,7 +158,9 @@ ActiveAdmin.register Group do
     child_supports_count_by_supporter = Airtables::Call.call_missions_by_name(name).map do |call_mission|
       {
         admin_user_id: Airtables::Caller.caller_id_by_airtable_caller_id(call_mission.airtable_caller_id),
-        child_supports_count: call_mission.child_supports_count
+        child_supports_count: call_mission.child_supports_count,
+        age_range: call_mission.age_range,
+        assigned_child_supports_count: 0
       }
     end
     Group::DistributeChildSupportsToSupportersService.new(resource.model, child_supports_count_by_supporter).call
