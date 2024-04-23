@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_03_25_105535) do
+ActiveRecord::Schema.define(version: 2024_04_23_091416) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -260,6 +260,9 @@ ActiveRecord::Schema.define(version: 2024_03_25_105535) do
     t.integer "parent_mid_term_rate"
     t.string "parent_mid_term_reaction"
     t.bigint "module6_chosen_by_parents_id"
+    t.string "parental_contexts", array: true
+    t.bigint "support_stop_caller_id"
+    t.datetime "support_stop_date"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
@@ -284,6 +287,7 @@ ActiveRecord::Schema.define(version: 2024_03_25_105535) do
     t.index ["parent1_available_support_module_list"], name: "index_child_supports_on_parent1_available_support_module_list", using: :gin
     t.index ["parent2_available_support_module_list"], name: "index_child_supports_on_parent2_available_support_module_list", using: :gin
     t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
+    t.index ["support_stop_caller_id"], name: "index_child_supports_on_support_stop_caller_id"
     t.index ["supporter_id"], name: "index_child_supports_on_supporter_id"
   end
 
@@ -675,6 +679,7 @@ ActiveRecord::Schema.define(version: 2024_03_25_105535) do
   add_foreign_key "bubble_sessions", "bubble_contents", column: "content_id"
   add_foreign_key "bubble_sessions", "bubble_modules", column: "module_session_id"
   add_foreign_key "bubble_sessions", "bubble_videos", column: "video_id"
+  add_foreign_key "child_supports", "admin_users", column: "support_stop_caller_id"
   add_foreign_key "child_supports", "admin_users", column: "supporter_id"
   add_foreign_key "child_supports", "support_modules", column: "module2_chosen_by_parents_id"
   add_foreign_key "child_supports", "support_modules", column: "module3_chosen_by_parents_id"
