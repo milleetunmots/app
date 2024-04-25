@@ -642,7 +642,17 @@ ActiveAdmin.register ChildSupport do
       item "Ajout d'un frère / soeur", %i[add_child admin child_support], { target: '_blank' }
       item "Ajout d'un parent", %i[add_parent admin child_support], { target: '_blank' } unless resource.model.parent2
       item "Autre tâche", url_for_new_task(resource.decorate), { target: '_blank' }
-      item "Arrêter l'accompagnement", admin_caller_path(supporter_id: current_admin_user.id, child_support_id: resource.model.id), { target: '_blank' }
+      item "Arrêter l'accompagnement", admin_stop_support_form_path(supporter_id: current_admin_user.id, child_support_id: resource.model.id), { target: '_blank' }
+    end
+  end
+
+  member_action :send_stop_support_message do
+    send_stop_support_message_service = ChildSupport::SendStopSupportMessageService.new(resource.id).call
+
+    if send_stop_support_message_service.error.nil?
+      redirect_to admin_child_support_path(resource.id), notice: 'Message de désistement envoyé'
+    else
+      redirect_to admin_child_support_path(resource.id), alert: send_stop_support_message_service.error
     end
   end
 
