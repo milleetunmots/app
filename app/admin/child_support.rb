@@ -646,16 +646,6 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
-  member_action :send_stop_support_message do
-    send_stop_support_message_service = ChildSupport::SendStopSupportMessageService.new(resource.id).call
-
-    if send_stop_support_message_service.error.nil?
-      redirect_to admin_child_support_path(resource.id), notice: 'Message de désistement envoyé'
-    else
-      redirect_to admin_child_support_path(resource.id), alert: send_stop_support_message_service.error
-    end
-  end
-
   member_action :add_child do
     redirect_to new_admin_child_path(
       parent1_id: resource.current_child.parent1_id,
