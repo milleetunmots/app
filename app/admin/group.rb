@@ -163,8 +163,8 @@ ActiveAdmin.register Group do
         assigned_child_supports_count: 0
       }
     end
-    Group::DistributeChildSupportsToSupportersService.new(resource.model, child_supports_count_by_supporter).call
-    redirect_to admin_group_path, notice: 'Appelantes attribuées'
+    Group::DistributeChildSupportsToSupportersJob.perform_later(resource.model, child_supports_count_by_supporter)
+    redirect_to admin_group_path, notice: "La répartition des appelantes est en cours... Veuillez prévoir un délai estimé d'environ 5 à 6 minutes."
   end
 
   action_item :children_support_modules_informations, only: :show do
