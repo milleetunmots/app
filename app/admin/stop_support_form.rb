@@ -5,7 +5,6 @@ ActiveAdmin.register_page 'Stop Support Form' do
 
     form action: admin_stop_support_form_perform_path, method: :post, id: 'stop-support-form' do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
-      f.input :supporter_id, type: :hidden, name: :supporter_id, value: params[:supporter_id]
       f.input :child_support_id, type: :hidden, name: :child_support_id, value: params[:child_support_id]
 
       div do
@@ -60,13 +59,13 @@ ActiveAdmin.register_page 'Stop Support Form' do
 
   page_action :perform, method: :post do
     stop_support_service = ChildSupport::CallerStopSupportService.new(
-      params[:supporter_id],
+      current_admin_user.id,
       params[:child_support_id],
       params[:reason],
       params[:details]
     ).call
 
-    notice = params[:reason] == 'renunciation' ? 'Message de désistement envoyé au parent' : "Accompagnement arrêté et message de fin d'accompagnement envoyé"
+    notice = params[:reason] == 'renunciation' ? 'Message de désistement envoyé au parent' : 'Accompagnement arrêté'
     if stop_support_service.error.nil?
       redirect_to admin_child_support_path(params[:child_support_id]), notice: notice
     else

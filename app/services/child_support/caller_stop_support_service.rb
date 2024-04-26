@@ -12,7 +12,7 @@ class ChildSupport::CallerStopSupportService
 			popi: { tag: 'arrêt appelante - popi', sms: POPI_SMS, url: SMS_LINK, motive: 'popi' },
 			professional: { tag: 'arrêt appelante - pro de santé', sms: PROFESSIONAL_SMS, url: PROFESSIONAL_SMS_LINK, motive: 'pro de santé' },
 			problematic_case: { tag: 'arrêt appelante - problèmes', sms: PROBLEMATIC_CASE_SMS, url: nil, motive: 'problèmes' },
-			renunciation: { tag: 'arrêt appelante - programme', sms: RENUNCIATION_SMS, url: nil, motive: 'programme' }
+			renunciation: { tag: 'arrêt appelante - programme', sms: RENUNCIATION_SMS, url: nil, motive: nil }
 		}.freeze
 
 	attr :error
@@ -42,7 +42,6 @@ class ChildSupport::CallerStopSupportService
 		@child_support.stop_support_caller_id = @supporter.id
 		@child_support.stop_support_date = DateTime.now
 		@child_support.stop_support_details = @details
-		@child_support.important_information = "#{@child_support.important_information}\nFamille arretée le #{@child_support.stop_support_date.strftime("%d/%m/%Y")} pour le motif '#{VARIABLES[@reason.to_sym][:motive]}' par #{@supporter.name}"
 		@error = "Les informations n'ont pas pu être ajoutée à la fiche de suivie" unless @child_support.save
 		raise @error unless @error.nil?
 	end
@@ -56,6 +55,8 @@ class ChildSupport::CallerStopSupportService
 			@error = "L'accompagnement de #{child.name} n'a pas pu être arrêtée" unless child.save
 			raise @error unless @error.nil?
 		end
+		@child_support.important_information = "#{@child_support.important_information}\nFamille arretée le #{@child_support.stop_support_date.strftime("%d/%m/%Y")} pour le motif '#{VARIABLES[@reason.to_sym][:motive]}' par #{@supporter.name}"
+		@child_support.save
 	end
 
 	def add_tag
@@ -78,7 +79,9 @@ class ChildSupport::CallerStopSupportService
 	end
 
 	def send_message
-		@error = "L'URL du message n'a pas pu être récupéré" if !VARIABLES[@reason.to_sym][:url].nil? && redirection_target_id.nil?
+		return unless @child_support.should_contact_parent1 || @child_support.should_contact_parent2
+
+		@error = "L'URL du message n'a pas pu être récupéré" if VARIABLES[@reason.to_sym][:url].present? && redirection_target_id.nil?
 		raise @error unless @error.nil?
 
 		@message = VARIABLES[@reason.to_sym][:sms]

@@ -5,6 +5,7 @@ class ChildSupportsController < ApplicationController
     return if @child_support.tag_list.include?('arrêt appelante - programme')
 
     @child_support.tag_list.add('arrêt appelante - programme')
+    @child_support.important_information = "#{@child_support.important_information}\nFamille arretée le #{@child_support.stop_support_date.strftime("%d/%m/%Y")} pour le motif 'renonciation' par le parent"
     @child_support.save
     @child_support.children.each do |child|
       next if child.group_status == 'stopped'
