@@ -34,6 +34,7 @@ Rails.application.routes.draw do
     patch '/', to: 'workshop_participation#update', as: :update_workshop_participation
   end
 
+  get 'confirm-end-support/:child_support_id/:parent1_sc', to: 'child_supports#confirm_end_support', as: :confirm_end_support
   get 'mis-a-jour', to: 'children#updated', as: :updated_child
   get 'mis-a-jour-invitation', to: 'workshop_participation#updated', as: :updated_workshop_participation
   get 'r/:id/:security_code', to: 'redirection#visit', as: :visit_redirection
