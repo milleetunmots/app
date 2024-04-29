@@ -43,7 +43,7 @@ class ChildSupport::CallerStopSupportService
 		@child_support.stop_support_date = DateTime.now
 		@child_support.stop_support_details = @details
 		@error = "Les informations n'ont pas pu être ajoutée à la fiche de suivie" unless @child_support.save
-		raise @error unless @error.nil?
+		raise ActiveRecord::Rollback unless @error.nil?
 	end
 
 	def stop_support
@@ -53,7 +53,7 @@ class ChildSupport::CallerStopSupportService
 			child.group_status = 'stopped'
 			child.group_end = Time.zone.today
 			@error = "L'accompagnement de #{child.name} n'a pas pu être arrêtée" unless child.save
-			raise @error unless @error.nil?
+			raise ActiveRecord::Rollback unless @error.nil?
 		end
 		@child_support.important_information = "#{@child_support.important_information}\Accompagnement arreté le #{@child_support.stop_support_date.strftime('%d/%m/%Y')} pour le motif '#{VARIABLES[@reason.to_sym][:motive]}' à la demande de #{@supporter.name}"
 		@child_support.save
@@ -65,7 +65,7 @@ class ChildSupport::CallerStopSupportService
 		@child_support.tag_list.add(VARIABLES[@reason.to_sym][:tag])
 		@child_support.save!
 		@error = "Le tag n'a pas pu être ajouté à la fiche de suivi" unless @child_support.save
-		raise @error unless @error.nil?
+		raise ActiveRecord::Rollback unless @error.nil?
 	end
 
 	def create_stop_support_link_for_renunciation
@@ -82,7 +82,7 @@ class ChildSupport::CallerStopSupportService
 		return unless @child_support.should_contact_parent1 || @child_support.should_contact_parent2
 
 		@error = "L'URL du message n'a pas pu être récupéré" if VARIABLES[@reason.to_sym][:url].present? && redirection_target_id.nil?
-		raise @error unless @error.nil?
+		raise ActiveRecord::Rollback unless @error.nil?
 
 		@message = VARIABLES[@reason.to_sym][:sms]
 		create_stop_support_link_for_renunciation
@@ -95,7 +95,7 @@ class ChildSupport::CallerStopSupportService
 			redirection_target_id
 		).call
 		@error = program_message_service.errors.join("\n") if program_message_service.errors.any?
-		raise @error unless @error.nil?
+		raise ActiveRecord::Rollback unless @error.nil?
 	end
 
 	def redirection_target_id
