@@ -15,6 +15,7 @@ $(document).ready(function() {
     validation.prop('disabled', true);
     radios.change(function() {
         checkbox.prop('checked', false);
+        validation.prop('disabled', true);
         if ($(this).prop('checked')) {
             form_details.show();
             checkbox_label.text(checkbox_labels[$(this).val()]);
