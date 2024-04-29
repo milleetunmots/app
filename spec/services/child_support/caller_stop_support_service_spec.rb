@@ -8,7 +8,7 @@ RSpec.describe ChildSupport::CallerStopSupportService do
   let!(:details) { Faker::Quote.famous_last_words }
 
   before(:each) do
-    expect_any_instance_of(ProgramMessageService).to receive(:call).and_return(ProgramMessageService.new("01/01/2020", "12:30", [], ''))
+    allow_any_instance_of(ProgramMessageService).to receive(:call).and_return(ProgramMessageService.new("01/01/2020", "12:30", [], ''))
   end
 
   context "when a caller stop support" do
