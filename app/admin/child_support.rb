@@ -637,12 +637,12 @@ ActiveAdmin.register ChildSupport do
     column :updated_at
   end
 
-  action_item :actions, only: :show do
+  action_item :actions, only: %i[show edit] do
     dropdown_menu 'Actions' do
       item "Ajout d'un frère / soeur", %i[add_child admin child_support], { target: '_blank' }
-      item "Ajout d'un parent", %i[add_parent admin child_support], { target: '_blank' } unless resource.model.parent2
+      item "Ajout d'un parent", %i[add_parent admin child_support], { target: '_blank' } unless resource.decorate.model.parent2
       item "Autre tâche", url_for_new_task(resource.decorate), { target: '_blank' }
-      item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.model.id), { target: '_blank' }
+      item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
     end
   end
 
