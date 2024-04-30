@@ -40,13 +40,15 @@ class Group
 
     def balance_capacity_of_each_supporter
       total_capacity = @count_by_supporter.sum { |h| h[:child_supports_count] }
-      total_child_supports_count = @child_supports.uniq.count
+      total_child_supports_count = @child_supports.count
+      return if total_capacity == total_child_supports_count
 
+      surplus_by_supporter = (total_child_supports_count - total_capacity).to_f / @count_by_supporter.count
       @count_by_supporter.shuffle!
-
-      proportion_factor = total_child_supports_count.to_f / total_capacity
       @count_by_supporter.each do |supporter_capacity|
-        supporter_capacity[:child_supports_count] = (supporter_capacity[:child_supports_count] * proportion_factor).round
+        break if @count_by_supporter.sum { |h| h[:child_supports_count] } == total_child_supports_count
+
+        supporter_capacity[:child_supports_count] = (supporter_capacity[:child_supports_count] + surplus_by_supporter).round
       end
     end
 
@@ -60,8 +62,9 @@ class Group
     end
 
     def associate_child_supports_with_siblings_to_supporters
+      child_supports_with_siblings_count = @child_supports_with_siblings.size.to_f
       @count_by_supporter.each do |count|
-        count[:max_child_supports_with_siblings_count] = [count[:child_supports_count].to_i, (@child_supports_with_siblings.pluck(:id).count.to_f * count[:child_supports_count].to_f / @child_supports.uniq.count).ceil + 1].min
+        count[:max_child_supports_with_siblings_count] = (child_supports_with_siblings_count * count[:child_supports_count].to_f / @child_supports.count).round
         assign_child_supports(@child_supports_with_siblings, count, count[:max_child_supports_with_siblings_count])
       end
     end
@@ -88,7 +91,7 @@ class Group
         @count_by_supporter_with_twenty_four_and_more_age_range
       ].each do |count_by_supporter|
         count_by_supporter.each do |count|
-          capacity = count[:child_supports_count] - count[:max_child_supports_with_siblings_count]
+          capacity = count[:child_supports_count] - count[:assigned_child_supports_count]
           update_child_supports_to_assign_to_supporter(capacity, count[:age_range])
           assign_child_supports(@child_supports_to_assign, count, capacity)
         end
@@ -107,50 +110,9 @@ class Group
 
         @child_supports_to_assign += child_supports.shift(capacity)
         break if child_supports.size < capacity
-      end
-    end
 
-    def assign_child_supports(child_supports, supporter_with_capacity, max_child_supports_count)
-      return unless child_supports
-
-      child_supports.shift(max_child_supports_count).each do |cs|
-        break if enough_child_support?(supporter_with_capacity)
-
-        supporter_with_capacity[:assigned_child_supports_count] += 1 if cs.update!(supporter_id: supporter_with_capacity[:admin_user_id])
-      end
-    end
-
-    def enough_child_support?(supporter_with_capacity)
-      supporter_with_capacity[:assigned_child_supports_count] >= supporter_with_capacity[:child_supports_count]
-    end
-
-    def associate_child_supports_without_siblings_to_supporters
-      [
-        @count_by_supporter_with_four_to_nine_age_range,
-        @count_by_supporter_with_ten_to_fifteen_age_range,
-        @count_by_supporter_with_sixteen_to_twenty_three_age_range,
-        @count_by_supporter_with_twenty_four_and_more_age_range
-      ].each do |count_by_supporter|
-        count_by_supporter.each do |count|
-          capacity = count[:child_supports_count] - count[:max_child_supports_with_siblings_count]
-          update_child_supports_to_assign_to_supporter(capacity, count[:age_range])
-          assign_child_supports(@child_supports_to_assign, count, capacity)
-        end
-      end
-      @child_supports_without_siblings = @child_supports_without_siblings.where(supporter_id: nil).to_a.sort_by { |cs| cs.current_child.months }
-      @count_by_supporter_without_age_range.each do |count|
-        capacity = count[:child_supports_count] - count[:max_child_supports_with_siblings_count]
-        assign_child_supports(@child_supports_without_siblings, count, capacity)
-      end
-    end
-
-    def update_child_supports_to_assign_to_supporter(capacity, age_range)
-      @child_supports_to_assign = []
-      @child_supports_array.each_with_index do |child_supports, index|
-        next if index < @age_ranges_index[age_range]
-
-        @child_supports_to_assign += child_supports.shift(capacity)
-        break if child_supports.size < capacity
+        # @child_supports_to_assign += child_supports.shift(capacity - @child_supports_to_assign.size)
+        # break if @child_supports_to_assign.size == capacity
       end
     end
 
