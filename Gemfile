@@ -144,6 +144,9 @@ gem 'rack-attack'
 # Airtable
 gem 'airrecord'
 
+# Spreadsheets
+gem "roo", "~> 2.10.0"
+
 group :production do
   # for assets compilation
   gem "activerecord-nulldb-adapter"
