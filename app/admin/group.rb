@@ -158,13 +158,19 @@ ActiveAdmin.register Group do
     child_supports_count_by_supporter = Airtables::Call.call_missions_by_name(name).map do |call_mission|
       {
         admin_user_id: Airtables::Caller.caller_id_by_airtable_caller_id(call_mission.airtable_caller_id),
+        supporter_name: call_mission['Name'].split(' - #').first,
         child_supports_count: call_mission.child_supports_count,
         age_range: call_mission.age_range,
         assigned_child_supports_count: 0
-      }
+    }
     end
-    Group::DistributeChildSupportsToSupportersJob.perform_later(resource.model, child_supports_count_by_supporter)
-    redirect_to admin_group_path, notice: "La répartition des appelantes est en cours... Veuillez prévoir un délai estimé d'environ 5 à 6 minutes."
+    supporters_without_id = child_supports_count_by_supporter.select { |supporter_count| supporter_count[:admin_user_id].nil? }.map { |sc| sc[:supporter_name] }
+    if supporters_without_id.empty?
+      redirect_to admin_group_path, notice: "La répartition des appelantes est en cours... Veuillez prévoir un délai estimé d'environ 5 à 6 minutes."
+    else
+      Group::DistributeChildSupportsToSupportersJob.perform_later(resource.model, child_supports_count_by_supporter)
+      redirect_to admin_group_path, alert: "Sur airtable, le N° suivi base de ces appelantes n'est pas indiqué : #{supporters_without_id.join(', ')}"
+    end
   end
 
   action_item :children_support_modules_informations, only: :show do
