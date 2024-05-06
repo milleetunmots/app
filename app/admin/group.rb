@@ -167,7 +167,7 @@ ActiveAdmin.register Group do
     supporters_without_id = child_supports_count_by_supporter.select { |supporter_count| supporter_count[:admin_user_id].nil? }.map { |sc| sc[:supporter_name] }
     if supporters_without_id.empty?
       Group::DistributeChildSupportsToSupportersJob.perform_later(resource.model, child_supports_count_by_supporter)
-      redirect_to admin_group_path, notice: "La répartition des appelantes est en cours... Veuillez prévoir un délai estimé d'environ 5 à 6 minutes."
+      redirect_to admin_group_path, notice: "La répartition des appelantes est en cours. Cela peut prendre plusieurs minutes, merci de patienter."
     else
       redirect_to admin_group_path, alert: "Sur airtable, le N° suivi base de ces appelantes n'est pas indiqué : #{supporters_without_id.join(', ')}"
     end
