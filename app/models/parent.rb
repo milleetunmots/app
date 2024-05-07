@@ -127,7 +127,7 @@ class Parent < ApplicationRecord
   validates :terms_accepted_at, presence: true
 
   scope :potential_duplicates, -> {
-    where("parents.phone_number IN (SELECT phone_number FROM parents GROUP BY parents.phone_number HAVING COUNT(*) > 1)")
+    where("parents.phone_number IN (SELECT phone_number FROM parents WHERE parents.discarded_at IS NULL GROUP BY parents.phone_number HAVING COUNT(*) > 1)")
   }
 
   def initialize(attributes = {})
@@ -232,6 +232,10 @@ class Parent < ApplicationRecord
     where(is_excluded_from_workshop: true)
   end
 
+  def self.phone_numbers
+    pluck(:phone_number)
+  end
+
   def children
     parent1_children.or(parent2_children)
   end
@@ -269,6 +273,13 @@ class Parent < ApplicationRecord
     current_child.target_child?
   end
 
+  def children_name_and_birthdate
+    children.kept.map(&:name_and_birthdate).sort_by { |name_and_birthdate| name_and_birthdate[:birthdate] }
+  end
+
+  def only_duplicated_children_with?(parent)
+    children_name_and_birthdate.eql? parent.children_name_and_birthdate
+  end
 
   # ---------------------------------------------------------------------------
   # versions history

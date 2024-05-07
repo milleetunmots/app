@@ -55,4 +55,5 @@ class Media::Form < Medium
 
   validates :url, presence: true
 
+  after_create { RedirectionTarget.create(medium: self) }
 end
