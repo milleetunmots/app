@@ -652,7 +652,8 @@ ActiveAdmin.register ChildSupport do
       parent2_id: resource.current_child.parent2_id,
       should_contact_parent1: resource.current_child.should_contact_parent1,
       should_contact_parent2: resource.current_child.should_contact_parent2,
-      source_id: Source.find_by(name: 'Je suis déjà inscrit à 1001mots', channel: 'bao').id
+      source_id: Source.find_by(name: 'Je suis déjà inscrit à 1001mots', channel: 'bao').id,
+      available_for_workshops: true
       )
   end
 
@@ -663,7 +664,8 @@ ActiveAdmin.register ChildSupport do
       postal_code: resource.model.current_child.parent1.postal_code,
       city_name: resource.model.current_child.parent1.city_name,
       letterbox_name: resource.model.current_child.parent1.letterbox_name,
-      parent2_child_ids: resource.model.current_child.sibling_ids
+      parent2_child_ids: resource.model.current_child.sibling_ids,
+      family_followed: true
     )
   end
 

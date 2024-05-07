@@ -75,6 +75,7 @@ ActiveAdmin.register Parent do
     f.object.city_name = params[:city_name] if params[:city_name]
     f.object.letterbox_name = params[:letterbox_name] if params[:letterbox_name]
     f.object.parent2_child_ids = params[:parent2_child_ids] if params[:parent2_child_ids]
+    f.object.family_followed = params[:family_followed] if params[:family_followed]
 
     f.semantic_errors *f.object.errors.keys
     f.inputs do
