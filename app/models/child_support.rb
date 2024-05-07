@@ -121,6 +121,8 @@
 #  parental_contexts                     :string           is an Array
 #  second_language                       :string
 #  should_be_read                        :boolean
+#  stop_support_date                     :datetime
+#  stop_support_details                  :text
 #  to_call                               :boolean
 #  will_stay_in_group                    :boolean          default(FALSE), not null
 #  created_at                            :datetime         not null
@@ -130,6 +132,7 @@
 #  module4_chosen_by_parents_id          :bigint
 #  module5_chosen_by_parents_id          :bigint
 #  module6_chosen_by_parents_id          :bigint
+#  stop_support_caller_id                :bigint
 #  supporter_id                          :bigint
 #
 # Indexes
@@ -158,6 +161,7 @@
 #  index_child_supports_on_parent1_available_support_module_list  (parent1_available_support_module_list) USING gin
 #  index_child_supports_on_parent2_available_support_module_list  (parent2_available_support_module_list) USING gin
 #  index_child_supports_on_should_be_read                         (should_be_read)
+#  index_child_supports_on_stop_support_caller_id                 (stop_support_caller_id)
 #  index_child_supports_on_supporter_id                           (supporter_id)
 #
 # Foreign Keys
@@ -167,6 +171,7 @@
 #  fk_rails_...  (module4_chosen_by_parents_id => support_modules.id)
 #  fk_rails_...  (module5_chosen_by_parents_id => support_modules.id)
 #  fk_rails_...  (module6_chosen_by_parents_id => support_modules.id)
+#  fk_rails_...  (stop_support_caller_id => admin_users.id)
 #  fk_rails_...  (supporter_id => admin_users.id)
 #
 
@@ -203,10 +208,12 @@ class ChildSupport < ApplicationRecord
   accepts_nested_attributes_for :current_child
 
   before_update do
-    current_child.parent1.tag_list.add(tag_list)
-    current_child.parent1.save
-    current_child.parent2&.tag_list&.add(tag_list)
-    current_child.parent2&.save
+    if current_child
+      current_child.parent1.tag_list.add(tag_list)
+      current_child.parent1.save
+      current_child.parent2&.tag_list&.add(tag_list)
+      current_child.parent2&.save
+    end
   end
 
   after_save do

@@ -18,6 +18,7 @@ class Ability
     can :read, ActiveAdmin::Page, name: "Dashboard"
     can :read, ActiveAdmin::Page, name: "Search"
     can :manage, ActiveAdmin::Page, name: "Message"
+    can :manage, ActiveAdmin::Page, name: "Stop Support Form"
 
 
     if user.team_member?

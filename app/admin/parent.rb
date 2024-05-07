@@ -68,6 +68,15 @@ ActiveAdmin.register Parent do
   # ---------------------------------------------------------------------------
 
   form do |f|
+    f.object.terms_accepted_at = Time.zone.today
+    f.object.family_followed = params[:family_followed] if params[:family_followed]
+    f.object.address = params[:address] if params[:address]
+    f.object.postal_code = params[:postal_code] if params[:postal_code]
+    f.object.city_name = params[:city_name] if params[:city_name]
+    f.object.letterbox_name = params[:letterbox_name] if params[:letterbox_name]
+    f.object.parent2_child_ids = params[:parent2_child_ids] if params[:parent2_child_ids]
+    f.object.family_followed = params[:family_followed] if params[:family_followed]
+
     f.semantic_errors *f.object.errors.keys
     f.inputs do
       f.input :gender,
@@ -89,6 +98,7 @@ ActiveAdmin.register Parent do
       f.input :is_ambassador
       f.input :job
       f.input :terms_accepted_at, as: :datepicker
+      f.input :parent2_child_ids, as: :hidden, input_html: { value: f.object.parent2_child_ids.join(',') } if params[:parent2_child_ids]
       tags_input(f)
     end
     f.actions
@@ -98,7 +108,7 @@ ActiveAdmin.register Parent do
     :phone_number, :is_excluded_from_workshop, :present_on_whatsapp, :present_on_facebook, :follow_us_on_facebook, :follow_us_on_whatsapp, :email,
     :letterbox_name, :address, :postal_code, :city_name,
     :is_ambassador, :job, :terms_accepted_at, :family_followed,
-    tags_params
+    tags_params, parent2_child_ids: []
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -250,8 +260,13 @@ ActiveAdmin.register Parent do
   end
 
   controller do
+    before_save do |parent|
+      parent.parent2_child_ids = params[:parent][:parent2_child_ids]&.split(',')&.map(&:to_i) if params[:parent][:parent2_child_ids]
+    end
+
     def apply_filtering(chain)
       super(chain).distinct
     end
+
   end
 end
