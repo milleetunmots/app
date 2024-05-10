@@ -154,6 +154,7 @@ ActiveAdmin.register Group do
   end
 
   member_action :perform_distribute_child_support, method: :post do
+    message = "La répartition des appelantes est en cours. Cela peut prendre plusieurs minutes, merci de patienter."
     name = params[:group][:name]
     child_supports_count_by_supporter = Airtables::Call.call_missions_by_name(name).map do |call_mission|
       {
@@ -165,11 +166,14 @@ ActiveAdmin.register Group do
     }
     end
     supporters_without_id = child_supports_count_by_supporter.select { |supporter_count| supporter_count[:admin_user_id].nil? }.map { |sc| sc[:supporter_name] }
-    if supporters_without_id.empty?
+    supporters_without_child_supports_count = child_supports_count_by_supporter.select { |supporter_count| supporter_count[:child_supports_count].nil? }.map { |sc| sc[:supporter_name] }
+    if supporters_without_id.empty? && supporters_without_child_supports_count.empty?
       Group::DistributeChildSupportsToSupportersJob.perform_later(resource.model, child_supports_count_by_supporter)
-      redirect_to admin_group_path, notice: "La répartition des appelantes est en cours. Cela peut prendre plusieurs minutes, merci de patienter."
+      redirect_to admin_group_path, notice: message
     else
-      redirect_to admin_group_path, alert: "Sur airtable, le N° suivi base de ces appelantes n'est pas indiqué : #{supporters_without_id.join(', ')}"
+      message = "Sur airtable, le N° suivi base de ces appelantes n'est pas indiqué : #{supporters_without_id.join(', ')}" unless supporters_without_id.empty?
+      message = "Sur airtable, le Nb de familles de ces appelantes n'est pas indiqué : #{supporters_without_child_supports_count.join(', ')}" unless supporters_without_child_supports_count.empty?
+      redirect_to admin_group_path, alert: message
     end
   end
 
