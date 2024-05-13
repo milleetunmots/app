@@ -5,6 +5,9 @@ class ChildrenSupportModule
     def perform(group_id, select_module_date, module_index)
       errors = {}
       group = Group.find(group_id)
+      children_support_module_ids = []
+      planned_date = select_module_date.sunday? ? select_module_date.next_day : select_module_date
+      is_module_3 = group.with_module_zero? ? module_index.eql?(4) : module_index.eql?(3)
       # stop children of 36 months+ before sending next module choice SMS
       Group::StopSupportService.new(group_id, end_of_support: false).call
       # module_index starts with 1
@@ -40,13 +43,19 @@ class ChildrenSupportModule
         )
         service = ChildSupport::SelectModuleService.new(
           child,
-          select_module_date.sunday? ? select_module_date.next_day : select_module_date,
+          planned_date,
           '12:30',
           module_index
         ).call
-        errors[child.id] = service.errors if service.errors.any?
+        if service.errors.any?
+          errors[child.id] = service.errors
+        else
+          children_support_module_ids << service.children_support_module.id
+        end
       end
-
+      reminder_date = planned_date.advance(days: 3)
+      ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: reminder_date.to_datetime.change(hour: 6)).perform_later(children_support_module_ids, reminder_date)
+      ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: (reminder_date + 2.days).to_datetime.change(hour: 6)).perform_later(children_support_module_ids, reminder_date + 2.days, true) if is_module_3
       raise errors.to_json if errors.any?
     end
 

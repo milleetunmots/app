@@ -1,12 +1,13 @@
 class ChildSupport::SelectModuleService
 
-  attr_reader :errors
+  attr_reader :errors, :children_support_module
 
   def initialize(child, planned_date, planned_hour, module_index)
     @child = child
     @planned_date = planned_date
     @planned_hour = planned_hour
     @module_index = module_index
+    @children_support_module = nil
     @errors = []
   end
 
@@ -63,15 +64,7 @@ class ChildSupport::SelectModuleService
       message
     ).call
 
-    if sms_service.errors.any?
-      @errors += sms_service.errors
-    else
-      reminder_date = @planned_date.advance(days: 3)
-      is_module_3 = @child.group.with_module_zero? ? @module_index.eql?(4) : @module_index.eql?(3)
-      ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: reminder_date.to_datetime.change(hour: 6)).perform_later(@children_support_module.id, reminder_date)
-      # second reminder only for Module 3
-      ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: (reminder_date + 2.days).to_datetime.change(hour: 6)).perform_later(@children_support_module.id, reminder_date + 2.days, true) if is_module_3
-    end
+    @errors += sms_service.errors if sms_service.errors.any?
   end
 
   def chose_support_module
