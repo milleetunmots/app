@@ -59,6 +59,7 @@ class Group < ApplicationRecord
   # callbacks
   # ---------------------------------------------------------------------------
 
+  before_create :standardize_name
   after_create :add_waiting_children
 
   # ---------------------------------------------------------------------------
@@ -111,6 +112,16 @@ class Group < ApplicationRecord
   def add_waiting_children
     # Add waiting children to next available group for them (could be another group)
     Child::AddWaitingChildrenToGroupJob.perform_later
+  end
+
+  def standardize_name
+    if expected_children_number&.positive?
+      last_group = Group.where.not(started_at: nil).where('expected_children_number > ?', 0).where('extract(month from started_at) = ? AND extract(year from started_at) = ?', started_at.month, started_at.year).order(:started_at).last
+      index = last_group.present? ? last_group.name.split('-').last.to_i + 1 : 1
+      self.name = "#{started_at.strftime('%Y/%m/%d')} - #{I18n.t started_at.strftime('%B')}#{started_at.strftime('%y')} - #{index}"
+    else
+      self.name = "#{started_at.strftime('%Y/%m/%d')} - #{self.name}"
+    end
   end
 
   # ---------------------------------------------------------------------------
