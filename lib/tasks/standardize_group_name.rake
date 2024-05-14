@@ -17,7 +17,7 @@ namespace :group do
           name = "#{name} - #{group.name}"
         end
         group.name = name
-        group.save!
+        group.save
       end
     end
   end
