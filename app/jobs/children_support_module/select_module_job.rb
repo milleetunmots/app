@@ -53,10 +53,12 @@ class ChildrenSupportModule
           children_support_module_ids << service.children_support_module.id
         end
       end
+      raise errors.to_json if errors.any?
       reminder_date = planned_date.advance(days: 3)
+      return if children_support_module_ids.empty?
+
       ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: reminder_date.to_datetime.change(hour: 6)).perform_later(children_support_module_ids, reminder_date)
       ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: (reminder_date + 2.days).to_datetime.change(hour: 6)).perform_later(children_support_module_ids, reminder_date + 2.days, true) if is_module_3
-      raise errors.to_json if errors.any?
     end
 
     private
