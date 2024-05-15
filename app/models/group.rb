@@ -115,13 +115,7 @@ class Group < ApplicationRecord
   end
 
   def standardize_name
-    if expected_children_number&.positive?
-      last_group = Group.where.not(started_at: nil).where('expected_children_number > ?', 0).where('extract(month from started_at) = ? AND extract(year from started_at) = ?', started_at.month, started_at.year).order(:started_at).last
-      index = last_group.present? ? last_group.name.split('-').last.to_i + 1 : 1
-      self.name = "#{started_at.strftime('%Y/%m/%d')} - #{I18n.t started_at.strftime('%B')}#{started_at.strftime('%y')} - #{index}"
-    else
-      self.name = "#{started_at.strftime('%Y/%m/%d')} - #{self.name}"
-    end
+    self.name = "#{started_at.strftime('%Y/%m/%d')} - #{name}"
   end
 
   # ---------------------------------------------------------------------------
