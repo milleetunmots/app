@@ -50,7 +50,7 @@ class ChildrenSupportModule
         if service.errors.any?
           errors[child.id] = service.errors
         else
-          children_support_module_ids << service.children_support_module.id
+          children_support_module_ids << service.children_support_module&.id
         end
       end
       raise errors.to_json if errors.any?
