@@ -109,6 +109,7 @@
 #  call_infos                            :string
 #  child_count                           :integer
 #  discarded_at                          :datetime
+#  family_support_should_be_stopped      :boolean
 #  important_information                 :text
 #  is_bilingual                          :boolean
 #  most_present_parent                   :string
