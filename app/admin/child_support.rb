@@ -278,8 +278,18 @@ ActiveAdmin.register ChildSupport do
                         input_html: { data: { select2: {} } }
                 f.input "call#{call_idx}_duration", input_html: { style: 'font-weight: bold' }
                 if call_idx.zero?
-                  f.input :family_support_should_be_stopped,
-                  label: "Penses-tu que ce parent a déjà tous les outils et ressources suffisantes pour aider son enfant à développer son langage et n'a pas vraiment besoin de l'accompagnement 1001mots ?"
+                  columns do
+                    column do
+                      f.label "Penses-tu que ce parent a déjà tous les outils et ressources suffisantes pour aider son enfant à développer son langage et n'a pas vraiment besoin de l'accompagnement 1001mots ?",
+                        style: 'font-weight:bold;font-size:14px'
+                    end
+                    column do
+                      f.input :family_support_should_be_stopped,
+                        collection: ['Oui', 'Non'],
+                        input_html: { data: { select2: {} } },
+                        label: false
+                    end
+                  end
                 end
               end
               column do
@@ -287,7 +297,7 @@ ActiveAdmin.register ChildSupport do
               end
             end
 
-            columns style: 'justify-content:space-between; ' do
+            columns style: 'justify-content:space-between;margin-top:10px' do
               if call_idx.zero?
                 column max_width: '8%' do
                   f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
