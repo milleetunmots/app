@@ -18,6 +18,7 @@ ActiveAdmin.register ChildSupport do
     selectable_column
     id_column
     column :children
+    column :supporter if current_admin_user.admin? || current_admin_user.team_member? || current_admin_user.logistics_team?
     (0..5).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         [
@@ -251,8 +252,8 @@ ActiveAdmin.register ChildSupport do
           end
         end
         column class: 'column flex-column' do
-          available_support_module_input(f, :parent1_available_support_module_list)
-          available_support_module_input(f, :parent2_available_support_module_list) unless resource.parent2.nil?
+          available_support_module_input(f, :parent1_available_support_module_list, current_admin_user.caller?)
+          available_support_module_input(f, :parent2_available_support_module_list, current_admin_user.caller?) unless resource.parent2.nil?
           div class: 'border' do
             span "Ces informations apparaissent dans l'index des suivis"
             f.input :availability, input_html: { style: 'width: 70%' }

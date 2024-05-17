@@ -7,11 +7,12 @@ module ActiveAdmin::SupportModulesHelper
     support_modules&.sort_by { |e| selected_values&.index(e[1]) || Float::INFINITY }
   end
 
-  def available_support_module_input(form, input_name, options = {})
+  def available_support_module_input(form, input_name, disabled, options = {})
     input_html = {
       data: {
         select2: {}
-      }
+      },
+      disabled: disabled
     }
 
     selected_values = form.object.send(input_name)
