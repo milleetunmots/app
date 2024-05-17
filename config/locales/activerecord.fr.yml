@@ -283,6 +283,7 @@ fr:
         children_ages: Age des enfants
         children_genders: Sexe des enfants
         children_sources: Origines des enfants
+        family_support_should_be_stopped: Besoin accompagnement selon appelante
         groups: Cohortes
         child_support_groups: Cohortes
         important_information: Infos importantes

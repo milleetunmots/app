@@ -285,7 +285,7 @@ ActiveAdmin.register ChildSupport do
                     end
                     column do
                       f.input :family_support_should_be_stopped,
-                        collection: %w[Oui Non],
+                        collection: ['Oui', 'Non', 'Je ne sais pas'],
                         input_html: { data: { select2: {} } },
                         label: false
                     end
