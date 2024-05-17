@@ -59,6 +59,7 @@ class Group < ApplicationRecord
   # callbacks
   # ---------------------------------------------------------------------------
 
+  before_create :standardize_name
   after_create :add_waiting_children
 
   # ---------------------------------------------------------------------------
@@ -111,6 +112,10 @@ class Group < ApplicationRecord
   def add_waiting_children
     # Add waiting children to next available group for them (could be another group)
     Child::AddWaitingChildrenToGroupJob.perform_later
+  end
+
+  def standardize_name
+    self.name = "#{started_at.strftime('%Y/%m/%d')} - #{name}"
   end
 
   # ---------------------------------------------------------------------------

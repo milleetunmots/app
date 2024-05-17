@@ -18,6 +18,7 @@ ActiveAdmin.register ChildSupport do
     selectable_column
     id_column
     column :children
+    column :supporter if current_admin_user.admin? || current_admin_user.team_member? || current_admin_user.logistics_team?
     (0..5).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         [
@@ -251,8 +252,8 @@ ActiveAdmin.register ChildSupport do
           end
         end
         column class: 'column flex-column' do
-          available_support_module_input(f, :parent1_available_support_module_list)
-          available_support_module_input(f, :parent2_available_support_module_list) unless resource.parent2.nil?
+          available_support_module_input(f, :parent1_available_support_module_list, current_admin_user.caller?)
+          available_support_module_input(f, :parent2_available_support_module_list, current_admin_user.caller?) unless resource.parent2.nil?
           div class: 'border' do
             span "Ces informations apparaissent dans l'index des suivis"
             f.input :availability, input_html: { style: 'width: 70%' }
@@ -276,14 +277,28 @@ ActiveAdmin.register ChildSupport do
                 f.input "call#{call_idx}_status",
                         collection: call_status_collection,
                         input_html: { data: { select2: {} } }
-                f.input "call#{call_idx}_duration", input_html: { style: 'width: 70%' }
+                f.input "call#{call_idx}_duration", input_html: { style: 'font-weight: bold' }
+                if call_idx.zero?
+                  columns do
+                    column do
+                      f.label "Penses-tu que ce parent a déjà tous les outils et ressources suffisantes pour aider son enfant à développer son langage et n'a pas vraiment besoin de l'accompagnement 1001mots ?",
+                        style: 'font-weight:bold;font-size:14px'
+                    end
+                    column do
+                      f.input :family_support_should_be_stopped,
+                        collection: ['Oui', 'Non', 'Je ne sais pas'],
+                        input_html: { data: { select2: {} } },
+                        label: false
+                    end
+                  end
+                end
               end
               column do
                 f.input "call#{call_idx}_status_details", input_html: { rows: 5, style: 'width: 70%' }
               end
             end
 
-            columns style: 'justify-content:space-between;' do
+            columns style: 'justify-content:space-between;margin-top:10px' do
               if call_idx.zero?
                 column max_width: '8%' do
                   f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
@@ -439,6 +454,7 @@ ActiveAdmin.register ChildSupport do
     notes
     availability
     call_infos
+    family_support_should_be_stopped
   ] + [tags_params.merge(book_not_received: [], parent1_available_support_module_list: [], parent2_available_support_module_list: [])]
   parent_attributes = %i[
     id
@@ -547,6 +563,7 @@ ActiveAdmin.register ChildSupport do
     column(:parent1_gender) { |cs| Parent.human_attribute_name("gender.#{cs.parent1_gender}") }
     column :children_sources
     column :child_support_groups
+    column :family_support_should_be_stopped
     column :children_land
     column :parent1_available_support_modules
     column :parent1_selected_support_modules
