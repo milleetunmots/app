@@ -1,13 +1,13 @@
 class ChildSupport::SelectModuleService
 
-  attr_reader :errors, :children_support_module
+  attr_reader :errors, :children_support_module_ids
 
   def initialize(child, planned_date, planned_hour, module_index)
     @child = child
     @planned_date = planned_date
     @planned_hour = planned_hour
     @module_index = module_index
-    @children_support_module = nil
+    @children_support_module_ids = []
     @errors = []
   end
 
@@ -35,6 +35,7 @@ class ChildSupport::SelectModuleService
     if @children_support_module.available_support_module_list.reject(&:blank?).size == 1
       chose_support_module
     else
+      @children_support_module_ids << @children_support_module.id
       send_message_to_parent(parent)
     end
   end
