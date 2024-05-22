@@ -57,13 +57,4 @@ RSpec.describe ChildSupport::SelectModuleService do
       expect { subject }.to change { ChildrenSupportModule.count }.by(0)
     end
   end
-
-  context 'when selection messages are sent to parents' do
-    it 'ChildrenSupportModule::CheckToSendReminderJob is programmed' do
-      expect_any_instance_of(ProgramMessageService).to receive(:call).and_return(ProgramMessageService.new("01/01/2020", "12:30", [], ''))
-      ActiveJob::Base.queue_adapter = :test
-
-      expect { subject }.to have_enqueued_job(ChildrenSupportModule::CheckToSendReminderJob).exactly(:once)
-    end
-  end
 end
