@@ -46,8 +46,10 @@ class Group
 
     def add_scheduled_job(job)
       job_class_name = job.args[0]['job_class']
-      job_group_id = job.args[0]['arguments']&.first.to_i
-      return unless GROUP_JOB_CLASS_NAMES.key?(job_class_name) && job_group_id == @group_id.to_i
+      job_group_id = job.args[0]['arguments']&.first
+      return if job_group_id.is_a? Array
+
+      return unless GROUP_JOB_CLASS_NAMES.key?(job_class_name) && job_group_id.to_i == @group_id.to_i
 
       name = if job_class_name == ChildrenSupportModule::SelectModuleJob.to_s && job.args[0]['arguments']&.third.eql?(@group_with_module_zero ? 3 : 2)
                "Programmation des SMS de choix du module aux parents n'ayant pas reçu d'appel 2"
