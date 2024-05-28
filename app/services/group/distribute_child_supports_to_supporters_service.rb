@@ -55,6 +55,7 @@ class Group
         associate_child_supports_without_siblings_to_supporters
         check_all_child_supports_are_associated
       end
+      Rollbar.info('Attribution des appelantes terminée')
     end
 
     private

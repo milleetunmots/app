@@ -15,6 +15,10 @@ class GroupDecorator < BaseDecorator
     h.link_to model.children.count, admin_children_path(q: {group_id_in: [model.id]})
   end
 
+  def families
+    h.link_to model.child_supports.where(children: { group_status: 'active' }).distinct.count, admin_child_supports_path(q: {group_id_in: [model.id]})
+  end
+
   def as_autocomplete_result
     h.content_tag :div, class: 'group' do
       h.content_tag :div, class: :name do
