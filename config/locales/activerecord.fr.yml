@@ -437,6 +437,7 @@ fr:
         << : *SHARED
         children: Enfants
         ended_at: Date de fin
+        families: Familles
         name: Nom
         started_at: Date de début
         support_modules_count: Nombre de modules prévu (en comptant les modules 0 et 1)
