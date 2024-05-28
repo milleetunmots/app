@@ -75,6 +75,7 @@ ActiveAdmin.register Group do
         attributes_table do
           row :name
           row :children
+          row :families
           row :started_at
           row :ended_at
           row :support_modules_count
