@@ -1,5 +1,5 @@
 namespace :send_form_by_sms do
-  desc 'clear sidekiq'
+  desc 'send typeform to june24 families'
   task to_june_children: :environment do
     group = Group.find(82)
     time = Time.zone.parse('2024-05-30 14:00:00')
