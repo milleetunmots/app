@@ -100,6 +100,7 @@ class Parent < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   before_validation :format_phone_number
+  after_save :change_the_other_parent_address
 
   validates :gender, presence: true, inclusion: { in: GENDERS }
   validates :first_name, presence: true
@@ -302,5 +303,55 @@ class Parent < ApplicationRecord
       self.phone_number = phone.e164
       self.phone_number_national = phone.national(false)
     end
+  end
+
+  def change_the_other_parent_address
+    return unless saved_change_to_letterbox_name? || saved_change_to_address? || saved_change_to_postal_code? || saved_change_to_city_name?
+
+    parent1_children.each do |child|
+      parent2 = child.parent2
+      next unless parent2
+
+      change_address_attributes(parent2)
+    end
+    parent2_children.each do |child|
+      parent1 = child.parent1
+      change_address_attributes(parent1)
+    end
+  end
+
+  def change_address_attributes(parent)
+    change_letterbox_name(parent)
+    change_address(parent)
+    change_postal_code(parent)
+    change_city_name(parent)
+  end
+
+  def change_letterbox_name(parent)
+    return if parent.letterbox_name == letterbox_name
+
+    parent.letterbox_name = letterbox_name
+    parent.save
+  end
+
+  def change_address(parent)
+    return if parent.address == address
+
+    parent.address = address
+    parent.save
+  end
+
+  def change_postal_code(parent)
+    return if parent.postal_code == postal_code
+
+    parent.postal_code = postal_code
+    parent.save
+  end
+
+  def change_city_name(parent)
+    return if parent.city_name == city_name
+
+    parent.city_name = city_name
+    parent.save
   end
 end
