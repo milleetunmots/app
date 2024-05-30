@@ -134,7 +134,7 @@ ActiveAdmin.register Group do
   end
 
   member_action :export do
-    service = Child::ExportBooksV2Service.new(group_id: resource.id).call
+    service = Child::ExportBooksV2Service.new(group_ids: [resource.id]).call
 
     if service.errors.empty?
       send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
@@ -205,5 +205,17 @@ ActiveAdmin.register Group do
       disposition: 'attachment',
       filename: service.zip_filename
     )
+  end
+
+  batch_action :support_modules_chosen_excel_export do |ids|
+    service = Child::ExportBooksV2Service.new(group_ids: ids).call
+
+    if service.errors.empty?
+      send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
+                                       disposition: 'attachment', filename: "#{Time.zone.today.strftime('%d-%m-%Y')}.zip"
+    else
+      flash[:alert] = service.errors
+      redirect_back(fallback_location: root_path)
+    end
   end
 end
