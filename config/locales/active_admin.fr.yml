@@ -25,6 +25,7 @@ fr:
         remove_call_infos: "Effacer les informations pour"
         select_available_support_module: Selectionner les modules disponibles pour
         select_module: Selectionner un module pour
+        support_modules_chosen_excel_export: Télécharger les listes d'enfants par module au format Excel V2
     edit_model: Modifier
     delete_model: Supprimer
     filters:
