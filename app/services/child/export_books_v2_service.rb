@@ -5,9 +5,9 @@ class Child
     attr_reader :errors
     attr_reader :zip_file
 
-    def initialize(group_id: nil)
+    def initialize(group_ids: nil)
       @errors = []
-      @group_id = group_id
+      @group_ids = group_ids
     end
 
     def call
@@ -30,7 +30,7 @@ class Child
     def find_children_lists
       children_list_sorted_by_module = {}
       chosen_modules = ChildrenSupportModule.includes(:child).references(:child).with_support_module.not_programmed
-      chosen_modules = chosen_modules.where(children: { group_id: @group_id }) if @group_id.present?
+      chosen_modules = chosen_modules.where(children: { group_id: @group_ids }) if @group_ids.present?
 
       chosen_modules = chosen_modules.select { |csm| csm.parent_id == csm.child.parent1_id }
       chosen_modules = chosen_modules.uniq { |csm| [csm.child_id, csm.parent_id] }
