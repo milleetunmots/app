@@ -59,6 +59,8 @@ class Parent < ApplicationRecord
 
   include Discard::Model
 
+  attr_accessor :parent2_creation
+
   GENDER_FEMALE = 'f'.freeze
   GENDER_MALE = 'm'.freeze
   GENDERS = [GENDER_FEMALE, GENDER_MALE].freeze
@@ -100,6 +102,7 @@ class Parent < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   before_validation :format_phone_number
+  after_create :should_be_contacted_as_parent2, if: -> { parent2_creation.present? }
   after_save :change_the_other_parent_address
 
   validates :gender, presence: true, inclusion: { in: GENDERS }
@@ -353,5 +356,12 @@ class Parent < ApplicationRecord
 
     parent.city_name = city_name
     parent.save
+  end
+
+  def should_be_contacted_as_parent2
+    parent2_children.each do |child|
+      child.should_contact_parent2 = true
+      child.save
+    end
   end
 end
