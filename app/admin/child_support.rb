@@ -682,7 +682,8 @@ ActiveAdmin.register ChildSupport do
       city_name: resource.model.current_child.parent1.city_name,
       letterbox_name: resource.model.current_child.parent1.letterbox_name,
       parent2_child_ids: resource.model.current_child.sibling_ids,
-      family_followed: true
+      family_followed: true,
+      parent2_creation: true
     )
   end
 

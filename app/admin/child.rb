@@ -451,7 +451,8 @@ ActiveAdmin.register Child do
       postal_code: resource.model.parent1.postal_code,
       city_name: resource.model.parent1.city_name,
       letterbox_name: resource.model.parent1.letterbox_name,
-      parent2_child_ids: resource.model.sibling_ids
+      parent2_child_ids: resource.model.sibling_ids,
+      parent2_creation: true
     )
   end
 

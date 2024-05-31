@@ -76,9 +76,11 @@ ActiveAdmin.register Parent do
     f.object.letterbox_name = params[:letterbox_name] if params[:letterbox_name]
     f.object.parent2_child_ids = params[:parent2_child_ids] if params[:parent2_child_ids]
     f.object.family_followed = params[:family_followed] if params[:family_followed]
+    f.object.parent2_creation = params[:parent2_creation] if params[:parent2_creation]
 
     f.semantic_errors *f.object.errors.keys
     f.inputs do
+      f.input :parent2_creation, as: :hidden
       f.input :gender,
         as: :radio,
         collection: parent_gender_select_collection
@@ -107,7 +109,7 @@ ActiveAdmin.register Parent do
   permit_params :gender, :first_name, :last_name,
     :phone_number, :is_excluded_from_workshop, :present_on_whatsapp, :present_on_facebook, :follow_us_on_facebook, :follow_us_on_whatsapp, :email,
     :letterbox_name, :address, :postal_code, :city_name,
-    :is_ambassador, :job, :terms_accepted_at, :family_followed,
+    :is_ambassador, :job, :terms_accepted_at, :family_followed, :parent2_creation,
     tags_params, parent2_child_ids: []
 
   # ---------------------------------------------------------------------------
