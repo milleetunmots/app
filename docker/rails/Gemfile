@@ -73,7 +73,7 @@ end
 gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 # ADMIN
-gem "activeadmin", "~> 2.14.0"
+gem "activeadmin", "~> 3.2.2"
 gem "devise", "~> 4.7.1"
 gem "cancancan"
 gem "draper"
