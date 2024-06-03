@@ -26,7 +26,7 @@ class Group
     end
 
     def child_supports
-      @child_supports = @group.child_supports.with_a_child_in_active_group
+      @child_supports = @group.child_supports.with_kept_children.with_a_child_in_active_group
       @child_supports_with_siblings = @child_supports.multiple_children
       @child_supports_without_siblings = @child_supports.one_child
     end
@@ -48,7 +48,6 @@ class Group
     def call
       # use a transaction to make sure that if something goes wrong, we don't end up with a partially distributed group
       ActiveRecord::Base.transaction do
-        balance_capacity_of_each_supporter
         order_child_supports_with_siblings
         order_child_supports_without_siblings
         associate_child_supports_with_siblings_to_supporters
@@ -59,18 +58,6 @@ class Group
     end
 
     private
-
-    def balance_capacity_of_each_supporter
-      total_capacity = @count_by_supporter.sum { |h| h[:child_supports_count] }
-      total_child_supports_count = @child_supports.count
-      return if total_capacity == total_child_supports_count
-
-      surplus_by_supporter = (total_child_supports_count - total_capacity).to_f / @count_by_supporter.count
-      @count_by_supporter.shuffle!
-      @count_by_supporter.each do |supporter_capacity|
-        supporter_capacity[:child_supports_count] = (supporter_capacity[:child_supports_count] + surplus_by_supporter).ceil
-      end
-    end
 
     def order_child_supports_with_siblings
       @four_to_nine_child_supports_with_siblings = @four_to_nine_child_supports_with_siblings.to_a.sort_by { |cs| cs.current_child.months }
