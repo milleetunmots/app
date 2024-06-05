@@ -28,6 +28,7 @@
 class AdminUser < ApplicationRecord
 
   ROLES = %w[super_admin team_member logistics_team caller].freeze
+  COMMON_PASSWORDS = %w[1001 mots password azerty 1234 motdepasse qwerty 12345 000 bonjour soleil abc 111].freeze
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
@@ -43,10 +44,10 @@ class AdminUser < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  validates :name,
-    presence: true,
-    uniqueness: {case_sensitive: false}
-  validates :user_role, inclusion: {in: ROLES}
+  validates :name, presence: true, uniqueness: { case_sensitive: false }
+  validates :user_role, inclusion: { in: ROLES }
+  validates :password, format: { with: REGEX_VALID_PASSWORD, message: INVALID_PASSWORD_MESSAGE }
+  validate :common_password
 
   scope :all_logistics_team_members, -> { where(user_role: "logistics_team") }
   scope :callers, -> { where(user_role: "caller") }
@@ -80,5 +81,14 @@ class AdminUser < ApplicationRecord
 
   def inactive_message
     "Ce compte n'est pas activé."
+  end
+
+  private
+
+  def common_password
+    found_common_password = COMMON_PASSWORDS.find { |common_password| password.downcase.include?(common_password) }
+    return unless found_common_password
+
+    errors.add(:password, "ne doit pas contenir le mot de passe commun '#{found_common_password}'")
   end
 end
