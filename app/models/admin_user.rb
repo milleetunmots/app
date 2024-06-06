@@ -89,6 +89,6 @@ class AdminUser < ApplicationRecord
     found_common_password = COMMON_PASSWORDS.find { |common_password| password.downcase.include?(common_password) }
     return unless found_common_password
 
-    errors.add(:password, "ne doit pas contenir le mot de passe commun '#{found_common_password}'")
+    errors.add(:password, "ne doit pas contenir ce mot trop commun : '#{found_common_password}'")
   end
 end
