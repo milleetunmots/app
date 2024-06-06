@@ -28,6 +28,6 @@ FactoryBot.define do
     name { Faker::Name.name }
     user_role { AdminUser::ROLES.sample }
     email { Faker::Internet.email }
-    password { Faker::Internet.password }
+    password { Faker::Internet.password(min_length: 10, mix_case: true, special_characters: true) }
   end
 end

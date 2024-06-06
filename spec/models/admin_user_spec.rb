@@ -30,6 +30,40 @@ require "rails_helper"
 RSpec.describe AdminUser, type: :model do
   subject { FactoryBot.create(:admin_user) }
 
+  describe "Validations" do
+    let(:valid_user) { FactoryBot.build(:admin_user, password: 'test22398@') }
+
+    context "succeed" do
+      it "if the password is valid" do
+        expect(valid_user).to be_valid
+      end
+    end
+
+    context "fail" do
+      let(:invalid_user) { FactoryBot.build(:admin_user) }
+
+      it "if the password haven't special characters" do
+        invalid_user.password = 'test22398'
+        expect(invalid_user).to_not be_valid
+      end
+
+      it "if the password haven't 8 characters at least" do
+        invalid_user.password = 'te98'
+        expect(invalid_user).to_not be_valid
+      end
+
+      it "if the password haven't a numeric character" do
+        invalid_user.password = 'testspecs'
+        expect(invalid_user).to_not be_valid
+      end
+
+      it "if the password include common password" do
+        invalid_user.password = 'testspecs1001'
+        expect(invalid_user).to_not be_valid
+      end
+    end
+  end
+
   describe "#name" do
     let(:another_user) { FactoryBot.build(:admin_user, name: subject.name) }
 
