@@ -1,5 +1,7 @@
 class ProgramMessageService
 
+  TYPEFORM_URL_REGEX = /https:\/\/form\.typeform\.com\/[^\s]*#child_support_id=[^\s]+/.freeze
+
   attr_reader :errors
 
   def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil)
@@ -26,6 +28,7 @@ class ProgramMessageService
     check_all_fields_are_present
     return self if @errors.any?
 
+    find_typeform_url
     get_all_variables if @message.match(/\{(.*?)\}/)
     return self if @errors.any?
 
@@ -85,6 +88,13 @@ class ProgramMessageService
 
   protected
 
+  def find_typeform_url
+    link = @message.scan(TYPEFORM_URL_REGEX).first
+    return unless link
+
+    @message.gsub!(link, link.gsub('xxxxx', '{CHILD_SUPPORT_ID}'))
+  end
+
   def get_all_variables
     @variables += @message.scan(/\{(.*?)\}/).transpose[0].uniq
 
@@ -93,17 +103,14 @@ class ProgramMessageService
 
   def format_data_for_spot_hit
     # we need to format phone_numbers as hash inn order to include variables
-    if @redirection_target || @variables.include?('PRENOM_ENFANT')
+    if @redirection_target || @variables.include?('PRENOM_ENFANT') || @variables.include?('CHILD_SUPPORT_ID')
       @recipient_data = {}
-
       Parent.where(id: @parent_ids).find_each do |parent|
         @recipient_data[parent.id.to_s] = {}
-
         @recipient_data[parent.id.to_s]['PRENOM_ENFANT'] = parent.current_child&.first_name || 'votre enfant'
-
+        @recipient_data[parent.id.to_s]['CHILD_SUPPORT_ID'] = parent.current_child&.child_support.id
         if @redirection_target && parent.current_child.present?
           @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
-
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
         end
       end
