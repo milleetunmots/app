@@ -2,12 +2,13 @@
 #
 # Table name: tags
 #
-#  id             :integer          not null, primary key
-#  color          :string
-#  name           :string
-#  taggings_count :integer          default(0)
-#  created_at     :datetime
-#  updated_at     :datetime
+#  id                    :integer          not null, primary key
+#  color                 :string
+#  is_visible_by_callers :boolean          default(TRUE), not null
+#  name                  :string
+#  taggings_count        :integer          default(0)
+#  created_at            :datetime
+#  updated_at            :datetime
 #
 # Indexes
 #
