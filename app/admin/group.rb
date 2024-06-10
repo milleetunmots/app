@@ -211,14 +211,29 @@ ActiveAdmin.register Group do
   end
 
   batch_action :support_modules_chosen_excel_export do |ids|
-    service = Child::ExportBooksV2Service.new(group_ids: ids).call
+    ids.each do |group_id|
+      group = Group.find(group_id)
+      if ChildrenSupportModule.where(child_id: group.active_children_ids, is_programmed: false).where.not(support_module_id: nil).count.zero?
+        flash[:alert] = "Les modules de la cohorte #{group.name} ont déjà été programmés"
+        break
+      end
+      if ChildrenSupportModule.exists?(child_id: group.active_children_ids, is_programmed: false, support_module_id: nil)
+        flash[:alert] = "Dans la cohorte #{group.name}, il y a des enfants sans choix de module."
+        break
+      end
+    end
 
-    if service.errors.empty?
-      send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
-                                       disposition: 'attachment', filename: "#{Time.zone.today.strftime('%d-%m-%Y')}.zip"
-    else
-      flash[:alert] = service.errors
+    if flash[:alert]
       redirect_back(fallback_location: root_path)
+    else
+      service = Child::ExportBooksV2Service.new(group_ids: ids).call
+      if service.errors.empty?
+        send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
+                                         disposition: 'attachment', filename: "#{Time.zone.today.strftime('%d-%m-%Y')}.zip"
+      else
+        flash[:alert] = service.errors
+        redirect_back(fallback_location: root_path)
+      end
     end
   end
 end

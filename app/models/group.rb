@@ -109,6 +109,10 @@ class Group < ApplicationRecord
     started_at >= DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
   end
 
+  def active_children_ids
+    children.active_group.ids
+  end
+
   def add_waiting_children
     # Add waiting children to next available group for them (could be another group)
     Child::AddWaitingChildrenToGroupJob.perform_later
