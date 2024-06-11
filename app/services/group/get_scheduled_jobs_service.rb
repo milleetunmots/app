@@ -5,6 +5,10 @@ class Group
     require 'sidekiq/api'
     attr_reader :scheduled_jobs
 
+    WEEK_DAYS = %w[Dimanche Lundi Mardi Mercredi Jeudi Vendredi Samedi].freeze
+    MONTHS = %w[Janvier Février Mars Avril Mai Juin Juillet Août Septembre Octobre Novembre Décembre].freeze
+
+
     MODULE_ZERO_FEATURE_START = DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
     GROUP_JOB_CLASS_NAMES = {
       ChildrenSupportModule::ProgramSupportModuleZeroJob.to_s => 'Programmation du module zero',
@@ -38,6 +42,7 @@ class Group
       end
       @scheduled_jobs.sort_by! { |hash| hash[:scheduled_date] }
       set_module_numbers
+      format_dates
 
       self
     end
@@ -73,6 +78,17 @@ class Group
         @module_number -= 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::FillParentsAvailableSupportModulesJob.to_s]
         scheduled_job[:module_number] = 0 if [GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::ProgramSupportModuleZeroJob.to_s], GROUP_JOB_CLASS_NAMES[Group::ProgramSmsToBilingualsJob.to_s]].include? scheduled_job[:name]
         scheduled_job[:module_number] = 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::ProgramFirstSupportModuleJob.to_s]
+      end
+    end
+
+    def format_dates
+      @scheduled_jobs.each do |scheduled_job|
+        week_day = WEEK_DAYS[scheduled_job[:scheduled_date].wday]
+        day = scheduled_job[:scheduled_date].strftime('%d')
+        month = MONTHS[scheduled_job[:scheduled_date].month - 1]
+        year = scheduled_job[:scheduled_date].year
+        hour = scheduled_job[:scheduled_date].strftime('%Hh%M')
+        scheduled_job[:scheduled_date] = "#{week_day} #{day} #{month} #{year} à #{hour}"
       end
     end
   end
