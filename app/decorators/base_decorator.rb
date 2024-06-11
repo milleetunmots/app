@@ -3,6 +3,13 @@ class BaseDecorator < Draper::Decorator
   delegate_all
   include Rails.application.routes.url_helpers
 
+  attr_accessor :current_admin_user
+
+  def initialize(object, user = nil)
+    super(object)
+    @current_admin_user = user
+  end
+
   def arbre(&block)
     Arbre::Context.new({}, self, &block).to_s
   end
@@ -29,9 +36,11 @@ class BaseDecorator < Draper::Decorator
 
     arbre do
       model.send(options[:context]).each do |tag|
+        next if current_admin_user.try(:user_role).eql?('caller') && tag.is_visible_by_callers.eql?(false)
+
         a tag.name,
           href: config.route_collection_path(nil, q: {tagged_with_all: [tag.name]}),
-          class: 'tag',
+          class: 'tag_display',
           style: "background-color: #{tag.color || '#CACACA'}"
         text_node "&nbsp;".html_safe
       end
