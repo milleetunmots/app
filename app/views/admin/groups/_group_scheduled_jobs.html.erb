@@ -4,7 +4,7 @@
     <div>
       <% jobs.each do |job| %>
         <div>
-          <strong><%= job[:scheduled_date].strftime('%d/%m/%Y - %H:%M') %></strong>
+          <strong><%= job[:scheduled_date] %></strong> :
           <%= job[:name] %>
         </div>
       <% end %>
