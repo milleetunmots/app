@@ -37,6 +37,7 @@ ActiveAdmin.register Child do
     column :group_status
     column :source
     column :tags do |model|
+      model.current_admin_user = current_admin_user
       model.tags(context: 'tags')
     end
     column :land
@@ -412,6 +413,7 @@ ActiveAdmin.register Child do
           row :available_for_workshops
           row :selected_support_module_list
           row :tags do |model|
+            model.current_admin_user = current_admin_user
             model.tags(context: 'tags')
           end
           row :src_url
