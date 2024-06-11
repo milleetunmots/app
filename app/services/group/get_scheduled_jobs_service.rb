@@ -88,7 +88,7 @@ class Group
         month = MONTHS[scheduled_job[:scheduled_date].month - 1]
         year = scheduled_job[:scheduled_date].year
         hour = scheduled_job[:scheduled_date].strftime('%Hh%M')
-        scheduled_job[:scheduled_date] = "#{week_day} #{day} #{month} #{year} à #{hour}"
+        scheduled_job[:scheduled_date] = "#{week_day} #{day} #{month} #{year} - #{hour}"
       end
     end
   end
