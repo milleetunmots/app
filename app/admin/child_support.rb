@@ -31,6 +31,7 @@ ActiveAdmin.register ChildSupport do
     column :call_infos
     column :groups
     column :tags do |model|
+      model.current_admin_user = current_admin_user
       model.tags(context: 'tags')
     end
     column :actions do |item|
@@ -510,6 +511,7 @@ ActiveAdmin.register ChildSupport do
           row :is_bilingual
           row :second_language
           row :tags do |model|
+            model.current_admin_user = current_admin_user
             model.tags(context: 'tags')
           end
           row :created_at

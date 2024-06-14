@@ -168,12 +168,15 @@ ActiveAdmin.register Group do
     end
     supporters_without_id = child_supports_count_by_supporter.select { |supporter_count| supporter_count[:admin_user_id].nil? }.map { |sc| sc[:supporter_name] }
     supporters_without_child_supports_count = child_supports_count_by_supporter.select { |supporter_count| supporter_count[:child_supports_count].nil? }.map { |sc| sc[:supporter_name] }
-    if supporters_without_id.empty? && supporters_without_child_supports_count.empty?
+    total_capacity = child_supports_count_by_supporter.sum { |supporter_count| supporter_count[:child_supports_count] }
+    families_count = resource.model.child_supports.with_kept_children.with_a_child_in_active_group.count
+    if supporters_without_id.empty? && supporters_without_child_supports_count.empty? && total_capacity == families_count
       Group::DistributeChildSupportsToSupportersJob.perform_later(resource.model, child_supports_count_by_supporter)
       redirect_to admin_group_path, notice: message
     else
       message = "Sur airtable, le N° suivi base de ces appelantes n'est pas indiqué : #{supporters_without_id.join(', ')}" unless supporters_without_id.empty?
       message = "Sur airtable, le Nb de familles de ces appelantes n'est pas indiqué : #{supporters_without_child_supports_count.join(', ')}" unless supporters_without_child_supports_count.empty?
+      message = "Le nombre total d'enfants prévus sur airtable ne correspond pas au nombre de familles dans la base avec au moins un enfant actif dans cette cohorte." unless total_capacity == families_count
       redirect_to admin_group_path, alert: message
     end
   end
@@ -208,14 +211,29 @@ ActiveAdmin.register Group do
   end
 
   batch_action :support_modules_chosen_excel_export do |ids|
-    service = Child::ExportBooksV2Service.new(group_ids: ids).call
+    ids.each do |group_id|
+      group = Group.find(group_id)
+      if ChildrenSupportModule.where(child_id: group.active_children_ids, is_programmed: false).where.not(support_module_id: nil).count.zero?
+        flash[:alert] = "Les modules de la cohorte #{group.name} ont déjà été programmés"
+        break
+      end
+      if ChildrenSupportModule.exists?(child_id: group.active_children_ids, is_programmed: false, support_module_id: nil)
+        flash[:alert] = "Dans la cohorte #{group.name}, il y a des enfants sans choix de module."
+        break
+      end
+    end
 
-    if service.errors.empty?
-      send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
-                                       disposition: 'attachment', filename: "#{Time.zone.today.strftime('%d-%m-%Y')}.zip"
-    else
-      flash[:alert] = service.errors
+    if flash[:alert]
       redirect_back(fallback_location: root_path)
+    else
+      service = Child::ExportBooksV2Service.new(group_ids: ids).call
+      if service.errors.empty?
+        send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
+                                         disposition: 'attachment', filename: "#{Time.zone.today.strftime('%d-%m-%Y')}.zip"
+      else
+        flash[:alert] = service.errors
+        redirect_back(fallback_location: root_path)
+      end
     end
   end
 end

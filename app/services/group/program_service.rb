@@ -92,7 +92,7 @@ class Group
 
     def verify_available_module_list
       (3..@group.support_modules_count).each do |module_index|
-        verification_date = @group.started_at + ((module_index - 2) * 8.weeks) - 5.weeks + MODULE_ZERO_DURATION
+        verification_date = @group.started_at + ((module_index - 2) * 8.weeks) - 5.weeks + MODULE_ZERO_DURATION - 4.days
         ChildrenSupportModule::VerifyAvailableModulesTaskJob.set(wait_until: verification_date.to_datetime.change(hour: @hour)).perform_later(@group.id)
       end
     end
@@ -131,13 +131,13 @@ class Group
 
     def verify_chosen_modules
       (4..@group.support_modules_count).each do |module_index|
-        verification_date = @group.started_at + ((module_index - 2) * 8.weeks) - 2.weeks + MODULE_ZERO_DURATION
+        verification_date = @group.started_at + ((module_index - 2) * 8.weeks) - 2.weeks + MODULE_ZERO_DURATION + 1.day
         ChildrenSupportModule::VerifyChosenModulesTaskJob.set(wait_until: verification_date.to_datetime.change(hour: @hour)).perform_later(@group.id)
       end
     end
 
     def verify_chosen_modules2
-      select_module_date = @group.started_at + 7.weeks + MODULE_ZERO_DURATION
+      select_module_date = @group.started_at + 7.weeks + MODULE_ZERO_DURATION + 1.day
       ChildrenSupportModule::VerifyChosenModulesTaskJob.set(wait_until: select_module_date.to_datetime.change(hour: @hour + 1)).perform_later(@group.id)
     end
 
@@ -146,7 +146,8 @@ class Group
 
       (3..@group.support_modules_count).each do |module_index|
         program_module_date = @group.started_at + ((module_index - 2) * 8.weeks) + MODULE_ZERO_DURATION
-        ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: program_module_date.to_datetime.change(hour: @hour)).perform_later(@group.id, program_module_date)
+        job_date = program_module_date - 3.days
+        ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: job_date.to_datetime.change(hour: @hour)).perform_later(@group.id, program_module_date)
       end
     end
 

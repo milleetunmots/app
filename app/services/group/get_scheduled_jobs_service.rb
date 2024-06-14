@@ -38,6 +38,7 @@ class Group
       end
       @scheduled_jobs.sort_by! { |hash| hash[:scheduled_date] }
       set_module_numbers
+      format_dates
 
       self
     end
@@ -73,6 +74,12 @@ class Group
         @module_number -= 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::FillParentsAvailableSupportModulesJob.to_s]
         scheduled_job[:module_number] = 0 if [GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::ProgramSupportModuleZeroJob.to_s], GROUP_JOB_CLASS_NAMES[Group::ProgramSmsToBilingualsJob.to_s]].include? scheduled_job[:name]
         scheduled_job[:module_number] = 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::ProgramFirstSupportModuleJob.to_s]
+      end
+    end
+
+    def format_dates
+      @scheduled_jobs.each do |scheduled_job|
+        scheduled_job[:scheduled_date] = I18n.l(scheduled_job[:scheduled_date], format: '%A %d %B %Y - %Hh:%M')
       end
     end
   end

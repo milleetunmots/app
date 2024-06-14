@@ -29,6 +29,7 @@ ActiveAdmin.register Parent do
     column :phone_number
     column :family_followed
     column :tags do |model|
+      model.current_admin_user = current_admin_user
       model.tags(context: 'tags')
     end
     column :created_at do |model|
@@ -157,6 +158,7 @@ ActiveAdmin.register Parent do
           row :mid_term_reaction
           row :mid_term_speech
           row :tags do |model|
+            model.current_admin_user = current_admin_user
             model.tags(context: 'tags')
           end
         end

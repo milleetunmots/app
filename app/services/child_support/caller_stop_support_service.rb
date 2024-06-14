@@ -113,7 +113,7 @@ class ChildSupport::CallerStopSupportService
 
 	def recipients
 		recipients = ["parent.#{@child_support.parent1.id}"]
-		recipients << "parent.#{@child_support.parent2.id}" if @child_support.parent2
+		recipients << "parent.#{@child_support.parent2.id}" if @child_support.parent2 && @child_support.current_child.should_contact_parent2
 		recipients
 	end
 end
