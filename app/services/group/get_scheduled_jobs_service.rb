@@ -5,10 +5,6 @@ class Group
     require 'sidekiq/api'
     attr_reader :scheduled_jobs
 
-    WEEK_DAYS = %w[Dimanche Lundi Mardi Mercredi Jeudi Vendredi Samedi].freeze
-    MONTHS = %w[Janvier Février Mars Avril Mai Juin Juillet Août Septembre Octobre Novembre Décembre].freeze
-
-
     MODULE_ZERO_FEATURE_START = DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
     GROUP_JOB_CLASS_NAMES = {
       ChildrenSupportModule::ProgramSupportModuleZeroJob.to_s => 'Programmation du module zero',
@@ -83,12 +79,7 @@ class Group
 
     def format_dates
       @scheduled_jobs.each do |scheduled_job|
-        week_day = WEEK_DAYS[scheduled_job[:scheduled_date].wday]
-        day = scheduled_job[:scheduled_date].strftime('%d')
-        month = MONTHS[scheduled_job[:scheduled_date].month - 1]
-        year = scheduled_job[:scheduled_date].year
-        hour = scheduled_job[:scheduled_date].strftime('%Hh%M')
-        scheduled_job[:scheduled_date] = "#{week_day} #{day} #{month} #{year} - #{hour}"
+        scheduled_job[:scheduled_date] = I18n.l(scheduled_job[:scheduled_date], format: '%A %d %B %Y - %Hh:%M')
       end
     end
   end
