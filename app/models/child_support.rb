@@ -282,7 +282,16 @@ class ChildSupport < ApplicationRecord
       .or(where('call4_status ILIKE ?', 'Numéro erroné'))
       .or(where('call5_status ILIKE ?', 'Numéro erroné'))
   }
-  scope :with_kept_children, -> { joins(:children).where(children: { discarded_at: nil }).distinct }
+  scope :with_kept_children, -> {
+    where(
+      "EXISTS (
+        SELECT 1
+        FROM children
+        WHERE children.child_support_id = child_supports.id
+        AND children.discarded_at IS NULL
+      )"
+    )
+  }
 
   class << self
 

@@ -79,7 +79,7 @@ class Group
 
     def format_dates
       @scheduled_jobs.each do |scheduled_job|
-        scheduled_job[:scheduled_date] = I18n.l(scheduled_job[:scheduled_date], format: '%A %d %B %Y - %Hh:%M')
+        scheduled_job[:scheduled_date] = I18n.l(scheduled_job[:scheduled_date], format: '%A %d %B %Y - %Hh%M')
       end
     end
   end

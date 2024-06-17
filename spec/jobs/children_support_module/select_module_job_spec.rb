@@ -163,7 +163,7 @@ RSpec.describe ChildrenSupportModule::SelectModuleJob, type: :job do
       subject.perform_now(group_with_module_zero.id, Time.zone.now, 5)
       subject.perform_now(group_without_module_zero.id, Time.zone.now, 4)
 
-      expect(estimated_unengaged_child_support.reload.tag_list).to match_array ["estimé-desengagé"]
+      expect(estimated_unengaged_child_support.reload.tag_list).to match_array ["estime-desengage-t2"]
       expect(estimated_unengaged_child_support_without_module_zero.reload.tag_list).to match_array []
       expect(child_support_with_call3_status_ok.reload.tag_list).to match_array []
       expect(child_support_without_module_zero_with_call3_status_ok.reload.tag_list).to match_array []

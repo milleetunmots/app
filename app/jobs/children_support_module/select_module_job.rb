@@ -32,9 +32,9 @@ class ChildrenSupportModule
 
         next if child.siblings_on_same_group.count > 1 && child.child_support.current_child != child
 
-        # add "estimées-désengagées-T1" tag to families that didn't answer any call 0->2 (if module_index = 2)
+        # add "estime-desengage-t1" tag to families that didn't answer any call 0->2 (if module_index = 2)
         add_t1_disengagement_tag_to_child(child) if check_t1_disengagement?(group, module_index)
-        # add "estimé-desengagé" tag to families that didn't chose module 3 & didnt answer call 3 (if module_index = 4)
+        # add "estime-desengage-t2" tag to families that didn't chose module 3 & didnt answer call 3 (if module_index = 4)
         add_module4_disengagement_tag_to_child(child) if check_module4_disengagement?(group, module_index)
 
         child.child_support.update(
@@ -68,7 +68,7 @@ class ChildrenSupportModule
 
       return if child.child_support.module3_chosen_by_parents
 
-      child.child_support.tag_list.add('estimé-desengagé')
+      child.child_support.tag_list.add('estime-desengage-t2')
       child.child_support.save!
     end
 
@@ -78,7 +78,7 @@ class ChildrenSupportModule
         status.in?(family_responded_to_call_statuses) || status.blank?
       end
 
-      child.child_support.tag_list.add('estimées-désengagées-T1')
+      child.child_support.tag_list.add('estime-desengage-t1')
       child.child_support.save!
     end
 
