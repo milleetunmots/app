@@ -5,6 +5,8 @@ namespace :sidekiq do
   task reschedule_jobs: :environment do
     jobs = Sidekiq::ScheduledSet.new
     jobs.each do |job|
+      next if job.at < Date.new(2024, 8, 31)
+
       reschedule_verify_available_modules_task_job(job)
       reschedule_verify_chosen_modules_task_job(job)
       reschedule_program_support_module_sms_job(job)
