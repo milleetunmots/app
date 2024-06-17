@@ -21,8 +21,11 @@ class Child
       build_siblings
       detect_errors
       if @child.errors.empty? && @child.save
+        add_target_tag
+        set_not_supported
         ChildrenSource.create(@children_source_attributes.merge(child_id: @child.id))
         send_form_by_sms
+        send_not_supported_sms
         @child.siblings.each do |sibling|
           next if sibling.id.eql?(@child.id)
           ChildrenSource.create(@children_source_attributes.merge(child_id: sibling.id))
@@ -70,6 +73,8 @@ class Child
     end
 
     def send_form_by_sms
+      return if 'filtre-diplome-KO'.in? @child.tag_list
+
       @sms_url_form = "#{ENV.fetch('TYPEFORM_URL', nil)}#child_support_id=#{@child.child_support.id}"
       message = "1001mots: Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{@sms_url_form}"
 
@@ -129,6 +134,39 @@ class Child
 
       birthdate_validation
       overseas_child_validation
+    end
+
+    def add_target_tag
+      if @child.parent1.target_profile?
+        @child.tag_list.add('filtre-diplome-OK')
+        @child.parent1.tag_list.add('filtre-diplome-OK')
+        @child.parent2&.tag_list&.add('filtre-diplome-OK')
+        @child.child_support.tag_list.add('filtre-diplome-OK')
+      else
+        @child.tag_list.add('filtre-diplome-KO')
+        @child.parent1.tag_list.add('filtre-diplome-KO')
+        @child.parent2&.tag_list&.add('filtre-diplome-KO')
+        @child.child_support.tag_list.add('filtre-diplome-KO')
+      end
+      @child.save
+      @child.parent1.save
+      @child.parent2&.save
+      @child.child_support.save
+    end
+
+    def set_not_supported
+      return if 'filtre-diplome-OK'.in? @child.tag_list
+
+      @child.group_status = 'not_supported'
+      @child.save
+    end
+
+    def send_not_supported_sms
+      return if 'filtre-diplome-OK'.in? @child.tag_list
+
+      media = Media::Form.find_or_create_by(url: ENV['NOT_SUPPORTED_LINK'])
+      message = "1001mots : Bonjour ! Suite à votre demande d'inscription, nous regrettons de ne pas pouvoir accompagner votre enfant. Les places sont limitées et attribuées selon des critères spécifiques. Toutefois, nous avons préparé un ensemble de conseils qui peuvent aider votre enfant à développer son langage. Vous les trouverez ici : {URL}"
+      ProgramMessageService.new(Time.zone.now.next_day(3).strftime('%d-%m-%Y'), '12:30', ["child.#{@child.id}"], message, nil, media.redirection_target.id).call
     end
   end
 end

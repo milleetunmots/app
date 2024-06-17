@@ -35,8 +35,10 @@ class ChildrenController < ApplicationController
       flash.now[:error] = "L'inscription de l'enfant a échoué"
       build_child_for_form
       render action: :new
-    else
+    elsif @child.parent1.target_profile?
       redirect_to created_child_path(sms_url_form: service.sms_url_form)
+    else
+      redirect_to created_child_path(sms_url_form: service.sms_url_form, parent1: @child.parent1)
     end
   end
 
@@ -48,10 +50,16 @@ class ChildrenController < ApplicationController
       @widget = false
       @new_link = new_local_partner_registration_path
     when 4
-      @message = I18n.t('inscription_success.without_widget', typeform_url: params[:sms_url_form])
-      @again = true
       @widget = false
-      @new_link = new_bao_registration_path
+      if params[:parent1]
+        @again = false
+        @with_parent_no_target = true
+        @message = I18n.t('inscription_success.with_parent_no_target')
+      else
+        @message = I18n.t('inscription_success.without_widget', typeform_url: params[:sms_url_form])
+        @again = true
+        @new_link = new_bao_registration_path
+      end
     when 3
       # for this form we keep the registration_origin
       # so that multiple children can be registered
