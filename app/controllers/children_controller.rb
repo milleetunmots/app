@@ -96,7 +96,7 @@ class ChildrenController < ApplicationController
   end
 
   def parent1_params
-    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name first_name last_name phone_number gender])[:parent1_attributes]
+    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name first_name last_name phone_number gender degree_level_at_registration degree_country_at_registration])[:parent1_attributes]
   end
 
   def parent2_params
@@ -166,6 +166,8 @@ class ChildrenController < ApplicationController
       @source_label = I18n.t('source_label.parent')
       @source_details_label = I18n.t('source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate
+      @degree_level_label = "Dernier diplôme obtenu"
+      @degree_obtained_in_label = "Dans quel pays ce diplôme a-t-il été obtenu ?"
     when 3
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.pro')
       @source_collection = :pmi

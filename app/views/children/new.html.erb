@@ -27,7 +27,7 @@
                   <option value='caf'> La CAF </option>
                   <%
 =begin%>
- <option value='bao'> Mon entourage </option> 
+ <option value='bao'> Mon entourage </option>
 <%
 =end%>
                 </select>
@@ -109,6 +109,10 @@
                   <%= parent1_f.input :first_name, required: true %>
                   <%= parent1_f.input :last_name, required: true %>
                   <%= parent1_f.input :phone_number, required: true %>
+                  <% if @form_path == '/inscription4' %>
+                    <%= parent1_f.input :degree_level_at_registration, as: :select, collection: parent_degree_level_collection, required: true, label: @degree_level_label %>
+                    <%= parent1_f.input :degree_country_at_registration, as: :radio_buttons, collection: parent_degree_obtained_in_collection, required: true, label: @degree_obtained_in_label %>
+                  <% end %>
                 <% end %>
               </div>
               <div class="col-sm-6">
