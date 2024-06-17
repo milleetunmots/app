@@ -30,6 +30,7 @@ class Child
           next if sibling.id.eql?(@child.id)
           ChildrenSource.create(@children_source_attributes.merge(child_id: sibling.id))
         end
+        create_parent_regristration
       end
       self
     end
@@ -167,6 +168,19 @@ class Child
       media = Media::Form.find_or_create_by(url: ENV['NOT_SUPPORTED_LINK'])
       message = "1001mots : Bonjour ! Suite à votre demande d'inscription, nous regrettons de ne pas pouvoir accompagner votre enfant. Les places sont limitées et attribuées selon des critères spécifiques. Toutefois, nous avons préparé un ensemble de conseils qui peuvent aider votre enfant à développer son langage. Vous les trouverez ici : {URL}"
       ProgramMessageService.new(Time.zone.now.next_day(3).strftime('%d-%m-%Y'), '12:30', ["child.#{@child.id}"], message, nil, media.redirection_target.id).call
+    end
+
+    def create_parent_regristration
+      parent_registration = ParentsRegistration.new(
+        parent1: @child.parent1,
+        target_profile: @child.parent1.target_profile?,
+        parent1_phone_number: @child.parent1.phone_number
+      )
+      if @child.parent2
+        parent_registration.parent2 = @child.parent2
+        parent_registration.parent2_phone_number = @child.parent2.phone_number
+      end
+      parent_registration.save!
     end
   end
 end
