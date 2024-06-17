@@ -50,9 +50,9 @@ class ChildSupport::SelectModuleService
     # so if module_index == 3 it means this is "Module 2" (that comes after "Module 0" and "Module 1")
     date = @module_index.eql?(3) && @child.group.with_module_zero? ? 'deux jours' : 'quelques jours'
 
-    message = if @child.child_support.tag_list.include?('estimé-desengagé')
+    message = if @child.child_support.tag_list.include?('estime-desengage-t2')
                 "1001mots: C’est le moment de choisir votre prochain thème pour #{@child.first_name} en cliquant sur le lien #{selection_link}. Si vous ne faites pas de choix, l’accompagnement 1001mots prendra fin."
-              elsif @child.child_support.tag_list.include?('estimées-désengagées-T1')
+              elsif @child.child_support.tag_list.include?('estime-desengage-t1')
                 "1001mots : Cliquez sur le lien pour choisir votre prochain thème pour #{@child.first_name} et recevoir un nouveau livre. Attention l'accompagnement s'arrêtera si vous ne choisissez pas avant la fin de semaine. #{selection_link}"
               else
                 "1001mots : Cliquez sur le lien pour choisir votre prochain thème pour #{@child.first_name} et recevoir un nouveau livre. Attention dans #{date}, nous choisirons à votre place ! #{selection_link}"

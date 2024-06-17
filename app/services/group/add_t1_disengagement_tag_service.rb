@@ -10,7 +10,7 @@ class Group::AddT1DisengagementTagService
   
 	def call
 		@child_supports.each do |child_support|
-			child_support.tag_list.add('estimées-désengagées-T1')
+			child_support.tag_list.add('estime-desengage-t1')
       child_support.save!
 		end
 		self
