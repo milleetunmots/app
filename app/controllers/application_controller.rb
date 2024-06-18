@@ -7,7 +7,16 @@ class ApplicationController < ActionController::Base
   before_action :set_time_zone
 
   def status
-    render plain: 'OK', status: 200
+    checks = {
+      db: check_database,
+      sidekiq: check_sidekiq
+    }
+
+    if checks.values.all?
+      render json: { status: 'OK', checks: checks }, status: :ok
+    else
+      render json: { status: 'KO', checks: checks }, status: :service_unavailable
+    end
   end
 
   protected
@@ -26,5 +35,17 @@ class ApplicationController < ActionController::Base
     if time_zone = cookies[:time_zone]
       Time.zone = ActiveSupport::TimeZone[time_zone]
     end
+  end
+
+  def check_database
+    ActiveRecord::Base.connection.active?
+  rescue
+    false
+  end
+
+  def check_sidekiq
+    Sidekiq::ProcessSet.new.size > 0
+  rescue
+    false
   end
 end
