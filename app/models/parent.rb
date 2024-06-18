@@ -290,6 +290,8 @@ class Parent < ApplicationRecord
   end
 
   def target_profile?
+    return true if degree_country_at_registration.nil? || degree_level_at_registration.nil?
+
     return true if degree_country_at_registration == 'other'
 
     degree_level_at_registration.in? %w[no_degree bep_cap bac]
