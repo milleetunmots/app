@@ -188,14 +188,10 @@ class Child
     end
 
     def old_parent_registration
-      if @child.parent2.present?
-        ParentsRegistration.find_by(
-          parent1_phone_number: @child.parent1.phone_number,
-          parent2_phone_number: @child.parent2.phone_number
-        )
-      else
-        ParentsRegistration.find_by(parent1_phone_number: @child.parent1.phone_number)
-      end
+      ParentsRegistration.find_by(
+        parent1_phone_number: @child.parent1.phone_number,
+        parent2_phone_number: @child.parent2&.phone_number
+      )
     end
   end
 end
