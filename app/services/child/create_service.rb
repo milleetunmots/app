@@ -31,7 +31,7 @@ class Child
 
           ChildrenSource.create(@children_source_attributes.merge(child_id: sibling.id))
         end
-        create_parent_regristration
+        create_parent_registration
       end
       self
     end
@@ -174,7 +174,7 @@ class Child
       ProgramMessageService.new(Time.zone.now.next_day(3).strftime('%d-%m-%Y'), '12:30', ["child.#{@child.id}"], message, nil, media.redirection_target.id).call
     end
 
-    def create_parent_regristration
+    def create_parent_registration
       parent_registration = ParentsRegistration.new(
         parent1: @child.parent1,
         target_profile: @child.parent1.target_profile?,

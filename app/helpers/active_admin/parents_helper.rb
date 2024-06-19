@@ -23,7 +23,7 @@ module ActiveAdmin::ParentsHelper
   end
 
   def parent_degree_obtained_in_collection
-    Parent::DEGREE_OBTAINED_IN_LIST.map do |v|
+    Parent::DEGREE_COUNTRIES.map do |v|
       [
         Parent.human_attribute_name("degree_country_at_registration.#{v}"),
         v
