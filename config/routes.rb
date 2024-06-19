@@ -6,6 +6,8 @@ Rails.application.routes.draw do
 
   ActiveAdmin.routes(self)
 
+  get 'status', to: 'application#status'
+
   get 'inscription', to: 'children#new', as: :new_child
   get 'inscription1', to: 'children#new', as: :new_child1
   get 'inscriptioncaf', to: 'children#new', as: :new_caf_registration
