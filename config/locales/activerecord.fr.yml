@@ -527,6 +527,18 @@ fr:
         f: Femme
         m: Homme
         x: Inconnu
+      parent/degree_level_at_registration:
+        no_degree: Sans diplôme
+        bep_cap: Brevet BEP ou CAP
+        bac: Bac
+        bac+1: Bac + 1
+        bac+2: Bac + 2
+        bac+3: Bac + 3
+        bac+4: Bac + 4
+        bac+5: Bac + 5 et plus
+      parent/degree_country_at_registration:
+        france: France
+        other: Autre
       redirection_target:
         << : *SHARED
         family_redirection_url_unique_visits_count: Visites uniques familiales
