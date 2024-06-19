@@ -6,7 +6,9 @@
 #  address                             :string           not null
 #  city_name                           :string           not null
 #  degree                              :string
+#  degree_country_at_registration      :string
 #  degree_in_france                    :boolean
+#  degree_level_at_registration        :string
 #  discarded_at                        :datetime
 #  email                               :string
 #  family_followed                     :boolean          default(FALSE)
@@ -61,6 +63,8 @@ class Parent < ApplicationRecord
 
   attr_accessor :parent2_creation
 
+  DEGREE_LEVELS = %w[no_degree bep_cap bac bac+1 bac+2 bac+3 bac+4 bac+5].freeze
+  DEGREE_COUNTRIES = %w[france other].freeze
   GENDER_FEMALE = 'f'.freeze
   GENDER_MALE = 'm'.freeze
   GENDERS = [GENDER_FEMALE, GENDER_MALE].freeze
@@ -283,6 +287,14 @@ class Parent < ApplicationRecord
 
   def only_duplicated_children_with?(parent)
     children_name_and_birthdate.eql? parent.children_name_and_birthdate
+  end
+
+  def target_profile?
+    return true if degree_country_at_registration.nil? || degree_level_at_registration.nil?
+
+    return true if degree_country_at_registration == 'other'
+
+    degree_level_at_registration.in? %w[no_degree bep_cap bac]
   end
 
   # ---------------------------------------------------------------------------

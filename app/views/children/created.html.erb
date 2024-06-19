@@ -4,10 +4,16 @@
 
     <div id="inscription-success-content-top">
 
-      <h1>Inscription effectuée avec succès</h1>
+      <% if @with_parent_no_target %>
+        <h1>Votre demande va être traitée</h1>
+      <% else %>
+        <h1>Inscription effectuée avec succès</h1>
+      <% end %>
 
-      <%= link_to @new_link, class: 'back-btn' do %>
-        <i>←</i>Retour
+      <% unless @with_parent_no_target %>
+        <%= link_to @new_link, class: 'back-btn' do %>
+          <i>←</i>Retour
+        <% end %>
       <% end %>
 
       <p>
