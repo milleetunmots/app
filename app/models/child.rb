@@ -346,20 +346,20 @@ class Child < ApplicationRecord
     months_between(18, 24)
   end
 
-  def self.four_to_nine
-    months_between(4, 10).where(group_status: 'active')
+  def self.four_to_ten
+    months_between(4, 11).where(group_status: 'active')
   end
 
-  def self.ten_to_fifteen
-    months_between(10, 16).where(group_status: 'active')
+  def self.eleven_to_sixteen
+    months_between(11, 17).where(group_status: 'active')
   end
 
-  def self.sixteen_to_twenty_three
-    months_between(16, 24).where(group_status: 'active')
+  def self.seventeen_to_twenty_two
+    months_between(17, 23).where(group_status: 'active')
   end
 
-  def self.twenty_four_and_more
-    months_gteq(24).where(group_status: 'active')
+  def self.twenty_three_and_more
+    months_gteq(23).where(group_status: 'active')
   end
 
   def self.less_than_five
