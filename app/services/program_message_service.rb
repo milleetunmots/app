@@ -1,6 +1,7 @@
 class ProgramMessageService
 
   TYPEFORM_URL_REGEX = /https:\/\/form\.typeform\.com\/[^\s]*#child_support_id=[^\s]+/.freeze
+  VIDEOASK_URL_REGEX = /https:\/\/www\.videoask\.com\/[^\s]*#child_support_id=[^\s]+/.freeze
 
   attr_reader :errors
 
@@ -29,6 +30,7 @@ class ProgramMessageService
     return self if @errors.any?
 
     find_typeform_url
+    find_videoask_url
     get_all_variables if @message.match(/\{(.*?)\}/)
     return self if @errors.any?
 
@@ -93,6 +95,13 @@ class ProgramMessageService
     return unless link
 
     @message.gsub!(link, link.gsub('xxxxx', '{CHILD_SUPPORT_ID}'))
+  end
+
+  def find_videoask_url
+    link = @message.scan(VIDEOASK_URL_REGEX).first
+    return unless link
+
+    @message.gsub!(link, link.gsub('XXXX', '{CHILD_SUPPORT_ID}'))
   end
 
   def get_all_variables
