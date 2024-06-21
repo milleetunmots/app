@@ -86,6 +86,8 @@ class AdminUser < ApplicationRecord
   private
 
   def common_password
+    return unless password
+
     found_common_password = COMMON_PASSWORDS.find { |common_password| password.downcase.include?(common_password) }
     return unless found_common_password
 
