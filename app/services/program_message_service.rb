@@ -29,8 +29,8 @@ class ProgramMessageService
     check_all_fields_are_present
     return self if @errors.any?
 
-    find_typeform_url
-    find_videoask_url
+    find_form_url(TYPEFORM_URL_REGEX)
+    find_form_url(VIDEOASK_URL_REGEX)
     get_all_variables if @message.match(/\{(.*?)\}/)
     return self if @errors.any?
 
@@ -90,18 +90,11 @@ class ProgramMessageService
 
   protected
 
-  def find_typeform_url
-    link = @message.scan(TYPEFORM_URL_REGEX).first
+  def find_form_url(regex)
+    link = @message.scan(regex).first
     return unless link
 
-    @message.gsub!(link, link.gsub('xxxxx', '{CHILD_SUPPORT_ID}'))
-  end
-
-  def find_videoask_url
-    link = @message.scan(VIDEOASK_URL_REGEX).first
-    return unless link
-
-    @message.gsub!(link, link.gsub('XXXX', '{CHILD_SUPPORT_ID}'))
+    @message.gsub!(link, link.gsub(link.split('#child_support_id=').second, '{CHILD_SUPPORT_ID}'))
   end
 
   def get_all_variables
