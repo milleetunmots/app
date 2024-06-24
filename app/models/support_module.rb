@@ -47,7 +47,7 @@ class SupportModule < ApplicationRecord
   THIRTY_SIX_TO_FORTY = 'thirty_six_to_forty'.freeze
   FORTY_ONE_TO_FORTY_FOUR = 'forty_one_to_forty_four'.freeze
   FOUR_TO_TEN = 'four_to_ten'.freeze
-  ELVEN_TO_SIXTEEN = 'eleven_to_sixteen'.freeze
+  ELEVEN_TO_SIXTEEN = 'eleven_to_sixteen'.freeze
   SEVENTEEN_TO_TWENTY_TWO = 'seventeen_to_twenty_two'.freeze
   TWENTY_THREE_AND_MORE = 'twenty_three_and_more'.freeze
   AGE_RANGE_LIST = [
@@ -62,7 +62,7 @@ class SupportModule < ApplicationRecord
   ].freeze
   MODULE_ZERO_AGE_RANGE_LIST = [
     FOUR_TO_TEN,
-    ELVEN_TO_SIXTEEN,
+    ELEVEN_TO_SIXTEEN,
     SEVENTEEN_TO_TWENTY_TWO,
     TWENTY_THREE_AND_MORE
   ].freeze
@@ -99,7 +99,7 @@ class SupportModule < ApplicationRecord
   scope :thirty_six_to_forty, -> { where("'#{THIRTY_SIX_TO_FORTY}' = ANY (age_ranges)") }
   scope :forty_one_to_forty_four, -> { where("'#{FORTY_ONE_TO_FORTY_FOUR}' = ANY (age_ranges)") }
   scope :four_to_ten, -> { where("'#{FOUR_TO_TEN}' = ANY (age_ranges)") }
-  scope :eleven_to_sixteen, -> { where("'#{ELVEN_TO_SIXTEEN}' = ANY (age_ranges)") }
+  scope :eleven_to_sixteen, -> { where("'#{ELEVEN_TO_SIXTEEN}' = ANY (age_ranges)") }
   scope :seventeen_to_twenty_two, -> { where("'#{SEVENTEEN_TO_TWENTY_TWO}' = ANY (age_ranges)") }
   scope :twenty_three_and_more, -> { where("'#{TWENTY_THREE_AND_MORE}' = ANY (age_ranges)") }
   scope :level_one, -> { where(level: 1) }
