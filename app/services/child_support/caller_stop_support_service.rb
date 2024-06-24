@@ -50,9 +50,14 @@ class ChildSupport::CallerStopSupportService
 		return if @reason == 'renunciation'
 
 		@child_support.children.each do |child|
-			child.group_status = 'stopped'
-			child.group_end = Time.zone.today
-			@error = "L'accompagnement de #{child.name} n'a pas pu être arrêtée" unless child.save
+			if child.group.present?
+				child.group_status = 'stopped'
+				child.group_end = Time.zone.today
+			else
+				child.group_status = 'not_supported'
+			end
+
+			@error = "L'accompagnement de #{child.first_name} n'a pas pu être arrêtée" unless child.save
 			raise ActiveRecord::Rollback unless @error.nil?
 		end
 		@child_support.important_information = "#{@child_support.important_information}\nAccompagnement arreté le #{@child_support.stop_support_date.strftime('%d/%m/%Y')} pour le motif '#{VARIABLES[@reason.to_sym][:motive]}' à la demande de #{@supporter.name}"
