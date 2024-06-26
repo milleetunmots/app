@@ -63,7 +63,7 @@ class Parent < ApplicationRecord
 
   attr_accessor :parent2_creation
 
-  DEGREE_LEVELS = %w[no_degree bep_cap bac bac+1 bac+2 bac+3 bac+4 bac+5].freeze
+  DEGREE_LEVELS = %w[no_degree brevet bep_cap bac bac+1 bac+2 bac+3 bac+4 bac+5].freeze
   DEGREE_COUNTRIES = %w[france other].freeze
   GENDER_FEMALE = 'f'.freeze
   GENDER_MALE = 'm'.freeze

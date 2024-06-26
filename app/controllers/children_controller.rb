@@ -174,7 +174,7 @@ class ChildrenController < ApplicationController
       @source_label = I18n.t('source_label.parent')
       @source_details_label = I18n.t('source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate
-      @degree_level_label = "Dernier diplôme obtenu"
+      @degree_level_label = "Dernier diplôme obtenu (ou équivalence)"
       @degree_obtained_in_label = "Dans quel pays ce diplôme a-t-il été obtenu ?"
     when 3
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.pro')
