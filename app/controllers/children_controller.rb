@@ -35,10 +35,10 @@ class ChildrenController < ApplicationController
       flash.now[:error] = "L'inscription de l'enfant a échoué"
       build_child_for_form
       render action: :new
-    elsif !@child.parent1.target_profile? || service.old_parent_target == false
-      redirect_to created_child_path(sms_url_form: service.sms_url_form, parent1: @child.parent1)
-    else
+    elsif service.parent1_with_active_child || @child.parent1.target_profile? || service.old_parent_target == true
       redirect_to created_child_path(sms_url_form: service.sms_url_form)
+    else
+      redirect_to created_child_path(sms_url_form: service.sms_url_form, parent1: @child.parent1)
     end
   end
 
