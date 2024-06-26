@@ -170,24 +170,20 @@ class ProgramMessageService
   def filter_by_supporter
     return unless @supporter_id
 
-    parent1_ids = Parent.joins(parent1_children: :child_support).where(child_support: { supporter_id: @supporter_id }).ids
-    parent2_ids = Parent.joins(parent2_children: :child_support).where(child_support: { supporter_id: @supporter_id }).ids
-    @parent_ids_filtered_by_supporter = (parent1_ids + parent2_ids).uniq
-    @parent_ids &= @parent_ids_filtered_by_supporter
+    parent1_ids = Parent.joins(parent1_children: :child_support).where(id: @parent_ids).where(child_support: { supporter_id: @supporter_id }).ids
+    parent2_ids = Parent.joins(parent2_children: :child_support).where(id: @parent_ids).where(child_support: { supporter_id: @supporter_id }).ids
+    @parent_ids = (parent1_ids + parent2_ids).uniq
   end
 
   def filter_by_group_status
-    parent1_ids = Parent.joins(:parent1_children).where(parent1_children: { group_status: @group_status }).ids
-    parent2_ids = Parent.joins(:parent2_children).where(parent2_children: { group_status: @group_status }).ids
-    @parent_ids_filtered_by_group_status = (parent1_ids + parent2_ids).uniq
-    @parent_ids &= @parent_ids_filtered_by_group_status
+    parent1_ids = Parent.joins(:parent1_children).where(id: @parent_ids).where(parent1_children: { group_status: @group_status }).ids
+    parent2_ids = Parent.joins(:parent2_children).where(id: @parent_ids).where(parent2_children: { group_status: @group_status }).ids
+    @parent_ids = (parent1_ids + parent2_ids).uniq
   end
 
   def find_parent_ids_from_groups
     Group.includes(:children).where(id: @group_ids).find_each do |group|
       group.children.each do |child|
-        next unless child.group_status == 'active'
-
         @parent_ids << child.parent1_id if child.parent1_id && child.should_contact_parent1
         @parent_ids << child.parent2_id if child.parent2_id && child.should_contact_parent2
       end
