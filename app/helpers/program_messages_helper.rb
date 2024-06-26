@@ -20,14 +20,14 @@ module ProgramMessagesHelper
 
   def child_age_range_for_module_zero(parent_decorated)
     case parent_decorated.object.current_child&.months
-    when 4..9
-      '4-9'
-    when 10..15
-      '10-15'
-    when 16..23
-      '16-23'
-    when 24..31
-      '24-31'
+    when 4..10
+      '4-10'
+    when 11..16
+      '11-16'
+    when 17..22
+      '17-22'
+    when 23..31
+      '23-31'
     end
   end
 
