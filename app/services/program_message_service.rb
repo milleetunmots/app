@@ -5,7 +5,7 @@ class ProgramMessageService
 
   attr_reader :errors
 
-  def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil)
+  def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'])
     @planned_timestamp = ActiveSupport::TimeZone['Europe/Paris'].parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []
     @message = message
@@ -22,6 +22,7 @@ class ProgramMessageService
     @event_params = {}
     @invalid_parent_ids = []
     @supporter_id = supporter.nil? ? nil : supporter.to_i
+    @group_status = group_status
     @errors = []
   end
 
@@ -39,6 +40,7 @@ class ProgramMessageService
     find_parent_ids_from_groups
     find_parent_ids_from_children
     filter_by_supporter
+    filter_by_group_status
     verify_parent_and_children_validity
 
     return self if @errors.any?
@@ -172,6 +174,13 @@ class ProgramMessageService
     parent2_ids = Parent.joins(parent2_children: :child_support).where(child_support: { supporter_id: @supporter_id }).ids
     @parent_ids_filtered_by_supporter = (parent1_ids + parent2_ids).uniq
     @parent_ids &= @parent_ids_filtered_by_supporter
+  end
+
+  def filter_by_group_status
+    parent1_ids = Parent.joins(:parent1_children).where(parent1_children: { group_status: @group_status }).ids
+    parent2_ids = Parent.joins(:parent2_children).where(parent2_children: { group_status: @group_status }).ids
+    @parent_ids_filtered_by_group_status = (parent1_ids + parent2_ids).uniq
+    @parent_ids &= @parent_ids_filtered_by_group_status
   end
 
   def find_parent_ids_from_groups
