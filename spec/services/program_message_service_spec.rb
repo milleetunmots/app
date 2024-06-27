@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe ProgramMessageService do
 
   let_it_be(:parent_1, reload: true) { FactoryBot.create(:parent, first_name: 'Sami') }
-  let_it_be(:parent_2, reload: true) { FactoryBot.create(:parent, phone_number: '+33563333333', first_name: 'Fabien') }
+  let_it_be(:parent_2, reload: true) { FactoryBot.create(:parent, phone_number: '+33663333333', first_name: 'Fabien') }
   let_it_be(:parent_3, reload: true) { FactoryBot.create(:parent, first_name: 'Aristide') }
 
   let_it_be(:tag_1, reload: true) { FactoryBot.create(:tag, name: 'giga') }
