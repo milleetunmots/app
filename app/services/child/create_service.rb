@@ -2,7 +2,7 @@ class Child
 
   class CreateService
 
-    attr_reader :child, :sms_url_form, :old_parent_target
+    attr_reader :child, :sms_url_form, :old_parent_target, :parent1_with_active_child
 
     def initialize(attributes, siblings_attributes, parent1_attributes, parent2_attributes, registration_origin, children_source_attributes, child_min_birthdate)
       @attributes = attributes
@@ -57,6 +57,7 @@ class Child
                  Child.new(@attributes.merge(parent1_attributes: parent1_attributes, parent2_attributes: parent2_attributes))
                end
       @old_parent_target = old_parent_registration&.parent1&.target_profile?
+      @parent1_with_active_child = Child.includes(:parent1).where(parent1: { phone_number_national: @child.parent1.phone_number }).where(group_status: 'active').where.not(id: @child.id).any?
     end
 
     def set_should_contact_parent
@@ -140,16 +141,16 @@ class Child
     end
 
     def add_target_tag
-      if @old_parent_target == false || !@child.parent1.target_profile?
-        @child.tag_list.add('filtre-diplome-KO')
-        @child.parent1.tag_list.add('filtre-diplome-KO')
-        @child.parent2&.tag_list&.add('filtre-diplome-KO')
-        @child.child_support.tag_list.add('filtre-diplome-KO')
-      else
+      if @old_parent_target == true || @child.parent1.target_profile? || @parent1_with_active_child
         @child.tag_list.add('filtre-diplome-OK')
         @child.parent1.tag_list.add('filtre-diplome-OK')
         @child.parent2&.tag_list&.add('filtre-diplome-OK')
         @child.child_support.tag_list.add('filtre-diplome-OK')
+      else
+        @child.tag_list.add('filtre-diplome-KO')
+        @child.parent1.tag_list.add('filtre-diplome-KO')
+        @child.parent2&.tag_list&.add('filtre-diplome-KO')
+        @child.child_support.tag_list.add('filtre-diplome-KO')
       end
       @child.save
       @child.parent1.save
