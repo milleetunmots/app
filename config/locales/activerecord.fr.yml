@@ -529,7 +529,8 @@ fr:
         x: Inconnu
       parent/degree_level_at_registration:
         no_degree: Sans diplôme
-        bep_cap: Brevet BEP ou CAP
+        brevet: Brevet
+        bep_cap: BEP ou CAP
         bac: Bac
         bac+1: Bac + 1
         bac+2: Bac + 2

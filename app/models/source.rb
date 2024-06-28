@@ -40,7 +40,7 @@ class Source < ApplicationRecord
 
   scope :by_pmi, -> { where(channel: 'pmi').order(:department) }
   scope :by_caf, -> { where(channel: 'caf').order(:department) }
-  scope :by_bao, -> { where(channel: 'bao').order(:name) }
+  scope :by_bao, -> { where(channel: 'bao').order(:id) }
   scope :by_local_partner, -> { where(channel: 'local_partner').order(:name) }
   scope :by_utm, ->(utm) { where(utm: utm) }
 
