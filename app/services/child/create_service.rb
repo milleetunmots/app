@@ -2,7 +2,7 @@ class Child
 
   class CreateService
 
-    attr_reader :child, :sms_url_form, :old_parent_target, :parent1_with_active_child
+    attr_reader :child, :sms_url_form, :target
 
     def initialize(attributes, siblings_attributes, parent1_attributes, parent2_attributes, registration_origin, children_source_attributes, child_min_birthdate)
       @attributes = attributes
@@ -21,6 +21,7 @@ class Child
       build_siblings
       detect_errors
       if @child.errors.empty? && @child.save
+        @target = target?
         add_target_tag_and_handle_children_not_supported
         ChildrenSource.create(@children_source_attributes.merge(child_id: @child.id))
         send_form_by_sms
@@ -55,8 +56,8 @@ class Child
                else
                  Child.new(@attributes.merge(parent1_attributes: parent1_attributes, parent2_attributes: parent2_attributes))
                end
-      @old_parent_target = old_parent_registration&.parent1&.target_profile?
-      @parent1_with_active_child = Child.includes(:parent1).where(parent1: { phone_number_national: @child.parent1.phone_number }).where(group_status: 'active').where.not(id: @child.id).any?
+      @old_parent_target = old_parent_registration&.target_profile?
+      @parent1_with_supported_child = Child.includes(:parent1).where(parent1: { phone_number_national: @child.parent1.phone_number }).where(group_status: %w[active disengaged stopped]).where.not(id: @child.id).any?
     end
 
     def set_should_contact_parent
@@ -140,16 +141,10 @@ class Child
     end
 
     def add_target_tag_and_handle_children_not_supported
-      if @old_parent_target == true || @child.parent1.target_profile? || @parent1_with_active_child
-        @child.tag_list.add('filtre-diplome-OK')
-        @child.parent1.tag_list.add('filtre-diplome-OK')
-        @child.parent2&.tag_list&.add('filtre-diplome-OK')
-        @child.child_support.tag_list.add('filtre-diplome-OK')
+      if @target
+        add_target_tag('filtre-diplome-OK')
       else
-        @child.tag_list.add('filtre-diplome-KO')
-        @child.parent1.tag_list.add('filtre-diplome-KO')
-        @child.parent2&.tag_list&.add('filtre-diplome-KO')
-        @child.child_support.tag_list.add('filtre-diplome-KO')
+        add_target_tag('filtre-diplome-KO')
         set_not_supported
       end
       @child.save
@@ -173,7 +168,7 @@ class Child
 
       media = Media::Form.find_or_create_by(name: 'Lien - non accompagnement', url: ENV['NOT_SUPPORTED_LINK'])
       message = "1001mots : Bonjour ! Suite à votre demande d'inscription, nous regrettons de ne pas pouvoir accompagner votre enfant. Les places sont limitées et attribuées selon des critères spécifiques. Toutefois, nous avons préparé un ensemble de conseils qui peuvent aider votre enfant à développer son langage. Vous les trouverez ici : {URL}"
-      ProgramMessageService.new(Time.zone.now.next_day(3).strftime('%d-%m-%Y'), '12:30', ["child.#{@child.id}"], message, nil, media.redirection_target.id).call
+      ProgramMessageService.new(Time.zone.now.next_day(3).strftime('%d-%m-%Y'), '12:30', ["child.#{@child.id}"], message, nil, media.redirection_target.id, false, nil, nil, ['not_supported']).call
     end
 
     def create_parent_registration
@@ -190,10 +185,25 @@ class Child
     end
 
     def old_parent_registration
-      ParentsRegistration.find_by(
+      ParentsRegistration.where(
         parent1_phone_number: @child.parent1.phone_number,
         parent2_phone_number: @child.parent2&.phone_number
-      )
+      ).first
+    end
+
+    def target?
+      return true if @parent1_with_supported_child
+
+      return false if @old_parent_target == false
+
+      @child.parent1.target_profile?
+    end
+
+    def add_target_tag(tag)
+      @child.tag_list.add(tag)
+      @child.parent1.tag_list.add(tag)
+      @child.parent2&.tag_list&.add(tag)
+      @child.child_support.tag_list.add(tag)
     end
   end
 end
