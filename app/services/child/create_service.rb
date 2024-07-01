@@ -21,8 +21,7 @@ class Child
       build_siblings
       detect_errors
       if @child.errors.empty? && @child.save
-        add_target_tag
-        set_not_supported
+        add_target_tag_and_handle_children_not_supported
         ChildrenSource.create(@children_source_attributes.merge(child_id: @child.id))
         send_form_by_sms
         send_not_supported_sms
@@ -140,7 +139,7 @@ class Child
       overseas_child_validation
     end
 
-    def add_target_tag
+    def add_target_tag_and_handle_children_not_supported
       if @old_parent_target == true || @child.parent1.target_profile? || @parent1_with_active_child
         @child.tag_list.add('filtre-diplome-OK')
         @child.parent1.tag_list.add('filtre-diplome-OK')
@@ -151,6 +150,7 @@ class Child
         @child.parent1.tag_list.add('filtre-diplome-KO')
         @child.parent2&.tag_list&.add('filtre-diplome-KO')
         @child.child_support.tag_list.add('filtre-diplome-KO')
+        set_not_supported
       end
       @child.save
       @child.parent1.save
@@ -163,6 +163,7 @@ class Child
 
       @child.siblings.each do |child|
         child.group_status = 'not_supported'
+        child.group = nil
         child.save
       end
     end

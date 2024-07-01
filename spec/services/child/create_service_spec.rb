@@ -10,7 +10,7 @@ RSpec.describe Child::CreateService do
       city_name: Faker::Address.city,
       first_name: Faker::Name.first_name,
       last_name: Faker::Name.last_name,
-      phone_number: Faker::PhoneNumber.phone_number,
+      phone_number: "066802#{Faker::Number.number(digits: 4)}",
       gender: 'f'
     }
   }
@@ -100,7 +100,7 @@ RSpec.describe Child::CreateService do
         {
           first_name: Faker::Name.first_name,
           last_name: Faker::Name.last_name,
-          phone_number: Faker::PhoneNumber.phone_number,
+          phone_number: "066802#{Faker::Number.number(digits: 4)}",
           gender: 'm'
         }
       }
@@ -115,7 +115,7 @@ RSpec.describe Child::CreateService do
         {
           first_name: Faker::Name.first_name,
           last_name: Faker::Name.last_name,
-          phone_number: Faker::PhoneNumber.phone_number,
+          phone_number: "066802#{Faker::Number.number(digits: 4)}",
           gender: 'm'
         }
       }
@@ -136,7 +136,7 @@ RSpec.describe Child::CreateService do
         {
           first_name: Faker::Name.first_name,
           last_name: Faker::Name.last_name,
-          phone_number: Faker::PhoneNumber.phone_number,
+          phone_number: "066802#{Faker::Number.number(digits: 4)}",
           gender: 'm'
         }
       }

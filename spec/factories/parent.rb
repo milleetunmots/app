@@ -50,7 +50,7 @@ FactoryBot.define do
     address { Faker::Address.street_address }
     city_name { Faker::Address.city }
     postal_code { Faker::Address.postcode }
-    phone_number { Faker::PhoneNumber.phone_number }
+    phone_number { "066802#{Faker::Number.number(digits: 4)}" }
     terms_accepted_at { Faker::Date.backward }
   end
 end
