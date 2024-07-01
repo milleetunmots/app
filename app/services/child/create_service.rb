@@ -56,7 +56,7 @@ class Child
                else
                  Child.new(@attributes.merge(parent1_attributes: parent1_attributes, parent2_attributes: parent2_attributes))
                end
-      @old_parent_target = old_parent_registration&.parent1&.target_profile?
+      @old_parent_target = old_parent_registration&.target_profile
       @parent1_with_active_child = Child.includes(:parent1).where(parent1: { phone_number_national: @child.parent1.phone_number }).where(group_status: 'active').where.not(id: @child.id).any?
     end
 
@@ -189,10 +189,10 @@ class Child
     end
 
     def old_parent_registration
-      ParentsRegistration.find_by(
+      ParentsRegistration.where(
         parent1_phone_number: @child.parent1.phone_number,
         parent2_phone_number: @child.parent2&.phone_number
-      )
+      ).first
     end
   end
 end
