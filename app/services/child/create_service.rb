@@ -2,7 +2,7 @@ class Child
 
   class CreateService
 
-    attr_reader :child, :sms_url_form, :target
+    attr_reader :child, :sms_url_form, :parent1_target_profile
 
     def initialize(attributes, siblings_attributes, parent1_attributes, parent2_attributes, registration_origin, children_source_attributes, child_min_birthdate)
       @attributes = attributes
@@ -12,17 +12,19 @@ class Child
       @parent1_attributes = parent1_attributes.merge(terms_accepted_at: Time.zone.now)
       @parent2_attributes = parent2_attributes.merge(terms_accepted_at: Time.zone.now)
       @children_source_attributes = children_source_attributes
+      @parent1_with_supported_child = Child.includes(:parent1).where(parent1: { phone_number_national: @parent1_attributes[:phone_number] }).where(group_status: %w[active disengaged stopped]).any?
+      @old_parent_target = old_parent_registration&.target_profile?
+      @parent1_target_profile = parent1_target_profile?
     end
 
     def call
       add_registration_origin_as_tag
+      add_target_tag_and_handle_children_not_supported
       build
       set_should_contact_parent
       build_siblings
       detect_errors
       if @child.errors.empty? && @child.save
-        @target = target?
-        add_target_tag_and_handle_children_not_supported
         ChildrenSource.create(@children_source_attributes.merge(child_id: @child.id))
         send_form_by_sms
         send_not_supported_sms
@@ -38,26 +40,67 @@ class Child
 
     private
 
+    def old_parent_registration
+      ParentsRegistration.where(
+        parent1_phone_number: @parent1_attributes[:phone_number],
+        parent2_phone_number: @parent2_attributes[:phone_number] == '' ? nil : @parent2_attributes[:phone_number]
+      ).first
+    end
+
+    def parent1_target_profile?
+      return true if @parent1_with_supported_child
+
+      return false if @old_parent_target == false
+
+      return true if @parent1_attributes[:degree_country_at_registration] == 'other'
+
+      @parent1_attributes[:degree_level_at_registration].in? %w[no_degree brevet bep_cap bac]
+    end
+
     def add_registration_origin_as_tag
       # add tags for bao / local_partner ?
       @attributes[:tag_list] = case @registration_origin
-                               when 3 then 'form-pro'
-                               when 2 then 'form-2'
-                               else 'site'
+                               when 3 then ['form-pro']
+                               when 2 then ['form-2']
+                               else ['site']
                                end
+    end
+
+    def add_target_tag_and_handle_children_not_supported
+      if @parent1_target_profile
+        add_target_tag('filtre-diplome-OK')
+      else
+        add_target_tag('filtre-diplome-KO')
+        set_not_supported
+      end
+    end
+
+    def add_target_tag(tag)
+      @attributes[:tag_list] ||= []
+      @parent1_attributes[:tag_list] ||= []
+      @parent2_attributes[:tag_list] ||= []
+      @attributes[:child_support_attributes] ||= {}
+      @attributes[:child_support_attributes][:tag_list] ||= []
+      @attributes[:tag_list] << tag
+      @parent1_attributes[:tag_list] << tag
+      @parent2_attributes[:tag_list] << tag
+      @attributes[:child_support_attributes][:tag_list] << tag
+    end
+
+    def set_not_supported
+      return if 'filtre-diplome-OK'.in? @attributes[:tag_list]
+
+      @attributes[:group_status] = 'not_supported'
     end
 
     def build
       parent1_attributes = @parent1_attributes.merge(parent1_present? ? @parent1_attributes : @parent2_attributes)
       parent2_attributes = @parent1_attributes.merge(@parent2_attributes) if parent2_present? && parent1_present?
-
       @child = if parent2_attributes.nil?
                  Child.new(@attributes.merge(parent1_attributes: parent1_attributes))
                else
                  Child.new(@attributes.merge(parent1_attributes: parent1_attributes, parent2_attributes: parent2_attributes))
                end
-      @old_parent_target = old_parent_registration&.target_profile?
-      @parent1_with_supported_child = Child.includes(:parent1).where(parent1: { phone_number_national: @child.parent1.phone_number }).where(group_status: %w[active disengaged stopped]).where.not(id: @child.id).any?
     end
 
     def set_should_contact_parent
@@ -72,8 +115,22 @@ class Child
         attributes[:should_contact_parent1] = @child.should_contact_parent1
         attributes[:should_contact_parent2] = @child.should_contact_parent2
         attributes[:child_support] = @child.child_support
+        attributes[:tag_list] = @child.tag_list
+        attributes[:group_status] = @child.group_status
       end
       @child.siblings.build(@siblings_attributes)
+    end
+
+    def detect_errors
+      @child.valid?
+      Source.exists?(@children_source_attributes[:source_id])
+      if any_parent?
+        parent1_validation if parent1_present?
+        parent2_validation if parent2_present?
+      end
+
+      birthdate_validation
+      overseas_child_validation
     end
 
     def send_form_by_sms
@@ -128,41 +185,6 @@ class Child
                         message: "L'accompagnement 1001 mots n'est pas encore disponible dans votre région. N'hésitez pas à suivre nos actualités sur notre site et notre page facebook !")
     end
 
-    def detect_errors
-      @child.valid?
-      Source.exists?(@children_source_attributes[:source_id])
-      if any_parent?
-        parent1_validation if parent1_present?
-        parent2_validation if parent2_present?
-      end
-
-      birthdate_validation
-      overseas_child_validation
-    end
-
-    def add_target_tag_and_handle_children_not_supported
-      if @target
-        add_target_tag('filtre-diplome-OK')
-      else
-        add_target_tag('filtre-diplome-KO')
-        set_not_supported
-      end
-      @child.save
-      @child.parent1.save
-      @child.parent2&.save
-      @child.child_support.save
-    end
-
-    def set_not_supported
-      return if 'filtre-diplome-OK'.in? @child.tag_list
-
-      @child.siblings.each do |child|
-        child.group_status = 'not_supported'
-        child.group = nil
-        child.save
-      end
-    end
-
     def send_not_supported_sms
       return if 'filtre-diplome-OK'.in? @child.tag_list
 
@@ -174,7 +196,7 @@ class Child
     def create_parent_registration
       parent_registration = ParentsRegistration.new(
         parent1: @child.parent1,
-        target_profile: @child.parent1.target_profile?,
+        target_profile: @parent1_target_profile,
         parent1_phone_number: @child.parent1.phone_number_national
       )
       if @child.parent2
@@ -182,28 +204,6 @@ class Child
         parent_registration.parent2_phone_number = @child.parent2.phone_number_national
       end
       parent_registration.save!
-    end
-
-    def old_parent_registration
-      ParentsRegistration.where(
-        parent1_phone_number: @child.parent1.phone_number,
-        parent2_phone_number: @child.parent2&.phone_number
-      ).first
-    end
-
-    def target?
-      return true if @parent1_with_supported_child
-
-      return false if @old_parent_target == false
-
-      @child.parent1.target_profile?
-    end
-
-    def add_target_tag(tag)
-      @child.tag_list.add(tag)
-      @child.parent1.tag_list.add(tag)
-      @child.parent2&.tag_list&.add(tag)
-      @child.child_support.tag_list.add(tag)
     end
   end
 end
