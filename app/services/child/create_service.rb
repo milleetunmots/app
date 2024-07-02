@@ -12,6 +12,8 @@ class Child
       @parent1_attributes = parent1_attributes.merge(terms_accepted_at: Time.zone.now)
       @parent2_attributes = parent2_attributes.merge(terms_accepted_at: Time.zone.now)
       @children_source_attributes = children_source_attributes
+      return unless @registration_origin == 4
+
       @parent1_with_supported_child = Child.includes(:parent1).where(parent1: { phone_number_national: @parent1_attributes[:phone_number] }).where(group_status: %w[active disengaged stopped]).any?
       @old_parent_target = old_parent_registration&.target_profile?
       @parent1_target_profile = parent1_target_profile?
@@ -67,6 +69,8 @@ class Child
     end
 
     def add_target_tag_and_handle_children_not_supported
+      return unless @registration_origin == 4
+
       if @parent1_target_profile
         add_target_tag('filtre-diplome-OK')
       else
@@ -116,6 +120,8 @@ class Child
         attributes[:should_contact_parent2] = @child.should_contact_parent2
         attributes[:child_support] = @child.child_support
         attributes[:tag_list] = @child.tag_list
+        next unless @registration_origin == 4
+
         attributes[:group_status] = @child.group_status
       end
       @child.siblings.build(@siblings_attributes)
@@ -194,6 +200,8 @@ class Child
     end
 
     def create_parent_registration
+      return unless @registration_origin == 4
+
       parent_registration = ParentsRegistration.new(
         parent1: @child.parent1,
         target_profile: @parent1_target_profile,
