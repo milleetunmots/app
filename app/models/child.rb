@@ -658,6 +658,8 @@ class Child < ApplicationRecord
   def add_to_group
     return unless group.nil?
 
+    return unless group_status == 'waiting'
+
     Child::AddToGroupService.new(id).call
   end
 
@@ -666,8 +668,6 @@ class Child < ApplicationRecord
 
     child_support.current_child
   end
-
-
 
   # --------------------------------------------------------------------------
   # ransack

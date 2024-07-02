@@ -35,7 +35,7 @@ class ChildrenController < ApplicationController
       flash.now[:error] = "L'inscription de l'enfant a échoué"
       build_child_for_form
       render action: :new
-    elsif service.target
+    elsif service.parent1_target_profile || current_registration_origin != 4
       redirect_to created_child_path(sms_url_form: service.sms_url_form)
     else
       redirect_to created_child_path(sms_url_form: service.sms_url_form, parent1: @child.parent1)
@@ -94,9 +94,7 @@ class ChildrenController < ApplicationController
   private
 
   def child_creation_params
-    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, child_support_attributes: %i[important_information])
-    result.delete(:child_support_attributes) if result[:child_support_attributes][:important_information].blank?
-    result
+    params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, child_support_attributes: %i[important_information])
   end
 
   def child_update_params

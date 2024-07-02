@@ -288,14 +288,6 @@ class Parent < ApplicationRecord
     children_name_and_birthdate.eql? parent.children_name_and_birthdate
   end
 
-  def target_profile?
-    return true if degree_country_at_registration.nil? || degree_level_at_registration.nil?
-
-    return true if degree_country_at_registration == 'other'
-
-    degree_level_at_registration.in? %w[no_degree brevet bep_cap bac]
-  end
-
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------
