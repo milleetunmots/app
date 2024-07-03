@@ -35,8 +35,10 @@ class ChildrenController < ApplicationController
       flash.now[:error] = "L'inscription de l'enfant a échoué"
       build_child_for_form
       render action: :new
-    else
+    elsif service.parent1_target_profile || current_registration_origin != 4
       redirect_to created_child_path(sms_url_form: service.sms_url_form)
+    else
+      redirect_to created_child_path(sms_url_form: service.sms_url_form, parent1: @child.parent1)
     end
   end
 
@@ -48,10 +50,16 @@ class ChildrenController < ApplicationController
       @widget = false
       @new_link = new_local_partner_registration_path
     when 4
-      @message = I18n.t('inscription_success.without_widget', typeform_url: params[:sms_url_form])
-      @again = true
       @widget = false
-      @new_link = new_bao_registration_path
+      if params[:parent1]
+        @again = false
+        @with_parent_no_target = true
+        @message = I18n.t('inscription_success.with_parent_no_target')
+      else
+        @message = I18n.t('inscription_success.without_widget', typeform_url: params[:sms_url_form])
+        @again = true
+        @new_link = new_bao_registration_path
+      end
     when 3
       # for this form we keep the registration_origin
       # so that multiple children can be registered
@@ -86,9 +94,7 @@ class ChildrenController < ApplicationController
   private
 
   def child_creation_params
-    result = params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, child_support_attributes: %i[important_information])
-    result.delete(:child_support_attributes) if result[:child_support_attributes][:important_information].blank?
-    result
+    params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, child_support_attributes: %i[important_information])
   end
 
   def child_update_params
@@ -96,7 +102,7 @@ class ChildrenController < ApplicationController
   end
 
   def parent1_params
-    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name first_name last_name phone_number gender])[:parent1_attributes]
+    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name first_name last_name phone_number gender degree_level_at_registration degree_country_at_registration])[:parent1_attributes]
   end
 
   def parent2_params
@@ -166,6 +172,8 @@ class ChildrenController < ApplicationController
       @source_label = I18n.t('source_label.parent')
       @source_details_label = I18n.t('source_details_label.parent')
       @child_min_birthdate = Child.min_birthdate
+      @degree_level_label = "Dernier diplôme obtenu (ou équivalence)"
+      @degree_obtained_in_label = "Dans quel pays ce diplôme a-t-il été obtenu ?"
     when 3
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.pro')
       @source_collection = :pmi

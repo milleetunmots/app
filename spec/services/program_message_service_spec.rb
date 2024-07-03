@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe ProgramMessageService do
 
   let_it_be(:parent_1, reload: true) { FactoryBot.create(:parent, first_name: 'Sami') }
-  let_it_be(:parent_2, reload: true) { FactoryBot.create(:parent, phone_number: '+33563333333', first_name: 'Fabien') }
+  let_it_be(:parent_2, reload: true) { FactoryBot.create(:parent, phone_number: '+33663333333', first_name: 'Fabien') }
   let_it_be(:parent_3, reload: true) { FactoryBot.create(:parent, first_name: 'Aristide') }
 
   let_it_be(:tag_1, reload: true) { FactoryBot.create(:tag, name: 'giga') }
@@ -45,149 +45,156 @@ RSpec.describe ProgramMessageService do
       to_return(status: 200, body: '{}')
   end
 
-  # context 'when a tag is given' do
-  #   it 'calls SpotHit::SendSmsService with only parent tagged by it' do
-  #     expect(SpotHit::SendSmsService).to(
-  #       receive(:new).
-  #       with(
-  #         [parent_3.id],
-  #         Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
-  #         message
-  #       ).
-  #       and_call_original
-  #     )
-  #
-  #     ProgramMessageService.new(
-  #       Time.zone.today,
-  #       Time.zone.now.strftime('%H:%M'),
-  #       ["tag.#{tag_2.id}"],
-  #       message
-  #     ).call
-  #   end
-  # end
+  context 'when a tag is given' do
+    it 'calls SpotHit::SendSmsService with only parent tagged by it' do
+      expect(SpotHit::SendSmsService).to(
+        receive(:new).
+        with(
+          [parent_3.id],
+          Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          message,
+          event_params: {}
+        ).
+        and_call_original
+      )
 
-  # context 'when parents are given' do
-  #   it 'calls SpotHit::SendSmsService with parents given only' do
-  #     expect(SpotHit::SendSmsService).to(
-  #       receive(:new).
-  #       with(
-  #         [parent_1.id, parent_3.id],
-  #         Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
-  #         message
-  #       ).
-  #       and_call_original
-  #     )
-  #
-  #     ProgramMessageService.new(
-  #       Time.zone.today,
-  #       Time.zone.now.strftime('%H:%M'),
-  #       ["parent.#{parent_1.id}", "parent.#{parent_3.id}"],
-  #       message
-  #     ).call
-  #   end
-  # end
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["tag.#{tag_2.id}"],
+        message
+      ).call
+    end
+  end
 
-  # context 'when group is given' do
-  #   it 'calls SpotHit::SendSmsService with parents that should be contacted from group only' do
-  #     expect(SpotHit::SendSmsService).to(
-  #       receive(:new).
-  #       with(
-  #         [parent_2.id],
-  #         Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
-  #         message
-  #       ).
-  #       and_call_original
-  #     )
-  #
-  #     ProgramMessageService.new(
-  #       Time.zone.today,
-  #       Time.zone.now.strftime('%H:%M'),
-  #       ["group.#{group.id}"],
-  #       message
-  #     ).call
-  #   end
-  # end
+  context 'when parents are given' do
+    it 'calls SpotHit::SendSmsService with parents given only' do
+      expect(SpotHit::SendSmsService).to(
+        receive(:new).
+        with(
+          [parent_3.id],
+          Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          message,
+          event_params: {}
+        ).
+        and_call_original
+      )
 
-  # context 'when parent and variable are given' do
-  #   it 'calls SpotHit::SendSmsService with parents given only' do
-  #     expect(SpotHit::SendSmsService).to(
-  #       receive(:new).
-  #       with(
-  #         { parent_2.id.to_s => {'PRENOM_ENFANT' => parent_2.current_child.first_name} },
-  #         Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
-  #         'N\'oubliez pas que {PRENOM_ENFANT} doit faire du sport.'
-  #       ).
-  #       and_call_original
-  #     )
-  #
-  #     ProgramMessageService.new(
-  #       Time.zone.today,
-  #       Time.zone.now.strftime('%H:%M'),
-  #       ["parent.#{parent_2.id}"],
-  #       'N\'oubliez pas que {PRENOM_ENFANT} doit faire du sport.',
-  #     ).call
-  #   end
-  # end
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_3.id}"],
+        message
+      ).call
+    end
+  end
 
-  # context 'when parent and url are given' do
-  #   before do
-  #     allow_any_instance_of(RedirectionUrlDecorator).to(
-  #       receive(:visit_url).and_return(
-  #         'http://localhost:3000/r/95/c6'
-  #       )
-  #     )
-  #   end
-  #
-  #   it 'calls SpotHit::SendSmsService with parents given only and url place in the message' do
-  #     expect(SpotHit::SendSmsService).to(
-  #       receive(:new).
-  #       with(
-  #         { parent_2.id.to_s => {
-  #           'PRENOM_ENFANT' => parent_2.current_child.first_name,
-  #           'URL' => 'http://localhost:3000/r/95/c6'
-  #           }
-  #         },
-  #         Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
-  #         'N\'oubliez pas que {URL} doit faire du sport.'
-  #       ).
-  #       and_call_original
-  #     )
-  #
-  #     ProgramMessageService.new(
-  #       Time.zone.today,
-  #       Time.zone.now.strftime('%H:%M'),
-  #       ["parent.#{parent_2.id}"],
-  #       'N\'oubliez pas que {URL} doit faire du sport.',
-  #       nil,
-  #       redirection_target.id
-  #     ).call
-  #   end
-  #
-  #   it 'calls SpotHit::SendSmsService with parents given only and url not place in the message' do
-  #     expect(SpotHit::SendSmsService).to(
-  #       receive(:new).
-  #       with(
-  #         { parent_2.id.to_s => {
-  #           'PRENOM_ENFANT' => parent_2.current_child.first_name,
-  #           'URL' => 'http://localhost:3000/r/95/c6'
-  #           }
-  #         },
-  #         Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
-  #         'N\'oubliez l\'importance du sport. {URL}'
-  #       ).
-  #       and_call_original
-  #     )
-  #
-  #     ProgramMessageService.new(
-  #       Time.zone.today,
-  #       Time.zone.now.strftime('%H:%M'),
-  #       ["parent.#{parent_2.id}"],
-  #       'N\'oubliez l\'importance du sport.',
-  #       nil,
-  #       redirection_target.id
-  #     ).call
-  #   end
-  # end
+  context 'when group is given' do
+    it 'calls SpotHit::SendSmsService with parents that should be contacted from group only' do
+      expect(SpotHit::SendSmsService).to(
+        receive(:new).
+        with(
+          [parent_2.id],
+          Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          message,
+          event_params: {}
+        ).
+        and_call_original
+      )
+
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["group.#{group.id}"],
+        message
+      ).call
+    end
+  end
+
+  context 'when parent and variable are given' do
+    it 'calls SpotHit::SendSmsService with parents given only' do
+      expect(SpotHit::SendSmsService).to(
+        receive(:new).
+        with(
+          { parent_2.id.to_s => {'CHILD_SUPPORT_ID' => parent_2.current_child.child_support_id, 'PRENOM_ENFANT' => parent_2.current_child.first_name} },
+          Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          'N\'oubliez pas que {PRENOM_ENFANT} doit faire du sport.', event_params: {}
+        ).
+        and_call_original
+      )
+
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_2.id}"],
+        'N\'oubliez pas que {PRENOM_ENFANT} doit faire du sport.',
+      ).call
+    end
+  end
+
+  context 'when parent and url are given' do
+    before do
+      allow_any_instance_of(RedirectionUrlDecorator).to(
+        receive(:visit_url).and_return(
+          'http://localhost:3000/r/95/c6'
+        )
+      )
+    end
+
+    it 'calls SpotHit::SendSmsService with parents given only and url place in the message' do
+      expect(SpotHit::SendSmsService).to(
+        receive(:new).
+        with(
+          { parent_2.id.to_s => {
+            'CHILD_SUPPORT_ID' => parent_2.current_child.child_support_id,
+            'PRENOM_ENFANT' => parent_2.current_child.first_name,
+            'URL' => 'http://localhost:3000/r/95/c6'
+            }
+          },
+          Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          'N\'oubliez pas que {URL} doit faire du sport.',
+          event_params: {}
+        ).
+        and_call_original
+      )
+
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_2.id}"],
+        'N\'oubliez pas que {URL} doit faire du sport.',
+        nil,
+        redirection_target.id
+      ).call
+    end
+
+    it 'calls SpotHit::SendSmsService with parents given only and url not place in the message' do
+      expect(SpotHit::SendSmsService).to(
+        receive(:new).
+        with(
+          { parent_2.id.to_s => {
+            'CHILD_SUPPORT_ID' => parent_2.current_child.child_support_id,
+            'PRENOM_ENFANT' => parent_2.current_child.first_name,
+            'URL' => 'http://localhost:3000/r/95/c6'
+            }
+          },
+          Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          'N\'oubliez l\'importance du sport. {URL}',
+          event_params: {}
+        ).
+        and_call_original
+      )
+
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_2.id}"],
+        'N\'oubliez l\'importance du sport.',
+        nil,
+        redirection_target.id
+      ).call
+    end
+  end
 
 
   context 'when no recipients found' do

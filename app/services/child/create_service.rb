@@ -2,7 +2,7 @@ class Child
 
   class CreateService
 
-    attr_reader :child, :sms_url_form
+    attr_reader :child, :sms_url_form, :parent1_target_profile
 
     def initialize(attributes, siblings_attributes, parent1_attributes, parent2_attributes, registration_origin, children_source_attributes, child_min_birthdate)
       @attributes = attributes
@@ -12,10 +12,16 @@ class Child
       @parent1_attributes = parent1_attributes.merge(terms_accepted_at: Time.zone.now)
       @parent2_attributes = parent2_attributes.merge(terms_accepted_at: Time.zone.now)
       @children_source_attributes = children_source_attributes
+      return unless @registration_origin == 4
+
+      @parent1_with_supported_child = Child.includes(:parent1).where(parent1: { phone_number_national: @parent1_attributes[:phone_number] }).where(group_status: %w[active disengaged stopped]).any?
+      @old_parent_target = old_parent_registration&.target_profile?
+      @parent1_target_profile = parent1_target_profile?
     end
 
     def call
       add_registration_origin_as_tag
+      add_target_tag_and_handle_children_not_supported
       build
       set_should_contact_parent
       build_siblings
@@ -23,29 +29,77 @@ class Child
       if @child.errors.empty? && @child.save
         ChildrenSource.create(@children_source_attributes.merge(child_id: @child.id))
         send_form_by_sms
+        send_not_supported_sms
         @child.siblings.each do |sibling|
           next if sibling.id.eql?(@child.id)
+
           ChildrenSource.create(@children_source_attributes.merge(child_id: sibling.id))
         end
+        create_parent_registration
       end
       self
     end
 
     private
 
+    def old_parent_registration
+      ParentsRegistration.where(
+        parent1_phone_number: @parent1_attributes[:phone_number],
+        parent2_phone_number: @parent2_attributes[:phone_number] == '' ? nil : @parent2_attributes[:phone_number]
+      ).first
+    end
+
+    def parent1_target_profile?
+      return true if @parent1_with_supported_child
+
+      return false if @old_parent_target == false
+
+      return true if @parent1_attributes[:degree_country_at_registration] == 'other'
+
+      @parent1_attributes[:degree_level_at_registration].in? %w[no_degree brevet bep_cap bac]
+    end
+
     def add_registration_origin_as_tag
       # add tags for bao / local_partner ?
       @attributes[:tag_list] = case @registration_origin
-                               when 3 then 'form-pro'
-                               when 2 then 'form-2'
-                               else 'site'
+                               when 3 then ['form-pro']
+                               when 2 then ['form-2']
+                               else ['site']
                                end
+    end
+
+    def add_target_tag_and_handle_children_not_supported
+      return unless @registration_origin == 4
+
+      if @parent1_target_profile
+        add_target_tag('filtre-diplome-OK')
+      else
+        add_target_tag('filtre-diplome-KO')
+        set_not_supported
+      end
+    end
+
+    def add_target_tag(tag)
+      @attributes[:tag_list] ||= []
+      @parent1_attributes[:tag_list] ||= []
+      @parent2_attributes[:tag_list] ||= []
+      @attributes[:child_support_attributes] ||= {}
+      @attributes[:child_support_attributes][:tag_list] ||= []
+      @attributes[:tag_list] << tag
+      @parent1_attributes[:tag_list] << tag
+      @parent2_attributes[:tag_list] << tag
+      @attributes[:child_support_attributes][:tag_list] << tag
+    end
+
+    def set_not_supported
+      return if 'filtre-diplome-OK'.in? @attributes[:tag_list]
+
+      @attributes[:group_status] = 'not_supported'
     end
 
     def build
       parent1_attributes = @parent1_attributes.merge(parent1_present? ? @parent1_attributes : @parent2_attributes)
       parent2_attributes = @parent1_attributes.merge(@parent2_attributes) if parent2_present? && parent1_present?
-
       @child = if parent2_attributes.nil?
                  Child.new(@attributes.merge(parent1_attributes: parent1_attributes))
                else
@@ -65,11 +119,29 @@ class Child
         attributes[:should_contact_parent1] = @child.should_contact_parent1
         attributes[:should_contact_parent2] = @child.should_contact_parent2
         attributes[:child_support] = @child.child_support
+        attributes[:tag_list] = @child.tag_list
+        next unless @registration_origin == 4
+
+        attributes[:group_status] = @child.group_status
       end
       @child.siblings.build(@siblings_attributes)
     end
 
+    def detect_errors
+      @child.valid?
+      Source.exists?(@children_source_attributes[:source_id])
+      if any_parent?
+        parent1_validation if parent1_present?
+        parent2_validation if parent2_present?
+      end
+
+      birthdate_validation
+      overseas_child_validation
+    end
+
     def send_form_by_sms
+      return if 'filtre-diplome-KO'.in? @child.tag_list
+
       @sms_url_form = "#{ENV.fetch('TYPEFORM_URL', nil)}#child_support_id=#{@child.child_support.id}"
       message = "1001mots: Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{@sms_url_form}"
 
@@ -119,16 +191,27 @@ class Child
                         message: "L'accompagnement 1001 mots n'est pas encore disponible dans votre région. N'hésitez pas à suivre nos actualités sur notre site et notre page facebook !")
     end
 
-    def detect_errors
-      @child.valid?
-      Source.exists?(@children_source_attributes[:source_id])
-      if any_parent?
-        parent1_validation if parent1_present?
-        parent2_validation if parent2_present?
-      end
+    def send_not_supported_sms
+      return if 'filtre-diplome-OK'.in? @child.tag_list
 
-      birthdate_validation
-      overseas_child_validation
+      media = Media::Form.find_or_create_by(name: 'Lien - non accompagnement', url: ENV['NOT_SUPPORTED_LINK'])
+      message = "1001mots : Bonjour ! Suite à votre demande d'inscription, nous regrettons de ne pas pouvoir accompagner votre enfant. Les places sont limitées et attribuées selon des critères spécifiques. Toutefois, nous avons préparé un ensemble de conseils qui peuvent aider votre enfant à développer son langage. Vous les trouverez ici : {URL}"
+      ProgramMessageService.new(Time.zone.now.next_day(3).strftime('%d-%m-%Y'), '12:30', ["child.#{@child.id}"], message, nil, media.redirection_target.id, false, nil, nil, ['not_supported']).call
+    end
+
+    def create_parent_registration
+      return unless @registration_origin == 4
+
+      parent_registration = ParentsRegistration.new(
+        parent1: @child.parent1,
+        target_profile: @parent1_target_profile,
+        parent1_phone_number: @child.parent1.phone_number_national
+      )
+      if @child.parent2
+        parent_registration.parent2 = @child.parent2
+        parent_registration.parent2_phone_number = @child.parent2.phone_number_national
+      end
+      parent_registration.save!
     end
   end
 end

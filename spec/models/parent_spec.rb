@@ -6,7 +6,9 @@
 #  address                             :string           not null
 #  city_name                           :string           not null
 #  degree                              :string
+#  degree_country_at_registration      :string
 #  degree_in_france                    :boolean
+#  degree_level_at_registration        :string
 #  discarded_at                        :datetime
 #  email                               :string
 #  family_followed                     :boolean          default(FALSE)

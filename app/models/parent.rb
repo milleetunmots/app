@@ -6,7 +6,9 @@
 #  address                             :string           not null
 #  city_name                           :string           not null
 #  degree                              :string
+#  degree_country_at_registration      :string
 #  degree_in_france                    :boolean
+#  degree_level_at_registration        :string
 #  discarded_at                        :datetime
 #  email                               :string
 #  family_followed                     :boolean          default(FALSE)
@@ -61,6 +63,8 @@ class Parent < ApplicationRecord
 
   attr_accessor :parent2_creation
 
+  DEGREE_LEVELS = %w[no_degree brevet bep_cap bac bac+1 bac+2 bac+3 bac+4 bac+5].freeze
+  DEGREE_COUNTRIES = %w[france other].freeze
   GENDER_FEMALE = 'f'.freeze
   GENDER_MALE = 'm'.freeze
   GENDERS = [GENDER_FEMALE, GENDER_MALE].freeze
@@ -100,8 +104,7 @@ class Parent < ApplicationRecord
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
-
-  before_validation :format_phone_number
+  before_save :format_phone_number
   after_create :should_be_contacted_as_parent2, if: -> { parent2_creation.present? }
   after_save :change_the_other_parent_address
 
@@ -121,7 +124,6 @@ class Parent < ApplicationRecord
               possible: true,
               types: :mobile,
               countries: :fr,
-              allow_blank: true,
               message: 'doit être composé de 10 chiffres'
             }
   validates :phone_number, presence: true
@@ -129,6 +131,7 @@ class Parent < ApplicationRecord
             format: { with: REGEX_VALID_EMAIL, allow_blank: true, message: 'Les informations doivent être renseignées au format adresse email (xxxx@xx.com).' },
             uniqueness: { case_sensitive: false, allow_blank: true }
   validates :terms_accepted_at, presence: true
+  validate :phone_number_format, on: :create
 
   scope :potential_duplicates, -> {
     where("parents.phone_number IN (SELECT phone_number FROM parents WHERE parents.discarded_at IS NULL GROUP BY parents.phone_number HAVING COUNT(*) > 1)")
@@ -305,6 +308,15 @@ class Parent < ApplicationRecord
       phone = Phonelib.parse(phone_number)
       self.phone_number = phone.e164
       self.phone_number_national = phone.national(false)
+    end
+  end
+
+  def phone_number_format
+    return unless attribute_present?('phone_number')
+
+    phone = Phonelib.parse(phone_number)
+    unless phone.valid_for_country?("FR") && phone.type == :mobile
+      errors.add(:phone_number, "doit être un numéro de mobile français valide")
     end
   end
 

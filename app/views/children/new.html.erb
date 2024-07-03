@@ -27,7 +27,7 @@
                   <option value='caf'> La CAF </option>
                   <%
 =begin%>
- <option value='bao'> Mon entourage </option> 
+ <option value='bao'> Mon entourage </option>
 <%
 =end%>
                 </select>
@@ -80,55 +80,75 @@
         <div class="row accepted-fields">
           <div class="col-sm-4">
             <h2>Enfant(s)</h2>
-            <div class="child-fields">
-              <%= render 'child_form', f: f, with_support: true %>
-            </div>
-            <% @child.siblings.each_with_index do |sibling, i| %>
-              <div class="child-fields-container <%= 'hidden' unless sibling.gender %>">
-                <div class="separator"></div>
-                <div class="add-child-btn-container">
-                  <%= link_to '+ Ajouter un autre enfant', '#', class: 'btn btn-primary add-child-btn' %>
-                </div>
+            <div class="card">
+              <div class="card-body">
                 <div class="child-fields">
-                  <%= link_to '- Annuler', '#', class: 'btn btn-danger float-right rm-child-btn' %>
-                  <%= f.simple_fields_for "siblings[#{i}]", sibling  do |sibling_f| %>
-                    <%= render 'child_form', f: sibling_f %>
-                  <% end %>
+                  <%= render 'child_form', f: f, with_support: true %>
                 </div>
+                <% @child.siblings.each_with_index do |sibling, i| %>
+                  <div class="child-fields-container <%= 'hidden' unless sibling.gender %>">
+                    <div class="separator"></div>
+                    <div class="add-child-btn-container">
+                      <%= link_to '+ Ajouter un autre enfant', '#', class: 'btn btn-primary add-child-btn' %>
+                    </div>
+                    <div class="child-fields">
+                      <%= link_to '- Annuler', '#', class: 'btn btn-danger float-right rm-child-btn' %>
+                      <%= f.simple_fields_for "siblings[#{i}]", sibling  do |sibling_f| %>
+                        <%= render 'child_form', f: sibling_f %>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
               </div>
-            <% end %>
+            </div>
           </div>
 
           <div class="col-sm-8">
             <h2>Parents qui recevront les SMS</h2>
             <div class="row">
               <div class="col-sm-6">
-                <h3>Parent 1</h3>
-                <%= f.simple_fields_for :parent1 do |parent1_f| %>
-                  <%= parent1_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: true %>
-                  <%= parent1_f.input :first_name, required: true %>
-                  <%= parent1_f.input :last_name, required: true %>
-                  <%= parent1_f.input :phone_number, required: true %>
-                <% end %>
+                <div class="card">
+                  <div class="card-body">
+                    <h3 class="card-title">Parent 1</h3>
+                    <%= f.simple_fields_for :parent1 do |parent1_f| %>
+                      <%= parent1_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: true %>
+                      <%= parent1_f.input :first_name, required: true %>
+                      <%= parent1_f.input :last_name, required: true %>
+                      <%= parent1_f.input :phone_number, required: true %>
+                      <% if @form_path == '/inscription4' %>
+                        <%= parent1_f.input :degree_level_at_registration, as: :select, collection: parent_degree_level_collection, required: true, label: @degree_level_label %>
+                        <%= parent1_f.input :degree_country_at_registration, as: :radio_buttons, collection: parent_degree_obtained_in_collection, required: true, label: @degree_obtained_in_label %>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </div>
               </div>
               <div class="col-sm-6">
-                <h3>Parent 2 (optionnel)</h3>
-                <div id="parent2-fields">
-                  <%= f.simple_fields_for :parent2 do |parent2_f| %>
-                    <%= parent2_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: false %>
-                    <%= parent2_f.input :first_name, required: false  %>
-                    <%= parent2_f.input :last_name, required: false %>
-                    <%= parent2_f.input :phone_number, required: false %>
-                  <% end %>
+                <div class="card">
+                  <div class="card-body">
+                    <h3 class="card-title">Parent 2 (optionnel)</h3>
+                    <div id="parent2-fields">
+                      <%= f.simple_fields_for :parent2 do |parent2_f| %>
+                        <%= parent2_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: false %>
+                        <%= parent2_f.input :first_name, required: false  %>
+                        <%= parent2_f.input :last_name, required: false %>
+                        <%= parent2_f.input :phone_number, required: false %>
+                      <% end %>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <h3>Adresse</h3>
-            <%= f.simple_fields_for :parent1 do |parent1_f| %>
-              <%= address_input parent1_f %>
-              <%= parent1_f.input :letterbox_name %>
-            <% end %>
+            <div class="card">
+              <div class="card-body">
+                <h3 class="card-title">Adresse</h3>
+                <%= f.simple_fields_for :parent1 do |parent1_f| %>
+                  <%= address_input parent1_f %>
+                  <%= parent1_f.input :letterbox_name %>
+                <% end %>
+              </div>
+            </div>
           </div>
         </div>
 

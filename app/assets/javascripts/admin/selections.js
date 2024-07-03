@@ -19,6 +19,17 @@ $(document).ready(function() {
     return $a;
   }
 
+  $.ajax({
+    type: 'GET',
+    url: '/admin/message/group_status'
+  }).done(function(data) {
+    $('#message_group_status').select2({
+      width: '100%',
+      allowClear: true,
+      data: data['results']
+      })
+  });
+
   if ($parentId === undefined) {
     $('#recipients').select2({
       width: '100%',

@@ -11,10 +11,10 @@ RSpec.describe Group::ProgramService do
     allow_any_instance_of(ChildrenSupportModule::CheckCreditsService).to receive(:call).and_return(ChildrenSupportModule::CheckCreditsService.new([]))
     stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms').to_return(status: 200, body: '{}')
 
-    FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "language_module_zero", age_ranges: %w[four_to_nine], name: "Enrichir la conversation 4-9")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[ten_to_fifteen], name: "Enrichir la conversation 10-15")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[sixteen_to_twenty_three], name: "Enrichir la conversation 16-23")
-    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[twenty_four_to_twenty_nine], name: "Enrichir la conversation 24-29")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "language_module_zero", age_ranges: %w[four_to_ten], name: "Enrichir la conversation 4-10")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[eleven_to_sixteen], name: "Enrichir la conversation 11-16")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[seventeen_to_twenty_two], name: "Enrichir la conversation 17-22")
+    FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[twenty_three_and_more], name: "Enrichir la conversation 23-29")
 
     JSON.parse(File.read('spec/fixtures/support_modules_staging.json')).each do |support_module|
       FactoryBot.create(

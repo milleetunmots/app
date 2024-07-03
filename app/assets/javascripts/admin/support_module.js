@@ -2,10 +2,10 @@ $(document).ready(function() {
   let $supportModuleTheme = $("#support_module_theme");
   let $ages = $("#support_module_age_ranges");
   const module_zero_age_ranges = [
-    { value: 'four_to_nine', text: '4 - 9 mois' },
-    { value: 'ten_to_fifteen', text: '10 - 15 mois' },
-    { value: 'sixteen_to_twenty_three', text: '16 - 23 mois' },
-    { value: 'twenty_four_and_more', text: '24 mois et plus' }
+    { value: 'four_to_ten', text: '4 - 10 mois' },
+    { value: 'eleven_to_sixteen', text: '11 - 16 mois' },
+    { value: 'seventeen_to_twenty_two', text: '17 - 22 mois' },
+    { value: 'twenty_three_and_more', text: '23 mois et plus' }
   ];
   const age_ranges = [
     { value: 'less_than_five', text: '0 - 4 mois' },

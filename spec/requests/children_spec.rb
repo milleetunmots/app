@@ -68,7 +68,7 @@ RSpec.describe ChildrenController, type: :request do
               terms_accepted_at: Time.zone.now,
               first_name: Faker::Name.first_name,
               last_name: Faker::Name.last_name,
-              phone_number: Faker::PhoneNumber.phone_number,
+              phone_number: "066802#{Faker::Number.number(digits: 4)}",
               letterbox_name: Faker::Name.name,
               address: Faker::Address.street_address,
               postal_code: Faker::Address.postcode,

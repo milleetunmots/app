@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_06_10_102529) do
+ActiveRecord::Schema.define(version: 2024_06_17_142156) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -487,6 +487,8 @@ ActiveRecord::Schema.define(version: 2024_06_10_102529) do
     t.string "mid_term_reaction"
     t.text "mid_term_speech"
     t.boolean "is_excluded_from_workshop", default: false
+    t.string "degree_level_at_registration"
+    t.string "degree_country_at_registration"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
@@ -498,6 +500,18 @@ ActiveRecord::Schema.define(version: 2024_06_10_102529) do
     t.index ["last_name"], name: "index_parents_on_last_name"
     t.index ["phone_number_national"], name: "index_parents_on_phone_number_national"
     t.index ["postal_code"], name: "index_parents_on_postal_code"
+  end
+
+  create_table "parents_registrations", force: :cascade do |t|
+    t.bigint "parent1_id"
+    t.bigint "parent2_id"
+    t.boolean "target_profile", default: true, null: false
+    t.string "parent1_phone_number", null: false
+    t.string "parent2_phone_number"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["parent1_id"], name: "index_parents_registrations_on_parent1_id"
+    t.index ["parent2_id"], name: "index_parents_registrations_on_parent2_id"
   end
 
   create_table "parents_workshops", id: false, force: :cascade do |t|

@@ -21,6 +21,11 @@ ActiveAdmin.register_page 'Message' do
       end
 
       div do
+        label 'Statuts des enfants'
+        select name: 'group_status[]', multiple: 'multiple', id: 'message_group_status'
+      end
+
+      div do
         label 'Responsable'
         select name: 'supporter', id: 'supporter'
       end
@@ -74,7 +79,8 @@ ActiveAdmin.register_page 'Message' do
       params[:redirection_target],
       false,
       nil,
-      current_admin_user.caller? ? current_admin_user.id : params[:supporter]
+      current_admin_user.caller? ? current_admin_user.id : params[:supporter],
+      params[:group_status]
     ).call
 
     if service.errors.any?
@@ -119,6 +125,18 @@ ActiveAdmin.register_page 'Message' do
     else
       render json: { results: get_supporter(params[:term]) }
     end
+  end
+
+  page_action :group_status do
+    render json: {
+      results: Child::GROUP_STATUS.map do |v|
+        {
+          id: v,
+          text: Child.human_attribute_name("group_status.#{v}"),
+          selected: v == 'active'
+        }
+      end
+    }
   end
 
   controller do
