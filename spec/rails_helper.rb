@@ -25,6 +25,7 @@ ENV['TYPEFORM_PARENTAL_CONTEXTS'] = 'typeform_parental_contexts_id'
 ENV["MODULE_ZERO_FEATURE_START"] ||= "01/09/2023"
 ENV['DISENGAGEMENT_FEATURE_START_DATE'] ||= "01/09/2023"
 ENV['BLOCKED_REGISTRATION_PATHS'] ||= ""
+ENV['NOT_SUPPORTED_LINK'] ||= "http://google.fr"
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production
