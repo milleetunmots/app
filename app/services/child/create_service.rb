@@ -92,7 +92,7 @@ class Child
     end
 
     def set_not_supported
-      return if 'filtre-diplome-OK'.in? @attributes[:tag_list]
+      return unless 'filtre-diplome-KO'.in?(@attributes[:tag_list]) && @registration_origin == 4
 
       @attributes[:group_status] = 'not_supported'
     end
@@ -192,7 +192,7 @@ class Child
     end
 
     def send_not_supported_sms
-      return if 'filtre-diplome-OK'.in? @child.tag_list
+      return unless @registration_origin == 4 && 'filtre-diplome-KO'.in?(@child.tag_list)
 
       media = Media::Form.find_or_create_by(name: 'Lien - non accompagnement', url: ENV['NOT_SUPPORTED_LINK'])
       message = "1001mots : Bonjour ! Suite à votre demande d'inscription, nous regrettons de ne pas pouvoir accompagner votre enfant. Les places sont limitées et attribuées selon des critères spécifiques. Toutefois, nous avons préparé un ensemble de conseils qui peuvent aider votre enfant à développer son langage. Vous les trouverez ici : {URL}"
