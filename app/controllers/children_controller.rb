@@ -230,8 +230,6 @@ class ChildrenController < ApplicationController
     @child.siblings.each do |sibling|
       sibling.build_child_support if sibling.child_support.nil?
     end
-    return unless current_registration_origin == 4
-
     @child.tag_list = tags_by_utm_params
   end
 end

@@ -81,14 +81,9 @@ class Child
     end
 
     def add_target_tag(tag)
-      @attributes[:tag_list] ||= []
-      @parent1_attributes[:tag_list] ||= []
-      @parent2_attributes[:tag_list] ||= []
       @attributes[:child_support_attributes] ||= {}
       @attributes[:child_support_attributes][:tag_list] ||= []
       @attributes[:tag_list] << tag
-      @parent1_attributes[:tag_list] += @attributes[:tag_list]
-      @parent2_attributes[:tag_list] += @attributes[:tag_list]
       @attributes[:child_support_attributes][:tag_list] << tag
     end
 
@@ -99,8 +94,8 @@ class Child
     end
 
     def build
-      parent1_attributes = @parent1_attributes.merge(parent1_present? ? @parent1_attributes : @parent2_attributes)
-      parent2_attributes = @parent1_attributes.merge(@parent2_attributes) if parent2_present? && parent1_present?
+      parent1_attributes = @parent1_attributes.merge(parent1_present? ? @parent1_attributes : @parent2_attributes).merge(tag_list: @attributes[:tag_list])
+      parent2_attributes = @parent1_attributes.merge(@parent2_attributes).merge(tag_list: @attributes[:tag_list]) if parent2_present? && parent1_present?
       @child = if parent2_attributes.nil?
                  Child.new(@attributes.merge(parent1_attributes: parent1_attributes))
                else
