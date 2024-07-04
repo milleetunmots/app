@@ -61,11 +61,12 @@ class Child
 
     def add_registration_origin_as_tag
       # add tags for bao / local_partner ?
-      @attributes[:tag_list] = case @registration_origin
-                               when 3 then ['form-pro']
-                               when 2 then ['form-2']
-                               else ['site']
-                               end
+      @attributes[:tag_list] ||= []
+      @attributes[:tag_list] << case @registration_origin
+                                when 3 then 'form-pro'
+                                when 2 then 'form-2'
+                                else 'site'
+                                end
     end
 
     def add_target_tag_and_handle_children_not_supported
@@ -86,8 +87,8 @@ class Child
       @attributes[:child_support_attributes] ||= {}
       @attributes[:child_support_attributes][:tag_list] ||= []
       @attributes[:tag_list] << tag
-      @parent1_attributes[:tag_list] << tag
-      @parent2_attributes[:tag_list] << tag
+      @parent1_attributes[:tag_list] += @attributes[:tag_list]
+      @parent2_attributes[:tag_list] += @attributes[:tag_list]
       @attributes[:child_support_attributes][:tag_list] << tag
     end
 

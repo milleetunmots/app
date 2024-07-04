@@ -81,6 +81,7 @@ RSpec.describe ChildrenController, type: :request do
             "birthdate(3i)" => birthdate.day.to_s,
             "birthdate(2i)" => birthdate.month.to_s,
             "birthdate(1i)" => birthdate.year.to_s,
+            tag_list: "",
             child_support_attributes: { important_information: "" },
             parent2_attributes: {
               first_name: "",
@@ -128,6 +129,7 @@ RSpec.describe ChildrenController, type: :request do
             "birthdate(3i)" => birthdate.day.to_s,
             "birthdate(2i)" => birthdate.month.to_s,
             "birthdate(1i)" => birthdate.year.to_s,
+            tag_list: "",
             child_support_attributes: { important_information: "" },
             parent2_attributes: {
               first_name: "",
