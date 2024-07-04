@@ -94,7 +94,9 @@ class ChildrenController < ApplicationController
   private
 
   def child_creation_params
-    params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, child_support_attributes: %i[important_information])
+    params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :tag_list, child_support_attributes: %i[important_information]).tap do |param|
+      param[:tag_list] = param[:tag_list].split
+    end
   end
 
   def child_update_params
@@ -125,6 +127,14 @@ class ChildrenController < ApplicationController
 
   def pmi_dpt_params
     params[:pmi_dpt] && Source.by_pmi.where(department: params[:pmi_dpt]).any? ? params[:pmi_dpt] : nil
+  end
+
+  def utm_params
+    params.keys.select { |key| key.start_with?('utm') }
+  end
+
+  def tags_by_utm_params
+    utm_params.map { |utm_param| "#{utm_param}=#{params[utm_param]}" }
   end
 
   def find_child
@@ -220,5 +230,8 @@ class ChildrenController < ApplicationController
     @child.siblings.each do |sibling|
       sibling.build_child_support if sibling.child_support.nil?
     end
+    return unless current_registration_origin == 4
+
+    @child.tag_list = tags_by_utm_params
   end
 end
