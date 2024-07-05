@@ -149,22 +149,28 @@ class ChildrenController < ApplicationController
   def build_variables
     case request.path
     when '/inscription'
-      @form_path = children_path(request.query_parameters)
+      @form_path = children_path
+      @form_path_url = children_path(request.query_parameters)
     when '/inscription1'
       session[:registration_origin] = 1
-      @form_path = children1_path(request.query_parameters)
+      @form_path = children1_path
+      @form_path_url = children1_path(request.query_parameters)
     when '/inscriptioncaf'
       session[:registration_origin] = 2
-      @form_path = caf_registration_path(request.query_parameters)
+      @form_path = caf_registration_path
+      @form_path_url = caf_registration_path(request.query_parameters)
     when '/inscription3'
       session[:registration_origin] = 3
-      @form_path = pmi_registration_path(request.query_parameters)
+      @form_path = pmi_registration_path
+      @form_path_url = pmi_registration_path(request.query_parameters)
     when '/inscription4'
       session[:registration_origin] = 4
-      @form_path = boa_registration_path(request.query_parameters)
+      @form_path = boa_registration_path
+      @form_path_url = boa_registration_path(request.query_parameters)
     when '/inscription5'
       session[:registration_origin] = 5
-      @form_path = local_partner_registration_path(request.query_parameters)
+      @form_path = local_partner_registration_path
+      @form_path_url = local_partner_registration_path(request.query_parameters)
     end
     @title = I18n.t("inscription_title.form#{current_registration_origin}")
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
