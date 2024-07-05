@@ -8,7 +8,7 @@
     </div>
   <% else %>
     <div class="container" id="inscription-content">
-      <%= simple_form_for @child, url: @form_path || children_path do |f| %>
+      <%= simple_form_for @child, url: @form_path_url || children_path do |f| %>
 
         <h1><%= @title.html_safe %></h1>
 
