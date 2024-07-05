@@ -94,7 +94,9 @@ class ChildrenController < ApplicationController
   private
 
   def child_creation_params
-    params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, child_support_attributes: %i[important_information])
+    params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :tag_list, child_support_attributes: %i[important_information]).tap do |param|
+      param[:tag_list] = param[:tag_list].split
+    end
   end
 
   def child_update_params
@@ -127,6 +129,14 @@ class ChildrenController < ApplicationController
     params[:pmi_dpt] && Source.by_pmi.where(department: params[:pmi_dpt]).any? ? params[:pmi_dpt] : nil
   end
 
+  def utm_params
+    params.keys.select { |key| I18n.transliterate(key).downcase.start_with?('utm') }
+  end
+
+  def tags_by_utm_params
+    utm_params.map { |utm_param| I18n.transliterate("#{utm_param}=#{params[utm_param]}").downcase }
+  end
+
   def find_child
     @child = Child.where(
       id: params[:id],
@@ -139,22 +149,22 @@ class ChildrenController < ApplicationController
   def build_variables
     case request.path
     when '/inscription'
-      @form_path = children_path
+      @form_path = children_path(request.query_parameters)
     when '/inscription1'
       session[:registration_origin] = 1
-      @form_path = children1_path
+      @form_path = children1_path(request.query_parameters)
     when '/inscriptioncaf'
       session[:registration_origin] = 2
-      @form_path = caf_registration_path
+      @form_path = caf_registration_path(request.query_parameters)
     when '/inscription3'
       session[:registration_origin] = 3
-      @form_path = pmi_registration_path
+      @form_path = pmi_registration_path(request.query_parameters)
     when '/inscription4'
       session[:registration_origin] = 4
-      @form_path = boa_registration_path
+      @form_path = boa_registration_path(request.query_parameters)
     when '/inscription5'
       session[:registration_origin] = 5
-      @form_path = local_partner_registration_path
+      @form_path = local_partner_registration_path(request.query_parameters)
     end
     @title = I18n.t("inscription_title.form#{current_registration_origin}")
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
@@ -220,5 +230,6 @@ class ChildrenController < ApplicationController
     @child.siblings.each do |sibling|
       sibling.build_child_support if sibling.child_support.nil?
     end
+    @child.tag_list = tags_by_utm_params
   end
 end
