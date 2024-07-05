@@ -130,11 +130,11 @@ class ChildrenController < ApplicationController
   end
 
   def utm_params
-    params.keys.select { |key| key.start_with?('utm') }
+    params.keys.select { |key| I18n.transliterate(key).downcase.start_with?('utm') }
   end
 
   def tags_by_utm_params
-    utm_params.map { |utm_param| "#{utm_param}=#{params[utm_param]}" }
+    utm_params.map { |utm_param| I18n.transliterate("#{utm_param}=#{params[utm_param]}").downcase }
   end
 
   def find_child
@@ -149,22 +149,22 @@ class ChildrenController < ApplicationController
   def build_variables
     case request.path
     when '/inscription'
-      @form_path = children_path
+      @form_path = children_path(request.query_parameters)
     when '/inscription1'
       session[:registration_origin] = 1
-      @form_path = children1_path
+      @form_path = children1_path(request.query_parameters)
     when '/inscriptioncaf'
       session[:registration_origin] = 2
-      @form_path = caf_registration_path
+      @form_path = caf_registration_path(request.query_parameters)
     when '/inscription3'
       session[:registration_origin] = 3
-      @form_path = pmi_registration_path
+      @form_path = pmi_registration_path(request.query_parameters)
     when '/inscription4'
       session[:registration_origin] = 4
-      @form_path = boa_registration_path
+      @form_path = boa_registration_path(request.query_parameters)
     when '/inscription5'
       session[:registration_origin] = 5
-      @form_path = local_partner_registration_path
+      @form_path = local_partner_registration_path(request.query_parameters)
     end
     @title = I18n.t("inscription_title.form#{current_registration_origin}")
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
