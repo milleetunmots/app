@@ -33,7 +33,7 @@ module ProgramMessagesHelper
 
   def child_age_range(parent_decorated)
     case parent_decorated.object.current_child&.months
-    when 6..11
+    when 4..11
       '06-11'
     when 12..17
       '12-17'
