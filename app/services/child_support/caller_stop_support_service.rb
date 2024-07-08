@@ -90,16 +90,33 @@ class ChildSupport::CallerStopSupportService
 
 		@message = VARIABLES[@reason.to_sym][:sms]
 		create_stop_support_link_for_renunciation
-		program_message_service = ProgramMessageService.new(
-			@date.strftime('%Y-%m-%d'),
-			@date.strftime('%H:%M'),
-			recipients,
-			@message,
-			nil,
-			redirection_target_id
-		).call
-		@error = program_message_service.errors.join("\n") if program_message_service.errors.any?
-		raise ActiveRecord::Rollback unless @error.nil?
+		recipients_array = recipients
+		errors_count = 0
+		recipients_array.each do |recipient|
+			program_message_service = ProgramMessageService.new(
+				@date.strftime('%Y-%m-%d'),
+				@date.strftime('%H:%M'),
+				[recipient],
+				@message,
+				nil,
+				redirection_target_id,
+				nil,
+				nil,
+				nil,
+				Child::GROUP_STATUS
+			).call
+
+			if program_message_service.errors.any?
+				errors_count += 1
+				@error = program_message_service.errors.join("\n")
+			end
+		end
+
+		if errors_count == recipients_array.size
+			raise ActiveRecord::Rollback
+		else
+			@error = nil
+		end
 	end
 
 	def redirection_target_id
@@ -117,8 +134,8 @@ class ChildSupport::CallerStopSupportService
 
 	def recipients
 		recipients = []
-		recipients << "parent.#{@child_support.parent1.id}" if @child_support.current_child.should_contact_parent1
-		recipients << "parent.#{@child_support.parent2.id}" if @child_support.parent2 && @child_support.current_child.should_contact_parent2
+		recipients << "parent.#{@child_support.parent1.id}"
+		recipients << "parent.#{@child_support.parent2.id}" if @child_support.parent2
 		recipients
 	end
 end
