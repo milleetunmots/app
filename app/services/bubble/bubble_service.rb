@@ -8,8 +8,6 @@ module Bubble
       }
     end
 
-    protected
-
     def all_datas(constraints = [])
       all_datas = []
       items_count = 0
@@ -29,16 +27,6 @@ module Bubble
     def fill_data(model_table, data_retrieved, attributes)
       data = model_table.find_or_create_by(bubble_id: data_retrieved['_id'], created_date: data_retrieved['Created Date'])
       attributes.each do |attribute|
-        if %w[video_type content_type].include? attribute
-          data.update_column(attribute.to_sym, data_retrieved['type'])
-          next
-        end
-
-        if attribute == 'child_session'
-          data.update_column(attribute.to_sym, data_retrieved['child_id'])
-          next
-        end
-
         data.update_column(attribute.to_sym, data_retrieved[attribute.to_s])
       end
       data.save

@@ -10,6 +10,7 @@
 #  content_type      :string
 #  created_date      :date             not null
 #  description       :text
+#  id_contenu        :string
 #  titre             :string
 #  bubble_id         :string           not null
 #  module_content_id :bigint
