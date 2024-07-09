@@ -7,6 +7,7 @@ module Bubble
 
     def call
       all_modules.each do |item|
+        item['child_session'] = item['child_id']
         new_module = fill_data(Bubbles::BubbleModule, item, %w[description niveau theme titre age])
         new_module.module_precedent = Bubbles::BubbleModule.find_by(bubble_id: item['module_precedent'])
         new_module.module_suivant = Bubbles::BubbleModule.find_by(bubble_id: item['module_suivant'])
