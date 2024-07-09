@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_06_17_142156) do
+ActiveRecord::Schema.define(version: 2024_07_05_094902) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -76,6 +76,7 @@ ActiveRecord::Schema.define(version: 2024_06_17_142156) do
     t.text "description"
     t.date "created_date", null: false
     t.bigint "module_content_id"
+    t.string "id_contenu"
     t.index ["age"], name: "index_bubble_contents_on_age", using: :gin
     t.index ["module_content_id"], name: "index_bubble_contents_on_module_content_id"
   end
