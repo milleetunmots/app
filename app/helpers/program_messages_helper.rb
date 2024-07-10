@@ -69,7 +69,7 @@ module ProgramMessagesHelper
     module_one_video = module_one_suggested_video(child_age_range(parent_decorated))
     suggested_videos << format_result(module_zero_video) if module_zero_video
     suggested_videos << format_result(module_one_video) if module_one_video
-    suggested_videos += call3_suggested_videos if call_3_suggested_videos
+    suggested_videos += call3_suggested_videos if call3_suggested_videos
     suggested_videos
   end
 
