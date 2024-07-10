@@ -21,6 +21,7 @@ class Group
         assign_default_call_status(0)
         program_first_support_module
         assign_default_call_status(1)
+        add_months_tag_to_child_support
         fill_parents_available_support_modules
         verify_available_module_list
         create_call2_children_support_module
@@ -81,6 +82,11 @@ class Group
           @group.started_at + 25.weeks
         end
       ChildSupport::AssignDefaultCallStatusJob.set(wait_until: default_status_date.to_datetime.change(hour: @hour - 1)).perform_later(@group.id, call_number)
+    end
+
+    def add_months_tag_to_child_support
+      date = (@group.started_at + 20.weeks).next_occurring(:friday)
+      ChildSupport::AddMonthsTagJob.set(wait_until: date.to_datetime.change(hour: 6)).perform_later(@group.id)
     end
 
     def fill_parents_available_support_modules

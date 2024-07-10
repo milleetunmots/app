@@ -56,12 +56,20 @@ module ProgramMessagesHelper
     video&.decorate
   end
 
+  def call3_suggested_videos
+    videos = RedirectionTarget.joins(:medium).where('media.name LIKE ?', 'Appel 3 - %')
+    return if videos.empty?
+
+    videos.map { |video| format_result(video.decorate) }
+  end
+
   def suggested_videos(parent_decorated)
     suggested_videos = []
     module_zero_video = module_zero_suggested_video(child_age_range_for_module_zero(parent_decorated))
     module_one_video = module_one_suggested_video(child_age_range(parent_decorated))
     suggested_videos << format_result(module_zero_video) if module_zero_video
     suggested_videos << format_result(module_one_video) if module_one_video
+    suggested_videos += call3_suggested_videos if call_3_suggested_videos
     suggested_videos
   end
 
