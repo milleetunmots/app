@@ -111,8 +111,8 @@
       $source_department_select2.data().select2.$container.addClass("form-control");
     }
 
-    $(document).on('change', "input[id^='child_parent2_attributes_']", () => {
-      var parent2Inputs = $("input[id^='child_parent2_attributes_']");
+    $(document).on('input', "#child_parent2_attributes_first_name, #child_parent2_attributes_last_name, #child_parent2_attributes_phone_number", () => {
+      var parent2Inputs = $("#child_parent2_attributes_first_name, #child_parent2_attributes_last_name, #child_parent2_attributes_phone_number");
       var parent2Fields= $("[class*='child_parent2_']");
       var atLeastOneHasValue = false;
       parent2Inputs.each(function() {
@@ -131,6 +131,13 @@
             abbrElement.setAttribute('title', 'required');
             abbrElement.innerHTML = ' *'
             $(this).children().first().append(abbrElement);
+          }
+        });
+      } else {
+        parent2Fields.each(function() {
+          var abbr = $(this).children().first().find('abbr');
+          if (abbr.length !== 0) {
+            abbr.remove();
           }
         });
       }
