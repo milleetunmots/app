@@ -1,13 +1,13 @@
 <div id="inscription">
-  <div id="logo">
-      <%= image_tag("mots-logo.png", id:"img-logo")  %>
-  </div>
   <% if @form_path.in?(ENV['BLOCKED_REGISTRATION_PATHS'].split(',')) %>
     <div id="registration-closed">
       <p>Les inscriptions sont fermées.</p>
     </div>
   <% else %>
     <div class="container" id="inscription-content">
+      <div id="logo">
+        <%= image_tag("mots-logo.png", id:"img-logo")  %>
+      </div>
       <%= simple_form_for @child, url: @form_path_url || children_path do |f| %>
 
         <h1><%= @title.html_safe %></h1>
