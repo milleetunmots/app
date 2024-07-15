@@ -25,6 +25,8 @@
                 <label class="select required" for="form_received_from"><%= @form_received_from.html_safe %></label>
                 <select class="form-control select required" id="form_received_from">
                   <option value='caf'> La CAF </option>
+                  <!-- Check changeChildrenSourceSelectOptions in new.js IF you uncomment BAO option-->
+                  <!-- we commented out changeChildrenSourceSelectOptions(window.cafOptions) to avoid losing the selected source if form has an error -->
                   <%
 =begin%>
  <option value='bao'> Mon entourage </option>
