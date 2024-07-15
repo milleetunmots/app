@@ -34,7 +34,7 @@ class ChildrenController < ApplicationController
     if @child.errors.any?
       flash.now[:error] = "L'inscription de l'enfant a échoué"
       build_child_for_form
-      @child.build_children_source(source_id: children_source_params&.dig(:source_id), details: children_source_params&.dig(:details))
+      @child.build_children_source(source_id: children_source_params&.dig(:source_id), details: children_source_params&.dig(:details), registration_department: children_source_params&.dig(:registration_department))
       render action: :new
     elsif service.parent1_target_profile || current_registration_origin != 4
       redirect_to created_child_path(sms_url_form: service.sms_url_form)
