@@ -130,9 +130,9 @@
                     <div id="parent2-fields">
                       <%= f.simple_fields_for :parent2 do |parent2_f| %>
                         <%= parent2_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: false %>
-                        <%= parent2_f.input :first_name, required: false  %>
-                        <%= parent2_f.input :last_name, required: false %>
-                        <%= parent2_f.input :phone_number, required: false %>
+                        <%= parent2_f.input :first_name, required: false, input_html: { autocomplete: "off" } %>
+                        <%= parent2_f.input :last_name, required: false, input_html: { autocomplete: "off" } %>
+                        <%= parent2_f.input :phone_number, required: false, input_html: { autocomplete: "off" } %>
                       <% end %>
                     </div>
                   </div>
