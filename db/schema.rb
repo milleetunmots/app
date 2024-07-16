@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_07_05_094902) do
+ActiveRecord::Schema.define(version: 2024_07_16_080132) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -662,9 +662,11 @@ ActiveRecord::Schema.define(version: 2024_07_05_094902) do
     t.bigint "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"
-    t.text "object"
+    t.text "old_object"
     t.datetime "created_at"
-    t.text "object_changes"
+    t.text "old_object_changes"
+    t.jsonb "object"
+    t.jsonb "object_changes"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
