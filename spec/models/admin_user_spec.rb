@@ -109,4 +109,22 @@ RSpec.describe AdminUser, type: :model do
       expect(subject.caller?).to be subject.user_role == "caller"
     end
   end
+
+  describe ".any_caller_with_id?" do
+    context 'when a caller with the given id exists' do
+      it 'returns true' do
+        subject.user_role = 'caller'
+        subject.save
+        expect(AdminUser.any_caller_with_id?(subject.id)).to be_truthy
+      end
+    end
+
+    context 'when no caller with the given id exists' do
+      let(:non_existent_id) { 10999 }
+
+      it 'returns false' do
+        expect(AdminUser.any_caller_with_id?(non_existent_id)).to be_falsey
+      end
+    end
+  end
 end

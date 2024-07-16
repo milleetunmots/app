@@ -250,6 +250,10 @@ class ChildSupport < ApplicationRecord
 
   scope :with_a_child_in_active_group, -> { joins(children: :group).where(children: { group_status: 'active' }).distinct }
   scope :supported_by, ->(supporter) { with_a_child_in_active_group.joins(:children).where(children: { group_status: 'active' }).where(supporter: supporter) }
+  scope :all_supported_by, ->(supporter_id) { joins(:supporter).where(supporter: { id: supporter_id }) }
+  scope :active_supported_by, ->(supporter_id) { all_supported_by(supporter_id).joins(:children).where(children: { group_status: 'active' }) }
+  scope :not_active_supported_by, ->(supporter_id) { all_supported_by(supporter_id).joins(:children).where.not(children: { group_status: 'active' }) }
+  scope :in_group, ->(group_id) { joins(children: :group).where(children: { group_id: group_id }) }
   scope :without_supporter, -> { where(supporter_id: nil) }
   scope :call_2_4, -> {
     where('call1_status ILIKE ? AND call3_status = ?', 'ko', '')
