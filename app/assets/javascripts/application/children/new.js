@@ -9,26 +9,10 @@
     childrenSourceSelect.data().select2.$container.addClass("form-control");
   }
 
-  var showCafSelection = function() {
-    var value = $(this).val();
-
-    if (pathName === '/inscriptioncaf') {
-      if (value === 'caf') {
-        $('#child_children_source_source_id_div').show();
-        changeChildrenSourceSelectOptions(window.cafOptions);
-        if (window.utmCaf !== undefined) {
-          childrenSourceSelect.val(window.utmCaf)
-          childrenSourceSelect.trigger('change')
-        }
-      } else if (value === 'bao' ) {
-        changeChildrenSourceSelectOptions(window.friendOption);
-        childrenSourceSelect.val(window.friendOption[0].id).trigger('change');
-        $('#child_children_source_source_id_div').hide();
-      }
-    } else if (pathName === '/inscription5') {
-      $('#registration_department_select').hide();
-      $(document).on('change', 'select[id="child_children_source_attributes_source_id"]', ()=> {
-        const selectedValue = $('select[id="child_children_source_attributes_source_id"]').val();
+  var checkIfLocalPartnerHasDepartment = function() {
+    if (pathName === '/inscription5') {
+      const selectedValue = $('select[id="child_children_source_attributes_source_id"]').val();
+      if (selectedValue !== '') {
         $.ajax({
           type: 'GET',
           url: '/sources/local_partner_has_department?id='+selectedValue
@@ -41,7 +25,30 @@
             $('#registration_department_select').hide();
           }
         });
-      });
+      }
+    }
+  }
+
+  var showCafSelection = function() {
+    var value = $(this).val();
+
+    if (pathName === '/inscriptioncaf') {
+      if (value === 'caf') {
+        $('#child_children_source_source_id_div').show();
+        // commented out to avoid selected option resetting if there's an error in form
+        //changeChildrenSourceSelectOptions(window.cafOptions);
+        if (window.utmCaf !== undefined) {
+          childrenSourceSelect.val(window.utmCaf)
+          childrenSourceSelect.trigger('change')
+        }
+      } else if (value === 'bao' ) {
+        changeChildrenSourceSelectOptions(window.friendOption);
+        childrenSourceSelect.val(window.friendOption[0].id).trigger('change');
+        $('#child_children_source_source_id_div').hide();
+      }
+    } else if (pathName === '/inscription5') {
+      $('#registration_department_select').hide();
+      checkIfLocalPartnerHasDepartment();
     }
   };
 
@@ -111,8 +118,8 @@
       $source_department_select2.data().select2.$container.addClass("form-control");
     }
 
-    $(document).on('change', "input[id^='child_parent2_attributes_']", () => {
-      var parent2Inputs = $("input[id^='child_parent2_attributes_']");
+    $(document).on('input', "#child_parent2_attributes_first_name, #child_parent2_attributes_last_name, #child_parent2_attributes_phone_number", () => {
+      var parent2Inputs = $("#child_parent2_attributes_first_name, #child_parent2_attributes_last_name, #child_parent2_attributes_phone_number");
       var parent2Fields= $("[class*='child_parent2_']");
       var atLeastOneHasValue = false;
       parent2Inputs.each(function() {
@@ -133,12 +140,25 @@
             $(this).children().first().append(abbrElement);
           }
         });
+      } else {
+        parent2Fields.each(function() {
+          var abbr = $(this).children().first().find('abbr');
+          if (abbr.length !== 0) {
+            abbr.remove();
+          }
+        });
       }
     });
 
     showCafSelection.apply($('#form_received_from'));
 
-    $(document).on('change', 'select[id="form_received_from"]', showCafSelection);
+    $(document).on('change', 'select[id="form_received_from"]', showCafSelection); 
+
+    $(document).on('change', 'select[id="child_children_source_attributes_source_id"]', function() {
+      $('select[id="child_children_source_attributes_registration_department"]').val('');
+      $('select[id="child_children_source_attributes_registration_department"]').trigger('change');
+      checkIfLocalPartnerHasDepartment();
+    });
 
     $('.child-fields-container.hidden .btn.rm-child-btn').each(function() {
       initRmChildBtn(this);

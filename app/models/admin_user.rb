@@ -83,6 +83,10 @@ class AdminUser < ApplicationRecord
     "Ce compte n'est pas activé."
   end
 
+  def self.any_caller_with_id?(id)
+    exists?(id: id, user_role: 'caller')
+  end
+
   private
 
   def common_password

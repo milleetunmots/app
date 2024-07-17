@@ -75,5 +75,11 @@ Rails.application.routes.draw do
     mount Sidekiq::Web => '/sidekiq'
   end
 
+  namespace :api do
+    namespace :v1 do
+      get 'child_support_count', to: 'child_supports#child_support_count'
+    end
+  end
+
   root to: redirect('/admin')
 end

@@ -17,7 +17,10 @@ module ActiveAdmin::SourcesHelper
   end
 
   def source_select_for_local_partner
-    Source.by_local_partner.map { |local_partner| [local_partner.name, local_partner.id] }
+    sources_without_other = Source.by_local_partner.reject { |local_partner| local_partner.name == 'Autre' }
+    other = Source.by_local_partner.select { |local_partner| local_partner.name == 'Autre' }
+
+    (sources_without_other + other).map { |local_partner| [local_partner.name, local_partner.id] }
   end
 
   def source_channel_select_collection

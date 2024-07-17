@@ -1,20 +1,26 @@
 <div id="inscription">
-  <div id="logo">
-      <%= image_tag("mots-logo.png", id:"img-logo")  %>
-  </div>
   <% if @form_path.in?(ENV['BLOCKED_REGISTRATION_PATHS'].split(',')) %>
     <div id="registration-closed">
       <p>Les inscriptions sont fermées.</p>
     </div>
   <% else %>
     <div class="container" id="inscription-content">
+      <div id="logo">
+        <%= image_tag("mots-logo.png", id:"img-logo")  %>
+      </div>
       <%= simple_form_for @child, url: @form_path_url || children_path do |f| %>
 
-        <h1><%= @title.html_safe %></h1>
-
-        <div class="row justify-content-sm-center">
-          <div class="col-sm-6">
-            <div id="description"><%= @banner.html_safe %></div>
+        <div class="row" id="form-header">
+          <div class="col-12 col-lg-4" id="form-header-image">
+            <%= image_tag("famille.png", id:"img-family")  %>
+          </div>
+          <div class="col-12 col-lg-6" id="form-header-text">
+            <h1><%= @title.html_safe %></h1>
+            <div>
+              <div>
+                <div id="description"><%= @banner.html_safe %></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -25,6 +31,8 @@
                 <label class="select required" for="form_received_from"><%= @form_received_from.html_safe %></label>
                 <select class="form-control select required" id="form_received_from">
                   <option value='caf'> La CAF </option>
+                  <!-- Check changeChildrenSourceSelectOptions in new.js IF you uncomment BAO option-->
+                  <!-- we commented out changeChildrenSourceSelectOptions(window.cafOptions) to avoid losing the selected source if form has an error -->
                   <%
 =begin%>
  <option value='bao'> Mon entourage </option>
@@ -130,9 +138,9 @@
                     <div id="parent2-fields">
                       <%= f.simple_fields_for :parent2 do |parent2_f| %>
                         <%= parent2_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: false %>
-                        <%= parent2_f.input :first_name, required: false  %>
-                        <%= parent2_f.input :last_name, required: false %>
-                        <%= parent2_f.input :phone_number, required: false %>
+                        <%= parent2_f.input :first_name, required: false, input_html: { autocomplete: "off" } %>
+                        <%= parent2_f.input :last_name, required: false, input_html: { autocomplete: "off" } %>
+                        <%= parent2_f.input :phone_number, required: false, input_html: { autocomplete: "off" } %>
                       <% end %>
                     </div>
                   </div>
