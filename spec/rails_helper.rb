@@ -26,6 +26,7 @@ ENV["MODULE_ZERO_FEATURE_START"] ||= "01/09/2023"
 ENV['DISENGAGEMENT_FEATURE_START_DATE'] ||= "01/09/2023"
 ENV['BLOCKED_REGISTRATION_PATHS'] ||= ""
 ENV['NOT_SUPPORTED_LINK'] ||= "http://google.fr"
+ENV['API_TOKEN'] ||= "6+iRich5+HA*=STim$PR$dU6EPoW3&"
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production
