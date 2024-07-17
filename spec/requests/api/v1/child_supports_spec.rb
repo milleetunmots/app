@@ -10,7 +10,7 @@ RSpec.describe ChildSupportsController, type: :request do
   let(:headers) { { 'Authorization' => ENV['API_TOKEN'] } }
 
   describe "#verify_caller_id" do
-    context "when the request header has not the correct Authorization" do
+    context "when the request header doesn't have the correct Authorization" do
       it "returns an unauthorized response with the error 'Invalid token'" do
         headers['Authorization'] = 'invalid token'
         get '/api/v1/child_support_count', params: { caller_id: supporter.id }, headers: headers
@@ -20,7 +20,7 @@ RSpec.describe ChildSupportsController, type: :request do
       end
     end
 
-    context "when the request header has not Authorization" do
+    context "when the request header doesn't have Authorization key" do
       it "returns an unauthorized response with the error 'Token absent'" do
         get '/api/v1/child_support_count', params: { caller_id: supporter.id }
 
@@ -40,7 +40,7 @@ RSpec.describe ChildSupportsController, type: :request do
       end
     end
 
-    context "when the caller_id is not caller's id" do
+    context "when the caller_id is not valid" do
       it "returns a not_found response with the error 'Invalid caller_id'" do
         get '/api/v1/child_support_count', params: { caller_id: admin_user.id }, headers: headers
 
@@ -49,7 +49,7 @@ RSpec.describe ChildSupportsController, type: :request do
       end
     end
 
-    context "when the group_id is not group's id" do
+    context "when the group_id is not valid" do
       it "returns a not_found response with the error 'Invalid group_id'" do
         get '/api/v1/child_support_count',
               params: { caller_id: supporter.id, group_id: 1000009 },
@@ -60,7 +60,7 @@ RSpec.describe ChildSupportsController, type: :request do
       end
     end
 
-    context "when there are a valid group_id" do
+    context "when there is a valid group_id param" do
       it "returns a response with the number of child_supports supported by the caller in the group wich has group_id as its id" do
         second_child.child_support.supporter = supporter
         second_child.child_support.save
@@ -77,7 +77,7 @@ RSpec.describe ChildSupportsController, type: :request do
       end
     end
 
-    context "when there are no group_id" do
+    context "when there is no group_id param" do
       it "returns a response with the number of child_supports supported by the caller" do
         first_child.group = group
         first_child.group_status = 'active'

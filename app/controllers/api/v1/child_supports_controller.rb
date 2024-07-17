@@ -28,13 +28,9 @@ module Api
 
       def count
         @child_supports = ChildSupport.all_supported_by(@caller_id)
-        @active_child_support = ChildSupport.active_supported_by(@caller_id)
-        @not_active_child_support = ChildSupport.not_active_supported_by(@caller_id)
-        return unless @group_id
-
-        @child_supports = @child_supports.in_group(@group_id)
-        @active_child_support = @active_child_support.in_group(@group_id)
-        @not_active_child_support = @not_active_child_support.in_group(@group_id)
+        @child_supports = @child_supports.in_group(@group_id).distinct if @group_id.present?
+        @active_child_support = @child_supports.active_supported_by(@caller_id)
+        @not_active_child_support = @child_supports.not_active_supported_by(@caller_id)
       end
     end
   end
