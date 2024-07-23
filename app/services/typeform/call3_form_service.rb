@@ -1,6 +1,6 @@
 module Typeform
   class Call3FormService
-    FIELD_IDS = { call4_previous_goal_follow_up: 'CXDlsCna9dg3' }.freeze
+    FIELD_IDS = %w[CXDlsCna9dg3 lwth2Bv3Pzqm].freeze
 
     def initialize(form_responses)
       @answers = form_responses[:answers]
@@ -9,7 +9,7 @@ module Typeform
 
     def call
       @answers.each do |answer|
-        next unless answer[:field][:id] == FIELD_IDS[:call4_previous_goal_follow_up]
+        next unless answer[:field][:id].in? FIELD_IDS
 
         @child_support.call4_previous_goals_follow_up = answer[:choice][:label] == 'Oui !' ? '1_succeed' : '3_no_tried'
         @child_support.save
