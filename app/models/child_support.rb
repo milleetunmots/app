@@ -83,6 +83,7 @@
 #  call4_notes                           :text
 #  call4_parent_actions                  :text
 #  call4_parent_progress                 :string
+#  call4_previous_goals_follow_up        :string
 #  call4_reading_frequency               :string
 #  call4_sendings_benefits               :string
 #  call4_sendings_benefits_details       :text
