@@ -61,7 +61,7 @@ ActiveAdmin.register_page 'Message' do
       div id: 'call_goal_div' do
         label 'Petite mission'
         textarea name: 'call_goal' do
-          child_support_call3_goals(params[:child_support_id])
+          child_support_call3_goals(params[:child_support_id]) if params[:child_support_id]
         end
       end
 
