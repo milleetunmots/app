@@ -387,6 +387,8 @@ ActiveAdmin.register ChildSupport do
                           as: :radio,
                           collection: child_support_call_family_progress_select_collection
                 end
+              end
+              if [1, 2, 4].include? call_idx
                 column do
                   f.input "call#{call_idx}_previous_goals_follow_up",
                           as: :radio,
@@ -785,11 +787,11 @@ ActiveAdmin.register ChildSupport do
   end
 
   member_action :send_message_to_parent1 do
-    redirect_to admin_message_path(parent_id: resource.model.parent1.id)
+    redirect_to admin_message_path(parent_id: resource.model.parent1.id, child_support_id: resource.model.id)
   end
 
   member_action :send_message_to_parent2 do
-    redirect_to admin_message_path(parent_id: resource.model.parent2&.id)
+    redirect_to admin_message_path(parent_id: resource.model.parent2&.id, child_support_id: resource.model.id)
   end
 
   controller do
