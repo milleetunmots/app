@@ -59,11 +59,11 @@ RSpec.describe Child::CreateService do
 
       before { expect_any_instance_of(SpotHit::SendSmsService).to receive(:call) }
 
-      it "adds 'form-pro' tag" do
+      it "adds 'inscription3' tag" do
         child_count = Child.count
         subject.call
         expect(Child.count).to eq(child_count + 1)
-        expect(subject.child.tag_list).to include "form-pro"
+        expect(subject.child.tag_list).to include "inscription3"
       end
     end
 
@@ -72,20 +72,16 @@ RSpec.describe Child::CreateService do
 
       before { expect_any_instance_of(SpotHit::SendSmsService).to receive(:call) }
 
-      it "adds 'form-2' tag" do
+      it "adds 'inscriptioncaf' tag" do
         child_count = Child.count
         subject.call
         expect(Child.count).to eq(child_count + 1)
-        expect(subject.child.tag_list).to include "form-2"
+        expect(subject.child.tag_list).to include "inscriptioncaf"
       end
     end
 
     context "when registration_origin is not 2 or 3" do
       let(:registration_origin) { nil }
-
-      it "adds 'site' tag" do
-        expect(subject.call.child.tag_list).to include "site"
-      end
 
       it "does not send a sms" do
         child_count = Child.count

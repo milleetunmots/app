@@ -63,9 +63,11 @@ class Child
       # add tags for bao / local_partner ?
       @attributes[:tag_list] ||= []
       @attributes[:tag_list] << case @registration_origin
-                                when 3 then 'form-pro'
-                                when 2 then 'form-2'
-                                else 'site'
+                                when 5 then 'inscription5'
+                                when 4 then 'inscription4'
+                                when 3 then 'inscription3'
+                                when 2 then 'inscriptioncaf'
+                                else 'inscription1'
                                 end
     end
 
