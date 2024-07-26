@@ -28,6 +28,7 @@
 #  phone_number                        :string           not null
 #  phone_number_national               :string
 #  postal_code                         :string           not null
+#  preferred_channel                   :string
 #  present_on_facebook                 :boolean
 #  present_on_whatsapp                 :boolean
 #  redirection_unique_visit_rate       :float

@@ -30,4 +30,13 @@ module ActiveAdmin::ParentsHelper
       ]
     end
   end
+
+  def parent_preferred_channel_select_collection
+    Parent::COMMUNICATION_CHANNELS.map do |v|
+      [
+        Parent.human_attribute_name("communication_channel.#{v}"),
+        v
+      ]
+    end
+  end
 end
