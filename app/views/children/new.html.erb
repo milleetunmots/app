@@ -5,8 +5,11 @@
     </div>
   <% else %>
     <div class="container" id="inscription-content">
-      <div id="logo">
-        <%= image_tag("mots-logo.png", id:"img-logo")  %>
+      <div id="logos">
+        <%= image_tag("mots-logo.png", id:"mots-logo") %>
+        <% if @form_path == '/inscriptioncaf' %>
+          <%= image_tag("caf-logo.jpg", id:"caf-logo") %>
+        <% end %>
       </div>
       <%= simple_form_for @child, url: @form_path_url || children_path do |f| %>
 

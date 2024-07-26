@@ -32,7 +32,6 @@ ActiveAdmin.register Child do
     column :parent2_phone_number_national
     column :postal_code
     column :territory
-    column :child_support, sortable: :child_support_id, &:child_support_status
     column :group, sortable: :group_id
     column :group_status
     column :source
