@@ -28,6 +28,7 @@
 #  phone_number                        :string           not null
 #  phone_number_national               :string
 #  postal_code                         :string           not null
+#  preferred_channel                   :string
 #  present_on_facebook                 :boolean
 #  present_on_whatsapp                 :boolean
 #  redirection_unique_visit_rate       :float
@@ -81,6 +82,7 @@ class Parent < ApplicationRecord
   VILLENEUVE_LA_GARENNE_POSTAL_CODE = %w[92390].freeze
   MANTES_LA_JOLIE_POSTAL_CODE = %w[78520 78200].freeze
   ALL_POSTAL_CODE = ORELANS_POSTAL_CODE + PLAISIR_POSTAL_CODE + MONTARGIS_POSTAL_CODE + TRAPPES_POSTAL_CODE + PARIS_18_EME_POSTAL_CODE + AULNAY_SOUS_BOIS_POSTAL_CODE + PARIS_20_EME_POSTAL_CODE + BONDY_POSTAL_CODE
+  COMMUNICATION_CHANNELS = %w[sms whatsapp].freeze
 
 
   # ---------------------------------------------------------------------------
@@ -105,6 +107,7 @@ class Parent < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
   before_save :format_phone_number
+  before_create :add_preferred_channel_tag, if: -> { preferred_channel.present? }
   after_create :should_be_contacted_as_parent2, if: -> { parent2_creation.present? }
   after_save :change_the_other_parent_address
 
@@ -131,6 +134,7 @@ class Parent < ApplicationRecord
             format: { with: REGEX_VALID_EMAIL, allow_blank: true, message: 'Les informations doivent être renseignées au format adresse email (xxxx@xx.com).' },
             uniqueness: { case_sensitive: false, allow_blank: true }
   validates :terms_accepted_at, presence: true
+  validates :preferred_channel, inclusion: { in: COMMUNICATION_CHANNELS, allow_blank: true }
   validate :phone_number_format, on: :create
 
   scope :potential_duplicates, -> {
@@ -309,6 +313,13 @@ class Parent < ApplicationRecord
       self.phone_number = phone.e164
       self.phone_number_national = phone.national(false)
     end
+  end
+
+  def add_preferred_channel_tag
+    return unless self.preferred_channel.eql?('whatsapp')
+
+    whatsapp_tag = Tag.find_or_create_by(name: 'whatsapp', is_visible_by_callers: false)
+    self.tag_list.add(whatsapp_tag)
   end
 
   def phone_number_format

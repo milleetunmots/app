@@ -523,6 +523,7 @@ fr:
         mid_term_rate: Note de l'accompagnement
         mid_term_reaction: Réaction si les SMS s'arretaient
         mid_term_speech: Avis
+        preferred_channel: Je veux recevoir les conseils et idées d’activités par
       parent/gender:
         f: Femme
         m: Homme
@@ -540,6 +541,9 @@ fr:
       parent/degree_country_at_registration:
         france: France
         other: Autre
+      parent/communication_channel:
+        sms: SMS
+        whatsapp: WhatsApp
       redirection_target:
         << : *SHARED
         family_redirection_url_unique_visits_count: Visites uniques familiales
