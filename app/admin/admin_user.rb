@@ -87,14 +87,14 @@ ActiveAdmin.register AdminUser do
 
   member_action :disable, method: :put do
     admin_user = AdminUser.find(params[:id])
-    admin_user.update(is_disabled: true)
+    admin_user.update_column(:is_disabled, true)
     flash['notice'] = "L'utilisateur a été désactivé."
     redirect_to admin_admin_user_path(admin_user)
   end
 
   member_action :activate, method: :put do
     admin_user = AdminUser.find(params[:id])
-    admin_user.update(is_disabled: false)
+    admin_user.update_column(:is_disabled, false)
     flash['notice'] = "L'utilisateur a été réactivé."
     redirect_to admin_admin_user_path(admin_user)
   end
