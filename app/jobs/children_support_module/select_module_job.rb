@@ -12,19 +12,20 @@ class ChildrenSupportModule
       Group::StopSupportService.new(group_id, end_of_support: false).call
       # module_index starts with 1
       # so if module_index == 3 it means this is Module 2 (that comes after Module 0 and 1)
-      children = if module_index.eql?(3) && group.with_module_zero?
-                   group.children.where(group_status: 'active').joins(:child_support).where(child_supports: {
-                                                                                              call2_status: [
-                                                                                                I18n.t('activerecord.attributes.child_support/call_status.2_ko'),
-                                                                                                I18n.t('activerecord.attributes.child_support/call_status.4_dont_call'),
-                                                                                                I18n.t('activerecord.attributes.child_support/call_status.5_unfinished')
-                                                                                              ]
-                                                                                            })
-                 else
-                   group.children.where(group_status: 'active')
-                 end
+      children = group.children.where(group_status: 'active').includes(:child_support)
+      if module_index.eql?(3) && group.with_module_zero?
+        children = children.where(
+          child_supports: {
+            call2_status: [
+              I18n.t('activerecord.attributes.child_support/call_status.2_ko'),
+              I18n.t('activerecord.attributes.child_support/call_status.4_dont_call'),
+              I18n.t('activerecord.attributes.child_support/call_status.5_unfinished')
+            ]
+          }
+        )
+      end
 
-      children.each do |child|
+      children.find_each do |child|
         unless child.child_support
           errors["child: #{child.id}"] = "Cet enfant n'a pas de fiche de suivi"
           next

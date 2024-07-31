@@ -4,7 +4,9 @@ ENV INSTALL_PATH /rails
 ENV RAILS_ENV production
 ENV RACK_ENV production
 # monkey patch to avoid cryptographic error on compile
-ENV NODE_OPTIONS=--openssl-legacy-provider
+ENV NODE_OPTIONS --openssl-legacy-provider
+ENV MALLOC_ARENA_MAX 2
+ENV RAILS_MAX_THREADS 5
 RUN mkdir -p $INSTALL_PATH
 WORKDIR $INSTALL_PATH
 
