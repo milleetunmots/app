@@ -122,6 +122,9 @@ class SupportModule < ApplicationRecord
     self.class.new(
       name: "Copie de #{name}",
       tag_list: tag_list,
+      age_ranges: age_ranges,
+      level: level,
+      theme: theme,
       support_module_weeks: support_module_weeks.map do |smw|
         smw.class.new(
           medium: smw.medium,
