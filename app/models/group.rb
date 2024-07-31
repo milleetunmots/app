@@ -106,6 +106,8 @@ class Group < ApplicationRecord
   end
 
   def with_module_zero?
+    return false if started_at.nil?
+
     started_at >= DateTime.parse(ENV['MODULE_ZERO_FEATURE_START'])
   end
 
