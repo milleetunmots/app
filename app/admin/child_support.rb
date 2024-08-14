@@ -205,6 +205,7 @@ ActiveAdmin.register ChildSupport do
   form(remote: true) do |f|
     f.semantic_errors(*f.object.errors.keys)
     f.inputs do
+      f.input :id, as: :hidden, name: :id, value: f.object.id
       columns do
         column do
           f.input :supporter,
