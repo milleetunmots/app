@@ -6,8 +6,8 @@ $(document).ready(function() {
     var additional_message_field = $('#additional_message_div')
     var message = $("textarea[name='message']")
     var messageContent = "Bonjour !\nVoici votre petite mission :\n{call_goal}\nQuand vous aurez essayé, cliquez sur ce lien pour me raconter comment ça s’est passé :\n{type_form_link}\n{additional_message}\n1001mots"
-    var speakingTypeformLink = "https://form.typeform.com/to/swkzdIlg#child_support_id=xxxxx"
-    var observingTypeformLink = "https://form.typeform.com/to/dZCvik1O#child_support_id=xxxxx"
+    var speakingLink = `https://${window.location.host}/call3/sf?child_support_id=xxxxx`
+    var observingLink = `https://${window.location.host}/call3/of?child_support_id=xxxxx`
 
     function showNewFields() {
         call_goal_sms_field.show()
@@ -23,16 +23,15 @@ $(document).ready(function() {
     }
     function specificCall3Message(call3_goal) {
         if (call3_goal == 'call3_goals_speaking'){
-            messageContentWithLink = messageContent.replace('{type_form_link}', speakingTypeformLink)
+            messageContentWithLink = messageContent.replace('{type_form_link}', speakingLink)
         }else if (call3_goal == 'call3_goals_observing') {
-            messageContentWithLink = messageContent.replace('{type_form_link}', observingTypeformLink)
+            messageContentWithLink = messageContent.replace('{type_form_link}', observingLink)
         }
         if (call_goal.val() !== ''){
             messageContentRefreshed = messageContentWithLink.replace('{call_goal}', call_goal.val())
         } else {
             messageContentRefreshed = messageContentWithLink
         }
-        
     }
 
     hideNewFields()

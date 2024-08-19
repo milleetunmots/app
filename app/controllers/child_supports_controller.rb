@@ -1,7 +1,8 @@
 class ChildSupportsController < ApplicationController
 
+  before_action :find_child_support
+
   def confirm_end_support
-    find_child_support
     verify_child_support
     return if @child_support.tag_list.include?('arrêt appelante - programme')
 
@@ -17,12 +18,14 @@ class ChildSupportsController < ApplicationController
 		end
   end
 
-  def updated_at
-    find_child_support
+  def call3_speaking_form
+    supporter_name = @child_support.supporter.decorate.first_name
+    current_child_name = @child_support.current_child.first_name
+  end
 
-    render json: {
-      updated_at: @child_support.updated_at
-    }
+  def call3_observing_form
+    supporter_name = @child_support.supporter.decorate.first_name
+    current_child_name = @child_support.current_child.first_name
   end
 
   private
