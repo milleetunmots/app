@@ -51,6 +51,8 @@ class Child < ApplicationRecord
 
   include Discard::Model
 
+  attr_accessor :parent1_selection, :parent2_selection
+
   GENDERS = %w[m f].freeze
   GROUP_STATUS = %w[waiting active paused stopped disengaged not_supported].freeze
   TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
