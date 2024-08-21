@@ -94,6 +94,7 @@ fr:
         letterbox_name: Nom de famille sur la boîte aux lettres
         months: Age (en mois)
         parent1: Parent 1
+        parent1_selection: Parent 1
         parent1_email: Email du parent 1
         parent1_first_name: Prénom du parent 1
         parent1_gender: Sexe du parent 1
@@ -104,6 +105,7 @@ fr:
         parent1_last_name: Nom du parent 1
         parent1_phone_number_national: Numéro du parent 1
         parent2: Parent 2
+        parent2_selection: Parent 2
         parent2_email: Email du parent 2
         parent2_first_name: Prénom du parent 2
         parent2_gender: Sexe du parent 2

@@ -312,22 +312,39 @@ ActiveAdmin.register Child do
   # ---------------------------------------------------------------------------
 
   form do |f|
-    parents_collection = child_parent_select_collection
     f.object.parent1_id = params[:parent1_id] if params[:parent1_id]
+    f.object.parent1_selection = f.object.parent1.decorate.name if f.object.parent1_id
     f.object.parent2_id = params[:parent2_id] if params[:parent2_id]
+    f.object.parent2_selection = f.object.parent2&.decorate&.name if f.object.parent2_id
     f.object.should_contact_parent1 = params[:should_contact_parent1] if params[:should_contact_parent1]
     f.object.should_contact_parent2 = params[:should_contact_parent2] if params[:should_contact_parent1]
     f.object.available_for_workshops = params[:available_for_workshops] if params[:available_for_workshops]
 
     f.semantic_errors(*f.object.errors.keys)
     f.inputs do
-      f.input :parent1,
-              collection: parents_collection,
-              input_html: { data: { select2: {} } }
+      f.input :parent1_selection,
+              as: :select,
+              input_html: {
+                        id: 'child-parent1-select',
+                        data: {
+                          url: parents_admin_children_path,
+                          selected_value: f.object.parent1_id,
+                          selected_text: f.object.parent1_selection
+                        }
+                      }
+      f.input :parent1_id, as: :hidden
       f.input :should_contact_parent1
-      f.input :parent2,
-              collection: parents_collection,
-              input_html: { data: { select2: {} } }
+      f.input :parent2_selection,
+              as: :select,
+              input_html: {
+                        id: 'child-parent2-select',
+                        data: {
+                          url: parents_admin_children_path,
+                          selected_value: f.object.parent2_id,
+                          selected_text: f.object.parent2_selection
+                        }
+                      }
+      f.input :parent2_id, as: :hidden
       f.input :should_contact_parent2
       f.input :gender,
               as: :radio,
@@ -526,6 +543,8 @@ ActiveAdmin.register Child do
     link_to 'Nouveau parent', new_admin_parent_path, target: '_blank'
   end
 
+  collection_action :parents, method: :get
+
   # ---------------------------------------------------------------------------
   # CSV EXPORT
   # ---------------------------------------------------------------------------
@@ -619,6 +638,22 @@ ActiveAdmin.register Child do
         filter_name.presence,
         Time.zone.now.to_date.to_s(:default)
       ].compact.join(' - ') + '.csv'
+    end
+
+    def parents
+      term = params[:term]
+      parents = Parent.where('unaccent(first_name) ILIKE unaccent(?) OR unaccent(last_name) ILIKE unaccent(?)', "%#{term}%", "%#{term}%")
+                      .order(:first_name, :last_name)
+                      .decorate
+                      .map do |result|
+                        {
+                          id: result.id,
+                          text: result.name
+                        }
+                      end
+      render json: {
+        results: parents
+      }
     end
   end
 end
