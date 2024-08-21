@@ -46,7 +46,7 @@ class ParentDecorator < BaseDecorator
     r = if model.should_be_contacted?
           [phone.national]
         else
-          [h.content_tag(:p, phone.national, style: 'text-decoration: line-through;')]
+          [h.content_tag(:span, phone.national, style: 'text-decoration: line-through;')]
         end
     if with_icon
       r << h.image_tag('whatsapp.png', class: 'phone-number-icon') if model.follow_us_on_whatsapp?
