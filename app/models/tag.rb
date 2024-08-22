@@ -4,7 +4,7 @@
 #
 #  id                    :integer          not null, primary key
 #  color                 :string
-#  is_visible_by_callers :boolean          default(TRUE), not null
+#  is_visible_by_callers :boolean          default(FALSE), not null
 #  name                  :string
 #  taggings_count        :integer          default(0)
 #  created_at            :datetime
