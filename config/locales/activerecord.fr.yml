@@ -387,6 +387,7 @@ fr:
         2_tried: Essayée
         3_no_tried: Pas essayée
         4_no_goal: Pas de petite mission
+        5_not_enough_information: Pas assez d'infos
       event: &EVENT
         << : *SHARED
         address: Adresse
