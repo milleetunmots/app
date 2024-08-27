@@ -42,6 +42,8 @@ class ParentDecorator < BaseDecorator
   end
 
   def phone_number(with_icon: false)
+    return nil if model.phone_number.blank?
+
     phone = Phonelib.parse model.phone_number
     r = if model.should_be_contacted?
           [phone.national]
