@@ -47,7 +47,9 @@ class Group
 
     def fill_exel_file
       @support_modules_count.each do |support_module, ages_count|
-        @worksheet.append_row([support_module, ages_count.keys.first, ages_count.values.first])
+        ages_count.each do|age_key, age_value|
+          @worksheet.append_row([support_module, age_key, age_value])
+        end
       end
       @worksheet.set_columns_width(0, 1, width = 25)
       # @worksheet.set_columns_width(1, 2, width = 20)
