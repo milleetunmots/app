@@ -6,8 +6,10 @@ $(document).ready(function() {
     var additional_message_field = $('#additional_message_div')
     var message = $("textarea[name='message']")
     var messageContent = "Bonjour !\nVoici votre petite mission :\n{call_goal}\nQuand vous aurez essayé, cliquez sur ce lien pour me raconter comment ça s’est passé :\n{type_form_link}\n{additional_message}\n1001mots"
-    var speakingLink = `https://${window.location.host}/call3/sf?child_support_id=xxxxx`
-    var observingLink = `https://${window.location.host}/call3/of?child_support_id=xxxxx`
+    var childSupportId = new URLSearchParams(window.location.search).get('child_support_id') 
+    var parentSecurityCode = new URLSearchParams(window.location.search).get('parent_sc') 
+    var speakingLink = `${window.location.host}/c3/sf?cs=${childSupportId}&sc=${parentSecurityCode}`
+    var observingLink = `${window.location.host}/c3/of?cs=${childSupportId}&sc=${parentSecurityCode}`
 
     function showNewFields() {
         call_goal_sms_field.show()

@@ -1,8 +1,7 @@
 class ChildSupportsController < ApplicationController
 
-  before_action :find_child_support
-
   def confirm_end_support
+    find_child_support(params[:child_support_id], params[:parent1_sc])
     verify_child_support
     return if @child_support.tag_list.include?('arrêt appelante - programme')
 
@@ -19,25 +18,32 @@ class ChildSupportsController < ApplicationController
   end
 
   def call3_speaking_form
-    supporter_name = @child_support.supporter.decorate.first_name
-    current_child_name = @child_support.current_child.first_name
+    handle_call3_form
   end
 
   def call3_observing_form
-    supporter_name = @child_support.supporter.decorate.first_name
-    current_child_name = @child_support.current_child.first_name
+    handle_call3_form
   end
 
   private
 
-  def find_child_support
-    @child_support = ChildSupport.find_by(id: params[:child_support_id])
+  def find_child_support(child_support_id, security_code)
+    @child_support = ChildSupport.find_by(id: child_support_id)
 
     not_found and return unless @child_support
+    not_found and return unless @child_support.parent1.security_code == security_code
   end
 
   def verify_child_support
-    not_found and return unless @child_support.parent1.security_code == params[:parent1_sc]
     not_found and return if @child_support.stop_support_caller_id.nil?
+  end
+
+  def handle_call3_form
+    find_child_support(params[:cs], params[:sc])
+    supporter_name = @child_support.supporter&.decorate&.first_name
+    current_child_name = @child_support.current_child&.first_name
+    return if params[:supporter_name] == supporter_name && params[:current_child_name] == current_child_name
+
+    redirect_to url_for(params.permit!.to_h.merge(supporter_name: supporter_name, current_child_name: current_child_name)) and return
   end
 end
