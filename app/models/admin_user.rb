@@ -46,7 +46,7 @@ class AdminUser < ApplicationRecord
 
   validates :name, presence: true, uniqueness: { case_sensitive: false }
   validates :user_role, inclusion: { in: ROLES }
-  validates :password, format: { with: REGEX_VALID_PASSWORD, message: INVALID_PASSWORD_MESSAGE }
+  validates :password, format: { with: REGEX_VALID_PASSWORD, message: INVALID_PASSWORD_MESSAGE }, unless: -> { password.blank? }
   validate :common_password
 
   scope :all_logistics_team_members, -> { where(user_role: "logistics_team") }
