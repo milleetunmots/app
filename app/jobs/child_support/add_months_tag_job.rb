@@ -1,11 +1,18 @@
 class ChildSupport
   class AddMonthsTagJob < ApplicationJob
     def perform(group_id)
-      lt22_tag = Tag.find_or_create_by(name: '<22mois', color: '#00fbff')
-      mt23_tag = Tag.find_or_create_by(name: '23 mois et +', color: '	#ff9500')
+      lt9_tag = Tag.find_or_create_by(name: '<9mois', color: '#ff9500', is_visible_by_callers: true)
+      btw9_and22_tag = Tag.find_or_create_by(name: '9 à 22 mois', color: '#00fbff', is_visible_by_callers: true)
+      mt23_tag = Tag.find_or_create_by(name: '23 mois et +', color: '#ff9500', is_visible_by_callers: true)
       group = Group.includes(child_supports: :children).find(group_id)
       group.child_supports.with_a_child_in_active_group.find_each do |child_support|
-        child_support.tag_list.add(child_support.current_child.months < 22 ? lt22_tag.name : mt23_tag.name)
+        if child_support.current_child.months < 9
+          child_support.tag_list.add(lt9_tag)
+        elsif child_support.current_child.months < 23
+          child_support.tag_list.add(btw9_and22_tag)
+        else
+          child_support.tag_list.add(mt23_tag)
+        end
         child_support.save
       end
     end
