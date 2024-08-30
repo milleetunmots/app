@@ -67,7 +67,7 @@ class ChildSupport::SendCall3GoalsMessagesService
   end
 
   def send_text_messages_bundle
-    @group.child_supports.where.not(call3_goals_sms: nil).find_each do |child_support|
+    @group.child_supports.where.not(call3_goals_sms: [nil, '']).find_each do |child_support|
       @child_support = child_support
       @date = @group.started_at + 25.weeks
       ENV['CALL3_TEXT_MESSAGES_BUNDLES'].split(',').each do |text_messages_bundle_name|

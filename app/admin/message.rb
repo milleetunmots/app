@@ -52,12 +52,6 @@ ActiveAdmin.register_page 'Message' do
         select name: 'redirection_target', id: 'redirection_target'
       end
 
-      div do
-        label 'Message'
-        textarea name: 'message'
-        small 'Variables disponibles: {PRENOM_ENFANT}, {URL}'
-      end
-
       div id: 'call_goal_div' do
         label 'Petite mission'
         textarea name: 'call_goal' do
@@ -68,6 +62,12 @@ ActiveAdmin.register_page 'Message' do
       div id: 'additional_message_div' do
         label 'Message complémentaire'
         textarea name: 'additional_message'
+      end
+
+      div do
+        label 'Message'
+        textarea name: 'message'
+        small 'Variables disponibles: {PRENOM_ENFANT}, {URL}'
       end
 
       div do
