@@ -266,6 +266,7 @@ ActiveRecord::Schema.define(version: 2024_08_19_090859) do
     t.text "stop_support_details"
     t.datetime "stop_support_date"
     t.string "family_support_should_be_stopped"
+    t.string "call4_previous_goals_follow_up"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"

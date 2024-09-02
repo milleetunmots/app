@@ -30,17 +30,6 @@ ActiveAdmin.register_page 'Message' do
         select name: 'supporter', id: 'supporter'
       end
 
-      div do
-        label 'Url cible'
-        select name: 'redirection_target', id: 'redirection_target'
-      end
-
-      div do
-        label 'Message'
-        textarea name: 'message'
-        small 'Variables disponibles: {PRENOM_ENFANT}, {URL}'
-      end
-
       if params[:parent_id].present?
         div do
           label 'SMS de petite mission ?'
@@ -50,10 +39,35 @@ ActiveAdmin.register_page 'Message' do
             option 'Appel 1', value: 'call1_goals'
             option 'Appel 2', value: 'call2_goals'
             option 'Appel 3', value: 'call3_goals'
+            option 'Appel 3 - PARLER', value: 'call3_goals_speaking'
+            option 'Appel 3 - OBSERVER', value: 'call3_goals_observing'
             option 'Appel 4', value: 'call4_goals'
             option 'Appel 5', value: 'call5_goals'
           end
         end
+      end
+
+      div do
+        label 'Url cible'
+        select name: 'redirection_target', id: 'redirection_target'
+      end
+
+      div id: 'call_goal_div' do
+        label 'Petite mission'
+        textarea name: 'call_goal' do
+          child_support_call3_goals(params[:child_support_id]) if params[:child_support_id]
+        end
+      end
+
+      div id: 'additional_message_div' do
+        label 'Message complémentaire'
+        textarea name: 'additional_message'
+      end
+
+      div do
+        label 'Message'
+        textarea name: 'message'
+        small 'Variables disponibles: {PRENOM_ENFANT}, {URL}'
       end
 
       div do
@@ -70,6 +84,12 @@ ActiveAdmin.register_page 'Message' do
   end
 
   page_action :program_sms, method: :post do
+    call_goal =
+      if params[:call_goals_sms].in? %w[call3_goals_speaking call3_goals_observing]
+        'call3_goals'
+      else
+        params[:call_goals_sms]
+      end
     service = ProgramMessageService.new(
       params[:planned_date],
       params[:planned_hour],
@@ -88,7 +108,7 @@ ActiveAdmin.register_page 'Message' do
     else
       notice = 'Message(s) programmé(s)'
       if params[:call_goals_sms] && params[:call_goals_sms] != 'Non'
-        child_support.update_column("#{params[:call_goals_sms]}_sms".to_sym, params[:message])
+        child_support.update_column("#{call_goal}_sms".to_sym, params[:message])
         notice += '. Et petite mission définie'
       end
       redirect_back(fallback_location: root_path, notice: notice)
