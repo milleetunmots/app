@@ -1,6 +1,6 @@
 class ChildSupport::SendCall3GoalsMessagesService
 
-  CALL3_GOALS_REMINDER_MESSAGE = "Rappel de votre petite mission:\n{call3_goals}\n{typeform_link}".freeze
+  CALL3_GOALS_REMINDER_MESSAGE = "Bonjour\nVoici un rappel de votre petite mission 1001mots :\n{call3_goals}\nEt pour nous raconter comment ça c'est passé, c'est ici :\n{typeform_link}\nÀ bientôt :)".freeze
   CALL3_GOALS_REGEX = /Voici votre petite mission :\r\n(.*?)\r\nQuand vous aurez essayé/
   TYPEFORM_URL_REGEX = /https:\/\/form\.typeform\.com\/to\/\S+/
 
