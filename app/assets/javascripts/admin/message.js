@@ -5,11 +5,11 @@ $(document).ready(function() {
     var call_goal_sms_field = $('#call_goal_div')
     var additional_message_field = $('#additional_message_div')
     var message = $("textarea[name='message']")
-    var messageContent = "Bonjour !\nVoici votre petite mission :\n{call_goal}\nQuand vous aurez essayé, cliquez sur ce lien pour me raconter comment ça s’est passé :\n{type_form_link}\n{additional_message}\n1001mots"
-    var childSupportId = new URLSearchParams(window.location.search).get('child_support_id') 
-    var parentSecurityCode = new URLSearchParams(window.location.search).get('parent_sc') 
-    var speakingLink = `${window.location.host}/c3/sf?cs=${childSupportId}&sc=${parentSecurityCode}`
-    var observingLink = `${window.location.host}/c3/of?cs=${childSupportId}&sc=${parentSecurityCode}`
+    var messageContent = "Bonjour !\nVoici votre petite mission :\n{CHAMP_PETITE_MISSION}\nQuand vous aurez essayé, cliquez sur ce lien pour me raconter comment ça s’est passé :\n{type_form_link}\n{CHAMP_MESSAGE_COMPLEMENTAIRE}\n1001mots"
+    var childSupportId = new URLSearchParams(window.location.search).get('child_support_id')
+    var parentSecurityCode = new URLSearchParams(window.location.search).get('parent_sc')
+    var speakingLink = `${window.location.protocol}//${window.location.host}/c3/sf?cs=${childSupportId}&sc=${parentSecurityCode}`
+    var observingLink = `${window.location.protocol}//${window.location.host}/c3/of?cs=${childSupportId}&sc=${parentSecurityCode}`
 
     function showNewFields() {
         call_goal_sms_field.show()
@@ -30,7 +30,7 @@ $(document).ready(function() {
             messageContentWithLink = messageContent.replace('{type_form_link}', observingLink)
         }
         if (call_goal.val() !== ''){
-            messageContentRefreshed = messageContentWithLink.replace('{call_goal}', call_goal.val())
+            messageContentRefreshed = messageContentWithLink.replace('{CHAMP_PETITE_MISSION}', call_goal.val())
         } else {
             messageContentRefreshed = messageContentWithLink
         }
@@ -55,12 +55,12 @@ $(document).ready(function() {
     })
 
     call_goal.on('input', function() {
-        messageContentRefreshed = messageContentWithLink.replace('{additional_message}', additional_message.val()).replace('{call_goal}', $(this).val())
+        messageContentRefreshed = messageContentWithLink.replace('{CHAMP_MESSAGE_COMPLEMENTAIRE}', additional_message.val()).replace('{CHAMP_PETITE_MISSION}', $(this).val())
         message.val(messageContentRefreshed)
     })
 
     additional_message.on('input', function() {
-        messageContentRefreshed = messageContentWithLink.replace('{call_goal}', call_goal.val()).replace('{additional_message}', $(this).val())
+        messageContentRefreshed = messageContentWithLink.replace('{CHAMP_PETITE_MISSION}', call_goal.val()).replace('{CHAMP_MESSAGE_COMPLEMENTAIRE}', $(this).val())
         message.val(messageContentRefreshed)
     })
 });
