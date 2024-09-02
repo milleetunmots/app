@@ -59,7 +59,7 @@ class ChildSupport::SendCall3GoalsMessagesService
   end
 
   def send_call3_goals_reminder_message
-    @group.child_supports.where.not(call3_goals_sms: nil).where.not(call4_previous_goals_follow_up: '1_succeed').find_each do |child_support|
+    @group.child_supports.where.not(call3_goals_sms: [nil, '']).where.not(call4_previous_goals_follow_up: '1_succeed').find_each do |child_support|
       @child_support = child_support
       service = ProgramMessageService.new(@date.strftime('%d-%m-%Y'), '12:30', recipient, reminder_message).call
       @errors << service.errors if service.errors
