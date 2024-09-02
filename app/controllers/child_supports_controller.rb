@@ -40,8 +40,8 @@ class ChildSupportsController < ApplicationController
 
   def handle_call3_form
     find_child_support(params[:cs], params[:sc])
-    supporter_name = @child_support.supporter&.decorate&.first_name
-    current_child_name = @child_support.current_child&.first_name
+    supporter_name = @child_support.supporter&.decorate&.first_name || '1001mots'
+    current_child_name = @child_support.current_child&.first_name || 'Votre enfant'
     return if params[:supporter_name] == supporter_name && params[:current_child_name] == current_child_name
 
     redirect_to url_for(params.permit!.to_h.merge(supporter_name: supporter_name, current_child_name: current_child_name)) and return

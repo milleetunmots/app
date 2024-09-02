@@ -1,7 +1,7 @@
 class ProgramMessageService
 
-  TYPEFORM_URL_REGEX = %r{https://form.typeform.com/[^\s]*#child_support_id=[^\s]+}
-  VIDEOASK_URL_REGEX = %r{https://www\.videoask\.com/[^\s]*#child_support_id=[^\s]+}
+  TYPEFORM_URL_REGEX = %r{https://form.typeform.com/[^\s]*#child_support_id=[^\s]+}.freeze
+  VIDEOASK_URL_REGEX = %r{https://www\.videoask\.com/[^\s]*#child_support_id=[^\s]+}.freeze
 
   attr_reader :errors
 
