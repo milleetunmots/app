@@ -45,6 +45,8 @@ Rails.application.routes.draw do
   get 'spot_hit/response', to: 'events#spot_hit_response'
   get 'spot_hit/stop', to: 'events#spot_hit_stop'
   get 's/:id', to: 'children_support_modules#edit', as: :children_support_module_link
+  get 'c3/sf', to: 'child_supports#call3_speaking_form', as: :call3_speaking_form
+  get 'c3/of', to: 'child_supports#call3_observing_form', as: :call3_observing_form
   post '/typeform/webhooks', to: 'typeform#webhooks'
 
   resources :events, only: %i[index create]
