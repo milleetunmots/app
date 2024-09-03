@@ -53,7 +53,7 @@ class ProgramMessageService
     @message += ' {URL}' if @redirection_target && !@variables.include?('URL')
 
     service = if @file.nil?
-                SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, event_params: @event_params).call
+                SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, workshop_id: @workshop_id, event_params: @event_params).call
               else
                 SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, file: @file, event_params: @event_params).call
               end

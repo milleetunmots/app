@@ -53,6 +53,7 @@ RSpec.describe ProgramMessageService do
           [parent_3.id],
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           message,
+          workshop_id: nil,
           event_params: {}
         ).
         and_call_original
@@ -75,6 +76,7 @@ RSpec.describe ProgramMessageService do
           [parent_3.id],
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           message,
+          workshop_id: nil,
           event_params: {}
         ).
         and_call_original
@@ -97,6 +99,7 @@ RSpec.describe ProgramMessageService do
           [parent_2.id],
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           message,
+          workshop_id: nil,
           event_params: {}
         ).
         and_call_original
@@ -118,7 +121,7 @@ RSpec.describe ProgramMessageService do
         with(
           { parent_2.id.to_s => {'CHILD_SUPPORT_ID' => parent_2.current_child.child_support_id, 'PRENOM_ENFANT' => parent_2.current_child.first_name} },
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
-          'N\'oubliez pas que {PRENOM_ENFANT} doit faire du sport.', event_params: {}
+          'N\'oubliez pas que {PRENOM_ENFANT} doit faire du sport.', workshop_id: nil, event_params: {}
         ).
         and_call_original
       )
@@ -153,6 +156,7 @@ RSpec.describe ProgramMessageService do
           },
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           'N\'oubliez pas que {URL} doit faire du sport.',
+          workshop_id: nil,
           event_params: {}
         ).
         and_call_original
@@ -180,6 +184,7 @@ RSpec.describe ProgramMessageService do
           },
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           'N\'oubliez l\'importance du sport. {URL}',
+          workshop_id: nil,
           event_params: {}
         ).
         and_call_original
