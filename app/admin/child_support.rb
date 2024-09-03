@@ -513,6 +513,8 @@ ActiveAdmin.register ChildSupport do
           row :should_be_read
           row :is_bilingual
           row :second_language
+          row :suggested_videos_sent_count
+          row :suggested_videos_sent_dates
           row :tags do |model|
             model.current_admin_user = current_admin_user
             model.tags(context: 'tags')

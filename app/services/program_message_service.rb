@@ -112,10 +112,17 @@ class ProgramMessageService
       Parent.where(id: @parent_ids).find_each do |parent|
         @recipient_data[parent.id.to_s] = {}
         @recipient_data[parent.id.to_s]['PRENOM_ENFANT'] = parent.current_child&.first_name || 'votre enfant'
-        @recipient_data[parent.id.to_s]['CHILD_SUPPORT_ID'] = parent.current_child&.child_support.id
+        @recipient_data[parent.id.to_s]['CHILD_SUPPORT_ID'] = parent.current_child&.child_support&.id
         if @redirection_target && parent.current_child.present?
           @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
+          next unless @redirection_target.suggested_videos?
+
+          child_support = parent.current_child&.child_support
+          next unless child_support
+
+          child_support.suggested_videos_counter << { redirection_target_id: @redirection_target.id, sending_date: Time.zone.now }
+          child_support.save
         end
       end
     else

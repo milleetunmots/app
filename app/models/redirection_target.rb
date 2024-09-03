@@ -72,4 +72,8 @@ class RedirectionTarget < ApplicationRecord
     save!
   end
 
+  def suggested_videos?
+    keywords = ['Module 0 - Conversations', 'Lecture - Pour debuter', 'Appel 3 -']
+    keywords.any? { |keyword| medium.name.include?(keyword) }
+  end
 end

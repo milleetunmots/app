@@ -251,6 +251,14 @@ class ChildSupportDecorator < BaseDecorator
     model.parent2.children_support_modules.includes(:support_module).pluck(:name).reject(&:blank?).join(", ")
   end
 
+  def suggested_videos_sent_count
+    model.suggested_videos_counter.count
+  end
+
+  def suggested_videos_sent_dates
+    model.suggested_videos_counter.map { |count| DateTime.parse(count['sending_date']).strftime('%Y-%m-%d') }.join('; ')
+  end
+
   private
 
   def children_attribute(key, glue)
