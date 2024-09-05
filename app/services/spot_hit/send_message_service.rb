@@ -54,8 +54,12 @@ class SpotHit::SendMessageService
         occurred_at: @workshop.workshop_date
       )
     end
-    @workshop&.save
 
+    return unless @workshop
+
+    unless @workshop.save
+      @errors << "Erreur lors de la sauvegarde de l'atelier #{@workshop.name}."
+    end
   end
 
   def safeguard(form)
