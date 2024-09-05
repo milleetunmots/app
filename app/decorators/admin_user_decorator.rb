@@ -33,4 +33,8 @@ class AdminUserDecorator < BaseDecorator
   def user_role
     AdminUser.human_attribute_name("user_role.#{model.user_role}")
   end
+
+  def first_name
+    model.name.split.first
+  end
 end
