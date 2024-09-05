@@ -4,6 +4,8 @@ class ChildSupport::SendCall3GoalsMessagesService
   CALL3_GOALS_REGEX = /Voici votre petite mission :\r\n([\s\S]*?)\r\nQuand vous aurez essayé/.freeze
   TYPEFORM_URL_REGEX = /https?:\/\/[^\/]+\/c3\/\S+/.freeze
 
+  attr_reader :errors
+
   def initialize(group_id)
     @group = Group.find(group_id)
     @date = @group.started_at + 25.weeks
