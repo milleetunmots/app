@@ -125,6 +125,7 @@
 #  should_be_read                        :boolean
 #  stop_support_date                     :datetime
 #  stop_support_details                  :text
+#  suggested_videos_counter              :jsonb            is an Array
 #  to_call                               :boolean
 #  will_stay_in_group                    :boolean          default(FALSE), not null
 #  created_at                            :datetime         not null

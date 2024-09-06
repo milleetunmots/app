@@ -47,17 +47,17 @@ module ProgramMessagesHelper
   def module_zero_suggested_video(child_age_range)
     return unless child_age_range
 
-    video = RedirectionTarget.joins(:medium).where("media.name LIKE ?", "Module 0 - Conversations - #{child_age_range}%").first
+    video = RedirectionTarget.joins(:medium).where("media.name LIKE ?", "#{RedirectionTarget::SUGGESTED_VIDEOS_MODULE_0_NAME_STARTS_WITH} - #{child_age_range}%").first
     video&.decorate
   end
 
   def module_one_suggested_video(child_age_range)
-    video = RedirectionTarget.joins(:medium).find_by(media: { name: "Lecture - Pour debuter - #{child_age_range}" })
+    video = RedirectionTarget.joins(:medium).find_by(media: { name: "#{RedirectionTarget::SUGGESTED_VIDEOS_MODULE_1_NAME_STARTS_WITH} - #{child_age_range}" })
     video&.decorate
   end
 
   def call3_suggested_videos
-    videos = RedirectionTarget.joins(:medium).where('media.name LIKE ?', 'Appel 3 - %')
+    videos = RedirectionTarget.joins(:medium).where('media.name LIKE ?', "#{RedirectionTarget::SUGGESTED_VIDEOS_CALL_3_NAME_STARTS_WITH} - %")
     return if videos.empty?
 
     videos.map { |video| format_result(video.decorate) }
