@@ -22,7 +22,7 @@ ActiveAdmin.register ChildSupport do
     (0..5).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         [
-          decorated.send("call#{call_idx}_status"),
+          decorated.send("call#{call_idx}_status_in_index"),
           decorated.send("call#{call_idx}_parent_progress_index")
         ].join(' ').html_safe
       end
