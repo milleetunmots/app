@@ -3,78 +3,82 @@
     <div id="update-success-content-top" class="p-0">
       <h5 id="thanks">Merci beaucoup pour vos réponses.</h5>
       <h5>Nous vous souhaitons de beaux moments avec <%= @child_first_name %> 😊</h5>
-      <%- if @third_choice %>
-      <div class="row d-flex align-items-center justify-content-center" id="if-third-choice">
-        <div class="col-md-7 col-12">
-          <div id="mid-term-card" class="card border-primary text-left">
-            <div class="card-header bg-primary text-white">
-              <h5> Vous avez aimé ce qu’on vous envoie ?</h5>
-              <h5> Dites-le nous en répondant à ces trois questions :</h5>
-            </div>
-            <div class="card-body container-fluid">
-              <input id="parent-id" name="parent-id" type="hidden" value=<%= @parent_id %>>
-              <div class="mid-term-question row">
-                <div class="mid-term-question-label col">
-                  <h6 class="text-left">Ces derniers mois, avez-vous fait de nouvelles choses avec votre enfant grâce à 1001mots ?</h6>
+    </div>
+    <% if @third_choice %>
+      <% if @group_id == ENV['MAY24_GROUP_ID'] %>
+        <div data-tf-live="01J7AZ18H4R43ZP3XK1XVX3KKT"></div><script src="//embed.typeform.com/next/embed.js"></script>
+      <% else %>
+        <div class="row d-flex align-items-center justify-content-center" id="if-third-choice">
+          <div class="col-md-7 col-12">
+            <div id="mid-term-card" class="card border-primary text-left">
+              <div class="card-header bg-primary text-white">
+                <h5> Vous avez aimé ce qu’on vous envoie ?</h5>
+                <h5> Dites-le nous en répondant à ces trois questions :</h5>
+              </div>
+              <div class="card-body container-fluid">
+                <input id="parent-id" name="parent-id" type="hidden" value=<%= @parent_id %>>
+                <div class="mid-term-question row">
+                  <div class="mid-term-question-label col">
+                    <h6 class="text-left">Ces derniers mois, avez-vous fait de nouvelles choses avec votre enfant grâce à 1001mots ?</h6>
+                  </div>
+                </div>
+                <div class="mid-term-response row d-flex flex-wrap align-items-center justify-content-center">
+                  <div class="col-md-2 d-flex justify-content-start">
+                    <span class="rate-value">Non, pas du tout.</span>
+                  </div>
+                  <div class="btn-group col-md-8 col-12 d-flex flex-wrap justify-content-center p-0" role="group">
+                    <button type="button" class="rate btn btn-outline-primary" id="one">1</button>
+                    <button type="button" class="rate btn btn-outline-primary" id="two">2</button>
+                    <button type="button" class="rate btn btn-outline-primary" id="three">3</button>
+                    <button type="button" class="rate btn btn-outline-primary" id="four">4</button>
+                    <button type="button" class="rate btn btn-outline-primary" id="five">5</button>
+                    <button type="button" class="rate btn btn-outline-primary" id="six">6</button>
+                    <button type="button" class="rate btn btn-outline-primary" id="seven">7</button>
+                    <button type="button" class="rate btn btn-outline-primary" id="eight">8</button>
+                    <button type="button" class="rate btn btn-outline-primary" id="nine">9</button>
+                    <button type="button" class="rate btn btn-outline-primary" id="ten">10</button>
+                  </div>
+                  <div class="col-md-2 col-12 d-flex justify-content-end">
+                    <div class="rate-value">Oui, beaucoup!</div>
+                  </div>
+                </div>
+                <div class="mid-term-question row">
+                  <div class="mid-term-question-label col">
+                    <h6>Quelle serait votre réaction si vous ne receviez plus les SMS, les appels et les livres de 1001mots ?</h6>
+                  </div>
+                </div>
+                <div class="mid-term-response row d-flex flex-wrap align-items-center justify-content-center gap-y">
+                  <div class="col-6  col-md-3 d-flex align-items-center">
+                    <button type="button" class="reaction btn btn-outline-primary">Très déçu(e)</button>
+                  </div>
+                  <div class="col-6 col-md-3 d-flex align-items-center">
+                    <button type="button" class="reaction btn btn-outline-primary">Un peu déçu(e)</button>
+                  </div>
+                  <div class="col-6 col-md-3 d-flex align-items-center">
+                    <button type="button" class="reaction btn btn-outline-primary">Pas déçu(e)</button>
+                  </div>
+                  <div class="col-6 col-md-3 d-flex align-items-center">
+                    <button type="button" class="reaction btn btn-outline-primary">Je ne sais pas</button>
+                  </div>
+                </div>
+                <div class="mid-term-question">
+                  <h6 class="mid-term-question-label">Vous voulez nous en dire plus ?</h6>
+                </div>
+                <div class="mid-term-response">
+                  <div id="speech-area">
+                    <textarea class="form-control" id="speech"></textarea>
+                  </div>
                 </div>
               </div>
-            <div class="mid-term-response row d-flex flex-wrap align-items-center justify-content-center">
-              <div class="col-md-2 d-flex justify-content-start">
-                <span class="rate-value">Non, pas du tout.</span>
-              </div>
-              <div class="btn-group col-md-8 col-12 d-flex flex-wrap justify-content-center p-0" role="group">
-                <button type="button" class="rate btn btn-outline-primary" id="one">1</button>
-                <button type="button" class="rate btn btn-outline-primary" id="two">2</button>
-                <button type="button" class="rate btn btn-outline-primary" id="three">3</button>
-                <button type="button" class="rate btn btn-outline-primary" id="four">4</button>
-                <button type="button" class="rate btn btn-outline-primary" id="five">5</button>
-                <button type="button" class="rate btn btn-outline-primary" id="six">6</button>
-                <button type="button" class="rate btn btn-outline-primary" id="seven">7</button>
-                <button type="button" class="rate btn btn-outline-primary" id="eight">8</button>
-                <button type="button" class="rate btn btn-outline-primary" id="nine">9</button>
-                <button type="button" class="rate btn btn-outline-primary" id="ten">10</button>
-              </div>
-              <div class="col-md-2 col-12 d-flex justify-content-end">
-                  <div class="rate-value">Oui, beaucoup!</div>
-              </div>
-            </div>
-            <div class="mid-term-question row">
-              <div class="mid-term-question-label col">
-                <h6>Quelle serait votre réaction si vous ne receviez plus les SMS, les appels et les livres de 1001mots ?</h6>
-              </div>
-            </div>
-            <div class="mid-term-response row d-flex flex-wrap align-items-center justify-content-center gap-y">
-              <div class="col-6  col-md-3 d-flex align-items-center">
-                <button type="button" class="reaction btn btn-outline-primary">Très déçu(e)</button>
-              </div>
-              <div class="col-6 col-md-3 d-flex align-items-center">
-                <button type="button" class="reaction btn btn-outline-primary">Un peu déçu(e)</button>
-              </div>
-              <div class="col-6 col-md-3 d-flex align-items-center">
-                <button type="button" class="reaction btn btn-outline-primary">Pas déçu(e)</button>
-              </div>
-              <div class="col-6 col-md-3 d-flex align-items-center">
-                <button type="button" class="reaction btn btn-outline-primary">Je ne sais pas</button>
-              </div>
-            </div>
-            <div class="mid-term-question">
-              <h6 class="mid-term-question-label">Vous voulez nous en dire plus ?</h6>
-            </div>
-            <div class="mid-term-response">
-              <div id="speech-area">
-                <textarea class="form-control" id="speech"></textarea>
+              <div class="card-footer">
+                <div id= "submit" class="text-right">
+                  <button type="button" class="submit btn btn-outline-primary"> Envoyer </button>
+                </div>
               </div>
             </div>
           </div>
-          <div class="card-footer">
-            <div id= "submit" class="text-right">
-              <button type="button" class="submit btn btn-outline-primary"> Envoyer </button>
-            </div>
-          </div>
         </div>
-        </div>
-      </div>
       <% end %>
-    </div>
+    <% end %>
   </div>
 </div>
