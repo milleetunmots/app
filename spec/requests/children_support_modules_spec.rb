@@ -56,7 +56,15 @@ RSpec.describe ChildrenSupportModulesController, type: :request do
       expect(children_support_module.choice_date).to eq Time.zone.today
       expect(children_support_module.is_completed).to be true
       expect(children_support_module.support_module_id).to eq(support_module_list.first.id)
-      expect(response).to redirect_to(updated_children_support_module_path(children_support_module.id, child_first_name: child.first_name, sc: child.parent1.security_code))
+      expect(response).to redirect_to(
+        updated_children_support_module_path(
+          children_support_module.id,
+          child_first_name: child.first_name,
+          sc: child.parent1.security_code,
+          group_id: child.group_id,
+          child_support_id: child.child_support_id
+        )
+      )
     end
   end
 
