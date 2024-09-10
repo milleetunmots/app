@@ -13,7 +13,15 @@ class ChildrenSupportModulesController < ApplicationController
     @children_support_module.is_completed = true
 
     if @children_support_module.update(children_support_module_params)
-      redirect_to updated_children_support_module_path(@children_support_module.id, child_first_name: @children_support_module.child.first_name, sc: @children_support_module.parent.security_code)
+      group_id = @children_support_module.child.group_id
+      child_support_id = @children_support_module.child.child_support_id
+      redirect_to updated_children_support_module_path(
+        @children_support_module.id,
+        child_first_name: @children_support_module.child.first_name,
+        sc: @children_support_module.parent.security_code,
+        group_id: group_id,
+        child_support_id: child_support_id
+      )
     else
       @support_modules = @children_support_module.available_support_modules
       @action_path = children_support_module_path(@children_support_module, sc: @children_support_module.parent.security_code)
@@ -26,6 +34,7 @@ class ChildrenSupportModulesController < ApplicationController
     @third_choice = @children_support_module.child.group.with_module_zero? ? @children_support_module.module_index.eql?(4) : @children_support_module.module_index.eql?(3)
     @parent_id = @children_support_module.parent_id
     @typeform_link = "https://wr1q9w7z4ro.typeform.com/to/YzlXcWSJ#child_support_id=#{@children_support_module.child.child_support.id}"
+    @group_id = params[:group_id]
 
     @child_first_name = params[:child_first_name]
   end
