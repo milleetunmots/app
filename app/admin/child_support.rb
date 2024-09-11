@@ -661,6 +661,10 @@ ActiveAdmin.register ChildSupport do
     column :updated_at
   end
 
+  sidebar :emoji_modal do
+    render partial: 'admin/child_supports/modal'
+  end
+
   action_item :actions, only: %i[show edit] do
     dropdown_menu 'Actions' do
       item "Ajout d'un frère / soeur", %i[add_child admin child_support], { target: '_blank' }
@@ -668,6 +672,10 @@ ActiveAdmin.register ChildSupport do
       item "Autre tâche", url_for_new_task(resource.decorate), { target: '_blank' }
       item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
     end
+  end
+
+  action_item :modal_action, only: :show do
+    link_to 'Proto pop-up', '#', class: 'open-emoji-modal button'
   end
 
   member_action :add_child do

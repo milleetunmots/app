@@ -2,6 +2,32 @@ $(document).ready(function() {
   let $parent1 = $('#child_parent1_id');
   let $parent2 = $('#child_parent2_id');
 
+  const $modal = $('#emojiModal');
+  const $openModalButton = $('.open-emoji-modal');
+  const $closeModalButton = $modal.find('.close');
+  const $emojis = $modal.find('.emoji');
+
+  $openModalButton.on('click', function (event) {
+    event.preventDefault();
+    $modal.show();
+  });
+
+  $closeModalButton.on('click', function () {
+    $modal.hide();
+  });
+
+  $emojis.on('click', function () {
+    const radioId = $(this).data('radio');
+    const $radioButton = $('#' + radioId);
+
+    $radioButton.prop('checked', true);
+
+    $emojis.removeClass('active');
+    $(this).addClass('active');
+
+    console.log('Emoji sélectionné:', radioId);
+  });
+
   let autocompletion = function($input, id) {
 
     $input.change(function() {
