@@ -86,7 +86,7 @@ class Workshop < ApplicationRecord
 
     message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquez sur ce lien: {RESPONSE_LINK}"
 
-    service = Workshop::ProgramWorkshopInvitationService.new(Time.zone.today, Time.zone.now.strftime('%H:%M'), recipients, message, nil, nil, nil, id, nil, %w[active stopped disengaged]).call
+    service = Workshop::ProgramWorkshopInvitationService.new(Time.zone.today, Time.zone.now.strftime('%H:%M'), recipients, message, nil, nil, nil, id, nil, %w[waiting active paused stopped disengaged]).call
 
     Rollbar.error(service.errors) if service.errors.any?
   end
