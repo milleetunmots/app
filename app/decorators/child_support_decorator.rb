@@ -115,6 +115,10 @@ class ChildSupportDecorator < BaseDecorator
 
   (0..5).each do |call_idx|
 
+    define_method("call#{call_idx}_status_in_index") do
+      model.send("call#{call_idx}_status") == 'Incomplet / Pas de choix de module' ? 'Incomplet' : model.send("call#{call_idx}_status")
+    end
+
     define_method("call#{call_idx}_parent_progress_index") do
       progress model.send("call#{call_idx}_parent_progress_index")
     end
