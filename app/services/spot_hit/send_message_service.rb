@@ -64,6 +64,7 @@ class SpotHit::SendMessageService
 
   def safeguard(form)
     safe_numbers = ENV['SAFE_PHONE_NUMBERS'].to_s.split(',').map(&:strip)
+    numbers = []
 
     if form['destinataires'].present?
       numbers = form['destinataires'].split(', ').select { |num| safe_numbers.include?(num) }
@@ -73,11 +74,13 @@ class SpotHit::SendMessageService
     form.each_key do |key|
       res = key.match(/destinataires\[(\+\d+)\]/)
       next if res.nil?
-      next if safe_numbers.include?(res[1])
+
+      numbers << res[1] and next if safe_numbers.include?(res[1])
 
       form.delete(key)
     end
 
+    @recipients = Parent.where(phone_number: numbers).pluck(:id)
     form
   end
 end
