@@ -5,6 +5,9 @@ ActiveAdmin.register Workshop do
   use_discard
 
   includes :animator, :parents
+  after_create do |workshop|
+    flash[:error] = "Aucune invitation n'a pu être envoyée. Prévenez le pôle technique" if workshop.workshop_participations.empty?
+  end
 
   index do
     selectable_column

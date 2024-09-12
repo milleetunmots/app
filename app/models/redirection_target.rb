@@ -28,6 +28,11 @@ class RedirectionTarget < ApplicationRecord
 
   include Discard::Model
 
+  SUGGESTED_VIDEOS_MODULE_0_NAME_STARTS_WITH = 'Module 0 - Conversations'.freeze
+  SUGGESTED_VIDEOS_MODULE_1_NAME_STARTS_WITH = 'Lecture - Pour debuter'.freeze
+  SUGGESTED_VIDEOS_CALL_3_NAME_STARTS_WITH = 'Appel 3'.freeze
+  SUGGESTED_VIDEOS = [SUGGESTED_VIDEOS_MODULE_0_NAME_STARTS_WITH, SUGGESTED_VIDEOS_MODULE_1_NAME_STARTS_WITH, SUGGESTED_VIDEOS_CALL_3_NAME_STARTS_WITH].freeze
+
   # ---------------------------------------------------------------------------
   # relations
   # ---------------------------------------------------------------------------
@@ -72,4 +77,7 @@ class RedirectionTarget < ApplicationRecord
     save!
   end
 
+  def suggested_videos?
+    SUGGESTED_VIDEOS.any? { |suggested_video_name| medium.name.include?(suggested_video_name) }
+  end
 end

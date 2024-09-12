@@ -115,6 +115,10 @@ class ChildSupportDecorator < BaseDecorator
 
   (0..5).each do |call_idx|
 
+    define_method("call#{call_idx}_status_in_index") do
+      model.send("call#{call_idx}_status") == 'Incomplet / Pas de choix de module' ? 'Incomplet' : model.send("call#{call_idx}_status")
+    end
+
     define_method("call#{call_idx}_parent_progress_index") do
       progress model.send("call#{call_idx}_parent_progress_index")
     end
@@ -249,6 +253,14 @@ class ChildSupportDecorator < BaseDecorator
     return nil unless model.parent2
 
     model.parent2.children_support_modules.includes(:support_module).pluck(:name).reject(&:blank?).join(", ")
+  end
+
+  def suggested_videos_sent_count
+    model.suggested_videos_counter.count
+  end
+
+  def suggested_videos_sent_dates
+    model.suggested_videos_counter.map { |count| DateTime.parse(count['sending_date']).strftime('%Y-%m-%d') }.join('; ')
   end
 
   private

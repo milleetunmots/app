@@ -125,6 +125,7 @@
 #  should_be_read                        :boolean
 #  stop_support_date                     :datetime
 #  stop_support_details                  :text
+#  suggested_videos_counter              :jsonb            is an Array
 #  to_call                               :boolean
 #  will_stay_in_group                    :boolean          default(FALSE), not null
 #  created_at                            :datetime         not null
@@ -190,7 +191,7 @@ class ChildSupport < ApplicationRecord
   BOOK_NOT_RECEIVED = %w[1_first_book 2_second_book 3_third_book 4_fourth_book 5_fifth_book 6_sixth_book 7_seventh_book].freeze
   CALL_STATUS = %w[1_ok 2_ko 3_unassigned_number 4_dont_call 5_unfinished].freeze
   FAMILY_PROGRESS = %w[1_yes 2_no 3_no_information].freeze
-  GOALS_FOLLOW_UP = %w[1_succeed 2_tried 3_no_tried 4_no_goal].freeze
+  GOALS_FOLLOW_UP = %w[1_succeed 2_tried 3_no_tried 4_no_goal 5_not_enough_information].freeze
 
   # ---------------------------------------------------------------------------
   # relations

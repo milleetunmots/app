@@ -2,13 +2,14 @@ class SpotHit::SendMessageService
 
   attr_reader :errors
 
-  def initialize(recipients, planned_timestamp, message, file: nil, event_params: {})
+  def initialize(recipients, planned_timestamp, message, file: nil, workshop_id: nil, event_params: {})
     @planned_timestamp = planned_timestamp
     @recipients = recipients
     @message = message
     @file = file
     @event_params = event_params
     @errors = []
+    @workshop = Workshop.find_by(id: workshop_id)
   end
 
   protected
@@ -42,11 +43,28 @@ class SpotHit::SendMessageService
       event = Event.create(event_attributes)
 
       @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
+
+      next unless @workshop
+
+      @workshop.workshop_participations.build(
+        type: 'Events::WorkshopParticipation',
+        related_id: parent_id,
+        related_type: 'Parent',
+        body: @workshop.name,
+        occurred_at: @workshop.workshop_date
+      )
+    end
+
+    return unless @workshop
+
+    unless @workshop.save
+      @errors << "Erreur lors de la sauvegarde de l'atelier #{@workshop.name}."
     end
   end
 
   def safeguard(form)
     safe_numbers = ENV['SAFE_PHONE_NUMBERS'].to_s.split(',').map(&:strip)
+    numbers = []
 
     if form['destinataires'].present?
       numbers = form['destinataires'].split(', ').select { |num| safe_numbers.include?(num) }
@@ -56,11 +74,13 @@ class SpotHit::SendMessageService
     form.each_key do |key|
       res = key.match(/destinataires\[(\+\d+)\]/)
       next if res.nil?
-      next if safe_numbers.include?(res[1])
+
+      numbers << res[1] and next if safe_numbers.include?(res[1])
 
       form.delete(key)
     end
 
+    @recipients = Parent.where(phone_number: numbers).pluck(:id)
     form
   end
 end

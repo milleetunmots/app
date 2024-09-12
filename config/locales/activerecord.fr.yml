@@ -323,6 +323,8 @@ fr:
         should_be_read: Témoignage marquant
         should_contact_parent1: Contacter parent 1 ?
         should_contact_parent2: Contacter parent 2 ?
+        suggested_videos_sent_count: Nombre de vidéos suggérées envoyées
+        suggested_videos_sent_dates: Dates d'envoi des vidéos suggérées
         supporter: Responsable
         to_call: Accompagnement renforcé
         children_land: Territoire
@@ -390,6 +392,7 @@ fr:
         2_tried: Essayée
         3_no_tried: Pas essayée
         4_no_goal: Pas de petite mission
+        5_not_enough_information: Pas assez d'infos
       event: &EVENT
         << : *SHARED
         address: Adresse

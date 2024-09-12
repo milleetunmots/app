@@ -37,7 +37,7 @@ class Workshop < ApplicationRecord
   has_and_belongs_to_many :parents
 
   before_save :set_name
-  before_create :set_workshop_participation
+  before_create :select_recipients
   after_create :send_message
   after_save :update_workshop_participation
 
@@ -60,7 +60,8 @@ class Workshop < ApplicationRecord
     self.name = "#{name}, sur le thème \"#{Workshop.human_attribute_name("topic.#{topic}")}\"" if topic.present?
   end
 
-  def set_workshop_participation
+  def select_recipients
+    @recipients = []
     land_parents.each do |parent|
       next if parent.is_excluded_from_workshop
 
@@ -70,32 +71,22 @@ class Workshop < ApplicationRecord
 
       next unless parent.target_parent?
 
-      workshop_participations.build(
-        type: 'Events::WorkshopParticipation',
-        related: parent,
-        body: name,
-        occurred_at: workshop_date
-      )
+      @recipients << parent
     end
 
     (parents.to_a - land_parents.to_a).each do |parent|
       next if parent.is_excluded_from_workshop
 
-      workshop_participations.build(
-        type: 'Events::WorkshopParticipation',
-        related: parent,
-        body: name,
-        occurred_at: workshop_date
-      )
+      @recipients << parent
     end
   end
 
   def send_message
-    recipients = workshop_participations.map { |wp| "parent.#{wp.related_id}" }
+    recipients = @recipients.map { |recipient| "parent.#{recipient.id}" }
 
     message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquez sur ce lien: {RESPONSE_LINK}"
 
-    service = Workshop::ProgramWorkshopInvitationService.new(Time.zone.today, Time.zone.now.strftime('%H:%M'), recipients, message, nil, nil, nil, id).call
+    service = Workshop::ProgramWorkshopInvitationService.new(Time.zone.today, Time.zone.now.strftime('%H:%M'), recipients, message, nil, nil, nil, id, nil, %w[waiting active paused stopped disengaged]).call
 
     Rollbar.error(service.errors) if service.errors.any?
   end

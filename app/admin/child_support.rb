@@ -22,7 +22,7 @@ ActiveAdmin.register ChildSupport do
     (0..5).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         [
-          decorated.send("call#{call_idx}_status"),
+          decorated.send("call#{call_idx}_status_in_index"),
           decorated.send("call#{call_idx}_parent_progress_index")
         ].join(' ').html_safe
       end
@@ -513,6 +513,8 @@ ActiveAdmin.register ChildSupport do
           row :should_be_read
           row :is_bilingual
           row :second_language
+          row :suggested_videos_sent_count if current_admin_user.admin? || current_admin_user.team_member? || current_admin_user.logistics_team?
+          row :suggested_videos_sent_dates if current_admin_user.admin? || current_admin_user.team_member? || current_admin_user.logistics_team?
           row :tags do |model|
             model.current_admin_user = current_admin_user
             model.tags(context: 'tags')
