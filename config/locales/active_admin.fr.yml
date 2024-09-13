@@ -9,8 +9,8 @@ fr:
         assign_supporter: Assigner un(e) responsable pour
         check_call_2_4: "Sélectionner l'accompagnement renforcé pour"
         uncheck_call_2_4: "Désélectionner l'accompagnement renforcé pour"
-        check_potential_ambassador: "Sélectionner 'Potentiel parent ambassadeur' pour"
-        uncheck_potential_ambassador: "Désélectionner 'Potentiel parent ambassadeur' pour"
+        check_potential_ambassador: "Sélectionner 'Potentiel parent bénévole' pour"
+        uncheck_potential_ambassador: "Désélectionner 'Potentiel parent bénévole' pour"
         check_should_be_read: "Sélectionner 'Témoignage marquant' pour"
         uncheck_should_be_read: "Désélectionner 'Témoignage marquant' pour"
         create_redirection_url: Créer une URL courte pour

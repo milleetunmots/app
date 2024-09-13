@@ -16,17 +16,17 @@ ActiveAdmin.register_page 'Volunteer Parent Form' do
             end
             div class: 'form-checkbox-input' do
               f.input :parent1, type: :checkbox, id: 'select-parent-1', class: 'select-parent', name: :parent1
-              label 'Parent 1'
+              label "#{Parent.find(params[:parent1_id]).decorate.name} (Parent 1)"
             end
             div class: 'form-checkbox-input' do
               f.input :parent2, type: :checkbox, id: 'select-parent-2', class: 'select-parent', name: :parent2
-              label 'Parent 2'
+              label "#{Parent.find(params[:parent2_id]).decorate.name} (Parent 2)"
             end
             hr
           end
         end
         label class: 'label-for-group' do
-          'Pourquoi vous voulez que ce parent soit un bénévole ?'
+          'Sélectionner la raison :'
         end
         div do
           small do
@@ -46,7 +46,7 @@ ActiveAdmin.register_page 'Volunteer Parent Form' do
         hr
         div id: 'parent-volunteer-form-details' do
           label class: 'label-for-group' do
-            'Veux tu partager plus de détail sur ta discussion avec le parent, par exemple quel genre d’action veut il faire?'
+            "Veux-tu partager plus de détails sur ta discussion avec le parent, par exemple quel genre d'action veut-il faire ?"
           end
           textarea name: :details
         end

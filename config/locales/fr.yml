@@ -71,7 +71,7 @@ fr:
     without_widget: "Votre inscription est bien prise en compte. D'ici quelques semaines, vous allez recevoir des livres et des SMS avec des idées pour éveiller le langage de votre enfant. Si vous avez encore 5 minutes, merci de répondre à <a href='%{typeform_url}' target='_blank'>ce court questionnaire</a> pour recevoir les livres chez vous."
     pro: "L'inscription a bien été prise en compte. D'ici quelques semaines, les parents vont recevoir des livres et des SMS avec des idées pour éveiller le langage de leur enfant. Ils peuvent arrêter à tout moment."
     with_parent_no_target: "Votre demande d'inscription a bien été enregistrée et va être traitée par notre équipe.<br>Nous reviendrons vers vous par SMS dans les prochains jours, en fonction des places disponibles."
-  is_ambassador: Ambassadeur
+  is_ambassador: Bénévole
   should_be_contacted: À contacter
   should_not_be_contacted: Ne pas contacter
   "true": Oui
