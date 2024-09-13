@@ -667,6 +667,7 @@ ActiveAdmin.register ChildSupport do
       item "Ajout d'un parent", %i[add_parent admin child_support], { target: '_blank' } unless resource.decorate.model.parent2
       item "Autre tâche", url_for_new_task(resource.decorate), { target: '_blank' }
       item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
+      item "Potentiel parent bénévole",admin_volunteer_parent_form_path(child_support_id: resource.model.id, parent1_id: resource.model.parent1, parent2_id: resource.model.parent2), { target: '_blank' }
     end
   end
 
@@ -683,7 +684,6 @@ ActiveAdmin.register ChildSupport do
 
   member_action :add_parent do
     redirect_to new_admin_parent_path(
-      family_followed: resource.model.current_child.parent1.family_followed,
       address: resource.model.current_child.parent1.address,
       postal_code: resource.model.current_child.parent1.postal_code,
       city_name: resource.model.current_child.parent1.city_name,

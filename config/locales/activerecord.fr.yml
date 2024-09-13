@@ -504,6 +504,7 @@ fr:
         first_name: Prénom
         gender: Sexe
         is_ambassador: Potentiel parent ambassadeur
+        is_ambassador_detail: Les motivations pour son bénévolat
         present_on_whatsapp: Présent sur Whatsapp
         present_on_facebook: Présent sur Facebook
         follow_us_on_whatsapp: Nous suit sur Whatsapp

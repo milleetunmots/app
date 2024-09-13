@@ -144,6 +144,7 @@ ActiveAdmin.register Parent do
           row :updated_at
           row :children
           row :is_ambassador
+          row :is_ambassador_detail
           row :job
           row :terms_accepted_at
           row :text_messages_count

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_09_03_132811) do
+ActiveRecord::Schema.define(version: 2024_09_12_232649) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -493,6 +493,7 @@ ActiveRecord::Schema.define(version: 2024_09_03_132811) do
     t.string "degree_level_at_registration"
     t.string "degree_country_at_registration"
     t.string "preferred_channel"
+    t.text "is_ambassador_detail"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
