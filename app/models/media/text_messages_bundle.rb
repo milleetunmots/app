@@ -64,4 +64,22 @@ class Media::TextMessagesBundle < Medium
     )
   end
 
+  def duplicate
+    self.class.new(
+      name: "Copie de #{name}",
+      tag_list: tag_list,
+      folder_id: folder_id,
+      type: type,
+      body1: body1,
+      body2: body2,
+      body3: body3,
+      link1_id: link1_id,
+      link2_id: link2_id,
+      link3_id: link3_id,
+      image1_id: image1_id,
+      image2_id: image2_id,
+      image3_id: image3_id
+    )
+  end
+
 end
