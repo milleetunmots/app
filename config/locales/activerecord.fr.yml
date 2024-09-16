@@ -286,6 +286,7 @@ fr:
         children_ages: Age des enfants
         children_genders: Sexe des enfants
         children_sources: Origines des enfants
+        display_is_bilingual: Bilinguisme
         family_support_should_be_stopped: Pas besoin accompagnement selon appelante
         groups: Cohortes
         child_support_groups: Cohortes
@@ -393,6 +394,10 @@ fr:
         3_no_tried: Pas essayée
         4_no_goal: Pas de petite mission
         5_not_enough_information: Pas assez d'infos
+      child_support/is_bilingual:
+        0_no_information: Pas d'infos
+        1_yes: Oui
+        2_no: Non
       event: &EVENT
         << : *SHARED
         address: Adresse

@@ -112,7 +112,7 @@
 #  discarded_at                          :datetime
 #  family_support_should_be_stopped      :string
 #  important_information                 :text
-#  is_bilingual                          :boolean
+#  is_bilingual                          :string           default("0_no_information")
 #  most_present_parent                   :string
 #  notes                                 :text
 #  other_phone_number                    :string

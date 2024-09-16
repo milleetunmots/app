@@ -90,7 +90,7 @@ class ChildSupport::FillParentsAvailableSupportModulesService
     already_done_ids = child.children_support_modules.where(parent: parent).pluck(:support_module_id)
 
     support_modules = SupportModule.where("'#{child_age_range}' = ANY (age_ranges)").where.not(id: already_done_ids).where.not(theme: SupportModule::READING, level: 1)
-    support_modules = support_modules.where(for_bilingual: false) unless child.child_support.is_bilingual
+    support_modules = support_modules.where(for_bilingual: false) unless child.child_support.is_bilingual == '1_yes'
     support_modules
   end
 
