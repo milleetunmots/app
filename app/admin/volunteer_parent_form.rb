@@ -26,22 +26,24 @@ ActiveAdmin.register_page 'Volunteer Parent Form' do
           end
         end
         label class: 'label-for-group' do
-          'Sélectionner la raison :'
-        end
-        div do
-          small do
-            'RDV '.html_safe +
-            link_to('ici', 'https://www.notion.so/Les-parents-ambassadeurs-a-veut-dire-quoi-a63cf7a2a4664f41a1380e6030381dbe', target: '_blank') +
-            " pour plus d’infos sur comment les parents peuvent contribuer bénévolement.".html_safe
-          end
-        end
-        div class: 'radio-input' do
-          f.input :reason, type: :radio, value: :caller, name: :reason, class: 'parent-volunteer-reason-radio'
-          label 'Je pense que ce parent pourrait être un parent bénévole.'
+          'Ce parent pourrait être bénévole pour 1001mots car :'
         end
         div class: 'radio-input' do
           f.input :reason, type: :radio, value: :parent, name: :reason, class: 'parent-volunteer-reason-radio'
-          label "Ce parent m'a dit qu'il avait envie de nous aider."
+          label "C'est lui qui m'en a parlé."
+        end
+        div class: 'radio-input' do
+          f.input :reason, type: :radio, value: :caller, name: :reason, class: 'parent-volunteer-reason-radio'
+          label "On n'en a pas parlé mais c'est mon sentiment."
+        end
+        div do
+          small do
+            'Pour plus d’infos sur comment les parents peuvent contribuer bénévolement : cliquez '.html_safe +
+            link_to(
+              'ici',
+              'https://magical-bull-428.notion.site/Les-parents-ambassadeurs-a-veut-dire-quoi-a63cf7a2a4664f41a1380e6030381dbe?pvs=4',
+              target: '_blank')
+          end
         end
         hr
         div id: 'parent-volunteer-form-details' do
