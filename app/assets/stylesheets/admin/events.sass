@@ -1,12 +1,10 @@
 @import variables
 
-$gap: 120px
 $bullet-size: 8px
 $timeline-color: #5E6469
 
 .events-history
   position: relative
-  padding-left: $gap
 
   .timeline
     position: absolute
@@ -19,22 +17,12 @@ $timeline-color: #5E6469
     position: relative
     margin: 30px 0
 
-    .timeline-anchor
-      position: absolute
-      top: 0
-      left: -($gap + $bullet-size/2)
-      width: $gap
+    .occurred-at
+      margin-left: 5px
+      font-size: 14px
 
-      .bullet
-        display: inline-block
-        vertical-align: middle
-        font-size: $bullet-size
-        color: $timeline-color
-
-      .occurred-at
-        margin-left: 5px
-        font-size: 14px
-        color: #999
+    .past
+      color: #999
 
     .admin-link
       display: block
@@ -42,6 +30,14 @@ $timeline-color: #5E6469
       top: 2px
       right: 10px
       font-size: 12px
+
+    &.sent_by_app_text_messages
+      margin-left: 30%
+    
+    &.received_text_messages
+      margin-right: 30%
+      .body
+        background-color: #ff6666 !important
 
     &.text-message, &.workshop-participation, &.other-event, &.survey-response
       .body

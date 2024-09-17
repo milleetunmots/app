@@ -1,35 +1,19 @@
 <div class="events-history">
 
-  <div class="timeline"></div>
-
   <% events.each do |event| %>
 
     <div class="event <%= event.css_class_name %>">
 
-      <div class="timeline-anchor">
-        <span class="bullet">⬤</span>
-        <span class="occurred-at"><%= event.timeline_occurred_at %></span>
-      </div>
-
       <div class="description"><%= event.timeline_description %></div>
 
-
       <% if event.model.is_a?(Events::TextMessage) %>
-
         <div class="body"><%= event.body %></div>
-
       <% elsif event.model.is_a?(Events::WorkshopParticipation) %>
-
         <div class="body workshop-participation-comment"><%= event.comments %></div>
-
       <% elsif event.model.is_a?(Events::OtherEvent) %>
-
         <div class="body"><%= event.body %></div>
-
       <% elsif event.model.is_a?(Events::SurveyResponse) %>
-
         <div class="body"><%= event.body %></div>
-
       <% end %>
 
       <% if event.received_text_message? %>
@@ -39,6 +23,8 @@
       <% else %>
         <%= link_to 'Détails', [:admin, event], class: 'admin-link' %>
       <% end %>
+
+      <span class="occurred-at <%= 'past' if event.model.occurred_at.past? %>"><%= event.timeline_occurred_at %></span>
 
     </div>
 

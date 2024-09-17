@@ -33,7 +33,7 @@ class EventDecorator < BaseDecorator
   end
 
   def css_class_name
-    model.type.split('::').last.underscore.gsub('_', '-')
+    "#{model.type.split('::').last.underscore.gsub('_', '-')} #{model.originated_by_app ? 'sent_by_app_text_messages' : 'received_text_messages'}"
   end
 
   def occurred_at
