@@ -263,6 +263,10 @@ class ChildSupportDecorator < BaseDecorator
     model.suggested_videos_counter.map { |count| DateTime.parse(count['sending_date']).strftime('%Y-%m-%d') }.join('; ')
   end
 
+  def display_is_bilingual
+    ChildSupport.human_attribute_name("is_bilingual.#{model.is_bilingual}")
+  end
+
   private
 
   def children_attribute(key, glue)

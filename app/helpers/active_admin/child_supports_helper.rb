@@ -94,6 +94,15 @@ module ActiveAdmin::ChildSupportsHelper
     ChildSupport::CALL_STATUS.map { |v| ChildSupport.human_attribute_name("call_status.#{v}") }
   end
 
+  def is_bilingual_collection
+    ChildSupport::IS_BILINGUAL_OPTIONS.map do |v|
+      [
+        ChildSupport.human_attribute_name("is_bilingual.#{v}"),
+        v
+      ]
+    end
+  end
+
   def call_statuses_with_nil
     ChildSupport::CALL_STATUS.map do |v|
       [
