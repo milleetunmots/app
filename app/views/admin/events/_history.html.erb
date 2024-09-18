@@ -24,7 +24,7 @@
         <%= link_to 'Détails', [:admin, event], class: 'admin-link' %>
       <% end %>
 
-      <span class="occurred-at <%= 'past' if event.model.occurred_at.past? %>"><%= event.timeline_occurred_at %></span>
+      <span class="occurred-at <%= event.display_occurred_at[:css_class] %>"><i class="<%= event.display_occurred_at[:css_emoji] %>"></i> <%= event.timeline_occurred_at %></span>
 
     </div>
 
