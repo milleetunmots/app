@@ -4,8 +4,13 @@ $(document).ready(function() {
     let checkboxes = $('.select-parent');
     let validation = $("#parent_volunteer-form-submit");
     let form_details = $('#parent-volunteer-form-details');
+    let selectParentVolunteerReason = $("#select-parent-volunteer-reason")
     form_details.hide();
     validation.prop('disabled', true);
+
+    if (isParentSelectFieldPresent) {
+        selectParentVolunteerReason.hide();
+    }
 
     radios.change(function() {
         if (isParentSelectFieldPresent) {
@@ -22,6 +27,13 @@ $(document).ready(function() {
 
     checkboxes.change(function() {
         let selectedRadioValue = $('input[name="reason"]:checked').val();
+
+        if (!$('#select-parent-1').is(':checked') && !$('#select-parent-2').is(':checked')) {
+            selectParentVolunteerReason.hide();
+        } else {
+            selectParentVolunteerReason.show();
+        }
+
         if (selectedRadioValue == undefined) {
             validation.prop('disabled', true);
         } else {
