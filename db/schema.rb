@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_09_16_093559) do
+ActiveRecord::Schema.define(version: 2024_09_17_150728) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -378,6 +378,7 @@ ActiveRecord::Schema.define(version: 2024_09_16_093559) do
     t.bigint "quit_group_child_id"
     t.string "parent_presence"
     t.date "acceptation_date"
+    t.boolean "is_support_module_message", default: false, null: false
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["quit_group_child_id"], name: "index_events_on_quit_group_child_id"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"

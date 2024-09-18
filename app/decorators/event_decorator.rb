@@ -33,11 +33,28 @@ class EventDecorator < BaseDecorator
   end
 
   def css_class_name
-    model.type.split('::').last.underscore.gsub('_', '-')
+    "#{model.type.split('::').last.underscore.gsub('_', '-')} #{model.originated_by_app ? 'sent_by_app_text_messages' : 'received_text_messages'}"
   end
 
   def occurred_at
     h.l model.occurred_at, format: :message
+  end
+
+  def display_occurred_at
+    case model.spot_hit_status
+    when 0
+      { css_class: 'pending', css_emoji: 'fas fa-clock' }
+    when 1
+      { css_class: 'delivered', css_emoji: 'fas fa-check' }
+    when 2
+      { css_class: 'sent', css_emoji: 'fas fa-paper-plane' }
+    when 3
+      { css_class: 'in-progress', css_emoji: 'fas fa-sync-alt' }
+    when 4
+      { css_class: 'failed', css_emoji: 'fas fa-times' }
+    else
+      { css_class: 'exipired', css_emoji: 'fas fa-hourglass-end' }
+    end
   end
 
   def timeline_occurred_at
