@@ -26,6 +26,16 @@ class ChildSupportsController < ApplicationController
     }
   end
 
+  def supporter_first_name
+    @child_support = ChildSupport.find_by(id: params[:child_support_id])
+    not_found and return unless @child_support
+    not_found and return unless @child_support.supporter
+
+    render json: {
+      name: @child_support.supporter_name.split.first
+    }
+  end
+
   def call3_speaking_form
     handle_call3_form
   end
