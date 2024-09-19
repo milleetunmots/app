@@ -21,9 +21,9 @@ class ChildSupportsController < ApplicationController
     @child_support = ChildSupport.find_by(id: params[:child_support_id])
     not_found and return unless @child_support
 
-    render json: {
-      updated_at: @child_support.updated_at
-    }
+    response = { updated_at: @child_support.updated_at, modification_to_ignore: false }
+    response[:modification_to_ignore] = true if 'suggested_videos_counter'.in? @child_support.versions.last.object_changes.keys
+    render json: response
   end
 
   def supporter_first_name
