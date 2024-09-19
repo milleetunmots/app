@@ -116,11 +116,11 @@ module Typeform
           @data[:is_bilingual] =
             case answer[:choice][:label]
             when 'Oui'
-              '1_yes'
+              '0_yes'
             when 'Non'
-              '2_no'
+              '1_no'
             else
-              '0_no_information'
+              '2_no_information'
             end
         when FIELD_IDS[:help_my_child_to_learn_is_important]
           @data[:help_my_child_to_learn_is_important] = answer[:choice][:label]
