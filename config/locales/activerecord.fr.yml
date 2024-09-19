@@ -395,9 +395,9 @@ fr:
         4_no_goal: Pas de petite mission
         5_not_enough_information: Pas assez d'infos
       child_support/is_bilingual:
-        0_no_information: Pas d'infos
-        1_yes: Oui
-        2_no: Non
+        0_yes: Oui
+        1_no: Non
+        2_no_information: Pas d'infos
       event: &EVENT
         << : *SHARED
         address: Adresse

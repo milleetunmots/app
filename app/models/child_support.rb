@@ -112,7 +112,7 @@
 #  discarded_at                          :datetime
 #  family_support_should_be_stopped      :string
 #  important_information                 :text
-#  is_bilingual                          :string           default("0_no_information")
+#  is_bilingual                          :string           default("2_no_information")
 #  most_present_parent                   :string
 #  notes                                 :text
 #  other_phone_number                    :string
@@ -192,7 +192,7 @@ class ChildSupport < ApplicationRecord
   CALL_STATUS = %w[1_ok 2_ko 3_unassigned_number 4_dont_call 5_unfinished].freeze
   FAMILY_PROGRESS = %w[1_yes 2_no 3_no_information].freeze
   GOALS_FOLLOW_UP = %w[1_succeed 2_tried 3_no_tried 4_no_goal 5_not_enough_information].freeze
-  IS_BILINGUAL_OPTIONS = %w[0_no_information 1_yes 2_no].freeze
+  IS_BILINGUAL_OPTIONS = %w[0_yes 1_no 2_no_information].freeze
 
   # ---------------------------------------------------------------------------
   # relations

@@ -102,7 +102,7 @@ class Group < ApplicationRecord
   end
 
   def bilingual_children
-    children.joins(:child_support).where(child_supports: { is_bilingual: '1_yes' })
+    children.joins(:child_support).where(child_supports: { is_bilingual: '0_yes' })
   end
 
   def with_module_zero?

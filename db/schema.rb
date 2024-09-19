@@ -267,7 +267,7 @@ ActiveRecord::Schema.define(version: 2024_09_17_150728) do
     t.string "family_support_should_be_stopped"
     t.string "call4_previous_goals_follow_up"
     t.jsonb "suggested_videos_counter", default: [], array: true
-    t.string "is_bilingual", default: "0_no_information"
+    t.string "is_bilingual", default: "2_no_information"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
