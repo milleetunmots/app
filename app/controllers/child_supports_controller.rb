@@ -21,9 +21,7 @@ class ChildSupportsController < ApplicationController
     @child_support = ChildSupport.find_by(id: params[:child_support_id])
     not_found and return unless @child_support
 
-    render json: {
-      updated_at: @child_support.updated_at
-    }
+    render json: { updated_at: @child_support.updated_at }
   end
 
   def supporter_first_name

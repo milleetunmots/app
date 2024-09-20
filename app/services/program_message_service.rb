@@ -122,7 +122,7 @@ class ProgramMessageService
           next unless child_support
 
           child_support.suggested_videos_counter << { redirection_target_id: @redirection_target.id, sending_date: Time.zone.now }
-          child_support.save
+          child_support.save(touch: false)
         end
       end
     else
