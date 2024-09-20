@@ -27,11 +27,7 @@
 
   var checkForUpdates = function() {
     return $.get('/child-support-updated-at/'+Number($('#child_support_id').val())).then(function(response) {
-      if (response.modification_to_ignore === true) {
-        return false;
-      } else {
-        return response.updated_at !== originalUpdatedAt;
-      }
+      return response.updated_at !== originalUpdatedAt;
     })
   };
 
