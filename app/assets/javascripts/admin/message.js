@@ -4,23 +4,12 @@ $(document).ready(function() {
     var additional_message = $("textarea[name='additional_message']")
     var call_goal_sms_field = $('#call_goal_div')
     var additional_message_field = $('#additional_message_div')
+    let messageContent
     var message = $("textarea[name='message']")
-    var messageContent = "Bonjour !\nVoici votre petite mission :\n{CHAMP_PETITE_MISSION}\nQuand vous aurez essayé, cliquez sur ce lien pour me raconter comment ça s’est passé :\n{type_form_link}\n{CHAMP_MESSAGE_COMPLEMENTAIRE}"
     var childSupportId = new URLSearchParams(window.location.search).get('child_support_id')
     var parentSecurityCode = new URLSearchParams(window.location.search).get('parent_sc')
     var speakingLink = `${window.location.protocol}//${window.location.host}/c3/sf?cs=${childSupportId}&sc=${parentSecurityCode}`
     var observingLink = `${window.location.protocol}//${window.location.host}/c3/of?cs=${childSupportId}&sc=${parentSecurityCode}`
-
-    $.ajax({
-        type: 'GET',
-        url: `/child-support-supporter_first_name/${childSupportId}`,
-        success: function(response) {
-            messageContent = `${messageContent}\n${response.name} 1001mots`
-        },
-        error: function() {
-            messageContent = `${messageContent}\n1001mots`
-        }
-    });
 
     function showNewFields() {
         call_goal_sms_field.show()
@@ -52,12 +41,23 @@ $(document).ready(function() {
     call_goal_sms.on('change', function() {
         var selectedValue = $(this).val()
         if (selectedValue == 'call3_goals_speaking' || selectedValue == 'call3_goals_observing') {
-            message.css({'height': '250px'});
-            message.val(messageContent)
-            specificCall3Message(selectedValue)
-            message.val(messageContentRefreshed)
-            showNewFields()
-            message.prop('readonly', true)
+            messageContent = "Bonjour !\nVoici votre petite mission :\n{CHAMP_PETITE_MISSION}\nQuand vous aurez essayé, cliquez sur ce lien pour me raconter comment ça s’est passé :\n{type_form_link}\n{CHAMP_MESSAGE_COMPLEMENTAIRE}"
+            $.ajax({
+                type: 'GET',
+                url: `/child-support-supporter_first_name/${childSupportId}`,
+                success: function(response) {
+                    messageContent = `${messageContent}\n${response.name} 1001mots`
+                    message.css({'height': '250px'});
+                    message.val(messageContent)
+                    specificCall3Message(selectedValue)
+                    message.val(messageContentRefreshed)
+                    showNewFields()
+                    message.prop('readonly', true)
+                },
+                error: function() {
+                    messageContent = `${messageContent}\n1001mots`
+                }
+            });
         } else {
             message.css({'height': 'auto'});
             normalMessage()
