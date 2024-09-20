@@ -2,24 +2,25 @@
 #
 # Table name: events
 #
-#  id                  :bigint           not null, primary key
-#  acceptation_date    :date
-#  body                :text
-#  discarded_at        :datetime
-#  occurred_at         :datetime
-#  originated_by_app   :boolean          default(TRUE), not null
-#  parent_presence     :string
-#  parent_response     :string
-#  related_type        :string
-#  spot_hit_status     :integer
-#  subject             :string
-#  type                :string
-#  created_at          :datetime         not null
-#  updated_at          :datetime         not null
-#  quit_group_child_id :bigint
-#  related_id          :bigint
-#  spot_hit_message_id :string
-#  workshop_id         :bigint
+#  id                        :bigint           not null, primary key
+#  acceptation_date          :date
+#  body                      :text
+#  discarded_at              :datetime
+#  is_support_module_message :boolean          default(FALSE), not null
+#  occurred_at               :datetime
+#  originated_by_app         :boolean          default(TRUE), not null
+#  parent_presence           :string
+#  parent_response           :string
+#  related_type              :string
+#  spot_hit_status           :integer
+#  subject                   :string
+#  type                      :string
+#  created_at                :datetime         not null
+#  updated_at                :datetime         not null
+#  quit_group_child_id       :bigint
+#  related_id                :bigint
+#  spot_hit_message_id       :string
+#  workshop_id               :bigint
 #
 # Indexes
 #

@@ -35,7 +35,7 @@ ActiveAdmin.register_page 'Stop Support Form' do
       end
       div id: 'form-details' do
         hr
-        div id: 'checkbox-input' do
+        div class: 'form-checkbox-input' do
           f.input :validation, type: :checkbox, id: 'stop-support-form-checkbox'
           label id: 'checkbox-label' do
             ''

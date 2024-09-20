@@ -286,6 +286,7 @@ fr:
         children_ages: Age des enfants
         children_genders: Sexe des enfants
         children_sources: Origines des enfants
+        display_is_bilingual: Bilinguisme
         family_support_should_be_stopped: Pas besoin accompagnement selon appelante
         groups: Cohortes
         child_support_groups: Cohortes
@@ -393,6 +394,10 @@ fr:
         3_no_tried: Pas essayée
         4_no_goal: Pas de petite mission
         5_not_enough_information: Pas assez d'infos
+      child_support/is_bilingual:
+        0_yes: Oui
+        1_no: Non
+        2_no_information: Pas d'infos
       event: &EVENT
         << : *SHARED
         address: Adresse
@@ -503,7 +508,8 @@ fr:
         is_excluded_from_workshop: Exclu des ateliers
         first_name: Prénom
         gender: Sexe
-        is_ambassador: Potentiel parent ambassadeur
+        is_ambassador: Potentiel parent bénévole
+        is_ambassador_detail: Les motivations pour son bénévolat
         present_on_whatsapp: Présent sur Whatsapp
         present_on_facebook: Présent sur Facebook
         follow_us_on_whatsapp: Nous suit sur Whatsapp

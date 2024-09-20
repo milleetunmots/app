@@ -27,6 +27,16 @@ ActiveAdmin.register Media::TextMessagesBundle do
             class: 'drafts-link red'
   end
 
+  action_item :duplicate, only: :show do
+    link_to 'Dupliquer', [:duplicate, :admin, resource], class: 'green'
+  end
+
+  member_action :duplicate do
+    new_resource = resource.duplicate
+    new_resource.save!
+    redirect_to [:admin, new_resource]
+  end
+
   member_action :redraft do
     @task = Task.new
     render 'admin/media/text_messages_bundles/redraft'

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_09_03_132811) do
+ActiveRecord::Schema.define(version: 2024_09_17_150728) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -170,7 +170,6 @@ ActiveRecord::Schema.define(version: 2024_09_03_132811) do
     t.string "book_not_received"
     t.string "call3_sendings_benefits"
     t.text "call3_sendings_benefits_details"
-    t.boolean "is_bilingual"
     t.string "second_language"
     t.string "call1_language_awareness"
     t.text "call1_goals"
@@ -268,6 +267,7 @@ ActiveRecord::Schema.define(version: 2024_09_03_132811) do
     t.string "family_support_should_be_stopped"
     t.string "call4_previous_goals_follow_up"
     t.jsonb "suggested_videos_counter", default: [], array: true
+    t.string "is_bilingual", default: "2_no_information"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
@@ -378,6 +378,7 @@ ActiveRecord::Schema.define(version: 2024_09_03_132811) do
     t.bigint "quit_group_child_id"
     t.string "parent_presence"
     t.date "acceptation_date"
+    t.boolean "is_support_module_message", default: false, null: false
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["quit_group_child_id"], name: "index_events_on_quit_group_child_id"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
@@ -493,6 +494,7 @@ ActiveRecord::Schema.define(version: 2024_09_03_132811) do
     t.string "degree_level_at_registration"
     t.string "degree_country_at_registration"
     t.string "preferred_channel"
+    t.text "is_ambassador_detail"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"

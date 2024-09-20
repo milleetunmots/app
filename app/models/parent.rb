@@ -18,6 +18,7 @@
 #  gender                              :string           not null
 #  help_my_child_to_learn_is_important :string
 #  is_ambassador                       :boolean
+#  is_ambassador_detail                :text
 #  is_excluded_from_workshop           :boolean          default(FALSE)
 #  job                                 :string
 #  last_name                           :string           not null

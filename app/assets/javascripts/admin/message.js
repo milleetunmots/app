@@ -5,11 +5,22 @@ $(document).ready(function() {
     var call_goal_sms_field = $('#call_goal_div')
     var additional_message_field = $('#additional_message_div')
     var message = $("textarea[name='message']")
-    var messageContent = "Bonjour !\nVoici votre petite mission :\n{CHAMP_PETITE_MISSION}\nQuand vous aurez essayé, cliquez sur ce lien pour me raconter comment ça s’est passé :\n{type_form_link}\n{CHAMP_MESSAGE_COMPLEMENTAIRE}\n1001mots"
+    var messageContent = "Bonjour !\nVoici votre petite mission :\n{CHAMP_PETITE_MISSION}\nQuand vous aurez essayé, cliquez sur ce lien pour me raconter comment ça s’est passé :\n{type_form_link}\n{CHAMP_MESSAGE_COMPLEMENTAIRE}"
     var childSupportId = new URLSearchParams(window.location.search).get('child_support_id')
     var parentSecurityCode = new URLSearchParams(window.location.search).get('parent_sc')
     var speakingLink = `${window.location.protocol}//${window.location.host}/c3/sf?cs=${childSupportId}&sc=${parentSecurityCode}`
     var observingLink = `${window.location.protocol}//${window.location.host}/c3/of?cs=${childSupportId}&sc=${parentSecurityCode}`
+
+    $.ajax({
+        type: 'GET',
+        url: `/child-support-supporter_first_name/${childSupportId}`,
+        success: function(response) {
+            messageContent = `${messageContent}\n${response.name} 1001mots`
+        },
+        error: function() {
+            messageContent = `${messageContent}\n1001mots`
+        }
+    });
 
     function showNewFields() {
         call_goal_sms_field.show()

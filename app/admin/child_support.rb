@@ -79,7 +79,7 @@ ActiveAdmin.register ChildSupport do
   filter :should_be_read,
          input_html: { data: { select2: { width: '100%' } } }
   filter :book_not_received
-  filter :is_bilingual
+  filter :is_bilingual, as: :check_boxes, collection: proc { is_bilingual_collection }
   filter :second_language
   filter :postal_code,
          as: :string
@@ -238,10 +238,13 @@ ActiveAdmin.register ChildSupport do
             end
           end
           columns style: 'margin-top:50px;' do
-            column class: 'w-140' do
-              f.input :is_bilingual
+            column style: 'flex: 0 0 25%;' do
+              f.input :is_bilingual,
+                        collection: is_bilingual_collection,
+                        input_html: { data: {} },
+                        include_blank: false
             end
-            column class: 'column flex-1' do
+            column style: 'flex: 1;' do
               f.input :second_language
             end
           end
@@ -511,7 +514,7 @@ ActiveAdmin.register ChildSupport do
           row :call_infos
           row :book_not_received
           row :should_be_read
-          row :is_bilingual
+          row :display_is_bilingual
           row :second_language
           row :suggested_videos_sent_count if current_admin_user.admin? || current_admin_user.team_member? || current_admin_user.logistics_team?
           row :suggested_videos_sent_dates if current_admin_user.admin? || current_admin_user.team_member? || current_admin_user.logistics_team?
@@ -667,6 +670,7 @@ ActiveAdmin.register ChildSupport do
       item "Ajout d'un parent", %i[add_parent admin child_support], { target: '_blank' } unless resource.decorate.model.parent2
       item "Autre tâche", url_for_new_task(resource.decorate), { target: '_blank' }
       item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
+      item "Potentiel parent bénévole",admin_volunteer_parent_form_path(child_support_id: resource.decorate.model.id, parent1_id: resource.decorate.model.parent1, parent2_id: resource.decorate.model.parent2), { target: '_blank' }
     end
   end
 
@@ -683,7 +687,6 @@ ActiveAdmin.register ChildSupport do
 
   member_action :add_parent do
     redirect_to new_admin_parent_path(
-      family_followed: resource.model.current_child.parent1.family_followed,
       address: resource.model.current_child.parent1.address,
       postal_code: resource.model.current_child.parent1.postal_code,
       city_name: resource.model.current_child.parent1.city_name,

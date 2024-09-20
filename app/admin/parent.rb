@@ -205,13 +205,13 @@ ActiveAdmin.register Parent do
   batch_action :check_potential_ambassador do |ids|
     @parents = batch_action_collection.where(id: ids)
     @parents.each { |parent| parent.is_ambassador? ? next : parent.update!(is_ambassador: true) }
-    redirect_to collection_path, notice: "Potentiels parents ambassadeurs ajoutés."
+    redirect_to collection_path, notice: "Potentiels parents bénévoles ajoutés."
   end
 
   batch_action :uncheck_potential_ambassador do |ids|
     @parents = batch_action_collection.where(id: ids)
     @parents.each { |parent| !parent.is_ambassador? ? next : parent.update!(is_ambassador: false) }
-    redirect_to collection_path, notice: "Potentiels parents ambassadeurs retirés."
+    redirect_to collection_path, notice: "Potentiels parents bénévoles retirés."
   end
 
   # ---------------------------------------------------------------------------
