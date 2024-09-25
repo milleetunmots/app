@@ -335,51 +335,23 @@ class Parent < ApplicationRecord
   def change_the_other_parent_address
     return unless saved_change_to_letterbox_name? || saved_change_to_address? || saved_change_to_postal_code? || saved_change_to_city_name?
 
-    parent1_children.each do |child|
-      parent2 = child.parent2
-      next unless parent2
+    children.each do |child|
+      p1 = child.parent1
+      p2 = child.parent2
+      change_address_attributes(p1) unless self == p1 || address_attributes_are_identical?(p1)
+      if p2 && self != p2
+        change_address_attributes(p2) unless address_attributes_are_identical?(p2)
+      end
+    end
+  end
 
-      change_address_attributes(parent2)
-    end
-    parent2_children.each do |child|
-      parent1 = child.parent1
-      change_address_attributes(parent1)
-    end
+  def address_attributes_are_identical?(parent)
+    parent.letterbox_name == letterbox_name && parent.address == address &&
+      parent.postal_code == postal_code && parent.city_name == city_name
   end
 
   def change_address_attributes(parent)
-    change_letterbox_name(parent)
-    change_address(parent)
-    change_postal_code(parent)
-    change_city_name(parent)
-  end
-
-  def change_letterbox_name(parent)
-    return if parent.letterbox_name == letterbox_name
-
-    parent.letterbox_name = letterbox_name
-    parent.save
-  end
-
-  def change_address(parent)
-    return if parent.address == address
-
-    parent.address = address
-    parent.save
-  end
-
-  def change_postal_code(parent)
-    return if parent.postal_code == postal_code
-
-    parent.postal_code = postal_code
-    parent.save
-  end
-
-  def change_city_name(parent)
-    return if parent.city_name == city_name
-
-    parent.city_name = city_name
-    parent.save
+    parent.update(letterbox_name: letterbox_name, address: address, postal_code: postal_code, city_name: city_name)
   end
 
   def should_be_contacted_as_parent2
