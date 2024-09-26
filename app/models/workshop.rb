@@ -30,6 +30,8 @@
 class Workshop < ApplicationRecord
   include Discard::Model
 
+  attr_accessor :parent_selection
+
   TOPICS = %w[meal sleep nursery_rhymes books games outside bath emotion].freeze
 
   belongs_to :animator, class_name: 'AdminUser'

@@ -45,7 +45,18 @@ ActiveAdmin.register Workshop do
       f.input :co_animator
       address_input f
       f.input :location
-      f.input :parents, collection: workshop_parent_select_collection, input_html: { data: { select2: {} }, disabled: !object.new_record? }
+      f.input :parent_selection,
+              as: :select,
+              input_html: {
+                        id: 'workshop-parent-select',
+                        data: {
+                          url: parents_admin_children_path,
+                          multiple: true
+                        },
+                        disabled: !object.new_record?
+                      }
+
+      # f.input :parents, collection: workshop_parent_select_collection, input_html: { data: { select2: {} } }
       f.input :workshop_land, collection: Child::LANDS.sort, input_html: { data: { select2: {} }, disabled: !object.new_record? }
       f.input :invitation_message, input_html: { rows: 5, disabled: !object.new_record? }
       f.input :canceled
