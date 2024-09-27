@@ -1,9 +1,12 @@
 class BookDecorator < BaseDecorator
 
   def book_support_modules
-    model.support_modules.each do |support_module|
-      "#{support_module.name} #{support_module.decorate.display_age_ranges}"
+    arbre do
+      ul do
+        model.support_modules.decorate.each do |support_module|
+          li support_module.admin_link
+        end
+      end
     end
   end
-
 end
