@@ -18,11 +18,7 @@ $(document).ready(function() {
         } else {
             validation.prop('disabled', false);
         }
-        if ($(this).val() === 'parent') {
-            form_details.show();
-        } else {
-            form_details.hide();
-        }
+        form_details.show();
     });
 
     checkboxes.change(function() {
