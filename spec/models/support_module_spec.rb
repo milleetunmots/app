@@ -12,11 +12,17 @@
 #  theme         :string
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
+#  book_id       :bigint
 #
 # Indexes
 #
 #  index_support_modules_on_age_ranges    (age_ranges) USING gin
+#  index_support_modules_on_book_id       (book_id)
 #  index_support_modules_on_discarded_at  (discarded_at)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (book_id => books.id)
 #
 
 require "rails_helper"
