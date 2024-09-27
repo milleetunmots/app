@@ -23,5 +23,6 @@ class Book < ApplicationRecord
   belongs_to :media, class_name: 'Media::Image', optional: true
   has_many :support_modules, dependent: :nullify
 
-  validates :ean, presence: true, uniqueness: true
+  validates :ean, presence: true, uniqueness: true, numericality: { only_numeric: true }
+  validates :title, presence: true
 end

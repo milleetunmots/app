@@ -2,7 +2,7 @@ ActiveAdmin.register Book do
 
   decorate_with BookDecorator
 
-  actions :all, except: [:new]
+  actions :all, except: %i[new edit]
 
   # ---------------------------------------------------------------------------
   # INDEX
@@ -18,4 +18,12 @@ ActiveAdmin.register Book do
 
   filter :ean
   filter :title
+
+  show do
+    attributes_table do
+      row :ean
+      row :title
+      row :book_support_modules
+    end
+  end
 end

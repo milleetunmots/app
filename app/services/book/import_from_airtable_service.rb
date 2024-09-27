@@ -7,14 +7,13 @@ class Book::ImportFromAirtableService
   def call
     @airtable_books.each do |airtable_book|
       @to_save = false
-      @book = Book.find_by(ean: airtable_book[:ean])
       @ean = airtable_book[:ean]
       @title = airtable_book[:title]
       @support_module_ids = airtable_book[:modules].map do |module_id|
         airtable_module = Airtables::Module.find(module_id)
-        SupportModule.where(name: airtable_module.title.strip, age_ranges: [airtable_module.ages]).first.id
+        SupportModule.where(name: airtable_module['titre'].strip, age_ranges: [airtable_module.ages]).first.id
       end
-
+      @book = Book.find_by(ean: @ean)
       import_new_book
       update_title
       update_support_modules
