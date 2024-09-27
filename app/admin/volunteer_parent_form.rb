@@ -50,7 +50,7 @@ ActiveAdmin.register_page 'Volunteer Parent Form' do
         end
         div id: 'parent-volunteer-form-details' do
           label class: 'label-for-group' do
-            "Veux-tu partager plus de détails sur ta discussion avec le parent, par exemple quel genre d'action veut-il faire ?"
+            "Pourquoi penses-tu que ça pourrait l’intéresser ?"
           end
           textarea name: :details
         end
