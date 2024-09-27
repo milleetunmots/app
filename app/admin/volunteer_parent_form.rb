@@ -52,6 +52,7 @@ ActiveAdmin.register_page 'Volunteer Parent Form' do
           label class: 'label-for-group' do
             "Pourquoi penses-tu que ça pourrait l’intéresser ?"
           end
+          span "(facultatif)"
           textarea name: :details
         end
         div class: 'actions' do
