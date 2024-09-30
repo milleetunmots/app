@@ -9,4 +9,11 @@ class BookDecorator < BaseDecorator
       end
     end
   end
+
+  def cover_link_tag(**options)
+    return nil unless model.media.file.attached?
+
+    options.merge!(source: model.media.file)
+    image_link_tag(**options)
+  end
 end

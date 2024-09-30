@@ -5,6 +5,7 @@ class Book::ImportFromAirtableService
   end
 
   def call
+    Media::Image.skip_callback(:save, :after, :upload_file_to_spot_hit)
     @airtable_books.each do |airtable_book|
       @to_save = false
       @ean = airtable_book[:ean]
@@ -21,6 +22,7 @@ class Book::ImportFromAirtableService
       update_cover
       @book.save! if @to_save
     end
+    Media::Image.set_callback(:save, :after, :upload_file_to_spot_hit)
     self
   end
 
@@ -56,12 +58,16 @@ class Book::ImportFromAirtableService
     return if @book.media&.name == @cover['filename']
 
     @to_save = true
-    @book.media = Media::Image.new(name: @cover['filename'])
-    @book.media.file.attach(
+    cover = Media::Image.new(name: @cover['filename'])
+    cover.file.attach(
       io: File.open(download_cover),
       filename: @cover['filename'],
       content_type: @cover['type']
     )
+    cover.save!
+
+    @book.media = cover
+    FileUtils.rm_f(download_cover)
   end
 
   def update_support_modules

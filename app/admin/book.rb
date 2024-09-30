@@ -14,6 +14,9 @@ ActiveAdmin.register Book do
     column :ean
     column :title
     column :book_support_modules
+    column :file do |decorated|
+      decorated.cover_link_tag(max_height: '50px')
+    end
   end
 
   filter :ean
@@ -24,6 +27,9 @@ ActiveAdmin.register Book do
       row :ean
       row :title
       row :book_support_modules
+      row :file do |decorated|
+        decorated.cover_link_tag(max_height: '500px')
+      end
     end
   end
 end
