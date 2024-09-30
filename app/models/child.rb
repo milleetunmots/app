@@ -624,6 +624,10 @@ class Child < ApplicationRecord
     ChildrenSupportModule.where(child_id: self.id, is_programmed: false).where.not(support_module: nil).last.support_module&.decorate&.display_age_ranges.gsub('/', '_')
   end
 
+  def book_to_distribute_title
+    ChildrenSupportModule.where(child_id: self.id, is_programmed: false).where.not(support_module: nil).last.book_title
+  end
+
   # ---------------------------------------------------------------------------
   # support
   # ---------------------------------------------------------------------------

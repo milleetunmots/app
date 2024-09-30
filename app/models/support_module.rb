@@ -145,10 +145,12 @@ class SupportModule < ApplicationRecord
   # methods
   # ---------------------------------------------------------------------------
 
-  delegate :title,
-           to: :book,
-           prefix: true,
-           allow_nil: true
+  delegate  :id,
+            :title,
+            :ean,
+            to: :book,
+            prefix: true,
+            allow_nil: true
 
   # ---------------------------------------------------------------------------
   # versions history
