@@ -616,6 +616,14 @@ class Child < ApplicationRecord
     popi_parents.fathers.count
   end
 
+  def support_module_not_programmed_name
+    ChildrenSupportModule.where(child_id: self.id, is_programmed: false).where.not(support_module: nil).last.support_module.name
+  end
+
+  def support_module_not_programmed_ages
+    ChildrenSupportModule.where(child_id: self.id, is_programmed: false).where.not(support_module: nil).last.support_module&.decorate&.display_age_ranges.gsub('/', '_')
+  end
+
   # ---------------------------------------------------------------------------
   # support
   # ---------------------------------------------------------------------------

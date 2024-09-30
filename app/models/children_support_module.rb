@@ -46,6 +46,11 @@ class ChildrenSupportModule < ApplicationRecord
            prefix: true,
            allow_nil: true
 
+  delegate :book_title,
+          to: :support_module,
+          prefix: false,
+          allow_nil: true
+
   after_update :select_for_the_other_parent
   after_update :select_for_siblings
   before_create :set_module_index

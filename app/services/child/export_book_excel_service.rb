@@ -7,7 +7,9 @@ class Child
       { name: 'Adresse', method: :address},
       { name: 'Code postal', method: :postal_code },
       { name: 'Ville', method: :city_name },
-      { name: 'Prénom enfant', method: :first_name }
+      { name: 'Prénom enfant', method: :first_name },
+      { name: 'Module', method: :support_module_not_programmed_name },
+      { name: 'Age', method: :support_module_not_programmed_ages }
     ].freeze
 
     def initialize(children:)
