@@ -21,8 +21,8 @@ class ChildSupport::SendCall3GoalsMessagesService
   private
 
   def reminder_message
-    call3_goals = @child_support.call3_goals_sms.match(CALL3_GOALS_REGEX)[1]&.strip
-    typeform_link = @child_support.call3_goals_sms.match(TYPEFORM_URL_REGEX)[0]
+    call3_goals = @goals_match[1]&.strip
+    typeform_link = @typeform_link_match[0]
     CALL3_GOALS_REMINDER_MESSAGE.gsub('{call3_goals}', call3_goals).gsub('{typeform_link}', typeform_link)
   end
 
@@ -63,6 +63,10 @@ class ChildSupport::SendCall3GoalsMessagesService
   def send_call3_goals_reminder_message
     @group.child_supports.where.not(call3_goals_sms: [nil, '']).where.not(call4_previous_goals_follow_up: '1_succeed').find_each do |child_support|
       @child_support = child_support
+      @goals_match = @child_support.call3_goals_sms.match(CALL3_GOALS_REGEX)
+      @typeform_link_match = @child_support.call3_goals_sms.match(TYPEFORM_URL_REGEX)
+      next unless @goals_match.present? && @typeform_link_match.present?
+
       service = ProgramMessageService.new(@date.strftime('%d-%m-%Y'), '12:30', recipient, reminder_message).call
       @errors << service.errors if service.errors
     end
