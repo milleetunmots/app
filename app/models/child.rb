@@ -616,16 +616,20 @@ class Child < ApplicationRecord
     popi_parents.fathers.count
   end
 
+  def parent1_support_module
+    ChildrenSupportModule.where.not(support_module: nil).find_by(child_id: self.id, is_programmed: false, parent_id: self.parent1_id).support_module
+  end
+
   def support_module_not_programmed_name
-    ChildrenSupportModule.where(child_id: self.id, is_programmed: false).where.not(support_module: nil).last.support_module.name
+    parent1_support_module.name
   end
 
   def support_module_not_programmed_ages
-    ChildrenSupportModule.where(child_id: self.id, is_programmed: false).where.not(support_module: nil).last.support_module&.decorate&.display_age_ranges.gsub('/', '_')
+    parent1_support_module.decorate.display_age_ranges.gsub('/', '_')
   end
 
   def book_to_distribute_title
-    ChildrenSupportModule.where(child_id: self.id, is_programmed: false).where.not(support_module: nil).last.book_title
+    parent1_support_module.book_title
   end
 
   # ---------------------------------------------------------------------------
