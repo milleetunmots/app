@@ -30,3 +30,7 @@
     handle_duplicate_job:
       cron: '0 6 * * 7'
       class: Child::HandleDuplicateJob
+    import_books_job:
+      cron: '0 22 * * *'
+      class: Book::ImportBooksJob
+    
