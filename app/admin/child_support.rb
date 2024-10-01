@@ -631,12 +631,11 @@ ActiveAdmin.register ChildSupport do
         cs.send("call#{call_idx}_parent_actions_text")
       end
       # column "call#{call_idx}_language_awareness"
-      column "call#{call_idx}_parent_progress"
-      column "call#{call_idx}_sendings_benefits"
+      column("call#{call_idx}_parent_progress")
+      column("call#{call_idx}_sendings_benefits")
       column "call#{call_idx}_sendings_benefits_details"
       if call_idx == 2
         column :call2_family_progress
-        column :call2_previous_goals_follow_up
       end
       column("call#{call_idx}_language_development") do |cs|
         next if call_idx.zero?
@@ -644,7 +643,11 @@ ActiveAdmin.register ChildSupport do
         cs.send("call#{call_idx}_language_development_text")
       end
       column :books_quantity if call_idx.in?([0, 1])
-      column "call#{call_idx}_reading_frequency"
+      column("call#{call_idx}_reading_frequency")
+      if call_idx.in?([1, 2, 4])
+        column("call#{call_idx}_previous_goals_follow_up")
+      end
+      column("call#{call_idx}_goals_sms")
       column("call#{call_idx}_goals") do |cs|
         next if call_idx.zero?
 
