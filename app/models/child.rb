@@ -617,19 +617,28 @@ class Child < ApplicationRecord
   end
 
   def parent1_support_module
-    ChildrenSupportModule.where.not(support_module: nil).find_by(child_id: self.id, is_programmed: false, parent_id: self.parent1_id).support_module
+    ChildrenSupportModule.with_support_module.not_programmed.find_by(child_id: self.id,  parent_id: self.parent1_id)&.support_module
   end
 
   def support_module_not_programmed_name
-    parent1_support_module.name
+    support_module = parent1_support_module
+    return unless support_module
+
+    support_module.name
   end
 
   def support_module_not_programmed_ages
-    parent1_support_module.decorate.display_age_ranges.gsub('/', '_')
+    support_module = parent1_support_module
+    return unless support_module
+
+    support_module.decorate.display_age_ranges.gsub('/', '_')
   end
 
   def book_to_distribute_title
-    parent1_support_module.book_title
+    support_module = parent1_support_module
+    return unless support_module
+
+    support_module.book_title
   end
 
   # ---------------------------------------------------------------------------
