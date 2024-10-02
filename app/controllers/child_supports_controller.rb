@@ -36,11 +36,15 @@ class ChildSupportsController < ApplicationController
   end
 
   def call3_speaking_form
-    handle_call3_form
+    handle_call_form
   end
 
   def call3_observing_form
-    handle_call3_form
+    handle_call_form
+  end
+
+  def call0_form
+    handle_call_form
   end
 
   private
@@ -56,7 +60,7 @@ class ChildSupportsController < ApplicationController
     not_found and return if @child_support.stop_support_caller_id.nil?
   end
 
-  def handle_call3_form
+  def handle_call_form
     params[:child_support_id] = params.delete(:cs) if params[:cs]
     find_child_support(params[:child_support_id], params[:sc])
     supporter_name = @child_support.supporter&.decorate&.first_name || '1001mots'
