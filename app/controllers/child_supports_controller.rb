@@ -56,7 +56,8 @@ class ChildSupportsController < ApplicationController
   end
 
   def handle_call3_form
-    find_child_support(params[:cs], params[:sc])
+    params[:child_support_id] = params.delete(:cs) if params[:cs]
+    find_child_support(params[:child_support_id], params[:sc])
     supporter_name = @child_support.supporter&.decorate&.first_name || '1001mots'
     current_child_name = @child_support.current_child&.first_name || 'Votre enfant'
     return if params[:supporter_name] == supporter_name && params[:current_child_name] == current_child_name
