@@ -47,15 +47,17 @@ $(document).ready(function() {
                 url: `/child-support-supporter_first_name/${childSupportId}`,
                 success: function(response) {
                     messageContent = `${messageContent}\n${response.name} 1001mots`
+                },
+                error: function() {
+                    messageContent = `${messageContent}\n1001mots`
+                },
+                complete: function() {
                     message.css({'height': '250px'});
                     message.val(messageContent)
                     specificCall3Message(selectedValue)
                     message.val(messageContentRefreshed)
                     showNewFields()
                     message.prop('readonly', true)
-                },
-                error: function() {
-                    messageContent = `${messageContent}\n1001mots`
                 }
             });
         } else {

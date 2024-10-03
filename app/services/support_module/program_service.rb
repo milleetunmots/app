@@ -28,7 +28,7 @@ class SupportModule::ProgramService
         next if support_module_week.medium.send("body#{index}").blank?
 
         image = Media::Image.find_by(id: support_module_week.medium.send("image#{index}_id"))
-        redirection_target = RedirectionTarget.find_by(medium_id: support_module_week.medium.send("link#{index}_id"))
+        redirection_target = RedirectionTarget.find_or_create_by(medium_id: support_module_week.medium.send("link#{index}_id"))
 
         program_message(
           @date,
@@ -45,7 +45,7 @@ class SupportModule::ProgramService
       next_date_and_hour(support_module_week, week_index)
 
       image = Media::Image.find_by(id: support_module_week.additional_medium.image1_id)
-      redirection_target = RedirectionTarget.find_by(medium_id: support_module_week.additional_medium.link1_id)
+      redirection_target = RedirectionTarget.find_or_create_by(medium_id: support_module_week.additional_medium.link1_id)
 
       program_message(
         @date,
