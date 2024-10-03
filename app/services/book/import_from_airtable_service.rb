@@ -1,7 +1,10 @@
 class Book::ImportFromAirtableService
 
+  attr_reader :errors
+
   def initialize
     @airtable_books = Airtables::Book.all.map { |book| { ean: book['EAN'], title: book['Titre du livre'], cover: book['Photo de la couverture'].first, modules: book['Modules'] } }
+    @errors = { support_modules: [], cover: [] }
   end
 
   def call
@@ -11,10 +14,9 @@ class Book::ImportFromAirtableService
       @ean = airtable_book[:ean]
       @title = airtable_book[:title]
       @cover = airtable_book[:cover]
-      @support_module_ids = airtable_book[:modules].map do |module_id|
-        airtable_module = Airtables::Module.find(module_id)
-        SupportModule.where(name: airtable_module['titre'].strip, age_ranges: [airtable_module.ages]).first.id
-      end
+      @support_module_ids = []
+      @modules = airtable_book[:modules]
+      retrieve_support_modules
       @book = Book.find_by(ean: @ean)
       import_new_book
       update_title
@@ -27,6 +29,18 @@ class Book::ImportFromAirtableService
   end
 
   private
+
+  def retrieve_support_modules
+    @modules.map do |module_id|
+      airtable_module = Airtables::Module.find(module_id)
+      support_module = SupportModule.where(name: airtable_module['titre'].strip, age_ranges: [airtable_module.ages]).first
+      if support_module.present?
+        @support_module_ids << support_module.id
+      else
+        @errors[:support_modules] << "#{airtable_module['titre']} #{airtable_module.ages} introuvable"
+      end
+    end
+  end
 
   def import_new_book
     return if @book.present?
@@ -64,7 +78,7 @@ class Book::ImportFromAirtableService
       filename: @cover['filename'],
       content_type: @cover['type']
     )
-    cover.save!
+    @errors[:cover] << "Erreur lors de la sauvegarde de l'image #{@book.media&.name}" unless cover.save
 
     @book.media = cover
     FileUtils.rm_f(download_cover)
