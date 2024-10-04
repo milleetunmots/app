@@ -35,6 +35,18 @@ class ChildSupportsController < ApplicationController
     }
   end
 
+  def call_goal
+    @child_support = ChildSupport.find_by(id: params[:child_support_id])
+    not_found and return unless @child_support
+
+    call_goal = @child_support.send(:"call#{params[:call_index]}_goals")
+    not_found and return unless call_goal
+
+    render json: {
+      call_goal: call_goal
+    }
+  end
+
   def call3_speaking_form
     handle_call_form
   end
