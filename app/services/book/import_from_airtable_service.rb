@@ -24,6 +24,7 @@ class Book::ImportFromAirtableService
       update_cover
       @book.save! if @to_save
     end
+    clean_missing_books
     Media::Image.set_callback(:save, :after, :upload_file_to_spot_hit)
     self
   end
@@ -89,5 +90,9 @@ class Book::ImportFromAirtableService
 
     @to_save = true
     @book.support_module_ids = @support_module_ids
+  end
+
+  def clean_missing_books
+    Book.where.not(ean: @airtable_books.pluck(:ean)).update(support_module_ids: [])
   end
 end
