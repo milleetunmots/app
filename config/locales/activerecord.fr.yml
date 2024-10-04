@@ -2,6 +2,7 @@ fr:
   activerecord:
     models:
       admin_user: Utilisateur
+      book: Livre
       child: Enfant
       child_support: Suivi
       children_support_module: Modules choisis par les parents
@@ -59,6 +60,12 @@ fr:
         team_member: Membre de l'équipe
         logistics_team: Membre du pôle logistique
         caller: Appelant.e
+      book:
+        << : *SHARED
+        ean: EAN
+        title: Titre
+        book_support_modules: Modules
+        file: Couverture
       child:
         << : *SHARED
         address: Adresse
@@ -610,6 +617,7 @@ fr:
       support_module:
         << : *SHARED
         ages: Tranche d'âge
+        book_title: Livre
         name: Nom
         start_at: Démarrage
         support_module_weeks: Semaines

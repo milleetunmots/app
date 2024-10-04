@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_09_17_150728) do
+ActiveRecord::Schema.define(version: 2024_09_26_090524) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -63,6 +63,16 @@ ActiveRecord::Schema.define(version: 2024_09_17_150728) do
     t.boolean "is_disabled", default: false
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
+  end
+
+  create_table "books", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "ean", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "media_id"
+    t.index ["ean"], name: "index_books_on_ean", unique: true
+    t.index ["media_id"], name: "index_books_on_media_id"
   end
 
   create_table "bubble_contents", force: :cascade do |t|
@@ -607,7 +617,9 @@ ActiveRecord::Schema.define(version: 2024_09_17_150728) do
     t.string "theme"
     t.string "age_ranges", array: true
     t.integer "level"
+    t.bigint "book_id"
     t.index ["age_ranges"], name: "index_support_modules_on_age_ranges", using: :gin
+    t.index ["book_id"], name: "index_support_modules_on_book_id"
     t.index ["discarded_at"], name: "index_support_modules_on_discarded_at"
   end
 
@@ -694,6 +706,7 @@ ActiveRecord::Schema.define(version: 2024_09_17_150728) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "books", "media", column: "media_id"
   add_foreign_key "bubble_contents", "bubble_modules", column: "module_content_id"
   add_foreign_key "bubble_modules", "bubble_modules", column: "module_precedent_id"
   add_foreign_key "bubble_modules", "bubble_modules", column: "module_suivant_id"
@@ -723,6 +736,7 @@ ActiveRecord::Schema.define(version: 2024_09_17_150728) do
   add_foreign_key "media_folders", "media_folders", column: "parent_id"
   add_foreign_key "redirection_targets", "media"
   add_foreign_key "support_module_weeks", "media", column: "additional_medium_id"
+  add_foreign_key "support_modules", "books"
   add_foreign_key "taggings", "tags"
   add_foreign_key "tasks", "admin_users", column: "assignee_id"
   add_foreign_key "tasks", "admin_users", column: "reporter_id"

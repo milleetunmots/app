@@ -19,6 +19,7 @@ ActiveAdmin.register SupportModule do
     selectable_column
     id_column
     column :name
+    column :book_title
     column :start_at
     column :display_theme
     column :level
@@ -107,6 +108,7 @@ ActiveAdmin.register SupportModule do
   show do
     attributes_table do
       row :name
+      row :book_title
       row :for_bilingual
       row :display_theme
       row :display_age_ranges

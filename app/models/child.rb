@@ -616,6 +616,31 @@ class Child < ApplicationRecord
     popi_parents.fathers.count
   end
 
+  def parent1_support_module
+    ChildrenSupportModule.with_support_module.not_programmed.find_by(child_id: self.id,  parent_id: self.parent1_id)&.support_module
+  end
+
+  def support_module_not_programmed_name
+    support_module = parent1_support_module
+    return unless support_module
+
+    support_module.name
+  end
+
+  def support_module_not_programmed_ages
+    support_module = parent1_support_module
+    return unless support_module
+
+    support_module.decorate.display_age_ranges.gsub('/', '_')
+  end
+
+  def book_to_distribute_title
+    support_module = parent1_support_module
+    return unless support_module
+
+    support_module.book_title
+  end
+
   # ---------------------------------------------------------------------------
   # support
   # ---------------------------------------------------------------------------
