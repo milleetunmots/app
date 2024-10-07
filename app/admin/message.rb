@@ -88,11 +88,14 @@ ActiveAdmin.register_page 'Message' do
       else
         params[:call_goals_sms]
       end
+
+    message = params[:message].gsub('{CHAMP_MESSAGE_COMPLEMENTAIRE}', '')
+    message.gsub!('{CHAMP_PETITE_MISSION}', '')
     service = ProgramMessageService.new(
       params[:planned_date],
       params[:planned_hour],
       params[:recipients],
-      params[:message],
+      message,
       get_spot_hit_file(params[:image_to_send]),
       params[:redirection_target],
       false,
@@ -106,7 +109,7 @@ ActiveAdmin.register_page 'Message' do
     else
       notice = 'Message(s) programmé(s)'
       if params[:call_goals_sms] && params[:call_goals_sms] != 'Non'
-        child_support.update_column("#{call_goal}_sms".to_sym, params[:message])
+        child_support.update_column("#{call_goal}_sms".to_sym, message)
         notice += '. Et petite mission définie'
       end
       redirect_back(fallback_location: root_path, notice: notice)

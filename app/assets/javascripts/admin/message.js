@@ -61,7 +61,6 @@ $(document).ready(function() {
                     message.css({'height': '250px'})
                     specificCallMessage(selectedValue)
                     
-                    
                     $.ajax({
                         type: 'GET',
                         url: `/child-support-call-goal/${childSupportId}/${call_index}`,
@@ -76,6 +75,9 @@ $(document).ready(function() {
                             message.val(messageContentRefreshed)
                             showNewFields()
                             message.prop('readonly', true)
+                            if (call_goal.val() === '') {
+                                $("input[type='submit']").prop('disabled', true)
+                            }
                         }
                     });
                 }
@@ -88,6 +90,11 @@ $(document).ready(function() {
     })
 
     call_goal.on('input', function() {
+        if (call_goal.val() === '') {
+            $("input[type='submit']").prop('disabled', true)
+        } else {
+            $("input[type='submit']").prop('disabled', false)
+        }
         messageContentRefreshed = messageContentWithLink.replace('{CHAMP_MESSAGE_COMPLEMENTAIRE}', additional_message.val()).replace('{CHAMP_PETITE_MISSION}', $(this).val())
         message.val(messageContentRefreshed)
     })

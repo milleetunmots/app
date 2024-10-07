@@ -2,8 +2,9 @@ module Typeform
   class CallGoalsFormService
     FIELD_IDS = %w[CXDlsCna9dg3 lwth2Bv3Pzqm tgVue9vTFuJK].freeze
 
-    def initialize(form_responses)
+    def initialize(form_responses, call_index)
       @answers = form_responses[:answers]
+      @call_index = call_index
       @child_support = ChildSupport.find(form_responses[:hidden][:child_support_id])
     end
 
@@ -12,11 +13,7 @@ module Typeform
         next unless answer[:field][:id].in? FIELD_IDS
 
         call_previous_goals_follow_up = answer[:choice][:label] == 'Oui !' ? '1_succeed' : '3_no_tried'
-        if answer[:field][:id] == 'tgVue9vTFuJK'
-          @child_support.call1_previous_goals_follow_up = call_previous_goals_follow_up
-        else
-          @child_support.call4_previous_goals_follow_up = call_previous_goals_follow_up
-        end
+        @child_support.assign_attributes("call#{@call_index + 1}_previous_goals_follow_up": call_previous_goals_follow_up)
         @child_support.save
       end
       self

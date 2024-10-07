@@ -6,10 +6,14 @@ class TypeformController < ApplicationController
     case params[:form_response][:form_id]
     when 'YzlXcWSJ'
       Typeform::MidwayFormService.new(params[:form_response]).call
-    when 'swkzdIlg', 'dZCvik1O', 'aBALISn7'
-      Typeform::CallGoalsFormService.new(params[:form_response]).call
-    else
+    when 'aBALISn7'
+      Typeform::CallGoalsFormService.new(params[:form_response], 0).call
+    when 'swkzdIlg', 'dZCvik1O'
+      Typeform::CallGoalsFormService.new(params[:form_response], 3).call
+    when 'XdWSv2hR'
       Typeform::InitialFormService.new(params[:form_response]).call
+    else
+      Rollbar.error("Typeform with unknown id: #{params[:form_response][:form_id]}")
     end
   end
 end
