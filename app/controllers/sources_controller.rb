@@ -1,4 +1,5 @@
 class SourcesController < ApplicationController
+  skip_before_action :authenticate_admin_user!
 
   def caf_by_utm
     source = Source.by_caf.by_utm(params[:utm_caf]).first
