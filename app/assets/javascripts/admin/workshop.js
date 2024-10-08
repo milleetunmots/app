@@ -21,6 +21,6 @@ $(document).ready(function() {
       return value !== '';
     });
     $(this).val(values)
-    $('#workshop_parent_ids').val(JSON.stringify(values))
+    $('#workshop_parent_ids').val(values)
   });
 });

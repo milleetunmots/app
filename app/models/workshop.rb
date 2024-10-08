@@ -28,6 +28,7 @@
 #  fk_rails_...  (animator_id => admin_users.id)
 #
 class Workshop < ApplicationRecord
+
   include Discard::Model
 
   attr_accessor :parent_selection
@@ -124,8 +125,6 @@ class Workshop < ApplicationRecord
                       Parent::BONDY_POSTAL_CODE
                     when 'Mantes La Jolie'
                       Parent::MANTES_LA_JOLIE_POSTAL_CODE
-                    else
-                      nil
                     end
 
     Parent.where(postal_code: postal_codes)

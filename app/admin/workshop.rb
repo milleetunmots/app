@@ -5,6 +5,8 @@ ActiveAdmin.register Workshop do
   use_discard
 
   includes :animator, :parents
+
+  before_action :format_parent_ids, only: :create
   after_create do |workshop|
     flash[:error] = "Aucune invitation n'a pu être envoyée. Prévenez le pôle technique" if workshop.workshop_participations.empty?
   end
@@ -48,15 +50,15 @@ ActiveAdmin.register Workshop do
       f.input :parent_selection,
               as: :select,
               input_html: {
-                        id: 'workshop-parent-select',
-                        data: {
-                          url: parents_admin_children_path,
-                          multiple: true
-                        },
-                        disabled: !object.new_record?
-                      }
+                id: 'workshop-parent-select',
+                data: {
+                  url: parents_admin_children_path,
+                  multiple: true
+                },
+                disabled: !object.new_record?
+              }
 
-      # f.input :parents, collection: workshop_parent_select_collection, input_html: { data: { select2: {} } }
+      f.input :parent_ids, as: :hidden
       f.input :workshop_land, collection: Child::LANDS.sort, input_html: { data: { select2: {} }, disabled: !object.new_record? }
       f.input :invitation_message, input_html: { rows: 5, disabled: !object.new_record? }
       f.input :canceled
@@ -158,5 +160,11 @@ ActiveAdmin.register Workshop do
     end
 
     redirect_to admin_workshop_path, notice: 'Parent(s) inscrit(s)'
+  end
+
+  controller do
+    def format_parent_ids
+      params[:workshop][:parent_ids] = params[:workshop][:parent_ids].split(',').map(&:to_i) if params[:workshop][:parent_ids].present?
+    end
   end
 end
