@@ -35,6 +35,13 @@ $(document).ready(function() {
             messageContentWithLink = messageContent.replace('{type_form_link}', call0Link)
         }
     }
+    function setSubmitBtnDisabledProp() {
+        if (call_goal.val() === '') {
+            $("input[type='submit']").prop('disabled', true)
+        } else {
+            $("input[type='submit']").prop('disabled', false)
+        }
+    }
 
     hideNewFields()
 
@@ -75,14 +82,13 @@ $(document).ready(function() {
                             message.val(messageContentRefreshed)
                             showNewFields()
                             message.prop('readonly', true)
-                            if (call_goal.val() === '') {
-                                $("input[type='submit']").prop('disabled', true)
-                            }
+                            setSubmitBtnDisabledProp();
                         }
                     });
                 }
             });
         } else {
+            $("input[type='submit']").prop('disabled', false)
             message.css({'height': 'auto'})
             normalMessage()
             hideNewFields()
@@ -90,11 +96,7 @@ $(document).ready(function() {
     })
 
     call_goal.on('input', function() {
-        if (call_goal.val() === '') {
-            $("input[type='submit']").prop('disabled', true)
-        } else {
-            $("input[type='submit']").prop('disabled', false)
-        }
+        setSubmitBtnDisabledProp();
         messageContentRefreshed = messageContentWithLink.replace('{CHAMP_MESSAGE_COMPLEMENTAIRE}', additional_message.val()).replace('{CHAMP_PETITE_MISSION}', $(this).val())
         message.val(messageContentRefreshed)
     })
