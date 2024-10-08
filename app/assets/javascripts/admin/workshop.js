@@ -12,10 +12,6 @@ $(document).ready(function() {
     multiple: true
   });
 
-  // $('#workshop_parent_ids').select2({
-  //   multiple: true
-  // })
-
   $('#workshop-parent-select').on('change', function() {
     var values = $(this).val().filter(function(value) {
       return value !== '';
