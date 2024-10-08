@@ -1,5 +1,5 @@
 class ChildSupportsController < ApplicationController
-  skip_before_action :authenticate_admin_user!, only: [:confirm_end_support, :call3_speaking_form, :call3_observing_form]
+  skip_before_action :authenticate_admin_user!, only: [:confirm_end_support, :call3_speaking_form, :call3_observing_form, :call0_form]
 
   def confirm_end_support
     find_child_support(params[:child_support_id], params[:parent1_sc])
