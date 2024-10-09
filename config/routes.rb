@@ -87,5 +87,9 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :aircall do
+    get 'contacts', to: 'contacts#show'
+  end
+
   root to: redirect('/admin')
 end
