@@ -3,43 +3,42 @@ require 'json'
 
 class Aircall::ConnexionService
   BASE_URL = "https://api.aircall.io"
-  USER_ID = ENV['AIRCALL_API_ID']
-  USER_PASSWORD = ENV['AIRCALL_API_TOKEN']
+  TOKEN_ID = ENV['AIRCALL_API_ID']
+  TOKEN_PASSWORD = ENV['AIRCALL_API_TOKEN']
+
+  attr_reader :errors, :response
 
   def initialize(endpoint)
     @url = URI("#{BASE_URL}/#{endpoint}")
+    @errors = []
   end
 
   def get
-    request = Net::HTTP::Get.new(@url)
-    request.basic_auth(USER_ID, USER_PASSWORD)
-
-    handle_request(request)
+    handle_request
+    self
   end
 
-  def post(params = {})
-    request = Net::HTTP::Post.new(@url, { 'Content-Type' => 'application/json' })
-    request.basic_auth(USER_ID, USER_PASSWORD)
-    request.body = params.to_json
+  # def post(params = {})
+  #   request = Net::HTTP::Post.new(@url, { 'Content-Type' => 'application/json' })
+  #   request.basic_auth(TOKEN_ID, TOKEN_PASSWORD)
+  #   request.body = params.to_json
 
-    handle_request(request)
-  end
+  #   handle_request(request)
+  # end
 
   private
 
-  def handle_request(request)
-    response = Net::HTTP.start(@url.hostname, @url.port, use_ssl: @url.scheme == 'https') do |http|
-      http.request(request)
-    end
+  def handle_request
+    response = HTTP.basic_auth(user: TOKEN_ID, pass: TOKEN_PASSWORD).get(@url)
 
     parse_response(response)
   end
 
   def parse_response(response)
-    if response.instance_of?(Net::HTTPOK)
-      JSON.parse(response.body)
+    if response.status.success?
+      @response = JSON.parse(response.body)
     else
-      { error: "HTTP error: #{response.message}", status: response.code.to_i }
+      @errors << { message: "L'appel api a échoué : #{response.status.reason}", status: response.status.to_i }
     end
   end
 end
