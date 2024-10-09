@@ -1,5 +1,5 @@
 class ChildSupportsController < ApplicationController
-  skip_before_action :authenticate_admin_user!, only: [:confirm_end_support, :call3_speaking_form, :call3_observing_form]
+  skip_before_action :authenticate_admin_user!, only: [:confirm_end_support, :call3_speaking_form, :call3_observing_form, :call0_form]
 
   def confirm_end_support
     find_child_support(params[:child_support_id], params[:parent1_sc])
@@ -35,12 +35,28 @@ class ChildSupportsController < ApplicationController
     }
   end
 
+  def call_goal
+    @child_support = ChildSupport.find_by(id: params[:child_support_id])
+    not_found and return unless @child_support
+
+    call_goal = @child_support.send(:"call#{params[:call_index]}_goals")
+    not_found and return unless call_goal
+
+    render json: {
+      call_goal: call_goal
+    }
+  end
+
   def call3_speaking_form
-    handle_call3_form
+    handle_call_form
   end
 
   def call3_observing_form
-    handle_call3_form
+    handle_call_form
+  end
+
+  def call0_form
+    handle_call_form
   end
 
   private
@@ -56,7 +72,7 @@ class ChildSupportsController < ApplicationController
     not_found and return if @child_support.stop_support_caller_id.nil?
   end
 
-  def handle_call3_form
+  def handle_call_form
     params[:child_support_id] = params.delete(:cs) if params[:cs]
     find_child_support(params[:child_support_id], params[:sc])
     supporter_name = @child_support.supporter&.decorate&.first_name || '1001mots'

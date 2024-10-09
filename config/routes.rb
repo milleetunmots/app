@@ -39,6 +39,7 @@ Rails.application.routes.draw do
   get 'confirm-end-support/:child_support_id/:parent1_sc', to: 'child_supports#confirm_end_support', as: :confirm_end_support
   get 'child-support-updated-at/:child_support_id', to: 'child_supports#updated_at', as: :child_support_updated_at
   get 'child-support-supporter_first_name/:child_support_id', to: 'child_supports#supporter_first_name', as: :child_support_supporter_first_name
+  get 'child-support-call-goal/:child_support_id/:call_index', to: 'child_supports#call_goal', as: :child_support_call_goals
   get 'mis-a-jour', to: 'children#updated', as: :updated_child
   get 'mis-a-jour-invitation', to: 'workshop_participation#updated', as: :updated_workshop_participation
   get 'r/:id/:security_code', to: 'redirection#visit', as: :visit_redirection
@@ -48,6 +49,7 @@ Rails.application.routes.draw do
   get 's/:id', to: 'children_support_modules#edit', as: :children_support_module_link
   get 'c3/sf', to: 'child_supports#call3_speaking_form', as: :call3_speaking_form
   get 'c3/of', to: 'child_supports#call3_observing_form', as: :call3_observing_form
+  get 'c0', to: 'child_supports#call0_form', as: :call0_form
   post '/typeform/webhooks', to: 'typeform#webhooks'
 
   resources :events, only: %i[index create]
