@@ -1,4 +1,5 @@
 class ChildSupportsController < ApplicationController
+  skip_before_action :authenticate_admin_user!, only: [:confirm_end_support, :call3_speaking_form, :call3_observing_form]
 
   def confirm_end_support
     find_child_support(params[:child_support_id], params[:parent1_sc])
@@ -62,6 +63,6 @@ class ChildSupportsController < ApplicationController
     current_child_name = @child_support.current_child&.first_name || 'Votre enfant'
     return if params[:supporter_name] == supporter_name && params[:current_child_name] == current_child_name
 
-    redirect_to url_for(params.permit!.to_h.merge(supporter_name: supporter_name, current_child_name: current_child_name)) and return
+    redirect_to url_for(params.permit!.to_h.merge(child_support_id: params[:child_support_id], supporter_name: supporter_name, current_child_name: current_child_name)) and return
   end
 end

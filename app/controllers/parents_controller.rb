@@ -1,4 +1,5 @@
 class ParentsController < ApplicationController
+  skip_before_action :authenticate_admin_user!, only: :update
 
   def current_child_source
     current_child = Parent.find_by(id: params[:id])&.current_child

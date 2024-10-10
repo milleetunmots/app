@@ -1,4 +1,5 @@
 class RedirectionController < ApplicationController
+  skip_before_action :authenticate_admin_user!
 
   def visit
     @redirection_url = RedirectionUrl.where(

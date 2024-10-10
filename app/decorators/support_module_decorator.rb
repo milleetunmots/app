@@ -1,5 +1,9 @@
 class SupportModuleDecorator < BaseDecorator
 
+  def admin_link(options = {})
+    super(options.merge(label: "#{model.name} #{model.decorate.display_age_ranges}"))
+  end
+
   def ages
     SupportModule.human_attribute_name("ages.#{model.ages}")
   end

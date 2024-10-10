@@ -1,5 +1,5 @@
 class ChildrenSupportModulesController < ApplicationController
-
+  skip_before_action :authenticate_admin_user!
   before_action :find_children_support_module, only: %i[edit update updated]
 
   def edit

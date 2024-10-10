@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+  before_action :authenticate_admin_user!
 
   def access_denied(exception)
     redirect_to admin_children_url, alert: exception.message

@@ -34,12 +34,12 @@ class Child
 
       chosen_modules = chosen_modules.select { |csm| csm.parent_id == csm.child.parent1_id }
       chosen_modules = chosen_modules.uniq { |csm| [csm.child_id, csm.parent_id] }
+      chosen_modules.group_by(&:book_id).each do |book_id, children_support_modules|
+        book = Book.find(book_id) if book_id
 
-      chosen_modules.group_by(&:support_module_id).each do |support_module_id, children_support_modules|
-        support_module = SupportModule.find(support_module_id)
         children = Child.where(group_status: 'active', id: children_support_modules.map(&:child_id).uniq)
 
-        filename = "#{support_module.name} - #{support_module.decorate.display_age_ranges.gsub('/', '_')}"
+        filename = book.present? ? "#{book.ean} #{book.title} #{Time.zone.now.strftime("%d-%m-%Y")}" : 'Sans livre'
         children_list_sorted_by_module[filename] = children
       end
 

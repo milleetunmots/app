@@ -1,5 +1,5 @@
 class WorkshopParticipationController < ApplicationController
-
+  skip_before_action :authenticate_admin_user!
   before_action :find_workshop_participation, only: %i[edit update]
 
   def edit

@@ -1,7 +1,8 @@
 class ChildrenController < ApplicationController
 
   SIBLINGS_COUNT = 3
-
+  
+  skip_before_action :authenticate_admin_user!
   before_action :set_src_url
   before_action :find_child, only: %i[edit update]
   before_action :build_variables, only: %i[new create]
