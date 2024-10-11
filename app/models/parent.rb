@@ -43,6 +43,7 @@
 #  would_receive_advices               :string
 #  created_at                          :datetime         not null
 #  updated_at                          :datetime         not null
+#  aircall_id                          :string
 #
 # Indexes
 #
