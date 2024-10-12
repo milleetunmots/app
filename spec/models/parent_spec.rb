@@ -4,6 +4,7 @@
 #
 #  id                                  :bigint           not null, primary key
 #  address                             :string           not null
+#  aircall_datas                       :jsonb
 #  city_name                           :string           not null
 #  degree                              :string
 #  degree_country_at_registration      :string

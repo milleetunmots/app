@@ -4,6 +4,7 @@
 #
 #  id                                  :bigint           not null, primary key
 #  address                             :string           not null
+#  aircall_datas                       :jsonb
 #  city_name                           :string           not null
 #  degree                              :string
 #  degree_country_at_registration      :string
@@ -142,6 +143,9 @@ class Parent < ApplicationRecord
   scope :potential_duplicates, -> {
     where("parents.phone_number IN (SELECT phone_number FROM parents WHERE parents.discarded_at IS NULL GROUP BY parents.phone_number HAVING COUNT(*) > 1)")
   }
+  scope :with_a_parent1_child_in_active_group, -> { joins(parent1_children: :group).where(parent1_children: { group_status: 'active' }).distinct }
+  scope :with_a_parent2_child_in_active_group, -> { joins(parent2_children: :group).where(parent2_children: { group_status: 'active' }).distinct }
+  scope :with_a_child_in_active_group, -> { (with_a_parent1_child_in_active_group + with_a_parent2_child_in_active_group).uniq }
 
   def initialize(attributes = {})
     super

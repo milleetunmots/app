@@ -512,6 +512,7 @@ ActiveRecord::Schema.define(version: 2024_10_17_081128) do
     t.string "preferred_channel"
     t.text "is_ambassador_detail"
     t.string "aircall_id"
+    t.jsonb "aircall_datas"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
