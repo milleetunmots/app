@@ -2,7 +2,8 @@ module Aircall
   class DeleteAllContactsJob < ApplicationJob
 
     def perform
-      Aircall::DeleteContactService.new.call
+      service = Aircall::DeleteContactService.new.call
+      Rollbar.error(service.errors) if service.errors.any?
     end
   end
 end

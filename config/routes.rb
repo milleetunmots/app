@@ -87,13 +87,5 @@ Rails.application.routes.draw do
     end
   end
 
-  namespace :aircall do
-    post 'contacts', to: 'contacts#create', as: :create_aircall_contact
-    get 'contacts(/:id)', to: 'contacts#read', as: :read_aircall_contacts
-    post 'contacts/:id', to: 'contacts#update', as: :update_aircall_contact
-    delete 'contacts/:id', to: 'contacts#delete', as: :delete_aircall_contact
-    put 'contacts/:id/phone_details/:phone_number_id', to: 'contacts#put', as: :update_aircall_contact_phone_number
-  end
-
   root to: redirect('/admin')
 end
