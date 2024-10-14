@@ -19,6 +19,7 @@ class Ability
     can :read, ActiveAdmin::Page, name: "Search"
     can :manage, ActiveAdmin::Page, name: "Message"
     can :manage, ActiveAdmin::Page, name: "Stop Support Form"
+    can :manage, ActiveAdmin::Page, name: "Volunteer Parent Form"
 
 
     if user.team_member?
