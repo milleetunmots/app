@@ -24,7 +24,6 @@ module Aircall
 
     def create_contact
       @service = Aircall::CreateContactService.new(parent: @parent).call
-      p @service.errors if @service.errors.any?
       handle_errors
     end
 
