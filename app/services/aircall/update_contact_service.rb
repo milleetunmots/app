@@ -1,5 +1,5 @@
 module Aircall
-  class UpdateContactService
+  class UpdateContactService < Aircall::ApiBase
 
     attr_reader :errors
 
@@ -28,7 +28,7 @@ module Aircall
       handle_contact_form
       return self if @errors.any?
 
-      @aircall_connexion = Aircall::AircallApi.new(endpoint: @endpoint, id: @id)
+      @aircall_connexion = Aircall::ApiBase.new(endpoint: @endpoint, id: @id)
       sleep(1)
       puts "update contact #{@aircall_connexion.url}"
 
@@ -55,13 +55,13 @@ module Aircall
         @errors << { message: "Impossible de lancer l'appel api : Body params manquant", missing_parameter: 'phone_numbers' }
         return self
       end
-      Aircall::AircallApi::CONTACT_BODY_PARAMS.each do |param|
+      Aircall::ApiBase::CONTACT_BODY_PARAMS.each do |param|
         next if @contact_form[param].present?
 
         @errors << { message: "Impossible de lancer l'appel api : Body params manquant", missing_parameter: param.to_s }
         return self
       end
-      Aircall::AircallApi::CONTACT_PHONE_NUMBER_BODY_PARAMS.each do |param|
+      Aircall::ApiBase::CONTACT_PHONE_NUMBER_BODY_PARAMS.each do |param|
         next if @contact_form[:phone_numbers].first[param].present?
 
         @errors << { message: "Impossible de lancer l'appel api : Information liée au numéro de téléphone manquante", missing_parameter: param.to_s }
