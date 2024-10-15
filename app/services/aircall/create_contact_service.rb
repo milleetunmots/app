@@ -14,15 +14,14 @@ module Aircall
       return self if @errors.any?
 
       sleep(1)
-      puts "create Contact of Parent #{@parent.id}"
-      @response = http_client_with_auth.post(build_url(CONTACTS_ENDPOINT), json: @contact_form)
-      if @response.status.success?
-        @contact = JSON.parse(@response)['contact']
-        @parent.aircall_id = @contact['id']
-        @parent.aircall_datas = @contact
+      response = http_client_with_auth.post(build_url(CONTACTS_ENDPOINT), json: @contact_form)
+      if response.status.success?
+        contact = JSON.parse(response)['contact']
+        @parent.aircall_id = contact['id']
+        @parent.aircall_datas = contact
         @parent.save
       else
-        @errors << { message: "La création de contact a échoué : #{@response.status.reason}", status: @response.status.to_i }
+        @errors << { message: "La création de contact a échoué : #{response.status.reason}", status: response.status.to_i }
       end
       self
     end
