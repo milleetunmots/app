@@ -36,7 +36,6 @@ module Aircall
 
       sleep(1)
       url = "#{BASE_URL}#{CONTACTS_ENDPOINT}/#{@contact_id}"
-      puts "delete #{url}"
       response = http_client_with_auth.delete(url)
       if response.status.no_content?
         @deleted_contact_ids << @contact_id

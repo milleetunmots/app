@@ -38,13 +38,7 @@ module Aircall
       @contact_form = {
         first_name: @parent.first_name,
         last_name: @parent.last_name,
-        information: information,
-        phone_numbers: [
-          {
-            label: 'Principal',
-            value: @parent.phone_number
-          }
-        ]
+        information: information
       }
     end
 
@@ -53,20 +47,10 @@ module Aircall
         @errors << { message: "Impossible d'update le contact : Body params manquant", missing_parameter: 'body_params' }
         return self
       end
-      if @contact_form[:phone_numbers].blank?
-        @errors << { message: "Impossible d'update le contact : Body params manquant", missing_parameter: 'phone_numbers' }
-        return self
-      end
       CONTACT_BODY_PARAMS.each do |param|
         next if @contact_form[param].present?
 
         @errors << { message: "Impossible d'update le contact : Body params manquant", missing_parameter: param.to_s }
-        return self
-      end
-      CONTACT_PHONE_NUMBER_BODY_PARAMS.each do |param|
-        next if @contact_form[:phone_numbers].first[param].present?
-
-        @errors << { message: "Impossible d'update le contact : Information liée au numéro de téléphone manquante", missing_parameter: param.to_s }
         return self
       end
     end
