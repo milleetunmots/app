@@ -145,7 +145,12 @@ class Parent < ApplicationRecord
   }
   scope :with_a_parent1_child_in_active_group, -> { joins(parent1_children: :group).where(parent1_children: { group_status: 'active' }).distinct }
   scope :with_a_parent2_child_in_active_group, -> { joins(parent2_children: :group).where(parent2_children: { group_status: 'active' }).distinct }
-  scope :with_a_child_in_active_group, -> { (with_a_parent1_child_in_active_group + with_a_parent2_child_in_active_group).uniq }
+  scope :with_a_child_in_active_group, -> {
+  joins("LEFT JOIN children parent1_children ON parents.id = parent1_children.parent1_id")
+    .joins("LEFT JOIN children parent2_children ON parents.id = parent2_children.parent2_id")
+    .where("(parent1_children.group_status = 'active' OR parent2_children.group_status = 'active')")
+    .distinct
+}
 
   def initialize(attributes = {})
     super
