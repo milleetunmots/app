@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_09_26_090524) do
+ActiveRecord::Schema.define(version: 2024_10_09_171231) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -505,6 +505,8 @@ ActiveRecord::Schema.define(version: 2024_09_26_090524) do
     t.string "degree_country_at_registration"
     t.string "preferred_channel"
     t.text "is_ambassador_detail"
+    t.string "aircall_id"
+    t.jsonb "aircall_datas"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
