@@ -21,7 +21,7 @@ module Aircall
           status: 422
         } and return self if contacts_service.errors.any?
 
-        contacts.each do |contact|
+        contacts_service.contacts.each do |contact|
           @contact_id = contact['id']
           delete_contact
         end
