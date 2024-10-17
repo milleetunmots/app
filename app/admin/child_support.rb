@@ -586,6 +586,13 @@ ActiveAdmin.register ChildSupport do
     column :parent2_available_support_modules
     column :parent2_selected_support_modules
 
+    column :call0_attempt
+    column :call1_attempt
+    column :call2_attempt
+    column :call3_attempt
+    column :call4_attempt
+    column :call5_attempt
+
     column :parent1_first_name
     column :parent1_last_name
     column :parent1_phone_number_national
