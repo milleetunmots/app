@@ -1,6 +1,6 @@
 class ChildSupport::SendCall0GoalsReminderMessagesService
 
-  CALL_GOALS_REMINDER_MESSAGE = "1001mots : Je n'ai pas réussi à vous joindre cette fois-ci, tant pis ! Voici un rappel de votre petite mission de la dernière fois :\n{call_goals}\nVous pouvez me dire si vous avez essayé en cliquant sur ce lien :\n{typeform_link}\nÀ bientôt !".freeze
+  CALL_GOALS_REMINDER_MESSAGE = "1001mots: Je n'ai pas réussi à vous joindre cette fois-ci, tant pis! Voici un rappel de votre petite mission de la dernière fois:\n{call_goals}\nVous pouvez me dire si vous avez essayé en cliquant sur ce lien:\n{typeform_link}\nÀ bientôt!".freeze
   CALL_GOALS_REGEX = /Voici votre petite mission :\r\n([\s\S]*?)\r\nQuand vous aurez essayé/.freeze
   TYPEFORM_URL_REGEX = /https?:\/\/[^\/]+\/c[03](\/\S*)?(\?\S+)?/.freeze
 

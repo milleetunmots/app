@@ -5,7 +5,7 @@ class ChildSupport
         ChildSupport::AssignDefaultCallStatusService.new(group_id, call_number).call
         if call_number == 1
           service = ChildSupport::SendCall0GoalsReminderMessagesService.new(group_id).call
-          Rollbar.error(service.errors) if service.errors.any?
+          Rollbar.error("Send call0 goals reminder messages service errors: #{service.errors}") if service.errors.any?
         end
         return unless call_number == 3
 
