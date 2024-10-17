@@ -50,7 +50,7 @@ ActiveAdmin.register Workshop do
       f.input :parent_selection,
               as: :select,
               input_html: {
-                id: 'workshop-parent-select',
+                class: 'workshop-parent-select',
                 data: {
                   url: parents_admin_children_path,
                   multiple: true
@@ -137,6 +137,7 @@ ActiveAdmin.register Workshop do
   end
 
   member_action :perform_parents_registration, method: :post do
+    params[:workshop][:parent_ids] = params[:workshop][:parent_ids].split(',').map(&:to_i) if params[:workshop][:parent_ids].present?
     workshop = Workshop.find(params[:workshop_id])
     parent_to_register_ids = params[:workshop][:parent_ids].reject(&:blank?)
     parents_to_register = Parent.not_excluded_from_workshop.where(id: parent_to_register_ids)

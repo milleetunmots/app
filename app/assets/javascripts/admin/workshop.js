@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-  $('#workshop-parent-select').select2({
+  $('.workshop-parent-select').select2({
     placeholder: "Sélectionnez les parents",
     allowClear: true,
     ajax: {
@@ -12,7 +12,7 @@ $(document).ready(function() {
     multiple: true
   });
 
-  $('#workshop-parent-select').on('change', function() {
+  $('.workshop-parent-select').on('change', function() {
     var values = $(this).val().filter(function(value) {
       return value !== '';
     });
