@@ -4,7 +4,7 @@ $(document).ready(function() {
     placeholder: "Sélectionnez les parents",
     allowClear: true,
     ajax: {
-      url: '/admin/children/parents',
+      url: '/admin/workshops/search_eligible_parents',
       dataType: 'json',
       delay: 250
     },

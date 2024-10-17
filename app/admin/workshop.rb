@@ -52,7 +52,7 @@ ActiveAdmin.register Workshop do
               input_html: {
                 id: 'workshop-parent-select',
                 data: {
-                  url: parents_admin_children_path,
+                  url: search_eligible_parents_admin_workshops_path,
                   multiple: true
                 },
                 disabled: !object.new_record?
@@ -115,6 +115,8 @@ ActiveAdmin.register Workshop do
     link_to 'Indiquer la présence des parents', [:update_parents_presence, :admin, resource]
   end
 
+  collection_action :search_eligible_parents, method: :get
+
   member_action :update_parents_presence do
     @values = resource.workshop_participations.where(parent_response: 'Oui').to_a
     @perform_action = perform_update_parents_presence_admin_workshop_path
@@ -165,6 +167,22 @@ ActiveAdmin.register Workshop do
   controller do
     def format_parent_ids
       params[:workshop][:parent_ids] = params[:workshop][:parent_ids].split(',').map(&:to_i) if params[:workshop][:parent_ids].present?
+    end
+
+    def search_eligible_parents
+      term = params[:term]
+      parents = Parent.not_excluded_from_workshop.where('unaccent(first_name) ILIKE unaccent(?) OR unaccent(last_name) ILIKE unaccent(?)', "%#{term}%", "%#{term}%")
+                      .order(:first_name, :last_name)
+                      .decorate
+                      .map do |result|
+                        {
+                          id: result.id,
+                          text: result.name
+                        }
+                      end
+      render json: {
+        results: parents
+      }
     end
   end
 end
