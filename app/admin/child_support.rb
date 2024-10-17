@@ -203,7 +203,12 @@ ActiveAdmin.register ChildSupport do
   # ---------------------------------------------------------------------------
 
   form(remote: true) do |f|
-    f.semantic_errors(*f.object.errors.keys)
+    render partial: 'admin/child_supports/call_attempt_modal', locals: { call_index: 0 }
+    render partial: 'admin/child_supports/call_attempt_modal', locals: { call_index: 1 }
+    render partial: 'admin/child_supports/call_attempt_modal', locals: { call_index: 2 }
+    render partial: 'admin/child_supports/call_attempt_modal', locals: { call_index: 3 }
+    render partial: 'admin/child_supports/call_attempt_modal', locals: { call_index: 4 }
+    render partial: 'admin/child_supports/call_attempt_modal', locals: { call_index: 5 }
     f.inputs do
       f.input :id, as: :hidden, name: :id, value: f.object.id
       columns do

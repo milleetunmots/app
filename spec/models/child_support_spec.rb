@@ -7,6 +7,7 @@
 #  availability                          :string
 #  book_not_received                     :string
 #  books_quantity                        :string
+#  call0_attempt                         :string
 #  call0_duration                        :integer
 #  call0_goals                           :text
 #  call0_goals_sms                       :text
@@ -22,6 +23,7 @@
 #  call0_status_details                  :text
 #  call0_technical_information           :text
 #  call0_tv_frequency                    :string
+#  call1_attempt                         :string
 #  call1_duration                        :integer
 #  call1_family_progress                 :string
 #  call1_goals                           :text
@@ -40,6 +42,7 @@
 #  call1_status_details                  :text
 #  call1_technical_information           :text
 #  call1_tv_frequency                    :string
+#  call2_attempt                         :string
 #  call2_duration                        :integer
 #  call2_family_progress                 :string
 #  call2_goals                           :text
@@ -58,6 +61,7 @@
 #  call2_status_details                  :text
 #  call2_technical_information           :text
 #  call2_tv_frequency                    :string
+#  call3_attempt                         :string
 #  call3_duration                        :integer
 #  call3_goals                           :text
 #  call3_goals_sms                       :text
@@ -74,6 +78,7 @@
 #  call3_status_details                  :text
 #  call3_technical_information           :text
 #  call3_tv_frequency                    :string
+#  call4_attempt                         :string
 #  call4_duration                        :integer
 #  call4_goals                           :text
 #  call4_goals_sms                       :text
@@ -91,6 +96,7 @@
 #  call4_status_details                  :text
 #  call4_technical_information           :text
 #  call4_tv_frequency                    :string
+#  call5_attempt                         :string
 #  call5_duration                        :integer
 #  call5_goals                           :text
 #  call5_goals_sms                       :text
