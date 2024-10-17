@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_09_26_090524) do
+ActiveRecord::Schema.define(version: 2024_10_17_081128) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -278,6 +278,12 @@ ActiveRecord::Schema.define(version: 2024_09_26_090524) do
     t.string "call4_previous_goals_follow_up"
     t.jsonb "suggested_videos_counter", default: [], array: true
     t.string "is_bilingual", default: "2_no_information"
+    t.string "call0_attempt"
+    t.string "call1_attempt"
+    t.string "call2_attempt"
+    t.string "call3_attempt"
+    t.string "call4_attempt"
+    t.string "call5_attempt"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"

@@ -1,0 +1,30 @@
+
+<div id="call<%=call_index%>-attempt-modal" class="modal" style="display: none;">
+  <div class="modal-content">
+  <span class="close">&times;</span>
+    <h3>Cet appel était ta :</h3>
+    <div id="calls-attempt-form">
+      <div class="calls-attempt-options">
+        <div class="calls-attempt-container">
+          <label for="first_call<%=call_index%>_attempt">
+            <input type="radio" id="first_call<%=call_index%>_attempt" name="child_support[call<%=call_index%>_attempt]" value="first_call_attempt">
+            1ère tentative
+          </label>
+        </div>
+        <div class="calls-attempt-container">
+          <label for="second_call<%=call_index%>_attempt">
+            <input type="radio" id="second_call<%=call_index%>_attempt" name="child_support[call<%=call_index%>_attempt]" value="second_call_attempt">
+            2ème tentative
+          </label>
+        </div>
+        <div class="calls-attempt-container">
+          <label for="third_or_more_call<%=call_index%>_attempt">
+            <input type="radio" id="third_or_more_call<%=call_index%>_attempt" name="child_support[call<%=call_index%>_attempt]" value="third_or_more_calls_attempt">
+            3ème tentative (ou +)
+          </label>
+        </div>
+      </div>
+      <button class="button" id="call<%=call_index%>-attempt-submit">Valider</button>
+    </div>
+  </div>
+</div>
