@@ -41,7 +41,10 @@ class Child
 
     def find_group_to_siblings
       # No siblings in active group
-      no_sibling_is_active and return if @siblings.none? { |sibling| sibling.group_status == 'active' }
+      if @siblings.none? { |sibling| sibling.group_status == 'active' }
+        no_sibling_is_active
+        return
+      end
 
       return if @siblings.none? { |sibling| sibling.group_id }
 
