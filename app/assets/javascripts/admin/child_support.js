@@ -2,6 +2,33 @@ $(document).ready(function() {
   let $parent1 = $('#child_parent1_id');
   let $parent2 = $('#child_parent2_id');
 
+  $("[id^='child_support_call'][id$='_status']").on('change', function() {
+    let value = $(this).val()
+    let id = $(this).attr('id')
+    let match = id.match(/^child_support_call(\d+)_status$/)
+    if (match) {
+      var index = match[1];
+    }
+    let $callsAttemptModal = $(`#call${index}-attempt-modal`)
+    let $closeModalButton = $callsAttemptModal.find('.close')
+    let $submitButton = $(`#call${index}-attempt-submit`)
+
+    if (value === 'OK' || value === 'Incomplet / Pas de choix de module' ) {
+      $callsAttemptModal.show();
+    } else {
+      $callsAttemptModal.hide();
+    }
+
+    $closeModalButton.on('click', function () {
+      $callsAttemptModal.hide();
+    });
+
+    $submitButton.on('click', function(event) {
+      event.preventDefault();
+      $callsAttemptModal.hide();
+    });
+  });
+
   let autocompletion = function($input, id) {
 
     $input.change(function() {

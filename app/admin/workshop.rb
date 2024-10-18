@@ -5,6 +5,8 @@ ActiveAdmin.register Workshop do
   use_discard
 
   includes :animator, :parents
+
+  before_action :format_parent_ids, only: :create
   after_create do |workshop|
     flash[:error] = "Aucune invitation n'a pu être envoyée. Prévenez le pôle technique" if workshop.workshop_participations.empty?
   end
@@ -45,7 +47,18 @@ ActiveAdmin.register Workshop do
       f.input :co_animator
       address_input f
       f.input :location
-      f.input :parents, collection: workshop_parent_select_collection, input_html: { data: { select2: {} }, disabled: !object.new_record? }
+      f.input :parent_selection,
+              as: :select,
+              input_html: {
+                class: 'workshop-parent-select',
+                data: {
+                  url: search_eligible_parents_admin_workshops_path,
+                  multiple: true
+                },
+                disabled: !object.new_record?
+              }
+
+      f.input :parent_ids, as: :hidden
       f.input :workshop_land, collection: Child::LANDS.sort, input_html: { data: { select2: {} }, disabled: !object.new_record? }
       f.input :invitation_message, input_html: { rows: 5, disabled: !object.new_record? }
       f.input :canceled
@@ -102,6 +115,8 @@ ActiveAdmin.register Workshop do
     link_to 'Indiquer la présence des parents', [:update_parents_presence, :admin, resource]
   end
 
+  collection_action :search_eligible_parents, method: :get
+
   member_action :update_parents_presence do
     @values = resource.workshop_participations.where(parent_response: 'Oui').to_a
     @perform_action = perform_update_parents_presence_admin_workshop_path
@@ -124,6 +139,7 @@ ActiveAdmin.register Workshop do
   end
 
   member_action :perform_parents_registration, method: :post do
+    params[:workshop][:parent_ids] = params[:workshop][:parent_ids].split(',').map(&:to_i) if params[:workshop][:parent_ids].present?
     workshop = Workshop.find(params[:workshop_id])
     parent_to_register_ids = params[:workshop][:parent_ids].reject(&:blank?)
     parents_to_register = Parent.not_excluded_from_workshop.where(id: parent_to_register_ids)
@@ -147,5 +163,27 @@ ActiveAdmin.register Workshop do
     end
 
     redirect_to admin_workshop_path, notice: 'Parent(s) inscrit(s)'
+  end
+
+  controller do
+    def format_parent_ids
+      params[:workshop][:parent_ids] = params[:workshop][:parent_ids].split(',').map(&:to_i) if params[:workshop][:parent_ids].present?
+    end
+
+    def search_eligible_parents
+      term = params[:term]
+      parents = Parent.not_excluded_from_workshop.where('unaccent(first_name) ILIKE unaccent(?) OR unaccent(last_name) ILIKE unaccent(?)', "%#{term}%", "%#{term}%")
+                      .order(:first_name, :last_name)
+                      .decorate
+                      .map do |result|
+                        {
+                          id: result.id,
+                          text: result.name
+                        }
+                      end
+      render json: {
+        results: parents
+      }
+    end
   end
 end

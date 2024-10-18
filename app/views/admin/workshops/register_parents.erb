@@ -6,19 +6,19 @@
                         name: 'workshop_id',
                         value: @workshop_id %>
 
-    <%= f.input :parents,
-                multiple: true,
+    <%= f.input :parent_selection,
+                as: :select,
                 label: "Parents",
-                collection: workshop_parent_select_collection,
                 input_html: {
+                  class: 'workshop-parent-select',
                   data: {
-                    select2: {
-                      tags: true,
-                      tokenSeparators: [","]
-                    }
+                    url: parents_admin_children_path,
+                    multiple: true
                   }
                 }
     %>
+
+    <%= f.input :parent_ids, as: :hidden %>
 
     <%= f.actions do %>
       <%= f.action :submit, label: 'Valider' %>
