@@ -6,7 +6,7 @@ class Group
 
     attr_reader :zip_file, :zip_filename
 
-    COLUMNS = %w[Module Âges Effectif].freeze
+    COLUMNS = %w[Module Âges Effectif EAN Livre].freeze
 
     def initialize(group_id, index)
       @group = Group.find(group_id)
@@ -23,8 +23,11 @@ class Group
         csm = ChildrenSupportModule.with_support_module.find_by(child_id: child_id, parent_id: parent1_id, module_index: @index)
         next unless csm
 
-        @support_modules_count[csm.support_module.name] ||= Hash.new(0)
-        @support_modules_count[csm.support_module.name][csm.support_module.decorate.display_age_ranges.to_sym] += 1
+        @support_modules_count[csm.support_module.name] ||= {}
+        @support_modules_count[csm.support_module.name][:book_ean] ||= csm.support_module.book&.ean
+        @support_modules_count[csm.support_module.name][:book_title] ||= csm.support_module.book&.title
+        @support_modules_count[csm.support_module.name][:count] ||= Hash.new(0)
+        @support_modules_count[csm.support_module.name][:count][csm.support_module.decorate.display_age_ranges.to_sym] += 1
       end
 
       init_excel_file
@@ -46,9 +49,9 @@ class Group
     end
 
     def fill_exel_file
-      @support_modules_count.each do |support_module, ages_count|
-        ages_count.each do|age_key, age_value|
-          @worksheet.append_row([support_module, age_key, age_value])
+      @support_modules_count.each do |support_module, informations|
+        informations[:count].each do|age_key, age_value|
+          @worksheet.append_row([support_module, age_key, age_value, informations[:book_ean], informations[:book_title]])
         end
       end
       @worksheet.set_columns_width(0, 1, width = 25)
