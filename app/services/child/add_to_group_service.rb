@@ -80,7 +80,10 @@ class Child
     end
 
     def join_active_sibling_group
-      sibling_group = @siblings.where(group_status: 'active').first.group
+      siblings = @siblings.where(group_status: 'active')
+      return if siblings.empty?
+
+      sibling_group = siblings.first.group
       @siblings.where(group_status: 'waiting').each do |child|
         next if child.birthdate + 4.months > sibling_group.started_at
 
