@@ -1,39 +1,42 @@
 module Aircall
-  class RetrieveContactService
+  class RetrieveContactService < Aircall::ApiBase
 
     attr_reader :errors, :contacts
 
-    def initialize(id: nil, endpoint: '/v1/contacts')
-      @id = id
-      @endpoint = endpoint
+    DEFAULT_PARAMS = '?order=asc&per_page=50'.freeze
+
+    def initialize(endpoint: nil, contact_id: nil)
+      # endpoint and contact_id are optional
+      # contact_id is used to fetch a single contact
+      # endpoint is used if we want to start to fetch contacts with customized params
+      if contact_id
+        @url = "#{BASE_URL}#{CONTACTS_ENDPOINT}/#{contact_id}"
+      else
+        @url = endpoint.nil? ? build_url(CONTACTS_ENDPOINT, DEFAULT_PARAMS) : "#{BASE_URL}#{endpoint}"
+      end
+      @contacts = []
       @errors = []
     end
 
     def call
-      @aircall_connexion = Aircall::AircallApi.new(endpoint: @endpoint, id: @id)
-      sleep(1)
-      puts "retrieve #{@aircall_connexion.url}"
+      # loop through contacts page by page
+      loop do
+        sleep(1) # basic rate limiting
+        response = http_client_with_auth.get(@url)
+        if response.status.success?
+          body = JSON.parse(response.body)
+          @contacts.concat(body['contacts'] || [body['contact']]).uniq!
+          next_page = next_page_link(body)
+          break if next_page.nil?
 
-      @response = @aircall_connexion.request.get(@aircall_connexion.url)
-      if @response.status.success?
-        body = JSON.parse(@response.body)
-        @meta = body['meta']
-        @contacts = body['contacts'] || body['contact']
-        retrieve_next_contacts
-      else
-        @errors << { message: "La création a échoué : #{@response.status.reason}", status: @response.status.to_i }
+          @url = next_page
+        else
+          @errors << { message: "La récupération de contacts a échoué : #{response.status.reason}", status: response.status.to_i }
+          break
+        end
       end
       self
     end
 
-    private
-
-    def retrieve_next_contacts
-      return if @meta.nil? || @meta['next_page_link'].nil?
-
-      next_endpoint = @meta['next_page_link'].split('api.aircall.io').second
-      next_contact_retrieved = Aircall::RetrieveContactService.new(endpoint: next_endpoint).call.contacts
-      @contacts.concat(next_contact_retrieved).uniq!
-    end
   end
 end
