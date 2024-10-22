@@ -1,14 +1,19 @@
 class Child
 
   class AddToGroupService
+
+    LATE_SUPPORT_WARNING_MESSAGE = 'En raison d’un grand nombre de demandes, l’accompagnement 1001mots débutera dans 2 mois. Cela nous permettra d’offrir à {PRENOM_ENFANT} le meilleur suivi possible. À très bientôt !'.freeze
+
     # Assign a child and its siblings to the right group for them
     # Depends on whether the child has siblings or not, their age and their group status
 
     attr_reader :group
 
-    def initialize(child_id)
+    def initialize(child_id, at_sign_up: false)
+      @child_id = child_id
       @group = nil
       @siblings = Child.find_by(id: child_id)&.siblings
+      @at_sign_up = at_sign_up
     end
 
     def call
@@ -26,6 +31,7 @@ class Child
       else
         find_group_to_siblings
       end
+      warn_family_of_late_support if @at_sign_up
       self
     end
 
@@ -86,6 +92,44 @@ class Child
 
         child.update(group: sibling_group, group_status: 'active')
       end
+    end
+
+    def warn_family_of_late_support
+      warn_family_with_siblings
+      warn_family_without_siblings
+    end
+
+    def warn_family_with_siblings
+      return if @siblings.size == 1
+
+      if @siblings.any? { |child| child.months < 2 } || (@siblings.any? { |child| child.group_status == 'active' } && @siblings.any? { |child| child.group_status == 'waiting' })
+        send_message
+      end
+    end
+
+    def warn_family_without_siblings
+      return unless @siblings.size == 1
+
+      if @group.nil? || (@group && @group.started_at > 2.months.from_now)
+        send_message
+      end
+    end
+
+    def send_message
+      today_date = Time.zone.now
+      message_service = ProgramMessageService.new(
+        today_date.strftime('%d-%m-%Y'),
+        today_date.strftime('%H:%M'),
+        ["child.#{@child_id}"],
+        LATE_SUPPORT_WARNING_MESSAGE,
+        nil,
+        nil,
+        false,
+        nil,
+        nil,
+        %w[waiting active]
+      ).call
+      Rollbar.error("Late support warning error : #{message_service.errors}") if message_service.errors.any?
     end
   end
 end

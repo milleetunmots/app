@@ -688,7 +688,7 @@ class Child < ApplicationRecord
 
     return unless group_status == 'waiting'
 
-    Child::AddToGroupService.new(id).call
+    Child::AddToGroupService.new(id, at_sign_up: true).call
   end
 
   def main_sibling
