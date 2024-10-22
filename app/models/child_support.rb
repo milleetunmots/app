@@ -539,7 +539,7 @@ class ChildSupport < ApplicationRecord
       call_attributes += ['books_quantity'] if call_idx == 1
 
       call_attributes.each do |call_attr|
-        self.notes << "#{I18n.t("activerecord.attributes.child_support.#{call_attr}")} : #{send(call_attr)}\n"
+        self.notes << "#{I18n.t("activerecord.attributes.child_support.#{call_attr}")} : #{child_support.send(call_attr)}\n"
       end
     end
     self.notes << (('=' * 22) + "\n")
