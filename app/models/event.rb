@@ -121,6 +121,7 @@ class Event < ApplicationRecord
   private
 
   def extract_link_sent_substring
+    return unless originated_by_app
     return if body.blank?
 
     match = body.match(%r{https://app\.1001mots\.org/r/([^/]+/..)})
