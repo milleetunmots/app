@@ -2,7 +2,7 @@ class Child
 
   class CreateService
 
-    attr_reader :child, :sms_url_form, :parent1_target_profile
+    attr_reader :child, :sms_url_form, :parent1_target_profile, :child_under_four_months
 
     def initialize(attributes, siblings_attributes, parent1_attributes, parent2_attributes, registration_origin, children_source_attributes, child_min_birthdate)
       @attributes = attributes
@@ -36,6 +36,7 @@ class Child
           ChildrenSource.create(@children_source_attributes.merge(child_id: sibling.id))
         end
         create_parent_registration
+        @child_under_four_months = @child.siblings.any? { |child| child.months < 4 }
       end
       self
     end
