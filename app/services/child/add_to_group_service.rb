@@ -94,31 +94,33 @@ class Child
       end
     end
 
-  def warn_family_of_late_support
-    warn_family_with_siblings
-    warn_family_without_siblings
-  end
+    def warn_family_of_late_support
+      warn_family_with_siblings
+      warn_family_without_siblings
+    end
 
-  def warn_family_with_siblings
-    return if @siblings.size == 1
+    def warn_family_with_siblings
+      return if @siblings.size == 1
 
-    return unless @siblings.any? { |child| child.months < 2 } || (@siblings.any? { |child| child.group_status == 'active' } && @siblings.any? { |child| child.group_status == 'waiting' })
+      @oldest_child = @siblings.order(birthdate: :asc).first
+      return unless @child_id == @oldest_child.id
 
-    send_message
-  end
+      return unless @siblings.any? { |child| child.months < 2 } || (@siblings.any? { |child| child.group_status == 'active' } && @siblings.any? { |child| child.group_status == 'waiting' })
 
-  def warn_family_without_siblings
-    return unless @siblings.size == 1
+      send_message
+    end
 
-    return unless @group.nil? || (@group && @group.started_at > 2.months.from_now)
+    def warn_family_without_siblings
+      return unless @siblings.size == 1
 
-    send_message
-  end
+      return unless @group.nil? || (@group && @group.started_at > 2.months.from_now)
 
-  def send_message
-    byebug
-    message_service = SpotHit::SendSmsService.new([id], Time.zone.now.to_i, LATE_SUPPORT_WARNING_MESSAGE).call
-    Rollbar.error("Late support warning error : #{message_service.errors}") if message_service.errors.any?
-  end
+      send_message
+    end
+
+    def send_message
+      message_service = SpotHit::SendSmsService.new([@siblings.find_by(id: @child_id).parent1_id], Time.zone.now.change(hour: 12, min: 30).next_day.to_i, LATE_SUPPORT_WARNING_MESSAGE).call
+      Rollbar.error("Late support warning error : #{message_service.errors}") if message_service.errors.any?
+    end
   end
 end
