@@ -145,7 +145,7 @@ class Child < ApplicationRecord
   end
 
   after_create :create_support!
-  after_create :add_to_group
+  after_commit :add_to_group, on: :create
   after_update :update_support
   after_save { tags.where(is_visible_by_callers: true).where('name ILIKE ?', 'utm%').update(is_visible_by_callers: false) }
   after_update :remove_group, if: -> { saved_change_to_group_status? && group_status.eql?('not_supported') }

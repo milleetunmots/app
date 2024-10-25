@@ -27,14 +27,8 @@ class Child
       build_siblings
       detect_errors
       if @child.errors.empty? && @child.save
-        ChildrenSource.create(@children_source_attributes.merge(child_id: @child.id))
         send_form_by_sms
         send_not_supported_sms
-        @child.siblings.each do |sibling|
-          next if sibling.id.eql?(@child.id)
-
-          ChildrenSource.create(@children_source_attributes.merge(child_id: sibling.id))
-        end
         create_parent_registration
       end
       self
@@ -96,6 +90,7 @@ class Child
     end
 
     def build
+      @attributes.merge!(children_source_attributes: @children_source_attributes)
       parent1_attributes = @parent1_attributes.merge(parent1_present? ? @parent1_attributes : @parent2_attributes).merge(tag_list: @attributes[:tag_list])
       parent2_attributes = @parent1_attributes.merge(@parent2_attributes).merge(tag_list: @attributes[:tag_list]) if parent2_present? && parent1_present?
       @child = if parent2_attributes.nil?
@@ -118,6 +113,7 @@ class Child
         attributes[:should_contact_parent2] = @child.should_contact_parent2
         attributes[:child_support] = @child.child_support
         attributes[:tag_list] = @child.tag_list
+        attributes[:children_source_attributes] = @children_source_attributes
         next unless @registration_origin == 4
 
         attributes[:group_status] = @child.group_status
