@@ -45,7 +45,7 @@ class ChildrenController < ApplicationController
   end
 
   def created
-    rigth_message = params[:child_under_four_months] == 'true' ? 'inscription_success.without_widget_but_with_a_child_under_four_months' : 'inscription_success.neither_widget_nor_child_under_four_months'
+    support_wait_time_message = params[:child_under_four_months] == 'true' ? 'inscription_success.without_widget_but_with_a_child_under_four_months' : 'inscription_success.neither_widget_nor_child_under_four_months'
     case current_registration_origin
     when 5
       @message = I18n.t('inscription_success.pro')
@@ -59,7 +59,7 @@ class ChildrenController < ApplicationController
         @with_parent_no_target = true
         @message = I18n.t('inscription_success.with_parent_no_target')
       else
-        @message = I18n.t(rigth_message, typeform_url: params[:sms_url_form])
+        @message = I18n.t(support_wait_time_message, typeform_url: params[:sms_url_form])
         @again = true
         @new_link = new_bao_registration_path
       end
@@ -72,7 +72,7 @@ class ChildrenController < ApplicationController
       @new_link = new_pmi_registration_path
     when 2
       session.delete(:registration_origin)
-      @message = I18n.t(rigth_message, typeform_url: params[:sms_url_form])
+      @message = I18n.t(support_wait_time_message, typeform_url: params[:sms_url_form])
       @again = false
       @widget = false
       @new_link = new_caf_registration_path

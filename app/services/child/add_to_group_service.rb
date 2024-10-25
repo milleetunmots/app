@@ -2,7 +2,7 @@ class Child
 
   class AddToGroupService
 
-    LATE_SUPPORT_WARNING_MESSAGE = 'En raison d’un grand nombre de demandes, l’accompagnement 1001mots débutera dans 2 mois. Cela nous permettra d’offrir à {PRENOM_ENFANT} le meilleur suivi possible. À très bientôt !'.freeze
+    LATE_SUPPORT_WARNING_MESSAGE = "1001mots : En raison d’un grand nombre de demandes, vous recevrez nos livres et conseils dans environ 2 mois. Pas d’inquiétude, c'est normal si vous avez moins de nouvelles de nous d'ici là. A bientôt!".freeze
 
     # Assign a child and its siblings to the right group for them
     # Depends on whether the child has siblings or not, their age and their group status
@@ -94,42 +94,31 @@ class Child
       end
     end
 
-    def warn_family_of_late_support
-      warn_family_with_siblings
-      warn_family_without_siblings
-    end
+  def warn_family_of_late_support
+    warn_family_with_siblings
+    warn_family_without_siblings
+  end
 
-    def warn_family_with_siblings
-      return if @siblings.size == 1
+  def warn_family_with_siblings
+    return if @siblings.size == 1
 
-      if @siblings.any? { |child| child.months < 2 } || (@siblings.any? { |child| child.group_status == 'active' } && @siblings.any? { |child| child.group_status == 'waiting' })
-        send_message
-      end
-    end
+    return unless @siblings.any? { |child| child.months < 2 } || (@siblings.any? { |child| child.group_status == 'active' } && @siblings.any? { |child| child.group_status == 'waiting' })
 
-    def warn_family_without_siblings
-      return unless @siblings.size == 1
+    send_message
+  end
 
-      if @group.nil? || (@group && @group.started_at > 2.months.from_now)
-        send_message
-      end
-    end
+  def warn_family_without_siblings
+    return unless @siblings.size == 1
 
-    def send_message
-      today_date = Time.zone.now
-      message_service = ProgramMessageService.new(
-        today_date.strftime('%d-%m-%Y'),
-        today_date.strftime('%H:%M'),
-        ["child.#{@child_id}"],
-        LATE_SUPPORT_WARNING_MESSAGE,
-        nil,
-        nil,
-        false,
-        nil,
-        nil,
-        %w[waiting active]
-      ).call
-      Rollbar.error("Late support warning error : #{message_service.errors}") if message_service.errors.any?
-    end
+    return unless @group.nil? || (@group && @group.started_at > 2.months.from_now)
+
+    send_message
+  end
+
+  def send_message
+    byebug
+    message_service = SpotHit::SendSmsService.new([id], Time.zone.now.to_i, LATE_SUPPORT_WARNING_MESSAGE).call
+    Rollbar.error("Late support warning error : #{message_service.errors}") if message_service.errors.any?
+  end
   end
 end
