@@ -289,20 +289,6 @@ ActiveAdmin.register ChildSupport do
                         collection: call_status_collection,
                         input_html: { data: { select2: {} } }
                 f.input "call#{call_idx}_duration", input_html: { style: 'font-weight: bold' }
-                if call_idx.zero?
-                  columns do
-                    column do
-                      f.label "Penses-tu que ce parent a déjà tous les outils et ressources suffisantes pour aider son enfant à développer son langage et n'a pas vraiment besoin de l'accompagnement 1001mots ?",
-                        style: 'font-weight:bold;font-size:14px'
-                    end
-                    column do
-                      f.input :family_support_should_be_stopped,
-                        collection: ['Oui', 'Non', 'Je ne sais pas'],
-                        input_html: { data: { select2: {} } },
-                        label: false
-                    end
-                  end
-                end
               end
               column do
                 f.input "call#{call_idx}_status_details", input_html: { rows: 5, style: 'width: 70%' }
@@ -340,7 +326,7 @@ ActiveAdmin.register ChildSupport do
                           style: 'width: 100%',
                           value: f.object.send("call#{call_idx}_technical_information").presence ||
                                  I18n.t('child_support.default.call_technical_information')
-                        }
+                        } unless call_idx == 0
 
             columns do
               column do
@@ -390,14 +376,7 @@ ActiveAdmin.register ChildSupport do
                 f.input "call#{call_idx}_sendings_benefits",
                         as: :radio,
                         collection: child_support_call_sendings_benefits_select_collection
-              end
-              if [1, 2].include? call_idx
-                column do
-                  f.input "call#{call_idx}_family_progress",
-                          as: :radio,
-                          collection: child_support_call_family_progress_select_collection
-                end
-              end
+              end unless call_idx.in?([0, 1, 2, 3])
               if [1, 2, 4].include? call_idx
                 column do
                   f.input "call#{call_idx}_previous_goals_follow_up",
