@@ -283,18 +283,37 @@ ActiveAdmin.register ChildSupport do
       tabs do
         (0..5).each do |call_idx|
           tab "Appel #{call_idx}" do
-            columns do
-              column do
-                f.input "call#{call_idx}_status",
-                        collection: call_status_collection,
-                        input_html: { data: { select2: {} } }
-                f.input "call#{call_idx}_duration", input_html: { style: 'font-weight: bold' }
+            div class:"call_first_line_container" do
+              div class:"call_first_line_item call_notice" do
+                columns do
+                  column do
+                    f.input "call#{call_idx}_status",
+                            collection: call_status_collection,
+                            input_html: { data: { select2: {} } } # Statut de l'appel
+                    f.input "call#{call_idx}_duration", input_html: { style: 'font-weight: bold' } # Durée de l'appel
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_parent_progress",
+                              as: :radio,
+                              collection: child_support_call_parent_progress_select_collection # Niveau de pratiques parentales
+                  end
+                  column do
+                    f.input "call#{call_idx}_review",
+                              as: :radio,
+                              collection: child_support_call_review_select_collection # Es-tu satisfaite de ton accompagnement pendant cet appel ?
+                  end if call_idx.in?([0, 1, 2, 3])
+                end
               end
-              column do
-                f.input "call#{call_idx}_status_details", input_html: { rows: 5, style: 'width: 70%' }
+              div class:"call_first_line_item" do
+                columns do
+                  column do
+                    f.input "call#{call_idx}_status_details", input_html: { rows: 5, style: 'width: 100%' } # Suivi de l'appel
+                  end
+                end
               end
             end
-
             columns style: 'justify-content:space-between;margin-top:10px' do
               if call_idx.zero?
                 column max_width: '8%' do
@@ -303,31 +322,60 @@ ActiveAdmin.register ChildSupport do
                 column do
                   f.input :books_quantity,
                           as: :radio,
-                          collection: child_support_books_quantity
+                          collection: child_support_books_quantity # Nombre de livres pour l'enfant suivi
                 end
               end
               column do
                 f.input "call#{call_idx}_reading_frequency",
                         as: :radio,
-                        collection: child_support_call_reading_frequency_select_collection
-              end
+                        collection: child_support_call_reading_frequency_select_collection # Fréquence de lecture
+              end if call_idx == 0
               column do
                 f.input "call#{call_idx}_tv_frequency",
                         as: :radio,
-                        collection: child_support_call_tv_frequency_select_collection
+                        collection: child_support_call_tv_frequency_select_collection # Fréquence écran
+              end if call_idx == 0
+            end
+
+            columns do
+              column do
+                f.input "call#{call_idx}_notes", input_html: { rows: 5, style: 'width: 100%' } # Notes appel
+              end
+              column do
+                f.input "call#{call_idx}_language_development", input_html: { rows: 5, style: 'width: 100%' } # Information sur l'enfant
               end
             end
 
-            f.input "call#{call_idx}_notes", input_html: { rows: 5, style: 'width: 100%' }
-
-            f.input "call#{call_idx}_technical_information",
+            columns do
+              column do
+                f.input "call#{call_idx}_technical_information",
                         input_html: {
                           rows: 5,
                           style: 'width: 100%',
                           value: f.object.send("call#{call_idx}_technical_information").presence ||
                                  I18n.t('child_support.default.call_technical_information')
-                        } unless call_idx == 0
+                        } unless call_idx == 0 # Retour sur les envois
+              end
+            end
 
+            columns do
+              column do
+                f.input "call#{call_idx}_parent_actions", input_html: { rows: 5, style: 'width: 100%' } # Pratiques parentales
+              end
+              column do
+                f.input "call#{call_idx}_goals", input_html: { rows: 5, style: 'width: 100%' } if call_idx == 0 # Petite mission envoyée (non )
+              end
+            end
+
+             columns do
+              column do
+
+                f.input "call#{call_idx}_goals_sms", input_html: { rows: 5, style: 'width: 100%', readonly: true }
+              end
+              column do
+
+              end
+             end
             columns do
               column do
                 unless call_idx.zero?
@@ -347,31 +395,9 @@ ActiveAdmin.register ChildSupport do
                             style: 'width: 70%'
                           }
                 end
-
-                f.input "call#{call_idx}_parent_actions",
-                        input_html: {
-                          rows: 8,
-                          style: 'width: 70%'
-                          # value: f.object.send("call#{call_idx}_parent_actions").presence ||
-                          #   I18n.t("child_support.default.call_parent_actions")
-
-                        }
-                # f.input "call#{call_idx}_language_awareness",
-                #   as: :radio,
-                #   collection: child_support_call_language_awareness_select_collection
-              end
-              column do
-                f.input "call#{call_idx}_goals_sms", input_html: { rows: 8, style: 'width: 70%', readonly: true }
-                f.input "call#{call_idx}_goals", input_html: { rows: 8, style: 'width: 70%' }
-                f.input "call#{call_idx}_language_development", input_html: { rows: 8, style: 'width: 70%' }
               end
             end
             columns do
-              column do
-                f.input "call#{call_idx}_parent_progress",
-                        as: :radio,
-                        collection: child_support_call_parent_progress_select_collection
-              end
               column do
                 f.input "call#{call_idx}_sendings_benefits",
                         as: :radio,
