@@ -394,7 +394,11 @@ RSpec.describe Child, type: :model do
 
   describe "#without_parent_text_message_since" do
     context "returns" do
-      let_it_be(:text_message) { FactoryBot.create(:text_message, related: third_parent, occurred_at: Time.zone.today.prev_month(1)) }
+      before do
+        # text messages can be generated after child creation
+        Events::TextMessage.delete_all
+      end
+      let!(:text_message) { FactoryBot.create(:text_message, related: third_parent, occurred_at: Time.zone.now.prev_month(1)) }
 
       it "children with parents who don't have text message since the parameter" do
         expect(Child.without_parent_text_message_since(Time.zone.today.prev_month(2))).to match_array [first_child, third_child, fifth_child]
