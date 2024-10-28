@@ -87,6 +87,10 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 
+  config.before(:each) do
+    stub_request(:post, "https://www.spot-hit.fr/api/envoyer/sms").to_return(status: 200, body: "{}", headers: {})
+  end
+
   # Skip DatabaseCleaner's safeguard in order to be able to connect to a database using an URL (ie. Docker container)
   if Rails.env.test?
     DatabaseCleaner.allow_remote_database_url = true

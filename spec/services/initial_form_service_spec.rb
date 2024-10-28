@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Typeform::InitialFormService do
-  let_it_be(:child, reload: true) { FactoryBot.create(:child)}
+  let!(:child) { FactoryBot.create(:child)}
 
 
   describe 'webhooks' do
