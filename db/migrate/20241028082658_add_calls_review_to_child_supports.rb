@@ -4,5 +4,7 @@ class AddCallsReviewToChildSupports < ActiveRecord::Migration[6.1]
     add_column :child_supports, :call1_review, :string
     add_column :child_supports, :call2_review, :string
     add_column :child_supports, :call3_review, :string
+    add_column :child_supports, :call4_review, :string
+    add_column :child_supports, :call5_review, :string
   end
 end

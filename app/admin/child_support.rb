@@ -280,180 +280,353 @@ ActiveAdmin.register ChildSupport do
           tags_input(f, context_list = 'tag_list', label: 'Tags fiche de suivi')
         end
       end
-      tabs do
-        (0..5).each do |call_idx|
-          tab "Appel #{call_idx}" do
-            div class:"call_first_line_container" do
-              div class:"call_first_line_item call_notice" do
-                columns do
+      div id:'child_support_tabs_form' do
+        tabs do
+          (0..5).each do |call_idx|
+            tab "Appel #{call_idx}" do
+              div style:"display:flex; flex-direction:row; flex-wrap:nowrap; justify-content:space-between; align-items:baseline" do
+                div style:"width:50%; margin:15px; padding:15px; border:1px solid; border-radius:10px" do
+                  columns do
+                    column do
+                      f.input "call#{call_idx}_status",
+                              collection: call_status_collection,
+                              input_html: { data: { select2: {} } } # Statut de l'appel
+                      f.input "call#{call_idx}_duration", input_html: { style: 'font-weight: bold' } # Durée de l'appel
+                    end
+                  end
+                  columns do
+                    column do
+                      f.input "call#{call_idx}_parent_progress",
+                                as: :radio,
+                                collection: child_support_call_parent_progress_select_collection # Niveau de pratiques parentales
+                    end
+                    column do
+                      f.input "call#{call_idx}_review",
+                                as: :radio,
+                                collection: child_support_call_review_select_collection if call_idx.in?([0, 1, 2, 3]) # Es-tu satisfaite de ton accompagnement pendant cet appel ?
+                    end
+                  end
+                end
+                div style:"width:50%" do
+                  columns do
+                    column do
+                      f.input "call#{call_idx}_status_details", input_html: { rows: 5, style: 'width: 100%' } # Suivi de l'appel
+                    end
+                  end
+                end
+              end
+              if call_idx == 0
+                columns style: 'justify-content:space-between;margin-top:10px' do
+                  column max_width: '8%' do
+                    f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
+                  end
                   column do
-                    f.input "call#{call_idx}_status",
-                            collection: call_status_collection,
-                            input_html: { data: { select2: {} } } # Statut de l'appel
-                    f.input "call#{call_idx}_duration", input_html: { style: 'font-weight: bold' } # Durée de l'appel
+                    f.input :books_quantity,
+                            as: :radio,
+                            collection: child_support_books_quantity if call_idx == 0 # Nombre de livres pour l'enfant suivi
+                  end
+                  column do
+                    f.input "call#{call_idx}_reading_frequency",
+                            as: :radio,
+                            collection: child_support_call_reading_frequency_select_collection # Fréquence de lecture
+                  end
+                  column do
+                    f.input "call#{call_idx}_tv_frequency",
+                            as: :radio,
+                            collection: child_support_call_tv_frequency_select_collection # Fréquence écran
                   end
                 end
                 columns do
                   column do
-                    f.input "call#{call_idx}_parent_progress",
-                              as: :radio,
-                              collection: child_support_call_parent_progress_select_collection # Niveau de pratiques parentales
+                    f.input "call#{call_idx}_notes", input_html: { rows: 5, style: 'width: 100%' } # Notes appel
                   end
                   column do
-                    f.input "call#{call_idx}_review",
-                              as: :radio,
-                              collection: child_support_call_review_select_collection # Es-tu satisfaite de ton accompagnement pendant cet appel ?
-                  end if call_idx.in?([0, 1, 2, 3])
+                    f.input "call#{call_idx}_language_development", input_html: { rows: 5, style: 'width: 100%' } # Information sur l'enfant
+                  end
                 end
-              end
-              div class:"call_first_line_item" do
                 columns do
                   column do
-                    f.input "call#{call_idx}_status_details", input_html: { rows: 5, style: 'width: 100%' } # Suivi de l'appel
+                    f.input "call#{call_idx}_parent_actions", input_html: { rows: 5, style: 'width: 100%' } # Pratiques parentales
+                  end
+                  column do
+                    f.input "call#{call_idx}_goals", input_html: { rows: 5, style: 'width: 100%' } # Vers la petite mission
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_goals_sms", input_html: { rows: 5, style: 'width: 100%', readonly: true } # Petite mission envoyée (non modifiable)
+                  end
+                  column do
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, style: 'width: 100%' } # Verbatim
+                  end
+                end
+              elsif call_idx == 1
+                columns do
+                  column do
+                    f.input "call#{call_idx}_notes", input_html: { rows: 5, style: 'width: 100%' } # Notes appel
+                  end
+                  column do
+                    f.input "call#{call_idx}_language_development", input_html: { rows: 5, style: 'width: 100%' } # Information sur l'enfant
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_technical_information",
+                            input_html: {
+                              rows: 5,
+                              style: 'width: 100%',
+                              value: f.object.send("call#{call_idx}_technical_information").presence ||
+                                     I18n.t('child_support.default.call_technical_information')
+                            } # Retour sur les envois
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_parent_actions", input_html: { rows: 5, style: 'width: 100%' } # Pratiques parentales
+                  end
+                  column do
+                    f.input "call#{call_idx}_reading_frequency",
+                            as: :radio,
+                            collection: child_support_call_reading_frequency_select_collection # Fréquence de lecture
+                  end
+                  column do
+                    f.input "call#{call_idx}_tv_frequency",
+                            as: :radio,
+                            collection: child_support_call_tv_frequency_select_collection # Fréquence écran
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_previous_call_goals", as: :text,
+                              input_html: {
+                                rows: 8,
+                                readonly: true,
+                                style: 'width: 100%',
+                                value: f.object.send("call#{call_idx}_previous_call_goals").html_safe
+                              } # Petite mission précédente (Non modifiable)
+                  end
+                  column do
+                    div class:"previous_goals_follow_up" do
+                      f.input "call#{call_idx}_previous_goals_follow_up",
+                                      as: :radio,
+                                      collection: child_support_call_previous_goals_follow_up_select_collection # Petite mission précédente
+                    end
+                  end
+                  column do
+                    f.input "call#{call_idx}_goals_tracking",
+                              input_html: {
+                                rows: 8,
+                                style: 'width: 100%'
+                              } # Suivi petite mission précédente
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_goals", input_html: { rows: 5, style: 'width: 100%' } # Vers une nouvelle petite mission
+                  end
+                  column do
+                    f.input "call#{call_idx}_goals_sms", input_html: { rows: 5, style: 'width: 100%', readonly: true } # Petite mission envoyée (non modifiable)
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, style: 'width: 100%' } # Verbatim
+                  end
+                end
+              elsif call_idx == 2
+                columns do
+                  column do
+                    f.input "call#{call_idx}_notes", input_html: { rows: 5, style: 'width: 100%' } # Notes appel
+                  end
+                  column do
+                    f.input "call#{call_idx}_language_development", input_html: { rows: 5, style: 'width: 100%' } # Information sur l'enfant
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_previous_call_goals", as: :text,
+                              input_html: {
+                                rows: 8,
+                                readonly: true,
+                                style: 'width: 100%',
+                                value: f.object.send("call#{call_idx}_previous_call_goals").html_safe
+                              } # Petite mission précédente (Non modifiable)
+                  end
+                  column do
+                    div class:"previous_goals_follow_up" do
+                      f.input "call#{call_idx}_previous_goals_follow_up",
+                                      as: :radio,
+                                      collection: child_support_call_previous_goals_follow_up_select_collection # Petite mission précédente
+                    end
+                  end
+                  column do
+                    f.input "call#{call_idx}_goals_tracking",
+                              input_html: {
+                                rows: 8,
+                                style: 'width: 100%'
+                              } # Suivi petite mission précédente
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_goals", input_html: { rows: 5, style: 'width: 100%' } # Vers une nouvelle petite mission
+                  end
+                  column do
+                    f.input "call#{call_idx}_goals_sms", input_html: { rows: 5, style: 'width: 100%', readonly: true } # Petite mission envoyée (non modifiable)
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_parent_actions", input_html: { rows: 5, style: 'width: 100%' } # Pratiques parentales
+                  end
+                  column do
+                    f.input "call#{call_idx}_reading_frequency",
+                            as: :radio,
+                            collection: child_support_call_reading_frequency_select_collection # Fréquence de lecture
+                  end
+                  column do
+                    f.input "call#{call_idx}_tv_frequency",
+                            as: :radio,
+                            collection: child_support_call_tv_frequency_select_collection # Fréquence écran
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_technical_information",
+                            input_html: {
+                              rows: 5,
+                              style: 'width: 100%',
+                              value: f.object.send("call#{call_idx}_technical_information").presence ||
+                                     I18n.t('child_support.default.call_technical_information')
+                            } # Retour sur les envois
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, style: 'width: 100%' }
+                  end
+                end
+              else
+                columns do
+                  column do
+                    f.input "call#{call_idx}_notes", input_html: { rows: 5, style: 'width: 100%' } # Notes appel
+                  end
+                  column do
+                    f.input "call#{call_idx}_language_development", input_html: { rows: 5, style: 'width: 100%' } # Information sur l'enfant
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_parent_actions", input_html: { rows: 5, style: 'width: 100%' } # Pratiques parentales
+                  end
+                  column do
+                    f.input "call#{call_idx}_reading_frequency",
+                            as: :radio,
+                            collection: child_support_call_reading_frequency_select_collection # Fréquence de lecture
+                  end
+                  column do
+                    f.input "call#{call_idx}_tv_frequency",
+                            as: :radio,
+                            collection: child_support_call_tv_frequency_select_collection # Fréquence écran
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_goals", input_html: { rows: 5, style: 'width: 100%' } # Vers une nouvelle petite mission
+                  end
+                  column do
+                    f.input "call#{call_idx}_goals_sms", input_html: { rows: 5, style: 'width: 100%', readonly: true } # Petite mission envoyée (non modifiable)
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_previous_call_goals", as: :text,
+                              input_html: {
+                                rows: 8,
+                                readonly: true,
+                                style: 'width: 100%',
+                                value: f.object.send("call#{call_idx}_previous_call_goals").html_safe
+                              } # Petite mission précédente (Non modifiable)
+                  end
+                  column do
+                    div class:"previous_goals_follow_up" do
+                      f.input "call#{call_idx}_previous_goals_follow_up",
+                                      as: :radio,
+                                      collection: child_support_call_previous_goals_follow_up_select_collection # Petite mission précédente
+                    end if call_idx.in?([3, 4])
+                  end
+                  column do
+                    f.input "call#{call_idx}_goals_tracking",
+                              input_html: {
+                                rows: 8,
+                                style: 'width: 100%'
+                              } # Suivi petite mission précédente
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_technical_information",
+                            input_html: {
+                              rows: 5,
+                              style: 'width: 100%',
+                              value: f.object.send("call#{call_idx}_technical_information").presence ||
+                                     I18n.t('child_support.default.call_technical_information')
+                            } # Retour sur les envois
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, style: 'width: 100%' }
                   end
                 end
               end
             end
-            columns style: 'justify-content:space-between;margin-top:10px' do
-              if call_idx.zero?
-                column max_width: '8%' do
-                  f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
-                end
-                column do
-                  f.input :books_quantity,
-                          as: :radio,
-                          collection: child_support_books_quantity # Nombre de livres pour l'enfant suivi
-                end
-              end
-              column do
-                f.input "call#{call_idx}_reading_frequency",
-                        as: :radio,
-                        collection: child_support_call_reading_frequency_select_collection # Fréquence de lecture
-              end if call_idx == 0
-              column do
-                f.input "call#{call_idx}_tv_frequency",
-                        as: :radio,
-                        collection: child_support_call_tv_frequency_select_collection # Fréquence écran
-              end if call_idx == 0
-            end
-
-            columns do
-              column do
-                f.input "call#{call_idx}_notes", input_html: { rows: 5, style: 'width: 100%' } # Notes appel
-              end
-              column do
-                f.input "call#{call_idx}_language_development", input_html: { rows: 5, style: 'width: 100%' } # Information sur l'enfant
-              end
-            end
-
-            columns do
-              column do
-                f.input "call#{call_idx}_technical_information",
-                        input_html: {
-                          rows: 5,
-                          style: 'width: 100%',
-                          value: f.object.send("call#{call_idx}_technical_information").presence ||
-                                 I18n.t('child_support.default.call_technical_information')
-                        } unless call_idx == 0 # Retour sur les envois
-              end
-            end
-
-            columns do
-              column do
-                f.input "call#{call_idx}_parent_actions", input_html: { rows: 5, style: 'width: 100%' } # Pratiques parentales
-              end
-              column do
-                f.input "call#{call_idx}_goals", input_html: { rows: 5, style: 'width: 100%' } if call_idx == 0 # Petite mission envoyée (non )
-              end
-            end
-
-             columns do
-              column do
-
-                f.input "call#{call_idx}_goals_sms", input_html: { rows: 5, style: 'width: 100%', readonly: true }
-              end
-              column do
-
-              end
-             end
-            columns do
-              column do
-                unless call_idx.zero?
-                  f.input "call#{call_idx}_previous_call_goals", as: :text,
-                          input_html: {
-                            rows: 8,
-                            readonly: true,
-                            style: 'width: 70%',
-                            value: f.object.send("call#{call_idx}_previous_call_goals").html_safe
-                          }
-                end
-
-                unless call_idx.zero?
-                  f.input "call#{call_idx}_goals_tracking",
-                          input_html: {
-                            rows: 8,
-                            style: 'width: 70%'
-                          }
-                end
-              end
-            end
-            columns do
-              column do
-                f.input "call#{call_idx}_sendings_benefits",
-                        as: :radio,
-                        collection: child_support_call_sendings_benefits_select_collection
-              end unless call_idx.in?([0, 1, 2, 3])
-              if [1, 2, 4].include? call_idx
-                column do
-                  f.input "call#{call_idx}_previous_goals_follow_up",
-                          as: :radio,
-                          collection: child_support_call_previous_goals_follow_up_select_collection
-                end
-              end
-            end
-            f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, style: 'width: 100%' }
           end
-        end
-        if f.object.current_child
-          %i[parent1 parent2].each do |k|
-            next unless f.object.current_child.send(k)
+          if f.object.current_child
+            %i[parent1 parent2].each do |k|
+              next unless f.object.current_child.send(k)
 
-            tab I18n.t("child_support.#{k}") do
+              tab I18n.t("child_support.#{k}") do
+                f.semantic_fields_for :current_child do |current_child_f|
+                  current_child_f.semantic_fields_for k do |parent_f|
+                    parent_f.input :phone_number
+                    parent_f.input :present_on_whatsapp
+                    parent_f.input :follow_us_on_whatsapp
+                    parent_f.input :present_on_facebook
+                    parent_f.input :follow_us_on_facebook
+                    parent_f.input :email
+                    parent_f.input :letterbox_name
+                    parent_f.input :address
+                    parent_f.input :postal_code
+                    parent_f.input :city_name
+                    parent_f.input :is_ambassador
+                    parent_f.input :job
+                  end
+                end
+              end
+            end
+          end
+          if f.object.current_child
+            tab f.object.current_child.decorate.name do
               f.semantic_fields_for :current_child do |current_child_f|
-                current_child_f.semantic_fields_for k do |parent_f|
-                  parent_f.input :phone_number
-                  parent_f.input :present_on_whatsapp
-                  parent_f.input :follow_us_on_whatsapp
-                  parent_f.input :present_on_facebook
-                  parent_f.input :follow_us_on_facebook
-                  parent_f.input :email
-                  parent_f.input :letterbox_name
-                  parent_f.input :address
-                  parent_f.input :postal_code
-                  parent_f.input :city_name
-                  parent_f.input :is_ambassador
-                  parent_f.input :job
-                end
+                current_child_f.input :gender,
+                                      as: :radio,
+                                      collection: child_gender_select_collection
+                current_child_f.input :should_contact_parent1
+                current_child_f.input :should_contact_parent2
               end
             end
-          end
-        end
-        if f.object.current_child
-          tab f.object.current_child.decorate.name do
-            f.semantic_fields_for :current_child do |current_child_f|
-              current_child_f.input :gender,
-                                    as: :radio,
-                                    collection: child_gender_select_collection
-              current_child_f.input :should_contact_parent1
-              current_child_f.input :should_contact_parent2
+            tab 'Historique' do
+              render 'admin/events/history', events: f.object.parent_events.order(occurred_at: :desc).decorate
             end
           end
-          tab 'Historique' do
-            render 'admin/events/history', events: f.object.parent_events.order(occurred_at: :desc).decorate
+          tab 'Notes' do
+            f.input :notes, as: :text
           end
-        end
-        tab 'Notes' do
-          f.input :notes, as: :text
         end
       end
     end

@@ -74,6 +74,7 @@
 #  call3_notes                           :text
 #  call3_parent_actions                  :text
 #  call3_parent_progress                 :string
+#  call3_previous_goals_follow_up        :string
 #  call3_reading_frequency               :string
 #  call3_review                          :string
 #  call3_sendings_benefits               :string
@@ -94,6 +95,7 @@
 #  call4_parent_progress                 :string
 #  call4_previous_goals_follow_up        :string
 #  call4_reading_frequency               :string
+#  call4_review                          :string
 #  call4_sendings_benefits               :string
 #  call4_sendings_benefits_details       :text
 #  call4_status                          :string
@@ -111,6 +113,7 @@
 #  call5_parent_actions                  :text
 #  call5_parent_progress                 :string
 #  call5_reading_frequency               :string
+#  call5_review                          :string
 #  call5_sendings_benefits               :string
 #  call5_sendings_benefits_details       :text
 #  call5_status                          :string

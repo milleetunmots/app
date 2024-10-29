@@ -74,6 +74,7 @@
 #  call3_notes                           :text
 #  call3_parent_actions                  :text
 #  call3_parent_progress                 :string
+#  call3_previous_goals_follow_up        :string
 #  call3_reading_frequency               :string
 #  call3_review                          :string
 #  call3_sendings_benefits               :string
@@ -94,6 +95,7 @@
 #  call4_parent_progress                 :string
 #  call4_previous_goals_follow_up        :string
 #  call4_reading_frequency               :string
+#  call4_review                          :string
 #  call4_sendings_benefits               :string
 #  call4_sendings_benefits_details       :text
 #  call4_status                          :string
@@ -111,6 +113,7 @@
 #  call5_parent_actions                  :text
 #  call5_parent_progress                 :string
 #  call5_reading_frequency               :string
+#  call5_review                          :string
 #  call5_sendings_benefits               :string
 #  call5_sendings_benefits_details       :text
 #  call5_status                          :string
@@ -254,14 +257,11 @@ class ChildSupport < ApplicationRecord
     validates "call#{call_idx}_language_awareness", inclusion: { in: LANGUAGE_AWARENESS, allow_blank: true }
     validates "call#{call_idx}_parent_progress", inclusion: { in: PARENT_PROGRESS, allow_blank: true }
     validates "call#{call_idx}_sendings_benefits", inclusion: { in: SENDINGS_BENEFITS, allow_blank: true }
+    validates "call#{call_idx}_review", inclusion: { in: CALL_REVIEW_OPTIONS, allow_blank: true }
   end
 
   validates :books_quantity, inclusion: { in: BOOKS_QUANTITY, allow_blank: true }
   validates :is_bilingual, inclusion: { in: IS_BILINGUAL_OPTIONS }
-  validates :call0_review, inclusion: { in: CALL_REVIEW_OPTIONS, allow_blank: true }
-  validates :call1_review, inclusion: { in: CALL_REVIEW_OPTIONS, allow_blank: true }
-  validates :call2_review, inclusion: { in: CALL_REVIEW_OPTIONS, allow_blank: true }
-  validates :call3_review, inclusion: { in: CALL_REVIEW_OPTIONS, allow_blank: true }
 
   # ---------------------------------------------------------------------------
   # scopes
