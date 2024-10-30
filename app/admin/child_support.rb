@@ -247,7 +247,7 @@ ActiveAdmin.register ChildSupport do
             column style: 'flex: 0 0 25%;' do
               f.input :is_bilingual,
                         collection: is_bilingual_collection,
-                        input_html: { data: {} },
+                        input_html: { data: { select2: {} } },
                         include_blank: false
             end
             column style: 'flex: 1;' do
