@@ -183,7 +183,7 @@ fr:
         call0_status_details: Suivi de l'appel 0
         call0_language_awareness: Conscience langagière
         call0_language_development: "Informations sur l'enfant"
-        call0_goals: Petite mission
+        call0_goals: Vers la petite mission
         call0_notes: Notes appel 0
         call0_parent_actions: Pratiques parentales
         call0_parent_progress: Niveau de pratiques parentales
@@ -192,13 +192,13 @@ fr:
         call0_sendings_benefits: Apport des envois
         call0_sendings_benefits_details: Verbatim
         call0_technical_information: Retour sur les envois
-        call0_previous_call_goals: Petite mission précédente (Non modifiable)
+        call0_previous_call_goals: Petite mission précédente (non modifiable)
         call1_duration: Durée de l'appel 1 (en minutes)
         call1_status: Statut de l'appel 1
         call1_status_details: Suivi de l'appel 1
         call1_language_awareness: Conscience langagière
         call1_language_development: "Informations sur l'enfant"
-        call1_goals: Nouvelle petite mission
+        call1_goals: Vers une nouvelle petite mission
         call1_notes: Notes appel 1
         call1_parent_actions: Pratiques parentales
         call1_family_progress: Diriez-vous que la famille a réalisé une forte progression ?
@@ -208,15 +208,15 @@ fr:
         call1_sendings_benefits: Apport des envois
         call1_sendings_benefits_details: Verbatim
         call1_technical_information: Retour sur les envois
-        call1_goals_tracking: Suivi petite mission
+        call1_goals_tracking: Suivi petite mission précédente
         call1_previous_goals_follow_up: Petite mission de l’appel 0
-        call1_previous_call_goals: Petite mission précédente (Non modifiable)
+        call1_previous_call_goals: Petite mission précédente (non modifiable)
         call2_duration: Durée de l'appel 2 (en minutes)
         call2_status: Statut de l'appel 2
         call2_status_details: Suivi de l'appel 2
         call2_parent_actions: Pratiques parentales
         call2_family_progress: Diriez-vous que la famille a réalisé une forte progression ?
-        call2_goals: Nouvelle petite mission
+        call2_goals: Vers une nouvelle petite mission
         call2_language_awareness: Conscience langagière
         call2_language_development: "Informations sur l'enfant"
         call2_notes: Notes appel 2
@@ -227,13 +227,13 @@ fr:
         call2_sendings_benefits: Apport des envois
         call2_sendings_benefits_details: Verbatim
         call2_technical_information: Retour sur les envois
-        call2_goals_tracking: Suivi petite mission
-        call2_previous_call_goals: Petite mission précédente (Non modifiable)
+        call2_goals_tracking: Suivi petite mission précédente
+        call2_previous_call_goals: Petite mission précédente (non modifiable)
         call3_duration: Durée de l'appel 3 (en minutes)
         call3_status: Statut de l'appel 3
         call3_status_details: Suivi de l'appel 3
         call3_parent_actions: Pratiques parentales
-        call3_goals: Nouvelle petite mission
+        call3_goals: Vers une nouvelle petite mission
         call3_language_awareness: Conscience langagière
         call3_language_development: "Informations sur l'enfant"
         call3_notes: Notes appel 3
@@ -243,13 +243,14 @@ fr:
         call3_sendings_benefits: Apport des envois
         call3_sendings_benefits_details: Verbatim
         call3_technical_information: Retour sur les envois
-        call3_goals_tracking: Suivi petite mission
-        call3_previous_call_goals: Petite mission précédente (Non modifiable)
+        call3_goals_tracking: Suivi petite mission précédente
+        call3_previous_call_goals: Petite mission précédente (non modifiable)
+        call3_previous_goals_follow_up: Petite mission de l’appel 2
         call4_duration: Durée de l'appel 4 (en minutes)
         call4_status: Statut de l'appel 4
         call4_status_details: Suivi de l'appel 4
         call4_parent_actions: Pratiques parentales
-        call4_goals: Nouvelle petite mission
+        call4_goals: Vers une nouvelle petite mission
         call4_language_awareness: Conscience langagière
         call4_language_development: "Informations sur l'enfant"
         call4_notes: Notes appel 4
@@ -260,13 +261,13 @@ fr:
         call4_sendings_benefits: Apport des envois
         call4_sendings_benefits_details: Verbatim
         call4_technical_information: Retour sur les envois
-        call4_goals_tracking: Suivi petite mission
-        call4_previous_call_goals: Petite mission précédente (Non modifiable)
+        call4_goals_tracking: Suivi petite mission précédente
+        call4_previous_call_goals: Petite mission précédente (non modifiable)
         call5_duration: Durée de l'appel 5 (en minutes)
         call5_status: Statut de l'appel 5
         call5_status_details: Suivi de l'appel 5
         call5_parent_actions: Pratiques parentales
-        call5_goals: Nouvelle petite mission
+        call5_goals: Vers une nouvelle petite mission
         call5_language_awareness: Conscience langagière
         call5_language_development: "Informations sur l'enfant"
         call5_notes: Notes appel 5
@@ -276,14 +277,14 @@ fr:
         call5_sendings_benefits: Apport des envois
         call5_sendings_benefits_details: Verbatim
         call5_technical_information: Retour sur les envois
-        call5_goals_tracking: Suivi petite mission
-        call5_previous_call_goals: Petite mission précédente (Non modifiable)
-        call0_goals_sms: SMS petite mission
-        call1_goals_sms: SMS petite mission
-        call2_goals_sms: SMS petite mission
-        call3_goals_sms: SMS petite mission
-        call4_goals_sms: SMS petite mission
-        call5_goals_sms: SMS petite mission
+        call5_goals_tracking: Suivi petite mission précédente
+        call5_previous_call_goals: Petite mission précédente (non modifiable)
+        call0_goals_sms: Petite mission envoyée (non modifiable)
+        call1_goals_sms: Petite mission envoyée (non modifiable)
+        call2_goals_sms: Petite mission envoyée (non modifiable)
+        call3_goals_sms: Petite mission envoyée (non modifiable)
+        call4_goals_sms: Petite mission envoyée (non modifiable)
+        call5_goals_sms: Petite mission envoyée (non modifiable)
         city_name: Ville
         children: Enfants
         children_registration_months_range: Tranche d'âge à l'inscription
@@ -340,6 +341,12 @@ fr:
         parent2_available_support_module_list: Modules disponibles du parent 2
         parent1_selected_support_module_list: Modules choisis du parent 1
         parent2_selected_support_module_list: Modules choisis du parent 2
+        call0_review: Es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call1_review: Es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call2_review: Es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call3_review: Es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call4_review: Es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call5_review: Es-tu satisfaite de ton accompagnement pendant cet appel ?
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
         2_awareness: A conscience de son impact
@@ -405,6 +412,11 @@ fr:
         0_yes: Oui
         1_no: Non
         2_no_information: Pas d'infos
+      child_support/call_review:
+        0_very_satisfied: Très satisfaite 😃
+        1_rather_satisfied: Plutôt satisfaite 🙂
+        2_rather_dissatisfied: Plutôt insatisfaite 😕
+        3_very_dissatisfied: Très insatisfaite 😞
       event: &EVENT
         << : *SHARED
         address: Adresse

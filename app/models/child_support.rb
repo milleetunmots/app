@@ -17,6 +17,7 @@
 #  call0_parent_actions                  :text
 #  call0_parent_progress                 :string
 #  call0_reading_frequency               :string
+#  call0_review                          :string
 #  call0_sendings_benefits               :string
 #  call0_sendings_benefits_details       :text
 #  call0_status                          :string
@@ -36,6 +37,7 @@
 #  call1_parent_progress                 :string
 #  call1_previous_goals_follow_up        :string
 #  call1_reading_frequency               :string
+#  call1_review                          :string
 #  call1_sendings_benefits               :string
 #  call1_sendings_benefits_details       :text
 #  call1_status                          :string
@@ -55,6 +57,7 @@
 #  call2_parent_progress                 :string
 #  call2_previous_goals_follow_up        :string
 #  call2_reading_frequency               :string
+#  call2_review                          :string
 #  call2_sendings_benefits               :string
 #  call2_sendings_benefits_details       :text
 #  call2_status                          :string
@@ -71,7 +74,9 @@
 #  call3_notes                           :text
 #  call3_parent_actions                  :text
 #  call3_parent_progress                 :string
+#  call3_previous_goals_follow_up        :string
 #  call3_reading_frequency               :string
+#  call3_review                          :string
 #  call3_sendings_benefits               :string
 #  call3_sendings_benefits_details       :text
 #  call3_status                          :string
@@ -90,6 +95,7 @@
 #  call4_parent_progress                 :string
 #  call4_previous_goals_follow_up        :string
 #  call4_reading_frequency               :string
+#  call4_review                          :string
 #  call4_sendings_benefits               :string
 #  call4_sendings_benefits_details       :text
 #  call4_status                          :string
@@ -107,6 +113,7 @@
 #  call5_parent_actions                  :text
 #  call5_parent_progress                 :string
 #  call5_reading_frequency               :string
+#  call5_review                          :string
 #  call5_sendings_benefits               :string
 #  call5_sendings_benefits_details       :text
 #  call5_status                          :string
@@ -199,6 +206,7 @@ class ChildSupport < ApplicationRecord
   FAMILY_PROGRESS = %w[1_yes 2_no 3_no_information].freeze
   GOALS_FOLLOW_UP = %w[1_succeed 2_tried 3_no_tried 4_no_goal 5_not_enough_information].freeze
   IS_BILINGUAL_OPTIONS = %w[0_yes 1_no 2_no_information].freeze
+  CALL_REVIEW_OPTIONS = %w[0_very_satisfied 1_rather_satisfied 2_rather_dissatisfied 3_very_dissatisfied].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -249,6 +257,7 @@ class ChildSupport < ApplicationRecord
     validates "call#{call_idx}_language_awareness", inclusion: { in: LANGUAGE_AWARENESS, allow_blank: true }
     validates "call#{call_idx}_parent_progress", inclusion: { in: PARENT_PROGRESS, allow_blank: true }
     validates "call#{call_idx}_sendings_benefits", inclusion: { in: SENDINGS_BENEFITS, allow_blank: true }
+    validates "call#{call_idx}_review", inclusion: { in: CALL_REVIEW_OPTIONS, allow_blank: true }
   end
 
   validates :books_quantity, inclusion: { in: BOOKS_QUANTITY, allow_blank: true }

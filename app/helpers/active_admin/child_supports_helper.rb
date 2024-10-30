@@ -24,6 +24,15 @@ module ActiveAdmin::ChildSupportsHelper
     end
   end
 
+  def child_support_call_review_select_collection
+    ChildSupport::CALL_REVIEW_OPTIONS.map do |v|
+      [
+        ChildSupport.human_attribute_name("call_review.#{v}"),
+        v
+      ]
+    end
+  end
+
   def child_support_call_reading_frequency_select_collection
     ChildSupport::READING_FREQUENCY.reverse.map do |v|
       [
