@@ -98,12 +98,12 @@ RSpec.describe ChildrenController, type: :request do
       }
 
       before do
-        expect_any_instance_of(SpotHit::SendSmsService).to receive(:call)
+        allow_any_instance_of(SpotHit::SendSmsService).to receive(:call).and_return(SpotHit::SendSmsService.new(nil, nil, nil))
         post "/inscriptioncaf", params: params
       end
 
       it "redirects to created page with right sms_url_form" do
-        expect(response).to redirect_to(created_child_path(sms_url_form: "#{ENV['TYPEFORM_URL']}#child_support_id=#{Child.last.child_support.id}"))
+        expect(response).to redirect_to(created_child_path(sms_url_form: "#{ENV['TYPEFORM_URL']}#child_support_id=#{Child.last.child_support.id}", child_under_four_months: birthdate > 4.months.ago))
       end
     end
 
@@ -185,7 +185,7 @@ RSpec.describe ChildrenController, type: :request do
       end
 
       it "renders specific wording" do
-        expect(response.body).to include I18n.t('inscription_success.without_widget', typeform_url: nil)
+        expect(response.body).to include 'Votre inscription est bien prise en compte.'
       end
 
       it "does not render widget" do

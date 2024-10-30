@@ -2,7 +2,7 @@ class Child
 
   class CreateService
 
-    attr_reader :child, :sms_url_form, :parent1_target_profile
+    attr_reader :child, :sms_url_form, :parent1_target_profile, :child_under_four_months
 
     def initialize(attributes, siblings_attributes, parent1_attributes, parent2_attributes, registration_origin, children_source_attributes, child_min_birthdate)
       @attributes = attributes
@@ -36,6 +36,7 @@ class Child
           ChildrenSource.create(@children_source_attributes.merge(child_id: sibling.id))
         end
         create_parent_registration
+        @child_under_four_months = @child.siblings.any? { |child| child.months < 4 }
       end
       self
     end
@@ -141,10 +142,10 @@ class Child
       return if 'filtre-diplome-KO'.in? @child.tag_list
 
       @sms_url_form = "#{ENV.fetch('TYPEFORM_URL', nil)}#child_support_id=#{@child.child_support.id}"
-      message = "1001mots: Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{@sms_url_form}"
+      message = "1001mots: Bonjour ! Je suis ravie de votre inscription à notre accompagnement ! Si vous avez 3 minutes, merci de répondre à ce court questionnaire #{@sms_url_form}"
 
-      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, message).call if @registration_origin.in?([2, 4, 5])
-      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.change({ hour: 19 }).to_i, message).call if @registration_origin == 3
+      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, message).call if @registration_origin.in?([2, 4])
+      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.change({ hour: 18 }).to_i, message).call if @registration_origin.in?([3, 5])
     end
 
     def parent1_present?

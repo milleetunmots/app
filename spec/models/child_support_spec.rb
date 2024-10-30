@@ -196,13 +196,13 @@ RSpec.describe ChildSupport, type: :model do
 
   let_it_be(:group, reload: true) { FactoryBot.create(:group) }
 
-  let_it_be(:first_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: third_parent, group: group, group_status: "active") }
-  let_it_be(:second_child, reload: true) { FactoryBot.create(:child, parent1: second_parent, parent2: fourth_parent) }
-  let_it_be(:third_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, group: group, group_status: "paused") }
+  let!(:first_child) { FactoryBot.create(:child, parent1: first_parent, parent2: third_parent, group: group, group_status: "active") }
+  let!(:second_child) { FactoryBot.create(:child, parent1: second_parent, parent2: fourth_parent) }
+  let!(:third_child) { FactoryBot.create(:child, parent1: first_parent, group: group, group_status: "paused") }
 
-  let_it_be(:first_child_support, reload: true) { FactoryBot.create(:child_support, current_child: first_child, supporter: admin_user) }
-  let_it_be(:second_child_support, reload: true) { second_child.child_support }
-  let_it_be(:third_child_support, reload: true) { third_child.child_support }
+  let!(:first_child_support) { FactoryBot.create(:child_support, current_child: first_child, supporter: admin_user) }
+  let!(:second_child_support) { second_child.child_support }
+  let!(:third_child_support) { third_child.child_support }
 
 
 
