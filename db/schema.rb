@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_10_17_081128) do
+ActiveRecord::Schema.define(version: 2024_10_28_160749) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -284,6 +284,13 @@ ActiveRecord::Schema.define(version: 2024_10_17_081128) do
     t.string "call3_attempt"
     t.string "call4_attempt"
     t.string "call5_attempt"
+    t.string "call0_review"
+    t.string "call1_review"
+    t.string "call2_review"
+    t.string "call3_review"
+    t.string "call4_review"
+    t.string "call5_review"
+    t.string "call3_previous_goals_follow_up"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
@@ -395,6 +402,7 @@ ActiveRecord::Schema.define(version: 2024_10_17_081128) do
     t.string "parent_presence"
     t.date "acceptation_date"
     t.boolean "is_support_module_message", default: false, null: false
+    t.string "link_sent_substring"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["quit_group_child_id"], name: "index_events_on_quit_group_child_id"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
@@ -511,6 +519,8 @@ ActiveRecord::Schema.define(version: 2024_10_17_081128) do
     t.string "degree_country_at_registration"
     t.string "preferred_channel"
     t.text "is_ambassador_detail"
+    t.string "aircall_id"
+    t.jsonb "aircall_datas"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"

@@ -1,14 +1,19 @@
 class Child
 
   class AddToGroupService
+
+    LATE_SUPPORT_WARNING_MESSAGE = "1001mots : En raison d’un grand nombre de demandes, vous recevrez nos livres et conseils dans environ 2 mois. Pas d’inquiétude, c'est normal si vous avez moins de nouvelles de nous d'ici là. A bientôt!".freeze
+
     # Assign a child and its siblings to the right group for them
     # Depends on whether the child has siblings or not, their age and their group status
 
     attr_reader :group
 
-    def initialize(child_id)
+    def initialize(child_id, at_sign_up: false)
+      @child_id = child_id
       @group = nil
       @siblings = Child.find_by(id: child_id)&.siblings
+      @at_sign_up = at_sign_up
     end
 
     def call
@@ -26,6 +31,7 @@ class Child
       else
         find_group_to_siblings
       end
+      warn_family_of_late_support if @at_sign_up
       self
     end
 
@@ -80,12 +86,44 @@ class Child
     end
 
     def join_active_sibling_group
-      sibling_group = @siblings.where(group_status: 'active').first.group
+      siblings = @siblings.where(group_status: 'active')
+      return if siblings.empty?
+
+      sibling_group = siblings.first.group
       @siblings.where(group_status: 'waiting').each do |child|
         next if child.birthdate + 4.months > sibling_group.started_at
 
         child.update(group: sibling_group, group_status: 'active')
       end
+    end
+
+    def warn_family_of_late_support
+      warn_family_with_siblings
+      warn_family_without_siblings
+    end
+
+    def warn_family_with_siblings
+      return if @siblings.size == 1
+
+      @oldest_child = @siblings.order(birthdate: :asc).first
+      return unless @child_id == @oldest_child.id
+
+      return unless @siblings.any? { |child| child.months < 2 } || (@siblings.any? { |child| child.group_status == 'active' } && @siblings.any? { |child| child.group_status == 'waiting' })
+
+      send_message
+    end
+
+    def warn_family_without_siblings
+      return unless @siblings.size == 1
+
+      return unless @group.nil? || (@group && @group.started_at > 2.months.from_now)
+
+      send_message
+    end
+
+    def send_message
+      message_service = SpotHit::SendSmsService.new([@siblings.find_by(id: @child_id).parent1_id], Time.zone.now.change(hour: 12, min: 30).next_day.to_i, LATE_SUPPORT_WARNING_MESSAGE).call
+      Rollbar.error("Late support warning error : #{message_service.errors}") if message_service.errors.any?
     end
   end
 end

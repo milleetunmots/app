@@ -1,7 +1,7 @@
 class ChildrenController < ApplicationController
 
   SIBLINGS_COUNT = 3
-  
+
   skip_before_action :authenticate_admin_user!
   before_action :set_src_url
   before_action :find_child, only: %i[edit update]
@@ -38,13 +38,14 @@ class ChildrenController < ApplicationController
       @child.build_children_source(source_id: children_source_params&.dig(:source_id), details: children_source_params&.dig(:details), registration_department: children_source_params&.dig(:registration_department))
       render action: :new
     elsif service.parent1_target_profile || current_registration_origin != 4
-      redirect_to created_child_path(sms_url_form: service.sms_url_form)
+      redirect_to created_child_path(sms_url_form: service.sms_url_form, child_under_four_months: service.child_under_four_months)
     else
-      redirect_to created_child_path(sms_url_form: service.sms_url_form, parent1: @child.parent1)
+      redirect_to created_child_path(sms_url_form: service.sms_url_form, parent1: @child.parent1, child_under_four_months: service.child_under_four_months)
     end
   end
 
   def created
+    support_wait_time_message = params[:child_under_four_months] == 'true' ? 'inscription_success.without_widget_but_with_a_child_under_four_months' : 'inscription_success.neither_widget_nor_child_under_four_months'
     case current_registration_origin
     when 5
       @message = I18n.t('inscription_success.pro')
@@ -58,7 +59,7 @@ class ChildrenController < ApplicationController
         @with_parent_no_target = true
         @message = I18n.t('inscription_success.with_parent_no_target')
       else
-        @message = I18n.t('inscription_success.without_widget', typeform_url: params[:sms_url_form])
+        @message = I18n.t(support_wait_time_message, typeform_url: params[:sms_url_form])
         @again = true
         @new_link = new_bao_registration_path
       end
@@ -71,7 +72,7 @@ class ChildrenController < ApplicationController
       @new_link = new_pmi_registration_path
     when 2
       session.delete(:registration_origin)
-      @message = I18n.t('inscription_success.without_widget', typeform_url: params[:sms_url_form])
+      @message = I18n.t(support_wait_time_message, typeform_url: params[:sms_url_form])
       @again = false
       @widget = false
       @new_link = new_caf_registration_path

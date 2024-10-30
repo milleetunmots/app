@@ -4,6 +4,7 @@
 #
 #  id                                  :bigint           not null, primary key
 #  address                             :string           not null
+#  aircall_datas                       :jsonb
 #  city_name                           :string           not null
 #  degree                              :string
 #  degree_country_at_registration      :string
@@ -43,6 +44,7 @@
 #  would_receive_advices               :string
 #  created_at                          :datetime         not null
 #  updated_at                          :datetime         not null
+#  aircall_id                          :string
 #
 # Indexes
 #

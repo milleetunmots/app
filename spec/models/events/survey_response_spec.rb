@@ -7,6 +7,7 @@
 #  body                      :text
 #  discarded_at              :datetime
 #  is_support_module_message :boolean          default(FALSE), not null
+#  link_sent_substring       :string
 #  occurred_at               :datetime
 #  originated_by_app         :boolean          default(TRUE), not null
 #  parent_presence           :string

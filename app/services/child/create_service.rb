@@ -2,7 +2,7 @@ class Child
 
   class CreateService
 
-    attr_reader :child, :sms_url_form, :parent1_target_profile
+    attr_reader :child, :sms_url_form, :parent1_target_profile, :child_under_four_months
 
     def initialize(attributes, siblings_attributes, parent1_attributes, parent2_attributes, registration_origin, children_source_attributes, child_min_birthdate)
       @attributes = attributes
@@ -27,15 +27,10 @@ class Child
       build_siblings
       detect_errors
       if @child.errors.empty? && @child.save
-        ChildrenSource.create(@children_source_attributes.merge(child_id: @child.id))
         send_form_by_sms
         send_not_supported_sms
-        @child.siblings.each do |sibling|
-          next if sibling.id.eql?(@child.id)
-
-          ChildrenSource.create(@children_source_attributes.merge(child_id: sibling.id))
-        end
         create_parent_registration
+        @child_under_four_months = @child.siblings.any? { |child| child.months < 4 }
       end
       self
     end
@@ -96,6 +91,7 @@ class Child
     end
 
     def build
+      @attributes.merge!(children_source_attributes: @children_source_attributes)
       parent1_attributes = @parent1_attributes.merge(parent1_present? ? @parent1_attributes : @parent2_attributes).merge(tag_list: @attributes[:tag_list])
       parent2_attributes = @parent1_attributes.merge(@parent2_attributes).merge(tag_list: @attributes[:tag_list]) if parent2_present? && parent1_present?
       @child = if parent2_attributes.nil?
@@ -118,6 +114,7 @@ class Child
         attributes[:should_contact_parent2] = @child.should_contact_parent2
         attributes[:child_support] = @child.child_support
         attributes[:tag_list] = @child.tag_list
+        attributes[:children_source_attributes] = @children_source_attributes
         next unless @registration_origin == 4
 
         attributes[:group_status] = @child.group_status
@@ -141,10 +138,10 @@ class Child
       return if 'filtre-diplome-KO'.in? @child.tag_list
 
       @sms_url_form = "#{ENV.fetch('TYPEFORM_URL', nil)}#child_support_id=#{@child.child_support.id}"
-      message = "1001mots: Bonjour ! Je suis ravie de votre inscription à notre accompagnement! Ca démarre bientôt. Pour recevoir les livres chez vous, merci de répondre à ce court questionnaire #{@sms_url_form}"
+      message = "1001mots: Bonjour ! Je suis ravie de votre inscription à notre accompagnement ! Si vous avez 3 minutes, merci de répondre à ce court questionnaire #{@sms_url_form}"
 
-      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, message).call if @registration_origin.in?([2, 4, 5])
-      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.change({ hour: 19 }).to_i, message).call if @registration_origin == 3
+      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, message).call if @registration_origin.in?([2, 4])
+      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.change({ hour: 18 }).to_i, message).call if @registration_origin.in?([3, 5])
     end
 
     def parent1_present?

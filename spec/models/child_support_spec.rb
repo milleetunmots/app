@@ -17,6 +17,7 @@
 #  call0_parent_actions                  :text
 #  call0_parent_progress                 :string
 #  call0_reading_frequency               :string
+#  call0_review                          :string
 #  call0_sendings_benefits               :string
 #  call0_sendings_benefits_details       :text
 #  call0_status                          :string
@@ -36,6 +37,7 @@
 #  call1_parent_progress                 :string
 #  call1_previous_goals_follow_up        :string
 #  call1_reading_frequency               :string
+#  call1_review                          :string
 #  call1_sendings_benefits               :string
 #  call1_sendings_benefits_details       :text
 #  call1_status                          :string
@@ -55,6 +57,7 @@
 #  call2_parent_progress                 :string
 #  call2_previous_goals_follow_up        :string
 #  call2_reading_frequency               :string
+#  call2_review                          :string
 #  call2_sendings_benefits               :string
 #  call2_sendings_benefits_details       :text
 #  call2_status                          :string
@@ -71,7 +74,9 @@
 #  call3_notes                           :text
 #  call3_parent_actions                  :text
 #  call3_parent_progress                 :string
+#  call3_previous_goals_follow_up        :string
 #  call3_reading_frequency               :string
+#  call3_review                          :string
 #  call3_sendings_benefits               :string
 #  call3_sendings_benefits_details       :text
 #  call3_status                          :string
@@ -90,6 +95,7 @@
 #  call4_parent_progress                 :string
 #  call4_previous_goals_follow_up        :string
 #  call4_reading_frequency               :string
+#  call4_review                          :string
 #  call4_sendings_benefits               :string
 #  call4_sendings_benefits_details       :text
 #  call4_status                          :string
@@ -107,6 +113,7 @@
 #  call5_parent_actions                  :text
 #  call5_parent_progress                 :string
 #  call5_reading_frequency               :string
+#  call5_review                          :string
 #  call5_sendings_benefits               :string
 #  call5_sendings_benefits_details       :text
 #  call5_status                          :string
@@ -196,13 +203,13 @@ RSpec.describe ChildSupport, type: :model do
 
   let_it_be(:group, reload: true) { FactoryBot.create(:group) }
 
-  let_it_be(:first_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, parent2: third_parent, group: group, group_status: "active") }
-  let_it_be(:second_child, reload: true) { FactoryBot.create(:child, parent1: second_parent, parent2: fourth_parent) }
-  let_it_be(:third_child, reload: true) { FactoryBot.create(:child, parent1: first_parent, group: group, group_status: "paused") }
+  let!(:first_child) { FactoryBot.create(:child, parent1: first_parent, parent2: third_parent, group: group, group_status: "active") }
+  let!(:second_child) { FactoryBot.create(:child, parent1: second_parent, parent2: fourth_parent) }
+  let!(:third_child) { FactoryBot.create(:child, parent1: first_parent, group: group, group_status: "paused") }
 
-  let_it_be(:first_child_support, reload: true) { FactoryBot.create(:child_support, current_child: first_child, supporter: admin_user) }
-  let_it_be(:second_child_support, reload: true) { second_child.child_support }
-  let_it_be(:third_child_support, reload: true) { third_child.child_support }
+  let!(:first_child_support) { FactoryBot.create(:child_support, current_child: first_child, supporter: admin_user) }
+  let!(:second_child_support) { second_child.child_support }
+  let!(:third_child_support) { third_child.child_support }
 
 
 

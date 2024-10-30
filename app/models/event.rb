@@ -7,6 +7,7 @@
 #  body                      :text
 #  discarded_at              :datetime
 #  is_support_module_message :boolean          default(FALSE), not null
+#  link_sent_substring       :string
 #  occurred_at               :datetime
 #  originated_by_app         :boolean          default(TRUE), not null
 #  parent_presence           :string
@@ -61,6 +62,12 @@ class Event < ApplicationRecord
   validates :occurred_at, presence: true
 
   # ---------------------------------------------------------------------------
+  # callbacks
+  # ---------------------------------------------------------------------------
+
+  before_save :extract_link_sent_substring, if: -> { type.eql?('Events::TextMessage') && will_save_change_to_body? }
+
+  # ---------------------------------------------------------------------------
   # helpers
   # ---------------------------------------------------------------------------
 
@@ -109,5 +116,19 @@ class Event < ApplicationRecord
 
   def self.ransackable_scopes(auth_object = nil)
     %i[parent_current_child_group_id_in parent_current_child_supporter_id_in]
+  end
+
+  private
+
+  def extract_link_sent_substring
+    return unless originated_by_app
+    return if body.blank?
+
+    match = body.match(%r{https://app\.1001mots\.org/r/([^/]+/..)})
+    if match
+      self.link_sent_substring = match[1]
+    else
+      self.link_sent_substring = nil
+    end
   end
 end

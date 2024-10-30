@@ -13,7 +13,13 @@ fr:
     default:
       call_notes: Facebook
 #      call_parent_actions: "Livres :\nChansons :\nJeux :\nSorties :\nParler au quotidien :\nEcrans :"
-      call_technical_information: "SMS\nLivres\nVidéos"
+      call1_technical_information: "Livres envoyés :\n\nAutres retours :"
+      call_technical_information: "SMS\nLivres\nVideos"
+      call0_notes: "Comment nous a connu :\nAttentes :"
+      call0_parent_actions: "Réaction à la vidéo :\n\nAutre :"
+      call1_parent_actions: "Réaction à la vidéo :\n\nLivres :\n\nAutres pratiques :"
+      call3_parent_actions: "Nouvelles choses :\n\nIntérêts observés :\n\nComment observe son enfant :\n\nRéaction à la vidéo :"
+      call3_language_development: "Changements :\n\nLangage :\n\nAutre : "
     parent1: Parent 1
     parent2: Parent 2
     parents: Parents
@@ -68,7 +74,8 @@ fr:
     pro: "Préciser votre nom ou celui de votre structure"
   inscription_success:
     with_widget: Votre inscription est bien prise en compte, nous vous recontacterons prochainement pour vous permettre de découvrir nos idées d'éveil par SMS.<br>D'ici là, pour nous aider à accompagner plus d'enfants, vous pouvez nous soutenir en faisant un don.
-    without_widget: "Votre inscription est bien prise en compte. D'ici quelques semaines, vous allez recevoir des livres et des SMS avec des idées pour éveiller le langage de votre enfant. Si vous avez encore 5 minutes, merci de répondre à <a href='%{typeform_url}' target='_blank'>ce court questionnaire</a> pour recevoir les livres chez vous."
+    neither_widget_nor_child_under_four_months: "D'ici quelques semaines, vous allez recevoir des livres et des SMS avec des idées pour éveiller le langage de votre enfant. Si vous avez encore 5 minutes, merci de répondre à <a href='%{typeform_url}' target='_blank'>ce court questionnaire</a> pour recevoir les livres chez vous."
+    without_widget_but_with_a_child_under_four_months: "Vous avez inscrit votre enfant de moins de 4 mois, c’est super ! 🌟<br><br>Notre accompagnement commence à partir de 4 mois, vous recevrez donc nos livres et conseils pour lui dans environ 2 mois.<br>Pas d’inquiétude, c'est normal si vous avez moins de nouvelles de nous d'ici là. 😊<br><br>Si vous avez 5 minutes, merci de répondre à <a href='%{typeform_url}' target='_blank'>ce court questionnaire</a>."
     pro: "L'inscription a bien été prise en compte. D'ici quelques semaines, les parents vont recevoir des livres et des SMS avec des idées pour éveiller le langage de leur enfant. Ils peuvent arrêter à tout moment."
     with_parent_no_target: "Votre demande d'inscription a bien été enregistrée et va être traitée par notre équipe.<br>Nous reviendrons vers vous par SMS dans les prochains jours, en fonction des places disponibles."
   is_ambassador: Bénévole
