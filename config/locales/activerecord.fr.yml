@@ -341,12 +341,12 @@ fr:
         parent2_available_support_module_list: Modules disponibles du parent 2
         parent1_selected_support_module_list: Modules choisis du parent 1
         parent2_selected_support_module_list: Modules choisis du parent 2
-        call0_review: Es-tu satisfaite de ton accompagnement pendant cet appel ?
-        call1_review: Es-tu satisfaite de ton accompagnement pendant cet appel ?
-        call2_review: Es-tu satisfaite de ton accompagnement pendant cet appel ?
-        call3_review: Es-tu satisfaite de ton accompagnement pendant cet appel ?
-        call4_review: Es-tu satisfaite de ton accompagnement pendant cet appel ?
-        call5_review: Es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call0_review: En tant qu'appelante, es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call1_review: En tant qu'appelante, es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call2_review: En tant qu'appelante, es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call3_review: En tant qu'appelante, es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call4_review: En tant qu'appelante, es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call5_review: En tant qu'appelante, es-tu satisfaite de ton accompagnement pendant cet appel ?
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
         2_awareness: A conscience de son impact
