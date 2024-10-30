@@ -185,7 +185,7 @@ RSpec.describe ChildrenController, type: :request do
       end
 
       it "renders specific wording" do
-        expect(response.body).to include 'Votre inscription est bien prise en compte.'
+        expect(response.body).to include 'Si vous avez encore 5 minutes'
       end
 
       it "does not render widget" do
