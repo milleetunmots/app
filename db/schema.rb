@@ -422,10 +422,6 @@ ActiveRecord::Schema.define(version: 2024_10_28_160749) do
     t.index ["related_type", "related_id"], name: "index_field_comments_on_related_type_and_related_id"
   end
 
-  create_table "foo", id: false, force: :cascade do |t|
-    t.integer "x"
-  end
-
   create_table "groups", force: :cascade do |t|
     t.string "name"
     t.date "started_at"

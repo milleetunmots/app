@@ -338,7 +338,8 @@ ActiveAdmin.register ChildSupport do
                 end
                 columns do
                   column do
-                    f.input "call#{call_idx}_notes", input_html: { rows: 5, style: 'width: 100%' } # Notes appel
+                    f.input "call#{call_idx}_notes",
+                      input_html: { rows: 5, style: 'width: 100%', value: f.object.send("call0_notes").presence || I18n.t('child_support.default.call0_notes') } # Notes appel
                   end
                   column do
                     f.input "call#{call_idx}_language_development", input_html: { rows: 5, style: 'width: 100%' } # Information sur l'enfant
@@ -346,7 +347,8 @@ ActiveAdmin.register ChildSupport do
                 end
                 columns do
                   column do
-                    f.input "call#{call_idx}_parent_actions", input_html: { rows: 5, style: 'width: 100%' } # Pratiques parentales
+                    f.input "call#{call_idx}_parent_actions",
+                      input_html: { rows: 5, style: 'width: 100%', value: f.object.send("call0_parent_actions").presence || I18n.t('child_support.default.call0_parent_actions') } # Pratiques parentales
                   end
                   column do
                     f.input "call#{call_idx}_goals", input_html: { rows: 5, style: 'width: 100%' } # Vers la petite mission
@@ -379,14 +381,18 @@ ActiveAdmin.register ChildSupport do
                             input_html: {
                               rows: 5,
                               style: 'width: 100%',
-                              value: f.object.send("call#{call_idx}_technical_information").presence ||
-                                     I18n.t('child_support.default.call_technical_information')
+                              value: f.object.send("call1_technical_information").presence ||
+                                     I18n.t('child_support.default.call1_technical_information')
                             } # Retour sur les envois
                   end
                 end
                 columns do
                   column do
-                    f.input "call#{call_idx}_parent_actions", input_html: { rows: 5, style: 'width: 100%' } # Pratiques parentales
+                    f.input "call#{call_idx}_parent_actions",
+                      input_html: {
+                        rows: 5,
+                        style: 'width: 100%',
+                        value: f.object.send("call1_parent_actions").presence || I18n.t('child_support.default.call1_parent_actions')  } # Pratiques parentales
                   end
                   column do
                     f.input "call#{call_idx}_reading_frequency",
@@ -516,12 +522,24 @@ ActiveAdmin.register ChildSupport do
                     f.input "call#{call_idx}_notes", input_html: { rows: 5, style: 'width: 100%' } # Notes appel
                   end
                   column do
-                    f.input "call#{call_idx}_language_development", input_html: { rows: 5, style: 'width: 100%' } # Information sur l'enfant
+                    f.input "call#{call_idx}_language_development",
+                      input_html: {
+                        rows: 5,
+                        style: 'width: 100%',
+                        value: f.object.send("call#{call_idx}_language_development").presence ||
+                                     I18n.t('child_support.default.call3_language_development')
+                      } # Information sur l'enfant
                   end
                 end
                 columns do
                   column do
-                    f.input "call#{call_idx}_parent_actions", input_html: { rows: 5, style: 'width: 100%' } # Pratiques parentales
+                    f.input "call#{call_idx}_parent_actions",
+                      input_html: {
+                        rows: 5,
+                        style: 'width: 100%',
+                        value: f.object.send("call#{call_idx}_parent_actions").presence ||
+                                     I18n.t('child_support.default.call3_parent_actions')
+                       } # Pratiques parentales
                   end
                   column do
                     f.input "call#{call_idx}_reading_frequency",

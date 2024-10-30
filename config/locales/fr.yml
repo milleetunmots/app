@@ -13,7 +13,13 @@ fr:
     default:
       call_notes: Facebook
 #      call_parent_actions: "Livres :\nChansons :\nJeux :\nSorties :\nParler au quotidien :\nEcrans :"
-      call_technical_information: "SMS\nLivres\nVidéos"
+      call1_technical_information: "Livres envoyés :\n\nAutres retours :"
+      call_technical_information: "SMS\nLivres\nVideos"
+      call0_notes: "Comment nous a connu :\nAttentes :"
+      call0_parent_actions: "Réaction à la vidéo :\n\nAutre :"
+      call1_parent_actions: "Réaction à la vidéo :\n\nLivres :\n\nAutres pratiques :"
+      call3_parent_actions: "Nouvelles choses :\n\nIntérêts observés :\n\nComment observe son enfant :\n\nRéaction à la vidéo :"
+      call3_language_development: "Changements :\n\nLangage :\n\nAutre : "
     parent1: Parent 1
     parent2: Parent 2
     parents: Parents
