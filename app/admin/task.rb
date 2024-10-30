@@ -86,14 +86,20 @@ ActiveAdmin.register Task do
       f.input :related_type, as: :hidden
       f.input :related_id, as: :hidden
 
-      f.input :title
+      if related && related.model.class == ChildSupport
+        puts "################" * 50
+        f.input :title, collection: child_support_task_titles, input_html: { data: { select2: {} } }
+      else
+        f.input :title
+      end
+
       f.input :description, input_html: { rows: 10 }
-      f.input :due_date, as: :datepicker
-      f.input :is_done, as: :boolean
+      f.input :due_date, as: :datepicker unless related && related.model.class == ChildSupport
+      f.input :is_done, as: :boolean unless related && related.model.class == ChildSupport
       f.input :reporter,
-              input_html: { data: { select2: {} } }
+              input_html: { disabled: related && related.model.class == ChildSupport , data: { select2: {} } }
       f.input :assignee,
-              input_html: { data: { select2: {} } }
+              input_html: { data: { select2: {} } } unless related && related.model.class == ChildSupport
     end
     f.actions
   end
