@@ -90,9 +90,9 @@ ActiveAdmin.register Task do
       if f.object.related_to_child_support?
         f.input :title, collection: task_title_collection, input_html: { data: { select2: {} } }
         small style:'margin-left:25%; margin-bottom:20px' do
-          'Pour plus d’infos sur cette tâche : cliquez :'.html_safe +
+          'Pour plus d’infos sur cette tâche : '.html_safe +
           link_to(
-            'ici',
+            'cliquez ici',
             'https://www.notion.so/Intitul-s-et-descriptions-des-t-ches-12ef8cee65b580e0a7c2c5ac651c2d5e',
             target: '_blank')
         end
@@ -101,13 +101,14 @@ ActiveAdmin.register Task do
       end
 
       f.input :description, input_html: { rows: 10 }
-      f.input :due_date, as: :datepicker unless f.object.related_to_child_support?
-      f.input :is_done, as: :boolean unless f.object.related_to_child_support?
-      f.input :reporter,
-              input_html: { data: { select2: {} } },
-              as: :hidden if f.object.related_to_child_support?
-      f.input :assignee,
-              input_html: { data: { select2: {} } } unless f.object.related_to_child_support?
+      div style: "#{"display: none;" if f.object.related_to_child_support?}" do
+        f.input :due_date, as: :datepicker
+        f.input :is_done, as: :boolean
+        f.input :reporter,
+                input_html: { data: { select2: {} } }
+        f.input :assignee,
+                input_html: { data: { select2: {} } }
+      end
     end
     f.actions
   end
