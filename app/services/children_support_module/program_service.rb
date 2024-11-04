@@ -11,14 +11,15 @@ class ChildrenSupportModule
       ChildrenSupportModule::ProgramSupportModuleSmsJob.perform_later(group_id, program_date)
       return unless @errors.any?
 
-      AdminUser.all_logistics_team_members.each do |admin_user|
-        Task.create(
-          assignee_id: admin_user.id,
-          title: "Il y a eu des erreurs lors de la programmation du module #{module_number} pour la cohorte \"#{group.name}\"",
-          description: @errors.to_json,
-          due_date: Time.zone.today
-        )
-      end
+      operation_project_manager = AdminUser.find_by(email: ENV['OPERATION_PROJECT_MANAGER_EMAIL'])
+      return unless operation_project_manager
+
+      Task.create(
+        assignee_id: operation_project_manager.id,
+        title: "Il y a eu des erreurs lors de la programmation du module #{module_number} pour la cohorte \"#{group.name}\"",
+        description: @errors.to_json,
+        due_date: Time.zone.today
+      )
       Rollbar.error(@errors.to_json)
     end
 

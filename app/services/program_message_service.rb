@@ -77,16 +77,16 @@ class ProgramMessageService
           description_text << "<br>#{ActionController::Base.helpers.link_to(parent.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: parent.id), target: '_blank')} : #{parent.errors.messages.to_json}"
         end
       end
-      AdminUser.all_logistics_team_members.each do |admin_user|
+      operation_project_manager = AdminUser.find_by(email: ENV['OPERATION_PROJECT_MANAGER_EMAIL'])
+      if operation_project_manager
         Task.create(
-          assignee_id: admin_user.id,
+          assignee_id: operation_project_manager.id,
           title: 'Message non envoyé à des parents',
           description: description_text,
           due_date: Time.zone.today
         )
       end
     end
-
     self
   end
 

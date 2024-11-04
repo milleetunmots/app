@@ -3,7 +3,7 @@ class ChildSupport::VerifyAvailableModulesTaskService
   def initialize(group_id)
     @group = Group.includes(children: :child_support).find(group_id)
     @child_support_link = {}
-    @logistics_team_members = AdminUser.all_logistics_team_members
+    @operation_project_manager = AdminUser.find_by(email: ENV['OPERATION_PROJECT_MANAGER_EMAIL'])
     @children_with_missing_child_support = []
   end
 
@@ -26,7 +26,14 @@ class ChildSupport::VerifyAvailableModulesTaskService
 
     description_text = 'Compléter le choix de modules disponibles pour :'
     @child_support_link.each { |name, link| description_text << "<br>#{ActionController::Base.helpers.link_to(name, link, target: '_blank', class: 'blue')}" }
-    @logistics_team_members.each { |ltm| Task.create(assignee_id: ltm.id, title: "Il manque des choix à préparer pour la cohorte \"#{@group.name}\"", description: description_text, due_date: Time.zone.today) }
+    if @operation_project_manager
+      Task.create(
+        assignee_id: @operation_project_manager.id,
+        title: "Il manque des choix à préparer pour la cohorte \"#{@group.name}\"",
+        description: description_text,
+        due_date: Time.zone.today
+      )
+    end
     Rollbar.error(description_text)
     self
   end
