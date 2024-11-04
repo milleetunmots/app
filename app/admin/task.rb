@@ -47,7 +47,8 @@ ActiveAdmin.register Task do
     end
   end
 
-  scope(:mine, default: true, group: :assignee) { |scope| scope.todo.assigned_to(current_admin_user) }
+  scope(:caller_task, default: proc { current_admin_user.caller? }, group: :reported) { |scope| scope.caller_task(current_admin_user) }
+  scope(:mine, default: proc { !current_admin_user.caller? }, group: :assignee) { |scope| scope.todo.assigned_to(current_admin_user) }
   scope :all, group: :assignee
   scope :todo
   scope :done
@@ -86,20 +87,27 @@ ActiveAdmin.register Task do
       f.input :related_type, as: :hidden
       f.input :related_id, as: :hidden
 
-      if related && related.model.class == ChildSupport
-        puts "################" * 50
-        f.input :title, collection: child_support_task_titles, input_html: { data: { select2: {} } }
+      if f.object.related_to_child_support?
+        f.input :title, collection: task_title_collection, input_html: { data: { select2: {} } }
+        small style:'margin-left:25%; margin-bottom:20px' do
+          'Pour plus d’infos sur cette tâche : cliquez :'.html_safe +
+          link_to(
+            'ici',
+            'https://www.notion.so/Intitul-s-et-descriptions-des-t-ches-12ef8cee65b580e0a7c2c5ac651c2d5e',
+            target: '_blank')
+        end
       else
         f.input :title
       end
 
       f.input :description, input_html: { rows: 10 }
-      f.input :due_date, as: :datepicker unless related && related.model.class == ChildSupport
-      f.input :is_done, as: :boolean unless related && related.model.class == ChildSupport
+      f.input :due_date, as: :datepicker unless f.object.related_to_child_support?
+      f.input :is_done, as: :boolean unless f.object.related_to_child_support?
       f.input :reporter,
-              input_html: { disabled: related && related.model.class == ChildSupport , data: { select2: {} } }
+              input_html: { data: { select2: {} } },
+              as: :hidden if f.object.related_to_child_support?
       f.input :assignee,
-              input_html: { data: { select2: {} } } unless related && related.model.class == ChildSupport
+              input_html: { data: { select2: {} } } unless f.object.related_to_child_support?
     end
     f.actions
   end
@@ -136,5 +144,4 @@ ActiveAdmin.register Task do
       row :updated_at
     end
   end
-
 end

@@ -41,6 +41,12 @@
     $(document).on('click', 'a.quick-task-btn', onClick);
   };
 
+  let $task_title = $('#task_title');
+
+  $task_title.on('change', function() {
+    console.log('Hello');
+  });
+
   init();
 
 })(jQuery);

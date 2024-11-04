@@ -34,6 +34,22 @@
 
 class Task < ApplicationRecord
 
+  TITLE_OPTIONS = %w[
+    disable_one_twin_support
+    remove_duplicate_child
+    reunite_siblings_same_cohort
+    reactivate_sms_parent
+    group_siblings_same_record
+    stop_support_over_3_years
+    add_sibling_to_record
+    clean_and_archive_record
+    write_custom_task
+    unsure_if_task_needed
+    stop_non_consenting_family_support
+    stop_problematic_family_support
+    stop_non_french_speaking_family_support
+  ].freeze
+
   include Discard::Model
 
   # ---------------------------------------------------------------------------
@@ -56,6 +72,7 @@ class Task < ApplicationRecord
 
   scope :todo, -> { where(done_at: nil) }
   scope :done, -> { where.not(done_at: nil) }
+  scope :caller_task, ->(model) { where(reporter: model) }
   scope :relating, ->(model) { where(related: model) }
   scope :assigned_to, ->(model) { where(assignee: model) }
   scope :not_assigned_to, ->(model) { where.not(assignee: model) }
@@ -73,6 +90,10 @@ class Task < ApplicationRecord
     self.done_at = if %w[true t 1].include?((v || '').to_s.downcase)
       Time.zone.now
     end
+  end
+
+  def related_to_child_support?
+    related&.instance_of?(ChildSupport)
   end
 
   # ---------------------------------------------------------------------------

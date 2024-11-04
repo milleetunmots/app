@@ -120,32 +120,4 @@ module ActiveAdmin::ChildSupportsHelper
       ]
     end.push(['Non renseigné', 'nil'])
   end
-
-  def child_support_task_titles_with_assignees
-    coordinator = AdminUser.find_by(email: ENV['COORDINATOR_EMAIL'])
-    operation_project_manager = AdminUser.find_by(email: ENV['OPERATION_PROJECT_MANAGER_EMAIL'])
-    return nil if coordinator.nil? || operation_project_manager.nil?
-
-    {
-      'Désactiver l’accompagnement d’un des jumeaux, pour qu’il n’y ait plus qu’un seul livre envoyé.' => operation_project_manager.id,
-      'Supprimer un doublon pour un même enfant accompagné' => operation_project_manager.id,
-      'Réunir une fratrie séparée dans deux cohortes différentes afin qu’elle soit regroupée dans la même cohorte' => operation_project_manager.id,
-      'Réactiver les SMS pour un parent ayant envoyé “STOP” par erreur' => operation_project_manager.id,
-      'Regrouper une fratrie sur la même fiche de suivi' => operation_project_manager.id,
-      'Arrêter l’accompagnement d’un enfant de plus de 3 ans (fratrie et hors fratrie)' => operation_project_manager.id,
-      'Ajouter un.e frère / sœur à une fiche de suivi si l’accompagnement de l’aîné.e est déjà terminé' => operation_project_manager.id,
-      'Nettoyer une fiche de suivi et archiver le suivi dans la partie “Notes”' => operation_project_manager.id,
-      'Rédiger une autre tâche qui n’est pas dans le menu déroulant (après avoir vérifié la FAQ :) !)' => operation_project_manager.id,
-      'Je ne sais pas si cela nécessite une tâche' => operation_project_manager.id,
-      'Arrêter l’accompagnement d’une famille non consentante' => coordinator.id,
-      'Arrêter l’accompagnement d’une famille problématique' => coordinator.id,
-      'Arrêter l’accompagnement d’une famille non-francophone' => coordinator.id
-    }
-  end
-
-  def child_support_task_titles
-    return [] if child_support_task_titles_with_assignees.nil?
-
-    child_support_task_titles_with_assignees.keys
-  end
 end
