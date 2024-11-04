@@ -34,23 +34,29 @@
 
 class Task < ApplicationRecord
 
-  TITLE_OPTIONS = %w[
-    disable_one_twin_support
-    remove_duplicate_child
-    reunite_siblings_same_cohort
-    reactivate_sms_parent
-    group_siblings_same_record
-    stop_support_over_3_years
-    add_sibling_to_record
-    clean_and_archive_record
-    write_custom_task
-    unsure_if_task_needed
-    stop_non_consenting_family_support
-    stop_problematic_family_support
-    stop_non_french_speaking_family_support
-  ].freeze
+  TASK_TITLES_WITH_ASSIGNEE_EMAIL = {
+    disable_one_twin_support: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
+    remove_duplicate_child: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
+    reunite_siblings_same_cohort: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
+    reactivate_sms_parent: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
+    group_siblings_same_record: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
+    stop_support_over_3_years: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
+    add_sibling_to_record: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
+    clean_and_archive_record: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
+    write_custom_task: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
+    unsure_if_task_needed: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
+    stop_non_consenting_family_support: ENV['COORDINATOR_EMAIL'],
+    stop_problematic_family_support: ENV['COORDINATOR_EMAIL'],
+    stop_non_french_speaking_family_support: ENV['COORDINATOR_EMAIL']
+  }.freeze
 
   include Discard::Model
+
+  # ---------------------------------------------------------------------------
+  # callbacks
+  # ---------------------------------------------------------------------------
+
+  before_create :translate_title
 
   # ---------------------------------------------------------------------------
   # relations
@@ -103,4 +109,11 @@ class Task < ApplicationRecord
   include PgSearch
   multisearchable against: %i[title description]
 
+  private
+
+  def translate_title
+    return unless title.in?(Task::TASK_TITLES_WITH_ASSIGNEE_EMAIL.keys.map(&:to_s))
+
+    self.title = Task.human_attribute_name("child_support_task_title.#{title}")
+  end
 end

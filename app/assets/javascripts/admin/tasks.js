@@ -48,7 +48,16 @@ $(document).ready(function() {
   })(jQuery);
 
   let $task_title = $('#task_title');
+  let $assignee = $('#task_assignee_id');
+
   $task_title.on('change', function() {
-    console.log('Hello');
+    $value = $(this).val()
+    $.ajax({
+      type: 'GET',
+      url: `/child-support-task-reporter/${$value}`
+    }).done(function(data) {
+      $assignee.val(data['reporter_id']);
+      $assignee.trigger('change');
+    });
   });
 })
