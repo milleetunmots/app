@@ -65,7 +65,7 @@ class Parent < ApplicationRecord
 
   include Discard::Model
 
-  attr_accessor :parent2_creation
+  attr_accessor :parent2_creation, :created_by_us
 
   DEGREE_LEVELS = %w[no_degree brevet bep_cap bac bac+1 bac+2 bac+3 bac+4 bac+5].freeze
   DEGREE_COUNTRIES = %w[france other].freeze
@@ -113,6 +113,7 @@ class Parent < ApplicationRecord
   before_create :add_preferred_channel_tag, if: -> { preferred_channel.present? }
   after_create :should_be_contacted_as_parent2, if: -> { parent2_creation.present? }
   after_save :change_the_other_parent_address
+  after_commit :create_aircall_contact, if: -> { created_by_us.present? }, on: :create
 
   validates :gender, presence: true, inclusion: { in: GENDERS }
   validates :first_name, presence: true
@@ -369,5 +370,12 @@ class Parent < ApplicationRecord
       child.should_contact_parent2 = true
       child.save
     end
+  end
+
+  def create_aircall_contact
+    return unless created_by_us
+
+    service = Aircall::CreateContactService.new(parent_id: id).call
+    Rollbar.error("Aircall Contact creation error : Parent #{id} : #{service.errors}") if service.errors.any?
   end
 end

@@ -78,10 +78,12 @@ ActiveAdmin.register Parent do
     f.object.parent2_child_ids = params[:parent2_child_ids] if params[:parent2_child_ids]
     f.object.family_followed = params[:family_followed] if params[:family_followed]
     f.object.parent2_creation = params[:parent2_creation] if params[:parent2_creation]
+    f.object.created_by_us = true if f.object.new_record?
 
     f.semantic_errors *f.object.errors.keys
     f.inputs do
       f.input :parent2_creation, as: :hidden
+      f.input :created_by_us, as: :hidden
       f.input :gender,
         as: :radio,
         collection: parent_gender_select_collection
@@ -110,7 +112,7 @@ ActiveAdmin.register Parent do
   permit_params :gender, :first_name, :last_name,
     :phone_number, :is_excluded_from_workshop, :present_on_whatsapp, :present_on_facebook, :follow_us_on_facebook, :follow_us_on_whatsapp, :email,
     :letterbox_name, :address, :postal_code, :city_name,
-    :is_ambassador, :job, :terms_accepted_at, :family_followed, :parent2_creation,
+    :is_ambassador, :job, :terms_accepted_at, :family_followed, :parent2_creation, :created_by_us,
     tags_params, parent2_child_ids: []
 
   # ---------------------------------------------------------------------------
