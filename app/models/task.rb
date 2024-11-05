@@ -78,6 +78,7 @@ class Task < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   validates :title, presence: true
+  validate :valid_treated_by
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -122,5 +123,9 @@ class Task < ApplicationRecord
     return unless title.in?(Task::TITLES_WITH_ASSIGNEE_EMAIL.keys.map(&:to_s))
 
     self.title = Task.human_attribute_name("child_support_task_title.#{title}")
+  end
+
+  def valid_treated_by
+    errors.add(:base, :invalid, message: "Vous n'avez pas l'autorisation de traiter les tâches") if treated_by.nil? && status == 'in_progress'
   end
 end

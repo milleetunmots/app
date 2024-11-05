@@ -48,7 +48,7 @@ fr:
       admin_user:
         << : *SHARED
         current_sign_in_at: Session en cours
-        can_treat_task: Coordonatrice
+        can_treat_task: Traite les tâches
         email: Email
         name: Nom
         user_role: Rôle
