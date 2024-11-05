@@ -219,15 +219,10 @@ class Group
       end
 
       Rollbar.error("#{child_supports_without_supporter.count} familles n'ont pas pu être associées à une appelante. Filtrez les fiches de suivi de la cohorte sans appelante et procédez à une attribution manuelle depuis l'action groupée")
-      operation_project_manager = AdminUser.find_by(email: ENV['OPERATION_PROJECT_MANAGER_EMAIL'])
-      return unless operation_project_manager
-
-      Task.create(
-        assignee_id: operation_project_manager.id,
+      Task::CreateAutomaticTaskService.new(
         title: "Toutes les fiches de suivi n'ont pas d'appelante",
-        description: "#{child_supports_without_supporter.count} familles n'ont pas pu être associées à une appelante. Filtrez les fiches de suivi de la cohorte sans appelante et procédez à une attribution manuelle depuis l'action groupée",
-        due_date: Time.zone.today
-      )
+        description: "#{child_supports_without_supporter.count} familles n'ont pas pu être associées à une appelante. Filtrez les fiches de suivi de la cohorte sans appelante et procédez à une attribution manuelle depuis l'action groupée"
+      ).call
     end
   end
 end

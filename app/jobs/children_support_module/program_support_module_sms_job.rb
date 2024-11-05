@@ -28,12 +28,9 @@ class ChildrenSupportModule
     end
 
     def create_tasks(group, check_service)
-      operation_project_manager = AdminUser.find_by(email: ENV['OPERATION_PROJECT_MANAGER_EMAIL'])
-      Task.create(
-        assignee_id: operation_project_manager.id,
+      Task::CreateAutomaticTaskService.new(
         title: "la programmation des sms de la cohorte \"#{group.name}\" a été annulé car il n'y a pas assez de crédits",
-        description: check_service.errors.join('<br>'),
-        due_date: Time.zone.today
+        description: check_service.errors.join('<br>')
       )
     end
 
