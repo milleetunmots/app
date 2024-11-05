@@ -532,6 +532,7 @@ class ChildSupport < ApplicationRecord
 
       call_attributes = [
         "call#{call_idx}_status",
+        "call#{call_idx}_review",
         "call#{call_idx}_status_details",
         "call#{call_idx}_duration",
         "call#{call_idx}_technical_information",
@@ -552,6 +553,48 @@ class ChildSupport < ApplicationRecord
       end
     end
     self.notes << (('=' * 22) + "\n")
+  end
+
+  def clean_fields
+    self.supporter_id = nil
+    self.is_bilingual = '2_no_information'
+    self.will_stay_in_group = false
+    attributes.slice(
+      'second_language',
+      'important_information',
+      'availability',
+      'call_infos',
+      'book_not_received',
+      'should_be_read',
+      'to_call',
+      'tag_list'
+    ).each_key do |attribute|
+      self[attribute.to_sym] = nil
+    end
+
+    6.times.each do |call_idx|
+      call_attributes = [
+        "call#{call_idx}_status",
+        "call#{call_idx}_status_details",
+        "call#{call_idx}_duration",
+        "call#{call_idx}_technical_information",
+        "call#{call_idx}_parent_actions",
+        "call#{call_idx}_parent_progress",
+        "call#{call_idx}_sendings_benefits",
+        "call#{call_idx}_sendings_benefits_details",
+        "call#{call_idx}_language_development",
+        "call#{call_idx}_reading_frequency",
+        "call#{call_idx}_goals",
+        "call#{call_idx}_notes",
+        "call#{call_idx}_review"
+      ]
+      call_attributes += %w[call2_family_progress call2_previous_goals_follow_up] if call_idx == 2
+      call_attributes += ['books_quantity'] if call_idx == 1
+
+      call_attributes.each do |call_attr|
+        self[call_attr.to_sym] = nil
+      end
+    end
   end
 
   # ---------------------------------------------------------------------------
