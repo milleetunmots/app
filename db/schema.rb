@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_10_28_160749) do
+ActiveRecord::Schema.define(version: 2024_11_05_090226) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -61,6 +61,7 @@ ActiveRecord::Schema.define(version: 2024_10_28_160749) do
     t.string "name"
     t.string "user_role"
     t.boolean "is_disabled", default: false
+    t.boolean "can_treat_task", default: false, null: false
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
@@ -680,6 +681,8 @@ ActiveRecord::Schema.define(version: 2024_10_28_160749) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.datetime "discarded_at"
+    t.string "status"
+    t.bigint "treated_by_id"
     t.index ["assignee_id"], name: "index_tasks_on_assignee_id"
     t.index ["description"], name: "index_tasks_on_description"
     t.index ["discarded_at"], name: "index_tasks_on_discarded_at"
@@ -688,6 +691,7 @@ ActiveRecord::Schema.define(version: 2024_10_28_160749) do
     t.index ["related_type", "related_id"], name: "index_tasks_on_related_type_and_related_id"
     t.index ["reporter_id"], name: "index_tasks_on_reporter_id"
     t.index ["title"], name: "index_tasks_on_title"
+    t.index ["treated_by_id"], name: "index_tasks_on_treated_by_id"
   end
 
   create_table "versions", force: :cascade do |t|
@@ -756,5 +760,6 @@ ActiveRecord::Schema.define(version: 2024_10_28_160749) do
   add_foreign_key "taggings", "tags"
   add_foreign_key "tasks", "admin_users", column: "assignee_id"
   add_foreign_key "tasks", "admin_users", column: "reporter_id"
+  add_foreign_key "tasks", "admin_users", column: "treated_by_id"
   add_foreign_key "workshops", "admin_users", column: "animator_id"
 end

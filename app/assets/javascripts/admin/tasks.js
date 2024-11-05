@@ -49,6 +49,8 @@ $(document).ready(function() {
 
   let $task_title = $('#task_title');
   let $assignee = $('#task_assignee_id');
+  let $task_status = $('#task_status');
+  let $task_treated_by = $('#task_treated_by_id');
 
   $task_title.on('change', function() {
     $value = $(this).val()
@@ -59,5 +61,20 @@ $(document).ready(function() {
       $assignee.val(data['reporter_id']);
       $assignee.trigger('change');
     });
+  });
+
+  $task_status.on('change', function() {
+    if ($(this).val() !== 'in_progress') {
+      $task_treated_by.val(null);
+      $task_treated_by.trigger('change');
+    } else {
+      $.ajax({
+        type: 'GET',
+        url: '/child-support-task-treated-by'
+      }).done(function(data) {
+        $task_treated_by.val(data['current_admin_user_id']);
+        $task_treated_by.trigger('change');
+      });
+    }
   });
 })

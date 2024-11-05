@@ -2,18 +2,20 @@
 #
 # Table name: tasks
 #
-#  id           :bigint           not null, primary key
-#  description  :text
-#  discarded_at :datetime
-#  done_at      :date
-#  due_date     :date
-#  related_type :string
-#  title        :string           not null
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  assignee_id  :bigint
-#  related_id   :bigint
-#  reporter_id  :bigint
+#  id            :bigint           not null, primary key
+#  description   :text
+#  discarded_at  :datetime
+#  done_at       :date
+#  due_date      :date
+#  related_type  :string
+#  status        :string
+#  title         :string           not null
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  assignee_id   :bigint
+#  related_id    :bigint
+#  reporter_id   :bigint
+#  treated_by_id :bigint
 #
 # Indexes
 #
@@ -25,16 +27,18 @@
 #  index_tasks_on_related_type_and_related_id  (related_type,related_id)
 #  index_tasks_on_reporter_id                  (reporter_id)
 #  index_tasks_on_title                        (title)
+#  index_tasks_on_treated_by_id                (treated_by_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (assignee_id => admin_users.id)
 #  fk_rails_...  (reporter_id => admin_users.id)
+#  fk_rails_...  (treated_by_id => admin_users.id)
 #
 
 class Task < ApplicationRecord
 
-  TASK_TITLES_WITH_ASSIGNEE_EMAIL = {
+  TITLES_WITH_ASSIGNEE_EMAIL = {
     disable_one_twin_support: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
     remove_duplicate_child: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
     reunite_siblings_same_cohort: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
@@ -50,6 +54,8 @@ class Task < ApplicationRecord
     stop_non_french_speaking_family_support: ENV['COORDINATOR_EMAIL']
   }.freeze
 
+  STATUS = %w[done in_progress].freeze
+
   include Discard::Model
 
   # ---------------------------------------------------------------------------
@@ -64,6 +70,7 @@ class Task < ApplicationRecord
 
   belongs_to :reporter, class_name: :AdminUser, optional: true
   belongs_to :assignee, class_name: :AdminUser, optional: true
+  belongs_to :treated_by, class_name: :AdminUser, optional: true
   belongs_to :related, polymorphic: true, optional: true
 
   # ---------------------------------------------------------------------------
@@ -98,8 +105,8 @@ class Task < ApplicationRecord
     end
   end
 
-  def related_to_child_support?
-    related&.instance_of?(ChildSupport)
+  def new_related_to_child_support?
+    id.nil? && related&.instance_of?(ChildSupport)
   end
 
   # ---------------------------------------------------------------------------
@@ -112,7 +119,7 @@ class Task < ApplicationRecord
   private
 
   def translate_title
-    return unless title.in?(Task::TASK_TITLES_WITH_ASSIGNEE_EMAIL.keys.map(&:to_s))
+    return unless title.in?(Task::TITLES_WITH_ASSIGNEE_EMAIL.keys.map(&:to_s))
 
     self.title = Task.human_attribute_name("child_support_task_title.#{title}")
   end

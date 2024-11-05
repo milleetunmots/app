@@ -41,6 +41,7 @@ Rails.application.routes.draw do
   get 'child-support-supporter_first_name/:child_support_id', to: 'child_supports#supporter_first_name', as: :child_support_supporter_first_name
   get 'child-support-call-goal/:child_support_id/:call_index', to: 'child_supports#call_goal', as: :child_support_call_goals
   get 'child-support-task-reporter/:task_title/', to: 'child_supports#task_reporter', as: :child_support_task_reporter
+  get 'child-support-task-treated-by', to: 'child_supports#task_treated_by', as: :child_support_task_treated_by
   get 'mis-a-jour', to: 'children#updated', as: :updated_child
   get 'mis-a-jour-invitation', to: 'workshop_participation#updated', as: :updated_workshop_participation
   get 'r/:id/:security_code', to: 'redirection#visit', as: :visit_redirection

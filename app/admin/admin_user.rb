@@ -53,6 +53,7 @@ ActiveAdmin.register AdminUser do
         f.input :password
         f.input :password_confirmation, required: true
       end
+      f.input :can_treat_task, as: :boolean
     end
     f.actions
   end
@@ -64,7 +65,7 @@ ActiveAdmin.register AdminUser do
   end
 
   permit_params do
-    parameters = [:name, :email]
+    parameters = [:name, :email, :can_treat_task]
     parameters.push :user_role if current_admin_user.admin?
     if !params[:id] || current_admin_user == AdminUser.find(params[:id])
       parameters.push :password
