@@ -543,6 +543,7 @@ class ChildSupport < ApplicationRecord
         "call#{call_idx}_language_development",
         "call#{call_idx}_reading_frequency",
         "call#{call_idx}_goals",
+        "call#{call_idx}_tv_frequency",
         "call#{call_idx}_notes"
       ]
       call_attributes += %w[call2_family_progress call2_previous_goals_follow_up] if call_idx == 2
@@ -586,9 +587,13 @@ class ChildSupport < ApplicationRecord
         "call#{call_idx}_reading_frequency",
         "call#{call_idx}_goals",
         "call#{call_idx}_notes",
+        "call#{call_idx}_previous_goals_follow_up",
+        "call#{call_idx}_tv_frequency",
         "call#{call_idx}_review"
       ]
-      call_attributes += %w[call2_family_progress call2_previous_goals_follow_up] if call_idx == 2
+      call_attributes += %w[call2_family_progress] if call_idx == 2
+      call_attributes -= %w[call0_previous_goals_follow_up] if call_idx == 0
+      call_attributes -= %w[call5_previous_goals_follow_up] if call_idx == 5
       call_attributes += ['books_quantity'] if call_idx == 1
 
       call_attributes.each do |call_attr|

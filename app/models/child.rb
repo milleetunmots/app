@@ -778,8 +778,6 @@ class Child < ApplicationRecord
     end
 
     child_support.copy_fields(child_support)
-    child_support.save!
-
     child_support.clean_fields
     child_support.save!
   end
