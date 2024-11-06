@@ -60,7 +60,7 @@ module Aircall
       child_support_link_match = information.match(CHILD_SUPPORT_LINK_REGEX)
       group_match = information.match(GROUP_REGEX)
 
-      return true unless children_match && child_support_link_match && current_child_link_match
+      return true unless children_match && child_support_link_match && group_match
 
       children = children_match[1]
       child_support_link = child_support_link_match[1]
