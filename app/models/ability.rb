@@ -13,7 +13,7 @@ class Ability
       return
     end
 
-    can :manage, [Task, Parent, ChildrenSupportModule]
+    can :manage, [Parent, ChildrenSupportModule]
     can :update, AdminUser, id: user.id
     can :read, ActiveAdmin::Page, name: "Dashboard"
     can :read, ActiveAdmin::Page, name: "Search"
@@ -25,10 +25,11 @@ class Ability
     if user.team_member?
       can :manage, ActiveAdmin::Page, name: "Module"
       can :manage, ActiveAdmin::Page, name: "Messages"
-      can :manage, [Medium, SupportModule, MediaFolder, FieldComment, Tag, Event, Child, Workshop, ChildSupport]
+      can :manage, [Medium, SupportModule, MediaFolder, FieldComment, Tag, Event, Child, Workshop, ChildSupport, Task]
       can [:create, :read, :update], [Group, RedirectionUrl]
     else
       can :manage, ChildSupport, supporter_id: user.id
+      can :manage, Task, reporter_id: user.id
       cannot :discard, ChildSupport
       can :read, [Group, Medium, RedirectionUrl, Tag, Event, SupportModule, MediaFolder, FieldComment]
       can [:create, :read, :update], Child
