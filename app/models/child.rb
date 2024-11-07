@@ -771,6 +771,8 @@ class Child < ApplicationRecord
   end
 
   def clean_child_support
+    return if child_support.children.size == 1
+
     child_support.children.find_each do |child|
       next if child == self
 
