@@ -59,6 +59,19 @@ class ChildSupportsController < ApplicationController
     handle_call_form
   end
 
+  def task_reporter
+    reporter = AdminUser.find_by(email: Task::TITLES_WITH_ASSIGNEE_EMAIL[params[:task_title].to_sym])
+    render json: {
+      reporter_id: reporter&.id
+    }
+  end
+
+  def task_treated_by
+    render json: {
+      current_admin_user_id: current_admin_user.can_treat_task? ? current_admin_user.id : nil
+    }
+  end
+
   private
 
   def find_child_support(child_support_id, security_code)

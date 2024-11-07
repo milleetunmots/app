@@ -9,4 +9,21 @@ module ActiveAdmin::TasksHelper
     )
   end
 
+  def task_title_collection
+    Task::TITLES_WITH_ASSIGNEE_EMAIL.keys.map do |v|
+      [
+        Task.human_attribute_name("child_support_task_title.#{v}"),
+        v
+      ]
+    end
+  end
+
+  def task_status_collection
+    Task::STATUS.map do |v|
+      [
+        Task.human_attribute_name("status.#{v}"),
+        v
+      ]
+    end
+  end
 end
