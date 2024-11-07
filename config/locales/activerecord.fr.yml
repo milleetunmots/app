@@ -699,7 +699,6 @@ fr:
         reunite_siblings_same_cohort: Réunir une fratrie séparée dans deux cohortes différentes afin qu’elle soit regroupée dans la même cohorte
         reactivate_sms_parent: Réactiver les SMS pour un parent ayant envoyé “STOP” par erreur
         group_siblings_same_record: Regrouper une fratrie sur la même fiche de suivi
-        stop_support_over_3_years: Arrêter l’accompagnement d’un enfant de plus de 3 ans (fratrie et hors fratrie)
         add_sibling_to_record: Ajouter un.e frère / sœur à une fiche de suivi si l’accompagnement de l’aîné.e est déjà terminé
         clean_and_archive_record: Nettoyer une fiche de suivi et archiver le suivi dans la partie "Notes"
         write_custom_task: Rédiger une autre tâche qui n’est pas dans le menu déroulant (après avoir vérifié la FAQ :) !)
@@ -709,7 +708,7 @@ fr:
         stop_non_french_speaking_family_support: Arrêter l’accompagnement d’une famille non-francophone
       task/status:
         done: Résolu
-        in_progress: En cours de traitement
+        in_progress: Traité par
       workshop:
         << : *SHARED
         topic: Thème

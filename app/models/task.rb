@@ -44,7 +44,6 @@ class Task < ApplicationRecord
     reunite_siblings_same_cohort: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
     reactivate_sms_parent: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
     group_siblings_same_record: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
-    stop_support_over_3_years: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
     add_sibling_to_record: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
     clean_and_archive_record: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
     write_custom_task: ENV['OPERATION_PROJECT_MANAGER_EMAIL'],
