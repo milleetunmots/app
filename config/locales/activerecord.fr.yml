@@ -693,6 +693,7 @@ fr:
         reporter: Ajoutée par
         title: Intitulé
         treated_by: En cours de traitement par
+        status: Statut
       task/child_support_task_title:
         disable_one_twin_support: Désactiver l’accompagnement d’un des jumeaux, pour qu’il n’y ait plus qu’un seul livre envoyé.
         remove_duplicate_child: Supprimer un doublon pour un même enfant accompagné
@@ -708,7 +709,7 @@ fr:
         stop_non_french_speaking_family_support: Arrêter l’accompagnement d’une famille non-francophone
       task/status:
         done: Résolu
-        in_progress: Traité par
+        in_progress: En cours de traitement
       workshop:
         << : *SHARED
         topic: Thème
