@@ -1,16 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe ChildSupport::SelectModuleService do
-  let!(:group) { FactoryBot.create(:group)}
-  let!(:child) { FactoryBot.create(:child, should_contact_parent1: true, group: group, group_status: 'active') }
-  let(:support_module_list) { FactoryBot.create_list(:support_module, 3) }
-  let!(:child_support) do
+  let_it_be(:group, reload: true) { FactoryBot.create(:group)}
+  let_it_be(:support_module_list, reload: true) { FactoryBot.create_list(:support_module, 3) }
+  let_it_be(:child_support, reload: true) do
     FactoryBot.create(
       :child_support,
-      current_child: child,
+      current_child: nil,
       parent1_available_support_module_list: support_module_list.map(&:id)
     )
   end
+  let_it_be(:child, reload: true) { FactoryBot.create(:child, child_support: child_support, should_contact_parent1: true, group: group, group_status: 'active') }
   let(:planned_date) { Time.zone.today }
   let(:planned_hour) { Time.zone.now.strftime('%H:%M') }
 
