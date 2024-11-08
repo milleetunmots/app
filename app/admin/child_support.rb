@@ -880,7 +880,7 @@ ActiveAdmin.register ChildSupport do
     dropdown_menu 'Actions' do
       item "Ajout d'un frère / soeur", %i[add_child admin child_support], { target: '_blank' }
       item "Ajout d'un parent", %i[add_parent admin child_support], { target: '_blank' } unless resource.decorate.model.parent2
-      item "Autre tâche", url_for_new_task(resource.decorate), { target: '_blank' }
+      item "Rédiger une tâche", url_for_new_task(resource.decorate), { target: '_blank' }
       item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
       item "Potentiel parent bénévole",admin_volunteer_parent_form_path(child_support_id: resource.decorate.model.id, parent1_id: resource.decorate.model.parent1, parent2_id: resource.decorate.model.parent2), { target: '_blank' }
     end

@@ -9,7 +9,7 @@ ActiveAdmin.register Task do
   # INDEX
   # ---------------------------------------------------------------------------
 
-  includes :related, :assignee, :reporter
+  includes :related, :assignee, :reporter, :treated_by
 
   index do
     selectable_column
@@ -21,6 +21,7 @@ ActiveAdmin.register Task do
     column :related, sortable: :related
     column :assignee, sortable: :assignee_id
     column :reporter, sortable: :reporter_id
+    column :treated_by
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end
@@ -47,7 +48,8 @@ ActiveAdmin.register Task do
     end
   end
 
-  scope(:mine, default: true, group: :assignee) { |scope| scope.todo.assigned_to(current_admin_user) }
+  scope(:caller_task, default: proc { current_admin_user.caller? }, group: :reported) { |scope| scope.caller_task(current_admin_user) }
+  scope(:mine, default: proc { !current_admin_user.caller? }, group: :assignee) { |scope| scope.todo.assigned_to(current_admin_user) }
   scope :all, group: :assignee
   scope :todo
   scope :done
@@ -57,6 +59,7 @@ ActiveAdmin.register Task do
          input_html: { data: { select2: {} } }
   filter :reporter,
          input_html: { data: { select2: {} } }
+  filter :treated_by, input_html: { data: { select2: {} } }
   filter :description
   filter :due_date
   filter :done_at
@@ -70,6 +73,7 @@ ActiveAdmin.register Task do
   form do |f|
     f.semantic_errors
     f.inputs do
+      f.input :treated_by_id, as: :hidden
       if related = f.object.related&.decorate
         li class: :input do
           label I18n.t('activerecord.attributes.task.related'), class: :label
@@ -86,20 +90,32 @@ ActiveAdmin.register Task do
       f.input :related_type, as: :hidden
       f.input :related_id, as: :hidden
 
-      f.input :title
+      if f.object.new_related_to_child_support?
+        f.input :title, collection: task_title_collection, input_html: { data: { select2: {} } }
+        small style:'margin-left:25%; margin-bottom:20px' do
+          'Pour plus d’infos sur cette tâche : '.html_safe +
+          link_to(
+            'cliquez ici',
+            'https://www.notion.so/Intitul-s-et-descriptions-des-t-ches-12ef8cee65b580e0a7c2c5ac651c2d5e',
+            target: '_blank')
+        end
+      else
+        f.input :title
+      end
+
       f.input :description, input_html: { rows: 10 }
-      f.input :due_date, as: :datepicker
-      f.input :is_done, as: :boolean
-      f.input :reporter,
-              input_html: { data: { select2: {} } }
-      f.input :assignee,
-              input_html: { data: { select2: {} } }
+      div style: "#{"display: none;" if f.object.new_related_to_child_support?}" do
+        f.input :due_date, as: :datepicker
+        f.input :status, collection: task_status_collection, input_html: { data: { select2: {} } }
+        f.input :reporter, input_html: { data: { select2: {} } }
+        f.input :assignee, input_html: { data: { select2: {} } }
+      end
     end
     f.actions
   end
 
   permit_params :reporter_id, :assignee_id, :related_type, :related_id,
-                :title, :description, :due_date, :done_at, :is_done
+                :title, :description, :due_date, :done_at, :status, :treated_by_id
 
   controller do
     def build_new_resource
@@ -121,6 +137,7 @@ ActiveAdmin.register Task do
     attributes_table do
       row :reporter
       row :assignee
+      row :treated_by
       row :related
       row :title
       row :display_description
@@ -130,5 +147,4 @@ ActiveAdmin.register Task do
       row :updated_at
     end
   end
-
 end

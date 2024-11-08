@@ -149,6 +149,7 @@ class Child < ApplicationRecord
   after_update :update_support
   after_save { tags.where(is_visible_by_callers: true).where('name ILIKE ?', 'utm%').update(is_visible_by_callers: false) }
   after_update :remove_group, if: -> { saved_change_to_group_status? && group_status.eql?('not_supported') }
+  after_commit :clean_child_support, if: -> { saved_change_to_child_support_id? }
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -767,5 +768,19 @@ class Child < ApplicationRecord
 
     self.group_id = nil
     save(validate: false)
+  end
+
+  def clean_child_support
+    return if child_support.children.size == 1
+
+    child_support.children.find_each do |child|
+      next if child == self
+
+      return if child.group_status.in?(%w[waiting active])
+    end
+
+    child_support.copy_fields(child_support)
+    child_support.clean_fields
+    child_support.save!
   end
 end

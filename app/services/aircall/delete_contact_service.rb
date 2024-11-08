@@ -12,6 +12,8 @@ module Aircall
     end
 
     def call
+      return self unless ENV['AIRCALL_ENABLED']
+
       if @contact_id
         delete_contact
       elsif @delete_all_contacts

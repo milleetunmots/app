@@ -2,18 +2,20 @@
 #
 # Table name: tasks
 #
-#  id           :bigint           not null, primary key
-#  description  :text
-#  discarded_at :datetime
-#  done_at      :date
-#  due_date     :date
-#  related_type :string
-#  title        :string           not null
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  assignee_id  :bigint
-#  related_id   :bigint
-#  reporter_id  :bigint
+#  id            :bigint           not null, primary key
+#  description   :text
+#  discarded_at  :datetime
+#  done_at       :date
+#  due_date      :date
+#  related_type  :string
+#  status        :string
+#  title         :string           not null
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  assignee_id   :bigint
+#  related_id    :bigint
+#  reporter_id   :bigint
+#  treated_by_id :bigint
 #
 # Indexes
 #
@@ -25,11 +27,13 @@
 #  index_tasks_on_related_type_and_related_id  (related_type,related_id)
 #  index_tasks_on_reporter_id                  (reporter_id)
 #  index_tasks_on_title                        (title)
+#  index_tasks_on_treated_by_id                (treated_by_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (assignee_id => admin_users.id)
 #  fk_rails_...  (reporter_id => admin_users.id)
+#  fk_rails_...  (treated_by_id => admin_users.id)
 #
 
 require 'rails_helper'

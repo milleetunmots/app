@@ -48,6 +48,7 @@ fr:
       admin_user:
         << : *SHARED
         current_sign_in_at: Session en cours
+        can_treat_task: Traite les tâches
         email: Email
         name: Nom
         user_role: Rôle
@@ -691,6 +692,24 @@ fr:
         related: Élément concerné
         reporter: Ajoutée par
         title: Intitulé
+        treated_by: En cours de traitement par
+        status: Statut
+      task/child_support_task_title:
+        disable_one_twin_support: Désactiver l’accompagnement d’un des jumeaux, pour qu’il n’y ait plus qu’un seul livre envoyé.
+        remove_duplicate_child: Supprimer un doublon pour un même enfant accompagné
+        reunite_siblings_same_cohort: Réunir une fratrie séparée dans deux cohortes différentes afin qu’elle soit regroupée dans la même cohorte
+        reactivate_sms_parent: Réactiver les SMS pour un parent ayant envoyé “STOP” par erreur
+        group_siblings_same_record: Regrouper une fratrie sur la même fiche de suivi
+        add_sibling_to_record: Ajouter un.e frère / sœur à une fiche de suivi si l’accompagnement de l’aîné.e est déjà terminé
+        clean_and_archive_record: Nettoyer une fiche de suivi et archiver le suivi dans la partie "Notes"
+        write_custom_task: Rédiger une autre tâche qui n’est pas dans le menu déroulant (après avoir vérifié la FAQ :) !)
+        unsure_if_task_needed: Je ne sais pas si cela nécessite une tâche
+        stop_non_consenting_family_support: Arrêter l’accompagnement d’une famille non consentante
+        stop_problematic_family_support: Arrêter l’accompagnement d’une famille problématique
+        stop_non_french_speaking_family_support: Arrêter l’accompagnement d’une famille non-francophone
+      task/status:
+        done: Résolu
+        in_progress: En cours de traitement
       workshop:
         << : *SHARED
         topic: Thème
