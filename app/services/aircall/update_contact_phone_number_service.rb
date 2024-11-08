@@ -16,6 +16,8 @@ module Aircall
     end
 
     def call
+      return self unless ENV['AIRCALL_ENABLED']
+
       verify_contact_phone_number_form
       return self if @errors.any?
 

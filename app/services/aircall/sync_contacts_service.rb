@@ -15,6 +15,8 @@ module Aircall
     end
 
     def call
+      return self unless ENV['AIRCALL_ENABLED']
+
       Parent.with_a_child_in_active_group.find_each do |parent|
         @parent = parent
         if @parent.aircall_id.nil?
