@@ -62,6 +62,7 @@ class Task < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   before_create :translate_title
+  after_commit :set_done_at, if: -> { saved_change_to_status? && status == 'done' }
 
   # ---------------------------------------------------------------------------
   # relations
@@ -107,6 +108,12 @@ class Task < ApplicationRecord
 
   def new_related_to_child_support?
     id.nil? && related&.instance_of?(ChildSupport)
+  end
+
+  def set_done_at
+    return unless status == 'done'
+
+    self.update(done_at: Time.zone.today)
   end
 
   # ---------------------------------------------------------------------------

@@ -49,8 +49,10 @@ ActiveAdmin.register Task do
   end
 
   scope(:caller_task, default: proc { current_admin_user.caller? }, group: :reported) { |scope| scope.caller_task(current_admin_user) }
-  scope(:mine, default: proc { !current_admin_user.caller? }, group: :assignee) { |scope| scope.todo.assigned_to(current_admin_user) }
-  scope :all, group: :assignee
+  scope(:mine, default: proc { !current_admin_user.caller? }, group: :assignee, if: proc { !current_admin_user.caller? }) do |scope|
+    scope.todo.assigned_to(current_admin_user)
+  end
+  scope :all, group: :assignee, if: proc { !current_admin_user.caller? }
   scope :todo
   scope :done
 
