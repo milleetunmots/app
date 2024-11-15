@@ -127,6 +127,6 @@ class AdminUser < ApplicationRecord
       return
     end
 
-    self.update(aircall_phone_number: phone_number)
+    self.update(aircall_phone_number: Phonelib.parse(phone_number).e164)
   end
 end

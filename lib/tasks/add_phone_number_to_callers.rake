@@ -38,7 +38,7 @@ namespace :aircall do
         next
       end
 
-      admin_user.update(aircall_phone_number: phone_number)
+      admin_user.update(aircall_phone_number: Phonelib.parse(phone_number).e164)
     end
   end
 end
