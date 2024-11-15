@@ -3,6 +3,7 @@
 # Table name: admin_users
 #
 #  id                     :bigint           not null, primary key
+#  aircall_phone_number   :string
 #  can_treat_task         :boolean          default(FALSE), not null
 #  current_sign_in_at     :datetime
 #  current_sign_in_ip     :inet
