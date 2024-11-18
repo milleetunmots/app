@@ -19,7 +19,7 @@ module Aircall
     end
 
     def call
-      # return self unless ENV['AIRCALL_ENABLED']
+      return self unless ENV['AIRCALL_ENABLED']
 
       # loop through contacts page by page
       loop do
