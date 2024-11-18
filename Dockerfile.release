@@ -23,7 +23,6 @@ RUN apt-get update \
     libfontconfig1 \
     libxrender1 \
     libxext6 \
-    netcat \
     libpq-dev \
     file \
     git \
