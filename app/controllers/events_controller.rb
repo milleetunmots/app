@@ -70,4 +70,18 @@ class EventsController < ApplicationController
       head :unprocessable_entity
     end
   end
+
+  private
+
+  def send_response_message
+    message = "1001mots: ce numéro ne peut pas recevoir de SMS. Pour nous contacter, merci d'envoyer vos messages directement à {PRENOM_APPELANTE} au {NUMERO_AIRCALL_APPELANTE}. Merci!"
+    date = Time.zone.now
+    parent = Parent.find_by(phone_number: parsed_phone.e164)
+    service = ProgramMessageService.new(
+      date.strftime('%d-%m-%Y'),
+      date.strftime('H:%M'),
+      ["parent.#{parent.id}"],
+      message
+    ).call
+  end
 end
