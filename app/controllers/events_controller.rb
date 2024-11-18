@@ -56,32 +56,25 @@ class EventsController < ApplicationController
 
   def spot_hit_response
     parsed_phone = Phonelib.parse(params[:numero])
-    event = Events::TextMessage.new({
-      related: Parent.find_by(phone_number: parsed_phone.e164),
-      body: params[:message],
-      spot_hit_message_id: params[:id],
-      spot_hit_status: 1,
-      occurred_at: Time.at(params[:date].to_i),
-      originated_by_app: false
-    })
+    response_service = Event::SendMessageToParentResponse.new(parsed_phone.e164).call
+    if response_service.errors.any?
+      p response_service.errors.join(' - ')
+      Rollbar.error("Impossible to send message to parent with phone number #{parsed_phone} response : #{response_service.errors.join(' - ')}")
+    end
+    event = Events::TextMessage.new(
+      {
+        related: Parent.find_by(phone_number: parsed_phone.e164),
+        body: params[:message],
+        spot_hit_message_id: params[:id],
+        spot_hit_status: 1,
+        occurred_at: Time.zone.at(params[:date].to_i),
+        originated_by_app: false
+      }
+    )
     if event.save
       head :ok
     else
       head :unprocessable_entity
     end
-  end
-
-  private
-
-  def send_response_message
-    message = "1001mots: ce numéro ne peut pas recevoir de SMS. Pour nous contacter, merci d'envoyer vos messages directement à {PRENOM_APPELANTE} au {NUMERO_AIRCALL_APPELANTE}. Merci!"
-    date = Time.zone.now
-    parent = Parent.find_by(phone_number: parsed_phone.e164)
-    service = ProgramMessageService.new(
-      date.strftime('%d-%m-%Y'),
-      date.strftime('H:%M'),
-      ["parent.#{parent.id}"],
-      message
-    ).call
   end
 end
