@@ -27,6 +27,7 @@ ENV['DISENGAGEMENT_FEATURE_START_DATE'] ||= "01/09/2023"
 ENV['BLOCKED_REGISTRATION_PATHS'] ||= ""
 ENV['NOT_SUPPORTED_LINK'] ||= "http://google.fr"
 ENV['API_TOKEN'] ||= "valid token"
+ENV['AIRCALL_API_ID'] ||= "valid token"
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production
