@@ -28,6 +28,7 @@ ENV['BLOCKED_REGISTRATION_PATHS'] ||= ""
 ENV['NOT_SUPPORTED_LINK'] ||= "http://google.fr"
 ENV['API_TOKEN'] ||= "valid token"
 ENV['AIRCALL_API_ID'] ||= "valid token"
+ENV['AIRCALL_API_TOKEN'] ||= "valid token"
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production
