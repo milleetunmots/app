@@ -4,7 +4,7 @@
 
 # 1001mots
 ## Which versions ?
-* Ruby version : 3.0.6
+* Ruby version : 3.3.6
 * Rails version : 6.1
 ## How to get set up locally ?
 ### Prerequisite

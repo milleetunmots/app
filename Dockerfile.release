@@ -1,4 +1,4 @@
-FROM ruby:3.0.6-slim
+FROM ruby:3.3.6-slim
 
 ENV INSTALL_PATH /rails
 ENV RAILS_ENV production
@@ -23,7 +23,6 @@ RUN apt-get update \
     libfontconfig1 \
     libxrender1 \
     libxext6 \
-    netcat \
     libpq-dev \
     file \
     git \
