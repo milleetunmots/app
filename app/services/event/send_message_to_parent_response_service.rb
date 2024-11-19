@@ -1,4 +1,6 @@
-class Event::SendMessageToParentResponse
+class Event::SendMessageToParentResponseService
+
+  # Send message to ask parent to send message directly to supporter aircall phone number
 
   attr_reader :errors
 
@@ -13,13 +15,13 @@ class Event::SendMessageToParentResponse
   end
 
   def call
-    if @parent.message_already_sent_in_response?
-      @errors << 'Message already sent in response'
+    unless @parent
+      @errors << 'Parent not found'
       return self
     end
 
-    unless @parent
-      @errors << 'Parent not found'
+    if @parent.message_already_sent_in_response?
+      @errors << 'Message already sent in response'
       return self
     end
 
@@ -29,7 +31,7 @@ class Event::SendMessageToParentResponse
       return self
     end
 
-    unless supporter&.aircall_phone_number
+    unless supporter.aircall_phone_number
       @errors << 'Child supporter has no aircall_phone_number'
       return self
     end
@@ -40,7 +42,7 @@ class Event::SendMessageToParentResponse
       ["parent.#{@parent.id}"],
       @message
     ).call
-    @errors << "Response message not sent to #{@parent.first_name} #{@parent.last_name} (#{service.errors.join(' - '))}"
+    @errors << "Response message not sent to #{@parent.first_name} #{@parent.last_name} : #{service.errors.join(' - ')}" if service.errors.any?
     self
   end
 end
