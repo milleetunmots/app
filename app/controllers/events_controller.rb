@@ -56,11 +56,6 @@ class EventsController < ApplicationController
 
   def spot_hit_response
     parsed_phone = Phonelib.parse(params[:numero])
-    response_service = Event::SendMessageToParentResponse.new(parsed_phone.e164).call
-    if response_service.errors.any?
-      p response_service.errors.join(' - ')
-      Rollbar.error("Impossible to send message to parent with phone number #{parsed_phone} response : #{response_service.errors.join(' - ')}")
-    end
     event = Events::TextMessage.new(
       {
         related: Parent.find_by(phone_number: parsed_phone.e164),
@@ -72,6 +67,10 @@ class EventsController < ApplicationController
       }
     )
     if event.save
+      response_service = Event::SendMessageToParentResponseService.new(parsed_phone.e164).call
+      if response_service.errors.any?
+        Rollbar.error('Events::SendMessageToParentResponseService', parent_phone_number: parsed_phone.e164, errors: response_service.errors)
+      end
       head :ok
     else
       head :unprocessable_entity
