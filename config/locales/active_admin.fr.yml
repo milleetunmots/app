@@ -1,5 +1,7 @@
 fr:
   active_admin:
+    distribute_child_supports: Attribuer les familles aux appelantes
+    upload_undelivered_books_csv: Gestion des plis non distribués
     batch_actions:
       default_confirmation: Action groupée
       labels:

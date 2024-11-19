@@ -171,6 +171,29 @@ ActiveAdmin.register Parent do
     end
   end
 
+  action_item :manage_undelivered_books, only: :index do
+    link_to 'Gestion des plis non distribués', %i[upload_undelivered_books_csv admin parents]
+  end
+
+  collection_action :upload_undelivered_books_csv, method: :get do
+    render 'admin/parents/upload_undelivered_books_csv_form'
+  end
+
+  collection_action :process_csv, method: :post do
+    if params[:csv_file].present?
+      check_service = Parent::CheckAddressService.new(params[:csv_file]).call
+      if check_service.errors.any?
+        p check_service.errors
+        Rollbar.error('Parent::CheckAdressService', errors: check_service.errors)
+        redirect_to admin_parents_path, alert: "Il y a eu des problèmes lors du traitement du fichier, contactez l'équipe tech"
+      else
+        redirect_to admin_parents_path, notice: 'Fichier traité avex succès!'
+      end
+    else
+      redirect_to upload_csv_admin_your_models_path, alert: 'Erreur lors de la selection du fichier csv des plis non livrés.'
+    end
+  end
+
   action_item :new_event, only: :show do
     dropdown_menu 'Ajouter' do
       item 'Un SMS reçu',
