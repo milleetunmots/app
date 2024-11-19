@@ -102,12 +102,14 @@ class ProgramMessageService
 
   def format_data_for_spot_hit
     # we need to format phone_numbers as hash inn order to include variables
-    if @redirection_target || @variables.include?('PRENOM_ENFANT') || @variables.include?('CHILD_SUPPORT_ID')
+    if @redirection_target || @variables.any?
       @recipient_data = {}
       Parent.where(id: @parent_ids).find_each do |parent|
         @recipient_data[parent.id.to_s] = {}
         @recipient_data[parent.id.to_s]['PRENOM_ENFANT'] = parent.current_child&.first_name || 'votre enfant'
         @recipient_data[parent.id.to_s]['CHILD_SUPPORT_ID'] = parent.current_child&.child_support&.id
+        @recipient_data[parent.id.to_s]['PRENOM_APPELANTE'] = parent.current_child&.child_support&.supporter&.decorate&.first_name
+        @recipient_data[parent.id.to_s]['NUMERO_AIRCALL_APPELANTE'] = parent.current_child&.child_support&.supporter&.aircall_phone_number
         if @redirection_target && parent.current_child.present?
           @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first

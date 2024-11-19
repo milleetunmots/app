@@ -3,6 +3,7 @@ module Aircall
 
     BASE_URL = 'https://api.aircall.io'.freeze
     CONTACTS_ENDPOINT = '/v1/contacts'.freeze
+    USERS_ENDPOINT = '/v1/users'.freeze
 
     TOKEN_ID = ENV.fetch('AIRCALL_API_ID')
     TOKEN_PASSWORD = ENV.fetch('AIRCALL_API_TOKEN')
@@ -25,7 +26,6 @@ module Aircall
       return nil unless meta && meta['next_page_link']
 
       next_link = meta['next_page_link']
-      
       # prefix with BASE_URL if link is relative
       next_link.start_with?('http') ? next_link : "#{BASE_URL}#{next_link.split('api.aircall.io').last}"
     end

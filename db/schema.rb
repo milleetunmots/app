@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_11_05_090226) do
+ActiveRecord::Schema.define(version: 2024_11_14_093211) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -62,6 +62,7 @@ ActiveRecord::Schema.define(version: 2024_11_05_090226) do
     t.string "user_role"
     t.boolean "is_disabled", default: false
     t.boolean "can_treat_task", default: false, null: false
+    t.string "aircall_phone_number"
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end

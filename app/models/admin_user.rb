@@ -3,6 +3,7 @@
 # Table name: admin_users
 #
 #  id                     :bigint           not null, primary key
+#  aircall_phone_number   :string
 #  can_treat_task         :boolean          default(FALSE), not null
 #  current_sign_in_at     :datetime
 #  current_sign_in_ip     :inet
@@ -56,6 +57,8 @@ class AdminUser < ApplicationRecord
   scope :account_disabled, -> { where(is_disabled: true) }
   scope :account_not_disabled, -> { where(is_disabled: false) }
 
+  after_create :set_aircall_phone_number
+
   def admin?
     user_role == "super_admin"
   end
@@ -97,5 +100,33 @@ class AdminUser < ApplicationRecord
     return unless found_common_password
 
     errors.add(:password, "ne doit pas contenir ce mot trop commun : '#{found_common_password}'")
+  end
+
+  def set_aircall_phone_number
+    aircall_user_service = Aircall::RetrieveUserService.new.call
+    if aircall_user_service.errors.any?
+      Rollbar.error("Set phone_number error : #{aircall_user_service.errors}")
+      return
+    end
+
+    aircall_user = aircall_user_service.users.find do |user|
+      (I18n.transliterate(user['name'].downcase.squish) == I18n.transliterate(name.downcase.squish)) ||
+        (I18n.transliterate(user['email'].downcase.squish) == I18n.transliterate(email.downcase.squish))
+    end
+    return unless aircall_user
+
+    aircall_user_service = Aircall::RetrieveUserService.new(user_id: aircall_user['id']).call
+    if aircall_user_service.errors.any?
+      Rollbar.error("Set phone_number error for #{id} : #{aircall_user_service.errors}")
+      return
+    end
+
+    aircall_user = aircall_user_service.users.first
+    unless phone_number = aircall_user.try(:[], 'numbers')&.first.try(:[], 'digits')
+      Rollbar.error("Set phone number error for #{id} : No digits")
+      return
+    end
+
+    self.update(aircall_phone_number: Phonelib.parse(phone_number).e164)
   end
 end
