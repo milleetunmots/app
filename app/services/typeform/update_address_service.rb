@@ -1,8 +1,10 @@
 module Typeform
   class UpdateAddressService
     FIELD_IDS = {
-      address: 'buGg1ITHz89C'
-
+      address: 'buGg1ITHz89C',
+      city_name: 'UfJYnoBckGEV',
+      postal_code: 'qG2FxwtkolB8',
+      letterbox_name: 'KYLiAIq8idLb'
     }
 
     def initialize(form_responses)
@@ -18,25 +20,23 @@ module Typeform
       end
 
       @answers.each do |answer|
-        # case answer[:field][:id]
-        # when FIELD_IDS[:mid_term_rate]
-        #   @parent.mid_term_rate = answer[:number]
-        # when FIELD_IDS[:mid_term_reaction]
-        #   @parent.mid_term_reaction = answer[:choice][:label]
-        # when FIELD_IDS[:mid_term_speech]
-        #   @parent.mid_term_speech = answer[:text]
-        # end
+        case answer[:field][:id]
+        when FIELD_IDS[:address]
+          @parent.address = answer[:text]
+        when FIELD_IDS[:city_name]
+          @parent.city_name = answer[:text]
+        when FIELD_IDS[:postal_code]
+          @parent.postal_code = answer[:text]
+        when FIELD_IDS[:letterbox_name]
+          @parent.letterbox_name = answer[:text]
+        end
       end
 
-      # if @parent.save(validate: false)
-      #   @child_support.parent_mid_term_rate = @parent.reload.mid_term_rate if should_update_mid_term_info?(:parent_mid_term_rate)
-      #   @child_support.parent_mid_term_reaction = @parent.reload.mid_term_reaction if should_update_mid_term_info?(:parent_mid_term_reaction)
-      #   @child_support.save(validate: false)
-      # end
+      if @parent.save(validate: false)
+        @child_support.is_address_suspected_invalid = false
+        @child_support.save(validate: false)
+      end
       self
     end
-
-    private
-
   end
 end
