@@ -305,7 +305,7 @@ class Parent < ApplicationRecord
   end
 
   def message_already_sent_in_response?
-    events.text_messages.where('originated_by_app = ? AND created_at > ? AND body ILIKE ?', true, 1.day.ago, "#{Event::SendMessageToParentResponse::MESSAGE}%").limit(1).any?
+    events.text_messages.where('originated_by_app = ? AND created_at > ? AND body ILIKE ?', true, 1.day.ago, "#{Event::SendMessageToParentResponseService::MESSAGE}%").limit(1).any?
   end
 
   # ---------------------------------------------------------------------------
