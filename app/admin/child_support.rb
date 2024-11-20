@@ -280,6 +280,7 @@ ActiveAdmin.register ChildSupport do
                   collection: book_not_received_collection,
                   multiple: true,
                   input_html: { data: { select2: { tokenSeparators: [';'] } } }
+          f.input :is_address_suspected_invalid
           f.input :should_be_read
           f.input :to_call
           f.input :will_stay_in_group
