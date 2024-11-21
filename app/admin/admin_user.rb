@@ -16,7 +16,7 @@ ActiveAdmin.register AdminUser do
       decorated.email_link
     end
     column :user_role
-    column :current_sign_in_at
+    column :aircall_phone_number
     column :sign_in_count
     column :created_at do |decorated|
       l decorated.created_at.to_date, format: :default

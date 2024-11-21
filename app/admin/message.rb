@@ -65,7 +65,7 @@ ActiveAdmin.register_page 'Message' do
       div do
         label 'Message'
         textarea name: 'message'
-        small 'Variables disponibles: {PRENOM_ENFANT}, {URL}'
+        small 'Variables disponibles: {PRENOM_ENFANT}, {URL}, {PRENOM_APPELANTE}, {NUMERO_AIRCALL_APPELANTE}'
       end
 
       div do
