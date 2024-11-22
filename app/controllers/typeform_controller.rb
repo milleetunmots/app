@@ -12,7 +12,7 @@ class TypeformController < ApplicationController
       Typeform::CallGoalsFormService.new(params[:form_response], 3).call
     when 'XdWSv2hR'
       Typeform::InitialFormService.new(params[:form_response]).call
-    when 'swHB9mHG'
+    when 'VpPCzGfD'
       Typeform::UpdateAddressService.new(params[:form_response]).call
     else
       Rollbar.error("Typeform with unknown id: #{params[:form_response][:form_id]}")
