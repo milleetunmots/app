@@ -1,21 +1,26 @@
 module Typeform
   class UpdateAddressService
     FIELD_IDS = {
-      address: 'buGg1ITHz89C',
-      city_name: 'UfJYnoBckGEV',
-      postal_code: 'qG2FxwtkolB8',
-      letterbox_name: 'KYLiAIq8idLb'
+      address: 'N8yUG2jdg0QT',
+      city_name: 'lh7ySr1ry9mP',
+      postal_code: 'xq3aifkWgIYY',
+      letterbox_name: 'B7xao8q1J483'
     }
 
     def initialize(form_responses)
       @answers = form_responses[:answers]
-      @parent = Parent.find(form_responses[:hidden][:parent_id])
-      @child_support = @parent.current_child&.child_support
+      @parent = Parent.find_by(id: form_responses[:hidden][:parent_id])
     end
 
     def call
+      unless @parent
+        Rollbar.error('Typeform::UpdateAddressService', parent: @parent)
+        return self
+      end
+
+      @child_support = @parent.current_child&.child_support
       unless @child_support
-        Rollbar('Typeform::UpdateAddressService', parent: @parent.id, child_support: @child_support)
+        Rollbar.error('Typeform::UpdateAddressService', parent: @parent.id, child_support: @child_support)
         return self
       end
 
@@ -26,7 +31,7 @@ module Typeform
         when FIELD_IDS[:city_name]
           @parent.city_name = answer[:text]
         when FIELD_IDS[:postal_code]
-          @parent.postal_code = answer[:text]
+          @parent.postal_code = answer[:number]
         when FIELD_IDS[:letterbox_name]
           @parent.letterbox_name = answer[:text]
         end

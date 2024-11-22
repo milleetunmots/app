@@ -2,7 +2,7 @@ require 'csv'
 
 class Parent::CheckAddressService
 
-  MESSAGE = "1001mots : Vous n'avez pas reçu votre dernier livre ? Vérifiez votre adresse sur ce lien : https://form.typeform.com/to/swHB9mHG#parent_id=xxxxx&security_code=xxxxx".freeze
+  MESSAGE = "1001mots : Vous n'avez pas reçu votre dernier livre ? Vérifiez votre adresse sur ce lien : https://form.typeform.com/to/VpPCzGfD#parent_id=xxxxx&security_code=xxxxx".freeze
 
   attr_reader :errors
 
