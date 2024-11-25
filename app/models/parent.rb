@@ -304,8 +304,8 @@ class Parent < ApplicationRecord
     children_name_and_birthdate.eql? parent.children_name_and_birthdate
   end
 
-  def message_already_sent?(message_start)
-    events.text_messages.where('originated_by_app = ? AND created_at > ? AND body ILIKE ?', true, 1.day.ago, "#{message_start}%").limit(1).any?
+  def message_already_sent?(period, message_start)
+    events.text_messages.where('originated_by_app = ? AND occurred_at > ? AND body ILIKE ?', true, period, "#{message_start}%").limit(1).any?
   end
 
   # ---------------------------------------------------------------------------
