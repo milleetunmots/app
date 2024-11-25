@@ -13,7 +13,7 @@ class Parent::CheckAddressReminderService
   def call
     ChildSupport.joins(:children).where(is_address_suspected_invalid: true, children: { group_status: 'active' }).find_each do |child_support|
       @parent = child_support.parent1
-      next if @parent.message_already_sent?(Parent::CheckAddressService::MESSAGE)
+      next if @parent.message_already_sent?(6.days.ago, Parent::CheckAddressService::MESSAGE)
 
       send_verifiication_message
     end
