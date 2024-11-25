@@ -183,7 +183,6 @@ ActiveAdmin.register Parent do
     if params[:csv_file].present?
       check_service = Parent::CheckAddressService.new(params[:csv_file]).call
       if check_service.errors.any?
-        p check_service.errors
         Rollbar.error('Parent::CheckAdressService', errors: check_service.errors)
         redirect_to admin_parents_path, alert: "Il y a eu des problèmes lors du traitement du fichier, contactez l'équipe tech"
       else
