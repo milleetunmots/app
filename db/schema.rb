@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_11_12_112653) do
+ActiveRecord::Schema.define(version: 2024_11_14_093211) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -423,6 +423,10 @@ ActiveRecord::Schema.define(version: 2024_11_12_112653) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["author_id"], name: "index_field_comments_on_author_id"
     t.index ["related_type", "related_id"], name: "index_field_comments_on_related_type_and_related_id"
+  end
+
+  create_table "foo", id: false, force: :cascade do |t|
+    t.integer "x"
   end
 
   create_table "groups", force: :cascade do |t|

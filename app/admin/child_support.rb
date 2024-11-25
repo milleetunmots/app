@@ -671,6 +671,7 @@ ActiveAdmin.register ChildSupport do
     availability
     call_infos
     family_support_should_be_stopped
+    is_address_suspected_invalid
   ] + [tags_params.merge(book_not_received: [], parent1_available_support_module_list: [], parent2_available_support_module_list: [])]
   parent_attributes = %i[
     id
