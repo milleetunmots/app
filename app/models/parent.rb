@@ -374,6 +374,7 @@ class Parent < ApplicationRecord
 
   def create_aircall_contact
     return unless created_by_us
+    return unless current_child
     return unless ENV['AIRCALL_ENABLED']
 
     service = Aircall::CreateContactService.new(parent_id: id).call
