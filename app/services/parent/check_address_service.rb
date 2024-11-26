@@ -31,7 +31,7 @@ class Parent::CheckAddressService
       next if @child_support.is_address_suspected_invalid == true
 
       @child_support.update(is_address_suspected_invalid: true)
-      send_verifiication_message
+      send_verification_message
     end
     Parent::CheckAddressReminderJob.set(wait_until: @date.next_day(7).to_datetime.change(hour: 13)).perform_later
     self
@@ -39,7 +39,7 @@ class Parent::CheckAddressService
 
   private
 
-  def send_verifiication_message
+  def send_verification_message
     @message = @message.gsub('parent_id=xxxxx', "parent_id=#{@parent.id}")
     @message = @message.gsub('security_code=xxxxx', "security_code=#{@parent.security_code}")
     service = ProgramMessageService.new(
@@ -48,6 +48,6 @@ class Parent::CheckAddressService
       ["parent.#{@parent.id}"],
       @message
     ).call
-    @errors << "Verification message not sent to #{@parent.first_name} #{@parent.last_name} : #{service.errors.join(' - ')}" if service.errors.any?
+    @errors << "Address Verification message not sent to #{@parent.first_name} #{@parent.last_name} : #{service.errors.join(' - ')}" if service.errors.any?
   end
 end

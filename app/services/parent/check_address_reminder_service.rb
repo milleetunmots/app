@@ -15,14 +15,14 @@ class Parent::CheckAddressReminderService
       @parent = child_support.parent1
       next if @parent.message_already_sent?(6.days.ago, Parent::CheckAddressService::MESSAGE)
 
-      send_verifiication_message
+      send_verification_message
     end
     self
   end
 
   private
 
-  def send_verifiication_message
+  def send_verification_message
     @message = @message.gsub('parent_id=xxxxx', "parent_id=#{@parent.id}")
     @message = @message.gsub('security_code=xxxxx', "security_code=#{@parent.security_code}")
     service = ProgramMessageService.new(
@@ -31,6 +31,6 @@ class Parent::CheckAddressReminderService
       ["parent.#{@parent.id}"],
       @message
     ).call
-    @errors << "Verification message reminder not sent to #{@parent.first_name} #{@parent.last_name} : #{service.errors.join(' - ')}" if service.errors.any?
+    @errors << "Address Verification message reminder not sent to #{@parent.first_name} #{@parent.last_name} : #{service.errors.join(' - ')}" if service.errors.any?
   end
 end
