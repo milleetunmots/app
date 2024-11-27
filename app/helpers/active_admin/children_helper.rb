@@ -30,11 +30,15 @@ module ActiveAdmin::ChildrenHelper
     end
   end
 
-  def child_parent_select_collection
+  def child_parent_select_collection(parent_id: nil)
+    return Parent.where(id: parent_id).map(&:decorate) if parent_id
+
     Parent.order(:first_name, :last_name).map(&:decorate)
   end
 
-  def child_selection_collection
+  def child_selection_collection(child_id: nil)
+    return Child.where(id: child_id).map(&:decorate) if child_id
+
     Child.order(:first_name, :last_name).map(&:decorate)
   end
 

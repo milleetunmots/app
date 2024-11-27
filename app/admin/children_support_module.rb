@@ -45,10 +45,10 @@ ActiveAdmin.register ChildrenSupportModule do
     f.inputs do
       f.input :is_completed
       f.input :child,
-              collection: child_selection_collection,
+              collection: child_selection_collection(child_id: params[:child_id]),
               input_html: {data: {select2: {}}}
       f.input :parent,
-              collection: child_parent_select_collection,
+              collection: child_parent_select_collection(parent_id: params[:parent_id]),
               input_html: {data: {select2: {}}}
       f.input :support_module,
               collection: resource.available_support_module_collection,
