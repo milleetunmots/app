@@ -31,13 +31,15 @@ module Aircall
     private
 
     def init_contact_form_data
-      information = "Enfant(s):\n#{@parent.children.decorate.map(&:name).join(', ')}"
+      company_name = @parent.children.map(&:first_name).join(', ')
       @errors << { message: "Parent sans enfant principal : #{@parent.id}" } and return unless @parent.current_child&.child_support_id
-      information = "#{information}\nCohorte: #{@parent.current_child.group_name}"
-      information = "#{information}\nFiche de suivi: #{Rails.application.routes.url_helpers.admin_child_support_url(id: @parent.current_child.child_support_id)}"
+
+      information = "Cohorte: #{@parent.current_child.group_name}"
+      information = "#{information}\nFiche de suivi: #{Rails.application.routes.url_helpers.edit_admin_child_support_url(id: @parent.current_child.child_support_id)}"
       @contact_form = {
         first_name: @parent.first_name,
         last_name: @parent.last_name,
+        company_name: company_name,
         information: information,
         phone_numbers: [
           {
