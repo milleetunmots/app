@@ -258,7 +258,13 @@ ActiveAdmin.register ChildSupport do
           columns do
             column do
               f.label :important_information
-              f.input :important_information, label: false, input_html: { rows: 7, style: 'width: 100%; margin-top:20px;' }
+              f.input :important_information,
+                label: false,
+                input_html: {
+                  rows: 7,
+                  style: 'width: 100%; margin-top:20px;',
+                  value: important_information_with_typeform_link(f.object.important_information, current_admin_user.id)
+                }
             end
           end
         end
