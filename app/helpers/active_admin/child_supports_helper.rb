@@ -120,4 +120,14 @@ module ActiveAdmin::ChildSupportsHelper
       ]
     end.push(['Non renseigné', 'nil'])
   end
+
+  def important_information_with_typeform_link(important_information, admin_user_id)
+    return important_information unless ENV['TYPEFORM_LINK_SUPPORTERS_IDS'].include? admin_user_id.to_s
+
+    if important_information.present? && important_information.include?('https://form.typeform.com/to/ezCyiRZJ')
+      important_information
+    else
+      "Enquête prise de RDV > https://form.typeform.com/to/ezCyiRZJ \n#{important_information}"
+    end
+  end
 end
