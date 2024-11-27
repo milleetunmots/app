@@ -34,7 +34,7 @@ module Aircall
       company_name = @parent.children.map(&:first_name).join(', ')
       @errors << { message: "Parent sans enfant principal : #{@parent.id}" } and return unless @parent.current_child&.child_support_id
 
-      information = "#{information}\nCohorte: #{@parent.current_child.group_name}"
+      information = "Cohorte: #{@parent.current_child.group_name}"
       information = "#{information}\nFiche de suivi: #{Rails.application.routes.url_helpers.edit_admin_child_support_url(id: @parent.current_child.child_support_id)}"
       @contact_form = {
         first_name: @parent.first_name,

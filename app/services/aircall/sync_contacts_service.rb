@@ -2,7 +2,7 @@ module Aircall
   class SyncContactsService
 
     CHILD_SUPPORT_LINK_REGEX = /Fiche de suivi:\s*(\S+)/.freeze
-    GROUP_REGEX = /Cohorte:\s*(\S+)/.freeze
+    GROUP_REGEX = /Cohorte:\s*(.*)\n/.freeze
 
     attr_reader :errors, :created_ids, :updated_info_ids, :updated_phone_ids
 
@@ -60,14 +60,14 @@ module Aircall
       company_name = @aircall_datas['company_name']
       child_support_link_match = information.match(CHILD_SUPPORT_LINK_REGEX)
       group_match = information.match(GROUP_REGEX)
-      return true unless company_name == @parent.children.decorate.map(&:first_name).join(', ')
+      return true unless company_name == @parent.children.map(&:first_name).join(', ')
       return true unless child_support_link_match && group_match
 
       child_support_link = child_support_link_match[1]
       group_match = group_match[1]
       return true unless Rails.application.routes.url_helpers.edit_admin_child_support_url(id: @parent.current_child.child_support_id).in?(child_support_link)
 
-      !group_match.in?(@parent.current_child.group_name)
+      @parent.current_child.group_name != group_match
     end
   end
 end
