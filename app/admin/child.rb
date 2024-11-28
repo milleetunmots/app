@@ -10,7 +10,7 @@ ActiveAdmin.register Child do
   # INDEX
   # ---------------------------------------------------------------------------
 
-  includes :parent1, :parent2, :child_support, :group, :children_source
+  includes :parent1, :parent2, :child_support, :group, :children_source, :supporter
 
   index do
     div do
@@ -26,6 +26,7 @@ ActiveAdmin.register Child do
       model.admin_link(label: model.last_name)
     end
     column :age, sortable: :birthdate
+    column :child_support_supporter_id
     column :parent1, sortable: :parent1_id
     column :parent1_phone_number_national
     column :parent2, sortable: :parent2_id

@@ -63,7 +63,7 @@ class Group
       @four_to_nine_child_supports_with_siblings = @four_to_nine_child_supports_with_siblings.to_a.sort_by { |cs| cs.current_child.months }
       @ten_to_fifteen_child_supports_with_siblings = @ten_to_fifteen_child_supports_with_siblings.to_a.sort_by { |cs| cs.current_child.months }
       @sixteen_to_twenty_three_child_supports_with_siblings = @sixteen_to_twenty_three_child_supports_with_siblings.to_a.sort_by { |cs| cs.current_child.months }
-      @twenty_four_and_more_child_supports_with_siblings = @twenty_four_and_more_child_supports_with_siblings.to_a.sort_by { |cs| cs.current_child.months }
+      @twenty_four_and_more_child_supports_with_siblings = @twenty_four_and_more_child_supports_with_siblings.to_a.shuffle
       @child_supports_with_siblings_array = [@four_to_nine_child_supports_with_siblings, @ten_to_fifteen_child_supports_with_siblings, @sixteen_to_twenty_three_child_supports_with_siblings, @twenty_four_and_more_child_supports_with_siblings]
     end
 
@@ -71,7 +71,7 @@ class Group
       @four_to_nine_child_supports_without_siblings = @four_to_nine_child_supports_without_siblings.to_a.sort_by { |cs| cs.current_child.months }
       @ten_to_fifteen_child_supports_without_siblings = @ten_to_fifteen_child_supports_without_siblings.to_a.sort_by { |cs| cs.current_child.months }
       @sixteen_to_twenty_three_child_supports_without_siblings = @sixteen_to_twenty_three_child_supports_without_siblings.to_a.sort_by { |cs| cs.current_child.months }
-      @twenty_four_and_more_child_supports_without_siblings = @twenty_four_and_more_child_supports_without_siblings.to_a.sort_by { |cs| cs.current_child.months }
+      @twenty_four_and_more_child_supports_without_siblings = @twenty_four_and_more_child_supports_without_siblings.to_a.shuffle
       @child_supports_without_siblings_array = [@four_to_nine_child_supports_without_siblings, @ten_to_fifteen_child_supports_without_siblings, @sixteen_to_twenty_three_child_supports_without_siblings, @twenty_four_and_more_child_supports_without_siblings]
     end
 
