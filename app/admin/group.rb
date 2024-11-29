@@ -171,8 +171,7 @@ ActiveAdmin.register Group do
     total_capacity = child_supports_count_by_supporter.sum { |supporter_count| supporter_count[:child_supports_count] }
     families_count = resource.model.child_supports.with_kept_children.with_a_child_in_active_group.count
     if supporters_without_id.empty? && supporters_without_child_supports_count.empty? && total_capacity == families_count
-      Group::DistributeChildSupportsToSupportersService.new(resource.model, child_supports_count_by_supporter).call
-      # Group::DistributeChildSupportsToSupportersJob.perform_later(resource.model, child_supports_count_by_supporter)
+      Group::DistributeChildSupportsToSupportersJob.perform_later(resource.model, child_supports_count_by_supporter)
       redirect_to admin_group_path, notice: message
     else
       message = "Sur airtable, le N° suivi base de ces appelantes n'est pas indiqué : #{supporters_without_id.join(', ')}" unless supporters_without_id.empty?

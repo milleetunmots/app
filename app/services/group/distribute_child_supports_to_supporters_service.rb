@@ -54,6 +54,18 @@ class Group
         associate_child_supports_without_siblings_to_supporters
         check_all_child_supports_are_associated
       end
+      # @count_by_supporter.each do |count|
+      #   count[:child_supports_months] = ChildSupport.in_group(@group.id).where(supporter_id: count[:admin_user_id]).map { |cs| cs.children.map(&:months) }.flatten
+      #   count[:current_child_supports_months] = ChildSupport.in_group(@group.id).where(supporter_id: count[:admin_user_id]).map { |cs| cs.current_child.months }.flatten
+      # end
+      # @count_by_supporter.each do |count|
+      #   p "Id #{count[:admin_user_id]}"
+      #   p "Capacity #{count[:child_supports_count]}"
+      #   p "Age range #{count[:age_range]}"
+      #   p "Months #{count[:child_supports_months]}"
+      #   p "Current child months #{count[:current_child_supports_months]}"
+      #   p "#################################################"
+      # end
       Rollbar.info('Attribution des appelantes terminée')
     end
 
@@ -131,13 +143,22 @@ class Group
     end
 
     def assign_child_supports_with_siblings_to_supporters_without_age_range(child_supports_with_siblings_count)
-      @child_supports_with_siblings = @child_supports_with_siblings.where(supporter_id: nil).to_a.sort_by { |cs| cs.current_child.months }
+      @child_supports_with_siblings = @child_supports_with_siblings.where(supporter_id: nil)
+      @twenty_four_and_more_child_supports_with_siblings = @child_supports_with_siblings.where(id: @group.children.months_gteq(24).map(&:child_support_id)).to_a.shuffle
+      @lt_twenty_four_child_supports_with_siblings = @child_supports_with_siblings.where.not(id: @twenty_four_and_more_child_supports_with_siblings.pluck(:id)).to_a.sort_by { |cs| cs.current_child.months }
       @count_by_supporter_without_age_range.each do |count|
         next if count[:admin_user_id].nil?
 
         index = @count_by_supporter.index(count)
         @count_by_supporter[index][:max_child_supports_with_siblings_count] = (child_supports_with_siblings_count * count[:child_supports_count].to_f / @child_supports.count).floor
-        assign_child_supports(@child_supports_with_siblings, index, @count_by_supporter[index][:max_child_supports_with_siblings_count])
+        assign_child_supports(@lt_twenty_four_child_supports_with_siblings, index, @count_by_supporter[index][:max_child_supports_with_siblings_count])
+      end
+      @count_by_supporter_without_age_range.each do |count|
+        next if count[:admin_user_id].nil?
+
+        index = @count_by_supporter.index(count)
+        @count_by_supporter[index][:max_child_supports_with_siblings_count] = (child_supports_with_siblings_count * count[:child_supports_count].to_f / @child_supports.count).floor
+        assign_child_supports(@twenty_four_and_more_child_supports_with_siblings, index, @count_by_supporter[index][:max_child_supports_with_siblings_count])
       end
     end
 
@@ -180,13 +201,22 @@ class Group
     end
 
     def assign_child_supports_without_siblings_to_supporters_without_age_range
-      @child_supports_without_siblings = @child_supports_without_siblings.where(supporter_id: nil).to_a.sort_by { |cs| cs.current_child.months }
+      @child_supports_without_siblings = @child_supports_without_siblings.where(supporter_id: nil)
+      @twenty_four_and_more_child_supports_without_siblings = @child_supports_without_siblings.where(id: @group.children.months_gteq(24).map(&:child_support_id)).to_a.shuffle
+      @lt_twenty_four_child_supports_without_siblings = @child_supports_without_siblings.where.not(id: @twenty_four_and_more_child_supports_without_siblings.pluck(:id)).to_a.sort_by { |cs| cs.current_child.months }
       @count_by_supporter_without_age_range.each do |count|
         next if count[:admin_user_id].nil?
 
         index = @count_by_supporter.index(count)
         capacity = count[:child_supports_count] - count[:assigned_child_supports_count]
-        assign_child_supports(@child_supports_without_siblings, index, capacity)
+        assign_child_supports(@lt_twenty_four_child_supports_without_siblings, index, capacity)
+      end
+      @count_by_supporter_without_age_range.each do |count|
+        next if count[:admin_user_id].nil?
+
+        index = @count_by_supporter.index(count)
+        capacity = count[:child_supports_count] - count[:assigned_child_supports_count]
+        assign_child_supports(@twenty_four_and_more_child_supports_without_siblings, index, capacity)
       end
     end
 

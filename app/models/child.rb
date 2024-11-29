@@ -498,7 +498,7 @@ class Child < ApplicationRecord
            prefix: true,
            allow_nil: true
 
-  delegate :id, :supporter_id,
+  delegate :id,
            to: :child_support,
            prefix: true,
            allow_nil: true
