@@ -125,6 +125,7 @@
 #  discarded_at                          :datetime
 #  family_support_should_be_stopped      :string
 #  important_information                 :text
+#  is_address_suspected_invalid          :boolean          default(FALSE), not null
 #  is_bilingual                          :string           default("2_no_information")
 #  most_present_parent                   :string
 #  notes                                 :text

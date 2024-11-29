@@ -302,6 +302,7 @@ fr:
         child_support_groups: Cohortes
         important_information: Infos importantes
         is_bilingual: Bilinguisme
+        is_address_suspected_invalid: Doute sur l'adresse > Livre plus envoyé
         letterbox_name: Nom de famille sur la boîte aux lettres
         other_family_child_supports: Autres suivis de la famille
         parent1: Parent 1

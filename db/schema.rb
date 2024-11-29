@@ -293,6 +293,7 @@ ActiveRecord::Schema.define(version: 2024_11_14_093211) do
     t.string "call4_review"
     t.string "call5_review"
     t.string "call3_previous_goals_follow_up"
+    t.boolean "is_address_suspected_invalid", default: false, null: false
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
@@ -422,6 +423,10 @@ ActiveRecord::Schema.define(version: 2024_11_14_093211) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["author_id"], name: "index_field_comments_on_author_id"
     t.index ["related_type", "related_id"], name: "index_field_comments_on_related_type_and_related_id"
+  end
+
+  create_table "foo", id: false, force: :cascade do |t|
+    t.integer "x"
   end
 
   create_table "groups", force: :cascade do |t|
