@@ -201,6 +201,7 @@ class ChildrenSupportModule < ApplicationRecord
 
     child_support = child.child_support
     child_support.send("module#{current_choice_module_number}_chosen_by_parents=", support_module)
-    child_support.save
+    # avoid unnecessary pop-up trigger in child_support edit form
+    child_support.save(touch: false)
   end
 end
