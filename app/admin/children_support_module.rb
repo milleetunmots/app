@@ -36,8 +36,8 @@ ActiveAdmin.register ChildrenSupportModule do
 
   form do |f|
     f.semantic_errors *f.object.errors.keys
+    f.object.is_completed = true unless f.object.support_module
     if params[:action] == "new"
-      f.object.is_completed = true
       f.object.parent_id = params[:parent_id] if params[:parent_id]
       f.object.child_id = params[:child_id] if params[:child_id]
       f.object.available_support_module_list = params[:available_support_module_list] if params[:available_support_module_list]
@@ -45,10 +45,10 @@ ActiveAdmin.register ChildrenSupportModule do
     f.inputs do
       f.input :is_completed
       f.input :child,
-              collection: child_selection_collection(child_id: params[:child_id]),
+              collection: child_selection_collection(child_id: params[:child_id] || resource.child_id),
               input_html: {data: {select2: {}}}
       f.input :parent,
-              collection: child_parent_select_collection(parent_id: params[:parent_id]),
+              collection: child_parent_select_collection(parent_id: params[:parent_id] || resource.parent_id),
               input_html: {data: {select2: {}}}
       f.input :support_module,
               collection: resource.available_support_module_collection,
