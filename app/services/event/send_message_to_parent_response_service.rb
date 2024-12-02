@@ -20,16 +20,10 @@ class Event::SendMessageToParentResponseService
       return self
     end
 
-    if @parent.message_already_sent_in_response?
-      @errors << 'Message already sent in response'
-      return self
-    end
+    return self if @parent.message_already_sent_in_response?
 
     supporter = @parent.current_child&.child_support&.supporter
-    unless supporter
-      @errors << 'Child has no supporter'
-      return self
-    end
+    return self unless supporter
 
     unless supporter.aircall_phone_number
       @errors << 'Child supporter has no aircall_phone_number'

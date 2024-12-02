@@ -20,11 +20,11 @@ class ChildrenSupportModule
           default_support_module_id = csm.available_support_module_list.reject(&:blank?).first
           the_other_parent = csm.parent == csm.child.parent1 ? csm.child.parent2 : csm.child.parent1
           if the_other_parent.present? && the_other_parent.children_support_modules.any?
-            the_other_parent_csm = the_other_parent.children_support_modules.latest_first.first
+            the_other_parent_csm = the_other_parent.children_support_modules.where(child: child).latest_first.first
 
             already_done_support_module_ids = child.children_support_modules.where(parent: csm.parent).pluck(:support_module_id)
 
-            default_support_module_id = the_other_parent_csm.support_module_id if the_other_parent_csm.support_module_id.present? && already_done_support_module_ids.exclude?(the_other_parent_csm.support_module_id)
+            default_support_module_id = the_other_parent_csm.support_module_id if the_other_parent_csm&.support_module_id.present? && already_done_support_module_ids.exclude?(the_other_parent_csm&.support_module_id)
           end
 
           csm.update(support_module_id: default_support_module_id)
