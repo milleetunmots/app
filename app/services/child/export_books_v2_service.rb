@@ -25,18 +25,14 @@ class Child
       self
     end
 
-    # private
+    private
 
     def find_children_lists
       children_list_sorted_by_module = {}
-      chosen_modules = ChildrenSupportModule.includes(child: :child_support).references(:child).with_support_module.not_programmed
-      chosen_modules = chosen_modules.where(children: { group_id: @group_ids }) if @group_ids.present?
-      chosen_modules = chosen_modules.where(child_support: { is_address_suspected_invalid: false } )
-
-      chosen_modules = chosen_modules.select { |csm| csm.parent_id == csm.child.parent1_id }
+      chosen_modules = ChildrenSupportModule.chosen_modules_for_group(@group_ids)
       chosen_modules = chosen_modules.uniq { |csm| [csm.child_id, csm.parent_id] }
-      chosen_modules.group_by(&:book_id).each do |book_id, children_support_modules|
-        book = Book.find(book_id) if book_id
+      chosen_modules.group_by(&:support_module_book_id).each do |support_module_book_id, children_support_modules|
+        book = Book.find(support_module_book_id) if support_module_book_id
 
         children = Child.where(group_status: 'active', id: children_support_modules.map(&:child_id).uniq)
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_11_14_093211) do
+ActiveRecord::Schema.define(version: 2024_12_03_093630) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -381,6 +381,8 @@ ActiveRecord::Schema.define(version: 2024_11_14_093211) do
     t.boolean "is_completed", default: false
     t.boolean "is_programmed", default: false, null: false
     t.integer "module_index"
+    t.bigint "book_id"
+    t.index ["book_id"], name: "index_children_support_modules_on_book_id"
     t.index ["child_id"], name: "index_children_support_modules_on_child_id"
     t.index ["parent_id"], name: "index_children_support_modules_on_parent_id"
     t.index ["support_module_id"], name: "index_children_support_modules_on_support_module_id"
@@ -750,6 +752,7 @@ ActiveRecord::Schema.define(version: 2024_11_14_093211) do
   add_foreign_key "child_supports", "support_modules", column: "module6_chosen_by_parents_id"
   add_foreign_key "children", "parents", column: "parent1_id"
   add_foreign_key "children", "parents", column: "parent2_id"
+  add_foreign_key "children_support_modules", "books"
   add_foreign_key "events", "workshops"
   add_foreign_key "field_comments", "admin_users", column: "author_id"
   add_foreign_key "media", "media", column: "image1_id"
