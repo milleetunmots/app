@@ -145,7 +145,7 @@ class ChildrenSupportModule < ApplicationRecord
     # we keep csm of parent1 only
     # we don't retrieve modules of families that cannot receive books at the address they gave us
     modules = includes(child: :child_support).references(:child).with_support_module
-    modules = modules.where(is_programmed: is_programmed) if is_programmed
+    modules = modules.where(is_programmed: is_programmed)
     modules = modules.where(children: { group_id: group_ids }) if group_ids.present?
     modules = modules.where(child_support: { is_address_suspected_invalid: false } )
 
