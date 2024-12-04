@@ -8,6 +8,8 @@ class ChildrenSupportModule
       @errors = {}
       @group = Group.find(group_id)
       children_support_module_ids = ChildrenSupportModule.not_programmed.where(child_id: current_children).ids
+      # save books we will send in children support modules for modules 2+
+      ChildrenSupportModule::SaveBookFromSupportModuleService.new(group_id: group_id).call if group.support_module_programmed >= 1
       program_chosen_modules(children_support_module_ids, first_message_date)
       update_children_support_module(not_current_children)
       update_group(group)
