@@ -144,7 +144,7 @@ class ChildrenSupportModule < ApplicationRecord
     # return children_support_modules with a module, from children of the group(s) passed as parameter
     # we keep csm of parent1 only
     modules = includes(:child).references(:child).with_support_module
-    modules = modules.where(is_programmed: is_programmed) if is_programmed
+    modules = modules.where(is_programmed: is_programmed)
     modules = modules.where(children: { group_id: group_ids }) if group_ids.present?
 
     modules.select { |csm| csm.parent_id == csm.child.parent1_id }
