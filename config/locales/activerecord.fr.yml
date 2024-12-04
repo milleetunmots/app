@@ -173,6 +173,7 @@ fr:
         available_support_module_names: Modules disponibles
         available_support_module_names_for_csv: Modules disponibles
         module_index: Index
+        book_title: Livre envoyé
       child_support:
         << : *SHARED
         address: Adresse
