@@ -122,7 +122,7 @@ module ActiveAdmin::ChildSupportsHelper
   end
 
   def important_information_with_typeform_link(important_information, admin_user_id)
-    return important_information unless ENV['TYPEFORM_LINK_SUPPORTERS_IDS'].include? admin_user_id.to_s
+    return important_information unless ENV['TYPEFORM_LINK_SUPPORTERS_IDS'].split(',').map(&:to_i).include? admin_user_id
 
     if important_information.present? && important_information.include?('https://form.typeform.com/to/ezCyiRZJ')
       important_information
