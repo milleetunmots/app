@@ -33,10 +33,19 @@ class ChildSupport::AssignDefaultCallStatusService
 	end
 
 	def default_call_status(child_support)
-		if child_support.send("call#{@call_number}_notes").blank? && child_support.send("call#{@call_number}_duration").blank?
+		notes = child_support.send("call#{@call_number}_notes")
+		if call_notes_are_blank?(notes) && child_support.send("call#{@call_number}_duration").blank?
 			'KO'
 		else
 			'OK'
 		end
+	end
+
+	def call_notes_are_blank?(notes)
+		return notes.blank? if @call_number != 0
+
+		# remove template from call 0 notes to determine if they are blank
+		notes_without_formating = notes&.gsub(/[\n\r\s]/, '')
+		notes_without_formating.blank? || notes_without_formating.eql?(I18n.t('child_support.default.call0_notes')&.gsub(/[\n\r\s]/, ''))
 	end
 end
