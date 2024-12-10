@@ -8,7 +8,7 @@ RSpec.describe Child::HandleDuplicateService do
     let!(:first_child) { FactoryBot.create(:child, parent1: first_parent) }
     let!(:second_child) { FactoryBot.create(:child, parent1: second_parent) }
     let!(:third_child) { FactoryBot.create(:child, parent1: second_parent) }
-    let!(:group) { FactoryBot.create(:group) }
+    let!(:group) { FactoryBot.create(:group, expected_children_number: 0) }
 
     it "put all the children in the same sibling group" do
       first_child_support_id = first_child.child_support_id
@@ -145,7 +145,7 @@ RSpec.describe Child::HandleDuplicateService do
     end
 
     context "if at least one child is in started group" do
-      let!(:group) { FactoryBot.create(:group) }
+      let!(:group) { FactoryBot.create(:group, expected_children_number: 0) }
       it "keep children in a started group and delete others" do
         group.update(started_at: Time.zone.now.prev_occurring(:monday), support_module_programmed: 1)
         first_child.update(group: group, group_status: 'active')
