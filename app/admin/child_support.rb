@@ -287,6 +287,16 @@ ActiveAdmin.register ChildSupport do
               h5 "Pour que les livres soient de nouveau envoyés, les infos du parent 1 doivent être mises à jour (adresse ou nom sur la boîte aux lettres)", class: 'txt-italic'
             end
           end
+          if true
+            resource.children.each do |child|
+              h4 "Livres envoyés à #{child.first_name} :"
+              div do
+                child.children_support_modules.where.not(book_id: nil).each do |support_module|
+                  span support_module.book.decorate.cover_link_tag(max_width: '60px')
+                end
+              end
+            end
+          end
           tags_input(f, context_list = 'tag_list', label: 'Tags fiche de suivi')
         end
       end
