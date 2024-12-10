@@ -252,7 +252,7 @@ ActiveAdmin.register Child do
     ids.reject! do |id|
       child = Child.find(id)
 
-      child.child_support&.will_stay_in_group || child.group_status != 'active'
+      child.group_status != 'active'
     end
 
     @children = batch_action_collection.where(id: ids)

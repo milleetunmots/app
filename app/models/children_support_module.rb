@@ -10,15 +10,21 @@
 #  module_index                  :integer
 #  created_at                    :datetime         not null
 #  updated_at                    :datetime         not null
+#  book_id                       :bigint
 #  child_id                      :bigint
 #  parent_id                     :bigint
 #  support_module_id             :bigint
 #
 # Indexes
 #
+#  index_children_support_modules_on_book_id            (book_id)
 #  index_children_support_modules_on_child_id           (child_id)
 #  index_children_support_modules_on_parent_id          (parent_id)
 #  index_children_support_modules_on_support_module_id  (support_module_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (book_id => books.id)
 #
 class ChildrenSupportModule < ApplicationRecord
 
@@ -29,6 +35,7 @@ class ChildrenSupportModule < ApplicationRecord
   belongs_to :child
   belongs_to :parent
   belongs_to :support_module, optional: true
+  belongs_to :book, optional: true
 
   scope :not_programmed, -> { where(is_programmed: false) }
   scope :programmed, -> { where(is_programmed: true) }
@@ -50,7 +57,14 @@ class ChildrenSupportModule < ApplicationRecord
             :book_ean,
             :book_id,
             to: :support_module,
-            prefix: false,
+            prefix: true,
+            allow_nil: true
+
+  delegate  :title,
+            :ean,
+            :id,
+            to: :book,
+            prefix: true,
             allow_nil: true
 
   after_update :select_for_the_other_parent
@@ -124,6 +138,18 @@ class ChildrenSupportModule < ApplicationRecord
 
   def self.ransackable_scopes(auth_object = nil)
     super + %i[active_group_id_in]
+  end
+
+  def self.chosen_modules_for_group(group_ids = nil, is_programmed = false)
+    # return children_support_modules with a module, from children of the group(s) passed as parameter
+    # we keep csm of parent1 only
+    # we don't retrieve modules of families that cannot receive books at the address they gave us
+    modules = includes(child: :child_support).references(:child).with_support_module
+    modules = modules.where(is_programmed: is_programmed)
+    modules = modules.where(children: { group_id: group_ids }) if group_ids.present?
+    modules = modules.where(child_support: { address_suspected_invalid_at: nil } )
+
+    modules.select { |csm| csm.parent_id == csm.child.parent1_id }
   end
 
   private

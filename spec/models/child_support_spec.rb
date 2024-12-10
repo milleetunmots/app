@@ -3,6 +3,7 @@
 # Table name: child_supports
 #
 #  id                                    :bigint           not null, primary key
+#  address_suspected_invalid_at          :datetime
 #  already_working_with                  :boolean
 #  availability                          :string
 #  book_not_received                     :string
