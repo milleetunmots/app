@@ -66,7 +66,7 @@ ActiveAdmin.register Child do
   scope('Doublons potentiels', if: proc { !current_admin_user.caller? }) do |scope|
     scope.merge(Child.potential_duplicates)
   end
-  scope('Doubons potentiels via tel', if: proc { !current_admin_user.caller? }) do |scope|
+  scope('Doublons potentiels via tel', if: proc { !current_admin_user.caller? }) do |scope|
     scope.merge(Child.potential_duplicates_by_phone_number)
   end
 
