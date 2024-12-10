@@ -281,6 +281,12 @@ ActiveAdmin.register ChildSupport do
                   collection: book_not_received_collection,
                   multiple: true,
                   input_html: { data: { select2: { tokenSeparators: [';'] } } }
+          if resource.address_suspected_invalid_at
+            div class: 'address-suspected-invalid-info' do
+              h4 "Problème avec l’adresse : les livres ne sont plus envoyés depuis le #{resource.address_suspected_invalid_at&.strftime("%d/%m/%Y")}", class: 'txt-warning'
+              h5 "Pour que les livres soient de nouveau envoyés, les infos du parent 1 doivent être mises à jour (adresse ou nom sur la boîte aux lettres)", class: 'txt-italic'
+            end
+          end
           tags_input(f, context_list = 'tag_list', label: 'Tags fiche de suivi')
         end
       end
