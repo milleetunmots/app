@@ -76,8 +76,6 @@ ActiveAdmin.register ChildSupport do
           collection: proc { source_details_suggestions },
           input_html: { multiple: true, data: { select2: {} } },
           label: "Précisions sur l'origine"
-  filter :should_be_read,
-         input_html: { data: { select2: { width: '100%' } } }
   filter :book_not_received
   filter :is_bilingual, as: :check_boxes, collection: proc { is_bilingual_collection }
   filter :second_language
@@ -141,17 +139,17 @@ ActiveAdmin.register ChildSupport do
     redirect_to request.referer, notice: 'Livres non reçus enlevés'
   end
 
-  batch_action :check_should_be_read do |ids|
-    child_supports = batch_action_collection.where(id: ids)
-    child_supports.each { |child_support| child_support.should_be_read? ? next : child_support.update!(should_be_read: true) }
-    redirect_to collection_path, notice: 'Témoignages marquants ajoutés.'
-  end
+  # batch_action :check_should_be_read do |ids|
+  #   child_supports = batch_action_collection.where(id: ids)
+  #   child_supports.each { |child_support| child_support.should_be_read? ? next : child_support.update!(should_be_read: true) }
+  #   redirect_to collection_path, notice: 'Témoignages marquants ajoutés.'
+  # end
 
-  batch_action :uncheck_should_be_read do |ids|
-    child_supports = batch_action_collection.where(id: ids)
-    child_supports.each { |child_support| child_support.should_be_read? ? child_support.update!(should_be_read: false) : next }
-    redirect_to collection_path, notice: 'Témoignages marquants retirés.'
-  end
+  # batch_action :uncheck_should_be_read do |ids|
+  #   child_supports = batch_action_collection.where(id: ids)
+  #   child_supports.each { |child_support| child_support.should_be_read? ? child_support.update!(should_be_read: false) : next }
+  #   redirect_to collection_path, notice: 'Témoignages marquants retirés.'
+  # end
 
   batch_action :check_call_2_4 do |ids|
     child_supports = batch_action_collection.where(id: ids)
@@ -281,9 +279,6 @@ ActiveAdmin.register ChildSupport do
                   collection: book_not_received_collection,
                   multiple: true,
                   input_html: { data: { select2: { tokenSeparators: [';'] } } }
-          f.input :should_be_read
-          f.input :to_call
-          f.input :will_stay_in_group
           tags_input(f, context_list = 'tag_list', label: 'Tags fiche de suivi')
         end
       end
@@ -661,12 +656,9 @@ ActiveAdmin.register ChildSupport do
   base_attributes = %i[
     important_information
     supporter_id
-    should_be_read
     is_bilingual
     second_language
-    to_call
     books_quantity
-    will_stay_in_group
     notes
     availability
     call_infos
@@ -716,13 +708,10 @@ ActiveAdmin.register ChildSupport do
             end
           end
           row :children
-          row :to_call
-          # row :will_stay_in_group
           row :important_information
           row :availability
           row :call_infos
           row :book_not_received
-          row :should_be_read
           row :display_is_bilingual
           row :second_language
           row :suggested_videos_sent_count if current_admin_user.admin? || current_admin_user.team_member? || current_admin_user.logistics_team?
@@ -828,7 +817,6 @@ ActiveAdmin.register ChildSupport do
 
     column :children_book_not_received
     column(:important_information) { |cs| cs.important_information_text }
-    column :should_be_read
     column :is_bilingual
     column :second_language
 
