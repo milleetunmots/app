@@ -38,7 +38,7 @@ module Typeform
       end
 
       if @parent.save(validate: false)
-        @child_support.is_address_suspected_invalid = false
+        @child_support.address_suspected_invalid_at = nil
         @child_support.save(validate: false)
       end
       self

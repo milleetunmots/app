@@ -28,9 +28,9 @@ class Parent::CheckAddressService
         next
       end
 
-      next if @child_support.is_address_suspected_invalid == true
+      next if @child_support.address_suspected_invalid_at.present?
 
-      @child_support.update(is_address_suspected_invalid: true)
+      @child_support.update(address_suspected_invalid_at: Time.zone.now)
       send_verification_message
     end
     Parent::CheckAddressReminderJob.set(wait_until: @date.next_day(7).to_datetime.change(hour: 13)).perform_later

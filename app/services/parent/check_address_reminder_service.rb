@@ -11,7 +11,7 @@ class Parent::CheckAddressReminderService
   end
 
   def call
-    ChildSupport.joins(:children).where(is_address_suspected_invalid: true, children: { group_status: 'active' }).find_each do |child_support|
+    ChildSupport.joins(:children).where.not(address_suspected_invalid_at: nil).where(children: { group_status: 'active' }).find_each do |child_support|
       @parent = child_support.parent1
       next if @parent.message_already_sent?(6.days.ago, Parent::CheckAddressService::MESSAGE)
 

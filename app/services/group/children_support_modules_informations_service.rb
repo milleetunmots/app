@@ -40,7 +40,7 @@ class Group
     private
 
     def child_and_parent1_ids
-      @group.children.joins(:child_support).where(child_support: { is_address_suspected_invalid: false }).active_group.pluck(:id, :parent1_id)
+      @group.children.joins(:child_support).where(child_support: { address_suspected_invalid_at: nil }).active_group.pluck(:id, :parent1_id)
     end
 
     def init_excel_file

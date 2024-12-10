@@ -147,7 +147,7 @@ class ChildrenSupportModule < ApplicationRecord
     modules = includes(child: :child_support).references(:child).with_support_module
     modules = modules.where(is_programmed: is_programmed)
     modules = modules.where(children: { group_id: group_ids }) if group_ids.present?
-    modules = modules.where(child_support: { is_address_suspected_invalid: false } )
+    modules = modules.where(child_support: { address_suspected_invalid_at: nil } )
 
     modules.select { |csm| csm.parent_id == csm.child.parent1_id }
   end

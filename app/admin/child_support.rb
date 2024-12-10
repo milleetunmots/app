@@ -85,7 +85,7 @@ ActiveAdmin.register ChildSupport do
          as: :string
   filter :supporter,
          input_html: { data: { select2: {} } }
-  filter :is_address_suspected_invalid
+  filter :address_suspected_invalid_at
   (0..5).each do |call_idx|
     filter "call#{call_idx}_status_filter", as: :check_boxes,  label: "Statut de l'appel #{call_idx}", collection: proc { call_statuses_with_nil }
     filter "call#{call_idx}_duration"
@@ -281,7 +281,6 @@ ActiveAdmin.register ChildSupport do
                   collection: book_not_received_collection,
                   multiple: true,
                   input_html: { data: { select2: { tokenSeparators: [';'] } } }
-          f.input :is_address_suspected_invalid
           f.input :should_be_read
           f.input :to_call
           f.input :will_stay_in_group
@@ -672,7 +671,6 @@ ActiveAdmin.register ChildSupport do
     availability
     call_infos
     family_support_should_be_stopped
-    is_address_suspected_invalid
   ] + [tags_params.merge(book_not_received: [], parent1_available_support_module_list: [], parent2_available_support_module_list: [])]
   parent_attributes = %i[
     id
