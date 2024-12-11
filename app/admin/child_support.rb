@@ -287,12 +287,12 @@ ActiveAdmin.register ChildSupport do
               h5 "Pour que les livres soient de nouveau envoyés, les infos du parent 1 doivent être mises à jour (adresse ou nom sur la boîte aux lettres)", class: 'txt-italic'
             end
           end
-          if true
+          if ChildrenSupportModule.where(child_id: [resource.children.ids]).where.not(book_id: nil).any?
             div class: 'children-books-sent' do
               resource.children.each do |child|
                 h4 "Livres envoyés à #{child.first_name} :"
                 div do
-                  child.children_support_modules.where.not(book_id: nil).each do |support_module|
+                  child.children_support_modules.where.not(book_id: nil).order(:module_index).each do |support_module|
                     span support_module.book.decorate.cover_link_tag(max_width: '60px')
                   end
                 end
