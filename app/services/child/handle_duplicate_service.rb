@@ -19,6 +19,24 @@ class Child
 
     private
 
+    def handle_case_three
+      @groups = children_groups
+      # If at least one group has not started
+      return unless @groups.empty? || @waiting_children.any?
+
+      first_child = @children.sort_by(&:created_at).first
+      @children.sort_by(&:created_at).drop(1).each do |child|
+        child.parent1.discard
+        child.parent2.discard
+        child.child_support.discard
+        child.update(
+          parent1: first_child.parent1,
+          parent2: first_child.parent2,
+          child_support: first_child.child_support
+        )
+      end
+    end
+
     def handle_duplicated_parents_by_phone_number
       @duplicated_parents_by_phone_number.each do |phone_number, parents|
         @parents = parents.sort_by(&:id)
@@ -27,28 +45,13 @@ class Child
         @waiting_children = @children.pending_support.sort_by(&:id)
         @not_waiting_children = @children.where.not(group_status: %w[stopped disengaged not_supported]).not_pending_support.sort_by(&:id)
 
-        if case_three?
-          @groups = children_groups
-          # If at least one group has not started
-          if @groups.empty? || @waiting_children.any?
-            first_child = @children.sort_by(&:created_at).first
-            @children.sort_by(&:created_at).drop(1).each do |child|
-              child.parent1.discard
-              child.parent2.discard
-              child.child_support.discard
-              child.update(
-                parent1: first_child.parent1,
-                parent2: first_child.parent2,
-                child_support: first_child.child_support,
-              )
-            end
-          end
+        case
+        when any_child_with_parent2?
+          handle_case_three if case_three?
+        when only_duplicated_children?
+          keep_only_one_family
         else
-          if only_duplicated_children?
-            keep_only_one_family
-          else
-            move_children_to_a_single_child_support
-          end
+          move_children_to_a_single_child_support
         end
       end
     end
@@ -76,6 +79,71 @@ class Child
       end
     end
 
+    def handle_case_one
+      # S'il n'y a pas de cohorte ou si celles qui existent n'ont pas encore démarré
+      if @groups.empty? || ( @groups.all? { |group| group.started_at >= Time.zone.today && group.support_module_programmed.zero? })
+        delete_children_without_parent2
+        keep_recent_child
+      # Si une seule cohorte a démarré
+      elsif @started_groups.length == 1
+        keep_supported_children_and_add_parent2_if_needed
+      end
+    end
+
+    def handle_case_two
+      if @groups.empty? || (@groups.all? { |group| group.started_at > Time.zone.today && group.support_module_programmed.zero? })
+        # Si il n'existe pas de cohortes actives, supprimer les doublons les plus récents
+        @children.sort_by(&:created_at).drop(1).each do |child|
+          discard_child(child)
+        end
+      elsif @started_groups.length == 1
+        @children.select { |child| child.group_id != @started_groups.first.id }.each do |child|
+          discard_child(child)
+        end
+      end
+    end
+
+    def discard_child(child)
+      child.discard
+      child.parent1.discard
+      child.parent2.discard
+      child.child_support.discard
+    end
+
+    def keep_supported_children_and_add_parent2_if_needed
+      started_group_children = @children.select { |child| child.group_id == @started_groups.first.id }
+      not_supported_children = @children - started_group_children
+      parent2 = @children.select { |child| child.parent2.present? }.first&.parent2
+      started_group_children.select { |child| child.parent2.nil? }.each do |child|
+        # Il n'y a qu'un seul enfant suivi normalement
+        child.parent2 = parent2
+        child.save
+      end
+      not_supported_children.each do |child|
+        child.discard
+        child.parent1.discard
+        child.child_support.discard
+      end
+    end
+
+    def delete_children_without_parent2
+      # On conserve l'enfant qui a le plus de parents en supprimant ceux qui n'ont pas de parent2, leur parent1 et leur fiche de suivi
+      @children.select { |child| child.parent2.nil? }.each do |child_without_parent2|
+        child_without_parent2.discard
+        child_without_parent2.parent1.discard
+        child_without_parent2.child_support.discard
+      end
+    end
+
+    def keep_recent_child
+      # Et si plusieurs ont des parent2, on garde le plus récent
+      @children.select { |child| child.parent2.present? }.sort_by(&:created_at).reverse.drop(1).each do |child_with_parent2|
+        child_with_parent2.discard
+        child_with_parent2.parent1.discard
+        child_with_parent2.child_support.discard
+      end
+    end
+
     def handle_duplicated_children_with_parent2
       @duplicated_children_with_parent2.each do |_, children|
         next if more_than_one_children_supported?
@@ -83,55 +151,12 @@ class Child
         @children = children
         # Recupérer les cohortes
         @groups = children_groups
-        only_one_started_group = @groups.select { |group| group.started_at <= Time.zone.today && group.support_module_programmed.positive? }
-        if case_one?
-          # S'il n'y a pas de cohorte ou si celles qui existent n'ont pas encore démarré
-          if @groups.empty? || ( @groups.all? { |group| group.started_at >= Time.zone.today && group.support_module_programmed.zero? })
-
-            # On conserve l'enfant qui a le plus de parents en supprimant ceux qui n'ont pas de parent2, leur parent1 et leur fiche de suivi
-            @children.select { |child| child.parent2.nil? }.each do |child_without_parent2|
-              child_without_parent2.discard
-              child_without_parent2.parent1.discard
-              child_without_parent2.child_support.discard
-            end
-            # Et si plusieurs ont des parent2, on garde le plus récent
-            @children.select { |child| child.parent2.present? }.sort_by(&:created_at).reverse.drop(1).each do |child_with_parent2|
-              child_with_parent2.discard
-              child_with_parent2.parent1.discard
-              child_with_parent2.child_support.discard
-            end
-          # Si une seule cohorte a démarré
-          elsif only_one_started_group.length == 1
-            started_group_children = @children.select { |child| child.group_id == only_one_started_group.first.id }
-            not_active_children = @children - started_group_children
-            parent2 = @children.select { |child| child.parent2.present? }.first&.parent2
-            started_group_children.select { |child| child.parent2.nil? }.each do |child|
-              child.parent2 = parent2
-              child.save
-            end
-            not_active_children.each do |child|
-              child.discard
-              child.parent1.discard
-              child.child_support.discard
-            end
-          end
-        elsif case_two?
-          if @groups.empty? || (@groups.all? { |group| group.started_at > Time.zone.today && group.support_module_programmed.zero? })
-            # Si il n'existe pas de cohortes actives, supprimer les doublons les plus récents
-            @children.sort_by(&:created_at).drop(1).each do |child|
-              child.discard
-              child.parent1.discard
-              child.parent2.discard
-              child.child_support.discard
-            end
-          elsif only_one_started_group.length == 1
-            @children.select { |child| child.group_id != only_one_started_group.first.id }.each do |child|
-              child.discard
-              child.parent1.discard
-              child.parent2.discard
-              child.child_support.discard
-            end
-          end
+        @started_groups = @groups.select { |group| group.started_at <= Time.zone.today && group.support_module_programmed.positive? }
+        case
+        when case_one?
+          handle_case_one
+        when case_two?
+          handle_case_two
         end
       end
     end

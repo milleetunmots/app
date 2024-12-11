@@ -67,7 +67,7 @@ ActiveAdmin.register Child do
     scope.merge(Child.potential_duplicates)
   end
   scope('Doublons potentiels via tel', if: proc { !current_admin_user.caller? }) do |scope|
-    scope.merge(Child.potential_duplicates_by_phone_number)
+    scope.merge(Child.potential_duplicates_by_phone_number_without_same_parents)
   end
 
   filter :gender,

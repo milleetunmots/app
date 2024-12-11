@@ -75,7 +75,7 @@ RSpec.describe Child::HandleDuplicateService do
     let!(:duplicated_parent) { FactoryBot.create(:parent, phone_number: '0755800000') }
     let!(:child_with_parent2) { FactoryBot.create(:child, first_name: 'preNom', last_name: 'nOm', parent1: first_parent, parent2: second_parent) }
     let!(:child_without_parent2) { FactoryBot.create(:child, first_name: 'Prenom ', last_name: ' Nom', birthdate: child_with_parent2.birthdate, parent1: duplicated_parent) }
-    let!(:group) {FactoryBot.create(:group, expected_children_number: 0) }
+    let!(:group) { FactoryBot.create(:group, expected_children_number: 0) }
 
     context "if the two children don't have a group" do
       it "delete the child whithout parent2 and his parent1" do
