@@ -367,6 +367,11 @@ class Parent < ApplicationRecord
 
   def change_address_attributes(parent)
     parent.update(letterbox_name: letterbox_name, address: address, postal_code: postal_code, city_name: city_name)
+    parent.children.each do |c|
+      child_support = c.child_support
+      child_support.address_suspected_invalid_at = nil
+      child_support.save(touch: false)
+    end
   end
 
   def should_be_contacted_as_parent2
