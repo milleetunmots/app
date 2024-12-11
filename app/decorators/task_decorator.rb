@@ -45,7 +45,7 @@ class TaskDecorator < BaseDecorator
   end
 
   def display_description
-    model.description.html_safe
+    model.description&.html_safe
   end
 
 end
