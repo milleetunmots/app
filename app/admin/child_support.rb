@@ -288,11 +288,13 @@ ActiveAdmin.register ChildSupport do
             end
           end
           if true
-            resource.children.each do |child|
-              h4 "Livres envoyés à #{child.first_name} :"
-              div do
-                child.children_support_modules.where.not(book_id: nil).each do |support_module|
-                  span support_module.book.decorate.cover_link_tag(max_width: '60px')
+            div class: 'children-books-sent' do
+              resource.children.each do |child|
+                h4 "Livres envoyés à #{child.first_name} :"
+                div do
+                  child.children_support_modules.where.not(book_id: nil).each do |support_module|
+                    span support_module.book.decorate.cover_link_tag(max_width: '60px')
+                  end
                 end
               end
             end
