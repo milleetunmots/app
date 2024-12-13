@@ -173,6 +173,7 @@ fr:
         available_support_module_names: Modules disponibles
         available_support_module_names_for_csv: Modules disponibles
         module_index: Index
+        book_title: Livre envoyé
       child_support:
         << : *SHARED
         address: Adresse
@@ -302,6 +303,7 @@ fr:
         child_support_groups: Cohortes
         important_information: Infos importantes
         is_bilingual: Bilinguisme
+        address_suspected_invalid_at: Doute sur l'adresse > Livre plus envoyé
         letterbox_name: Nom de famille sur la boîte aux lettres
         other_family_child_supports: Autres suivis de la famille
         parent1: Parent 1

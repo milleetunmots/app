@@ -3,6 +3,7 @@
 # Table name: child_supports
 #
 #  id                                    :bigint           not null, primary key
+#  address_suspected_invalid_at          :datetime
 #  already_working_with                  :boolean
 #  availability                          :string
 #  book_not_received                     :string
@@ -125,7 +126,6 @@
 #  discarded_at                          :datetime
 #  family_support_should_be_stopped      :string
 #  important_information                 :text
-#  is_address_suspected_invalid          :boolean          default(FALSE), not null
 #  is_bilingual                          :string           default("2_no_information")
 #  most_present_parent                   :string
 #  notes                                 :text
@@ -518,9 +518,6 @@ class ChildSupport < ApplicationRecord
       'availability',
       'call_infos',
       'book_not_received',
-      'should_be_read',
-      'to_call',
-      'will_stay_in_group',
       'tag_list'
     ).each do |attribute, value|
       self.notes << "#{I18n.t("activerecord.attributes.child_support.#{attribute}")} : #{value}\n"
@@ -560,15 +557,12 @@ class ChildSupport < ApplicationRecord
   def clean_fields
     self.supporter_id = nil
     self.is_bilingual = '2_no_information'
-    self.will_stay_in_group = false
     attributes.slice(
       'second_language',
       'important_information',
       'availability',
       'call_infos',
       'book_not_received',
-      'should_be_read',
-      'to_call',
       'tag_list'
     ).each_key do |attribute|
       self[attribute.to_sym] = nil
