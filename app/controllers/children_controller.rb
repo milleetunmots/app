@@ -38,14 +38,25 @@ class ChildrenController < ApplicationController
       @child.build_children_source(source_id: children_source_params&.dig(:source_id), details: children_source_params&.dig(:details), registration_department: children_source_params&.dig(:registration_department))
       render action: :new
     elsif service.parent1_target_profile || current_registration_origin != 4
-      redirect_to created_child_path(sms_url_form: service.sms_url_form, child_under_four_months: service.child_under_four_months)
+      redirect_to created_child_path(sms_url_form: service.sms_url_form, child_under_four_months: service.child_under_four_months, last_child_under_twenty_four_months: service.last_child_under_twenty_four_months)
     else
-      redirect_to created_child_path(sms_url_form: service.sms_url_form, parent1: @child.parent1, child_under_four_months: service.child_under_four_months)
+      redirect_to created_child_path(sms_url_form: service.sms_url_form, parent1: @child.parent1, child_under_four_months: service.child_under_four_months, last_child_under_twenty_four_months: service.last_child_under_twenty_four_months)
     end
   end
 
   def created
-    support_wait_time_message = params[:child_under_four_months] == 'true' ? 'inscription_success.without_widget_but_with_a_child_under_four_months' : 'inscription_success.neither_widget_nor_child_under_four_months'
+    support_wait_time_message =
+      case params[:child_under_four_months]
+      when 'true'
+        'inscription_success.without_widget_but_with_a_child_under_four_months'
+      else
+        if params[:last_child_under_twenty_four_months] == 'true'
+          'inscription_success.neither_widget_nor_child_under_four_months_with_last_child_under_twenty_four_months'
+        else
+          'inscription_success.neither_widget_nor_child_under_four_months_without_last_child_under_twenty_four_months'
+        end
+      end
+
     case current_registration_origin
     when 5
       @message = I18n.t('inscription_success.pro')
