@@ -35,8 +35,8 @@ class ChildrenSupportModulesController < ApplicationController
     @parent_id = @children_support_module.parent_id
     @typeform_link = "https://wr1q9w7z4ro.typeform.com/to/YzlXcWSJ#child_support_id=#{@children_support_module.child.child_support.id}"
     @group_id = params[:group_id]
-
     @child_first_name = params[:child_first_name]
+    remaining_module_count
   end
 
   private
@@ -50,5 +50,19 @@ class ChildrenSupportModulesController < ApplicationController
     @children_support_module = ChildrenSupportModule.find_by(id: params[:id])
     not_found and return if @children_support_module.nil?
     not_found and return if @children_support_module.parent.security_code != @security_code
+  end
+
+  def remaining_module_count
+    current_child = Parent.find(@parent_id).current_child
+    @module_index = @children_support_module.module_index
+    group = Group.find(@group_id)
+    group_support_modules_count = group.support_modules_count
+    @max_remaining_module_count = group_support_modules_count - @module_index
+    @remaining_module_count = 0
+    1.upto(@max_remaining_module_count) do |count|
+      break if Time.zone.today + (count * (count == 1 && @module_index == 3 ? 7.weeks : 8.weeks)) >= current_child.birthdate + 36.months
+
+      @remaining_module_count += 1
+    end
   end
 end
