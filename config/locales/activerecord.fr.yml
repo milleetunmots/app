@@ -478,6 +478,14 @@ fr:
         is_programmed: A déjà été programmé
         support_module_programmed: Nombre de modules programmés
         expected_children_number: Nombre d'enfants prévus
+        call0_start_date: Début de la phase d'appel 0
+        call0_end_date: Fin de la phase d'appel 0
+        call1_start_date: Début de la phase d'appel 1
+        call1_end_date: Fin de la phase d'appel 1
+        call2_start_date: Début de la phase d'appel 2
+        call2_end_date: Fin de la phase d'appel 2
+        call3_start_date: Début de la phase d'appel 3
+        call3_end_date: Fin de la phase d'appel 3
       media_folder:
         << : *SHARED
         name: Nom
