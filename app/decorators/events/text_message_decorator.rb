@@ -8,8 +8,8 @@ class Events::TextMessageDecorator < EventDecorator
   end
 
   def timeline_description
-    if originated_by_app 
-      'Envoyé par <span style="color: #e84e0f;">1001 Mots</span>.'.html_safe
+    if originated_by_app
+      'Envoyé par <span style="color: #e84e0f;">1001mots</span>.'.html_safe
     else
       [
         related_link,

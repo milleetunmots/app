@@ -10,7 +10,7 @@ RSpec.describe Typeform::InitialFormService do
       Typeform::InitialFormService.new(params[:form_response]).call
       child.child_support.reload
       child.parent1.reload
-      expect(child.child_support.important_information).to eq("Nombre d'enfants: 2\nÀ déjà été accompagné par 1001 mots\nLes deux parents passent le plus de temps avec l'enfant\nAutre numéro de téléphone: +33677889922")
+      expect(child.child_support.important_information).to eq("Nombre d'enfants: 2\nÀ déjà été accompagné par 1001mots\nLes deux parents passent le plus de temps avec l'enfant\nAutre numéro de téléphone: +33677889922")
       expect(child.child_support.call1_reading_frequency).to eq("1_rarely")
       expect(child.child_support.books_quantity).to eq("2_three_or_less")
       expect(child.child_support.call1_tv_frequency).to eq("3_frequently")

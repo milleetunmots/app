@@ -183,7 +183,7 @@ class Child
 
       @child.errors.add(:base,
                         :invalid,
-                        message: "L'accompagnement 1001 mots n'est pas encore disponible dans votre région. N'hésitez pas à suivre nos actualités sur notre site et notre page facebook !")
+                        message: "L'accompagnement 1001mots n'est pas encore disponible dans votre région. N'hésitez pas à suivre nos actualités sur notre site et notre page facebook !")
     end
 
     def send_not_supported_sms
