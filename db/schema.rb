@@ -67,6 +67,14 @@ ActiveRecord::Schema.define(version: 2024_12_17_144505) do
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
 
+  create_table "answers", force: :cascade do |t|
+    t.bigint "question_id", null: false
+    t.text "body", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["question_id"], name: "index_answers_on_question_id"
+  end
+
   create_table "books", force: :cascade do |t|
     t.string "title", null: false
     t.string "ean", null: false
@@ -551,6 +559,15 @@ ActiveRecord::Schema.define(version: 2024_12_17_144505) do
     t.index ["postal_code"], name: "index_parents_on_postal_code"
   end
 
+  create_table "parents_answers", force: :cascade do |t|
+    t.bigint "parent_id", null: false
+    t.bigint "answer_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["answer_id"], name: "index_parents_answers_on_answer_id"
+    t.index ["parent_id"], name: "index_parents_answers_on_parent_id"
+  end
+
   create_table "parents_registrations", force: :cascade do |t|
     t.bigint "parent1_id"
     t.bigint "parent2_id"
@@ -577,6 +594,15 @@ ActiveRecord::Schema.define(version: 2024_12_17_144505) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["searchable_type", "searchable_id"], name: "index_pg_search_documents_on_searchable_type_and_searchable_id"
+  end
+
+  create_table "questions", force: :cascade do |t|
+    t.bigint "survey_id", null: false
+    t.text "body", null: false
+    t.boolean "with_open_ended_response", default: true, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["survey_id"], name: "index_questions_on_survey_id"
   end
 
   create_table "redirection_targets", force: :cascade do |t|
@@ -654,6 +680,12 @@ ActiveRecord::Schema.define(version: 2024_12_17_144505) do
     t.index ["age_ranges"], name: "index_support_modules_on_age_ranges", using: :gin
     t.index ["book_id"], name: "index_support_modules_on_book_id"
     t.index ["discarded_at"], name: "index_support_modules_on_discarded_at"
+  end
+
+  create_table "surveys", force: :cascade do |t|
+    t.string "title", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "taggings", id: :serial, force: :cascade do |t|
