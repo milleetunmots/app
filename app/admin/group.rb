@@ -58,12 +58,25 @@ ActiveAdmin.register Group do
       f.input :started_at, as: :datepicker
       f.input :ended_at, as: :datepicker
       f.input :support_modules_count
-      f.input :expected_children_number, hint: "Il n'y aura plus d'assignation automatique d'enfant à l'inscription une fois ce nombre atteint."
+      f.input :expected_children_number, hint: "Il n'y aura plus d'assignation automatique d'enfant à l'inscription une fois ce nombre atteint. Mettre à 0 pour empêcher les assignations automatiques."
+      unless f.object.new_record?
+        inputs "Sessions d'appels" do
+          f.input :call0_start_date, as: :datepicker
+          f.input :call0_end_date, as: :datepicker
+          f.input :call1_start_date, as: :datepicker
+          f.input :call1_end_date, as: :datepicker
+          f.input :call2_start_date, as: :datepicker
+          f.input :call2_end_date, as: :datepicker
+          f.input :call3_start_date, as: :datepicker
+          f.input :call3_end_date, as: :datepicker
+        end
+      end
     end
     f.actions
   end
 
-  permit_params :name, :started_at, :ended_at, :support_modules_count, :expected_children_number
+  permit_params :name, :started_at, :ended_at, :support_modules_count, :expected_children_number, :call0_start_date, :call0_end_date,
+    :call1_start_date, :call1_end_date, :call2_start_date, :call2_end_date, :call3_start_date, :call3_end_date
 
   # ---------------------------------------------------------------------------
   # SHOW
