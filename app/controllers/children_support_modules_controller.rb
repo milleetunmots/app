@@ -59,8 +59,15 @@ class ChildrenSupportModulesController < ApplicationController
     group_support_modules_count = group.support_modules_count
     @max_remaining_module_count = group_support_modules_count - @module_index
     @remaining_module_count = 0
+    select_module_date =
+      case @module_index
+      when 3
+        current_child.group.started_at + 10.weeks
+      else
+        (current_child.group.started_at + ((@module_index - 2) * 8.weeks)).next_occurring(:monday)
+      end
     1.upto(@max_remaining_module_count) do |count|
-      break if Time.zone.today + (count * (count == 1 && @module_index == 3 ? 7.weeks : 8.weeks)) >= current_child.birthdate + 36.months
+      break if select_module_date + (count * (count == 1 && @module_index == 3 ? 7.weeks : 8.weeks)) >= current_child.birthdate + 36.months
 
       @remaining_module_count += 1
     end
