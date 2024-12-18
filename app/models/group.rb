@@ -69,6 +69,7 @@ class Group < ApplicationRecord
 
   before_create :standardize_name
   before_create :set_calls_dates
+  before_save :set_calls_dates, if: :will_save_change_to_started_at?
   after_create :add_waiting_children
 
   # ---------------------------------------------------------------------------
