@@ -60,7 +60,7 @@ ActiveAdmin.register Group do
       f.input :support_modules_count
       f.input :expected_children_number, hint: "Il n'y aura plus d'assignation automatique d'enfant à l'inscription une fois ce nombre atteint. Mettre à 0 pour empêcher les assignations automatiques."
       unless f.object.new_record?
-        inputs "Phases d'appels" do
+        inputs "Sessions d'appels" do
           f.input :call0_start_date, as: :datepicker
           f.input :call0_end_date, as: :datepicker
           f.input :call1_start_date, as: :datepicker
