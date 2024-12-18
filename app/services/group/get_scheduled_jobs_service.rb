@@ -26,7 +26,7 @@ class Group
       group = Group.find(group_id)
       @group_with_module_zero = group.with_module_zero?
       @group_id = group_id
-      @module_number = group.started_at > MODULE_ZERO_FEATURE_START ? group.support_modules_count - 1 : group.support_modules_count
+      @module_number = group.started_at && group.started_at > MODULE_ZERO_FEATURE_START ? group.support_modules_count - 1 : group.support_modules_count
       @scheduled_jobs = []
     end
 
