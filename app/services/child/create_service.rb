@@ -2,7 +2,7 @@ class Child
 
   class CreateService
 
-    attr_reader :child, :sms_url_form, :parent1_target_profile, :child_under_four_months, :youngest_child_under_twenty_four_months
+    attr_reader :child, :sms_url_form, :parent1_target_profile, :children_under_four_months, :youngest_child_under_twenty_four_months
 
     def initialize(attributes, siblings_attributes, parent1_attributes, parent2_attributes, registration_origin, children_source_attributes, child_min_birthdate)
       @attributes = attributes
@@ -30,8 +30,9 @@ class Child
         send_form_by_sms
         send_not_supported_sms
         create_parent_registration
-        @child_under_four_months = @child.siblings.any? { |child| child.months < 4 }
-        @youngest_child_under_twenty_four_months = @child.siblings.sort_by(&:birthdate).first.months < 24
+        @children_under_four_months = @child.siblings.all? { |child| child.months < 4 }
+        younguest_child_over_four_months = @child.siblings.where('birthdate <= ?', 4.months.ago).order('birthdate desc').first
+        @youngest_child_under_twenty_four_months = @children_under_four_months ? false : younguest_child_over_four_months.months < 24
       end
       self
     end
