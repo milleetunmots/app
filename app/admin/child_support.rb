@@ -85,6 +85,7 @@ ActiveAdmin.register ChildSupport do
          as: :string
   filter :supporter,
          input_html: { data: { select2: {} } }
+  filter :address_suspected_invalid_at
   (0..5).each do |call_idx|
     filter "call#{call_idx}_status_filter", as: :check_boxes,  label: "Statut de l'appel #{call_idx}", collection: proc { call_statuses_with_nil }
     filter "call#{call_idx}_duration"
@@ -280,9 +281,24 @@ ActiveAdmin.register ChildSupport do
                   collection: book_not_received_collection,
                   multiple: true,
                   input_html: { data: { select2: { tokenSeparators: [';'] } } }
-          f.input :should_be_read
-          f.input :to_call
-          f.input :will_stay_in_group
+          if resource.address_suspected_invalid_at
+            div class: 'address-suspected-invalid-info' do
+              h4 "Problème avec l’adresse : les livres ne sont plus envoyés depuis le #{resource.address_suspected_invalid_at&.strftime("%d/%m/%Y")}", class: 'txt-warning'
+              h5 "Pour que les livres soient de nouveau envoyés, les infos du parent 1 doivent être mises à jour (adresse ou nom sur la boîte aux lettres)", class: 'txt-italic'
+            end
+          end
+          if ChildrenSupportModule.where(child_id: [resource.children.ids]).where.not(book_id: nil).any?
+            div class: 'children-books-sent' do
+              resource.children.each do |child|
+                h4 "Livres envoyés à #{child.first_name} :"
+                div do
+                  child.children_support_modules.where.not(book_id: nil).order(:module_index).each do |support_module|
+                    span support_module.book.decorate.cover_link_tag(max_width: '60px')
+                  end
+                end
+              end
+            end
+          end
           tags_input(f, context_list = 'tag_list', label: 'Tags fiche de suivi')
         end
       end
@@ -660,12 +676,9 @@ ActiveAdmin.register ChildSupport do
   base_attributes = %i[
     important_information
     supporter_id
-    should_be_read
     is_bilingual
     second_language
-    to_call
     books_quantity
-    will_stay_in_group
     notes
     availability
     call_infos
@@ -715,8 +728,6 @@ ActiveAdmin.register ChildSupport do
             end
           end
           row :children
-          row :to_call
-          # row :will_stay_in_group
           row :important_information
           row :availability
           row :call_infos

@@ -20,7 +20,7 @@ class Event::SendMessageToParentResponseService
       return self
     end
 
-    return self if @parent.message_already_sent_in_response?
+    return self if @parent.message_already_sent?(MESSAGE)
 
     supporter = @parent.current_child&.child_support&.supporter
     return self unless supporter

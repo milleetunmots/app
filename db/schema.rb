@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_11_14_093211) do
+ActiveRecord::Schema.define(version: 2024_12_10_115841) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -293,6 +293,7 @@ ActiveRecord::Schema.define(version: 2024_11_14_093211) do
     t.string "call4_review"
     t.string "call5_review"
     t.string "call3_previous_goals_follow_up"
+    t.datetime "address_suspected_invalid_at"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
@@ -380,6 +381,8 @@ ActiveRecord::Schema.define(version: 2024_11_14_093211) do
     t.boolean "is_completed", default: false
     t.boolean "is_programmed", default: false, null: false
     t.integer "module_index"
+    t.bigint "book_id"
+    t.index ["book_id"], name: "index_children_support_modules_on_book_id"
     t.index ["child_id"], name: "index_children_support_modules_on_child_id"
     t.index ["parent_id"], name: "index_children_support_modules_on_parent_id"
     t.index ["support_module_id"], name: "index_children_support_modules_on_support_module_id"
@@ -422,6 +425,10 @@ ActiveRecord::Schema.define(version: 2024_11_14_093211) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["author_id"], name: "index_field_comments_on_author_id"
     t.index ["related_type", "related_id"], name: "index_field_comments_on_related_type_and_related_id"
+  end
+
+  create_table "foo", id: false, force: :cascade do |t|
+    t.integer "x"
   end
 
   create_table "groups", force: :cascade do |t|
@@ -745,6 +752,7 @@ ActiveRecord::Schema.define(version: 2024_11_14_093211) do
   add_foreign_key "child_supports", "support_modules", column: "module6_chosen_by_parents_id"
   add_foreign_key "children", "parents", column: "parent1_id"
   add_foreign_key "children", "parents", column: "parent2_id"
+  add_foreign_key "children_support_modules", "books"
   add_foreign_key "events", "workshops"
   add_foreign_key "field_comments", "admin_users", column: "author_id"
   add_foreign_key "media", "media", column: "image1_id"

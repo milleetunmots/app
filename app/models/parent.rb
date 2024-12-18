@@ -84,7 +84,9 @@ class Parent < ApplicationRecord
   PITHIVIERS_POSTAL_CODE = %w[45300 45480 45170].freeze
   VILLENEUVE_LA_GARENNE_POSTAL_CODE = %w[92390].freeze
   MANTES_LA_JOLIE_POSTAL_CODE = %w[78520 78200 78711].freeze
-  ALL_POSTAL_CODE = ORELANS_POSTAL_CODE + PLAISIR_POSTAL_CODE + MONTARGIS_POSTAL_CODE + TRAPPES_POSTAL_CODE + PARIS_18_EME_POSTAL_CODE + AULNAY_SOUS_BOIS_POSTAL_CODE + PARIS_20_EME_POSTAL_CODE + BONDY_POSTAL_CODE
+  ASNIERES_POSTAL_CODE = %w[92600].freeze
+  GENNEVILLIERS_POSTAL_CODE = %w[92230].freeze
+  ALL_POSTAL_CODE = ORELANS_POSTAL_CODE + PLAISIR_POSTAL_CODE + MONTARGIS_POSTAL_CODE + TRAPPES_POSTAL_CODE + PARIS_18_EME_POSTAL_CODE + AULNAY_SOUS_BOIS_POSTAL_CODE + PARIS_20_EME_POSTAL_CODE + BONDY_POSTAL_CODE + GIEN_POSTAL_CODE
   COMMUNICATION_CHANNELS = %w[sms whatsapp].freeze
 
 
@@ -304,8 +306,8 @@ class Parent < ApplicationRecord
     children_name_and_birthdate.eql? parent.children_name_and_birthdate
   end
 
-  def message_already_sent_in_response?
-    events.text_messages.where('originated_by_app = ? AND created_at > ? AND body ILIKE ?', true, 1.day.ago, "#{Event::SendMessageToParentResponseService::MESSAGE}%").limit(1).any?
+  def message_already_sent?(period, message_start)
+    events.text_messages.where('originated_by_app = ? AND occurred_at > ? AND body ILIKE ?', true, period, "#{message_start}%").limit(1).any?
   end
 
   # ---------------------------------------------------------------------------
@@ -367,6 +369,11 @@ class Parent < ApplicationRecord
 
   def change_address_attributes(parent)
     parent.update(letterbox_name: letterbox_name, address: address, postal_code: postal_code, city_name: city_name)
+    parent.children.each do |c|
+      child_support = c.child_support
+      child_support.address_suspected_invalid_at = nil
+      child_support.save(touch: false)
+    end
   end
 
   def should_be_contacted_as_parent2

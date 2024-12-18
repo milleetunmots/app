@@ -90,6 +90,10 @@ class BaseDecorator < Draper::Decorator
 
     return 'Mantes La Jolie' if Parent::MANTES_LA_JOLIE_POSTAL_CODE.include? postal_code
 
+    return 'Asnières' if Parent::ASNIERES_POSTAL_CODE.include? postal_code
+
+    return 'Gennevilliers' if Parent::GENNEVILLIERS_POSTAL_CODE.include? postal_code
+
   end
 
   def created_at_date

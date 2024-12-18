@@ -26,8 +26,8 @@ class Group
         @support_modules_count[csm.support_module.name] ||= {}
         @support_modules_count[csm.support_module.name][csm.support_module.decorate.display_age_ranges.to_sym] ||= {count: 0}
         @support_modules_count[csm.support_module.name][csm.support_module.decorate.display_age_ranges.to_sym][:count] += 1
-        @support_modules_count[csm.support_module.name][csm.support_module.decorate.display_age_ranges.to_sym][:book_ean] ||= csm.support_module.book&.ean
-        @support_modules_count[csm.support_module.name][csm.support_module.decorate.display_age_ranges.to_sym][:book_title] ||= csm.support_module.book&.title
+        @support_modules_count[csm.support_module.name][csm.support_module.decorate.display_age_ranges.to_sym][:book_ean] ||= csm.book_ean.presence || csm.support_module.book&.ean
+        @support_modules_count[csm.support_module.name][csm.support_module.decorate.display_age_ranges.to_sym][:book_title] ||= csm.book_title.presence || csm.support_module.book&.title
       end
 
       init_excel_file
@@ -40,7 +40,7 @@ class Group
     private
 
     def child_and_parent1_ids
-      @group.children.active_group.pluck(:id, :parent1_id)
+      @group.children.joins(:child_support).where(child_support: { address_suspected_invalid_at: nil }).active_group.pluck(:id, :parent1_id)
     end
 
     def init_excel_file
