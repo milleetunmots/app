@@ -3,6 +3,14 @@
 # Table name: groups
 #
 #  id                        :bigint           not null, primary key
+#  call0_end_date            :date
+#  call0_start_date          :date
+#  call1_end_date            :date
+#  call1_start_date          :date
+#  call2_end_date            :date
+#  call2_start_date          :date
+#  call3_end_date            :date
+#  call3_start_date          :date
 #  discarded_at              :datetime
 #  ended_at                  :date
 #  expected_children_number  :integer
