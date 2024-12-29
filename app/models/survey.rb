@@ -3,7 +3,7 @@
 # Table name: surveys
 #
 #  id         :bigint           not null, primary key
-#  title      :string           not null
+#  name       :text             not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
@@ -19,6 +19,6 @@ class Survey < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  validates :title, presence: true
+  validates :name, presence: true
 
 end

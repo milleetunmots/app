@@ -106,6 +106,9 @@ class Parent < ApplicationRecord
 
   has_many :support_modules, through: :children_support_modules
 
+  has_many :parents_answers, dependent: :destroy
+  has_many :answers, through: :parents_answers
+
   has_and_belongs_to_many :workshops
 
   # ---------------------------------------------------------------------------

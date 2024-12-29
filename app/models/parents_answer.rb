@@ -20,13 +20,6 @@ class ParentsAnswer < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   belongs_to :parent
-  belongs_to :question
   belongs_to :answer
-
-  # ---------------------------------------------------------------------------
-  # validations
-  # ---------------------------------------------------------------------------
-
-  validates :body, presence: true
 
 end

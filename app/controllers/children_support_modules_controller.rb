@@ -15,13 +15,24 @@ class ChildrenSupportModulesController < ApplicationController
     if @children_support_module.update(children_support_module_params)
       group_id = @children_support_module.child.group_id
       child_support_id = @children_support_module.child.child_support_id
-      redirect_to updated_children_support_module_path(
-        @children_support_module.id,
-        child_first_name: @children_support_module.child.first_name,
-        sc: @children_support_module.parent.security_code,
-        group_id: group_id,
-        child_support_id: child_support_id
-      )
+      if @children_support_module.module_index.eql?(6)
+        # redirect to feedback form
+        survey = Survey.find_by(name: ENV['SURVEY_NAME_MODULE_FIVE_BOOKS'])
+        redirect_to new_survey_parent_answer_path(
+          survey,
+          @children_support_module.parent,
+          sc: @children_support_module.parent.security_code,
+          child_id: @children_support_module.child_id
+        )
+      else
+        redirect_to updated_children_support_module_path(
+          @children_support_module.id,
+          child_first_name: @children_support_module.child.first_name,
+          sc: @children_support_module.parent.security_code,
+          group_id: group_id,
+          child_support_id: child_support_id
+        )
+      end
     else
       @support_modules = @children_support_module.available_support_modules
       @action_path = children_support_module_path(@children_support_module, sc: @children_support_module.parent.security_code)
@@ -31,7 +42,7 @@ class ChildrenSupportModulesController < ApplicationController
 
   def updated
     # link only for third choice
-    @third_choice = @children_support_module.child.group.with_module_zero? ? @children_support_module.module_index.eql?(4) : @children_support_module.module_index.eql?(3)
+    @module_three = @children_support_module.child.group.with_module_zero? ? @children_support_module.module_index.eql?(4) : @children_support_module.module_index.eql?(3)
     @parent_id = @children_support_module.parent_id
     @typeform_link = "https://wr1q9w7z4ro.typeform.com/to/YzlXcWSJ#child_support_id=#{@children_support_module.child.child_support.id}"
     @group_id = params[:group_id]

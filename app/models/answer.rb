@@ -3,7 +3,7 @@
 # Table name: answers
 #
 #  id          :bigint           not null, primary key
-#  body        :text             not null
+#  response    :text             not null
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #  question_id :bigint           not null
@@ -25,6 +25,6 @@ class Answer < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
-  validates :body, presence: true
+  validates :response, presence: true
 
 end

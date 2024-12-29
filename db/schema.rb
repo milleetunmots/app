@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_12_17_144505) do
+ActiveRecord::Schema.define(version: 2024_12_29_152242) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -69,7 +69,7 @@ ActiveRecord::Schema.define(version: 2024_12_17_144505) do
 
   create_table "answers", force: :cascade do |t|
     t.bigint "question_id", null: false
-    t.text "body", null: false
+    t.text "response", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["question_id"], name: "index_answers_on_question_id"
@@ -598,11 +598,14 @@ ActiveRecord::Schema.define(version: 2024_12_17_144505) do
 
   create_table "questions", force: :cascade do |t|
     t.bigint "survey_id", null: false
-    t.text "body", null: false
-    t.boolean "with_open_ended_response", default: true, null: false
+    t.text "name", null: false
+    t.boolean "with_open_ended_response", default: false, null: false
+    t.text "uid", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "order", null: false
     t.index ["survey_id"], name: "index_questions_on_survey_id"
+    t.index ["uid"], name: "index_questions_on_uid", unique: true
   end
 
   create_table "redirection_targets", force: :cascade do |t|
@@ -683,7 +686,7 @@ ActiveRecord::Schema.define(version: 2024_12_17_144505) do
   end
 
   create_table "surveys", force: :cascade do |t|
-    t.string "title", null: false
+    t.text "name", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
