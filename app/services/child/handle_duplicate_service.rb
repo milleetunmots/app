@@ -28,7 +28,7 @@ class Child
       @children.pending_support.where.not(id: first_child.id).each do |child|
         child.parent1.discard
         child.parent2.discard
-        child.child_support.discard
+        child.child_support&.discard
         child.update(
           parent1: first_child.parent1,
           parent2: first_child.parent2,
@@ -122,6 +122,8 @@ class Child
       not_supported_children.each do |child|
         child.discard
         child.parent1.discard if child.parent1.children.kept.empty?
+        next if child.child_support.nil?
+
         child.child_support.discard if child.child_support.children.kept.empty?
       end
     end
@@ -131,6 +133,8 @@ class Child
       @children.select { |child| child.parent2.nil? }.each do |child_without_parent2|
         child_without_parent2.discard
         child_without_parent2.parent1.discard if child_without_parent2.parent1.children.kept.empty?
+        next if child_without_parent2.child_support.nil?
+
         child_without_parent2.child_support.discard if child_without_parent2.child_support.children.kept.empty?
       end
     end
@@ -140,6 +144,8 @@ class Child
       @children.select { |child| child.parent2.present? }.sort_by(&:created_at).reverse.drop(1).each do |child_with_parent2|
         child_with_parent2.discard
         child_with_parent2.parent1.discard if child_with_parent2.parent1.children.kept.empty?
+        next if child_with_parent2.child_support.nil?
+
         child_with_parent2.child_support.discard if child_with_parent2.child_support.children.kept.empty?
       end
     end
@@ -240,6 +246,8 @@ class Child
     def discard_old_associations
       @old_parent1.discard if @old_parent1.children.empty?
       @old_parent2&.discard if @old_parent2 && @old_parent2&.children&.empty?
+      return if @old_child_support.blank?
+
       @old_child_support.discard if @old_child_support.children.kept.empty?
     end
 
