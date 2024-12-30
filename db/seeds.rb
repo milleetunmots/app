@@ -5,7 +5,7 @@ puts '--- SEEDING DATABASE ---'
 puts "\tAdminUser"
 
 print "\t\tadmin@example.com"
-AdminUser.create!(user_role: 'super_admin', name: 'Admin', email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?
+AdminUser.create!(user_role: 'super_admin', name: 'Admin', email: 'admin@example.com', password: 'Sido#1995', password_confirmation: 'Sido#1995') if Rails.env.development?
 puts ' ✓'
 
 # MediaFolder
@@ -153,34 +153,104 @@ puts ' ✓'
 groups = [nil]
 print "\tGroup"
 
-5.times do
-  groups << FactoryBot.create(:group)
-end
+# 5.times do
+#   groups << FactoryBot.create(:group, expected_children_number: 0)
+# end
 
 puts ' ✓'
 
 # Child
 if Rails.env.development?
-  postal_code = Parent::ALL_POSTAL_CODE
+  # postal_code = Parent::ALL_POSTAL_CODE
 
-  print "\t20 Children"
+  print "\t Test des doublons"
 
-  20.times do
-    parent1 = FactoryBot.create(:parent, postal_code: postal_code.sample, phone_number: '0755802002')
-    parent2 = FactoryBot.create(:parent, postal_code: postal_code.sample, phone_number: '0667945009')
-    rand(1..4).times do
-      group = groups[rand(0..5)]
-      child = FactoryBot.create(
-        :child,
-        parent1: parent1,
-        should_contact_parent1: true,
-        parent2: parent2,
-        should_contact_parent2: true
-      )
-      child.group = group
-      child.update(group_status: 'active') if child.group.present?
-    end
-  end
+    first_parent = FactoryBot.create(:parent, phone_number: '0755800000')
+    second_parent = FactoryBot.create(:parent, phone_number: '0755800001')
+    duplicated_parent = FactoryBot.create(:parent, phone_number: '0755800000')
+    child_with_parent2 = FactoryBot.create(:child, first_name: 'Andréa', last_name: 'Manon', parent1: first_parent, parent2: second_parent)
+    child_without_parent2 = FactoryBot.create(:child, first_name: 'andréA ', last_name: ' MaNon', birthdate: child_with_parent2.birthdate, parent1: duplicated_parent)
+    group = FactoryBot.create(:group, expected_children_number: 0)
+    # group.update(started_at: Time.zone.now.prev_occurring(:monday), support_module_programmed: 1)
+    child_with_parent2.update(group: group, group_status: 'active')
+    child_without_parent2.update(group: group, group_status: 'active')
+
+    first_parent = FactoryBot.create(:parent, phone_number: '0755800002')
+    second_parent = FactoryBot.create(:parent, phone_number: '0755800003')
+    duplicated_parent = FactoryBot.create(:parent, phone_number: '0755800002')
+    child_with_parent2 = FactoryBot.create(:child, first_name: 'Hélène', last_name: 'Manitou', parent1: first_parent, parent2: second_parent)
+    child_without_parent2 = FactoryBot.create(:child, first_name: 'HélènE ', last_name: ' MaNiToU', birthdate: child_with_parent2.birthdate, parent1: duplicated_parent)
+    group1 = FactoryBot.create(:group, expected_children_number: 0)
+    group2 = FactoryBot.create(:group, expected_children_number: 0)
+    # group.update(started_at: Time.zone.now.prev_occurring(:monday), support_module_programmed: 1)
+    child_with_parent2.update(group: group1, group_status: 'active')
+    child_without_parent2.update(group: group2, group_status: 'active')
+
+    first_parent = FactoryBot.create(:parent, phone_number: '0755800004')
+    second_parent = FactoryBot.create(:parent, phone_number: '0755800005')
+    duplicated_parent = FactoryBot.create(:parent, phone_number: '0755800004')
+    child_with_parent2 = FactoryBot.create(:child, first_name: 'Ana', last_name: 'Ninan', parent1: first_parent, parent2: second_parent)
+    child_without_parent2 = FactoryBot.create(:child, first_name: 'AnA ', last_name: ' NinAn', birthdate: child_with_parent2.birthdate, parent1: duplicated_parent)
+    group = FactoryBot.create(:group, expected_children_number: 0)
+    group.update(started_at: Time.zone.now.prev_occurring(:monday), support_module_programmed: 1)
+    child_with_parent2.update(group: group, group_status: 'active')
+
+    first_parent = FactoryBot.create(:parent, phone_number: '0755800006')
+    second_parent = FactoryBot.create(:parent, phone_number: '0755800007')
+    duplicated_parent = FactoryBot.create(:parent, phone_number: '0755800006')
+    child_with_parent2 = FactoryBot.create(:child, first_name: 'Anasthasie', last_name: 'Ninanto', parent1: first_parent, parent2: second_parent)
+    child_without_parent2 = FactoryBot.create(:child, first_name: 'AnAsThAsie ', last_name: ' NinAnTo', birthdate: child_with_parent2.birthdate, parent1: duplicated_parent)
+    group = FactoryBot.create(:group, expected_children_number: 0)
+    group.update(started_at: Time.zone.now.prev_occurring(:monday), support_module_programmed: 1)
+    child_without_parent2.update(group: group, group_status: 'active')
+
+    first_parent = FactoryBot.create(:parent, phone_number: '0755800008')
+    second_parent = FactoryBot.create(:parent, phone_number: '0755800009')
+    duplicated_parent1 = FactoryBot.create(:parent, phone_number: '0755800008')
+    duplicated_parent2 = FactoryBot.create(:parent, phone_number: '0755800009')
+    child1 = FactoryBot.create(:child, first_name: 'asie', last_name: 'anto', parent1: first_parent, parent2: second_parent)
+    child2 = FactoryBot.create(:child, first_name: 'Asie ', last_name: ' AnTo', birthdate: child1.birthdate, parent1: duplicated_parent1, parent2: duplicated_parent2)
+    group = FactoryBot.create(:group, expected_children_number: 0)
+    group2 = FactoryBot.create(:group, expected_children_number: 0)
+    # group.update(started_at: Time.zone.now.prev_occurring(:monday), support_module_programmed: 1)
+    child1.update(group: group, group_status: 'active')
+    child2.update(group: group2, group_status: 'active')
+
+    first_parent = FactoryBot.create(:parent, phone_number: '0755800018')
+    second_parent = FactoryBot.create(:parent, phone_number: '0755800019')
+    duplicated_parent1 = FactoryBot.create(:parent, phone_number: '0755800018')
+    duplicated_parent2 = FactoryBot.create(:parent, phone_number: '0755800019')
+    child1 = FactoryBot.create(:child, first_name: 'asTie', last_name: 'Ranto', parent1: first_parent, parent2: second_parent)
+    child2 = FactoryBot.create(:child, first_name: 'Astie ', last_name: ' rAnTo', birthdate: child1.birthdate, parent1: duplicated_parent1, parent2: duplicated_parent2)
+    group = FactoryBot.create(:group, expected_children_number: 0)
+    group2 = FactoryBot.create(:group, expected_children_number: 0)
+    group.update(started_at: Time.zone.now.prev_occurring(:monday), support_module_programmed: 1)
+    child1.update(group: group, group_status: 'active')
+    child2.update(group: group2, group_status: 'active')
+
+    first_parent1 = FactoryBot.create(:parent, phone_number: '0755800010')
+    first_parent2 = FactoryBot.create(:parent, phone_number: '0755800011')
+    duplicated_first_parent1 = FactoryBot.create(:parent, phone_number: '0755800010')
+    duplicated_first_parent2 = FactoryBot.create(:parent, phone_number: '0755800011')
+    first_child = FactoryBot.create(:child, first_name: 'preNom', last_name: 'nOm', parent1: first_parent1, parent2: first_parent2)
+    duplicated_first_child = FactoryBot.create(:child, first_name: 'duplicate Prenom ', last_name: 'duplicate Nom', parent1: duplicated_first_parent1, parent2: duplicated_first_parent2)
+
+  # 20.times do
+  #   parent1 = FactoryBot.create(:parent, postal_code: postal_code.sample, phone_number: '0755802002')
+  #   parent2 = FactoryBot.create(:parent, postal_code: postal_code.sample, phone_number: '0667945009')
+  #   rand(1..4).times do
+  #     group = groups[rand(0..5)]
+  #     child = FactoryBot.create(
+  #       :child,
+  #       parent1: parent1,
+  #       should_contact_parent1: true,
+  #       parent2: parent2,
+  #       should_contact_parent2: true
+  #     )
+  #     child.group = group
+  #     child.update(group_status: 'active') if child.group.present?
+  #   end
+  # end
   puts ' ✓'
 end
 

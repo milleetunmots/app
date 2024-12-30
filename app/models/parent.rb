@@ -114,7 +114,7 @@ class Parent < ApplicationRecord
   before_save :format_phone_number
   before_create :add_preferred_channel_tag, if: -> { preferred_channel.present? }
   after_create :should_be_contacted_as_parent2, if: -> { parent2_creation.present? }
-  after_save :change_the_other_parent_address
+  after_save :change_the_other_parent_address, :should_not_contact_parent2
   after_commit :create_aircall_contact, if: -> { created_by_us.present? }, on: :create
 
   validates :gender, presence: true, inclusion: { in: GENDERS }
@@ -330,6 +330,12 @@ class Parent < ApplicationRecord
       phone = Phonelib.parse(phone_number)
       self.phone_number = phone.e164
       self.phone_number_national = phone.national(false)
+    end
+  end
+
+  def should_not_contact_parent2
+    parent2_children.select { |child| child.parent1.phone_number == phone_number }.each do |child|
+      child.update_column(:should_contact_parent2, false)
     end
   end
 

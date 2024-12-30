@@ -3,6 +3,14 @@
 # Table name: groups
 #
 #  id                        :bigint           not null, primary key
+#  call0_end_date            :date
+#  call0_start_date          :date
+#  call1_end_date            :date
+#  call1_start_date          :date
+#  call2_end_date            :date
+#  call2_start_date          :date
+#  call3_end_date            :date
+#  call3_start_date          :date
 #  discarded_at              :datetime
 #  ended_at                  :date
 #  expected_children_number  :integer
@@ -60,6 +68,8 @@ class Group < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   before_create :standardize_name
+  before_create :set_calls_dates
+  before_save :set_calls_dates, if: :will_save_change_to_started_at?
   after_create :add_waiting_children
 
   # ---------------------------------------------------------------------------
@@ -122,6 +132,21 @@ class Group < ApplicationRecord
 
   def standardize_name
     self.name = "#{started_at.strftime('%Y/%m/%d')} - #{name}"
+  end
+
+  def set_calls_dates
+    # call 0
+    self.call0_start_date = started_at
+    self.call0_end_date = started_at + 13.days
+    # call 1
+    self.call1_start_date = started_at + 28.days
+    self.call1_end_date = started_at + 41.days
+    # call 2
+    self.call2_start_date = started_at + 56.days
+    self.call2_end_date = started_at + 69.days
+    # call 3
+    self.call3_start_date = started_at + 154.days
+    self.call3_end_date = started_at + 167.days
   end
 
   # ---------------------------------------------------------------------------

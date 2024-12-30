@@ -109,12 +109,14 @@ class Group
     end
 
     def program_sms_to_choose_module2_to_parents
+      # If you update select_module_date, check remaining_module_count in children_support_modules_controller
       # "Module 2" ==> module_index 3
       select_module_date = @group.started_at + 6.weeks + MODULE_ZERO_DURATION
       ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: @hour)).perform_later(@group.id, select_module_date, 3)
     end
 
     def program_sms_to_choose_module_to_parents
+       # If you update select_module_date, check remaining_module_count in children_support_modules_controller
       return if @group.support_modules_count < 3
 
       (4..@group.support_modules_count).each do |module_index|
