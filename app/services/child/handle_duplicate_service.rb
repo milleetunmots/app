@@ -104,6 +104,10 @@ class Child
     end
 
     def discard_child(child)
+      if child.group_id
+        child.group_status = 'not_supported'
+        child.save!
+      end
       child.discard
       child.parent1.discard if child.parent1.children.kept.empty?
       child.parent2.discard if child.parent2 && child.parent2.children.kept.empty?
@@ -120,6 +124,10 @@ class Child
         child.save
       end
       not_supported_children.each do |child|
+        if child.group_id
+          child.group_status = 'not_supported'
+          child.save!
+        end
         child.discard
         child.parent1.discard if child.parent1.children.kept.empty?
         next if child.child_support.nil?
@@ -131,6 +139,10 @@ class Child
     def delete_children_without_parent2
       # On conserve l'enfant qui a le plus de parents en supprimant ceux qui n'ont pas de parent2, leur parent1 et leur fiche de suivi
       @children.select { |child| child.parent2.nil? }.each do |child_without_parent2|
+        if child_without_parent2.group_id
+          child_without_parent2.group_status = 'not_supported'
+          child_without_parent2.save!
+        end
         child_without_parent2.discard
         child_without_parent2.parent1.discard if child_without_parent2.parent1.children.kept.empty?
         next if child_without_parent2.child_support.nil?
@@ -142,6 +154,10 @@ class Child
     def keep_recent_child
       # Et si plusieurs ont des parent2, on garde le plus récent
       @children.select { |child| child.parent2.present? }.sort_by(&:created_at).reverse.drop(1).each do |child_with_parent2|
+        if child_with_parent2.group_id
+          child_with_parent2.group_status = 'not_supported'
+          child_with_parent2.save!
+        end
         child_with_parent2.discard
         child_with_parent2.parent1.discard if child_with_parent2.parent1.children.kept.empty?
         next if child_with_parent2.child_support.nil?
@@ -277,6 +293,10 @@ class Child
       @children.each do |child|
         next if child.id == @child.id
 
+        if child.group_id
+          child.group_status = 'not_supported'
+          child.save!
+        end
         child.discard
         child.child_support.discard if child.child_support.children.kept.empty?
       end
