@@ -25,7 +25,7 @@ class Child
       return unless @groups.empty? || @waiting_children.any?
 
       first_child = @children.sort_by(&:created_at).first
-      @children.sort_by(&:created_at).drop(1).each do |child|
+      @children.pending_support.where.not(id: first_child.id).each do |child|
         child.parent1.discard
         child.parent2.discard
         child.child_support.discard
@@ -81,7 +81,7 @@ class Child
 
     def handle_case_one
       # S'il n'y a pas de cohorte ou si celles qui existent n'ont pas encore démarré
-      if @groups.empty? || ( @groups.all? { |group| group.started_at >= Time.zone.today && group.support_module_programmed.zero? })
+      if @groups.empty? || ( @groups.all? { |group| group.started_at.present? && (group.started_at >= Time.zone.today) && group.support_module_programmed.zero? })
         delete_children_without_parent2
         keep_recent_child
       # Si une seule cohorte a démarré
@@ -91,7 +91,7 @@ class Child
     end
 
     def handle_case_two
-      if @groups.empty? || (@groups.all? { |group| group.started_at > Time.zone.today && group.support_module_programmed.zero? })
+      if @groups.empty? || (@groups.all? { |group| group.started_at.present? && (group.started_at >= Time.zone.today) && group.support_module_programmed.zero? })
         # Si il n'existe pas de cohortes actives, supprimer les doublons les plus récents
         @children.sort_by(&:created_at).drop(1).each do |child|
           discard_child(child)
@@ -105,13 +105,13 @@ class Child
 
     def discard_child(child)
       child.discard
-      child.parent1.discard
-      child.parent2.discard
-      child.child_support.discard
+      child.parent1.discard if child.parent1.children.kept.empty?
+      child.parent2.discard if child.parent2 && child.parent2.children.kept.empty?
+      child.child_support.discard if child.child_support.children.kept.empty?
     end
 
     def keep_supported_children_and_add_parent2_if_needed
-      started_group_children = @children.select { |child| child.group_id == @started_groups.first.id }
+      started_group_children = @children.select { |child| child.group_id.to_i == @started_groups.first.id }
       not_supported_children = @children - started_group_children
       parent2 = @children.select { |child| child.parent2.present? }.first&.parent2
       started_group_children.select { |child| child.parent2.nil? }.each do |child|
@@ -121,8 +121,8 @@ class Child
       end
       not_supported_children.each do |child|
         child.discard
-        child.parent1.discard
-        child.child_support.discard
+        child.parent1.discard if child.parent1.children.kept.empty?
+        child.child_support.discard if child.child_support.children.kept.empty?
       end
     end
 
@@ -130,8 +130,8 @@ class Child
       # On conserve l'enfant qui a le plus de parents en supprimant ceux qui n'ont pas de parent2, leur parent1 et leur fiche de suivi
       @children.select { |child| child.parent2.nil? }.each do |child_without_parent2|
         child_without_parent2.discard
-        child_without_parent2.parent1.discard
-        child_without_parent2.child_support.discard
+        child_without_parent2.parent1.discard if child_without_parent2.parent1.children.kept.empty?
+        child_without_parent2.child_support.discard if child_without_parent2.child_support.children.kept.empty?
       end
     end
 
@@ -139,8 +139,8 @@ class Child
       # Et si plusieurs ont des parent2, on garde le plus récent
       @children.select { |child| child.parent2.present? }.sort_by(&:created_at).reverse.drop(1).each do |child_with_parent2|
         child_with_parent2.discard
-        child_with_parent2.parent1.discard
-        child_with_parent2.child_support.discard
+        child_with_parent2.parent1.discard if child_with_parent2.parent1.children.kept.empty?
+        child_with_parent2.child_support.discard if child_with_parent2.child_support.children.kept.empty?
       end
     end
 
@@ -151,7 +151,7 @@ class Child
         @children = children
         # Recupérer les cohortes
         @groups = children_groups
-        @started_groups = @groups.select { |group| group.started_at <= Time.zone.today && group.support_module_programmed.positive? }
+        @started_groups = @groups.select { |group| group.started_at.present? && (group.started_at <= Time.zone.today) && group.support_module_programmed.positive? }
         case
         when case_one?
           handle_case_one
@@ -283,7 +283,7 @@ class Child
     end
 
     def case_three?
-      differents_children? && common_parent1_and_parent2? && all_children_with_parent2?
+      only_child? && differents_children? && common_parent1_and_parent2? && all_children_with_parent2?
     end
 
     def only_child?
