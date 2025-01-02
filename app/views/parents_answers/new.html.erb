@@ -1,0 +1,46 @@
+<%= form_with url: survey_parent_answers_path(@survey, @parent), method: :post, local: true do |f| %>
+  <div>
+		<div style="display: flex; margin-top: 2rem; margin-bottom: 2rem; text-align: center; justify-content: center; gap: 2rem; padding: 0 2rem;" >
+  		<h2><%= @question.name.gsub('{PRENOM_ENFANT}', @child.first_name) %></h2>
+		</div>
+    <%= hidden_field_tag :question_id, @question.id %>
+		<%= hidden_field_tag :child_id, @child.id %>
+		<%= hidden_field_tag :sc, params[:sc] %>
+		<div style="display: flex; flex-flow: row wrap; justify-content: center; align-items: stretch; align-content: stretch; gap: 2rem ">
+			<% if @question.with_open_ended_response %>
+				<%= text_area(:response, nil, cols: 40, rows: 4) %>
+			<% else %>
+				<% @books.each do |book| %>
+					<div class="card" style="width: 15rem; height: 20rem">
+						<div style="height: 75%">
+							<label for="<%= book.id %>">
+								<%= image_tag(book.media&.file, size: "238") %>
+					  		</label>
+						</div>
+						<div class="card-body" style="height: 25%; display: flex; flex-flow: row nowrap; justify-content: flex-start; align-items: center; align-content: center; gap: 10px">
+							<input type="radio" id=<%= book.id %> name="response" value=<%= book.id %>>
+							<label style="margin: 0px" for=<%= book.id %>><%= book.title %></label><br>
+						</div>
+					</div>
+				<% end %>
+				<div class="card" style="width: 15rem; height: 20rem">
+					<div style="height: 100%">
+					<label for="0" style="width:100%;height: 100%">
+						<div style="width: 100%; height: 100%; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; color: #888; box-sizing: border-box;">
+							Je n’ai reçu aucun de ces livres
+					  	</div>
+					  
+					</label>
+					</div>
+					<div class="card-body" style="height: 25%; display: flex; flex-flow: row nowrap; justify-content: flex-start; align-items: center; align-content: center; gap: 10px">
+						<input type="radio" id="0" name="response" value="did_not_get_books">
+						<label style="margin: 0px" for="0">Je n’ai reçu aucun de ces livres</label><br>
+					</div>
+				</div>
+			<% end %>
+		</div>
+  </div>
+	<div style="display: flex; justify-content: center; margin-top: 2rem; ; margin-bottom: 2rem" >
+		<%= f.submit "Continuer", class: "btn-primary btn-lg", id: "parent-form-submit"%>
+	</div>
+<% end %>

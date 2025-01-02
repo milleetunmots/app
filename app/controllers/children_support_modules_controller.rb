@@ -15,13 +15,24 @@ class ChildrenSupportModulesController < ApplicationController
     if @children_support_module.update(children_support_module_params)
       group_id = @children_support_module.child.group_id
       child_support_id = @children_support_module.child.child_support_id
-      redirect_to updated_children_support_module_path(
-        @children_support_module.id,
-        child_first_name: @children_support_module.child.first_name,
-        sc: @children_support_module.parent.security_code,
-        group_id: group_id,
-        child_support_id: child_support_id
-      )
+      if @children_support_module.module_index.eql?(6)
+        # redirect to feedback form
+        survey = Survey.find_by(name: ENV['SURVEY_NAME_MODULE_FIVE_BOOKS'])
+        redirect_to new_survey_parent_answer_path(
+          survey,
+          @children_support_module.parent,
+          sc: @children_support_module.parent.security_code,
+          child_id: @children_support_module.child_id
+        )
+      else
+        redirect_to updated_children_support_module_path(
+          @children_support_module.id,
+          child_first_name: @children_support_module.child.first_name,
+          sc: @children_support_module.parent.security_code,
+          group_id: group_id,
+          child_support_id: child_support_id
+        )
+      end
     else
       @support_modules = @children_support_module.available_support_modules
       @action_path = children_support_module_path(@children_support_module, sc: @children_support_module.parent.security_code)
@@ -31,12 +42,20 @@ class ChildrenSupportModulesController < ApplicationController
 
   def updated
     # link only for third choice
-    @third_choice = @children_support_module.child.group.with_module_zero? ? @children_support_module.module_index.eql?(4) : @children_support_module.module_index.eql?(3)
+    @module_three = @children_support_module.child.group.with_module_zero? ? @children_support_module.module_index.eql?(4) : @children_support_module.module_index.eql?(3)
     @parent_id = @children_support_module.parent_id
     @typeform_link = "https://wr1q9w7z4ro.typeform.com/to/YzlXcWSJ#child_support_id=#{@children_support_module.child.child_support.id}"
     @group_id = params[:group_id]
     @child_first_name = params[:child_first_name]
-    remaining_module_count
+    calc_service = ChildrenSupportModule::RemainingModulesService.new(
+      parent_id: @parent_id,
+      group_id: @group_id,
+      children_support_module: @children_support_module
+    ).call
+
+    @max_remaining_module_count = calc_service.max_remaining_module_count
+    @remaining_module_count = calc_service.remaining_module_count
+    @module_index = calc_service.module_index
   end
 
   private
@@ -50,26 +69,5 @@ class ChildrenSupportModulesController < ApplicationController
     @children_support_module = ChildrenSupportModule.find_by(id: params[:id])
     not_found and return if @children_support_module.nil?
     not_found and return if @children_support_module.parent.security_code != @security_code
-  end
-
-  def remaining_module_count
-    current_child = Parent.find(@parent_id).current_child
-    @module_index = @children_support_module.module_index
-    group = Group.find(@group_id)
-    group_support_modules_count = group.support_modules_count
-    @max_remaining_module_count = group_support_modules_count - @module_index
-    @remaining_module_count = 0
-    select_module_date =
-      case @module_index
-      when 3
-        current_child.group.started_at + 10.weeks
-      else
-        (current_child.group.started_at + ((@module_index - 2) * 8.weeks)).next_occurring(:monday)
-      end
-    1.upto(@max_remaining_module_count) do |count|
-      break if select_module_date + (count * (count == 1 && @module_index == 3 ? 7.weeks : 8.weeks)) >= current_child.birthdate + 36.months
-
-      @remaining_module_count += 1
-    end
   end
 end
