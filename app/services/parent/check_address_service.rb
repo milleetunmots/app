@@ -15,11 +15,17 @@ class Parent::CheckAddressService
 
   def call
     @lines.each do |line|
+      @letterbox_name = line[3]
       @address = line[4]
       @postal_code = line[6]
       @city_name = line[7]
 
-      @parent = Parent.where('TRIM(LOWER(unaccent(address))) ILIKE TRIM(LOWER(unaccent(?))) AND TRIM(LOWER(unaccent(postal_code))) ILIKE TRIM(LOWER(unaccent(?))) AND TRIM(LOWER(unaccent(city_name))) ILIKE TRIM(LOWER(unaccent(?)))', "%#{@address}%", "%#{@postal_code}%", "%#{@city_name}%").first
+      @parent = Parent.with_a_child_in_active_group.where(
+        'TRIM(LOWER(unaccent(address))) ILIKE TRIM(LOWER(unaccent(?))) AND
+         TRIM(LOWER(unaccent(postal_code))) ILIKE TRIM(LOWER(unaccent(?))) AND
+         TRIM(LOWER(unaccent(city_name))) ILIKE TRIM(LOWER(unaccent(?))) AND
+         TRIM(LOWER(unaccent(letterbox_name))) ILIKE TRIM(LOWER(unaccent(?)))',
+         "%#{@address}%", "%#{@postal_code}%", "%#{@city_name}%", "%#{@letterbox_name}%").first
       next unless @parent
 
       @child_support = @parent.current_child&.child_support
