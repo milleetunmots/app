@@ -47,7 +47,15 @@ class ChildrenSupportModulesController < ApplicationController
     @typeform_link = "https://wr1q9w7z4ro.typeform.com/to/YzlXcWSJ#child_support_id=#{@children_support_module.child.child_support.id}"
     @group_id = params[:group_id]
     @child_first_name = params[:child_first_name]
-    remaining_module_count
+    calc_service = ChildrenSupportModule::RemainingModulesService.new(
+      parent_id: @parent_id,
+      group_id: @group_id,
+      children_support_module: @children_support_module
+    ).call
+
+    @max_remaining_module_count = calc_service.max_remaining_module_count
+    @remaining_module_count = calc_service.remaining_module_count
+    @module_index = calc_service.module_index
   end
 
   private
@@ -61,26 +69,5 @@ class ChildrenSupportModulesController < ApplicationController
     @children_support_module = ChildrenSupportModule.find_by(id: params[:id])
     not_found and return if @children_support_module.nil?
     not_found and return if @children_support_module.parent.security_code != @security_code
-  end
-
-  def remaining_module_count
-    current_child = Parent.find(@parent_id).current_child
-    @module_index = @children_support_module.module_index
-    group = Group.find(@group_id)
-    group_support_modules_count = group.support_modules_count
-    @max_remaining_module_count = group_support_modules_count - @module_index
-    @remaining_module_count = 0
-    select_module_date =
-      case @module_index
-      when 3
-        current_child.group.started_at + 10.weeks
-      else
-        (current_child.group.started_at + ((@module_index - 2) * 8.weeks)).next_occurring(:monday)
-      end
-    1.upto(@max_remaining_module_count) do |count|
-      break if select_module_date + (count * (count == 1 && @module_index == 3 ? 7.weeks : 8.weeks)) >= current_child.birthdate + 36.months
-
-      @remaining_module_count += 1
-    end
   end
 end

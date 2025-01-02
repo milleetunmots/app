@@ -13,6 +13,16 @@ class ParentsAnswersController < ApplicationController
 
     # render completed view if all the questions are answered
     if @question.nil?
+      @children_support_module = ChildrenSupportModule.where(child: @child, parent: @parent).last
+      calc_service = ChildrenSupportModule::RemainingModulesService.new(
+        parent_id: @parent.id,
+        group_id: @child.group_id,
+        children_support_module: @children_support_module
+      ).call
+
+      @max_remaining_module_count = calc_service.max_remaining_module_count
+      @remaining_module_count = calc_service.remaining_module_count
+      @module_index = calc_service.module_index
       render :completed and return
     end
   end
