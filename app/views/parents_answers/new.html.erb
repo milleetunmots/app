@@ -1,6 +1,6 @@
 <%= form_with url: survey_parent_answers_path(@survey, @parent), method: :post, local: true do |f| %>
   <div>
-		<div style="display: flex; margin-top: 2rem; text-align: center; justify-content: center;" >
+		<div style="display: flex; margin-top: 2rem; margin-bottom: 2rem; text-align: center; justify-content: center; gap: 2rem; padding: 0 2rem;" >
   		<h2><%= @question.name.gsub('{PRENOM_ENFANT}', @child.first_name) %></h2>
 		</div>
     <%= hidden_field_tag :question_id, @question.id %>
@@ -41,6 +41,6 @@
 		</div>
   </div>
 	<div style="display: flex; justify-content: center; margin-top: 2rem; ; margin-bottom: 2rem" >
-  		<%= f.submit "Continuer", class: "btn-primary btn-lg"%>
+		<%= f.submit "Continuer", class: "btn-primary btn-lg", id: "parent-form-submit"%>
 	</div>
 <% end %>
