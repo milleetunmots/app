@@ -8,7 +8,8 @@ class ParentsAnswersController < ApplicationController
     answered_question_ids = @parent.answers.joins(:question).where(questions: { survey_id: @survey.id }).pluck(:question_id)
     @question = @survey.questions.where.not(id: answered_question_ids).order(:order).first
     @child_first_name = @child.first_name
-    @books = ChildrenSupportModule.where(child_id: @child.id).where.not(book_id: nil).map(&:book)
+    @children = @child.siblings.where(group_id: @child.group_id)
+    @books = ChildrenSupportModule.where(child_id: [@children.ids]).where.not(book_id: nil).map(&:book).uniq
 
     # render completed view if all the questions are answered
     if @question.nil?
@@ -19,10 +20,18 @@ class ParentsAnswersController < ApplicationController
   # POST /surveys/:survey_id/parents/:parent_id/answers
   def create
     @question = Question.find(params[:question_id])
+    @children = @child.siblings.where(group_id: @child.group_id)
+    @options =
+      if @question.with_open_ended_response
+        []
+      else
+        ChildrenSupportModule.where(child_id: [@children.ids]).where.not(book_id: nil).map(&:book).uniq.pluck(:id)
+      end
     Answer.transaction do
       answer = Answer.create!(
         question: @question,
-        response: params[:response]
+        response: params[:response],
+        options: @options
       )
       ParentsAnswer.create!(parent: @parent, answer: answer)
     end

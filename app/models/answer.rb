@@ -3,6 +3,7 @@
 # Table name: answers
 #
 #  id          :bigint           not null, primary key
+#  options     :text             is an Array
 #  response    :text             not null
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_12_29_152242) do
+ActiveRecord::Schema.define(version: 2025_01_02_142304) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -72,6 +72,7 @@ ActiveRecord::Schema.define(version: 2024_12_29_152242) do
     t.text "response", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "options", array: true
     t.index ["question_id"], name: "index_answers_on_question_id"
   end
 

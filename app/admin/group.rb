@@ -95,6 +95,14 @@ ActiveAdmin.register Group do
           row :support_module_programmed
           row :expected_children_number
           row :is_programmed
+          row :call0_start_date
+          row :call0_end_date
+          row :call1_start_date
+          row :call1_end_date
+          row :call2_start_date
+          row :call2_end_date
+          row :call3_start_date
+          row :call3_end_date
         end
       end
       tab I18n.t('group.supporters') do
