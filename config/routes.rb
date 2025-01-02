@@ -79,6 +79,12 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :surveys do
+    resources :parents do
+      resources :answers, only: [:new, :create], controller: 'parents_answers'
+    end
+  end
+  
   authenticate :admin_user do
     mount Sidekiq::Web => '/sidekiq'
   end

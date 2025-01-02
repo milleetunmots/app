@@ -1,0 +1,14 @@
+<div id="update-success-content-top" class="p-0">
+  <h5 id="thanks">Votre choix est enregistré ✅</h5>
+  <% if @max_remaining_module_count.zero? %>
+    <p>Vous recevrez le livre et les SMS dans 2 à 3 semaines, comme d’habitude.</p>
+    <br>
+    <p>C’était le dernier choix de thème votre accompagnement 1001mots 🥲. Bravo pour tout ce que vous avez fait 👏! L’accompagnement prendra fin dans 2 mois. D’ici là nous vous souhaitons de beaux moments avec <%= @child_first_name %>.</p>
+  <% else %>
+    <p>Il vous reste <%= @remaining_module_count %> thèmes à choisir avant la fin !</p>
+    <br>
+    <p><strong>PETITE PAUSE :</strong> Vous recevrez le livre et les SMS dans 2 à 3 semaines. D’ici là, ne vous inquiétez pas si vous ne recevez plus de messages : ce n’est qu’une petite pause pour préparer l’envoi de votre livre. 📘<p>
+    <br>
+    <p>A bientôt ! 🙂</p>
+  <% end %>
+</div>
