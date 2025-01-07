@@ -53,6 +53,8 @@ Rails.application.routes.draw do
   get 'c3/of', to: 'child_supports#call3_observing_form', as: :call3_observing_form
   get 'c0', to: 'child_supports#call0_form', as: :call0_form
   post '/typeform/webhooks', to: 'typeform#webhooks'
+  post '/aircall/messages', to: 'aircall#webhook_messages'
+  post '/aircall/calls', to: 'aircall#webhook_calls'
 
   resources :events, only: %i[index create]
 

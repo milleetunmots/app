@@ -30,7 +30,9 @@ class AircallMessage < ApplicationRecord
 	belongs_to :parent
 	belongs_to :caller, class_name: 'AdminUser'
 
-	validates :aircall_id, presence: true
+	validates :aircall_id, presence: true, uniqueness: true
 	validates :direction, inclusion: { in: %w[inbound outbound] }
-	validates :status, inclusion: { in: %w[sent received pending] }
+	validates :status, inclusion: { in: %w[sent delivered received] }
+	# Aircall -> external : Status “sent” and then “delivered”
+  # External -> Aircall : Status “received”
 end
