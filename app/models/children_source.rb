@@ -19,6 +19,6 @@ class ChildrenSource < ApplicationRecord
   belongs_to :source
   belongs_to :child
 
-  delegate :name, to: :source, prefix: false
+  delegate :name, to: :source, prefix: false, allow_nil: true
 
 end
