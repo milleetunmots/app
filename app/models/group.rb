@@ -149,6 +149,31 @@ class Group < ApplicationRecord
     self.call3_end_date = started_at + 167.days
   end
 
+  def closest_call_session(date)
+    date = date.to_date
+    closest_session = nil
+    smallest_distance = Float::INFINITY
+
+    (0..3).each do |i|
+      start_date = self.send("call#{i}_start_date")
+      end_date = self.send("call#{i}_end_date")
+
+      next unless start_date.present? && end_date.present?
+
+      distance_to_start = (date - start_date).abs
+      distance_to_end = (date - end_date).abs
+
+      closest_distance = [distance_to_start, distance_to_end].min
+
+      if closest_distance < smallest_distance
+        closest_session = i
+        smallest_distance = closest_distance
+      end
+    end
+
+    closest_session
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------

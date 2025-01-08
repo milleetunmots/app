@@ -22,7 +22,7 @@ module Aircall
     private
 
     def set_message_attributes
-      if @message.present? && @message.parent_id && @message.caller_id && @message.child_support_id && @message.body
+      if @message.persisted? && @message.parent_id && @message.caller_id && @message.child_support_id && @message.body
         @attributes = { status: @payload['status'] }
       else
         external_number = @payload['external_number']
@@ -44,7 +44,7 @@ module Aircall
             parent_id: parent.id,
             caller_id: admin_user.id,
             child_support_id: child_support_id,
-            body: body,
+            body: @payload['body'],
             direction: status.eql?('received') ? 'inbound' : 'outbound'
           }
       end

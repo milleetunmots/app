@@ -15,8 +15,6 @@ module Aircall
       return self if @errors.any?
 
       @call.assign_attributes(@attributes)
-      # TO DO
-      # ASSIGN call_session
       @errors << "AircallCall save error : #{@call.errors.full_messages}" unless @call.save
       self
     end
@@ -24,6 +22,16 @@ module Aircall
     private
 
     def set_call_attributes
+      if @call.persisted?
+        tag_names = @payload['tags'].map { |tag| tag['name'] }.compact
+        comments = @payload['comments'].map { |comment| comment['content'] }.compact
+        @attributes = { tags: tag_names, notes: comments }
+      else
+        new_call_attributes
+      end
+    end
+
+    def new_call_attributes
       external_number = @payload['raw_digits']
       aircall_phone_number = @payload['number']['e164_digits']
 
@@ -53,6 +61,7 @@ module Aircall
           duration: @payload['duration'],
           asset_url: @payload['asset'],
           answered: @payload['answered_at'].present?,
+          call_session: parent&.current_child&.group&.closest_call_session(Time.zone.at(@payload['started_at'])),
           tags: tag_names,
           notes: comments
         }
