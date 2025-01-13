@@ -67,6 +67,48 @@ ActiveRecord::Schema.define(version: 2025_01_02_142304) do
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
 
+  create_table "aircall_calls", force: :cascade do |t|
+    t.bigint "aircall_id"
+    t.string "call_uuid"
+    t.string "direction"
+    t.boolean "answered"
+    t.bigint "child_support_id"
+    t.bigint "parent_id"
+    t.bigint "caller_id", null: false
+    t.datetime "started_at"
+    t.datetime "answered_at"
+    t.datetime "ended_at"
+    t.integer "duration"
+    t.string "missed_call_reason"
+    t.string "asset_url"
+    t.integer "call_session"
+    t.text "notes", default: [], array: true
+    t.text "tags", default: [], array: true
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["call_uuid"], name: "index_aircall_calls_on_call_uuid"
+    t.index ["caller_id"], name: "index_aircall_calls_on_caller_id"
+    t.index ["child_support_id"], name: "index_aircall_calls_on_child_support_id"
+    t.index ["parent_id"], name: "index_aircall_calls_on_parent_id"
+  end
+
+  create_table "aircall_messages", force: :cascade do |t|
+    t.string "aircall_id"
+    t.string "direction"
+    t.bigint "child_support_id"
+    t.bigint "parent_id"
+    t.bigint "caller_id", null: false
+    t.datetime "sent_at"
+    t.text "body"
+    t.string "status"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["aircall_id"], name: "index_aircall_messages_on_aircall_id"
+    t.index ["caller_id"], name: "index_aircall_messages_on_caller_id"
+    t.index ["child_support_id"], name: "index_aircall_messages_on_child_support_id"
+    t.index ["parent_id"], name: "index_aircall_messages_on_parent_id"
+  end
+
   create_table "answers", force: :cascade do |t|
     t.bigint "question_id", null: false
     t.text "response", null: false
@@ -778,6 +820,8 @@ ActiveRecord::Schema.define(version: 2025_01_02_142304) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "aircall_calls", "admin_users", column: "caller_id"
+  add_foreign_key "aircall_messages", "admin_users", column: "caller_id"
   add_foreign_key "books", "media", column: "media_id"
   add_foreign_key "bubble_contents", "bubble_modules", column: "module_content_id"
   add_foreign_key "bubble_modules", "bubble_modules", column: "module_precedent_id"
