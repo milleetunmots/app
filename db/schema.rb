@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_01_02_142304) do
+ActiveRecord::Schema.define(version: 2025_01_13_141612) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -695,6 +695,7 @@ ActiveRecord::Schema.define(version: 2025_01_02_142304) do
     t.text "comment"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "is_archived", default: false, null: false
   end
 
   create_table "support_module_weeks", force: :cascade do |t|
