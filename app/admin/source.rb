@@ -85,19 +85,19 @@ ActiveAdmin.register Source do
   end
 
   action_item :archive, only: :show, if: proc { !resource.is_archived? } do
-    link_to 'Archiver', [:archive, :admin, resource]
+    link_to 'Archiver', [:archive, :admin, resource], method: :put
   end
 
   action_item :unarchive, only: :show, if: proc { resource.is_archived? } do
-    link_to 'Désarchiver', [:unarchive, :admin, resource]
+    link_to 'Désarchiver', [:unarchive, :admin, resource], method: :put
   end
 
-  member_action :archive do
+  member_action :archive, method: :put do
     resource.archive!
     redirect_to [:admin, resource], notice: "La source a été archivée."
   end
 
-  member_action :unarchive do
+  member_action :unarchive, method: :put do
     resource.unarchive!
     redirect_to [:admin, resource], notice: "La source a été désarchivée."
   end
