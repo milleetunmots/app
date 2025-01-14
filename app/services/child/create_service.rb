@@ -126,12 +126,11 @@ class Child
 
     def detect_errors
       @child.valid?
-      Source.exists?(@children_source_attributes[:source_id])
       if any_parent?
         parent1_validation if parent1_present?
         parent2_validation if parent2_present?
       end
-
+      source_validation
       birthdate_validation
       overseas_child_validation
     end
@@ -178,6 +177,10 @@ class Child
 
     def birthdate_validation
       @child.errors.add(:birthdate, :invalid, message: "minimale: #{@child_min_birthdate}") if @child.birthdate < @child_min_birthdate
+    end
+
+    def source_validation
+      @child.errors.add(:source, :invalid) unless Source.active.exists?(@children_source_attributes[:source_id])
     end
 
     def overseas_child_validation

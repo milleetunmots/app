@@ -2,14 +2,15 @@
 #
 # Table name: sources
 #
-#  id         :bigint           not null, primary key
-#  channel    :string           not null
-#  comment    :text
-#  department :integer
-#  name       :string           not null
-#  utm        :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id          :bigint           not null, primary key
+#  channel     :string           not null
+#  comment     :text
+#  department  :integer
+#  is_archived :boolean          default(FALSE), not null
+#  name        :string           not null
+#  utm         :string
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
 #
 class Source < ApplicationRecord
 
@@ -43,6 +44,16 @@ class Source < ApplicationRecord
   scope :by_bao, -> { where(channel: 'bao').order(:id) }
   scope :by_local_partner, -> { where(channel: 'local_partner').order(:name) }
   scope :by_utm, ->(utm) { where(utm: utm) }
+  scope :active, -> { where(is_archived: false) }
+  scope :archived, -> { where(is_archived: true) }
+
+  def archive!
+    update!(is_archived: true)
+  end
+
+  def unarchive!
+    update!(is_archived: false)
+  end
 
   private
 
