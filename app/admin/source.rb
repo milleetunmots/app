@@ -46,6 +46,9 @@ ActiveAdmin.register Source do
   scope :by_caf, group: :canal
   scope :by_local_partner, group: :canal
   scope :by_pmi, group: :canal
+  scope(I18n.t('activerecord.attributes.source.is_archived')) do |scope|
+    scope.merge(Source.archived)
+  end
 
   # ---------------------------------------------------------------------------
   # FORM
