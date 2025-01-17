@@ -29,12 +29,13 @@ module Aircall
         aircall_phone_number = @payload['number']['digits']
         status = @payload['status'] || 'sent'
 
-        parent = Parent.find_by(phone_number: Phonelib.parse(external_number).e164)
+        parent = Parent.kept.where(
+          phone_number: Phonelib.parse(external_number).e164
+        ).order(Parent.arel_table[:aircall_id].not_eq(nil).desc, :aircall_id).first
         @errors << "AircallMessage n'a pas pu être traité : Parent avec numéro #{external_number} introuvable" unless parent
         admin_user = AdminUser.find_by(aircall_phone_number: Phonelib.parse(aircall_phone_number).e164)
         @errors << "AircallMessage n'a pas pu être traité : AdminUser avec numéro #{aircall_phone_number} introuvable" unless admin_user
         child_support_id = parent&.current_child&.child_support_id
-        @errors << "AircallMessage n'a pas pu être traité : pas de child_support pour parent avec numéro #{external_number}" unless child_support_id
         return if @errors.any?
 
         @attributes =

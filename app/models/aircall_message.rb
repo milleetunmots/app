@@ -26,7 +26,7 @@
 #  fk_rails_...  (caller_id => admin_users.id)
 #
 class AircallMessage < ApplicationRecord
-	belongs_to :child_support
+	belongs_to :child_support, optional: true
 	belongs_to :parent
 	belongs_to :caller, class_name: 'AdminUser'
 
