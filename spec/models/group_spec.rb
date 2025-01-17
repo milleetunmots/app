@@ -2,25 +2,26 @@
 #
 # Table name: groups
 #
-#  id                        :bigint           not null, primary key
-#  call0_end_date            :date
-#  call0_start_date          :date
-#  call1_end_date            :date
-#  call1_start_date          :date
-#  call2_end_date            :date
-#  call2_start_date          :date
-#  call3_end_date            :date
-#  call3_start_date          :date
-#  discarded_at              :datetime
-#  ended_at                  :date
-#  expected_children_number  :integer
-#  is_programmed             :boolean          default(FALSE), not null
-#  name                      :string
-#  started_at                :date
-#  support_module_programmed :integer          default(0)
-#  support_modules_count     :integer          default(0), not null
-#  created_at                :datetime         not null
-#  updated_at                :datetime         not null
+#  id                         :bigint           not null, primary key
+#  call0_end_date             :date
+#  call0_start_date           :date
+#  call1_end_date             :date
+#  call1_start_date           :date
+#  call2_end_date             :date
+#  call2_start_date           :date
+#  call3_end_date             :date
+#  call3_start_date           :date
+#  discarded_at               :datetime
+#  ended_at                   :date
+#  expected_children_number   :integer
+#  is_excluded_from_analytics :boolean          default(FALSE), not null
+#  is_programmed              :boolean          default(FALSE), not null
+#  name                       :string
+#  started_at                 :date
+#  support_module_programmed  :integer          default(0)
+#  support_modules_count      :integer          default(0), not null
+#  created_at                 :datetime         not null
+#  updated_at                 :datetime         not null
 #
 # Indexes
 #
