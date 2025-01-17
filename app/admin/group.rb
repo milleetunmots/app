@@ -40,12 +40,16 @@ ActiveAdmin.register Group do
   filter :support_modules_count
   filter :is_programmed
   filter :expected_children_number
+  filter :is_excluded_from_analytics
   filter :created_at
   filter :updated_at
 
   scope :all, default: true
   scope :not_ended
   scope :ended
+  scope(I18n.t('activerecord.attributes.group.is_excluded_from_analytics')) do |scope|
+    scope.merge(Group.excluded_from_analytics)
+  end
 
   # ---------------------------------------------------------------------------
   # FORM
@@ -54,6 +58,7 @@ ActiveAdmin.register Group do
   form do |f|
     f.semantic_errors(*f.object.errors.keys)
     f.inputs do
+      f.input :is_excluded_from_analytics
       f.input :name
       f.input :started_at, as: :datepicker
       f.input :ended_at, as: :datepicker
@@ -75,8 +80,9 @@ ActiveAdmin.register Group do
     f.actions
   end
 
-  permit_params :name, :started_at, :ended_at, :support_modules_count, :expected_children_number, :call0_start_date, :call0_end_date,
-    :call1_start_date, :call1_end_date, :call2_start_date, :call2_end_date, :call3_start_date, :call3_end_date
+  permit_params :name, :started_at, :ended_at, :support_modules_count, :expected_children_number, :is_excluded_from_analytics,
+    :call0_start_date, :call0_end_date, :call1_start_date, :call1_end_date, :call2_start_date, :call2_end_date, :call3_start_date,
+    :call3_end_date
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -86,6 +92,7 @@ ActiveAdmin.register Group do
     tabs do
       tab I18n.t('group.base') do
         attributes_table do
+          row :is_excluded_from_analytics
           row :name
           row :children
           row :families

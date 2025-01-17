@@ -486,6 +486,7 @@ fr:
         call2_end_date: Fin de la session d'appels 2
         call3_start_date: Début de la session d'appels 3
         call3_end_date: Fin de la session d'appels 3
+        is_excluded_from_analytics: À exclure des analyses Metabase
       media_folder:
         << : *SHARED
         name: Nom
