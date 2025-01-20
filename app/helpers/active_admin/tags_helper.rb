@@ -1,7 +1,11 @@
 module ActiveAdmin::TagsHelper
 
-  def tag_name_collection
-    ActsAsTaggableOn::Tag.order("LOWER(name)").pluck(:name)
+  def tag_name_collection(current_admin_user_is_caller)
+    if current_admin_user_is_caller
+      ActsAsTaggableOn::Tag.where(is_visible_by_callers: current_admin_user_is_caller).order("LOWER(name)").pluck(:name)
+    else
+      ActsAsTaggableOn::Tag.order("LOWER(name)").pluck(:name)
+    end
   end
 
   def module_name_collection
@@ -21,7 +25,7 @@ module ActiveAdmin::TagsHelper
     form.input context_list.to_sym, {
         multiple: true,
         label: "Tags",
-        collection: tag_name_collection,
+        collection: tag_name_collection(false),
         input_html: input_html
       }.deep_merge(options)
   end
