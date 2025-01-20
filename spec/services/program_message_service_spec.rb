@@ -209,14 +209,21 @@ RSpec.describe ProgramMessageService do
   context 'when no recipients found' do
     it 'returns errors' do
       service = ProgramMessageService.new('2021-07-12', '14:30:00', [], 'coucou', nil).call
-      expect(service.errors).to eq(['Les destinataires ne sont pas complétés.'])
+      expect(service.errors).to eq(['La liste des destinataires est vide. Ajoutez au moins un destinataire.'])
     end
   end
 
-  context 'when no message is given' do
+  context 'when neither the message nor the redirection URL is given' do
     it 'returns errors' do
       service = ProgramMessageService.new('2021-07-12', '14:30:00', ["parent.#{parent_1.id}"], '', nil).call
-      expect(service.errors).to eq(["Le message n'est pas complété."])
+      expect(service.errors).to eq(['Un message est requis. Veuillez le compléter.'])
+    end
+  end
+
+  context 'when the redirection URL is provided and the message is skipped' do
+    it 'the message can be skipped' do
+      service = ProgramMessageService.new('2021-07-12', '14:30:00', ["parent.#{parent_1.id}"], '', nil, redirection_target.id).call
+      expect(service.errors).to_not include 'Un message est requis. Veuillez le compléter.'
     end
   end
 

@@ -145,9 +145,9 @@ class ProgramMessageService
   end
 
   def check_all_fields_are_present
-    @errors << "La date n'est pas complétée." unless @planned_timestamp.present?
-    @errors << 'Les destinataires ne sont pas complétés.' if @recipients.empty?
-    @errors << "Le message n'est pas complété." if @message.empty?
+    @errors << "Les date et heure d'envoi du message sont requises. Veuillez indiquer une date et une heure valide." if @planned_timestamp.blank?
+    @errors << 'La liste des destinataires est vide. Ajoutez au moins un destinataire.' if @recipients.empty?
+    @errors << 'Un message est requis. Veuillez le compléter.' if @message.empty? && @redirection_target.nil?
   end
 
   def sort_recipients
