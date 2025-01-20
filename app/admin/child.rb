@@ -356,6 +356,11 @@ ActiveAdmin.register Child do
               datepicker_options: {
                 min_date: Child.min_birthdate,
                 max_date: Child.max_birthdate
+              },
+              input_html: {
+                data: {
+                  max_date_36_months: Child.max_birthdate_36_months
+                }
               }
       f.input :available_for_workshops
       f.inputs do
