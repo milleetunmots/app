@@ -1,4 +1,4 @@
-FROM ruby:3.0.6-slim
+FROM ruby:3.3.6-slim
 
 ENV INSTALL_PATH /rails
 ENV DOCKERIZE_VERSION v0.7.0
@@ -17,13 +17,11 @@ RUN apt-get install -qq -y --no-install-recommends \
     libcurl4-openssl-dev \
     libpq-dev \
     libxrender1 \
-    netcat \
     imagemagick \
     libpq-dev \
     file \
     git \
     shared-mime-info \
-    python2 \
     && gem install bundler --no-document
 
 RUN apt-get update \

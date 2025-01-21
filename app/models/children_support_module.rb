@@ -109,7 +109,7 @@ class ChildrenSupportModule < ApplicationRecord
 
     return if the_other_parent.nil?
     return unless the_other_parent.children_support_modules.where(child_id: child.id).count == 2
-    return if child.child_support.call2_status == 'KO' || 'Incomplet / Pas de choix de module'
+    return if child.child_support.call2_status.in?(['KO', 'Incomplet / Pas de choix de module'])
 
     the_other_parent.children_support_modules.where(child_id: child.id).latest_first.first.update_columns(
       is_completed: is_completed,
