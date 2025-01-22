@@ -5,8 +5,7 @@ $(document).ready(function() {
         professional: "J’ai eu des éléments factuels qui prouvent que la famille est en fait un.e professionnel.le de santé qui souhaite tester l’accompagnement dans le cadre de son travail.",
         problematic_case: "J’ai validé l’arrêt de cette famille avec une coordinatrice.",
         renunciation: "J’envoie un SMS à la famille qui explique que ne plus vouloir des livres, des appels ou des SMS revenait à mettre fin à l’accompagnement, la famille pourra cliquer sur un lien qui arrêtera son accompagnement immédiatement et définitivement.",
-        // TO DO : Modifiy the label 
-        moving: "Validation"
+        moving: "J'envoie un SMS pour confirmer l'arrêt de l'accompagnement à la famille. Le SMS contient la page de ressources destinées aux familles que 1001mots ne peut plus accompagner."
     }
     let radios = $(".stop-support-form-radio");
     let checkbox = $("#stop-support-form-checkbox");
