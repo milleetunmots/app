@@ -469,6 +469,10 @@ class Child < ApplicationRecord
     parents.phone_numbers.uniq
   end
 
+  def self.max_birthdate_36_months
+    36.months.ago.to_date
+  end
+
   # ---------------------------------------------------------------------------
   # methods
   # ---------------------------------------------------------------------------
