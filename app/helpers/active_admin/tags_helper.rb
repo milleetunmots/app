@@ -23,10 +23,10 @@ module ActiveAdmin::TagsHelper
     }
 
     form.input context_list.to_sym, {
-        multiple: true,
-        label: "Tags",
-        collection: tag_name_collection(false),
-        input_html: input_html
-      }.deep_merge(options)
+      multiple: true,
+      label: 'Tags',
+      collection: tag_name_collection(current_admin_user.caller?),
+      input_html: input_html
+    }.deep_merge(options)
   end
 end
