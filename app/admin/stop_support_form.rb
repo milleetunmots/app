@@ -32,6 +32,10 @@ ActiveAdmin.register_page 'Stop Support Form' do
           f.input :stop_reason, type: :radio, value: :renunciation, name: :reason, class: 'stop-support-form-radio'
           label "La famille que j'accompagne m'a notifié par SMS qu'elle ne souhaitait pas la totalité de l'accompagnement."
         end
+        div class: 'radio-input' do
+          f.input :stop_reason, type: :radio, value: :moving, name: :reason, class: 'stop-support-form-radio'
+          label "La famille que j’accompagne ne peut plus recevoir les livres, appels et SMS (ex : déménagement hors métropole ou à l'étranger)"
+        end
       end
       div id: 'form-details' do
         hr

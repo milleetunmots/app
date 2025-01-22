@@ -5,6 +5,7 @@ class ChildSupport::CallerStopSupportService
 	PROFESSIONAL_SMS = '1001mots: Merci de l’intérêt que vous portez à notre accompagnement ! Celui-ci est réservé aux familles bénéficiaires, mais si vous souhaitez le tester, vous pouvez entrer en contact avec nos équipes via le formulaire ci-dessous. Merci pour votre compréhension et belle journée à vous {URL}'.freeze
 	PROBLEMATIC_CASE_SMS = '1001mots: Votre accompagnement s’arrête ici. Pour des raisons techniques, vous allez recevoir encore des sms pendant quelques semaines, répondez STOP si vous voulez les arrêter avant.'.freeze
 	RENUNCIATION_SMS = "Si vous ne voulez pas recevoir d'appels de notre part, nous devons arrêter l'ensemble de votre accompagnement (SMS, livres et appels). Cliquez sur ce lien pour confirmer que vous souhaitez arrêter l'accompagnement 1001mots. Merci pour votre compréhension et belle journée à vous.".freeze
+	MOVING_SMS = '1001mots: Votre accompagnement prend fin maintenant suite à votre demande. Vous ne recevrez plus d’appels, de SMS ou de livres de notre part. Pour des raisons techniques, vous allez recevoir encore quelques SMS, répondez STOP si vous voulez arrêter. Nous vous transmettons tout de même cette page avec des conseils pour développer le langage de {PRENOM_ENFANT}. Bonne continuation !'.freeze
 	SMS_LINK = 'https://www.notion.so/1001mots-ne-peut-plus-vous-accompagner-35ec2e040f3d47b99a94028c51c7a3e4'.freeze
 	PROFESSIONAL_SMS_LINK = 'https://airtable.com/apppjysEG5cvcWLX1/shrfPvKCa0MxSfiHk'.freeze
 	VARIABLES = {
@@ -12,7 +13,8 @@ class ChildSupport::CallerStopSupportService
 			popi: { tag: 'arrêt appelante - popi', sms: POPI_SMS, url: SMS_LINK, motive: 'famille popi' },
 			professional: { tag: 'arrêt appelante - pro de santé', sms: PROFESSIONAL_SMS, url: PROFESSIONAL_SMS_LINK, motive: 'pro de santé' },
 			problematic_case: { tag: 'arrêt appelante - problèmes', sms: PROBLEMATIC_CASE_SMS, url: nil, motive: 'problèmes' },
-			renunciation: { tag: 'arrêt appelante - programme', sms: RENUNCIATION_SMS, url: nil, motive: nil }
+			renunciation: { tag: 'arrêt appelante - programme', sms: RENUNCIATION_SMS, url: nil, motive: nil },
+			moving: { tag: 'arrêt appelante - autres motifs', sms: MOVING_SMS, url: SMS_LINK, motive: 'déménagement' }
 		}.freeze
 
 	attr :error
