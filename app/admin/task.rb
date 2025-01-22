@@ -2,6 +2,8 @@ ActiveAdmin.register Task do
 
   decorate_with TaskDecorator
 
+  actions :all, except: %i[new]
+
   has_better_csv
   use_discard
 
