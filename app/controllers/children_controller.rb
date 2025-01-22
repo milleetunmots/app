@@ -37,6 +37,8 @@ class ChildrenController < ApplicationController
       build_child_for_form
       @child.build_children_source(source_id: children_source_params&.dig(:source_id), details: children_source_params&.dig(:details), registration_department: children_source_params&.dig(:registration_department))
       render action: :new
+    elsif current_registration_origin == 2
+      redirect_to created_child_path(child_support_id: @child.child_support.id, current_child_name: @child.first_name)
     elsif service.parent1_target_profile || current_registration_origin != 4
       redirect_to created_child_path(sms_url_form: service.sms_url_form, children_under_four_months: service.children_under_four_months, youngest_child_under_twenty_four_months: service.youngest_child_under_twenty_four_months)
     else
@@ -57,41 +59,39 @@ class ChildrenController < ApplicationController
         end
       end
 
-    case current_registration_origin
-    when 5
-      @message = I18n.t('inscription_success.pro')
-      @again = true
-      @widget = false
-      @new_link = new_local_partner_registration_path
-    when 4
-      @widget = false
-      if params[:parent1]
-        @again = false
-        @with_parent_no_target = true
-        @message = I18n.t('inscription_success.with_parent_no_target')
-      else
-        @message = I18n.t(support_wait_time_message, typeform_url: params[:sms_url_form])
-        @again = true
-        @new_link = new_bao_registration_path
-      end
-    when 3
-      # for this form we keep the registration_origin
-      # so that multiple children can be registered
-      @message = I18n.t('inscription_success.pro')
-      @again = true
-      @widget = false
-      @new_link = new_pmi_registration_path
-    when 2
-      session.delete(:registration_origin)
-      @message = I18n.t(support_wait_time_message, typeform_url: params[:sms_url_form])
-      @again = false
-      @widget = false
-      @new_link = new_caf_registration_path
+    if params[:child_support_id].present? && params[:current_child_name].present?
+      @caf_registration_form = true
     else
-      @message = I18n.t('inscription_success.with_widget')
-      @again = false
-      @widget = true
-      @new_link = new_child1_path
+      case current_registration_origin
+      when 5
+        @message = I18n.t('inscription_success.pro')
+        @again = true
+        @widget = false
+        @new_link = new_local_partner_registration_path
+      when 4
+        @widget = false
+        if params[:parent1]
+          @again = false
+          @with_parent_no_target = true
+          @message = I18n.t('inscription_success.with_parent_no_target')
+        else
+          @message = I18n.t(support_wait_time_message, typeform_url: params[:sms_url_form])
+          @again = true
+          @new_link = new_bao_registration_path
+        end
+      when 3
+        # for this form we keep the registration_origin
+        # so that multiple children can be registered
+        @message = I18n.t('inscription_success.pro')
+        @again = true
+        @widget = false
+        @new_link = new_pmi_registration_path
+      else
+        @message = I18n.t('inscription_success.with_widget')
+        @again = false
+        @widget = true
+        @new_link = new_child1_path
+      end
     end
     session.delete(:src_url)
   end
