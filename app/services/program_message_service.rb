@@ -91,7 +91,12 @@ class ProgramMessageService
     link = @message.scan(regex).first
     return unless link
 
-    @message.gsub!(link, link.gsub(link.split('#child_support_id=').second, '{CHILD_SUPPORT_ID}'))
+    hidden_fields = link.split('child_support_id=').second
+    hidden_fields_splited = hidden_fields.split('&current_child')
+    hidden_fields.gsub!(hidden_fields_splited.second, '_name={PRENOM_ENFANT}') if hidden_fields_splited.second.present?
+    hidden_fields.gsub!(hidden_fields_splited.first, '{CHILD_SUPPORT_ID}')
+
+    @message.gsub!(link, link.gsub(link.split('#child_support_id=').second, hidden_fields))
   end
 
   def get_all_variables
