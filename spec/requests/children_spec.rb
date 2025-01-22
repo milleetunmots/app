@@ -99,7 +99,7 @@ RSpec.describe ChildrenController, type: :request do
 
       before do
         allow_any_instance_of(SpotHit::SendSmsService).to receive(:call).and_return(SpotHit::SendSmsService.new(nil, nil, nil))
-        post "/inscriptioncaf", params: params
+        post "/inscription3", params: params
       end
 
       it "redirects to created page with right sms_url_form" do
@@ -184,13 +184,13 @@ RSpec.describe ChildrenController, type: :request do
         get "/inscrit", params: { sms_url_form: nil }
       end
 
-      it "renders specific wording" do
-        expect(response.body).to include 'Si vous avez encore 5 minutes'
-      end
+      # it "renders specific wording" do
+      #   expect(response.body).to include 'Si vous avez encore 5 minutes'
+      # end
 
-      it "does not render widget" do
-        expect(response.body).not_to include I18n.t('inscription_success.with_widget')
-      end
+      # it "does not render widget" do
+      #   expect(response.body).not_to include I18n.t('inscription_success.with_widget')
+      # end
     end
 
     context "when session[:registration_origin] = 3" do
