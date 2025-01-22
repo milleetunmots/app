@@ -26,7 +26,7 @@ module ProgramMessagesHelper
       '11-16'
     when 17..22
       '17-22'
-    when 23..31
+    when 23..Float::INFINITY
       '23-31'
     end
   end
@@ -39,7 +39,7 @@ module ProgramMessagesHelper
       '12-17'
     when 18..23
       '18-23'
-    when 24..31
+    when 24..Float::INFINITY
       '24-31'
     end
   end
