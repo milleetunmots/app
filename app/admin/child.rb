@@ -354,7 +354,6 @@ ActiveAdmin.register Child do
       f.input :birthdate,
               as: :datepicker,
               datepicker_options: {
-                min_date: Child.min_birthdate,
                 max_date: Child.max_birthdate
               },
               input_html: {
