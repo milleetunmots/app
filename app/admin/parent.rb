@@ -132,9 +132,7 @@ ActiveAdmin.register Parent do
           row :is_excluded_from_workshop
           row :family_followed
           row :present_on_whatsapp
-          row :present_on_facebook
           row :follow_us_on_whatsapp
-          row :follow_us_on_facebook
           row :email do |decorated|
             decorated.email_link
           end
