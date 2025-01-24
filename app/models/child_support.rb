@@ -285,6 +285,7 @@ class ChildSupport < ApplicationRecord
       .or(where(to_call: true))
       .with_a_child_in_active_group
   }
+  scope :with_children, -> { joins(:children) }
   scope :multiple_children, -> { joins(:children).group('child_supports.id').having('count(children.id) > 1') }
   scope :one_child, -> { joins(:children).group('child_supports.id').having('count(children.id) = 1') }
   scope :paused_or_stopped, -> {
