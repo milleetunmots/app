@@ -15,10 +15,8 @@ class AircallController < ApplicationController
 
   def webhook_calls
     payload = params.to_unsafe_h
-    service = Aircall::CreateCallService.new(payload: payload['data']).call
-    if service.errors.any?
-      Rollbar.error('Aircall::CreateCallService', errors: service.errors)
-    end
+    create_insight_card(payload[:event], payload.dig(:data, :id), Phonelib.parse(payload.dig(:data, :raw_digits)).e164)
+    create_call(payload[:data])
     head :ok
   end
 
@@ -32,5 +30,17 @@ class AircallController < ApplicationController
   def verify_webhook_calls_token
     token = params['token']
     head :unauthorized unless token.eql?(ENV['AIRCALL_WEBHOOK_CALL_TOKEN'])
+  end
+
+  def create_insight_card(event, call_id, parent_phone_number)
+    return unless event == 'call.created'
+
+    service = Aircall::CreateInsightCardService.new(call_id: call_id, parent_phone_number: parent_phone_number).call
+    Rollbar.error('Aircall::CreateInsightCardService', errors: service.errors) if service.errors.any?
+  end
+
+  def create_call(data)
+    service = Aircall::CreateCallService.new(payload: data).call
+    Rollbar.error('Aircall::CreateCallService', errors: service.errors) if service.errors.any?
   end
 end
