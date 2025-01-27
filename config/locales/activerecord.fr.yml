@@ -107,8 +107,6 @@ fr:
         parent1_email: Email du parent 1
         parent1_first_name: Prénom du parent 1
         parent1_gender: Sexe du parent 1
-        parent1_present_on_facebook: Parent 1 present sur Facebook ?
-        parent1_follow_us_on_facebook: Parent 1 nous suit sur Facebook ?
         parent1_present_on_whatsapp: Parent 1 present sur Whatsapp ?
         parent1_follow_us_on_whatsapp: Parent 1 nous suit sur Whatsapp ?
         parent1_last_name: Nom du parent 1
@@ -118,8 +116,6 @@ fr:
         parent2_email: Email du parent 2
         parent2_first_name: Prénom du parent 2
         parent2_gender: Sexe du parent 2
-        parent2_present_on_facebook: Parent 2 present sur Facebook ?
-        parent2_follow_us_on_facebook: Parent 2 nous suit sur Facebook ?
         parent2_present_on_whatsapp: Parent 2 present sur Whatsapp ?
         parent2_follow_us_on_whatsapp: Parent 2 nous suit sur Whatsapp ?
         parent2_last_name: Nom du parent 2
@@ -309,8 +305,6 @@ fr:
         parent1: Parent 1
         parent1_first_name: Prénom du parent 1
         parent1_gender: Sexe du parent 1
-        parent1_present_on_facebook: Parent 1 present sur Facebook ?
-        parent1_follow_us_on_facebook: Parent 1 nous suit sur Facebook ?
         parent1_present_on_whatsapp: Parent 1 present sur Whatsapp ?
         parent1_follow_us_on_whatsapp: Parent 1 nous suit sur Whatsapp ?
         parent1_last_name: Nom du parent 1
@@ -322,8 +316,6 @@ fr:
         parent2: Parent 2
         parent2_first_name: Prénom du parent 2
         parent2_gender: Sexe du parent 2
-        parent2_present_on_facebook: Parent 2 present sur Facebook ?
-        parent2_follow_us_on_facebook: Parent 2 nous suit sur Facebook ?
         parent2_present_on_whatsapp: Parent 2 present sur Whatsapp ?
         parent2_follow_us_on_whatsapp: Parent 2 nous suit sur Whatsapp ?
         parent2_last_name: Nom du parent 2
@@ -543,9 +535,7 @@ fr:
         is_ambassador: Potentiel parent bénévole
         is_ambassador_detail: Les motivations pour son bénévolat
         present_on_whatsapp: Présent sur Whatsapp
-        present_on_facebook: Présent sur Facebook
         follow_us_on_whatsapp: Nous suit sur Whatsapp
-        follow_us_on_facebook: Nous suit sur Facebook
         family_followed: Famille suivie
         job: Métier
         last_name: Nom
