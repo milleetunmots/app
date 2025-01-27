@@ -200,7 +200,7 @@ class Child < ApplicationRecord
     SQL
   }
   scope :supported, -> { where.not(group_status: 'not_supported') }
-  scope :with_group_not_started, -> { where(id: left_outer_joins(:group).where('groups.started_at >= ? AND groups.support_module_programmed = ?', Time.zone.today, 0).select(:id)) }
+  scope :with_group_not_started, -> { left_outer_joins(:group).where('groups.started_at >= ? AND groups.support_module_programmed = ?', Time.zone.today, 0) }
   scope :waiting_children, -> { where(group_status: 'waiting') }
   scope :pending_support, -> { with_group_not_started.or(waiting_children) }
   scope :not_pending_support, -> { with_group.where.not(id: pending_support) }

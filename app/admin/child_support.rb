@@ -182,15 +182,12 @@ ActiveAdmin.register ChildSupport do
     }
   } do |ids, inputs|
     group = Group.find(inputs[I18n.t('activerecord.models.group')])
-    children = Child.joins(:child_support, :group)
-                    .where(child_support_id: ids, group_status: 'active')
-                    .where('groups.started_at >= ? AND groups.support_module_programmed = ?', Time.zone.today, 0)
-
+    children = Child.with_group_not_started.where(child_support_id: ids, group_status: 'active')
     if children.empty?
       flash[:warning] = "Les enfants des fiches de suivi selectionnées ne peuvent pas changer de cohorte"
       redirect_to request.referer
     elsif children.update(group_id: group.id)
-      redirect_to request.referer, notice: "Enfants ajoutés à la cohorte #{group.name}"
+      redirect_to request.referer, notice: "Les enfants actifs n'étant pas encore accompagnés ont été déplacés dans la cohorte #{group.name}"
     else
       flash[:error] = "Erreur lors du déplacement de cohorte"
       redirect_to request.referer
