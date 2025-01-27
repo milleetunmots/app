@@ -654,8 +654,6 @@ ActiveAdmin.register ChildSupport do
                     parent_f.input :phone_number
                     parent_f.input :present_on_whatsapp
                     parent_f.input :follow_us_on_whatsapp
-                    parent_f.input :present_on_facebook
-                    parent_f.input :follow_us_on_facebook
                     parent_f.input :email
                     parent_f.input :letterbox_name
                     parent_f.input :address
@@ -705,7 +703,7 @@ ActiveAdmin.register ChildSupport do
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
-    is_ambassador present_on_whatsapp present_on_facebook follow_us_on_whatsapp follow_us_on_facebook job
+    is_ambassador present_on_whatsapp follow_us_on_whatsapp job
   ]
   current_child_attributes = [{
     current_child_attributes: [
@@ -829,8 +827,6 @@ ActiveAdmin.register ChildSupport do
     column :parent1_phone_number_national
     column :parent1_present_on_whatsapp
     column :parent1_follow_us_on_whatsapp
-    column :parent1_present_on_facebook
-    column :parent1_follow_us_on_facebook
     column :should_contact_parent1
     column :letterbox_name
     column :address
@@ -843,8 +839,6 @@ ActiveAdmin.register ChildSupport do
     column :parent2_phone_number_national
     column :parent2_present_on_whatsapp
     column :parent2_follow_us_on_whatsapp
-    column :parent2_present_on_facebook
-    column :parent2_follow_us_on_facebook
     column :should_contact_parent2
 
     column :children_first_names

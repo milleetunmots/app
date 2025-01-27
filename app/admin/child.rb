@@ -583,8 +583,6 @@ ActiveAdmin.register Child do
     column :parent1_last_name
     column :parent1_email
     column :parent1_phone_number_national
-    column :parent1_present_on_facebook
-    column :parent1_follow_us_on_facebook
     column :parent1_present_on_whatsapp
     column :parent1_follow_us_on_whatsapp
     column :should_contact_parent1
@@ -594,8 +592,6 @@ ActiveAdmin.register Child do
     column :parent2_last_name
     column :parent2_email
     column :parent2_phone_number_national
-    column :parent2_present_on_facebook
-    column :parent2_follow_us_on_facebook
     column :parent2_present_on_whatsapp
     column :parent2_follow_us_on_whatsapp
     column :should_contact_parent2

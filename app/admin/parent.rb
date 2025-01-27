@@ -51,9 +51,7 @@ ActiveAdmin.register Parent do
   filter :is_excluded_from_workshop
   filter :family_followed, as: :check_boxes
   filter :present_on_whatsapp
-  filter :present_on_facebook
   filter :follow_us_on_whatsapp
-  filter :follow_us_on_facebook
   filter :email
   filter :letterbox_name
   filter :address
@@ -94,9 +92,7 @@ ActiveAdmin.register Parent do
       f.input :is_excluded_from_workshop
       f.input :family_followed
       f.input :present_on_whatsapp
-      f.input :present_on_facebook
       f.input :follow_us_on_whatsapp
-      f.input :follow_us_on_facebook
       f.input :email
       f.input :letterbox_name
       address_input f
@@ -110,7 +106,7 @@ ActiveAdmin.register Parent do
   end
 
   permit_params :gender, :first_name, :last_name,
-    :phone_number, :is_excluded_from_workshop, :present_on_whatsapp, :present_on_facebook, :follow_us_on_facebook, :follow_us_on_whatsapp, :email,
+    :phone_number, :is_excluded_from_workshop, :present_on_whatsapp, :follow_us_on_whatsapp, :email,
     :letterbox_name, :address, :postal_code, :city_name,
     :is_ambassador, :job, :terms_accepted_at, :family_followed, :parent2_creation, :created_by_us,
     tags_params, parent2_child_ids: []
@@ -132,9 +128,7 @@ ActiveAdmin.register Parent do
           row :is_excluded_from_workshop
           row :family_followed
           row :present_on_whatsapp
-          row :present_on_facebook
           row :follow_us_on_whatsapp
-          row :follow_us_on_facebook
           row :email do |decorated|
             decorated.email_link
           end
@@ -252,9 +246,7 @@ ActiveAdmin.register Parent do
     column :email
     column :phone_number_national
     column :present_on_whatsapp
-    column :present_on_facebook
     column :follow_us_on_whatsapp
-    column :follow_us_on_facebook
 
     column :letterbox_name
     column :address

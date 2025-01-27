@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_01_17_142950) do
+ActiveRecord::Schema.define(version: 2025_01_27_114845) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -569,10 +569,8 @@ ActiveRecord::Schema.define(version: 2025_01_17_142950) do
     t.float "redirection_unique_visit_rate"
     t.float "redirection_visit_rate"
     t.datetime "discarded_at"
-    t.boolean "present_on_facebook"
     t.boolean "present_on_whatsapp"
     t.boolean "follow_us_on_whatsapp"
-    t.boolean "follow_us_on_facebook"
     t.string "degree"
     t.boolean "degree_in_france"
     t.string "help_my_child_to_learn_is_important"
