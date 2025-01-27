@@ -15,7 +15,7 @@ class AircallController < ApplicationController
 
   def webhook_calls
     payload = params.to_unsafe_h
-    create_insight_card(payload[:event], payload.dig(:data, :id), Phonelib.parse(payload.dig(:data, :raw_digits)).e164)
+    create_insight_card(payload[:event], payload.dig(:data, :id), Phonelib.parse(payload.dig(:data, :raw_digits)).e164) if payload.dig(:data, :direction) == 'inbound'
     create_call(payload[:data])
     head :ok
   end
