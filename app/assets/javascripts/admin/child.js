@@ -52,7 +52,7 @@ $(document).ready(function() {
       birthdateField.on('change', function() {
         const selectedDate = new Date(birthdateField.val());
         if (selectedDate < maxDate36Months) {
-          alert("L'accompagnement pour cet enfant sera arrêté automatiquement sous un délai d'environ 6 semaines maximum. Il n'y a pas de besoin de faire de tâche, l'arrêt de l'accompagnement se fera automatiquement.");
+          alert("L'accompagnement pour cet enfant s'arrêtera dans maximum 6 semaines. Cet arrêt se fera automatiquement, il n'y a pas besoin de le signaler par une tâche.");
         }
       });
     }
