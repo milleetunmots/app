@@ -55,6 +55,7 @@ Rails.application.routes.draw do
   post '/typeform/webhooks', to: 'typeform#webhooks'
   post '/aircall/messages', to: 'aircall#webhook_messages'
   post '/aircall/calls', to: 'aircall#webhook_calls'
+  post '/aircall/insight_cards', to: 'aircall#webhook_insight_cards'
 
   resources :events, only: %i[index create]
 
@@ -86,7 +87,7 @@ Rails.application.routes.draw do
       resources :answers, only: [:new, :create], controller: 'parents_answers'
     end
   end
-  
+
   authenticate :admin_user do
     mount Sidekiq::Web => '/sidekiq'
   end

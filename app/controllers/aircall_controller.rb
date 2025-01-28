@@ -3,6 +3,7 @@ class AircallController < ApplicationController
   skip_before_action :verify_authenticity_token
   before_action :verify_webhook_messages_token, only: :webhook_messages
   before_action :verify_webhook_calls_token, only: :webhook_calls
+  before_action :verify_webhook_insight_cards, only: :webhook_insight_cards
 
   def webhook_messages
     payload = params.to_unsafe_h
@@ -15,8 +16,19 @@ class AircallController < ApplicationController
 
   def webhook_calls
     payload = params.to_unsafe_h
-    create_insight_card(payload[:event], payload.dig(:data, :id), Phonelib.parse(payload.dig(:data, :raw_digits)).e164) if payload.dig(:data, :direction) == 'inbound'
-    create_call(payload[:data])
+    service = Aircall::CreateCallService.new(payload: payload['data']).call
+    if service.errors.any?
+      Rollbar.error('Aircall::CreateCallService', errors: service.errors)
+    end
+    head :ok
+  end
+
+  def webhook_insight_cards
+    payload = params.to_unsafe_h
+    service = Aircall::CreateInsightCardService.new(payload: payload['data']).call
+    if service.errors.any?
+      Rollbar.error('Aircall::CreateInsightCardService', errors: service.errors)
+    end
     head :ok
   end
 
@@ -32,15 +44,10 @@ class AircallController < ApplicationController
     head :unauthorized unless token.eql?(ENV['AIRCALL_WEBHOOK_CALL_TOKEN'])
   end
 
-  def create_insight_card(event, call_id, parent_phone_number)
-    return unless event == 'call.created'
+  def verify_webhook_insight_cards
+    token = params['token']
+    phone_number = Phonelib.parse(params['data']['raw_digits']).e164
 
-    service = Aircall::CreateInsightCardService.new(call_id: call_id, parent_phone_number: parent_phone_number).call
-    Rollbar.error('Aircall::CreateInsightCardService', errors: service.errors) if service.errors.any?
-  end
-
-  def create_call(data)
-    service = Aircall::CreateCallService.new(payload: data).call
-    Rollbar.error('Aircall::CreateCallService', errors: service.errors) if service.errors.any?
+    head :unauthorized unless token.eql?(ENV['AIRCALL_WEBHOOK_INSIGHT_CARDS_TOKEN']) && (phone_number == '+33755802002' || phone_number == '+33769030456')
   end
 end
