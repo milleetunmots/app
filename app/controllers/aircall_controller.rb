@@ -46,8 +46,7 @@ class AircallController < ApplicationController
 
   def verify_webhook_insight_cards
     token = params['token']
-    phone_number = Phonelib.parse(params['data']['raw_digits']).e164
 
-    head :unauthorized unless token.eql?(ENV['AIRCALL_WEBHOOK_INSIGHT_CARDS_TOKEN']) && (phone_number == '+33755802002' || phone_number == '+33769030456')
+    head :unauthorized unless token.eql?(ENV['AIRCALL_WEBHOOK_INSIGHT_CARDS_TOKEN'])
   end
 end
