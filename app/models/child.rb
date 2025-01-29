@@ -305,8 +305,8 @@ class Child < ApplicationRecord
         postal_codes += Parent::BONDY_POSTAL_CODE
       when 'Mantes La Jolie'
         postal_codes += Parent::MANTES_LA_JOLIE_POSTAL_CODE
-      when 'Asnière'
-        postal_codes += Parent::ASNIERE_POSTAL_CODE
+      when 'Asnières'
+        postal_codes += Parent::ASNIERES_POSTAL_CODE
       when 'Gennevilier'
         postal_codes += Parent::GENNEVILIER_POSTAL_CODE
       end
