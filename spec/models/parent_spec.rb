@@ -14,7 +14,6 @@
 #  email                               :string
 #  family_followed                     :boolean          default(FALSE)
 #  first_name                          :string           not null
-#  follow_us_on_facebook               :boolean
 #  follow_us_on_whatsapp               :boolean
 #  gender                              :string           not null
 #  help_my_child_to_learn_is_important :string
@@ -31,7 +30,6 @@
 #  phone_number_national               :string
 #  postal_code                         :string           not null
 #  preferred_channel                   :string
-#  present_on_facebook                 :boolean
 #  present_on_whatsapp                 :boolean
 #  redirection_unique_visit_rate       :float
 #  redirection_url_unique_visits_count :integer

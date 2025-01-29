@@ -17,7 +17,7 @@ ActiveAdmin.register ChildSupport do
   index do
     selectable_column
     id_column
-    column :children
+    column :children, sortable: 'children.birthdate'
     column :supporter if current_admin_user.admin? || current_admin_user.team_member? || current_admin_user.logistics_team?
     (0..5).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
@@ -41,7 +41,7 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
-  scope :all, group: :all
+  scope(:all, group: :all) { |scope| scope.with_children }
 
   scope(:mine, default: true, group: :supporter) { |scope| scope.supported_by(current_admin_user) }
   scope :without_supporter, group: :supporter, if: proc { !current_admin_user.caller? }
@@ -174,6 +174,24 @@ ActiveAdmin.register ChildSupport do
   batch_action :select_available_support_module do |ids|
     session[:select_available_support_module_ids] = ids
     redirect_to action: :select_available_support_module
+  end
+
+  batch_action :add_to_group, form: -> {
+    {
+      I18n.t('activerecord.models.group') => Group.not_started.order(:name).pluck(:name, :id)
+    }
+  } do |ids, inputs|
+    group = Group.find(inputs[I18n.t('activerecord.models.group')])
+    children = Child.with_group_not_started.where(child_support_id: ids, group_status: 'active')
+    if children.empty?
+      flash[:warning] = "Les enfants des fiches de suivi selectionnées ne peuvent pas changer de cohorte"
+      redirect_to request.referer
+    elsif children.update(group_id: group.id)
+      redirect_to request.referer, notice: "Les enfants actifs n'étant pas encore accompagnés ont été déplacés dans la cohorte #{group.name}"
+    else
+      flash[:error] = "Erreur lors du déplacement de cohorte"
+      redirect_to request.referer
+    end
   end
 
   collection_action :select_available_support_module do
@@ -636,8 +654,6 @@ ActiveAdmin.register ChildSupport do
                     parent_f.input :phone_number
                     parent_f.input :present_on_whatsapp
                     parent_f.input :follow_us_on_whatsapp
-                    parent_f.input :present_on_facebook
-                    parent_f.input :follow_us_on_facebook
                     parent_f.input :email
                     parent_f.input :letterbox_name
                     parent_f.input :address
@@ -687,7 +703,7 @@ ActiveAdmin.register ChildSupport do
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email letterbox_name address postal_code city_name
-    is_ambassador present_on_whatsapp present_on_facebook follow_us_on_whatsapp follow_us_on_facebook job
+    is_ambassador present_on_whatsapp follow_us_on_whatsapp job
   ]
   current_child_attributes = [{
     current_child_attributes: [
@@ -811,8 +827,6 @@ ActiveAdmin.register ChildSupport do
     column :parent1_phone_number_national
     column :parent1_present_on_whatsapp
     column :parent1_follow_us_on_whatsapp
-    column :parent1_present_on_facebook
-    column :parent1_follow_us_on_facebook
     column :should_contact_parent1
     column :letterbox_name
     column :address
@@ -825,8 +839,6 @@ ActiveAdmin.register ChildSupport do
     column :parent2_phone_number_national
     column :parent2_present_on_whatsapp
     column :parent2_follow_us_on_whatsapp
-    column :parent2_present_on_facebook
-    column :parent2_follow_us_on_facebook
     column :should_contact_parent2
 
     column :children_first_names

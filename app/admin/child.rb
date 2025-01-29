@@ -354,8 +354,12 @@ ActiveAdmin.register Child do
       f.input :birthdate,
               as: :datepicker,
               datepicker_options: {
-                min_date: Child.min_birthdate,
                 max_date: Child.max_birthdate
+              },
+              input_html: {
+                data: {
+                  max_date_36_months: Child.max_birthdate_36_months
+                }
               }
       f.input :available_for_workshops
       f.inputs do
@@ -579,8 +583,6 @@ ActiveAdmin.register Child do
     column :parent1_last_name
     column :parent1_email
     column :parent1_phone_number_national
-    column :parent1_present_on_facebook
-    column :parent1_follow_us_on_facebook
     column :parent1_present_on_whatsapp
     column :parent1_follow_us_on_whatsapp
     column :should_contact_parent1
@@ -590,8 +592,6 @@ ActiveAdmin.register Child do
     column :parent2_last_name
     column :parent2_email
     column :parent2_phone_number_national
-    column :parent2_present_on_facebook
-    column :parent2_follow_us_on_facebook
     column :parent2_present_on_whatsapp
     column :parent2_follow_us_on_whatsapp
     column :should_contact_parent2

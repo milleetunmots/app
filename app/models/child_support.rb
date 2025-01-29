@@ -285,6 +285,7 @@ class ChildSupport < ApplicationRecord
       .or(where(to_call: true))
       .with_a_child_in_active_group
   }
+  scope :with_children, -> { joins(:children) }
   scope :multiple_children, -> { joins(:children).group('child_supports.id').having('count(children.id) > 1') }
   scope :one_child, -> { joins(:children).group('child_supports.id').having('count(children.id) = 1') }
   scope :paused_or_stopped, -> {
@@ -453,10 +454,6 @@ class ChildSupport < ApplicationRecord
            :parent1_gender,
            :parent1_is_ambassador,
            :parent1_is_ambassador?,
-           :parent1_present_on_facebook,
-           :parent1_present_on_facebook?,
-           :parent1_follow_us_on_facebook,
-           :parent1_follow_us_on_facebook?,
            :parent1_present_on_whatsapp,
            :parent1_present_on_whatsapp?,
            :parent1_follow_us_on_whatsapp,
@@ -467,10 +464,6 @@ class ChildSupport < ApplicationRecord
            :parent2_gender,
            :parent2_is_ambassador,
            :parent2_is_ambassador?,
-           :parent2_present_on_facebook,
-           :parent2_present_on_facebook?,
-           :parent2_follow_us_on_facebook,
-           :parent2_follow_us_on_facebook?,
            :parent2_present_on_whatsapp,
            :parent2_present_on_whatsapp?,
            :parent2_follow_us_on_whatsapp,

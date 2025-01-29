@@ -16,7 +16,7 @@ module ActiveAdmin
       def has_tags
         filter :tagged_with_all,
           as: :select,
-          collection: proc { tag_name_collection },
+          collection: proc { tag_name_collection(current_admin_user.caller?) },
           input_html: {multiple: true, data: {select2: {}}},
           label: "Tags"
 

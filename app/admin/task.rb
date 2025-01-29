@@ -2,6 +2,8 @@ ActiveAdmin.register Task do
 
   decorate_with TaskDecorator
 
+  config.clear_action_items!
+
   has_better_csv
   use_discard
 
