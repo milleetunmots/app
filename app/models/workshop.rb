@@ -127,6 +127,8 @@ class Workshop < ApplicationRecord
                       Parent::MANTES_LA_JOLIE_POSTAL_CODE
                     when 'Asnières'
                        Parent::ASNIERES_POSTAL_CODE
+                    when 'Gennevilliers'
+                      Parent::GENNEVILLIERS_POSTAL_CODE
                     end
 
     Parent.where(postal_code: postal_codes)
