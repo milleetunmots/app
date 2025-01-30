@@ -299,6 +299,8 @@ class Child < ApplicationRecord
         postal_codes += Parent::MONTARGIS_POSTAL_CODE
       when 'Gien'
         postal_codes += Parent::GIEN_POSTAL_CODE
+      when 'Villeneuve-la-Garenne'
+        postal_codes += Parent::VILLENEUVE_LA_GARENNE_POSTAL_CODE
       when 'Pithiviers'
         postal_codes += Parent::PITHIVIERS_POSTAL_CODE
       when 'Bondy'
@@ -307,8 +309,8 @@ class Child < ApplicationRecord
         postal_codes += Parent::MANTES_LA_JOLIE_POSTAL_CODE
       when 'Asnières'
         postal_codes += Parent::ASNIERES_POSTAL_CODE
-      when 'Gennevilier'
-        postal_codes += Parent::GENNEVILIER_POSTAL_CODE
+      when 'Genneviliers'
+        postal_codes += Parent::GENNEVILLIERS_POSTAL_CODE
       end
     end
 
