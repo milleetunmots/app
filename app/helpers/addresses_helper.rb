@@ -3,10 +3,11 @@ module AddressesHelper
     javascript_include_tag "https://maps.googleapis.com/maps/api/js?libraries=places&key=#{ENV["GOOGLE_MAPS_API_KEY"]}"
   end
 
-  def address_input(form, options = {})
+  def address_input(form, options = {}, caf_registration_form = false)
     prefix = options.delete(:prefix) || ""
     [
       address_address_input(form, prefix, options),
+      address_address_supplement_input(form, prefix, caf_registration_form),
       address_postal_code_input(form, prefix),
       address_city_name_input(form, prefix)
     ].compact.join.html_safe
@@ -15,6 +16,7 @@ module AddressesHelper
   def address_address_input(form, prefix, options)
     form.input "#{prefix}address".to_sym,
       as: :string,
+      label: "N° et rue",
       input_html: {
         id: "address-#{prefix}address".to_sym,
         data: {
@@ -26,6 +28,17 @@ module AddressesHelper
             }
           }.merge(options)
         }
+      }
+  end
+
+  def address_address_supplement_input(form, prefix, caf_registration_form)
+    return unless caf_registration_form
+
+    form.input "#{prefix}address_supplement".to_sym,
+      as: :string,
+      label: "Complément d'adresse",
+      input_html: {
+        id: "address-#{prefix}address_supplement".to_sym
       }
   end
 
