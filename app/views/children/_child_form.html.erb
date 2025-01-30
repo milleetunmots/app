@@ -4,8 +4,11 @@
 <%= f.input :birthdate, start_year: @child_min_birthdate.year, end_year: Child.max_birthdate.year %>
 <%= f.input :tag_list, as: :hidden %>
 
-<% if defined?(with_support) && with_support %>
-  <%= f.simple_fields_for :child_support do |child_support_f| %>
-    <%= child_support_f.input :important_information, label: 'Commentaires', input_html: { rows: 5 } %>
+<% if defined?(caf_registration_form) && !caf_registration_form %>
+  <% if defined?(with_support) && with_support %>
+    <%= f.simple_fields_for :child_support do |child_support_f| %>
+      <%= child_support_f.input :important_information, label: 'Commentaires', input_html: { rows: 5 } %>
+    <% end %>
   <% end %>
 <% end %>
+
