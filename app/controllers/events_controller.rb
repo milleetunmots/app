@@ -30,25 +30,29 @@ class EventsController < ApplicationController
 
   def spot_hit_stop
     parsed_phone = Phonelib.parse(params[:numero])
-    parent = Parent.find_by(phone_number: parsed_phone.e164)
-    event = Event.new({
-      related: parent,
+    parents = Parent.where(phone_number: parsed_phone.e164)
+    parents.each do |parent|
+      event = Event.new({
+        related: parent,
                         body: "STOP",
                         spot_hit_message_id: params[:id],
                         spot_hit_status: 1,
                         type: 'Events::TextMessage',
                         occurred_at: Time.at(params[:date].to_i),
                         originated_by_app: false
-    })
-    head :unprocessable_entity and return unless event.save
+      })
+      head :unprocessable_entity and return unless event.save
+    end
 
-    parent.children.where.not(group_id: nil).where(group_status: %w[active paused]).each do |child|
-      child.parent1 == parent ? child.should_contact_parent1 = false : child.should_contact_parent2 = false
-      if child.should_contact_parent1 == false && child.should_contact_parent2 == false
-        child.group_status = "stopped"
-        child.group_end = Time.zone.now
+    parents.each do |parent|
+      parent.children.where.not(group_id: nil).where(group_status: %w[active paused]).each do |child|
+        child.parent1 == parent ? child.should_contact_parent1 = false : child.should_contact_parent2 = false
+        if child.should_contact_parent1 == false && child.should_contact_parent2 == false
+          child.group_status = "stopped"
+          child.group_end = Time.zone.now
+        end
+        child.save(validate: false)
       end
-      child.save(validate: false)
     end
 
     head :ok
