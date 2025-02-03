@@ -160,7 +160,7 @@ class Group
     end
 
     def stop_support
-      end_support_date = @group.started_at + ((@group.support_modules_count - 2) * 8.weeks) + 4.weeks + MODULE_ZERO_DURATION
+      end_support_date = @group.started_at + ((@group.support_modules_count - 2) * 8.weeks) + 5.weeks + MODULE_ZERO_DURATION
       Group::StopSupportJob.set(wait_until: end_support_date.to_datetime.change(hour: @hour)).perform_later(@group.id)
     end
   end
