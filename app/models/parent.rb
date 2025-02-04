@@ -400,7 +400,7 @@ class Parent < ApplicationRecord
   end
 
   def update_aircall_contact
-    parent = Parent.where(phone_number: phone_number).with_a_child_in_active_group.first
+    parent = Parent.kept.where(phone_number: phone_number).with_a_child_in_active_group.first
     return unless parent
 
     service = Aircall::CreateContactService.new(parent_id: parent.id).call
