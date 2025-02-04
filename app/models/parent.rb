@@ -401,6 +401,8 @@ class Parent < ApplicationRecord
 
   def update_aircall_contact
     parent = Parent.where(phone_number: phone_number).with_a_child_in_active_group.first
+    return unless parent
+
     service = Aircall::CreateContactService.new(parent_id: parent.id).call
     Rollbar.error('Aircall::CreateContactService', errors: service.errors, parent_id: parent.id) if service.errors.any?
   end
