@@ -114,7 +114,7 @@ class Parent < ApplicationRecord
   before_save :format_phone_number
   before_create :add_preferred_channel_tag, if: -> { preferred_channel.present? }
   after_create :should_be_contacted_as_parent2, if: -> { parent2_creation.present? }
-  after_save :update_aircall_contact, if: -> { saved_change_to_discarded_at? && !discarded_at.nil? }
+  after_save :update_aircall_contact, if: -> { saved_change_to_discarded_at? && discarded_at.present? }
   after_save :change_the_other_parent_address, :should_not_contact_parent2
   after_commit :create_aircall_contact, if: -> { created_by_us.present? }, on: :create
 
