@@ -114,6 +114,7 @@ class Parent < ApplicationRecord
   before_save :format_phone_number
   before_create :add_preferred_channel_tag, if: -> { preferred_channel.present? }
   after_create :should_be_contacted_as_parent2, if: -> { parent2_creation.present? }
+  after_save :update_aircall_contact, if: -> { saved_change_to_discarded_at? && discarded_at.present? }
   after_save :change_the_other_parent_address, :should_not_contact_parent2
   after_commit :create_aircall_contact, if: -> { created_by_us.present? }, on: :create
 
@@ -390,11 +391,22 @@ class Parent < ApplicationRecord
   end
 
   def create_aircall_contact
+    return unless ENV['AIRCALL_ENABLED']
     return unless created_by_us
     return unless current_child
-    return unless ENV['AIRCALL_ENABLED']
 
     service = Aircall::CreateContactService.new(parent_id: id).call
     Rollbar.error('Aircall Contact creation error', parent_id: id, errors: service.errors) if service.errors.any?
+  end
+
+  def update_aircall_contact
+    return unless ENV['AIRCALL_ENABLED']
+
+    parent = Parent.kept.where(phone_number: phone_number).with_a_child_in_active_group.first
+    return unless parent&.current_child
+
+
+    service = Aircall::CreateContactService.new(parent_id: parent.id).call
+    Rollbar.error('Aircall::CreateContactService', errors: service.errors, parent_id: parent.id) if service.errors.any?
   end
 end
