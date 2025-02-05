@@ -32,7 +32,7 @@ class AircallMessage < ApplicationRecord
 
 	validates :aircall_id, presence: true, uniqueness: true
 	validates :direction, inclusion: { in: %w[inbound outbound] }
-	validates :status, inclusion: { in: %w[sent delivered received] }
+	# validates :status, inclusion: { in: %w[sent delivered received] }
 	# Aircall -> external : Status “sent” and then “delivered”
   # External -> Aircall : Status “received”
 end
