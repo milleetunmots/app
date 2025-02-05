@@ -391,17 +391,20 @@ class Parent < ApplicationRecord
   end
 
   def create_aircall_contact
+    return unless ENV['AIRCALL_ENABLED']
     return unless created_by_us
     return unless current_child
-    return unless ENV['AIRCALL_ENABLED']
 
     service = Aircall::CreateContactService.new(parent_id: id).call
     Rollbar.error('Aircall Contact creation error', parent_id: id, errors: service.errors) if service.errors.any?
   end
 
   def update_aircall_contact
+    return unless ENV['AIRCALL_ENABLED']
+
     parent = Parent.kept.where(phone_number: phone_number).with_a_child_in_active_group.first
-    return unless parent
+    return unless parent&.current_child
+
 
     service = Aircall::CreateContactService.new(parent_id: parent.id).call
     Rollbar.error('Aircall::CreateContactService', errors: service.errors, parent_id: parent.id) if service.errors.any?
