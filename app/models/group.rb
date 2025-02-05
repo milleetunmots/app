@@ -34,6 +34,8 @@ class Group < ApplicationRecord
 
   include Discard::Model
 
+  MAX_GROUP_SUPPORT_MODULES_COUNT = ENV['MAX_GROUP_SUPPORT_MODULES_COUNT'].to_i.freeze
+
   # ---------------------------------------------------------------------------
   # relations
   # ---------------------------------------------------------------------------
@@ -52,6 +54,7 @@ class Group < ApplicationRecord
             presence: true,
             uniqueness: { case_sensitive: false }
   validates :expected_children_number, presence: true, on: :create
+  validates :support_modules_count, numericality: { only_integer: true, less_than_or_equal_to: MAX_GROUP_SUPPORT_MODULES_COUNT }, presence: true
   validates :started_at, presence: true, on: :create
   validate :started_at_only_monday
 
