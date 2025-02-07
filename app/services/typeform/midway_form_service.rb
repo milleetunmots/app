@@ -29,9 +29,9 @@ module Typeform
       if @parent.save(validate: false)
         @child_support.parent_mid_term_rate = @parent.reload.mid_term_rate if should_update_mid_term_info?(:parent_mid_term_rate)
         @child_support.parent_mid_term_reaction = @parent.reload.mid_term_reaction if should_update_mid_term_info?(:parent_mid_term_reaction)
-        @errors << { message: 'ChildSupport saving failed', child_support_id: @child_support.id, form_responses: @form_responses } unless @child_support.save(validate: false)
+        @errors << { message: 'ChildSupport saving failed', child_support_id: @child_support.id } unless @child_support.save(validate: false)
       else
-        @errors << { message: 'Parent saving failed', parent_id: @parent.id, form_responses: @form_responses }
+        @errors << { message: 'Parent saving failed', parent_id: @parent.id }
       end
       self
     end

@@ -15,7 +15,7 @@ module Typeform
 
       @child_support = @parent.current_child&.child_support
       unless @child_support
-        @errors << { message: 'ChildSupport not found', parent_id: @parent.id, form_responses: @form_responses }
+        @errors << { message: 'ChildSupport not found', parent_id: @parent.id }
         return self
       end
 

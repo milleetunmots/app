@@ -18,7 +18,7 @@ module Typeform
 
         call_previous_goals_follow_up = answer[:choice][:label] == 'Oui !' ? '1_succeed' : '3_no_tried'
         @child_support.assign_attributes("call#{@call_index + 1}_previous_goals_follow_up": call_previous_goals_follow_up)
-        @errors << { message: 'ChildSupport saving failed', child_support_id: @child_support.id, form_responses: @form_responses } unless @child_support.save
+        @errors << { message: 'ChildSupport saving failed', child_support_id: @child_support.id } unless @child_support.save
       end
       self
     end

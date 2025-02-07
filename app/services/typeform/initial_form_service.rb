@@ -140,12 +140,12 @@ module Typeform
       @parent1.help_my_child_to_learn_is_important = @data[:help_my_child_to_learn_is_important]
       @parent1.would_like_to_do_more = @data[:would_like_to_do_more]
       @parent1.would_receive_advices = @data[:would_receive_advices]
-      @errors << { message: 'Parent1 saving failed', parent1_id: @parent1.id, form_responses: @form_responses } unless @parent1.save
+      @errors << { message: 'Parent1 saving failed', parent1_id: @parent1.id } unless @parent1.save
       return unless @parent2
 
       @parent2&.degree = @data[:other_parent_degree]
       @parent2&.degree_in_france = @data[:other_parent_degree_in_france]
-      @errors << { message: 'Parent2 saving failed', parent2_id: @parent2.id, form_responses: @form_responses } unless @parent2.save
+      @errors << { message: 'Parent2 saving failed', parent2_id: @parent2.id } unless @parent2.save
     end
 
     def update_child_support
@@ -170,7 +170,7 @@ module Typeform
       @child_support.already_working_with = @data[:already_working_with]
       @child_support.parental_contexts = @data[:parental_contexts]
 
-      @errors << { message: 'ChildSupport saving failed', child_support_id: @child_support.id, form_responses: @form_responses } unless @child_support.save
+      @errors << { message: 'ChildSupport saving failed', child_support_id: @child_support.id } unless @child_support.save
     end
   end
 end
