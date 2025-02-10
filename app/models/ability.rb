@@ -5,6 +5,24 @@ class Ability
 
   def initialize(user)
     return unless user.present?
+    
+    if user.is_a?(AdminUser)
+      admin_user_abilities(user)
+    elsif user.is_a?(ExternalUser)
+      external_user_abilities(user)
+    end
+  end
+
+  def can?(action, subject, *extra_args)
+    while subject.is_a?(Draper::Decorator)
+      subject = subject.model
+    end
+    super(action, subject, *extra_args)
+  end
+
+  private
+
+  def admin_user_abilities(user)
     return if user.is_disabled?
 
     if user.admin? || user.logistics_team?
@@ -36,10 +54,7 @@ class Ability
     end
   end
 
-  def can?(action, subject, *extra_args)
-    while subject.is_a?(Draper::Decorator)
-      subject = subject.model
-    end
-    super(action, subject, *extra_args)
+  def external_user_abilities(user)
+    can :read, :dashboard
   end
 end

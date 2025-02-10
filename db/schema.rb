@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_01_27_114845) do
+ActiveRecord::Schema.define(version: 2025_02_10_131221) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -464,6 +464,18 @@ ActiveRecord::Schema.define(version: 2025_01_27_114845) do
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
     t.index ["type"], name: "index_events_on_type"
     t.index ["workshop_id"], name: "index_events_on_workshop_id"
+  end
+
+  create_table "external_users", force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["email"], name: "index_external_users_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_external_users_on_reset_password_token", unique: true
   end
 
   create_table "field_comments", force: :cascade do |t|
