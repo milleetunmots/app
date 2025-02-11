@@ -38,9 +38,7 @@ class Group
       child_ids = @children.months_lt(35).map { |child| "child.#{child.id}" }
       service = ProgramMessageService.new(
         Time.zone.today.advance(months: 1).strftime('%d-%m-%Y'),
-        '12:30',
-        child_ids,
-        INSTAGRAM_SMS
+        '12:30', child_ids, INSTAGRAM_SMS, nil, nil, false, nil, nil, %w[active waiting]
       ).call
       @errors += service.errors if service.errors.any?
     end

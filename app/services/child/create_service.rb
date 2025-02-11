@@ -202,7 +202,7 @@ class Child
 
     def send_instagram_message
       message = "1001mots : En attendant que votre accompagnement 1001mots commence, retrouvez sur Instagram nos idées d’activités et nos conseils pour occuper #{@child.first_name}, abonnez-vous ! https://www.instagram.com/association_1001mots"
-      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.advance(days: 3).change({ hour: 18 }).to_i, message, nil, nil, false, nil, nil, %w[active waiting]).call
+      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.advance(days: 3).change({ hour: 18 }).to_i, message).call
     end
 
     def create_parent_registration
