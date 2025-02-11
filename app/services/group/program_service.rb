@@ -87,7 +87,7 @@ class Group
 
     def program_sms_to_verify_address
       program_sms_date = (@group.started_at + 1.week).next_occurring(:monday)
-      Parent::ProgramSmsToVerifyAdressJob.set(wait_until: program_sms_date.to_datetime.change(hour: @hour - 1)).perform_later(@group.id)
+      Parent::ProgramSmsToVerifyAddressJob.set(wait_until: program_sms_date.to_datetime.change(hour: 13)).perform_later(@group.id)
     end
 
     def add_months_tag_to_child_support
