@@ -30,6 +30,7 @@ class Child
         send_form_by_sms
         send_not_supported_sms
         create_parent_registration
+        send_instagram_message
         @children_under_four_months = @child.siblings.all? { |child| child.months < 4 }
         younguest_child_over_four_months = @child.siblings.where('birthdate <= ?', 4.months.ago).order('birthdate desc').first
         @youngest_child_under_twenty_four_months = @children_under_four_months ? false : younguest_child_over_four_months.months < 24
@@ -197,6 +198,11 @@ class Child
       media = Media::Form.find_or_create_by(name: 'Lien - non accompagnement', url: ENV['NOT_SUPPORTED_LINK'])
       message = "1001mots : Bonjour ! Suite à votre demande d'inscription, nous regrettons de ne pas pouvoir accompagner votre enfant. Les places sont limitées et attribuées selon des critères spécifiques. Toutefois, nous avons préparé un ensemble de conseils qui peuvent aider votre enfant à développer son langage. Vous les trouverez ici : {URL}"
       ProgramMessageService.new(Time.zone.now.next_day(3).strftime('%d-%m-%Y'), '12:30', ["child.#{@child.id}"], message, nil, media.redirection_target.id, false, nil, nil, ['not_supported']).call
+    end
+
+    def send_instagram_message
+      message = "1001mots : En attendant que votre accompagnement 1001mots commence, retrouvez sur Instagram nos idées d’activités et nos conseils pour occuper #{@child.first_name}, abonnez-vous ! https://www.instagram.com/association_1001mots"
+      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.advance(days: 3).change({ hour: 18 }).to_i, message, nil, nil, false, nil, nil, %w[active waiting]).call
     end
 
     def create_parent_registration
