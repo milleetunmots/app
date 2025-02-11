@@ -1,3 +1,23 @@
-<div>
-  <p>Test</p>
+<div class="dashboard-wrapper">
+  <h1>Suivi inscriptions de la PMI</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Prénom</th>
+        <th>Nom</th>
+        <th>Statut</th>
+        <th>Cohorte</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @children.each do |child| %>
+        <tr>
+          <td><%= child.first_name %></td>
+          <td><%= child.last_name %></td>
+          <td><%= child.group_status %></td>
+          <td><%= child.group&.name %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>
