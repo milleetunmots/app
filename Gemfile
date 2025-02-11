@@ -79,6 +79,9 @@ gem "cancancan"
 gem "draper"
 gem "arctic_admin"
 
+# External auth
+gem 'clearance'
+
 # phones
 gem "phonelib"
 

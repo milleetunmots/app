@@ -1,0 +1,27 @@
+<h2>Utilisateurs de ma PMI</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Email</th>
+      <th>Rôle</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= user.email %></td>
+        <td><%= user.role %></td>
+        <td>
+          <%= link_to "Modifier", edit_external_user_path(user) %> |
+          <% if user.pmi_user? %>
+            <%= link_to "Supprimer", external_user_path(user), method: :delete, data: { confirm: "Êtes-vous sûr ?" } %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to "Créer un utilisateur", new_external_user_path %>

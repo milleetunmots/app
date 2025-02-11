@@ -1,5 +1,8 @@
 class External::DashboardController < External::BaseController
-  def index
+  authorize_resource class: false
 
+  def index
+    authorize! :read, :dashboard
+    @external_user = current_user
   end
 end

@@ -5,7 +5,9 @@
 #  id                     :bigint           not null, primary key
 #  email                  :string           default(""), not null
 #  encrypted_password     :string           default(""), not null
+#  password_digest        :string
 #  remember_created_at    :datetime
+#  remember_token         :string
 #  reset_password_sent_at :datetime
 #  reset_password_token   :string
 #  role                   :string           default("pmi_user"), not null
@@ -24,14 +26,18 @@
 #  fk_rails_...  (source_id => sources.id)
 #
 class ExternalUser < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+  include Clearance::User
+
+  attr_accessor :skip_password_validation
 
   belongs_to :source
 
-  enum roles: { pmi_user: 'pmi_user', pmi_admin: 'pmi_admin' }
+  enum role: { pmi_user: 'pmi_user', pmi_admin: 'pmi_admin' }
 
   validates :role, inclusion: { in: roles.keys }
+  validates :password, presence: true, unless: :skip_password_validation?
+  
+  def skip_password_validation?
+    skip_password_validation || persisted?
+  end
 end

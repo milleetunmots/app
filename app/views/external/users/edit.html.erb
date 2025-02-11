@@ -1,0 +1,20 @@
+<h2>Modifier l'utilisateur</h2>
+
+<%= form_with model: @user, url: external_user_path(@user), method: :patch do |f| %>
+  <div>
+    <%= f.label :email %>
+    <%= f.email_field :email, required: true %>
+  </div>
+
+  <div>
+    <%= f.label :password, "Nouveau mot de passe (laisser vide pour ne pas modifier)" %>
+    <%= f.password_field :password %>
+  </div>
+
+  <div>
+    <%= f.label :role %>
+    <%= f.select :role, ExternalUser.roles.keys %>
+  </div>
+
+  <%= f.submit "Mettre à jour" %>
+<% end %>

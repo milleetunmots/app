@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POC Portail PMI</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <%= stylesheet_link_tag "application", media: "all" %>
+  <%= javascript_include_tag "application" %>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <ul>
+        <li><a href="<%= external_dashboard_index_path %>">🏠 Dashboard</a></li>
+        
+        <% if current_user&.pmi_admin? %>
+          <li><a href="<%= external_users_path %>">👥 Gérer les utilisateurs de ma PMI</a></li>
+        <% end %>
+
+        <% if signed_in? %>
+          <li>
+            <%= button_to "Déconnexion", external_sign_out_path, method: :delete, class: "logout-btn" %>
+          </li>
+        <% end %>
+      </ul>
+    </nav>
+  </header>
+
+  <% flash.each do |type, message| %>
+    <div class="alert alert-<%= type %>"><%= message %></div>
+  <% end %>
+
+  <main>
+    <%= yield %>
+  </main>
+</body>
+</html>

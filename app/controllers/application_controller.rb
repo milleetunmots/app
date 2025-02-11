@@ -48,4 +48,10 @@ class ApplicationController < ActionController::Base
   rescue
     false
   end
+
+   # ignorer Clearance pour les AdminUser
+   def require_login
+    return if request.path.start_with?("/external") # Laisse Clearance gérer uniquement les external users
+    super if is_a?(External::BaseController) # Applique Clearance uniquement aux controllers External
+  end
 end

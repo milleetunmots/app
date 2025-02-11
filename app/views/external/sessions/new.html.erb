@@ -1,0 +1,16 @@
+<h2>Connexion</h2>
+
+<%= form_with url: external_sessions_path, method: :post do |f| %>
+  <div>
+    <%= label_tag :email, "Email" %>
+    <%= text_field_tag :email, params[:email] %>
+  </div>
+
+  <div>
+    <%= label_tag :password, "Mot de passe" %>
+    <%= password_field_tag :password %>
+  </div>
+
+  <%= submit_tag "Se connecter" %>
+<% end %>
+

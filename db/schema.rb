@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_02_11_122315) do
+ActiveRecord::Schema.define(version: 2025_02_11_143522) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -476,6 +476,8 @@ ActiveRecord::Schema.define(version: 2025_02_11_122315) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "role", default: "pmi_user", null: false
     t.bigint "source_id"
+    t.string "remember_token"
+    t.string "password_digest"
     t.index ["email"], name: "index_external_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_external_users_on_reset_password_token", unique: true
     t.index ["source_id"], name: "index_external_users_on_source_id"

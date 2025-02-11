@@ -1,0 +1,20 @@
+<h2>Créer un nouvel utilisateur pour ma PMI</h2>
+
+<%= form_with model: @user, url: external_users_path do |f| %>
+  <div>
+    <%= f.label :email %>
+    <%= f.email_field :email, required: true %>
+  </div>
+
+  <div>
+    <%= f.label :password %>
+    <%= f.password_field :password, required: true %>
+  </div>
+
+  <div>
+    <%= f.label :role %>
+    <%= f.select :role, ExternalUser.roles.keys %>
+  </div>
+
+  <%= f.submit "Créer" %>
+<% end %>

@@ -7,10 +7,11 @@ Rails.application.routes.draw do
   ActiveAdmin.routes(self)
 
   namespace :external do
-    devise_for :users, class_name: 'ExternalUser', controllers: {
-      sessions: 'external/users/sessions',
-      registrations: 'external/users/registrations'
-    }
+    resources :sessions, only: [:new, :create, :destroy]
+    get 'sign_in', to: 'sessions#new', as: :sign_in
+    delete 'sign_out', to: 'sessions#destroy', as: :sign_out
+    resources :passwords, only: [:new, :create, :edit, :update]
+    resources :users, only: [:index, :new, :create, :edit, :update, :destroy]
     resources :dashboard, only: [:index]
     resources :toto, only: [:index]
   end
