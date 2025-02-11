@@ -24,6 +24,7 @@ class Source < ApplicationRecord
 
   has_many :children_sources, dependent: :nullify
   has_many :children, through: :children_sources
+  has_many :external_users
 
   # ---------------------------------------------------------------------------
   # validations

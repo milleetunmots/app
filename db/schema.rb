@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_02_10_131221) do
+ActiveRecord::Schema.define(version: 2025_02_11_122315) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -474,8 +474,11 @@ ActiveRecord::Schema.define(version: 2025_02_10_131221) do
     t.datetime "remember_created_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "role", default: "pmi_user", null: false
+    t.bigint "source_id"
     t.index ["email"], name: "index_external_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_external_users_on_reset_password_token", unique: true
+    t.index ["source_id"], name: "index_external_users_on_source_id"
   end
 
   create_table "field_comments", force: :cascade do |t|
@@ -854,6 +857,7 @@ ActiveRecord::Schema.define(version: 2025_02_10_131221) do
   add_foreign_key "children", "parents", column: "parent2_id"
   add_foreign_key "children_support_modules", "books"
   add_foreign_key "events", "workshops"
+  add_foreign_key "external_users", "sources"
   add_foreign_key "field_comments", "admin_users", column: "author_id"
   add_foreign_key "media", "media", column: "image1_id"
   add_foreign_key "media", "media", column: "image2_id"

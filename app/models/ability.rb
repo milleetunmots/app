@@ -55,6 +55,10 @@ class Ability
   end
 
   def external_user_abilities(user)
+    if user.pmi_admin?
+      can :manage, ExternalUser, source_id: user.source_id
+      can :read, :toto
+    end
     can :read, :dashboard
   end
 end

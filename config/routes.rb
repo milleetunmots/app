@@ -2,15 +2,17 @@ require 'sidekiq/web'
 require 'sidekiq-scheduler/web'
 
 Rails.application.routes.draw do
-  devise_for :external_users, controllers: {
-    sessions: 'external_users/sessions'
-  }
   devise_for :admin_users, ActiveAdmin::Devise.config
 
   ActiveAdmin.routes(self)
 
   namespace :external do
+    devise_for :users, class_name: 'ExternalUser', controllers: {
+      sessions: 'external/users/sessions',
+      registrations: 'external/users/registrations'
+    }
     resources :dashboard, only: [:index]
+    resources :toto, only: [:index]
   end
 
   get 'status', to: 'application#status'

@@ -2,14 +2,6 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_admin_user!
   before_action :set_time_zone
 
-  def authenticate_user!
-    if request.path.start_with?("/external")
-      authenticate_external_user!
-    else
-      authenticate_admin_user!
-    end
-  end
-
   def access_denied(exception)
     redirect_to admin_children_url, alert: exception.message
   end
