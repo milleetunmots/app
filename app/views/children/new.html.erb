@@ -168,7 +168,7 @@
           </div>
           <div class="col-sm-4">
             <div class="text-right accepted-fields">
-              <%= f.button :submit, 'Valider', class: 'btn-primary btn-lg' %>
+              <%= f.button :submit, @form_path == caf_registration_path ? 'Enregistrer et continuer' : 'Valider', class: 'btn-primary btn-lg' %>
             </div>
           </div>
         </div>
