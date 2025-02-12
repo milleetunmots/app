@@ -1,26 +1,21 @@
 module Typeform
-  class UpdateAddressService
+  class UpdateAddressService < Typeform::TypeformService
     FIELD_IDS = {
-      address: 'N8yUG2jdg0QT',
-      city_name: 'lh7ySr1ry9mP',
-      postal_code: 'xq3aifkWgIYY',
-      letterbox_name: 'B7xao8q1J483'
-    }
+      address: ENV['ADDRESS_TYPEFORM_ADDRESS_ID'],
+      city_name: ENV['ADDRESS_TYPEFORM_CITY_NAME_ID'],
+      postal_code: ENV['ADDRESS_TYPEFORM_POSTAL_CODE_ID'],
+      letterbox_name: ENV['ADDRESS_TYPEFORM_LETTERBOX_NAME_ID']
+    }.freeze
 
-    def initialize(form_responses)
-      @answers = form_responses[:answers]
-      @parent = Parent.find_by(id: form_responses[:hidden][:parent_id])
-    end
 
     def call
-      unless @parent
-        Rollbar.error('Typeform::UpdateAddressService', parent: @parent)
-        return self
-      end
+      verify_hidden_variable('parent_id')
+      find_parent
+      return self unless @errors.empty?
 
       @child_support = @parent.current_child&.child_support
       unless @child_support
-        Rollbar.error('Typeform::UpdateAddressService', parent: @parent.id, child_support: @child_support)
+        @errors << { message: 'ChildSupport not found', parent_id: @parent.id }
         return self
       end
 
