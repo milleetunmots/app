@@ -1,5 +1,5 @@
 module Typeform
-  class InitialFormService
+  class InitialFormService < Typeform::TypeformService
     include ApplicationHelper
 
     FIELD_IDS = {
@@ -20,27 +20,27 @@ module Typeform
       would_like_to_do_more: ENV['TYPEFORM_WOULD_LIKE_TO_DO_MORE'],
       would_receive_advices: ENV['TYPEFORM_WOULD_LIKE_TO_RECEIVE_ADVICES'],
       parental_contexts: ENV['TYPEFORM_PARENTAL_CONTEXTS']
-    }
-
+    }.freeze
 
     attr_reader :data
 
     def initialize(form_response)
-      @child_support_id = form_response[:hidden][:child_support_id]
-      @answers = form_response[:answers]
-      @child_support = ChildSupport.find(@child_support_id)
-      @parent1 = @child_support.parent1
-      @parent2 = @child_support.parent2
+      super(form_response)
       @data = {}
       # @typeform_id = form_response[:definition][:definition][:id]
       # @fields = form_response[:definition][:fields]
     end
 
     def call
+      verify_hidden_variable('child_support_id')
+      find_child_support
+      return self unless @errors.empty?
+
+      @parent1 = @child_support.parent1
+      @parent2 = @child_support.parent2
       parse_answers
       update_parents
       update_child_support
-
       self
     end
 
@@ -135,14 +135,17 @@ module Typeform
     end
 
     def update_parents
-      @parent1.update!(
-        degree: @data[:degree],
-        degree_in_france: @data[:degree_in_france],
-        help_my_child_to_learn_is_important: @data[:help_my_child_to_learn_is_important],
-        would_like_to_do_more: @data[:would_like_to_do_more],
-        would_receive_advices: @data[:would_receive_advices]
-      )
-      @parent2&.update!(degree: @data[:other_parent_degree], degree_in_france: @data[:other_parent_degree_in_france])
+      @parent1.degree = @data[:degree]
+      @parent1.degree_in_france = @data[:degree_in_france]
+      @parent1.help_my_child_to_learn_is_important = @data[:help_my_child_to_learn_is_important]
+      @parent1.would_like_to_do_more = @data[:would_like_to_do_more]
+      @parent1.would_receive_advices = @data[:would_receive_advices]
+      @errors << { message: 'Parent1 saving failed', parent1_id: @parent1.id } unless @parent1.save
+      return unless @parent2
+
+      @parent2&.degree = @data[:other_parent_degree]
+      @parent2&.degree_in_france = @data[:other_parent_degree_in_france]
+      @errors << { message: 'Parent2 saving failed', parent2_id: @parent2.id } unless @parent2.save
     end
 
     def update_child_support
@@ -153,25 +156,21 @@ module Typeform
       informations << "#{@data[:most_present_parent]}" if @data[:most_present_parent]
       @child_support.important_information = informations.join("\n")
 
-
-
-
       unless @data[:other_parent_phone] == @parent1.phone_number || @data[:other_parent_phone] == @parent2&.phone_number
         @child_support.other_phone_number = @data[:other_parent_phone]
         @child_support.important_information += "\nAutre numéro de téléphone: #{@data[:other_parent_phone]}"
       end
 
-      @child_support.update!(
-        is_bilingual: @data[:is_bilingual],
-        books_quantity: @data[:books_quantity],
-        call1_reading_frequency: @data[:call1_reading_frequency],
-        call1_tv_frequency: @data[:call1_tv_frequency],
-        child_count: @data[:child_count],
-        most_present_parent: @data[:most_present_parent],
-        already_working_with: @data[:already_working_with],
-        parental_contexts: @data[:parental_contexts]
-      )
-    end
+      @child_support.is_bilingual = @data[:is_bilingual]
+      @child_support.books_quantity = @data[:books_quantity]
+      @child_support.call1_reading_frequency = @data[:call1_reading_frequency]
+      @child_support.call1_tv_frequency = @data[:call1_tv_frequency]
+      @child_support.child_count = @data[:child_count]
+      @child_support.most_present_parent = @data[:most_present_parent]
+      @child_support.already_working_with = @data[:already_working_with]
+      @child_support.parental_contexts = @data[:parental_contexts]
 
+      @errors << { message: 'ChildSupport saving failed', child_support_id: @child_support.id } unless @child_support.save
+    end
   end
 end

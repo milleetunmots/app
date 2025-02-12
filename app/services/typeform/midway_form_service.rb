@@ -1,18 +1,20 @@
 module Typeform
-  class MidwayFormService
+  class MidwayFormService < Typeform::TypeformService
     FIELD_IDS = {
-      mid_term_rate: 'INKahnKw8dxp',
-      mid_term_reaction: 'Cya8e9Pyja6e',
-      mid_term_speech: 'NTNU28ATjDA4',
-    }
+      mid_term_rate: ENV['MID_TERM_TYPEFORM_RATE_ID'],
+      mid_term_reaction: ENV['MID_TERM_TYPEFORM_REACTION_ID'],
+      mid_term_speech: ENV['MID_TERM_TYPEFORM_REACTION_ID']
+    }.freeze
 
-    def initialize(form_responses)
-      @answers = form_responses[:answers]
-      @parent = Parent.find(form_responses[:hidden][:parent_id])
-      @child_support = ChildSupport.find(form_responses[:hidden][:child_support_id])
-    end
+    attr_reader :errors
 
     def call
+      verify_hidden_variables('child_support_id')
+      verify_hidden_variables('parent_id')
+      find_child_support
+      find_parent
+      return self unless @errors.empty?
+
       @answers.each do |answer|
         case answer[:field][:id]
         when FIELD_IDS[:mid_term_rate]
@@ -27,7 +29,9 @@ module Typeform
       if @parent.save(validate: false)
         @child_support.parent_mid_term_rate = @parent.reload.mid_term_rate if should_update_mid_term_info?(:parent_mid_term_rate)
         @child_support.parent_mid_term_reaction = @parent.reload.mid_term_reaction if should_update_mid_term_info?(:parent_mid_term_reaction)
-        @child_support.save(validate: false)
+        @errors << { message: 'ChildSupport saving failed', child_support_id: @child_support.id } unless @child_support.save(validate: false)
+      else
+        @errors << { message: 'Parent saving failed', parent_id: @parent.id }
       end
       self
     end
