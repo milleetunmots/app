@@ -201,7 +201,9 @@ class Child
     end
 
     def send_instagram_message
-      message = "1001mots : En attendant que votre accompagnement 1001mots commence, retrouvez sur Instagram nos idées d’activités et nos conseils pour occuper #{@child.first_name}, abonnez-vous ! https://www.instagram.com/association_1001mots"
+      return unless @child.group_status.in? %w[active waiting]
+
+      message = "1001mots : En attendant que votre accompagnement 1001mots commence, retrouvez sur Instagram nos idées d’activités et nos conseils pour occuper #{@child.first_name}, abonnez-vous ! #{ENV['INSTAGRAM_LINK']}"
       SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.advance(days: 3).change({ hour: 18 }).to_i, message).call
     end
 

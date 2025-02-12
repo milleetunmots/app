@@ -5,7 +5,7 @@ class Group
     END_OF_SUPPORT_SMS = 'C’est maintenant la fin des SMS et des livres 1001mots pour {PRENOM_ENFANT}. Nous espérons que ça vous a apporté des idées et de la confiance en vous en tant que parent ! Pour retrouver plein d’autres conseils RDV sur cette page {URL}. Je vous souhaite une bonne continuation et plein de beaux moments avec votre enfant !'.freeze
     MORE_THAN_THIRTY_SIX_SMS = 'Votre enfant a 3 ans, c’est la fin des SMS et des livres 1001mots pour {PRENOM_ENFANT}. Nous espérons que ça vous a apporté des idées et de la confiance en vous en tant que parent ! Pour retrouver plein d’autres conseils RDV sur cette page {URL}. Je vous souhaite une bonne continuation et plein de beaux moments avec votre enfant !'.freeze
     END_SUPPORT_LINK = 'https://magical-bull-428.notion.site/C-est-la-fin-des-SMS-et-des-livres-1001mots-2826d144b6b04e658f4ea090529fb708?pvs=4'.freeze
-    INSTAGRAM_SMS = '1001mots vous manque ? Suivez-nous sur Instagram pour plus d’idées d’activités et de conseils : https://www.instagram.com/association_1001mots'.freeze
+    INSTAGRAM_SMS = "1001mots vous manque ? Suivez-nous sur Instagram pour plus d’idées d’activités et de conseils : #{ENV['INSTAGRAM_LINK']}".freeze
 
     def initialize(group_id, end_of_support: true)
       @end_of_support = end_of_support
