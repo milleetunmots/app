@@ -1,7 +1,5 @@
 <div id="update-success-content-top" class="p-5">
-  <% if @module_index.in? [5, 6, 7] %>
-    <p>En attendant le prochain thème, suivez-nous ici pour plus d'idées et de conseils : </p>
-    <br>
-    <%= link_to(image_tag("instagram_icon.png", class: "card-img-top", style: 'width: 5rem;'), ENV['INSTAGRAM_LINK'], target: '_blank') %>
-  <% end %>
+  <p>En attendant le prochain thème, suivez-nous ici pour plus d'idées et de conseils : </p>
+  <br>
+  <%= link_to(image_tag("instagram_icon.png", class: "card-img-top", style: 'width: 5rem;'), ENV['INSTAGRAM_LINK'], target: '_blank') %>
 </div>
