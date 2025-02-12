@@ -4,17 +4,16 @@ class Parent::ProgramSmsToVerifyAddressService
 
   attr_reader :errors
 
-  def initialize(group_id)
-    @message = "#{MESSAGE} https://form.typeform.com/to/VpPCzGfD#parent_id=xxxxx&security_code=xxxxx"
+  def initialize(group_id, program_sms_date)
     @errors = []
     @children = Group.find(group_id).children.where(group_status: 'active', should_contact_parent1: true)
-    @date = Time.zone.now
+    @date = program_sms_date
   end
 
   def call
     @children.find_each do |child|
       @parent = child.parent1
-      @message = MESSAGE.gsub('{ADDRESS}', "\n#{@parent.address}\n#{@parent.letterbox_name}\n#{@parent.postal_code} #{@parent.city_name}\n")
+      @message = "#{MESSAGE} https://form.typeform.com/to/VpPCzGfD#parent_id=xxxxx&security_code=xxxxx".gsub('{ADDRESS}', "\n#{@parent.address}\n#{@parent.letterbox_name}\n#{@parent.postal_code} #{@parent.city_name}\n")
       @message = @message.gsub('parent_id=xxxxx', "parent_id=#{@parent.id}")
       @message = @message.gsub('security_code=xxxxx', "security_code=#{@parent.security_code}")
       service = ProgramMessageService.new(
