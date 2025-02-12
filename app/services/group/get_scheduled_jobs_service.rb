@@ -10,6 +10,7 @@ class Group
       ChildrenSupportModule::ProgramSupportModuleZeroJob.to_s => 'Programmation du module zero',
       Group::ProgramSmsToBilingualsJob.to_s => 'Programmation des messages aux familles bilingues',
       ChildrenSupportModule::ProgramFirstSupportModuleJob.to_s => 'Programmation du 1er module',
+      Parent::ProgramSmsToVerifyAddressJob.to_s => 'Message de vérification des adresses',
       ChildSupport::AssignDefaultCallStatusJob.to_s => "Assignation d'un statut d'appel par défaut en cas d'absence",
       ChildSupport::AddMonthsTagJob.to_s => "Ajout des tags en fonction l'âge des enfants principaux",
       ChildrenSupportModule::FillParentsAvailableSupportModulesJob.to_s => 'Ajout des modules disponibles sur les fiches de suivi',
@@ -73,7 +74,7 @@ class Group
       @scheduled_jobs.reverse_each do |scheduled_job|
         scheduled_job[:module_number] = @module_number
         @module_number -= 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::FillParentsAvailableSupportModulesJob.to_s]
-        scheduled_job[:module_number] = 0 if [GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::ProgramSupportModuleZeroJob.to_s], GROUP_JOB_CLASS_NAMES[Group::ProgramSmsToBilingualsJob.to_s]].include? scheduled_job[:name]
+        scheduled_job[:module_number] = 0 if [GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::ProgramSupportModuleZeroJob.to_s], GROUP_JOB_CLASS_NAMES[Group::ProgramSmsToBilingualsJob.to_s], GROUP_JOB_CLASS_NAMES[Parent::ProgramSmsToVerifyAddressJob.to_s] ].include? scheduled_job[:name]
         scheduled_job[:module_number] = 1 if scheduled_job[:name] == GROUP_JOB_CLASS_NAMES[ChildrenSupportModule::ProgramFirstSupportModuleJob.to_s]
       end
     end

@@ -19,6 +19,7 @@ class Group
         program_support_module_zero
         program_sms_to_bilinguals
         assign_default_call_status(0)
+        program_sms_to_verify_address
         program_first_support_module
         assign_default_call_status(1)
         add_months_tag_to_child_support
@@ -82,6 +83,11 @@ class Group
           @group.started_at + 25.weeks
         end
       ChildSupport::AssignDefaultCallStatusJob.set(wait_until: default_status_date.to_datetime.change(hour: @hour - 1)).perform_later(@group.id, call_number)
+    end
+
+    def program_sms_to_verify_address
+      program_sms_date = @group.started_at.next_occurring(:monday).to_datetime.change(hour: 13)
+      Parent::ProgramSmsToVerifyAddressJob.set(wait_until: program_sms_date).perform_later(@group.id, program_sms_date)
     end
 
     def add_months_tag_to_child_support
