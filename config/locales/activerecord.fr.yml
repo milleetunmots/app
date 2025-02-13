@@ -294,7 +294,7 @@ fr:
         children_genders: Sexe des enfants
         children_sources: Origines des enfants
         display_is_bilingual: Bilinguisme
-        family_support_should_be_stopped: Pas besoin accompagnement selon appelante
+        family_support_should_be_stopped: Pas besoin accompagnement selon accompagnante
         groups: Cohortes
         child_support_groups: Cohortes
         important_information: Infos importantes
@@ -337,12 +337,12 @@ fr:
         parent2_available_support_module_list: Modules disponibles du parent 2
         parent1_selected_support_module_list: Modules choisis du parent 1
         parent2_selected_support_module_list: Modules choisis du parent 2
-        call0_review: En tant qu'appelante, es-tu satisfaite de ton accompagnement pendant cet appel ?
-        call1_review: En tant qu'appelante, es-tu satisfaite de ton accompagnement pendant cet appel ?
-        call2_review: En tant qu'appelante, es-tu satisfaite de ton accompagnement pendant cet appel ?
-        call3_review: En tant qu'appelante, es-tu satisfaite de ton accompagnement pendant cet appel ?
-        call4_review: En tant qu'appelante, es-tu satisfaite de ton accompagnement pendant cet appel ?
-        call5_review: En tant qu'appelante, es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call0_review: En tant qu'accompagnante, es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call1_review: En tant qu'accompagnante, es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call2_review: En tant qu'accompagnante, es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call3_review: En tant qu'accompagnante, es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call4_review: En tant qu'accompagnante, es-tu satisfaite de ton accompagnement pendant cet appel ?
+        call5_review: En tant qu'accompagnante, es-tu satisfaite de ton accompagnement pendant cet appel ?
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
         2_awareness: A conscience de son impact
@@ -684,7 +684,7 @@ fr:
         << : *SHARED
         name: Nom
         color: Couleur
-        is_visible_by_callers: Visible par les appelantes ?
+        is_visible_by_callers: Visible par les accompagnantes ?
       task:
         << : *SHARED
         assignee: Assigné à

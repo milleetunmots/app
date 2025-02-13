@@ -27,7 +27,7 @@ fr:
     select_module: "Choisir module"
   group:
     base: Informations
-    distribute_child_support: Attribuer les familles aux appelantes
+    distribute_child_support: Attribuer les familles aux accompagnantes
     export_link: Télécharger les listes d'enfants par module au format Excel V2
     panel_supporters_title: Nombre d'enfants suivis par chaque responsable
     program_link: Programmer la cohorte
