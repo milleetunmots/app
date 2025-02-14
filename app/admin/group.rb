@@ -196,7 +196,7 @@ ActiveAdmin.register Group do
     end
     supporters_without_id = child_supports_count_by_supporter.select { |supporter_count| supporter_count[:admin_user_id].nil? }.map { |sc| sc[:supporter_name] }
     supporters_without_child_supports_count = child_supports_count_by_supporter.select { |supporter_count| supporter_count[:child_supports_count].nil? }.map { |sc| sc[:supporter_name] }
-    total_capacity = child_supports_count_by_supporter.sum { |supporter_count| supporter_count[:child_supports_count] }
+    total_capacity = child_supports_count_by_supporter.sum { |supporter_count| supporter_count[:child_supports_count] } if supporters_without_child_supports_count.empty?
     families_count = resource.model.child_supports.with_kept_children.with_a_child_in_active_group.count
     if supporters_without_id.empty? && supporters_without_child_supports_count.empty? && total_capacity == families_count
       Group::DistributeChildSupportsToSupportersJob.perform_later(resource.model, child_supports_count_by_supporter)
