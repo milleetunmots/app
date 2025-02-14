@@ -7,5 +7,8 @@ namespace :models do
     Media::Form.where('name LIKE ?', '%appelante%').find_each do |form|
       form.update(name: form.name.gsub('appelante', 'accompagnante'))
     end
+    Source.where('name LIKE ?', '%Appelante%').find_each do |source|
+      source.update(name: source.name.gsub('Appelante', 'Accompagnante'))
+    end
   end
 end

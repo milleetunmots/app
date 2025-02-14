@@ -26,7 +26,7 @@ ActiveAdmin.register_page 'Message' do
       end
 
       div do
-        label 'Responsable'
+        label 'Accompagnante'
         select name: 'supporter', id: 'supporter'
       end
 
