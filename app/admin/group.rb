@@ -3,7 +3,7 @@ ActiveAdmin.register Group do
 
   has_better_csv
   has_paper_trail
-  has_tasks
+  # has_tasks
   use_discard
 
   # ---------------------------------------------------------------------------
