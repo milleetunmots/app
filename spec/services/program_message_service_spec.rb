@@ -119,7 +119,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendSmsService).to(
         receive(:new).
         with(
-          { parent_2.id.to_s => {'CHILD_SUPPORT_ID' => parent_2.current_child.child_support_id, 'PRENOM_ENFANT' => parent_2.current_child.first_name, 'NUMERO_AIRCALL_APPELANTE' => nil, 'PRENOM_APPELANTE' => nil} },
+          { parent_2.id.to_s => {'CHILD_SUPPORT_ID' => parent_2.current_child.child_support_id, 'PRENOM_ENFANT' => parent_2.current_child.first_name, 'NUMERO_AIRCALL_ACCOMPAGNANTE' => nil, 'PRENOM_ACCOMPAGNANTE' => nil} },
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           'N\'oubliez pas que {PRENOM_ENFANT} doit faire du sport.', workshop_id: nil, event_params: {}
         ).
@@ -152,8 +152,8 @@ RSpec.describe ProgramMessageService do
             'CHILD_SUPPORT_ID' => parent_2.current_child.child_support_id,
             'PRENOM_ENFANT' => parent_2.current_child.first_name,
             'URL' => 'http://localhost:3000/r/95/c6',
-            'NUMERO_AIRCALL_APPELANTE' => nil,
-            'PRENOM_APPELANTE' => nil
+            'NUMERO_AIRCALL_ACCOMPAGNANTE' => nil,
+            'PRENOM_ACCOMPAGNANTE' => nil
             }
           },
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
@@ -182,8 +182,8 @@ RSpec.describe ProgramMessageService do
             'CHILD_SUPPORT_ID' => parent_2.current_child.child_support_id,
             'PRENOM_ENFANT' => parent_2.current_child.first_name,
             'URL' => 'http://localhost:3000/r/95/c6',
-            'NUMERO_AIRCALL_APPELANTE' => nil,
-            'PRENOM_APPELANTE' => nil
+            'NUMERO_AIRCALL_ACCOMPAGNANTE' => nil,
+            'PRENOM_ACCOMPAGNANTE' => nil
             }
           },
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,

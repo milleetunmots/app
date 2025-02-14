@@ -113,8 +113,8 @@ class ProgramMessageService
         @recipient_data[parent.id.to_s] = {}
         @recipient_data[parent.id.to_s]['PRENOM_ENFANT'] = parent.current_child&.first_name || 'votre enfant'
         @recipient_data[parent.id.to_s]['CHILD_SUPPORT_ID'] = parent.current_child&.child_support&.id
-        @recipient_data[parent.id.to_s]['PRENOM_APPELANTE'] = parent.current_child&.child_support&.supporter&.decorate&.first_name
-        @recipient_data[parent.id.to_s]['NUMERO_AIRCALL_APPELANTE'] = parent.current_child&.child_support&.supporter&.aircall_phone_number
+        @recipient_data[parent.id.to_s]['PRENOM_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.decorate&.first_name
+        @recipient_data[parent.id.to_s]['NUMERO_AIRCALL_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.aircall_phone_number
         if @redirection_target && parent.current_child.present?
           @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first

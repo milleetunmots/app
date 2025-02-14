@@ -66,7 +66,7 @@ class Group
       #   p "Current child months #{count[:current_child_supports_months]}"
       #   p "#################################################"
       # end
-      Rollbar.info('Attribution des appelantes terminée')
+      Rollbar.info('Attribution des accompagnantes terminée')
     end
 
     private
@@ -248,10 +248,10 @@ class Group
         end
       end
 
-      Rollbar.error("#{child_supports_without_supporter.count} familles n'ont pas pu être associées à une appelante. Filtrez les fiches de suivi de la cohorte sans appelante et procédez à une attribution manuelle depuis l'action groupée")
+      Rollbar.error("#{child_supports_without_supporter.count} familles n'ont pas pu être associées à une accompagnante. Filtrez les fiches de suivi de la cohorte sans accompagnante et procédez à une attribution manuelle depuis l'action groupée")
       Task::CreateAutomaticTaskService.new(
-        title: "Toutes les fiches de suivi n'ont pas d'appelante",
-        description: "#{child_supports_without_supporter.count} familles n'ont pas pu être associées à une appelante. Filtrez les fiches de suivi de la cohorte sans appelante et procédez à une attribution manuelle depuis l'action groupée"
+        title: "Toutes les fiches de suivi n'ont pas d'accompagnante",
+        description: "#{child_supports_without_supporter.count} familles n'ont pas pu être associées à une accompagnante. Filtrez les fiches de suivi de la cohorte sans accompagnante et procédez à une attribution manuelle depuis l'action groupée"
       ).call
     end
   end

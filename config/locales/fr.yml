@@ -27,14 +27,14 @@ fr:
     select_module: "Choisir module"
   group:
     base: Informations
-    distribute_child_support: Attribuer les familles aux appelantes
+    distribute_child_support: Attribuer les familles aux accompagnantes
     export_link: Télécharger les listes d'enfants par module au format Excel V2
-    panel_supporters_title: Nombre d'enfants suivis par chaque responsable
+    panel_supporters_title: Nombre d'enfants suivis par chaque accompagnante
     program_link: Programmer la cohorte
     supporter_children_count: Enfants
     supporter_child_supports_count: Familles
-    supporter_name: Responsable
-    supporters: Responsables
+    supporter_name: Accompagnante
+    supporters: Accompagnantes
     scheduled_jobs: Tâches programmées
     panel_scheduled_jobs: Liste des tâches actuellement programmées pour la cohorte
   survey_response:
