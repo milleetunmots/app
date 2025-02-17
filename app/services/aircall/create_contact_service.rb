@@ -10,6 +10,8 @@ module Aircall
 
     def call
       return self unless ENV['AIRCALL_ENABLED']
+      return self unless @parent.should_be_contacted?
+      return self if @parent.parent2_with_same_phone_number_as_parent1?
 
       init_contact_form_data
       verify_contact_form

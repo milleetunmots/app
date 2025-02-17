@@ -293,6 +293,13 @@ class Parent < ApplicationRecord
     true
   end
 
+  def parent2_with_same_phone_number_as_parent1?
+    return false if parent2_children.empty?
+
+    parent2_children.each { |child| return true if child.parent1.phone_number == phone_number }
+    false
+  end
+
   def target_parent?
     return unless current_child.group
 
