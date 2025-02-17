@@ -61,7 +61,7 @@ fr:
         super_admin: Administrateur.rice
         team_member: Membre de l'équipe
         logistics_team: Membre du pôle logistique
-        caller: Appelant.e
+        caller: Accompagnante
       book:
         << : *SHARED
         ean: EAN
