@@ -1,6 +1,6 @@
 class Parent::ProgramSmsToVerifyAddressService
 
-  MESSAGE = "1001mots : Boujour, nous allons bientôt envoyer un livre pour {PRENOM_ENFANT}. Nous allons l'envoyer à l'adresse suivante : {ADDRESS}Si l'adresse postale ou le nom sur la boîte aux lettre ne sont pas bons, merci de les modifier ici :".freeze
+  MESSAGE = "1001mots : Bonjour, nous allons bientôt envoyer un livre pour {PRENOM_ENFANT}. Nous allons l'envoyer à l'adresse suivante : {ADDRESS}Si l'adresse postale ou le nom sur la boîte aux lettre ne sont pas bons, merci de les modifier ici :".freeze
 
   attr_reader :errors
 
