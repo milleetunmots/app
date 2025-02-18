@@ -13,7 +13,7 @@ class Parent::ProgramSmsToVerifyAddressService
   def call
     @children.find_each do |child|
       @parent = child.parent1
-      @message = "#{MESSAGE} https://form.typeform.com/to/VpPCzGfD#parent_id=xxxxx&security_code=xxxxx".gsub('{ADDRESS}', "\n#{@parent.address}\n#{@parent.letterbox_name}\n#{@parent.postal_code} #{@parent.city_name}\n")
+      @message = "#{MESSAGE} https://form.typeform.com/to/VpPCzGfD#parent_id=xxxxx&security_code=xxxxx".gsub('{ADDRESS}', "\n#{@parent.letterbox_name}\n#{@parent.address}\n#{@parent.postal_code} #{@parent.city_name}\n")
       @message = @message.gsub('parent_id=xxxxx', "parent_id=#{@parent.id}")
       @message = @message.gsub('security_code=xxxxx', "security_code=#{@parent.security_code}")
       service = ProgramMessageService.new(
