@@ -66,34 +66,7 @@ class BaseDecorator < Draper::Decorator
   def land
     return unless postal_code
 
-    return 'Paris 18 eme' if Parent::PARIS_18_EME_POSTAL_CODE.include? postal_code
-
-    return 'Paris 20 eme' if Parent::PARIS_20_EME_POSTAL_CODE.include? postal_code
-
-    return 'Plaisir' if Parent::PLAISIR_POSTAL_CODE.include? postal_code
-
-    return 'Bondy' if Parent::BONDY_POSTAL_CODE.include? postal_code
-
-    return 'Trappes' if Parent::TRAPPES_POSTAL_CODE.include? postal_code
-
-    return 'Aulnay sous bois' if Parent::AULNAY_SOUS_BOIS_POSTAL_CODE.include? postal_code
-
-    return 'Orleans' if Parent::ORELANS_POSTAL_CODE.include? postal_code
-
-    return 'Montargis' if Parent::MONTARGIS_POSTAL_CODE.include? postal_code
-
-    return 'Gien' if Parent::GIEN_POSTAL_CODE.include? postal_code
-
-    return 'Pithiviers' if Parent::PITHIVIERS_POSTAL_CODE.include? postal_code
-
-    return 'Villeneuve-la-Garenne' if Parent::VILLENEUVE_LA_GARENNE_POSTAL_CODE.include? postal_code
-
-    return 'Mantes La Jolie' if Parent::MANTES_LA_JOLIE_POSTAL_CODE.include? postal_code
-
-    return 'Asnières' if Parent::ASNIERES_POSTAL_CODE.include? postal_code
-
-    return 'Gennevilliers' if Parent::GENNEVILLIERS_POSTAL_CODE.include? postal_code
-
+    Child::LANDS.find { |_, codes| codes.include?(postal_code) }&.first
   end
 
   def created_at_date

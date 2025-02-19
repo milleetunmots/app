@@ -82,10 +82,8 @@ class Parent < ApplicationRecord
   PITHIVIERS_POSTAL_CODE = %w[45300 45480 45170].freeze
   VILLENEUVE_LA_GARENNE_POSTAL_CODE = %w[92390].freeze
   MANTES_LA_JOLIE_POSTAL_CODE = %w[78520 78200 78711].freeze
-  ASNIERES_POSTAL_CODE = %w[92600].freeze
-  GENNEVILLIERS_POSTAL_CODE = %w[92230].freeze
+  ASNIERES_GENNEVILLIERS_POSTAL_CODE = %w[92600 92230].freeze
   COMMUNICATION_CHANNELS = %w[sms whatsapp].freeze
-
 
   # ---------------------------------------------------------------------------
   # relations
