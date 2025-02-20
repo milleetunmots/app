@@ -59,7 +59,7 @@ ActiveAdmin.register Workshop do
               }
 
       f.input :parent_ids, as: :hidden
-      f.input :workshop_land, collection: Child::LANDS.sort, input_html: { data: { select2: {} }, disabled: !object.new_record? }
+      f.input :workshop_land, collection: Child::LANDS.keys.sort, input_html: { data: { select2: {} }, disabled: !object.new_record? }
       f.input :invitation_message, input_html: { rows: 5, disabled: !object.new_record? }
       f.input :canceled
     end

@@ -56,7 +56,21 @@ class Child < ApplicationRecord
   GENDERS = %w[m f].freeze
   GROUP_STATUS = %w[waiting active paused stopped disengaged not_supported].freeze
   TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
-  LANDS = ['Paris 18 eme', 'Paris 20 eme', 'Plaisir', 'Trappes', 'Aulnay sous bois', 'Bondy', 'Orleans', 'Montargis', 'Pithiviers', 'Gien', 'Villeneuve-la-Garenne', 'Mantes La Jolie', 'Gennevilliers', 'Asnières'].freeze
+  LANDS = {
+      'Paris 18 eme' => Parent::PARIS_18_EME_POSTAL_CODE,
+      'Paris 20 eme' => Parent::PARIS_20_EME_POSTAL_CODE,
+      'Plaisir' => Parent::PLAISIR_POSTAL_CODE,
+      'Bondy' => Parent::BONDY_POSTAL_CODE,
+      'Trappes' => Parent::TRAPPES_POSTAL_CODE,
+      'Aulnay sous bois' => Parent::AULNAY_SOUS_BOIS_POSTAL_CODE,
+      'Orleans' => Parent::ORELANS_POSTAL_CODE,
+      'Montargis' => Parent::MONTARGIS_POSTAL_CODE,
+      'Gien' => Parent::GIEN_POSTAL_CODE,
+      'Pithiviers' => Parent::PITHIVIERS_POSTAL_CODE,
+      'Villeneuve-la-Garenne' => Parent::VILLENEUVE_LA_GARENNE_POSTAL_CODE,
+      'Mantes La Jolie' => Parent::MANTES_LA_JOLIE_POSTAL_CODE,
+      'Asnières-Gennevilliers' => Parent::ASNIERES_GENNEVILLIERS_POSTAL_CODE
+    }
 
   # ---------------------------------------------------------------------------
   # global search
@@ -177,28 +191,28 @@ class Child < ApplicationRecord
     # 1st step : Make jointure with aliases
     # 2nd step : Use the aliases to avoid parent1 and parent2 with same phone_number
     # 3rd step : Retrieve children with at least one duplicated parent
-    joins("LEFT JOIN parents AS parent1 ON parent1.id = children.parent1_id")
-    .joins("LEFT JOIN parents AS parent2 ON parent2.id = children.parent2_id")
+  joins("LEFT JOIN parents AS parent1 ON parent1.id = children.parent1_id")
+  .joins("LEFT JOIN parents AS parent2 ON parent2.id = children.parent2_id")
     .where("children.parent2_id IS NULL OR parent1.phone_number != parent2.phone_number")
-    .where(<<~SQL)
-      (
+  .where(<<~SQL)
+    (
         parent1.phone_number IN (
           SELECT phone_number
-          FROM parents
-          WHERE parents.discarded_at IS NULL
+        FROM parents
+        WHERE parents.discarded_at IS NULL
           GROUP BY parents.phone_number
-          HAVING COUNT(*) > 1
-        )
+        HAVING COUNT(*) > 1
+      )
         OR parent2.phone_number IN (
           SELECT phone_number
-          FROM parents
-          WHERE parents.discarded_at IS NULL
+        FROM parents
+        WHERE parents.discarded_at IS NULL
           GROUP BY parents.phone_number
-          HAVING COUNT(*) > 1
-        )
+        HAVING COUNT(*) > 1
       )
-    SQL
-  }
+    )
+  SQL
+}
   scope :supported, -> { where.not(group_status: 'not_supported') }
   scope :with_group_not_started, -> {where(id: left_outer_joins(:group).where('groups.started_at >= ? AND groups.support_module_programmed = ?', Time.zone.today, 0).select(:id)) }
   scope :waiting_children, -> { where(group_status: 'waiting') }
@@ -279,43 +293,6 @@ class Child < ApplicationRecord
     )
   end
 
-  def self.by_lands(lands)
-    postal_codes = []
-    lands.each do |land|
-      case land
-      when 'Paris 18 eme'
-        postal_codes += Parent::PARIS_18_EME_POSTAL_CODE
-      when 'Paris 20 eme'
-        postal_codes += Parent::PARIS_20_EME_POSTAL_CODE
-      when 'Plaisir'
-        postal_codes += Parent::PLAISIR_POSTAL_CODE
-      when 'Trappes'
-        postal_codes += Parent::TRAPPES_POSTAL_CODE
-      when 'Aulnay sous bois'
-        postal_codes += Parent::AULNAY_SOUS_BOIS_POSTAL_CODE
-      when 'Orleans'
-        postal_codes += Parent::ORELANS_POSTAL_CODE
-      when 'Montargis'
-        postal_codes += Parent::MONTARGIS_POSTAL_CODE
-      when 'Gien'
-        postal_codes += Parent::GIEN_POSTAL_CODE
-      when 'Villeneuve-la-Garenne'
-        postal_codes += Parent::VILLENEUVE_LA_GARENNE_POSTAL_CODE
-      when 'Pithiviers'
-        postal_codes += Parent::PITHIVIERS_POSTAL_CODE
-      when 'Bondy'
-        postal_codes += Parent::BONDY_POSTAL_CODE
-      when 'Mantes La Jolie'
-        postal_codes += Parent::MANTES_LA_JOLIE_POSTAL_CODE
-      when 'Asnières'
-        postal_codes += Parent::ASNIERES_POSTAL_CODE
-      when 'Genneviliers'
-        postal_codes += Parent::GENNEVILLIERS_POSTAL_CODE
-      end
-    end
-
-    joins(:parent1).where(parents: { postal_code: postal_codes })
-  end
 
   # ---------------------------------------------------------------------------
   # search by age (in months)

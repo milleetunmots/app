@@ -100,37 +100,6 @@ class Workshop < ApplicationRecord
   end
 
   def land_parents
-    postal_codes =  case workshop_land
-                    when 'Paris 18 eme'
-                      Parent::PARIS_18_EME_POSTAL_CODE
-                    when 'Paris 20 eme'
-                      Parent::PARIS_20_EME_POSTAL_CODE
-                    when 'Plaisir'
-                      Parent::PLAISIR_POSTAL_CODE
-                    when 'Trappes'
-                      Parent::TRAPPES_POSTAL_CODE
-                    when 'Aulnay sous bois'
-                      Parent::AULNAY_SOUS_BOIS_POSTAL_CODE
-                    when 'Orleans'
-                      Parent::ORELANS_POSTAL_CODE
-                    when 'Montargis'
-                      Parent::MONTARGIS_POSTAL_CODE
-                    when 'Pithiviers'
-                      Parent::PITHIVIERS_POSTAL_CODE
-                    when 'Gien'
-                      Parent::GIEN_POSTAL_CODE
-                    when 'Villeneuve-la-Garenne'
-                      Parent::VILLENEUVE_LA_GARENNE_POSTAL_CODE
-                    when 'Bondy'
-                      Parent::BONDY_POSTAL_CODE
-                    when 'Mantes La Jolie'
-                      Parent::MANTES_LA_JOLIE_POSTAL_CODE
-                    when 'Asnières'
-                       Parent::ASNIERES_POSTAL_CODE
-                    when 'Gennevilliers'
-                      Parent::GENNEVILLIERS_POSTAL_CODE
-                    end
-
-    Parent.where(postal_code: postal_codes)
+    Parent.where(postal_code: Child::LANDS[workshop_land])
   end
 end
