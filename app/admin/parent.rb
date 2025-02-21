@@ -5,7 +5,7 @@ ActiveAdmin.register Parent do
   has_better_csv
   has_paper_trail
   has_tags
-  has_tasks
+  # has_tasks
   use_discard
 
   # ---------------------------------------------------------------------------

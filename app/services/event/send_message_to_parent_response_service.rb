@@ -9,7 +9,7 @@ class Event::SendMessageToParentResponseService
   def initialize(parsed_phone)
     @parsed_phone = parsed_phone
     @errors = []
-    @message = "#{MESSAGE} {PRENOM_APPELANTE} au {NUMERO_AIRCALL_APPELANTE}. Merci!"
+    @message = "#{MESSAGE} {PRENOM_ACCOMPAGNANTE} au {NUMERO_AIRCALL_ACCOMPAGNANTE}. Merci!"
     @date = Time.zone.now
     @parent = Parent.find_by(phone_number: parsed_phone)
   end

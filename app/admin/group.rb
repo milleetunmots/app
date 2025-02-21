@@ -3,7 +3,7 @@ ActiveAdmin.register Group do
 
   has_better_csv
   has_paper_trail
-  has_tasks
+  # has_tasks
   use_discard
 
   # ---------------------------------------------------------------------------
@@ -183,7 +183,7 @@ ActiveAdmin.register Group do
   end
 
   member_action :perform_distribute_child_support, method: :post do
-    message = "La répartition des appelantes est en cours. Cela peut prendre plusieurs minutes, merci de patienter."
+    message = "La répartition des accompagnantes est en cours. Cela peut prendre plusieurs minutes, merci de patienter."
     name = params[:group][:name]
     child_supports_count_by_supporter = Airtables::Call.call_missions_by_name(name).map do |call_mission|
       {
@@ -202,8 +202,8 @@ ActiveAdmin.register Group do
       Group::DistributeChildSupportsToSupportersJob.perform_later(resource.model, child_supports_count_by_supporter)
       redirect_to admin_group_path, notice: message
     else
-      message = "Sur airtable, le N° suivi base de ces appelantes n'est pas indiqué : #{supporters_without_id.join(', ')}" unless supporters_without_id.empty?
-      message = "Sur airtable, le Nb de familles de ces appelantes n'est pas indiqué : #{supporters_without_child_supports_count.join(', ')}" unless supporters_without_child_supports_count.empty?
+      message = "Sur airtable, le N° suivi base de ces accompagnantes n'est pas indiqué : #{supporters_without_id.join(', ')}" unless supporters_without_id.empty?
+      message = "Sur airtable, le Nb de familles de ces accompagnantes n'est pas indiqué : #{supporters_without_child_supports_count.join(', ')}" unless supporters_without_child_supports_count.empty?
       message = "Le nombre total d'enfants prévus sur airtable ne correspond pas au nombre de familles dans la base avec au moins un enfant actif dans cette cohorte." unless total_capacity == families_count
       redirect_to admin_group_path, alert: message
     end

@@ -9,12 +9,12 @@ class ChildSupport::CallerStopSupportService
 	SMS_LINK = 'https://www.notion.so/1001mots-ne-peut-plus-vous-accompagner-35ec2e040f3d47b99a94028c51c7a3e4'.freeze
 	PROFESSIONAL_SMS_LINK = 'https://airtable.com/apppjysEG5cvcWLX1/shrfPvKCa0MxSfiHk'.freeze
 	VARIABLES = {
-			program: { tag: 'arrêt appelante - programme', sms: PROGRAM_SMS, url: SMS_LINK, motive: 'refuse certaines parties du programme' },
-			popi: { tag: 'arrêt appelante - popi', sms: POPI_SMS, url: SMS_LINK, motive: 'famille popi' },
-			professional: { tag: 'arrêt appelante - pro de santé', sms: PROFESSIONAL_SMS, url: PROFESSIONAL_SMS_LINK, motive: 'pro de santé' },
-			problematic_case: { tag: 'arrêt appelante - problèmes', sms: PROBLEMATIC_CASE_SMS, url: nil, motive: 'problèmes' },
-			renunciation: { tag: 'arrêt appelante - programme', sms: RENUNCIATION_SMS, url: nil, motive: nil },
-			moving: { tag: 'arrêt appelante - autres motifs', sms: MOVING_SMS, url: SMS_LINK, motive: 'déménagement' }
+			program: { tag: 'arrêt accompagnante - programme', sms: PROGRAM_SMS, url: SMS_LINK, motive: 'refuse certaines parties du programme' },
+			popi: { tag: 'arrêt accompagnante - popi', sms: POPI_SMS, url: SMS_LINK, motive: 'famille popi' },
+			professional: { tag: 'arrêt accompagnante - pro de santé', sms: PROFESSIONAL_SMS, url: PROFESSIONAL_SMS_LINK, motive: 'pro de santé' },
+			problematic_case: { tag: 'arrêt accompagnante - problèmes', sms: PROBLEMATIC_CASE_SMS, url: nil, motive: 'problèmes' },
+			renunciation: { tag: 'arrêt accompagnante - programme', sms: RENUNCIATION_SMS, url: nil, motive: nil },
+			moving: { tag: 'arrêt accompagnante - autres motifs', sms: MOVING_SMS, url: SMS_LINK, motive: 'déménagement' }
 		}.freeze
 
 	attr :error
@@ -129,7 +129,7 @@ class ChildSupport::CallerStopSupportService
 			form.create_redirection_target unless form.redirection_target
 			form.redirection_target.id
 		else
-			new_form = Media::Form.create(name: 'Arrêt appelante - lien 1', url: VARIABLES[@reason.to_sym][:url])
+			new_form = Media::Form.create(name: 'Arrêt accompagnante - lien 1', url: VARIABLES[@reason.to_sym][:url])
 			new_form.redirection_target.id
 		end
 	end

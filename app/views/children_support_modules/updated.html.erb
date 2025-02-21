@@ -3,7 +3,8 @@
     <%= render 'children_support_modules/success.html.erb',
       max_remaining_module_count: @max_remaining_module_count,
       remaining_module_count: @remaining_module_count, 
-      child_first_name: @child_first_name
+      child_first_name: @child_first_name,
+      module_index: @module_index
     %>
     <% if @module_three %>
       <% if @group_id == ENV['MAY24_GROUP_ID'] %>

@@ -7,7 +7,7 @@ ActiveAdmin.register Media::TextMessagesBundleDraft do
   has_better_csv
   has_paper_trail
   has_tags
-  has_tasks
+  # has_tasks
   use_discard
 
   register_text_messages_bundle_index(with_comments: true)

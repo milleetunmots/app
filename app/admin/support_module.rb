@@ -5,7 +5,7 @@ ActiveAdmin.register SupportModule do
 
   has_paper_trail
   has_tags
-  has_tasks
+  # has_tasks
   use_discard
 
   # ---------------------------------------------------------------------------

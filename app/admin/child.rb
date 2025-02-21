@@ -100,7 +100,7 @@ ActiveAdmin.register Child do
           as: :select,
           collection: proc { child_supporter_select_collection },
           input_html: { multiple: true, data: { select2: {} } },
-          label: 'Responsable'
+          label: 'Accompagnante'
   filter :group_id_in,
          as: :select,
          collection: proc { child_group_select_collection },

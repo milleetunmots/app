@@ -50,7 +50,7 @@ ActiveAdmin.register Events::TextMessage, as: 'Sent By App TextMessage' do
          as: :select,
          collection: proc { child_support_supporter_select_collection },
          input_html: { multiple: true, data: { select2: {} } },
-         label: 'Responsable'
+         label: 'Accompagnante'
 
   filter :body
 

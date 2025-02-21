@@ -82,10 +82,8 @@ class Parent < ApplicationRecord
   PITHIVIERS_POSTAL_CODE = %w[45300 45480 45170].freeze
   VILLENEUVE_LA_GARENNE_POSTAL_CODE = %w[92390].freeze
   MANTES_LA_JOLIE_POSTAL_CODE = %w[78520 78200 78711].freeze
-  ASNIERES_POSTAL_CODE = %w[92600].freeze
-  GENNEVILLIERS_POSTAL_CODE = %w[92230].freeze
+  ASNIERES_GENNEVILLIERS_POSTAL_CODE = %w[92600 92230].freeze
   COMMUNICATION_CHANNELS = %w[sms whatsapp].freeze
-
 
   # ---------------------------------------------------------------------------
   # relations
@@ -291,6 +289,13 @@ class Parent < ApplicationRecord
     parent2_children.each { |child| return false unless child.should_contact_parent2 }
 
     true
+  end
+
+  def parent2_with_same_phone_number_as_parent1?
+    return false if parent2_children.empty?
+
+    parent2_children.each { |child| return true if child.parent1.phone_number == phone_number }
+    false
   end
 
   def target_parent?

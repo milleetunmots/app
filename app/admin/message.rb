@@ -26,7 +26,7 @@ ActiveAdmin.register_page 'Message' do
       end
 
       div do
-        label 'Responsable'
+        label 'Accompagnante'
         select name: 'supporter', id: 'supporter'
       end
 
@@ -65,7 +65,7 @@ ActiveAdmin.register_page 'Message' do
       div do
         label 'Message'
         textarea name: 'message'
-        small 'Variables disponibles: {PRENOM_ENFANT}, {URL}, {PRENOM_APPELANTE}, {NUMERO_AIRCALL_APPELANTE}'
+        small 'Variables disponibles: {PRENOM_ENFANT}, {URL}, {PRENOM_ACCOMPAGNANTE}, {NUMERO_AIRCALL_ACCOMPAGNANTE}'
       end
 
       div do
