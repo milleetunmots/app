@@ -188,31 +188,36 @@ class Child < ApplicationRecord
     left_outer_joins(:parent1, :parent2).merge(Parent.potential_duplicates)
   }
   scope :potential_duplicates_by_phone_number_without_same_parents, -> {
-    # 1st step : Make jointure with aliases
-    # 2nd step : Use the aliases to avoid parent1 and parent2 with same phone_number
-    # 3rd step : Retrieve children with at least one duplicated parent
-  joins("LEFT JOIN parents AS parent1 ON parent1.id = children.parent1_id")
-  .joins("LEFT JOIN parents AS parent2 ON parent2.id = children.parent2_id")
-    .where("children.parent2_id IS NULL OR parent1.phone_number != parent2.phone_number")
-  .where(<<~SQL)
-    (
-        parent1.phone_number IN (
-          SELECT phone_number
-        FROM parents
-        WHERE parents.discarded_at IS NULL
-          GROUP BY parents.phone_number
-        HAVING COUNT(*) > 1
+    joins("LEFT JOIN parents AS parent1 ON parent1.id = children.parent1_id")
+    .joins("LEFT JOIN parents AS parent2 ON parent2.id = children.parent2_id")
+    .where.not('parent1.phone_number_national ILIKE ?', "%#{ENV['FAKE_NUMBER']}%")
+    .where(<<~SQL)
+      (
+        parent1.phone_number_national IN (
+          SELECT phone_number_national
+          FROM parents
+          WHERE parents.discarded_at IS NULL
+          GROUP BY parents.phone_number_national
+          HAVING COUNT(*) > 1
+        )
+        OR parent2.phone_number_national IN (
+          SELECT phone_number_national
+          FROM parents
+          WHERE parents.discarded_at IS NULL
+          GROUP BY parents.phone_number_national
+          HAVING COUNT(*) > 1
+        )
       )
-        OR parent2.phone_number IN (
-          SELECT phone_number
-        FROM parents
-        WHERE parents.discarded_at IS NULL
-          GROUP BY parents.phone_number
-        HAVING COUNT(*) > 1
+      AND NOT EXISTS (
+        SELECT 1 FROM parents p
+        WHERE p.phone_number_national = parent1.phone_number_national
+        AND p.phone_number_national = parent2.phone_number_national
+        AND p.discarded_at IS NULL
+        GROUP BY p.phone_number_national
+        HAVING COUNT(*) = 2
       )
-    )
-  SQL
-}
+    SQL
+  }
   scope :supported, -> { where.not(group_status: 'not_supported') }
   scope :with_group_not_started, -> {where(id: left_outer_joins(:group).where('groups.started_at >= ? AND groups.support_module_programmed = ?', Time.zone.today, 0).select(:id)) }
   scope :waiting_children, -> { where(group_status: 'waiting') }
