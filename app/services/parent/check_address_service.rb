@@ -7,7 +7,7 @@ class Parent::CheckAddressService
   attr_reader :errors
 
   def initialize(csv_file)
-    @message = "#{MESSAGE} https://form.typeform.com/to/VpPCzGfD#parent_id=xxxxx&security_code=xxxxx"
+    @message = "#{MESSAGE} https://form.typeform.com/to/#{ENV['UPDATING_ADDRESS_TYPEFORM_ID']}#parent_id=xxxxx&security_code=xxxxx"
     @lines = CSV.read(csv_file)
     @errors = []
     @date = Time.zone.now
