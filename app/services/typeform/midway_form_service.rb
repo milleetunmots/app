@@ -3,7 +3,7 @@ module Typeform
     FIELD_IDS = {
       mid_term_rate: ENV['MID_TERM_TYPEFORM_RATE_ID'],
       mid_term_reaction: ENV['MID_TERM_TYPEFORM_REACTION_ID'],
-      mid_term_speech: ENV['MID_TERM_TYPEFORM_REACTION_ID']
+      mid_term_speech: ENV['MID_TERM_TYPEFORM_SPEECH_ID']
     }.freeze
 
     attr_reader :errors
