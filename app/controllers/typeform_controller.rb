@@ -1,7 +1,11 @@
 class TypeformController < ApplicationController
   skip_before_action :authenticate_admin_user!
   skip_before_action :verify_authenticity_token
+  before_action :verify_typeform_webook_token
 
+  SHA256_ALGORITHM = OpenSSL::Digest.new('sha256').freeze
+  SIGNATURE_PREFIX = 'sha256='.freeze
+  TYPEFORM_WEBHOOKS_SECRET_TOKEN = ENV['TYPEFORM_WEBHOOKS_SECRET_TOKEN'].freeze
   MIDWAY_TYPEFORM_ID = ENV['MIDWAY_TYPEFORM_ID'].freeze
   CALL_ZERO_GOALS_TYPEFORM_ID = ENV['CALL_ZERO_GOALS_TYPEFORM_ID'].freeze
   CALL_THREE_SPEAKING_TYPEFORM_ID = ENV['CALL_THREE_SPEAKING_TYPEFORM_ID'].freeze
@@ -40,5 +44,32 @@ class TypeformController < ApplicationController
     end
 
     head :ok
+  end
+
+  private
+
+  def verify_typeform_webook_token
+    request.body.rewind
+    request_body = request.body.read
+    handle_empty_request_body && return if request_body.empty?
+
+    received_signature = request.env['HTTP_TYPEFORM_SIGNATURE']
+    handle_unverified_request && return if received_signature.nil?
+
+    hash = OpenSSL::HMAC.digest(SHA256_ALGORITHM, TYPEFORM_WEBHOOKS_SECRET_TOKEN, request_body)
+    actual_signature = SIGNATURE_PREFIX + Base64.strict_encode64(hash)
+    return if Rack::Utils.secure_compare(actual_signature, received_signature)
+
+    handle_unverified_request
+  end
+
+  def handle_unverified_request
+    Rollbar.error('Typeform webhook with bad signature', form_response: params[:form_response])
+    head :internal_server_error
+  end
+
+  def handle_empty_request_body
+    Rollbar.error('Typeform webhook received with an empty request body')
+    head :bad_request
   end
 end
