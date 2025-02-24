@@ -150,7 +150,11 @@
 
             <div class="card">
               <div class="card-body">
+              <% if @form_path == '/inscriptioncaf' %>
+                <h3 class="card-title">Adresse pour recevoir les livres</h3>
+              <% else %>
                 <h3 class="card-title">Adresse</h3>
+              <% end %>
                 <%= f.simple_fields_for :parent1 do |parent1_f| %>
                   <%= address_input(parent1_f, {}, true)%>
                   <%= parent1_f.input :letterbox_name %>
