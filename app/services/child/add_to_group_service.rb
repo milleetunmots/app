@@ -11,7 +11,7 @@ class Child
 
     def initialize(child_id, at_sign_up: false)
       @child_id = child_id
-      @child = Child.find_by(@child_id)
+      @child = Child.find_by(id: @child_id)
       @group = nil
       @siblings = @child&.siblings
       @at_sign_up = at_sign_up
@@ -101,7 +101,7 @@ class Child
 
     def warn_family_of_late_support
       return unless @child
-      return if @child.source.channel == 'caf'
+      return if @child&.source&.channel == 'caf'
 
       warn_family_with_siblings
       warn_family_without_siblings
