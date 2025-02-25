@@ -23,6 +23,7 @@ module Typeform
     def call
       verify_hidden_variable('parent_id')
       find_parent
+      verify_parent_security_code
       return self unless @errors.empty?
 
       @child_support = @parent.current_child&.child_support
@@ -49,6 +50,12 @@ module Typeform
         @child_support.save(validate: false)
       end
       self
+    end
+
+    def verify_parent_security_code
+      return if @parent.security_code == @hidden_variables[:security_code]
+
+      @errors << { message: "Security code doesn't match with parent", parent_id: @hidden_variables[:parent_id] }
     end
   end
 end
