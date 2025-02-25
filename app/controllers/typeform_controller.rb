@@ -6,7 +6,6 @@ class TypeformController < ApplicationController
   SHA256_ALGORITHM = OpenSSL::Digest.new('sha256').freeze
   SIGNATURE_PREFIX = 'sha256='.freeze
   TYPEFORM_WEBHOOKS_SECRET_TOKEN = ENV['TYPEFORM_WEBHOOKS_SECRET_TOKEN'].freeze
-  MIDWAY_TYPEFORM_ID = ENV['MIDWAY_TYPEFORM_ID'].freeze
   CALL_ZERO_GOALS_TYPEFORM_ID = ENV['CALL_ZERO_GOALS_TYPEFORM_ID'].freeze
   CALL_THREE_SPEAKING_TYPEFORM_ID = ENV['CALL_THREE_SPEAKING_TYPEFORM_ID'].freeze
   CALL_THREE_OBSERVING_TYPEFORM_ID = ENV['CALL_THREE_OBSERVING_TYPEFORM_ID'].freeze
@@ -14,7 +13,6 @@ class TypeformController < ApplicationController
   UPDATING_ADDRESS_TYPEFORM_ID = ENV['UPDATING_ADDRESS_TYPEFORM_ID'].freeze
   UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID = ENV['UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID'].freeze
   TYPEFORM_IDS = [
-    MIDWAY_TYPEFORM_ID,
     CALL_ZERO_GOALS_TYPEFORM_ID,
     CALL_THREE_SPEAKING_TYPEFORM_ID,
     CALL_THREE_OBSERVING_TYPEFORM_ID,
@@ -27,8 +25,6 @@ class TypeformController < ApplicationController
     if params[:form_response][:form_id].in? TYPEFORM_IDS
       service =
         case params[:form_response][:form_id]
-        when MIDWAY_TYPEFORM_ID
-          Typeform::MidwayFormService.new(params[:form_response]).call
         when CALL_ZERO_GOALS_TYPEFORM_ID
           Typeform::CallGoalsFormService.new(params[:form_response], 0).call
         when CALL_THREE_SPEAKING_TYPEFORM_ID, CALL_THREE_OBSERVING_TYPEFORM_ID

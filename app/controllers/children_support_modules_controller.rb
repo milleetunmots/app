@@ -44,8 +44,6 @@ class ChildrenSupportModulesController < ApplicationController
     # link only for third choice
     @module_three = @children_support_module.child.group.with_module_zero? ? @children_support_module.module_index.eql?(4) : @children_support_module.module_index.eql?(3)
     @parent_id = @children_support_module.parent_id
-    @typeform_link = "https://wr1q9w7z4ro.typeform.com/to/YzlXcWSJ#child_support_id=#{@children_support_module.child.child_support.id}"
-    @group_id = params[:group_id]
     @child_first_name = params[:child_first_name]
     calc_service = ChildrenSupportModule::RemainingModulesService.new(
       parent_id: @parent_id,
