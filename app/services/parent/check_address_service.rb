@@ -7,7 +7,7 @@ class Parent::CheckAddressService
   attr_reader :errors
 
   def initialize(csv_file)
-    @message = "#{MESSAGE} https://form.typeform.com/to/#{ENV['UPDATING_ADDRESS_TYPEFORM_ID']}#parent_id=xxxxx&security_code=xxxxx"
+    @message = "#{MESSAGE} https://form.typeform.com/to/#{ENV['UPDATING_ADDRESS_TYPEFORM_ID']}#parent_id=xxxxx&sc=xxxxx"
     @lines = CSV.read(csv_file)
     @errors = []
     @date = Time.zone.now
@@ -47,7 +47,7 @@ class Parent::CheckAddressService
 
   def send_verification_message
     @message = @message.gsub('parent_id=xxxxx', "parent_id=#{@parent.id}")
-    @message = @message.gsub('security_code=xxxxx', "security_code=#{@parent.security_code}")
+    @message = @message.gsub('sc=xxxxx', "sc=#{@parent.security_code}")
     service = ProgramMessageService.new(
       @date.strftime('%d-%m-%Y'),
       @date.strftime('%H:%M'),

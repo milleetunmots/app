@@ -69,7 +69,7 @@ class TypeformController < ApplicationController
   end
 
   def handle_empty_request_body
-    Rollbar.error('Typeform webhook received with an empty request body')
+    Rollbar.error('Typeform webhook received with an empty request body', form_response: params[:form_response])
     head :bad_request
   end
 end
