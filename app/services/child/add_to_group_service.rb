@@ -101,7 +101,7 @@ class Child
 
     def warn_family_of_late_support
       return unless @child
-      return if @child.source.channel == 'caf' && ENV['CAF_SUBSCRIPTION'] == 'true'
+      return if @child&.source&.channel == 'caf' && ENV['CAF_SUBSCRIPTION'] == 'true'
 
       warn_family_with_siblings
       warn_family_without_siblings
