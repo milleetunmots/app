@@ -37,8 +37,15 @@ class ChildrenController < ApplicationController
       build_child_for_form
       @child.build_children_source(source_id: children_source_params&.dig(:source_id), details: children_source_params&.dig(:details), registration_department: children_source_params&.dig(:registration_department))
       render action: :new
-    elsif current_registration_origin == 2
-      redirect_to created_child_path(child_support_id: @child.child_support.id, current_child_name: @child.first_name, sc: @child.parent1.security_code)
+    elsif current_registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].present?
+      redirect_to created_child_path(
+        child_support_id: @child.child_support.id,
+        current_child_name: @child.first_name,
+        parent1_last_name: @child.pareent1.last_name,
+        email: @child.parent1.email,
+        current_child_months: @child.months,
+        sc: @child.parent1.security_code
+      )
     elsif service.parent1_target_profile || current_registration_origin != 4
       redirect_to created_child_path(sms_url_form: service.sms_url_form, children_under_four_months: service.children_under_four_months, youngest_child_under_twenty_four_months: service.youngest_child_under_twenty_four_months)
     else
@@ -124,7 +131,7 @@ class ChildrenController < ApplicationController
   end
 
   def parent1_params
-    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name first_name last_name phone_number gender degree_level_at_registration degree_country_at_registration preferred_channel])[:parent1_attributes]
+    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name first_name last_name phone_number gender degree_level_at_registration degree_country_at_registration preferred_channel address_supplement email])[:parent1_attributes]
   end
 
   def parent2_params
