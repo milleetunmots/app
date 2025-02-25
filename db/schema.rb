@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_02_25_171749) do
+ActiveRecord::Schema.define(version: 2025_02_25_181523) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -816,6 +816,7 @@ ActiveRecord::Schema.define(version: 2025_02_25_171749) do
     t.string "workshop_land"
     t.string "location"
     t.boolean "canceled", default: false, null: false
+    t.string "address_supplement"
     t.index ["animator_id"], name: "index_workshops_on_animator_id"
   end
 

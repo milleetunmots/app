@@ -107,7 +107,7 @@ ActiveAdmin.register Parent do
 
   permit_params :gender, :first_name, :last_name,
     :phone_number, :is_excluded_from_workshop, :present_on_whatsapp, :follow_us_on_whatsapp, :email,
-    :letterbox_name, :address, :postal_code, :city_name,
+    :letterbox_name, :address, :postal_code, :city_name, :address_supplement,
     :is_ambassador, :job, :terms_accepted_at, :family_followed, :parent2_creation, :created_by_us,
     tags_params, parent2_child_ids: []
 
