@@ -5,7 +5,7 @@ class Parent::CheckAddressReminderService
   attr_reader :errors
 
   def initialize
-    @message = "#{Parent::CheckAddressService::MESSAGE} https://form.typeform.com/to/VpPCzGfD#parent_id=xxxxx&security_code=xxxxx"
+    @message = "#{Parent::CheckAddressService::MESSAGE} https://form.typeform.com/to/#{ENV['UPDATING_ADDRESS_TYPEFORM_ID']}#parent_id=xxxxx&sc=xxxxx"
     @errors = []
     @date = Time.zone.now
   end
@@ -24,7 +24,7 @@ class Parent::CheckAddressReminderService
 
   def send_verification_message
     @message = @message.gsub('parent_id=xxxxx', "parent_id=#{@parent.id}")
-    @message = @message.gsub('security_code=xxxxx', "security_code=#{@parent.security_code}")
+    @message = @message.gsub('sc=xxxxx', "sc=#{@parent.security_code}")
     service = ProgramMessageService.new(
       @date.strftime('%d-%m-%Y'),
       @date.strftime('%H:%M'),
