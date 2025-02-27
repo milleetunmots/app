@@ -41,7 +41,7 @@ class ChildrenController < ApplicationController
       redirect_to created_child_path(
         child_support_id: @child.child_support.id,
         current_child_name: @child.first_name,
-        parent1_last_name: @child.pareent1.last_name,
+        parent1_last_name: @child.parent1.last_name,
         email: @child.parent1.email,
         current_child_months: @child.months,
         sc: @child.parent1.security_code
