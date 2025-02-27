@@ -39,7 +39,7 @@ class ChildrenController < ApplicationController
       render action: :new
     elsif current_registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].present?
       redirect_to created_child_path(
-        child_support_id: @child.child_support.id,
+        cs: @child.child_support.id,
         current_child_name: @child.first_name,
         parent1_last_name: @child.parent1.last_name,
         email: @child.parent1.email,
