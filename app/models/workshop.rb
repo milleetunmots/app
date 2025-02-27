@@ -4,6 +4,7 @@
 #
 #  id                 :bigint           not null, primary key
 #  address            :string           not null
+#  address_supplement :string
 #  canceled           :boolean          default(FALSE), not null
 #  city_name          :string           not null
 #  co_animator        :string

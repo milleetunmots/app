@@ -1,42 +1,34 @@
 <div id="inscription-success">
-
   <div class="text-center" id="inscription-success-content">
-
-    <div id="inscription-success-content-top">
-
-      <% if @with_parent_no_target %>
-        <h1>Votre demande va être traitée</h1>
-      <% else %>
-        <h1>Inscription effectuée avec succès</h1>
-      <% end %>
-
-      <% unless @with_parent_no_target %>
-        <%= link_to @new_link, class: 'back-btn' do %>
-          <i>←</i>Retour
+    <% if @caf_subscription_form == true %>
+      <div data-tf-live="01JJ774HQ890WBVQAFQNMVYS76"></div><script src="//embed.typeform.com/next/embed.js"></script>
+    <% else %>
+      <div id="inscription-success-content-top">
+        <% if @with_parent_no_target %>
+          <h1>Votre demande va être traitée</h1>
+        <% else %>
+          <h1>Inscription effectuée avec succès</h1>
         <% end %>
-      <% end %>
-
-      <p>
-        <%== @message %>
-      </p>
-
-      <% if @again %>
-        <br/>
-        <%= link_to @new_link, class: 'btn btn-primary' do %>
-          Inscrire un autre enfant
+        <% unless @with_parent_no_target %>
+          <%= link_to @new_link, class: 'back-btn' do %>
+            <i>←</i>Retour
+          <% end %>
         <% end %>
-      <% end %>
-
-    </div>
-
-    <% if @widget %>
-      <div id="inscription-success-content-bottom">
-
-        <iframe id="helloasso-widget" allowtransparency="true" src="https://www.helloasso.com/associations/1001mots/formulaires/2/widget"></iframe>
-
+        <p>
+          <%== @message %>
+        </p>
+        <% if @again %>
+          <br/>
+          <%= link_to @new_link, class: 'btn btn-primary' do %>
+            Inscrire un autre enfant
+          <% end %>
+        <% end %>
       </div>
+      <% if @widget %>
+        <div id="inscription-success-content-bottom">
+          <iframe id="helloasso-widget" allowtransparency="true" src="https://www.helloasso.com/associations/1001mots/formulaires/2/widget"></iframe>
+        </div>
+      <% end %>
     <% end %>
-
   </div>
-
 </div>

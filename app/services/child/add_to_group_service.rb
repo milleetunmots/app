@@ -11,8 +11,9 @@ class Child
 
     def initialize(child_id, at_sign_up: false)
       @child_id = child_id
+      @child = Child.find_by(id: @child_id)
       @group = nil
-      @siblings = Child.find_by(id: child_id)&.siblings
+      @siblings = @child&.siblings
       @at_sign_up = at_sign_up
     end
 
@@ -41,6 +42,7 @@ class Child
       child = @siblings.first
       # SAME : is it needed ?
       child.update(group_status: 'stopped') and return if child.birthdate < (Time.zone.today - 30.months)
+
       retrieve_next_available_group(child)
       child.update(group: @group, group_status: 'active') if @group
     end
@@ -98,6 +100,9 @@ class Child
     end
 
     def warn_family_of_late_support
+      return unless @child
+      return if @child&.source&.channel == 'caf' && ENV['CAF_SUBSCRIPTION'] == 'true'
+
       warn_family_with_siblings
       warn_family_without_siblings
     end
