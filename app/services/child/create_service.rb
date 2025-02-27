@@ -31,6 +31,7 @@ class Child
         send_not_supported_sms
         create_parent_registration
         send_instagram_message
+        add_caf_subscription_tag
         @children_under_four_months = @child.siblings.all? { |child| child.months < 4 }
         younguest_child_over_four_months = @child.siblings.where('birthdate <= ?', 4.months.ago).order('birthdate desc').first
         @youngest_child_under_twenty_four_months = @children_under_four_months ? false : younguest_child_over_four_months.months < 24
@@ -220,6 +221,17 @@ class Child
         parent_registration.parent2_phone_number = @child.parent2.phone_number_national
       end
       parent_registration.save!
+    end
+
+    def add_caf_subscription_tag
+      return unless @registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].present?
+
+      caf = Source.find_or_create_by(name: 'CAF 93', channel: 'caf', department: '93', utm: '93', is_archived: false)
+      return unless @child.source == caf
+
+      tag = Tag.find_or_create_by(name: 'inscrit_via_caf_93')
+      @child.tag_list << tag
+      @child.save
     end
   end
 end
