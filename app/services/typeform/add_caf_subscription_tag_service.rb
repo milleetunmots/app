@@ -4,7 +4,7 @@ module Typeform
     CAF_SUBSCRIPTION_TYPEFORM_CALENDLY_FIELD = ENV['CAF_SUBSCRIPTION_TYPEFORM_CALENDLY_FIELD'].freeze
 
     def call
-      verify_hidden_variable('child_support_id')
+      verify_hidden_variable('cs')
       find_child_support
       return self unless @errors.empty?
 
@@ -19,6 +19,11 @@ module Typeform
         end
       end
       self
+    end
+
+    def find_child_support
+      @child_support = ChildSupport.find_by(id: @hidden_variables[:cs])
+      @errors << { message: 'ChildSupport not found', child_support_id: @hidden_variables[:cs] } unless @child_support
     end
   end
 end
