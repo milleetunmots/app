@@ -23,5 +23,14 @@ module Typeform
       @child_support = ChildSupport.find_by(id: @hidden_variables[:child_support_id])
       @errors << { message: 'ChildSupport not found', child_support_id: @hidden_variables[:child_support_id] } unless @child_support
     end
+
+    def verify_security_code
+      return if @hidden_variables[:sc].empty?
+      return if @parent&.security_code == @hidden_variables[:sc] ||
+                @child_support&.parent1&.security_code == @hidden_variables[:sc] ||
+                @child_support&.parent2&.security_code == @hidden_variables[:sc]
+
+      @errors << { message: "Security code doesn't match with parent", parent_id: @hidden_variables[:parent_id] }
+    end
   end
 end

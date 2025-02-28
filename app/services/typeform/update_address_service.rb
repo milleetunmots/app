@@ -25,6 +25,9 @@ module Typeform
       find_parent
       return self unless @errors.empty?
 
+      verify_security_code
+      return self unless @errors.empty?
+
       @child_support = @parent.current_child&.child_support
       unless @child_support
         @errors << { message: 'ChildSupport not found', parent_id: @parent.id }
