@@ -226,12 +226,14 @@ class Child
     def add_caf_subscription_tag
       return unless @registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].present?
 
-      caf = Source.find_or_create_by(name: 'CAF 93', channel: 'caf', department: '93', utm: '93', is_archived: false)
-      return unless @child.source == caf
+      caf = Source.find_by(channel: 'caf', department: '93', is_archived: false)
+      return unless caf && @child.source == caf
 
       tag = Tag.find_or_create_by(name: 'inscrit_via_caf_93')
-      @child.tag_list << tag
-      @child.save
+      @child.siblings.each do |child|
+        child.tag_list << tag
+        child.save
+      end
     end
   end
 end
