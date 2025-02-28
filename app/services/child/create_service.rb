@@ -230,6 +230,8 @@ class Child
       return unless caf && @child.source == caf
 
       tag = Tag.find_or_create_by(name: 'inscrit_via_caf_93')
+      @child.child_support.tag_list << tag
+      @child.child_support.save
       @child.siblings.each do |child|
         child.tag_list << tag
         child.save

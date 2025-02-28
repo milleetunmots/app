@@ -16,6 +16,8 @@ module Typeform
         return self unless 'inscrit_via_caf_93'.in? @child_support.tag_list
 
         tag = Tag.find_or_create_by(name: 'a_souscrit_caf_93')
+        @child_support.tag_list << tag
+        @errors << { message: 'tag adding to child_support failed', child_support_id: @child_support.id } unless @child_support.save
         @child_support.children.each do |child|
           child.tag_list << tag
           @errors << { message: 'tag adding to child failed', child_id: child.id } unless child.save
