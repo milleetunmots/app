@@ -40,7 +40,7 @@ class ChildrenController < ApplicationController
     elsif current_registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].present?
       redirect_to created_child_path(
         cs: @child.child_support.id,
-        csm: @child.first_name,
+        ccn: @child.first_name,
         pln: @child.parent1.last_name,
         email: @child.parent1.email,
         ccm: @child.months,
