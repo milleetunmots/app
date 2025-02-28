@@ -14,7 +14,7 @@ jobs:
   build:
 
     name: Build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -22,7 +22,7 @@ jobs:
 
       - name: Extract branch name
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/} | sed 's#/#_#g')"
+        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/} | sed 's#/#_#g')" >> $GITHUB_OUTPUT
         id: extract_branch
 
       - name: Set up Docker Buildx
