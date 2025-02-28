@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_01_27_114845) do
+ActiveRecord::Schema.define(version: 2025_02_25_181523) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -588,6 +588,7 @@ ActiveRecord::Schema.define(version: 2025_01_27_114845) do
     t.text "is_ambassador_detail"
     t.string "aircall_id"
     t.jsonb "aircall_datas"
+    t.string "address_supplement"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
@@ -815,6 +816,7 @@ ActiveRecord::Schema.define(version: 2025_01_27_114845) do
     t.string "workshop_land"
     t.string "location"
     t.boolean "canceled", default: false, null: false
+    t.string "address_supplement"
     t.index ["animator_id"], name: "index_workshops_on_animator_id"
   end
 

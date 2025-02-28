@@ -31,6 +31,7 @@ class Child
         send_not_supported_sms
         create_parent_registration
         send_instagram_message
+        add_caf_subscription_tag
         @children_under_four_months = @child.siblings.all? { |child| child.months < 4 }
         younguest_child_over_four_months = @child.siblings.where('birthdate <= ?', 4.months.ago).order('birthdate desc').first
         @youngest_child_under_twenty_four_months = @children_under_four_months ? false : younguest_child_over_four_months.months < 24
@@ -142,7 +143,7 @@ class Child
       @sms_url_form = "#{ENV.fetch('TYPEFORM_URL', nil)}#child_support_id=#{@child.child_support.id}"
       message = "1001mots: Bonjour ! Je suis ravie de votre inscription à notre accompagnement ! Si vous avez 3 minutes, merci de répondre à ce court questionnaire #{@sms_url_form}"
 
-      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, message).call if @registration_origin.in?([2, 4])
+      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, message).call if @registration_origin == 4 || (@registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].nil?)
       SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.change({ hour: 18 }).to_i, message).call if @registration_origin.in?([3, 5])
     end
 
@@ -220,6 +221,21 @@ class Child
         parent_registration.parent2_phone_number = @child.parent2.phone_number_national
       end
       parent_registration.save!
+    end
+
+    def add_caf_subscription_tag
+      return unless @registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].present?
+
+      caf = Source.find_by(channel: 'caf', department: '93', is_archived: false)
+      return unless caf && @child.source == caf
+
+      tag = Tag.find_or_create_by(name: 'inscrit_via_caf_93')
+      @child.child_support.tag_list << tag
+      @child.child_support.save
+      @child.siblings.each do |child|
+        child.tag_list << tag
+        child.save
+      end
     end
   end
 end
