@@ -57,9 +57,21 @@ ActiveAdmin.register Workshop do
                 },
                 disabled: !object.new_record?
               }
-
       f.input :parent_ids, as: :hidden
       f.input :workshop_land, collection: Child::LANDS.keys.sort, input_html: { data: { select2: {} }, disabled: !object.new_record? }
+      f.input :invitation_scheduled, as: :boolean, input_html: { disabled: !object.new_record? }
+      f.input :scheduled_invitation_date, 
+              as: :datepicker,
+              input_html: {
+                disabled: !object.new_record?
+              }
+      f.input :scheduled_invitation_time,
+              as: :time_picker,
+              input_html: {
+                disabled: !object.new_record?,
+                value: Time.zone.now.change(hour: 9, min: 0).strftime('%H:%M')
+              }
+      f.input :scheduled_invitation_date_time, as: :hidden
       f.input :invitation_message, input_html: { rows: 5, disabled: !object.new_record? }
       f.input :canceled
     end
@@ -67,7 +79,7 @@ ActiveAdmin.register Workshop do
   end
 
   permit_params :topic, :workshop_date, :animator_id, :co_animator, :address, :postal_code, :city_name,
-                :invitation_message, :workshop_land, :location, :canceled, :address_supplement, tags_params, parent_ids: []
+                :invitation_message, :workshop_land, :location, :canceled, :address_supplement, :scheduled_invitation_date_time, tags_params, parent_ids: []
 
   show do
     tabs do

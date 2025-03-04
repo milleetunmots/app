@@ -2,23 +2,24 @@
 #
 # Table name: workshops
 #
-#  id                 :bigint           not null, primary key
-#  address            :string           not null
-#  address_supplement :string
-#  canceled           :boolean          default(FALSE), not null
-#  city_name          :string           not null
-#  co_animator        :string
-#  discarded_at       :datetime
-#  invitation_message :text             not null
-#  location           :string
-#  name               :string
-#  postal_code        :string           not null
-#  topic              :string
-#  workshop_date      :date             not null
-#  workshop_land      :string
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  animator_id        :bigint           not null
+#  id                             :bigint           not null, primary key
+#  address                        :string           not null
+#  address_supplement             :string
+#  canceled                       :boolean          default(FALSE), not null
+#  city_name                      :string           not null
+#  co_animator                    :string
+#  discarded_at                   :datetime
+#  invitation_message             :text             not null
+#  location                       :string
+#  name                           :string
+#  postal_code                    :string           not null
+#  scheduled_invitation_date_time :datetime
+#  topic                          :string
+#  workshop_date                  :date             not null
+#  workshop_land                  :string
+#  created_at                     :datetime         not null
+#  updated_at                     :datetime         not null
+#  animator_id                    :bigint           not null
 #
 # Indexes
 #

@@ -7,5 +7,6 @@ FactoryBot.define do
     postal_code { Faker::Address.postcode }
     city_name { Faker::Address.city }
     invitation_message { Faker::Lorem.paragraph(sentence_count: 2) }
+    scheduled_invitation_date_time { Time.zone.now }
   end
 end
