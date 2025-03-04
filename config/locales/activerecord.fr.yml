@@ -525,6 +525,7 @@ fr:
       parent:
         << : *SHARED
         address: Adresse
+        address_supplement: Complément d'adresse
         children: Enfant(s)
         children_count: Enfants
         city_name: Ville

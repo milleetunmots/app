@@ -479,6 +479,7 @@ class Child < ApplicationRecord
            allow_nil: true
 
   delegate :address,
+           :address_supplement,
            :city_name,
            :letterbox_name,
            :postal_code,
