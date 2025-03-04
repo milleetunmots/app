@@ -716,13 +716,16 @@ fr:
       workshop:
         << : *SHARED
         topic: Thème
+        invitation_scheduled: Programmer l'invitation
+        scheduled_invitation_date: Date de programmation de l'invitation
+        scheduled_invitation_time: Heure de programmation de l'invitation
         animator: Animateur
         co_animator: Binôme
         address: Adresse
         canceled: Annulé
         display_topic: Thème
         land: Terrain
-        location: Lieu de l'atelier
+        location: Lieu de l'atelier 
         name: Atelier
         postal_code: Code postal
         city_name: Ville
