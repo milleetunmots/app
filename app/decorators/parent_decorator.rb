@@ -60,6 +60,7 @@ class ParentDecorator < BaseDecorator
     [
       letterbox_name,
       address,
+      address_supplement,
       [
         postal_code,
         city_name
