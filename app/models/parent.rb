@@ -363,7 +363,7 @@ class Parent < ApplicationRecord
   end
 
   def change_the_other_parent_address
-    return unless saved_change_to_letterbox_name? || saved_change_to_address? || saved_change_to_postal_code? || saved_change_to_city_name?
+    return unless saved_change_to_letterbox_name? || saved_change_to_address? || saved_change_to_postal_code? || saved_change_to_city_name? || saved_change_to_address_supplement?
 
     children.each do |child|
       p1 = child.parent1
@@ -376,12 +376,21 @@ class Parent < ApplicationRecord
   end
 
   def address_attributes_are_identical?(parent)
-    parent.letterbox_name == letterbox_name && parent.address == address &&
-      parent.postal_code == postal_code && parent.city_name == city_name
+    parent.letterbox_name == letterbox_name &&
+      parent.address == address &&
+      parent.postal_code == postal_code &&
+      parent.city_name == city_name &&
+      parent.address_supplement == address_supplement
   end
 
   def change_address_attributes(parent)
-    parent.update(letterbox_name: letterbox_name, address: address, postal_code: postal_code, city_name: city_name)
+    parent.update(
+      letterbox_name: letterbox_name,
+      address: address,
+      postal_code: postal_code,
+      city_name: city_name,
+      address_supplement: address_supplement
+    )
     parent.children.each do |c|
       child_support = c.child_support
       child_support.address_suspected_invalid_at = nil

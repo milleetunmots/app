@@ -7,6 +7,7 @@ class Child
       { name: 'Titre', method: :book_to_distribute_title },
       { name: 'Nom', method: :letterbox_name },
       { name: 'Adresse', method: :address },
+      { name: 'Complement', method: :address_supplement },
       { name: 'Code postal', method: :postal_code },
       { name: 'Ville', method: :city_name },
       { name: 'Prénom enfant', method: :first_name },

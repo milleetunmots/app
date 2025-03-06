@@ -3,12 +3,14 @@ module Typeform
     FIELD_IDS = {
       ENV['UPDATING_ADDRESS_TYPEFORM_ID'] => {
         address: ENV['ADDRESS_TYPEFORM_ADDRESS_ID'],
+        address_supplement: ENV['ADDRESS_SUPPLEMENT_TYPEFORM_ADDRESS_ID'],
         city_name: ENV['ADDRESS_TYPEFORM_CITY_NAME_ID'],
         postal_code: ENV['ADDRESS_TYPEFORM_POSTAL_CODE_ID'],
         letterbox_name: ENV['ADDRESS_TYPEFORM_LETTERBOX_NAME_ID']
       },
       ENV['UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID'] => {
         address: ENV['UPSTREAM_ADDRESS_UPDATING_ADDRESS_ID'],
+        address_supplement: ENV['UPSTREAM_ADDRESS_UPDATING_ADDRESS_SUPPLEMENT_ID'],
         city_name: ENV['UPSTREAM_ADDRESS_UPDATING_CITY_NAME_ID'],
         postal_code: ENV['UPSTREAM_ADDRESS_UPDATING_POSTAL_CODE_ID'],
         letterbox_name: ENV['UPSTREAM_ADDRESS_UPDATING_LETTERBOX_NAME_ID']
@@ -35,6 +37,8 @@ module Typeform
         case answer[:field][:id]
         when FIELD_IDS[@form_id][:address]
           @parent.address = answer[:text]
+        when FIELD_IDS[@form_id][:address_supplement]
+          @parent.address_supplement = answer[:text]  if answer[:text].present?
         when FIELD_IDS[@form_id][:city_name]
           @parent.city_name = answer[:text]
         when FIELD_IDS[@form_id][:postal_code]
