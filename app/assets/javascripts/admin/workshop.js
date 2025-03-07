@@ -7,10 +7,11 @@ $(document).ready(function() {
   let $workshopScheduledInvitationDateTime = $('#workshop_scheduled_invitation_date_time');
   let $workshopDate = $('#workshop_workshop_date');
 
+  $workshopInvitationScheduled.prop('disabled', true);
   $workshopScheduledInvitationDateInput.hide();
   $workshopScheduledInvitationTimeInput.hide();
   $workshopInvitationScheduled.prop('checked', false);
-  $workshopScheduledInvitationDateTime.val(new Date());
+  $workshopScheduledInvitationDateTime.val(null);
 
   $('.workshop-parent-select').select2({
     placeholder: "Sélectionnez les parents",
@@ -32,23 +33,34 @@ $(document).ready(function() {
     $('#workshop_parent_ids').val(values)
   });
 
-  $workshopInvitationScheduled.on('change', function() {
-    let $workshopDateValue = undefined;
-    if ($workshopDate.val()){
-      $workshopDateValue = new Date($workshopDate.val());
+  $workshopDate.on('change', function() {
+    if ($workshopDate.val() === '') {
+      $workshopInvitationScheduled.prop('disabled', true);
+      
+    } else {
+      $workshopInvitationScheduled.prop('disabled', false);
     }
+    if ($workshopInvitationScheduled.is(':checked')){
+      alert("Attention, l'invitation n'est plus programmée pour plus tard ! Recochez la case si vous souhaitez programmer l'invitation pour plus tard.");
+    }
+    $workshopInvitationScheduled.prop('checked', false);
+    $workshopInvitationScheduled.trigger('change');
+  });
+
+  $workshopInvitationScheduled.on('change', function() {
     if ($(this).is(':checked')) {
-      if($workshopDateValue !== undefined) {
-        $workshopScheduledInvitationDate.datepicker({minDate: new Date(), maxDate: new Date($workshopDateValue)});
-        $workshopDateValue.setDate($workshopDateValue.getDate() - 7);
-        $workshopScheduledInvitationDate.val(formatDate($workshopDateValue));
-      }
+      console.log($workshopDate.val());
+      $workshopScheduledInvitationDate.datepicker('destroy');
+      $workshopScheduledInvitationDate.datepicker({minDate: new Date(), maxDate: new Date($workshopDate.val())});
+      $workshopScheduledInvitationDate.val(formatDate(new Date()));
+      $workshopScheduledInvitationDate.trigger('change');
+      
       $workshopScheduledInvitationDateInput.show();
       $workshopScheduledInvitationTimeInput.show();
     } else {
       $workshopScheduledInvitationDateInput.hide();
       $workshopScheduledInvitationTimeInput.hide();
-      $workshopScheduledInvitationDateTime.val(new Date());
+      $workshopScheduledInvitationDateTime.val(null);
     }
   });
 

@@ -42,7 +42,7 @@ ActiveAdmin.register Workshop do
     f.semantic_errors(*f.object.errors.keys)
     f.inputs do
       f.input :topic, collection: workshop_topic_select_collection, input_html: { data: { select2: {} } }
-      f.input :workshop_date, as: :datepicker
+      f.input :workshop_date, as: :datepicker, datepicker_options: { min_date: Time.zone.today }
       f.input :animator, input_html: { data: { select2: {} } }
       f.input :co_animator
       address_input f

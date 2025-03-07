@@ -716,7 +716,7 @@ fr:
       workshop:
         << : *SHARED
         topic: Thème
-        invitation_scheduled: Programmer l'invitation
+        invitation_scheduled: Programmer l'invitation pour plus tard
         scheduled_invitation_date: Date de programmation de l'invitation
         scheduled_invitation_time: Heure de programmation de l'invitation
         animator: Animateur
