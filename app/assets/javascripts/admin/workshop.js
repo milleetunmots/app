@@ -8,10 +8,10 @@ $(document).ready(function() {
   let $workshopDate = $('#workshop_workshop_date');
 
   $workshopInvitationScheduled.prop('disabled', true);
-  $workshopScheduledInvitationDateInput.hide();
-  $workshopScheduledInvitationTimeInput.hide();
   $workshopInvitationScheduled.prop('checked', false);
   $workshopScheduledInvitationDateTime.val(null);
+  hideDateTimeInputs();
+  
 
   $('.workshop-parent-select').select2({
     placeholder: "Sélectionnez les parents",
@@ -36,7 +36,6 @@ $(document).ready(function() {
   $workshopDate.on('change', function() {
     if ($workshopDate.val() === '') {
       $workshopInvitationScheduled.prop('disabled', true);
-      
     } else {
       $workshopInvitationScheduled.prop('disabled', false);
     }
@@ -54,12 +53,9 @@ $(document).ready(function() {
       $workshopScheduledInvitationDate.datepicker({minDate: new Date(), maxDate: new Date($workshopDate.val())});
       $workshopScheduledInvitationDate.val(formatDate(new Date()));
       $workshopScheduledInvitationDate.trigger('change');
-      
-      $workshopScheduledInvitationDateInput.show();
-      $workshopScheduledInvitationTimeInput.show();
+      showDateTimeInputs();
     } else {
-      $workshopScheduledInvitationDateInput.hide();
-      $workshopScheduledInvitationTimeInput.hide();
+      hideDateTimeInputs();
       $workshopScheduledInvitationDateTime.val(null);
     }
   });
@@ -72,6 +68,16 @@ $(document).ready(function() {
   $workshopScheduledInvitationTimeInput.on('change', function() {
     $workshopScheduledInvitationDateTime.val(new Date($workshopScheduledInvitationDate.val() + ' ' + $workshopScheduledInvitationTime.val())); 
   });
+
+  function hideDateTimeInputs() {
+    $workshopScheduledInvitationDateInput.hide();
+    $workshopScheduledInvitationTimeInput.hide();
+  }
+
+  function showDateTimeInputs() {
+    $workshopScheduledInvitationDateInput.show();
+    $workshopScheduledInvitationTimeInput.show();
+  }
 
   function formatDate(date) {
     const year = date.getFullYear();
