@@ -470,6 +470,7 @@ fr:
         is_programmed: A déjà été programmé
         support_module_programmed: Nombre de modules programmés
         expected_children_number: Nombre d'enfants prévus
+        enable_calls_recording: Cohorte à enregistrer
         call0_start_date: Début de la session d'appels 0
         call0_end_date: Fin de la session d'appels 0
         call1_start_date: Début de la session d'appels 1

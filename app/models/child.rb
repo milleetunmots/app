@@ -504,6 +504,7 @@ class Child < ApplicationRecord
            allow_nil: true
 
   delegate :name,
+           :enable_calls_recording,
            to: :group,
            prefix: true,
            allow_nil: true
