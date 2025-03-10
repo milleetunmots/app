@@ -12,6 +12,7 @@
 #  call3_end_date             :date
 #  call3_start_date           :date
 #  discarded_at               :datetime
+#  enable_calls_recording     :boolean          default(FALSE), not null
 #  ended_at                   :date
 #  expected_children_number   :integer
 #  is_excluded_from_analytics :boolean          default(FALSE), not null
