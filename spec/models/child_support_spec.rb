@@ -10,6 +10,7 @@
 #  books_quantity                        :string
 #  call0_attempt                         :string
 #  call0_duration                        :integer
+#  call0_goal_sent                       :string
 #  call0_goals                           :text
 #  call0_goals_sms                       :text
 #  call0_language_awareness              :string
