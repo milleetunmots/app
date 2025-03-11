@@ -134,6 +134,7 @@ ActiveAdmin.register Parent do
           end
           row :letterbox_name
           row :address
+          row :address_supplement
           row :postal_code
           row :city_name
           row :created_at
@@ -250,6 +251,7 @@ ActiveAdmin.register Parent do
 
     column :letterbox_name
     column :address
+    column :address_supplement
     column :city_name
     column :postal_code
 
