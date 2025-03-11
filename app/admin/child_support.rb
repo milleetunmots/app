@@ -223,12 +223,14 @@ ActiveAdmin.register ChildSupport do
 
   form(remote: true) do |f|
     f.semantic_errors(*f.object.errors.keys)
-    h3 id: 'call_recording_warning' do
-      safe_join([
-        content_tag(:i, '', class: 'fas fa-microphone', style: 'margin-right: 5px;'),
-        'Appels à enregistrer'
-      ])
-    end if f.object.group_enable_calls_recording
+    if f.object.group_enable_calls_recording
+      h3 id: 'call_recording_warning', class: 'full-width-warning' do
+        safe_join([
+          content_tag(:i, '', class: 'fas fa-microphone', style: 'margin-right: 5px;'),
+          'Appels à enregistrer'
+        ])
+      end
+    end
     render partial: 'admin/child_supports/call_attempt_modal', locals: { call_index: 0 }
     render partial: 'admin/child_supports/call_attempt_modal', locals: { call_index: 1 }
     render partial: 'admin/child_supports/call_attempt_modal', locals: { call_index: 2 }
