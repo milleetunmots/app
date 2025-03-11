@@ -48,7 +48,6 @@ $(document).ready(function() {
 
   $workshopInvitationScheduled.on('change', function() {
     if ($(this).is(':checked')) {
-      console.log($workshopDate.val());
       $workshopScheduledInvitationDate.datepicker('destroy');
       $workshopScheduledInvitationDate.datepicker({minDate: new Date(), maxDate: new Date($workshopDate.val())});
       $workshopScheduledInvitationDate.val(formatDate(new Date()));
