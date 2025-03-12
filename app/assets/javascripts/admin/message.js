@@ -86,23 +86,18 @@ $(document).ready(function() {
                 complete: function() {
                     message.css({'height': '250px'})
                     specificCallMessage(selectedValue)
-                    
+                    messageContentRefreshed = messageContentWithLink.replace('{INTRODUCTION}', message_intro.val())
+                                                                    .replace('{QUESTIONNAIRE_DE_PARTAGE}', feedback_form.val())
+                                                                    .replace('{CONCLUSION}', conclusion.val())
                     $.ajax({
                         type: 'GET',
                         url: `/child-support-call-goal/${childSupportId}/${call_index}`,
                         success: function(response) {
                             call_goal.val(response.call_goal)
-                            messageContentRefreshed = messageContentWithLink.replace('{INTRODUCTION}', message_intro.val())
-                                                                            .replace('{QUESTIONNAIRE_DE_PARTAGE}', feedback_form.val())
-                                                                            .replace('{CONCLUSION}', conclusion.val())
                             if(response.call_goal !== '') {
                                 messageContentRefreshed = messageContentRefreshed.replace('{CHAMP_PETITE_MISSION}', response.call_goal)
                             }
-                        },
-                        error: function () {
-                            messageContentRefreshed = messageContentWithLink
-                        },
-                        complete: function() {
+                        }, complete: function() {
                             message.val(messageContentRefreshed)
                             showNewFields()
                             message.prop('readonly', true)
