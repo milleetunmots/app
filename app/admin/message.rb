@@ -52,18 +52,28 @@ ActiveAdmin.register_page 'Message' do
         select name: 'redirection_target', id: 'redirection_target'
       end
 
+      div id: 'message_intro_div' do
+        label safe_join(['Intro du SMS', content_tag(:i, '', class: 'fas fa-pencil-alt', style: 'margin-left: 5px; font-size: 13px;')])
+        textarea name: 'message_intro'
+      end
+
       div id: 'call_goal_div' do
-        label 'Petite mission'
+        label safe_join(['Petite mission', content_tag(:i, '', class: 'fas fa-pencil-alt', style: 'margin-left: 5px; font-size: 13px;')])
         textarea name: 'call_goal'
       end
 
-      div id: 'additional_message_div' do
-        label 'Message complémentaire'
-        textarea name: 'additional_message'
+      div id: 'feedback_form_div' do
+        label safe_join(['Questionnaire de partage', content_tag(:i, '', class: 'fas fa-pencil-alt', style: 'margin-left: 5px; font-size: 13px;')])
+        textarea name: 'feedback_form'
+      end
+
+      div id: 'conclusion_div' do
+        label safe_join(['Conclusion du SMS', content_tag(:i, '', class: 'fas fa-pencil-alt', style: 'margin-left: 5px; font-size: 13px;')])
+        textarea name: 'conclusion'
       end
 
       div do
-        label 'Message'
+        label 'Aperçu du message envoyé'
         textarea name: 'message'
         small 'Variables disponibles: {PRENOM_ENFANT}, {URL}, {PRENOM_ACCOMPAGNANTE}, {NUMERO_AIRCALL_ACCOMPAGNANTE}'
       end
@@ -112,6 +122,7 @@ ActiveAdmin.register_page 'Message' do
         child_support.update_column("#{call_goal}_sms".to_sym, message)
         notice += '. Et petite mission définie'
       end
+      child_support.update_column(:call0_goal_sent, params[:call_goal]) if params[:call_goals_sms] == 'call0_goals'
       redirect_back(fallback_location: root_path, notice: notice)
     end
   end
