@@ -448,6 +448,7 @@ class ChildSupport < ApplicationRecord
   delegate :address,
            :city_name,
            :group_status,
+           :group_enable_calls_recording,
            :letterbox_name,
            :parent_events,
            :parent1_first_name,

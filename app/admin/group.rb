@@ -41,6 +41,7 @@ ActiveAdmin.register Group do
   filter :is_programmed
   filter :expected_children_number
   filter :is_excluded_from_analytics
+  filter :enable_calls_recording
   filter :created_at
   filter :updated_at
 
@@ -59,6 +60,7 @@ ActiveAdmin.register Group do
     f.semantic_errors(*f.object.errors.keys)
     f.inputs do
       f.input :is_excluded_from_analytics
+      f.input :enable_calls_recording
       f.input :name
       f.input :started_at, as: :datepicker
       f.input :ended_at, as: :datepicker
@@ -80,7 +82,7 @@ ActiveAdmin.register Group do
     f.actions
   end
 
-  permit_params :name, :started_at, :ended_at, :support_modules_count, :expected_children_number, :is_excluded_from_analytics,
+  permit_params :name, :started_at, :ended_at, :support_modules_count, :expected_children_number, :enable_calls_recording, :is_excluded_from_analytics,
     :call0_start_date, :call0_end_date, :call1_start_date, :call1_end_date, :call2_start_date, :call2_end_date, :call3_start_date,
     :call3_end_date
 
@@ -101,6 +103,7 @@ ActiveAdmin.register Group do
           row :support_modules_count
           row :support_module_programmed
           row :expected_children_number
+          row :enable_calls_recording
           row :is_programmed
           row :call0_start_date
           row :call0_end_date

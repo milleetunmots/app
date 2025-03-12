@@ -25,10 +25,13 @@ class AircallController < ApplicationController
 
   def webhook_insight_cards
     payload = params.to_unsafe_h
-    service = Aircall::CreateInsightCardService.new(payload: payload['data']).call
-    if service.errors.any?
-      Rollbar.error('Aircall::CreateInsightCardService', errors: service.errors)
-    end
+
+    call_informations_insight_card_service = Aircall::CreateCallInformationsInsightCardService.new(payload: payload['data']).call
+    Rollbar.error('Aircall::CreateCallInformationsInsightCardService', errors: call_informations_insight_card_service.errors) if call_informations_insight_card_service.errors.any?
+
+    call_recording_insight_card_service = Aircall::CreateCallRecordingInsightCardService.new(payload: payload['data']).call
+    Rollbar.error('Aircall::CreateCallRecordingInsightCardService', errors: call_recording_insight_card_service.errors) if call_recording_insight_card_service.errors.any?
+
     head :ok
   end
 
