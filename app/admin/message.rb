@@ -92,7 +92,6 @@ ActiveAdmin.register_page 'Message' do
   end
 
   page_action :program_sms, method: :post do
-    byebug
     call_goal =
       if params[:call_goals_sms].in? %w[call3_goals_speaking call3_goals_observing]
         'call3_goals'
