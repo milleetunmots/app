@@ -2,23 +2,24 @@
 #
 # Table name: workshops
 #
-#  id                 :bigint           not null, primary key
-#  address            :string           not null
-#  address_supplement :string
-#  canceled           :boolean          default(FALSE), not null
-#  city_name          :string           not null
-#  co_animator        :string
-#  discarded_at       :datetime
-#  invitation_message :text             not null
-#  location           :string
-#  name               :string
-#  postal_code        :string           not null
-#  topic              :string
-#  workshop_date      :date             not null
-#  workshop_land      :string
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  animator_id        :bigint           not null
+#  id                             :bigint           not null, primary key
+#  address                        :string           not null
+#  address_supplement             :string
+#  canceled                       :boolean          default(FALSE), not null
+#  city_name                      :string           not null
+#  co_animator                    :string
+#  discarded_at                   :datetime
+#  invitation_message             :text             not null
+#  location                       :string
+#  name                           :string
+#  postal_code                    :string           not null
+#  scheduled_invitation_date_time :datetime
+#  topic                          :string
+#  workshop_date                  :date             not null
+#  workshop_land                  :string
+#  created_at                     :datetime         not null
+#  updated_at                     :datetime         not null
+#  animator_id                    :bigint           not null
 #
 # Indexes
 #
@@ -33,6 +34,7 @@ class Workshop < ApplicationRecord
   include Discard::Model
 
   attr_accessor :parent_selection
+  attr_reader :invitation_scheduled, :scheduled_invitation_date, :scheduled_invitation_time
 
   TOPICS = %w[meal sleep nursery_rhymes books games outside bath emotion].freeze
 
@@ -87,10 +89,11 @@ class Workshop < ApplicationRecord
 
   def send_message
     recipients = @recipients.map { |recipient| "parent.#{recipient.id}" }
+    date = scheduled_invitation_date_time.nil? ? Time.zone.now : scheduled_invitation_date_time
 
     message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquez sur ce lien: {RESPONSE_LINK}"
 
-    service = Workshop::ProgramWorkshopInvitationService.new(Time.zone.today, Time.zone.now.strftime('%H:%M'), recipients, message, nil, nil, nil, id, nil, %w[waiting active paused stopped disengaged]).call
+    service = Workshop::ProgramWorkshopInvitationService.new(date.to_date, date.strftime('%H:%M'), recipients, message, nil, nil, nil, id, nil, %w[waiting active paused stopped disengaged]).call
 
     Rollbar.error(service.errors) if service.errors.any?
   end

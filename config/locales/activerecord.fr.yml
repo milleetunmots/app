@@ -470,6 +470,7 @@ fr:
         is_programmed: A déjà été programmé
         support_module_programmed: Nombre de modules programmés
         expected_children_number: Nombre d'enfants prévus
+        enable_calls_recording: Cohorte à enregistrer
         call0_start_date: Début de la session d'appels 0
         call0_end_date: Fin de la session d'appels 0
         call1_start_date: Début de la session d'appels 1
@@ -525,6 +526,7 @@ fr:
       parent:
         << : *SHARED
         address: Adresse
+        address_supplement: Complément d'adresse
         children: Enfant(s)
         children_count: Enfants
         city_name: Ville
@@ -716,6 +718,9 @@ fr:
       workshop:
         << : *SHARED
         topic: Thème
+        invitation_scheduled: Je souhaite programmer l'invitation pour plus tard
+        scheduled_invitation_date: Date de programmation de l'invitation
+        scheduled_invitation_time: Heure de programmation de l'invitation
         animator: Animateur
         co_animator: Binôme
         address: Adresse
@@ -726,7 +731,7 @@ fr:
         name: Atelier
         postal_code: Code postal
         city_name: Ville
-        workshop_date: Date
+        workshop_date: Date de l'atelier
         invitation_message: Message d'invitation
         workshop_address: Adresse
         workshop_participants : Parents invités

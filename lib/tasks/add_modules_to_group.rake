@@ -12,17 +12,17 @@ namespace :add_modules_to_group do
     group.save
     ((old_support_modules_count + 1)..(group.support_modules_count)).each do |module_index|
       fill_parents_available_support_modules_date = date + ((module_index - 2) * 8.weeks) - 6.weeks + MODULE_ZERO_DURATION
-      available_module_list_verification_date = date + ((module_index - 2) * 8.weeks) - 5.weeks + MODULE_ZERO_DURATION
+      available_module_list_verification_date = date + ((module_index - 2) * 8.weeks) - 5.weeks + MODULE_ZERO_DURATION - 4.days
       select_module_date = (date + ((module_index - 2) * 8.weeks) - 4.weeks).next_occurring(:monday) + MODULE_ZERO_DURATION
-      defaul_support_module_selection_date = date + ((module_index - 2) * 8.weeks) - 2.weeks - 1.day + MODULE_ZERO_DURATION
-      chosen_modules_verification_date = date + ((module_index - 2) * 8.weeks) - 2.weeks + MODULE_ZERO_DURATION
+      default_support_module_selection_date = date + ((module_index - 2) * 8.weeks) - 2.weeks - 1.day + MODULE_ZERO_DURATION
+      chosen_modules_verification_date = date + ((module_index - 2) * 8.weeks) - 2.weeks + MODULE_ZERO_DURATION + 1.day
       program_support_module_date = date + ((module_index - 2) * 8.weeks) + MODULE_ZERO_DURATION
       ChildrenSupportModule::FillParentsAvailableSupportModulesJob.set(wait_until: fill_parents_available_support_modules_date.to_datetime.change(hour: hour)).perform_later(args[:group_id], false)
       ChildrenSupportModule::VerifyAvailableModulesTaskJob.set(wait_until: available_module_list_verification_date.to_datetime.change(hour: hour)).perform_later(args[:group_id])
       ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: hour)).perform_later(args[:group_id], select_module_date, module_index)
-      ChildrenSupportModule::SelectDefaultSupportModuleJob.set(wait_until: defaul_support_module_selection_date.to_datetime.change(hour: hour)).perform_later(args[:group_id])
+      ChildrenSupportModule::SelectDefaultSupportModuleJob.set(wait_until: default_support_module_selection_date.to_datetime.change(hour: hour)).perform_later(args[:group_id])
       ChildrenSupportModule::VerifyChosenModulesTaskJob.set(wait_until: chosen_modules_verification_date.to_datetime.change(hour: hour)).perform_later(args[:group_id])
-      ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: program_support_module_date.to_datetime.change(hour: hour)).perform_later(args[:group_id], program_support_module_date)
+      ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: (program_support_module_date - 3.days).to_datetime.change(hour: hour)).perform_later(args[:group_id], program_support_module_date)
     end
 
     end_support_date = date + ((group.support_modules_count - 2) * 8.weeks) + 4.weeks + MODULE_ZERO_DURATION
