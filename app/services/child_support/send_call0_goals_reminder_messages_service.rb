@@ -16,7 +16,6 @@ class ChildSupport::SendCall0GoalsReminderMessagesService
     @group.child_supports.where(call1_previous_goals_follow_up: [nil, '']).where.not(call0_goals_sms: [nil, '']).where.not(call1_status: 'OK').find_each do |child_support|
       @child_support = child_support
       message_informations
-      @typeform_link_match = @child_support.call0_goals_sms.match(TYPEFORM_URL_REGEX)
       next unless @call_goal.present? && @typeform_link.present?
 
       service = ProgramMessageService.new(@date.strftime('%d-%m-%Y'), '12:30', @recipient, @reminder_message).call
