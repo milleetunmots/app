@@ -16,7 +16,7 @@ class Parent::ProgramCafSubscriptionReminderService
     @children.find_each do |child|
       @parent = child.parent1
       @message = @message_v1 ? MESSAGE_V1 : MESSAGE_V2
-      @message = @message.gsub('cs=xxxxx', "cs=#{@parent.id}")
+      @message = @message.gsub('cs=xxxxx', "cs=#{child.child_support_id}")
       @message = @message.gsub('ccn=xxxxx', "ccn=#{child.first_name}")
       @message = @message.gsub('pln=xxxxx', "pln=#{@parent.last_name}")
       @message = @message.gsub('email=xxxxx', "email=#{@parent.email}")

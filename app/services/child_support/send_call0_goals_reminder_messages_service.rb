@@ -16,9 +16,9 @@ class ChildSupport::SendCall0GoalsReminderMessagesService
     @group.child_supports.where(call1_previous_goals_follow_up: [nil, '']).where.not(call0_goals_sms: [nil, '']).where.not(call1_status: 'OK').find_each do |child_support|
       @child_support = child_support
       message_informations
-      next unless @goals_match.present? && @typeform_link_match.present?
+      next unless @call_goal.present? && @typeform_link.present?
 
-      service = ProgramMessageService.new(@date.strftime('%d-%m-%Y'), '12:30', recipient, reminder_message).call
+      service = ProgramMessageService.new(@date.strftime('%d-%m-%Y'), '12:30', @recipient, @reminder_message).call
       @errors << service.errors if service.errors
     end
     self
@@ -27,17 +27,9 @@ class ChildSupport::SendCall0GoalsReminderMessagesService
   private
 
   def message_informations
-    @goals_match = @child_support.call0_goals_sms.match(CALL_GOALS_REGEX)
-    @typeform_link_match = @child_support.call0_goals_sms.match(TYPEFORM_URL_REGEX)
-  end
-
-  def recipient
-    ["parent.#{@child_support.parent1.id}"]
-  end
-
-  def reminder_message
-    call_goals = @goals_match[1]&.strip
-    typeform_link = @typeform_link_match[0]
-    CALL_GOALS_REMINDER_MESSAGE.gsub('{call_goals}', call_goals).gsub('{typeform_link}', typeform_link)
+    @call_goal = @child_support.call0_goal_sent.presence || @child_support.call0_goals_sms.match(CALL_GOALS_REGEX)[1]&.strip
+    @typeform_link = @child_support.call0_goals_sms.match(TYPEFORM_URL_REGEX)[0]
+    @reminder_message = CALL_GOALS_REMINDER_MESSAGE.gsub('{call_goals}', @call_goal).gsub('{typeform_link}', @typeform_link)
+    @recipient = ["parent.#{@child_support.parent1.id}"]
   end
 end
