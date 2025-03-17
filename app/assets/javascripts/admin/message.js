@@ -84,7 +84,7 @@ $(document).ready(function() {
                     messageContent = `${messageContent}\n1001mots`
                 },
                 complete: function() {
-                    message.css({'height': '250px', 'background-color': 'lightgray'})
+                    message.css({'height': '250px', 'background-color': '#DDDDDD'})
                     specificCallMessage(selectedValue)
                     messageContentRefreshed = messageContentWithLink.replace('{INTRODUCTION}', message_intro.val())
                                                                     .replace('{QUESTIONNAIRE_DE_PARTAGE}', feedback_form.val())
