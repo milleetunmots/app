@@ -101,6 +101,13 @@ ActiveAdmin.register_page 'Message' do
 
     message = params[:message].gsub('{CHAMP_MESSAGE_COMPLEMENTAIRE}', '')
     message.gsub!('{CHAMP_PETITE_MISSION}', '')
+
+    provider =
+      if params[:call_goals_sms] == 'call0_goals' && params[:provider] == 'aircall'
+        'aircall'
+      else
+        'spothit'
+      end
     service = ProgramMessageService.new(
       params[:planned_date],
       params[:planned_hour],
@@ -111,7 +118,9 @@ ActiveAdmin.register_page 'Message' do
       false,
       nil,
       current_admin_user.caller? ? current_admin_user.id : params[:supporter],
-      params[:group_status]
+      params[:group_status],
+      provider,
+      current_admin_user.aircall_number_id
     ).call
 
     if service.errors.any?

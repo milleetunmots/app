@@ -5,7 +5,7 @@ class ProgramMessageService
 
   attr_reader :errors
 
-  def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'])
+  def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil)
     @planned_timestamp = ActiveSupport::TimeZone['Europe/Paris'].parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []
     @message = message
@@ -23,6 +23,8 @@ class ProgramMessageService
     @invalid_parent_ids = []
     @supporter_id = supporter.nil? ? nil : supporter.to_i
     @group_status = group_status
+    @provider = provider
+    @aircall_number_id = aircall_number_id
     @errors = []
   end
 
@@ -47,16 +49,25 @@ class ProgramMessageService
 
     @errors << 'Aucun parent à contacter.' and return self if @parent_ids.empty?
 
-    format_data_for_spot_hit
+    @message += ' {URL}' if @redirection_target && !@variables.include?('URL')
+    format_data_for_provider
     return self if @errors.any?
 
-    @message += ' {URL}' if @redirection_target && !@variables.include?('URL')
-
-    service = if @file.nil?
-                SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, workshop_id: @workshop_id, event_params: @event_params).call
-              else
-                SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, file: @file, event_params: @event_params).call
-              end
+    # TO DO: handle programmable aircall messages (messages are sent right away atm)
+    service =
+      case @provider
+      when 'aircall'
+        # only one recipient for now when using aircall
+        parent = Parent.where(id: @parent_ids).first
+        Aircall::SendMessageService.new(number_id: @aircall_number_id, to: parent&.phone_number, body: @message).call
+      when 'spothit'
+        if @file.nil?
+          SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, workshop_id: @workshop_id, event_params: @event_params).call
+        else
+          SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, file: @file, event_params: @event_params).call
+        end
+      end
+    @errors << "Provider inconnu : #{@provider}" and return self if service.blank?
 
     if service.errors.any?
       @errors = service.errors
@@ -105,6 +116,50 @@ class ProgramMessageService
     @errors << 'Veuillez choisir un lien cible.' if @redirection_target.nil? && @variables.include?('URL')
   end
 
+  def increment_suggested_videos_counter(parent)
+    next unless @redirection_target.suggested_videos?
+
+    child_support = parent.current_child&.child_support
+    next unless child_support
+
+    child_support.suggested_videos_counter << { redirection_target_id: @redirection_target.id, sending_date: Time.zone.now }
+    child_support.save(touch: false)
+  end
+
+  def format_data_for_provider
+    case @provider
+    when 'spothit'
+      format_data_for_spot_hit
+    when 'aircall'
+      format_data_for_aircall
+    else
+      @errors << "Provider inconnu : #{@provider}"
+    end
+  end
+
+  def format_data_for_aircall
+    # TO DO: handle multiple recipents with Aircall
+    if @parent_ids.many?
+      @errors << "Un seul destinataire possible lors d'un envoi de message Aircall"
+    elsif @redirection_target || @variables.any?
+      Parent.where(id: @parent_ids).find_each do |parent|
+        child_name = parent.current_child&.first_name || 'votre enfant'
+        child_support_id = parent.current_child&.child_support&.id
+        supporter_name = parent.current_child&.child_support&.supporter&.decorate&.first_name
+        supporter_aircall_phone_number = parent.current_child&.child_support&.supporter&.aircall_phone_number
+        @message.gsub!('{PRENOM_ENFANT}', child_name)
+        @message.gsub!('{CHILD_SUPPORT_ID}', child_support_id)
+        @message.gsub!('{PRENOM_ACCOMPAGNANTE}', supporter_name)
+        @message.gsub!('{NUMERO_AIRCALL_ACCOMPAGNANTE}', supporter_aircall_phone_number)
+        if @redirection_target && parent.current_child.present?
+          url = redirection_url_for_a_parent(parent)&.decorate&.visit_url
+          increment_suggested_videos_counter(parent)
+          @message.gsub!('{URL}', url)
+        end
+      end
+    end
+  end
+
   def format_data_for_spot_hit
     # we need to format phone_numbers as hash inn order to include variables
     if @redirection_target || @variables.any?
@@ -118,13 +173,7 @@ class ProgramMessageService
         if @redirection_target && parent.current_child.present?
           @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
-          next unless @redirection_target.suggested_videos?
-
-          child_support = parent.current_child&.child_support
-          next unless child_support
-
-          child_support.suggested_videos_counter << { redirection_target_id: @redirection_target.id, sending_date: Time.zone.now }
-          child_support.save(touch: false)
+          increment_suggested_videos_counter(parent)
         end
       end
     else
@@ -153,6 +202,7 @@ class ProgramMessageService
     @errors << "Les date et heure d'envoi du message sont requises. Veuillez indiquer une date et une heure valide." if @planned_timestamp.blank?
     @errors << 'La liste des destinataires est vide. Ajoutez au moins un destinataire.' if @recipients.empty?
     @errors << 'Un message est requis. Veuillez le compléter.' if @message.empty? && @redirection_target.nil?
+    @errors << "L'ID de numéro Aircall est requis" if @aircall_number_id.blank? && @provider == 'aircall'
   end
 
   def sort_recipients
