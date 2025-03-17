@@ -84,7 +84,7 @@ $(document).ready(function() {
                     messageContent = `${messageContent}\n1001mots`
                 },
                 complete: function() {
-                    message.css({'height': '250px'})
+                    message.css({'height': '250px', 'background-color': '#DDDDDD'})
                     specificCallMessage(selectedValue)
                     messageContentRefreshed = messageContentWithLink.replace('{INTRODUCTION}', message_intro.val())
                                                                     .replace('{QUESTIONNAIRE_DE_PARTAGE}', feedback_form.val())
@@ -108,7 +108,7 @@ $(document).ready(function() {
             });
         } else {
             $("input[type='submit']").prop('disabled', false)
-            message.css({'height': 'auto'})
+            message.css({'height': 'auto', 'background-color': 'white'})
             normalMessage()
             hideNewFields()
         }
