@@ -117,10 +117,10 @@ class ProgramMessageService
   end
 
   def increment_suggested_videos_counter(parent)
-    next unless @redirection_target.suggested_videos?
+    return unless @redirection_target.suggested_videos?
 
     child_support = parent.current_child&.child_support
-    next unless child_support
+    return unless child_support
 
     child_support.suggested_videos_counter << { redirection_target_id: @redirection_target.id, sending_date: Time.zone.now }
     child_support.save(touch: false)
