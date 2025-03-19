@@ -16,6 +16,8 @@ module Aircall
     end
 
     def call
+      return self unless ENV['AIRCALL_ENABLED']
+
       add_call_informations_to_insight_card
       add_call_recording_to_insight_card
       response = http_client_with_auth.post(build_url(CALLS_ENDPOINT, "/#{@call_id}/insight_cards"), json: @insight_card)

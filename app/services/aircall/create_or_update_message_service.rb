@@ -10,6 +10,8 @@ module Aircall
     end
 
     def call
+      return self unless ENV['AIRCALL_ENABLED']
+
       @message = AircallMessage.find_or_initialize_by(aircall_id: @payload['id'])
       set_message_attributes
       return self if @errors.any?
