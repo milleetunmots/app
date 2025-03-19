@@ -144,7 +144,7 @@ class ProgramMessageService
     elsif @redirection_target || @variables.any?
       Parent.where(id: @parent_ids).find_each do |parent|
         child_name = parent.current_child&.first_name || 'votre enfant'
-        child_support_id = parent.current_child&.child_support&.id
+        child_support_id = parent.current_child&.child_support&.id.to_s
         supporter_name = parent.current_child&.child_support&.supporter&.decorate&.first_name
         supporter_aircall_phone_number = parent.current_child&.child_support&.supporter&.aircall_phone_number
         @message.gsub!('{PRENOM_ENFANT}', child_name)
