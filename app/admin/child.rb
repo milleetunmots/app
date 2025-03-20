@@ -564,6 +564,7 @@ ActiveAdmin.register Child do
     column :gender
     column :letterbox_name
     column :address
+    column :address_supplement
     column :city_name
     column :postal_code
     column :territory
