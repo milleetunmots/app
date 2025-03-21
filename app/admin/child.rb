@@ -624,7 +624,6 @@ ActiveAdmin.register Child do
         child.parent1&.update family_followed: true
         child.parent2&.update family_followed: true
       end
-      child.update!(group_end: child.group.ended_at, group_status: 'stopped') if child.group&.ended_at&.past?
     end
 
     def csv_filename
