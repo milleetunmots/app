@@ -137,8 +137,7 @@ class Parent < ApplicationRecord
             }
   validates :phone_number, presence: true
   validates :email,
-            format: { with: REGEX_VALID_EMAIL, allow_blank: true, message: 'Les informations doivent être renseignées au format adresse email (xxxx@xx.com).' },
-            uniqueness: { case_sensitive: false, allow_blank: true }
+            format: { with: REGEX_VALID_EMAIL, allow_blank: true, message: 'Les informations doivent être renseignées au format adresse email (xxxx@xx.com).' }
   validates :terms_accepted_at, presence: true
   validates :preferred_channel, inclusion: { in: COMMUNICATION_CHANNELS, allow_blank: true }
   validate :phone_number_format, on: :create
