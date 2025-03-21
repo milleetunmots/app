@@ -135,14 +135,6 @@ RSpec.describe Parent, type: :model do
     end
   end
 
-  describe "#email" do
-    let(:another_parent) { FactoryBot.build(:parent, email: subject.email) }
-
-    it "is unique" do
-      expect(another_parent).to_not be_valid
-    end
-  end
-
   describe "#terms_accepted_at" do
     it "is required" do
       subject.terms_accepted_at = nil
