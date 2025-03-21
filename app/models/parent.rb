@@ -79,7 +79,7 @@ class Parent < ApplicationRecord
   PARIS_18_EME_POSTAL_CODE = %w[75017 75018 75019].freeze
   PARIS_20_EME_POSTAL_CODE = %w[75020].freeze
   BONDY_POSTAL_CODE = %w[93140].freeze
-  GIEN_POSTAL_CODE = %w[45290 45500 45720].freeze
+  GIEN_POSTAL_CODE = %w[45290 45500 45720 45250].freeze
   PITHIVIERS_POSTAL_CODE = %w[45300 45480 45170].freeze
   VILLENEUVE_LA_GARENNE_POSTAL_CODE = %w[92390].freeze
   MANTES_LA_JOLIE_POSTAL_CODE = %w[78520 78200 78711].freeze
@@ -137,8 +137,7 @@ class Parent < ApplicationRecord
             }
   validates :phone_number, presence: true
   validates :email,
-            format: { with: REGEX_VALID_EMAIL, allow_blank: true, message: 'Les informations doivent être renseignées au format adresse email (xxxx@xx.com).' },
-            uniqueness: { case_sensitive: false, allow_blank: true }
+            format: { with: REGEX_VALID_EMAIL, allow_blank: true, message: 'Les informations doivent être renseignées au format adresse email (xxxx@xx.com).' }
   validates :terms_accepted_at, presence: true
   validates :preferred_channel, inclusion: { in: COMMUNICATION_CHANNELS, allow_blank: true }
   validate :phone_number_format, on: :create

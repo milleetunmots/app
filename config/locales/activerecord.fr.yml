@@ -71,6 +71,7 @@ fr:
       child:
         << : *SHARED
         address: Adresse
+        address_supplement: Complément d'adresse
         registration_months_range: Tranche d'age à l'inscription
         age: Age
         available_for_workshops: Pas encore l'âge d'aller à l'école
