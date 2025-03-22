@@ -53,45 +53,54 @@ class ProgramMessageService
     format_data_for_provider
     return self if @errors.any?
 
-    # TO DO: handle programmable aircall messages (messages are sent right away atm)
-    service =
-      case @provider
-      when 'aircall'
-        # only one recipient for now when using aircall
-        parent = Parent.where(id: @parent_ids).first
-        Aircall::SendMessageService.new(number_id: @aircall_number_id, to: parent&.phone_number, body: @message).call
-      when 'spothit'
+    case @provider
+    when 'aircall'
+      parent = Parent.where(id: @parent_ids).first
+      Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(parent&.id, @aircall_number_id, parent&.phone_number, @message)
+      event = Event.create(
+        {
+          related_id: parent.id,
+          related_type: 'Parent',
+          body: @message,
+          type: 'Events::TextMessage',
+          occurred_at: Time.at(@planned_timestamp)
+        }
+      )
+      @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
+    when 'spothit'
+      service = 
         if @file.nil?
           SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, workshop_id: @workshop_id, event_params: @event_params).call
         else
           SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, file: @file, event_params: @event_params).call
         end
-      end
-    @errors << "Provider inconnu : #{@provider}" and return self if service.blank?
 
-    if service.errors.any?
-      @errors = service.errors
-    elsif @invalid_parent_ids.any?
-      invalid_parents = Parent.includes(:parent1_children, :parent2_children).where(id: @invalid_parent_ids)
-      description_text = "Le message \"#{@message}\" n'a pas été envoyé aux parents pour les raisons suivantes :"
-
-      invalid_parents.each do |parent|
-        if parent.valid?
-          parent.children.each do |child|
-            unless child.valid?
-              @errors << "Message non envoyé à #{parent.decorate.name} parce que son enfant #{child.decorate.name} n'est pas valide"
-              description_text << "<br>#{ActionController::Base.helpers.link_to(child.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: child.id), target: '_blank')} : #{child.errors.messages.to_json}"
+      if service.errors.any?
+        @errors = service.errors
+      elsif @invalid_parent_ids.any?
+        invalid_parents = Parent.includes(:parent1_children, :parent2_children).where(id: @invalid_parent_ids)
+        description_text = "Le message \"#{@message}\" n'a pas été envoyé aux parents pour les raisons suivantes :"
+    
+        invalid_parents.each do |parent|
+          if parent.valid?
+            parent.children.each do |child|
+              unless child.valid?
+                @errors << "Message non envoyé à #{parent.decorate.name} parce que son enfant #{child.decorate.name} n'est pas valide"
+                description_text << "<br>#{ActionController::Base.helpers.link_to(child.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: child.id), target: '_blank')} : #{child.errors.messages.to_json}"
+              end
             end
+          else
+            @errors << "Message non envoyé à #{parent.decorate.name} parce qu'il n'est pas valide"
+            description_text << "<br>#{ActionController::Base.helpers.link_to(parent.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: parent.id), target: '_blank')} : #{parent.errors.messages.to_json}"
           end
-        else
-          @errors << "Message non envoyé à #{parent.decorate.name} parce qu'il n'est pas valide"
-          description_text << "<br>#{ActionController::Base.helpers.link_to(parent.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: parent.id), target: '_blank')} : #{parent.errors.messages.to_json}"
         end
+        Task::CreateAutomaticTaskService.new(
+          title: 'Message non envoyé à des parents',
+          description: description_text
+        ).call
       end
-      Task::CreateAutomaticTaskService.new(
-        title: 'Message non envoyé à des parents',
-        description: description_text
-      ).call
+    else
+      @errors << "Provider inconnu : #{@provider}" and return self if service.blank?
     end
     self
   end

@@ -12,8 +12,6 @@ $(document).ready(function() {
     var message = $("textarea[name='message']")
     var imageToSendDiv = $('#image_to_send_div')
     var imageToSendSelect = $('#image_to_send')
-    var datetime = $('#message_date_time')
-    var provider = $('#provider')
     var childSupportId = new URLSearchParams(window.location.search).get('child_support_id')
     var parentSecurityCode = new URLSearchParams(window.location.search).get('parent_sc')
     var speakingLink = `${window.location.protocol}//${window.location.host}/c3/sf?cs=${childSupportId}&sc=${parentSecurityCode}`
@@ -75,13 +73,9 @@ $(document).ready(function() {
                 call_index = 0
                 imageToSendSelect.empty();
                 imageToSendDiv.hide()
-                if (provider.val() == 'aircall') {
-                    datetime.hide()
-                }
             } else {
                 call_index = 3
                 imageToSendDiv.show()
-                datetime.show()
             }
 
             messageContent = "{INTRODUCTION}{CHAMP_PETITE_MISSION}\n{QUESTIONNAIRE_DE_PARTAGE}{type_form_link}\n{CONCLUSION}"
@@ -123,7 +117,6 @@ $(document).ready(function() {
             message.css({'height': 'auto', 'background-color': 'white'})
             normalMessage()
             hideNewFields()
-            datetime.show()
         }
     })
 

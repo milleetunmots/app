@@ -18,6 +18,7 @@
 #  type                      :string
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null
+#  aircall_message_id        :string
 #  quit_group_child_id       :bigint
 #  related_id                :bigint
 #  spot_hit_message_id       :string
