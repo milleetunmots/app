@@ -234,6 +234,18 @@ class Child < ApplicationRecord
     where(id: waiting_second_group_children_ids)
   end
 
+  def self.group_active_in(q)
+    where(group: Group.group_active_in(q))
+  end
+
+  def self.group_ended_in(q)
+    where(group: Group.group_ended_in(q))
+  end
+
+  def self.next_group_in(q)
+    where(group: Group.next_group_in(q))
+  end
+
   def self.postal_code_contains(v)
     where(parent1: Parent.ransack(postal_code_contains: v).result)
   end
@@ -291,13 +303,6 @@ class Child < ApplicationRecord
   def self.source_details_matches_any(*v)
     joins(:children_source).where(children_sources: { details: v })
   end
-
-  def self.without_parent_text_message_since(v)
-    parent_id_not_in(
-      Events::TextMessage.where(related_type: :Parent).where('occurred_at >= ?', v).pluck('DISTINCT related_id')
-    )
-  end
-
 
   # ---------------------------------------------------------------------------
   # search by age (in months)
@@ -715,7 +720,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with active_group_id_in without_parent_text_message_since source_details_matches_any]
+    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_details_matches_any group_active_in group_ended_in next_group_in]
   end
 
   def siblings_on_same_group

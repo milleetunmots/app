@@ -58,7 +58,6 @@ ActiveAdmin.register Parent do
   filter :postal_code
   filter :city_name
   filter :is_ambassador
-  filter :terms_accepted_at
   filter :created_at
   filter :updated_at
 
@@ -272,8 +271,6 @@ ActiveAdmin.register Parent do
     column :redirection_url_unique_visits_count
     column :redirection_unique_visit_rate
     column :redirection_visit_rate
-
-    column :terms_accepted_at
 
     column :tag_list
 

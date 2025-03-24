@@ -79,11 +79,23 @@ ActiveAdmin.register ChildrenSupportModule do
   filter :is_completed, as: :boolean
   filter :is_programmed, as: :boolean
   filter :module_index
-  filter :active_group_id_in,
+  filter :group_id,
          as: :select,
          collection: proc { child_group_select_collection },
          input_html: {multiple: true, data: {select2: {}}},
-         label: "Cohorte active"
+         label: "Cohorte"
+  filter :group_active,
+         as: :check_boxes,
+         label: '',
+         collection: proc { [['Cohorte en cours', 'active']] }
+ filter :group_ended,
+         as: :check_boxes,
+         label: '',
+         collection: proc { [['Cohorte finie', 'ended']] }
+ filter :next_group,
+         as: :check_boxes,
+         label: '',
+         collection: proc { [['Cohorte future', 'next']] }
   filter :support_module,
          as: :select,
          collection: proc { support_module_collection },

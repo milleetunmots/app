@@ -352,6 +352,18 @@ class ChildSupport < ApplicationRecord
     where(id: Child.active_group_id_in(v).select('DISTINCT child_support_id'))
   end
 
+  def self.group_active_in(q)
+    where(id: Child.group_active_in(q).select('DISTINCT child_support_id'))
+  end
+
+  def self.group_ended_in(q)
+    where(id: Child.group_ended_in(q).select('DISTINCT child_support_id'))
+  end
+
+  def self.next_group_in(q)
+    where(id: Child.next_group_in(q).select('DISTINCT child_support_id'))
+  end
+
   def self.source_in(*v)
     where(id: Child.source_id_in(v).select('DISTINCT child_support_id'))
   end
@@ -382,10 +394,6 @@ class ChildSupport < ApplicationRecord
 
   scope :with_book_not_received, -> { where.not(book_not_received: [nil, '']) }
 
-  def self.without_parent_text_message_since(v)
-    where(id: Child.without_parent_text_message_since(v).select('DISTINCT child_support_id'))
-  end
-
   # ---------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
@@ -393,7 +401,7 @@ class ChildSupport < ApplicationRecord
   def self.ransackable_scopes(auth_object = nil)
     super + %i[
       groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_in source_channel_in
-      source_details_matches_any group_id_in active_group_id_in without_parent_text_message_since
+      source_details_matches_any group_id_in active_group_id_in group_active_in group_ended_in next_group_in
     ]
   end
 

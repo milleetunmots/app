@@ -94,6 +94,18 @@ class Group < ApplicationRecord
     !is_ended?
   end
 
+  def self.group_active_in(q)
+    q == 'active' ? where('started_at <= ? AND (ended_at IS NULL OR ended_at > ?)', Time.zone.today, Time.zone.today) : all
+  end
+
+  def self.group_ended_in(q)
+    q == 'ended' ? where('ended_at < ?', Time.zone.today) : all
+  end
+
+  def self.next_group_in(q)
+    q == 'next' ? where('started_at > ?', Time.zone.today) : all
+  end
+
   def target_group?
     !name.match?('Popi')
   end
@@ -178,6 +190,10 @@ class Group < ApplicationRecord
     end
 
     closest_session
+  end
+
+  def self.ransackable_scopes(auth_object = nil)
+    super + %i[group_active_in group_ended_in next_group_in]
   end
 
   # ---------------------------------------------------------------------------
