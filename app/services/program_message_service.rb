@@ -51,12 +51,12 @@ class ProgramMessageService
 
     @message += ' {URL}' if @redirection_target && !@variables.include?('URL')
     format_data_for_provider
+    parent = Parent.kept.where(id: @parent_ids).first
+    @errors << "Aucun parent trouvé pour les identifiants suivants : #{@parent_ids}" unless parent
     return self if @errors.any?
 
     case @provider
     when 'aircall'
-      parent = Parent.where(id: @parent_ids).first
-      Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(parent&.id, @aircall_number_id, parent&.phone_number, @message)
       event = Event.create(
         {
           related_id: parent.id,
@@ -66,6 +66,7 @@ class ProgramMessageService
           occurred_at: Time.at(@planned_timestamp)
         }
       )
+      Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(@aircall_number_id, parent&.phone_number, @message, event.id)
       @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
     when 'spothit'
       service = 
