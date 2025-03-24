@@ -147,6 +147,9 @@ gem 'airrecord'
 # Spreadsheets
 gem "roo", "~> 2.10.0"
 
+# Messages
+gem 'twilio-ruby'
+
 group :production do
   # for assets compilation
   gem "activerecord-nulldb-adapter"
