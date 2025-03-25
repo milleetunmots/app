@@ -57,18 +57,10 @@ ActiveAdmin.register ChildSupport do
          collection: proc { child_group_select_collection },
          input_html: { multiple: true, data: { select2: {} } },
          label: 'Cohorte'
-  filter :group_active,
-         as: :check_boxes,
-         label: '',
-         collection: proc { [['Cohorte en cours', 'active']] }
- filter :group_ended,
-         as: :check_boxes,
-         label: '',
-         collection: proc { [['Cohorte finie', 'ended']] }
- filter :next_group,
-         as: :check_boxes,
-         label: '',
-         collection: proc { [['Cohorte future', 'next']] }
+  filter :children_group_status,
+          as: :check_boxes,
+          label: '',
+          collection: [['Cohorte en cours', 'active'], ['Cohorte finie', 'ended'], ['Cohorte future', 'next']], multiple: true
   filter :source_in,
           as: :select,
           collection: proc { source_select_collection },

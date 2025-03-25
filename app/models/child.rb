@@ -234,18 +234,6 @@ class Child < ApplicationRecord
     where(id: waiting_second_group_children_ids)
   end
 
-  def self.group_active_in(q)
-    where(group: Group.group_active_in(q))
-  end
-
-  def self.group_ended_in(q)
-    where(group: Group.group_ended_in(q))
-  end
-
-  def self.next_group_in(q)
-    where(group: Group.next_group_in(q))
-  end
-
   def self.postal_code_contains(v)
     where(parent1: Parent.ransack(postal_code_contains: v).result)
   end
@@ -715,12 +703,35 @@ class Child < ApplicationRecord
     child_support.current_child
   end
 
+  def self.group_active
+    where(group: Group.group_active)
+  end
+
+  def self.group_ended
+    where(group: Group.group_ended)
+  end
+
+  def self.group_next
+    where(group: Group.group_next)
+  end
+
   # --------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
 
+  ransacker :child_group_status, formatter: proc { |values|
+    values = Array(values)
+    ids = []
+    ids += group_active.pluck(:id) if values.include?('active')
+    ids += group_ended.pluck(:id) if values.include?('ended')
+    ids += group_next.pluck(:id) if values.include?('next')
+    ids.uniq
+  } do |child|
+    child.table[:id]
+  end
+
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_details_matches_any group_active_in group_ended_in next_group_in]
+    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_details_matches_any]
   end
 
   def siblings_on_same_group

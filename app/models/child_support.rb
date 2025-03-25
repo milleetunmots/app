@@ -352,18 +352,6 @@ class ChildSupport < ApplicationRecord
     where(id: Child.active_group_id_in(v).select('DISTINCT child_support_id'))
   end
 
-  def self.group_active_in(q)
-    where(id: Child.group_active_in(q).select('DISTINCT child_support_id'))
-  end
-
-  def self.group_ended_in(q)
-    where(id: Child.group_ended_in(q).select('DISTINCT child_support_id'))
-  end
-
-  def self.next_group_in(q)
-    where(id: Child.next_group_in(q).select('DISTINCT child_support_id'))
-  end
-
   def self.source_in(*v)
     where(id: Child.source_id_in(v).select('DISTINCT child_support_id'))
   end
@@ -394,14 +382,37 @@ class ChildSupport < ApplicationRecord
 
   scope :with_book_not_received, -> { where.not(book_not_received: [nil, '']) }
 
+  def self.group_active
+    where(id: Child.group_active.select('DISTINCT child_support_id'))
+  end
+
+  def self.group_ended
+    where(id: Child.group_ended.select('DISTINCT child_support_id'))
+  end
+
+  def self.group_next
+    where(id: Child.group_next.select('DISTINCT child_support_id'))
+  end
+
   # ---------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
 
+  ransacker :children_group_status, formatter: proc { |values|
+    values = Array(values)
+    ids = []
+    ids += group_active.pluck(:id) if values.include?('active')
+    ids += group_ended.pluck(:id) if values.include?('ended')
+    ids += group_next.pluck(:id) if values.include?('next')
+    ids.uniq
+  } do |child_support|
+    child_support.table[:id]
+  end
+
   def self.ransackable_scopes(auth_object = nil)
     super + %i[
       groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_in source_channel_in
-      source_details_matches_any group_id_in active_group_id_in group_active_in group_ended_in next_group_in
+      source_details_matches_any group_id_in active_group_id_in
     ]
   end
 

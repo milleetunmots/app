@@ -104,18 +104,6 @@ class ChildrenSupportModule < ApplicationRecord
     includes(child: :group).where(children: { group_id: ids }).references(:children)
   end
 
-  def self.group_active_in(q)
-    includes(child: :group).where(children: { group: Group.group_active_in(q) })
-  end
-
-  def self.group_ended_in(q)
-    includes(child: :group).where(children: { group: Group.group_ended_in(q) })
-  end
-
-  def self.next_group_in(q)
-    includes(child: :group).where(children: { group: Group.next_group_in(q) })
-  end
-
   def select_for_the_other_parent
     the_other_parent = parent == child.parent1 ? child.parent2 : child.parent1
 
@@ -149,7 +137,7 @@ class ChildrenSupportModule < ApplicationRecord
   end
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[group_id_in group_active_in group_ended_in next_group_in]
+    super + %i[group_id_in]
   end
 
   def self.chosen_modules_for_group(group_ids = nil, is_programmed = false)
@@ -162,6 +150,29 @@ class ChildrenSupportModule < ApplicationRecord
     modules = modules.where(child_support: { address_suspected_invalid_at: nil } )
 
     modules.select { |csm| csm.parent_id == csm.child.parent1_id }
+  end
+
+  def self.group_active
+    includes(child: :group).where(children: { group: Group.group_active })
+  end
+
+  def self.group_ended
+    includes(child: :group).where(children: { group: Group.group_ended })
+  end
+
+  def self.group_next
+    includes(child: :group).where(children: { group: Group.group_next })
+  end
+
+  ransacker :children_support_module_group_status, formatter: proc { |values|
+    values = Array(values)
+    ids = []
+    ids += group_active.pluck(:id) if values.include?('active')
+    ids += group_ended.pluck(:id) if values.include?('ended')
+    ids += group_next.pluck(:id) if values.include?('next')
+    ids.uniq
+  } do |child_support|
+    child_support.table[:id]
   end
 
   private

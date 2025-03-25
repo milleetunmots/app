@@ -94,16 +94,16 @@ class Group < ApplicationRecord
     !is_ended?
   end
 
-  def self.group_active_in(q)
-    q == 'active' ? where('started_at <= ? AND (ended_at IS NULL OR ended_at > ?)', Time.zone.today, Time.zone.today) : all
+  def self.group_active
+    where('started_at <= ? AND (ended_at IS NULL OR ended_at > ?)', Time.zone.today, Time.zone.today)
   end
 
-  def self.group_ended_in(q)
-    q == 'ended' ? where('ended_at < ?', Time.zone.today) : all
+  def self.group_ended
+    where('ended_at < ?', Time.zone.today)
   end
 
-  def self.next_group_in(q)
-    q == 'next' ? where('started_at > ?', Time.zone.today) : all
+  def self.group_next
+    where('started_at > ?', Time.zone.today)
   end
 
   def target_group?
@@ -192,8 +192,15 @@ class Group < ApplicationRecord
     closest_session
   end
 
-  def self.ransackable_scopes(auth_object = nil)
-    super + %i[group_active_in group_ended_in next_group_in]
+  ransacker :group_status, formatter: proc { |values|
+    values = Array(values)
+    ids = []
+    ids += group_active.pluck(:id) if values.include?('active')
+    ids += group_ended.pluck(:id) if values.include?('ended')
+    ids += group_next.pluck(:id) if values.include?('next')
+    ids.uniq
+  } do |group|
+    group.table[:id]
   end
 
   # ---------------------------------------------------------------------------
