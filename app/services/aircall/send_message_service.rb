@@ -11,7 +11,7 @@ module Aircall
     end
 
     def call
-      return self unless ENV['AIRCALL_ENABLED']
+      return self unless ENV['AIRCALL_MESSAGE_ENABLED']
       @event = Event.find_by(id: @event_id)
       if @to.blank? || @number_id.blank?
         @errors << "Envoi impossible à cause de paramètres invalides"

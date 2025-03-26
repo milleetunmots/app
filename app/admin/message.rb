@@ -130,7 +130,7 @@ ActiveAdmin.register_page 'Message' do
     if service.errors.any?
       redirect_back(fallback_location: root_path, alert: service.errors.join("\n"))
     else
-      notice = 'Message(s) programmé(s)'
+      notice = "Message(s) programmé(s) via #{provider.capitalize}"
       if params[:call_goals_sms] && params[:call_goals_sms] != 'Non'
         child_support.update_column("#{call_goal}_sms".to_sym, message)
         notice += '. Et petite mission définie'
