@@ -170,7 +170,7 @@ class ChildrenSupportModule < ApplicationRecord
     ids += group_active.pluck(:id) if values.include?('active')
     ids += group_ended.pluck(:id) if values.include?('ended')
     ids += group_next.pluck(:id) if values.include?('next')
-    ids.uniq
+    ids.uniq.presence
   } do |child_support|
     child_support.table[:id]
   end
