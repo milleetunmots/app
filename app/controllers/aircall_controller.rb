@@ -4,6 +4,7 @@ class AircallController < ApplicationController
   before_action :verify_webhook_messages_token, only: :webhook_messages
   before_action :verify_webhook_calls_token, only: :webhook_calls
   before_action :verify_webhook_insight_cards, only: :webhook_insight_cards
+  before_action :verify_webhook_messages_received, only: :webhook_messages_received
 
   def webhook_messages
     payload = params.to_unsafe_h
@@ -32,6 +33,13 @@ class AircallController < ApplicationController
     head :ok
   end
 
+  def webhook_messages_received
+    payload = params.to_unsafe_h
+    message_received_service = Aircall::MessageReceivedService.new(payload: payload['data']).call
+    Rollbar.error('Aircall::MessageReceivedService', errors: message_received_service.errors) if message_received_service.errors.any?
+    head :ok
+  end
+
   private
 
   def verify_webhook_messages_token
@@ -48,5 +56,11 @@ class AircallController < ApplicationController
     token = params['token']
 
     head :unauthorized unless token.eql?(ENV['AIRCALL_WEBHOOK_INSIGHT_CARDS_TOKEN'])
+  end
+
+  def verify_webhook_messages_received
+    token = params['token']
+
+    head :unauthorized unless token.eql?(ENV['AIRCALL_WEBHOOK_MESSAGE_RECEIVED_TOKEN'])
   end
 end

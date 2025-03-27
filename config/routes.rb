@@ -56,6 +56,7 @@ Rails.application.routes.draw do
   post '/aircall/messages', to: 'aircall#webhook_messages'
   post '/aircall/calls', to: 'aircall#webhook_calls'
   post '/aircall/insight_cards', to: 'aircall#webhook_insight_cards'
+  post '/aircall/messages_received', to: 'aircall#webhook_messages_received'
 
   resources :events, only: %i[index create]
 
