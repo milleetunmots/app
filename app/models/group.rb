@@ -94,6 +94,18 @@ class Group < ApplicationRecord
     !is_ended?
   end
 
+  def self.group_active
+    where('started_at <= ? AND (ended_at IS NULL OR ended_at > ?)', Time.zone.today, Time.zone.today)
+  end
+
+  def self.group_ended
+    where('ended_at < ?', Time.zone.today)
+  end
+
+  def self.group_next
+    where('started_at > ?', Time.zone.today)
+  end
+
   def target_group?
     !name.match?('Popi')
   end
@@ -178,6 +190,17 @@ class Group < ApplicationRecord
     end
 
     closest_session
+  end
+
+  ransacker :group_status, formatter: proc { |values|
+    values = Array(values)
+    ids = []
+    ids += group_active.pluck(:id) if values.include?('active')
+    ids += group_ended.pluck(:id) if values.include?('ended')
+    ids += group_next.pluck(:id) if values.include?('next')
+    ids.uniq.presence
+  } do |group|
+    group.table[:id]
   end
 
   # ---------------------------------------------------------------------------
