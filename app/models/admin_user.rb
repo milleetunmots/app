@@ -20,6 +20,7 @@
 #  user_role              :string
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
+#  aircall_number_id      :bigint
 #
 # Indexes
 #
@@ -91,17 +92,6 @@ class AdminUser < ApplicationRecord
     exists?(id: id, user_role: 'caller')
   end
 
-  private
-
-  def common_password
-    return unless password
-
-    found_common_password = COMMON_PASSWORDS.find { |common_password| password.downcase.include?(common_password) }
-    return unless found_common_password
-
-    errors.add(:password, "ne doit pas contenir ce mot trop commun : '#{found_common_password}'")
-  end
-
   def set_aircall_phone_number
     aircall_user_service = Aircall::RetrieveUserService.new.call
     if aircall_user_service.errors.any?
@@ -122,11 +112,24 @@ class AdminUser < ApplicationRecord
     end
 
     aircall_user = aircall_user_service.users.first
-    unless phone_number = aircall_user.try(:[], 'numbers')&.first.try(:[], 'digits')
+    phone_number = aircall_user.try(:[], 'numbers')&.first.try(:[], 'digits')
+    number_id = aircall_user.try(:[], 'numbers')&.first.try(:[], 'id')
+    unless phone_number && number_id
       Rollbar.error("Set phone number error for #{id} : No digits")
       return
     end
 
-    self.update(aircall_phone_number: Phonelib.parse(phone_number).e164)
+    self.update(aircall_phone_number: Phonelib.parse(phone_number).e164, aircall_number_id: number_id)
+  end
+
+  private
+
+  def common_password
+    return unless password
+
+    found_common_password = COMMON_PASSWORDS.find { |common_password| password.downcase.include?(common_password) }
+    return unless found_common_password
+
+    errors.add(:password, "ne doit pas contenir ce mot trop commun : '#{found_common_password}'")
   end
 end

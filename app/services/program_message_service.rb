@@ -5,7 +5,7 @@ class ProgramMessageService
 
   attr_reader :errors
 
-  def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'])
+  def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil)
     @planned_timestamp = ActiveSupport::TimeZone['Europe/Paris'].parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []
     @message = message
@@ -23,6 +23,8 @@ class ProgramMessageService
     @invalid_parent_ids = []
     @supporter_id = supporter.nil? ? nil : supporter.to_i
     @group_status = group_status
+    @provider = provider
+    @aircall_number_id = aircall_number_id
     @errors = []
   end
 
@@ -47,40 +49,59 @@ class ProgramMessageService
 
     @errors << 'Aucun parent à contacter.' and return self if @parent_ids.empty?
 
-    format_data_for_spot_hit
+    @message += ' {URL}' if @redirection_target && !@variables.include?('URL')
+    format_data_for_provider
+    parent = Parent.kept.where(id: @parent_ids).first
+    @errors << "Aucun parent trouvé pour les identifiants suivants : #{@parent_ids}" unless parent
     return self if @errors.any?
 
-    @message += ' {URL}' if @redirection_target && !@variables.include?('URL')
-
-    service = if @file.nil?
-                SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, workshop_id: @workshop_id, event_params: @event_params).call
-              else
-                SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, file: @file, event_params: @event_params).call
-              end
-
-    if service.errors.any?
-      @errors = service.errors
-    elsif @invalid_parent_ids.any?
-      invalid_parents = Parent.includes(:parent1_children, :parent2_children).where(id: @invalid_parent_ids)
-      description_text = "Le message \"#{@message}\" n'a pas été envoyé aux parents pour les raisons suivantes :"
-
-      invalid_parents.each do |parent|
-        if parent.valid?
-          parent.children.each do |child|
-            unless child.valid?
-              @errors << "Message non envoyé à #{parent.decorate.name} parce que son enfant #{child.decorate.name} n'est pas valide"
-              description_text << "<br>#{ActionController::Base.helpers.link_to(child.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: child.id), target: '_blank')} : #{child.errors.messages.to_json}"
-            end
-          end
+    case @provider
+    when 'aircall'
+      event = Event.create(
+        {
+          related_id: parent.id,
+          related_type: 'Parent',
+          body: @message,
+          type: 'Events::TextMessage',
+          occurred_at: Time.at(@planned_timestamp)
+        }
+      )
+      Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(@aircall_number_id, parent&.phone_number, @message, event.id)
+      @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
+    when 'spothit'
+      service = 
+        if @file.nil?
+          SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, workshop_id: @workshop_id, event_params: @event_params).call
         else
-          @errors << "Message non envoyé à #{parent.decorate.name} parce qu'il n'est pas valide"
-          description_text << "<br>#{ActionController::Base.helpers.link_to(parent.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: parent.id), target: '_blank')} : #{parent.errors.messages.to_json}"
+          SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, file: @file, event_params: @event_params).call
         end
+
+      if service.errors.any?
+        @errors = service.errors
+      elsif @invalid_parent_ids.any?
+        invalid_parents = Parent.includes(:parent1_children, :parent2_children).where(id: @invalid_parent_ids)
+        description_text = "Le message \"#{@message}\" n'a pas été envoyé aux parents pour les raisons suivantes :"
+    
+        invalid_parents.each do |parent|
+          if parent.valid?
+            parent.children.each do |child|
+              unless child.valid?
+                @errors << "Message non envoyé à #{parent.decorate.name} parce que son enfant #{child.decorate.name} n'est pas valide"
+                description_text << "<br>#{ActionController::Base.helpers.link_to(child.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: child.id), target: '_blank')} : #{child.errors.messages.to_json}"
+              end
+            end
+          else
+            @errors << "Message non envoyé à #{parent.decorate.name} parce qu'il n'est pas valide"
+            description_text << "<br>#{ActionController::Base.helpers.link_to(parent.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: parent.id), target: '_blank')} : #{parent.errors.messages.to_json}"
+          end
+        end
+        Task::CreateAutomaticTaskService.new(
+          title: 'Message non envoyé à des parents',
+          description: description_text
+        ).call
       end
-      Task::CreateAutomaticTaskService.new(
-        title: 'Message non envoyé à des parents',
-        description: description_text
-      ).call
+    else
+      @errors << "Provider inconnu : #{@provider}" and return self if service.blank?
     end
     self
   end
@@ -105,6 +126,50 @@ class ProgramMessageService
     @errors << 'Veuillez choisir un lien cible.' if @redirection_target.nil? && @variables.include?('URL')
   end
 
+  def increment_suggested_videos_counter(parent)
+    return unless @redirection_target.suggested_videos?
+
+    child_support = parent.current_child&.child_support
+    return unless child_support
+
+    child_support.suggested_videos_counter << { redirection_target_id: @redirection_target.id, sending_date: Time.zone.now }
+    child_support.save(touch: false)
+  end
+
+  def format_data_for_provider
+    case @provider
+    when 'spothit'
+      format_data_for_spot_hit
+    when 'aircall'
+      format_data_for_aircall
+    else
+      @errors << "Provider inconnu : #{@provider}"
+    end
+  end
+
+  def format_data_for_aircall
+    # TO DO: handle multiple recipents with Aircall
+    if @parent_ids.many?
+      @errors << "Un seul destinataire possible lors d'un envoi de message Aircall"
+    elsif @redirection_target || @variables.any?
+      Parent.where(id: @parent_ids).find_each do |parent|
+        child_name = parent.current_child&.first_name || 'votre enfant'
+        child_support_id = parent.current_child&.child_support&.id.to_s
+        supporter_name = parent.current_child&.child_support&.supporter&.decorate&.first_name
+        supporter_aircall_phone_number = parent.current_child&.child_support&.supporter&.aircall_phone_number
+        @message.gsub!('{PRENOM_ENFANT}', child_name)
+        @message.gsub!('{CHILD_SUPPORT_ID}', child_support_id)
+        @message.gsub!('{PRENOM_ACCOMPAGNANTE}', supporter_name)
+        @message.gsub!('{NUMERO_AIRCALL_ACCOMPAGNANTE}', supporter_aircall_phone_number)
+        if @redirection_target && parent.current_child.present?
+          url = redirection_url_for_a_parent(parent)&.decorate&.visit_url
+          increment_suggested_videos_counter(parent)
+          @message.gsub!('{URL}', url)
+        end
+      end
+    end
+  end
+
   def format_data_for_spot_hit
     # we need to format phone_numbers as hash inn order to include variables
     if @redirection_target || @variables.any?
@@ -118,13 +183,7 @@ class ProgramMessageService
         if @redirection_target && parent.current_child.present?
           @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
-          next unless @redirection_target.suggested_videos?
-
-          child_support = parent.current_child&.child_support
-          next unless child_support
-
-          child_support.suggested_videos_counter << { redirection_target_id: @redirection_target.id, sending_date: Time.zone.now }
-          child_support.save(touch: false)
+          increment_suggested_videos_counter(parent)
         end
       end
     else
@@ -153,6 +212,7 @@ class ProgramMessageService
     @errors << "Les date et heure d'envoi du message sont requises. Veuillez indiquer une date et une heure valide." if @planned_timestamp.blank?
     @errors << 'La liste des destinataires est vide. Ajoutez au moins un destinataire.' if @recipients.empty?
     @errors << 'Un message est requis. Veuillez le compléter.' if @message.empty? && @redirection_target.nil?
+    @errors << "L'ID de numéro Aircall est requis" if @aircall_number_id.blank? && @provider == 'aircall'
   end
 
   def sort_recipients

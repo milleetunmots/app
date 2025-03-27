@@ -5,6 +5,7 @@ module Aircall
     CONTACTS_ENDPOINT = '/v1/contacts'.freeze
     USERS_ENDPOINT = '/v1/users'.freeze
     CALLS_ENDPOINT = '/v1/calls'.freeze
+    NUMBERS_ENDPOINT = '/v1/numbers'.freeze
 
     TOKEN_ID = ENV.fetch('AIRCALL_API_ID')
     TOKEN_PASSWORD = ENV.fetch('AIRCALL_API_TOKEN')

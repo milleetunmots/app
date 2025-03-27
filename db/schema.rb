@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_03_11_141725) do
+ActiveRecord::Schema.define(version: 2025_03_20_141650) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -63,6 +63,7 @@ ActiveRecord::Schema.define(version: 2025_03_11_141725) do
     t.boolean "is_disabled", default: false
     t.boolean "can_treat_task", default: false, null: false
     t.string "aircall_phone_number"
+    t.bigint "aircall_number_id"
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
@@ -460,6 +461,7 @@ ActiveRecord::Schema.define(version: 2025_03_11_141725) do
     t.date "acceptation_date"
     t.boolean "is_support_module_message", default: false, null: false
     t.string "link_sent_substring"
+    t.string "aircall_message_id"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["quit_group_child_id"], name: "index_events_on_quit_group_child_id"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
