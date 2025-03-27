@@ -93,6 +93,8 @@ class AdminUser < ApplicationRecord
   end
 
   def set_aircall_phone_number
+    return if aircall_phone_number.present? && aircall_number_id.present?
+
     aircall_user_service = Aircall::RetrieveUserService.new.call
     if aircall_user_service.errors.any?
       Rollbar.error("Set phone_number error : #{aircall_user_service.errors}")
