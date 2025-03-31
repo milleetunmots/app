@@ -4,39 +4,33 @@ class AircallController < ApplicationController
   before_action :verify_webhook_messages_token, only: :webhook_messages
   before_action :verify_webhook_calls_token, only: :webhook_calls
   before_action :verify_webhook_insight_cards, only: :webhook_insight_cards
-  before_action :verify_webhook_messages_received, only: :webhook_messages_received
+  before_action :verify_webhook_messages_status_updated, only: :webhook_messages_status_updated
 
   def webhook_messages
     payload = params.to_unsafe_h
     service = Aircall::CreateOrUpdateMessageService.new(payload: payload['data']).call
-    if service.errors.any?
-      Rollbar.error('Aircall::CreateOrUpdateMessageService', errors: service.errors)
-    end
+    Rollbar.error('Aircall::CreateOrUpdateMessageService', errors: service.errors) if service.errors.any?
     head :ok
   end
 
   def webhook_calls
     payload = params.to_unsafe_h
     service = Aircall::CreateCallService.new(payload: payload['data']).call
-    if service.errors.any?
-      Rollbar.error('Aircall::CreateCallService', errors: service.errors)
-    end
+    Rollbar.error('Aircall::CreateCallService', errors: service.errors) if service.errors.any?
     head :ok
   end
 
   def webhook_insight_cards
     payload = params.to_unsafe_h
-
     insight_card_service = Aircall::CreateInsightCardService.new(payload: payload['data']).call
     Rollbar.error('Aircall::CreateInsightCardService', errors: insight_card_service.errors) if insight_card_service.errors.any?
-
     head :ok
   end
 
-  def webhook_messages_received
+  def webhook_messages_status_updated
     payload = params.to_unsafe_h
-    message_received_service = Aircall::MessageReceivedService.new(payload: payload['data']).call
-    Rollbar.error('Aircall::MessageReceivedService', errors: message_received_service.errors) if message_received_service.errors.any?
+    message_status_updated_service = Aircall::MessageStatusUpdatedService.new(payload: payload['data']).call
+    Rollbar.error('Aircall::MessageStatusUpdatedService', errors: message_status_updated_service.errors) if message_status_updated_service.errors.any?
     head :ok
   end
 
@@ -54,13 +48,11 @@ class AircallController < ApplicationController
 
   def verify_webhook_insight_cards
     token = params['token']
-
     head :unauthorized unless token.eql?(ENV['AIRCALL_WEBHOOK_INSIGHT_CARDS_TOKEN'])
   end
 
-  def verify_webhook_messages_received
+  def verify_webhook_messages_status_updated
     token = params['token']
-
     head :unauthorized unless token.eql?(ENV['AIRCALL_WEBHOOK_MESSAGE_RECEIVED_TOKEN'])
   end
 end
