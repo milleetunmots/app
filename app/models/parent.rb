@@ -115,6 +115,7 @@ class Parent < ApplicationRecord
   after_create :should_be_contacted_as_parent2, if: -> { parent2_creation.present? }
   after_save :update_aircall_contact, if: -> { saved_change_to_discarded_at? && discarded_at.present? }
   after_save :change_the_other_parent_address, :should_not_contact_parent2
+  after_save :change_child_support_address_suspected_invalid_at
   after_commit :create_aircall_contact, if: -> { created_by_us.present? }, on: :create
 
   validates :gender, presence: true, inclusion: { in: GENDERS }
@@ -374,6 +375,18 @@ class Parent < ApplicationRecord
     end
   end
 
+  def change_child_support_address_suspected_invalid_at
+    return unless saved_change_to_letterbox_name? || saved_change_to_address? || saved_change_to_postal_code? || saved_change_to_city_name? || saved_change_to_address_supplement?
+
+    children.each do |child|
+      child_support = child.child_support
+      next if child_support.address_suspected_invalid_at.nil?
+
+      child_support.address_suspected_invalid_at = nil
+      child_support.save(touch: false)
+    end
+  end
+
   def address_attributes_are_identical?(parent)
     parent.letterbox_name == letterbox_name &&
       parent.address == address &&
@@ -390,11 +403,6 @@ class Parent < ApplicationRecord
       city_name: city_name,
       address_supplement: address_supplement
     )
-    parent.children.each do |c|
-      child_support = c.child_support
-      child_support.address_suspected_invalid_at = nil
-      child_support.save(touch: false)
-    end
   end
 
   def should_be_contacted_as_parent2
