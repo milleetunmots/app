@@ -63,7 +63,8 @@ class ProgramMessageService
           related_type: 'Parent',
           body: @message,
           type: 'Events::TextMessage',
-          occurred_at: Time.at(@planned_timestamp)
+          occurred_at: Time.at(@planned_timestamp),
+          message_provider: 'aircall'
         }
       )
       Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(@aircall_number_id, parent&.phone_number, @message, event.id)
