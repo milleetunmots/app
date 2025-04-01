@@ -63,6 +63,8 @@ class Events::TextMessage < Event
   end
 
   def set_default_message_provider
+    return unless originated_by_app
+
     self.message_provider ||= 'spot_hit'
   end
 end

@@ -26,6 +26,5 @@ FactoryBot.define do
 
     occurred_at { Faker::Date.backward(days: 30) }
     body { Faker::Lorem.paragraph }
-    message_provider { "spot_hit" }
   end
 end

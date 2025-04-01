@@ -43,14 +43,22 @@ require "rails_helper"
 RSpec.describe Events::TextMessage, type: :model do
   describe "Validations" do
     context "succeed" do
-      it "if the text message have a body" do
-        expect(FactoryBot.build_stubbed(:text_message)).to be_valid
+      it "if the text message is not originated by app and have a body" do
+        expect(FactoryBot.build_stubbed(:text_message, originated_by_app: false)).to be_valid
+      end
+
+      it "if the text message is originated by app, have a body and message_provider" do
+        expect(FactoryBot.build_stubbed(:text_message, originated_by_app: true, message_provider: Events::TextMessage::PROVIDERS.sample)).to be_valid
       end
     end
 
     context "fail" do
       it "if the text message doesn't have a body" do
         expect(FactoryBot.build_stubbed(:text_message, body: nil)).not_to be_valid
+      end
+
+      it "if the text message is originated by app and doesn't have a provider" do
+        expect(FactoryBot.build_stubbed(:text_message, originated_by_app: true)).not_to be_valid
       end
     end
   end
