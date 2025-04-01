@@ -5,7 +5,7 @@ class Child
     attr_reader :child, :sms_url_form, :parent1_target_profile, :children_under_four_months, :youngest_child_under_twenty_four_months
 
     def initialize(attributes, siblings_attributes, parent1_attributes, parent2_attributes, registration_origin, children_source_attributes, child_min_birthdate)
-      @attributes = attributes
+      @attributes = attributes.to_h.deep_dup
       @registration_origin = registration_origin
       @child_min_birthdate = child_min_birthdate
       @siblings_attributes = siblings_attributes
@@ -84,6 +84,7 @@ class Child
     def add_target_tag(tag)
       @attributes[:child_support_attributes] ||= {}
       @attributes[:child_support_attributes][:tag_list] ||= []
+      @attributes[:tag_list] ||= []
       @attributes[:tag_list] << tag
       @attributes[:child_support_attributes][:tag_list] << tag
     end

@@ -121,8 +121,9 @@ class ChildrenController < ApplicationController
   private
 
   def child_creation_params
-    params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, :tag_list, child_support_attributes: %i[important_information]).tap do |param|
-      param[:tag_list] = param[:tag_list].split
+    params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, { tag_list: [] }, child_support_attributes: %i[important_information tag_list]).tap do |param|
+      param[:tag_list] = param[:tag_list].is_a?(String) ? param[:tag_list].split : param[:tag_list]
+      param[:child_support_attributes] = param[:child_support_attributes].to_h
     end
   end
 
