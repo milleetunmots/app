@@ -10,6 +10,8 @@ module Aircall
     end
 
     def call
+      return self unless ENV['AIRCALL_ENABLED']
+
       # call_uuid in webhooks but sid in API - same value
       @call = AircallCall.find_or_initialize_by(call_uuid: @payload['call_uuid'].presence || @payload['sid'])
       set_call_attributes

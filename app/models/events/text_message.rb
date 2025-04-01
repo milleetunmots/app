@@ -8,6 +8,7 @@
 #  discarded_at              :datetime
 #  is_support_module_message :boolean          default(FALSE), not null
 #  link_sent_substring       :string
+#  message_provider          :string
 #  occurred_at               :datetime
 #  originated_by_app         :boolean          default(TRUE), not null
 #  parent_presence           :string
@@ -18,6 +19,7 @@
 #  type                      :string
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null
+#  aircall_message_id        :string
 #  quit_group_child_id       :bigint
 #  related_id                :bigint
 #  spot_hit_message_id       :string
@@ -38,21 +40,31 @@
 
 class Events::TextMessage < Event
 
+  PROVIDERS = %w[aircall spot_hit].freeze
+
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
 
   validates :body, presence: true
+  validates :message_provider, inclusion: { in: PROVIDERS }, if: -> { originated_by_app }
 
   # ---------------------------------------------------------------------------
   # callbacks
   # ---------------------------------------------------------------------------
 
+  before_validation :set_default_message_provider, on: :create
   after_save :tag_children, if: -> { saved_change_to_spot_hit_status? && spot_hit_status == 4 && quit_group_child_id.present? }
 
   def tag_children
     quit_group_child.tag_list.add("echec-sms-#{Time.zone.today.strftime("%Y-%m-%d")}")
     quit_group_child.group_status = 'active' if quit_group_child.group_status == 'paused'
     quit_group_child.save!
+  end
+
+  def set_default_message_provider
+    return unless originated_by_app
+
+    self.message_provider ||= 'spot_hit'
   end
 end

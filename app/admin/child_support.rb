@@ -57,10 +57,10 @@ ActiveAdmin.register ChildSupport do
          collection: proc { child_group_select_collection },
          input_html: { multiple: true, data: { select2: {} } },
          label: 'Cohorte'
-  filter :without_parent_text_message_since,
-         as: :datepicker,
-         required: false,
-         label: 'Parent sans SMS depuis'
+  filter :children_group_status,
+          as: :check_boxes,
+          label: '',
+          collection: [['Cohorte en cours', 'active'], ['Cohorte finie', 'ended'], ['Cohorte future', 'next']], multiple: true
   filter :source_in,
           as: :select,
           collection: proc { source_select_collection },
@@ -96,10 +96,6 @@ ActiveAdmin.register ChildSupport do
            as: :select,
            collection: proc { child_support_call_parent_progress_select_collection },
            input_html: { multiple: true, data: { select2: {} } }
-    # filter "call#{call_idx}_language_awareness",
-    #   as: :select,
-    #   collection: proc { child_support_call_language_awareness_select_collection },
-    #   input_html: {multiple: true, data: {select2: {}}}
     filter "call#{call_idx}_sendings_benefits",
            as: :select,
            collection: proc { child_support_call_sendings_benefits_select_collection },

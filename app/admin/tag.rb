@@ -18,7 +18,6 @@ ActiveAdmin.register Tag, as: 'Tag' do
   end
 
   filter :name
-  filter :color
   filter :is_visible_by_callers
   filter :created_at
   filter :updated_at

@@ -8,11 +8,15 @@ ActiveAdmin.register_page 'Message' do
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
       f.input :parent_id, type: :hidden, name: :parent_id, id: :parent_id, value: params[:parent_id]
       f.input :supporter_id, type: :hidden, name: :supporter_id, id: :supporter_id, value: current_admin_user.caller? ? current_admin_user.id : nil
+      f.input :provider, type: :hidden, name: :provider, id: :provider,
+        value: current_admin_user.caller? && current_admin_user.aircall_number_id && params[:parent_id].present? ? 'aircall' : 'spothit'
 
-      label "Date et heure d'envoi du message"
-      div class: 'datetime-container' do
-        input type: 'text', name: 'planned_date', class: 'datepicker hasDatePicker', style: 'margin-right: 20px;', value: Time.zone.today
-        input type: 'time', name: 'planned_hour', value: Time.zone.now.strftime('%H:%M')
+      div id: 'message_date_time' do
+        label "Date et heure d'envoi du message"
+        div class: 'datetime-container' do
+          input type: 'text', name: 'planned_date', class: 'datepicker hasDatePicker', style: 'margin-right: 20px;', value: Time.zone.today
+          input type: 'time', name: 'planned_hour', value: Time.zone.now.strftime('%H:%M')
+        end
       end
 
       div do
@@ -78,7 +82,7 @@ ActiveAdmin.register_page 'Message' do
         small 'Variables disponibles: {PRENOM_ENFANT}, {URL}, {PRENOM_ACCOMPAGNANTE}, {NUMERO_AIRCALL_ACCOMPAGNANTE}'
       end
 
-      div do
+      div id: 'image_to_send_div' do
         label 'Image'
         select name: 'image_to_send', id: 'image_to_send'
       end
@@ -101,6 +105,13 @@ ActiveAdmin.register_page 'Message' do
 
     message = params[:message].gsub('{CHAMP_MESSAGE_COMPLEMENTAIRE}', '')
     message.gsub!('{CHAMP_PETITE_MISSION}', '')
+
+    provider =
+      if params[:call_goals_sms] == 'call0_goals' && params[:provider] == 'aircall' && current_admin_user.caller? && current_admin_user.aircall_number_id
+        'aircall'
+      else
+        'spothit'
+      end
     service = ProgramMessageService.new(
       params[:planned_date],
       params[:planned_hour],
@@ -111,13 +122,15 @@ ActiveAdmin.register_page 'Message' do
       false,
       nil,
       current_admin_user.caller? ? current_admin_user.id : params[:supporter],
-      params[:group_status]
+      params[:group_status],
+      provider,
+      current_admin_user.aircall_number_id
     ).call
 
     if service.errors.any?
       redirect_back(fallback_location: root_path, alert: service.errors.join("\n"))
     else
-      notice = 'Message(s) programmé(s)'
+      notice = "Message(s) programmé(s) via #{provider.capitalize}"
       if params[:call_goals_sms] && params[:call_goals_sms] != 'Non'
         child_support.update_column("#{call_goal}_sms".to_sym, message)
         notice += '. Et petite mission définie'

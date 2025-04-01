@@ -10,6 +10,8 @@ $(document).ready(function() {
     var conclusion_field = $('#conclusion_div')
     var conclusion = $("textarea[name='conclusion']")
     var message = $("textarea[name='message']")
+    var imageToSendDiv = $('#image_to_send_div')
+    var imageToSendSelect = $('#image_to_send')
     var childSupportId = new URLSearchParams(window.location.search).get('child_support_id')
     var parentSecurityCode = new URLSearchParams(window.location.search).get('parent_sc')
     var speakingLink = `${window.location.protocol}//${window.location.host}/c3/sf?cs=${childSupportId}&sc=${parentSecurityCode}`
@@ -69,8 +71,11 @@ $(document).ready(function() {
         if (selectedValue == 'call0_goals' || selectedValue == 'call3_goals_speaking' || selectedValue == 'call3_goals_observing') {
             if (selectedValue == 'call0_goals') {
                 call_index = 0
+                imageToSendSelect.empty();
+                imageToSendDiv.hide()
             } else {
                 call_index = 3
+                imageToSendDiv.show()
             }
 
             messageContent = "{INTRODUCTION}{CHAMP_PETITE_MISSION}\n{QUESTIONNAIRE_DE_PARTAGE}{type_form_link}\n{CONCLUSION}"
@@ -101,13 +106,14 @@ $(document).ready(function() {
                             message.val(messageContentRefreshed)
                             showNewFields()
                             message.prop('readonly', true)
-                            setSubmitBtnDisabledProp(); 
+                            setSubmitBtnDisabledProp();
                         }
                     });
                 }
             });
         } else {
             $("input[type='submit']").prop('disabled', false)
+            imageToSendDiv.show()
             message.css({'height': 'auto', 'background-color': 'white'})
             normalMessage()
             hideNewFields()

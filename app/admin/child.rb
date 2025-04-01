@@ -106,6 +106,10 @@ ActiveAdmin.register Child do
          collection: proc { child_group_select_collection },
          input_html: { multiple: true, data: { select2: {} } },
          label: 'Cohorte'
+  filter :child_group_status,
+          as: :check_boxes,
+          label: '',
+          collection: [['Cohorte en cours', 'active'], ['Cohorte finie', 'ended'], ['Cohorte future', 'next']], multiple: true
   filter :group_status,
          as: :select,
          collection: proc { child_group_status_select_collection },
@@ -118,20 +122,6 @@ ActiveAdmin.register Child do
          as: :datepicker,
          required: false,
          label: "Fin de l'accompagnement"
-  filter :active_group_id_in,
-         as: :select,
-         collection: proc { child_group_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
-         label: 'Cohorte active'
-  filter :without_parent_text_message_since,
-         as: :datepicker,
-         required: false,
-         label: 'Parent sans SMS depuis'
-  filter :family_redirection_urls_count
-  filter :family_redirection_url_visits_count
-  filter :family_redirection_url_unique_visits_count
-  filter :family_redirection_unique_visit_rate
-  filter :family_redirection_unique_visits
   filter :src_url
   filter :created_at
   filter :updated_at

@@ -8,6 +8,7 @@
 #  discarded_at              :datetime
 #  is_support_module_message :boolean          default(FALSE), not null
 #  link_sent_substring       :string
+#  message_provider          :string
 #  occurred_at               :datetime
 #  originated_by_app         :boolean          default(TRUE), not null
 #  parent_presence           :string
@@ -18,6 +19,7 @@
 #  type                      :string
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null
+#  aircall_message_id        :string
 #  quit_group_child_id       :bigint
 #  related_id                :bigint
 #  spot_hit_message_id       :string

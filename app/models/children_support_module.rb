@@ -100,8 +100,8 @@ class ChildrenSupportModule < ApplicationRecord
     errors.add(:base, :invalid, message: "Cet enfant n'appartient pas à ce parent") unless parent.children.to_a.include? child
   end
 
-  def self.active_group_id_in(*ids)
-    includes(child: :group).where('children.group_id IN (?) AND children.group_status = ?', ids, 'active').references(:children)
+  def self.group_id_in(*ids)
+    includes(child: :group).where(children: { group_id: ids }).references(:children)
   end
 
   def select_for_the_other_parent
@@ -137,7 +137,7 @@ class ChildrenSupportModule < ApplicationRecord
   end
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[active_group_id_in]
+    super + %i[group_id_in]
   end
 
   def self.chosen_modules_for_group(group_ids = nil, is_programmed = false)
@@ -150,6 +150,29 @@ class ChildrenSupportModule < ApplicationRecord
     modules = modules.where(child_support: { address_suspected_invalid_at: nil } )
 
     modules.select { |csm| csm.parent_id == csm.child.parent1_id }
+  end
+
+  def self.group_active
+    includes(child: :group).where(children: { group: Group.group_active })
+  end
+
+  def self.group_ended
+    includes(child: :group).where(children: { group: Group.group_ended })
+  end
+
+  def self.group_next
+    includes(child: :group).where(children: { group: Group.group_next })
+  end
+
+  ransacker :children_support_module_group_status, formatter: proc { |values|
+    values = Array(values)
+    ids = []
+    ids += group_active.pluck(:id) if values.include?('active')
+    ids += group_ended.pluck(:id) if values.include?('ended')
+    ids += group_next.pluck(:id) if values.include?('next')
+    ids.uniq.presence
+  } do |child_support|
+    child_support.table[:id]
   end
 
   private
