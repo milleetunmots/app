@@ -9,7 +9,7 @@ ActiveAdmin.register_page 'Message' do
       f.input :parent_id, type: :hidden, name: :parent_id, id: :parent_id, value: params[:parent_id]
       f.input :supporter_id, type: :hidden, name: :supporter_id, id: :supporter_id, value: current_admin_user.caller? ? current_admin_user.id : nil
       f.input :provider, type: :hidden, name: :provider, id: :provider,
-        value: current_admin_user.caller? && current_admin_user.aircall_number_id && params[:parent_id].present? ? 'aircall' : 'spothit'
+        value: current_admin_user.aircall_number_id && params[:parent_id].present? ? 'aircall' : 'spothit'
 
       div id: 'message_date_time' do
         label "Date et heure d'envoi du message"
@@ -107,7 +107,7 @@ ActiveAdmin.register_page 'Message' do
     message.gsub!('{CHAMP_PETITE_MISSION}', '')
 
     provider =
-      if params[:call_goals_sms] == 'call0_goals' && params[:provider] == 'aircall' && current_admin_user.caller? && current_admin_user.aircall_number_id
+      if params[:call_goals_sms] == 'call0_goals' && params[:provider] == 'aircall' && current_admin_user.aircall_number_id
         'aircall'
       else
         'spothit'
