@@ -87,7 +87,7 @@ ActiveAdmin.register ChildrenSupportModule do
   filter :children_support_module_group_status,
          as: :check_boxes,
          label: '',
-         collection: [['Cohorte en cours', 'active'], ['Cohorte finie', 'ended'], ['Cohorte future', 'next']], multiple: true
+         collection: [['Cohortes en cours', 'active'], ['Cohortes finies', 'ended'], ['Cohortes futures', 'next']], multiple: true
   filter :support_module,
          as: :select,
          collection: proc { support_module_collection },

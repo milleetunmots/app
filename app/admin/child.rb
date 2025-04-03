@@ -109,7 +109,7 @@ ActiveAdmin.register Child do
   filter :child_group_status,
           as: :check_boxes,
           label: '',
-          collection: [['Cohorte en cours', 'active'], ['Cohorte finie', 'ended'], ['Cohorte future', 'next']], multiple: true
+          collection: [['Cohortes en cours', 'active'], ['Cohortes finies', 'ended'], ['Cohortes futures', 'next']], multiple: true
   filter :group_status,
          as: :select,
          collection: proc { child_group_status_select_collection },
