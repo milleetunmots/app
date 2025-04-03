@@ -53,6 +53,7 @@ ActiveAdmin.register Events::TextMessage, as: 'Sent By App TextMessage' do
          label: 'Accompagnante'
 
   filter :body
+  filter :message_provider, as: :select, collection: proc { Events::TextMessage::PROVIDERS }, input_html: { multiple: true, data: { select2: {} } }, label: 'Envoyé via'
 
   filter :occurred_at
   filter :created_at
