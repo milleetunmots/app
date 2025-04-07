@@ -15,10 +15,11 @@ class Child
         'Non terminé (parent injoignable)'
       ],
       pending: [
-        'RDV pour y Répondre',
+        'Rdv pour y répondre',
         'Incomplet (à terminer)',
         'A rappeler plus tard',
-        'Rdv non honoré (à rappeler)'
+        'Rdv non honoré (à rappeler)',
+        'Rdv sans réponse après 3 tentatives'
       ]
     }.freeze
     TAGS = {
@@ -26,14 +27,10 @@ class Child
       refused: 'Eval25 - refusée'
     }.freeze
 
-    attr_reader :errors, :completed, :refused, :pending, :not_handled, :response
+    attr_reader :errors
 
     def initialize
       @errors = []
-      @completed = []
-      @refused = []
-      @pending = []
-      @not_handled = []
     end
 
     def call
@@ -46,7 +43,7 @@ class Child
 
       @response.values.each do |row|
         @child = nil
-        next if row[0] == 'FALSE' || row[1].blank? || row[24].blank? || (row[0] != 'FALSE' && row[0] != 'TRUE')
+        next if row[1].blank? || row[24].blank? || (row[0] != 'FALSE' && row[0] != 'TRUE')
 
         @child_id = row[1].strip
         @response_status = row[24].strip
@@ -64,36 +61,28 @@ class Child
     end
 
     def process_child
-      find_child_by_id
+      @child = Child.find_by(id: @child_id)
       unless @child
         @errors << "Enfant introuvable : #{row[1].strip}"
         return
       end
 
-      unless @child.group_status.in? %w[waiting active paused]
-        @not_handled << @child_id
-        return
-      end
+      return if @child.tag_list.include?(TAGS[:completed]) || @child.tag_list.include?(TAGS[:refused])
+
+      return unless @child.group_status.in? %w[waiting active paused]
 
       case status_category
       when :completed
         @child.tag_list << TAGS[:completed]
-        @completed << @child_id
       when :refused
         @child.tag_list << TAGS[:refused]
-        @refused << @child_id
       when :pending
-        @pending << @child_id
         return
       else
         @errors << "Statut inconnu : #{@response_status} pour child_id #{@child_id}"
         return
       end
       @errors << "Impossible d'ajouter de tag à l'enfant avec child_id #{@child_id}" unless @child.save
-    end
-
-    def find_child_by_id
-      @child = Child.find_by(id: @child_id)
     end
 
     def status_category
