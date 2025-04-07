@@ -53,9 +53,9 @@ class Child
           temp = Tempfile.new("file-#{index}.xlsx", binmode: true)
           temp_files << temp
           temp.write(excel_file[:file].read_string)
-          temp.rewind
+          temp.close
 
-          zipfile.add excel_file[:filename], temp.path
+          zipfile.add("#{excel_file[:filename].gsub('.xlsx', '').parameterize}.xlsx", temp.path)
         end
       end
 
