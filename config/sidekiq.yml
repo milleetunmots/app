@@ -36,6 +36,6 @@
     aircall_sync_contacts_job:
       cron: '30 2 * * *'
       class: Aircall::SyncContactsJob
-    add_tag_to_children_job:
+    add_eval_tag_to_children_job:
       cron: '0 8 * * *'
-      class: 'Child::AddTagToChildrenJob'
+      class: 'Child::AddEvalTagToChildrenJob'

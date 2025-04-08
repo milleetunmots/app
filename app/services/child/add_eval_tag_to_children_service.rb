@@ -2,7 +2,7 @@ require 'google/apis/sheets_v4'
 require 'googleauth'
 
 class Child
-  class AddTagToChildrenService
+  class AddEvalTagToChildrenService
 
     CREDENTIALS = Base64.decode64(ENV['GOOGLE_CREADENTIALS_JSON']).freeze
     SCOPE = ['https://www.googleapis.com/auth/spreadsheets'].freeze
