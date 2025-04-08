@@ -12,14 +12,14 @@ class Child
         'Non réponse après 3 tentatives KO',
         'Refus étude',
         'Arrêt pour exclusion',
-        'Non terminé (parent injoignable)'
+        'Non terminé (parent injoignable)',
+        'Rdv sans réponse après 3 tentatives'
       ],
       pending: [
         'Rdv pour y répondre',
         'Incomplet (à terminer)',
         'A rappeler plus tard',
-        'Rdv non honoré (à rappeler)',
-        'Rdv sans réponse après 3 tentatives'
+        'Rdv non honoré (à rappeler)'
       ]
     }.freeze
     TAGS = {
