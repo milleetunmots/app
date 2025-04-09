@@ -223,7 +223,7 @@ ActiveAdmin.register ChildSupport do
       h3 id: 'call_recording_warning', class: 'full-width-warning' do
         safe_join([
           content_tag(:i, '', class: 'fas fa-microphone', style: 'margin-right: 5px;'),
-          'Appels à enregistrer'
+          'Enregistrement des appels : recommandé'
         ])
       end
     end
