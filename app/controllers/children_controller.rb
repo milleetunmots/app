@@ -47,9 +47,12 @@ class ChildrenController < ApplicationController
         sc: @child.parent1.security_code
       )
     elsif @child.source.name == ENV['CAF93'] && ENV['EVAL25'].present?
-      if @child.siblings.length > 1
-        current_child = @child.siblings.find { |sibling| sibling.months >= 16 && sibling.months <= 30 } || @child
-      end
+      current_child =
+        if @child.siblings.length > 1
+         @child.siblings.find { |sibling| sibling.months >= 16 && sibling.months <= 30 } || @child
+        else
+          @child
+        end
       redirect_to created_child_path(
         child_id: current_child.id,
         ccn: current_child.first_name,
