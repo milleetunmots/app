@@ -46,6 +46,17 @@ class ChildrenController < ApplicationController
         ccm: @child.months,
         sc: @child.parent1.security_code
       )
+    elsif @child.source.name == ENV['CAF93'] && ENV['EVAL25'].present?
+      if @child.siblings.length > 1
+        current_child = @child.siblings.find { |sibling| sibling.months >= 16 && sibling.months <= 30 } || @child
+      end
+      redirect_to created_child_path(
+        child_id: current_child.id,
+        ccn: current_child.first_name,
+        ccm: current_child.months,
+        pfn: current_child.parent1.first_name,
+        pln: current_child.parent1.last_name
+      )
     elsif service.parent1_target_profile || current_registration_origin != 4
       redirect_to created_child_path(sms_url_form: service.sms_url_form, children_under_four_months: service.children_under_four_months, youngest_child_under_twenty_four_months: service.youngest_child_under_twenty_four_months)
     else
@@ -93,6 +104,8 @@ class ChildrenController < ApplicationController
     when 2
       if ENV['CAF_SUBSCRIPTION'].present?
         @caf_subscription_form = true
+      elsif ENV['EVAL25'].present? && params[:child_id].present? && params[:ccn].present? && params[:ccm].present? && params[:pfn].present? && params[:pln].present?
+        @eval_25 = true
       else
         session.delete(:registration_origin)
         @message = I18n.t(support_wait_time_message, typeform_url: params[:sms_url_form])
