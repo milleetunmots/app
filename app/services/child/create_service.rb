@@ -143,8 +143,14 @@ class Child
 
       @sms_url_form = "#{ENV.fetch('TYPEFORM_URL', nil)}#child_support_id=#{@child.child_support.id}"
       message = "1001mots: Bonjour ! Je suis ravie de votre inscription à notre accompagnement ! Si vous avez 3 minutes, merci de répondre à ce court questionnaire #{@sms_url_form}"
+      eval25_message = "1001mots : Bonjour, votre inscription au programme 1001mots est confirmée. L'accompagnement va bientôt démarrer. A bientôt !"
 
-      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, message).call if @registration_origin == 4 || (@registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].nil?)
+      if ENV['EVAL25'].present? && @child.source.name == ENV['CAF93']
+        SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, eval25_message).call
+      else
+        SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, message).call if @registration_origin == 4 || (@registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].nil?)
+      end
+
       SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.change({ hour: 18 }).to_i, message).call if @registration_origin.in?([3, 5])
     end
 
