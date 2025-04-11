@@ -123,6 +123,19 @@ class ChildrenController < ApplicationController
     end
   end
 
+  def eval_form
+    return if params[:ccn].present? && params[:ccm].present? && params[:pfn].present? && params[:pln].present?
+
+    @child = Child.find_by(id: params[:id])
+    head :not_found and return if @child.nil?
+
+    redirect_to url_for(params.permit!.to_h.merge(
+      ccn: @child.first_name, 
+      pln: @child.parent1.last_name,
+      pfn: @child.parent1.first_name,
+      ccm: @child.months))
+  end
+
   private
 
   def set_eval25_form_variables
