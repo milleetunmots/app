@@ -53,13 +53,7 @@ class ChildrenController < ApplicationController
         else
           @child
         end
-      redirect_to created_child_path(
-        child_id: current_child.id,
-        ccn: current_child.first_name,
-        ccm: current_child.months,
-        pfn: current_child.parent1.first_name,
-        pln: current_child.parent1.last_name
-      )
+      redirect_to created_child_path(eval_25_child_id: current_child.id)
     elsif service.parent1_target_profile || current_registration_origin != 4
       redirect_to created_child_path(sms_url_form: service.sms_url_form, children_under_four_months: service.children_under_four_months, youngest_child_under_twenty_four_months: service.youngest_child_under_twenty_four_months)
     else
@@ -107,8 +101,9 @@ class ChildrenController < ApplicationController
     when 2
       if ENV['CAF_SUBSCRIPTION'].present?
         @caf_subscription_form = true
-      elsif ENV['EVAL25'].present? && params[:child_id].present? && params[:ccn].present? && params[:ccm].present? && params[:pfn].present? && params[:pln].present?
-        @eval_25 = true
+      elsif ENV['EVAL25'].present? && params[:eval_25_child_id].present?
+        @child_id = params[:eval_25_child_id]
+        set_eval25_form_variables
       else
         session.delete(:registration_origin)
         @message = I18n.t(support_wait_time_message, typeform_url: params[:sms_url_form])
@@ -135,6 +130,15 @@ class ChildrenController < ApplicationController
   end
 
   private
+
+  def set_eval25_form_variables
+    child = Child.find(@child_id)
+    @eval_25 = true
+    @ccn = child.first_name
+    @ccm = child.months
+    @pfn = child.parent1.first_name
+    @pln = child.parent1.last_name
+  end
 
   def child_creation_params
     params.require(:child).permit(:gender, :first_name, :last_name, :birthdate, { tag_list: [] }, child_support_attributes: %i[important_information tag_list]).tap do |param|

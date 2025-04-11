@@ -3,7 +3,8 @@
     <% if @caf_subscription_form == true %>
       <div data-tf-live="01JJ774HQ890WBVQAFQNMVYS76"></div><script src="//embed.typeform.com/next/embed.js"></script>
     <% elsif @eval_25 == true %>
-      <div data-tf-live="01JRD829S4W2DG2HP78JKWF431"></div><script src="//embed.typeform.com/next/embed.js"></script>
+      <div data-tf-live="01JRD829S4W2DG2HP78JKWF431"
+        data-tf-hidden="child_id=<%= @child_id %>,ccn=<%= @ccn %>,ccm=<%= @ccm %>,pfn=<%= @pfn %>,pln=<%= @pln %>"></div><script src="//embed.typeform.com/next/embed.js"></script>
     <% else %>
       <div id="inscription-success-content-top">
         <% if @with_parent_no_target %>
