@@ -4,7 +4,7 @@ class ChildrenController < ApplicationController
 
   skip_before_action :authenticate_admin_user!
   before_action :set_src_url
-  before_action :find_child, only: %i[edit update]
+  before_action :find_child, only: %i[edit update eval_form]
   before_action :build_variables, only: %i[new create]
   before_action :build_child_action_path, only: %i[edit update]
 
@@ -129,6 +129,14 @@ class ChildrenController < ApplicationController
     end
   end
 
+  def eval_form
+    @child_id = @child.id
+    @ccn = @child.first_name
+    @pln = @child.parent1.last_name
+    @pfn = @child.parent1.first_name
+    @ccm = @child.months
+  end
+
   private
 
   def set_eval25_form_variables
@@ -188,7 +196,7 @@ class ChildrenController < ApplicationController
   def find_child
     @child = Child.where(
       id: params[:id],
-      security_code: params[:security_code]
+      security_code: params[:security_code] || params[:sc]
     ).first
 
     head :not_found and return if @child.nil?
