@@ -1,35 +1,24 @@
-require 'google/apis/sheets_v4'
-require 'googleauth'
-
 class Child
-  class SendEvalMessageService
+  class SendEvalMessageService < ApiGoogle::InitializeSheetsService
 
-    CREDENTIALS = Base64.decode64(ENV['GOOGLE_CREADENTIALS_JSON']).freeze
-    SCOPE = ['https://www.googleapis.com/auth/spreadsheets'].freeze
-    MESSAGE = ''.freeze
     EVAL_MESSAGE_TAG = 'lien_eval25_envoye'.freeze
 
-    attr_reader :errors
-
     def initialize
-      @errors = []
+      super
+      @sheet_id = ENV['FAMILY_SUPPORTS_SHEET_ID']
+      @sheet_name = ENV['FAMILY_SUPPORTS_SHEET_NAME']
     end
 
     def call
-      initialize_sheets_service
-      @response = @service.get_spreadsheet_values(ENV['FAMILY_SUPPORTS_SHEET_ID'], ENV['FAMILY_SUPPORTS_SHEET_NAME'])
-      if @response.values.empty?
-        @errors << 'Aucune donnée trouvée'
-        return self
-      end
+      super
+      return self if @errors.any?
 
       @response.values.each do |row|
         @child = nil
         byebug
-        next if row[1].blank? || row[6].blank? || row[6] != 'Test' || row[6] != 'Témoin'
+        next if row[1].blank? || row[6] != 'Test' || !row[20].in?(['Appel 1 ok', 'Appel 2 ok', 'Appel 3 ok', 'Ne souhaite pas répondre', 'Numéro erroné'])
 
         @child_id = row[1].strip
-        @group_type = row[6].strip
         send_message
       end
       self
@@ -37,24 +26,31 @@ class Child
 
     private
 
-    def initialize_sheets_service
-      authorizer = Google::Auth::ServiceAccountCredentials.make_creds(json_key_io: StringIO.new(CREDENTIALS), scope: SCOPE)
-      @service = Google::Apis::SheetsV4::SheetsService.new
-      @service.authorization = authorizer
-    end
-
     def send_message
-      @child = Child.find_by(id: @child_id)
-      unless @child
-        @errors << "Enfant introuvable : #{row[1].strip}"
-        return
-      end
-
+      find_child
+      return unless @child
       return if @child.tag_list.include?(EVAL_MESSAGE_TAG)
 
-      # message_service = 
+      message = "wording #{Rails.application.routes.url_helpers.eval_form_url(id: @child_id, sc: @child.security_code)}"
 
-      # @errors << "Impossible d'ajouter de tag à l'enfant avec child_id #{@child_id}" unless @child.save
+      message_service = ProgramMessageService.new(
+        Time.zone.now.strftime('%d-%m-%Y'),
+        Time.zone.now.strftime('%H:%M'),
+        ["child.#{@child.id}"],
+        message,
+        nil,
+        nil,
+        false,
+        nil,
+        nil,
+        ['active', 'stopped']
+      ).new.call
+      if message_service.errors.any?
+        @errors << "Impossible d'envoyer le message au parent de l'enfant avec child_id #{@child_id} : #{message_service.errors}"
+      else
+        @child.tag_list << EVAL_MESSAGE_TAG
+        @errors << "Impossible d'ajouter le tag à l'enfant avec l'id #{@child.id}" unless @child.save
+      end
     end
   end
 end
