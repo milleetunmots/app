@@ -13,10 +13,10 @@ $(document).ready(function() {
     var imageToSendDiv = $('#image_to_send_div')
     var imageToSendSelect = $('#image_to_send')
     var childSupportId = new URLSearchParams(window.location.search).get('child_support_id')
-    var parentSecurityCode = new URLSearchParams(window.location.search).get('parent_sc')
-    var speakingLink = `${window.location.protocol}//${window.location.host}/c3/sf?cs=${childSupportId}&sc=${parentSecurityCode}`
-    var observingLink = `${window.location.protocol}//${window.location.host}/c3/of?cs=${childSupportId}&sc=${parentSecurityCode}`
-    var call0Link = `${window.location.protocol}//${window.location.host}/c0?cs=${childSupportId}&sc=${parentSecurityCode}`
+    var parentSecurityToken = new URLSearchParams(window.location.search).get('parent_st')
+    var speakingLink = `${window.location.protocol}//${window.location.host}/c3/sf?st=${parentSecurityToken}`
+    var observingLink = `${window.location.protocol}//${window.location.host}/c3/of?st=${parentSecurityToken}`
+    var call0Link = `${window.location.protocol}//${window.location.host}/c0?st=${parentSecurityToken}`
 
     function assignDefaultValuesToFields() {
         message_intro.val(`Bonjour !\nVoici votre petite mission :\n`)

@@ -1,27 +1,26 @@
 module Typeform
   class MidwayFormService < Typeform::TypeformService
-    FIELD_IDS = {
-      mid_term_rate: ENV['MID_TERM_TYPEFORM_RATE_ID'],
-      mid_term_reaction: ENV['MID_TERM_TYPEFORM_REACTION_ID'],
-      mid_term_speech: ENV['MID_TERM_TYPEFORM_SPEECH_ID']
+    FIELDS = {
+      mid_term_rate: ENV['MID_TERM_TYPEFORM_RATE_FIELD'],
+      mid_term_reaction: ENV['MID_TERM_TYPEFORM_REACTION_FIELD'],
+      mid_term_speech: ENV['MID_TERM_TYPEFORM_SPEECH_FIELD']
     }.freeze
 
     attr_reader :errors
 
     def call
-      verify_hidden_variables('child_support_id')
-      verify_hidden_variables('parent_id')
-      find_child_support
+      # verify_security_token
       find_parent
+      find_child_support
       return self unless @errors.empty?
 
       @answers.each do |answer|
         case answer[:field][:id]
-        when FIELD_IDS[:mid_term_rate]
+        when FIELDS[:mid_term_rate]
           @parent.mid_term_rate = answer[:number]
-        when FIELD_IDS[:mid_term_reaction]
+        when FIELDS[:mid_term_reaction]
           @parent.mid_term_reaction = answer[:choice][:label]
-        when FIELD_IDS[:mid_term_speech]
+        when FIELDS[:mid_term_speech]
           @parent.mid_term_speech = answer[:text]
         end
       end

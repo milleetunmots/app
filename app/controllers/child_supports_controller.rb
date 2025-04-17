@@ -2,7 +2,7 @@ class ChildSupportsController < ApplicationController
   skip_before_action :authenticate_admin_user!, only: [:confirm_end_support, :call3_speaking_form, :call3_observing_form, :call0_form]
 
   def confirm_end_support
-    find_child_support(params[:child_support_id], params[:parent1_sc])
+    find_child_support(params[:child_support_id], params[:parent1_sc], nil)
     verify_child_support
     return if @child_support.tag_list.include?('arrêt accompagnante - programme')
 
@@ -74,11 +74,21 @@ class ChildSupportsController < ApplicationController
 
   private
 
-  def find_child_support(child_support_id, security_code)
-    @child_support = ChildSupport.find_by(id: child_support_id)
+  def find_child_support(child_support_id, security_code, security_token)
+    if security_token.present?
+      parent = Parent.find_by(security_token: security_token)
+      not_found and return unless parent
+
+      current_child = parent.current_child
+      not_found and return unless current_child
+
+      @child_support = current_child.child_support
+    else
+      @child_support = ChildSupport.find_by(id: child_support_id)
+    end
 
     not_found and return unless @child_support
-    not_found and return unless @child_support.parent1.security_code == security_code
+    not_found and return if security_code.present? && @child_support.parent1.security_code != security_code 
   end
 
   def verify_child_support
@@ -87,11 +97,11 @@ class ChildSupportsController < ApplicationController
 
   def handle_call_form
     params[:child_support_id] = params.delete(:cs) if params[:cs]
-    find_child_support(params[:child_support_id], params[:sc])
+    find_child_support(params[:child_support_id], params[:sc], params[:st])
     supporter_name = @child_support.supporter&.decorate&.first_name || '1001mots'
     current_child_name = @child_support.current_child&.first_name || 'Votre enfant'
     return if params[:supporter_name] == supporter_name && params[:current_child_name] == current_child_name
 
-    redirect_to url_for(params.permit!.to_h.merge(child_support_id: params[:child_support_id], supporter_name: supporter_name, current_child_name: current_child_name)) and return
+    redirect_to url_for(params.permit!.to_h.merge(supporter_name: supporter_name, current_child_name: current_child_name)) and return
   end
 end

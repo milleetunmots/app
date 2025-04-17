@@ -1,6 +1,6 @@
 class Parent::ProgramCafSubscriptionReminderService
 
-  MESSAGE_V1 = "1001mots Bonjour, Vous avez commencé votre inscription à 1001mots, mais il vous reste une dernière étape : prendre rdv pour un appel avec une accompagnante 1001mots.\nPrenez rendez-vous dès aujourd'hui et commencez l'accompagnement dès la semaine prochaine ! https://form.typeform.com/to/w9H4beIF#cs=xxxxx&ccn=xxxxx&pln=xxxxx&email=xxxxx&ccm=xxxxx&sc=xxxxx\nÀ très vite,\nL'équipe 1001mots".freeze
+  MESSAGE_V1 = "1001mots Bonjour, Vous avez commencé votre inscription à 1001mots, mais il vous reste une dernière étape : prendre rdv pour un appel avec une accompagnante 1001mots.\nPrenez rendez-vous dès aujourd'hui et commencez l'accompagnement dès la semaine prochaine ! https://form.typeform.com/to/#{ENV['CAF_SUBSCRIPTION_TYPEFORM_ID']}#st=xxxxx&ccn=xxxxx&pln=xxxxx&email=xxxxx&ccm=xxxxx\nÀ très vite,\nL'équipe 1001mots".freeze
   MESSAGE_V2 = "1001mots Bonjour, Vous avez commencé votre inscription à 1001mots, mais il vous reste une dernière étape : prendre rdv pour un appel avec une accompagnante 1001mots.\nPrenez rendez-vous dès aujourd'hui et commencez l'accompagnement dès la semaine prochaine ! https://calendly.com/d/cmtq-2md-6r5/1er-appel-1001mots?preview_source=et_card&month=2025-03\nÀ très vite,\nL’équipe 1001mots".freeze
 
   attr_reader :errors
@@ -16,12 +16,11 @@ class Parent::ProgramCafSubscriptionReminderService
     @children.find_each do |child|
       @parent = child.parent1
       @message = @message_v1 ? MESSAGE_V1 : MESSAGE_V2
-      @message = @message.gsub('cs=xxxxx', "cs=#{child.child_support_id}")
+      @message = @message.gsub('st=xxxxx', "st=#{@parent.security_token}")
       @message = @message.gsub('ccn=xxxxx', "ccn=#{child.first_name}")
       @message = @message.gsub('pln=xxxxx', "pln=#{@parent.last_name}")
       @message = @message.gsub('email=xxxxx', "email=#{@parent.email}")
       @message = @message.gsub('ccm=xxxxx', "ccm=#{child.months}")
-      @message = @message.gsub('sc=xxxxx', "sc=#{@parent.security_code}")
       service = ProgramMessageService.new(
         @date.strftime('%d-%m-%Y'),
         @date.strftime('%H:%M'),

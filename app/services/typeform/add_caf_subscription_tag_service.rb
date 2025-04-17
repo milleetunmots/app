@@ -6,7 +6,7 @@ module Typeform
     def call
       return self if ENV['CAF_SUBSCRIPTION'].nil?
 
-      verify_hidden_variable('cs')
+      # verify_security_token
       find_child_support
       return self unless @errors.empty?
 
@@ -24,11 +24,6 @@ module Typeform
         end
       end
       self
-    end
-
-    def find_child_support
-      @child_support = ChildSupport.find_by(id: @hidden_variables[:cs])
-      @errors << { message: 'ChildSupport not found', child_support_id: @hidden_variables[:cs] } unless @child_support
     end
   end
 end
