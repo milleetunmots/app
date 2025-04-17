@@ -38,14 +38,7 @@ class ChildrenController < ApplicationController
       @child.build_children_source(source_id: children_source_params&.dig(:source_id), details: children_source_params&.dig(:details), registration_department: children_source_params&.dig(:registration_department))
       render action: :new
     elsif current_registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].present?
-      redirect_to created_child_path(
-        cs: @child.child_support.id,
-        ccn: @child.first_name,
-        pln: @child.parent1.last_name,
-        email: @child.parent1.email,
-        ccm: @child.months,
-        sc: @child.parent1.security_code
-      )
+      redirect_to created_child_path(caf_subscripted_child_id: @child.id)
     elsif @child.source.name == ENV['CAF93'] && ENV['EVAL25'].present?
       current_child =
         if @child.siblings.length > 1
@@ -100,7 +93,8 @@ class ChildrenController < ApplicationController
       @new_link = new_pmi_registration_path
     when 2
       if ENV['CAF_SUBSCRIPTION'].present?
-        @caf_subscription_form = true
+        @child_id = params[:caf_subscripted_child_id]
+        set_caf_subscription_form_variables
       elsif ENV['EVAL25'].present? && params[:eval_25_child_id].present?
         @child_id = params[:eval_25_child_id]
         set_eval25_form_variables
@@ -133,11 +127,21 @@ class ChildrenController < ApplicationController
 
   def set_eval25_form_variables
     child = Child.find(@child_id)
-    @eval_25 = true
+    @eval25 = true
     @ccn = child.first_name
     @ccm = child.months
     @pfn = child.parent1.first_name
     @pln = child.parent1.last_name
+  end
+
+  def set_caf_subscription_form_variables
+    child = Child.find(@child_id)
+    @st = child.parent1.security_token
+    @caf_subscription_form = true
+    @ccn = child.first_name
+    @pln = child.parent1.last_name
+    @email = child.parent1.email
+    @ccm = child.months
   end
 
   def child_creation_params
