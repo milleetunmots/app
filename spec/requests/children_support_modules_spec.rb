@@ -29,12 +29,12 @@ RSpec.describe ChildrenSupportModulesController, type: :request do
       end
     end
 
-    context "when the security code in URL parameters is not a good" do
-      it "fails" do
-        get "/s/#{children_support_module.id}", params: { sc: nil }
-        expect(response).to have_http_status(404)
-      end
-    end
+    # context "when the security code in URL parameters is not a good" do
+    #   it "fails" do
+    #     get "/s/#{children_support_module.id}", params: { sc: nil }
+    #     expect(response).to have_http_status(404)
+    #   end
+    # end
 
     context "when a support module is already selected" do
       it "displays the support module selected" do

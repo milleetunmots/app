@@ -163,6 +163,7 @@ class Parent < ApplicationRecord
   def initialize(attributes = {})
     super
     self.security_token = SecureRandom.hex(16)
+    self.security_code = SecureRandom.hex(2)
   end
 
   # ---------------------------------------------------------------------------
