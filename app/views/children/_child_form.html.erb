@@ -7,7 +7,14 @@
 <% if defined?(form_without_comments) && !form_without_comments %>
   <% if defined?(with_support) && with_support %>
     <%= f.simple_fields_for :child_support do |child_support_f| %>
-      <%= child_support_f.input :important_information, label: 'Commentaires', input_html: { rows: 5 } %>
+      <%= 
+        child_support_f.input :important_information, 
+        label: 'Commentaires',
+        input_html: { 
+          rows: 5,
+          placeholder: (defined?(with_placeholder) && with_placeholder ? "Précisez ici les informations utiles pour l'accompagnante qui suivra la famille (multilinguisme, prématurité, écrans, retards de langage dans la fratrie, etc.)." : nil)
+        }
+      %>
     <% end %>
   <% end %>
 <% end %>

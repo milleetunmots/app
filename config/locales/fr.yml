@@ -57,16 +57,23 @@ fr:
     </ul>"
     form2:
       <ul style="list-style-type:none; padding:0; line-height:1.5;">
-        <li style="margin-bottom:8px;">🗓️ Programme d’<b>un an</b>, adapté à l’âge de votre bébé (entre 0 et 30 mois)</li>
+        <li style="margin-bottom:8px;">🗓️ Programme d'<b>un an</b>, adapté à l’âge de votre bébé (entre 0 et 30 mois)</li>
         <li style="margin-bottom:8px;">🎁 <b>Gratuit</b> et sans engagement</li>
         <li style="margin-bottom:8px;">✨ Inscription réservée aux parents ayant reçu un email ou SMS de leur <b>CAF</b></li>
       </ul>
-    form3: "<b>L’accompagnement 1001mots est conseillé pour des enfants entre 0 et 3 ans.</b> Pour faciliter l’accompagnement, nous avons besoin des coordonnées d’au moins un parent.<br/><br/>La famille recevra gratuitement&nbsp;:<ul><li>3 SMS par semaine avec des idées de jeux et des conseils pour éveiller le langage de l'enfant</li><li>des livres adaptés à l’âge de l’enfant</li><li>des appels par des spécialistes de l'éveil langagier pour prendre de ses nouvelles et répondre à vos questions</li></ul><b>L'accompagnement 1001mots est gratuit et sans engagement&nbsp;:&nbsp;</b>la famille peut choisir d'arrêter à n'importe quel moment."
+    form3:
+      <ul style="list-style-type:none; padding:0; line-height:1.5;">
+        <li style="margin-bottom:8px;">🗓️ Programme d'<b>un an</b>, adapté à l'âge de l'enfant (entre 0 et 30 mois)</li>
+        <li style="margin-bottom:8px;">🎁 <b>Gratuit</b> et sans engagement pour les familles</li>
+        <li style="margin-bottom:8px;">💡 Des <b>idées d'activités</b> et des <b>conseils</b> 3 fois par <b>SMS</b></li>
+        <li style="margin-bottom:8px;">📚 <b>6 livres</b> adaptés à l'âge de l'enfant et aux thèmes choisis par les parents</li>
+        <li style="margin-bottom:8px;">📞 <b>4 appels</b> avec une accompagnante (spécialiste de la petite enfance) pour écouter les parents et leur donner de nouvelles idées pour parler toujours plus avec leur bébé</li>
+      </ul>    
     form4: "<b>Votre enfant a entre 0 et 30 mois&nbsp;?</b><br/>Inscrivez-vous pour recevoir gratuitement&nbsp;:<ul><li>3 SMS par semaine avec des idées de jeux et des conseils pour éveiller son langage</li><li>des livres adaptés à son âge</li><li>des appels par des spécialistes de l'éveil langagier pour prendre de ses nouvelles et répondre à vos questions</li></ul><b>L’accompagnement est gratuit et sans engagement :</b> vous pouvez choisir de l’arrêter à n’importe quel moment."
     form5: "<b>L’accompagnement 1001mots est conseillé pour des enfants entre 0 et 3 ans.</b> Pour faciliter l’accompagnement, nous avons besoin des coordonnées d’au moins un parent.<br/><br/>La famille recevra gratuitement&nbsp;:<ul><li>3 SMS par semaine avec des idées de jeux et des conseils pour éveiller le langage de l'enfant</li><li>des livres adaptés à l’âge de l’enfant</li><li>des appels par des spécialistes de l'éveil langagier pour prendre de ses nouvelles et répondre à vos questions</li></ul><b>L'accompagnement 1001mots est gratuit et sans engagement&nbsp;:&nbsp;</b>la famille peut choisir d'arrêter à n'importe quel moment."
   inscription_terms_accepted_at_label:
     parent: "Je donne mon accord pour que mes données soient collectées par 1001mots afin de bénéficier du programme d’accompagnement à l’éveil au langage. Cela inclut l’envoi de 3 à 4 SMS/messages par semaine avec des conseils et des idées d’activités pour mon bébé. Pour en savoir plus sur la gestion de mes données et mes droits, je peux consulter la <a href='https://1001mots.org/politique-de-confidentialite/' target='_blank'>Politique de confidentialité</a>."
-    pro: "Les parents donnent leur accord pour que les données soient gardées par 1001mots"
+    pro: "Les parents donnent leur accord pour que les données soient collectées par 1001mots afin de recevoir les SMS, les appels et les livres."
   source_label:
     pmi: "Sélectionnez votre PMI&nbsp;"
     caf: "Précisez votre CAF&nbsp;:"
