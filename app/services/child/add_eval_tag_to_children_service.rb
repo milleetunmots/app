@@ -9,22 +9,25 @@ class Child
     STATUS_MAPPING = {
       completed: ['Répondu'],
       refused: [
-        'Non réponse après 3 tentatives KO',
         'Refus étude',
         'Arrêt pour exclusion',
-        'Non terminé (parent injoignable)',
-        'Rdv sans réponse après 3 tentatives'
+        'Non terminé (parent injoignable)'
       ],
       pending: [
         'Rdv pour y répondre',
         'Incomplet (à terminer)',
         'A rappeler plus tard',
         'Rdv non honoré (à rappeler)'
+      ],
+      three_attempts: [
+        'Non réponse après 3 tentatives KO',
+        'Rdv sans réponse après 3 tentatives'
       ]
     }.freeze
     TAGS = {
       completed: 'Eval25 - validée',
-      refused: 'Eval25 - refusée'
+      refused: 'Eval25 - refusée',
+      three_attempts: 'Eval25 - 3 tentatives'
     }.freeze
 
     attr_reader :errors
@@ -67,7 +70,7 @@ class Child
         return
       end
 
-      return if @child.tag_list.include?(TAGS[:completed]) || @child.tag_list.include?(TAGS[:refused])
+      return if @child.tag_list.include?(TAGS[:completed]) || @child.tag_list.include?(TAGS[:refused]) || @child.tag_list.include?(TAGS[:three_attempts])
 
       return unless @child.group_status.in? %w[waiting active paused]
 
@@ -76,6 +79,8 @@ class Child
         @child.tag_list << TAGS[:completed]
       when :refused
         @child.tag_list << TAGS[:refused]
+      when :three_attempts
+        @child.tag_list << TAGS[:three_attempts]
       when :pending
         return
       else
@@ -92,6 +97,8 @@ class Child
         :refused
       elsif STATUS_MAPPING[:pending].include?(@response_status)
         :pending
+      elsif STATUS_MAPPING[:three_attempts].include?(@response_status)
+        :three_attempts
       else
         :unknown
       end
