@@ -2,9 +2,10 @@ require 'google/apis/sheets_v4'
 require 'googleauth'
 
 class Child
+
   class AddEvalTagToChildrenService
 
-    CREDENTIALS = Base64.decode64(ENV['GOOGLE_CREADENTIALS_JSON']).freeze
+    CREDENTIALS = Base64.decode64(ENV.fetch('GOOGLE_CREADENTIALS_JSON', nil)).freeze
     SCOPE = ['https://www.googleapis.com/auth/spreadsheets'].freeze
     STATUS_MAPPING = {
       completed: ['Répondu'],
@@ -38,7 +39,7 @@ class Child
 
     def call
       initialize_sheets_service
-      @response = @service.get_spreadsheet_values(ENV['FAMILY_SUPPORTS_SHEET_ID'], ENV['FAMILY_SUPPORTS_SHEET_NAME'])
+      @response = @service.get_spreadsheet_values(ENV.fetch('FAMILY_SUPPORTS_SHEET_ID', nil), ENV.fetch('FAMILY_SUPPORTS_SHEET_NAME', nil))
       if @response.values.empty?
         @errors << 'Aucune donnée trouvée'
         return self
@@ -66,7 +67,7 @@ class Child
     def process_child
       @child = Child.find_by(id: @child_id)
       unless @child
-        @errors << "Enfant introuvable : #{row[1].strip}"
+        @errors << "Enfant introuvable : #{@child_id}"
         return
       end
 
