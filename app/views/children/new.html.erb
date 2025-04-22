@@ -64,6 +64,11 @@
               </div>
               <div class="col-sm-6">
                 <%= children_source_form.input :details, required: false, label: @source_details_label.html_safe %>
+                <% if @form_path == pmi_registration_path %>
+                  <div style="margin-top: 8px; display: none;" id="children_source_detail_alert">
+                    <b>Pour inscrire des enfants suivis à l’hôpital Robert Debré, veuillez utiliser <a href="https://app.1001mots.org/inscription5" target="_blank">ce formulaire</a>.</b>
+                  </div>
+                <% end %>
               </div>
             <% end %>
           </div>
@@ -90,13 +95,13 @@
             <div class="card">
               <div class="card-body">
                 <div class="child-fields">
-                  <%= render 'child_form', f: f, with_support: true, form_without_comments: @form_path == caf_registration_path || @form_path == boa_registration_path %>
+                  <%= render 'child_form', f: f, with_support: true, form_without_comments: @form_path == caf_registration_path || @form_path == boa_registration_path, with_placeholder: @form_path == pmi_registration_path  %>
                 </div>
                 <% @child.siblings.each_with_index do |sibling, i| %>
                   <div class="child-fields-container <%= 'hidden' unless sibling.gender %>">
                     <div class="separator"></div>
                     <div class="add-child-btn-container">
-                      <%= link_to @form_path == caf_registration_path || @form_path == boa_registration_path ? '+ Autre enfant de moins de 30 mois' : '+ Ajouter un autre enfant', '#', class: 'btn btn-primary add-child-btn' %>
+                      <%= link_to @form_path.in?([caf_registration_path, boa_registration_path, pmi_registration_path]) ? '+ Autre enfant de moins de 30 mois' : '+ Ajouter un autre enfant', '#', class: 'btn btn-primary add-child-btn' %>
                     </div>
                     <div class="child-fields">
                       <%= link_to '- Annuler', '#', class: 'btn btn-danger float-right rm-child-btn' %>
@@ -111,7 +116,7 @@
           </div>
 
           <div class="col-sm-8">
-            <h2>Parents qui recevront les SMS</h2>
+            <h2>Parents qui recevront les SMS<%= ' et les appels' if @form_path == pmi_registration_path %></h2>
             <div class="row">
               <div class="col-sm-6">
                 <div class="card">
@@ -159,16 +164,17 @@
                 <% end %>
               </div>
             </div>
+            <div class="card">
+              <div class="card-body"
+                <%= f.simple_fields_for :parent1 do |parent1_f| %>
+                  <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label.html_safe, checked_value: Time.zone.now %>
+                <% end %>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div class="row justify-content-sm-center end-buttons">
-          <div class="col-sm-8">
-            <%= f.simple_fields_for :parent1 do |parent1_f| %>
-              <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label.html_safe, checked_value: Time.zone.now %>
-            <% end %>
-          </div>
-          <div class="col-sm-4">
+        <div class="row justify-content-sm-center end-buttons" style="margin-top: 10px">
+          <div class="col-sm-4 offset-sm-8">
             <div class="text-right accepted-fields">
               <%= f.button :submit, @form_path == caf_registration_path && ENV['CAF_SUBSCRIPTION'].present? ? 'Enregistrer et continuer' : 'Valider', class: 'btn-primary btn-lg' %>
             </div>
