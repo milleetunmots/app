@@ -2,6 +2,17 @@
   var url = new URL(window.location.href);
   var pathName = url.pathname;
   var childrenSourceSelect = $('#child_children_source_attributes_source_id');
+  var sourceDetailsInput = $('#child_children_source_attributes_details');
+  var sourceDetailsAlert = $('#children_source_detail_alert');
+
+  sourceDetailsInput.on('input', function() {
+    const value = $(this).val().toLowerCase();
+    if(value.includes('debré') || value.includes('debre')) {
+      sourceDetailsAlert.show();
+    } else {
+      sourceDetailsAlert.hide();
+    }
+  });
 
   var changeChildrenSourceSelectOptions = function(options) {
     childrenSourceSelect.empty();
