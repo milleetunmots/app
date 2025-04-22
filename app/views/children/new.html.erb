@@ -159,16 +159,17 @@
                 <% end %>
               </div>
             </div>
+            <div class="card">
+              <div class="card-body"
+                <%= f.simple_fields_for :parent1 do |parent1_f| %>
+                  <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label.html_safe, checked_value: Time.zone.now %>
+                <% end %>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div class="row justify-content-sm-center end-buttons">
-          <div class="col-sm-8">
-            <%= f.simple_fields_for :parent1 do |parent1_f| %>
-              <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label.html_safe, checked_value: Time.zone.now %>
-            <% end %>
-          </div>
-          <div class="col-sm-4">
+        <div class="row justify-content-sm-center end-buttons" style="margin-top: 10px">
+          <div class="col-sm-4 offset-sm-8">
             <div class="text-right accepted-fields">
               <%= f.button :submit, @form_path == caf_registration_path && ENV['CAF_SUBSCRIPTION'].present? ? 'Enregistrer et continuer' : 'Valider', class: 'btn-primary btn-lg' %>
             </div>
