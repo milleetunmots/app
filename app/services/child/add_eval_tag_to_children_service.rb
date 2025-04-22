@@ -2,6 +2,7 @@ require 'google/apis/sheets_v4'
 require 'googleauth'
 
 class Child
+
   class AddEvalTagToChildrenService
 
     CREDENTIALS = Base64.decode64(ENV['GOOGLE_CREADENTIALS_JSON']).freeze
@@ -66,7 +67,7 @@ class Child
     def process_child
       @child = Child.find_by(id: @child_id)
       unless @child
-        @errors << "Enfant introuvable : #{row[1].strip}"
+        @errors << "Enfant introuvable : #{@child_id}"
         return
       end
 
