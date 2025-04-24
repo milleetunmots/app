@@ -3,23 +3,23 @@ module Typeform
     include ApplicationHelper
 
     FIELDS = {
-      name: ENV['TYPEFORM_NAME'],
-      child_count: ENV['TYPEFORM_CHILD_COUNT'],
-      already_working_with: ENV['TYPEFORM_ALREADY_WORKING_WITH'],
-      books_quantity: ENV['TYPEFORM_BOOKS_QUANTITY'],
-      most_present_parent: ENV['TYPEFORM_MOST_PRESENT_PARENT'],
-      other_parent_phone: ENV['TYPEFORM_OTHER_PARENT_PHONE'],
-      other_parent_degree: ENV['TYPEFORM_OTHER_PARENT_DEGREE'],
-      other_parent_degree_in_france: ENV['TYPEFORM_OTHER_PARENT_DEGREE_IN_FRANCE'],
-      degree: ENV['TYPEFORM_DEGREE'],
-      degree_in_france: ENV['TYPEFORM_DEGREE_IN_FRANCE'],
-      reading_frequency: ENV['TYPEFORM_READING_FREQUENCY'],
-      tv_frequency: ENV['TYPEFORM_TV_FREQUENCY'],
-      is_bilingual: ENV['TYPEFORM_IS_BILINGUAL'],
-      help_my_child_to_learn_is_important: ENV['TYPEFORM_HELP_MY_CHILD_TO_LEARN_IS_IMPORTANT'],
-      would_like_to_do_more: ENV['TYPEFORM_WOULD_LIKE_TO_DO_MORE'],
-      would_receive_advices: ENV['TYPEFORM_WOULD_LIKE_TO_RECEIVE_ADVICES'],
-      parental_contexts: ENV['TYPEFORM_PARENTAL_CONTEXTS']
+      name: ENV['INITIAL_TYPEFORM_NAME'],
+      child_count: ENV['INITIAL_TYPEFORM_CHILD_COUNT'],
+      already_working_with: ENV['INITIAL_TYPEFORM_ALREADY_WORKING_WITH'],
+      books_quantity: ENV['INITIAL_TYPEFORM_BOOKS_QUANTITY'],
+      most_present_parent: ENV['INITIAL_TYPEFORM_MOST_PRESENT_PARENT'],
+      other_parent_phone: ENV['INITIAL_TYPEFORM_OTHER_PARENT_PHONE'],
+      other_parent_degree: ENV['INITIAL_TYPEFORM_OTHER_PARENT_DEGREE'],
+      other_parent_degree_in_france: ENV['INITIAL_TYPEFORM_OTHER_PARENT_DEGREE_IN_FRANCE'],
+      degree: ENV['INITIAL_TYPEFORM_DEGREE'],
+      degree_in_france: ENV['INITIAL_TYPEFORM_DEGREE_IN_FRANCE'],
+      reading_frequency: ENV['INITIAL_TYPEFORM_READING_FREQUENCY'],
+      tv_frequency: ENV['INITIAL_TYPEFORM_TV_FREQUENCY'],
+      is_bilingual: ENV['INITIAL_TYPEFORM_IS_BILINGUAL'],
+      help_my_child_to_learn_is_important: ENV['INITIAL_TYPEFORM_HELP_MY_CHILD_TO_LEARN_IS_IMPORTANT'],
+      would_like_to_do_more: ENV['INITIAL_TYPEFORM_WOULD_LIKE_TO_DO_MORE'],
+      would_receive_advices: ENV['INITIAL_TYPEFORM_WOULD_LIKE_TO_RECEIVE_ADVICES'],
+      parental_contexts: ENV['INITIAL_TYPEFORM_PARENTAL_CONTEXTS']
     }.freeze
 
     attr_reader :data
@@ -32,7 +32,7 @@ module Typeform
     end
 
     def call
-      # verify_security_token
+      verify_security_token
       find_child_support
       return self unless @errors.empty?
 
@@ -46,6 +46,7 @@ module Typeform
 
     def parse_answers
       @answers.each do |answer|
+        # byebug
         case answer[:field][:id]
         when FIELDS[:name]
           @data[:name] = answer[:text]
