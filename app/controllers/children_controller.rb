@@ -234,7 +234,7 @@ class ChildrenController < ApplicationController
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
       @source_collection = :bao
       @source_label = I18n.t('source_label.parent')
-      @source_details_label = I18n.t('source_details_label.parent')
+      @source_details_label = I18n.t('source_details_label.referral')
       @child_min_birthdate = Child.min_birthdate
       @degree_level_label = "Dernier diplôme obtenu (ou équivalence)"
       @degree_obtained_in_label = "Dans quel pays ce diplôme a-t-il été obtenu ?"
