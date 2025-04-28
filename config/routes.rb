@@ -36,7 +36,7 @@ Rails.application.routes.draw do
     patch '/', to: 'workshop_participation#update', as: :update_workshop_participation
   end
 
-  get 'confirm-end-support/:child_support_id/:parent1_sc', to: 'child_supports#confirm_end_support', as: :confirm_end_support
+  get 'confirm-end-support/:st', to: 'child_supports#confirm_end_support', as: :confirm_end_support
   get 'child-support-updated-at/:child_support_id', to: 'child_supports#updated_at', as: :child_support_updated_at
   get 'child-support-supporter_first_name/:child_support_id', to: 'child_supports#supporter_first_name', as: :child_support_supporter_first_name
   get 'child-support-call-goal/:child_support_id/:call_index', to: 'child_supports#call_goal', as: :child_support_call_goals
