@@ -51,11 +51,12 @@ class Child < ApplicationRecord
 
   include Discard::Model
 
-  attr_accessor :parent1_selection, :parent2_selection
+  attr_accessor :parent1_selection, :parent2_selection, :book_delivery_location
 
   GENDERS = %w[m f].freeze
   GROUP_STATUS = %w[waiting active paused stopped disengaged not_supported].freeze
   TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
+  BOOK_DELIVERY_LOCATION = %w[home relative_home pmi temporary_shelter association police_or_military_station].freeze
   LANDS = {
       'Paris 18 eme' => Parent::PARIS_18_EME_POSTAL_CODE,
       'Paris 20 eme' => Parent::PARIS_20_EME_POSTAL_CODE,

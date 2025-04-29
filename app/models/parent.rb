@@ -6,6 +6,7 @@
 #  address                             :string           not null
 #  address_supplement                  :string
 #  aircall_datas                       :jsonb
+#  book_delivery_organisation_name     :string
 #  city_name                           :string           not null
 #  degree                              :string
 #  degree_country_at_registration      :string
@@ -64,7 +65,7 @@ class Parent < ApplicationRecord
 
   include Discard::Model
 
-  attr_accessor :parent2_creation, :created_by_us
+  attr_accessor :parent2_creation, :created_by_us, :attention_to
 
   DEGREE_LEVELS = %w[no_degree brevet bep_cap bac bac+1 bac+2 bac+3 bac+4 bac+5].freeze
   DEGREE_COUNTRIES = %w[france other].freeze

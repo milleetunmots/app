@@ -145,6 +145,13 @@ fr:
         stopped: Arrêté
         disengaged: Désengagé
         not_supported: Non accompagné
+      child/book_delivery_location:
+        home: A son domicile
+        relative_home: Au domicile d'un proche
+        pmi: A la PMI
+        temporary_shelter: Dans un lieu d'hébergement temporaire
+        association: Dans les locaux d'une association
+        police_or_military_station: Dans une caserne ou un commissariat
       children_support_module:
         << : *SHARED
         name_display: Nom

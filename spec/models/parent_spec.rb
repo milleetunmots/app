@@ -6,6 +6,7 @@
 #  address                             :string           not null
 #  address_supplement                  :string
 #  aircall_datas                       :jsonb
+#  book_delivery_organisation_name     :string
 #  city_name                           :string           not null
 #  degree                              :string
 #  degree_country_at_registration      :string

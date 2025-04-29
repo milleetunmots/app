@@ -4,6 +4,7 @@
   var childrenSourceSelect = $('#child_children_source_attributes_source_id');
   var sourceDetailsInput = $('#child_children_source_attributes_details');
   var sourceDetailsAlert = $('#children_source_detail_alert');
+  var childBookDeliveryLocationSelect = $('#child_book_delivery_location');
 
   sourceDetailsInput.on('input', function() {
     const value = $(this).val().toLowerCase();
@@ -97,6 +98,161 @@
   };
 
   var init = function() {
+    if (childBookDeliveryLocationSelect.length > 0) {
+      childBookDeliveryLocationSelect.select2();
+      childBookDeliveryLocationSelect.data().select2.$container.addClass("form-control");
+      var bookDeliveryOrganisationNameDiv = $('#book_delivery_organisation_name_div');
+      var bookDeliveryOrganisationNamelabel = $('label[for="child_parent1_attributes_book_delivery_organisation_name"]');
+      var bookDeliveryOrganisationNameInput = $('#child_parent1_attributes_book_delivery_organisation_name');
+      var attentionToDiv = $('#attention_to_div');
+      var attentionToInput = $('#child_parent1_attributes_attention_to');
+      var letterboxLabel = $('label[for="child_parent1_attributes_letterbox_name"]');
+      var letterboxLableText = 'Nom de famille sur la boîte aux lettres ';
+
+      bookDeliveryOrganisationNameDiv.hide();
+      attentionToDiv.hide();
+
+      childBookDeliveryLocationSelect.on('change', function () {
+        var selectedValue = $(this).val();
+        var parent1FirstName = $('#child_parent1_attributes_first_name').val();
+        var parent1LastName = $('#child_parent1_attributes_last_name').val();
+        var childFirstName = $('#child_first_name').val();
+        var childLastName = $('#child_last_name').val();
+
+
+        switch(selectedValue) {
+          case 'home':
+            letterboxLabel.text(letterboxLableText);
+            if (letterboxLabel.find('abbr').length === 0) {
+              var abbrElement = document.createElement('abbr');
+              abbrElement.setAttribute('title', 'required');
+              abbrElement.innerHTML = ' *'
+              letterboxLabel.append(abbrElement);
+            }
+            bookDeliveryOrganisationNamelabel.removeClass('required').addClass('optional');
+            bookDeliveryOrganisationNameInput.removeAttr('required');
+            bookDeliveryOrganisationNameInput.val('');
+            bookDeliveryOrganisationNameDiv.hide();
+            attentionToInput.val('');
+            attentionToDiv.hide();
+            var abbr = bookDeliveryOrganisationNamelabel.find('abbr');
+            if (abbr.length !== 0) {
+              abbr.remove();
+            }
+            break;
+
+          case 'relative_home':
+            letterboxLabel.text('Nom de la personne hébergeant la famille (nom sur la boîte aux lettres)');
+            if (letterboxLabel.find('abbr').length === 0) {
+              var abbrElement = document.createElement('abbr');
+              abbrElement.setAttribute('title', 'required');
+              abbrElement.innerHTML = ' *'
+              letterboxLabel.append(abbrElement);
+            }
+            bookDeliveryOrganisationNameInput.val('');
+            bookDeliveryOrganisationNameDiv.hide();
+            attentionToInput.val(`${parent1FirstName} ${parent1LastName}`);
+            attentionToDiv.show()
+            break;
+
+          case 'pmi':
+            letterboxLabel.text(letterboxLableText);
+            if (letterboxLabel.find('abbr').length === 0) {
+              var abbrElement = document.createElement('abbr');
+              abbrElement.setAttribute('title', 'required');
+              abbrElement.innerHTML = ' *'
+              letterboxLabel.append(abbrElement);
+            }
+            bookDeliveryOrganisationNamelabel.removeClass('optional').addClass('required');
+            bookDeliveryOrganisationNameInput.attr('required', true);
+            bookDeliveryOrganisationNamelabel.text('Nom de la PMI ');
+            bookDeliveryOrganisationNameInput.val('');
+            if (bookDeliveryOrganisationNamelabel.find('abbr').length === 0) {
+              var abbrElement = document.createElement('abbr');
+              abbrElement.setAttribute('title', 'required');
+              abbrElement.innerHTML = ' *'
+              bookDeliveryOrganisationNamelabel.append(abbrElement);
+            }
+            attentionToInput.val(`${childFirstName} ${childLastName}`);
+            attentionToDiv.show();
+            bookDeliveryOrganisationNameDiv.show();
+            break;
+
+          case 'temporary_shelter':
+            letterboxLabel.text(letterboxLableText);
+            if (letterboxLabel.find('abbr').length === 0) {
+              var abbrElement = document.createElement('abbr');
+              abbrElement.setAttribute('title', 'required');
+              abbrElement.innerHTML = ' *'
+              letterboxLabel.append(abbrElement);
+            }
+            bookDeliveryOrganisationNamelabel.removeClass('optional').addClass('required');
+            bookDeliveryOrganisationNameInput.attr('required', true);
+            bookDeliveryOrganisationNamelabel.text('Nom complet de la structure d’accueil (hôtel, résidence sociale…) ');
+            bookDeliveryOrganisationNameInput.val('');
+            if (bookDeliveryOrganisationNamelabel.find('abbr').length === 0) {
+              var abbrElement = document.createElement('abbr');
+              abbrElement.setAttribute('title', 'required');
+              abbrElement.innerHTML = ' *'
+              bookDeliveryOrganisationNamelabel.append(abbrElement);
+            }
+            attentionToInput.val(`${parent1FirstName} ${parent1LastName}`);
+            attentionToDiv.show();
+            bookDeliveryOrganisationNameDiv.show();
+            break;
+
+          case 'association':
+            letterboxLabel.text(letterboxLableText);
+            if (letterboxLabel.find('abbr').length === 0) {
+              var abbrElement = document.createElement('abbr');
+              abbrElement.setAttribute('title', 'required');
+              abbrElement.innerHTML = ' *'
+              letterboxLabel.append(abbrElement);
+            }
+            bookDeliveryOrganisationNamelabel.removeClass('optional').addClass('required');
+            bookDeliveryOrganisationNameInput.attr('required', true);
+            bookDeliveryOrganisationNamelabel.text('Nom complet de l’association ');
+            bookDeliveryOrganisationNameInput.val('');
+            if (bookDeliveryOrganisationNamelabel.find('abbr').length === 0) {
+              var abbrElement = document.createElement('abbr');
+              abbrElement.setAttribute('title', 'required');
+              abbrElement.innerHTML = ' *'
+              bookDeliveryOrganisationNamelabel.append(abbrElement);
+            }
+            attentionToInput.val(`${parent1FirstName} ${parent1LastName}`);
+            attentionToDiv.show();
+            bookDeliveryOrganisationNameDiv.show();
+            break;
+
+          case 'police_or_military_station':
+            letterboxLabel.text(letterboxLableText);
+            if (letterboxLabel.find('abbr').length === 0) {
+              var abbrElement = document.createElement('abbr');
+              abbrElement.setAttribute('title', 'required');
+              abbrElement.innerHTML = ' *'
+              letterboxLabel.append(abbrElement);
+            }
+            bookDeliveryOrganisationNamelabel.removeClass('optional').addClass('required');
+            bookDeliveryOrganisationNameInput.attr('required', true);
+            bookDeliveryOrganisationNamelabel.text('Nom complet de la caserne ou du commissariat ');
+            bookDeliveryOrganisationNameInput.val('');
+            if (bookDeliveryOrganisationNamelabel.find('abbr').length === 0) {
+              var abbrElement = document.createElement('abbr');
+              abbrElement.setAttribute('title', 'required');
+              abbrElement.innerHTML = ' *'
+              bookDeliveryOrganisationNamelabel.append(abbrElement);
+            }
+            attentionToInput.val(`${parent1FirstName} ${parent1LastName}`);
+            attentionToDiv.show();
+            bookDeliveryOrganisationNameDiv.show();
+            break;
+
+          default:
+            break;
+        }
+      });
+    }
+    
     childrenSourceSelect.select2();
     childrenSourceSelect.data().select2.$container.addClass("form-control");
     window.friendOption = []; // setup "Mon entourage" option
