@@ -88,7 +88,7 @@ class ChildSupportsController < ApplicationController
     end
 
     not_found and return unless @child_support
-    not_found and return if security_code.present? && @child_support.parent1.security_code != security_code 
+    not_found and return if security_code.present? && @child_support.parent1.security_code != security_code
   end
 
   def verify_child_support

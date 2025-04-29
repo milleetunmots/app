@@ -19,11 +19,7 @@ module Typeform
       @parent = @hidden_variables[:parent_id].present? ? Parent.find_by(id: @hidden_variables[:parent_id]) : Parent.find_by(security_token: @security_token)
       return if @parent.present?
 
-      if @hidden_variables[:parent_id].present?
-        @errors << { message: 'parent not found', parent_id: @hidden_variables[:parent_id] }
-      else
-        @errors << { message: 'parent not found', security_token: @security_token }
-      end
+      handle_parent_not_found
     end
 
     def find_child_support
@@ -44,13 +40,22 @@ module Typeform
       end
       return if @child_support.present?
 
-      if @hidden_variables[:child_support_id].present?
-        @errors << { message: 'childSupport not found', child_support_id: @hidden_variables[:child_support_id] }
-      elsif @hidden_variables[:cs].present?
-        @errors << { message: 'child support not found', child_support_id: @hidden_variables[:cs] }
-      else
-        @errors << { message: 'child support not found', child_id: current_child.id } unless @child_support
-      end
+      handle_child_support_not_found
+    end
+
+    def handle_parent_not_found
+      error = { message: 'parent not found' }
+      error[:parent_id] = @hidden_variables[:parent_id] if @hidden_variables[:parent_id].present?
+      error[:security_token] = @security_token if @security_token.present?
+      @errors << error
+    end
+
+    def handle_child_support_not_found
+      error = { message: 'child_support not found' }
+      error[:child_support_id] = @hidden_variables[:child_support_id] if @hidden_variables[:child_support_id].present?
+      error[:child_support_id] = @hidden_variables[:cs] if @hidden_variables[:cs].present?
+      error[:child_id] = @parent.current_child if @parent.current_child.present?
+      @errors << error
     end
   end
 end
