@@ -6,6 +6,7 @@
 #  address                             :string           not null
 #  address_supplement                  :string
 #  aircall_datas                       :jsonb
+#  book_delivery_location              :string
 #  book_delivery_organisation_name     :string
 #  city_name                           :string           not null
 #  degree                              :string
@@ -65,7 +66,7 @@ class Parent < ApplicationRecord
 
   include Discard::Model
 
-  attr_accessor :parent2_creation, :created_by_us, :attention_to
+  attr_accessor :parent2_creation, :created_by_us
 
   DEGREE_LEVELS = %w[no_degree brevet bep_cap bac bac+1 bac+2 bac+3 bac+4 bac+5].freeze
   DEGREE_COUNTRIES = %w[france other].freeze
@@ -86,6 +87,7 @@ class Parent < ApplicationRecord
   MANTES_LA_JOLIE_POSTAL_CODE = %w[78520 78200 78711].freeze
   ASNIERES_GENNEVILLIERS_POSTAL_CODE = %w[92600 92230].freeze
   COMMUNICATION_CHANNELS = %w[sms whatsapp].freeze
+  BOOK_DELIVERY_LOCATION = %w[home relative_home pmi temporary_shelter association police_or_military_station].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -124,7 +126,6 @@ class Parent < ApplicationRecord
   validates :first_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
   validates :last_name, presence: true
   validates :last_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
-  validates :letterbox_name, presence: true
   validates :letterbox_name, format: { with: REGEX_VALID_ADDRESS, allow_blank: true, message: INVALID_ADDRESS_MESSAGE }
   validates :address, presence: true
   validates :address, format: { with: REGEX_VALID_ADDRESS, allow_blank: true, message: INVALID_ADDRESS_MESSAGE }
@@ -316,6 +317,14 @@ class Parent < ApplicationRecord
 
   def message_already_sent?(period, message_start)
     events.text_messages.where('originated_by_app = ? AND occurred_at > ? AND body ILIKE ?', true, period, "#{message_start}%").limit(1).any?
+  end
+
+  def attention_to
+    return nil if book_delivery_location.in? [nil, 'home', 'relative_home']
+
+    return "#{current_child.first_name} #{current_child.last_name}" if book_delivery_location == 'pmi'
+
+    "#{first_name} #{last_name}"
   end
 
   # ---------------------------------------------------------------------------

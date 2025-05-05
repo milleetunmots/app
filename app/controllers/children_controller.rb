@@ -152,7 +152,7 @@ class ChildrenController < ApplicationController
   end
 
   def parent1_params
-    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name first_name last_name phone_number gender degree_level_at_registration degree_country_at_registration address_supplement email])[:parent1_attributes]
+    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name first_name last_name phone_number gender degree_level_at_registration degree_country_at_registration address_supplement email book_delivery_organisation_name book_delivery_location])[:parent1_attributes]
   end
 
   def parent2_params

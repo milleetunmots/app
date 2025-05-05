@@ -156,16 +156,22 @@
             </div>
 
             <div class="card">
-              <%if @form_path == pmi_registration_path %>
-                <div class="card-header">
-                  <%= f.input :book_delivery_location,
-                        label: "La famille souhaite recevoir les livres :",
-                        include_blank: false,
-                        collection: child_book_delivery_location_select_collection %>
-                </div>
-              <% end %>
               <div class="card-body">
-                <%= render 'address_form', f: f, form_with_book_delivery_organisation_name: @form_path == pmi_registration_path %>
+                <h3 class="card-title">Adresse pour recevoir les livres</h3>
+                <% if @form_path == pmi_registration_path %>
+                  <%= f.simple_fields_for :parent1 do |parent1_f| %>
+                    <%= parent1_f.input :book_delivery_location,
+                        label: "La famille souhaite recevoir les livres :",
+                        required: true,
+                        collection: parent_book_delivery_location_select_collection %>
+                  <% end %>
+                  <div style="margin-top: 8px; display: none;" id="book_delivery_location_warning" class="invalid-feedback">
+                    <p></p>
+                  </div>
+                <% end %>
+                <div style="display: <%= @form_path == pmi_registration_path ? 'none' : 'block' %>" id="address_form_div">
+                  <%= render 'address_form', f: f, form_with_book_delivery_organisation_name: @form_path == pmi_registration_path %>
+                </div>
               </div>
             </div>
             <div class="card">

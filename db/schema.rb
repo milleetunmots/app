@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_04_29_131305) do
+ActiveRecord::Schema.define(version: 2025_05_05_114116) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -290,10 +290,10 @@ ActiveRecord::Schema.define(version: 2025_04_29_131305) do
     t.text "call3_goals_tracking"
     t.text "call4_goals_tracking"
     t.text "call5_goals_tracking"
-    t.string "parent1_available_support_module_list", array: true
-    t.string "parent2_available_support_module_list", array: true
     t.string "call2_family_progress"
     t.string "call2_previous_goals_follow_up"
+    t.string "parent1_available_support_module_list", array: true
+    t.string "parent2_available_support_module_list", array: true
     t.text "call0_parent_actions"
     t.text "call0_language_development"
     t.text "call0_notes"
@@ -311,16 +311,16 @@ ActiveRecord::Schema.define(version: 2025_04_29_131305) do
     t.text "call1_goals_tracking"
     t.string "call1_family_progress"
     t.string "call1_previous_goals_follow_up"
-    t.bigint "module2_chosen_by_parents_id"
-    t.bigint "module3_chosen_by_parents_id"
-    t.bigint "module4_chosen_by_parents_id"
-    t.bigint "module5_chosen_by_parents_id"
     t.text "call0_goals_sms"
     t.text "call1_goals_sms"
     t.text "call2_goals_sms"
     t.text "call3_goals_sms"
     t.text "call4_goals_sms"
     t.text "call5_goals_sms"
+    t.bigint "module2_chosen_by_parents_id"
+    t.bigint "module3_chosen_by_parents_id"
+    t.bigint "module4_chosen_by_parents_id"
+    t.bigint "module5_chosen_by_parents_id"
     t.integer "parent_mid_term_rate"
     t.string "parent_mid_term_reaction"
     t.bigint "module6_chosen_by_parents_id"
@@ -482,6 +482,10 @@ ActiveRecord::Schema.define(version: 2025_04_29_131305) do
     t.index ["related_type", "related_id"], name: "index_field_comments_on_related_type_and_related_id"
   end
 
+  create_table "foo", id: false, force: :cascade do |t|
+    t.integer "x"
+  end
+
   create_table "groups", force: :cascade do |t|
     t.string "name"
     t.date "started_at"
@@ -591,6 +595,7 @@ ActiveRecord::Schema.define(version: 2025_04_29_131305) do
     t.jsonb "aircall_datas"
     t.string "address_supplement"
     t.string "book_delivery_organisation_name"
+    t.string "book_delivery_location"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
@@ -792,8 +797,7 @@ ActiveRecord::Schema.define(version: 2025_04_29_131305) do
   end
 
   create_table "versions", force: :cascade do |t|
-    t.string "item_type"
-    t.string "{:null=>false}"
+    t.string "item_type", null: false
     t.bigint "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"

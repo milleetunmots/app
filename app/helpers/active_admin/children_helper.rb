@@ -46,15 +46,6 @@ module ActiveAdmin::ChildrenHelper
     Child::LANDS
   end
 
-  def child_book_delivery_location_select_collection
-    Child::BOOK_DELIVERY_LOCATION.map do |v|
-      [
-        Child.human_attribute_name("book_delivery_location.#{v}"),
-        v
-      ]
-    end
-  end
-
   def child_supporter_select_collection
     AdminUser.order(:name).map(&:decorate)
   end
