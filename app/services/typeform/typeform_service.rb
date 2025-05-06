@@ -12,7 +12,7 @@ module Typeform
     end
 
     def verify_security_token
-      @errors << { message: 'security token is not present' } if @security_token.nil?
+      @errors << { message: 'security token is not present' } if @security_token.blank?
     end
 
     def find_parent
