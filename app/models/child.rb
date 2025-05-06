@@ -459,6 +459,8 @@ class Child < ApplicationRecord
            :last_name,
            :gender,
            :phone_number_national,
+           :book_delivery_organisation_name,
+           :attention_to,
            to: :parent1,
            prefix: true
 

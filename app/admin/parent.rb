@@ -132,6 +132,7 @@ ActiveAdmin.register Parent do
             decorated.email_link
           end
           row :letterbox_name
+          row :book_delivery_organisation_name
           row :address
           row :address_supplement
           row :postal_code

@@ -6,6 +6,8 @@
 #  address                             :string           not null
 #  address_supplement                  :string
 #  aircall_datas                       :jsonb
+#  book_delivery_location              :string
+#  book_delivery_organisation_name     :string
 #  city_name                           :string           not null
 #  degree                              :string
 #  degree_country_at_registration      :string
@@ -90,14 +92,6 @@ RSpec.describe Parent, type: :model do
   describe "#last_name" do
     it "is required" do
       subject.last_name = nil
-
-      expect(subject).to_not be_valid
-    end
-  end
-
-  describe "#letterbox_name" do
-    it "is required" do
-      subject.letterbox_name = nil
 
       expect(subject).to_not be_valid
     end

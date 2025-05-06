@@ -5,7 +5,9 @@ class Child
     COLUMNS = [
       { name: 'N', method: nil },
       { name: 'Titre', method: :book_to_distribute_title },
+      { name: 'Raison sociale', method: :parent1_book_delivery_organisation_name },
       { name: 'Nom', method: :letterbox_name },
+      { name: "A l'attention de", method: :parent1_attention_to },
       { name: 'Adresse', method: :address },
       { name: 'Complement', method: :address_supplement },
       { name: 'Code postal', method: :postal_code },
@@ -65,12 +67,11 @@ class Child
 
     def set_column_width
       @worksheet.set_column_width(0, width = 2)
-      @worksheet.set_column_width(1, width = 28)
-      @worksheet.set_columns_width(2, 3, width = 16)
-      @worksheet.set_column_width(4, width = 20)
-      @worksheet.set_columns_width(5, 6, width = 16)
-      @worksheet.set_column_width(7, width = 25)
-      @worksheet.set_column_width(8, width = 10)
+      @worksheet.set_columns_width(1, 6, width = 28)
+      @worksheet.set_column_width(7, width = 16)
+      @worksheet.set_columns_width(8, 9, width = 25)
+      @worksheet.set_column_width(10, width = 28)
+      @worksheet.set_column_width(11, width = 10)
     end
   end
 end

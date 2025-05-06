@@ -39,4 +39,13 @@ module ActiveAdmin::ParentsHelper
       ]
     end
   end
+
+  def parent_book_delivery_location_select_collection
+    Parent::BOOK_DELIVERY_LOCATION.map do |v|
+      [
+        Parent.human_attribute_name("book_delivery_location.#{v}"),
+        v
+      ]
+    end
+  end
 end

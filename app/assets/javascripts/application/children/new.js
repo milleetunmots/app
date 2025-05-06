@@ -4,6 +4,7 @@
   var childrenSourceSelect = $('#child_children_source_attributes_source_id');
   var sourceDetailsInput = $('#child_children_source_attributes_details');
   var sourceDetailsAlert = $('#children_source_detail_alert');
+  var bookDeliveryLocationSelect = $('#child_parent1_attributes_book_delivery_location');
 
   sourceDetailsInput.on('input', function() {
     const value = $(this).val().toLowerCase();
@@ -96,7 +97,151 @@
     })
   };
 
+  var createRequirementAbbr = function(label, input) {
+    if (label.find('abbr').length !== 0 ) {
+      return;
+    }
+
+    label.removeClass('optional').addClass('required');
+    input.removeClass('optional').addClass('required');
+    input.attr('required', true);
+    input.val('');
+    var abbrElement = document.createElement('abbr');
+    abbrElement.setAttribute('title', 'required');
+    abbrElement.innerHTML = ' *'
+    label.append(abbrElement);
+  }
+
+  var removeRequirementAbbr = function(label, input) {
+    label.removeClass('required').addClass('optional');
+    input.removeClass('required').addClass('optional');
+    input.removeAttr('required');
+    var abbr = label.find('abbr');
+    input.val('');
+    if (abbr.length === 0) {
+      return;
+    }
+
+    abbr.remove();
+  }
+
   var init = function() {
+    if (bookDeliveryLocationSelect.length > 0) {
+      bookDeliveryLocationSelect.select2();
+      bookDeliveryLocationSelect.data().select2.$container.addClass("form-control");
+      addressFormDiv = $('#address_form_div');
+      var bookDeliveryOrganisationNameDiv = $('#book_delivery_organisation_name_div');
+      var bookDeliveryOrganisationNameLabel = $('label[for="child_parent1_attributes_book_delivery_organisation_name"]');
+      var bookDeliveryOrganisationNameInput = $('#child_parent1_attributes_book_delivery_organisation_name');
+      var attentionToDiv = $('#attention_to_div');
+      var attentionToInput = $('#child_parent1_attributes_attention_to');
+      var letterboxLabel = $('label[for="child_parent1_attributes_letterbox_name"]');
+      var letterboxLabelText = 'Nom de famille sur la boîte aux lettres ';
+
+      bookDeliveryOrganisationNameDiv.hide();
+      attentionToDiv.hide();
+
+      bookDeliveryLocationSelect.on('change', function () {
+        var selectedValue = $(this).val();
+        if (selectedValue === '') {
+          addressFormDiv.hide();
+          return;
+        }
+
+        addressFormDiv.show();
+
+        var parent1FirstName = $('#child_parent1_attributes_first_name').val();
+        var parent1LastName = $('#child_parent1_attributes_last_name').val();
+        var childFirstName = $('#child_first_name').val();
+        var childLastName = $('#child_last_name').val();
+        var letterboxDiv = $('.child_parent1_letterbox_name').first()
+
+        var showLetterboxDiv = function(text) {
+          letterboxLabel.text(text);
+          createRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'));
+          letterboxDiv.prependTo('#address_form_div');
+          letterboxDiv.show();
+        }
+        var hideLetterboxDiv = function() {
+          letterboxLabel.text(letterboxLabelText);
+          removeRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'));
+          letterboxDiv.hide();
+        }
+        var showBookDeliveryLocationWarning = function(text) {
+          $('#book_delivery_location_warning p').empty().append(text);
+          $('#book_delivery_location_warning').show();
+        }
+        var hideBookDeliveryLocationWarning = function() {
+          $('#book_delivery_location_warning p').empty();
+          $('#book_delivery_location_warning').hide();
+        }
+        var showBookDeliveryOrganisationNameDiv = function(text) {
+          bookDeliveryOrganisationNameLabel.text(text);
+          createRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput);
+          bookDeliveryOrganisationNameDiv.show();
+        }
+        var hideBookDeliveryOrganisationNameDiv = function() {
+          removeRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput);
+          bookDeliveryOrganisationNameDiv.hide();
+        }
+        var showAttentionToDiv = function(text) {
+          attentionToInput.val(text);
+          attentionToDiv.show();
+        }
+        var hideAttentionToDiv = function() {
+          attentionToInput.val('');
+          attentionToDiv.hide();
+        }
+
+        switch(selectedValue) {
+          case 'home':
+            showLetterboxDiv(letterboxLabelText);
+            hideBookDeliveryOrganisationNameDiv();
+            hideAttentionToDiv();
+            hideBookDeliveryLocationWarning();
+            break;
+
+          case 'relative_home':
+            showLetterboxDiv('Nom de la personne hébergeant la famille (nom sur la boîte aux lettres) ');
+            hideBookDeliveryOrganisationNameDiv();
+            showAttentionToDiv(`${parent1FirstName} ${parent1LastName}`);
+            hideBookDeliveryLocationWarning();
+            break;
+
+          case 'pmi':
+            hideLetterboxDiv();
+            showBookDeliveryOrganisationNameDiv('Nom de la PMI ');
+            showAttentionToDiv(`${childFirstName} ${childLastName}`);
+            hideBookDeliveryLocationWarning();
+            break;
+
+          case 'temporary_shelter':
+            hideLetterboxDiv();
+            showBookDeliveryOrganisationNameDiv("Nom complet de la structure d'accueil (hôtel, résidence sociale…) ")
+            showAttentionToDiv(`${parent1FirstName} ${parent1LastName}`);
+            showBookDeliveryLocationWarning("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI.</b> Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots.");
+            break;
+
+          case 'association':
+            hideLetterboxDiv();
+            showBookDeliveryOrganisationNameDiv("Nom complet de l'association ");
+            showAttentionToDiv(`${parent1FirstName} ${parent1LastName}`);
+            showBookDeliveryLocationWarning("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI.</b> Les livres envoyés aux associations (ex. maisons de quartier) sont souvent retournés à 1001mots.")
+            break;
+
+          case 'police_or_military_station':
+            hideLetterboxDiv();
+            showBookDeliveryOrganisationNameDiv('Nom complet de la caserne ou du commissariat ');
+            showAttentionToDiv(`${parent1FirstName} ${parent1LastName}`);
+            showBookDeliveryLocationWarning("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI.</b> Les livres envoyés aux casernes ou commissariats sont souvent retournés à 1001mots.");
+            break;
+
+          default:
+            break;
+        }
+      });
+    }
+    
     childrenSourceSelect.select2();
     childrenSourceSelect.data().select2.$container.addClass("form-control");
     window.friendOption = []; // setup "Mon entourage" option

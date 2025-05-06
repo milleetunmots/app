@@ -152,7 +152,7 @@ class ChildrenController < ApplicationController
   end
 
   def parent1_params
-    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name first_name last_name phone_number gender degree_level_at_registration degree_country_at_registration address_supplement email])[:parent1_attributes]
+    params.require(:child).permit(parent1_attributes: %i[letterbox_name address postal_code city_name first_name last_name phone_number gender degree_level_at_registration degree_country_at_registration address_supplement email book_delivery_organisation_name book_delivery_location])[:parent1_attributes]
   end
 
   def parent2_params
@@ -213,8 +213,8 @@ class ChildrenController < ApplicationController
       @form_path_url = pmi_registration_path(request.query_parameters)
     when '/inscription4'
       session[:registration_origin] = 4
-      @form_path = boa_registration_path
-      @form_path_url = boa_registration_path(request.query_parameters)
+      @form_path = bao_registration_path
+      @form_path_url = bao_registration_path(request.query_parameters)
     when '/inscription5'
       session[:registration_origin] = 5
       @form_path = local_partner_registration_path

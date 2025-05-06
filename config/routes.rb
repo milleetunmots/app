@@ -22,7 +22,7 @@ Rails.application.routes.draw do
   post 'inscription1', to: 'children#create', as: :children1
   post 'inscriptioncaf', to: 'children#create', as: :caf_registration
   post 'inscription3', to: 'children#create', as: :pmi_registration
-  post 'inscription4', to: 'children#create', as: :boa_registration
+  post 'inscription4', to: 'children#create', as: :bao_registration
   post 'inscription5', to: 'children#create', as: :local_partner_registration
   get 'inscrit', to: 'children#created', as: :created_child
 
