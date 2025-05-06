@@ -52,7 +52,7 @@ Rails.application.routes.draw do
   get 'c3/sf', to: 'child_supports#call3_speaking_form', as: :call3_speaking_form
   get 'c3/of', to: 'child_supports#call3_observing_form', as: :call3_observing_form
   get 'c0', to: 'child_supports#call0_form', as: :call0_form
-  get 'ef/:id', to: 'children#eval_form', as: :eval_form
+  get 'ef/:st', to: 'children#eval_form', as: :eval_form
   post '/typeform/webhooks', to: 'typeform#webhooks'
   post '/aircall/messages', to: 'aircall#webhook_messages'
   post '/aircall/calls', to: 'aircall#webhook_calls'

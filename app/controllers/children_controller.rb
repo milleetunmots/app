@@ -198,10 +198,15 @@ class ChildrenController < ApplicationController
   end
 
   def find_child
-    @child = Child.where(
-      id: params[:id],
-      security_code: params[:security_code] || params[:sc]
-    ).first
+    @child =
+      if params[:st].present?
+        Child.find_by(security_token: params[:st])
+      else
+        Child.where(
+          id: params[:id],
+          security_code: params[:security_code] || params[:sc]
+        ).first
+      end
 
     head :not_found and return if @child.nil?
   end

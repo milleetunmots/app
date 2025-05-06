@@ -21,6 +21,7 @@
 #  registration_source                        :string
 #  registration_source_details                :string
 #  security_code                              :string
+#  security_token                             :string
 #  should_contact_parent1                     :boolean          default(FALSE), not null
 #  should_contact_parent2                     :boolean          default(FALSE), not null
 #  src_url                                    :string
