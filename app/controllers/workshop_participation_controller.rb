@@ -25,11 +25,11 @@ class WorkshopParticipationController < ApplicationController
   end
 
   def find_workshop_participation
+    parent = Parent.find_by(security_token: params[:st])
     @workshop_participation = Event.workshop_participations.find_by(
-      related_id: params[:parent_id],
-      workshop_id: params[:workshop_id]
+      related_id: parent.id,
+      workshop_id: params[:wid]
     )
     not_found and return if @workshop_participation.nil?
-    not_found and return if @workshop_participation.related.security_code != params[:parent_security_code]
   end
 end

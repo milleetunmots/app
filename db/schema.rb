@@ -596,6 +596,7 @@ ActiveRecord::Schema.define(version: 2025_05_05_114116) do
     t.string "address_supplement"
     t.string "book_delivery_organisation_name"
     t.string "book_delivery_location"
+    t.string "security_token"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"

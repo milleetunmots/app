@@ -40,6 +40,7 @@
 #  redirection_urls_count              :integer
 #  redirection_visit_rate              :float
 #  security_code                       :string
+#  security_token                      :string
 #  terms_accepted_at                   :datetime
 #  would_like_to_do_more               :string
 #  would_receive_advices               :string
@@ -161,7 +162,7 @@ class Parent < ApplicationRecord
 
   def initialize(attributes = {})
     super
-    self.security_code = SecureRandom.hex(1)
+    self.security_token = SecureRandom.hex(16)
   end
 
   # ---------------------------------------------------------------------------
@@ -227,7 +228,7 @@ class Parent < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   include PgSearch
-  multisearchable against: %i[first_name last_name phone_number_national email]
+  multisearchable against: %i[first_name last_name phone_number_national email security_token]
 
   # ---------------------------------------------------------------------------
   # scopes
