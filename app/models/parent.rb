@@ -123,6 +123,8 @@ class Parent < ApplicationRecord
 
   validates :gender, presence: true, inclusion: { in: GENDERS }
   validates :first_name, presence: true
+  validates :letterbox_name, presence: true, if: -> { book_delivery_organisation_name.blank? }, on: :create
+  validates :book_delivery_organisation_name, presence: true, if: -> { letterbox_name.blank? }, on: :create
   validates :first_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
   validates :last_name, presence: true
   validates :last_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }

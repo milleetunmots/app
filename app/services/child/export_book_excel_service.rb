@@ -5,9 +5,9 @@ class Child
     COLUMNS = [
       { name: 'N', method: nil },
       { name: 'Titre', method: :book_to_distribute_title },
-      { name: 'Raison sociale', method: :parent1_book_delivery_organisation_name},
+      { name: 'Raison sociale', method: :parent1_book_delivery_organisation_name },
       { name: 'Nom', method: :letterbox_name },
-      { name: "A l'entation de", method: :parent1_attention_to },
+      { name: "A l'attention de", method: :parent1_attention_to },
       { name: 'Adresse', method: :address },
       { name: 'Complement', method: :address_supplement },
       { name: 'Code postal', method: :postal_code },

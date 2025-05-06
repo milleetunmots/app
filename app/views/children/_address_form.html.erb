@@ -1,8 +1,10 @@
 <%= f.simple_fields_for :parent1 do |parent1_f| %>
-  <% if defined?(form_with_book_delivery_organisation_name) && form_with_book_delivery_organisation_name %>
+  <% book_delivery_enabled = defined?(form_with_book_delivery_organisation_name) && form_with_book_delivery_organisation_name %>
+
+  <% if book_delivery_enabled %>
     <%= parent1_f.input :book_delivery_organisation_name, wrapper_html: { id: 'book_delivery_organisation_name_div' } %>
     <%= parent1_f.input :attention_to, label: "A l'attention de", readonly: true, wrapper_html: { id: 'attention_to_div' } %>
   <% end %>
-  <%= parent1_f.input :letterbox_name %>
+  <%= parent1_f.input :letterbox_name, required: !book_delivery_enabled %>
   <%= address_input(parent1_f) %>
 <% end %>

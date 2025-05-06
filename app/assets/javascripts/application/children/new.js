@@ -136,7 +136,7 @@
       var attentionToDiv = $('#attention_to_div');
       var attentionToInput = $('#child_parent1_attributes_attention_to');
       var letterboxLabel = $('label[for="child_parent1_attributes_letterbox_name"]');
-      var letterboxLableText = 'Nom de famille sur la boîte aux lettres ';
+      var letterboxLabelText = 'Nom de famille sur la boîte aux lettres ';
 
       bookDeliveryOrganisationNameDiv.hide();
       attentionToDiv.hide();
@@ -147,88 +147,93 @@
           addressFormDiv.hide();
           return;
         }
+
         addressFormDiv.show();
 
         var parent1FirstName = $('#child_parent1_attributes_first_name').val();
         var parent1LastName = $('#child_parent1_attributes_last_name').val();
         var childFirstName = $('#child_first_name').val();
         var childLastName = $('#child_last_name').val();
+        var letterboxDiv = $('.child_parent1_letterbox_name').first()
+
+        var showLetterboxDiv = function(text) {
+          letterboxLabel.text(text);
+          createRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'));
+          letterboxDiv.prependTo('#address_form_div');
+          letterboxDiv.show();
+        }
+        var hideLetterboxDiv = function() {
+          letterboxLabel.text(letterboxLabelText);
+          removeRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'));
+          letterboxDiv.hide();
+        }
+        var showBookDeliveryLocationWarning = function(text) {
+          $('#book_delivery_location_warning p').empty().append(text);
+          $('#book_delivery_location_warning').show();
+        }
+        var hideBookDeliveryLocationWarning = function() {
+          $('#book_delivery_location_warning p').empty();
+          $('#book_delivery_location_warning').hide();
+        }
+        var showBookDeliveryOrganisationNameDiv = function(text) {
+          bookDeliveryOrganisationNameLabel.text(text);
+          createRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput);
+          bookDeliveryOrganisationNameDiv.show();
+        }
+        var hideBookDeliveryOrganisationNameDiv = function() {
+          removeRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput);
+          bookDeliveryOrganisationNameDiv.hide();
+        }
+        var showAttentionToDiv = function(text) {
+          attentionToInput.val(text);
+          attentionToDiv.show();
+        }
+        var hideAttentionToDiv = function() {
+          attentionToInput.val('');
+          attentionToDiv.hide();
+        }
 
         switch(selectedValue) {
           case 'home':
-            letterboxLabel.text(letterboxLableText);
-            createRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'));
-            $('.child_parent1_letterbox_name').first().show();
-            removeRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput);
-            bookDeliveryOrganisationNameDiv.hide();
-            attentionToInput.val('');
-            attentionToDiv.hide();
-            $('#book_delivery_location_warning p').empty();
-            $('#book_delivery_location_warning').hide();
+            showLetterboxDiv(letterboxLabelText);
+            hideBookDeliveryOrganisationNameDiv();
+            hideAttentionToDiv();
+            hideBookDeliveryLocationWarning();
             break;
 
           case 'relative_home':
-            letterboxLabel.text('Nom de la personne hébergeant la famille (nom sur la boîte aux lettres) ');
-            $('.child_parent1_letterbox_name').first().prependTo('#address_form_div');
-            createRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'));
-            removeRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput);
-            bookDeliveryOrganisationNameDiv.hide();
-            attentionToInput.val(`${parent1FirstName} ${parent1LastName}`);
-            attentionToDiv.show()
-            $('#book_delivery_location_warning p').empty();
-            $('#book_delivery_location_warning').hide();
+            showLetterboxDiv('Nom de la personne hébergeant la famille (nom sur la boîte aux lettres) ');
+            hideBookDeliveryOrganisationNameDiv();
+            showAttentionToDiv(`${parent1FirstName} ${parent1LastName}`);
+            hideBookDeliveryLocationWarning();
             break;
 
           case 'pmi':
-            letterboxLabel.text(letterboxLableText);
-            removeRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'));
-            $('.child_parent1_letterbox_name').first().hide();
-            bookDeliveryOrganisationNameLabel.text('Nom de la PMI ');
-            createRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput);
-            attentionToInput.val(`${childFirstName} ${childLastName}`);
-            attentionToDiv.show();
-            bookDeliveryOrganisationNameDiv.show();
-            $('#book_delivery_location_warning p').empty();
-            $('#book_delivery_location_warning').hide();
+            hideLetterboxDiv();
+            showBookDeliveryOrganisationNameDiv('Nom de la PMI ');
+            showAttentionToDiv(`${childFirstName} ${childLastName}`);
+            hideBookDeliveryLocationWarning();
             break;
 
           case 'temporary_shelter':
-            letterboxLabel.text(letterboxLableText);
-            removeRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'));
-            $('.child_parent1_letterbox_name').first().hide();
-            bookDeliveryOrganisationNameLabel.text("Nom complet de la structure d'accueil (hôtel, résidence sociale…) ");
-            createRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput);
-            attentionToInput.val(`${parent1FirstName} ${parent1LastName}`);
-            attentionToDiv.show();
-            bookDeliveryOrganisationNameDiv.show();
-            $('#book_delivery_location_warning p').empty().append("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI.</b> Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots.");
-            $('#book_delivery_location_warning').show();
+            hideLetterboxDiv();
+            showBookDeliveryOrganisationNameDiv("Nom complet de la structure d'accueil (hôtel, résidence sociale…) ")
+            showAttentionToDiv(`${parent1FirstName} ${parent1LastName}`);
+            showBookDeliveryLocationWarning("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI.</b> Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots.");
             break;
 
           case 'association':
-            letterboxLabel.text(letterboxLableText);
-            removeRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'));
-            $('.child_parent1_letterbox_name').first().hide();
-            bookDeliveryOrganisationNameLabel.text("Nom complet de l'association ");
-            createRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput);
-            attentionToInput.val(`${parent1FirstName} ${parent1LastName}`);
-            attentionToDiv.show();
-            bookDeliveryOrganisationNameDiv.show();
-            $('#book_delivery_location_warning p').empty().append("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI.</b> Les livres envoyés aux associations (ex. maisons de quartier) sont souvent retournés à 1001mots.");
-            $('#book_delivery_location_warning').show();
+            hideLetterboxDiv();
+            showBookDeliveryOrganisationNameDiv("Nom complet de l'association ");
+            showAttentionToDiv(`${parent1FirstName} ${parent1LastName}`);
+            showBookDeliveryLocationWarning("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI.</b> Les livres envoyés aux associations (ex. maisons de quartier) sont souvent retournés à 1001mots.")
             break;
 
           case 'police_or_military_station':
-            letterboxLabel.text(letterboxLableText);
-            removeRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'));
-            $('.child_parent1_letterbox_name').first().hide();
-            bookDeliveryOrganisationNameLabel.text('Nom complet de la caserne ou du commissariat ');
-            createRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput);
-            attentionToInput.val(`${parent1FirstName} ${parent1LastName}`);
-            attentionToDiv.show();
-            bookDeliveryOrganisationNameDiv.show();
-            $('#book_delivery_location_warning p').empty().append("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI.</b> Les livres envoyés aux casernes ou commissariats sont souvent retournés à 1001mots.");
-            $('#book_delivery_location_warning').show();
+            hideLetterboxDiv();
+            showBookDeliveryOrganisationNameDiv('Nom complet de la caserne ou du commissariat ');
+            showAttentionToDiv(`${parent1FirstName} ${parent1LastName}`);
+            showBookDeliveryLocationWarning("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI.</b> Les livres envoyés aux casernes ou commissariats sont souvent retournés à 1001mots.");
             break;
 
           default:
