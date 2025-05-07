@@ -1,12 +1,6 @@
-require 'google/apis/sheets_v4'
-require 'googleauth'
-
 class Child
+  class AddEvalTagToChildrenService < ApiGoogle::InitializeSheetsService
 
-  class AddEvalTagToChildrenService
-
-    CREDENTIALS = Base64.decode64(ENV['GOOGLE_CREADENTIALS_JSON']).freeze
-    SCOPE = ['https://www.googleapis.com/auth/spreadsheets'].freeze
     STATUS_MAPPING = {
       completed: ['Répondu'],
       refused: [
@@ -31,19 +25,15 @@ class Child
       three_attempts: 'Eval25 - 3 tentatives'
     }.freeze
 
-    attr_reader :errors
-
     def initialize
-      @errors = []
+      super
+      @sheet_id = ENV['FAMILY_SUPPORTS_SHEET_ID']
+      @sheet_name = ENV['FAMILY_SUPPORTS_SHEET_NAME']
     end
 
     def call
-      initialize_sheets_service
-      @response = @service.get_spreadsheet_values(ENV['FAMILY_SUPPORTS_SHEET_ID'], ENV['FAMILY_SUPPORTS_SHEET_NAME'])
-      if @response.values.empty?
-        @errors << 'Aucune donnée trouvée'
-        return self
-      end
+      super
+      return self if @errors.any?
 
       @response.values.each do |row|
         @child = nil
@@ -58,19 +48,9 @@ class Child
 
     private
 
-    def initialize_sheets_service
-      authorizer = Google::Auth::ServiceAccountCredentials.make_creds(json_key_io: StringIO.new(CREDENTIALS), scope: SCOPE)
-      @service = Google::Apis::SheetsV4::SheetsService.new
-      @service.authorization = authorizer
-    end
-
     def process_child
-      @child = Child.find_by(id: @child_id)
-      unless @child
-        @errors << "Enfant introuvable : #{@child_id}"
-        return
-      end
-
+      find_child
+      return unless @child
       return if @child.tag_list.include?(TAGS[:completed]) || @child.tag_list.include?(TAGS[:refused]) || @child.tag_list.include?(TAGS[:three_attempts])
 
       return unless @child.group_status.in? %w[waiting active paused]

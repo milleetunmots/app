@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_05_114116) do
+ActiveRecord::Schema.define(version: 2025_05_06_151505) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -403,6 +403,7 @@ ActiveRecord::Schema.define(version: 2025_05_05_114116) do
     t.date "group_start"
     t.date "group_end"
     t.boolean "available_for_workshops", default: false
+    t.string "security_token"
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["discarded_at"], name: "index_children_on_discarded_at"
