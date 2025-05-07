@@ -32,8 +32,6 @@ class Child
       return if @child.tag_list.include?(EVAL_MESSAGE_TAG)
 
       message = EVAL_MESSAGE.gsub('{typeform_link}', Rails.application.routes.url_helpers.eval_form_url(st: @child.security_token))
-
-
       message_service = ProgramMessageService.new(
         Time.zone.now.strftime('%d-%m-%Y'),
         Time.zone.now.strftime('%H:%M'),
