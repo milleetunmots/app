@@ -143,13 +143,6 @@
 
       bookDeliveryLocationSelect.on('change', function () {
         var selectedValue = $(this).val();
-        if (selectedValue === '') {
-          addressFormDiv.hide();
-          return;
-        }
-
-        addressFormDiv.show();
-
         var parent1FirstName = $('#child_parent1_attributes_first_name').val();
         var parent1LastName = $('#child_parent1_attributes_last_name').val();
         var childFirstName = $('#child_first_name').val();
@@ -192,6 +185,14 @@
           attentionToInput.val('');
           attentionToDiv.hide();
         }
+        
+        if (selectedValue === '') {
+          addressFormDiv.hide();
+          hideBookDeliveryLocationWarning();
+          return;
+        }
+
+        addressFormDiv.show();
 
         switch(selectedValue) {
           case 'home':
@@ -211,6 +212,7 @@
           case 'pmi':
             hideLetterboxDiv();
             showBookDeliveryOrganisationNameDiv('Nom de la PMI ');
+            $('#child_parent1_attributes_book_delivery_organisation_name').attr('placeholder', 'Ex : PMI Henri Barbusse');
             showAttentionToDiv(`${childFirstName} ${childLastName}`);
             hideBookDeliveryLocationWarning();
             break;
@@ -218,6 +220,7 @@
           case 'temporary_shelter':
             hideLetterboxDiv();
             showBookDeliveryOrganisationNameDiv("Nom complet de la structure d'accueil (hôtel, résidence sociale…) ")
+            $('#child_parent1_attributes_book_delivery_organisation_name').attr('placeholder', '');
             showAttentionToDiv(`${parent1FirstName} ${parent1LastName}`);
             showBookDeliveryLocationWarning("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI.</b> Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots.");
             break;
@@ -225,6 +228,7 @@
           case 'association':
             hideLetterboxDiv();
             showBookDeliveryOrganisationNameDiv("Nom complet de l'association ");
+            $('#child_parent1_attributes_book_delivery_organisation_name').attr('placeholder', '');
             showAttentionToDiv(`${parent1FirstName} ${parent1LastName}`);
             showBookDeliveryLocationWarning("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI.</b> Les livres envoyés aux associations (ex. maisons de quartier) sont souvent retournés à 1001mots.")
             break;
@@ -232,6 +236,7 @@
           case 'police_or_military_station':
             hideLetterboxDiv();
             showBookDeliveryOrganisationNameDiv('Nom complet de la caserne ou du commissariat ');
+            $('#child_parent1_attributes_book_delivery_organisation_name').attr('placeholder', '');
             showAttentionToDiv(`${parent1FirstName} ${parent1LastName}`);
             showBookDeliveryLocationWarning("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI.</b> Les livres envoyés aux casernes ou commissariats sont souvent retournés à 1001mots.");
             break;
