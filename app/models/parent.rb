@@ -323,11 +323,11 @@ class Parent < ApplicationRecord
   end
 
   def attention_to
-    return nil if book_delivery_location.in? [nil, 'home', 'relative_home']
+    return nil if book_delivery_location.in? [nil, 'home']
 
-    return "#{current_child.first_name} #{current_child.last_name}" if book_delivery_location == 'pmi'
+    return "Pour #{current_child.first_name} #{current_child.last_name}" if book_delivery_location == 'pmi'
 
-    "#{first_name} #{last_name}"
+    "Pour #{first_name} #{last_name}"
   end
 
   # ---------------------------------------------------------------------------

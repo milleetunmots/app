@@ -43,6 +43,10 @@ module Typeform
         end
       end
 
+      # reset these fields because its not currently updatable via typeform
+      @parent.book_delivery_organisation_name = nil
+      @parent.book_delivery_location = nil
+
       if @parent.save(validate: false)
         @child_support.address_suspected_invalid_at = nil
         @child_support.save(validate: false)
