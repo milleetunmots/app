@@ -1041,7 +1041,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   member_action :send_message_to_parent2 do
-    redirect_to admin_message_path(parent_id: resource.model.parent2&.id,child_support_id: resource.model.id,  parent_st: resource.model.parent.security_token)
+    redirect_to admin_message_path(parent_id: resource.model.parent2&.id,child_support_id: resource.model.id,  parent_st: resource.model.parent2&.security_token)
   end
 
   controller do
