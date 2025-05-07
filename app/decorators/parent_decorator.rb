@@ -146,6 +146,12 @@ class ParentDecorator < BaseDecorator
     end
   end
 
+  def book_delivery_organisation_name
+    return if model.book_delivery_organisation_name.blank?
+
+    Child.human_attribute_name("book_delivery_location.#{model.book_delivery_organisation_name}")
+  end
+
   private
 
   def child(child)

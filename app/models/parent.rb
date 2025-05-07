@@ -6,6 +6,8 @@
 #  address                             :string           not null
 #  address_supplement                  :string
 #  aircall_datas                       :jsonb
+#  book_delivery_location              :string
+#  book_delivery_organisation_name     :string
 #  city_name                           :string           not null
 #  degree                              :string
 #  degree_country_at_registration      :string
@@ -38,6 +40,7 @@
 #  redirection_urls_count              :integer
 #  redirection_visit_rate              :float
 #  security_code                       :string
+#  security_token                      :string
 #  terms_accepted_at                   :datetime
 #  would_like_to_do_more               :string
 #  would_receive_advices               :string
@@ -85,6 +88,7 @@ class Parent < ApplicationRecord
   MANTES_LA_JOLIE_POSTAL_CODE = %w[78520 78200 78711].freeze
   ASNIERES_GENNEVILLIERS_POSTAL_CODE = %w[92600 92230].freeze
   COMMUNICATION_CHANNELS = %w[sms whatsapp].freeze
+  BOOK_DELIVERY_LOCATION = %w[home relative_home pmi temporary_shelter association police_or_military_station].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -120,10 +124,11 @@ class Parent < ApplicationRecord
 
   validates :gender, presence: true, inclusion: { in: GENDERS }
   validates :first_name, presence: true
+  validates :letterbox_name, presence: true, if: -> { book_delivery_organisation_name.blank? }, on: :create
+  validates :book_delivery_organisation_name, presence: true, if: -> { letterbox_name.blank? }, on: :create
   validates :first_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
   validates :last_name, presence: true
   validates :last_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
-  validates :letterbox_name, presence: true
   validates :letterbox_name, format: { with: REGEX_VALID_ADDRESS, allow_blank: true, message: INVALID_ADDRESS_MESSAGE }
   validates :address, presence: true
   validates :address, format: { with: REGEX_VALID_ADDRESS, allow_blank: true, message: INVALID_ADDRESS_MESSAGE }
@@ -157,7 +162,7 @@ class Parent < ApplicationRecord
 
   def initialize(attributes = {})
     super
-    self.security_code = SecureRandom.hex(1)
+    self.security_token = SecureRandom.hex(16)
   end
 
   # ---------------------------------------------------------------------------
@@ -223,7 +228,7 @@ class Parent < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   include PgSearch
-  multisearchable against: %i[first_name last_name phone_number_national email]
+  multisearchable against: %i[first_name last_name phone_number_national email security_token]
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -317,6 +322,14 @@ class Parent < ApplicationRecord
     events.text_messages.where('originated_by_app = ? AND occurred_at > ? AND body ILIKE ?', true, period, "#{message_start}%").limit(1).any?
   end
 
+  def attention_to
+    return nil if book_delivery_location.in? [nil, 'home']
+
+    return "Pour #{current_child.first_name} #{current_child.last_name}" if book_delivery_location == 'pmi'
+
+    "Pour #{first_name} #{last_name}"
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------
@@ -363,7 +376,12 @@ class Parent < ApplicationRecord
   end
 
   def change_the_other_parent_address
-    return unless saved_change_to_letterbox_name? || saved_change_to_address? || saved_change_to_postal_code? || saved_change_to_city_name? || saved_change_to_address_supplement?
+    return unless saved_change_to_letterbox_name? ||
+                    saved_change_to_address? ||
+                    saved_change_to_postal_code? ||
+                    saved_change_to_city_name? ||
+                    saved_change_to_address_supplement? ||
+                    saved_change_to_book_delivery_organisation_name?
 
     children.each do |child|
       p1 = child.parent1
@@ -389,6 +407,7 @@ class Parent < ApplicationRecord
 
   def address_attributes_are_identical?(parent)
     parent.letterbox_name == letterbox_name &&
+      parent.book_delivery_organisation_name == book_delivery_organisation_name &&
       parent.address == address &&
       parent.postal_code == postal_code &&
       parent.city_name == city_name &&
@@ -398,6 +417,7 @@ class Parent < ApplicationRecord
   def change_address_attributes(parent)
     parent.update(
       letterbox_name: letterbox_name,
+      book_delivery_organisation_name: book_delivery_organisation_name,
       address: address,
       postal_code: postal_code,
       city_name: city_name,

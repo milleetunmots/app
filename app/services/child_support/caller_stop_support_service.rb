@@ -77,10 +77,7 @@ class ChildSupport::CallerStopSupportService
 	def create_stop_support_link_for_renunciation
 		return unless @reason == 'renunciation'
 
-		@url = Rails.application.routes.url_helpers.confirm_end_support_url(
-        child_support_id: @child_support.id,
-        parent1_sc: @child_support.parent1.security_code
-      )
+		@url = Rails.application.routes.url_helpers.confirm_end_support_url(st: @child_support.parent1.security_token)
 		@message = "#{@message} #{@url}"
 	end
 

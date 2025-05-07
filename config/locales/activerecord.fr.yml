@@ -549,6 +549,7 @@ fr:
         postal_code: Code postal
         parent_groups: Cohortes
         territory: Territoire
+        book_delivery_organisation_name: Raison sociale
         land: Terrain
         redirection_unique_visit_rate: "Taux de visites uniques d'URL courtes"
         redirection_unique_visits: URL visitées
@@ -582,6 +583,13 @@ fr:
       parent/communication_channel:
         sms: SMS
         whatsapp: WhatsApp
+      parent/book_delivery_location:
+        home: A son domicile
+        relative_home: Au domicile d'un proche
+        pmi: A la PMI
+        temporary_shelter: Dans un lieu d'hébergement temporaire
+        association: Dans les locaux d'une association
+        police_or_military_station: Dans une caserne ou un commissariat
       redirection_target:
         << : *SHARED
         family_redirection_url_unique_visits_count: Visites uniques familiales

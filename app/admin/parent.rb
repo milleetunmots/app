@@ -94,6 +94,7 @@ ActiveAdmin.register Parent do
       f.input :follow_us_on_whatsapp
       f.input :email
       f.input :letterbox_name
+      f.input :book_delivery_organisation_name
       address_input f
       f.input :is_ambassador
       f.input :job
@@ -106,7 +107,7 @@ ActiveAdmin.register Parent do
 
   permit_params :gender, :first_name, :last_name,
     :phone_number, :is_excluded_from_workshop, :present_on_whatsapp, :follow_us_on_whatsapp, :email,
-    :letterbox_name, :address, :postal_code, :city_name, :address_supplement,
+    :letterbox_name, :book_delivery_organisation_name, :address, :postal_code, :city_name, :address_supplement,
     :is_ambassador, :job, :terms_accepted_at, :family_followed, :parent2_creation, :created_by_us,
     tags_params, parent2_child_ids: []
 
@@ -132,6 +133,7 @@ ActiveAdmin.register Parent do
             decorated.email_link
           end
           row :letterbox_name
+          row :book_delivery_organisation_name
           row :address
           row :address_supplement
           row :postal_code

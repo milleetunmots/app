@@ -13,12 +13,20 @@ class Parent::ProgramSmsToVerifyAddressService
   def call
     @children.find_each do |child|
       @parent = child.parent1
-      address = "\n#{@parent.letterbox_name}\n#{@parent.address}\n"
+      addressee =
+        case @parent.book_delivery_location
+        when nil, 'home'
+          "\n#{@parent.letterbox_name}"
+        when 'relative_home'
+          "\n#{@parent.letterbox_name}\n#{@parent.attention_to}"
+        else
+          "\n#{@parent.book_delivery_organisation_name}\n#{@parent.attention_to}"
+        end
+      address = "\n#{addressee}\n#{@parent.address}\n"
       address = "#{address}#{@parent.address_supplement}\n" unless @parent.address_supplement.blank?
       address = "#{address}#{@parent.postal_code} #{@parent.city_name}\n"
-      @message = "#{MESSAGE} https://form.typeform.com/to/#{ENV['UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID']}#parent_id=xxxxx&security_code=xxxxx".gsub('{ADDRESS}', address)
-      @message = @message.gsub('parent_id=xxxxx', "parent_id=#{@parent.id}")
-      @message = @message.gsub('security_code=xxxxx', "security_code=#{@parent.security_code}")
+      @message = "#{MESSAGE} https://form.typeform.com/to/#{ENV['UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID']}#st=xxxxx".gsub('{ADDRESS}', address)
+      @message = @message.gsub('st=xxxxx', "st=#{@parent.security_token}")
       service = ProgramMessageService.new(
         @date.strftime('%d-%m-%Y'),
         @date.strftime('%H:%M'),

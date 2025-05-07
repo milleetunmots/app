@@ -660,6 +660,7 @@ ActiveAdmin.register ChildSupport do
                     parent_f.input :follow_us_on_whatsapp
                     parent_f.input :email
                     parent_f.input :letterbox_name
+                    parent_f.input :book_delivery_organisation_name
                     parent_f.input :address
                     parent_f.input :postal_code
                     parent_f.input :city_name
@@ -706,7 +707,7 @@ ActiveAdmin.register ChildSupport do
   ] + [tags_params.merge(book_not_received: [], parent1_available_support_module_list: [], parent2_available_support_module_list: [])]
   parent_attributes = %i[
     id
-    gender first_name last_name phone_number email letterbox_name address postal_code city_name
+    gender first_name last_name phone_number email letterbox_name book_delivery_organisation_name address postal_code city_name
     is_ambassador present_on_whatsapp follow_us_on_whatsapp job
   ]
   current_child_attributes = [{
@@ -1036,11 +1037,11 @@ ActiveAdmin.register ChildSupport do
   end
 
   member_action :send_message_to_parent1 do
-    redirect_to admin_message_path(parent_id: resource.model.parent1.id, child_support_id: resource.model.id, parent_sc: resource.model.parent1.security_code)
+    redirect_to admin_message_path(parent_id: resource.model.parent1.id, child_support_id: resource.model.id, parent_st: resource.model.parent1.security_token)
   end
 
   member_action :send_message_to_parent2 do
-    redirect_to admin_message_path(parent_id: resource.model.parent2&.id, child_support_id: resource.model.id, parent_sc: resource.model.parent1.security_code)
+    redirect_to admin_message_path(parent_id: resource.model.parent2&.id,child_support_id: resource.model.id,  parent_st: resource.model.parent.security_token)
   end
 
   controller do

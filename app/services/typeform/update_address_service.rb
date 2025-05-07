@@ -1,19 +1,19 @@
 module Typeform
   class UpdateAddressService < Typeform::TypeformService
-    FIELD_IDS = {
+    FIELDS = {
       ENV['UPDATING_ADDRESS_TYPEFORM_ID'] => {
-        address: ENV['ADDRESS_TYPEFORM_ADDRESS_ID'],
-        address_supplement: ENV['ADDRESS_SUPPLEMENT_TYPEFORM_ADDRESS_ID'],
-        city_name: ENV['ADDRESS_TYPEFORM_CITY_NAME_ID'],
-        postal_code: ENV['ADDRESS_TYPEFORM_POSTAL_CODE_ID'],
-        letterbox_name: ENV['ADDRESS_TYPEFORM_LETTERBOX_NAME_ID']
+        address: ENV['ADDRESS_TYPEFORM_ADDRESS'],
+        address_supplement: ENV['ADDRESS_SUPPLEMENT_TYPEFORM_ADDRESS'],
+        city_name: ENV['ADDRESS_TYPEFORM_CITY_NAME'],
+        postal_code: ENV['ADDRESS_TYPEFORM_POSTAL_CODE'],
+        letterbox_name: ENV['ADDRESS_TYPEFORM_LETTERBOX_NAME']
       },
       ENV['UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID'] => {
-        address: ENV['UPSTREAM_ADDRESS_UPDATING_ADDRESS_ID'],
-        address_supplement: ENV['UPSTREAM_ADDRESS_UPDATING_ADDRESS_SUPPLEMENT_ID'],
-        city_name: ENV['UPSTREAM_ADDRESS_UPDATING_CITY_NAME_ID'],
-        postal_code: ENV['UPSTREAM_ADDRESS_UPDATING_POSTAL_CODE_ID'],
-        letterbox_name: ENV['UPSTREAM_ADDRESS_UPDATING_LETTERBOX_NAME_ID']
+        address: ENV['UPSTREAM_ADDRESS_UPDATING_ADDRESS'],
+        address_supplement: ENV['UPSTREAM_ADDRESS_UPDATING_ADDRESS_SUPPLEMENT'],
+        city_name: ENV['UPSTREAM_ADDRESS_UPDATING_CITY_NAME'],
+        postal_code: ENV['UPSTREAM_ADDRESS_UPDATING_POSTAL_CODE'],
+        letterbox_name: ENV['UPSTREAM_ADDRESS_UPDATING_LETTERBOX_NAME']
       }
     }.freeze
 
@@ -23,30 +23,29 @@ module Typeform
     end
 
     def call
-      verify_hidden_variable('parent_id')
+      # verify_security_token
       find_parent
+      find_child_support
       return self unless @errors.empty?
-
-      @child_support = @parent.current_child&.child_support
-      unless @child_support
-        @errors << { message: 'ChildSupport not found', parent_id: @parent.id }
-        return self
-      end
 
       @answers.each do |answer|
         case answer[:field][:id]
-        when FIELD_IDS[@form_id][:address]
+        when FIELDS[@form_id][:address]
           @parent.address = answer[:text]
-        when FIELD_IDS[@form_id][:address_supplement]
+        when FIELDS[@form_id][:address_supplement]
           @parent.address_supplement = answer[:text]  if answer[:text].present?
-        when FIELD_IDS[@form_id][:city_name]
+        when FIELDS[@form_id][:city_name]
           @parent.city_name = answer[:text]
-        when FIELD_IDS[@form_id][:postal_code]
+        when FIELDS[@form_id][:postal_code]
           @parent.postal_code = answer[:number]
-        when FIELD_IDS[@form_id][:letterbox_name]
+        when FIELDS[@form_id][:letterbox_name]
           @parent.letterbox_name = answer[:text]
         end
       end
+
+      # reset these fields because its not currently updatable via typeform
+      @parent.book_delivery_organisation_name = nil
+      @parent.book_delivery_location = nil
 
       if @parent.save(validate: false)
         @child_support.address_suspected_invalid_at = nil

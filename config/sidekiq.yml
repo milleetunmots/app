@@ -39,3 +39,7 @@
     add_eval_tag_to_children_job:
       cron: '0 8 * * *'
       class: 'Child::AddEvalTagToChildrenJob'
+    send_eval_message_job:
+      cron: '0 9 * * *'
+      class: 'Child::SendEvalMessageJob'
+

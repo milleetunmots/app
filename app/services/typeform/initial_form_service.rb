@@ -2,24 +2,24 @@ module Typeform
   class InitialFormService < Typeform::TypeformService
     include ApplicationHelper
 
-    FIELD_IDS = {
-      name: ENV['TYPEFORM_NAME'],
-      child_count: ENV['TYPEFORM_CHILD_COUNT'],
-      already_working_with: ENV['TYPEFORM_ALREADY_WORKING_WITH'],
-      books_quantity: ENV['TYPEFORM_BOOKS_QUANTITY'],
-      most_present_parent: ENV['TYPEFORM_MOST_PRESENT_PARENT'],
-      other_parent_phone: ENV['TYPEFORM_OTHER_PARENT_PHONE'],
-      other_parent_degree: ENV['TYPEFORM_OTHER_PARENT_DEGREE'],
-      other_parent_degree_in_france: ENV['TYPEFORM_OTHER_PARENT_DEGREE_IN_FRANCE'],
-      degree: ENV['TYPEFORM_DEGREE'],
-      degree_in_france: ENV['TYPEFORM_DEGREE_IN_FRANCE'],
-      reading_frequency: ENV['TYPEFORM_READING_FREQUENCY'],
-      tv_frequency: ENV['TYPEFORM_TV_FREQUENCY'],
-      is_bilingual: ENV['TYPEFORM_IS_BILINGUAL'],
-      help_my_child_to_learn_is_important: ENV['TYPEFORM_HELP_MY_CHILD_TO_LEARN_IS_IMPORTANT'],
-      would_like_to_do_more: ENV['TYPEFORM_WOULD_LIKE_TO_DO_MORE'],
-      would_receive_advices: ENV['TYPEFORM_WOULD_LIKE_TO_RECEIVE_ADVICES'],
-      parental_contexts: ENV['TYPEFORM_PARENTAL_CONTEXTS']
+    FIELDS = {
+      name: ENV['INITIAL_TYPEFORM_NAME'],
+      child_count: ENV['INITIAL_TYPEFORM_CHILD_COUNT'],
+      already_working_with: ENV['INITIAL_TYPEFORM_ALREADY_WORKING_WITH'],
+      books_quantity: ENV['INITIAL_TYPEFORM_BOOKS_QUANTITY'],
+      most_present_parent: ENV['INITIAL_TYPEFORM_MOST_PRESENT_PARENT'],
+      other_parent_phone: ENV['INITIAL_TYPEFORM_OTHER_PARENT_PHONE'],
+      other_parent_degree: ENV['INITIAL_TYPEFORM_OTHER_PARENT_DEGREE'],
+      other_parent_degree_in_france: ENV['INITIAL_TYPEFORM_OTHER_PARENT_DEGREE_IN_FRANCE'],
+      degree: ENV['INITIAL_TYPEFORM_DEGREE'],
+      degree_in_france: ENV['INITIAL_TYPEFORM_DEGREE_IN_FRANCE'],
+      reading_frequency: ENV['INITIAL_TYPEFORM_READING_FREQUENCY'],
+      tv_frequency: ENV['INITIAL_TYPEFORM_TV_FREQUENCY'],
+      is_bilingual: ENV['INITIAL_TYPEFORM_IS_BILINGUAL'],
+      help_my_child_to_learn_is_important: ENV['INITIAL_TYPEFORM_HELP_MY_CHILD_TO_LEARN_IS_IMPORTANT'],
+      would_like_to_do_more: ENV['INITIAL_TYPEFORM_WOULD_LIKE_TO_DO_MORE'],
+      would_receive_advices: ENV['INITIAL_TYPEFORM_WOULD_LIKE_TO_RECEIVE_ADVICES'],
+      parental_contexts: ENV['INITIAL_TYPEFORM_PARENTAL_CONTEXTS']
     }.freeze
 
     attr_reader :data
@@ -32,7 +32,7 @@ module Typeform
     end
 
     def call
-      verify_hidden_variable('child_support_id')
+      # verify_security_token
       find_child_support
       return self unless @errors.empty?
 
@@ -46,14 +46,15 @@ module Typeform
 
     def parse_answers
       @answers.each do |answer|
+        # byebug
         case answer[:field][:id]
-        when FIELD_IDS[:name]
+        when FIELDS[:name]
           @data[:name] = answer[:text]
-        when FIELD_IDS[:child_count]
+        when FIELDS[:child_count]
           @data[:child_count] = answer[:choice][:label]
-        when FIELD_IDS[:already_working_with]
+        when FIELDS[:already_working_with]
           @data[:already_working_with] = answer[:choice][:label]
-        when FIELD_IDS[:books_quantity]
+        when FIELDS[:books_quantity]
           case answer[:choice][:label]
           when '0'
             @data[:books_quantity] = ChildSupport::BOOKS_QUANTITY[0]
@@ -64,7 +65,7 @@ module Typeform
           else
             @data[:books_quantity] = ChildSupport::BOOKS_QUANTITY[3]
           end
-        when FIELD_IDS[:most_present_parent]
+        when FIELDS[:most_present_parent]
           case answer[:choice][:label]
           when 'Moi'
             @data[:most_present_parent] = "#{@child_support.parent1.first_name} #{@child_support.parent1.last_name} passe plus plus de temps avec l'enfant"
@@ -76,17 +77,17 @@ module Typeform
           else
             @data[:most_present_parent] = "#{answer[:choice][:label]} passe le plus de temps avec l'enfant"
           end
-        when FIELD_IDS[:other_parent_phone]
+        when FIELDS[:other_parent_phone]
           @data[:other_parent_phone] = Phonelib.parse(answer[:text]).e164
-        when FIELD_IDS[:other_parent_degree]
+        when FIELDS[:other_parent_degree]
           @data[:other_parent_degree] = answer[:choice][:label]
-        when FIELD_IDS[:other_parent_degree_in_france]
+        when FIELDS[:other_parent_degree_in_france]
           @data[:other_parent_degree_in_france] = answer[:choice][:label]
-        when FIELD_IDS[:degree]
+        when FIELDS[:degree]
           @data[:degree] = answer[:choice][:label]
-        when FIELD_IDS[:degree_in_france]
+        when FIELDS[:degree_in_france]
           @data[:degree_in_france] = answer[:choice][:label] == 'France'
-        when FIELD_IDS[:reading_frequency]
+        when FIELDS[:reading_frequency]
           if answer[:choices][:labels] == ['Aucun']
             @data[:call1_reading_frequency] = ChildSupport::READING_FREQUENCY[0]
           else
@@ -99,7 +100,7 @@ module Typeform
               @data[:call1_reading_frequency] = ChildSupport::READING_FREQUENCY[3]
             end
           end
-        when FIELD_IDS[:tv_frequency]
+        when FIELDS[:tv_frequency]
           if answer[:choices][:labels] == ['Aucun']
             @data[:call1_tv_frequency] = ChildSupport::TV_FREQUENCY[0]
           else
@@ -112,7 +113,7 @@ module Typeform
               @data[:call1_tv_frequency] = ChildSupport::TV_FREQUENCY[3]
             end
           end
-        when FIELD_IDS[:is_bilingual]
+        when FIELDS[:is_bilingual]
           @data[:is_bilingual] =
             case answer[:choice][:label]
             when 'Oui'
@@ -122,13 +123,13 @@ module Typeform
             else
               '2_no_information'
             end
-        when FIELD_IDS[:help_my_child_to_learn_is_important]
+        when FIELDS[:help_my_child_to_learn_is_important]
           @data[:help_my_child_to_learn_is_important] = answer[:choice][:label]
-        when FIELD_IDS[:would_like_to_do_more]
+        when FIELDS[:would_like_to_do_more]
           @data[:would_like_to_do_more] = answer[:choice][:label]
-        when FIELD_IDS[:would_receive_advices]
+        when FIELDS[:would_receive_advices]
           @data[:would_receive_advices] = answer[:choice][:label]
-        when FIELD_IDS[:parental_contexts]
+        when FIELDS[:parental_contexts]
           @data[:parental_contexts] = answer[:choices][:labels]
         end
       end

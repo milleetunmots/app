@@ -21,6 +21,7 @@
 #  registration_source                        :string
 #  registration_source_details                :string
 #  security_code                              :string
+#  security_token                             :string
 #  should_contact_parent1                     :boolean          default(FALSE), not null
 #  should_contact_parent2                     :boolean          default(FALSE), not null
 #  src_url                                    :string
@@ -144,6 +145,7 @@ class Child < ApplicationRecord
   def initialize(attributes = {})
     super
     self.security_code = SecureRandom.hex(1)
+    self.security_token = SecureRandom.hex(16)
   end
 
   before_update do
@@ -459,6 +461,8 @@ class Child < ApplicationRecord
            :last_name,
            :gender,
            :phone_number_national,
+           :book_delivery_organisation_name,
+           :attention_to,
            to: :parent1,
            prefix: true
 

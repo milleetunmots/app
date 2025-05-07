@@ -141,7 +141,7 @@ class Child
     def send_form_by_sms
       return if 'filtre-diplome-KO'.in? @child.tag_list
 
-      @sms_url_form = "#{ENV.fetch('TYPEFORM_URL', nil)}#child_support_id=#{@child.child_support.id}"
+      @sms_url_form = "#{ENV['INITIAL_TYPEFORM_URL']}#st=#{@child.parent1.security_token}"
       message = "1001mots: Bonjour ! Je suis ravie de votre inscription à notre accompagnement ! Si vous avez 3 minutes, merci de répondre à ce court questionnaire #{@sms_url_form}"
       eval25_message = "1001mots : Bonjour, votre inscription au programme 1001mots est confirmée. L'accompagnement va bientôt démarrer. A bientôt !"
 
