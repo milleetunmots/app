@@ -43,7 +43,7 @@ class Child
         nil,
         nil,
         ['active', 'stopped']
-      ).new.call
+      ).call
       if message_service.errors.any?
         @errors << "Impossible d'envoyer le message au parent de l'enfant avec child_id #{@child_id} : #{message_service.errors}"
       else

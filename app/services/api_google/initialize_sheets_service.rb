@@ -28,6 +28,6 @@ class ApiGoogle::InitializeSheetsService
 
   def find_child
     @child = Child.find_by(id: @child_id)
-    @errors << "Enfant introuvable : #{row[1].strip}" unless @child
+    @errors << "Enfant introuvable : #{@child_id}" unless @child
   end
 end
