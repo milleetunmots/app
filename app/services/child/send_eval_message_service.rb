@@ -16,7 +16,8 @@ class Child
 
       @response.values.each do |row|
         @child = nil
-        next if row[1].blank? || row[6] != 'Test' || !row[20].in?(['Appel 1 ok', 'Appel 2 ok', 'Appel 3 ok', 'Ne souhaite pas répondre', 'Numéro erroné'])
+        next if row[1].blank? || row[6] != 'Test'
+        next if row[20].in?(['Appel 1 ok', 'Appel 2 ok', 'Appel 3 ok', 'Ne souhaite pas répondre', 'Numéro erroné'])
 
         @child_id = row[1].strip
         send_message
