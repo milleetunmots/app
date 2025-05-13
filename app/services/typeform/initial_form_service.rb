@@ -32,7 +32,9 @@ module Typeform
     end
 
     def call
-      # verify_security_token
+      verify_security_token
+      return self unless @errors.empty?
+
       find_child_support
       return self unless @errors.empty?
 

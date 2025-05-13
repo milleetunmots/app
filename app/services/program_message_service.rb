@@ -1,7 +1,7 @@
 class ProgramMessageService
 
-  TYPEFORM_URL_REGEX = %r{https://form.typeform.com/[^\s]*#child_support_id=[^\s]+}.freeze
-  VIDEOASK_URL_REGEX = %r{https://www\.videoask\.com/[^\s]*#child_support_id=[^\s]+}.freeze
+  TYPEFORM_URL_REGEX = %r{https://form.typeform.com/[^\s]*#st=[^\s]+}.freeze
+  VIDEOASK_URL_REGEX = %r{https://www\.videoask\.com/[^\s]*#st=[^\s]+}.freeze
 
   attr_reader :errors
 
@@ -113,12 +113,7 @@ class ProgramMessageService
     link = @message.scan(regex).first
     return unless link
 
-    hidden_fields = link.split('child_support_id=').second
-    hidden_fields_splited = hidden_fields.split('&current_child')
-    hidden_fields.gsub!(hidden_fields_splited.second, '_name={PRENOM_ENFANT}') if hidden_fields_splited.second.present?
-    hidden_fields.gsub!(hidden_fields_splited.first, '{CHILD_SUPPORT_ID}')
-
-    @message.gsub!(link, link.gsub(link.split('#child_support_id=').second, hidden_fields))
+    @message.gsub!(/#st=[^\s]+/, '#st={PARENT_SECURITY_TOKEN}')
   end
 
   def get_all_variables
@@ -178,7 +173,7 @@ class ProgramMessageService
       Parent.where(id: @parent_ids).find_each do |parent|
         @recipient_data[parent.id.to_s] = {}
         @recipient_data[parent.id.to_s]['PRENOM_ENFANT'] = parent.current_child&.first_name || 'votre enfant'
-        @recipient_data[parent.id.to_s]['CHILD_SUPPORT_ID'] = parent.current_child&.child_support&.id
+        @recipient_data[parent.id.to_s]['PARENT_SECURITY_TOKEN'] = parent.security_token
         @recipient_data[parent.id.to_s]['PRENOM_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.decorate&.first_name
         @recipient_data[parent.id.to_s]['NUMERO_AIRCALL_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.aircall_phone_number
         if @redirection_target && parent.current_child.present?
