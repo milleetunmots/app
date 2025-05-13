@@ -226,6 +226,7 @@ class ChildSupport < ApplicationRecord
   has_one :parent2, through: :current_child
 
   accepts_nested_attributes_for :current_child
+  accepts_nested_attributes_for :children
 
   before_update do
     if current_child

@@ -436,6 +436,7 @@ ActiveRecord::Schema.define(version: 2025_06_24_144417) do
     t.boolean "is_programmed", default: false, null: false
     t.integer "module_index"
     t.bigint "book_id"
+    t.string "book_condition"
     t.index ["book_id"], name: "index_children_support_modules_on_book_id"
     t.index ["child_id"], name: "index_children_support_modules_on_child_id"
     t.index ["parent_id"], name: "index_children_support_modules_on_parent_id"
