@@ -78,7 +78,6 @@ ActiveAdmin.register ChildSupport do
           label: "Précisions sur l'origine"
   filter :should_be_read,
          input_html: { data: { select2: { width: '100%' } } }
-  filter :book_not_received
   filter :is_bilingual, as: :check_boxes, collection: proc { is_bilingual_collection }
   filter :second_language
   filter :postal_code,
@@ -129,12 +128,6 @@ ActiveAdmin.register ChildSupport do
       child_support.save!
     end
     redirect_to request.referer, notice: 'Accompagnante mis à jour'
-  end
-
-  batch_action :remove_book_not_received do |ids|
-    child_supports = batch_action_collection.where(id: ids)
-    child_supports.each { |child_support| child_support.update! book_not_received: [] }
-    redirect_to request.referer, notice: 'Livres non reçus enlevés'
   end
 
   batch_action :check_should_be_read do |ids|
@@ -299,10 +292,6 @@ ActiveAdmin.register ChildSupport do
             f.input :availability, input_html: { style: 'width: 70%' }
             f.input :call_infos, input_html: { style: 'width: 70%' }
           end
-          f.input :book_not_received,
-                  collection: book_not_received_collection,
-                  multiple: true,
-                  input_html: { data: { select2: { tokenSeparators: [';'] } } }
           if resource.address_suspected_invalid_at
             div class: 'address-suspected-invalid-info' do
               h4 "Problème avec l’adresse : les livres ne sont plus envoyés depuis le #{resource.address_suspected_invalid_at&.strftime("%d/%m/%Y")}", class: 'txt-warning'
@@ -313,9 +302,29 @@ ActiveAdmin.register ChildSupport do
             div class: 'children-books-sent' do
               resource.children.each do |child|
                 h4 "Livres envoyés à #{child.first_name} :"
-                div do
+                div class: 'child-books-sent' do
                   child.children_support_modules.where.not(book_id: nil).order(:module_index).each do |support_module|
-                    span support_module.book.decorate.cover_link_tag(max_width: '60px')
+                    div class: 'card' do
+                      div class: 'card-img-top' do
+                        support_module.book.decorate.cover_link_tag(max_width: '60px')
+                      end
+                      div class: 'card-body' do
+                        span class: 'card-text' do
+                          'Signaler un problème'
+                        end
+                      end
+                      div class: 'card-footer' do
+                        f.semantic_fields_for :children, child do |child_f|
+                          child_f.semantic_fields_for :children_support_modules, support_module, index: support_module.id do |module_f|
+                            module_f.input :book_condition,
+                              label: false,
+                              as: :select,
+                              collection: book_condition_select_collection,
+                              input_html: { data: { select2: {} } }
+                          end
+                        end
+                      end
+                    end
                   end
                 end
               end
@@ -741,7 +750,7 @@ ActiveAdmin.register ChildSupport do
     availability
     call_infos
     family_support_should_be_stopped
-  ] + [tags_params.merge(book_not_received: [], parent1_available_support_module_list: [], parent2_available_support_module_list: [])]
+  ] + [tags_params.merge(parent1_available_support_module_list: [], parent2_available_support_module_list: [])]
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email letterbox_name book_delivery_organisation_name address postal_code city_name
@@ -757,9 +766,19 @@ ActiveAdmin.register ChildSupport do
       }
     ]
   }]
+  children_attributes = [
+    :id,
+    {
+      children_support_modules_attributes: [
+        :id,
+        :book_condition
+      ]
+    }
+  ]
   # block is mandatory here because ChildSupport.call_attributes hits DB
   permit_params do
-    base_attributes + ChildSupport.call_attributes + current_child_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms]
+    base_attributes + ChildSupport.call_attributes + current_child_attributes + children_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms]
+    byebug
   end
 
   # ---------------------------------------------------------------------------
@@ -789,7 +808,6 @@ ActiveAdmin.register ChildSupport do
           row :important_information
           row :availability
           row :call_infos
-          row :book_not_received
           row :should_be_read
           row :display_is_bilingual
           row :second_language

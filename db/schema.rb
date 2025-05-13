@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_06_151505) do
+ActiveRecord::Schema.define(version: 2025_05_13_103317) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -436,6 +436,7 @@ ActiveRecord::Schema.define(version: 2025_05_06_151505) do
     t.boolean "is_programmed", default: false, null: false
     t.integer "module_index"
     t.bigint "book_id"
+    t.string "book_condition"
     t.index ["book_id"], name: "index_children_support_modules_on_book_id"
     t.index ["child_id"], name: "index_children_support_modules_on_child_id"
     t.index ["parent_id"], name: "index_children_support_modules_on_parent_id"
@@ -595,9 +596,9 @@ ActiveRecord::Schema.define(version: 2025_05_06_151505) do
     t.string "aircall_id"
     t.jsonb "aircall_datas"
     t.string "address_supplement"
-    t.string "security_token"
     t.string "book_delivery_organisation_name"
     t.string "book_delivery_location"
+    t.string "security_token"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
