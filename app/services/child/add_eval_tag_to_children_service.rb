@@ -19,10 +19,17 @@ class Child
         'Rdv sans réponse après 3 tentatives'
       ]
     }.freeze
+    CONTROL_GROUP_RESPONSES = [
+      'Répondu',
+      'Arrêt pour exclusion',
+      'Refus étude'
+    ].freeze
     TAGS = {
       completed: 'Eval25 - validée',
       refused: 'Eval25 - refusée',
-      three_attempts: 'Eval25 - 3 tentatives'
+      three_attempts: 'Eval25 - 3 tentatives',
+      include_in_group: 'Eval - OK pour inclure dans une cohorte',
+      exclude_from_group: 'Eval - ne pas inclure dans une cohorte'
     }.freeze
 
     def initialize
@@ -37,31 +44,36 @@ class Child
 
       @response.values.each do |row|
         @child = nil
-        next if row[1].blank? || row[24].blank? || (row[0] != 'FALSE' && row[0] != 'TRUE')
+        child_id = row[1]&.strip
+        group = row[6]&.strip
+        response_status = row[24]&.strip
+        next if child_id.blank? || group.blank? || response_status.blank? || (row[0] != 'FALSE' && row[0] != 'TRUE')
 
-        @child_id = row[1].strip
-        @response_status = row[24].strip
-        process_child
+        @child_id = child_id
+        @response_status = response_status
+        @group = group
+        find_child
+        next unless @child
+
+        add_eval_tags_to_child
+        add_eval_tags_to_control_group_siblings
       end
       self
     end
 
     private
 
-    def process_child
-      find_child
-      return unless @child
+    def add_eval_tags_to_child
       return if @child.tag_list.include?(TAGS[:completed]) || @child.tag_list.include?(TAGS[:refused]) || @child.tag_list.include?(TAGS[:three_attempts])
-
       return unless @child.group_status.in? %w[waiting active paused]
 
       case status_category
       when :completed
-        @child.tag_list << TAGS[:completed]
+        @child.tag_list.add(TAGS[:completed])
       when :refused
-        @child.tag_list << TAGS[:refused]
+        @child.tag_list.add(TAGS[:refused])
       when :three_attempts
-        @child.tag_list << TAGS[:three_attempts]
+        @child.tag_list.add(TAGS[:three_attempts])
       when :pending
         return
       else
@@ -69,6 +81,24 @@ class Child
         return
       end
       @errors << "Impossible d'ajouter de tag à l'enfant avec child_id #{@child_id}" unless @child.save
+    end
+
+    def add_eval_tags_to_control_group_siblings
+      return unless @group == 'Témoin'
+
+      if CONTROL_GROUP_RESPONSES.include?(@response_status)
+        @child.siblings.each do |child|
+          child.tag_list.add(TAGS[:include_in_group])
+          child.tag_list.remove(TAGS[:exclude_from_group])
+          @errors << "Impossible d'ajouter de tag à l'enfant avec child_id #{child.id}" unless child.save
+        end
+      else
+        @child.siblings.each do |child|
+          child.tag_list.add(TAGS[:exclude_from_group])
+          child.tag_list.remove(TAGS[:include_in_group])
+          @errors << "Impossible d'ajouter de tag à l'enfant avec child_id #{child.id}" unless child.save
+        end
+      end
     end
 
     def status_category
