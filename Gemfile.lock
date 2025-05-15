@@ -118,6 +118,7 @@ GEM
       aws-eventstream (~> 1, >= 1.0.2)
     base64 (0.2.0)
     bcrypt (3.1.20)
+    benchmark (0.4.0)
     bindex (0.8.1)
     bootsnap (1.17.0)
       msgpack (~> 1.2)
@@ -330,6 +331,7 @@ GEM
       racc (~> 1.4)
     orm_adapter (0.5.0)
     os (1.1.4)
+    ostruct (0.6.1)
     paper_trail (15.1.0)
       activerecord (>= 6.1)
       request_store (~> 1.4)
@@ -546,6 +548,12 @@ GEM
     turbolinks (5.2.1)
       turbolinks-source (~> 5.2)
     turbolinks-source (5.2.0)
+    twilio-ruby (7.5.1)
+      benchmark
+      faraday (>= 0.9, < 3.0)
+      jwt (>= 1.5, < 3.0)
+      nokogiri (>= 1.6, < 2.0)
+      ostruct
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     uber (0.1.0)
@@ -641,6 +649,7 @@ DEPENDENCIES
   test-prof
   toastr-rails
   turbolinks (~> 5)
+  twilio-ruby
   tzinfo-data
   web-console (>= 3.3.0)
   webmock
