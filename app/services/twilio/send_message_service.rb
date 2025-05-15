@@ -15,14 +15,20 @@ class Twilio::SendMessageService
   def call
     begin
       @message =
-        @client.api.v2010.messages.create(
-          body: @body,
-          messaging_service_sid: ENV['TWILIO_MESSAGING_SID'],
-          to: @to,
-          media_url: [
-            @media_url
-          ]
-        )
+        if @media_url.blank?
+          @client.api.v2010.messages.create(
+            body: @body,
+            messaging_service_sid: ENV['TWILIO_MESSAGING_SID'],
+            to: @to
+          )
+        else
+          @client.api.v2010.messages.create(
+            body: @body,
+            messaging_service_sid: ENV['TWILIO_MESSAGING_SID'],
+            to: @to,
+            media_url: [@media_url]
+          )
+        end
     rescue Twilio::REST::RestError => e
       @errors << "Impossible d'envoyer le message"
     end
