@@ -95,20 +95,13 @@ class Parent < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   has_many :parent1_children, class_name: :Child, foreign_key: :parent1_id, dependent: :nullify
-
   has_many :parent2_children, class_name: :Child, foreign_key: :parent2_id, dependent: :nullify
-
   has_many :redirection_urls, dependent: :destroy
-
   has_many :events, as: :related, dependent: :destroy
-
   has_many :children_support_modules, dependent: :destroy
-
   has_many :support_modules, through: :children_support_modules
-
   has_many :parents_answers, dependent: :destroy
   has_many :answers, through: :parents_answers
-
   has_and_belongs_to_many :workshops
 
   # ---------------------------------------------------------------------------
@@ -124,8 +117,11 @@ class Parent < ApplicationRecord
 
   validates :gender, presence: true, inclusion: { in: GENDERS }
   validates :first_name, presence: true
+  validates :book_delivery_location, presence: true
   validates :letterbox_name, presence: true, if: -> { book_delivery_organisation_name.blank? }, on: :create
   validates :book_delivery_organisation_name, presence: true, if: -> { letterbox_name.blank? }, on: :create
+  validates :letterbox_name, presence: true, if: -> { book_delivery_location.in? %w[home relative_home] }
+  validates :book_delivery_organisation_name, presence: true, if: -> { book_delivery_location.in? %w[pmi temporary_shelter association police_or_military_station] }
   validates :first_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
   validates :last_name, presence: true
   validates :last_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
@@ -164,6 +160,7 @@ class Parent < ApplicationRecord
     super
     self.security_code = SecureRandom.hex(1)
     self.security_token = SecureRandom.hex(16)
+    self.book_delivery_location = 'home' if book_delivery_location.blank?
   end
 
   # ---------------------------------------------------------------------------
