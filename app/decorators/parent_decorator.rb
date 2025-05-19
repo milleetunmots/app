@@ -57,15 +57,15 @@ class ParentDecorator < BaseDecorator
   end
 
   def full_address
-    [
-      letterbox_name,
-      address,
-      address_supplement,
-      [
-        postal_code,
-        city_name
-      ].join(' ')
-    ].join('<br/>').html_safe
+    full_address =
+      if model.book_delivery_location.in? %w[pmi temporary_shelter association police_or_military_station]
+        [book_delivery_organisation_name, address]
+      else
+        [letterbox_name, address]
+      end
+    full_address << address_supplement if address_supplement.present?
+    full_address << [postal_code, city_name].join(' ')
+    full_address.join('<br/>').html_safe
   end
 
   def icon_class
@@ -146,10 +146,8 @@ class ParentDecorator < BaseDecorator
     end
   end
 
-  def book_delivery_organisation_name
-    return if model.book_delivery_organisation_name.blank?
-
-    Child.human_attribute_name("book_delivery_location.#{model.book_delivery_organisation_name}")
+  def book_delivery_location_name
+    Parent.human_attribute_name("book_delivery_location.#{model.book_delivery_location}")
   end
 
   private

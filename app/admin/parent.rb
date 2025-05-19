@@ -53,6 +53,8 @@ ActiveAdmin.register Parent do
   filter :present_on_whatsapp
   filter :follow_us_on_whatsapp
   filter :email
+  filter :book_delivery_location, as: :select,
+    collection: proc { parent_book_delivery_location_select_collection }
   filter :letterbox_name
   filter :address
   filter :postal_code
@@ -93,6 +95,10 @@ ActiveAdmin.register Parent do
       f.input :present_on_whatsapp
       f.input :follow_us_on_whatsapp
       f.input :email
+      f.input :book_delivery_location,
+        input_html: { data: { select2: {} } },
+        label: "La famille souhaite recevoir les livres :",
+        collection: parent_book_delivery_location_select_collection
       f.input :letterbox_name
       f.input :book_delivery_organisation_name
       address_input f
@@ -107,7 +113,7 @@ ActiveAdmin.register Parent do
 
   permit_params :gender, :first_name, :last_name,
     :phone_number, :is_excluded_from_workshop, :present_on_whatsapp, :follow_us_on_whatsapp, :email,
-    :letterbox_name, :book_delivery_organisation_name, :address, :postal_code, :city_name, :address_supplement,
+    :book_delivery_location, :letterbox_name, :book_delivery_organisation_name, :address, :postal_code, :city_name, :address_supplement,
     :is_ambassador, :job, :terms_accepted_at, :family_followed, :parent2_creation, :created_by_us,
     tags_params, parent2_child_ids: []
 
@@ -131,6 +137,9 @@ ActiveAdmin.register Parent do
           row :follow_us_on_whatsapp
           row :email do |decorated|
             decorated.email_link
+          end
+          row :book_delivery_location do |decorated|
+            decorated.book_delivery_location_name
           end
           row :letterbox_name
           row :book_delivery_organisation_name
