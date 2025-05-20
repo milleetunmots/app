@@ -16,7 +16,9 @@
 #
 class Tag < ActsAsTaggableOn::Tag
 
-  before_validation :format_name
+  before_validation :format_name, on: :create
+
+  validate :no_duplicate_name
 
   private
 
@@ -24,5 +26,12 @@ class Tag < ActsAsTaggableOn::Tag
     return unless attribute_present?('name')
 
     self.name = I18n.transliterate(name).downcase
+  end
+
+  def no_duplicate_name
+    return unless attribute_present?('name')
+    return if Tag.where('TRIM(LOWER(unaccent(name))) = ?', name.downcase).empty?
+
+    errors.add(:base, 'Un tag avec le même nom existe déjà.')
   end
 end
