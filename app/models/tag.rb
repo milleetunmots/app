@@ -18,7 +18,7 @@ class Tag < ActsAsTaggableOn::Tag
 
   before_validation :format_name, on: :create
 
-  validate :no_duplicate_name
+  validate :no_duplicate_name, on: :create
 
   private
 
