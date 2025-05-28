@@ -552,6 +552,8 @@ ActiveAdmin.register Child do
     column :registration_months_range
     column :age
     column :gender
+    column :parent1_book_delivery_organisation_name
+    column :parent1_attention_to
     column :letterbox_name
     column :address
     column :address_supplement
