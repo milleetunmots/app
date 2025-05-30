@@ -113,6 +113,8 @@ fr:
         parent1_follow_us_on_whatsapp: Parent 1 nous suit sur Whatsapp ?
         parent1_last_name: Nom du parent 1
         parent1_phone_number_national: Numéro du parent 1
+        parent1_book_delivery_organisation_name: Raison sociale
+        parent1_attention_to: A l'attention de
         parent2: Parent 2
         parent2_selection: Parent 2
         parent2_email: Email du parent 2
