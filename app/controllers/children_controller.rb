@@ -69,14 +69,12 @@ class ChildrenController < ApplicationController
 
     case current_registration_origin
     when 5
-      @title = I18n.t('inscription_success.pro_title')
       @message = I18n.t('inscription_success.pro_local_partners')
       @again = true
       @widget = false
       @new_link = new_local_partner_registration_path
     when 4
       @widget = false
-      @title = I18n.t('inscription_success.title')
       if params[:parent1]
         @again = false
         @with_parent_no_target = true
@@ -89,13 +87,11 @@ class ChildrenController < ApplicationController
     when 3
       # for this form we keep the registration_origin
       # so that multiple children can be registered
-      @title = I18n.t('inscription_success.pro_title')
       @message = I18n.t('inscription_success.pro_pmi')
       @again = true
       @widget = false
       @new_link = new_pmi_registration_path
     when 2
-      @title = I18n.t('inscription_success.title')
       if ENV['CAF_SUBSCRIPTION'].present?
         @child_id = params[:caf_subscripted_child_id]
         set_caf_subscription_form_variables
@@ -110,7 +106,6 @@ class ChildrenController < ApplicationController
         @new_link = new_caf_registration_path
       end
     else
-      @title = I18n.t('inscription_success.title')
       @message = I18n.t('inscription_success.with_widget')
       @again = false
       @widget = true
