@@ -778,7 +778,6 @@ ActiveAdmin.register ChildSupport do
   # block is mandatory here because ChildSupport.call_attributes hits DB
   permit_params do
     base_attributes + ChildSupport.call_attributes + current_child_attributes + children_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms]
-    byebug
   end
 
   # ---------------------------------------------------------------------------
