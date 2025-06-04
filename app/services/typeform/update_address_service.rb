@@ -25,6 +25,8 @@ module Typeform
     def call
       # verify_security_token
       find_parent
+      return self unless @errors.empty?
+
       find_child_support
       return self unless @errors.empty?
 
