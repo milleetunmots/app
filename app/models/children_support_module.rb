@@ -40,8 +40,8 @@ class ChildrenSupportModule < ApplicationRecord
   scope :not_programmed, -> { where(is_programmed: false) }
   scope :programmed, -> { where(is_programmed: true) }
   scope :with_support_module, -> { joins(:support_module) }
-  scope :with_the_choice_to_make_by_us, -> { where(support_module: nil).where(is_completed: true) }
-  scope :without_choice, -> { where(support_module: nil).where(is_completed: false) }
+  scope :with_the_choice_to_make_by_us, -> { joins(:child).where(child: { group_status: 'active' }).where(support_module: nil).where(is_completed: true) }
+  scope :without_choice, -> { joins(:child).where(child: { group_status: 'active' }).where(support_module: nil).where(is_completed: false) }
   scope :latest_first, -> { order(created_at: :desc) }
   scope :using_support_module, ->(support_module_id) { where('available_support_module_list::text[] @> ARRAY[?]::text[]', [support_module_id]) }
 
@@ -101,7 +101,7 @@ class ChildrenSupportModule < ApplicationRecord
   end
 
   def self.group_id_in(*ids)
-    includes(child: :group).where(children: { group_id: ids }).references(:children)
+    includes(child: :group).where(child: { group_id: ids }).references(:child)
   end
 
   def select_for_the_other_parent
