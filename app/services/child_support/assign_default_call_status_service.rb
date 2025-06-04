@@ -14,8 +14,8 @@ class ChildSupport::AssignDefaultCallStatusService
 				else
 					default_call_status(child_support)
 				end
-				status_details = "Appel automatiquement passé en statut #{call_status} le #{Time.zone.now.strftime("%d/%m/%Y à %H:%M")}\n\n"
-				status_details += child_support.send("call#{@call_number}_status_details") || ''
+			status_details = "Appel automatiquement passé en statut #{call_status} le #{Time.zone.now.strftime("%d/%m/%Y à %H:%M")}\n\n"
+			status_details += child_support.send("call#{@call_number}_status_details") || ''
 			child_support.update("call#{@call_number}_status" => call_status, "call#{@call_number}_status_details" => status_details)
 		end
 		self
