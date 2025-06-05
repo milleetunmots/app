@@ -151,7 +151,7 @@ class Group
     end
 
     def verify_chosen_modules2
-      select_module_date = (@group.started_at + 7.weeks + MODULE_ZERO_DURATION).next_occuring(:tuesday) + 1.day
+      select_module_date = (@group.started_at + 7.weeks + MODULE_ZERO_DURATION).next_occurring(:tuesday)
       ChildrenSupportModule::VerifyChosenModulesTaskJob.set(wait_until: select_module_date.to_datetime.change(hour: @hour + 1)).perform_later(@group.id)
     end
 
