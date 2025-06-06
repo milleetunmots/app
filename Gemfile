@@ -56,7 +56,7 @@ group :development do
 
   gem "annotate"
   gem "foreman"
-  # gem "rails-erd"
+  gem "rails-erd"
 end
 
 group :test do
