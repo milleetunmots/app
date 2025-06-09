@@ -8,7 +8,7 @@ class ChildrenSupportModule
       children_support_module_ids = []
       planned_date = select_module_date.sunday? ? select_module_date.next_day : select_module_date
       is_module_3 = group.with_module_zero? ? module_index.eql?(4) : module_index.eql?(3)
-      is_module_2 = module_index.eql?(2)
+      is_module_2 = module_index.eql?(3)
       # stop children of 36 months+ before sending next module choice SMS
       Group::StopSupportService.new(group_id, end_of_support: false).call
       # module_index starts with 1
