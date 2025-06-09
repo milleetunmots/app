@@ -8,6 +8,7 @@ class ChildrenSupportModule
       children_support_module_ids = []
       planned_date = select_module_date.sunday? ? select_module_date.next_day : select_module_date
       is_module_3 = group.with_module_zero? ? module_index.eql?(4) : module_index.eql?(3)
+      is_module_2 = module_index.eql?(2)
       # stop children of 36 months+ before sending next module choice SMS
       Group::StopSupportService.new(group_id, end_of_support: false).call
       # module_index starts with 1
@@ -54,7 +55,7 @@ class ChildrenSupportModule
           children_support_module_ids.concat(service.children_support_module_ids)
         end
       end
-      reminder_date = planned_date.advance(days: 3)
+      reminder_date = planned_date.advance(days: is_module_2 ? 2 : 3)
       return if children_support_module_ids.empty?
 
       ChildrenSupportModule::CheckToSendReminderJob.set(wait_until: reminder_date.to_datetime.change(hour: 6)).perform_later(children_support_module_ids, reminder_date)
