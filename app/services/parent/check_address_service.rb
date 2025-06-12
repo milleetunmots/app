@@ -26,6 +26,7 @@ class Parent::CheckAddressService
          TRIM(LOWER(unaccent(city_name))) ILIKE unaccent(?) AND
          TRIM(LOWER(unaccent(letterbox_name))) ILIKE unaccent(?)', address, postal_code, city_name, letterbox_name).first
       next unless parent
+      next if parent.book_delivery_location_different_from_home?
 
       child_support = parent.current_child&.child_support
       unless child_support
