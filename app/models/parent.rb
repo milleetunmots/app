@@ -330,6 +330,10 @@ class Parent < ApplicationRecord
     "Pour #{first_name} #{last_name}"
   end
 
+  def book_delivery_location_different_from_home?
+    book_delivery_location.in? %w[relative_home pmi temporary_shelter association police_or_military_station]
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------

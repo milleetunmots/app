@@ -13,6 +13,8 @@ class Parent::ProgramSmsToVerifyAddressService
   def call
     @children.find_each do |child|
       @parent = child.parent1
+      next if @parent.book_delivery_location_different_from_home?
+
       addressee =
         case @parent.book_delivery_location
         when nil, 'home'
