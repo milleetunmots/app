@@ -14,7 +14,7 @@ class ChildrenSupportModule
           next
         end
 
-        unless ChildrenSupportModule.exists?(child_id: child.id, parent_id: child.parent1.id, module_index: @next_module_index)
+        unless ChildrenSupportModule.not_programmed.exists?(child_id: child.id, parent_id: child.parent1.id)
           parent1_children_support_module = ChildrenSupportModule.create(child_id: child.id,
                                                                        parent_id: child.parent1.id,
                                                                        available_support_module_list: child.child_support&.parent1_available_support_module_list.reject(&:blank?),
@@ -22,7 +22,7 @@ class ChildrenSupportModule
         end
 
         if child.parent2
-          unless ChildrenSupportModule.exists?(child_id: child.id, parent_id: child.parent2.id, module_index: @next_module_index)
+          unless ChildrenSupportModule.not_programmed.exists?(child_id: child.id, parent_id: child.parent2.id)
             parent2_children_support_module = ChildrenSupportModule.create(child_id: child.id,
                                                                        parent_id: child.parent2.id,
                                                                        available_support_module_list: child.child_support&.parent2_available_support_module_list.reject(&:blank?),
