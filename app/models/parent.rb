@@ -162,6 +162,7 @@ class Parent < ApplicationRecord
 
   def initialize(attributes = {})
     super
+    self.security_code = SecureRandom.hex(1)
     self.security_token = SecureRandom.hex(16)
   end
 
@@ -328,6 +329,10 @@ class Parent < ApplicationRecord
     return "Pour #{current_child.first_name} #{current_child.last_name}" if book_delivery_location == 'pmi'
 
     "Pour #{first_name} #{last_name}"
+  end
+
+  def book_delivery_location_different_from_home?
+    book_delivery_location.in? %w[relative_home pmi temporary_shelter association police_or_military_station]
   end
 
   # ---------------------------------------------------------------------------
