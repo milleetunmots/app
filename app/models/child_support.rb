@@ -611,6 +611,24 @@ class ChildSupport < ApplicationRecord
     end
   end
 
+  def current_call_session
+    return 0 unless current_child
+
+    group = current_child.group
+    return 0 unless group.started?
+
+    date = Time.zone.now.to_date
+
+    4.times.each do |call_idx|
+      return call_idx if group.send("call#{call_idx}_start_date").present? && group.send("call#{call_idx}_end_date").present? && (group.send("call#{call_idx}_start_date")..group.send("call#{call_idx}_end_date")) === date
+    end
+
+    3.downto(0).find do |call_idx|
+      return call_idx if send("call#{call_idx}_status").present?
+    end
+    0
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------
