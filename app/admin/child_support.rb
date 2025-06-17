@@ -357,6 +357,39 @@ ActiveAdmin.register ChildSupport do
                       f.input "call#{call_idx}_status_details", input_html: { rows: 5, style: 'width: 100%' } # Suivi de l'appel
                     end
                   end
+                  columns do
+                    column do
+                      h3 "Ressources"
+                      case call_idx
+                      when 0
+                        ul do
+                          li link_to('Script appel 0', 'https://docs.google.com/presentation/d/1q-PMwVq9mY5SvlVEwj4h-qr7wPLuVtcdPPOgYsqy91E/edit?usp=drive_link', target: '_blank')
+                        end
+                      when 1
+                        ul do
+                          li link_to('Script appel 1', 'https://docs.google.com/presentation/d/1l5uxTiOFVF7wU4ApVdRYCj7Q2gHB7PIRvDBZyiYiUsc/edit?usp=drive_link', target: '_blank')
+                          li link_to('Script appel 1 - 1er appel', 'https://docs.google.com/presentation/d/14EZMCqHh0hp2Hqf4fjY5qHzYS5wUI9jH9aCEfAFUg9w/edit?usp=sharing', target: '_blank')
+                        end
+                      when 2
+                        ul do
+                          li link_to('Script appel 2', 'https://docs.google.com/presentation/d/1OraXApnyIVlsciGjgXXYEbUXFEoWLNv5m08OwEKUih4/edit?usp=drive_link', target: '_blank')
+                          li link_to('Script appel 2 - 1er appel', 'https://docs.google.com/presentation/d/1a9JymUwmPJp3MUPPfmOiW4E2zD7GLX5cKqlRFtIvXDI/edit?usp=sharing', target: '_blank')
+                        end
+                      when 3
+                        ul do
+                          li link_to('Script appel 3 (< 22 mois)', 'https://docs.google.com/presentation/d/1H4WRKNBfq72wIr0xg8yiSzXEN13d4Z9xdMbvhxGAhqk/edit?usp=drive_link', target: '_blank')
+                          li link_to('Script appel 3 (23 mois et +)', 'https://docs.google.com/presentation/d/18IagdJOfC3JRqnWSo6z518DJoqWqJdyleD-BCxT5jrQ/edit?usp=drive_link', target: '_blank')
+                        end
+                      end
+                      ul do
+                        li link_to('Famille au comportement problématique', 'https://docs.google.com/presentation/d/1EKd1_Xhhjsj4QeqAtbigVr7WqCNxOdh_2FOndUIr_s0/edit?usp=drive_link', target: '_blank')
+                        li link_to('Famille Popi', 'https://docs.google.com/presentation/d/1MJ83DP7rrDb5Cupdf2Y1H01EWcv_ZKt8VnVVioMSOh8/edit?usp=drive_link', target: '_blank')
+                        li link_to('Famille qui ne veut pas des SMS ou des appels', 'https://docs.google.com/presentation/d/1qNmkM50miMoDoYNWh6VzTrM9x8hgg_1icDYEPVr5d7Q/edit?usp=drive_link', target: '_blank')
+                        li link_to('Professionnel qui teste 1001mots', 'https://docs.google.com/presentation/d/16l4zcaf1tjcUL78qOEcXB0UZewtiCVc_xFwxzzOYg5w/edit?usp=drive_link', target: '_blank')
+                      end
+                      
+                    end
+                  end
                 end
               end
               if call_idx == 0
