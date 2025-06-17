@@ -13,10 +13,16 @@ class ChildrenSupportModule
     end
 
     def call
+      # 1. First attempt at assigning the default support module
       assign_default_support_module
+      # 2. If support modules are missing for current children, we retry.
+      # This new attempt is preceded by updating the available support modules for the parents.
       retry_assign_default_support_module if missing_support_modules_for_current_children?
+      # 3. If support modules are still missing the current children, we use an age-based fallback module.
       assign_specific_default_support_module if missing_support_modules_for_current_children?
+      # 3 seconds pause for ChildrenSupportModule callbacks.
       sleep(3)
+      # 4. Last attempt using the fallback module for all active children (not only the current ones)
       assign_specific_default_support_module if missing_support_modules?
       if @children_with_missing_child_support.any?
         Rollbar.error(
