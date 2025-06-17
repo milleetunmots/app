@@ -25,18 +25,11 @@ class ChildrenSupportModule
           source: 'ChildrenSupportModule::SelectDefaultSupportModuleService'
         )
       end
-      if missing_support_modules?
-        Rollbar.error(
-          "Certains enfants principaux de la cohorte #{group.id} n'ont pas de children_support_module",
-          current_children: @missing_support_modules,
-          source: 'ChildrenSupportModule::SelectDefaultSupportModuleService'
-        )
-      end
-      if children_support_modules_with_support_module_selected.any?
+      if @children_support_modules_with_support_module_selected.any?
         Rollbar.error(
           'SelectDefaultSupportModuleService : Fail safe triggered',
           group_id: @group.id,
-          children_support_modules: @children_support_modules_with_support_module_selected,
+          children_support_modules: @children_support_modules_with_support_module_selected.uniq!,
           source: 'ChildrenSupportModule::SelectDefaultSupportModuleService'
         )
       end
@@ -55,7 +48,7 @@ class ChildrenSupportModule
           # when there is no support_module chosen for a parent, we take the one chosen by the other parent
           # if there is no support_module chosen by the other parent, we take the first one available
 
-          default_support_module_id = csm.available_support_module_list.reject(&:blank?).first
+          default_support_module_id = csm.available_support_module_list&.reject(&:blank?)&.first
           the_other_parent = csm.parent == csm.child.parent1 ? csm.child.parent2 : csm.child.parent1
           if the_other_parent.present? && the_other_parent.children_support_modules.any?
             the_other_parent_csm = the_other_parent.children_support_modules.where(child: child).latest_first.first
@@ -71,7 +64,7 @@ class ChildrenSupportModule
     end
 
     def retry_assign_default_support_module
-      ChildSupport::FillParentsAvailableSupportModulesService.new(group_id, false).call
+      ChildSupport::FillParentsAvailableSupportModulesService.new(@group.id, false).call
       assign_default_support_module
     end
 

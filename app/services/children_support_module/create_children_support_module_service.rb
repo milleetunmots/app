@@ -17,7 +17,7 @@ class ChildrenSupportModule
         unless ChildrenSupportModule.not_programmed.exists?(child_id: child.id, parent_id: child.parent1.id)
           parent1_children_support_module = ChildrenSupportModule.create(child_id: child.id,
                                                                        parent_id: child.parent1.id,
-                                                                       available_support_module_list: child.child_support&.parent1_available_support_module_list.reject(&:blank?),
+                                                                       available_support_module_list: child.child_support&.parent1_available_support_module_list&.reject(&:blank?),
                                                                        module_index: @next_module_index)
         end
 
@@ -25,7 +25,7 @@ class ChildrenSupportModule
           unless ChildrenSupportModule.not_programmed.exists?(child_id: child.id, parent_id: child.parent2.id)
             parent2_children_support_module = ChildrenSupportModule.create(child_id: child.id,
                                                                        parent_id: child.parent2.id,
-                                                                       available_support_module_list: child.child_support&.parent2_available_support_module_list.reject(&:blank?),
+                                                                       available_support_module_list: child.child_support&.parent2_available_support_module_list&.reject(&:blank?),
                                                                        module_index: @next_module_index)
           end
         end

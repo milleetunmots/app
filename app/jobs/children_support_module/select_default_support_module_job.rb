@@ -19,11 +19,17 @@ class ChildrenSupportModule
 
     def any_current_child_without_children_support_module?(group)
       current_child_without_children_support_module = []
-      current_support_module_index = group.support_module_programmed + 1
       active_current_children_with_child_support(group).each do |child_id|
-        children_support_module = ChildrenSupportModule.find_by(child_id: child_id, module_index: current_support_module_index)
+        children_support_module = ChildrenSupportModule.not_programmed.find_by(child_id: child_id)
         current_child_without_children_support_module << child_id if children_support_module.nil?
       end
+      return false if current_child_without_children_support_module.empty?
+
+      Rollbar.error(
+        "Certains enfants principaux de la cohorte #{group.id} n'avaient pas de children_support_module",
+        current_children: current_child_without_children_support_module,
+        source: 'ChildrenSupportModule::SelectDefaultSupportModuleJob'
+      )
       current_child_without_children_support_module.any?
     end
   end
