@@ -357,6 +357,42 @@ ActiveAdmin.register ChildSupport do
                       f.input "call#{call_idx}_status_details", input_html: { rows: 5, style: 'width: 100%' } # Suivi de l'appel
                     end
                   end
+                  columns do
+                    column do
+                      h3 "Ressources"
+                      recommended_script_link =
+                        case call_idx
+                        when 0
+                          'https://docs.google.com/presentation/d/1q-PMwVq9mY5SvlVEwj4h-qr7wPLuVtcdPPOgYsqy91E/edit?usp=drive_link'
+                        when 1
+                          if resource.call0_status.in?(['KO', 'Numéro erroné'])
+                            'https://docs.google.com/presentation/d/14EZMCqHh0hp2Hqf4fjY5qHzYS5wUI9jH9aCEfAFUg9w/edit?usp=sharing'
+                          else
+                            'https://docs.google.com/presentation/d/1l5uxTiOFVF7wU4ApVdRYCj7Q2gHB7PIRvDBZyiYiUsc/edit?usp=drive_link'
+                          end
+                        when 2
+                          if resource.call0_status.in?(['KO', 'Numéro erroné']) && resource.call1_status.in?(['KO', 'Numéro erroné'])
+                            'https://docs.google.com/presentation/d/1a9JymUwmPJp3MUPPfmOiW4E2zD7GLX5cKqlRFtIvXDI/edit?usp=sharing'
+                          elsif !(resource.call0_status.in?(['KO', 'Numéro erroné'])) && resource.call1_status.in?(['KO', 'Numéro erroné'])
+                            'https://docs.google.com/presentation/d/1l5uxTiOFVF7wU4ApVdRYCj7Q2gHB7PIRvDBZyiYiUsc/edit?usp=drive_link'
+                          else
+                            'https://docs.google.com/presentation/d/1OraXApnyIVlsciGjgXXYEbUXFEoWLNv5m08OwEKUih4/edit?usp=drive_link'
+                          end
+                        when 3
+                          if (9..22) === resource.current_child&.months
+                            'https://docs.google.com/presentation/d/1H4WRKNBfq72wIr0xg8yiSzXEN13d4Z9xdMbvhxGAhqk/edit?usp=drive_link'
+                          else
+                            'https://docs.google.com/presentation/d/18IagdJOfC3JRqnWSo6z518DJoqWqJdyleD-BCxT5jrQ/edit?usp=drive_link'
+                          end
+                        end
+
+                      if recommended_script_link.present?
+                        ul do
+                          li link_to('Script recommandé', recommended_script_link, target: '_blank')
+                        end
+                      end
+                    end
+                  end
                 end
               end
               if call_idx == 0
