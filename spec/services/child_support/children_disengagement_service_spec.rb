@@ -13,7 +13,7 @@ RSpec.describe ChildSupport::ChildrenDisengagementService do
       child_to_conserve_child_support.module4_chosen_by_parents = support_module
       child_to_conserve_child_support.save
 
-      ChildSupport::ChildrenDisengagementService.new(grou.id).call
+      ChildSupport::ChildrenDisengagementService.new(group.id).call
       expect(child_to_conserve_child_support.reload.tag_list).to match_array ['estime-desengage-conserve-t2']
       expect(disengaged_child_child_support.reload.tag_list).to match_array ['desengage-t2']
     end
