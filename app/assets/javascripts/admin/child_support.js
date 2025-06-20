@@ -4,7 +4,7 @@ $(document).ready(function() {
   let $anchor = window.location.hash;
 
   if($anchor !== undefined) {
-    $(`a[href="${$anchor}"]`).css({'font-weight': 'bold', 'font-size': 'larger'});
+    $(`a[href="${$anchor}"]`).css({'font-weight': 'bold', 'font-size': 'larger', 'color': 'black'});
   }
 
   window.scrollTo(0, 0);
