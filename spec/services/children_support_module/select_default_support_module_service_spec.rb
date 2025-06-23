@@ -5,12 +5,15 @@ RSpec.describe ChildrenSupportModule::SelectDefaultSupportModuleService do
   subject { ChildrenSupportModule::SelectDefaultSupportModuleService.new(group.id) }
 
   describe '#call' do
-    let!(:support_module1) { FactoryBot.create(:support_module) }
-    let!(:support_module2) { FactoryBot.create(:support_module) }
-    let!(:support_module3) { FactoryBot.create(:support_module) }
+    let!(:group) { FactoryBot.create(:group, expected_children_number: 0) }
+    let!(:support_module1) { FactoryBot.create(:support_module, name: 'Module 1', age_ranges: [SupportModule::FIVE_TO_ELEVEN], theme: 'songs') }
+    let!(:support_module2) { FactoryBot.create(:support_module, name: 'Module 2') }
+    let!(:support_module3) { FactoryBot.create(:support_module, name: 'Module 3', age_ranges: [SupportModule::TWELVE_TO_SEVENTEEN], theme: 'songs') }
+    let!(:less_than_eleven_specific_default_support_module) { FactoryBot.create(:support_module, name: ENV['LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'], age_ranges: [SupportModule::FIVE_TO_ELEVEN]) }
+    let!(:more_than_twelve_specific_default_support_module) { FactoryBot.create(:support_module, name: ENV['MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'], age_ranges: [SupportModule::TWELVE_TO_SEVENTEEN]) }
     let!(:parent1) { FactoryBot.create(:parent) }
     let!(:parent2) { FactoryBot.create(:parent) }
-    let!(:child) { FactoryBot.create(:child, parent1: parent1, group: group, group_status: 'active') }
+    let!(:child) { FactoryBot.create(:child, parent1: parent1, group: group, group_status: 'active', birthdate: Faker::Date.between(from: 10.months.ago, to: 6.months.ago)) }
 
     before { allow(Rollbar).to receive(:error) }
 
@@ -27,13 +30,21 @@ RSpec.describe ChildrenSupportModule::SelectDefaultSupportModuleService do
     end
 
     context 'when child has sibling in same group' do
-      let!(:sibling) { FactoryBot.create(:child, parent1: parent1, group: group, group_status: 'active', birthdate: child.birthdate.next_month) }
-      let!(:csm) { FactoryBot.create(:children_support_module, child: sibling, parent: parent1, support_module: nil) }
+      around(:each) do |example|
+        ChildrenSupportModule.skip_callback(:update, :after, :select_for_siblings)
+        example.run
+        ChildrenSupportModule.set_callback(:update, :after, :select_for_siblings)
+      end
+
+      let!(:sibling) { FactoryBot.create(:child, parent1: parent1, group: group, group_status: 'active', birthdate: Faker::Date.between(from: 16.months.ago, to: 13.months.ago)) }
+      let!(:csm) { FactoryBot.create(:children_support_module, child: child, parent: parent1, support_module: nil, available_support_module_list: [support_module1.id, support_module2.id]) }
+      let!(:sibling_csm) { FactoryBot.create(:children_support_module, child: sibling, parent: parent1, support_module: nil, available_support_module_list: []) }
 
       it 'does not update the children_support_module for the sibling' do
         subject.call
         csm.reload
-        expect(csm.support_module).to be_nil
+        expect(csm.support_module).to eq support_module1
+        expect(sibling_csm.support_module).to be_nil
       end
     end
 
