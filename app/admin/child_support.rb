@@ -1048,5 +1048,12 @@ ActiveAdmin.register ChildSupport do
     def apply_filtering(chain)
       super(chain).distinct
     end
+
+    before_action only: [:edit] do
+      unless params[:r]
+        new_query = request.query_parameters.merge!(r: 'true').to_query
+        redirect_to "#{edit_admin_child_support_path(resource)}?#{new_query}#appel-#{resource.current_call_session}"
+      end
+    end
   end
 end
