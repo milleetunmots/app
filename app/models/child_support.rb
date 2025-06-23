@@ -615,7 +615,7 @@ class ChildSupport < ApplicationRecord
     return 0 unless current_child
 
     group = current_child.group
-    return 0 unless group.started?
+    return 0 unless group&.started?
 
     date = Time.zone.now.to_date
 
