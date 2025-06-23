@@ -1,11 +1,6 @@
 $(document).ready(function() {
   let $parent1 = $('#child_parent1_id');
   let $parent2 = $('#child_parent2_id');
-  let $anchor = window.location.hash;
-
-  if($anchor !== undefined) {
-    $(`a[href="${$anchor}"]`).css({'font-weight': 'bold', 'font-size': 'larger', 'color': 'black'});
-  }
 
   window.scrollTo(0, 0);
 
