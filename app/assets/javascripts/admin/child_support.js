@@ -2,6 +2,8 @@ $(document).ready(function() {
   let $parent1 = $('#child_parent1_id');
   let $parent2 = $('#child_parent2_id');
 
+  window.scrollTo(0, 0);
+
   $("[id^='child_support_call'][id$='_status']").on('change', function() {
     let value = $(this).val()
     let id = $(this).attr('id')
