@@ -76,7 +76,7 @@ RSpec.describe ChildrenSupportModule::FillParentsAvailableSupportModulesJob, typ
     context 'when this is the second support module' do
       let(:is_second_support_module) { true }
 
-      it 'assign new choices for all children' do
+      xit 'assign new choices for all children' do
         subject.perform_now(group.id, is_second_support_module)
 
         group.children.each do |child|

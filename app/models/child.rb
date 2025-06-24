@@ -762,6 +762,17 @@ class Child < ApplicationRecord
     { first_name: first_name.parameterize, last_name: last_name.parameterize, birthdate: birthdate }
   end
 
+  def duration_in_months(started_at, ended_at = Time.zone.now)
+    return unless started_at && ended_at && ended_at > started_at
+
+    diff = ended_at.month + (ended_at.year * 12) - (started_at.month + (started_at.year * 12))
+    if ended_at.day < started_at.day
+      diff - 1
+    else
+      diff
+    end
+  end
+
   private
 
   def no_duplicate
@@ -782,17 +793,6 @@ class Child < ApplicationRecord
   def valid_group_status
     errors.add(:base, :invalid, message: "L'enfant ne peut pas être en attente en étant dans une cohorte") if group_id && group_status == 'waiting'
     errors.add(:base, :invalid, message: "L'enfant doit être dans une cohorte") if group_id.nil? && group_status.in?(%w[active paused stopped])
-  end
-
-  def duration_in_months(started_at, ended_at = Time.zone.now)
-    return unless started_at && ended_at && ended_at > started_at
-
-    diff = ended_at.month + (ended_at.year * 12) - (started_at.month + (started_at.year * 12))
-    if ended_at.day < started_at.day
-      diff - 1
-    else
-      diff
-    end
   end
 
   def remove_group
