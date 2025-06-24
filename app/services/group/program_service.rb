@@ -53,10 +53,16 @@ class Group
       @errors << 'La cohorte a déjà été programmé.' if @group.is_programmed
     end
 
+    def update_group_support_module_sent_date(module_index, date)
+      dates = (@group.support_module_sent_dates || {}).merge({module_index => date})
+      @group.update_column(:support_module_sent_dates, dates)
+    end
+
     def program_support_module_zero
       return unless @group.support_module_programmed.zero?
 
       program_module_date = @group.started_at
+      update_group_support_module_sent_date(0, program_module_date)
       ChildrenSupportModule::ProgramSupportModuleZeroJob.set(wait_until: program_module_date.to_datetime.change(hour: @hour)).perform_later(@group.id, program_module_date)
     end
 
@@ -67,6 +73,7 @@ class Group
 
     def program_first_support_module
       program_module_date = @group.started_at + MODULE_ZERO_DURATION
+      update_group_support_module_sent_date(1, program_module_date)
       ChildrenSupportModule::ProgramFirstSupportModuleJob.set(wait_until: program_module_date.to_datetime.change(hour: @hour)).perform_later(@group.id, program_module_date)
     end
 
@@ -161,6 +168,7 @@ class Group
       (3..@group.support_modules_count).each do |module_index|
         program_module_date = @group.started_at + ((module_index - 2) * 8.weeks) + MODULE_ZERO_DURATION
         job_date = program_module_date - 3.days
+        update_group_support_module_sent_date(module_index - 1, program_module_date)
         ChildrenSupportModule::ProgramSupportModuleSmsJob.set(wait_until: job_date.to_datetime.change(hour: @hour)).perform_later(@group.id, program_module_date)
       end
     end
