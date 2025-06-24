@@ -1,16 +1,16 @@
 class Airtables::CallMission < Airrecord::Table
 
-  self.base_key = 'appDlEdpmapLFJ6B9'.freeze
-  self.table_name = "tblFpJWY8uZ4XLAYR".freeze
+  self.base_key = ENV['AIRTABLE_CALLER_BASE_KEY'].freeze
+  self.table_name = ENV['AIRTABLE_CALL_MISSION_TABLE_NAME'].freeze
 
   belongs_to :caller, class: "Airtable::Caller", column: "Accompagnantes"
 
   def child_supports_count
-    self["Nb familles"]
+    self['Nb familles']
   end
 
   def airtable_caller_id
-    self["Accompagnantes"].first
+    self['Appelantes'].first
   end
 
   def age_range

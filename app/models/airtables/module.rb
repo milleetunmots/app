@@ -1,7 +1,7 @@
 class Airtables::Module < Airrecord::Table
 
-  self.base_key = 'app9OVHqyideRP6od'.freeze
-  self.table_name = 'tblFIP7a8nHHsXtPJ'.freeze
+  self.base_key = ENV['AIRTABLE_APPLICATION_BASE_KEY'].freeze
+  self.table_name = ENV['AIRTABLE_MODULE_TABLE_NAME'].freeze
 
   def ages
     case self['age']

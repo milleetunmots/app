@@ -1,6 +1,6 @@
 class Airtables::Book < Airrecord::Table
 
-  self.base_key = 'app9OVHqyideRP6od'.freeze
-  self.table_name = 'tblMf7bqgR5R2eGTi'.freeze
+  self.base_key = ENV['AIRTABLE_APPLICATION_BASE_KEY'].freeze
+  self.table_name = ENV['AIRTABLE_BOOK_TABLE_NAME'].freeze
 
 end
