@@ -105,7 +105,7 @@ class Group
     def fill_parents_available_support_modules
       (3..@group.support_modules_count).each do |module_index|
         fill_date = @group.started_at + ((module_index - 2) * 8.weeks) - 6.weeks + MODULE_ZERO_DURATION
-        ChildrenSupportModule::FillParentsAvailableSupportModulesJob.set(wait_until: fill_date.to_datetime.change(hour: @hour)).perform_later(@group.id, module_index == 3)
+        ChildrenSupportModule::FillParentsAvailableSupportModulesJob.set(wait_until: fill_date.to_datetime.change(hour: @hour)).perform_later(@group.id, module_index)
       end
     end
 
