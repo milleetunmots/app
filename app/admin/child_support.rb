@@ -300,7 +300,7 @@ ActiveAdmin.register ChildSupport do
           end
           if ChildrenSupportModule.where(child_id: [resource.children.ids]).where.not(book_id: nil).any?
             div class: 'children-books-sent' do
-              resource.children.each do |child|
+              f.object.children.each do |child|
                 h4 "Livres envoyés à #{child.first_name} :"
                 div class: 'child-books-sent' do
                   child.children_support_modules.where.not(book_id: nil).order(:module_index).each do |support_module|
@@ -314,14 +314,8 @@ ActiveAdmin.register ChildSupport do
                         end
                       end
                       div class: 'card-footer' do
-                        f.semantic_fields_for :children, child do |child_f|
-                          child_f.semantic_fields_for :children_support_modules, support_module, index: support_module.id do |module_f|
-                            module_f.input :book_condition,
-                              label: false,
-                              as: :select,
-                              collection: book_condition_select_collection,
-                              input_html: { data: { select2: {} } }
-                          end
+                        f.fields_for :children_support_modules, support_module do |csm_f|
+                          csm_f.input :book_condition, label: false, as: :select, collection: book_condition_select_collection, input_html: { data: { select2: {} } }
                         end
                       end
                     end
@@ -766,18 +760,10 @@ ActiveAdmin.register ChildSupport do
       }
     ]
   }]
-  children_attributes = [
-    :id,
-    {
-      children_support_modules_attributes: [
-        :id,
-        :book_condition
-      ]
-    }
-  ]
+  children_support_modules_attributes = [{ children_support_modules_attributes: %i[id book_condition] }]
   # block is mandatory here because ChildSupport.call_attributes hits DB
   permit_params do
-    base_attributes + ChildSupport.call_attributes + current_child_attributes + children_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms]
+    base_attributes + ChildSupport.call_attributes + current_child_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms]
   end
 
   # ---------------------------------------------------------------------------

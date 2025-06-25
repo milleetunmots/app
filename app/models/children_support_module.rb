@@ -50,7 +50,7 @@ class ChildrenSupportModule < ApplicationRecord
 
   validate :support_module_not_programmed, on: :create
   validate :valid_child_parent
-  validates :book_condition, inclusion: { in: CONDITIONS }, allow_nil: true
+  validates :book_condition, inclusion: { in: CONDITIONS }, allow_blank: true
 
   delegate :group_name,
            to: :child,
