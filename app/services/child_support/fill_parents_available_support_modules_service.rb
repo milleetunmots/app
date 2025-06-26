@@ -2,8 +2,8 @@ class ChildSupport::FillParentsAvailableSupportModulesService
 
   def initialize(group_id, module_index)
     @group = Group.includes(children: :child_support).find(group_id)
-    @second_support_module = module_index == 2
-    @support_module_sent_date = @group.support_module_sent_dates[module_index.to_s]
+    @second_support_module = module_index == 3
+    @support_module_sent_date = @group.support_module_sent_dates[module_index.to_s].to_date
     @children_with_missing_child_support = []
   end
 
