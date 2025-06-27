@@ -86,11 +86,11 @@ class ChildrenSupportModule
     end
 
     def assign_specific_default_support_module
-      five_to_eleven_specific_default_support_module = SupportModule.where(name: LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME).where("'#{SupportModule::FIVE_TO_ELEVEN}' = ANY (age_ranges)").first
-      twelve_to_seventeen_specific_default_support_module = SupportModule.where(name: MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME).where("'#{SupportModule::TWELVE_TO_SEVENTEEN}' = ANY (age_ranges)").first
-      eighteen_to_twenty_three_specific_default_support_module = SupportModule.where(name: MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME).where("'#{SupportModule::EIGHTEEN_TO_TWENTY_THREE}' = ANY (age_ranges)").first
-      twenty_four_to_twenty_nine_specific_default_support_module = SupportModule.where(name: MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME).where("'#{SupportModule::TWENTY_FOUR_TO_TWENTY_NINE}' = ANY (age_ranges)").first
-      thirty_to_thirty_five_specific_default_support_module = SupportModule.where(name: MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME).where("'#{SupportModule::THIRTY_TO_THIRTY_FIVE}' = ANY (age_ranges)").first
+      five_to_eleven_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::FIVE_TO_ELEVEN}' = ANY (age_ranges)").first
+      twelve_to_seventeen_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::TWELVE_TO_SEVENTEEN}' = ANY (age_ranges)").first
+      eighteen_to_twenty_three_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::EIGHTEEN_TO_TWENTY_THREE}' = ANY (age_ranges)").first
+      twenty_four_to_twenty_nine_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::TWENTY_FOUR_TO_TWENTY_NINE}' = ANY (age_ranges)").first
+      thirty_to_thirty_five_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::THIRTY_TO_THIRTY_FIVE}' = ANY (age_ranges)").first
 
       @missing_support_modules.each do |children_support_module|
         support_module =
