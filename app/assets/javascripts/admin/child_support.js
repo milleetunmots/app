@@ -4,6 +4,20 @@ $(document).ready(function() {
 
   window.scrollTo(0, 0);
 
+  $('.book-issue-confirmation-message').css('display', 'none')
+
+  $('select[name^="child_support[children_support_modules_attributes]"][name$="[book_condition]"]').on('change', function () {
+    const $select = $(this)
+    const $wrapper = $select.parents('.card-footer').first()
+    const $message = $wrapper.find('.book-issue-confirmation-message')
+
+    if ($select.val()) {
+      $message.show();
+    } else {
+      $message.hide();
+    }
+  });
+
   $("[id^='child_support_call'][id$='_status']").on('change', function() {
     let value = $(this).val()
     let id = $(this).attr('id')

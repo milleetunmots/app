@@ -298,15 +298,15 @@ ActiveAdmin.register ChildSupport do
               h5 "Pour que les livres soient de nouveau envoyés, les infos du parent 1 doivent être mises à jour (adresse ou nom sur la boîte aux lettres)", class: 'txt-italic'
             end
           end
-          if ChildrenSupportModule.where(child_id: [resource.children.ids]).where.not(book_id: nil).any?
-            div class: 'children-books-sent' do
+          if ChildrenSupportModule.where(child_id: [resource.children.ids]).with_books.any?
+            div id: 'children-books-sent' do
               f.object.children.each do |child|
                 h4 "Livres envoyés à #{child.first_name} :"
-                div class: 'child-books-sent' do
-                  child.children_support_modules.where.not(book_id: nil).order(:module_index).each do |support_module|
-                    div class: 'card' do
+                div id: 'child-books-sent' do
+                  child.children_support_modules.with_books.order(:module_index).each do |support_module|
+                    div class: 'card book-card' do
                       div class: 'card-img-top' do
-                        support_module.book.decorate.cover_link_tag(max_width: '60px')
+                        support_module.book.decorate.cover_link_tag(max_width: '100px')
                       end
                       div class: 'card-body' do
                         span class: 'card-text' do
@@ -315,7 +315,15 @@ ActiveAdmin.register ChildSupport do
                       end
                       div class: 'card-footer' do
                         f.fields_for :children_support_modules, support_module do |csm_f|
-                          csm_f.input :book_condition, label: false, as: :select, collection: book_condition_select_collection, input_html: { data: { select2: {} } }
+                          csm_f.input :book_condition,
+                                      label: false,
+                                      as: :select,
+                                      collection: book_condition_select_collection,
+                                      input_html: { class: 'book-select', data: { select2: {} } }
+                        end
+                        small class: 'book-issue-confirmation-message' do
+                          i class: 'fa-solid fa-check'
+                          span 'Problème signalé'
                         end
                       end
                     end

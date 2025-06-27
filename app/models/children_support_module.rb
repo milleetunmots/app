@@ -47,6 +47,7 @@ class ChildrenSupportModule < ApplicationRecord
   scope :without_choice, -> { joins(:child).where(child: { group_status: 'active' }).where(support_module: nil).where(is_completed: false) }
   scope :latest_first, -> { order(created_at: :desc) }
   scope :using_support_module, ->(support_module_id) { where('available_support_module_list::text[] @> ARRAY[?]::text[]', [support_module_id]) }
+  scope :with_books, -> { where.not(book_id: nil) }
 
   validate :support_module_not_programmed, on: :create
   validate :valid_child_parent
