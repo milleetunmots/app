@@ -1,7 +1,7 @@
 class Airtables::Url < Airrecord::Table
 
-  self.base_key = 'app9OVHqyideRP6od'.freeze
-  self.table_name = 'tblCCRGXNXRL0WU5P'.freeze
+  self.base_key = ENV['AIRTABLE_APPLICATION_BASE_KEY'].freeze
+  self.table_name = ENV['AIRTABLE_URL_TABLE_NAME'].freeze
 
   def self.verified
     all(filter: '{Status} = "Lien vérifié"')

@@ -1,7 +1,7 @@
 class ChildSupport::ChildrenDisengagementService
 
-  def initialize(group)
-    @group = group
+  def initialize(group_id)
+    @group = Group.find(group_id)
   end
 
   def call
