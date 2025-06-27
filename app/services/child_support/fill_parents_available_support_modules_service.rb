@@ -1,8 +1,9 @@
 class ChildSupport::FillParentsAvailableSupportModulesService
 
-  def initialize(group_id, second_support_module)
+  def initialize(group_id, module_index)
     @group = Group.includes(children: :child_support).find(group_id)
-    @second_support_module = second_support_module
+    @second_support_module = module_index == 3
+    @support_module_sent_date = @group.support_module_sent_dates[module_index.to_s].to_date
     @children_with_missing_child_support = []
   end
 
@@ -66,7 +67,7 @@ class ChildSupport::FillParentsAvailableSupportModulesService
   end
 
   def find_available_support_modules(child, parent)
-    child_age_range = case child.months
+    child_age_range = case child.duration_in_months(child.birthdate, @support_module_sent_date)
                       when 0..4
                         SupportModule::LESS_THAN_FIVE
                       when 5..11

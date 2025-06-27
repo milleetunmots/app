@@ -5,13 +5,12 @@ RSpec.describe ChildrenSupportModule::FillParentsAvailableSupportModulesJob, typ
   subject { described_class }
 
   let(:group) { FactoryBot.create(:group) }
-  let(:is_second_support_module) { true }
 
   describe '#perform_later' do
     it 'enqueues the job' do
       ActiveJob::Base.queue_adapter = :test
       expect {
-        subject.perform_later(group.id, is_second_support_module)
+        subject.perform_later(group.id, 3)
       }.to have_enqueued_job(described_class).on_queue('default').exactly(:once)
     end
   end
@@ -58,7 +57,7 @@ RSpec.describe ChildrenSupportModule::FillParentsAvailableSupportModulesJob, typ
         child = FactoryBot.create(:child, parent2_id: FactoryBot.create(:parent).id, group: group, group_status: 'active')
         # To avoid the validation of the birth_date
         child.birthdate = month.months.ago
-        child.save(valide: false)
+        child.save(validate: false)
       end
 
       # Add first module to children
@@ -74,10 +73,9 @@ RSpec.describe ChildrenSupportModule::FillParentsAvailableSupportModulesJob, typ
     end
 
     context 'when this is the second support module' do
-      let(:is_second_support_module) { true }
-
       it 'assign new choices for all children' do
-        subject.perform_now(group.id, is_second_support_module)
+        group.update_column(:support_module_sent_dates, {'3' => Time.zone.now})
+        subject.perform_now(group.id, 3)
 
         group.children.each do |child|
           # parent1 ----
