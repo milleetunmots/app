@@ -9,7 +9,7 @@ class ParentsAnswersController < ApplicationController
     @question = @survey.questions.where.not(id: answered_question_ids).order(:order).first
     @child_first_name = @child.first_name
     @children = @child.siblings.where(group_id: @child.group_id)
-    @books = ChildrenSupportModule.where(child_id: [@children.ids]).where.not(book_id: nil).map(&:book).uniq
+    @books = ChildrenSupportModule.where(child_id: [@children.ids]).with_books.map(&:book).uniq
 
     # render completed view if all the questions are answered
     if @question.nil?
@@ -35,7 +35,7 @@ class ParentsAnswersController < ApplicationController
       if @question.with_open_ended_response
         []
       else
-        ChildrenSupportModule.where(child_id: [@children.ids]).where.not(book_id: nil).map(&:book).uniq.pluck(:id)
+        ChildrenSupportModule.where(child_id: [@children.ids]).with_books.map(&:book).uniq.pluck(:id)
       end
     Answer.transaction do
       answer = Answer.create!(

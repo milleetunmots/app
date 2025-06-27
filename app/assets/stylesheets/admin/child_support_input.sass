@@ -47,7 +47,7 @@
 #child_support_parent2_available_support_module_list + .select2-container--default .select2-selection__choice
   &:nth-of-type(-n+3)
     background-color: #98FB98
-    
+
 #child_support_tabs_form
   .input
     .label
@@ -105,20 +105,55 @@
       label
         font-size: 80%
 
-.address-suspected-invalid-info,
+.address-suspected-invalid-info
   margin-top: 5px
   h4
     margin-bottom: 0
   h5
     color: $dark-grey
 
-.children-books-sent
+#children-books-sent
+  display: flex
+  flex-direction: column
+  margin-bottom: 2rem
   h4
-    margin-bottom: 5px
-    margin-top: 10px
+    margin-bottom: 0.5rem
   div
     span
       margin-right: 10px
+  #child-books-sent
+    display: flex
+    flex-wrap: wrap
+    .book-card
+      width: 180px
+      display: flex
+      flex-direction: column
+      .card-img-top
+        display: flex
+        align-items: center
+        img
+          max-width: 100%
+          height: auto
+          object-fit: contain
+      .card-body
+        padding-top: 5px
+        padding-bottom: 5px
+        flex-grow: 1
+        .card-text
+          display: inline-block
+          font-size: 80%
+      .card-footer
+        position: relative
+        display: flex
+        flex-direction: column
+        .select
+          margin: 0
+        .book-issue-confirmation-message
+          font-size: 80%
+          color: $success
+          margin-top: -1rem
+      .select2-container
+          width: 70% !important
 
 .ui-tabs-active
   a

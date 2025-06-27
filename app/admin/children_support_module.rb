@@ -32,6 +32,7 @@ ActiveAdmin.register ChildrenSupportModule do
       row :choice_date
       row :is_programmed
       row :book_title
+      row :book_condition
     end
   end
 
