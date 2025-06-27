@@ -32,6 +32,8 @@ ENV['NOT_SUPPORTED_LINK'] ||= "http://google.fr"
 ENV['API_TOKEN'] ||= "valid token"
 ENV['AIRCALL_API_ID'] ||= "valid token"
 ENV['AIRCALL_API_TOKEN'] ||= "valid token"
+ENV['LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'] = 'Jouer avec mon bébé 🧩'
+ENV['MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'] = 'Jouer avec mon enfant 🧩'
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production
