@@ -70,7 +70,18 @@ class ChildrenSupportModule
     end
 
     def retry_assign_default_support_module
-      ChildSupport::FillParentsAvailableSupportModulesService.new(@group.id, false).call
+      module_index = @group.support_module_sent_dates&.sort_by { |key, _| key }&.to_h&.find { |_, sent_date| sent_date > Time.zone.now }&.first
+      unless module_index
+        Rollbar.error(
+          'SelectDefaultSupportModuleService : retry assign default support module failed, group without support_module_sent_dates',
+          group_id: @group.id,
+          support_module_sent_dates: @group.support_module_sent_dates,
+          source: 'ChildrenSupportModule::SelectDefaultSupportModuleService'
+        )
+        return
+      end
+
+      ChildSupport::FillParentsAvailableSupportModulesService.new(@group.id, module_index).call
       assign_default_support_module
     end
 
