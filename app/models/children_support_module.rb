@@ -4,6 +4,7 @@
 #
 #  id                            :bigint           not null, primary key
 #  available_support_module_list :string           is an Array
+#  book_condition                :string
 #  choice_date                   :date
 #  is_completed                  :boolean          default(FALSE)
 #  is_programmed                 :boolean          default(FALSE), not null
@@ -28,6 +29,8 @@
 #
 class ChildrenSupportModule < ApplicationRecord
 
+  CONDITIONS = %w[not_received damaged].freeze
+
   # ---------------------------------------------------------------------------
   # relations
   # ---------------------------------------------------------------------------
@@ -44,9 +47,11 @@ class ChildrenSupportModule < ApplicationRecord
   scope :without_choice, -> { joins(:child).where(child: { group_status: 'active' }).where(support_module: nil).where(is_completed: false) }
   scope :latest_first, -> { order(created_at: :desc) }
   scope :using_support_module, ->(support_module_id) { where('available_support_module_list::text[] @> ARRAY[?]::text[]', [support_module_id]) }
+  scope :with_books, -> { where.not(book_id: nil) }
 
   validate :support_module_not_programmed, on: :create
   validate :valid_child_parent
+  validates :book_condition, inclusion: { in: CONDITIONS }, allow_blank: true
 
   delegate :group_name,
            to: :child,
