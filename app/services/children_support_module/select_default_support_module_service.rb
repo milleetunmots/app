@@ -27,7 +27,7 @@ class ChildrenSupportModule
       if @children_with_missing_child_support.any?
         Rollbar.error(
           "Certains enfants de la cohorte #{@group.id} n'ont pas de fiche de suivi",
-          children: @children_with_missing_child_support.uniq!,
+          children: @children_with_missing_child_support.uniq,
           source: 'ChildrenSupportModule::SelectDefaultSupportModuleService'
         )
       end
@@ -35,7 +35,7 @@ class ChildrenSupportModule
         Rollbar.error(
           'SelectDefaultSupportModuleService : Fail safe triggered',
           group_id: @group.id,
-          children_support_modules: @children_support_modules_with_support_module_selected.uniq!,
+          children_support_modules: @children_support_modules_with_support_module_selected.uniq,
           source: 'ChildrenSupportModule::SelectDefaultSupportModuleService'
         )
       end
