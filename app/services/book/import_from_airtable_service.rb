@@ -18,7 +18,7 @@ class Book::ImportFromAirtableService
       @modules = airtable_book[:modules]
       # retrieve_support_modules
       @book = Book.find_by(ean: @ean)
-      # import_new_book
+      import_new_book
       # update_title
       # update_support_modules
       update_cover
