@@ -6,15 +6,17 @@
 
     <title>1001mots</title>
     <link rel="icon" type="image/x-icon" href="<%= asset_path 'favicon.ico' %>">
-    <%= render partial: 'layouts/gtm_head' %>
-    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= tag.link rel: "stylesheet", href: "https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.1.0/dist/cookieconsent.css" %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= csrf_meta_tags %>
   </head>
   <body>
-    <%= render partial: 'layouts/gtm_body' %>
     <%= render partial: 'layouts/flash', flash: flash %>
 
     <%= yield %>
+    <%= javascript_include_tag "https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.1.0/dist/cookieconsent.umd.js" %>
+
   </body>
 
   <footer>
