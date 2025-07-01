@@ -81,26 +81,34 @@ ActiveAdmin.register Parent do
 
     f.semantic_errors *f.object.errors.keys
     f.inputs do
+      if f.object.current_child
+        f.hidden_field :current_child_first_name, value: f.object.current_child.first_name
+        f.hidden_field :current_child_last_name, value: f.object.current_child.last_name
+        if f.object.current_child.source
+          f.hidden_field :current_child_source_channel, value: f.object.current_child.source.channel
+          f.hidden_field :current_child_source_name, value: f.object.current_child.source.name
+        end
+      end
       f.input :parent2_creation, as: :hidden
       f.input :created_by_us, as: :hidden
-      f.input :gender,
-        as: :radio,
-        collection: parent_gender_select_collection
+      f.input :gender, as: :radio, collection: parent_gender_select_collection
       f.input :first_name
       f.input :last_name
-      f.input :phone_number,
-        input_html: { value: f.object.decorate.phone_number }
+      f.input :phone_number, input_html: { value: f.object.phone_number }
       f.input :is_excluded_from_workshop
       f.input :family_followed
       f.input :present_on_whatsapp
       f.input :follow_us_on_whatsapp
       f.input :email
-      f.input :book_delivery_location,
-        input_html: { data: { select2: {} } },
-        label: "La famille souhaite recevoir les livres :",
-        collection: parent_book_delivery_location_select_collection
+      f.input :book_delivery_location, input_html: { data: { select2: {} } }, label: 'La famille souhaite recevoir les livres', collection: parent_book_delivery_location_select_collection, include_blank: false
+      div id: 'book_delivery_location_warning', style: 'margin-left: 25%; margin-bottom: 20px; margin-top: -20px; width: 50%; display: none' do
+        small class: 'inline-errors' do
+          "Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI. Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots."
+        end
+      end
       f.input :letterbox_name
       f.input :book_delivery_organisation_name
+      f.input :attention_to, label: "À l'attention de", input_html: { disabled: true }
       address_input f
       f.input :is_ambassador
       f.input :job
