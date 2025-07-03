@@ -82,11 +82,11 @@ ActiveAdmin.register Parent do
     f.semantic_errors *f.object.errors.keys
     f.inputs do
       if f.object.current_child
-        f.hidden_field :current_child_first_name, value: f.object.current_child.first_name
-        f.hidden_field :current_child_last_name, value: f.object.current_child.last_name
+        f.hidden_field :current_child_first_name, value: f.object.current_child.first_name, disabled: true
+        f.hidden_field :current_child_last_name, value: f.object.current_child.last_name, disabled: true
         if f.object.current_child.source
-          f.hidden_field :current_child_source_channel, value: f.object.current_child.source.channel
-          f.hidden_field :current_child_source_name, value: f.object.current_child.source.name
+          f.hidden_field :current_child_source_channel, value: f.object.current_child.source.channel, disabled: true
+          f.hidden_field :current_child_source_name, value: f.object.current_child.source.name, disabled: true
         end
       end
       f.input :parent2_creation, as: :hidden
@@ -108,7 +108,7 @@ ActiveAdmin.register Parent do
       end
       f.input :letterbox_name
       f.input :book_delivery_organisation_name
-      f.input :attention_to, label: "À l'attention de", input_html: { disabled: true }
+      f.input :attention_to, label: "À l'attention de", input_html: { readonly: true, style: 'background-color: #A7ACB2' }, disabled: false
       address_input f
       f.input :is_ambassador
       f.input :job

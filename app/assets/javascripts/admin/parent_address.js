@@ -1,4 +1,5 @@
 $(document).ready(function() {
+  // TO DO Same for parent forms in child_support
   let $parentFirstName = $('#parent_first_name');
   let $parentLastName = $('#parent_last_name');
   let $currentChildFirstName = $('#parent_current_child_first_name');
@@ -15,24 +16,20 @@ $(document).ready(function() {
   let $parentAttentionTo = $('#parent_attention_to');
   let $bookDeliveryLocationWarning = $('#book_delivery_location_warning');
 
-  $parentAttentionTo.css({'background-color': '#5E6469', 'color': '#CACACA'});
   setLabels($parentBookDeliveryLocation.val());
   hideInputs($parentBookDeliveryLocation.val());
   showInputs($parentBookDeliveryLocation.val());
 
+  updateBookDeliveryOrganisation();
+
   $parentBookDeliveryLocation.on('change', function() {
-    if ($parentBookDeliveryLocation.val() === 'temporary_shelter') {
+    if ($parentBookDeliveryLocation.val() === 'temporary_shelter' && $currentChildSourceChannel.val() === 'pmi') {
       $bookDeliveryLocationWarning.show();
     } else {
       $bookDeliveryLocationWarning.hide();
     }
 
-    if ($parentBookDeliveryLocation.val() === 'pmi' && $currentChildSourceChannel.val() === 'pmi') {
-      $parentBookDeliveryOrganisationName.val($currentChildSourceName.val());
-    } else {
-      $parentBookDeliveryOrganisationName.val('');
-    }
-
+    updateBookDeliveryOrganisation();
     switch ($parentBookDeliveryLocation.val()) {
       case 'relative_home':
       case 'temporary_shelter':
@@ -41,13 +38,33 @@ $(document).ready(function() {
         $parentAttentionTo.val(`${$parentFirstName.val()} ${$parentLastName.val()}`);
         break;
       case 'pmi':
-        $parentAttentionTo.val(`${$currentChildFirstName.val()} ${$currentChildLastName.val()}`);
+        if ($currentChildFirstName.val() !== undefined && $currentChildLastName.val() !== undefined) {
+          $parentAttentionTo.val(`${$currentChildFirstName.val()} ${$currentChildLastName.val()}`);
+        }
         break;
     }
     setLabels($parentBookDeliveryLocation.val());
     hideInputs($parentBookDeliveryLocation.val());
     showInputs($parentBookDeliveryLocation.val());
   })
+
+  $('form').on('submit', function() {
+    $('fieldset.inputs').find('input:hidden').prop('disabled', true);
+    return true;
+  });
+
+  function updateBookDeliveryOrganisation() {
+    if ($parentBookDeliveryLocation.val() === 'pmi' && $currentChildSourceChannel.val() === 'pmi') {
+      $parentBookDeliveryOrganisationName
+        .val($currentChildSourceName.val())
+        .css({'background-color': '#A7ACB2'})
+        .prop('readonly', true);
+    } else {
+      $parentBookDeliveryOrganisationName
+        .css({'background-color': ''})
+        .prop('readonly', false);
+    }
+  }
 
   function setLabels(parentBookDeliveryLocationValue) {
     switch (parentBookDeliveryLocationValue) {

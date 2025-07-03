@@ -108,6 +108,7 @@ class Parent < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
   before_save :format_phone_number
+  before_save :reset_disabled_hidden_fields
   before_create :add_preferred_channel_tag, if: -> { preferred_channel.present? }
   after_create :should_be_contacted_as_parent2, if: -> { parent2_creation.present? }
   after_save :update_aircall_contact, if: -> { saved_change_to_discarded_at? && discarded_at.present? }
@@ -330,6 +331,11 @@ class Parent < ApplicationRecord
 
   def book_delivery_location_different_from_home?
     book_delivery_location.in? %w[relative_home pmi temporary_shelter association police_or_military_station]
+  end
+
+  def reset_disabled_hidden_fields
+    self.book_delivery_organisation_name = nil if book_delivery_location.in? %w[home relative_home]
+    self.letterbox_name = nil if book_delivery_location.in? %w[pmi temporary_shelter association police_or_military_station]
   end
 
   # ---------------------------------------------------------------------------
