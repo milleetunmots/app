@@ -95,26 +95,20 @@ class Parent < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   has_many :parent1_children, class_name: :Child, foreign_key: :parent1_id, dependent: :nullify
-
   has_many :parent2_children, class_name: :Child, foreign_key: :parent2_id, dependent: :nullify
-
   has_many :redirection_urls, dependent: :destroy
-
   has_many :events, as: :related, dependent: :destroy
-
   has_many :children_support_modules, dependent: :destroy
-
   has_many :support_modules, through: :children_support_modules
-
   has_many :parents_answers, dependent: :destroy
   has_many :answers, through: :parents_answers
-
   has_and_belongs_to_many :workshops
 
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
   before_save :format_phone_number
+  before_save :reset_disabled_hidden_fields
   before_create :add_preferred_channel_tag, if: -> { preferred_channel.present? }
   after_create :should_be_contacted_as_parent2, if: -> { parent2_creation.present? }
   after_save :update_aircall_contact, if: -> { saved_change_to_discarded_at? && discarded_at.present? }
@@ -124,8 +118,11 @@ class Parent < ApplicationRecord
 
   validates :gender, presence: true, inclusion: { in: GENDERS }
   validates :first_name, presence: true
+  validates :book_delivery_location, presence: true
   validates :letterbox_name, presence: true, if: -> { book_delivery_organisation_name.blank? }, on: :create
   validates :book_delivery_organisation_name, presence: true, if: -> { letterbox_name.blank? }, on: :create
+  validates :letterbox_name, presence: true, if: -> { book_delivery_location.in? %w[home relative_home] }
+  validates :book_delivery_organisation_name, presence: true, if: -> { book_delivery_location.in? %w[pmi temporary_shelter association police_or_military_station] }
   validates :first_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
   validates :last_name, presence: true
   validates :last_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
@@ -164,6 +161,7 @@ class Parent < ApplicationRecord
     super
     self.security_code = SecureRandom.hex(1)
     self.security_token = SecureRandom.hex(16)
+    self.book_delivery_location = 'home' if book_delivery_location.blank?
   end
 
   # ---------------------------------------------------------------------------
@@ -333,6 +331,11 @@ class Parent < ApplicationRecord
 
   def book_delivery_location_different_from_home?
     book_delivery_location.in? %w[relative_home pmi temporary_shelter association police_or_military_station]
+  end
+
+  def reset_disabled_hidden_fields
+    self.book_delivery_organisation_name = nil if book_delivery_location.in? %w[home relative_home]
+    self.letterbox_name = nil if book_delivery_location.in? %w[pmi temporary_shelter association police_or_military_station]
   end
 
   # ---------------------------------------------------------------------------

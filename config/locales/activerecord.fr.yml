@@ -554,6 +554,7 @@ fr:
         postal_code: Code postal
         parent_groups: Cohortes
         territory: Territoire
+        book_delivery_location: Le parent souhaite recevoir le livre à
         book_delivery_organisation_name: Raison sociale
         land: Terrain
         redirection_unique_visit_rate: "Taux de visites uniques d'URL courtes"
