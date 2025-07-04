@@ -100,12 +100,12 @@ ActiveAdmin.register Parent do
       f.input :present_on_whatsapp
       f.input :follow_us_on_whatsapp
       f.input :email
-      f.input :book_delivery_location, input_html: { data: { select2: {} } }, label: 'La famille souhaite recevoir les livres', collection: parent_book_delivery_location_select_collection, include_blank: false
-      div id: 'book_delivery_location_warning', style: 'margin-left: 25%; margin-bottom: 20px; margin-top: -20px; width: 50%; display: none' do
-        small class: 'inline-errors' do
-          "Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI. Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots."
-        end
-      end
+      f.input :book_delivery_location,
+              input_html: { data: { select2: {} } },
+              label: 'La famille souhaite recevoir les livres',
+              collection: parent_book_delivery_location_select_collection,
+              include_blank: false,
+              hint: "Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI. Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots."
       f.input :letterbox_name
       f.input :book_delivery_organisation_name
       f.input :attention_to, label: "À l'attention de", input_html: { readonly: true, style: 'background-color: #A7ACB2' }, disabled: false

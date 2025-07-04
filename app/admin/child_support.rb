@@ -703,16 +703,29 @@ ActiveAdmin.register ChildSupport do
               tab I18n.t("child_support.#{k}") do
                 f.semantic_fields_for :current_child do |current_child_f|
                   current_child_f.semantic_fields_for k do |parent_f|
+                    f.hidden_field :"#{k}_first_name", value: f.object.send(k).first_name, disabled: true
+                    f.hidden_field :"#{k}_last_name", value: f.object.send(k).last_name, disabled: true
+                    if f.object.current_child && k == :parent1
+                      f.hidden_field :current_child_first_name, value: f.object.current_child.first_name, disabled: true
+                      f.hidden_field :current_child_last_name, value: f.object.current_child.last_name, disabled: true
+                      if f.object.current_child.source
+                        f.hidden_field :current_child_source_channel, value: f.object.current_child.source.channel, disabled: true
+                        f.hidden_field :current_child_source_name, value: f.object.current_child.source.name, disabled: true
+                      end
+                    end
                     parent_f.input :phone_number
                     parent_f.input :present_on_whatsapp
                     parent_f.input :follow_us_on_whatsapp
                     parent_f.input :email
                     parent_f.input :book_delivery_location,
-                      input_html: { data: { select2: {} } },
-                      label: "La famille souhaite recevoir les livres :",
-                      collection: parent_book_delivery_location_select_collection
+                                   input_html: { data: { select2: {} } },
+                                   label: 'La famille souhaite recevoir les livres',
+                                   collection: parent_book_delivery_location_select_collection,
+                                   include_blank: false,
+                                   hint: "Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI. Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots."
                     parent_f.input :letterbox_name
                     parent_f.input :book_delivery_organisation_name
+                    parent_f.input :attention_to, label: "À l'attention de", input_html: { readonly: true, style: 'background-color: #A7ACB2' }, disabled: false
                     address_input parent_f
                     parent_f.input :is_ambassador
                     parent_f.input :job
