@@ -67,11 +67,6 @@ $(document).ready(function() {
     $childSupportParent1bookDeliveryLocationWarning
   );
 
-  $('form').on('submit', function() {
-    $('fieldset.inputs').find('input:hidden').prop('disabled', true);
-    return true;
-  });
-
   function handle_form(
     parentFirstName,
     parentLastName,
@@ -127,8 +122,6 @@ $(document).ready(function() {
     parentBookDeliveryOrganisationName,
     currentChildSourceName) {
     if (parentBookDeliveryLocation.val() === 'pmi' && currentChildSourceChannel.val() === 'pmi') {
-      console.log(parentBookDeliveryLocation.val());
-      console.log(currentChildSourceChannel.val());
       parentBookDeliveryOrganisationName
         .val(currentChildSourceName.val())
         .css({'background-color': '#A7ACB2'})
@@ -169,17 +162,17 @@ $(document).ready(function() {
     parentLetterboxNameInput) {
     switch (parentBookDeliveryLocation.val()) {
       case 'home':
-        parentBookDeliveryOrganisationNameInput.hide();
-        parentAttentionToInput.hide();
+        parentBookDeliveryOrganisationNameInput.hide().prop('disabled', true);
+        parentAttentionToInput.hide().prop('disabled', true);
         break;
       case 'relative_home':
-        parentBookDeliveryOrganisationNameInput.hide();
+        parentBookDeliveryOrganisationNameInput.hide().prop('disabled', true);
         break;
       case 'pmi':
       case 'temporary_shelter':
       case 'association':
       case 'police_or_military_station':
-        parentLetterboxNameInput.hide();
+        parentLetterboxNameInput.hide().prop('disabled', true);
         break;
     }
   }
@@ -191,18 +184,18 @@ $(document).ready(function() {
     parentBookDeliveryOrganisationNameInput) {
     switch (parentBookDeliveryLocation.val()) {
       case 'home':
-        parentLetterboxNameInput.show();
+        parentLetterboxNameInput.show().prop('disabled', false);
         break;
       case 'relative_home':
-        parentLetterboxNameInput.show();
-        parentAttentionToInput.show();
+        parentLetterboxNameInput.show().prop('disabled', false);
+        parentAttentionToInput.show().prop('disabled', false);
         break;
       case 'pmi':
       case 'temporary_shelter':
       case 'association':
       case 'police_or_military_station':
-        parentBookDeliveryOrganisationNameInput.show();
-        parentAttentionToInput.show();
+        parentBookDeliveryOrganisationNameInput.show().prop('disabled', false);
+        parentAttentionToInput.show().prop('disabled', false);
         break;
     }
   }

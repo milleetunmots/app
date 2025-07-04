@@ -42,9 +42,7 @@ ActiveAdmin.register Parent do
     end
   end
 
-  filter :gender,
-    as: :check_boxes,
-    collection: proc { parent_gender_select_collection }
+  filter :gender, as: :check_boxes, collection: proc { parent_gender_select_collection }
   filter :first_name
   filter :last_name
   filter :phone_number
@@ -53,8 +51,7 @@ ActiveAdmin.register Parent do
   filter :present_on_whatsapp
   filter :follow_us_on_whatsapp
   filter :email
-  filter :book_delivery_location, as: :select,
-    collection: proc { parent_book_delivery_location_select_collection }
+  filter :book_delivery_location, as: :select, collection: proc { parent_book_delivery_location_select_collection }
   filter :letterbox_name
   filter :address
   filter :postal_code

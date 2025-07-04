@@ -115,6 +115,7 @@ fr:
         parent1_phone_number_national: Numéro du parent 1
         parent1_book_delivery_organisation_name: Raison sociale
         parent1_attention_to: A l'attention de
+        parent1_book_delivery_location: Le parent souhaite recevoir le livre à
         parent2: Parent 2
         parent2_selection: Parent 2
         parent2_email: Email du parent 2
@@ -317,6 +318,7 @@ fr:
         parent1_last_name: Nom du parent 1
         parent1_phone_number_national: Numéro du parent 1
         parent1_available_support_modules: Modules disponibles du parent 1
+        parent1_book_delivery_location: Le parent souhaite recevoir le livre à
         parent2_available_support_modules: Modules disponibles du parent 2
         parent1_selected_support_modules: Modules choisis par le parent 1
         parent2_selected_support_modules: Modules choisis par le parent 2

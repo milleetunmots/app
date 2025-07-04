@@ -76,6 +76,7 @@ ActiveAdmin.register ChildSupport do
           collection: proc { source_details_suggestions },
           input_html: { multiple: true, data: { select2: {} } },
           label: "Précisions sur l'origine"
+  filter :parent1_book_delivery_location, as: :select, collection: proc { parent_book_delivery_location_select_collection }
   filter :should_be_read,
          input_html: { data: { select2: { width: '100%' } } }
   filter :is_bilingual, as: :check_boxes, collection: proc { is_bilingual_collection }
@@ -717,16 +718,18 @@ ActiveAdmin.register ChildSupport do
                     parent_f.input :present_on_whatsapp
                     parent_f.input :follow_us_on_whatsapp
                     parent_f.input :email
-                    parent_f.input :book_delivery_location,
-                                   input_html: { data: { select2: {} } },
-                                   label: 'La famille souhaite recevoir les livres',
-                                   collection: parent_book_delivery_location_select_collection,
-                                   include_blank: false,
-                                   hint: "Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI. Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots."
-                    parent_f.input :letterbox_name
-                    parent_f.input :book_delivery_organisation_name
-                    parent_f.input :attention_to, label: "À l'attention de", input_html: { readonly: true, style: 'background-color: #A7ACB2' }, disabled: false
-                    address_input parent_f
+                    if k == :parent1
+                      parent_f.input :book_delivery_location,
+                                     input_html: { data: { select2: {} } },
+                                     label: 'La famille souhaite recevoir les livres',
+                                     collection: parent_book_delivery_location_select_collection,
+                                     include_blank: false,
+                                     hint: "Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI. Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots."
+                      parent_f.input :letterbox_name
+                      parent_f.input :book_delivery_organisation_name
+                      parent_f.input :attention_to, label: "À l'attention de", input_html: { readonly: true, style: 'background-color: #A7ACB2' }, disabled: false
+                      address_input parent_f
+                    end
                     parent_f.input :is_ambassador
                     parent_f.input :job
                   end
@@ -771,7 +774,7 @@ ActiveAdmin.register ChildSupport do
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email book_delivery_location letterbox_name book_delivery_organisation_name address postal_code city_name
-    is_ambassador present_on_whatsapp follow_us_on_whatsapp job
+    is_ambassador address_supplement present_on_whatsapp follow_us_on_whatsapp job
   ]
   current_child_attributes = [{
     current_child_attributes: [
@@ -786,7 +789,7 @@ ActiveAdmin.register ChildSupport do
   children_support_modules_attributes = [{ children_support_modules_attributes: %i[id book_condition] }]
   # block is mandatory here because ChildSupport.call_attributes hits DB
   permit_params do
-    base_attributes + ChildSupport.call_attributes + current_child_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms]
+    base_attributes + ChildSupport.call_attributes + current_child_attributes + children_support_modules_attributes - %i[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms]
   end
 
   # ---------------------------------------------------------------------------

@@ -483,6 +483,7 @@ class ChildSupport < ApplicationRecord
            :parent1_follow_us_on_whatsapp?,
            :parent1_last_name,
            :parent1_phone_number_national,
+           :parent1_book_delivery_location,
            :parent2_first_name,
            :parent2_gender,
            :parent2_is_ambassador,
