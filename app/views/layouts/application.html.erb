@@ -7,6 +7,8 @@
     <title>1001mots</title>
     <link rel="icon" type="image/x-icon" href="<%= asset_path 'favicon.ico' %>">
     <%= tag.link rel: "stylesheet", href: "https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.1.0/dist/cookieconsent.css" %>
+    <%= javascript_include_tag "https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.1.0/dist/cookieconsent.umd.js" %>
+
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= csrf_meta_tags %>
@@ -15,8 +17,6 @@
     <%= render partial: 'layouts/flash', flash: flash %>
 
     <%= yield %>
-    <%= javascript_include_tag "https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.1.0/dist/cookieconsent.umd.js" %>
-
   </body>
 
   <footer>
@@ -24,5 +24,6 @@
     <%= google_places_api_tag %>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <%= link_to "Gérer mes préférences de cookies", "#", id: "cookie-settings", class: "cookie-settings-link" %>
   </footer>
 </html>
