@@ -295,8 +295,13 @@ ActiveAdmin.register ChildSupport do
           end
           if resource.address_suspected_invalid_at
             div class: 'address-suspected-invalid-info' do
-              h4 "Problème avec l’adresse : les livres ne sont plus envoyés depuis le #{resource.address_suspected_invalid_at&.strftime("%d/%m/%Y")}", class: 'txt-warning'
-              h5 "Pour que les livres soient de nouveau envoyés, les infos du parent 1 doivent être mises à jour (adresse ou nom sur la boîte aux lettres)", class: 'txt-italic'
+              h4 "⚠️ Problème avec l’adresse : les livres ne sont plus envoyés depuis le #{resource.address_suspected_invalid_at&.strftime("%d/%m/%Y")}", class: 'txt-warning'
+              div class: 'mt-3 d-flex gap-2 justify-content-end' do
+                button_tag class: 'btn btn-success', type: 'button' do
+                  'Marquer comme valide'
+                end
+                button_tag 'Mettre à jour ladresse', class: 'btn btn-primary', type: 'button'
+              end
             end
           end
           if ChildrenSupportModule.where(child_id: [resource.children.ids]).with_books.any?
