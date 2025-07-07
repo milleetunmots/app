@@ -296,11 +296,13 @@ ActiveAdmin.register ChildSupport do
           if resource.address_suspected_invalid_at
             div class: 'address-suspected-invalid-info' do
               h4 "⚠️ Problème avec l’adresse : les livres ne sont plus envoyés depuis le #{resource.address_suspected_invalid_at&.strftime("%d/%m/%Y")}", class: 'txt-warning'
-              div class: 'mt-3 d-flex gap-2 justify-content-end' do
-                button_tag class: 'btn btn-success', type: 'button' do
-                  'Marquer comme valide'
+              div class: 'buttons-line' do
+                div id: 'button-outline', class: 'button' do
+                  "Valider l'adresse"
                 end
-                button_tag 'Mettre à jour ladresse', class: 'btn btn-primary', type: 'button'
+                div id: 'button-primary', class: 'button' do
+                  "Modifier l'adresse"
+                end
               end
             end
           end

@@ -4,7 +4,23 @@ $(document).ready(function() {
 
   window.scrollTo(0, 0);
 
-  $('.book-issue-confirmation-message').css('display', 'none')
+
+  $('#button-primary').on('click', function() {
+
+    $('a[href="#parent-1"]').trigger('click');
+
+    window.scrollTo(0, 90000);
+
+    // $('a[href="#parent-1"]').focus();
+
+    // Alternative si c'est un tab jQuery UI :
+    // $('#child_support_tabs_form').tabs('select', 'parent-1');
+  });
+
+  $('a[href="parent-1"]').on('click', function() {
+    console.log('parent-1');
+  })
+
 
   $('select[name^="child_support[children_support_modules_attributes]"][name$="[book_condition]"]').on('change', function () {
     const $select = $(this)
