@@ -1,26 +1,33 @@
 $(document).ready(function() {
   let $parent1 = $('#child_parent1_id');
   let $parent2 = $('#child_parent2_id');
+  let $childSupportTabsForm = $('#child_support_tabs_form');
+  let $childSupportAddressModificationButton = $('#child-support-address-modification-button');
+  let $childSupportAddressValidationButton = $('#child-support-address-validation-button');
+  let $modalAddressModificationButton = $('#modal-address-modification-button');
+  let $addressValidationModal = $('#address-validation');
+  let $closeModalButton = $addressValidationModal.find('.close');
+  let $parent1Link = $('a[href="#parent-1"]')
 
   window.scrollTo(0, 0);
 
-
-  $('#button-primary').on('click', function() {
-
-    $('a[href="#parent-1"]').trigger('click');
-
-    window.scrollTo(0, 90000);
-
-    // $('a[href="#parent-1"]').focus();
-
-    // Alternative si c'est un tab jQuery UI :
-    // $('#child_support_tabs_form').tabs('select', 'parent-1');
+  $childSupportAddressModificationButton.on('click', function() {
+    $parent1Link.trigger('click');
+    scrollToElement($childSupportTabsForm);
   });
 
-  $('a[href="parent-1"]').on('click', function() {
-    console.log('parent-1');
-  })
+  $childSupportAddressValidationButton.on('click', function() {
+    $addressValidationModal.show();
+    $closeModalButton.on('click', function () {
+      $addressValidationModal.hide();
+    });
+  });
 
+  $modalAddressModificationButton.on('click', function() {
+    $addressValidationModal.hide();
+    $parent1Link.trigger('click');
+    scrollToElement($childSupportTabsForm);
+  });
 
   $('select[name^="child_support[children_support_modules_attributes]"][name$="[book_condition]"]').on('change', function () {
     const $select = $(this)
@@ -112,6 +119,13 @@ $(document).ready(function() {
 
       $(`#child_support_call${index}_status_details`).val(details);
     }
+  }
+
+  const scrollToElement = function(element) {
+    $(element)[0].scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
   }
 
   const onChildSupportCall0StatusUpdated = function(event) {

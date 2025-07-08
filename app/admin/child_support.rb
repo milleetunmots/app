@@ -227,6 +227,7 @@ ActiveAdmin.register ChildSupport do
     render partial: 'admin/child_supports/call_attempt_modal', locals: { call_index: 3 }
     render partial: 'admin/child_supports/call_attempt_modal', locals: { call_index: 4 }
     render partial: 'admin/child_supports/call_attempt_modal', locals: { call_index: 5 }
+    render partial: 'admin/child_supports/address_validation'
     f.inputs do
       f.input :id, as: :hidden, name: :id, value: f.object.id
       columns do
@@ -297,10 +298,10 @@ ActiveAdmin.register ChildSupport do
             div class: 'address-suspected-invalid-info' do
               h4 "⚠️ Problème avec l’adresse : les livres ne sont plus envoyés depuis le #{resource.address_suspected_invalid_at&.strftime("%d/%m/%Y")}", class: 'txt-warning'
               div class: 'buttons-line' do
-                div id: 'button-outline', class: 'button' do
+                div id: 'child-support-address-validation-button', class: 'button button-outline' do
                   "Valider l'adresse"
                 end
-                div id: 'button-primary', class: 'button' do
+                div id: 'child-support-address-modification-button', class: 'button button-primary' do
                   "Modifier l'adresse"
                 end
               end
