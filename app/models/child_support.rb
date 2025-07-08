@@ -244,14 +244,7 @@ class ChildSupport < ApplicationRecord
   # getter to make select work in form
   attr_accessor :call0_resources_alternative_scripts, :call1_resources_alternative_scripts, :call2_resources_alternative_scripts, :call3_resources_alternative_scripts
 
-  before_update do
-    if current_child
-      current_child.parent1.tag_list.add(tag_list)
-      current_child.parent1.save
-      current_child.parent2&.tag_list&.add(tag_list)
-      current_child.parent2&.save
-    end
-  end
+  before_update :distribute_tags
 
   after_save do
     if saved_change_to_parent1_available_support_module_list?
@@ -678,4 +671,30 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   acts_as_taggable
+
+  private
+
+  def distribute_tags
+    add_tags_to_parents
+    add_tags_to_children
+  end
+
+  def add_tags_to_parents
+    return unless parent1
+
+    parent1.tag_list.add(tag_list)
+    parent1.save(validate: false)
+    return unless parent2
+
+    parent2.tag_list.add(tag_list)
+    parent2.save(validate: false)
+    parent2.save
+  end
+
+  def add_tags_to_children
+    children.each do |child|
+      child.tag_list.add(tag_list)
+      child.save(validate: false)
+    end
+  end
 end
