@@ -76,6 +76,7 @@ ActiveAdmin.register ChildSupport do
           collection: proc { source_details_suggestions },
           input_html: { multiple: true, data: { select2: {} } },
           label: "Précisions sur l'origine"
+  filter :parent1_book_delivery_location, as: :select, collection: proc { parent_book_delivery_location_select_collection }
   filter :should_be_read,
          input_html: { data: { select2: { width: '100%' } } }
   filter :is_bilingual, as: :check_boxes, collection: proc { is_bilingual_collection }
@@ -703,15 +704,32 @@ ActiveAdmin.register ChildSupport do
               tab I18n.t("child_support.#{k}") do
                 f.semantic_fields_for :current_child do |current_child_f|
                   current_child_f.semantic_fields_for k do |parent_f|
+                    f.hidden_field :"#{k}_first_name", value: f.object.send(k).first_name, disabled: true
+                    f.hidden_field :"#{k}_last_name", value: f.object.send(k).last_name, disabled: true
+                    if f.object.current_child && k == :parent1
+                      f.hidden_field :current_child_first_name, value: f.object.current_child.first_name, disabled: true
+                      f.hidden_field :current_child_last_name, value: f.object.current_child.last_name, disabled: true
+                      if f.object.current_child.source
+                        f.hidden_field :current_child_source_channel, value: f.object.current_child.source.channel, disabled: true
+                        f.hidden_field :current_child_source_name, value: f.object.current_child.source.name, disabled: true
+                      end
+                    end
                     parent_f.input :phone_number
                     parent_f.input :present_on_whatsapp
                     parent_f.input :follow_us_on_whatsapp
                     parent_f.input :email
-                    parent_f.input :letterbox_name
-                    parent_f.input :book_delivery_organisation_name
-                    parent_f.input :address
-                    parent_f.input :postal_code
-                    parent_f.input :city_name
+                    if k == :parent1
+                      parent_f.input :book_delivery_location,
+                                     input_html: { data: { select2: {} } },
+                                     label: 'La famille souhaite recevoir les livres',
+                                     collection: parent_book_delivery_location_select_collection,
+                                     include_blank: false,
+                                     hint: "Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI. Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots."
+                      parent_f.input :letterbox_name
+                      parent_f.input :book_delivery_organisation_name
+                      parent_f.input :attention_to, label: "À l'attention de", input_html: { readonly: true, style: 'background-color: #A7ACB2' }, disabled: false
+                      address_input parent_f
+                    end
                     parent_f.input :is_ambassador
                     parent_f.input :job
                   end
@@ -755,8 +773,8 @@ ActiveAdmin.register ChildSupport do
   ] + [tags_params.merge(parent1_available_support_module_list: [], parent2_available_support_module_list: [])]
   parent_attributes = %i[
     id
-    gender first_name last_name phone_number email letterbox_name book_delivery_organisation_name address postal_code city_name
-    is_ambassador present_on_whatsapp follow_us_on_whatsapp job
+    gender first_name last_name phone_number email book_delivery_location letterbox_name book_delivery_organisation_name address postal_code city_name
+    is_ambassador address_supplement present_on_whatsapp follow_us_on_whatsapp job
   ]
   current_child_attributes = [{
     current_child_attributes: [
@@ -771,7 +789,7 @@ ActiveAdmin.register ChildSupport do
   children_support_modules_attributes = [{ children_support_modules_attributes: %i[id book_condition] }]
   # block is mandatory here because ChildSupport.call_attributes hits DB
   permit_params do
-    base_attributes + ChildSupport.call_attributes + current_child_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms]
+    base_attributes + ChildSupport.call_attributes + current_child_attributes + children_support_modules_attributes - %i[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms]
   end
 
   # ---------------------------------------------------------------------------

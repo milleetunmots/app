@@ -42,9 +42,7 @@ ActiveAdmin.register Parent do
     end
   end
 
-  filter :gender,
-    as: :check_boxes,
-    collection: proc { parent_gender_select_collection }
+  filter :gender, as: :check_boxes, collection: proc { parent_gender_select_collection }
   filter :first_name
   filter :last_name
   filter :phone_number
@@ -53,6 +51,7 @@ ActiveAdmin.register Parent do
   filter :present_on_whatsapp
   filter :follow_us_on_whatsapp
   filter :email
+  filter :book_delivery_location, as: :select, collection: proc { parent_book_delivery_location_select_collection }
   filter :letterbox_name
   filter :address
   filter :postal_code
@@ -79,22 +78,34 @@ ActiveAdmin.register Parent do
 
     f.semantic_errors *f.object.errors.keys
     f.inputs do
+      if f.object.current_child
+        f.hidden_field :current_child_first_name, value: f.object.current_child.first_name, disabled: true
+        f.hidden_field :current_child_last_name, value: f.object.current_child.last_name, disabled: true
+        if f.object.current_child.source
+          f.hidden_field :current_child_source_channel, value: f.object.current_child.source.channel, disabled: true
+          f.hidden_field :current_child_source_name, value: f.object.current_child.source.name, disabled: true
+        end
+      end
       f.input :parent2_creation, as: :hidden
       f.input :created_by_us, as: :hidden
-      f.input :gender,
-        as: :radio,
-        collection: parent_gender_select_collection
+      f.input :gender, as: :radio, collection: parent_gender_select_collection
       f.input :first_name
       f.input :last_name
-      f.input :phone_number,
-        input_html: { value: f.object.decorate.phone_number }
+      f.input :phone_number, input_html: { value: f.object.phone_number }
       f.input :is_excluded_from_workshop
       f.input :family_followed
       f.input :present_on_whatsapp
       f.input :follow_us_on_whatsapp
       f.input :email
+      f.input :book_delivery_location,
+              input_html: { data: { select2: {} } },
+              label: 'La famille souhaite recevoir les livres',
+              collection: parent_book_delivery_location_select_collection,
+              include_blank: false,
+              hint: "Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI. Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots."
       f.input :letterbox_name
       f.input :book_delivery_organisation_name
+      f.input :attention_to, label: "À l'attention de", input_html: { readonly: true, style: 'background-color: #A7ACB2' }, disabled: false
       address_input f
       f.input :is_ambassador
       f.input :job
@@ -107,7 +118,7 @@ ActiveAdmin.register Parent do
 
   permit_params :gender, :first_name, :last_name,
     :phone_number, :is_excluded_from_workshop, :present_on_whatsapp, :follow_us_on_whatsapp, :email,
-    :letterbox_name, :book_delivery_organisation_name, :address, :postal_code, :city_name, :address_supplement,
+    :book_delivery_location, :letterbox_name, :book_delivery_organisation_name, :address, :postal_code, :city_name, :address_supplement,
     :is_ambassador, :job, :terms_accepted_at, :family_followed, :parent2_creation, :created_by_us,
     tags_params, parent2_child_ids: []
 
@@ -131,6 +142,9 @@ ActiveAdmin.register Parent do
           row :follow_us_on_whatsapp
           row :email do |decorated|
             decorated.email_link
+          end
+          row :book_delivery_location do |decorated|
+            decorated.book_delivery_location_name
           end
           row :letterbox_name
           row :book_delivery_organisation_name

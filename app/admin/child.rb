@@ -75,6 +75,7 @@ ActiveAdmin.register Child do
          collection: proc { child_gender_select_collection(with_unknown: true) }
   filter :first_name
   filter :last_name
+  filter :parent1_book_delivery_location, as: :select, collection: proc { parent_book_delivery_location_select_collection }
   filter :postal_code,
          as: :string
   filter :birthdate
