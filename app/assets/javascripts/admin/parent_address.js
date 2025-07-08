@@ -121,11 +121,11 @@ $(document).ready(function() {
     currentChildSourceChannel,
     parentBookDeliveryOrganisationName,
     currentChildSourceName) {
+    let parentBookDeliveryOrganisationNameValue = parentBookDeliveryOrganisationName.val() || currentChildSourceName.val();
     if (parentBookDeliveryLocation.val() === 'pmi' && currentChildSourceChannel.val() === 'pmi') {
       parentBookDeliveryOrganisationName
-        .val(currentChildSourceName.val())
-        .css({'background-color': '#A7ACB2'})
-        .prop('readonly', true);
+        .val(parentBookDeliveryOrganisationNameValue)
+        .css({'background-color': '#A7ACB2'});
     } else {
       parentBookDeliveryOrganisationName
         .css({'background-color': ''})
