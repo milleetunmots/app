@@ -72,6 +72,14 @@ class ChildSupportsController < ApplicationController
     }
   end
 
+  def address_valid
+    @child_support = ChildSupport.find_by(id: params[:child_support_id])
+    not_found and return unless @child_support
+
+    @child_support.update_column(:address_suspected_invalid_at, nil)
+    redirect_to edit_admin_child_support_path(@child_support)
+  end
+
   private
 
   def find_child_support(child_support_id, security_code, security_token)

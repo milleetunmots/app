@@ -5,9 +5,11 @@ $(document).ready(function() {
   let $childSupportAddressModificationButton = $('#child-support-address-modification-button');
   let $childSupportAddressValidationButton = $('#child-support-address-validation-button');
   let $modalAddressModificationButton = $('#modal-address-modification-button');
+  let $modalAddressValidationButton = $('#modal-address-validation-button');
   let $addressValidationModal = $('#address-validation');
   let $closeModalButton = $addressValidationModal.find('.close');
   let $parent1Link = $('a[href="#parent-1"]')
+  let childSupportId = $('#child_support_id').val();
 
   window.scrollTo(0, 0);
 
@@ -28,6 +30,17 @@ $(document).ready(function() {
     $parent1Link.trigger('click');
     scrollToElement($childSupportTabsForm);
   });
+
+  $modalAddressValidationButton.on('click', function() {
+    $.ajax({
+      type: 'POST',
+      url: `/child-support-address-valid/${childSupportId}/`,
+      complete: function() {
+        $addressValidationModal.hide();
+        location.reload();
+      }
+    });
+  })
 
   $('select[name^="child_support[children_support_modules_attributes]"][name$="[book_condition]"]').on('change', function () {
     const $select = $(this)
