@@ -352,6 +352,14 @@ fr:
         call3_review: En tant qu'accompagnante, es-tu satisfaite de ton accompagnement pendant cet appel ?
         call4_review: En tant qu'accompagnante, es-tu satisfaite de ton accompagnement pendant cet appel ?
         call5_review: En tant qu'accompagnante, es-tu satisfaite de ton accompagnement pendant cet appel ?
+      current_child/parent1:
+        phone_number: Téléphone du parent 1
+        letterbox_name: Nom de famille sur la boîte aux lettres
+        postal_code: Code postal
+        city_name: Ville
+        address: Adresse
+      current_child/parent2:
+        phone_number: Téléphone du parent 2
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
         2_awareness: A conscience de son impact
