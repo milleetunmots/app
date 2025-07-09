@@ -1,4 +1,4 @@
-$(document).on('turbolinks:load', function() {
+$(document).ready(function() {
   let $parent1 = $('#child_parent1_id');
   let $parent2 = $('#child_parent2_id');
 
