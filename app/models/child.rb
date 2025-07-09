@@ -150,17 +150,7 @@ class Child < ApplicationRecord
     self.security_token = SecureRandom.hex(16)
   end
 
-  before_update do
-    unless (tag_list - parent1.tag_list).empty?
-      parent1.tag_list.add(tag_list)
-      parent1.save
-    end
-
-    if parent2 && !(tag_list - parent2&.tag_list).empty?
-      parent2&.tag_list&.add(tag_list)
-      parent2&.save
-    end
-  end
+  before_update :distribute_tags
 
   after_create :create_support!
   after_commit :add_to_group, on: :create
@@ -819,4 +809,9 @@ class Child < ApplicationRecord
       child_support.save!
     end
   end
+
+  def distribute_tags
+    distribute_tags_to_parents
+  end
+
 end
