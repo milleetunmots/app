@@ -675,26 +675,7 @@ class ChildSupport < ApplicationRecord
   private
 
   def distribute_tags
-    add_tags_to_parents
-    add_tags_to_children
-  end
-
-  def add_tags_to_parents
-    return unless parent1
-
-    parent1.tag_list.add(tag_list)
-    parent1.save(validate: false)
-    return unless parent2
-
-    parent2.tag_list.add(tag_list)
-    parent2.save(validate: false)
-    parent2.save
-  end
-
-  def add_tags_to_children
-    children.each do |child|
-      child.tag_list.add(tag_list)
-      child.save(validate: false)
-    end
+    distribute_tags_to_parents
+    distribute_tags_to_children
   end
 end
