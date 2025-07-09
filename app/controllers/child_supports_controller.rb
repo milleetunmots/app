@@ -77,7 +77,6 @@ class ChildSupportsController < ApplicationController
     not_found and return unless @child_support
 
     @child_support.update_column(:address_suspected_invalid_at, nil)
-    redirect_to edit_admin_child_support_path(@child_support)
   end
 
   private
