@@ -119,10 +119,7 @@ class Parent < ApplicationRecord
   validates :gender, presence: true, inclusion: { in: GENDERS }
   validates :first_name, presence: true
   validates :book_delivery_location, presence: true
-  validates :letterbox_name, presence: true, if: -> { book_delivery_organisation_name.blank? }, on: :create
-  validates :book_delivery_organisation_name, presence: true, if: -> { letterbox_name.blank? }, on: :create
   validates :letterbox_name, presence: true, if: -> { book_delivery_location.in? %w[home relative_home] }
-  validates :book_delivery_organisation_name, presence: true, if: -> { book_delivery_location.in? %w[pmi temporary_shelter association police_or_military_station] }
   validates :first_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
   validates :last_name, presence: true
   validates :last_name, format: { with: REGEX_VALID_NAME, allow_blank: true, message: INVALID_NAME_MESSAGE }
@@ -144,6 +141,7 @@ class Parent < ApplicationRecord
   validates :terms_accepted_at, presence: true
   validates :preferred_channel, inclusion: { in: COMMUNICATION_CHANNELS, allow_blank: true }
   validate :phone_number_format, on: :create
+  validate :book_delivery_organisation_name_presence, if: -> { book_delivery_location.in?(%w[pmi temporary_shelter association police_or_military_station]) }
 
   scope :potential_duplicates, -> {
     where("parents.phone_number IN (SELECT phone_number FROM parents WHERE parents.discarded_at IS NULL GROUP BY parents.phone_number HAVING COUNT(*) > 1)")
@@ -351,6 +349,24 @@ class Parent < ApplicationRecord
   acts_as_taggable
 
   private
+
+  def book_delivery_organisation_name_presence
+    return if book_delivery_organisation_name.present?
+    return unless book_delivery_location.in?(%w[pmi temporary_shelter association police_or_military_station])
+
+    label = case book_delivery_location
+                when 'pmi'
+                  'Nom de la PMI'
+                when 'temporary_shelter'
+                  "Nom complet de la structure d'accueil"
+                when 'association'
+                  "Nom complet de l'association"
+                when 'police_or_military_station'
+                  'Nom complet de la caserne ou du commissariat'
+                end
+    errors.add(label.to_sym, "doit être rempli")
+  end
+
 
   def format_phone_number
     # format phone number to e164

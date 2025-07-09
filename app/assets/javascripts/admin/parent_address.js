@@ -25,7 +25,7 @@ $(document).ready(function() {
   let $childSupportParent1LetterboxNameInput = $('#child_support_current_child_attributes_parent1_attributes_letterbox_name_input');
   let $childSupportParent1LetterboxNameLabel = $('label[for="child_support_current_child_attributes_parent1_attributes_letterbox_name"]');
   let $childSupportParent1BookDeliveryOrganisationNameInput = $('#child_support_current_child_attributes_parent1_attributes_book_delivery_organisation_name_input')
-  let $childSupportParent1BookDeliveryOrganisationNameLabel = $('label[for="child_support_current_child_attributes_parent1_attributes_book_delivery_organisation_name_input"]');
+  let $childSupportParent1BookDeliveryOrganisationNameLabel = $('label[for="child_support_current_child_attributes_parent1_attributes_book_delivery_organisation_name"]');
   let $childSupportParent1BookDeliveryOrganisationName = $('#child_support_current_child_attributes_parent1_attributes_book_delivery_organisation_name');
   let $childSupportParent1AttentionToInput = $('#child_support_current_child_attributes_parent1_attributes_attention_to_input');
   let $childSupportParent1AttentionTo = $('#child_support_current_child_attributes_parent1_attributes_attention_to');
@@ -91,7 +91,7 @@ $(document).ready(function() {
     updateBookDeliveryOrganisation(parentBookDeliveryLocation, currentChildSourceChannel, parentBookDeliveryOrganisationName, currentChildSourceName);
 
     parentBookDeliveryLocation.on('change', function() {
-      if ($(this).val() === 'temporary_shelter' && currentChildSourceChannel.val() === 'pmi') {
+      if (['temporary_shelter', 'association', 'police_or_military_station'].includes($(this).val()) && currentChildSourceChannel.val() === 'pmi') {
         bookDeliveryLocationWarning.show();
       } else {
         bookDeliveryLocationWarning.hide();
@@ -148,9 +148,13 @@ $(document).ready(function() {
         parentBookDeliveryOrganisationNameLabel.html('Nom de la PMI<abbr>*</abbr>');
         break;
       case 'temporary_shelter':
-      case 'association':
-      case 'police_or_military_station':
         parentBookDeliveryOrganisationNameLabel.html("Nom complet de la structure d'accueil (hotêl, résidence sociale...)<abbr>*</abbr>");
+        break;
+      case 'association':
+        parentBookDeliveryOrganisationNameLabel.html("Nom complet de l'association<abbr>*</abbr>");
+        break;
+      case 'police_or_military_station':
+        parentBookDeliveryOrganisationNameLabel.html("Nom complet de la caserne ou du commissariat<abbr>*</abbr>");
         break;
     }
   }

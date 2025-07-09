@@ -105,7 +105,7 @@ ActiveAdmin.register Parent do
               hint: "Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI. Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots."
       f.input :letterbox_name
       f.input :book_delivery_organisation_name
-      f.input :attention_to, label: "À l'attention de", input_html: { readonly: true, style: 'background-color: #A7ACB2' }, disabled: false
+      f.input :attention_to, label: "À l'attention de", input_html: { readonly: true, style: 'background-color: #A7ACB2', value: f.object.attention_to&.gsub('Pour ', '') }, disabled: false
       address_input f
       f.input :is_ambassador
       f.input :job
