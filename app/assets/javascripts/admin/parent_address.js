@@ -92,6 +92,17 @@ $(document).ready(function() {
 
     parentBookDeliveryLocation.on('change', function() {
       if (['temporary_shelter', 'association', 'police_or_military_station'].includes($(this).val()) && currentChildSourceChannel.val() === 'pmi') {
+        switch ($(this).val()) {
+          case 'temporary_shelter':
+            bookDeliveryLocationWarning.html("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI</b>. Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots.")
+            break;
+          case 'association':
+            bookDeliveryLocationWarning.html("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI</b>. Les livres envoyés aux associations (ex. maisons de quartier) sont souvent retournés à 1001mots")
+            break;
+          case 'police_or_military_station':
+            bookDeliveryLocationWarning.html("<b>Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI</b>. Les livres envoyés aux casernes ou commissariats sont souvent retournés à 1001mots.")
+            break;
+        }
         bookDeliveryLocationWarning.show();
       } else {
         bookDeliveryLocationWarning.hide();
