@@ -229,14 +229,7 @@ class ChildSupport < ApplicationRecord
   accepts_nested_attributes_for :current_child
   accepts_nested_attributes_for :children_support_modules
 
-  before_update do
-    if current_child
-      current_child.parent1.tag_list.add(tag_list)
-      current_child.parent1.save
-      current_child.parent2&.tag_list&.add(tag_list)
-      current_child.parent2&.save
-    end
-  end
+  before_update :distribute_tags
 
   after_save do
     if saved_change_to_parent1_available_support_module_list?
@@ -643,4 +636,11 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   acts_as_taggable
+
+  private
+
+  def distribute_tags
+    distribute_tags_to_parents
+    distribute_tags_to_children
+  end
 end
