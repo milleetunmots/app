@@ -209,6 +209,7 @@
 class ChildSupport < ApplicationRecord
 
   include Discard::Model
+  include TagsSharedConcern
 
   LANGUAGE_AWARENESS = %w[1_none 2_awareness].freeze
   PARENT_PROGRESS = %w[1_low 2_medium 3_high 4_excellent].freeze
@@ -671,11 +672,4 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   acts_as_taggable
-
-  private
-
-  def distribute_tags
-    distribute_tags_to_parents
-    distribute_tags_to_children
-  end
 end
