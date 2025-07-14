@@ -196,6 +196,7 @@
 class ChildSupport < ApplicationRecord
 
   include Discard::Model
+  include TagsSharedConcern
 
   LANGUAGE_AWARENESS = %w[1_none 2_awareness].freeze
   PARENT_PROGRESS = %w[1_low 2_medium 3_high 4_excellent].freeze
@@ -228,8 +229,6 @@ class ChildSupport < ApplicationRecord
 
   accepts_nested_attributes_for :current_child
   accepts_nested_attributes_for :children_support_modules
-
-  before_update :distribute_tags
 
   after_save do
     if saved_change_to_parent1_available_support_module_list?
@@ -636,11 +635,4 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   acts_as_taggable
-
-  private
-
-  def distribute_tags
-    distribute_tags_to_parents
-    distribute_tags_to_children
-  end
 end
