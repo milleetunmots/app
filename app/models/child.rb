@@ -51,6 +51,7 @@
 class Child < ApplicationRecord
 
   include Discard::Model
+  include TagsSharedConcern
 
   attr_accessor :parent1_selection, :parent2_selection
 
@@ -149,8 +150,6 @@ class Child < ApplicationRecord
     self.security_code = SecureRandom.hex(1)
     self.security_token = SecureRandom.hex(16)
   end
-
-  before_update :distribute_tags
 
   after_create :create_support!
   after_commit :add_to_group, on: :create
@@ -809,9 +808,4 @@ class Child < ApplicationRecord
       child_support.save!
     end
   end
-
-  def distribute_tags
-    distribute_tags_to_parents
-  end
-
 end
