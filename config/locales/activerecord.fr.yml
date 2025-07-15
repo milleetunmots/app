@@ -115,6 +115,7 @@ fr:
         parent1_phone_number_national: Numéro du parent 1
         parent1_book_delivery_organisation_name: Raison sociale
         parent1_attention_to: A l'attention de
+        parent1_book_delivery_location: Le parent souhaite recevoir le livre à
         parent2: Parent 2
         parent2_selection: Parent 2
         parent2_email: Email du parent 2
@@ -317,6 +318,7 @@ fr:
         parent1_last_name: Nom du parent 1
         parent1_phone_number_national: Numéro du parent 1
         parent1_available_support_modules: Modules disponibles du parent 1
+        parent1_book_delivery_location: Le parent souhaite recevoir le livre à
         parent2_available_support_modules: Modules disponibles du parent 2
         parent1_selected_support_modules: Modules choisis par le parent 1
         parent2_selected_support_modules: Modules choisis par le parent 2
@@ -350,6 +352,14 @@ fr:
         call3_review: En tant qu'accompagnante, es-tu satisfaite de ton accompagnement pendant cet appel ?
         call4_review: En tant qu'accompagnante, es-tu satisfaite de ton accompagnement pendant cet appel ?
         call5_review: En tant qu'accompagnante, es-tu satisfaite de ton accompagnement pendant cet appel ?
+      current_child/parent1:
+        phone_number: Téléphone du parent 1
+        letterbox_name: Nom de famille sur la boîte aux lettres
+        postal_code: Code postal
+        city_name: Ville
+        address: Adresse
+      current_child/parent2:
+        phone_number: Téléphone du parent 2
       child_support/call_language_awareness:
         1_none: "N'a pas conscience de son impact"
         2_awareness: A conscience de son impact
@@ -554,6 +564,7 @@ fr:
         postal_code: Code postal
         parent_groups: Cohortes
         territory: Territoire
+        book_delivery_location: Le parent souhaite recevoir le livre à
         book_delivery_organisation_name: Raison sociale
         land: Terrain
         redirection_unique_visit_rate: "Taux de visites uniques d'URL courtes"

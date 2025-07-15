@@ -482,6 +482,7 @@ class Child < ApplicationRecord
            :city_name,
            :letterbox_name,
            :postal_code,
+           :book_delivery_location,
            to: :parent1
 
   delegate :is_ambassador,
@@ -737,7 +738,7 @@ class Child < ApplicationRecord
   end
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_details_matches_any]
+    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_details_matches_any book_delivery_location]
   end
 
   def siblings_on_same_group

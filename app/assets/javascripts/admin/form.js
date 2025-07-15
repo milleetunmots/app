@@ -58,6 +58,7 @@
       if (typeof(data) == typeof('')) {
         onAjaxSuccess();
         fetchUpdatedAt();
+        $(formErrorsListSelector).remove();
       } else {
         var $newErrorsList = $(detail[0]).find(formErrorsListSelector);
         var $existingErrorsList = $(formErrorsListSelector);
