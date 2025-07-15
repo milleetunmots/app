@@ -114,12 +114,57 @@
       label
         font-size: 80%
 
+#address-validation
+  h3
+    text-align: center
+    margin-top: 20px
+    margin-bottom: 50px
+  .buttons-line
+    justify-content: space-around
+
+#address-validation-content
+  display: flex
+  flex-direction: row
+  justify-content: space-between
+  margin-bottom: 50px
+  #address, #errors-presentation
+    width: 40%
+
 .address-suspected-invalid-info
   margin-top: 5px
+  width: fit-content
   h4
     margin-bottom: 0
   h5
     color: $dark-grey
+
+.buttons-line
+  display: flex
+  flex-direction: row
+  justify-content: flex-end
+  gap: 20px
+  margin: 10px
+  .button
+    cursor: pointer
+    border: 1px solid #5E6469
+    border-radius: 3px
+    display: inline-block
+    padding: 8px 12px
+    &:active
+      background-color: #626669
+      border-color: #626669
+  .button-outline
+    background-color: white
+    color: #5E6469
+    &:hover
+      background-color: #626669
+      color: white
+  .button-primary
+    background-color: #5E6469
+    color: white
+    &:hover
+      background-color: #7b8083
+      color: white
 
 #children-books-sent
   display: flex
@@ -161,6 +206,7 @@
           font-size: 80%
           color: $success
           margin-top: -1rem
+          display: none
       .select2-container
           width: 70% !important
 

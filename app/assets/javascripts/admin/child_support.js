@@ -1,10 +1,46 @@
 $(document).ready(function() {
   let $parent1 = $('#child_parent1_id');
   let $parent2 = $('#child_parent2_id');
+  let $childSupportTabsForm = $('#child_support_tabs_form');
+  let $childSupportAddressModificationButton = $('#child-support-address-modification-button');
+  let $childSupportAddressValidationButton = $('#child-support-address-validation-button');
+  let $modalAddressModificationButton = $('#modal-address-modification-button');
+  let $modalAddressValidationButton = $('#modal-address-validation-button');
+  let $addressValidationModal = $('#address-validation');
+  let $closeModalButton = $addressValidationModal.find('.close');
+  let $parent1Link = $('a[href="#parent-1"]')
+  let childSupportId = $('#child_support_id').val();
 
   window.scrollTo(0, 0);
 
-  $('.book-issue-confirmation-message').css('display', 'none')
+  $childSupportAddressModificationButton.on('click', function() {
+    $parent1Link.trigger('click');
+    scrollToElement($childSupportTabsForm);
+  });
+
+  $childSupportAddressValidationButton.on('click', function() {
+    $addressValidationModal.show();
+    $closeModalButton.on('click', function () {
+      $addressValidationModal.hide();
+    });
+  });
+
+  $modalAddressModificationButton.on('click', function() {
+    $addressValidationModal.hide();
+    $parent1Link.trigger('click');
+    scrollToElement($childSupportTabsForm);
+  });
+
+  $modalAddressValidationButton.on('click', function() {
+    $.ajax({
+      type: 'POST',
+      url: `/child-support-address-valid/${childSupportId}/`,
+      complete: function() {
+        $addressValidationModal.hide();
+        location.reload();
+      }
+    });
+  })
 
   $('select[name^="child_support[children_support_modules_attributes]"][name$="[book_condition]"]').on('change', function () {
     const $select = $(this)
@@ -96,6 +132,13 @@ $(document).ready(function() {
 
       $(`#child_support_call${index}_status_details`).val(details);
     }
+  }
+
+  const scrollToElement = function(element) {
+    $(element)[0].scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
   }
 
   const onChildSupportCall0StatusUpdated = function(event) {

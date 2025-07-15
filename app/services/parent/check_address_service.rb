@@ -21,10 +21,9 @@ class Parent::CheckAddressService
       city_name = line[7].present? ? "%#{line[7].strip.downcase}%" : nil
 
       parent = Parent.with_a_child_in_active_group.where(
-        'TRIM(LOWER(unaccent(address))) ILIKE unaccent(?) AND
-         TRIM(LOWER(unaccent(postal_code))) ILIKE unaccent(?) AND
-         TRIM(LOWER(unaccent(city_name))) ILIKE unaccent(?) AND
-         TRIM(LOWER(unaccent(letterbox_name))) ILIKE unaccent(?)', address, postal_code, city_name, letterbox_name).first
+        "TRIM(LOWER(unaccent(REPLACE(REPLACE(address, ',', ''), '.', '')))) ILIKE unaccent(REPLACE(REPLACE(?, ',', ''), '.', '')) AND
+         TRIM(LOWER(unaccent(REPLACE(postal_code::text, '.', '')))) ILIKE unaccent(REPLACE(?, '.', '')) AND
+         TRIM(LOWER(unaccent(letterbox_name))) ILIKE unaccent(?)", address, postal_code, letterbox_name).first
       next unless parent
       next if parent.book_delivery_location_different_from_home?
 
