@@ -163,7 +163,7 @@
                     <%= parent1_f.input :book_delivery_location,
                         label: "La famille souhaite recevoir les livres :",
                         required: true,
-                        collection: parent_book_delivery_location_select_collection %>
+                        collection: parent_book_delivery_location_select_collection, include_blank: true, selected: nil %>
                   <% end %>
                   <div style="margin-top: 8px; display: none;" id="book_delivery_location_warning" class="invalid-feedback">
                     <p></p>
