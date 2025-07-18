@@ -13,20 +13,20 @@ RSpec.describe Child::ExportBooksV2Service do
     let_it_be(:child3) { FactoryBot.create(:child, group: group, group_status: 'active') }
     let_it_be(:inactive_child) { FactoryBot.create(:child, group: group, group_status: 'stopped') }
 
-    let_it_be(:support_module1) do
+    let_it_be(:children_support_module1) do
       FactoryBot.create(:children_support_module, child: child1, parent: child1.parent1, support_module: support_module1)
     end
 
-    let_it_be(:support_module2) do
+    let_it_be(:children_support_module2) do
       FactoryBot.create(:children_support_module, child: child2, parent: child2.parent1, support_module: support_module2)
     end
 
-    let_it_be(:support_module3) do
+    let_it_be(:children_support_module3) do
       FactoryBot.create(:children_support_module, child: child3, parent: child3.parent1, support_module: support_module2)
     end
 
     context 'when group_ids are provided' do
-      let(:service) { described_class.new(group_ids: [group.id]) }
+      let(:service) { Child::ExportBooksV2Service.new(group_ids: [group.id]) }
 
       it 'returns children sorted by support module books' do
         children_list = service.send(:find_children_lists)
@@ -36,8 +36,8 @@ RSpec.describe Child::ExportBooksV2Service do
         book1_key = "#{book1.ean} #{book1.title} #{Time.zone.now.strftime('%d-%m-%Y')}"
         book2_key = "#{book2.ean} #{book2.title} #{Time.zone.now.strftime('%d-%m-%Y')}"
 
-        expect(children_list[book1_key]).to match_array([child1, child2])
-        expect(children_list[book2_key]).to match_array([child3])
+        expect(children_list[book1_key]).to match_array([child1])
+        expect(children_list[book2_key]).to match_array([child2, child3])
       end
 
       it 'excludes inactive children' do
@@ -49,7 +49,7 @@ RSpec.describe Child::ExportBooksV2Service do
     end
 
     context 'when no children are found' do
-      let(:service) { described_class.new(group_ids: [-1]) }
+      let(:service) { Child::ExportBooksV2Service.new(group_ids: [-1]) }
 
       it 'returns an empty hash' do
         children_list = service.send(:find_children_lists)
@@ -58,7 +58,7 @@ RSpec.describe Child::ExportBooksV2Service do
     end
 
     describe '#call' do
-      let(:service) { described_class.new(group_ids: [group.id]) }
+      let(:service) { Child::ExportBooksV2Service.new(group_ids: [group.id]) }
 
       it 'creates a zip file when children are found' do
         result = service.call
