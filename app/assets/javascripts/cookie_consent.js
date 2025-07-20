@@ -10,8 +10,8 @@ window.addEventListener('load', function () {
   cc.run({
     guiOptions: {
       consentModal: {
-        layout: "box",
-        position: "bottom left",
+        layout: "bar",
+        position: "bottom",
         equalWeightButtons: true,
         flipButtons: false
       },
@@ -37,12 +37,12 @@ window.addEventListener('load', function () {
       translations: {
         fr: {
           consentModal: {
-            title: "Bonjour, c'est l'heure des cookies 🍪",
-            description: "Certains cookies sont nécessaires pour une bonne expérience sur notre site 1001mots. D'autres servent à des fins d'analyse.",
+            title: "Ce site web utilise des cookies 🍪",
+            description: "1001mots utilise des cookies pour assurer le bon fonctionnement et la sécurité du site, et – avec votre accord – mesurer l’audience et analyser le trafic. Vous pouvez accepter, refuser ou paramétrer vos préférences, à l’exception des cookies strictement nécessaires.",
             acceptAllBtn: "Tout accepter",
             acceptNecessaryBtn: "Tout rejeter",
-            showPreferencesBtn: "Gérer les préférences",
-            footer: "<a href=\"#link\">Politique de confidentialité</a>\n<a href=\"#link\">Termes et conditions</a>"
+            showPreferencesBtn: "Personnaliser",
+            footer: "<a href=\"https://1001mots.org/politique-de-confidentialite\" target=\"_blank\">Politique de confidentialité</a>\n<a href=\"https://1001mots.org/mentions-legales/\" target=\"_blank\">Mentions légales</a>"
           },
           preferencesModal: {
             title: "Préférences de cookies",
@@ -53,22 +53,60 @@ window.addEventListener('load', function () {
             serviceCounterLabel: "Services",
             sections: [
               {
-                title: "Utilisation des Cookies",
-                description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+                description: "1001mots utilise des cookies pour assurer le bon fonctionnement et la sécurité du site, et – avec votre accord – mesurer l’audience et analyser le trafic. Vous pouvez accepter, refuser ou paramétrer vos préférences, à l’exception des cookies strictement nécessaires."
               },
               {
-                title: "Cookies Strictement Nécessaires <span class=\"pm__badge\">Toujours Activé</span>",
-                description: "Ces cookies sont essentiels au bonfonctionnement du site.",
-                linkedCategory: "necessary"
+                title: "Cookies strictement nécessaires <span class=\"pm__badge\">Obligatoire</span>",
+                description: "Ces cookies sont nécessaires au bon fonctionnement de notre site Internet. Conformément à la réglementation leur dépôt ne requiert pas votre consentement. Ils nous permettent notamment d’organiser l’inscription en ligne au programme.",
+                linkedCategory: "necessary",
+                cookieTable: {
+                  headers: {
+                    name: "Nom",
+                    expiration: 'Durée maximale de conservation',
+                    description: "Description"
+                  },
+                  body: [
+                    {
+                      name: 'MOTS_SESSION',
+                      description: 'Ce cookie est nécessaire pour pouvoir naviguer sur le site internet',
+                      expiration: 'Session navigateur',
+                    },
+                    {
+                      name: 'TIME_ZONE',
+                      description: 'Ce cookie est utilisé pour connaître le fuseau horaire local de l’utilisateur afin d’afficher correctement les notions de dates et d’heure',
+                      expiration: 'Session navigateur',
+                    },
+                    {
+                      name: 'CC_COOKIE',
+                      description: 'Sauvegarde de vos préférences de cookies',
+                      expiration: '6 mois',
+                    }
+                  ]
+                }
               },
               {
-                title: "Cookies Analytiques",
-                description: "Ces cookies sont utilisés pour mesurer l'audience via Google Tag Manager.",
-                linkedCategory: "analytics"
-              },
-              {
-                title: "Plus d'informations",
-                description: "Contactez-nous pour toutes questions concernant les cookies."
+                title: "Cookies mesure d’audience",
+                description: "Ces cookies nous permettent de générer des statistiques de fréquentation : ils nous aident à savoir quelles pages sont plus ou moins consultées et à améliorer notre site pour répondre à vos attentes. Vous pouvez vous y opposer et les supprimer en utilisant les paramètres de votre navigateur ou notre module de paramétrage de vos préférences.",
+                linkedCategory: "analytics",
+                cookieTable: {
+                  headers: {
+                    name: "Nom",
+                    expiration: 'Durée maximale de conservation',
+                    description: "Description"
+                  },
+                  body: [
+                    {
+                      name: '_GA',
+                      description: 'Ce cookie est utilisé pour comprendre le parcours des utilisateurs sur notre site internet d’inscription. Les informations récoltées sont anonymes',
+                      expiration: '1 an, 1 mois et 4 jours',
+                    },
+                    {
+                      name: '_GA_*',
+                      description: 'Ce cookie est utilisé pour comptabiliser les visites sur notre site internet d’inscription',
+                      expiration: '1 an, 1 mois et 4 jours',
+                    }
+                  ]
+                }
               }
             ]
           }
