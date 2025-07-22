@@ -22,8 +22,10 @@ class Parent::CheckAddressService
 
       parent = Parent.with_a_child_in_active_group.where(
         "TRIM(LOWER(unaccent(REPLACE(REPLACE(address, ',', ''), '.', '')))) ILIKE unaccent(REPLACE(REPLACE(?, ',', ''), '.', '')) AND
-         TRIM(LOWER(unaccent(REPLACE(postal_code::text, '.', '')))) ILIKE unaccent(REPLACE(?, '.', '')) AND
-         TRIM(LOWER(unaccent(letterbox_name))) ILIKE unaccent(?)", address, postal_code, letterbox_name).first
+          TRIM(LOWER(regexp_replace(postal_code::text, '[^a-zA-Z0-9]', '', 'g'))) ILIKE regexp_replace(?, '[^a-zA-Z0-9]', '', 'g') AND
+         TRIM(LOWER(unaccent(letterbox_name))) ILIKE unaccent(?) AND
+         TRIM(LOWER(unaccent(REPLACE(city_name, '-', '')))) ILIKE unaccent(REPLACE(?, '-', ''))", address, postal_code, letterbox_name, city_name
+      ).first
       next unless parent
       next if parent.book_delivery_location_different_from_home?
 
