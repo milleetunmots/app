@@ -3,10 +3,10 @@ require 'rails_helper'
 RSpec.describe Parent::CheckAddressService do
   let(:csv_content) do
     [
-      ['Prénom', 'Nom', 'Email', 'Boîte aux lettres', 'Adresse', 'Complément', 'Code postal', 'Ville'],
-      ['Jean', 'Dupont', 'jean@example.com', 'Apt 42', '123 rue principale', 'Bâtiment A', '75001', 'Paris'],
-      ['Marie', 'Martin', 'marie@example.com', '', '45 avenue des fleurs', '', '69001', 'Lyon'],
-      ['Pierre', 'Bernard', 'pierre@example.com', 'RDC', '789 boulevard central', '', '13001', 'Marseille']
+      ['Date', 'Titre de livre', 'Prenom', 'Nom', 'Adresse', 'Complément', 'code postal', 'Ville'],
+      ['05/06/2025', 'La ferme', 'Jean', 'Martin', '123 rue principale', 'Apt 42', '75001', 'Mantes la jolie'],
+      ['05/06/2025', 'La ferme', 'Mathieu', 'Niel', '45, avenue-des fleurs!', '', '69001', 'Lyon'],
+      ['05/06/2025', 'La ferme', 'Désiré', 'Doué', '789 boulevard central', 'RDC', '.03001', 'Marseille']
     ]
   end
   let(:csv_file) { 'tmp/address_check.csv' }
@@ -14,10 +14,10 @@ RSpec.describe Parent::CheckAddressService do
   let(:group) { FactoryBot.create(:group, expected_children_number: 0) }
   let!(:parent) do
     FactoryBot.create(:parent,
-                      letterbox_name: 'Apt 42',
+                      letterbox_name: 'Martin',
                       address: '123 rue principale',
                       postal_code: '75001',
-                      city_name: 'Paris')
+                      city_name: 'Mantes-la-jolie')
   end
   let!(:child) { FactoryBot.create(:child, parent1: parent, group: group, group_status: 'active') }
   let!(:child_support) { child.child_support }
@@ -33,25 +33,43 @@ RSpec.describe Parent::CheckAddressService do
     File.delete(csv_file) if File.exist?(csv_file)
   end
 
-  # describe 'address matching from CSV lines' do
-  #   let(:csv_line_search) do
-  #     proc do |letterbox:, address:, postal:, city:|
-  #       Parent.with_a_child_in_active_group.where(
-  #         "TRIM(LOWER(unaccent(REPLACE(REPLACE(address, ',', ''), '.', '')))) ILIKE unaccent(REPLACE(REPLACE(?, ',', ''), '.', '')) AND
-  #          TRIM(LOWER(unaccent(REPLACE(postal_code::text, '.', '')))) ILIKE unaccent(REPLACE(?, '.', '')) AND
-  #          TRIM(LOWER(unaccent(letterbox_name))) ILIKE unaccent(?)",
-  #         "%#{address&.strip&.downcase}%",
-  #         "%#{postal&.strip&.downcase}%",
-  #         "%#{letterbox&.strip&.downcase}%"
-  #       ).first
-  #     end
-  #   end
-  #
-  #
-  # end
-
   describe '#call' do
     subject(:service) { Parent::CheckAddressService.new(csv_file) }
+
+    context 'for every line in the csv file, find the parent who matches with the information on the line' do
+      let!(:parent2) do
+        FactoryBot.create(:parent,
+                          letterbox_name: 'Niel',
+                          address: '45 avenue des fleurs',
+                          postal_code: '69001',
+                          city_name: 'Lyon')
+      end
+      let!(:child2) { FactoryBot.create(:child, parent1: parent2, group: group, group_status: 'active') }
+      let!(:child_support2) { child2.child_support }
+      let!(:parent3) do
+        FactoryBot.create(:parent,
+                          letterbox_name: 'Doué',
+                          address: '789 boulevard central',
+                          postal_code: '03001',
+                          city_name: 'Marseille')
+      end
+      let!(:child3) { FactoryBot.create(:child, parent1: parent3, group: group, group_status: 'active') }
+      let!(:child_support3) { child3.child_support }
+      it 'ignores commas, accents, and special characters in the address when matching the parent' do
+        service.call
+        expect(child2.child_support.reload.address_suspected_invalid_at).to eq(date)
+      end
+
+      it 'ignores points in the postal code when matching the parent' do
+        service.call
+        expect(child3.child_support.reload.address_suspected_invalid_at).to eq(date)
+      end
+
+      it 'ignores dash in the city name code when matching the parent' do
+        service.call
+        expect(child.child_support.reload.address_suspected_invalid_at).to eq(date)
+      end
+    end
 
     context 'when processing valid CSV data' do
       it 'updates child_support address_suspected_invalid_at' do
@@ -105,19 +123,6 @@ RSpec.describe Parent::CheckAddressService do
           expect(service.errors).to include("Address Verification message not sent to #{parent.first_name} #{parent.last_name} : SMS failed")
         end
       end
-
-
-
-
-
-
-
-
-
-
-
-
-
     end
   end
 end
