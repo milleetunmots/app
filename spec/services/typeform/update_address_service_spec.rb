@@ -65,7 +65,7 @@ RSpec.describe Typeform::UpdateAddressService do
       let(:form_responses_with_invalid_parent) do
         form_responses.deep_merge(hidden: { st: "#{parent.security_token}xxx" })
       end
-      
+
       subject(:service_with_invalid_parent) { Typeform::UpdateAddressService.new(form_responses_with_invalid_parent) }
 
       it 'returns self and contains errors without processing answers' do
@@ -80,7 +80,7 @@ RSpec.describe Typeform::UpdateAddressService do
       let(:form_responses_with_valid_parent) do
         form_responses.deep_merge(hidden: { st: parent.security_token })
       end
-      
+
       subject(:service_with_valid_parent) { Typeform::UpdateAddressService.new(form_responses_with_valid_parent) }
 
       it 'returns self and contains errors without processing answers' do
@@ -110,8 +110,8 @@ RSpec.describe Typeform::UpdateAddressService do
     context "with UPDATING_ADDRESS_TYPEFORM_ID" do
       let(:form_responses_with_answers) do
         form_responses.deep_merge(
-          hidden: { st: parent.security_token }, 
-          form_id: updating_address_typeform_id, 
+          hidden: { st: parent.security_token },
+          form_id: updating_address_typeform_id,
           answers: [
             { "type": "text", "text": typeform_city_name, "field": { "id": address_typeform_city_name_field } },
             { "type": "number", "number": typeform_postal_code, "field": { "id": address_typeform_postal_code_field } },
@@ -123,7 +123,7 @@ RSpec.describe Typeform::UpdateAddressService do
       end
 
       subject(:service_with_valid_answers) { Typeform::UpdateAddressService.new(form_responses_with_answers) }
-      
+
       it 'updates parent attributes correctly and saves' do
         subject.call
 
@@ -135,23 +135,20 @@ RSpec.describe Typeform::UpdateAddressService do
         expect(parent.letterbox_name).to eq(typeform_address_letterbox_name)
       end
 
-      it 'resets book_delivery_organisation_name and book_delivery_location on parent' do
-        expect(parent.book_delivery_organisation_name).not_to be_nil
-        expect(parent.book_delivery_location).not_to be_nil
-
+      it 'resets book_delivery_organisation_name and set book_delivery_location to home on the parent' do
         subject.call
 
         parent.reload
         expect(parent.book_delivery_organisation_name).to be_nil
-        expect(parent.book_delivery_location).to be_nil
+        expect(parent.book_delivery_location).to eq 'home'
       end
     end
 
     context "with UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID" do
       let(:form_responses_with_answers) do
         form_responses.deep_merge(
-          hidden: { st: parent.security_token }, 
-          form_id: upstream_address_updating_typeform_id, 
+          hidden: { st: parent.security_token },
+          form_id: upstream_address_updating_typeform_id,
           answers: [
             { "type": "text", "text": typeform_city_name, "field": { "id": upstream_address_updating_typeform_city_name_field } },
             { "type": "number", "number": typeform_postal_code, "field": { "id": upstream_address_updating_typeform_postal_code_field } },
@@ -163,7 +160,7 @@ RSpec.describe Typeform::UpdateAddressService do
       end
 
       subject(:service_with_valid_answers) { Typeform::UpdateAddressService.new(form_responses_with_answers) }
-      
+
       it 'updates parent attributes correctly and saves' do
         subject.call
 
@@ -175,23 +172,19 @@ RSpec.describe Typeform::UpdateAddressService do
         expect(parent.letterbox_name).to eq(typeform_address_letterbox_name)
       end
 
-      it 'resets book_delivery_organisation_name and book_delivery_location on parent' do
-        expect(parent.book_delivery_organisation_name).not_to be_nil
-        expect(parent.book_delivery_location).not_to be_nil
-
+      it 'resets book_delivery_organisation_name and set book_delivery_location to home on the parent' do
         subject.call
-
         parent.reload
         expect(parent.book_delivery_organisation_name).to be_nil
-        expect(parent.book_delivery_location).to be_nil
+        expect(parent.book_delivery_location).to eq 'home'
       end
     end
 
     context 'when parent saves successfully' do
       let(:form_responses) do
         super().deep_merge(
-          hidden: { st: parent.security_token }, 
-          form_id: upstream_address_updating_typeform_id, 
+          hidden: { st: parent.security_token },
+          form_id: upstream_address_updating_typeform_id,
           answers: [
             { "type": "text", "text": typeform_city_name, "field": { "id": upstream_address_updating_typeform_city_name_field } },
             { "type": "number", "number": typeform_postal_code, "field": { "id": upstream_address_updating_typeform_postal_code_field } },
@@ -201,7 +194,7 @@ RSpec.describe Typeform::UpdateAddressService do
           ]
         )
       end
-    
+
       it 'nils address_suspected_invalid_at on child_support and saves it' do
         child_support.update_column(:address_suspected_invalid_at, Time.zone.now)
 
