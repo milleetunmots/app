@@ -46,7 +46,7 @@ puts ' ✓'
 #   image.file.attach(
 #     io: File.open(path),
 #     filename: filename,
-#     content_type: 'image/jpg'
+#     content_type: 'image/jpeg'
 #   )
 #   image.save!
 #   goods << image
@@ -65,7 +65,7 @@ puts ' ✓'
 #   image.file.attach(
 #     io: File.open(path),
 #     filename: filename,
-#     content_type: 'image/jpg'
+#     content_type: 'image/jpeg'
 #   )
 #   image.save!
 #   evils << image

@@ -53,7 +53,6 @@ class Media::Image < Medium
     image/bmp
     image/gif
     image/jpeg
-    image/jpg
     image/png
     image/tiff
     image/webp
