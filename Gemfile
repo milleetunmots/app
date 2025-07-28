@@ -1,20 +1,20 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby "3.0.6"
+ruby "3.4.5"
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem "rails", "~> 6.1.0"
+gem "rails", "~> 7.0.0"
 # Use postgresql as the database for Active Record
 gem "pg", ">= 0.18", "< 2.0"
 # Use Puma as the app server
 gem "puma", "~> 5.6"
 # Use SCSS for stylesheets
-gem "sass-rails", "~> 5"
+gem "sass-rails", "~> 6.0"
 # Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
-gem "webpacker", "~> 5.0"
+gem "webpacker", "~> 5.4"
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
-gem "turbolinks", "~> 5"
+gem "turbolinks", "~> 5.2"
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem "jbuilder", "~> 2.5"
 # Use Redis adapter to run Action Cable in production
@@ -54,7 +54,7 @@ end
 group :development do
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
   gem "web-console", ">= 3.3.0"
-  gem "listen", ">= 3.0.5", "< 3.2"
+  gem "listen", "~> 3.8"
 
   gem "annotate"
   gem "foreman"
@@ -78,7 +78,7 @@ gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 # ADMIN
 gem "activeadmin", "~> 2.14.0"
-gem "devise", "~> 4.7.1"
+gem "devise", "~> 4.9.0"
 gem "cancancan"
 gem "draper"
 gem "arctic_admin"
@@ -96,7 +96,7 @@ gem "toastr-rails"
 
 # Theming
 gem "simple_form"
-gem "bootstrap", "~> 4.3.1"
+gem "bootstrap", "~> 5.3.0"
 
 # errors tracking
 gem "rollbar"
@@ -118,7 +118,7 @@ gem "discard", "~> 1.0"
 gem "date_validator"
 
 # tags
-gem "acts-as-taggable-on", "~> 8.0"
+gem "acts-as-taggable-on", "~> 9.0"
 
 # AS validations
 gem "active_storage_validations"
@@ -132,8 +132,10 @@ gem "image_processing"
 # ENV
 gem "figaro"
 
-# Excel file
+# exports / spreadsheets
 gem "fast_excel"
+gem 'csv'
+gem "roo", "~> 2.10.0"
 
 # Asynchrone jobs
 gem "sidekiq"
@@ -148,8 +150,13 @@ gem 'rack-attack'
 # Airtable
 gem 'airrecord'
 
-# Spreadsheets
-gem "roo", "~> 2.10.0"
+# to avoid compatibility issues, may not be necessary down the line
+gem 'concurrent-ruby', '1.3.4'
+
+# formerly standard ruby libraries no longer included by default
+gem 'benchmark'
+gem 'drb'
+
 
 group :production do
   # for assets compilation

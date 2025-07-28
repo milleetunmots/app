@@ -171,7 +171,7 @@ ActiveAdmin.register SupportModule do
     redirect_to [:admin, new_resource]
   end
 
-  member_action :discard, method: :put do
+  member_action :discard_resource, method: :put do
     if resource.currently_used?
       flash[:error] = "Impossible à mettre à la corbeille car ce module est utilisé dans l'accompagnement de certains enfants."
       redirect_to request.referer
