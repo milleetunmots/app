@@ -65,7 +65,7 @@ module Aircall
 
       child_support_link = child_support_link_match[1]
       group_match = group_match[1]
-      return true unless Rails.application.routes.url_helpers.edit_admin_child_support_url(id: @parent.current_child.child_support_id).in?(child_support_link)
+      return true unless Rails.application.routes.url_helpers.edit_admin_child_support_url(id: @parent.current_child.child_support_id || '').in?(child_support_link)
 
       @parent.current_child.group_name != group_match
     end
