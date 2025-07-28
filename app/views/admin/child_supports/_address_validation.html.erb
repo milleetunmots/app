@@ -1,0 +1,19 @@
+<div id="address-validation" class="modal" style="display: none;">
+  <input type="hidden" id="child-support-id" value="<%= @child_support.id %>">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>L’adresse est-elle correcte ?</h3>
+    <div id="address-validation-content">
+      <div id="address">
+        <%= @child_support.parent1.decorate.full_address %>
+      </div>
+      <div id="errors-presentation">
+        <span>Retrouvez les erreurs fréquentes <a href='<%= ENV['FREQUENT_ADDRESS_ERRORS_LINK'] %>' target='_blank'>ici</a></span>
+      </div>
+    </div>
+    <div class="buttons-line">
+      <div id='modal-address-modification-button' class='button button-outline'> Modifier l'adresse</div>
+      <div id='modal-address-validation-button' class='button button-primary'> Valider l'adresse</div>
+    </div>
+  </div>
+</div>

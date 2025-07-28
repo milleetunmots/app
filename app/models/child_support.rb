@@ -572,7 +572,6 @@ class ChildSupport < ApplicationRecord
   end
 
   def clean_fields
-    self.supporter_id = nil
     self.is_bilingual = '2_no_information'
     attributes.slice(
       'second_language',

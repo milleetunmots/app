@@ -324,7 +324,7 @@ ActiveAdmin.register Child do
                         }
                       }
       f.input :parent1_id, as: :hidden
-      f.input :should_contact_parent1
+      f.input :should_contact_parent1, input_html: { checked: f.object.new_record? ? true : f.object.should_contact_parent1 }
       f.input :parent2_selection,
               as: :select,
               input_html: {
@@ -336,7 +336,7 @@ ActiveAdmin.register Child do
                         }
                       }
       f.input :parent2_id, as: :hidden
-      f.input :should_contact_parent2
+      f.input :should_contact_parent2, input_html: { checked: f.object.new_record? && f.object.parent2.present? ? true : f.object.should_contact_parent2 }
       f.input :gender,
               as: :radio,
               collection: child_gender_select_collection
