@@ -46,6 +46,7 @@ ActiveAdmin.register Parent do
   filter :first_name
   filter :last_name
   filter :phone_number
+  filter :security_token
   filter :is_excluded_from_workshop
   filter :family_followed, as: :check_boxes
   filter :present_on_whatsapp
@@ -54,8 +55,10 @@ ActiveAdmin.register Parent do
   filter :book_delivery_location, as: :select, collection: proc { parent_book_delivery_location_select_collection }
   filter :letterbox_name
   filter :address
+  filter :address_supplement
   filter :postal_code
   filter :city_name
+  filter :book_delivery_organisation_name
   filter :is_ambassador
   filter :created_at
   filter :updated_at
@@ -261,6 +264,7 @@ ActiveAdmin.register Parent do
 
     column :email
     column :phone_number_national
+    column :security_token
     column :present_on_whatsapp
     column :follow_us_on_whatsapp
 
@@ -269,6 +273,8 @@ ActiveAdmin.register Parent do
     column :address_supplement
     column :city_name
     column :postal_code
+    column :book_delivery_location
+    column :book_delivery_organisation_name
 
     column :territory
     column :land

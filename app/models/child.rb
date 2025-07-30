@@ -483,6 +483,7 @@ class Child < ApplicationRecord
            :letterbox_name,
            :postal_code,
            :book_delivery_location,
+           :book_delivery_organisation_name,
            to: :parent1
 
   delegate :is_ambassador,

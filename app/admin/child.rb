@@ -123,6 +123,7 @@ ActiveAdmin.register Child do
          as: :datepicker,
          required: false,
          label: "Fin de l'accompagnement"
+  filter :security_token
   filter :src_url
   filter :created_at
   filter :updated_at
@@ -560,8 +561,12 @@ ActiveAdmin.register Child do
     column :address_supplement
     column :city_name
     column :postal_code
+    column :book_delivery_location
+    column :book_delivery_organisation_name
     column :territory
     column :land
+
+    column :security_token
 
     column :children_source_name
     column :channel
