@@ -18,7 +18,7 @@ ActiveAdmin.register ChildSupport do
     selectable_column
     id_column
     column :children, sortable: 'children.birthdate'
-    column :supporter if current_admin_user.admin? || current_admin_user.team_member? || current_admin_user.logistics_team?
+    column :supporter if current_admin_user.admin? || current_admin_user.contributor? || current_admin_user.reader?
     (0..5).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         [
@@ -830,8 +830,8 @@ ActiveAdmin.register ChildSupport do
           row :should_be_read
           row :display_is_bilingual
           row :second_language
-          row :suggested_videos_sent_count if current_admin_user.admin? || current_admin_user.team_member? || current_admin_user.logistics_team?
-          row :suggested_videos_sent_dates if current_admin_user.admin? || current_admin_user.team_member? || current_admin_user.logistics_team?
+          row :suggested_videos_sent_count if current_admin_user.admin? || current_admin_user.contributor? || current_admin_user.reader?
+          row :suggested_videos_sent_dates if current_admin_user.admin? || current_admin_user.contributor? || current_admin_user.reader?
           row :tags do |model|
             model.current_admin_user = current_admin_user
             model.tags(context: 'tags')
