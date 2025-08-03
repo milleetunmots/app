@@ -166,6 +166,11 @@ window.addEventListener('load', function () {
 
   function removeGTMCookies() {
     const cookies = document.cookie.split(';');
+    const possibleCookieDomains = [
+      window.location.hostname,
+      '.' + window.location.hostname.replace(/^[^.]+\./, ''), // retirer le sous domaine si présent
+      '.' + window.location.hostname
+    ];
 
     for (let cookie of cookies) {
       const cookieName = cookie.split('=')[0].trim();
@@ -174,11 +179,14 @@ window.addEventListener('load', function () {
         cookieName.startsWith('_gat') ||
         cookieName.startsWith('_gac_') ||
         cookieName === '_gac') {
-
-        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+          possibleCookieDomains.forEach(domain => {
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain};`;
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            //document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
+          })
+        }
       }
-    }
   }
 
   function removeGTMTags() {
