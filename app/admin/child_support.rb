@@ -986,15 +986,16 @@ ActiveAdmin.register ChildSupport do
 
   action_item :actions, only: %i[show edit] do
     dropdown_menu 'Actions' do
-      item "Ajout d'un frère / soeur", %i[add_child admin child_support], { target: '_blank' }
-      item "Ajout d'un parent", %i[add_parent admin child_support], { target: '_blank' } unless resource.decorate.model.parent2
+      item "Ajout d'un frère / soeur", %i[add_child admin child_support], { target: '_blank' } if authorized?(:add_child, resource)
+      item "Ajout d'un parent", %i[add_parent admin child_support], { target: '_blank' } if resource.decorate.model.parent2.nil? && authorized?(:add_parent, resource)
       item "Rédiger une tâche", url_for_new_task(resource.decorate), { target: '_blank' }
-      item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
-      item "Potentiel parent bénévole",admin_volunteer_parent_form_path(child_support_id: resource.decorate.model.id, parent1_id: resource.decorate.model.parent1, parent2_id: resource.decorate.model.parent2), { target: '_blank' }
+      item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' } if authorized?('Stop Support Form', resource)
+      item "Potentiel parent bénévole",admin_volunteer_parent_form_path(child_support_id: resource.decorate.model.id, parent1_id: resource.decorate.model.parent1, parent2_id: resource.decorate.model.parent2), { target: '_blank' } if authorized?('Volunteer Parent Form', resource)
     end
   end
 
   member_action :add_child do
+    authorize! :add_child, resource
     redirect_to new_admin_child_path(
       parent1_id: resource.current_child.parent1_id,
       parent2_id: resource.current_child.parent2_id,
@@ -1006,6 +1007,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   member_action :add_parent do
+    authorize! :add_parent, resource
     redirect_to new_admin_parent_path(
       address: resource.model.current_child.parent1.address,
       postal_code: resource.model.current_child.parent1.postal_code,
@@ -1046,8 +1048,8 @@ ActiveAdmin.register ChildSupport do
 
   action_item :tools, only: %i[show edit] do
     dropdown_menu 'Choisir un module' do
-      item 'Pour le parent 1', %i[select_module_for_parent1 admin child_support], { target: '_blank' }
-      item 'Pour le parent 2', %i[select_module_for_parent2 admin child_support], { target: '_blank' } unless resource.parent2.nil?
+      item 'Pour le parent 1', %i[select_module_for_parent1 admin child_support], { target: '_blank' } if authorized?(:select_module_for_parent1, resource)
+      item 'Pour le parent 2', %i[select_module_for_parent2 admin child_support], { target: '_blank' } if resource.parent2.present? && authorized?(:select_module_for_parent2, resource)
     end
   end
 
@@ -1062,8 +1064,8 @@ ActiveAdmin.register ChildSupport do
 
   action_item :send_message, only: %i[show edit] do
     dropdown_menu 'Envoyer un SMS' do
-      item 'Pour le parent 1', %i[send_message_to_parent1 admin child_support], { target: '_blank' }
-      item 'Pour le parent 2', %i[send_message_to_parent2 admin child_support], { target: '_blank' } unless resource.parent2.nil?
+      item 'Pour le parent 1', %i[send_message_to_parent1 admin child_support], { target: '_blank' } if authorized?(:send_message_to_parent1, resource)
+      item 'Pour le parent 2', %i[send_message_to_parent2 admin child_support], { target: '_blank' } if resource.parent2.present? && authorized?(:send_message_to_parent2, resource)
     end
   end
 
@@ -1081,6 +1083,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   member_action :select_module_for_parent1 do
+    authorize! :select_module_for_parent1, resource
     children_support_module = ChildrenSupportModule.find_by(child: resource.model.current_child, parent: resource.model.parent1, is_programmed: false)
     if resource.parent1_available_support_module_list.nil? || resource.parent1_available_support_module_list.reject(&:blank?).empty?
       redirect_back(fallback_location: root_path, alert: "Aucun module disponible n'est choisi")
@@ -1096,6 +1099,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   member_action :select_module_for_parent2 do
+    authorize! :select_module_for_parent2, resource
     children_support_module = ChildrenSupportModule.find_by(child: resource.model.current_child, parent: resource.model.parent2, is_programmed: false)
     if resource.parent2_available_support_module_list.reject(&:blank?).empty?
       redirect_back(fallback_location: root_path, alert: "Aucun module disponible n'est choisi")
@@ -1111,10 +1115,12 @@ ActiveAdmin.register ChildSupport do
   end
 
   member_action :send_message_to_parent1 do
+    authorize! :send_message_to_parent1, resource
     redirect_to admin_message_path(parent_id: resource.model.parent1.id, child_support_id: resource.model.id, parent_st: resource.model.parent1.security_token)
   end
 
   member_action :send_message_to_parent2 do
+    authorize! :send_message_to_parent1, resource
     redirect_to admin_message_path(parent_id: resource.model.parent2&.id,child_support_id: resource.model.id,  parent_st: resource.model.parent2&.security_token)
   end
 
