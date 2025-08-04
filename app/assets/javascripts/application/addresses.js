@@ -18,25 +18,22 @@
 
     let address = "";
     for (const component of place.address_components) {
-      const componentType = component.types[0];
-      switch (componentType) {
-        case "street_number":
-          address = component.short_name;
-          break;
-        case "route":
-          address += " " + component.short_name;
-          break;
-        case "locality":
-          if(target.locality) {
-            $(target.locality).val(component.long_name);
-          }
-          break;
-        case "postal_code":
-          if(target.postal_code) {
-            $(target.postal_code).val(component.short_name);
-          }
-          break;
-        default:
+      const types = component.types;
+      if (types.includes('street_number')) {
+        address = component.short_name;
+      }
+      if (types.includes('route')) {
+        address += " " + component.short_name;
+      }
+      if (types.includes('locality')) {
+        if(target.locality) {
+          $(target.locality).val(component.long_name);
+        }
+      }
+      if (types.includes('postal_code')) {
+        if(target.postal_code) {
+          $(target.postal_code).val(component.short_name);
+        }
       }
     }
     if (target.address) {
