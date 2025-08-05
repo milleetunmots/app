@@ -320,6 +320,17 @@ class ChildSupport < ApplicationRecord
       )"
     )
   }
+  scope :without_supporter_in_active_programmed_group, -> {
+    joins(children: :group)
+      .where(
+        children: { group_status: 'active', discarded_at: nil },
+        groups: { is_programmed: true, discarded_at: nil },
+        supporter_id: nil
+      )
+      .where('groups.ended_at IS NULL OR groups.ended_at > ?', Time.zone.today)
+      .distinct
+  }
+
 
   class << self
 
@@ -572,6 +583,7 @@ class ChildSupport < ApplicationRecord
   end
 
   def clean_fields
+    self.supporter_id = nil
     self.is_bilingual = '2_no_information'
     attributes.slice(
       'second_language',
