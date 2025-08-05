@@ -809,14 +809,14 @@ class Child < ApplicationRecord
   def clean_child_support
     return if child_support.children.size == 1
 
-    child_support.children.find_each do |child|
-      next if child == self
+    other_children = child_support.children.where.not(id: id)
+    has_active_or_waiting = other_children.where(group_status: %w[waiting active]).exists?
 
-      return if child.group_status.in?(%w[waiting active])
+    # cleaning only if there is not active/waiting child in this child support
+    unless has_active_or_waiting
+      child_support.copy_fields(child_support)
+      child_support.clean_fields
+      child_support.save!
     end
-
-    child_support.copy_fields(child_support)
-    child_support.clean_fields
-    child_support.save!
   end
 end
