@@ -725,6 +725,7 @@ fr:
         title: Intitulé
         treated_by: En cours de traitement par
         status: Statut
+        display_description: Description
       task/child_support_task_title:
         disable_one_twin_support: Désactiver l’accompagnement d’un des jumeaux, pour qu’il n’y ait plus qu’un seul livre envoyé.
         remove_duplicate_child: Supprimer un doublon pour un même enfant accompagné
