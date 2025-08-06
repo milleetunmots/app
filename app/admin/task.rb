@@ -17,7 +17,7 @@ ActiveAdmin.register Task do
     selectable_column
     id_column
     column :title do |model|
-      model.title_with_done_icon
+      link_to model.title_with_done_icon, admin_task_path(model)
     end
     column :due_date
     column :related, sortable: :related
