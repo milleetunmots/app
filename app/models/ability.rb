@@ -31,13 +31,16 @@ class Ability
       can :send_message_to_parent1, ChildSupport
       can :send_message_to_parent2, ChildSupport
     when 'caller'
+      can :read, ActiveAdmin::Page, name: 'Dashboard'
       can :manage, Task, reporter_id: user.id
-      can %i[create read update], Parent do |parent|
-        parent.current_child&.child_support&.supporter_id == user.id
-      end
-      can %i[create read update], Child, child_support: { supporter_id: user.id }
+      can :create, Parent
+      can %i[read update], Parent, parent1_children: { child_support: { supporter_id: user.id } }
+      can %i[read update], Parent, parent2_children: { child_support: { supporter_id: user.id } }
+      can :create, Child
+      can %i[read update add_parent add_child], Child, child_support: { supporter_id: user.id }
       can %i[create read update], ChildSupport, supporter_id: user.id
-      can %i[create read update], ChildrenSupportModule, child: { child_support: { supporter_id: user.id } }
+      can :create, ChildrenSupportModule
+      can %i[read update], ChildrenSupportModule, child: { child_support: { supporter_id: user.id } }
       can :read, SupportModule
       can :manage, ActiveAdmin::Page, name: 'Stop Support Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
