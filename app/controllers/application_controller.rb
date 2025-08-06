@@ -20,6 +20,11 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def current_ability
+    @current_ability ||= Ability.new(current_admin_user)
+  end
+
+
   protected
 
   def user_for_paper_trail

@@ -44,7 +44,7 @@ ActiveAdmin.register Workshop do
       f.input :topic, collection: workshop_topic_select_collection, input_html: { data: { select2: {} } }
       f.input :workshop_date, as: :datepicker, datepicker_options: { min_date: Time.zone.today }
       f.input :invitation_scheduled, as: :boolean, input_html: { disabled: !object.new_record? }
-      f.input :scheduled_invitation_date, 
+      f.input :scheduled_invitation_date,
               as: :datepicker,
               input_html: {
                 disabled: !object.new_record?
@@ -124,12 +124,13 @@ ActiveAdmin.register Workshop do
   end
 
   action_item :update_parents_presence, only: :show do
-    link_to 'Indiquer la présence des parents', [:update_parents_presence, :admin, resource]
+    link_to 'Indiquer la présence des parents', [:update_parents_presence, :admin, resource] if authorized?(:update_parents_presence, resource)
   end
 
   collection_action :search_eligible_parents, method: :get
 
   member_action :update_parents_presence do
+    authorize!(:update_parents_presence, resource)
     @values = resource.workshop_participations.where(parent_response: 'Oui').to_a
     @perform_action = perform_update_parents_presence_admin_workshop_path
   end
@@ -142,10 +143,11 @@ ActiveAdmin.register Workshop do
   end
 
   action_item :register_parents, only: :show do
-    link_to 'Inscrire des parents', [:register_parents, :admin, resource]
+    link_to 'Inscrire des parents', [:register_parents, :admin, resource] if authorized?(:register_parents, resource)
   end
 
   member_action :register_parents do
+    authorize!(:register_parents, resource)
     @workshop_id = resource.id
     @perform_action = perform_parents_registration_admin_workshop_path
   end
@@ -184,7 +186,8 @@ ActiveAdmin.register Workshop do
 
     def search_eligible_parents
       term = params[:term]
-      parents = Parent.not_excluded_from_workshop.where('unaccent(first_name) ILIKE unaccent(?) OR unaccent(last_name) ILIKE unaccent(?)', "%#{term}%", "%#{term}%")
+      parents = Parent.accessible_by(current_ability)
+                      .not_excluded_from_workshop.where('unaccent(first_name) ILIKE unaccent(?) OR unaccent(last_name) ILIKE unaccent(?)', "%#{term}%", "%#{term}%")
                       .order(:first_name, :last_name)
                       .decorate
                       .map do |result|

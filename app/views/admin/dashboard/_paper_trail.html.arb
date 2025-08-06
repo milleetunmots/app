@@ -1,6 +1,26 @@
 panel I18n.t("active_admin.paper_trail.dashboard.title"), id: 'active_admin-paper_trail-dashboard' do
 
-  versions = PaperTrail::Version.order('id desc').includes(:item).limit(20)
+  if current_admin_user.caller?
+    # get accessible elements by caller role
+      supported_child_supports = ChildSupport.accessible_by(current_ability)
+      supported_children = Child.accessible_by(current_ability)
+      supported_parents = Parent.accessible_by(current_ability)
+
+      versions = PaperTrail::Version
+        .where(
+          '(item_type = ? AND item_id IN (?)) OR
+           (item_type = ? AND item_id IN (?)) OR
+           (item_type = ? AND item_id IN (?))',
+          'Parent', supported_parents.select(:id),
+          'Child', supported_children.select(:id),
+          'ChildSupport', supported_child_supports.select(:id)
+        )
+        .order('id desc')
+        .includes(:item)
+        .first(20)
+    else
+      versions = PaperTrail::Version.order('id desc').includes(:item).limit(20)
+    end
 
   admin_user_ids = versions.map { |v| v.whodunnit&.split(':')&.first }
   admins = Hash[AdminUser.where(id: admin_user_ids).map { |a| [a.id, a] }]

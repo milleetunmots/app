@@ -87,6 +87,7 @@ ActiveAdmin.register AdminUser do
   end
 
   member_action :disable, method: :put do
+    authorize!(:disable, resource)
     admin_user = AdminUser.find(params[:id])
     admin_user.update_column(:is_disabled, true)
     flash['notice'] = "L'utilisateur a été désactivé."
@@ -94,6 +95,7 @@ ActiveAdmin.register AdminUser do
   end
 
   member_action :activate, method: :put do
+    authorize!(:activate, resource)
     admin_user = AdminUser.find(params[:id])
     admin_user.update_column(:is_disabled, false)
     flash['notice'] = "L'utilisateur a été réactivé."
