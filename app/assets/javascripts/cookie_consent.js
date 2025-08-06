@@ -126,7 +126,6 @@ window.addEventListener('load', function () {
         } else {
           removeGTMCookies();
           removeGTMTags();
-          console.log("Consentement analytics retiré");
         }
       }
     }
@@ -183,7 +182,6 @@ window.addEventListener('load', function () {
           possibleCookieDomains.forEach(domain => {
             document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain};`;
             document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-            //document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
           })
         }
       }
