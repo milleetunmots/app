@@ -4,7 +4,7 @@ panel I18n.t('active_admin.tasks.dashboard.title'), id: 'active_admin-tasks-dash
   tabs do
     tab I18n.t('active_admin.tasks.dashboard.mine') do
       ul class: 'fa-ul aat-ul' do
-        default_scope.assigned_to(current_admin_user).each do |task|
+        default_scope.accessible_by(current_ability).assigned_to(current_admin_user).each do |task|
           render 'active_admin/tasks/task_li', task: task, show_assignee: false
         end
       end
