@@ -639,7 +639,8 @@ ActiveAdmin.register Child do
 
     def parents
       term = params[:term]
-      parents = Parent.where('unaccent(first_name) ILIKE unaccent(?) OR unaccent(last_name) ILIKE unaccent(?)', "%#{term}%", "%#{term}%")
+      parents = Parent.accessible_by(current_ability)
+                      .where('unaccent(first_name) ILIKE unaccent(?) OR unaccent(last_name) ILIKE unaccent(?)', "%#{term}%", "%#{term}%")
                       .order(:first_name, :last_name)
                       .decorate
                       .map do |result|

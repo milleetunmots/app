@@ -96,6 +96,9 @@ class Parent < ApplicationRecord
 
   has_many :parent1_children, class_name: :Child, foreign_key: :parent1_id, dependent: :nullify
   has_many :parent2_children, class_name: :Child, foreign_key: :parent2_id, dependent: :nullify
+  has_many :children, ->(parent) {
+    unscope(:where).where("parent1_id = :id OR parent2_id = :id", id: parent.id)
+  }
   has_many :redirection_urls, dependent: :destroy
   has_many :events, as: :related, dependent: :destroy
   has_many :children_support_modules, dependent: :destroy
