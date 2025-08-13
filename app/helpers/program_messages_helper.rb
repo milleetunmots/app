@@ -75,9 +75,9 @@ module ProgramMessagesHelper
 
   def get_recipients(term, parent_decorated = nil)
     unless parent_decorated
-      return (Parent.where("unaccent(CONCAT(first_name, last_name)) ILIKE unaccent(?)", "%#{term}%").decorate +
-        Tag.where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate +
-        Group.where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate
+      return (Parent.accessible_by(current_ability).where("unaccent(CONCAT(first_name, last_name)) ILIKE unaccent(?)", "%#{term}%").decorate +
+        Tag.accessible_by(current_ability).where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate +
+        Group.accessible_by(current_ability).where("unaccent(name) ILIKE unaccent(?)", "%#{term}%").decorate
       ).map { |result| format_recipient(result) }
     end
 

@@ -22,7 +22,8 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Stop Support Form'
       can :read, ActiveAdmin::Page, name: 'Dashboard'
     when 'reader'
-      can :manage, Task, reporter_id: user.id
+      can :create, Task
+      can %i[read update destroy], Task, reporter_id: user.id
       can %i[read update], [Parent, Child, ChildSupport]
       can :read, [Workshop, SupportModule, Group, Book, ChildrenSupportModule, AdminUser, Source]
       can %i[create read update], Tag
@@ -32,7 +33,8 @@ class Ability
       can :send_message_to_parent2, ChildSupport
     when 'caller'
       can :read, ActiveAdmin::Page, name: 'Dashboard'
-      can :manage, Task, reporter_id: user.id
+      can :create, Task
+      can %i[read update destroy], Task, reporter_id: user.id
       can :create, Parent
       can %i[read update], Parent, parent1_children: { child_support: { supporter_id: user.id } }
       can %i[read update], Parent, parent2_children: { child_support: { supporter_id: user.id } }
@@ -42,6 +44,8 @@ class Ability
       can :create, ChildrenSupportModule
       can %i[read update], ChildrenSupportModule, child: { child_support: { supporter_id: user.id } }
       can :read, SupportModule
+      can :read, Event, related_type: 'Parent', related_id: Parent.joins(parent1_children: :child_support).where(child_supports: { supporter_id: user.id }).pluck(:id)
+      can :read, Event, related_type: 'Parent', related_id: Parent.joins(parent2_children: :child_support).where(child_supports: { supporter_id: user.id }).pluck(:id)
       can :manage, ActiveAdmin::Page, name: 'Stop Support Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
       can :select_module_for_parent1, ChildSupport, supporter_id: user.id
@@ -49,9 +53,11 @@ class Ability
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
     when 'animator'
-      can :manage, Task, reporter_id: user.id
+      can :create, Task
+      can %i[read update destroy], Task, reporter_id: user.id
       can %i[create read update], [Parent, Child, ChildSupport, ChildrenSupportModule]
-      can :manage, [Workshop, Event, Source]
+      can :manage, [Workshop, Source]
+      can :manage, Event, type: %w[Events::TextMessage Events::WorkshopParticipation]
       can :read, SupportModule
       can :read, ActiveAdmin::Page, name: 'Dashboard'
       can :manage, ActiveAdmin::Page, name: 'Stop Support Form'
