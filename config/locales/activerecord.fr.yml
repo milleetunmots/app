@@ -713,7 +713,7 @@ fr:
         << : *SHARED
         name: Nom
         color: Couleur
-        is_visible_by_callers: Visible par les accompagnantes ?
+        is_visible_by_callers_and_animators: Visible par les accompagnantes et les animatrices ?
       task:
         << : *SHARED
         assignee: Assigné à

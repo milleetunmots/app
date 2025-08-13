@@ -389,7 +389,7 @@ class Parent < ApplicationRecord
   def add_preferred_channel_tag
     return unless self.preferred_channel.eql?('whatsapp')
 
-    whatsapp_tag = Tag.find_or_create_by(name: 'whatsapp', is_visible_by_callers: false)
+    whatsapp_tag = Tag.find_or_create_by(name: 'whatsapp', is_visible_by_callers_and_animators: false)
     self.tag_list.add(whatsapp_tag)
   end
 

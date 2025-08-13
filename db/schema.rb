@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_06_24_144417) do
+ActiveRecord::Schema.define(version: 2025_08_13_090412) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -771,7 +771,7 @@ ActiveRecord::Schema.define(version: 2025_06_24_144417) do
     t.datetime "updated_at"
     t.integer "taggings_count", default: 0
     t.string "color"
-    t.boolean "is_visible_by_callers", default: false, null: false
+    t.boolean "is_visible_by_callers_and_animators", default: false, null: false
     t.index ["name"], name: "index_tags_on_name", unique: true
   end
 
