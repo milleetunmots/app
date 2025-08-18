@@ -8,24 +8,27 @@ class Book::ImportFromAirtableService
   end
 
   def call
-    Media::Image.skip_callback(:save, :after, :upload_file_to_spot_hit)
-    @airtable_books.each do |airtable_book|
-      @to_save = false
-      @ean = airtable_book[:ean]
-      @title = airtable_book[:title]
-      @cover = airtable_book[:cover]
-      @support_module_ids = []
-      @modules = airtable_book[:modules]
-      retrieve_support_modules
-      @book = Book.find_by(ean: @ean)
-      import_new_book
-      update_title
-      update_support_modules
-      update_cover
-      @book.save! if @to_save
+    begin
+      Media::Image.skip_callback(:save, :after, :upload_file_to_spot_hit, raise: false)
+      @airtable_books.each do |airtable_book|
+        @to_save = false
+        @ean = airtable_book[:ean]
+        @title = airtable_book[:title]
+        @cover = airtable_book[:cover]
+        @support_module_ids = []
+        @modules = airtable_book[:modules]
+        retrieve_support_modules
+        @book = Book.find_by(ean: @ean)
+        import_new_book
+        update_title
+        update_support_modules
+        update_cover
+        @book.save! if @to_save
+      end
+      clean_missing_books
+    ensure
+      Media::Image.set_callback(:save, :after, :upload_file_to_spot_hit)
     end
-    clean_missing_books
-    Media::Image.set_callback(:save, :after, :upload_file_to_spot_hit)
     self
   end
 
