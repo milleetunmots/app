@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_08_13_090412) do
+ActiveRecord::Schema.define(version: 2025_08_19_102326) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -33,7 +33,7 @@ ActiveRecord::Schema.define(version: 2025_08_13_090412) do
     t.string "content_type"
     t.text "metadata"
     t.bigint "byte_size", null: false
-    t.string "checksum", null: false
+    t.string "checksum"
     t.datetime "created_at", null: false
     t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
@@ -468,6 +468,7 @@ ActiveRecord::Schema.define(version: 2025_08_13_090412) do
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["quit_group_child_id"], name: "index_events_on_quit_group_child_id"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
+    t.index ["type", "spot_hit_message_id"], name: "index_events_on_type_and_spot_hit_message_id"
     t.index ["type"], name: "index_events_on_type"
     t.index ["workshop_id"], name: "index_events_on_workshop_id"
   end
@@ -809,6 +810,7 @@ ActiveRecord::Schema.define(version: 2025_08_13_090412) do
     t.jsonb "object"
     t.jsonb "object_changes"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
+    t.index ["whodunnit"], name: "index_versions_on_whodunnit"
   end
 
   create_table "workshops", force: :cascade do |t|
