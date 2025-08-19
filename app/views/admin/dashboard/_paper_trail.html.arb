@@ -4,7 +4,7 @@ panel I18n.t("active_admin.paper_trail.dashboard.title"), id: 'active_admin-pape
     versions = PaperTrail::Version.order('id desc').includes(:item).limit(20)
   else
     versions = PaperTrail::Version
-    .where("whodunnit LIKE ?", "#{current_admin_user.id}%")
+    .where("whodunnit = ?", "#{current_admin_user.id}:#{current_admin_user.email}")
     .where("item_type = ? OR item_type = ? OR item_type = ?", 'Parent', 'Child', 'ChildSupport')
     .order('id desc')
     .includes(:item)
