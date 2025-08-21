@@ -7,6 +7,12 @@ module TagsSharedConcern
 
     private
 
+    def find_child_support
+      return child_support if respond_to?(:child_support)
+
+      current_child&.child_support if respond_to?(:current_child)
+    end
+
     def old_tag_list
       return unless tag_list_changed?
 
@@ -41,7 +47,23 @@ module TagsSharedConcern
       element.save(validate: false)
     end
 
+    def add_tags_to_parent1
+      return unless instance_of?(Parent)
+      return if self == current_child&.parent1
+
+      add_tags_to(current_child&.parent1)
+    end
+
+    def add_tags_to_parent2
+      return unless instance_of?(Parent)
+      return if self == current_child&.parent2
+
+      add_tags_to(current_child&.parent2)
+    end
+
     def add_tags_to_parents
+      add_tags_to_parent1
+      add_tags_to_parent2
       return if instance_of?(Parent)
       return unless parent1
 
@@ -60,14 +82,38 @@ module TagsSharedConcern
       end
     end
 
+    def add_tags_to_siblings
+      return unless instance_of?(Child)
+
+      siblings.each do |sibling|
+        add_tags_to(sibling)
+      end
+    end
+
     def add_tags_to_child_support
       return if instance_of?(ChildSupport)
-      return unless child_support
+      return unless find_child_support
 
-      add_tags_to(child_support)
+      add_tags_to(find_child_support)
+    end
+
+    def remove_tags_from_parent1
+      return unless instance_of?(Parent)
+      return if self == current_child&.parent1
+
+      remove_tags_from(current_child&.parent1)
+    end
+
+    def remove_tags_from_parent2
+      return unless instance_of?(Parent)
+      return if self == current_child&.parent2
+
+      remove_tags_from(current_child&.parent2)
     end
 
     def remove_tags_from_parents
+      remove_tags_from_parent1
+      remove_tags_from_parent2
       return if instance_of?(Parent)
       return unless parent1
 
@@ -86,61 +132,37 @@ module TagsSharedConcern
       end
     end
 
+    def remove_tags_from_siblings
+      return unless instance_of?(Child)
+
+      siblings.each do |sibling|
+        remove_tags_from(sibling)
+      end
+    end
+
     def remove_tags_from_child_support
       return if instance_of?(ChildSupport)
+      return unless find_child_support
 
-      element = if respond_to?(:child_support)
-                  child_support
-                elsif respond_to?(:current_child)
-                  current_child&.child_support
-                end
-      return unless element
-
-      remove_tags_from(element)
+      remove_tags_from(find_child_support)
     end
 
     def add_tags
-      return if instance_of?(Parent)
       return if tags_to_add.blank?
 
+      add_tags_to_child_support
       add_tags_to_parents
       add_tags_to_children
-      return if instance_of?(Child)
-
-      add_tags_to_child_support
+      add_tags_to_siblings
     end
 
     def remove_tags
       return if tags_to_remove.blank?
 
+      remove_tags_from_child_support
       remove_tags_from_parents
       remove_tags_from_children
-      remove_tags_from_child_support
-    end
-
-    def distribute_tags_to(element)
-      element.tag_list.add(tags_to_add) if tags_to_add.present?
-      element.tag_list.remove(tags_to_remove) if tags_to_remove.present?
-      element.save(validate: false)
-    end
-
-    def distribute_tags_to_parents
-      return unless parent1
-      return unless tag_list_changed?
-
-      distribute_tags_to(parent1)
-      return unless parent2
-
-      distribute_tags_to(parent2)
-    end
-
-    def distribute_tags_to_children
-      return if children.blank?
-      return unless tag_list_changed?
-
-      children.each do |child|
-        distribute_tags_to(child)
-      end
+      remove_tags_from_siblings
     end
   end
 end
