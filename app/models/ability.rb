@@ -32,6 +32,7 @@ class Ability
       can :send_message_to_parent1, ChildSupport
       can :send_message_to_parent2, ChildSupport
     when 'caller'
+      can :autocomplete, [Group, Tag] # we use this custom action to search Groups and Tags for users without read permission (ie. in get_recipients)
       can :read, ActiveAdmin::Page, name: 'Dashboard'
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
