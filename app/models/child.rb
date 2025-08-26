@@ -51,6 +51,7 @@
 class Child < ApplicationRecord
 
   include Discard::Model
+  include TagsSharedConcern
 
   attr_accessor :parent1_selection, :parent2_selection
 
@@ -148,18 +149,6 @@ class Child < ApplicationRecord
     super
     self.security_code = SecureRandom.hex(1)
     self.security_token = SecureRandom.hex(16)
-  end
-
-  before_update do
-    unless (tag_list - parent1.tag_list).empty?
-      parent1.tag_list.add(tag_list)
-      parent1.save
-    end
-
-    if parent2 && !(tag_list - parent2&.tag_list).empty?
-      parent2&.tag_list&.add(tag_list)
-      parent2&.save
-    end
   end
 
   after_create :create_support!

@@ -66,6 +66,7 @@
 class Parent < ApplicationRecord
 
   include Discard::Model
+  include TagsSharedConcern
 
   attr_accessor :parent2_creation, :created_by_us
 
