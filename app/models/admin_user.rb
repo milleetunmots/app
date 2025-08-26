@@ -30,15 +30,15 @@
 
 class AdminUser < ApplicationRecord
 
-  ROLES = %w[super_admin team_member logistics_team caller].freeze
+  ROLES = %w[super_admin contributor reader caller animator].freeze
   COMMON_PASSWORDS = %w[1001 mots password azerty 1234 motdepasse qwerty 12345 000 bonjour soleil abc 111].freeze
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :recoverable, :rememberable, :validatable
 
-  has_many :reported_tasks, class_name: "Task", foreign_key: "reporter_id", dependent: :nullify
-  has_many :assigned_tasks, class_name: "Task", foreign_key: "assignee_id", dependent: :nullify
+  has_many :reported_tasks, class_name: 'Task', foreign_key: 'reporter_id', dependent: :nullify
+  has_many :assigned_tasks, class_name: 'Task', foreign_key: 'assignee_id', dependent: :nullify
   has_many :workshops, foreign_key: 'animator_id', dependent: :nullify
   has_many :child_supports, foreign_key: 'supporter_id', inverse_of: :supporter, dependent: :nullify
   has_many :children, through: :child_supports
@@ -52,8 +52,7 @@ class AdminUser < ApplicationRecord
   validates :password, format: { with: REGEX_VALID_PASSWORD, message: INVALID_PASSWORD_MESSAGE }, unless: -> { password.blank? }
   validate :common_password
 
-  scope :all_logistics_team_members, -> { where(user_role: "logistics_team") }
-  scope :callers, -> { where(user_role: "caller") }
+  scope :callers, -> { where(user_role: 'caller') }
   scope :supporters, -> { joins(:child_supports).distinct }
   scope :account_disabled, -> { where(is_disabled: true) }
   scope :account_not_disabled, -> { where(is_disabled: false) }
@@ -61,19 +60,23 @@ class AdminUser < ApplicationRecord
   after_create :set_aircall_phone_number
 
   def admin?
-    user_role == "super_admin"
+    user_role == 'super_admin'
   end
 
-  def team_member?
-    user_role == "team_member"
+  def contributor?
+    user_role == 'contributor'
   end
 
-  def logistics_team?
-    user_role == "logistics_team"
+  def reader?
+    user_role == 'reader'
   end
 
   def caller?
-    user_role == "caller"
+    user_role == 'caller'
+  end
+
+  def animator?
+    user_role == 'animator'
   end
 
   def supporter?

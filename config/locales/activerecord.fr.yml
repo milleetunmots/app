@@ -59,10 +59,11 @@ fr:
         aircall_phone_number: Numéro aircall
         aircall_number_id: ID du numéro aircall
       admin_user/user_role:
-        super_admin: Administrateur.rice
-        team_member: Membre de l'équipe
-        logistics_team: Membre du pôle logistique
+        super_admin: Administrateur
+        contributor: Contributeur
+        reader: Lecteur actif
         caller: Accompagnante
+        animator: Accompagnante et/ou Animatrice
       book:
         << : *SHARED
         ean: EAN
@@ -712,7 +713,7 @@ fr:
         << : *SHARED
         name: Nom
         color: Couleur
-        is_visible_by_callers: Visible par les accompagnantes ?
+        is_visible_by_callers_and_animators: Visible par les accompagnantes et les animatrices ?
       task:
         << : *SHARED
         assignee: Assigné à

@@ -36,7 +36,7 @@ class BaseDecorator < Draper::Decorator
 
     arbre do
       model.send(options[:context]).each do |tag|
-        next if current_admin_user.try(:user_role).eql?('caller') && tag.is_visible_by_callers.eql?(false)
+        next if current_admin_user.try(:user_role).eql?('caller') && tag.is_visible_by_callers_and_animators.eql?(false)
 
         a tag.name,
           href: config.route_collection_path(nil, q: {tagged_with_all: [tag.name]}),

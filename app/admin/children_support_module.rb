@@ -4,6 +4,8 @@ ActiveAdmin.register ChildrenSupportModule do
 
   includes :child, :parent, :support_module
 
+  config.action_items.delete_if { |item| item.name == :new }
+
   index do
     selectable_column
     id_column

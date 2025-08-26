@@ -442,12 +442,13 @@ ActiveAdmin.register Child do
 
   action_item :actions, only: :show do
     dropdown_menu 'Actions' do
-      item "Ajout d'un frère / soeur", %i[add_child admin child], { target: '_blank' }
-      item "Ajout d'un parent", %i[add_parent admin child], { target: '_blank' } unless resource.model.parent2
+      item "Ajout d'un frère / soeur", %i[add_child admin child], { target: '_blank' } if authorized?(:add_child, resource)
+      item "Ajout d'un parent", %i[add_parent admin child], { target: '_blank' } if authorized?(:add_parent, resource) && resource.model.parent2.blank?
     end
   end
 
   member_action :add_child do
+    authorize!(:add_child, resource)
     redirect_to new_admin_child_path(
       parent1_id: resource.parent1_id,
       parent2_id: resource.parent2_id,
@@ -458,6 +459,7 @@ ActiveAdmin.register Child do
   end
 
   member_action :add_parent do
+    authorize!(:add_parent, resource)
     redirect_to new_admin_parent_path(
       family_followed: resource.model.parent1.family_followed,
       address: resource.model.parent1.address,
@@ -535,7 +537,7 @@ ActiveAdmin.register Child do
   end
 
   action_item :view do
-    link_to 'Nouveau parent', new_admin_parent_path, target: '_blank'
+    link_to 'Nouveau parent', new_admin_parent_path, target: '_blank' if authorized?(:create, Parent)
   end
 
   collection_action :parents, method: :get
@@ -639,7 +641,8 @@ ActiveAdmin.register Child do
 
     def parents
       term = params[:term]
-      parents = Parent.where('unaccent(first_name) ILIKE unaccent(?) OR unaccent(last_name) ILIKE unaccent(?)', "%#{term}%", "%#{term}%")
+      parents = Parent.accessible_by(current_ability)
+                      .where('unaccent(first_name) ILIKE unaccent(?) OR unaccent(last_name) ILIKE unaccent(?)', "%#{term}%", "%#{term}%")
                       .order(:first_name, :last_name)
                       .decorate
                       .map do |result|

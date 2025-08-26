@@ -2,7 +2,7 @@ module ActiveAdmin::TagsHelper
 
   def tag_name_collection(current_admin_user_is_caller)
     if current_admin_user_is_caller
-      ActsAsTaggableOn::Tag.where(is_visible_by_callers: current_admin_user_is_caller).order("LOWER(name)").pluck(:name)
+      ActsAsTaggableOn::Tag.where(is_visible_by_callers_and_animators: current_admin_user_is_caller).order("LOWER(name)").pluck(:name)
     else
       ActsAsTaggableOn::Tag.order("LOWER(name)").pluck(:name)
     end
