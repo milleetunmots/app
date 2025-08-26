@@ -162,20 +162,6 @@ class Group
       end
     end
 
-    def assign_child_supports_with_siblings_left_over
-      @child_supports_with_siblings = @child_supports_with_siblings.select { |cs| cs.supporter_id.nil? }.sort_by { |cs| cs.current_child.months }
-      while @child_supports_with_siblings.any?
-        @count_by_supporter.each do |supporter_with_capacity|
-          next if supporter_with_capacity[:admin_user_id].nil?
-
-          break if @child_supports_with_siblings.empty?
-
-          child_support = @child_supports_with_siblings.shift
-          supporter_with_capacity[:assigned_child_supports_count] += 1 if child_support.update!(supporter_id: supporter_with_capacity[:admin_user_id])
-        end
-      end
-    end
-
     def associate_child_supports_without_siblings_to_supporters
       assign_child_supports_without_siblings_to_supporters_with_age_range
       assign_child_supports_without_siblings_to_supporters_without_age_range
@@ -220,39 +206,76 @@ class Group
       end
     end
 
-    def assign_child_supports_without_siblings_left_over
-      @child_supports_without_siblings = @child_supports_without_siblings.select { |cs| cs.supporter_id.nil? }.sort_by { |cs| cs.current_child.months }
-      while @child_supports_without_siblings.any?
-        @count_by_supporter.each do |supporter_with_capacity|
-          next if supporter_with_capacity[:admin_user_id].nil?
-
-          break if @child_supports_without_siblings.empty?
-
-          child_support = @child_supports_without_siblings.shift
-          supporter_with_capacity[:assigned_child_supports_count] += 1 if child_support.update!(supporter_id: supporter_with_capacity[:admin_user_id])
-        end
-      end
-    end
-
     def check_all_child_supports_are_associated
-      child_supports_without_supporter = ChildSupport.groups_in(@group.id).with_a_child_in_active_group.without_supporter.to_a
+      child_supports_without_supporter = ChildSupport.groups_in(@group.id)
+                                                     .with_a_child_in_active_group
+                                                     .without_supporter
+                                                     .to_a
       return if child_supports_without_supporter.empty?
 
-      @count_by_supporter.shuffle!
-      while child_supports_without_supporter.any?
-        @count_by_supporter.each do |supporter_with_capacity|
+      # Assign leftovers to supporters without complete quota
+      supporters_with_quota_left = @count_by_supporter.select do |s|
+        s[:assigned_child_supports_count] < s[:child_supports_count]
+      end
+
+      while child_supports_without_supporter.any? && supporters_with_quota_left.any?
+        supporters_with_quota_left.each do |supporter|
+          break if child_supports_without_supporter.empty?
+
+          next if supporter[:assigned_child_supports_count] >= supporter[:child_supports_count]
+
+          child_support = child_supports_without_supporter.shift
+          if child_support.update!(supporter_id: supporter[:admin_user_id])
+            supporter[:assigned_child_supports_count] += 1
+          end
+        end
+        supporters_with_quota_left = @count_by_supporter.select do |s|
+          s[:assigned_child_supports_count] < s[:child_supports_count]
+        end
+      end
+
+      # IF there is still leftovers, assign them to random supporters
+      if child_supports_without_supporter.any?
+        @count_by_supporter.shuffle.each do |supporter|
           break if child_supports_without_supporter.empty?
 
           child_support = child_supports_without_supporter.shift
-          child_support.update!(supporter_id: supporter_with_capacity[:admin_user_id])
+          child_support.update!(supporter_id: supporter[:admin_user_id])
         end
       end
 
+      return unless child_supports_without_supporter.any?
+
       Rollbar.error("#{child_supports_without_supporter.count} familles n'ont pas pu être associées à une accompagnante. Filtrez les fiches de suivi de la cohorte sans accompagnante et procédez à une attribution manuelle depuis l'action groupée")
       Task::CreateAutomaticTaskService.new(
-        title: "Toutes les fiches de suivi n'ont pas d'accompagnante",
+        title: "Certaines fiches de suivi n'ont pas d'accompagnante suite à leur distribution.",
         description: "#{child_supports_without_supporter.count} familles n'ont pas pu être associées à une accompagnante. Filtrez les fiches de suivi de la cohorte sans accompagnante et procédez à une attribution manuelle depuis l'action groupée"
       ).call
     end
+
+
+    def assign_child_supports_with_siblings_left_over
+      distribute_left_over(@child_supports_with_siblings)
+    end
+
+    def assign_child_supports_without_siblings_left_over
+      distribute_left_over(@child_supports_without_siblings)
+    end
+
+    def distribute_left_over(child_supports)
+      child_supports = child_supports.select { |cs| cs.supporter_id.nil? }.sort_by { |cs| cs.current_child.months }
+      while child_supports.any?
+        @count_by_supporter.shuffle.each do |supporter|
+          break if child_supports.empty?
+          next if enough_child_support?(supporter)
+
+          child_support = child_supports.shift
+          if child_support.update!(supporter_id: supporter[:admin_user_id])
+            supporter[:assigned_child_supports_count] += 1
+          end
+        end
+      end
+    end
+
   end
 end
