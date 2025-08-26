@@ -93,7 +93,7 @@ class ProgramMessageService
             end
           else
             @errors << "Message non envoyé à #{parent.decorate.name} parce qu'il n'est pas valide"
-            description_text << "<br>#{ActionController::Base.helpers.link_to(parent.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: parent.id), target: '_blank')} : #{parent.errors.messages.to_json}"
+            description_text << "<br>#{ActionController::Base.helpers.link_to(parent.decorate.name, Rails.application.routes.url_helpers.edit_admin_parent_url(id: parent.id), target: '_blank')} : #{parent.errors.messages.to_json}"
           end
         end
         Task::CreateAutomaticTaskService.new(

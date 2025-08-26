@@ -27,11 +27,12 @@
 #
 # Indexes
 #
-#  index_events_on_discarded_at                 (discarded_at)
-#  index_events_on_quit_group_child_id          (quit_group_child_id)
-#  index_events_on_related_type_and_related_id  (related_type,related_id)
-#  index_events_on_type                         (type)
-#  index_events_on_workshop_id                  (workshop_id)
+#  index_events_on_discarded_at                  (discarded_at)
+#  index_events_on_quit_group_child_id           (quit_group_child_id)
+#  index_events_on_related_type_and_related_id   (related_type,related_id)
+#  index_events_on_type                          (type)
+#  index_events_on_type_and_spot_hit_message_id  (type,spot_hit_message_id)
+#  index_events_on_workshop_id                   (workshop_id)
 #
 # Foreign Keys
 #

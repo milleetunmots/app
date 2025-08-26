@@ -1,6 +1,15 @@
 panel I18n.t("active_admin.paper_trail.dashboard.title"), id: 'active_admin-paper_trail-dashboard' do
 
-  versions = PaperTrail::Version.order('id desc').includes(:item).limit(20)
+  if current_admin_user.admin?
+    versions = PaperTrail::Version.order('id desc').includes(:item).limit(20)
+  else
+    versions = PaperTrail::Version
+    .where("whodunnit = ?", "#{current_admin_user.id}:#{current_admin_user.email}")
+    .where("item_type = ? OR item_type = ? OR item_type = ?", 'Parent', 'Child', 'ChildSupport')
+    .order('id desc')
+    .includes(:item)
+    .limit(20)
+  end
 
   admin_user_ids = versions.map { |v| v.whodunnit&.split(':')&.first }
   admins = Hash[AdminUser.where(id: admin_user_ids).map { |a| [a.id, a] }]

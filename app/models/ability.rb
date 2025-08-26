@@ -4,35 +4,69 @@ class Ability
   include CanCan::Ability
 
   def initialize(user)
-    return unless user.present?
-    return if user.is_disabled?
+    return if user.blank? || user.is_disabled?
 
-    if user.admin? || user.logistics_team?
+    can :read, ActiveAdmin::Page, name: 'Search'
+    can :manage, ActiveAdmin::Page, name: 'Volunteer Parent Form'
+
+    case user.user_role
+    when 'super_admin'
       can :manage, :all
-      cannot [:disable, :activate], AdminUser if user.logistics_team?
-      return
-    end
-
-    can :manage, [Parent, ChildrenSupportModule]
-    can :update, AdminUser, id: user.id
-    can :read, ActiveAdmin::Page, name: "Dashboard"
-    can :read, ActiveAdmin::Page, name: "Search"
-    can :manage, ActiveAdmin::Page, name: "Message"
-    can :manage, ActiveAdmin::Page, name: "Stop Support Form"
-    can :manage, ActiveAdmin::Page, name: "Volunteer Parent Form"
-
-
-    if user.team_member?
-      can :manage, ActiveAdmin::Page, name: "Module"
-      can :manage, ActiveAdmin::Page, name: "Messages"
-      can :manage, [Medium, SupportModule, MediaFolder, FieldComment, Tag, Event, Child, Workshop, ChildSupport, Task]
-      can [:create, :read, :update], [Group, RedirectionUrl]
-    else
-      can :manage, ChildSupport, supporter_id: user.id
-      can :manage, Task, reporter_id: user.id
-      cannot :discard, ChildSupport
-      can :read, [Group, Medium, RedirectionUrl, Tag, Event, SupportModule, MediaFolder, FieldComment]
-      can [:create, :read, :update], Child
+    when 'contributor'
+      can :manage,
+          [Parent, Child, ChildSupport, Workshop, Task, SupportModule, MediaFolder, Medium, Tag, Event, Group, Book, ChildrenSupportModule, Source]
+      can :read, AdminUser
+      can :manage, ActiveAdmin::Page, name: 'Message'
+      can :manage, ActiveAdmin::Page, name: 'Module'
+      can :manage, ActiveAdmin::Page, name: 'Messages'
+      can :manage, ActiveAdmin::Page, name: 'Stop Support Form'
+      can :read, ActiveAdmin::Page, name: 'Dashboard'
+    when 'reader'
+      can :create, Task
+      can %i[read update destroy], Task, reporter_id: user.id
+      can %i[read update], [Parent, Child, ChildSupport]
+      can :read, [Workshop, SupportModule, Group, Book, ChildrenSupportModule, AdminUser, Source]
+      can %i[create read update], Tag
+      can :manage, ActiveAdmin::Page, name: 'Message'
+      can :read, ActiveAdmin::Page, name: 'Dashboard'
+      can :send_message_to_parent1, ChildSupport
+      can :send_message_to_parent2, ChildSupport
+    when 'caller'
+      can :autocomplete, [Group, Tag] # we use this custom action to search Groups and Tags for users without read permission (ie. in get_recipients)
+      can :read, ActiveAdmin::Page, name: 'Dashboard'
+      can :create, Task
+      can %i[read update destroy], Task, reporter_id: user.id
+      can :create, Parent
+      can %i[read update], Parent, parent1_children: { child_support: { supporter_id: user.id } }
+      can %i[read update], Parent, parent2_children: { child_support: { supporter_id: user.id } }
+      can :create, Child
+      can %i[read update add_parent add_child], Child, child_support: { supporter_id: user.id }
+      can %i[create read update], ChildSupport, supporter_id: user.id
+      can :create, ChildrenSupportModule
+      can %i[read update], ChildrenSupportModule, child: { child_support: { supporter_id: user.id } }
+      can :read, SupportModule
+      can :read, Event, related_type: 'Parent', related_id: Parent.joins(parent1_children: :child_support).where(child_supports: { supporter_id: user.id }).pluck(:id)
+      can :read, Event, related_type: 'Parent', related_id: Parent.joins(parent2_children: :child_support).where(child_supports: { supporter_id: user.id }).pluck(:id)
+      can :manage, ActiveAdmin::Page, name: 'Stop Support Form'
+      can :manage, ActiveAdmin::Page, name: 'Message'
+      can :select_module_for_parent1, ChildSupport, supporter_id: user.id
+      can :select_module_for_parent2, ChildSupport, supporter_id: user.id
+      can :send_message_to_parent1, ChildSupport, supporter_id: user.id
+      can :send_message_to_parent2, ChildSupport, supporter_id: user.id
+    when 'animator'
+      can :create, Task
+      can %i[read update destroy], Task, reporter_id: user.id
+      can %i[create read update], [Parent, Child, ChildSupport, ChildrenSupportModule]
+      can :manage, [Workshop, Source]
+      can :manage, Event, type: %w[Events::TextMessage Events::WorkshopParticipation]
+      can :read, SupportModule
+      can :read, ActiveAdmin::Page, name: 'Dashboard'
+      can :manage, ActiveAdmin::Page, name: 'Stop Support Form'
+      can :manage, ActiveAdmin::Page, name: 'Message'
+      can :select_module_for_parent1, ChildSupport, supporter_id: user.id
+      can :select_module_for_parent2, ChildSupport, supporter_id: user.id
+      can :send_message_to_parent1, ChildSupport, supporter_id: user.id
+      can :send_message_to_parent2, ChildSupport, supporter_id: user.id
     end
   end
 

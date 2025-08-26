@@ -89,27 +89,39 @@ RSpec.describe AdminUser, type: :model do
     end
 
     it "is included in ROLES" do
-      subject.user_role = "animator"
+      subject.user_role = "thinker"
 
       expect(subject).to_not be_valid
     end
   end
 
   describe "#admin?" do
-    it "return true if user is super_admin" do
+    it "return true if user is a super_admin" do
       expect(subject.admin?).to be subject.user_role == "super_admin"
     end
   end
 
-  describe "#team_member?" do
-    it "return true if user is team_member" do
-      expect(subject.team_member?).to be subject.user_role == "team_member"
+  describe "#contributor?" do
+    it "return true if user is a contributor" do
+      expect(subject.contributor?).to be subject.user_role == "contributor"
+    end
+  end
+
+  describe "#reader?" do
+    it "return true if user is a reader" do
+      expect(subject.reader?).to be subject.user_role == "reader"
     end
   end
 
   describe "#caller?" do
-    it "return true if user is caller" do
+    it "return true if user is a caller" do
       expect(subject.caller?).to be subject.user_role == "caller"
+    end
+  end
+
+  describe "#animator?" do
+    it "return true if user is an animator" do
+      expect(subject.animator?).to be subject.user_role == "animator"
     end
   end
 

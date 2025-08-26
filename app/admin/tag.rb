@@ -13,12 +13,12 @@ ActiveAdmin.register Tag, as: 'Tag' do
     column :color do |decorated|
       decorated.colored_color
     end
-    column :is_visible_by_callers
+    column :is_visible_by_callers_and_animators
     actions
   end
 
   filter :name
-  filter :is_visible_by_callers
+  filter :is_visible_by_callers_and_animators
   filter :created_at
   filter :updated_at
 
@@ -31,12 +31,12 @@ ActiveAdmin.register Tag, as: 'Tag' do
     f.inputs do
       f.input :name
       f.input :color, as: :color
-      f.input :is_visible_by_callers
+      f.input :is_visible_by_callers_and_animators
     end
     f.actions
   end
 
-  permit_params :name, :color, :is_visible_by_callers
+  permit_params :name, :color, :is_visible_by_callers_and_animators
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -48,7 +48,7 @@ ActiveAdmin.register Tag, as: 'Tag' do
       row :color do |decorated|
         decorated.colored_color
       end
-      row :is_visible_by_callers
+      row :is_visible_by_callers_and_animators
       row :created_at
       row :updated_at
     end
