@@ -24,8 +24,10 @@
 #  call0_sendings_benefits_details       :text
 #  call0_status                          :string
 #  call0_status_details                  :text
+#  call0_talk_needed                     :boolean          default(FALSE), not null
 #  call0_technical_information           :text
 #  call0_tv_frequency                    :string
+#  call0_why_talk_needed                 :text
 #  call1_attempt                         :string
 #  call1_duration                        :integer
 #  call1_family_progress                 :string
@@ -44,8 +46,10 @@
 #  call1_sendings_benefits_details       :text
 #  call1_status                          :string
 #  call1_status_details                  :text
+#  call1_talk_needed                     :boolean          default(FALSE), not null
 #  call1_technical_information           :text
 #  call1_tv_frequency                    :string
+#  call1_why_talk_needed                 :text
 #  call2_attempt                         :string
 #  call2_duration                        :integer
 #  call2_family_progress                 :string
@@ -64,8 +68,10 @@
 #  call2_sendings_benefits_details       :text
 #  call2_status                          :string
 #  call2_status_details                  :text
+#  call2_talk_needed                     :boolean          default(FALSE), not null
 #  call2_technical_information           :text
 #  call2_tv_frequency                    :string
+#  call2_why_talk_needed                 :text
 #  call3_attempt                         :string
 #  call3_duration                        :integer
 #  call3_goals                           :text
@@ -83,8 +89,10 @@
 #  call3_sendings_benefits_details       :text
 #  call3_status                          :string
 #  call3_status_details                  :text
+#  call3_talk_needed                     :boolean          default(FALSE), not null
 #  call3_technical_information           :text
 #  call3_tv_frequency                    :string
+#  call3_why_talk_needed                 :text
 #  call4_attempt                         :string
 #  call4_duration                        :integer
 #  call4_goals                           :text
@@ -102,8 +110,10 @@
 #  call4_sendings_benefits_details       :text
 #  call4_status                          :string
 #  call4_status_details                  :text
+#  call4_talk_needed                     :boolean          default(FALSE), not null
 #  call4_technical_information           :text
 #  call4_tv_frequency                    :string
+#  call4_why_talk_needed                 :text
 #  call5_attempt                         :string
 #  call5_duration                        :integer
 #  call5_goals                           :text
@@ -120,8 +130,10 @@
 #  call5_sendings_benefits_details       :text
 #  call5_status                          :string
 #  call5_status_details                  :text
+#  call5_talk_needed                     :boolean          default(FALSE), not null
 #  call5_technical_information           :text
 #  call5_tv_frequency                    :string
+#  call5_why_talk_needed                 :text
 #  call_infos                            :string
 #  child_count                           :integer
 #  discarded_at                          :datetime

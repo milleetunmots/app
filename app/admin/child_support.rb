@@ -353,21 +353,23 @@ ActiveAdmin.register ChildSupport do
                   columns do
                     column do
                       f.input "call#{call_idx}_status",
-                              collection: call_status_collection,
-                              input_html: { data: { select2: {} } } # Statut de l'appel
-                      f.input "call#{call_idx}_duration", input_html: { style: 'font-weight: bold' } # Durée de l'appel
-                    end
-                  end
-                  columns do
-                    column do
+                        collection: call_status_collection,
+                        input_html: {
+                          data: { select2: { width: '100%' } },
+                          class: 'select2-call-status',
+                          style: 'width: 100%'
+                        } # Statut de l'appel
+                      f.input "call#{call_idx}_duration", input_html: { style: 'font-weight: bold;' } # Durée de l'appel
                       f.input "call#{call_idx}_parent_progress",
-                                as: :radio,
-                                collection: child_support_call_parent_progress_select_collection # Niveau de pratiques parentales
+                        as: :radio, collection: child_support_call_parent_progress_select_collection # Niveau de pratiques parentales
                     end
                     column do
-                      f.input "call#{call_idx}_review",
-                                as: :radio,
-                                collection: child_support_call_review_select_collection if call_idx.in?([0, 1, 2, 3]) # Es-tu satisfaite de ton accompagnement pendant cet appel ?
+                      f.input "call#{call_idx}_talk_needed", as: :boolean,
+                              wrapper_html: { class: 'no-margin-checkbox' },
+                              input_html: { id: "call#{call_idx}_talk_needed_checkbox" } # J'aimerais parler de cet appel à une coordinatrice
+                      f.input "call#{call_idx}_why_talk_needed",
+                              wrapper_html: { id: "call#{call_idx}_why_talk_needed_wrapper", style: 'display: none;' },
+                              input_html: { rows: 5, style: 'width: 100%' } # Raisons
                     end
                   end
                 end
@@ -937,6 +939,8 @@ ActiveAdmin.register ChildSupport do
       column "call#{call_idx}_status"
       column "call#{call_idx}_status_details"
       column "call#{call_idx}_duration"
+      column "call#{call_idx}_why_talk_needed"
+      column "call#{call_idx}_talk_needed"
       column("call#{call_idx}_technical_information") do |cs|
         next if call_idx.zero?
 

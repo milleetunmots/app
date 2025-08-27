@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_08_19_102326) do
+ActiveRecord::Schema.define(version: 2025_08_27_082548) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -33,7 +33,7 @@ ActiveRecord::Schema.define(version: 2025_08_19_102326) do
     t.string "content_type"
     t.text "metadata"
     t.bigint "byte_size", null: false
-    t.string "checksum"
+    t.string "checksum", null: false
     t.datetime "created_at", null: false
     t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
@@ -347,6 +347,18 @@ ActiveRecord::Schema.define(version: 2025_08_19_102326) do
     t.string "call3_previous_goals_follow_up"
     t.datetime "address_suspected_invalid_at"
     t.string "call0_goal_sent"
+    t.boolean "call0_talk_needed", default: false, null: false
+    t.boolean "call1_talk_needed", default: false, null: false
+    t.boolean "call2_talk_needed", default: false, null: false
+    t.boolean "call3_talk_needed", default: false, null: false
+    t.boolean "call4_talk_needed", default: false, null: false
+    t.boolean "call5_talk_needed", default: false, null: false
+    t.text "call0_why_talk_needed"
+    t.text "call1_why_talk_needed"
+    t.text "call2_why_talk_needed"
+    t.text "call3_why_talk_needed"
+    t.text "call4_why_talk_needed"
+    t.text "call5_why_talk_needed"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"

@@ -24,8 +24,10 @@
 #  call0_sendings_benefits_details       :text
 #  call0_status                          :string
 #  call0_status_details                  :text
+#  call0_talk_needed                     :boolean          default(FALSE), not null
 #  call0_technical_information           :text
 #  call0_tv_frequency                    :string
+#  call0_why_talk_needed                 :text
 #  call1_attempt                         :string
 #  call1_duration                        :integer
 #  call1_family_progress                 :string
@@ -44,8 +46,10 @@
 #  call1_sendings_benefits_details       :text
 #  call1_status                          :string
 #  call1_status_details                  :text
+#  call1_talk_needed                     :boolean          default(FALSE), not null
 #  call1_technical_information           :text
 #  call1_tv_frequency                    :string
+#  call1_why_talk_needed                 :text
 #  call2_attempt                         :string
 #  call2_duration                        :integer
 #  call2_family_progress                 :string
@@ -64,8 +68,10 @@
 #  call2_sendings_benefits_details       :text
 #  call2_status                          :string
 #  call2_status_details                  :text
+#  call2_talk_needed                     :boolean          default(FALSE), not null
 #  call2_technical_information           :text
 #  call2_tv_frequency                    :string
+#  call2_why_talk_needed                 :text
 #  call3_attempt                         :string
 #  call3_duration                        :integer
 #  call3_goals                           :text
@@ -83,8 +89,10 @@
 #  call3_sendings_benefits_details       :text
 #  call3_status                          :string
 #  call3_status_details                  :text
+#  call3_talk_needed                     :boolean          default(FALSE), not null
 #  call3_technical_information           :text
 #  call3_tv_frequency                    :string
+#  call3_why_talk_needed                 :text
 #  call4_attempt                         :string
 #  call4_duration                        :integer
 #  call4_goals                           :text
@@ -102,8 +110,10 @@
 #  call4_sendings_benefits_details       :text
 #  call4_status                          :string
 #  call4_status_details                  :text
+#  call4_talk_needed                     :boolean          default(FALSE), not null
 #  call4_technical_information           :text
 #  call4_tv_frequency                    :string
+#  call4_why_talk_needed                 :text
 #  call5_attempt                         :string
 #  call5_duration                        :integer
 #  call5_goals                           :text
@@ -120,8 +130,10 @@
 #  call5_sendings_benefits_details       :text
 #  call5_status                          :string
 #  call5_status_details                  :text
+#  call5_talk_needed                     :boolean          default(FALSE), not null
 #  call5_technical_information           :text
 #  call5_tv_frequency                    :string
+#  call5_why_talk_needed                 :text
 #  call_infos                            :string
 #  child_count                           :integer
 #  discarded_at                          :datetime
@@ -208,7 +220,6 @@ class ChildSupport < ApplicationRecord
   FAMILY_PROGRESS = %w[1_yes 2_no 3_no_information].freeze
   GOALS_FOLLOW_UP = %w[1_succeed 2_tried 3_no_tried 4_no_goal 5_not_enough_information].freeze
   IS_BILINGUAL_OPTIONS = %w[0_yes 1_no 2_no_information].freeze
-  CALL_REVIEW_OPTIONS = %w[0_very_satisfied 1_rather_satisfied 2_rather_dissatisfied 3_very_dissatisfied].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -261,7 +272,6 @@ class ChildSupport < ApplicationRecord
     validates "call#{call_idx}_language_awareness", inclusion: { in: LANGUAGE_AWARENESS, allow_blank: true }
     validates "call#{call_idx}_parent_progress", inclusion: { in: PARENT_PROGRESS, allow_blank: true }
     validates "call#{call_idx}_sendings_benefits", inclusion: { in: SENDINGS_BENEFITS, allow_blank: true }
-    validates "call#{call_idx}_review", inclusion: { in: CALL_REVIEW_OPTIONS, allow_blank: true }
   end
 
   validates :books_quantity, inclusion: { in: BOOKS_QUANTITY, allow_blank: true }
@@ -558,7 +568,8 @@ class ChildSupport < ApplicationRecord
 
       call_attributes = [
         "call#{call_idx}_status",
-        "call#{call_idx}_review",
+        "call#{call_idx}_talk_needed",
+        "call#{call_idx}_why_talk_needed",
         "call#{call_idx}_status_details",
         "call#{call_idx}_duration",
         "call#{call_idx}_technical_information",
@@ -601,6 +612,8 @@ class ChildSupport < ApplicationRecord
         "call#{call_idx}_status",
         "call#{call_idx}_status_details",
         "call#{call_idx}_duration",
+        "call#{call_idx}_why_talk_needed",
+        "call#{call_idx}_talk_needed",
         "call#{call_idx}_technical_information",
         "call#{call_idx}_parent_actions",
         "call#{call_idx}_parent_progress",
@@ -620,7 +633,13 @@ class ChildSupport < ApplicationRecord
       call_attributes += ['books_quantity'] if call_idx == 1
 
       call_attributes.each do |call_attr|
-        self[call_attr.to_sym] = nil
+        # handle attributes that dont accept nil (ie. booleans)
+        if self.class.respond_to?(:attribute_defaults)
+          default_value = self.class.attribute_defaults[call_attr.to_s]
+        else
+          default_value = self.class.columns_hash[call_attr.to_s]&.default
+        end
+        self[call_attr.to_sym] = default_value
       end
     end
   end
