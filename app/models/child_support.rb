@@ -633,7 +633,9 @@ class ChildSupport < ApplicationRecord
       call_attributes += ['books_quantity'] if call_idx == 1
 
       call_attributes.each do |call_attr|
-        self[call_attr.to_sym] = nil
+        # handle attributes that dont accept nil (ie. booleans)
+        default_value = self.class.attribute_defaults[call_attr.to_s]
+        self[call_attr.to_sym] = default_value
       end
     end
   end
