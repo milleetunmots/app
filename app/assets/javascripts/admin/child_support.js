@@ -161,11 +161,35 @@ $(document).ready(function() {
     updateCallStatusDetail(event, 5);
   }
 
+  function toggleWhyTalkNeeded(idx) {
+    var $checkbox = $("#call" + idx + "_talk_needed_checkbox");
+    var $wrapper = $("#call" + idx + "_why_talk_needed_wrapper");
+
+    if ($checkbox.length && $wrapper.length) {
+      if ($checkbox.is(":checked")) {
+        $wrapper.show();
+      } else {
+        $wrapper.hide();
+      }
+    }
+  }
+
   $("#child_support_call0_status").on("change", onChildSupportCall0StatusUpdated);
   $("#child_support_call1_status").on("change", onChildSupportCall1StatusUpdated);
   $("#child_support_call2_status").on("change", onChildSupportCall2StatusUpdated);
   $("#child_support_call3_status").on("change", onChildSupportCall3StatusUpdated);
   $("#child_support_call4_status").on("change", onChildSupportCall4StatusUpdated);
   $("#child_support_call5_status").on("change", onChildSupportCall5StatusUpdated);
+
+  $("[id$='_talk_needed_checkbox']").each(function() {
+    const idx = this.id.match(/\d+/)?.[0];
+    if (idx) toggleWhyTalkNeeded(idx);
+  });
+
+  $("[id$='_talk_needed_checkbox']").on('change', function() {
+    const idx = this.id.match(/\d+/)?.[0];
+    if (idx) toggleWhyTalkNeeded(idx);
+  });
+
 });
 
