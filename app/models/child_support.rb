@@ -634,7 +634,11 @@ class ChildSupport < ApplicationRecord
 
       call_attributes.each do |call_attr|
         # handle attributes that dont accept nil (ie. booleans)
-        default_value = self.class.attribute_defaults[call_attr.to_s]
+        if self.class.respond_to?(:attribute_defaults)
+          default_value = self.class.attribute_defaults[call_attr.to_s]
+        else
+          default_value = self.class.columns_hash[call_attr.to_s]&.default
+        end
         self[call_attr.to_sym] = default_value
       end
     end
