@@ -55,7 +55,7 @@ ActiveAdmin.register Source do
   # ---------------------------------------------------------------------------
 
   form do |f|
-    f.semantic_errors *f.object.errors.keys
+    f.semantic_errors *f.object.errors.details.keys
     f.inputs do
       f.input :name
       f.input :channel, collection: source_channel_select_collection
