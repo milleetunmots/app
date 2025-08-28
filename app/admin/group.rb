@@ -61,7 +61,7 @@ ActiveAdmin.register Group do
   # ---------------------------------------------------------------------------
 
   form do |f|
-    f.semantic_errors(*f.object.errors.keys)
+    f.semantic_errors(*f.object.errors.details.keys)
     f.inputs do
       f.input :is_excluded_from_analytics
       f.input :enable_calls_recording

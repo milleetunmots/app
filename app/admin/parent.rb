@@ -79,7 +79,7 @@ ActiveAdmin.register Parent do
     f.object.parent2_creation = params[:parent2_creation] if params[:parent2_creation]
     f.object.created_by_us = true if f.object.new_record?
 
-    f.semantic_errors *f.object.errors.keys
+    f.semantic_errors *f.object.errors.details.keys
     f.inputs do
       if f.object.current_child
         f.hidden_field :current_child_first_name, value: f.object.current_child.first_name, disabled: true

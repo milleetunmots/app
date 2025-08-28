@@ -39,7 +39,7 @@ ActiveAdmin.register Workshop do
   filter :canceled
 
   form do |f|
-    f.semantic_errors(*f.object.errors.keys)
+    f.semantic_errors(*f.object.errors.details.keys)
     f.inputs do
       f.input :topic, collection: workshop_topic_select_collection, input_html: { data: { select2: {} } }
       f.input :workshop_date, as: :datepicker, datepicker_options: { min_date: Time.zone.today }
