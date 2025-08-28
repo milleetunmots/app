@@ -27,7 +27,7 @@ ActiveAdmin.register Tag, as: 'Tag' do
   # ---------------------------------------------------------------------------
 
   form do |f|
-    f.semantic_errors *f.object.errors.keys
+    f.semantic_errors *f.object.errors.details.keys
     f.inputs do
       f.input :name
       f.input :color, as: :color
