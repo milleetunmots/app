@@ -212,7 +212,7 @@ ActiveAdmin.register ChildSupport do
   # ---------------------------------------------------------------------------
 
   form(remote: true) do |f|
-    f.semantic_errors(*f.object.errors.keys)
+    f.semantic_errors(*f.object.errors.details.keys)
     if f.object.group_enable_calls_recording
       h3 id: 'call_recording_warning', class: 'full-width-warning' do
         safe_join([

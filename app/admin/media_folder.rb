@@ -30,7 +30,7 @@ ActiveAdmin.register MediaFolder do
   # ---------------------------------------------------------------------------
 
   form do |f|
-    f.semantic_errors *f.object.errors.keys
+    f.semantic_errors *f.object.errors.details.keys
     f.inputs do
       f.input :parent,
         collection: media_folder_parent_select_collection(f.object),
