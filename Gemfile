@@ -94,7 +94,7 @@ gem "toastr-rails"
 
 # Theming
 gem "simple_form"
-gem "bootstrap", "~> 5.3.0"
+gem "bootstrap", "~> 4.3.0"
 
 # errors tracking
 gem "rollbar"
