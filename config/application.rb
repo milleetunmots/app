@@ -22,5 +22,6 @@ module Mots
     config.active_record.legacy_connection_handling = false
     config.active_record.partial_inserts = true
     config.active_support.disable_to_s_conversion = true
+    config.session_store :cookie_store, key: '_mots_session'
   end
 end
