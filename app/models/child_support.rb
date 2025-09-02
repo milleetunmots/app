@@ -241,6 +241,9 @@ class ChildSupport < ApplicationRecord
   accepts_nested_attributes_for :current_child
   accepts_nested_attributes_for :children_support_modules
 
+  # getter to make select work in form
+  attr_accessor :resources_alternative_scripts
+
   before_update do
     if current_child
       current_child.parent1.tag_list.add(tag_list)

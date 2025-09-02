@@ -13,6 +13,16 @@ $(document).ready(function() {
 
   window.scrollTo(0, 0);
 
+  $('#child_support_resources_alternative_scripts').select2({
+    width: '100%',
+    escapeMarkup: function(markup) { return markup; },
+    templateResult: function(data) {
+      if (!data.id) return data.text;
+      return data.text + ' <i class="fa-solid fa-arrow-up-right-from-square"></i>';
+    }
+  });
+
+
   $childSupportAddressModificationButton.on('click', function() {
     $parent1Link.trigger('click');
     scrollToElement($childSupportTabsForm);
@@ -189,6 +199,13 @@ $(document).ready(function() {
   $("[id$='_talk_needed_checkbox']").on('change', function() {
     const idx = this.id.match(/\d+/)?.[0];
     if (idx) toggleWhyTalkNeeded(idx);
+  });
+
+  $('#child_support_resources_alternative_scripts').on('change', function() {
+    var url = $(this).val();
+    if(url) {
+      window.open(url, '_blank');
+    }
   });
 
 });

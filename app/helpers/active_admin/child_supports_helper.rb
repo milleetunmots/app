@@ -121,4 +121,49 @@ module ActiveAdmin::ChildSupportsHelper
       "Enquête prise de RDV > https://form.typeform.com/to/ezCyiRZJ \n#{important_information}"
     end
   end
+
+  def resources_alternative_script_links
+    {
+      "Popi" => ENV['ALTERNATIVE_SCRIPT_POPI_LINK'],
+      "Ne veut pas des SMS/Appels" => ENV['ALTERNATIVE_SCRIPT_NO_SMS_CALLS_SCRIPT_LINK'],
+      "Comportement problématique" => ENV['ALTERNATIVE_SCRIPT_PROBLEMATIC_BEHAVIOR_SCRIPT_LINK'], 
+      "Professionnel qui teste 1001mots" => ENV['ALTERNATIVE_SCRIPT_PROFESSIONAL_TEST_SCRIPT_LINK']
+    }
+  end
+
+  def resources_briefing_link(call_idx)
+    case call_idx
+    when 0 then ENV['ALTERNATIVE_SCRIPT_CALL0_BRIEFING_LINK']
+    when 1 then ENV['ALTERNATIVE_SCRIPT_CALL1_BRIEFING_LINK']
+    when 2 then ENV['ALTERNATIVE_SCRIPT_CALL2_BRIEFING_LINK']
+    when 3 then ENV['ALTERNATIVE_SCRIPT_CALL3_BRIEFING_LINK']
+    end
+  end
+
+  def resources_recommended_video_link(call_idx, child_age_in_months)
+    case call_idx
+    when 0
+      if child_age_in_months < 11
+        return ENV['ALTERNATIVE_SCRIPT_VIDEO_CALL0_CHILD_0_10_MONTHS_LINK']
+      elsif child_age_in_months >= 11 && child_age_in_months <= 16
+        return ENV['ALTERNATIVE_SCRIPT_VIDEO_CALL0_CHILD_11_16_MONTHS_LINK']
+      elsif child_age_in_months >= 17 && child_age_in_months <= 22
+        return ENV['ALTERNATIVE_SCRIPT_VIDEO_CALL0_CHILD_17_22_MONTHS_LINK']
+      elsif child_age_in_months >= 23
+        return ENV['ALTERNATIVE_SCRIPT_VIDEO_CALL0_CHILD_23_MORE_MONTHS_LINK']
+      end
+    when 1
+      if child_age_in_months < 12
+        return ENV['ALTERNATIVE_SCRIPT_VIDEO_CALL1_CHILD_0_11_MONTHS_LINK']
+      elsif child_age_in_months >= 12 && child_age_in_months <= 17
+        return ENV['ALTERNATIVE_SCRIPT_VIDEO_CALL1_CHILD_12_17_MONTHS_LINK']
+      elsif child_age_in_months >= 18 && child_age_in_months <= 23
+        return ENV['ALTERNATIVE_SCRIPT_VIDEO_CALL1_CHILD_18_23_MONTHS_LINK']
+      elsif child_age_in_months >= 24
+        return ENV['ALTERNATIVE_SCRIPT_VIDEO_CALL1_CHILD_24_MORE_MONTHS_LINK']
+      end
+    when 3
+      return ENV['ALTERNATIVE_SCRIPT_CALL3_BRIEFING_LINK'] if child_age_in_months < 23
+    end
+  end
 end

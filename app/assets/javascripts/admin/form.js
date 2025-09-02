@@ -3,6 +3,8 @@
   var ajaxSuccessRegex = /^\s*<!DOCTYPE/gmi;
   var formChanged = false;
   var originalUpdatedAt;
+  var formTriggerExclusions = ['#child_support_resources_alternative_scripts'];
+  var formTriggerSelector = 'input, textarea, select';
 
   var trackChanges = function(form) {
     $(form).on('input change', function() {
@@ -81,7 +83,8 @@
     });
 
     // trigger submit on change
-    $(form).find('input, textarea, select').change(function() {
+    $(form).find(formTriggerSelector).change(function() {
+      if ($(this).is(formTriggerExclusions.join(', '))) return;
       checkForUpdates().then(function(isUpdated) {
         if (isUpdated) {
           showUpdateAlert();
