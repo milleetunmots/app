@@ -143,7 +143,7 @@ class Child
 
       @sms_url_form = "#{ENV['INITIAL_TYPEFORM_URL']}#st=#{@child.parent1.security_token}"
       message = "1001mots: Bonjour ! Je suis ravie de votre inscription à notre accompagnement ! Si vous avez 3 minutes, merci de répondre à ce court questionnaire #{@sms_url_form}"
-      eval25_message = "1001mots : Bonjour, votre inscription au programme 1001mots est confirmée. Il n'y a pas de nouveaux accompagnements pendant l'été, votre accompagnement commencera donc à la rentrée. A bientôt !"
+      eval25_message = "1001mots : Bonjour, votre inscription au programme 1001mots est confirmée. L'accompagnement va bientôt démarrer. A bientôt !"
 
       if ENV['EVAL25'].present? && @child.source.name == ENV['CAF93']
         SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, eval25_message).call

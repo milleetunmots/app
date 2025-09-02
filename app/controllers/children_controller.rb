@@ -69,7 +69,7 @@ class ChildrenController < ApplicationController
 
     case current_registration_origin
     when 5
-      @message = I18n.t('inscription_success.pro_local_partners')
+      @message = I18n.t('inscription_success.pro')
       @again = true
       @widget = false
       @new_link = new_local_partner_registration_path
@@ -87,7 +87,7 @@ class ChildrenController < ApplicationController
     when 3
       # for this form we keep the registration_origin
       # so that multiple children can be registered
-      @message = I18n.t('inscription_success.pro_pmi')
+      @message = I18n.t('inscription_success.pro')
       @again = true
       @widget = false
       @new_link = new_pmi_registration_path
