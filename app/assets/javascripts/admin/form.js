@@ -3,7 +3,12 @@
   var ajaxSuccessRegex = /^\s*<!DOCTYPE/gmi;
   var formChanged = false;
   var originalUpdatedAt;
-  var formTriggerExclusions = ['#child_support_resources_alternative_scripts'];
+  var formTriggerExclusions = [
+    '#child_support_call0_resources_alternative_scripts',
+    '#child_support_call1_resources_alternative_scripts',
+    '#child_support_call2_resources_alternative_scripts',
+    '#child_support_call3_resources_alternative_scripts'
+  ];
   var formTriggerSelector = 'input, textarea, select';
 
   var trackChanges = function(form) {

@@ -163,7 +163,7 @@ module ActiveAdmin::ChildSupportsHelper
         return ENV['ALTERNATIVE_SCRIPT_VIDEO_CALL1_CHILD_24_MORE_MONTHS_LINK']
       end
     when 3
-      return ENV['ALTERNATIVE_SCRIPT_CALL3_BRIEFING_LINK'] if child_age_in_months < 23
+      return [ENV['ALTERNATIVE_SCRIPT_VIDEO_CALL3_OBSERVEZ_LINK'], ENV['ALTERNATIVE_SCRIPT_VIDEO_CALL3_PARLEZ_LINK']]
     end
   end
 end

@@ -12,15 +12,17 @@ $(document).ready(function() {
   let childSupportId = $('#child_support_id').val();
 
   window.scrollTo(0, 0);
-
-  $('#child_support_resources_alternative_scripts').select2({
-    width: '100%',
-    escapeMarkup: function(markup) { return markup; },
-    templateResult: function(data) {
-      if (!data.id) return data.text;
-      return data.text + ' <i class="fa-solid fa-arrow-up-right-from-square"></i>';
-    }
+  $("[id^='child_support_call'][id$='_resources_alternative_scripts']").each(function() {
+    $(this).select2({
+      width: '100%',
+      escapeMarkup: function(markup) { return markup; },
+      templateResult: function(data) {
+        if (!data.id) return data.text;
+        return data.text + ' <i class="fa-solid fa-arrow-up-right-from-square"></i>';
+      }
+    });
   });
+
 
 
   $childSupportAddressModificationButton.on('click', function() {
@@ -201,7 +203,7 @@ $(document).ready(function() {
     if (idx) toggleWhyTalkNeeded(idx);
   });
 
-  $('#child_support_resources_alternative_scripts').on('change', function() {
+  $("[id^='child_support_call'][id$='_resources_alternative_scripts']").on('change', function() {
     var url = $(this).val();
     if(url) {
       window.open(url, '_blank');

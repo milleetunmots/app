@@ -242,7 +242,7 @@ class ChildSupport < ApplicationRecord
   accepts_nested_attributes_for :children_support_modules
 
   # getter to make select work in form
-  attr_accessor :resources_alternative_scripts
+  attr_accessor :call0_resources_alternative_scripts, :call1_resources_alternative_scripts, :call2_resources_alternative_scripts, :call3_resources_alternative_scripts
 
   before_update do
     if current_child
