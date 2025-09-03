@@ -106,7 +106,7 @@ ActiveAdmin.register ChildrenSupportModule do
     {
       I18n.t("activerecord.models.children_support_module") => SupportModule.order("LOWER(name)").decorate.map { |sm| [sm.name_with_tags, sm.id] }
     }
-  } do |ids, inputs|
+  }, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids, inputs|
     batch_action_collection.where(id: ids, is_programmed: false).update_all(
       support_module_id: inputs[I18n.t("activerecord.models.children_support_module")].to_i
     )

@@ -44,10 +44,10 @@ ActiveAdmin.register ChildSupport do
   scope(:all, group: :all) { |scope| scope.with_children }
 
   scope(:mine, default: true, group: :supporter) { |scope| scope.supported_by(current_admin_user) }
-  scope :without_supporter, group: :supporter, if: proc { !current_admin_user.caller? }
+  scope :without_supporter, group: :supporter, if: proc { !current_admin_user.caller? && !current_admin_user.animator?}
 
   scope :with_book_not_received
-  scope :call_2_4, if: proc { !current_admin_user.caller? }
+  scope :call_2_4, if: proc { !current_admin_user.caller? && !current_admin_user.animator? }
   scope :paused_or_stopped
 
   filter :availability, as: :string
@@ -122,7 +122,7 @@ ActiveAdmin.register ChildSupport do
     {
       I18n.t('activerecord.attributes.child_support.supporter') => AdminUser.pluck(:name, :id)
     }
-  } do |ids, inputs|
+  }, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids, inputs|
     batch_action_collection.find(ids).each do |child_support|
       supporter_id = inputs[I18n.t('activerecord.attributes.child_support.supporter')]
       child_support.supporter_id = supporter_id
@@ -131,37 +131,37 @@ ActiveAdmin.register ChildSupport do
     redirect_to request.referer, notice: 'Accompagnante mis à jour'
   end
 
-  batch_action :check_should_be_read do |ids|
+  batch_action :check_should_be_read, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     child_supports = batch_action_collection.where(id: ids)
     child_supports.each { |child_support| child_support.should_be_read? ? next : child_support.update!(should_be_read: true) }
     redirect_to collection_path, notice: 'Témoignages marquants ajoutés.'
   end
 
-  batch_action :uncheck_should_be_read do |ids|
+  batch_action :uncheck_should_be_read, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     child_supports = batch_action_collection.where(id: ids)
     child_supports.each { |child_support| child_support.should_be_read? ? child_support.update!(should_be_read: false) : next }
     redirect_to collection_path, notice: 'Témoignages marquants retirés.'
   end
 
-  batch_action :check_call_2_4 do |ids|
+  batch_action :check_call_2_4, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     child_supports = batch_action_collection.where(id: ids)
     child_supports.each { |child_support| child_support.to_call? ? next : child_support.update!(to_call: true) }
     redirect_to collection_path, notice: 'Appels 2 ou 4 ajoutés.'
   end
 
-  batch_action :uncheck_call_2_4 do |ids|
+  batch_action :uncheck_call_2_4, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     child_supports = batch_action_collection.where(id: ids)
     child_supports.each { |child_support| child_support.to_call? ? child_support.update!(to_call: false) : next }
     redirect_to collection_path, notice: 'Appels 2 ou 4 retirés.'
   end
 
-  batch_action :remove_call_infos do |ids|
+  batch_action :remove_call_infos, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     child_supports = batch_action_collection.where(id: ids)
     child_supports.each { |child_support| child_support.update! call_infos: '' }
     redirect_to request.referer, notice: 'Informations éffacées'
   end
 
-  batch_action :select_available_support_module do |ids|
+  batch_action :select_available_support_module, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     session[:select_available_support_module_ids] = ids
     redirect_to action: :select_available_support_module
   end
@@ -170,7 +170,7 @@ ActiveAdmin.register ChildSupport do
     {
       I18n.t('activerecord.models.group') => Group.not_started.order(:name).pluck(:name, :id)
     }
-  } do |ids, inputs|
+  }, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids, inputs|
     group = Group.find(inputs[I18n.t('activerecord.models.group')])
     children = Child.with_group_not_started.where(child_support_id: ids, group_status: 'active')
     if children.empty?
@@ -287,8 +287,8 @@ ActiveAdmin.register ChildSupport do
           end
         end
         column class: 'column flex-column' do
-          available_support_module_input(f, :parent1_available_support_module_list, current_admin_user.caller?)
-          available_support_module_input(f, :parent2_available_support_module_list, current_admin_user.caller?) unless resource.parent2.nil?
+          available_support_module_input(f, :parent1_available_support_module_list, (current_admin_user.caller? || current_admin_user.animator?))
+          available_support_module_input(f, :parent2_available_support_module_list, (current_admin_user.caller? || current_admin_user.animator?)) unless resource.parent2.nil?
           div class: 'border' do
             span "Ces informations apparaissent dans l'index des suivis"
             f.input :availability, input_html: { style: 'width: 70%' }
@@ -1060,7 +1060,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   action_item :clean_child_support, only: %i[show edit] do
-    unless current_admin_user.caller?
+    unless current_admin_user.caller? || current_admin_user.animator?
       dropdown_menu 'Logistique' do
         item 'Nettoyer la fiche de suivi', [:clean_child_support, :admin, resource],
              { data: { confirm: 'Êtes-vous sûr de vouloir nettoyer la fiche de suivi ? Cette action est Irréversible, toutes les informations des appels vont être vidées et reportées danns les notes' }, method: 'GET' }
