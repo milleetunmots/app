@@ -32,7 +32,7 @@ class Child
       else
         find_group_to_siblings
       end
-      # warn_family_of_late_support if @at_sign_up
+      warn_family_of_late_support if @at_sign_up
       self
     end
 
@@ -103,8 +103,8 @@ class Child
       return unless @child
       return if @child&.source&.channel == 'caf' && ENV['CAF_SUBSCRIPTION'] == 'true'
 
-      # warn_family_with_siblings
-      # warn_family_without_siblings
+      warn_family_with_siblings
+      warn_family_without_siblings
     end
 
     def warn_family_with_siblings
@@ -115,7 +115,7 @@ class Child
 
       return unless @siblings.any? { |child| child.months < 2 } || (@siblings.any? { |child| child.group_status == 'active' } && @siblings.any? { |child| child.group_status == 'waiting' })
 
-      # send_message
+      send_message
     end
 
     def warn_family_without_siblings
@@ -123,7 +123,7 @@ class Child
 
       return unless @group.nil? || (@group && @group.started_at > 2.months.from_now)
 
-      # send_message
+      send_message
     end
 
     def send_message

@@ -199,7 +199,7 @@ RSpec.describe ChildrenController, type: :request do
         get "/inscrit", params: { sms_url_form: nil }
       end
       it "renders specific wording" do
-        expect(response.body).to include I18n.t('inscription_success.pro_pmi')
+        expect(response.body).to include I18n.t('inscription_success.pro')
       end
 
       it "does not render widget" do
