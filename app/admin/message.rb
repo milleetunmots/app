@@ -7,7 +7,7 @@ ActiveAdmin.register_page 'Message' do
     form action: admin_message_program_sms_path, method: :post, id: 'sms-form' do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
       f.input :parent_id, type: :hidden, name: :parent_id, id: :parent_id, value: params[:parent_id]
-      f.input :supporter_id, type: :hidden, name: :supporter_id, id: :supporter_id, value: current_admin_user.caller? ? current_admin_user.id : nil
+      f.input :supporter_id, type: :hidden, name: :supporter_id, id: :supporter_id, value: (current_admin_user.caller? || current_admin_user.animator?) ? current_admin_user.id : nil
       f.input :provider, type: :hidden, name: :provider, id: :provider,
         value: current_admin_user.aircall_number_id && params[:parent_id].present? ? 'aircall' : 'spothit'
 
@@ -121,7 +121,7 @@ ActiveAdmin.register_page 'Message' do
       params[:redirection_target],
       false,
       nil,
-      current_admin_user.caller? ? current_admin_user.id : params[:supporter],
+      (current_admin_user.caller? || current_admin_user.animator?) ? current_admin_user.id : params[:supporter],
       params[:group_status],
       provider,
       current_admin_user.aircall_number_id

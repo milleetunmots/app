@@ -63,10 +63,10 @@ ActiveAdmin.register Child do
   scope :available_for_the_workshops, group: :workshop
 
   scope :only_siblings, group: :siblings
-  scope('Doublons potentiels', if: proc { !current_admin_user.caller? }) do |scope|
+  scope('Doublons potentiels', if: proc { !current_admin_user.caller? && !current_admin_user.animator? }) do |scope|
     scope.merge(Child.potential_duplicates)
   end
-  scope('Doublons potentiels via tel', if: proc { !current_admin_user.caller? }) do |scope|
+  scope('Doublons potentiels via tel', if: proc { !current_admin_user.caller? && !current_admin_user.animator? }) do |scope|
     scope.merge(Child.potential_duplicates_by_phone_number_without_same_parents)
   end
 
@@ -128,7 +128,7 @@ ActiveAdmin.register Child do
   filter :created_at
   filter :updated_at
 
-  batch_action :create_support do |ids|
+  batch_action :create_support, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     batch_action_collection.find(ids).each do |child|
       next if child.child_support
 
@@ -141,7 +141,7 @@ ActiveAdmin.register Child do
     {
       I18n.t('activerecord.models.group') => Group.not_started.order(:name).pluck(:name, :id)
     }
-  } do |ids, inputs|
+  }, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids, inputs|
     if batch_action_collection.where(id: ids).with_ongoing_group.any?
       flash[:error] = 'Certains enfants sont dans une cohorte déjà lancée'
       redirect_to request.referer
@@ -161,7 +161,7 @@ ActiveAdmin.register Child do
     end
   end
 
-  batch_action :quit_group do |ids|
+  batch_action :quit_group, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     if batch_action_collection.where(id: ids).with_stopped_group.any?
       flash[:error] = 'Certains enfants sont déjà dans une cohorte arrêtée'
       redirect_to request.referer
@@ -170,7 +170,7 @@ ActiveAdmin.register Child do
     redirect_to request.referer, notice: 'Modification effectuée'
   end
 
-  batch_action :reactive_group do |ids|
+  batch_action :reactive_group, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     if batch_action_collection.where(id: ids).with_stopped_group.any?
       flash[:error] = 'Certains enfants sont déjà dans une cohorte arrêtée'
       redirect_to request.referer
@@ -184,7 +184,7 @@ ActiveAdmin.register Child do
     {
       I18n.t('activerecord.models.medium') => Medium.for_redirections.order(:name).kept.pluck(:name, :id)
     }
-  } do |ids, inputs|
+  }, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids, inputs|
     children = batch_action_collection.where(id: ids)
 
     if children.without_parent_to_contact.any?
@@ -221,7 +221,7 @@ ActiveAdmin.register Child do
     end
   end
 
-  batch_action :addresses_pdf do |ids|
+  batch_action :addresses_pdf, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     @children = batch_action_collection.where(id: ids).decorate
     @debug = params.key?('debug')
     render pdf: 'etiquettes',
@@ -240,7 +240,7 @@ ActiveAdmin.register Child do
            progress: proc { |output| puts output }
   end
 
-  batch_action :generate_quit_sms do |ids|
+  batch_action :generate_quit_sms, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     ids.reject! do |id|
       child = Child.find(id)
 
@@ -287,7 +287,7 @@ ActiveAdmin.register Child do
     end
   end
 
-  batch_action :excel_export do |ids|
+  batch_action :excel_export, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     children = batch_action_collection.where(id: ids)
     if children.with_stopped_group.any?
       flash[:error] = 'Certains enfants sont dans une cohorte arrêtée'
