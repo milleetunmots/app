@@ -16,11 +16,11 @@ module ActiveAdmin
       def has_tags
         filter :tagged_with_all,
           as: :select,
-          collection: proc { tag_name_collection(current_admin_user.caller?) },
+          collection: proc { tag_name_collection(current_admin_user.caller? || current_admin_user.animator?) },
           input_html: {multiple: true, data: {select2: {}}},
           label: "Tags"
 
-        batch_action :add_tags do |ids|
+        batch_action :add_tags, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
           @klass = collection.object.klass
           @ids = ids
           @form_action = url_for(action: :perform_adding_tags)

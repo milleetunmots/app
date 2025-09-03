@@ -13,7 +13,7 @@ ActiveAdmin.register Parent do
   # ---------------------------------------------------------------------------
 
   scope :all, default: true
-  scope('Doublons potentiels - téléphone', if: proc { !current_admin_user.caller? }) do |scope|
+  scope('Doublons potentiels - téléphone', if: proc { !current_admin_user.caller? && !current_admin_user.animator? }) do |scope|
     scope.merge(Parent.potential_duplicates)
   end
 
@@ -239,13 +239,13 @@ ActiveAdmin.register Parent do
     end
   end
 
-  batch_action :check_potential_ambassador do |ids|
+  batch_action :check_potential_ambassador, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     @parents = batch_action_collection.where(id: ids)
     @parents.each { |parent| parent.is_ambassador? ? next : parent.update!(is_ambassador: true) }
     redirect_to collection_path, notice: "Potentiels parents bénévoles ajoutés."
   end
 
-  batch_action :uncheck_potential_ambassador do |ids|
+  batch_action :uncheck_potential_ambassador, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     @parents = batch_action_collection.where(id: ids)
     @parents.each { |parent| !parent.is_ambassador? ? next : parent.update!(is_ambassador: false) }
     redirect_to collection_path, notice: "Potentiels parents bénévoles retirés."
