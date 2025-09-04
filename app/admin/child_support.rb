@@ -376,7 +376,7 @@ ActiveAdmin.register ChildSupport do
                 div style:"width:50%; margin-top:35px;" do
                   columns style:"margin-bottom: 50px" do
                     column do
-                      label "Ressource", class:'ressource-label'
+                      label "Ressources", class:'ressource-label'
                       recommended_script_link =
                         case call_idx
                         when 0
@@ -403,9 +403,32 @@ ActiveAdmin.register ChildSupport do
                           end
                         end
                       if recommended_script_link.present?
+                        ul class: 'resource-links' do
+                          li link_to("Script recommandé\u00A0", recommended_script_link, target: '_blank', class: 'recommanded_script') do
+                            i class: 'fa-solid fa-arrow-up-right-from-square recommanded_script'
+                          end
+                          
+                          if call_idx.in?([0,1])
+                            li link_to("Vidéo recommandée\u00A0", resources_recommended_video_link(call_idx, resource.current_child&.months), target: '_blank', class: 'recommanded_script') do
+                              i class: 'fa-solid fa-arrow-up-right-from-square recommanded_script'
+                            end
+                          elsif call_idx.eql?(3) && resource.current_child&.months >= 5 && resource.current_child&.months <= 22
+                            links = resources_recommended_video_link(call_idx, resource.current_child&.months)
+                            li link_to("Vidéo OBSERVEZ\u00A0", links.first, target: '_blank', class: 'recommanded_script') do
+                              i class: 'fa-solid fa-arrow-up-right-from-square recommanded_script'
+                            end
+                            li link_to("Vidéo PARLEZ\u00A0", links.second, target: '_blank', class: 'recommanded_script') do
+                              i class: 'fa-solid fa-arrow-up-right-from-square recommanded_script'
+                            end
+                          end
+                          
+                          li link_to("Briefing\u00A0", resources_briefing_link(call_idx), target: '_blank', class: 'recommanded_script') do
+                            i class: 'fa-solid fa-arrow-up-right-from-square recommanded_script'
+                          end
+                        end
                         ul do
-                          li link_to('Script recommandé', recommended_script_link, target: '_blank', class: 'recommanded_script') do
-                            i class:'fa-solid fa-arrow-up-right-from-square recommanded_script'
+                          li do
+                            f.input "call#{call_idx}_resources_alternative_scripts", as: :select, collection: resources_alternative_script_links
                           end
                         end
                       end
