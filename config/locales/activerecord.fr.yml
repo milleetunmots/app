@@ -365,6 +365,7 @@ fr:
         call3_why_talk_needed: Raisons
         call4_why_talk_needed: Raisons
         call5_why_talk_needed: Raisons
+        has_important_information_parental_consent: Je confirme avoir demandé aux parents leur autorisation de transmettre à 1001mots les informations de la case "Commentaires".
       current_child/parent1:
         phone_number: Téléphone du parent 1
         letterbox_name: Nom de famille sur la boîte aux lettres

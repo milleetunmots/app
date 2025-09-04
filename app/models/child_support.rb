@@ -2,168 +2,169 @@
 #
 # Table name: child_supports
 #
-#  id                                    :bigint           not null, primary key
-#  address_suspected_invalid_at          :datetime
-#  already_working_with                  :boolean
-#  availability                          :string
-#  book_not_received                     :string
-#  books_quantity                        :string
-#  call0_attempt                         :string
-#  call0_duration                        :integer
-#  call0_goal_sent                       :string
-#  call0_goals                           :text
-#  call0_goals_sms                       :text
-#  call0_language_awareness              :string
-#  call0_language_development            :text
-#  call0_notes                           :text
-#  call0_parent_actions                  :text
-#  call0_parent_progress                 :string
-#  call0_reading_frequency               :string
-#  call0_review                          :string
-#  call0_sendings_benefits               :string
-#  call0_sendings_benefits_details       :text
-#  call0_status                          :string
-#  call0_status_details                  :text
-#  call0_talk_needed                     :boolean          default(FALSE), not null
-#  call0_technical_information           :text
-#  call0_tv_frequency                    :string
-#  call0_why_talk_needed                 :text
-#  call1_attempt                         :string
-#  call1_duration                        :integer
-#  call1_family_progress                 :string
-#  call1_goals                           :text
-#  call1_goals_sms                       :text
-#  call1_goals_tracking                  :text
-#  call1_language_awareness              :string
-#  call1_language_development            :text
-#  call1_notes                           :text
-#  call1_parent_actions                  :text
-#  call1_parent_progress                 :string
-#  call1_previous_goals_follow_up        :string
-#  call1_reading_frequency               :string
-#  call1_review                          :string
-#  call1_sendings_benefits               :string
-#  call1_sendings_benefits_details       :text
-#  call1_status                          :string
-#  call1_status_details                  :text
-#  call1_talk_needed                     :boolean          default(FALSE), not null
-#  call1_technical_information           :text
-#  call1_tv_frequency                    :string
-#  call1_why_talk_needed                 :text
-#  call2_attempt                         :string
-#  call2_duration                        :integer
-#  call2_family_progress                 :string
-#  call2_goals                           :text
-#  call2_goals_sms                       :text
-#  call2_goals_tracking                  :text
-#  call2_language_awareness              :string
-#  call2_language_development            :text
-#  call2_notes                           :text
-#  call2_parent_actions                  :text
-#  call2_parent_progress                 :string
-#  call2_previous_goals_follow_up        :string
-#  call2_reading_frequency               :string
-#  call2_review                          :string
-#  call2_sendings_benefits               :string
-#  call2_sendings_benefits_details       :text
-#  call2_status                          :string
-#  call2_status_details                  :text
-#  call2_talk_needed                     :boolean          default(FALSE), not null
-#  call2_technical_information           :text
-#  call2_tv_frequency                    :string
-#  call2_why_talk_needed                 :text
-#  call3_attempt                         :string
-#  call3_duration                        :integer
-#  call3_goals                           :text
-#  call3_goals_sms                       :text
-#  call3_goals_tracking                  :text
-#  call3_language_awareness              :string
-#  call3_language_development            :text
-#  call3_notes                           :text
-#  call3_parent_actions                  :text
-#  call3_parent_progress                 :string
-#  call3_previous_goals_follow_up        :string
-#  call3_reading_frequency               :string
-#  call3_review                          :string
-#  call3_sendings_benefits               :string
-#  call3_sendings_benefits_details       :text
-#  call3_status                          :string
-#  call3_status_details                  :text
-#  call3_talk_needed                     :boolean          default(FALSE), not null
-#  call3_technical_information           :text
-#  call3_tv_frequency                    :string
-#  call3_why_talk_needed                 :text
-#  call4_attempt                         :string
-#  call4_duration                        :integer
-#  call4_goals                           :text
-#  call4_goals_sms                       :text
-#  call4_goals_tracking                  :text
-#  call4_language_awareness              :string
-#  call4_language_development            :text
-#  call4_notes                           :text
-#  call4_parent_actions                  :text
-#  call4_parent_progress                 :string
-#  call4_previous_goals_follow_up        :string
-#  call4_reading_frequency               :string
-#  call4_review                          :string
-#  call4_sendings_benefits               :string
-#  call4_sendings_benefits_details       :text
-#  call4_status                          :string
-#  call4_status_details                  :text
-#  call4_talk_needed                     :boolean          default(FALSE), not null
-#  call4_technical_information           :text
-#  call4_tv_frequency                    :string
-#  call4_why_talk_needed                 :text
-#  call5_attempt                         :string
-#  call5_duration                        :integer
-#  call5_goals                           :text
-#  call5_goals_sms                       :text
-#  call5_goals_tracking                  :text
-#  call5_language_awareness              :string
-#  call5_language_development            :text
-#  call5_notes                           :text
-#  call5_parent_actions                  :text
-#  call5_parent_progress                 :string
-#  call5_reading_frequency               :string
-#  call5_review                          :string
-#  call5_sendings_benefits               :string
-#  call5_sendings_benefits_details       :text
-#  call5_status                          :string
-#  call5_status_details                  :text
-#  call5_talk_needed                     :boolean          default(FALSE), not null
-#  call5_technical_information           :text
-#  call5_tv_frequency                    :string
-#  call5_why_talk_needed                 :text
-#  call_infos                            :string
-#  child_count                           :integer
-#  discarded_at                          :datetime
-#  family_support_should_be_stopped      :string
-#  important_information                 :text
-#  is_bilingual                          :string           default("2_no_information")
-#  most_present_parent                   :string
-#  notes                                 :text
-#  other_phone_number                    :string
-#  parent1_available_support_module_list :string           is an Array
-#  parent2_available_support_module_list :string           is an Array
-#  parent_mid_term_rate                  :integer
-#  parent_mid_term_reaction              :string
-#  parental_contexts                     :string           is an Array
-#  second_language                       :string
-#  should_be_read                        :boolean
-#  stop_support_date                     :datetime
-#  stop_support_details                  :text
-#  suggested_videos_counter              :jsonb            is an Array
-#  to_call                               :boolean
-#  will_stay_in_group                    :boolean          default(FALSE), not null
-#  created_at                            :datetime         not null
-#  updated_at                            :datetime         not null
-#  module2_chosen_by_parents_id          :bigint
-#  module3_chosen_by_parents_id          :bigint
-#  module4_chosen_by_parents_id          :bigint
-#  module5_chosen_by_parents_id          :bigint
-#  module6_chosen_by_parents_id          :bigint
-#  stop_support_caller_id                :bigint
-#  supporter_id                          :bigint
+#  id                                         :bigint           not null, primary key
+#  address_suspected_invalid_at               :datetime
+#  already_working_with                       :boolean
+#  availability                               :string
+#  book_not_received                          :string
+#  books_quantity                             :string
+#  call0_attempt                              :string
+#  call0_duration                             :integer
+#  call0_goal_sent                            :string
+#  call0_goals                                :text
+#  call0_goals_sms                            :text
+#  call0_language_awareness                   :string
+#  call0_language_development                 :text
+#  call0_notes                                :text
+#  call0_parent_actions                       :text
+#  call0_parent_progress                      :string
+#  call0_reading_frequency                    :string
+#  call0_review                               :string
+#  call0_sendings_benefits                    :string
+#  call0_sendings_benefits_details            :text
+#  call0_status                               :string
+#  call0_status_details                       :text
+#  call0_talk_needed                          :boolean          default(FALSE), not null
+#  call0_technical_information                :text
+#  call0_tv_frequency                         :string
+#  call0_why_talk_needed                      :text
+#  call1_attempt                              :string
+#  call1_duration                             :integer
+#  call1_family_progress                      :string
+#  call1_goals                                :text
+#  call1_goals_sms                            :text
+#  call1_goals_tracking                       :text
+#  call1_language_awareness                   :string
+#  call1_language_development                 :text
+#  call1_notes                                :text
+#  call1_parent_actions                       :text
+#  call1_parent_progress                      :string
+#  call1_previous_goals_follow_up             :string
+#  call1_reading_frequency                    :string
+#  call1_review                               :string
+#  call1_sendings_benefits                    :string
+#  call1_sendings_benefits_details            :text
+#  call1_status                               :string
+#  call1_status_details                       :text
+#  call1_talk_needed                          :boolean          default(FALSE), not null
+#  call1_technical_information                :text
+#  call1_tv_frequency                         :string
+#  call1_why_talk_needed                      :text
+#  call2_attempt                              :string
+#  call2_duration                             :integer
+#  call2_family_progress                      :string
+#  call2_goals                                :text
+#  call2_goals_sms                            :text
+#  call2_goals_tracking                       :text
+#  call2_language_awareness                   :string
+#  call2_language_development                 :text
+#  call2_notes                                :text
+#  call2_parent_actions                       :text
+#  call2_parent_progress                      :string
+#  call2_previous_goals_follow_up             :string
+#  call2_reading_frequency                    :string
+#  call2_review                               :string
+#  call2_sendings_benefits                    :string
+#  call2_sendings_benefits_details            :text
+#  call2_status                               :string
+#  call2_status_details                       :text
+#  call2_talk_needed                          :boolean          default(FALSE), not null
+#  call2_technical_information                :text
+#  call2_tv_frequency                         :string
+#  call2_why_talk_needed                      :text
+#  call3_attempt                              :string
+#  call3_duration                             :integer
+#  call3_goals                                :text
+#  call3_goals_sms                            :text
+#  call3_goals_tracking                       :text
+#  call3_language_awareness                   :string
+#  call3_language_development                 :text
+#  call3_notes                                :text
+#  call3_parent_actions                       :text
+#  call3_parent_progress                      :string
+#  call3_previous_goals_follow_up             :string
+#  call3_reading_frequency                    :string
+#  call3_review                               :string
+#  call3_sendings_benefits                    :string
+#  call3_sendings_benefits_details            :text
+#  call3_status                               :string
+#  call3_status_details                       :text
+#  call3_talk_needed                          :boolean          default(FALSE), not null
+#  call3_technical_information                :text
+#  call3_tv_frequency                         :string
+#  call3_why_talk_needed                      :text
+#  call4_attempt                              :string
+#  call4_duration                             :integer
+#  call4_goals                                :text
+#  call4_goals_sms                            :text
+#  call4_goals_tracking                       :text
+#  call4_language_awareness                   :string
+#  call4_language_development                 :text
+#  call4_notes                                :text
+#  call4_parent_actions                       :text
+#  call4_parent_progress                      :string
+#  call4_previous_goals_follow_up             :string
+#  call4_reading_frequency                    :string
+#  call4_review                               :string
+#  call4_sendings_benefits                    :string
+#  call4_sendings_benefits_details            :text
+#  call4_status                               :string
+#  call4_status_details                       :text
+#  call4_talk_needed                          :boolean          default(FALSE), not null
+#  call4_technical_information                :text
+#  call4_tv_frequency                         :string
+#  call4_why_talk_needed                      :text
+#  call5_attempt                              :string
+#  call5_duration                             :integer
+#  call5_goals                                :text
+#  call5_goals_sms                            :text
+#  call5_goals_tracking                       :text
+#  call5_language_awareness                   :string
+#  call5_language_development                 :text
+#  call5_notes                                :text
+#  call5_parent_actions                       :text
+#  call5_parent_progress                      :string
+#  call5_reading_frequency                    :string
+#  call5_review                               :string
+#  call5_sendings_benefits                    :string
+#  call5_sendings_benefits_details            :text
+#  call5_status                               :string
+#  call5_status_details                       :text
+#  call5_talk_needed                          :boolean          default(FALSE), not null
+#  call5_technical_information                :text
+#  call5_tv_frequency                         :string
+#  call5_why_talk_needed                      :text
+#  call_infos                                 :string
+#  child_count                                :integer
+#  discarded_at                               :datetime
+#  family_support_should_be_stopped           :string
+#  has_important_information_parental_consent :boolean          default(FALSE), not null
+#  important_information                      :text
+#  is_bilingual                               :string           default("2_no_information")
+#  most_present_parent                        :string
+#  notes                                      :text
+#  other_phone_number                         :string
+#  parent1_available_support_module_list      :string           is an Array
+#  parent2_available_support_module_list      :string           is an Array
+#  parent_mid_term_rate                       :integer
+#  parent_mid_term_reaction                   :string
+#  parental_contexts                          :string           is an Array
+#  second_language                            :string
+#  should_be_read                             :boolean
+#  stop_support_date                          :datetime
+#  stop_support_details                       :text
+#  suggested_videos_counter                   :jsonb            is an Array
+#  to_call                                    :boolean
+#  will_stay_in_group                         :boolean          default(FALSE), not null
+#  created_at                                 :datetime         not null
+#  updated_at                                 :datetime         not null
+#  module2_chosen_by_parents_id               :bigint
+#  module3_chosen_by_parents_id               :bigint
+#  module4_chosen_by_parents_id               :bigint
+#  module5_chosen_by_parents_id               :bigint
+#  module6_chosen_by_parents_id               :bigint
+#  stop_support_caller_id                     :bigint
+#  supporter_id                               :bigint
 #
 # Indexes
 #
@@ -276,6 +277,7 @@ class ChildSupport < ApplicationRecord
 
   validates :books_quantity, inclusion: { in: BOOKS_QUANTITY, allow_blank: true }
   validates :is_bilingual, inclusion: { in: IS_BILINGUAL_OPTIONS }
+  validates :has_important_information_parental_consent, acceptance: true, if: -> { important_information.present? && new_record? }
 
   # ---------------------------------------------------------------------------
   # scopes
