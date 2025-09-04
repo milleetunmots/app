@@ -15,6 +15,7 @@
           placeholder: (defined?(with_placeholder) && with_placeholder ? "Précisez ici les informations utiles pour l'accompagnante qui suivra la famille (multilinguisme, prématurité, écrans, retards de langage dans la fratrie, etc.)." : nil)
         }
       %>
+      <%= child_support_f.input :has_important_information_parental_consent, as: :boolean, label: t('child_support.has_important_information_parental_consent_label'), required: true %>
     <% end %>
   <% end %>
 <% end %>
