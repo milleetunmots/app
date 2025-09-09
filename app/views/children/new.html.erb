@@ -177,6 +177,9 @@
             <div class="card">
               <div class="card-body"
                 <%= f.simple_fields_for :parent1 do |parent1_f| %>
+                <% if @form_path == caf_registration_path || @form_path == bao_registration_path %>
+                  <p>1001mots collecte vos données personnelles pour vous permettre de bénéficier du programme d’accompagnement à l'éveil au langage. <a href="https://1001mots.org/politique-de-confidentialite/" target="_blank">En savoir plus.</a></p>
+                <% end %>
                   <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label.html_safe, checked_value: Time.zone.now %>
                 <% end %>
               </div>
