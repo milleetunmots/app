@@ -131,6 +131,8 @@ class Parent < ApplicationRecord
   validates :address, format: { with: REGEX_VALID_ADDRESS, allow_blank: true, message: INVALID_ADDRESS_MESSAGE }
   validates :city_name, presence: true
   validates :postal_code, presence: true
+  validates :postal_code, numericality: { only_integer: true }
+  validates :postal_code, length: { is: 5 }
   validates :phone_number,
             phone: {
               possible: true,
