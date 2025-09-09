@@ -5,6 +5,9 @@
   var sourceDetailsInput = $('#child_children_source_attributes_details');
   var sourceDetailsAlert = $('#children_source_detail_alert');
   var bookDeliveryLocationSelect = $('#child_parent1_attributes_book_delivery_location');
+  var comments = $('#child_child_support_attributes_important_information');
+  var consentInputWrapper = $('.child_child_support_has_important_information_parental_consent');
+  var consentCheckbox = $('#child_child_support_attributes_has_important_information_parental_consent');
 
   sourceDetailsInput.on('input', function() {
     const value = $(this).val().toLowerCase();
@@ -123,6 +126,27 @@
     }
 
     abbr.remove();
+  }
+
+  var comments = $('#child_child_support_attributes_important_information');
+  var consentInputWrapper = $('.child_child_support_has_important_information_parental_consent');
+  var consentCheckbox = $('#child_child_support_attributes_has_important_information_parental_consent');
+
+  if (comments.length && consentInputWrapper.length && consentCheckbox.length) {
+    function toggleParentalConsent() {
+      var commentsVal = comments.val();
+      if (commentsVal.length > 0) {
+        consentInputWrapper.show();
+        consentCheckbox.prop('required', true);
+      } else {
+        consentInputWrapper.hide();
+        consentCheckbox.prop('required', false);
+        consentCheckbox.prop('checked', false);
+      }
+    }
+
+    comments.on('input', toggleParentalConsent);
+    toggleParentalConsent();
   }
 
   var init = function() {
