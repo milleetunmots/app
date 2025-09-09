@@ -46,7 +46,8 @@ module AddressesHelper
 
     form.input key,
                input_html: {
-                 id: "address-#{key}"
+                 id: "address-#{key}",
+                 type: 'number'
                },
                hint: 'Le code postal doit être composé de 5 chiffres.'
   end
