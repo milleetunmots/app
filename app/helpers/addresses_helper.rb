@@ -34,9 +34,10 @@ module AddressesHelper
   def address_address_supplement_input(form, prefix)
     form.input "#{prefix}address_supplement".to_sym,
       as: :string,
-      label: "Complément d'adresse",
+      label: "Important : précisions pour aider le livreur",
       input_html: {
-        id: "address-#{prefix}address_supplement".to_sym
+        id: "address-#{prefix}address_supplement".to_sym,
+        placeholder: 'Ex : bâtiment, résidence, interphone, appartement, porte, numéro de boîte...'
       }
   end
 
