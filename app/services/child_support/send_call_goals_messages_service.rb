@@ -55,7 +55,9 @@ class ChildSupport::SendCallGoalsMessagesService
   def reminder_message
     call_goals = @goals_match[1]&.strip
     typeform_link = @typeform_link_match[0]
-    CALL_GOALS_REMINDER_MESSAGE.gsub('{call_goals}', call_goals).gsub('{typeform_link}', typeform_link)
+    message = CALL_GOALS_REMINDER_MESSAGE
+    message = message.gsub('À bientôt', 'Bonne journée') if @call_index == 3
+    message.gsub('{call_goals}', call_goals).gsub('{typeform_link}', typeform_link)
   end
 
   def send_text_messages_bundle

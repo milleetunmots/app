@@ -70,7 +70,7 @@ class ProgramMessageService
       Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(@aircall_number_id, parent&.phone_number, @message, event.id)
       @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
     when 'spothit'
-      service = 
+      service =
         if @file.nil?
           SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, workshop_id: @workshop_id, event_params: @event_params).call
         else
@@ -82,7 +82,6 @@ class ProgramMessageService
       elsif @invalid_parent_ids.any?
         invalid_parents = Parent.includes(:parent1_children, :parent2_children).where(id: @invalid_parent_ids)
         description_text = "Le message \"#{@message}\" n'a pas été envoyé aux parents pour les raisons suivantes :"
-    
         invalid_parents.each do |parent|
           if parent.valid?
             parent.children.each do |child|
