@@ -245,8 +245,6 @@ class ChildSupport < ApplicationRecord
   # getter to make select work in form
   attr_accessor :call0_resources_alternative_scripts, :call1_resources_alternative_scripts, :call2_resources_alternative_scripts, :call3_resources_alternative_scripts
 
-  before_update :distribute_tags
-
   after_save do
     if saved_change_to_parent1_available_support_module_list?
       ChildrenSupportModule.where(child: current_child, parent: parent1, is_programmed: false).find_each do |csm|
