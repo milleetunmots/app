@@ -537,7 +537,7 @@ ActiveAdmin.register Child do
   end
 
   action_item :view do
-    link_to 'Nouveau parent', new_admin_parent_path, target: '_blank' if authorized?(:create, Parent)
+    link_to 'Nouveau parent', new_admin_parent_path, target: '_blank' if authorized?(:create, Parent) && !current_admin_user.user_role.in?(%w[caller animator])
   end
 
   collection_action :parents, method: :get
