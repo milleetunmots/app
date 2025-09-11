@@ -1015,7 +1015,7 @@ ActiveAdmin.register ChildSupport do
     dropdown_menu 'Actions' do
       item "Ajout d'un frère / soeur", %i[add_child admin child_support], { target: '_blank' } if authorized?(:add_child, resource)
       item "Ajout d'un parent", %i[add_parent admin child_support], { target: '_blank' } if resource.decorate.model.parent2.nil? && authorized?(:add_parent, resource)
-      item 'Rédiger une tâche', url_for_new_task(resource.decorate), { target: '_blank' } if resource.decorate.model.supporter.present? && resource.decorate.model.supporter_id == current_admin_user.id
+      item 'Rédiger une tâche', url_for_new_task(resource.decorate), { target: '_blank' } if (resource.decorate.model.supporter.present? && resource.decorate.model.supporter_id == current_admin_user.id) || authorized?(:create, Task)
       if authorized?(:manage, ActiveAdmin::Page.new(ActiveAdmin.application, 'Stop Support Form', active_admin_namespace))
         item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
       end
