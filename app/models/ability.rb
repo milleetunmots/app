@@ -32,6 +32,7 @@ class Ability
       can :read, ActiveAdmin::Page, name: 'Dashboard'
       can :send_message_to_parent1, ChildSupport
       can :send_message_to_parent2, ChildSupport
+      cannot :upload_undelivered_books, Parent
     when 'caller'
       can :autocomplete, [Group, Tag] # we use this custom action to search Groups and Tags for users without read permission (ie. in get_recipients)
       can :read, ActiveAdmin::Page, name: 'Dashboard'
@@ -55,6 +56,7 @@ class Ability
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
+      cannot :upload_undelivered_books, Parent
     when 'animator'
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
@@ -71,6 +73,7 @@ class Ability
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
+      cannot :upload_undelivered_books, Parent
     end
   end
 
