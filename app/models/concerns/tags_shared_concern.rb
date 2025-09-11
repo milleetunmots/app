@@ -56,6 +56,7 @@ module TagsSharedConcern
 
     def add_tags_to_parent2
       return unless instance_of?(Parent)
+      return unless current_child&.parent2
       return if self == current_child&.parent2
 
       add_tags_to(current_child&.parent2)
@@ -106,6 +107,7 @@ module TagsSharedConcern
 
     def remove_tags_from_parent2
       return unless instance_of?(Parent)
+      return unless current_child&.parent2
       return if self == current_child&.parent2
 
       remove_tags_from(current_child&.parent2)
