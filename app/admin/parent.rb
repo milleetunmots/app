@@ -185,10 +185,11 @@ ActiveAdmin.register Parent do
   end
 
   action_item :manage_undelivered_books, only: :index do
-    link_to 'Gestion des plis non distribués', %i[upload_undelivered_books_csv admin parents]
+    link_to 'Gestion des plis non distribués', %i[upload_undelivered_books_csv admin parents] if authorized?(:upload_undelivered_books, Parent)
   end
 
   collection_action :upload_undelivered_books_csv, method: :get do
+    authorize!(:upload_undelivered_books, Parent)
     render 'admin/parents/upload_undelivered_books_csv_form'
   end
 

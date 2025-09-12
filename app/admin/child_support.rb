@@ -170,7 +170,7 @@ ActiveAdmin.register ChildSupport do
     {
       I18n.t('activerecord.models.group') => Group.not_started.order(:name).pluck(:name, :id)
     }
-  }, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids, inputs|
+  }, if: proc { !current_admin_user.user_role.in? %w[caller animator reader]  } do |ids, inputs|
     group = Group.find(inputs[I18n.t('activerecord.models.group')])
     children = Child.with_group_not_started.where(child_support_id: ids, group_status: 'active')
     if children.empty?
@@ -287,8 +287,8 @@ ActiveAdmin.register ChildSupport do
           end
         end
         column class: 'column flex-column' do
-          available_support_module_input(f, :parent1_available_support_module_list, (current_admin_user.caller? || current_admin_user.animator?))
-          available_support_module_input(f, :parent2_available_support_module_list, (current_admin_user.caller? || current_admin_user.animator?)) unless resource.parent2.nil?
+          available_support_module_input(f, :parent1_available_support_module_list, (current_admin_user.user_role.in? %w[caller animator reader]))
+          available_support_module_input(f, :parent2_available_support_module_list, (current_admin_user.user_role.in? %w[caller animator reader])) unless resource.parent2.nil?
           div class: 'border' do
             span "Ces informations apparaissent dans l'index des suivis"
             f.input :availability, input_html: { style: 'width: 70%' }
@@ -407,7 +407,7 @@ ActiveAdmin.register ChildSupport do
                           li link_to("Script recommandé\u00A0", recommended_script_link, target: '_blank', class: 'recommanded_script') do
                             i class: 'fa-solid fa-arrow-up-right-from-square recommanded_script'
                           end
-                          
+
                           if call_idx.in?([0,1])
                             li link_to("Vidéo recommandée\u00A0", resources_recommended_video_link(call_idx, resource.current_child&.months), target: '_blank', class: 'recommanded_script') do
                               i class: 'fa-solid fa-arrow-up-right-from-square recommanded_script'
@@ -421,7 +421,7 @@ ActiveAdmin.register ChildSupport do
                               i class: 'fa-solid fa-arrow-up-right-from-square recommanded_script'
                             end
                           end
-                          
+
                           li link_to("Briefing\u00A0", resources_briefing_link(call_idx), target: '_blank', class: 'recommanded_script') do
                             i class: 'fa-solid fa-arrow-up-right-from-square recommanded_script'
                           end
@@ -1015,7 +1015,7 @@ ActiveAdmin.register ChildSupport do
     dropdown_menu 'Actions' do
       item "Ajout d'un frère / soeur", %i[add_child admin child_support], { target: '_blank' } if authorized?(:add_child, resource)
       item "Ajout d'un parent", %i[add_parent admin child_support], { target: '_blank' } if resource.decorate.model.parent2.nil? && authorized?(:add_parent, resource)
-      item 'Rédiger une tâche', url_for_new_task(resource.decorate), { target: '_blank' } if resource.decorate.model.supporter.present? && resource.decorate.model.supporter_id == current_admin_user.id
+      item 'Rédiger une tâche', url_for_new_task(resource.decorate), { target: '_blank' } if (resource.decorate.model.supporter.present? && resource.decorate.model.supporter_id == current_admin_user.id) || authorized?(:create, Task)
       if authorized?(:manage, ActiveAdmin::Page.new(ActiveAdmin.application, 'Stop Support Form', active_admin_namespace))
         item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
       end

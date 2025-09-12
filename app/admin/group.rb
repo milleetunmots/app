@@ -181,10 +181,11 @@ ActiveAdmin.register Group do
   end
 
   action_item :distribute_child_support, only: :show do
-    link_to I18n.t('group.distribute_child_support'), %i[distribute_child_supports admin group]
+    link_to I18n.t('group.distribute_child_support'), %i[distribute_child_supports admin group] if authorized?(:distribute_child_supports_to_callers, Group)
   end
 
   member_action :distribute_child_supports do
+    authorize!(:distribute_child_supports_to_callers, Group)
     @perform_action = perform_distribute_child_support_admin_group_path
     @calls = Airtables::Call.all_call_missions
   end
