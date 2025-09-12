@@ -170,7 +170,7 @@ ActiveAdmin.register ChildSupport do
     {
       I18n.t('activerecord.models.group') => Group.not_started.order(:name).pluck(:name, :id)
     }
-  }, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids, inputs|
+  }, if: proc { !current_admin_user.user_role.in? %w[caller animator reader]  } do |ids, inputs|
     group = Group.find(inputs[I18n.t('activerecord.models.group')])
     children = Child.with_group_not_started.where(child_support_id: ids, group_status: 'active')
     if children.empty?
