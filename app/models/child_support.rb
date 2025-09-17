@@ -209,6 +209,7 @@
 class ChildSupport < ApplicationRecord
 
   include Discard::Model
+  include TagsSharedConcern
 
   LANGUAGE_AWARENESS = %w[1_none 2_awareness].freeze
   PARENT_PROGRESS = %w[1_low 2_medium 3_high 4_excellent].freeze
@@ -243,15 +244,6 @@ class ChildSupport < ApplicationRecord
 
   # getter to make select work in form
   attr_accessor :call0_resources_alternative_scripts, :call1_resources_alternative_scripts, :call2_resources_alternative_scripts, :call3_resources_alternative_scripts
-
-  before_update do
-    if current_child
-      current_child.parent1.tag_list.add(tag_list)
-      current_child.parent1.save
-      current_child.parent2&.tag_list&.add(tag_list)
-      current_child.parent2&.save
-    end
-  end
 
   after_save do
     if saved_change_to_parent1_available_support_module_list?

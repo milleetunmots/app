@@ -21,7 +21,6 @@ $(document).ready(function() {
     function assignDefaultValuesToFields() {
         message_intro.val(`Bonjour !\nVoici votre petite mission :\n`)
         feedback_form.val(`Quand vous aurez essayé, cliquez sur ce lien pour me raconter comment ça s’est passé : `)
-        conclusion.val(`À bientôt !`)
     }
 
     function showNewFields() {
@@ -70,10 +69,12 @@ $(document).ready(function() {
         var selectedValue = $(this).val()
         if (selectedValue == 'call0_goals' || selectedValue == 'call3_goals_speaking' || selectedValue == 'call3_goals_observing') {
             if (selectedValue == 'call0_goals') {
+                conclusion.val(`À bientôt !`)
                 call_index = 0
-                imageToSendSelect.empty();
+                imageToSendSelect.empty()
                 imageToSendDiv.hide()
             } else {
+                conclusion.val(`Bonne journée !`)
                 call_index = 3
                 imageToSendDiv.show()
             }

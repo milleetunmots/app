@@ -141,7 +141,7 @@ ActiveAdmin.register Child do
     {
       I18n.t('activerecord.models.group') => Group.not_started.order(:name).pluck(:name, :id)
     }
-  }, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids, inputs|
+  }, if: proc { !current_admin_user.user_role.in? %w[caller animator reader] } do |ids, inputs|
     if batch_action_collection.where(id: ids).with_ongoing_group.any?
       flash[:error] = 'Certains enfants sont dans une cohorte déjà lancée'
       redirect_to request.referer
@@ -537,7 +537,7 @@ ActiveAdmin.register Child do
   end
 
   action_item :view do
-    link_to 'Nouveau parent', new_admin_parent_path, target: '_blank' if authorized?(:create, Parent)
+    link_to 'Nouveau parent', new_admin_parent_path, target: '_blank' if authorized?(:create, Parent) && !current_admin_user.user_role.in?(%w[caller animator])
   end
 
   collection_action :parents, method: :get

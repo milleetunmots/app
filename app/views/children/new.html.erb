@@ -158,7 +158,7 @@
             <div class="card">
               <div class="card-body">
                 <h3 class="card-title">Adresse pour recevoir les livres</h3>
-                <% if @form_path == pmi_registration_path %>
+                <% if @form_path == pmi_registration_path || @form_path == local_partner_registration_path %>
                   <%= f.simple_fields_for :parent1 do |parent1_f| %>
                     <%= parent1_f.input :book_delivery_location,
                         label: "La famille souhaite recevoir les livres :",
@@ -169,14 +169,17 @@
                     <p></p>
                   </div>
                 <% end %>
-                <div style="display: <%= @form_path == pmi_registration_path ? 'none' : 'block' %>" id="address_form_div">
-                  <%= render 'address_form', f: f, form_with_book_delivery_organisation_name: @form_path == pmi_registration_path %>
+                <div style="display: <%= (@form_path == pmi_registration_path || @form_path == local_partner_registration_path) ? 'none' : 'block' %>" id="address_form_div">
+                  <%= render 'address_form', f: f, form_with_book_delivery_organisation_name: (@form_path == pmi_registration_path || @form_path == local_partner_registration_path) %>
                 </div>
               </div>
             </div>
             <div class="card">
               <div class="card-body"
                 <%= f.simple_fields_for :parent1 do |parent1_f| %>
+                <% if @form_path == caf_registration_path || @form_path == bao_registration_path %>
+                  <p>1001mots collecte vos données personnelles pour vous permettre de bénéficier du programme d’accompagnement à l'éveil au langage. <a href="https://1001mots.org/politique-de-confidentialite/" target="_blank">En savoir plus.</a></p>
+                <% end %>
                   <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label.html_safe, checked_value: Time.zone.now %>
                 <% end %>
               </div>
