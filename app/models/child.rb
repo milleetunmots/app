@@ -755,7 +755,7 @@ class Child < ApplicationRecord
     { first_name: first_name.parameterize, last_name: last_name.parameterize, birthdate: birthdate }
   end
 
-  def duration_in_months(started_at, ended_at = Time.zone.now)
+  def self.duration_in_months(started_at, ended_at = Time.zone.now)
     return unless started_at && ended_at && ended_at >= started_at
 
     diff = ended_at.month + (ended_at.year * 12) - (started_at.month + (started_at.year * 12))
@@ -764,6 +764,10 @@ class Child < ApplicationRecord
     else
       diff
     end
+  end
+
+  def duration_in_months(started_at, ended_at = Time.zone.now)
+    self.class.duration_in_months(started_at, ended_at)
   end
 
   private
