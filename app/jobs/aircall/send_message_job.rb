@@ -3,11 +3,7 @@ module Aircall
     sidekiq_options retry: 10
 
     sidekiq_retry_in do |count, exception, _jobhash|
-      if exception.message.start_with?('Aircall API rate limit has been reached :')
-        reset_at = Time.parse(exception.message.split('reset_at').last.strip)
-        wait = reset_at - Time.current
-        wait.positive? ? reset_at : 60
-      elsif exception.message.starts_with?('Aircall API request failed :')
+      if exception.message.starts_with?('NoRollbarError')
         60 * 60 * (count + 1) # 60 minutes
       else
         :kill
@@ -22,7 +18,15 @@ module Aircall
 
     def perform(number_id, to, body, event_id)
       service = Aircall::SendMessageService.new(number_id: number_id, to: to, body: body, event_id: event_id).call
-      Rollbar.error(service.errors) if service.errors.any?
+      return unless service.errors.any?
+
+      error = service.errors.first
+      if error.is_a?(Hash)
+        Rollbar.error("Erreur API Aircall : #{error[:key]}", message: error[:message], status: error[:status])
+        raise NoRollbarError
+      else
+        Rollbar.error(error)
+      end
     end
   end
 end

@@ -19,7 +19,6 @@ module Aircall
         return self
       end
 
-
       if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
         safe_numbers = ENV['SAFE_PHONE_NUMBERS'].to_s.split(',').map(&:strip)
         unless safe_numbers.include?(@to)
@@ -30,16 +29,10 @@ module Aircall
       end
 
       response = http_client_with_auth.post(build_url(NUMBERS_ENDPOINT, "/#{@number_id}/messages/native/send"), json: { to: Phonelib.parse(@to).e164, body: @body })
-      headers = response.headers.to_h
       if response.status.success?
         @errors << "Erreur lors de la mise à jour de l'event d'envoi de message pour #{@to}." unless update_event(2, JSON.parse(response.body)['id'])
-      elsif headers['X-AircallApi-Reset'] && headers['X-AircallApi-Reset'].to_i > 0
-        reset_at = Time.at(headers['X-AircallApi-Reset'].to_i)
-        @errors << { status: response.status.to_i, reset_at: reset_at }
-        raise StandardError, "Aircall API rate limit has been reached : #{response.status.reason}, status: #{response.status.to_i}, reset_at: #{reset_at}"
       else
-        @errors << { status: response.status.to_i, message: response.parse['message'] }
-        raise StandardError, "Aircall API request failed : #{response.status.reason}, status: #{response.status.to_i}, message: #{response.parse['message']}"
+        @errors << { status: response.status.to_s, key: response.parse['key'], message: response.parse['message'] }
       end
       self
     end
