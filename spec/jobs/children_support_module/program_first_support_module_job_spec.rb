@@ -11,7 +11,7 @@ RSpec.describe ChildrenSupportModule::ProgramFirstSupportModuleJob, type: :job d
     it 'enqueues the job' do
       ActiveJob::Base.queue_adapter = :test
       expect {
-        subject.perform_later(group.id)
+        subject.perform_later(group.id, program_module_date)
       }.to have_enqueued_job(described_class).on_queue('default').exactly(:once)
     end
   end

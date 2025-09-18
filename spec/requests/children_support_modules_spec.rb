@@ -70,7 +70,7 @@ RSpec.describe ChildrenSupportModulesController, type: :request do
 
   describe "#updated" do
     it "displays thanks" do
-      get "/children_support_modules/#{children_support_module.id}/updated", params: { child_first_name: child.first_name, sc: child.parent1.security_code }
+      get "/children_support_modules/#{children_support_module.id}/updated", params: { child_first_name: child.first_name, sc: child.parent1.security_code, group_id: child.group_id }
 
       expect(assigns(:child_first_name)).to eq child.first_name
     end
