@@ -89,6 +89,9 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 
+  # Block all external requests
+  WebMock.disable_net_connect!(allow_localhost: true)
+
   config.before(:each) do
     stub_request(:post, "https://www.spot-hit.fr/api/envoyer/sms").to_return(status: 200, body: "{}", headers: {})
   end
