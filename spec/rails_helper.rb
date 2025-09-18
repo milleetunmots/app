@@ -1,6 +1,9 @@
 require "simplecov"
 
-SimpleCov.start "rails"
+SimpleCov.start "rails" do
+  add_group "Services", "app/services"
+  add_filter "app/admin/"
+end
 
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require "spec_helper"
@@ -22,6 +25,9 @@ ENV['INITIAL_TYPEFORM_HELP_MY_CHILD_TO_LEARN_IS_IMPORTANT'] = 'typeform_help_my_
 ENV['INITIAL_TYPEFORM_WOULD_LIKE_TO_DO_MORE'] = 'typeform_would_like_to_do_more_id'
 ENV['INITIAL_TYPEFORM_WOULD_LIKE_TO_RECEIVE_ADVICES'] = 'typeform_would_like_to_receive_advices_id'
 ENV['INITIAL_TYPEFORM_PARENTAL_CONTEXTS'] = 'typeform_parental_contexts_id'
+ENV['MID_TERM_TYPEFORM_RATE_FIELD'] = 'mid_term_typeform_rate_field_id'
+ENV['MID_TERM_TYPEFORM_REACTION_FIELD'] = 'mid_term_typeform_reaction_field_id'
+ENV['MID_TERM_TYPEFORM_SPEECH_FIELD'] = 'mid_term_typeform_speech_field_id'
 ENV["MODULE_ZERO_FEATURE_START"] ||= "01/09/2023"
 ENV['DISENGAGEMENT_FEATURE_START_DATE'] ||= "01/09/2023"
 ENV['BLOCKED_REGISTRATION_PATHS'] ||= ""
@@ -29,6 +35,10 @@ ENV['NOT_SUPPORTED_LINK'] ||= "http://google.fr"
 ENV['API_TOKEN'] ||= "valid token"
 ENV['AIRCALL_API_ID'] ||= "valid token"
 ENV['AIRCALL_API_TOKEN'] ||= "valid token"
+ENV['AIRCALL_WEBHOOK_MESSAGE_TOKEN'] ||= "valid token"
+ENV['AIRCALL_WEBHOOK_CALL_TOKEN'] ||= "valid token"
+ENV['LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'] = 'Jouer avec mon bébé 🧩'
+ENV['MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'] = 'Jouer avec mon enfant 🧩'
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production
@@ -120,4 +130,6 @@ RSpec.configure do |config|
   config.after(:each) do
     DatabaseCleaner.clean
   end
+
+  config.include Devise::Test::IntegrationHelpers, type: :request
 end

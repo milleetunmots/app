@@ -59,7 +59,7 @@ RSpec.describe ChildrenController, type: :request do
 
   describe "#create" do
     context "when params are valid" do
-      let(:birthdate) { Faker::Date.between(from: Child.min_birthdate.tomorrow, to: Child.max_birthdate.yesterday) }
+      let(:birthdate) { Faker::Date.birthday(min_age: 1, max_age: 2) }
       let(:source) { FactoryBot.create(:source) }
       let(:params) {
         {
