@@ -32,6 +32,7 @@ if ENV['ROLLBAR_ACCESS_TOKEN']
     # 'ignore' will cause the exception to not be reported at all.
     config.exception_level_filters.merge!(
       'MyCriticalException' => 'critical',
+      'NoRollbarError' => 'ignore',
       'ActionController::RoutingError' => lambda do |e|
         # Ignore /*.php, /*.xml, *.yml, .txt because they're just probing for security holes
         e.message.match(/No route matches \[GET\] "\/.*\.(php|xml|yml|txt|png)"/) ? 'ignore' : 'warning'
