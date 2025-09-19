@@ -11,8 +11,6 @@ class ChildrenSupportModule
       is_module_2 = module_index.eql?(3)
       # stop children of 36 months+ before sending next module choice SMS
       Group::StopSupportService.new(group_id, end_of_support: false).call
-      Group::AddDisengagementTagService.new(group_id, module_index).call
-      ChildSupport::ChildrenDisengagementService.new(group_id).call
       # module_index starts with 1
       # so if module_index == 3 it means this is Module 2 (that comes after Module 0 and 1)
       children = group.children.where(group_status: 'active').includes(:child_support)
