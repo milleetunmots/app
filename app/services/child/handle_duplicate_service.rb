@@ -287,9 +287,6 @@ class Child
     end
 
     def link_families
-      @child.parent1 = @first_parent
-      @child.parent2 = @second_parent
-      @child.save
       @children.each do |child|
         next if child.id == @child.id
 
@@ -300,6 +297,9 @@ class Child
         child.discard
         child.child_support.discard if child.child_support.children.kept.empty?
       end
+      @child.parent1 = @first_parent
+      @child.parent2 = @second_parent
+      @child.save
     end
 
     def case_one?
