@@ -683,7 +683,7 @@ class Child < ApplicationRecord
     siblings_child_support.save
     self.child_support_id = siblings_child_support.id
     save(validate: false)
-    old_child_support.destroy if old_child_support.children.empty?
+    old_child_support.discard if old_child_support.children.empty?
   end
 
   def add_to_group
