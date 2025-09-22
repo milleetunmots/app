@@ -46,9 +46,11 @@ module AddressesHelper
     return unless form.object.has_attribute?(key)
 
     form.input key,
-      input_html: {
-        id: "address-#{key}"
-      }
+               input_html: {
+                 id: "address-#{key}",
+                 type: 'number'
+               },
+               hint: 'Le code postal doit être composé de 5 chiffres.'
   end
 
   def address_city_name_input(form, prefix)

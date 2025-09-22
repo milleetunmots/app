@@ -57,6 +57,10 @@ class ProgramMessageService
 
     case @provider
     when 'aircall'
+      if @message.length > 1600
+        @errors << 'Votre message dépasse la limite de 1600 caractères autorisée par Aircall. Veuillez le raccourcir avant de le renvoyer.'
+        return self
+      end
       event = Event.create(
         {
           related_id: parent.id,

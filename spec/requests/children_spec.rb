@@ -103,7 +103,7 @@ RSpec.describe ChildrenController, type: :request do
       end
 
       it "redirects to created page with right sms_url_form" do
-        expect(response).to redirect_to(created_child_path(sms_url_form: "#{ENV['INITIAL_TYPEFORM_URL']}#st=#{Child.last.parent1.security_token}", children_under_four_months: birthdate > 4.months.ago, youngest_child_under_twenty_four_months: birthdate > 24.months.ago))
+        expect(response).to redirect_to(created_child_path(sms_url_form: "#{ENV['INITIAL_TYPEFORM_URL']}#st=#{Child.last.parent1.security_token}", children_under_four_months: Child.duration_in_months(birthdate) < 4, youngest_child_under_twenty_four_months: Child.duration_in_months(birthdate) >= 4 && Child.duration_in_months(birthdate) < 24))
       end
     end
 

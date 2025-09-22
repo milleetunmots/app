@@ -8,6 +8,9 @@
   var comments = $('#child_child_support_attributes_important_information');
   var consentInputWrapper = $('.child_child_support_has_important_information_parental_consent');
   var consentCheckbox = $('#child_child_support_attributes_has_important_information_parental_consent');
+  var $addressPostalCodeInput = $('#address-postal_code');
+  var $postalCodeWarning = $('.child_parent1_postal_code small');
+  var $submitButton = $("#inscription input[type='submit']");
 
   sourceDetailsInput.on('input', function() {
     const value = $(this).val().toLowerCase();
@@ -128,10 +131,6 @@
     abbr.remove();
   }
 
-  var comments = $('#child_child_support_attributes_important_information');
-  var consentInputWrapper = $('.child_child_support_has_important_information_parental_consent');
-  var consentCheckbox = $('#child_child_support_attributes_has_important_information_parental_consent');
-
   if (comments.length && consentInputWrapper.length && consentCheckbox.length) {
     function toggleParentalConsent() {
       var commentsVal = comments.val();
@@ -150,6 +149,18 @@
   }
 
   var init = function() {
+    $postalCodeWarning.hide();
+    $addressPostalCodeInput.on('input', function() {
+      $postalCodeWarning.hide();
+      if(parseInt($(this).val()) == $(this).val() && $(this).val().length == 5) {
+        $postalCodeWarning.hide();
+        $submitButton.prop('disabled', false);
+      } else {
+        $postalCodeWarning.show();
+        $submitButton.prop('disabled', true);
+      }
+    });
+
     if (bookDeliveryLocationSelect.length > 0) {
       bookDeliveryLocationSelect.select2();
       bookDeliveryLocationSelect.data().select2.$container.addClass("form-control");
@@ -209,7 +220,7 @@
           attentionToInput.val('');
           attentionToDiv.hide();
         }
-        
+
         if (selectedValue === '') {
           addressFormDiv.hide();
           hideBookDeliveryLocationWarning();
@@ -270,7 +281,7 @@
         }
       });
     }
-    
+
     childrenSourceSelect.select2();
     childrenSourceSelect.data().select2.$container.addClass("form-control");
     window.friendOption = []; // setup "Mon entourage" option
@@ -337,7 +348,7 @@
 
     showCafSelection.apply($('#form_received_from'));
 
-    $(document).on('change', 'select[id="form_received_from"]', showCafSelection); 
+    $(document).on('change', 'select[id="form_received_from"]', showCafSelection);
 
     $(document).on('change', 'select[id="child_children_source_attributes_source_id"]', function() {
       $('select[id="child_children_source_attributes_registration_department"]').val('');

@@ -92,9 +92,7 @@ class Workshop < ApplicationRecord
     date = scheduled_invitation_date_time.nil? ? Time.zone.now : scheduled_invitation_date_time
 
     message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquez sur ce lien: {RESPONSE_LINK}"
-
     service = Workshop::ProgramWorkshopInvitationService.new(date.to_date, date.strftime('%H:%M'), recipients, message, nil, nil, nil, id, nil, %w[waiting active paused stopped disengaged]).call
-
     Rollbar.error(service.errors) if service.errors.any?
   end
 

@@ -31,6 +31,12 @@ $(document).ready(function() {
   let $childSupportParent1AttentionTo = $('#child_support_current_child_attributes_parent1_attributes_attention_to');
   let $childSupportParent1bookDeliveryLocationWarning = $('#child_support_current_child_attributes_parent1_attributes_book_delivery_location_input .inline-hints');
 
+  let $addressPostalCodeInput = $('#address-postal_code');
+  let $postalCodeWarning = $('#parent_postal_code_input p.inline-hints');
+  let $submitButton = $("#parent_submit_action input[type='submit']");
+
+  $postalCodeWarning.hide();
+
   handle_form(
     $parentFirstName,
     $parentLastName,
@@ -66,6 +72,17 @@ $(document).ready(function() {
     $childSupportParent1AttentionTo,
     $childSupportParent1bookDeliveryLocationWarning
   );
+
+  $addressPostalCodeInput.on('input', function(){
+    $postalCodeWarning.hide();
+    if(parseInt($(this).val()) == $(this).val() && $(this).val().length == 5) {
+      $postalCodeWarning.hide();
+      $submitButton.prop('disabled', false);
+    } else {
+      $postalCodeWarning.show();
+      $submitButton.prop('disabled', true);
+    }
+  });
 
   function handle_form(
     parentFirstName,
