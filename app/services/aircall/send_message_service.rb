@@ -18,7 +18,6 @@ module Aircall
         update_event(4)
         return self
       end
-      
 
       if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
         safe_numbers = ENV['SAFE_PHONE_NUMBERS'].to_s.split(',').map(&:strip)
@@ -33,8 +32,7 @@ module Aircall
       if response.status.success?
         @errors << "Erreur lors de la mise à jour de l'event d'envoi de message pour #{@to}." unless update_event(2, JSON.parse(response.body)['id'])
       else
-        @errors << { message: "L'envoi du message Aircall a échoué : #{response.status.reason}", status: response.status.to_i }
-        raise StandardError, "Aircall API request failed : #{response.status.reason}, status: #{response.status.to_i}"
+        @errors << { status: response.status.to_s, key: response.parse['key'], message: response.parse['message'] }
       end
       self
     end

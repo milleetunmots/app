@@ -1,0 +1,3 @@
+class NoRollbarError < StandardError
+
+end
