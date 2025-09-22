@@ -673,9 +673,9 @@ class Child < ApplicationRecord
 
   def update_support
     return unless saved_change_to_parent1_id? || saved_change_to_parent2_id?
-    return if true_siblings.with_support.empty?
+    return if true_siblings.kept.with_support.empty?
 
-    siblings_child_support = true_siblings.with_support.first.child_support
+    siblings_child_support = true_siblings.kept.with_support.first.child_support
     return if child_support.nil?
 
     old_child_support = child_support
@@ -683,7 +683,7 @@ class Child < ApplicationRecord
     siblings_child_support.save
     self.child_support_id = siblings_child_support.id
     save(validate: false)
-    old_child_support.destroy if old_child_support.children.empty?
+    old_child_support.discard if old_child_support.children.empty?
   end
 
   def add_to_group
