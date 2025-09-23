@@ -1,7 +1,7 @@
 class ApplicationRecord < ActiveRecord::Base
 
   REGEX_VALID_NAME = /\A[^0-9`!@#\$%\^&*+_=]+\z/.freeze
-  REGEX_VALID_ADDRESS = /\A[^`!@#\$%\^&*+_=]+\z/.freeze
+  REGEX_VALID_ADDRESS = /\A[^`!@#\$%\^*_=]+\z/.freeze
   REGEX_VALID_EMAIL = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i.freeze
   REGEX_VALID_PASSWORD = /\A(?=.*\d)(?=.*[a-z])(?=.*[[:^alnum:]])/x.freeze
   INVALID_NAME_MESSAGE = 'ne doit pas contenir des caractères spéciaux ou des chiffres'.freeze
