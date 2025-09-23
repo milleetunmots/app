@@ -226,8 +226,6 @@ RSpec.describe ChildSupport, type: :model do
   let!(:second_child_support) { second_child.child_support }
   let!(:third_child_support) { third_child.child_support }
 
-
-
   describe "Validations" do
     context "succeed" do
       it "if minimal attributes are present" do
