@@ -671,7 +671,7 @@ class Child < ApplicationRecord
   end
 
   def handle_support_changes
-    # if child_support changed, check if old one needs to be cleaned
+    # if child_support changed, check if it needs to be cleaned
     # ELSE, if parent1 or parent2 changed, check if we need to change child_support
     if saved_change_to_child_support_id? && child_support && child_support.children.size > 1
       old_child_support_id, _new_id = saved_change_to_child_support_id
