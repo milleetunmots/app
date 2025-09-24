@@ -54,7 +54,7 @@ module Typeform
       error = { message: 'child_support not found' }
       error[:child_support_id] = @hidden_variables[:child_support_id] if @hidden_variables[:child_support_id].present?
       error[:child_support_id] = @hidden_variables[:cs] if @hidden_variables[:cs].present?
-      error[:child_id] = @parent.current_child if @parent.current_child.present?
+      error[:child_id] = @parent.current_child.id if @parent.current_child.present?
       @errors << error
     end
   end
