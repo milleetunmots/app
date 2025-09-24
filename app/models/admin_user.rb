@@ -91,8 +91,8 @@ class AdminUser < ApplicationRecord
     "Ce compte n'est pas activé."
   end
 
-  def self.any_caller_with_id?(id)
-    exists?(id: id, user_role: 'caller')
+  def self.any_caller_or_animator_with_id?(id)
+    exists?(id: id, user_role: ['caller', 'animator'])
   end
 
   def set_aircall_phone_number
