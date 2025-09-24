@@ -18,7 +18,7 @@ module Api
         @caller_id = params[:caller_id]
         render json: { error: 'caller_id is required' }, status: :bad_request and return if @caller_id.nil?
 
-        render json: { error: 'Invalid caller_id' }, status: :not_found unless AdminUser.any_caller_with_id?(@caller_id)
+        render json: { error: 'Invalid caller_id' }, status: :not_found unless AdminUser.any_caller_or_animator_with_id?(@caller_id)
       end
 
       def verifiy_group_id

@@ -2,17 +2,34 @@ require 'sidekiq-scheduler'
 class ChildSupport
     class AssignDefaultCallStatusJob < ApplicationJob
       def perform(group_id, call_number)
-        ChildSupport::AssignDefaultCallStatusService.new(group_id, call_number).call
+        @group_id = group_id
+        @call_number = call_number
+        assign_default_call_status
+        check_and_process_disengagement
+        send_call_goals_messages
+      end
 
-        case call_number
+      private
+
+      def assign_default_call_status
+        ChildSupport::AssignDefaultCallStatusService.new(@group_id, @call_number).call
+      end
+
+      def check_and_process_disengagement
+        Group::AddDisengagementTagService.new(@group_id, @call_number).call
+        ChildSupport::ChildrenDisengagementService.new(@group_id).call
+      end
+
+      def send_call_goals_messages
+        case @call_number
         when 0
-          service = ChildSupport::SendCallGoalsMessagesService.new(group_id, 0).call
+          service = ChildSupport::SendCallGoalsMessagesService.new(@group_id, 0).call
           Rollbar.error("Send call0 first reminder messages service errors : #{service.errors}") if service.errors.flatten.any?
         when 1
-          service = ChildSupport::SendCall0GoalsReminderMessagesService.new(group_id).call
+          service = ChildSupport::SendCall0GoalsReminderMessagesService.new(@group_id).call
           Rollbar.error("Send call0 goals second reminder messages service errors: #{service.errors}") if service.errors.flatten.any?
         when 3
-          service = ChildSupport::SendCallGoalsMessagesService.new(group_id, 3).call
+          service = ChildSupport::SendCallGoalsMessagesService.new(@group_id, 3).call
           Rollbar.error(service.errors) if service.errors.flatten.any?
         end
       end

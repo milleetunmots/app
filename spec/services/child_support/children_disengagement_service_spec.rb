@@ -4,18 +4,14 @@ RSpec.describe ChildSupport::ChildrenDisengagementService do
   let!(:group) { FactoryBot.create(:group) }
   let!(:child_to_conserve) { FactoryBot.create(:child, group: group, group_status: 'active') }
   let!(:disengaged_child) { FactoryBot.create(:child, group: group, group_status: 'active') }
-  let!(:child_to_conserve_child_support) { FactoryBot.create(:child_support, current_child: child_to_conserve, tag_list: ['estime-desengage-t2']) }
-  let!(:disengaged_child_child_support) { FactoryBot.create(:child_support, current_child: disengaged_child, tag_list: ['estime-desengage-t2']) }
-  let!(:support_module) { FactoryBot.create(:support_module) }
+  let!(:child_to_conserve_child_support) { FactoryBot.create(:child_support, current_child: child_to_conserve) }
+  let!(:disengaged_child_child_support) { FactoryBot.create(:child_support, current_child: disengaged_child, tag_list: ['desengage-2appelsKO']) }
 
-  context "when child support's available support module list is empty" do
-    it "selection messages aren't sent to parents" do
-      child_to_conserve_child_support.module4_chosen_by_parents = support_module
-      child_to_conserve_child_support.save
-
+  context "when child support's are tagged 'desengage-2appelsKO'" do
+    it "updates the children's group_status to 'disengaged'" do
       ChildSupport::ChildrenDisengagementService.new(group.id).call
-      expect(child_to_conserve_child_support.reload.tag_list).to match_array ['estime-desengage-conserve-t2']
-      expect(disengaged_child_child_support.reload.tag_list).to match_array ['desengage-t2']
+      expect(child_to_conserve.reload.group_status).to eq 'active'
+      expect(disengaged_child.reload.group_status).to eq 'disengaged'
     end
   end
 end

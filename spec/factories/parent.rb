@@ -51,6 +51,7 @@ FactoryBot.define do
     city_name { Faker::Address.city }
     postal_code { Faker::Address.postcode }
     phone_number { "066802#{Faker::Number.number(digits: 4)}" }
+    security_token { SecureRandom.hex(16) }
     terms_accepted_at { Faker::Date.backward }
   end
 end

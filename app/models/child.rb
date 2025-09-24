@@ -153,10 +153,9 @@ class Child < ApplicationRecord
 
   after_create :create_support!
   after_commit :add_to_group, on: :create
-  after_update :update_support
+  after_update :handle_support_changes, if: -> { saved_change_to_child_support_id? || saved_change_to_parent1_id? || saved_change_to_parent2_id? }
   after_save { tags.where(is_visible_by_callers_and_animators: true).where('name ILIKE ?', 'utm%').update(is_visible_by_callers_and_animators: false) }
   after_update :remove_group, if: -> { saved_change_to_group_status? && group_status.eql?('not_supported') }
-  after_commit :clean_child_support, if: -> { saved_change_to_child_support_id? }
 
   # ---------------------------------------------------------------------------
   # scopes
@@ -671,19 +670,44 @@ class Child < ApplicationRecord
     end
   end
 
-  def update_support
-    return unless saved_change_to_parent1_id? || saved_change_to_parent2_id?
-    return if true_siblings.kept.with_support.empty?
+  def handle_support_changes
+    # if child_support changed, check if it needs to be cleaned
+    # ELSE, if parent1 or parent2 changed, check if we need to change child_support
+    if saved_change_to_child_support_id? && child_support && child_support.children.size > 1
+      old_child_support_id, _new_id = saved_change_to_child_support_id
+      old_child_support = ChildSupport.find_by(id: old_child_support_id) if old_child_support_id.present?
+      other_children = child_support.children.kept.where.not(id: id)
+      no_active_or_waiting = other_children.where(group_status: 'active').empty?
 
-    siblings_child_support = true_siblings.kept.with_support.first.child_support
-    return if child_support.nil?
+      if no_active_or_waiting
+        child_support.copy_fields(child_support)
+        child_support.clean_fields
+        child_support.supporter_id = old_child_support&.supporter_id if group_status == 'active'
+        child_support.save!
+      end
+    elsif saved_change_to_parent1_id? || saved_change_to_parent2_id?
+      return if true_siblings.kept.with_support.empty?
 
-    old_child_support = child_support
-    siblings_child_support.copy_fields(child_support)
-    siblings_child_support.save
-    self.child_support_id = siblings_child_support.id
-    save(validate: false)
-    old_child_support.discard if old_child_support.children.empty?
+      siblings_child_support = true_siblings.kept.with_support.first.child_support
+      return if child_support.nil? || siblings_child_support == child_support
+
+      old_child_support = child_support
+      siblings_child_support.copy_fields(child_support)
+
+      other_children = siblings_child_support.children.kept.where.not(id: id)
+      no_active_or_waiting = other_children.where(group_status: 'active').empty?
+      # IF no other children currently active in destination child support
+      # AND current child is active
+      # THEN clean destination child support & move supporter to it to avoid losing the assignation
+      if no_active_or_waiting && group_status == 'active'
+        siblings_child_support.clean_fields
+        siblings_child_support.supporter_id = child_support.supporter_id
+      end
+      siblings_child_support.save
+      self.child_support_id = siblings_child_support.id
+      save(validate: false)
+      old_child_support.discard if old_child_support.children.kept.empty?
+    end
   end
 
   def add_to_group
@@ -797,19 +821,5 @@ class Child < ApplicationRecord
 
     self.group_id = nil
     save(validate: false)
-  end
-
-  def clean_child_support
-    return if child_support.children.size == 1
-
-    other_children = child_support.children.where.not(id: id)
-    has_active_or_waiting = other_children.where(group_status: %w[waiting active]).exists?
-
-    # cleaning only if there is not active/waiting child in this child support
-    unless has_active_or_waiting
-      child_support.copy_fields(child_support)
-      child_support.clean_fields
-      child_support.save!
-    end
   end
 end
