@@ -25,6 +25,8 @@ class Group::AddDisengagementTagService
 	end
 
 	def call
+    return self if @group.started_at < Date.parse(ENV['OCTOBER25A_GROUP_STARTED_AT'])
+
 		@child_supports.each do |child_support|
 			child_support.tag_list.add('desengage-2appelsKO')
       child_support.save!
