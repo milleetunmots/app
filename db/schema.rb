@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_09_04_145511) do
+ActiveRecord::Schema.define(version: 2025_09_30_080612) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -33,7 +33,7 @@ ActiveRecord::Schema.define(version: 2025_09_04_145511) do
     t.string "content_type"
     t.text "metadata"
     t.bigint "byte_size", null: false
-    t.string "checksum"
+    t.string "checksum", null: false
     t.datetime "created_at", null: false
     t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
@@ -360,6 +360,8 @@ ActiveRecord::Schema.define(version: 2025_09_04_145511) do
     t.text "call4_why_talk_needed"
     t.text "call5_why_talk_needed"
     t.boolean "has_important_information_parental_consent", default: false, null: false
+    t.string "instagram_follower", default: "2_no_information"
+    t.string "instagram_user", default: "2_no_information"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"

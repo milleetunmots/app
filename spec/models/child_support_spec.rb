@@ -140,6 +140,8 @@
 #  family_support_should_be_stopped           :string
 #  has_important_information_parental_consent :boolean          default(FALSE), not null
 #  important_information                      :text
+#  instagram_follower                         :string           default("2_no_information")
+#  instagram_user                             :string           default("2_no_information")
 #  is_bilingual                               :string           default("2_no_information")
 #  most_present_parent                        :string
 #  notes                                      :text

@@ -370,6 +370,16 @@ ActiveAdmin.register ChildSupport do
                       f.input "call#{call_idx}_why_talk_needed",
                               wrapper_html: { id: "call#{call_idx}_why_talk_needed_wrapper", style: 'display: none;' },
                               input_html: { rows: 5, style: 'width: 100%' } # Raisons
+                      if call_idx == 2
+                        f.input :instagram_follower,
+                                collection: instagram_information_collection,
+                                input_html: { data: { select2: {} } },
+                                include_blank: false
+                        f.input :instagram_user,
+                                collection: instagram_information_collection,
+                                input_html: { data: { select2: {} } },
+                                include_blank: false
+                      end
                     end
                   end
                 end
@@ -803,6 +813,8 @@ ActiveAdmin.register ChildSupport do
     availability
     call_infos
     family_support_should_be_stopped
+    instagram_follower
+    instagram_user
   ] + [tags_params.merge(parent1_available_support_module_list: [], parent2_available_support_module_list: [])]
   parent_attributes = %i[
     id
