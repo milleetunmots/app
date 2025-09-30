@@ -103,6 +103,15 @@ module ActiveAdmin::ChildSupportsHelper
     end
   end
 
+  def instagram_information_collection
+    ChildSupport::INSTAGRAM_INFORMATION_OPTIONS.map do |v|
+      [
+        ChildSupport.human_attribute_name("instagram_information.#{v}"),
+        v
+      ]
+    end
+  end
+
   def call_statuses_with_nil
     ChildSupport::CALL_STATUS.map do |v|
       [
@@ -126,7 +135,7 @@ module ActiveAdmin::ChildSupportsHelper
     {
       "Popi" => ENV['ALTERNATIVE_SCRIPT_POPI_LINK'],
       "Ne veut pas des SMS/Appels" => ENV['ALTERNATIVE_SCRIPT_NO_SMS_CALLS_SCRIPT_LINK'],
-      "Comportement problématique" => ENV['ALTERNATIVE_SCRIPT_PROBLEMATIC_BEHAVIOR_SCRIPT_LINK'], 
+      "Comportement problématique" => ENV['ALTERNATIVE_SCRIPT_PROBLEMATIC_BEHAVIOR_SCRIPT_LINK'],
       "Professionnel qui teste 1001mots" => ENV['ALTERNATIVE_SCRIPT_PROFESSIONAL_TEST_SCRIPT_LINK']
     }
   end
