@@ -39,6 +39,8 @@ ENV['AIRCALL_WEBHOOK_MESSAGE_TOKEN'] ||= "valid token"
 ENV['AIRCALL_WEBHOOK_CALL_TOKEN'] ||= "valid token"
 ENV['LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'] = 'Jouer avec mon bébé 🧩'
 ENV['MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'] = 'Jouer avec mon enfant 🧩'
+ENV['FAMILY_SUPPORTS_SHEET_ID'] = 'fake_sheet_id_for_test'
+ENV['FAMILY_SUPPORTS_SHEET_NAME'] = 'fake_sheet_name_for_test'
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production

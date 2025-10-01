@@ -44,7 +44,7 @@ class Child
 
       @response.values.each do |row|
         @child = nil
-        child_id = row[1]&.strip
+        child_id = row[1].is_a?(Integer) ? row[1] : row[1]&.strip
         group = row[6]&.strip
         response_status = row[24]&.strip
         next if child_id.blank? || group.blank? || response_status.blank? || (row[0] != 'FALSE' && row[0] != 'TRUE')
