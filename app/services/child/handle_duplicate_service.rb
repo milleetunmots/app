@@ -2,6 +2,10 @@ class Child
 
   class HandleDuplicateService
 
+    # /!\ ATTENTION :
+    # Discard les fratries (si nécessaire) avant de changer la fiche de suivi ou les parents de l'enfant à conserver !
+    # Sinon le traitement dans le callback de Child risque d'être mauvais
+
     def initialize
       @duplicated_parents_by_phone_number = Parent.kept.potential_duplicates.group_by(&:phone_number)
       duplicated_children_name_and_birthdate = Child.kept.potential_duplicates.group_by(&:name_and_birthdate)
@@ -118,11 +122,8 @@ class Child
       started_group_children = @children.select { |child| child.group_id.to_i == @started_groups.first.id }
       not_supported_children = @children - started_group_children
       parent2 = @children.select { |child| child.parent2.present? }.first&.parent2
-      started_group_children.select { |child| child.parent2.nil? }.each do |child|
-        # Il n'y a qu'un seul enfant suivi normalement
-        child.parent2 = parent2
-        child.save
-      end
+
+      # Discard non supported children then add parent2 to the supported child if missing
       not_supported_children.each do |child|
         if child.group_id
           child.group_status = 'not_supported'
@@ -133,6 +134,11 @@ class Child
         next if child.child_support.nil?
 
         child.child_support.discard if child.child_support.children.kept.empty?
+      end
+      started_group_children.select { |child| child.parent2.nil? }.each do |child|
+        # Il n'y a qu'un seul enfant suivi normalement
+        child.parent2 = parent2
+        child.save
       end
     end
 

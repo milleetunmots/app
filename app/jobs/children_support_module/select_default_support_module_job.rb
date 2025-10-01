@@ -5,7 +5,6 @@ class ChildrenSupportModule
     def perform(group_id)
       group = Group.find(group_id)
 
-      ChildSupport::ChildrenDisengagementService.new(group_id).call
       ChildrenSupportModule::CreateChildrenSupportModuleService.new(group_id).call if any_current_child_without_children_support_module?(group)
       ChildrenSupportModule::SelectDefaultSupportModuleService.new(group.id).call
     end
