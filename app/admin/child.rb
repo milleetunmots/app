@@ -309,7 +309,7 @@ ActiveAdmin.register Child do
     f.object.parent2_id = params[:parent2_id] if params[:parent2_id]
     f.object.parent2_selection = f.object.parent2&.decorate&.name if f.object.parent2_id
     f.object.should_contact_parent1 = params[:should_contact_parent1] if params[:should_contact_parent1]
-    f.object.should_contact_parent2 = params[:should_contact_parent2] if params[:should_contact_parent1]
+    f.object.should_contact_parent2 = params[:should_contact_parent2] if params[:should_contact_parent2]
     f.object.available_for_workshops = params[:available_for_workshops] if params[:available_for_workshops]
 
     f.semantic_errors(*f.object.errors.keys)
