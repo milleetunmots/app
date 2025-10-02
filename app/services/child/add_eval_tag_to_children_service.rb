@@ -67,19 +67,24 @@ class Child
       return if @child.tag_list.include?(TAGS[:completed]) || @child.tag_list.include?(TAGS[:refused]) || @child.tag_list.include?(TAGS[:three_attempts])
       return unless @child.group_status.in? %w[waiting active paused]
 
-      case status_category
-      when :completed
-        @child.tag_list.add(TAGS[:completed])
-      when :refused
-        @child.tag_list.add(TAGS[:refused])
-      when :three_attempts
-        @child.tag_list.add(TAGS[:three_attempts])
-      when :pending
-        return
-      else
+      unless status_category.in? %i[completed refused three_attempts pending]
         @errors << "Statut inconnu : #{@response_status} pour child_id #{@child_id}"
         return
       end
+
+      return if status_category == :pending
+
+      @child.tag_list +=
+        case status_category
+        when :completed
+          [TAGS[:completed]].flatten
+        when :refused
+          [TAGS[:refused]].flatten
+        when :three_attempts
+          [TAGS[:three_attempts]].flatten
+        else
+          []
+        end
       @errors << "Impossible d'ajouter de tag à l'enfant avec child_id #{@child_id}" unless @child.save
     end
 
@@ -88,14 +93,14 @@ class Child
 
       if CONTROL_GROUP_RESPONSES.include?(@response_status)
         @child.siblings.each do |child|
-          child.tag_list.add(TAGS[:include_in_group])
-          child.tag_list.remove(TAGS[:exclude_from_group])
+          child.tag_list += [TAGS[:include_in_group]].flatten
+          child.tag_list -= [TAGS[:exclude_from_group]].flatten
           @errors << "Impossible d'ajouter de tag à l'enfant avec child_id #{child.id}" unless child.save
         end
       else
         @child.siblings.each do |child|
-          child.tag_list.add(TAGS[:exclude_from_group])
-          child.tag_list.remove(TAGS[:include_in_group])
+          child.tag_list += [TAGS[:exclude_from_group]].flatten
+          child.tag_list -= [TAGS[:include_in_group]].flatten
           @errors << "Impossible d'ajouter de tag à l'enfant avec child_id #{child.id}" unless child.save
         end
       end
