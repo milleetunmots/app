@@ -238,7 +238,6 @@ class ChildSupport < ApplicationRecord
   has_one :current_child, -> { order(Arel.sql("CASE WHEN group_status = 'active' THEN 0 ELSE 1 END, birthdate DESC")) }, class_name: :Child
   has_one :parent1, through: :current_child
   has_one :parent2, through: :current_child
-  has_many :children_support_modules, through: :children
 
   accepts_nested_attributes_for :current_child
   accepts_nested_attributes_for :children_support_modules
