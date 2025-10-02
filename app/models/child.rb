@@ -59,18 +59,14 @@ class Child < ApplicationRecord
   GROUP_STATUS = %w[waiting active paused stopped disengaged not_supported].freeze
   TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
   LANDS = {
-      'Paris 18 eme' => Parent::PARIS_18_EME_POSTAL_CODE,
       'Paris 20 eme' => Parent::PARIS_20_EME_POSTAL_CODE,
-      'Plaisir' => Parent::PLAISIR_POSTAL_CODE,
       'Bondy' => Parent::BONDY_POSTAL_CODE,
-      'Trappes' => Parent::TRAPPES_POSTAL_CODE,
       'Aulnay sous bois' => Parent::AULNAY_SOUS_BOIS_POSTAL_CODE,
       'Orleans' => Parent::ORELANS_POSTAL_CODE,
       'Montargis' => Parent::MONTARGIS_POSTAL_CODE,
       'Gien' => Parent::GIEN_POSTAL_CODE,
       'Pithiviers' => Parent::PITHIVIERS_POSTAL_CODE,
       'Villeneuve-la-Garenne' => Parent::VILLENEUVE_LA_GARENNE_POSTAL_CODE,
-      'Mantes La Jolie' => Parent::MANTES_LA_JOLIE_POSTAL_CODE,
       'Asnières-Gennevilliers' => Parent::ASNIERES_GENNEVILLIERS_POSTAL_CODE
     }
 
