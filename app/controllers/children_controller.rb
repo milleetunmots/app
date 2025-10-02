@@ -311,7 +311,7 @@ class ChildrenController < ApplicationController
     return false if Time.zone.today >= Date.parse(ENV['SIGNUP_QUOTA_CAF_AIN_END_DATE'])
 
     current_signups_count = Child.kept.joins(:children_source).where('children_sources.source_id = ? AND children.created_at >= ?',
-                                                                    Source.find_by(utm: '01').id,
+                                                                    Source.find_by(utm: '01', channel: 'caf').id,
                                                                     Date.parse(ENV['SIGNUP_QUOTA_CAF_AIN_START_DATE'])).count
     current_signups_count >= ENV['SIGNUP_QUOTA_CAF_AIN_MAX_COUNT'].to_i
   end
