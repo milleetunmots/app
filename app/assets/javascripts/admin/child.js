@@ -1,7 +1,7 @@
 $(document).ready(function() {
   let $parent2 = $('#child-parent2-select');
 
-  $parent2.on('change', function() {
+  $parent2.on('select2:select', function() {
     $('#child_should_contact_parent2').prop('checked', $(this).val() !== '');
   })
   function initializeSelect2($selectElement, $hiddenField) {
