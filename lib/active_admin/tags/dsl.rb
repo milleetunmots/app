@@ -34,7 +34,7 @@ module ActiveAdmin
           back_url = params[:back_url]
 
           collection.object.klass.where(id: ids).each do |object|
-            object.tag_list.add(tags)
+            object.tag_list += tags
             object.save(validate: false)
           end
           redirect_to back_url, notice: "Tags ajoutés"

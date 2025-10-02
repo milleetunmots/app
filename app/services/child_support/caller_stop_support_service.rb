@@ -68,7 +68,7 @@ class ChildSupport::CallerStopSupportService
 	def add_tag
 		return if @reason == 'renunciation'
 
-		@child_support.tag_list.add(VARIABLES[@reason.to_sym][:tag])
+		@child_support.tag_list +=[VARIABLES[@reason.to_sym][:tag]].flatten
 		@child_support.save!
 		@error = "Le tag n'a pas pu être ajouté à la fiche de suivi" unless @child_support.save
 		raise ActiveRecord::Rollback unless @error.nil?

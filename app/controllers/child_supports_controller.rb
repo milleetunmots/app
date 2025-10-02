@@ -6,7 +6,7 @@ class ChildSupportsController < ApplicationController
     verify_child_support
     return if @child_support.tag_list.include?('arrêt accompagnante - programme')
 
-    @child_support.tag_list.add('arrêt accompagnante - programme')
+    @child_support.tag_list += ['arrêt accompagnante - programme']
     @child_support.important_information = "#{@child_support.important_information}\nAccompagment arrêté le #{@child_support.stop_support_date.strftime('%d/%m/%Y')} pour le motif 'je ne souhaite pas être appelé' à la demande du parent"
     @child_support.save
     @child_support.children.each do |child|
