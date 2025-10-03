@@ -16,8 +16,6 @@ class ChildSupport
       end
 
       def check_and_process_disengagement
-        return if Group.find(@group_id).started_at < Date.parse(ENV['OCTOBER25A_GROUP_STARTED_AT'])
-
         Group::AddDisengagementTagService.new(@group_id, @call_number).call
         ChildSupport::ChildrenDisengagementService.new(@group_id).call
       end
