@@ -1,3 +1,30 @@
+# == Schema Information
+#
+# Table name: aircall_messages
+#
+#  id               :bigint           not null, primary key
+#  body             :text
+#  direction        :string
+#  sent_at          :datetime
+#  status           :string
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  aircall_id       :string
+#  caller_id        :bigint           not null
+#  child_support_id :bigint
+#  parent_id        :bigint
+#
+# Indexes
+#
+#  index_aircall_messages_on_aircall_id        (aircall_id)
+#  index_aircall_messages_on_caller_id         (caller_id)
+#  index_aircall_messages_on_child_support_id  (child_support_id)
+#  index_aircall_messages_on_parent_id         (parent_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (caller_id => admin_users.id)
+#
 require 'rails_helper'
 
 RSpec.describe AircallMessage, type: :model do

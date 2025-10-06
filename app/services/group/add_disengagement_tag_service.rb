@@ -26,7 +26,7 @@ class Group::AddDisengagementTagService
 
 	def call
 		@child_supports.each do |child_support|
-			child_support.tag_list.add('desengage-2appelsKO')
+			child_support.tag_list += ['desengage-2appelsKO']
       child_support.save!
     end
 		self

@@ -308,6 +308,8 @@ fr:
         child_support_groups: Cohortes
         important_information: Infos importantes
         is_bilingual: Bilinguisme
+        instagram_follower: Nous suit sur Instagram
+        instagram_user: Utilise régulièrement Instagram
         address_suspected_invalid_at: Doute sur l'adresse > Livre plus envoyé
         letterbox_name: Nom de famille sur la boîte aux lettres
         other_family_child_supports: Autres suivis de la famille
@@ -441,6 +443,10 @@ fr:
         4_no_goal: Pas de petite mission
         5_not_enough_information: Pas assez d'infos
       child_support/is_bilingual:
+        0_yes: Oui
+        1_no: Non
+        2_no_information: Pas d'infos
+      child_support/instagram_information:
         0_yes: Oui
         1_no: Non
         2_no_information: Pas d'infos
