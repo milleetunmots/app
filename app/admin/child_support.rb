@@ -374,11 +374,13 @@ ActiveAdmin.register ChildSupport do
                         f.input :instagram_follower,
                                 collection: instagram_information_collection,
                                 input_html: { data: { select2: {} } },
-                                include_blank: false
+                                include_blank: false,
+                                required: false
                         f.input :instagram_user,
                                 collection: instagram_information_collection,
                                 input_html: { data: { select2: {} } },
-                                include_blank: false
+                                include_blank: false,
+                                required: false
                       end
                     end
                   end
