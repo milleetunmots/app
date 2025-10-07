@@ -22,6 +22,7 @@
 #  support_module_programmed  :integer          default(0)
 #  support_module_sent_dates  :jsonb
 #  support_modules_count      :integer          default(0), not null
+#  type_of_support            :string           default("with_calls")
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
 #
@@ -37,6 +38,7 @@ class Group < ApplicationRecord
   include Discard::Model
 
   MAX_GROUP_SUPPORT_MODULES_COUNT = ENV['MAX_GROUP_SUPPORT_MODULES_COUNT'].to_i.freeze
+  TYPE_OF_SUPPORT_OPTIONS = %w[with_calls without_calls].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -58,6 +60,7 @@ class Group < ApplicationRecord
   validates :expected_children_number, presence: true, on: :create
   validates :support_modules_count, numericality: { only_integer: true, less_than_or_equal_to: MAX_GROUP_SUPPORT_MODULES_COUNT }, presence: true
   validates :started_at, presence: true, on: :create
+  validates :type_of_support, inclusion: { in: TYPE_OF_SUPPORT_OPTIONS }
   validate :started_at_only_monday
 
   # ---------------------------------------------------------------------------
@@ -69,6 +72,8 @@ class Group < ApplicationRecord
   scope :not_started, -> { where('started_at >= ? AND support_module_programmed = ?', Time.zone.today, 0) }
   scope :started, -> { where('started_at < ? OR support_module_programmed > ?', Time.zone.today, 0) }
   scope :excluded_from_analytics, -> { where(is_excluded_from_analytics: true) }
+  scope :with_calls, -> { where(type_of_support: 'with_calls') }
+  scope :without_calls, -> { where(type_of_support: 'without_calls') }
 
   # ---------------------------------------------------------------------------
   # callbacks

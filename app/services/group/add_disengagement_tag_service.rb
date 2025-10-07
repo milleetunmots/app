@@ -4,6 +4,8 @@ class Group::AddDisengagementTagService
   DISENGAGEMENT_STATUSES = ['KO', 'Ne pas appeler', 'Numéro erroné'].freeze
 
 	def initialize(group_id, call_index)
+    return if Group.find(group_id).type_of_support == 'without_calls'
+
     # Récupérer les fiches de suivi avec au moins 2 appels avec KO / Ne pas appeler / Numéro erroné
     @child_supports =
       case call_index
@@ -25,6 +27,8 @@ class Group::AddDisengagementTagService
 	end
 
 	def call
+    return self if Group.find(group_id).type_of_support == 'without_calls'
+
 		@child_supports.each do |child_support|
 			child_support.tag_list += ['desengage-2appelsKO']
       child_support.save!
