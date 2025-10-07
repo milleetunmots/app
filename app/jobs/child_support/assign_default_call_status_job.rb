@@ -19,7 +19,8 @@ class ChildSupport
         return if Group.find(@group_id).type_of_support == 'without_calls'
 
         Group::AddDisengagementTagService.new(@group_id, @call_number).call
-        ChildSupport::ChildrenDisengagementService.new(@group_id).call
+        disengagement_service = ChildSupport::ChildrenDisengagementService.new(@group_id).call
+        Rollbar.error(disengagement_service.errors) if disengagement_service.errors.flatten.any?
       end
 
       def send_call_goals_messages
