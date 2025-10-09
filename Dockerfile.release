@@ -1,4 +1,4 @@
-FROM ruby:3.0.6-slim
+FROM ruby:3.4.5-slim
 
 ENV INSTALL_PATH /rails
 ENV RAILS_ENV production
@@ -7,6 +7,7 @@ ENV RACK_ENV production
 ENV NODE_OPTIONS --openssl-legacy-provider
 ENV MALLOC_ARENA_MAX 2
 ENV RAILS_MAX_THREADS 5
+ENV RUBY_YJIT_ENABLE 1
 RUN mkdir -p $INSTALL_PATH
 WORKDIR $INSTALL_PATH
 
@@ -28,10 +29,12 @@ RUN apt-get update \
     file \
     git \
     libcurl4-openssl-dev \
-    shared-mime-info \
-  \
+    shared-mime-info
+
+
   # We need bundler
-  && gem install bundler --no-document
+RUN gem uninstall bundler \
+    && gem install bundler -v '2.7.2' --no-document
 
 RUN wget https://dl.yarnpkg.com/debian/pubkey.gpg
 RUN curl https://deb.nodesource.com/setup_18.x | bash
@@ -47,8 +50,9 @@ RUN rm pubkey.gpg
 # the node modules. This is a separate step so the dependencies
 # will be cached unless changes to one of those two files
 # are made.
+RUN yarn config set registry https://registry.npmjs.org/
 COPY package.json yarn.lock ./
-RUN yarn install
+RUN yarn install --network-timeout 100000 --frozen-lockfile
 
 
 # Copy the Gemfile as well as the Gemfile.lock and install
@@ -83,6 +87,7 @@ RUN rm -rf \
   postcss.config.js \
   yarn.lock \
   app/assets \
+  app/javascript \
   lib/assets \
   node_modules \
   vendor/assets \
