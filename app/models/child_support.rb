@@ -336,7 +336,7 @@ class ChildSupport < ApplicationRecord
     joins(children: :group)
       .where(
         children: { group_status: 'active', discarded_at: nil },
-        groups: { is_programmed: true, discarded_at: nil },
+        groups: { is_programmed: true, discarded_at: nil, type_of_support: 'with_calls' },
         supporter_id: nil
       )
       .where('groups.ended_at IS NULL OR groups.ended_at > ?', Time.zone.today)

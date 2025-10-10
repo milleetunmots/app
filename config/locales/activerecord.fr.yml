@@ -522,6 +522,10 @@ fr:
         call3_start_date: Début de la session d'appels 3
         call3_end_date: Fin de la session d'appels 3
         is_excluded_from_analytics: À exclure des analyses Metabase
+        type_of_support: Type d'accompagnement
+      group/type_of_support:
+        with_calls: Avec appels
+        without_calls: Sans appels
       media_folder:
         << : *SHARED
         name: Nom

@@ -22,6 +22,7 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Stop Support Form'
       can :read, ActiveAdmin::Page, name: 'Dashboard'
     when 'reader'
+      can :autocomplete, [Group, Tag]
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
       can :manage, [Parent, Child, ChildSupport]
@@ -59,6 +60,7 @@ class Ability
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
     when 'animator'
+      can :autocomplete, [Group, Tag]
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
       can :manage, [Parent, Child, ChildSupport, ChildrenSupportModule]

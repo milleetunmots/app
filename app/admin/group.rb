@@ -64,6 +64,9 @@ ActiveAdmin.register Group do
     f.semantic_errors(*f.object.errors.keys)
     f.inputs do
       f.input :is_excluded_from_analytics
+      f.input :type_of_support,
+              collection: group_type_of_support_select_collection,
+              input_html: { data: { select2: {} } }
       f.input :enable_calls_recording
       f.input :name
       f.input :started_at, as: :datepicker
@@ -87,8 +90,8 @@ ActiveAdmin.register Group do
   end
 
   permit_params :name, :started_at, :ended_at, :support_modules_count, :expected_children_number, :enable_calls_recording, :is_excluded_from_analytics,
-    :call0_start_date, :call0_end_date, :call1_start_date, :call1_end_date, :call2_start_date, :call2_end_date, :call3_start_date,
-    :call3_end_date
+                :type_of_support, :call0_start_date, :call0_end_date, :call1_start_date, :call1_end_date, :call2_start_date, :call2_end_date, :call3_start_date,
+                :call3_end_date
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -99,6 +102,7 @@ ActiveAdmin.register Group do
       tab I18n.t('group.base') do
         attributes_table do
           row :is_excluded_from_analytics
+          row :type_of_support
           row :name
           row :children
           row :families

@@ -16,6 +16,8 @@ class ChildSupport
       end
 
       def check_and_process_disengagement
+        return if Group.find(@group_id).type_of_support == 'without_calls'
+
         Group::AddDisengagementTagService.new(@group_id, @call_number).call
         ChildSupport::ChildrenDisengagementService.new(@group_id).call
       end
