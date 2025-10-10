@@ -20,7 +20,6 @@
 # Indexes
 #
 #  index_tasks_on_assignee_id                  (assignee_id)
-#  index_tasks_on_description                  (description)
 #  index_tasks_on_discarded_at                 (discarded_at)
 #  index_tasks_on_done_at                      (done_at)
 #  index_tasks_on_due_date                     (due_date)

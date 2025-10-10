@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_10_07_143220) do
+ActiveRecord::Schema.define(version: 2025_10_10_103627) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -807,7 +807,6 @@ ActiveRecord::Schema.define(version: 2025_10_07_143220) do
     t.string "status"
     t.bigint "treated_by_id"
     t.index ["assignee_id"], name: "index_tasks_on_assignee_id"
-    t.index ["description"], name: "index_tasks_on_description"
     t.index ["discarded_at"], name: "index_tasks_on_discarded_at"
     t.index ["done_at"], name: "index_tasks_on_done_at"
     t.index ["due_date"], name: "index_tasks_on_due_date"
