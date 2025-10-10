@@ -64,7 +64,6 @@ RSpec.describe Events::SurveyResponse, type: :model do
     context "returns" do
       it "the subjects" do
         first_survey = FactoryBot.create(:survey_response, subject: "first_subject")
-        second_survey = FactoryBot.create(:survey_response, subject: "first_subject")
         third_survey = FactoryBot.create(:survey_response, subject: "second_subject")
         expect(Events::SurveyResponse.survey_names).to match_array [first_survey.subject, third_survey.subject]
       end
