@@ -22,6 +22,7 @@
 #  support_module_programmed  :integer          default(0)
 #  support_module_sent_dates  :jsonb
 #  support_modules_count      :integer          default(0), not null
+#  type_of_support            :string           default("with_calls")
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
 #

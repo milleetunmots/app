@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_09_30_080612) do
+ActiveRecord::Schema.define(version: 2025_10_07_143220) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -526,6 +526,7 @@ ActiveRecord::Schema.define(version: 2025_09_30_080612) do
     t.boolean "is_excluded_from_analytics", default: false, null: false
     t.boolean "enable_calls_recording", default: false, null: false
     t.jsonb "support_module_sent_dates"
+    t.string "type_of_support", default: "with_calls"
     t.index ["discarded_at"], name: "index_groups_on_discarded_at"
     t.index ["ended_at"], name: "index_groups_on_ended_at"
     t.index ["started_at"], name: "index_groups_on_started_at"

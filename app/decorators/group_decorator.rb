@@ -31,4 +31,8 @@ class GroupDecorator < BaseDecorator
     :users
   end
 
+  def type_of_support
+    Group.human_attribute_name("type_of_support.#{model.type_of_support}")
+  end
+
 end
