@@ -20,7 +20,13 @@ class ChildSupport
 
         Group::AddDisengagementTagService.new(@group_id, @call_number).call
         disengagement_service = ChildSupport::ChildrenDisengagementService.new(@group_id).call
-        Rollbar.error(disengagement_service.errors) if disengagement_service.errors.flatten.any?
+        return unless disengagement_service.errors.flatten.any?
+
+        Task::CreateAutomaticTaskService.new(
+          title: 'Erreur lors du désengagement de certaines familles',
+          description: disengagement_service.errors.join('<br>')
+        ).call
+        Rollbar.error('ChildSupport::ChildrenDisengagementService', errors: disengagement_service.errors)
       end
 
       def send_call_goals_messages
