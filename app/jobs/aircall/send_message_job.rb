@@ -13,7 +13,7 @@ module Aircall
     sidekiq_retries_exhausted do |job, _ex|
       event = Event.find_by(id: job['args'][0]['arguments'][3])
       event&.update(spot_hit_status: 4)
-      Rollbar.error('Aircall::SendMessageService', error: job['error_message'], arguments: job['arguments'])
+      Rollbar.error('Aircall::SendMessageJob', error: job['error_message'], arguments: job['args'][0]['arguments'])
     end
 
     def perform(number_id, to, body, event_id)
