@@ -2,7 +2,7 @@ class ChildSupport::ChildrenDisengagementService
 
   MESSAGE = "Bonjour,/n{PRENOM_ACCOMPAGNANTE} n'a pas réussi à discuter avec vous encore une fois. Cet appel fait partie de votre accompagnement 1001mots. Comme on vous l’a dit il y a quelques semaines, l’accompagnement va donc s’arrêter et bientôt vous n’allez plus recevoir de livres ni de SMS (dès la fin de ce thème)./nJe vous souhaite de beaux moments avec {PRENOM_ENFANT}./nEt si vous avez encore 1 minute, dites-nous ici ce que vous avez pensé de 1001mots : https://form.typeform.com/to/fysdS3Sd#st=xxxxx /nL'équipe 1001mots".freeze
 
-  attr_reader :errors
+  attr_reader :errors, :parent_ids
 
   def initialize(group_id)
     @group = Group.find(group_id)
@@ -18,12 +18,7 @@ class ChildSupport::ChildrenDisengagementService
 
     ChildSupport.includes(:children).where(children: { id: @group.children.map(&:id) }).tagged_with('desengage-2appelsKO').uniq.each do |child_support|
       @child_support = child_support
-      unless @child_support.supporter
-        @errors << "Aucune accompagnante pour la fiche : #{@child_support.id}"
-        next
-      end
-
-      @child_support.children.update_all(group_status: 'disengaged', group_end: Time.zone.today)
+      @child_support.children.each { |child| child.update(group_status: 'disengaged', group_end: Time.zone.today) }
       fill_recipients
     end
     send_disengagement_message
