@@ -1,6 +1,6 @@
 class ChildSupport::ChildrenDisengagementService
 
-  MESSAGE = "Bonjour,/n{PRENOM_ACCOMPAGNANTE} n'a pas réussi à discuter avec vous encore une fois. Cet appel fait partie de votre accompagnement 1001mots. Comme on vous l’a dit il y a quelques semaines, l’accompagnement va donc s’arrêter et bientôt vous n’allez plus recevoir de livres ni de SMS (dès la fin de ce thème)./nJe vous souhaite de beaux moments avec {PRENOM_ENFANT}./nEt si vous avez encore 1 minute, dites-nous ici ce que vous avez pensé de 1001mots : https://form.typeform.com/to/fysdS3Sd#st=xxxxx /nL'équipe 1001mots".freeze
+  MESSAGE = "Bonjour,\n{PRENOM_ACCOMPAGNANTE} n'a pas réussi à discuter avec vous encore une fois. Cet appel fait partie de votre accompagnement 1001mots. Comme on vous l’a dit il y a quelques semaines, l’accompagnement va donc s’arrêter et bientôt vous n’allez plus recevoir de livres ni de SMS (dès la fin de ce thème).\nJe vous souhaite de beaux moments avec {PRENOM_ENFANT}.\nEt si vous avez encore 1 minute, dites-nous ici ce que vous avez pensé de 1001mots : https://form.typeform.com/to/fysdS3Sd#st=xxxxx \nL'équipe 1001mots".freeze
 
   attr_reader :errors, :parent_ids
 
