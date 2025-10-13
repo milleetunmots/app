@@ -9,7 +9,7 @@ class Child
       { name: 'Nom', method: :letterbox_name },
       { name: "A l'attention de", method: :parent1_attention_to },
       { name: 'Adresse', method: :address },
-      { name: "Complement d'adresse", method: :address_supplement },
+      { name: 'Complement', method: :address_supplement },
       { name: 'Code postal', method: :postal_code },
       { name: 'Ville', method: :city_name },
       { name: 'Prénom enfant', method: :first_name },
