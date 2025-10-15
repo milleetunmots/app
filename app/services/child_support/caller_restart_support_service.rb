@@ -7,7 +7,7 @@ class ChildSupport::CallerRestartSupportService
 		@child_support = ChildSupport.find(child_support_id)
 		@reason = reason
 		@details = details
-		@date = DateTime.now
+		@date = Time.zone.now
 		@error = nil
     @tag = Tag.find_or_create_by(name: 'accompagnement redemarre', is_visible_by_callers_and_animators: true)
   end
@@ -25,9 +25,10 @@ class ChildSupport::CallerRestartSupportService
 
 	def add_restart_support_informations
 		@child_support.restart_support_caller_id = @supporter.id
-		@child_support.restart_support_date = DateTime.now
-		@child_support.restart_support_details = "#{@reason.join(' ')} - #{@details}"
-		@error = "Les informations n'ont pas pu être ajoutée à la fiche de suivie" unless @child_support.save
+		@child_support.restart_support_date = @date
+    @child_support.restart_support_details = @reason.join('; ')
+    @child_support.restart_support_details += " : #{@details}" if @details.present?
+    @error = "Les informations n'ont pas pu être ajoutée à la fiche de suivie" unless @child_support.save
 		raise ActiveRecord::Rollback unless @error.nil?
 	end
 
@@ -40,7 +41,7 @@ class ChildSupport::CallerRestartSupportService
 			@error = "L'accompagnement de #{child.first_name} n'a pas pu être repris" unless child.save
 			raise ActiveRecord::Rollback unless @error.nil?
 		end
-		@child_support.important_information = "#{@child_support.important_information}\nAccompagnement relancé le #{Time.zone.today.strftime('%d/%m/%Y')}"
+		@child_support.important_information = "#{@child_support.important_information}\nAccompagnement relancé le #{@date.strftime('%d/%m/%Y')}"
 		@child_support.save
 	end
 

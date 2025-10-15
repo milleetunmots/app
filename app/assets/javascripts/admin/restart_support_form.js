@@ -12,6 +12,7 @@ $(document).ready(function(){
     let checkboxesChecked = $(".restart-support-form-checkbox:checked");
 
     restartSupportDetails.toggle(otherReasonCheckbox.is(':checked'));
+    detailsTextarea.prop('disabled', !otherReasonCheckbox.is(':checked'));
     if(checkboxesChecked.is(otherReasonCheckbox)) {
       confirmation.prop('disabled', detailsTextarea.val().length === 0);
       detailsTextarea.on('input', function() {
@@ -19,6 +20,9 @@ $(document).ready(function(){
       });
     } else {
       confirmation.prop('disabled', false);
+    }
+    if(checkboxesChecked.length === 0) {
+      confirmation.prop('disabled', true);
     }
   });
 });
