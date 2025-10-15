@@ -1031,7 +1031,12 @@ ActiveAdmin.register ChildSupport do
       item "Ajout d'un parent", %i[add_parent admin child_support], { target: '_blank' } if resource.decorate.model.parent2.nil? && authorized?(:add_parent, resource)
       item 'Rédiger une tâche', url_for_new_task(resource.decorate), { target: '_blank' } if (resource.decorate.model.supporter.present? && resource.decorate.model.supporter_id == current_admin_user.id) || authorized?(:create, Task)
       if authorized?(:manage, ActiveAdmin::Page.new(ActiveAdmin.application, 'Stop Support Form', active_admin_namespace))
-        item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
+        #TO DO le tag d'arrêt sur la fiche de suivi ou le désengagement de n'importe quel enfant
+        if resource.current_child.group_status == 'disengaged'
+          item "Reprendre l'accompagnement", admin_restart_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
+        else
+          item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
+        end
       end
       item 'Potentiel parent bénévole', admin_volunteer_parent_form_path(child_support_id: resource.decorate.model.id, parent1_id: resource.decorate.model.parent1, parent2_id: resource.decorate.model.parent2), { target: '_blank' } if authorized?('Volunteer Parent Form', resource)
     end
