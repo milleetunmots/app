@@ -669,6 +669,17 @@ class ChildSupport < ApplicationRecord
     0
   end
 
+  def self.previous_calls_not_ok_and_not_unfinished_before(call_index)
+    return all if call_index.zero?
+    conditions = (0...call_index).map do |i|
+      arel_table["call#{i}_status"].not_eq(ChildSupport.human_attribute_name("call_status.1_ok"))
+                                   .and(
+                                     arel_table["call#{i}_status"].not_eq(ChildSupport.human_attribute_name("call_status.5_unfinished"))
+                                   )
+    end
+    where(conditions.inject { |acc, cond| acc.and(cond) })
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------

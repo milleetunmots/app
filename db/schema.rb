@@ -64,6 +64,7 @@ ActiveRecord::Schema.define(version: 2025_10_21_091446) do
     t.boolean "can_treat_task", default: false, null: false
     t.string "aircall_phone_number"
     t.bigint "aircall_number_id"
+    t.boolean "can_send_automatic_sms", default: true, null: false
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
