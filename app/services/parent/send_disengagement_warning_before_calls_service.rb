@@ -24,9 +24,8 @@ class Parent::SendDisengagementWarningBeforeCallsService
         parent_ids = group
                        .child_supports
                        .joins(:supporter).where(supporter: { can_send_automatic_sms: true })
-                       .previous_calls_not_ok_and_not_unfinished_before(call_index)
+                       .previous_calls_ok_or_unfinished_before(call_index)
                        .map { |child_support| "parent.#{child_support.parent1.id}"}
-        puts parent_ids
         service = ProgramMessageService.new(
           @date.strftime('%d-%m-%Y'),
           '19:00',
