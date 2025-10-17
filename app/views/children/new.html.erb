@@ -3,6 +3,12 @@
     <div id="registration-closed">
       <p>Les inscriptions sont fermées.</p>
     </div>
+  <% elsif @form_path_url.include?('utm_caf=77') && @signup_quota_reached %>
+    <div id="registration-closed">
+      <p>Merci pour votre intérêt ! Les inscriptions sont désormais fermées.</p>
+      <p>Nous rouvrirons de nouvelles places pour le programme 1001mots l'année prochaine, la Caf de Seine-et-Marne enverra un nouvel email pour vous prévenir.</p>
+      <p>En attendant, vous pouvez suivre le <a href='https://www.instagram.com/association_1001mots/' target='_blank'>compte Instagram de l'association 1001mots</a> pour avoir plein de conseils et d'idées d'activités avec votre enfant.</p>
+    </div>
   <% elsif @signup_quota_reached %>
     <div id="registration-closed">
       <p>Les inscriptions sont fermées, le nombre de places était limité.</p>

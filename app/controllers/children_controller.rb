@@ -224,7 +224,7 @@ class ChildrenController < ApplicationController
       session[:registration_origin] = 2
       @form_path = caf_registration_path
       @form_path_url = caf_registration_path(request.query_parameters)
-      # check quota for CAF AIN, TEMPORARY
+      # check quota, TEMPORARY
       @signup_quota_reached = signup_quota_reached?
     when '/inscription3'
       session[:registration_origin] = 3
@@ -307,6 +307,7 @@ class ChildrenController < ApplicationController
   end
 
   def signup_quota_reached?
+    return true if ENV['SIGNUP_QUOTA_CAF_77_REACHED'] == 'true' && @form_path_url.include?('utm_caf=77')
     return false unless @form_path_url.include?('utm_caf=01')
     return false if Time.zone.today >= Date.parse(ENV['SIGNUP_QUOTA_CAF_AIN_END_DATE'])
 
