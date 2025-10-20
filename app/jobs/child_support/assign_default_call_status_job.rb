@@ -55,5 +55,10 @@ class ChildSupport
           Rollbar.error(service.errors) if service.errors.flatten.any?
         end
       end
+
+      def send_disengagement_warning_message
+        service = ChildSupport::SendDisengagementWarningAfterCallsService.new(@group_id, @call_number).call
+        Rollbar.error(service.errors) if service.errors.flatten.any?
+      end
     end
 end
