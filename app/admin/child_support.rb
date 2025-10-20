@@ -1031,9 +1031,9 @@ ActiveAdmin.register ChildSupport do
       item "Ajout d'un parent", %i[add_parent admin child_support], { target: '_blank' } if resource.decorate.model.parent2.nil? && authorized?(:add_parent, resource)
       item 'Rédiger une tâche', url_for_new_task(resource.decorate), { target: '_blank' } if (resource.decorate.model.supporter.present? && resource.decorate.model.supporter_id == current_admin_user.id) || authorized?(:create, Task)
       if authorized?(:manage, ActiveAdmin::Page.new(ActiveAdmin.application, 'Stop Support Form', active_admin_namespace))
-        if resource.model.current_child.group_status == 'disengaged'
+        if resource.decorate.model.current_child.group_status == 'disengaged'
           item "Reprendre l'accompagnement", admin_restart_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
-        elsif resource.model.children.any? { |child| child.group_status == 'active' }
+        elsif resource.decorate.model.children.any? { |child| child.group_status == 'active' }
           item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
         end
       end
