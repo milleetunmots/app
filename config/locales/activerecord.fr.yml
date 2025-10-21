@@ -449,7 +449,7 @@ fr:
       child_support/instagram_information:
         0_yes: Oui
         1_no: Non
-        2_no_information: Pas d'infos
+        2_no_information: Pas possible d'avoir l'info
       child_support/call_review:
         0_very_satisfied: Très satisfaite 😃
         1_rather_satisfied: Plutôt satisfaite 🙂

@@ -140,8 +140,8 @@
 #  family_support_should_be_stopped           :string
 #  has_important_information_parental_consent :boolean          default(FALSE), not null
 #  important_information                      :text
-#  instagram_follower                         :string           default("2_no_information")
-#  instagram_user                             :string           default("2_no_information")
+#  instagram_follower                         :string
+#  instagram_user                             :string
 #  is_bilingual                               :string           default("2_no_information")
 #  most_present_parent                        :string
 #  notes                                      :text
@@ -280,8 +280,8 @@ class ChildSupport < ApplicationRecord
 
   validates :books_quantity, inclusion: { in: BOOKS_QUANTITY, allow_blank: true }
   validates :is_bilingual, inclusion: { in: IS_BILINGUAL_OPTIONS }
-  validates :instagram_follower, inclusion: { in: INSTAGRAM_INFORMATION_OPTIONS }
-  validates :instagram_user, inclusion: { in: INSTAGRAM_INFORMATION_OPTIONS }
+  validates :instagram_follower, inclusion: { in: INSTAGRAM_INFORMATION_OPTIONS, allow_blank: true }
+  validates :instagram_user, inclusion: { in: INSTAGRAM_INFORMATION_OPTIONS, allow_blank: true }
   validates :has_important_information_parental_consent, acceptance: true, if: -> { important_information.present? && new_record? }
 
   # ---------------------------------------------------------------------------

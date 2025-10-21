@@ -373,14 +373,10 @@ ActiveAdmin.register ChildSupport do
                       if call_idx == 2
                         f.input :instagram_follower,
                                 collection: instagram_information_collection,
-                                input_html: { data: { select2: {} } },
-                                include_blank: false,
-                                required: false
+                                input_html: { data: { select2: {} } }
                         f.input :instagram_user,
                                 collection: instagram_information_collection,
-                                input_html: { data: { select2: {} } },
-                                include_blank: false,
-                                required: false
+                                input_html: { data: { select2: {} } }
                       end
                     end
                   end
