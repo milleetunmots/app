@@ -151,8 +151,6 @@
 #  parent_mid_term_rate                       :integer
 #  parent_mid_term_reaction                   :string
 #  parental_contexts                          :string           is an Array
-#  restart_support_date                       :datetime
-#  restart_support_details                    :text
 #  second_language                            :string
 #  should_be_read                             :boolean
 #  stop_support_date                          :datetime
@@ -167,7 +165,6 @@
 #  module4_chosen_by_parents_id               :bigint
 #  module5_chosen_by_parents_id               :bigint
 #  module6_chosen_by_parents_id               :bigint
-#  restart_support_caller_id                  :bigint
 #  stop_support_caller_id                     :bigint
 #  supporter_id                               :bigint
 #
@@ -196,7 +193,6 @@
 #  index_child_supports_on_module6_chosen_by_parents_id           (module6_chosen_by_parents_id)
 #  index_child_supports_on_parent1_available_support_module_list  (parent1_available_support_module_list) USING gin
 #  index_child_supports_on_parent2_available_support_module_list  (parent2_available_support_module_list) USING gin
-#  index_child_supports_on_restart_support_caller_id              (restart_support_caller_id)
 #  index_child_supports_on_should_be_read                         (should_be_read)
 #  index_child_supports_on_stop_support_caller_id                 (stop_support_caller_id)
 #  index_child_supports_on_supporter_id                           (supporter_id)
@@ -208,7 +204,6 @@
 #  fk_rails_...  (module4_chosen_by_parents_id => support_modules.id)
 #  fk_rails_...  (module5_chosen_by_parents_id => support_modules.id)
 #  fk_rails_...  (module6_chosen_by_parents_id => support_modules.id)
-#  fk_rails_...  (restart_support_caller_id => admin_users.id)
 #  fk_rails_...  (stop_support_caller_id => admin_users.id)
 #  fk_rails_...  (supporter_id => admin_users.id)
 #
@@ -667,6 +662,44 @@ class ChildSupport < ApplicationRecord
       return call_idx if send("call#{call_idx}_status").present?
     end
     0
+  end
+
+  def self.call_ok_or_unfinished_for(call_index)
+    where("call#{call_index}_status IN (?, ?)", ChildSupport.human_attribute_name("call_status.1_ok"), ChildSupport.human_attribute_name("call_status.5_unfinished"))
+  end
+
+  def self.previous_calls_ok_or_unfinished_before(call_index)
+    case call_index
+    when 0
+      all
+    when 1
+      call_ok_or_unfinished_for(0)
+    when 2
+      call_ok_or_unfinished_for(0).and(call_ok_or_unfinished_for(1))
+    when 3
+      call_ok_or_unfinished_for(0).and(call_ok_or_unfinished_for(1)).and(call_ok_or_unfinished_for(2))
+    else
+      none
+    end
+  end
+
+  def self.call_not_ok_and_not_unfinished_for(call_index)
+    where.not("call#{call_index}_status IN (?, ?)", ChildSupport.human_attribute_name("call_status.1_ok"), ChildSupport.human_attribute_name("call_status.5_unfinished"))
+  end
+
+  def self.at_least_one_call_not_ok_and_not_unfinished(call_index)
+    case call_index
+    when 0
+      none
+    when 1
+      call_not_ok_and_not_unfinished_for(0)
+    when 2
+      call_not_ok_and_not_unfinished_for(0).or(call_not_ok_and_not_unfinished_for(1))
+    when 3
+      call_not_ok_and_not_unfinished_for(0).or(call_not_ok_and_not_unfinished_for(1)).or(call_not_ok_and_not_unfinished_for(2))
+    else
+      none
+    end
   end
 
   # ---------------------------------------------------------------------------
