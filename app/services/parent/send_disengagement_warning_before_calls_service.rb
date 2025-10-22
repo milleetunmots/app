@@ -59,8 +59,8 @@ class Parent::SendDisengagementWarningBeforeCallsService
     @errors = []
     @date = Time.zone.today
     @groups = []
-    4.times do |time|
-      @groups << Group.with_calls.where("call#{time}_start_date = ?", @date + 3.day)
+    4.times do |call_index|
+      @groups << Group.with_calls.where("call#{call_index}_start_date = ?", @date + 3.day)
     end
   end
 
@@ -81,6 +81,7 @@ class Parent::SendDisengagementWarningBeforeCallsService
           PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGE[call_index]
         ).call
         @errors << "Parent::SendDisengagementWarningBeforeCallsService (group: #{group.name}) : #{previous_calls_ok_or_unfinished_warning_service.errors.uniq}" if previous_calls_ok_or_unfinished_warning_service.errors
+        next if call_index.zero?
 
         parent_with_at_least_one_call_not_ok_and_not_unfinished_ids =
           group.child_supports

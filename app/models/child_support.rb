@@ -678,6 +678,8 @@ class ChildSupport < ApplicationRecord
       call_ok_or_unfinished_for(0).and(call_ok_or_unfinished_for(1))
     when 3
       call_ok_or_unfinished_for(0).and(call_ok_or_unfinished_for(1)).and(call_ok_or_unfinished_for(2))
+    else
+      none
     end
   end
 
@@ -695,6 +697,8 @@ class ChildSupport < ApplicationRecord
       call_not_ok_and_not_unfinished_for(0).or(call_not_ok_and_not_unfinished_for(1))
     when 3
       call_not_ok_and_not_unfinished_for(0).or(call_not_ok_and_not_unfinished_for(1)).or(call_not_ok_and_not_unfinished_for(2))
+    else
+      none
     end
   end
 
