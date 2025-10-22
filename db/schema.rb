@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_10_15_070013) do
+ActiveRecord::Schema.define(version: 2025_10_21_091446) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -360,8 +360,8 @@ ActiveRecord::Schema.define(version: 2025_10_15_070013) do
     t.text "call4_why_talk_needed"
     t.text "call5_why_talk_needed"
     t.boolean "has_important_information_parental_consent", default: false, null: false
-    t.string "instagram_follower", default: "2_no_information"
-    t.string "instagram_user", default: "2_no_information"
+    t.string "instagram_follower"
+    t.string "instagram_user"
     t.bigint "restart_support_caller_id"
     t.text "restart_support_details"
     t.datetime "restart_support_date"
