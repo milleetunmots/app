@@ -20,7 +20,7 @@ class ChildSupport::ChildrenDisengagementService
     ChildSupport.includes(:children).where(children: { id: @group.children.map(&:id) }).tagged_with('desengage-2appelsKO').uniq.each do |child_support|
       @child_support = child_support
       fill_recipients
-      @child_support.children.each { |child| child.update(group_status: 'disengaged', group_end: Time.zone.today) }
+      @child_support.children.where.not(group_status: %w[stopped disengaged not_supported]).each { |child| child.update(group_status: 'disengaged', group_end: Time.zone.today) }
     end
     send_disengagement_message(@parent_with_multiple_children_ids, @message.gsub('{PRENOM_ENFANT}', 'vos enfants'))
     send_disengagement_message(@parent_without_multiple_children_ids, @message)
