@@ -57,7 +57,7 @@ class Parent::SendDisengagementWarningBeforeCallsService
 
   def initialize
     @errors = []
-    @date = Time.zone.today
+    @date = ENV['DISENGAGEMENT_WARNING_BEFORE_CALLS_DATE'].present? ? Date.parse(ENV['DISENGAGEMENT_WARNING_BEFORE_CALLS_DATE']) : Time.zone.today
     @groups = []
     4.times do |call_index|
       @groups << Group.with_calls.where("call#{call_index}_start_date = ?", @date + 3.day)
