@@ -82,18 +82,11 @@ RUN rm -rf  \
 
 # Precompile Rails assets
 RUN bundle exec rake SECRET_KEY_BASE=secret DATABASE_URL=nulldb://null ASSETS_PRECOMPILE=1 assets:precompile
-RUN rm -rf \
-  .browserslistrc \
-  babel.config.js \
-  package.json \
-  postcss.config.js \
-  yarn.lock \
-  app/assets/!(config) \
-  app/javascript \
-  lib/assets \
-  node_modules \
-  vendor/assets \
-  tmp
+
+# Clean up unnecessary files but keep app/assets/config
+RUN find app/assets -mindepth 1 -maxdepth 1 ! -name config -exec rm -rf {} + \
+  && rm -rf .browserslistrc babel.config.js package.json postcss.config.js yarn.lock app/javascript lib/assets node_modules vendor/assets tmp
+
 
 # Expose port 3000 to the Docker host, so we can access it
 # from the outside.
