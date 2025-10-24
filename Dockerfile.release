@@ -88,7 +88,7 @@ RUN rm -rf \
   package.json \
   postcss.config.js \
   yarn.lock \
-  app/assets \
+  app/assets/!(config) \
   app/javascript \
   lib/assets \
   node_modules \
