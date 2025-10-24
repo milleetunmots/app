@@ -47,7 +47,7 @@ ActiveAdmin.register RedirectionTarget do
   # ---------------------------------------------------------------------------
 
   form do |f|
-    f.semantic_errors *f.object.errors.keys
+    f.semantic_errors *f.object.errors.details.keys
     f.inputs do
       f.input :medium,
         collection: redirection_target_medium_select_collection,
