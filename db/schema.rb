@@ -292,10 +292,10 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.text "call3_goals_tracking"
     t.text "call4_goals_tracking"
     t.text "call5_goals_tracking"
-    t.string "call2_family_progress"
-    t.string "call2_previous_goals_follow_up"
     t.string "parent1_available_support_module_list", array: true
     t.string "parent2_available_support_module_list", array: true
+    t.string "call2_family_progress"
+    t.string "call2_previous_goals_follow_up"
     t.text "call0_parent_actions"
     t.text "call0_language_development"
     t.text "call0_notes"
@@ -313,16 +313,16 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.text "call1_goals_tracking"
     t.string "call1_family_progress"
     t.string "call1_previous_goals_follow_up"
+    t.bigint "module2_chosen_by_parents_id"
+    t.bigint "module3_chosen_by_parents_id"
+    t.bigint "module4_chosen_by_parents_id"
+    t.bigint "module5_chosen_by_parents_id"
     t.text "call0_goals_sms"
     t.text "call1_goals_sms"
     t.text "call2_goals_sms"
     t.text "call3_goals_sms"
     t.text "call4_goals_sms"
     t.text "call5_goals_sms"
-    t.bigint "module2_chosen_by_parents_id"
-    t.bigint "module3_chosen_by_parents_id"
-    t.bigint "module4_chosen_by_parents_id"
-    t.bigint "module5_chosen_by_parents_id"
     t.integer "parent_mid_term_rate"
     t.string "parent_mid_term_reaction"
     t.bigint "module6_chosen_by_parents_id"
@@ -366,7 +366,7 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "instagram_user"
     t.bigint "restart_support_caller_id"
     t.text "restart_support_details"
-    t.datetime "restart_support_date"
+    t.datetime "restart_support_date", precision: nil
     t.text "call1_avoid_disengagement_details"
     t.datetime "call1_avoid_disengagement_date"
     t.text "call2_avoid_disengagement_details"
@@ -512,10 +512,6 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.datetime "updated_at", null: false
     t.index ["author_id"], name: "index_field_comments_on_author_id"
     t.index ["related_type", "related_id"], name: "index_field_comments_on_related_type_and_related_id"
-  end
-
-  create_table "foo", id: false, force: :cascade do |t|
-    t.integer "x"
   end
 
   create_table "groups", force: :cascade do |t|

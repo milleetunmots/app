@@ -13,7 +13,7 @@ WORKDIR $INSTALL_PATH
 
 # Install dependencies
 RUN apt-get update \
-  && apt-get install -qq -y --no-install-recommends \
+  && apt-get install -y --no-install-recommends \
     apt-transport-https \
     curl \
     wget \
@@ -24,7 +24,7 @@ RUN apt-get update \
     libfontconfig1 \
     libxrender1 \
     libxext6 \
-    netcat \
+    netcat-traditional \
     libpq-dev \
     file \
     git \
@@ -36,15 +36,17 @@ RUN apt-get update \
 RUN gem uninstall bundler \
     && gem install bundler -v '2.7.2' --no-document
 
-RUN wget https://dl.yarnpkg.com/debian/pubkey.gpg
-RUN curl https://deb.nodesource.com/setup_18.x | bash
-RUN cat pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash \
+    && mkdir -p /etc/apt/keyrings \
+    && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /etc/apt/keyrings/yarn.gpg >/dev/null \
+    && echo "deb [signed-by=/etc/apt/keyrings/yarn.gpg] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list \
+    && apt-get update \
+    && apt-get install -y nodejs yarn
 
 RUN apt-get update && apt-get install -y nodejs yarn
 
-# remove pubkey
-RUN rm pubkey.gpg
+# remove pubkey if it exists
+RUN rm -f pubkey.gpg
 
 # Copy the package.json as well as the yarn.lock and install
 # the node modules. This is a separate step so the dependencies
