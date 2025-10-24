@@ -7,6 +7,7 @@ class ChildSupport
         @parent_link = {}
         assign_default_call_status
         check_and_process_disengagement
+        send_disengagement_warning_message
         send_call_goals_messages
       end
 
@@ -39,6 +40,11 @@ class ChildSupport
           description: description_text
         ).call
         Rollbar.error('ChildSupport::ChildrenDisengagementService', errors: disengagement_service.errors, group: group.id, parent_ids: disengagement_service.parent_ids.map { |parent_id| parent_id.gsub('parent.', '')})
+      end
+
+      def send_disengagement_warning_message
+        service = ChildSupport::SendDisengagementWarningAfterCallsService.new(@group_id, @call_number).call
+        Rollbar.error(service.errors) if service.errors.flatten.any?
       end
 
       def send_call_goals_messages

@@ -49,6 +49,7 @@ fr:
         << : *SHARED
         current_sign_in_at: Session en cours
         can_treat_task: Traite les tâches
+        can_send_automatic_sms: Envoi d’un SMS auto aux familles en début de session
         email: Email
         name: Nom
         user_role: Rôle
@@ -449,7 +450,7 @@ fr:
       child_support/instagram_information:
         0_yes: Oui
         1_no: Non
-        2_no_information: Pas d'infos
+        2_no_information: Pas possible d'avoir l'info
       child_support/call_review:
         0_very_satisfied: Très satisfaite 😃
         1_rather_satisfied: Plutôt satisfaite 🙂

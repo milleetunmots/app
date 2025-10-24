@@ -1,5 +1,4 @@
 class Group::AddDisengagementTagService
-	attr_reader
 
   DISENGAGEMENT_STATUSES = ['KO', 'Ne pas appeler', 'Numéro erroné'].freeze
 
@@ -18,11 +17,11 @@ class Group::AddDisengagementTagService
         when 2
           ChildSupport.group_id_in(group_id).with_a_child_in_active_group.
             where('call2_status IN (?, ?, ?)', 'KO', 'Ne pas appeler', 'Numéro erroné').
-            select { |child| child.call1_status.in?(DISENGAGEMENT_STATUSES) || child.call0_status.in?(DISENGAGEMENT_STATUSES) }
+            select { |child_support| child_support.call1_status.in?(DISENGAGEMENT_STATUSES) || child_support.call0_status.in?(DISENGAGEMENT_STATUSES) }
         when 3
           ChildSupport.group_id_in(group_id).with_a_child_in_active_group.
             where('call3_status IN (?, ?, ?)', 'KO', 'Ne pas appeler', 'Numéro erroné').
-            select { |child| child.call2_status.in?(DISENGAGEMENT_STATUSES) || child.call1_status.in?(DISENGAGEMENT_STATUSES) || child.call0_status.in?(DISENGAGEMENT_STATUSES) }
+            select { |child_support| child_support.call2_status.in?(DISENGAGEMENT_STATUSES) || child_support.call1_status.in?(DISENGAGEMENT_STATUSES) || child_support.call0_status.in?(DISENGAGEMENT_STATUSES) }
         else
           []
         end

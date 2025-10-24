@@ -4,6 +4,7 @@
 #
 #  id                     :bigint           not null, primary key
 #  aircall_phone_number   :string
+#  can_send_automatic_sms :boolean          default(TRUE), not null
 #  can_treat_task         :boolean          default(FALSE), not null
 #  current_sign_in_at     :datetime
 #  current_sign_in_ip     :inet

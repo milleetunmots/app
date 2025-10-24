@@ -140,8 +140,8 @@
 #  family_support_should_be_stopped           :string
 #  has_important_information_parental_consent :boolean          default(FALSE), not null
 #  important_information                      :text
-#  instagram_follower                         :string           default("2_no_information")
-#  instagram_user                             :string           default("2_no_information")
+#  instagram_follower                         :string
+#  instagram_user                             :string
 #  is_bilingual                               :string           default("2_no_information")
 #  most_present_parent                        :string
 #  notes                                      :text
@@ -275,8 +275,8 @@ class ChildSupport < ApplicationRecord
 
   validates :books_quantity, inclusion: { in: BOOKS_QUANTITY, allow_blank: true }
   validates :is_bilingual, inclusion: { in: IS_BILINGUAL_OPTIONS }
-  validates :instagram_follower, inclusion: { in: INSTAGRAM_INFORMATION_OPTIONS }
-  validates :instagram_user, inclusion: { in: INSTAGRAM_INFORMATION_OPTIONS }
+  validates :instagram_follower, inclusion: { in: INSTAGRAM_INFORMATION_OPTIONS, allow_blank: true }
+  validates :instagram_user, inclusion: { in: INSTAGRAM_INFORMATION_OPTIONS, allow_blank: true }
   validates :has_important_information_parental_consent, acceptance: true, if: -> { important_information.present? && new_record? }
 
   # ---------------------------------------------------------------------------
@@ -662,6 +662,44 @@ class ChildSupport < ApplicationRecord
       return call_idx if send("call#{call_idx}_status").present?
     end
     0
+  end
+
+  def self.call_ok_or_unfinished_for(call_index)
+    where("call#{call_index}_status IN (?, ?)", ChildSupport.human_attribute_name("call_status.1_ok"), ChildSupport.human_attribute_name("call_status.5_unfinished"))
+  end
+
+  def self.previous_calls_ok_or_unfinished_before(call_index)
+    case call_index
+    when 0
+      all
+    when 1
+      call_ok_or_unfinished_for(0)
+    when 2
+      call_ok_or_unfinished_for(0).and(call_ok_or_unfinished_for(1))
+    when 3
+      call_ok_or_unfinished_for(0).and(call_ok_or_unfinished_for(1)).and(call_ok_or_unfinished_for(2))
+    else
+      none
+    end
+  end
+
+  def self.call_not_ok_and_not_unfinished_for(call_index)
+    where.not("call#{call_index}_status IN (?, ?)", ChildSupport.human_attribute_name("call_status.1_ok"), ChildSupport.human_attribute_name("call_status.5_unfinished"))
+  end
+
+  def self.at_least_one_call_not_ok_and_not_unfinished(call_index)
+    case call_index
+    when 0
+      none
+    when 1
+      call_not_ok_and_not_unfinished_for(0)
+    when 2
+      call_not_ok_and_not_unfinished_for(0).or(call_not_ok_and_not_unfinished_for(1))
+    when 3
+      call_not_ok_and_not_unfinished_for(0).or(call_not_ok_and_not_unfinished_for(1)).or(call_not_ok_and_not_unfinished_for(2))
+    else
+      none
+    end
   end
 
   # ---------------------------------------------------------------------------
