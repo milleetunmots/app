@@ -66,11 +66,6 @@ class Parent::SendDisengagementWarningAfterCallsService
             .with_a_child_in_active_group
             .where.not('call2_status IN (?, ?)', ChildSupport.human_attribute_name('call_status.1_ok'), ChildSupport.human_attribute_name('call_status.5_unfinished'))
             .select { |child_support| child_support.call0_status.in?(ENGAGEMENT_STATUSES) && child_support.call1_status.in?(ENGAGEMENT_STATUSES) }
-    when 3
-      @group.child_supports
-            .with_a_child_in_active_group
-            .where.not('call3_status IN (?, ?)', ChildSupport.human_attribute_name('call_status.1_ok'), ChildSupport.human_attribute_name('call_status.5_unfinished'))
-            .select { |child_support| child_support.call0_status.in?(ENGAGEMENT_STATUSES) && child_support.call1_status.in?(ENGAGEMENT_STATUSES) && child_support.call2_status.in?(ENGAGEMENT_STATUSES) }
     else
       []
     end

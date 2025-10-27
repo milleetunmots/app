@@ -43,6 +43,8 @@ class ChildSupport
       end
 
       def send_disengagement_warning_message
+        return if @call_number.to_i > 2
+
         service = Parent::SendDisengagementWarningAfterCallsService.new(@group_id, @call_number).call
         Rollbar.error(service.errors) if service.errors.flatten.any?
       end
