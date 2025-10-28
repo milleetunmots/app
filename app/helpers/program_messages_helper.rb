@@ -56,6 +56,11 @@ module ProgramMessagesHelper
     video&.decorate
   end
 
+  def instagram_link
+    link = RedirectionTarget.joins(:medium).find_by(medium: { url: ENV['INSTAGRAM_LINK']})
+    link&.decorate
+  end
+
   def call3_suggested_videos
     videos = RedirectionTarget.joins(:medium).where('media.name LIKE ?', "#{RedirectionTarget::SUGGESTED_VIDEOS_CALL_3_NAME_STARTS_WITH} - %")
     return if videos.empty?
@@ -93,6 +98,7 @@ module ProgramMessagesHelper
     return redirection_targets unless parent_decorated
 
     [
+      { text: 'Page instagram', children: [format_result(instagram_link)] },
       { text: 'Vidéos suggérées pour ce parent', children: suggested_videos(parent_decorated) },
       { text: 'Autres vidéos', children: redirection_targets }
     ]
