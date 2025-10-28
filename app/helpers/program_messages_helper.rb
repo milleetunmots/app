@@ -57,7 +57,8 @@ module ProgramMessagesHelper
   end
 
   def instagram_link
-    link = RedirectionTarget.joins(:medium).find_by(medium: { url: ENV['INSTAGRAM_LINK']})
+    medium = Media::Form.find_or_create_by(url: ENV['INSTAGRAM_LINK'], name: 'Page d’accueil du compte Instagram 1001mots')
+    link = RedirectionTarget.joins(:medium).find_by(medium: medium)
     link&.decorate
   end
 
@@ -98,8 +99,8 @@ module ProgramMessagesHelper
     return redirection_targets unless parent_decorated
 
     [
-      { text: 'Page instagram', children: [format_result(instagram_link)] },
       { text: 'Vidéos suggérées pour ce parent', children: suggested_videos(parent_decorated) },
+      { text: 'Page instagram', children: [format_result(instagram_link)] },
       { text: 'Autres vidéos', children: redirection_targets }
     ]
   end
