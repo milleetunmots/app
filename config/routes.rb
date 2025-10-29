@@ -44,6 +44,7 @@ Rails.application.routes.draw do
   get 'child-support-call-goal/:child_support_id/:call_index', to: 'child_supports#call_goal', as: :child_support_call_goals
   get 'child-support-task-reporter/:task_title/', to: 'child_supports#task_reporter', as: :child_support_task_reporter
   get 'child-support-task-treated-by', to: 'child_supports#task_treated_by', as: :child_support_task_treated_by
+  get 'avoid-disengagement/:child_support_id', to: 'child_supports#avoid_disengagement', as: :avoid_disengagement
   post 'child-support-address-valid/:child_support_id', to: 'child_supports#address_valid', as: :child_support_address_valid
   get 'mis-a-jour', to: 'children#updated', as: :updated_child
   get 'mis-a-jour-invitation', to: 'workshop_participation#updated', as: :updated_workshop_participation

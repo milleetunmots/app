@@ -359,6 +359,14 @@ ActiveAdmin.register ChildSupport do
                           class: 'select2-call-status',
                           style: 'width: 100%'
                         } # Statut de l'appel
+                      div id: "avoid-disengagement-div-#{call_idx}", hidden: true do
+                        div style: 'font-size: 14px; margin-bottom: 20px' do
+                          "Cette famille va être considérée comme désengagée et son accompagnement va s'arrêter.".html_safe
+                        end
+                        div class: 'avoid-disengagement-btn' do
+                          "Poursuivre l'accompagnement"
+                        end
+                      end
                       f.input "call#{call_idx}_duration", input_html: { style: 'font-weight: bold;' } # Durée de l'appel
                       f.input "call#{call_idx}_parent_progress",
                         as: :radio, collection: child_support_call_parent_progress_select_collection # Niveau de pratiques parentales
