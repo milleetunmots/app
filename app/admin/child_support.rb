@@ -364,7 +364,7 @@ ActiveAdmin.register ChildSupport do
                           "Cette famille va être considérée comme désengagée et son accompagnement va s'arrêter.".html_safe
                         end
                         div class: 'avoid-disengagement-btn' do
-                          "Poursuivre l'accompagnement"
+                          link_to("Poursuivre l'accompagnement", admin_avoid_disengagement_form_path(child_support_id: resource.decorate.model.id), target: '_blank', style: 'color: inherit; decoration: none')
                         end
                       end
                       f.input "call#{call_idx}_duration", input_html: { style: 'font-weight: bold;' } # Durée de l'appel

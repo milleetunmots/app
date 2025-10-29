@@ -12,14 +12,17 @@ class Group::AddDisengagementTagService
         case call_index
         when 1
           ChildSupport.group_id_in(group_id).with_a_child_in_active_group.
+            where(avoid_disengagement: false).
             where('call1_status IN (?, ?, ?)', 'KO', 'Ne pas appeler', 'Numéro erroné').
             select { |child_support| child_support.call0_status.in? DISENGAGEMENT_STATUSES }
         when 2
           ChildSupport.group_id_in(group_id).with_a_child_in_active_group.
+            where(avoid_disengagement: false).
             where('call2_status IN (?, ?, ?)', 'KO', 'Ne pas appeler', 'Numéro erroné').
             select { |child_support| child_support.call1_status.in?(DISENGAGEMENT_STATUSES) || child_support.call0_status.in?(DISENGAGEMENT_STATUSES) }
         when 3
           ChildSupport.group_id_in(group_id).with_a_child_in_active_group.
+            where(avoid_disengagement: false).
             where('call3_status IN (?, ?, ?)', 'KO', 'Ne pas appeler', 'Numéro erroné').
             select { |child_support| child_support.call2_status.in?(DISENGAGEMENT_STATUSES) || child_support.call1_status.in?(DISENGAGEMENT_STATUSES) || child_support.call0_status.in?(DISENGAGEMENT_STATUSES) }
         else
