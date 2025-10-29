@@ -56,6 +56,12 @@ module ProgramMessagesHelper
     video&.decorate
   end
 
+  def instagram_link
+    medium = Media::Form.find_or_create_by(url: ENV['INSTAGRAM_LINK'], name: 'Page d’accueil du compte Instagram 1001mots')
+    link = RedirectionTarget.joins(:medium).find_by(medium: medium)
+    link&.decorate
+  end
+
   def call3_suggested_videos
     videos = RedirectionTarget.joins(:medium).where('media.name LIKE ?', "#{RedirectionTarget::SUGGESTED_VIDEOS_CALL_3_NAME_STARTS_WITH} - %")
     return if videos.empty?
@@ -94,6 +100,7 @@ module ProgramMessagesHelper
 
     [
       { text: 'Vidéos suggérées pour ce parent', children: suggested_videos(parent_decorated) },
+      { text: 'Page instagram', children: [format_result(instagram_link)] },
       { text: 'Autres vidéos', children: redirection_targets }
     ]
   end
