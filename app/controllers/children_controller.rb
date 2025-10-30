@@ -182,7 +182,11 @@ class ChildrenController < ApplicationController
   end
 
   def utm_caf_params
-    params[:utm_caf] && Source.exists?(utm: params[:utm_caf]) ? params[:utm_caf] : nil
+    params[:utm_caf] && Source.by_caf.exists?(utm: params[:utm_caf]) ? params[:utm_caf] : nil
+  end
+
+  def utm_msa_params
+    params[:utm_msa] && Source.by_msa.exists?(utm: params[:utm_msa]) ? params[:utm_msa] : nil
   end
 
   def pmi_dpt_params
@@ -226,6 +230,10 @@ class ChildrenController < ApplicationController
       @form_path_url = caf_registration_path(request.query_parameters)
       # check quota, TEMPORARY
       @signup_quota_reached = signup_quota_reached?
+    when '/inscriptionmsa'
+      session[:registration_origin] = 6
+      @form_path = msa_registration_path
+      @form_path_url = msa_registration_path(request.query_parameters)
     when '/inscription3'
       session[:registration_origin] = 3
       @form_path = pmi_registration_path
@@ -242,6 +250,16 @@ class ChildrenController < ApplicationController
     @title = I18n.t("inscription_title.form#{current_registration_origin}")
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
     case current_registration_origin
+    when 6
+      @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
+      @source_collection = :msa
+      @form_received_from = I18n.t('form_received_from')
+      @registration_caf_detail = I18n.t('inscription_caf.details')
+      @source_details_label = I18n.t('source_details_label.parent')
+      @child_min_birthdate = Child.min_birthdate
+      @source_label = I18n.t('source_label.msa')
+      @child_min_birthdate = Child.min_birthdate
+      @utm_msa = utm_msa_params
     when 5
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.pro')
       @source_collection = :local_partner
