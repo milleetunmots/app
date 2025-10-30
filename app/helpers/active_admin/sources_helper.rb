@@ -9,7 +9,11 @@ module ActiveAdmin::SourcesHelper
   end
 
   def source_select_for_caf
-    Source.active.by_caf.map { |caf| [caf.name, caf.id] }
+    Source.active.by_caf.where.not("name ILIKE ?", "MSA%").map { |caf| [caf.name, caf.id] }
+  end
+
+  def source_select_for_msa
+    Source.active.by_msa.map { |caf| [caf.name, caf.id] }
   end
 
   def source_select_for_bao

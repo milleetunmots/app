@@ -19,6 +19,8 @@
         <%= image_tag("mots-logo.png", id:"mots-logo") %>
         <% if @form_path == '/inscriptioncaf' %>
           <%= image_tag("caf-logo.jpg", id:"caf-logo") %>
+        <% elsif @form_path == '/inscriptionmsa'%>
+          <%= image_tag("msa-logo.png") %>
         <% end %>
       </div>
       <%= simple_form_for @child, url: @form_path_url || children_path do |f| %>
@@ -52,6 +54,18 @@
               <div class="col-sm-6">
                 <div <%= 'hidden' unless @utm_caf.nil? %> id="child_children_source_source_id_div">
                   <%= children_source_form.input :source_id, label: @source_label.html_safe, required: true, collection: source_select_for_caf %>
+                </div>
+              </div>
+            <% elsif @source_collection == :msa %>
+              <div class="col-sm-6">
+                <label class="select required" for="form_received_from"><%= @form_received_from.html_safe %></label>
+                <select class="form-control select required" id="form_received_from">
+                  <option value='msa'>MSA</option>
+                </select>
+              </div>
+              <div class="col-sm-6">
+                <div <%= 'hidden' unless @utm_msa.nil? %> id="msa_child_children_source_source_id_div">
+                  <%= children_source_form.input :source_id, label: @source_label.html_safe, required: true, collection: source_select_for_msa %>
                 </div>
               </div>
             <% else %>

@@ -67,6 +67,13 @@
     } else if (pathName === '/inscription5') {
       $('#registration_department_select').hide();
       checkIfLocalPartnerHasDepartment();
+    } else if (pathName === '/inscriptionmsa') {
+      if (value === 'msa') {
+        if (window.utmMsa !== undefined) {
+          childrenSourceSelect.val(window.utmMsa)
+          childrenSourceSelect.trigger('change')
+        }
+      }
     }
   };
 
@@ -287,6 +294,7 @@
     window.friendOption = []; // setup "Mon entourage" option
     // setup CAF options
     window.utmCaf = undefined;
+    window.utmMsa = undefined;
     window.cafOptions = childrenSourceSelect.find('option').map(function() {
       return { id: $(this).val(), text: $(this).text() };
     }).get();
@@ -305,6 +313,18 @@
       }).done(function(data) {
         window.utmCaf = data.id;
         childrenSourceSelect.val(window.utmCaf);
+        childrenSourceSelect.trigger('change');
+      });
+    }
+
+    var utmMsa = url.searchParams.get('utm_msa') || undefined;
+    if (utmMsa !== undefined) {
+      $.ajax({
+        type: 'GET',
+        url: '/sources/msa_by_utm?utm_msa='+utmMsa
+      }).done(function(data) {
+        window.utmMsa = data.id;
+        childrenSourceSelect.val(window.utmMsa);
         childrenSourceSelect.trigger('change');
       });
     }

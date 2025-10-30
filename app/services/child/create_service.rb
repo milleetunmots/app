@@ -62,6 +62,7 @@ class Child
       # add tags for bao / local_partner ?
       @attributes[:tag_list] ||= []
       @attributes[:tag_list] << case @registration_origin
+                                when 6 then 'inscriptionmsa'
                                 when 5 then 'inscription5'
                                 when 4 then 'inscription4'
                                 when 3 then 'inscription3'
