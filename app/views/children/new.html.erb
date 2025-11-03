@@ -20,7 +20,7 @@
         <% if @form_path == '/inscriptioncaf' %>
           <%= image_tag("caf-logo.jpg", id:"caf-logo") %>
         <% elsif @form_path == '/inscriptionmsa'%>
-          <%= image_tag("msa-logo.png") %>
+          <%= image_tag("msa-logo.svg") %>
         <% end %>
       </div>
       <%= simple_form_for @child, url: @form_path_url || children_path do |f| %>
