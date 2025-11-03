@@ -1,7 +1,7 @@
 <div id="inscription">
   <% if @form_path.in?(ENV['BLOCKED_REGISTRATION_PATHS'].split(',')) %>
     <div id="registration-closed">
-      <p>Les inscriptions sont fermées.</p>
+      <p>Les inscriptions sont fermées. Si vous êtes une structure partenaire de 1001mots, contactez-nous à pmi@1001mots.org</p>
     </div>
   <% elsif @form_path_url.include?('utm_caf=77') && @signup_quota_reached %>
     <div id="registration-closed">
