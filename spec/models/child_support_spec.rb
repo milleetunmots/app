@@ -6,9 +6,6 @@
 #  address_suspected_invalid_at               :datetime
 #  already_working_with                       :boolean
 #  availability                               :string
-#  avoid_disengagement                        :boolean          default(FALSE), not null
-#  avoid_disengagement_date                   :datetime
-#  avoid_disengagement_details                :text
 #  book_not_received                          :string
 #  books_quantity                             :string
 #  call0_attempt                              :string
@@ -32,6 +29,8 @@
 #  call0_tv_frequency                         :string
 #  call0_why_talk_needed                      :text
 #  call1_attempt                              :string
+#  call1_avoid_disengagement_date             :datetime
+#  call1_avoid_disengagement_details          :text
 #  call1_duration                             :integer
 #  call1_family_progress                      :string
 #  call1_goals                                :text
@@ -54,6 +53,8 @@
 #  call1_tv_frequency                         :string
 #  call1_why_talk_needed                      :text
 #  call2_attempt                              :string
+#  call2_avoid_disengagement_date             :datetime
+#  call2_avoid_disengagement_details          :text
 #  call2_duration                             :integer
 #  call2_family_progress                      :string
 #  call2_goals                                :text
@@ -76,6 +77,8 @@
 #  call2_tv_frequency                         :string
 #  call2_why_talk_needed                      :text
 #  call3_attempt                              :string
+#  call3_avoid_disengagement_date             :datetime
+#  call3_avoid_disengagement_details          :text
 #  call3_duration                             :integer
 #  call3_goals                                :text
 #  call3_goals_sms                            :text

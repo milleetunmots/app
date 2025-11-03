@@ -11,7 +11,7 @@ $(document).ready(function() {
   let $parent1Link = $('a[href="#parent-1"]')
   let childSupportId = $('#child_support_id').val();
 
-  for (let call_index = 0; call_index < 4; call_index++) {
+  for (let call_index = 1; call_index < 4; call_index++) {
     $(`#child_support_call${call_index}_status`).on('change', function() {
       let call_missed = ['KO', 'Numéro erroné', 'Incomplet / Pas de choix de module'].includes($(this).val());
 
@@ -20,7 +20,6 @@ $(document).ready(function() {
           type: 'GET',
           url: `/avoid-disengagement/${childSupportId}?call_index=${call_index}`
         }).done(function(data) {
-          console.log(data);
           $(`#avoid-disengagement-div-${call_index}`).prop('hidden', !data);
         });
       }

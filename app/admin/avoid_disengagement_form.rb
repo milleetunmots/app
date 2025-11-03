@@ -6,6 +6,7 @@ ActiveAdmin.register_page 'Avoid Disengagement Form' do
     form action: admin_avoid_disengagement_form_perform_path, method: :post, id: 'restart-support-form' do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
       f.input :child_support_id, type: :hidden, name: :child_support_id, value: params[:child_support_id]
+      f.input :call_index, type: :hidden, name: :call_index, value: params[:call_index]
 
       div do
         label class: 'label-for-group' do
@@ -52,12 +53,14 @@ ActiveAdmin.register_page 'Avoid Disengagement Form' do
   page_action :perform, method: :post do
     reason = [params['unavailability'], params['message_not_received'], params['incorrect_status'], params['motivated'], params['other']].compact
     details = params['details']
+    call_index = params['call_index']
 
     avoid_disengagement_service = ChildSupport::AvoidDisengagementService.new(
       current_admin_user.id,
       params[:child_support_id],
       reason,
-      details
+      details,
+      call_index
     ).call
 
     if avoid_disengagement_service.error.nil?
