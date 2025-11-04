@@ -14,7 +14,8 @@ Rails.application.routes.draw do
   get 'inscriptionmsa', to: 'children#new', as: :new_msa_registration
   get 'inscription3', to: 'children#new', as: :new_pmi_registration
   get 'inscription4', to: 'children#new', as: :new_bao_registration
-  get 'inscription5', to: 'children#new', as: :new_local_partner_registration
+  get 'inscription5', to: 'children#new', as: :old_new_local_partner_registration
+  get 'inscriptionpartenaires', to: 'children#new', as: :new_local_partner_registration
 
   # Créer formulaire bao
   # Créer formulaire partenaires locaux
@@ -25,7 +26,8 @@ Rails.application.routes.draw do
   post 'inscriptionmsa', to: 'children#create', as: :msa_registration
   post 'inscription3', to: 'children#create', as: :pmi_registration
   post 'inscription4', to: 'children#create', as: :bao_registration
-  post 'inscription5', to: 'children#create', as: :local_partner_registration
+  post 'inscription5', to: 'children#create', as: :old_local_partner_registration
+  post 'inscriptionpartenaires', to: 'children#create', as: :local_partner_registration
   get 'inscrit', to: 'children#created', as: :created_child
 
   scope 'c/:id/:security_code' do

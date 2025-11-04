@@ -244,6 +244,10 @@ class ChildrenController < ApplicationController
       @form_path_url = bao_registration_path(request.query_parameters)
     when '/inscription5'
       session[:registration_origin] = 5
+      @form_path = old_local_partner_registration_path
+      @form_path_url = old_local_partner_registration_path(request.query_parameters)
+    when '/inscriptionpartenaires'
+      session[:registration_origin] = 5
       @form_path = local_partner_registration_path
       @form_path_url = local_partner_registration_path(request.query_parameters)
     end

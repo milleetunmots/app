@@ -28,7 +28,7 @@
   }
 
   var checkIfLocalPartnerHasDepartment = function() {
-    if (pathName === '/inscription5') {
+    if (pathName === '/inscription5' || pathName === '/inscriptionpartenaires') {
       const selectedValue = $('select[id="child_children_source_attributes_source_id"]').val();
       if (selectedValue !== '') {
         $.ajax({
@@ -64,7 +64,7 @@
         childrenSourceSelect.val(window.friendOption[0].id).trigger('change');
         $('#child_children_source_source_id_div').hide();
       }
-    } else if (pathName === '/inscription5') {
+    } else if (pathName === '/inscription5' || pathName === '/inscriptionpartenaires') {
       $('#registration_department_select').hide();
       checkIfLocalPartnerHasDepartment();
     } else if (pathName === '/inscriptionmsa') {
@@ -329,7 +329,7 @@
       });
     }
 
-    if (pathName === '/inscription5') {
+    if (pathName === '/inscription5' || pathName === '/inscriptionpartenaires') {
       var $source_department_select2 = $('#child_children_source_attributes_registration_department').select2();
       $source_department_select2.data().select2.$container.addClass("form-control");
     }
