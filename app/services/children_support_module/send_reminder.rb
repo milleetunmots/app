@@ -21,7 +21,7 @@ class ChildrenSupportModule
         if @second_reminder
           "1001mots : dernière chance pour choisir votre prochain thème pour que #{@child.first_name} reçoive son prochain livre ! #{selection_link}"
         else
-          "1001mots : pour recevoir le prochain livre de 1001mots pour #{@child.first_name}, n'oubliez pas de choisir votre thème en cliquant sur ce lien avant minuit : #{selection_link}."
+          "1001mots : pour recevoir le prochain livre de 1001mots pour #{@child.first_name}, n'oubliez pas de choisir votre thème en cliquant sur ce lien avant minuit : #{selection_link}"
         end
 
       sms_service = ProgramMessageService.new(

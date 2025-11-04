@@ -28,7 +28,7 @@
   }
 
   var checkIfLocalPartnerHasDepartment = function() {
-    if (pathName === '/inscription5') {
+    if (pathName === '/inscription5' || pathName === '/inscriptionpartenaires') {
       const selectedValue = $('select[id="child_children_source_attributes_source_id"]').val();
       if (selectedValue !== '') {
         $.ajax({
@@ -64,9 +64,16 @@
         childrenSourceSelect.val(window.friendOption[0].id).trigger('change');
         $('#child_children_source_source_id_div').hide();
       }
-    } else if (pathName === '/inscription5') {
+    } else if (pathName === '/inscription5' || pathName === '/inscriptionpartenaires') {
       $('#registration_department_select').hide();
       checkIfLocalPartnerHasDepartment();
+    } else if (pathName === '/inscriptionmsa') {
+      if (value === 'msa') {
+        if (window.utmMsa !== undefined) {
+          childrenSourceSelect.val(window.utmMsa)
+          childrenSourceSelect.trigger('change')
+        }
+      }
     }
   };
 
@@ -287,6 +294,7 @@
     window.friendOption = []; // setup "Mon entourage" option
     // setup CAF options
     window.utmCaf = undefined;
+    window.utmMsa = undefined;
     window.cafOptions = childrenSourceSelect.find('option').map(function() {
       return { id: $(this).val(), text: $(this).text() };
     }).get();
@@ -309,7 +317,19 @@
       });
     }
 
-    if (pathName === '/inscription5') {
+    var utmMsa = url.searchParams.get('utm_msa') || undefined;
+    if (utmMsa !== undefined) {
+      $.ajax({
+        type: 'GET',
+        url: '/sources/msa_by_utm?utm_msa='+utmMsa
+      }).done(function(data) {
+        window.utmMsa = data.id;
+        childrenSourceSelect.val(window.utmMsa);
+        childrenSourceSelect.trigger('change');
+      });
+    }
+
+    if (pathName === '/inscription5' || pathName === '/inscriptionpartenaires') {
       var $source_department_select2 = $('#child_children_source_attributes_registration_department').select2();
       $source_department_select2.data().select2.$container.addClass("form-control");
     }
