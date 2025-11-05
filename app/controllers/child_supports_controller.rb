@@ -80,6 +80,9 @@ class ChildSupportsController < ApplicationController
   end
 
   def avoid_disengagement
+    call_index = params[:call_index].to_i
+    return render json: false if call_index.zero?
+
     @child_support = ChildSupport.find_by(id: params[:child_support_id])
     not_found and return unless @child_support
 
@@ -89,16 +92,13 @@ class ChildSupportsController < ApplicationController
     group = current_child.group
     not_found and return unless group
 
-    call_index = params[:call_index].to_i
-    return render json: group.call_session_in_progress(Time.zone.today) == call_index if call_index.zero?
-
     at_least_a_missed_call = false
     call_idx = 0
     while (call_idx < call_index) && !at_least_a_missed_call
-      at_least_a_missed_call = true if @child_support.send(:"call#{call_idx}_status").in?(['KO', 'Numéro erroné', 'Incomplet / Pas de choix de module'])
+      at_least_a_missed_call = true if @child_support.send(:"call#{call_idx}_status").in?(['KO', 'Numéro erroné', 'Ne pas appeler'])
       call_idx += 1
     end
-    render json: group.call_session_in_progress(Time.zone.today) == call_index && at_least_a_missed_call
+    render json: group.call_session_in_progress?(call_index) && at_least_a_missed_call
   end
 
   private

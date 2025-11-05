@@ -13,12 +13,12 @@ $(document).ready(function() {
 
   for (let call_index = 1; call_index < 4; call_index++) {
     $(`#child_support_call${call_index}_status`).on('change', function() {
-      let call_missed = ['KO', 'Numéro erroné', 'Incomplet / Pas de choix de module'].includes($(this).val());
+      let call_missed = ['KO', 'Numéro erroné', 'Ne pas appeler'].includes($(this).val());
 
       if (call_missed) {
         $.ajax({
           type: 'GET',
-          url: `/avoid-disengagement/${childSupportId}?call_index=${call_index}`
+          url: `/child_support/${childSupportId}/avoid-disengagement?call_index=${call_index}`
         }).done(function(data) {
           $(`#avoid-disengagement-div-${call_index}`).prop('hidden', !data);
         });
