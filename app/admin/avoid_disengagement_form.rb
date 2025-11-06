@@ -64,9 +64,9 @@ ActiveAdmin.register_page 'Avoid Disengagement Form' do
     ).call
 
     if avoid_disengagement_service.error.nil?
-      redirect_to admin_child_support_path(params[:child_support_id]), notice: 'La famille ne sera pas désengagée'
+      redirect_to edit_admin_child_support_path(params[:child_support_id]), notice: 'La famille ne sera pas désengagée'
     else
-      redirect_to admin_child_support_path(params[:child_support_id]), alert: restart_support_service.error
+      redirect_to edit_admin_child_support_path(params[:child_support_id]), alert: restart_support_service.error
     end
   end
 end

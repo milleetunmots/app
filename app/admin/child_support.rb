@@ -365,7 +365,7 @@ ActiveAdmin.register ChildSupport do
                             "Cette famille va être considérée comme désengagée et son accompagnement va s'arrêter.".html_safe
                           end
                           div class: 'avoid-disengagement-btn' do
-                            link_to("Poursuivre l'accompagnement", admin_avoid_disengagement_form_path(child_support_id: resource.decorate.model.id, call_index: call_idx), target: '_blank', style: 'color: inherit; decoration: none')
+                            link_to("Poursuivre l'accompagnement", admin_avoid_disengagement_form_path(child_support_id: resource.decorate.model.id, call_index: call_idx), style: 'color: inherit; decoration: none')
                           end
                         end
                       end
