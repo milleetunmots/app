@@ -11,6 +11,21 @@ $(document).ready(function() {
   let $parent1Link = $('a[href="#parent-1"]')
   let childSupportId = $('#child_support_id').val();
 
+  for (let call_index = 1; call_index < 4; call_index++) {
+    $(`#child_support_call${call_index}_status`).on('change', function() {
+      let call_missed = ['KO', 'Numéro erroné', 'Ne pas appeler'].includes($(this).val());
+
+      if (call_missed) {
+        $.ajax({
+          type: 'GET',
+          url: `/child_support/${childSupportId}/avoid-disengagement?call_index=${call_index}`
+        }).done(function(data) {
+          $(`#avoid-disengagement-div-${call_index}`).prop('hidden', !data);
+        });
+      }
+    });
+  }
+
   window.scrollTo(0, 0);
   $("[id^='child_support_call'][id$='_resources_alternative_scripts']").each(function() {
     $(this).select2({
@@ -22,8 +37,6 @@ $(document).ready(function() {
       }
     });
   });
-
-
 
   $childSupportAddressModificationButton.on('click', function() {
     $parent1Link.trigger('click');

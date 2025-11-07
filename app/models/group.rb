@@ -198,6 +198,14 @@ class Group < ApplicationRecord
     closest_session
   end
 
+  def call_session_in_progress?(call_index)
+    start_date = send(:"call#{call_index}_start_date")
+    end_date = send(:"call#{call_index}_end_date")
+    return false unless start_date.present? && end_date.present?
+
+    Time.zone.today.between?(start_date, end_date)
+  end
+
   ransacker :group_status, formatter: proc { |values|
     values = Array(values)
     ids = []
