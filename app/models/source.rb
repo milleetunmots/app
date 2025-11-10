@@ -18,12 +18,21 @@ class Source < ApplicationRecord
 
   CHANNEL_LIST = %w[bao caf pmi local_partner other].freeze
 
+  REGISTRATION_LINKS = [
+    { channel: 'caf', url: '/inscriptioncaf', label: 'CAF' },
+    { channel: 'pmi', url: '/inscription3', label: 'PMI' },
+    { channel: 'caf', url: '/inscriptionmsa', label: 'MSA' },
+    { channel: 'bao', url: '/inscription4', label: 'BAO' },
+    { channel: 'local_partner', url: '/inscriptionpartenaires', label: 'Partenaires locaux' }
+  ]
+
   # ---------------------------------------------------------------------------
   # relations
   # ---------------------------------------------------------------------------
 
   has_many :children_sources, dependent: :nullify
   has_many :children, through: :children_sources
+  has_many :registration_limits
 
   # ---------------------------------------------------------------------------
   # validations
@@ -54,6 +63,10 @@ class Source < ApplicationRecord
 
   def unarchive!
     update!(is_archived: false)
+  end
+
+  def msa?
+    name.starts_with?('MSA') && channel == 'caf'
   end
 
   private

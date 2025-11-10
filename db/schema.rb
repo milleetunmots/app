@@ -726,6 +726,19 @@ ActiveRecord::Schema.define(version: 2025_10_29_160739) do
     t.index ["redirection_target_id"], name: "index_redirection_urls_on_redirection_target_id"
   end
 
+  create_table "registration_limits", force: :cascade do |t|
+    t.bigint "source_id", null: false
+    t.date "start_date", null: false
+    t.date "end_date"
+    t.integer "limit", null: false
+    t.string "registration_form", null: false
+    t.string "registration_url_params"
+    t.boolean "is_archived", default: false, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["source_id"], name: "index_registration_limits_on_source_id"
+  end
+
   create_table "sources", force: :cascade do |t|
     t.string "name", null: false
     t.string "channel", null: false
