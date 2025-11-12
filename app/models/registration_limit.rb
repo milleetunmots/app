@@ -36,19 +36,16 @@ class RegistrationLimit < ApplicationRecord
   scope :ended, -> { where('end_date < ?', Time.zone.today) }
   scope :active, -> { started.not_ended.where(is_archived: false) }
   scope :archived, -> { where(is_archived: true) }
+  scope :not_archived, -> { where(is_archived: false) }
 
   delegate :children, :channel, to: :source, prefix: true
 
-  def self.active_with_capacity
-    where(id: active.reject(&:limit_reached?).pluck(:id))
+  def self.not_closed
+    not_archived.where(id: all.select(&:open?).pluck(:id))
   end
 
-  def self.with_limit_reached
-    where(id: all.select(&:limit_reached?).pluck(:id))
-  end
-
-  def self.with_capacity
-    where(id: all.reject(&:limit_reached?).pluck(:id))
+  def self.closed
+    not_archived.where(id: all.reject(&:open?).pluck(:id))
   end
 
   def archive!
@@ -59,14 +56,24 @@ class RegistrationLimit < ApplicationRecord
     update!(is_archived: false)
   end
 
+  def started?
+    start_date.past?
+  end
+
+  def ended?
+    return false if end_date.nil?
+
+    end_date.past?
+  end
+
+  def open?
+    children_count < limit
+  end
+
   def children_count
     children = source_children.select { |child| child.created_at >= start_date }
     children = source_children.select { |child| child.created_at <= end_date } if end_date.present?
     children.count
-  end
-
-  def limit_reached?
-    children_count >= limit
   end
 
   private

@@ -15,8 +15,11 @@ ActiveAdmin.register RegistrationLimit do
     column :start_date
     column :end_date
     column :limit
+    column :children_count
+    column :state
     column :registration_form
     column :registration_url_params
+    column :form_status
     column :is_archived
     actions defaults: true do |registration_limit|
       if registration_limit.is_archived?
@@ -30,7 +33,9 @@ ActiveAdmin.register RegistrationLimit do
   permit_params :source_id, :start_date, :end_date, :limit, :registration_form, :registration_url_params, :is_archived
 
   scope :all, group: :all, default: true
-  scope :active_with_capacity, group: :active
+  scope(I18n.t('activerecord.attributes.registration_limit.not_closed')) do |scope|
+    scope.merge(RegistrationLimit.not_closed)
+  end
   scope(I18n.t('activerecord.attributes.registration_limit.is_archived')) do |scope|
     scope.merge(RegistrationLimit.archived)
   end
@@ -47,7 +52,7 @@ ActiveAdmin.register RegistrationLimit do
       f.input :registration_form,
               collection: registration_form_select_collection,
               input_html: { data: { select2: {} } }
-      f.input :registration_url_params
+      f.input :registration_url_params, input_html: { placeholder: 'utm_source=caf01&utm_medium=mail&utm_caf=caf01' }
       f.input :is_archived
       f.actions
     end

@@ -13,6 +13,10 @@
     <div id="registration-closed">
       <p>Les inscriptions sont fermées, le nombre de places était limité.</p>
     </div>
+  <% elsif @limit_reached %>
+    <div id="registration-closed">
+      <p>Les inscriptions sont limitées et le formulaire est malheureusement temporairement fermé.</p>
+    </div>
   <% else %>
     <div class="container" id="inscription-content">
       <div id="logos">
