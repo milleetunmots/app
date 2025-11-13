@@ -25,7 +25,9 @@
 #  is_excluded_from_workshop           :boolean          default(FALSE)
 #  job                                 :string
 #  last_name                           :string           not null
+#  latitude                            :float
 #  letterbox_name                      :string
+#  longitude                           :float
 #  mid_term_rate                       :integer
 #  mid_term_reaction                   :string
 #  mid_term_speech                     :text
@@ -50,17 +52,18 @@
 #
 # Indexes
 #
-#  index_parents_on_address                (address)
-#  index_parents_on_city_name              (city_name)
-#  index_parents_on_discarded_at           (discarded_at)
-#  index_parents_on_email                  (email)
-#  index_parents_on_first_name             (first_name)
-#  index_parents_on_gender                 (gender)
-#  index_parents_on_is_ambassador          (is_ambassador)
-#  index_parents_on_job                    (job)
-#  index_parents_on_last_name              (last_name)
-#  index_parents_on_phone_number_national  (phone_number_national)
-#  index_parents_on_postal_code            (postal_code)
+#  index_parents_on_address                 (address)
+#  index_parents_on_city_name               (city_name)
+#  index_parents_on_discarded_at            (discarded_at)
+#  index_parents_on_email                   (email)
+#  index_parents_on_first_name              (first_name)
+#  index_parents_on_gender                  (gender)
+#  index_parents_on_is_ambassador           (is_ambassador)
+#  index_parents_on_job                     (job)
+#  index_parents_on_last_name               (last_name)
+#  index_parents_on_latitude_and_longitude  (latitude,longitude)
+#  index_parents_on_phone_number_national   (phone_number_national)
+#  index_parents_on_postal_code             (postal_code)
 #
 
 class Parent < ApplicationRecord
@@ -144,6 +147,9 @@ class Parent < ApplicationRecord
   validates :preferred_channel, inclusion: { in: COMMUNICATION_CHANNELS, allow_blank: true }
   validate :phone_number_format, on: :create
   validate :book_delivery_organisation_name_presence, if: -> { book_delivery_location.in?(%w[pmi temporary_shelter association police_or_military_station]) }
+
+  geocoded_by :geocoder_address
+  reverse_geocoded_by :latitude, :longitude
 
   scope :potential_duplicates, -> {
     where("parents.phone_number IN (SELECT phone_number FROM parents WHERE parents.discarded_at IS NULL GROUP BY parents.phone_number HAVING COUNT(*) > 1)")
@@ -479,5 +485,9 @@ class Parent < ApplicationRecord
 
     service = Aircall::CreateContactService.new(parent_id: parent.id).call
     Rollbar.error('Aircall::CreateContactService', errors: service.errors, parent_id: parent.id) if service.errors.any?
+  end
+
+  def geocoder_address
+    [address, postal_code, city_name].compact.join(', ')
   end
 end
