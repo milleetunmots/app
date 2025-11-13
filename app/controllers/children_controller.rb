@@ -345,18 +345,18 @@ class ChildrenController < ApplicationController
     uri = URI.parse(request.fullpath)
     form_path = uri.path
     query_params = uri.query
-    closed_registration_limits = RegistrationLimit.not_archived.started.not_ended.closed.where(registration_form: form_path)
-    return if closed_registration_limits.empty?
+    active_registration_limits_reached = RegistrationLimit.active.reached.joins(:registration_link).where(registration_link: { url: form_path })
+    return if active_registration_limits_reached.empty?
 
-    closed_registration_limits_with_params = closed_registration_limits.where.not(registration_url_params: [nil, ''])
-    closed_registration_limits_without_params = closed_registration_limits.where(registration_url_params: [nil, ''])
+    registration_limits_with_params = active_registration_limits_reached.where.not(registration_url_params: [nil, ''])
+    registration_limits_without_params = active_registration_limits_reached.where(registration_url_params: [nil, ''])
     if query_params.nil?
-      @limit_reached = true if closed_registration_limits_without_params.any?
+      @limit_reached = true if registration_limits_without_params.any?
       return
     end
 
     url_params = query_params.split('&')
-    @limit_reached = closed_registration_limits_with_params.any? do |limit|
+    @limit_reached = registration_limits_with_params.any? do |limit|
       url_params.all? { |param| limit.registration_url_params.include?(param) }
     end
   end

@@ -680,14 +680,13 @@ fr:
         start_date: Date de début
         end_date: Date de fin
         limit: Limite
-        registration_form: Formulaire concerné par la limite d'inscription
+        registration_link: Formulaire concerné par la limite d'inscription
         registration_url_params: Paramètres url concernés par la limite d'inscription
         without_end_date: Pas de date de fin
         children_count: Inscriptions sur la période
         state: État de la limite
         form_status: Statut formulaire
         not_closed: En cours
-      registration_limit/registration_form:
       source:
         << : *SHARED
         name: Source
