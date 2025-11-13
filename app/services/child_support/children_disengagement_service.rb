@@ -24,6 +24,7 @@ class ChildSupport::ChildrenDisengagementService
     end
     send_disengagement_message(@parent_with_multiple_children_ids, @message.gsub('{PRENOM_ENFANT}', 'vos enfants'))
     send_disengagement_message(@parent_without_multiple_children_ids, @message)
+    @parent_ids = @parent_without_multiple_children_ids + @parent_with_multiple_children_ids
     self
   end
 
