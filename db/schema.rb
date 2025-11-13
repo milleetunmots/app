@@ -631,6 +631,8 @@ ActiveRecord::Schema.define(version: 2025_11_27_104903) do
     t.string "security_token"
     t.string "book_delivery_organisation_name"
     t.string "book_delivery_location"
+    t.float "latitude"
+    t.float "longitude"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
@@ -640,6 +642,7 @@ ActiveRecord::Schema.define(version: 2025_11_27_104903) do
     t.index ["is_ambassador"], name: "index_parents_on_is_ambassador"
     t.index ["job"], name: "index_parents_on_job"
     t.index ["last_name"], name: "index_parents_on_last_name"
+    t.index ["latitude", "longitude"], name: "index_parents_on_latitude_and_longitude"
     t.index ["phone_number_national"], name: "index_parents_on_phone_number_national"
     t.index ["postal_code"], name: "index_parents_on_postal_code"
   end

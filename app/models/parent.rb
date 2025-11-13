@@ -145,6 +145,9 @@ class Parent < ApplicationRecord
   validate :phone_number_format, on: :create
   validate :book_delivery_organisation_name_presence, if: -> { book_delivery_location.in?(%w[pmi temporary_shelter association police_or_military_station]) }
 
+  geocoded_by :geocoder_address
+  reverse_geocoded_by :latitude, :longitude
+
   scope :potential_duplicates, -> {
     where("parents.phone_number IN (SELECT phone_number FROM parents WHERE parents.discarded_at IS NULL GROUP BY parents.phone_number HAVING COUNT(*) > 1)")
   }
@@ -503,5 +506,9 @@ class Parent < ApplicationRecord
 
     service = Aircall::CreateContactService.new(parent_id: parent.id).call
     Rollbar.error('Aircall::CreateContactService', errors: service.errors, parent_id: parent.id) if service.errors.any?
+  end
+
+  def geocoder_address
+    [address, postal_code, city_name].compact.join(', ')
   end
 end
