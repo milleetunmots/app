@@ -14,7 +14,7 @@ class Ability
       can :manage, :all
     when 'contributor'
       can :manage,
-          [Parent, Child, ChildSupport, Workshop, Task, SupportModule, MediaFolder, Medium, Tag, Event, Group, Book, ChildrenSupportModule, Source]
+          [Parent, Child, ChildSupport, Workshop, Task, SupportModule, MediaFolder, Medium, Tag, Event, Group, Book, ChildrenSupportModule, Source, RegistrationLimit]
       can :read, AdminUser
       can :manage, ActiveAdmin::Page, name: 'Message'
       can :manage, ActiveAdmin::Page, name: 'Module'
