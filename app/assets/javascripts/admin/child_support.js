@@ -22,6 +22,8 @@ $(document).ready(function() {
         }).done(function(data) {
           $(`#avoid-disengagement-div-${call_index}`).prop('hidden', !data);
         });
+      } else {
+        $(`#avoid-disengagement-div-${call_index}`).prop('hidden', true);
       }
     });
   }
