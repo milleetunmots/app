@@ -9,6 +9,7 @@ class ChildrenController < ApplicationController
   before_action :build_child_action_path, only: %i[edit update]
 
   def new
+    check_registration_limits
     puts "FORM ORIGIN: #{current_registration_origin}"
     @child = Child.new
     build_child_for_form
@@ -216,6 +217,7 @@ class ChildrenController < ApplicationController
   end
 
   def build_variables
+    @limit_reached = false
     case request.path
     when '/inscription'
       @form_path = children_path
@@ -337,5 +339,25 @@ class ChildrenController < ApplicationController
                                                                     Source.find_by(utm: '01', channel: 'caf').id,
                                                                     Date.parse(ENV['SIGNUP_QUOTA_CAF_AIN_START_DATE'])).count
     current_signups_count >= ENV['SIGNUP_QUOTA_CAF_AIN_MAX_COUNT'].to_i
+  end
+
+  def check_registration_limits
+    uri = URI.parse(request.fullpath)
+    form_path = uri.path
+    query_params = uri.query
+    active_registration_limits_reached = RegistrationLimit.active.reached.joins(:registration_link).where(registration_link: { url: form_path })
+    return if active_registration_limits_reached.empty?
+
+    registration_limits_with_params = active_registration_limits_reached.where.not(registration_url_params: [nil, ''])
+    registration_limits_without_params = active_registration_limits_reached.where(registration_url_params: [nil, ''])
+    if query_params.nil?
+      @limit_reached = true if registration_limits_without_params.any?
+      return
+    end
+
+    url_params = query_params.split('&')
+    @limit_reached = registration_limits_with_params.any? do |limit|
+      url_params.all? { |param| limit.registration_url_params.include?(param) }
+    end
   end
 end

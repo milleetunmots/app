@@ -1,4 +1,7 @@
 ActiveAdmin.register Source do
+
+  menu priority: 1, parent: 'Source'
+
   decorate_with SourceDecorator
 
   actions :all, except: [:destroy]
