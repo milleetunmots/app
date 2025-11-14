@@ -684,6 +684,16 @@ ActiveRecord::Schema.define(version: 2025_11_27_104903) do
     t.index ["searchable_type", "searchable_id"], name: "index_pg_search_documents_on_searchable_type_and_searchable_id"
   end
 
+  create_table "places", force: :cascade do |t|
+    t.string "place_type", null: false
+    t.string "name", null: false
+    t.text "address", null: false
+    t.float "latitude"
+    t.float "longitude"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "questions", force: :cascade do |t|
     t.bigint "survey_id", null: false
     t.text "name", null: false
