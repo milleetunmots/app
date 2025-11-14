@@ -30,7 +30,7 @@ class Ability
       can :manage, [Parent, Child, ChildSupport]
       cannot %i[new create destroy discard select_module_for_parent1 select_module_for_parent2 add_child add_parent quit_group], [Parent, Child, ChildSupport]
       cannot :upload_undelivered_books, Parent
-      can :read, [Workshop, SupportModule, Group, Book, ChildrenSupportModule, AdminUser, Source]
+      can :read, [Workshop, SupportModule, Group, Book, ChildrenSupportModule, AdminUser, Source, Event]
       can %i[create read update], Tag
       can :manage, ActiveAdmin::Page, name: 'Message'
       can :read, ActiveAdmin::Page, name: 'Dashboard'
