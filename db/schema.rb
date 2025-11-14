@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_11_13_100633) do
+ActiveRecord::Schema.define(version: 2025_11_14_143144) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -679,6 +679,16 @@ ActiveRecord::Schema.define(version: 2025_11_13_100633) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["searchable_type", "searchable_id"], name: "index_pg_search_documents_on_searchable_type_and_searchable_id"
+  end
+
+  create_table "places", force: :cascade do |t|
+    t.string "place_type", null: false
+    t.string "name", null: false
+    t.text "address", null: false
+    t.float "latitude"
+    t.float "longitude"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "questions", force: :cascade do |t|
