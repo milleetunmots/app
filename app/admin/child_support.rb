@@ -1043,7 +1043,7 @@ ActiveAdmin.register ChildSupport do
           item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
         end
       end
-      item 'Potentiel parent bénévole', admin_volunteer_parent_form_path(child_support_id: resource.decorate.model.id, parent1_id: resource.decorate.model.parent1, parent2_id: resource.decorate.model.parent2), { target: '_blank' } if authorized?('Volunteer Parent Form', resource)
+      item 'Potentiel parent bénévole', admin_volunteer_parent_form_path(child_support_id: resource.decorate.model.id, parent1_id: resource.decorate.model.parent1, parent2_id: resource.decorate.model.parent2), { target: '_blank' } if authorized?(:manage, ActiveAdmin::Page.new(ActiveAdmin.application, 'Volunteer Parent Form', active_admin_namespace))
     end
   end
 
