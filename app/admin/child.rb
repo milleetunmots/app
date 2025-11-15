@@ -364,7 +364,7 @@ ActiveAdmin.register Child do
           children_source_f.input :details
         end
       end
-      unless f.object.new_record?
+      unless f.object.new_record? || current_admin_user.user_role.in?(%w[caller animator reader])
         f.input :group,
                 collection: child_group_select_collection,
                 input_html: { data: { select2: {} } }
@@ -377,10 +377,15 @@ ActiveAdmin.register Child do
     f.actions
   end
 
-  permit_params :parent1_id, :parent2_id, :group_id,
-                :should_contact_parent1, :should_contact_parent2,
-                :gender, :first_name, :last_name, :birthdate, :available_for_workshops, :group_status,
-                tags_params.merge(children_source_attributes: [:id, :source_id, :details])
+  params = [:parent1_id, :parent2_id, :group_id,
+            :should_contact_parent1, :should_contact_parent2,
+            :gender, :first_name, :last_name, :birthdate, :available_for_workshops, :group_status,
+             tags_params.merge(children_source_attributes: [:id, :source_id, :details])]
+
+  permit_params do
+    params -= [:group_id, :group_status] if current_admin_user.user_role.in?(%w[caller animator reader])
+    params
+  end
 
   # ---------------------------------------------------------------------------
   # SHOW
