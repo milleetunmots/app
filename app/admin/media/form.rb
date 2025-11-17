@@ -13,7 +13,7 @@ ActiveAdmin.register Media::Form do
   # INDEX
   # ---------------------------------------------------------------------------
 
-  index do
+  index download_links: false do
     selectable_column
     id_column
     column :name
