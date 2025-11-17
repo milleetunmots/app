@@ -13,7 +13,7 @@ ActiveAdmin.register Task do
 
   includes :related, :assignee, :reporter, :treated_by
 
-  index do
+  index download_links: false do
     selectable_column
     id_column
     column :title do |model|

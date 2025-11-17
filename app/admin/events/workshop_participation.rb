@@ -13,7 +13,7 @@ ActiveAdmin.register Events::WorkshopParticipation do
 
   includes :related, :workshop
 
-  index do
+  index download_links: false do
     selectable_column
     id_column
     column :related do |decorated|

@@ -3,7 +3,7 @@ module ActiveAdmin
     module DSL
 
       def register_text_messages_bundle_index(with_comments: false)
-        index do
+        index download_links: false do
           selectable_column
           id_column
           if with_comments

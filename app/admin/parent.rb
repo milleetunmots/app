@@ -17,7 +17,7 @@ ActiveAdmin.register Parent do
     scope.merge(Parent.potential_duplicates)
   end
 
-  index do
+  index download_links: proc { current_admin_user.can_export_data? } do
     selectable_column
     id_column
     column :gender do |model|
