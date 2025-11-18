@@ -52,5 +52,6 @@ FactoryBot.define do
     }
     first_name { Faker::Name.first_name }
     last_name { parent1.last_name }
+    should_contact_parent1 { true }
   end
 end
