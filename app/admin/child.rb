@@ -372,18 +372,20 @@ ActiveAdmin.register Child do
                 collection: child_group_status_select_collection,
                 input_html: { data: { select2: {} } }
       end
-      tags_input(f)
+      tags_input(f, context_list = 'tag_list', input_html: { disabled: AdminUser.any_caller_or_animator_with_id?(current_admin_user.id) })
     end
     f.actions
   end
 
-  params = [:parent1_id, :parent2_id, :group_id,
-            :should_contact_parent1, :should_contact_parent2,
-            :gender, :first_name, :last_name, :birthdate, :available_for_workshops, :group_status,
-             tags_params.merge(children_source_attributes: [:id, :source_id, :details])]
+  params = %i[parent1_id parent2_id group_id should_contact_parent1 should_contact_parent2 gender first_name last_name birthdate available_for_workshops group_status]
+  tags_params_attributes = [tags_params]
+  children_source_attributes = [{ children_source_attributes: %i[id source_id details] }]
 
   permit_params do
-    params -= [:group_id, :group_status] if current_admin_user.user_role.in?(%w[caller animator reader])
+    params += tags_params_attributes
+    params += children_source_attributes
+    params -= %i[group_id group_status] if current_admin_user.user_role.in?(%w[caller animator reader])
+    params -= tags_params_attributes if AdminUser.any_caller_or_animator_with_id?(current_admin_user.id)
     params
   end
 

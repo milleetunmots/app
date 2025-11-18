@@ -118,8 +118,17 @@ ActiveAdmin.register Task do
     f.actions
   end
 
-  permit_params :reporter_id, :assignee_id, :related_type, :related_id,
-                :title, :description, :due_date, :done_at, :status, :treated_by_id
+  params_list = [:reporter_id, :assignee_id, :related_type, :related_id, :title, :description, :due_date, :done_at, :status, :treated_by_id]
+
+  permit_params do
+    permitted = params_list
+    if AdminUser.any_caller_or_animator_with_id?(current_admin_user.id)
+      permitted -= [:assignee_id]
+      permitted -= [:status]
+      permitted -= [:title] if params.dig(:task, :related_type) == 'ChildSupport' && params[:id].present?
+    end
+    permitted
+  end
 
   controller do
     def build_new_resource

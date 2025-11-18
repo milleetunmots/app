@@ -824,7 +824,7 @@ ActiveAdmin.register ChildSupport do
     instagram_follower
     instagram_user
   ]
-  tags_params_attributes = tags_params
+  tags_params_attributes = [tags_params]
   parents_available_support_module_list_attributes = [{ parent1_available_support_module_list: [], parent2_available_support_module_list: [] }]
   parent_attributes = %i[
     id
@@ -844,8 +844,8 @@ ActiveAdmin.register ChildSupport do
   children_support_modules_attributes = [{ children_support_modules_attributes: %i[id book_condition] }]
   # block is mandatory here because ChildSupport.call_attributes hits DB
   permit_params do
-    permitted = base_attributes + ChildSupport.call_attributes + current_child_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms tag_list] + parents_available_support_module_list_attributes
-    permitted += [tags_params_attributes] if current_admin_user.caller?
+    permitted = base_attributes + ChildSupport.call_attributes + current_child_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms tag_list] + parents_available_support_module_list_attributes + tags_params_attributes
+    permitted -= tags_params_attributes if AdminUser.any_caller_or_animator_with_id?(current_admin_user.id)
     permitted
   end
 

@@ -114,16 +114,23 @@ ActiveAdmin.register Parent do
       f.input :job
       f.input :terms_accepted_at, as: :datepicker
       f.input :parent2_child_ids, as: :hidden, input_html: { value: f.object.parent2_child_ids.join(',') } if params[:parent2_child_ids]
-      tags_input(f)
+      tags_input(f, context_list = 'tag_list', input_html: { disabled: AdminUser.any_caller_or_animator_with_id?(current_admin_user.id) })
     end
     f.actions
   end
 
-  permit_params :gender, :first_name, :last_name,
-    :phone_number, :is_excluded_from_workshop, :present_on_whatsapp, :follow_us_on_whatsapp, :email,
-    :book_delivery_location, :letterbox_name, :book_delivery_organisation_name, :address, :postal_code, :city_name, :address_supplement,
-    :is_ambassador, :job, :terms_accepted_at, :family_followed, :parent2_creation, :created_by_us,
-    tags_params, parent2_child_ids: []
+  params_list = [:gender, :first_name, :last_name,
+                 :phone_number, :is_excluded_from_workshop, :present_on_whatsapp, :follow_us_on_whatsapp, :email,
+                 :book_delivery_location, :letterbox_name, :book_delivery_organisation_name, :address, :postal_code, :city_name, :address_supplement,
+                 :is_ambassador, :job, :terms_accepted_at, :family_followed, :parent2_creation, :created_by_us,
+                 parent2_child_ids: []]
+  tags_params_attributes = [tags_params]
+
+  permit_params do
+    permitted = params_list + tags_params_attributes
+    permitted -= tags_params_attributes if AdminUser.any_caller_or_animator_with_id?(current_admin_user.id)
+    permitted
+  end
 
   # ---------------------------------------------------------------------------
   # SHOW
