@@ -14,6 +14,7 @@
 #  parent_presence           :string
 #  parent_response           :string
 #  related_type              :string
+#  second_workshop_time_slot :integer
 #  spot_hit_status           :integer
 #  subject                   :string
 #  type                      :string

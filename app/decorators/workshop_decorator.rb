@@ -99,4 +99,12 @@ class WorkshopDecorator < BaseDecorator
 
     Workshop.human_attribute_name("topic.#{model.topic}")
   end
+
+  def first_workshop_time_slot
+    model.first_workshop_time_slot&.strftime('%H:%M')
+  end
+
+  def second_workshop_time_slot
+    model.second_workshop_time_slot&.strftime('%H:%M')
+  end
 end

@@ -3,6 +3,8 @@ class WorkshopParticipationController < ApplicationController
   before_action :find_workshop_participation, only: %i[edit update]
 
   def edit
+    workshop = Workshop.find(params[:wid])
+    @workshop_time_slots ||= [workshop.first_workshop_time_slot, workshop.second_workshop_time_slot].compact
     @workshop_participation_action_path = update_workshop_participation_path(
       parent_id: @workshop_participation.related_id,
       workshop_id: @workshop_participation.workshop_id

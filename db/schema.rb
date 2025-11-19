@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_11_17_095817) do
+ActiveRecord::Schema.define(version: 2025_11_18_163728) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -882,6 +882,8 @@ ActiveRecord::Schema.define(version: 2025_11_17_095817) do
     t.boolean "canceled", default: false, null: false
     t.string "address_supplement"
     t.datetime "scheduled_invitation_date_time"
+    t.time "first_workshop_time_slot", default: "2000-01-01 10:00:00", null: false
+    t.time "second_workshop_time_slot"
     t.index ["animator_id"], name: "index_workshops_on_animator_id"
   end
 

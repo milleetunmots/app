@@ -9,11 +9,13 @@
 #  city_name                      :string           not null
 #  co_animator                    :string
 #  discarded_at                   :datetime
+#  first_workshop_time_slot       :time             default(Sat, 01 Jan 2000 11:00:00.000000000 CET +01:00), not null
 #  invitation_message             :text             not null
 #  location                       :string
 #  name                           :string
 #  postal_code                    :string           not null
 #  scheduled_invitation_date_time :datetime
+#  second_workshop_time_slot      :time
 #  topic                          :string
 #  workshop_date                  :date             not null
 #  workshop_land                  :string

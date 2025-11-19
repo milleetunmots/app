@@ -805,6 +805,8 @@ fr:
         city_name: Ville
         workshop_date: Date de l'atelier
         invitation_message: Message d'invitation
+        first_workshop_time_slot: Heure de l'atelier
+        second_workshop_time_slot: Second créneau (optionnel)
         workshop_address: Adresse
         workshop_participants : Parents invités
         workshop_participants_csv: Parents invités
