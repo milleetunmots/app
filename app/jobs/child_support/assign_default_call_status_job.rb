@@ -50,6 +50,8 @@ class ChildSupport
       end
 
       def send_call_goals_messages
+        return if group.type_of_support == 'without_calls'
+
         case @call_number
         when 0
           service = ChildSupport::SendCallGoalsMessagesService.new(@group_id, 0).call
