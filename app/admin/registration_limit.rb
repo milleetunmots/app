@@ -8,7 +8,7 @@ ActiveAdmin.register RegistrationLimit do
 
   includes :source
 
-  index row_class: ->(registration_limit) { "archived-row" if registration_limit.is_archived? }, download_links: false do
+  index row_class: ->(registration_limit) { "archived-row" if registration_limit.is_archived? } do
     selectable_column
     id_column
     column :source

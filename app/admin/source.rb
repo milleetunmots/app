@@ -10,7 +10,7 @@ ActiveAdmin.register Source do
   # INDEX
   # ---------------------------------------------------------------------------
 
-  index row_class: ->(source) { "archived-row" if source.is_archived? }, download_links: false do
+  index row_class: ->(source) { "archived-row" if source.is_archived? } do
     selectable_column
     id_column
     column :name

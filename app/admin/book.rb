@@ -8,7 +8,7 @@ ActiveAdmin.register Book do
   # INDEX
   # ---------------------------------------------------------------------------
 
-  index download_links: false do
+  index do
     selectable_column
     id_column
     column :ean

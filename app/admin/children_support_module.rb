@@ -6,7 +6,7 @@ ActiveAdmin.register ChildrenSupportModule do
 
   config.action_items.delete_if { |item| item.name == :new }
 
-  index download_links: false do
+  index do
     selectable_column
     id_column
     column :name_display

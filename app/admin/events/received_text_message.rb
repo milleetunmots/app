@@ -13,7 +13,7 @@ ActiveAdmin.register Events::TextMessage do
 
   includes :related
 
-  index download_links: false do
+  index do
     selectable_column
     id_column
     column :related do |decorated|

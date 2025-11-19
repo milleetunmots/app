@@ -15,7 +15,7 @@ ActiveAdmin.register SupportModule do
   scope :all, default: true
   scope :with_theme_level_and_age_range
 
-  index download_links: false do
+  index do
     selectable_column
     id_column
     column :name

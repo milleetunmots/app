@@ -16,7 +16,7 @@ ActiveAdmin.register Media::Image do
   # doesn't work, sadly
   # includes :file
 
-  index download_links: false do
+  index do
     selectable_column
     id_column
     column :name
