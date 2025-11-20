@@ -382,10 +382,9 @@ ActiveAdmin.register Child do
   children_source_attributes = [{ children_source_attributes: %i[id source_id details] }]
 
   permit_params do
-    params += tags_params_attributes
     params += children_source_attributes
     params -= %i[group_id group_status] if current_admin_user.user_role.in?(%w[caller animator reader])
-    params -= tags_params_attributes if AdminUser.any_caller_or_animator_with_id?(current_admin_user.id)
+    params += tags_params_attributes unless AdminUser.any_caller_or_animator_with_id?(current_admin_user.id)
     params
   end
 

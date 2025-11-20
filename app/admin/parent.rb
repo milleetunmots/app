@@ -127,8 +127,8 @@ ActiveAdmin.register Parent do
   tags_params_attributes = [tags_params]
 
   permit_params do
-    permitted = params_list + tags_params_attributes
-    permitted -= tags_params_attributes if AdminUser.any_caller_or_animator_with_id?(current_admin_user.id)
+    permitted = params_list
+    permitted += tags_params_attributes unless AdminUser.any_caller_or_animator_with_id?(current_admin_user.id)
     permitted
   end
 
