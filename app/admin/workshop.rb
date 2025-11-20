@@ -115,11 +115,12 @@ ActiveAdmin.register Workshop do
           row :workshop_address
           row :location
           row :invitation_message
-          row :parents_who_accepted
+          row :parents_who_accepted_first_time_slot
+          row :parents_who_accepted_second_time_slot
           row :parents_who_refused
           row :parent_invited_number
-          row :parent_who_accepted_number
-          row :parent_who_refused_number
+          row :parent_who_accepted_first_time_slot_number
+          row :parent_who_refused_second_time_slot_number
           row :parent_who_ignored_number
           row :workshop_land
           row :canceled

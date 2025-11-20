@@ -14,10 +14,10 @@
 #  parent_presence           :string
 #  parent_response           :string
 #  related_type              :string
-#  second_workshop_time_slot :integer
 #  spot_hit_status           :integer
 #  subject                   :string
 #  type                      :string
+#  workshop_time_slot        :integer
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null
 #  aircall_message_id        :string
