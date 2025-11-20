@@ -357,7 +357,7 @@ class ChildrenController < ApplicationController
 
     url_params = query_params.split('&')
     @limit_reached = registration_limits_with_params.any? do |limit|
-      url_params.all? { |param| limit.registration_url_params.include?(param) }
+      limit.registration_url_params.split('&').all? { |param| url_params.include?(param) }
     end
   end
 end
