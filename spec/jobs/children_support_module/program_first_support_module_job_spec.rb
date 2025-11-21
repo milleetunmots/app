@@ -28,7 +28,6 @@ RSpec.describe ChildrenSupportModule::ProgramFirstSupportModuleJob, type: :job d
     end
 
     context 'with new born to 44 months children' do
-      let!(:reading_0_3) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[less_than_four], name: "Intéresser mon enfant aux livres 📚") }
       let!(:reading_4_11) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[four_to_eleven], name: "Intéresser mon enfant aux livres 📚") }
       let!(:reading_12_17) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[twelve_to_seventeen], name: "Intéresser mon enfant aux livres 📚") }
       let!(:reading_18_23) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[eighteen_to_twenty_three], name: "Intéresser mon enfant aux livres 📚") }
@@ -38,22 +37,20 @@ RSpec.describe ChildrenSupportModule::ProgramFirstSupportModuleJob, type: :job d
       let!(:reading_41_44) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[forty_one_to_forty_four], name: "Intéresser mon enfant aux livres 📚") }
 
       before do
-        (0...44).each do |month|
+        (4..43).each do |month|
           child = FactoryBot.create(:child, group: group, group_status: 'active')
           # To avoid the validation of the birth_date
           child.birthdate = month.months.ago
-          child.save(valide: false)
+          child.save(validate: false)
         end
       end
 
       it 'gives a reading support module to each children' do
-        expect { subject.perform_now(group.id, program_module_date) }.to change(ChildrenSupportModule, :count).by(44)
+        expect { subject.perform_now(group.id, program_module_date) }.to change(ChildrenSupportModule, :count).by(40)
         group.children.each do |child|
           expect(child.children_support_modules.count).to eq(1)
 
           expected_support_module = case child.months
-          when 0..3
-            reading_0_3
           when 4..11
             reading_4_11
           when 12..17

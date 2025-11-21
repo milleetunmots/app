@@ -716,7 +716,6 @@ fr:
         display_age_ranges: Ages
         level: Niveau
       support_module/age_range:
-        less_than_four: 0 - 3 mois
         four_to_eleven: 4 - 11 mois
         twelve_to_seventeen: 12 - 17 mois
         eighteen_to_twenty_three: 18 - 23 mois

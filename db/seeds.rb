@@ -274,7 +274,7 @@ FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'readi
                                    age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: 'Intéresser mon enfant aux livres 📚')
 FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'reading', age_ranges: %w[eighteen_to_twenty_three], name: 'Intéresser mon enfant aux livres 📚')
 FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'reading', age_ranges: %w[twelve_to_seventeen], name: 'Intéresser mon enfant aux livres 📚')
-FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'reading', age_ranges: %w[less_than_four four_to_eleven], name: 'Intéresser mon enfant aux livres 📚')
+FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'reading', age_ranges: %w[four_to_eleven], name: 'Intéresser mon enfant aux livres 📚')
 
 FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: 'bilingualism',
                                    age_ranges: %w[twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: 'Parler plusieurs langues à la maison 🏠')
@@ -288,7 +288,6 @@ FactoryBot.create(:support_module, level: 3, for_bilingual: false, theme: 'langu
                                    name: 'Parler encore plus avec mon bébé')
 FactoryBot.create(:support_module, level: 2, for_bilingual: false, theme: 'language', age_ranges: %w[four_to_eleven twelve_to_seventeen], name: 'Parler plus avec mon bébé')
 FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'language', age_ranges: %w[four_to_eleven], name: 'Parler avec mon bébé 👶')
-FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'language', age_ranges: %w[less_than_four], name: 'Conversation spécial - de 4 mois')
 
 FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: 'anger',
                                    age_ranges: %w[eighteen_to_twenty_three twenty_four_to_twenty_nine thirty_to_thirty_five thirty_six_to_forty forty_one_to_forty_four], name: 'Parler pour mieux gérer les colères')

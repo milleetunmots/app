@@ -68,9 +68,7 @@ class ChildSupport::FillParentsAvailableSupportModulesService
 
   def find_available_support_modules(child, parent)
     child_age_range = case child.duration_in_months(child.birthdate, @support_module_sent_date)
-                      when 0..3
-                        SupportModule::LESS_THAN_FOUR
-                      when 5..11
+                      when 4..11
                         SupportModule::FOUR_TO_ELEVEN
                       when 12..17
                         SupportModule::TWELVE_TO_SEVENTEEN
@@ -80,10 +78,6 @@ class ChildSupport::FillParentsAvailableSupportModulesService
                         SupportModule::TWENTY_FOUR_TO_TWENTY_NINE
                       when 30..Float::INFINITY
                         SupportModule::THIRTY_TO_THIRTY_FIVE
-                      # when 36..40
-                      #   SupportModule::THIRTY_SIX_TO_FORTY
-                      # when 41..44
-                      #   SupportModule::FORTY_ONE_TO_FORTY_FOUR
                       else
                         ''
                       end

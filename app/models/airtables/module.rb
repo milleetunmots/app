@@ -5,8 +5,6 @@ class Airtables::Module < Airrecord::Table
 
   def ages
     case self['age']
-    when '00-04 mois'
-      SupportModule::LESS_THAN_FOUR
     when '05-11 mois'
       SupportModule::FOUR_TO_ELEVEN
     when '12-17 mois'

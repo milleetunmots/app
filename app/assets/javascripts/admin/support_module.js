@@ -8,7 +8,6 @@ $(document).ready(function() {
     { value: 'twenty_three_and_more', text: '23 mois et plus' }
   ];
   const age_ranges = [
-    { value: 'less_than_four', text: '0 - 3 mois' },
     { value: 'four_to_eleven', text: '4 - 11 mois' },
     { value: 'twelve_to_seventeen', text: '12 - 17 mois' },
     { value: 'eighteen_to_twenty_three', text: '18 - 23 mois' },
