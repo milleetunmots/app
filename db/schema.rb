@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_10_21_091446) do
+ActiveRecord::Schema.define(version: 2025_11_13_140353) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -366,6 +366,12 @@ ActiveRecord::Schema.define(version: 2025_10_21_091446) do
     t.bigint "restart_support_caller_id"
     t.text "restart_support_details"
     t.datetime "restart_support_date"
+    t.text "call1_avoid_disengagement_details"
+    t.datetime "call1_avoid_disengagement_date"
+    t.text "call2_avoid_disengagement_details"
+    t.datetime "call2_avoid_disengagement_date"
+    t.text "call3_avoid_disengagement_details"
+    t.datetime "call3_avoid_disengagement_date"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
@@ -718,6 +724,30 @@ ActiveRecord::Schema.define(version: 2025_10_21_091446) do
     t.index ["discarded_at"], name: "index_redirection_urls_on_discarded_at"
     t.index ["parent_id"], name: "index_redirection_urls_on_parent_id"
     t.index ["redirection_target_id"], name: "index_redirection_urls_on_redirection_target_id"
+  end
+
+  create_table "registration_limits", force: :cascade do |t|
+    t.bigint "source_id", null: false
+    t.bigint "registration_link_id", null: false
+    t.datetime "start_date", null: false
+    t.datetime "end_date"
+    t.integer "limit", null: false
+    t.string "registration_url_params"
+    t.boolean "is_archived", default: false, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["registration_link_id"], name: "index_registration_limits_on_registration_link_id"
+    t.index ["source_id"], name: "index_registration_limits_on_source_id"
+  end
+
+  create_table "registration_links", force: :cascade do |t|
+    t.string "url", null: false
+    t.string "channel", null: false
+    t.string "label", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["label"], name: "index_registration_links_on_label", unique: true
+    t.index ["url"], name: "index_registration_links_on_url", unique: true
   end
 
   create_table "sources", force: :cascade do |t|

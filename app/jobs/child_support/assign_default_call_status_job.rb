@@ -31,7 +31,7 @@ class ChildSupport
         return unless disengagement_service.errors.flatten.any?
 
         disengagement_service.parent_ids.each { |parent_id| create_parent_link(parent_id.gsub('parent.', '')) }
-        description_text = "Les parents suivants ont été désengagés : "
+        description_text = 'Les parents suivants ont été désengagés : '
         @parent_link.each { |name, link| description_text << "<br>#{ActionController::Base.helpers.link_to(name, link, target: '_blank', class: 'blue')}" }
         description_text = "#{description_text}<br>Certains d'entre eux n'ont pas reçu le message de désengagement."
         description_text = "#{description_text}<br>#{disengagement_service.errors.join('<br>')}"
@@ -50,6 +50,8 @@ class ChildSupport
       end
 
       def send_call_goals_messages
+        return if group.type_of_support == 'without_calls'
+
         case @call_number
         when 0
           service = ChildSupport::SendCallGoalsMessagesService.new(@group_id, 0).call

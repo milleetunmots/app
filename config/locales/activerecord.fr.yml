@@ -31,6 +31,7 @@ fr:
       media/text_messages_bundle: Trio SMS
       media/text_messages_bundle_draft: Brouillon
       parent: Parent
+      registration_limit: Limite d'inscription
       redirection_target: URL cible
       redirection_url: URL courte
       source: Source d'inscription
@@ -673,6 +674,19 @@ fr:
         redirection_url_visits_count: Visites
         security_code: Sécurité
         visit_url: Lien court
+      registration_limit:
+        << : *SHARED
+        is_archived: Archivé
+        start_date: Date de début
+        end_date: Date de fin
+        limit: Limite
+        registration_link: Formulaire concerné par la limite d'inscription
+        registration_url_params: Paramètres url concernés par la limite d'inscription
+        without_end_date: Pas de date de fin
+        children_count: Inscriptions sur la période
+        state: État de la limite
+        form_status: Statut formulaire
+        not_closed: En cours
       source:
         << : *SHARED
         name: Source

@@ -14,13 +14,14 @@ class Ability
       can :manage, :all
     when 'contributor'
       can :manage,
-          [Parent, Child, ChildSupport, Workshop, Task, SupportModule, MediaFolder, Medium, Tag, Event, Group, Book, ChildrenSupportModule, Source]
+          [Parent, Child, ChildSupport, Workshop, Task, SupportModule, MediaFolder, Medium, Tag, Event, Group, Book, ChildrenSupportModule, Source, RegistrationLimit]
       can :read, AdminUser
       can :manage, ActiveAdmin::Page, name: 'Message'
       can :manage, ActiveAdmin::Page, name: 'Module'
       can :manage, ActiveAdmin::Page, name: 'Messages'
       can :manage, ActiveAdmin::Page, name: 'Stop Support Form'
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
+      can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :read, ActiveAdmin::Page, name: 'Dashboard'
     when 'reader'
       can :autocomplete, [Group, Tag]
@@ -56,6 +57,7 @@ class Ability
       cannot :read, [Events::OtherEvent, Events::WorkshopParticipation, Events::SurveyResponse]
       can :manage, ActiveAdmin::Page, name: 'Stop Support Form'
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
+      can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
       can :select_module_for_parent1, ChildSupport, supporter_id: user.id
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
@@ -75,6 +77,7 @@ class Ability
       can :read, ActiveAdmin::Page, name: 'Dashboard'
       can :manage, ActiveAdmin::Page, name: 'Stop Support Form'
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
+      can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
       can :select_module_for_parent1, ChildSupport, supporter_id: user.id
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id

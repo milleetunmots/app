@@ -29,6 +29,8 @@
 #  call0_tv_frequency                         :string
 #  call0_why_talk_needed                      :text
 #  call1_attempt                              :string
+#  call1_avoid_disengagement_date             :datetime
+#  call1_avoid_disengagement_details          :text
 #  call1_duration                             :integer
 #  call1_family_progress                      :string
 #  call1_goals                                :text
@@ -51,6 +53,8 @@
 #  call1_tv_frequency                         :string
 #  call1_why_talk_needed                      :text
 #  call2_attempt                              :string
+#  call2_avoid_disengagement_date             :datetime
+#  call2_avoid_disengagement_details          :text
 #  call2_duration                             :integer
 #  call2_family_progress                      :string
 #  call2_goals                                :text
@@ -73,6 +77,8 @@
 #  call2_tv_frequency                         :string
 #  call2_why_talk_needed                      :text
 #  call3_attempt                              :string
+#  call3_avoid_disengagement_date             :datetime
+#  call3_avoid_disengagement_details          :text
 #  call3_duration                             :integer
 #  call3_goals                                :text
 #  call3_goals_sms                            :text
@@ -151,6 +157,8 @@
 #  parent_mid_term_rate                       :integer
 #  parent_mid_term_reaction                   :string
 #  parental_contexts                          :string           is an Array
+#  restart_support_date                       :datetime
+#  restart_support_details                    :text
 #  second_language                            :string
 #  should_be_read                             :boolean
 #  stop_support_date                          :datetime
@@ -165,6 +173,7 @@
 #  module4_chosen_by_parents_id               :bigint
 #  module5_chosen_by_parents_id               :bigint
 #  module6_chosen_by_parents_id               :bigint
+#  restart_support_caller_id                  :bigint
 #  stop_support_caller_id                     :bigint
 #  supporter_id                               :bigint
 #
@@ -193,6 +202,7 @@
 #  index_child_supports_on_module6_chosen_by_parents_id           (module6_chosen_by_parents_id)
 #  index_child_supports_on_parent1_available_support_module_list  (parent1_available_support_module_list) USING gin
 #  index_child_supports_on_parent2_available_support_module_list  (parent2_available_support_module_list) USING gin
+#  index_child_supports_on_restart_support_caller_id              (restart_support_caller_id)
 #  index_child_supports_on_should_be_read                         (should_be_read)
 #  index_child_supports_on_stop_support_caller_id                 (stop_support_caller_id)
 #  index_child_supports_on_supporter_id                           (supporter_id)
@@ -204,6 +214,7 @@
 #  fk_rails_...  (module4_chosen_by_parents_id => support_modules.id)
 #  fk_rails_...  (module5_chosen_by_parents_id => support_modules.id)
 #  fk_rails_...  (module6_chosen_by_parents_id => support_modules.id)
+#  fk_rails_...  (restart_support_caller_id => admin_users.id)
 #  fk_rails_...  (stop_support_caller_id => admin_users.id)
 #  fk_rails_...  (supporter_id => admin_users.id)
 #
