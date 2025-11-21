@@ -341,7 +341,7 @@ ActiveAdmin.register ChildSupport do
               end
             end
           end
-          tags_input(f, context_list = 'tag_list', label: 'Tags fiche de suivi')
+          tags_input(f, context_list = 'tag_list', label: 'Tags fiche de suivi', input_html: { disabled: AdminUser.any_caller_or_animator_with_id?(current_admin_user.id) })
         end
       end
       div id:'child_support_tabs_form' do
@@ -823,7 +823,9 @@ ActiveAdmin.register ChildSupport do
     family_support_should_be_stopped
     instagram_follower
     instagram_user
-  ] + [tags_params.merge(parent1_available_support_module_list: [], parent2_available_support_module_list: [])]
+  ]
+  tags_params_attributes = [tags_params]
+  parents_available_support_module_list_attributes = [{ parent1_available_support_module_list: [], parent2_available_support_module_list: [] }]
   parent_attributes = %i[
     id
     gender first_name last_name phone_number email book_delivery_location letterbox_name book_delivery_organisation_name address postal_code city_name
@@ -842,7 +844,9 @@ ActiveAdmin.register ChildSupport do
   children_support_modules_attributes = [{ children_support_modules_attributes: %i[id book_condition] }]
   # block is mandatory here because ChildSupport.call_attributes hits DB
   permit_params do
-    base_attributes + ChildSupport.call_attributes + current_child_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms]
+    permitted = base_attributes + ChildSupport.call_attributes + current_child_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms tag_list] + parents_available_support_module_list_attributes
+    permitted += tags_params_attributes unless AdminUser.any_caller_or_animator_with_id?(current_admin_user.id)
+    permitted
   end
 
   # ---------------------------------------------------------------------------
@@ -1043,7 +1047,7 @@ ActiveAdmin.register ChildSupport do
           item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
         end
       end
-      item 'Potentiel parent bénévole', admin_volunteer_parent_form_path(child_support_id: resource.decorate.model.id, parent1_id: resource.decorate.model.parent1, parent2_id: resource.decorate.model.parent2), { target: '_blank' } if authorized?('Volunteer Parent Form', resource)
+      item 'Potentiel parent bénévole', admin_volunteer_parent_form_path(child_support_id: resource.decorate.model.id, parent1_id: resource.decorate.model.parent1, parent2_id: resource.decorate.model.parent2), { target: '_blank' } if authorized?(:manage, ActiveAdmin::Page.new(ActiveAdmin.application, 'Volunteer Parent Form', active_admin_namespace))
     end
   end
 

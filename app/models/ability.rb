@@ -31,6 +31,7 @@ class Ability
       cannot %i[new create destroy discard select_module_for_parent1 select_module_for_parent2 add_child add_parent quit_group], [Parent, Child, ChildSupport]
       cannot :upload_undelivered_books, Parent
       can :read, [Workshop, SupportModule, Group, Book, ChildrenSupportModule, AdminUser, Source]
+      can :read, Event, type: 'Events::WorkshopParticipation'
       can %i[create read update], Tag
       can :manage, ActiveAdmin::Page, name: 'Message'
       can :read, ActiveAdmin::Page, name: 'Dashboard'
@@ -54,7 +55,9 @@ class Ability
       can :read, SupportModule
       can :read, Event, type: 'Events::TextMessage', related_type: 'Parent', related_id: Parent.joins(parent1_children: :child_support).where(child_supports: { supporter_id: user.id }).pluck(:id)
       can :read, Event, type: 'Events::TextMessage', related_type: 'Parent', related_id: Parent.joins(parent2_children: :child_support).where(child_supports: { supporter_id: user.id }).pluck(:id)
-      cannot :read, [Events::OtherEvent, Events::WorkshopParticipation, Events::SurveyResponse]
+      can :read, Event, type: 'Events::WorkshopParticipation', related_type: 'Parent', related_id: Parent.joins(parent1_children: :child_support).where(child_supports: { supporter_id: user.id }).pluck(:id)
+      can :read, Event, type: 'Events::WorkshopParticipation', related_type: 'Parent', related_id: Parent.joins(parent2_children: :child_support).where(child_supports: { supporter_id: user.id }).pluck(:id)
+      cannot :read, [Events::OtherEvent, Events::SurveyResponse]
       can :manage, ActiveAdmin::Page, name: 'Stop Support Form'
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
       can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
