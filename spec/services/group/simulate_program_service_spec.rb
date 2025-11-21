@@ -112,8 +112,6 @@ RSpec.describe Group::ProgramService do
 
     ages = support_module.age_ranges.map do |value|
       case value
-      when 'less_than_four'
-        '0-3'
       when 'four_to_eleven'
         '4-11'
       when 'twelve_to_seventeen'
