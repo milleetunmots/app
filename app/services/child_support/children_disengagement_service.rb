@@ -50,7 +50,7 @@ class ChildSupport::ChildrenDisengagementService
   def disengage_active_children_in_group
     @child_support.children
       .where.not(group_status: %w[stopped disengaged not_supported])
-      .update_all(group_status: 'disengaged', group_end: Time.zone.today)
+      .update(group_status: 'disengaged', group_end: Time.zone.today)
   end
 
   def add_parent_to_recipients(parent)
