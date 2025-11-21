@@ -86,7 +86,7 @@ class ChildrenSupportModule
     end
 
     def assign_specific_default_support_module
-      five_to_eleven_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::FIVE_TO_ELEVEN}' = ANY (age_ranges)").first
+      four_to_eleven_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::FOUR_TO_ELEVEN}' = ANY (age_ranges)").first
       twelve_to_seventeen_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::TWELVE_TO_SEVENTEEN}' = ANY (age_ranges)").first
       eighteen_to_twenty_three_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::EIGHTEEN_TO_TWENTY_THREE}' = ANY (age_ranges)").first
       twenty_four_to_twenty_nine_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::TWENTY_FOUR_TO_TWENTY_NINE}' = ANY (age_ranges)").first
@@ -95,8 +95,8 @@ class ChildrenSupportModule
       @missing_support_modules.each do |children_support_module|
         support_module =
           case children_support_module.child.months
-          when 5..11
-            five_to_eleven_specific_default_support_module
+          when 4..11
+            four_to_eleven_specific_default_support_module
           when 12..17
             twelve_to_seventeen_specific_default_support_module
           when 18..23

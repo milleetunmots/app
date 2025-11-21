@@ -28,8 +28,8 @@ RSpec.describe ChildrenSupportModule::ProgramFirstSupportModuleJob, type: :job d
     end
 
     context 'with new born to 44 months children' do
-      let!(:reading_0_4) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[less_than_five], name: "Intéresser mon enfant aux livres 📚") }
-      let!(:reading_5_11) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[five_to_eleven], name: "Intéresser mon enfant aux livres 📚") }
+      let!(:reading_0_3) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[less_than_four], name: "Intéresser mon enfant aux livres 📚") }
+      let!(:reading_4_11) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[four_to_eleven], name: "Intéresser mon enfant aux livres 📚") }
       let!(:reading_12_17) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[twelve_to_seventeen], name: "Intéresser mon enfant aux livres 📚") }
       let!(:reading_18_23) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[eighteen_to_twenty_three], name: "Intéresser mon enfant aux livres 📚") }
       let!(:reading_24_29) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "reading", age_ranges: %w[twenty_four_to_twenty_nine], name: "Intéresser mon enfant aux livres 📚") }
@@ -52,10 +52,10 @@ RSpec.describe ChildrenSupportModule::ProgramFirstSupportModuleJob, type: :job d
           expect(child.children_support_modules.count).to eq(1)
 
           expected_support_module = case child.months
-          when 0..4
-            reading_0_4
-          when 5..11
-            reading_5_11
+          when 0..3
+            reading_0_3
+          when 4..11
+            reading_4_11
           when 12..17
             reading_12_17
           when 18..23

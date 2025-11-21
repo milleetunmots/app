@@ -20,8 +20,8 @@ RSpec.describe Group::ProgramService do
   let!(:seventeen_to_twenty_two_module_zero) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[seventeen_to_twenty_two], name: "Enrichir la conversation 16-23") }
   let!(:twenty_three_and_more_module_zero) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[twenty_three_and_more], name: "Enrichir la conversation 24 et plus") }
 
-  let!(:less_than_five_module_one) { FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "reading", age_ranges: %w[less_than_five], name: "Intéresser mon enfant aux livres 📚") }
-  let!(:five_to_eleven_module_one) { FactoryBot.create(:support_module, level: 1, theme: "reading", age_ranges: %w[five_to_eleven], name: "Intéresser mon enfant aux livres 📚") }
+  let!(:less_than_four_module_one) { FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "reading", age_ranges: %w[less_than_four], name: "Intéresser mon enfant aux livres 📚") }
+  let!(:four_to_eleven_module_one) { FactoryBot.create(:support_module, level: 1, theme: "reading", age_ranges: %w[four_to_eleven], name: "Intéresser mon enfant aux livres 📚") }
   let!(:twelve_to_seventeen_module_one) { FactoryBot.create(:support_module, level: 1, theme: "reading", age_ranges: %w[twelve_to_seventeen], name: "Intéresser mon enfant aux livres 📚") }
   let!(:eighteen_to_twenty_three_module_one) { FactoryBot.create(:support_module, level: 1, theme: "reading", age_ranges: %w[eighteen_to_twenty_three], name: "Intéresser mon enfant aux livres 📚") }
   let!(:twenty_four_to_twenty_nine_module_one) { FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "reading", age_ranges: %w[twenty_four_to_twenty_nine], name: "Intéresser mon enfant aux livres 📚") }
@@ -64,8 +64,8 @@ RSpec.describe Group::ProgramService do
     it 'a module one support module is selected for each child according to their age' do
       ChildrenSupportModule::ProgramFirstSupportModuleJob.perform_now(group.id, Time.zone.now.next_occurring(:monday))
 
-      expect(four_months_child.children_support_modules.map(&:support_module_id)).to match_array [less_than_five_module_one.id]
-      expect(ten_months_child.children_support_modules.map(&:support_module_id)).to match_array [five_to_eleven_module_one.id]
+      expect(four_months_child.children_support_modules.map(&:support_module_id)).to match_array [less_than_four_module_one.id]
+      expect(ten_months_child.children_support_modules.map(&:support_module_id)).to match_array [four_to_eleven_module_one.id]
       expect(fifteen_months_child.children_support_modules.map(&:support_module_id)).to match_array [twelve_to_seventeen_module_one.id]
       expect(twenty_months_child.children_support_modules.map(&:support_module_id)).to match_array [eighteen_to_twenty_three_module_one.id]
       expect(twenty_six_months_child.children_support_modules.map(&:support_module_id)).to match_array [twenty_four_to_twenty_nine_module_one.id]
