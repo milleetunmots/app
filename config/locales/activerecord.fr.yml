@@ -51,6 +51,7 @@ fr:
         current_sign_in_at: Session en cours
         can_treat_task: Traite les tâches
         can_send_automatic_sms: Envoi d’un SMS auto aux familles en début de session
+        can_export_data: Peut exporter des données
         email: Email
         name: Nom
         user_role: Rôle

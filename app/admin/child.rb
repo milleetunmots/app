@@ -12,7 +12,7 @@ ActiveAdmin.register Child do
 
   includes :parent1, :parent2, :child_support, :group, :children_source
 
-  index do
+  index download_links: proc { current_admin_user.can_export_data? } do
     div do
       render 'index_top'
     end
@@ -287,7 +287,7 @@ ActiveAdmin.register Child do
     end
   end
 
-  batch_action :excel_export, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
+  batch_action :excel_export, if: proc { !current_admin_user.caller? && !current_admin_user.animator?  && current_admin_user.can_export_data? } do |ids|
     children = batch_action_collection.where(id: ids)
     if children.with_stopped_group.any?
       flash[:error] = 'Certains enfants sont dans une cohorte arrêtée'
@@ -509,7 +509,7 @@ ActiveAdmin.register Child do
   # TOOLS
   # ---------------------------------------------------------------------------
 
-  action_item :tools, only: :index do
+  action_item :tools, only: :index, if: proc { current_admin_user.can_export_data? } do
     dropdown_menu 'Outils' do
       item "Télécharger les listes d'enfants par cohorte au format Excel V1",
            %i[download_book_files_v1 admin children]

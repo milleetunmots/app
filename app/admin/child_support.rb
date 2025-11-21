@@ -14,7 +14,7 @@ ActiveAdmin.register ChildSupport do
 
   includes :children, :supporter
 
-  index do
+  index download_links: proc { current_admin_user.can_export_data? } do
     selectable_column
     id_column
     column :children, sortable: 'children.birthdate'

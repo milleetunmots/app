@@ -48,6 +48,7 @@ ActiveAdmin.register AdminUser do
         f.input :user_role,
           collection: admin_user_role_select_collection,
           input_html: {data: {select2: {}}}
+        f.input :can_export_data
       end
       if !params[:id] || current_admin_user == admin_user_in_params
         f.input :password
@@ -67,7 +68,10 @@ ActiveAdmin.register AdminUser do
 
   permit_params do
     parameters = %i[name email can_treat_task can_send_automatic_sms]
-    parameters.push :user_role if current_admin_user.admin?
+    if current_admin_user.admin?
+      parameters.push :user_role
+      parameters.push :can_export_data
+    end
     if !params[:id] || current_admin_user == AdminUser.find(params[:id])
       parameters.push :password
       parameters.push :password_confirmation
@@ -102,5 +106,4 @@ ActiveAdmin.register AdminUser do
     flash['notice'] = "L'utilisateur a été réactivé."
     redirect_to admin_admin_user_path(admin_user)
   end
-
 end
