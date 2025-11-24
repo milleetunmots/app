@@ -147,14 +147,17 @@ ActiveAdmin.register Workshop do
   end
 
   action_item :update_parents_presence, only: :show do
-    link_to 'Indiquer la présence des parents', [:update_parents_presence, :admin, resource] if authorized?(:update_parents_presence, resource)
+    dropdown_menu 'Indiquer la présence des parents' do
+      item 'au premier créneau', update_parents_presence_admin_workshop_path(resource, time_slot: 1) if authorized?(:update_parents_presence, resource)
+      item 'au deuxième créneau', update_parents_presence_admin_workshop_path(resource, time_slot: 2) if authorized?(:update_parents_presence, resource) && resource.second_workshop_time_slot.present?
+    end
   end
 
   collection_action :search_eligible_parents, method: :get
 
   member_action :update_parents_presence do
     authorize!(:update_parents_presence, resource)
-    @values = resource.workshop_participations.where(parent_response: 'Oui').to_a
+    @values = resource.workshop_participations.where(parent_response: 'Oui', workshop_time_slot: params[:time_slot].to_i).to_a
     @perform_action = perform_update_parents_presence_admin_workshop_path
   end
 
@@ -166,17 +169,22 @@ ActiveAdmin.register Workshop do
   end
 
   action_item :register_parents, only: :show do
-    link_to 'Inscrire des parents', [:register_parents, :admin, resource] if authorized?(:register_parents, resource)
+    dropdown_menu 'Inscrire des parents' do
+      item 'au premier créneau', register_parents_admin_workshop_path(resource, time_slot: 1) if authorized?(:register_parents, resource)
+      item 'au deuxième créneau', register_parents_admin_workshop_path(resource, time_slot: 2) if authorized?(:register_parents, resource) && resource.second_workshop_time_slot.present?
+    end
   end
 
   member_action :register_parents do
     authorize!(:register_parents, resource)
     @workshop_id = resource.id
     @perform_action = perform_parents_registration_admin_workshop_path
+    @time_slot = params[:time_slot]
   end
 
   member_action :perform_parents_registration, method: :post do
     params[:workshop][:parent_ids] = params[:workshop][:parent_ids].split(',').map(&:to_i) if params[:workshop][:parent_ids].present?
+    time_slot = params[:time_slot].to_i
     workshop = Workshop.find(params[:workshop_id])
     parent_to_register_ids = params[:workshop][:parent_ids].reject(&:blank?)
     parents_to_register = Parent.not_excluded_from_workshop.where(id: parent_to_register_ids)
@@ -185,7 +193,7 @@ ActiveAdmin.register Workshop do
     parents_to_register.each do |parent|
       event = Event.find_by(related: parent, workshop: workshop)
       if event
-        event.parent_response == 'Oui' ? next : event.update!(parent_response: 'Oui', acceptation_date: Time.zone.today)
+        event.parent_response == 'Oui' ? next : event.update!(parent_response: 'Oui', workshop_time_slot: time_slot, acceptation_date: Time.zone.today)
       else
         Event.create(
           type: 'Events::WorkshopParticipation',
@@ -194,6 +202,7 @@ ActiveAdmin.register Workshop do
           occurred_at: workshop.workshop_date,
           workshop: workshop,
           parent_response: 'Oui',
+          workshop_time_slot: time_slot,
           acceptation_date: Time.zone.today
         )
       end

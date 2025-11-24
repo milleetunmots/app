@@ -9,7 +9,7 @@
           Allez-vous participer à l'atelier?
         </h1>
 
-        <div class="text-center end-buttons">
+        <div class="text-center end-buttons horizontal">
           <button name="workshop_participation[workshop_time_slot]" value="1" type="submit" class="btn-primary btn-lg">
             Oui
           </button>
@@ -24,7 +24,7 @@
         <div class="text-center end-buttons">
           <% @workshop_time_slots.each_with_index do |workshop_time_slot, index|  %>
             <button name="workshop_participation[workshop_time_slot]" value=<%= index + 1 %> type="submit" class="btn-primary btn-lg">
-              Accepté l'atelier du <%= @workshop_date.strftime("%d/%m/%Y") %> Créneau <%= workshop_time_slot.strftime("%H:%M") %>
+              Accepter l'atelier du <%= @workshop_date.strftime("%d/%m/%Y") %> Créneau <%= workshop_time_slot.strftime("%H:%M") %>
             </button>
           <% end %>
           <button name="workshop_participation[workshop_time_slot]" value="0" type="submit" class="btn-danger btn-lg">

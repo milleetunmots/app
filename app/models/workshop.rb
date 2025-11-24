@@ -53,6 +53,7 @@ class Workshop < ApplicationRecord
   validates :animator, presence: true
   validates :workshop_date, presence: true
   validates :first_workshop_time_slot, presence: true
+  validates :location, presence: true
   validates :workshop_date, date: { after: proc { Time.zone.today } }, on: :create
   validates :address, presence: true
   validates :postal_code, presence: true
