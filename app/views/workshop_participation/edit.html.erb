@@ -19,12 +19,12 @@
         </div>
       <% else %>
         <h1>
-          A quel atelier voulez vous participer ?
+          A quel créneau de l'atelier du <%= @workshop_date.strftime("%d/%m/%Y") %> souhaitez-vous participer ?
         </h1>
         <div class="text-center end-buttons">
           <% @workshop_time_slots.each_with_index do |workshop_time_slot, index|  %>
             <button name="workshop_participation[workshop_time_slot]" value=<%= index + 1 %> type="submit" class="btn-primary btn-lg">
-              Accepter l'atelier du <%= @workshop_date.strftime("%d/%m/%Y") %> Créneau <%= workshop_time_slot.strftime("%H:%M") %>
+              <%= workshop_time_slot.strftime("%Hh%M") %>
             </button>
           <% end %>
           <button name="workshop_participation[workshop_time_slot]" value="0" type="submit" class="btn-danger btn-lg">

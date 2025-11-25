@@ -341,6 +341,10 @@ class Parent < ApplicationRecord
     self.letterbox_name = nil if book_delivery_location.in? %w[pmi temporary_shelter association police_or_military_station]
   end
 
+  def caf93?
+    children.any? { |child| child.source&.name == 'CAF 93' }
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------

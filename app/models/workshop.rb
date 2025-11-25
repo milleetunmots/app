@@ -74,12 +74,16 @@ class Workshop < ApplicationRecord
     @recipients = []
     land_parents.each do |parent|
       next if parent.is_excluded_from_workshop
-
       next unless parent.available_for_workshops?
-
       next unless parent.should_be_contacted?
-
       next unless parent.target_parent?
+      if parent.caf93?
+        next if 'Eval25 - 3 tentatives'.in?(parent.tag_list) ||
+                'Eval25 - impossible'.in?(parent.tag_list) ||
+                'Eval25 - refusée'.in?(parent.tag_list)
+        next if parent.children.all { |child| child.group_status == 'waiting' }
+        next if parent.children.all { |child| child.group_status == 'active' && child.group&.started_at > Time.zone.now } && !'Eval25 - validée'.in?(parent.tag_list)
+      end
 
       @recipients << parent
     end
