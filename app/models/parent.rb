@@ -345,6 +345,26 @@ class Parent < ApplicationRecord
     children.any? { |child| child.source&.name == 'CAF 93' }
   end
 
+  def not_supported_children?
+    children.all? { |child| child.group_status == 'not_supported' }
+  end
+
+  def waiting_children?
+    children.all? { |child| child.group_status == 'waiting' }
+  end
+
+  def active_in_not_started_group_children?
+    children.all? { |child| child.group_status == 'active' && child.group&.started_at&.future? }
+  end
+
+  def eval25_children?
+    'Eval25 - 3 tentatives'.in?(tag_list) ||
+      'Eval25 - impossible'.in?(tag_list) ||
+      'Eval25 - refusée'.in?(tag_list)
+  end
+
+
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------
