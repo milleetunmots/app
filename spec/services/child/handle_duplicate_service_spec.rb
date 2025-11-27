@@ -2,6 +2,12 @@ require 'rails_helper'
 
 RSpec.describe Child::HandleDuplicateService do
   subject { Child::HandleDuplicateService.new }
+
+  before do
+    stub_request(:post, "https://api.aircall.io/v1/contacts")
+      .to_return(status: 200, body: '{"contact": {"id": 123}}', headers: {})
+  end
+
   context "when many parents with the same phone number have differents children" do
     let!(:first_parent) { FactoryBot.create(:parent, phone_number: '0755802002')}
     let!(:second_parent) { FactoryBot.create(:parent, phone_number: '0755802002')}
