@@ -46,7 +46,6 @@ class ChildSupport::CallerStopSupportService
   private
 
   def add_stop_support_informations
-    byebug
     @child_support.stop_support_caller_id = @supporter.id
     @child_support.stop_support_reason = STOP_SUPPORT_INFORMATIONS[@reason.to_sym][:motive]
     @child_support.stop_support_date = DateTime.now
