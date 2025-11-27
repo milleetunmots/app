@@ -373,6 +373,7 @@ ActiveRecord::Schema.define(version: 2025_11_27_104903) do
     t.datetime "call2_avoid_disengagement_date"
     t.text "call3_avoid_disengagement_details"
     t.datetime "call3_avoid_disengagement_date"
+    t.string "stop_support_reason"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
