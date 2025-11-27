@@ -50,6 +50,7 @@ class ChildSupport
       end
 
       def send_call_goals_messages
+        group = Group.find(@group_id)
         return if group.type_of_support == 'without_calls'
 
         case @call_number
