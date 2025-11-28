@@ -17,6 +17,7 @@
 #  spot_hit_status           :integer
 #  subject                   :string
 #  type                      :string
+#  workshop_time_slot        :integer
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null
 #  aircall_message_id        :string

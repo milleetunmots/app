@@ -9,11 +9,13 @@
 #  city_name                      :string           not null
 #  co_animator                    :string
 #  discarded_at                   :datetime
+#  first_workshop_time_slot       :time             default(Sat, 01 Jan 2000 11:00:00.000000000 CET +01:00), not null
 #  invitation_message             :text             not null
 #  location                       :string
 #  name                           :string
 #  postal_code                    :string           not null
 #  scheduled_invitation_date_time :datetime
+#  second_workshop_time_slot      :time
 #  topic                          :string
 #  workshop_date                  :date             not null
 #  workshop_land                  :string
@@ -50,6 +52,8 @@ class Workshop < ApplicationRecord
   validates :topic, inclusion: { in: TOPICS, allow_blank: true }
   validates :animator, presence: true
   validates :workshop_date, presence: true
+  validates :first_workshop_time_slot, presence: true
+  validates :location, presence: true
   validates :workshop_date, date: { after: proc { Time.zone.today } }, on: :create
   validates :address, presence: true
   validates :postal_code, presence: true
@@ -70,12 +74,16 @@ class Workshop < ApplicationRecord
     @recipients = []
     land_parents.each do |parent|
       next if parent.is_excluded_from_workshop
-
       next unless parent.available_for_workshops?
-
       next unless parent.should_be_contacted?
-
       next unless parent.target_parent?
+      next if parent.not_supported_children?
+
+      if parent.caf93?
+        next if parent.eval25_children?
+        next if parent.waiting_children?
+        next if parent.active_in_not_started_group_children? && !'Eval25 - validée'.in?(parent.tag_list)
+      end
 
       @recipients << parent
     end

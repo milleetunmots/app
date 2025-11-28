@@ -17,6 +17,7 @@
 #  spot_hit_status           :integer
 #  subject                   :string
 #  type                      :string
+#  workshop_time_slot        :integer
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null
 #  aircall_message_id        :string
@@ -52,4 +53,6 @@ class Events::WorkshopParticipation < Event
 
   scope :only_accepted, -> { where(parent_response: 'Oui') }
   scope :only_refused, -> { where(parent_response: 'Non') }
+  scope :first_slot_accepted, -> { only_accepted.where(workshop_time_slot: 1) }
+  scope :second_slot_accepted, -> { only_accepted.where(workshop_time_slot: 2) }
 end
