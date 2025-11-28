@@ -1,10 +1,8 @@
+@import variables
+
 #update
-  background-image: url(https://1001mots.org/wp-content/uploads/2018/04/1001mots-Marle%CC%80ne_Schiappa_E%CC%81veil_langagier.jpg)
-  background-repeat: no-repeat
-  background-attachment: fixed
-  background-position: 50% 50%
-  background-size: cover
-  padding: 50px
+  font-family: $text-font
+  background: $background-color
   min-height: 100vh
 
   #update-content
@@ -23,9 +21,22 @@
 
     .end-buttons
       margin-top: 50px
+      display: flex
+      flex-direction: column
+      align-items: center
+      gap: 20px
 
-      button + button
-        margin-left: 50px
+      button
+        min-width: 250px
+        white-space: normal
+        word-wrap: break-word
+
+      &.horizontal
+        flex-direction: row
+        justify-content: center
+
+        button
+          min-width: 150px
 
 #update-success
   #update-success-content

@@ -24,10 +24,24 @@ class WorkshopDecorator < BaseDecorator
     parents.decorate.map(&:name).join("\n")
   end
 
-  def parents_who_accepted
+  def parents_who_accepted_first_time_slot
     arbre do
       ul do
-        workshop_participations.only_accepted.each do |event|
+        workshop_participations.first_slot_accepted.each do |event|
+          li do
+            next unless event.related
+
+            event.related.decorate.admin_link
+          end
+        end
+      end
+    end
+  end
+
+  def parents_who_accepted_second_time_slot
+    arbre do
+      ul do
+        workshop_participations.second_slot_accepted.each do |event|
           li do
             next unless event.related
 
@@ -82,8 +96,12 @@ class WorkshopDecorator < BaseDecorator
     workshop_participations.count
   end
 
-  def parent_who_accepted_number
-    workshop_participations.only_accepted.count
+  def parent_who_accepted_first_time_slot_number
+    workshop_participations.first_slot_accepted.count
+  end
+
+  def parent_who_refused_second_time_slot_number
+    workshop_participations.second_slot_accepted.count
   end
 
   def parent_who_refused_number
@@ -98,5 +116,13 @@ class WorkshopDecorator < BaseDecorator
     return if model.topic.blank?
 
     Workshop.human_attribute_name("topic.#{model.topic}")
+  end
+
+  def first_workshop_time_slot
+    model.first_workshop_time_slot&.strftime('%H:%M')
+  end
+
+  def second_workshop_time_slot
+    model.second_workshop_time_slot&.strftime('%H:%M')
   end
 end

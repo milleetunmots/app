@@ -12,7 +12,7 @@ ActiveAdmin.register Child do
 
   includes :parent1, :parent2, :child_support, :group, :children_source
 
-  index do
+  index download_links: proc { current_admin_user.can_export_data? } do
     div do
       render 'index_top'
     end
@@ -287,7 +287,7 @@ ActiveAdmin.register Child do
     end
   end
 
-  batch_action :excel_export, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
+  batch_action :excel_export, if: proc { !current_admin_user.caller? && !current_admin_user.animator?  && current_admin_user.can_export_data? } do |ids|
     children = batch_action_collection.where(id: ids)
     if children.with_stopped_group.any?
       flash[:error] = 'Certains enfants sont dans une cohorte arrêtée'
@@ -364,7 +364,7 @@ ActiveAdmin.register Child do
           children_source_f.input :details
         end
       end
-      unless f.object.new_record?
+      unless f.object.new_record? || current_admin_user.user_role.in?(%w[caller animator reader])
         f.input :group,
                 collection: child_group_select_collection,
                 input_html: { data: { select2: {} } }
@@ -372,15 +372,21 @@ ActiveAdmin.register Child do
                 collection: child_group_status_select_collection,
                 input_html: { data: { select2: {} } }
       end
-      tags_input(f)
+      tags_input(f, context_list = 'tag_list', input_html: { disabled: AdminUser.any_caller_or_animator_with_id?(current_admin_user.id) })
     end
     f.actions
   end
 
-  permit_params :parent1_id, :parent2_id, :group_id,
-                :should_contact_parent1, :should_contact_parent2,
-                :gender, :first_name, :last_name, :birthdate, :available_for_workshops, :group_status,
-                tags_params.merge(children_source_attributes: [:id, :source_id, :details])
+  params = %i[parent1_id parent2_id group_id should_contact_parent1 should_contact_parent2 gender first_name last_name birthdate available_for_workshops group_status]
+  tags_params_attributes = [tags_params]
+  children_source_attributes = [{ children_source_attributes: %i[id source_id details] }]
+
+  permit_params do
+    params += children_source_attributes
+    params -= %i[group_id group_status] if current_admin_user.user_role.in?(%w[caller animator reader])
+    params += tags_params_attributes unless AdminUser.any_caller_or_animator_with_id?(current_admin_user.id)
+    params
+  end
 
   # ---------------------------------------------------------------------------
   # SHOW
@@ -503,7 +509,7 @@ ActiveAdmin.register Child do
   # TOOLS
   # ---------------------------------------------------------------------------
 
-  action_item :tools, only: :index do
+  action_item :tools, only: :index, if: proc { current_admin_user.can_export_data? } do
     dropdown_menu 'Outils' do
       item "Télécharger les listes d'enfants par cohorte au format Excel V1",
            %i[download_book_files_v1 admin children]

@@ -25,7 +25,9 @@
 #  is_excluded_from_workshop           :boolean          default(FALSE)
 #  job                                 :string
 #  last_name                           :string           not null
+#  latitude                            :float
 #  letterbox_name                      :string
+#  longitude                           :float
 #  mid_term_rate                       :integer
 #  mid_term_reaction                   :string
 #  mid_term_speech                     :text
@@ -50,17 +52,18 @@
 #
 # Indexes
 #
-#  index_parents_on_address                (address)
-#  index_parents_on_city_name              (city_name)
-#  index_parents_on_discarded_at           (discarded_at)
-#  index_parents_on_email                  (email)
-#  index_parents_on_first_name             (first_name)
-#  index_parents_on_gender                 (gender)
-#  index_parents_on_is_ambassador          (is_ambassador)
-#  index_parents_on_job                    (job)
-#  index_parents_on_last_name              (last_name)
-#  index_parents_on_phone_number_national  (phone_number_national)
-#  index_parents_on_postal_code            (postal_code)
+#  index_parents_on_address                 (address)
+#  index_parents_on_city_name               (city_name)
+#  index_parents_on_discarded_at            (discarded_at)
+#  index_parents_on_email                   (email)
+#  index_parents_on_first_name              (first_name)
+#  index_parents_on_gender                  (gender)
+#  index_parents_on_is_ambassador           (is_ambassador)
+#  index_parents_on_job                     (job)
+#  index_parents_on_last_name               (last_name)
+#  index_parents_on_latitude_and_longitude  (latitude,longitude)
+#  index_parents_on_phone_number_national   (phone_number_national)
+#  index_parents_on_postal_code             (postal_code)
 #
 
 class Parent < ApplicationRecord
@@ -337,6 +340,30 @@ class Parent < ApplicationRecord
     self.book_delivery_organisation_name = nil if book_delivery_location.in? %w[home relative_home]
     self.letterbox_name = nil if book_delivery_location.in? %w[pmi temporary_shelter association police_or_military_station]
   end
+
+  def caf93?
+    children.any? { |child| child.source&.name == 'CAF 93' }
+  end
+
+  def not_supported_children?
+    children.all? { |child| child.group_status == 'not_supported' }
+  end
+
+  def waiting_children?
+    children.all? { |child| child.group_status == 'waiting' }
+  end
+
+  def active_in_not_started_group_children?
+    children.all? { |child| child.group_status == 'active' && child.group&.started_at&.future? }
+  end
+
+  def eval25_children?
+    'Eval25 - 3 tentatives'.in?(tag_list) ||
+      'Eval25 - impossible'.in?(tag_list) ||
+      'Eval25 - refusée'.in?(tag_list)
+  end
+
+
 
   # ---------------------------------------------------------------------------
   # versions history

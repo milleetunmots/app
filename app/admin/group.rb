@@ -10,7 +10,7 @@ ActiveAdmin.register Group do
   # INDEX
   # ---------------------------------------------------------------------------
 
-  index do
+  index download_links: proc { current_admin_user.can_export_data? } do
     selectable_column
     id_column
     column :name
@@ -250,7 +250,7 @@ ActiveAdmin.register Group do
     )
   end
 
-  batch_action :support_modules_chosen_excel_export do |ids|
+  batch_action :support_modules_chosen_excel_export, if: proc { current_admin_user.can_export_data? } do |ids|
     ids.each do |group_id|
       group = Group.find(group_id)
       if ChildrenSupportModule.where(child_id: group.active_children_ids, is_programmed: false).where.not(support_module_id: nil).count.zero?

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_11_13_140353) do
+ActiveRecord::Schema.define(version: 2025_11_18_163728) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -65,6 +65,7 @@ ActiveRecord::Schema.define(version: 2025_11_13_140353) do
     t.string "aircall_phone_number"
     t.bigint "aircall_number_id"
     t.boolean "can_send_automatic_sms", default: true, null: false
+    t.boolean "can_export_data", default: false, null: false
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
@@ -491,6 +492,7 @@ ActiveRecord::Schema.define(version: 2025_11_13_140353) do
     t.string "link_sent_substring"
     t.string "aircall_message_id"
     t.string "message_provider"
+    t.integer "workshop_time_slot"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["quit_group_child_id"], name: "index_events_on_quit_group_child_id"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
@@ -881,6 +883,8 @@ ActiveRecord::Schema.define(version: 2025_11_13_140353) do
     t.boolean "canceled", default: false, null: false
     t.string "address_supplement"
     t.datetime "scheduled_invitation_date_time"
+    t.time "first_workshop_time_slot", default: "2000-01-01 10:00:00", null: false
+    t.time "second_workshop_time_slot"
     t.index ["animator_id"], name: "index_workshops_on_animator_id"
   end
 

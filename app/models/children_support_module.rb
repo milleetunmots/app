@@ -190,10 +190,8 @@ class ChildrenSupportModule < ApplicationRecord
 
   def child_age_range(months)
     case months
-    when 0..4
-      SupportModule::LESS_THAN_FIVE
-    when 5..11
-      SupportModule::FIVE_TO_ELEVEN
+    when 4..11
+      SupportModule::FOUR_TO_ELEVEN
     when 12..17
       SupportModule::TWELVE_TO_SEVENTEEN
     when 18..23

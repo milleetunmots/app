@@ -9,11 +9,13 @@
 #  city_name                      :string           not null
 #  co_animator                    :string
 #  discarded_at                   :datetime
+#  first_workshop_time_slot       :time             default(Sat, 01 Jan 2000 11:00:00.000000000 CET +01:00), not null
 #  invitation_message             :text             not null
 #  location                       :string
 #  name                           :string
 #  postal_code                    :string           not null
 #  scheduled_invitation_date_time :datetime
+#  second_workshop_time_slot      :time
 #  topic                          :string
 #  workshop_date                  :date             not null
 #  workshop_land                  :string
@@ -82,7 +84,7 @@ RSpec.describe Workshop, type: :model do
       let(:paris_workshop) { FactoryBot.create(:workshop, animator: animator, workshop_date: Time.zone.today.next_day(2), location: "Paris") }
 
       it "is 'Atelier du workshop_date à location, avec animator, sur le thème topic'" do
-        expect(workshop.name).to eq "Atelier du #{Time.zone.today.next_day.day}/#{Time.zone.today.next_day.month}/#{Time.zone.today.next_day.year}, avec Angela"
+        expect(workshop.name).to eq "Atelier du #{Time.zone.today.next_day.day}/#{Time.zone.today.next_day.month}/#{Time.zone.today.next_day.year} à #{workshop.location}, avec Angela"
         expect(paris_workshop.name).to eq "Atelier du #{Time.zone.today.next_day(2).day}/#{Time.zone.today.next_day(2).month}/#{Time.zone.today.next_day(2).year} à Paris, avec Angela"
         expect(meal_workshop.name).to eq "Atelier du #{Time.zone.today.next_day(4).day}/#{Time.zone.today.next_day(4).month}/#{Time.zone.today.next_day(4).year} à Merlun, avec Angela, sur le thème \"Repas\""
       end

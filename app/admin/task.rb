@@ -96,7 +96,7 @@ ActiveAdmin.register Task do
 
       if f.object.new_related_to_child_support?
         f.input :title, collection: task_title_collection, input_html: { data: { select2: {} } }
-        small style:'margin-left:25%; margin-bottom:20px' do
+        small style: 'margin-left:25%; margin-bottom:20px' do
           'Pour plus d’infos sur cette tâche : '.html_safe +
           link_to(
             'cliquez ici',
@@ -104,22 +104,31 @@ ActiveAdmin.register Task do
             target: '_blank')
         end
       else
-        f.input :title
+        f.input :title, input_html: { disabled: !f.object.new_record? && AdminUser.any_caller_or_animator_with_id?(current_admin_user.id) }
       end
 
       f.input :description, input_html: { rows: 10 }
       div style: "#{"display: none;" if f.object.new_related_to_child_support?}" do
         f.input :due_date, as: :datepicker
-        f.input :status, collection: task_status_collection, input_html: { data: { select2: {} } }
+        f.input :status, collection: task_status_collection, input_html: { data: { select2: {} }, disabled: !f.object.new_record? && AdminUser.any_caller_or_animator_with_id?(current_admin_user.id) }
         f.input :reporter, input_html: { data: { select2: {} } }
-        f.input :assignee, input_html: { data: { select2: {} } }
+        f.input :assignee, input_html: { data: { select2: {} }, disabled: !f.object.new_record? && AdminUser.any_caller_or_animator_with_id?(current_admin_user.id) }
       end
     end
     f.actions
   end
 
-  permit_params :reporter_id, :assignee_id, :related_type, :related_id,
-                :title, :description, :due_date, :done_at, :status, :treated_by_id
+  params_list = [:reporter_id, :assignee_id, :related_type, :related_id, :title, :description, :due_date, :done_at, :status, :treated_by_id]
+
+  permit_params do
+    permitted = params_list
+    if AdminUser.any_caller_or_animator_with_id?(current_admin_user.id)
+      permitted -= [:assignee_id]
+      permitted -= [:status]
+      permitted -= [:title] if params.dig(:task, :related_type) == 'ChildSupport' && params[:id].present?
+    end
+    permitted
+  end
 
   controller do
     def build_new_resource

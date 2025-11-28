@@ -40,9 +40,38 @@ ActiveAdmin.register Workshop do
 
   form do |f|
     f.semantic_errors(*f.object.errors.keys)
-    f.inputs do
+    f.inputs "Informations principales" do
       f.input :topic, collection: workshop_topic_select_collection, input_html: { data: { select2: {} } }
       f.input :workshop_date, as: :datepicker, datepicker_options: { min_date: Time.zone.today }
+      f.input :first_workshop_time_slot, as: :time_picker
+      f.input :second_workshop_time_slot, as: :time_picker
+    end
+
+    f.inputs "Animation" do
+      f.input :animator, input_html: { data: { select2: {} } }
+      f.input :co_animator
+    end
+
+    f.inputs "Lieu" do
+      address_input f
+      f.input :location
+    end
+
+    f.inputs "Participants" do
+      f.input :workshop_land, collection: Child::LANDS.keys.sort, input_html: { data: { select2: {} }, disabled: !object.new_record? }
+      f.input :parent_selection,
+              as: :select,
+              input_html: {
+                class: 'workshop-parent-select',
+                data: {
+                  url: search_eligible_parents_admin_workshops_path,
+                  multiple: true
+                },
+                disabled: !object.new_record?
+              }
+    end
+
+    f.inputs "Invitations" do
       f.input :invitation_scheduled, as: :boolean, input_html: { disabled: !object.new_record? }
       f.input :scheduled_invitation_date,
               as: :datepicker,
@@ -55,30 +84,21 @@ ActiveAdmin.register Workshop do
                 disabled: !object.new_record?,
                 value: Time.zone.now.change(hour: 9, min: 0).strftime('%H:%M')
               }
-      f.input :animator, input_html: { data: { select2: {} } }
-      f.input :co_animator
-      address_input f
-      f.input :location
-      f.input :parent_selection,
-              as: :select,
-              input_html: {
-                class: 'workshop-parent-select',
-                data: {
-                  url: search_eligible_parents_admin_workshops_path,
-                  multiple: true
-                },
-                disabled: !object.new_record?
-              }
-      f.input :parent_ids, as: :hidden
-      f.input :workshop_land, collection: Child::LANDS.keys.sort, input_html: { data: { select2: {} }, disabled: !object.new_record? }
-      f.input :scheduled_invitation_date_time, as: :hidden
       f.input :invitation_message, input_html: { rows: 5, disabled: !object.new_record? }
+    end
+
+    f.inputs "Status" do
       f.input :canceled
+    end
+
+    f.inputs do
+      f.input :parent_ids, as: :hidden
+      f.input :scheduled_invitation_date_time, as: :hidden
     end
     f.actions
   end
 
-  permit_params :topic, :workshop_date, :animator_id, :co_animator, :address, :postal_code, :city_name,
+  permit_params :topic, :workshop_date, :animator_id, :co_animator, :address, :postal_code, :city_name, :first_workshop_time_slot, :second_workshop_time_slot,
                 :invitation_message, :workshop_land, :location, :canceled, :address_supplement, :scheduled_invitation_date_time, tags_params, parent_ids: []
 
   show do
@@ -88,16 +108,19 @@ ActiveAdmin.register Workshop do
           row :name
           row :display_topic
           row :workshop_date
+          row :first_workshop_time_slot
+          row :second_workshop_time_slot
           row :animator
           row :co_animator
           row :workshop_address
           row :location
           row :invitation_message
-          row :parents_who_accepted
+          row :parents_who_accepted_first_time_slot
+          row :parents_who_accepted_second_time_slot
           row :parents_who_refused
           row :parent_invited_number
-          row :parent_who_accepted_number
-          row :parent_who_refused_number
+          row :parent_who_accepted_first_time_slot_number
+          row :parent_who_refused_second_time_slot_number
           row :parent_who_ignored_number
           row :workshop_land
           row :canceled
@@ -124,14 +147,17 @@ ActiveAdmin.register Workshop do
   end
 
   action_item :update_parents_presence, only: :show do
-    link_to 'Indiquer la présence des parents', [:update_parents_presence, :admin, resource] if authorized?(:update_parents_presence, resource)
+    dropdown_menu 'Indiquer la présence des parents' do
+      item 'au premier créneau', update_parents_presence_admin_workshop_path(resource, time_slot: 1) if authorized?(:update_parents_presence, resource)
+      item 'au deuxième créneau', update_parents_presence_admin_workshop_path(resource, time_slot: 2) if authorized?(:update_parents_presence, resource) && resource.second_workshop_time_slot.present?
+    end
   end
 
   collection_action :search_eligible_parents, method: :get
 
   member_action :update_parents_presence do
     authorize!(:update_parents_presence, resource)
-    @values = resource.workshop_participations.where(parent_response: 'Oui').to_a
+    @values = resource.workshop_participations.where(parent_response: 'Oui', workshop_time_slot: params[:time_slot].to_i).to_a
     @perform_action = perform_update_parents_presence_admin_workshop_path
   end
 
@@ -143,17 +169,22 @@ ActiveAdmin.register Workshop do
   end
 
   action_item :register_parents, only: :show do
-    link_to 'Inscrire des parents', [:register_parents, :admin, resource] if authorized?(:register_parents, resource)
+    dropdown_menu 'Inscrire des parents' do
+      item 'au premier créneau', register_parents_admin_workshop_path(resource, time_slot: 1) if authorized?(:register_parents, resource)
+      item 'au deuxième créneau', register_parents_admin_workshop_path(resource, time_slot: 2) if authorized?(:register_parents, resource) && resource.second_workshop_time_slot.present?
+    end
   end
 
   member_action :register_parents do
     authorize!(:register_parents, resource)
     @workshop_id = resource.id
     @perform_action = perform_parents_registration_admin_workshop_path
+    @time_slot = params[:time_slot]
   end
 
   member_action :perform_parents_registration, method: :post do
     params[:workshop][:parent_ids] = params[:workshop][:parent_ids].split(',').map(&:to_i) if params[:workshop][:parent_ids].present?
+    time_slot = params[:time_slot].to_i
     workshop = Workshop.find(params[:workshop_id])
     parent_to_register_ids = params[:workshop][:parent_ids].reject(&:blank?)
     parents_to_register = Parent.not_excluded_from_workshop.where(id: parent_to_register_ids)
@@ -162,7 +193,7 @@ ActiveAdmin.register Workshop do
     parents_to_register.each do |parent|
       event = Event.find_by(related: parent, workshop: workshop)
       if event
-        event.parent_response == 'Oui' ? next : event.update!(parent_response: 'Oui', acceptation_date: Time.zone.today)
+        event.parent_response == 'Oui' ? next : event.update!(parent_response: 'Oui', workshop_time_slot: time_slot, acceptation_date: Time.zone.today)
       else
         Event.create(
           type: 'Events::WorkshopParticipation',
@@ -171,6 +202,7 @@ ActiveAdmin.register Workshop do
           occurred_at: workshop.workshop_date,
           workshop: workshop,
           parent_response: 'Oui',
+          workshop_time_slot: time_slot,
           acceptation_date: Time.zone.today
         )
       end

@@ -5,6 +5,9 @@
     <%= f.hidden_field  :workshop_id,
                         name: 'workshop_id',
                         value: @workshop_id %>
+    <%= f.hidden_field  :time_slot,
+                        name: 'time_slot',
+                        value: @time_slot %>
 
     <%= f.input :parent_selection,
                 as: :select,
