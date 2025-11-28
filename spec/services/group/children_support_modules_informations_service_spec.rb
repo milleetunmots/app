@@ -7,7 +7,7 @@ RSpec.describe Group::ChildrenSupportModulesInformationsService do
     FactoryBot.create(:support_module,
            name: "Module",
            theme: SupportModule::READING,
-           age_ranges: [SupportModule::FIVE_TO_ELEVEN]
+           age_ranges: [SupportModule::FOUR_TO_ELEVEN]
     )
   end
   let(:book) { FactoryBot.create(:book, ean: "9782123456789") }

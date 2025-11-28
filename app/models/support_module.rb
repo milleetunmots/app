@@ -44,8 +44,7 @@ class SupportModule < ApplicationRecord
   MODULE_ZERO_THEME_LIST = [LANGUAGE_MODULE_ZERO].freeze
   THEME_LIST_INCLUDING_MODULE_ZERO = THEME_LIST + MODULE_ZERO_THEME_LIST
 
-  LESS_THAN_FIVE = 'less_than_five'.freeze
-  FIVE_TO_ELEVEN = 'five_to_eleven'.freeze
+  FOUR_TO_ELEVEN = 'four_to_eleven'.freeze
   TWELVE_TO_SEVENTEEN = 'twelve_to_seventeen'.freeze
   EIGHTEEN_TO_TWENTY_THREE = 'eighteen_to_twenty_three'.freeze
   TWENTY_FOUR_TO_TWENTY_NINE = 'twenty_four_to_twenty_nine'.freeze
@@ -57,8 +56,7 @@ class SupportModule < ApplicationRecord
   SEVENTEEN_TO_TWENTY_TWO = 'seventeen_to_twenty_two'.freeze
   TWENTY_THREE_AND_MORE = 'twenty_three_and_more'.freeze
   AGE_RANGE_LIST = [
-    LESS_THAN_FIVE,
-    FIVE_TO_ELEVEN,
+    FOUR_TO_ELEVEN,
     TWELVE_TO_SEVENTEEN,
     EIGHTEEN_TO_TWENTY_THREE,
     TWENTY_FOUR_TO_TWENTY_NINE,
@@ -97,8 +95,7 @@ class SupportModule < ApplicationRecord
   # scopes
   # ---------------------------------------------------------------------------
 
-  scope :less_than_five, -> { where("'#{LESS_THAN_FIVE}' = ANY (age_ranges)") }
-  scope :five_to_eleven, -> { where("'#{FIVE_TO_ELEVEN}' = ANY (age_ranges)") }
+  scope :four_to_eleven, -> { where("'#{FOUR_TO_ELEVEN}' = ANY (age_ranges)") }
   scope :twelve_to_seventeen, -> { where("'#{TWELVE_TO_SEVENTEEN}' = ANY (age_ranges)") }
   scope :eighteen_to_twenty_three, -> { where("'#{EIGHTEEN_TO_TWENTY_THREE}' = ANY (age_ranges)") }
   scope :twenty_four_to_twenty_nine, -> { where("'#{TWENTY_FOUR_TO_TWENTY_NINE}' = ANY (age_ranges)") }

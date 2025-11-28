@@ -361,12 +361,8 @@ class Child < ApplicationRecord
     months_gteq(23).where(group_status: 'active')
   end
 
-  def self.less_than_five
-    months_lt(5).where(group_status: 'active')
-  end
-
-  def self.five_to_eleven
-    months_between(5, 12).where(group_status: 'active')
+  def self.four_to_eleven
+    months_between(4, 12).where(group_status: 'active')
   end
 
   def self.twelve_to_seventeen

@@ -6,10 +6,10 @@ RSpec.describe ChildrenSupportModule::SelectDefaultSupportModuleService do
 
   describe '#call' do
     let!(:group) { FactoryBot.create(:group, expected_children_number: 0) }
-    let!(:support_module1) { FactoryBot.create(:support_module, name: 'Module 1', age_ranges: [SupportModule::FIVE_TO_ELEVEN], theme: 'songs') }
+    let!(:support_module1) { FactoryBot.create(:support_module, name: 'Module 1', age_ranges: [SupportModule::FOUR_TO_ELEVEN], theme: 'songs') }
     let!(:support_module2) { FactoryBot.create(:support_module, name: 'Module 2') }
     let!(:support_module3) { FactoryBot.create(:support_module, name: 'Module 3', age_ranges: [SupportModule::TWELVE_TO_SEVENTEEN], theme: 'songs') }
-    let!(:less_than_eleven_specific_default_support_module) { FactoryBot.create(:support_module, name: ENV['LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'], age_ranges: [SupportModule::FIVE_TO_ELEVEN]) }
+    let!(:less_than_eleven_specific_default_support_module) { FactoryBot.create(:support_module, name: ENV['LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'], age_ranges: [SupportModule::FOUR_TO_ELEVEN]) }
     let!(:more_than_twelve_specific_default_support_module) { FactoryBot.create(:support_module, name: ENV['MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'], age_ranges: [SupportModule::TWELVE_TO_SEVENTEEN]) }
     let!(:parent1) { FactoryBot.create(:parent) }
     let!(:parent2) { FactoryBot.create(:parent) }
