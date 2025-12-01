@@ -20,7 +20,7 @@ class ChildSupport::CallerStopSupportService
     professional: { tag: 'arrêt accompagnante - pro de santé', sms: PARTNER_REFERRAL_REQUIRED_MESSAGE, motive: "La famille est un.e professionnel.le de santé qui souhaite tester l'accompagnement" },
     registered_by_partner_without_consent: { tag: 'arrêt accompagnante - inscription sans accord', sms: PROGRAM_TERMINATION_MESSAGE, motive: 'la famille a été inscrite par un partenaire sans son accord' },
     family_limited_french_for_support: { tag: 'arrêt accompagnante - non francophone', sms: LANGUAGE_BARRIER_TERMINATION_MESSAGE, motive: "la famille n'est pas assez francophone pour tirer profit de l’accompagnement" },
-    family_unresponsive_after_adaptation: { tag: 'arrêt accompagnante - sans résultat', sms: LANGUAGE_BARRIER_TERMINATION_MESSAGE, motive: "je vois que la famille ne me répond plus / j'ai des doutes sur l'impact du programme" }
+    family_unresponsive_after_adaptation: { tag: 'arrêt accompagnante - non francophone adaptation KO', sms: LANGUAGE_BARRIER_TERMINATION_MESSAGE, motive: "je vois que la famille ne me répond plus / j'ai des doutes sur l'impact du programme" }
   }.freeze
 
   attr_reader :error
