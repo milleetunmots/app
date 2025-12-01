@@ -377,11 +377,12 @@ ActiveAdmin.register Child do
     f.actions
   end
 
+  tags_params_attributes = [tags_params]
+
   permit_params do
     base = %i[parent1_id parent2_id should_contact_parent1 should_contact_parent2 gender first_name last_name birthdate available_for_workshops]
     group_attrs = %i[group_id group_status]
     children_source_attributes = [{ children_source_attributes: %i[id source_id details] }]
-    tags_params_attributes = [tags_params]
 
     permitted = base + children_source_attributes
     unless current_admin_user&.user_role.in?(%w[caller animator reader])
