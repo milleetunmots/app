@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_11_27_104903) do
+ActiveRecord::Schema.define(version: 2025_11_28_122921) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -936,6 +936,7 @@ ActiveRecord::Schema.define(version: 2025_11_27_104903) do
   add_foreign_key "media", "media", column: "link3_id"
   add_foreign_key "media", "media_folders", column: "folder_id"
   add_foreign_key "media_folders", "media_folders", column: "parent_id"
+  add_foreign_key "places", "redirection_targets"
   add_foreign_key "redirection_targets", "media"
   add_foreign_key "support_module_weeks", "media", column: "additional_medium_id"
   add_foreign_key "support_modules", "books"
