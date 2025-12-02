@@ -115,6 +115,7 @@ class Parent < ApplicationRecord
   after_save :change_the_other_parent_address, :should_not_contact_parent2
   after_save :change_child_support_address_suspected_invalid_at
   after_commit :create_aircall_contact, if: -> { created_by_us.present? }, on: :create
+  after_validation :geocode, if: -> { address.present? && (address_changed? || city_name_changed? || postal_code_changed?) }
 
   validates :gender, presence: true, inclusion: { in: GENDERS }
   validates :first_name, presence: true
