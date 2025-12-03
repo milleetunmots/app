@@ -420,6 +420,22 @@ class ChildSupport < ApplicationRecord
     where(id: Child.postal_code_starts_with(v).select('DISTINCT child_support_id'))
   end
 
+  def self.months_gteq(x)
+    where(id: Child.months_gteq(x).select('DISTINCT child_support_id'))
+  end
+
+  def self.months_lt(x)
+    where(id: Child.months_lt(x).select('DISTINCT child_support_id'))
+  end
+
+  def self.months_equals(x)
+    where(id: Child.months_equals(x).select('DISTINCT child_support_id'))
+  end
+
+  def self.months_between(x, y)
+    where(id: Child.months_between(x, y).select('DISTINCT child_support_id'))
+  end
+
   scope :with_book_not_received, -> { where.not(book_not_received: [nil, '']) }
 
   def self.group_active
@@ -453,6 +469,7 @@ class ChildSupport < ApplicationRecord
     super + %i[
       groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_in source_channel_in
       source_details_matches_any group_id_in active_group_id_in with_child_in_group_ended_between
+      months_gteq months_lt months_equals months_between
     ]
   end
 

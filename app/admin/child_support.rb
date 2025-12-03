@@ -89,6 +89,10 @@ ActiveAdmin.register ChildSupport do
   filter :supporter,
          input_html: { data: { select2: {} } }
   filter :address_suspected_invalid_at
+  filter :months,
+         label: "Âge d'au moins un enfant",
+         as: :numeric,
+         filters: %i[equals gteq lt]
   (0..5).each do |call_idx|
     filter "call#{call_idx}_status_filter", as: :check_boxes,  label: "Statut de l'appel #{call_idx}", collection: proc { call_statuses_with_nil }
     filter "call#{call_idx}_duration"
