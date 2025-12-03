@@ -35,7 +35,7 @@ module Typeform
         when FIELDS[@form_id][:address]
           @parent.address = answer[:text]
         when FIELDS[@form_id][:address_supplement]
-          @parent.address_supplement = answer[:text]  if answer[:text].present?
+          @parent.address_supplement = answer[:text] if answer[:text].present?
         when FIELDS[@form_id][:city_name]
           @parent.city_name = answer[:text]
         when FIELDS[@form_id][:postal_code]
@@ -48,7 +48,7 @@ module Typeform
       # reset these fields because its not currently updatable via typeform
       @parent.book_delivery_organisation_name = nil
       @parent.book_delivery_location = 'home'
-
+      @parent.geocode
       if @parent.save(validate: false)
         @child_support.address_suspected_invalid_at = nil
         @child_support.save(validate: false)
