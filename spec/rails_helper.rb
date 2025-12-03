@@ -70,6 +70,18 @@ rescue ActiveRecord::PendingMigrationError => e
   puts e.to_s.strip
   exit 1
 end
+Geocoder.configure(lookup: :test, ip_lookup: :test)
+
+Geocoder::Lookup::Test.set_default_stub([
+                                          {
+                                            'latitude' => 48.8566,
+                                            'longitude' => 2.3522,
+                                            'address' => 'Paris, France',
+                                            'city' => 'Paris',
+                                            'country' => 'France'
+                                          }
+                                        ])
+
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
