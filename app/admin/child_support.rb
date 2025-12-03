@@ -426,7 +426,7 @@ ActiveAdmin.register ChildSupport do
                             i class: 'fa-solid fa-arrow-up-right-from-square recommanded_script'
                           end
 
-                          if call_idx.in?([0,1])
+                          if call_idx.in?([0, 1])
                             li link_to("Vidéo recommandée\u00A0", resources_recommended_video_link(call_idx, resource.current_child&.months), target: '_blank', class: 'recommanded_script') do
                               i class: 'fa-solid fa-arrow-up-right-from-square recommanded_script'
                             end

@@ -133,10 +133,12 @@ module ActiveAdmin::ChildSupportsHelper
 
   def resources_alternative_script_links
     {
-      "Popi" => ENV['ALTERNATIVE_SCRIPT_POPI_LINK'],
-      "Ne veut pas des SMS/Appels" => ENV['ALTERNATIVE_SCRIPT_NO_SMS_CALLS_SCRIPT_LINK'],
-      "Comportement problématique" => ENV['ALTERNATIVE_SCRIPT_PROBLEMATIC_BEHAVIOR_SCRIPT_LINK'],
-      "Professionnel qui teste 1001mots" => ENV['ALTERNATIVE_SCRIPT_PROFESSIONAL_TEST_SCRIPT_LINK']
+      'Pratiques très avancées' => ENV['ALTERNATIVE_SCRIPT_POPI_LINK'],
+      'Ne veut pas des SMS/Appels' => ENV['ALTERNATIVE_SCRIPT_NO_SMS_CALLS_SCRIPT_LINK'],
+      'Comportement problématique' => ENV['ALTERNATIVE_SCRIPT_PROBLEMATIC_BEHAVIOR_SCRIPT_LINK'],
+      'Professionnel qui teste 1001mots' => ENV['ALTERNATIVE_SCRIPT_PROFESSIONAL_TEST_SCRIPT_LINK'],
+      'Inscription sans accord' => ENV['ALTERNATIVE_SCRIPT_REGISTRATION_WITHOUT_AGREEMENT_SCRIPT_LINK'],
+      'Pas assez francophone' => ENV['ALTERNATIVE_SCRIPT_NOT_ENOUGH_FRENCH_SCRIPT_LINK']
     }
   end
 
