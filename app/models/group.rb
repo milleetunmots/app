@@ -170,7 +170,7 @@ class Group < ApplicationRecord
     self.call2_end_date = started_at + 76.days
     # call 3
     self.call3_start_date = started_at + 154.days
-    self.call3_end_date = started_at + 181.days
+    self.call3_end_date = started_at + 174.days
   end
 
   def closest_call_session(date)
