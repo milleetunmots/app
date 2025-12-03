@@ -61,6 +61,9 @@ ActiveAdmin.register ChildSupport do
           as: :check_boxes,
           label: '',
           collection: [['Cohortes en cours', 'active'], ['Cohortes finies', 'ended'], ['Cohortes futures', 'next']], multiple: true
+  filter :with_child_in_group_ended_between,
+         as: :date_range,
+         label: 'Date de fin de cohorte'
   filter :source_in,
           as: :select,
           collection: proc { source_select_collection },
@@ -1184,6 +1187,18 @@ ActiveAdmin.register ChildSupport do
   controller do
     def apply_filtering(chain)
       super(chain).distinct
+    end
+
+    def scoped_collection
+      scope = super
+      if params[:q].present?
+        start_date = params[:q][:group_ended_between_gteq_datetime]
+        end_date = params[:q][:group_ended_between_lteq_datetime]
+        if start_date.present? && end_date.present?
+          scope = scope.with_child_in_group_ended_between(start_date, end_date)
+        end
+      end
+      scope
     end
 
     before_action only: [:edit] do

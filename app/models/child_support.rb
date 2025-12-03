@@ -354,6 +354,9 @@ class ChildSupport < ApplicationRecord
       .where('groups.ended_at IS NULL OR groups.ended_at > ?', Time.zone.today)
       .distinct
   }
+  scope :with_child_in_group_ended_between, lambda { |start_date, end_date|
+    joins(children: :group).where(groups: { ended_at: start_date..end_date }).distinct
+  }
 
 
   class << self
@@ -449,7 +452,7 @@ class ChildSupport < ApplicationRecord
   def self.ransackable_scopes(auth_object = nil)
     super + %i[
       groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_in source_channel_in
-      source_details_matches_any group_id_in active_group_id_in
+      source_details_matches_any group_id_in active_group_id_in with_child_in_group_ended_between
     ]
   end
 
