@@ -18,12 +18,16 @@ class ApplicationRecord < ActiveRecord::Base
     tagged_with(tags)
   end
 
+  def self.not_tagged_with_all(*tags)
+    tagged_with(tags, exclude: true)
+  end
+
   # ---------------------------------------------------------------------------
   # ransack
   # ---------------------------------------------------------------------------
 
   def self.ransackable_scopes(auth_object = nil)
-    %i[tagged_with_all]
+    %i[tagged_with_all not_tagged_with_all]
   end
 
   def self.ransackable_scopes_skip_sanitize_args
