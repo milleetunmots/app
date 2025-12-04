@@ -64,6 +64,10 @@ ActiveAdmin.register ChildSupport do
   filter :with_child_in_group_ended_between,
          as: :date_range,
          label: 'Date de fin de cohorte'
+  filter :children_group_type_of_support,
+         as: :check_boxes,
+         label: "Type d'accompagnement",
+         collection: proc { group_type_of_support_select_collection }, multiple: true
   filter :source_in,
           as: :select,
           collection: proc { source_select_collection },
