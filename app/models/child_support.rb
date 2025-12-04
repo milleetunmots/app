@@ -465,6 +465,16 @@ class ChildSupport < ApplicationRecord
     child_support.table[:id]
   end
 
+  ransacker :stopped_by_supporter, formatter: proc { |values|
+    values = Array(values)
+    ids = []
+    ids += where.not(stop_support_date: nil).pluck(:id) if values.include?('stopped')
+    ids += where(stop_support_date: nil).pluck(:id) if values.include?('ongoing')
+    ids.uniq.presence
+  } do |child_support|
+    child_support.table[:id]
+  end
+
   def self.ransackable_scopes(auth_object = nil)
     super + %i[
       groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_in source_channel_in

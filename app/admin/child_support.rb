@@ -97,6 +97,11 @@ ActiveAdmin.register ChildSupport do
          label: "Âge d'au moins un enfant",
          as: :numeric,
          filters: %i[equals gteq lt]
+  filter :stopped_by_supporter,
+         as: :check_boxes,
+         label: "Arrêt au cours de l'accompagnement (accompagnante)",
+         collection: [%w[Oui stopped], %w[Non ongoing]],
+         multiple: true
   (0..5).each do |call_idx|
     filter "call#{call_idx}_status_filter", as: :check_boxes,  label: "Statut de l'appel #{call_idx}", collection: proc { call_statuses_with_nil }
     filter "call#{call_idx}_duration"
