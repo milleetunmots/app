@@ -175,12 +175,13 @@ class ProgramMessageService
       @recipient_data = {}
       Parent.where(id: @parent_ids).find_each do |parent|
         @recipient_data[parent.id.to_s] = {}
-        @recipient_data[parent.id.to_s]['PRENOM_ENFANT'] = parent.current_child&.first_name || 'votre enfant'
-        @recipient_data[parent.id.to_s]['PARENT_SECURITY_TOKEN'] = parent.security_token
-        @recipient_data[parent.id.to_s]['PRENOM_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.decorate&.first_name
-        @recipient_data[parent.id.to_s]['NUMERO_AIRCALL_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.aircall_phone_number
+        @recipient_data[parent.id.to_s]['PRENOM_ENFANT'] = parent.current_child&.first_name || 'votre enfant' if @variables.include?('PRENOM_ENFANT')
+        @recipient_data[parent.id.to_s]['PARENT_SECURITY_TOKEN'] = parent.security_token if @variables.include?('PARENT_SECURITY_TOKEN')
+        @recipient_data[parent.id.to_s]['PRENOM_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.decorate&.first_name if @variables.include?('PRENOM_ACCOMPAGNANTE')
+        @recipient_data[parent.id.to_s]['NUMERO_AIRCALL_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.aircall_phone_number if @variables.include?('NUMERO_AIRCALL_ACCOMPAGNANTE')
+        @recipient_data[parent.id.to_s]['PARENT_ADDRESS'] = parent.decorate.full_address(', ') if @variables.include?('PARENT_ADDRESS')
         if @redirection_target && parent.current_child.present?
-          @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
+          @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url if @variables.include?('URL')
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
           increment_suggested_videos_counter(parent)
         end
