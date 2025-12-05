@@ -61,6 +61,13 @@ ActiveAdmin.register ChildSupport do
           as: :check_boxes,
           label: '',
           collection: [['Cohortes en cours', 'active'], ['Cohortes finies', 'ended'], ['Cohortes futures', 'next']], multiple: true
+  filter :with_child_in_group_ended_between,
+         as: :date_range,
+         label: 'Date de fin de cohorte'
+  filter :children_group_type_of_support,
+         as: :check_boxes,
+         label: "Type d'accompagnement",
+         collection: proc { group_type_of_support_select_collection }, multiple: true
   filter :source_in,
           as: :select,
           collection: proc { source_select_collection },
@@ -86,6 +93,15 @@ ActiveAdmin.register ChildSupport do
   filter :supporter,
          input_html: { data: { select2: {} } }
   filter :address_suspected_invalid_at
+  filter :months,
+         label: "Âge d'au moins un enfant",
+         as: :numeric,
+         filters: %i[equals gteq lt]
+  filter :stopped_by_supporter,
+         as: :check_boxes,
+         label: "Arrêt au cours de l'accompagnement (accompagnante)",
+         collection: [%w[Oui stopped], %w[Non ongoing]],
+         multiple: true
   (0..5).each do |call_idx|
     filter "call#{call_idx}_status_filter", as: :check_boxes,  label: "Statut de l'appel #{call_idx}", collection: proc { call_statuses_with_nil }
     filter "call#{call_idx}_duration"
@@ -1184,6 +1200,18 @@ ActiveAdmin.register ChildSupport do
   controller do
     def apply_filtering(chain)
       super(chain).distinct
+    end
+
+    def scoped_collection
+      scope = super
+      if params[:q].present?
+        start_date = params[:q][:with_child_in_group_ended_between_gteq_datetime]
+        end_date = params[:q][:with_child_in_group_ended_between_lteq_datetime]
+        if start_date.present? && end_date.present?
+          scope = scope.with_child_in_group_ended_between(start_date, end_date)
+        end
+      end
+      scope
     end
 
     before_action only: [:edit] do
