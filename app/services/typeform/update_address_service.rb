@@ -14,6 +14,13 @@ module Typeform
         city_name: ENV['UPSTREAM_ADDRESS_UPDATING_CITY_NAME'],
         postal_code: ENV['UPSTREAM_ADDRESS_UPDATING_POSTAL_CODE'],
         letterbox_name: ENV['UPSTREAM_ADDRESS_UPDATING_LETTERBOX_NAME']
+      },
+      ENV['UPDATING_ADDRESS_FOR_PARTNERS_TYPEFORM_ID'] => {
+        address: ENV['ADDRESS_FOR_PARTNERS_TYPEFORM_ADDRESS'],
+        address_supplement: ENV['ADDRESS_FOR_PARTNERS_SUPPLEMENT_TYPEFORM_ADDRESS'],
+        city_name: ENV['ADDRESS_FOR_PARTNERS_TYPEFORM_CITY_NAME'],
+        postal_code: ENV['ADDRESS_FOR_PARTNERS_TYPEFORM_POSTAL_CODE'],
+        letterbox_name: ENV['ADDRESS_FOR_PARTNERS_TYPEFORM_LETTERBOX_NAME']
       }
     }.freeze
 
@@ -39,7 +46,7 @@ module Typeform
         when FIELDS[@form_id][:city_name]
           @parent.city_name = answer[:text]
         when FIELDS[@form_id][:postal_code]
-          @parent.postal_code = answer[:number]
+          @parent.postal_code = answer[:number] || answer[:text]
         when FIELDS[@form_id][:letterbox_name]
           @parent.letterbox_name = answer[:text]
         end
