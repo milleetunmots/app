@@ -38,7 +38,7 @@ ActiveAdmin.register_page 'Stop Support Form' do
         end
         div class: 'radio-input' do
           f.input :stop_reason, type: :radio, value: :family_unresponsive_after_adaptation, name: :reason, class: 'stop-support-form-radio'
-          label "Après avoir choisi d’essayer d’adapter encore plus les échanges (SMS, traduction, etc), je vois que la famille ne me répond plus / j'ai des doutes sur l'impact du programme."
+          label "La famille n'est pas assez francophone ; confirmation après des tentatives d'adaptation plus poussées (SMS, traduction, etc)."
         end
       end
       div id: 'form-details' do
