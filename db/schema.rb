@@ -692,6 +692,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.float "longitude"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "redirection_target_id"
+    t.index ["redirection_target_id"], name: "index_places_on_redirection_target_id"
   end
 
   create_table "questions", force: :cascade do |t|

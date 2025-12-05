@@ -56,7 +56,7 @@ class ParentDecorator < BaseDecorator
     r.join.html_safe
   end
 
-  def full_address
+  def full_address(separator = '<br/>')
     attention_to = model.attention_to&.gsub('Pour', "A l'attention de")
     full_address =
       case model.book_delivery_location
@@ -69,7 +69,7 @@ class ParentDecorator < BaseDecorator
       end
     full_address << address_supplement if address_supplement.present?
     full_address << [postal_code, city_name].join(' ')
-    full_address.join('<br/>').html_safe
+    full_address.join(separator).html_safe
   end
 
   def icon_class
