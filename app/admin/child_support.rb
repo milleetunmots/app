@@ -1205,8 +1205,8 @@ ActiveAdmin.register ChildSupport do
     def scoped_collection
       scope = super
       if params[:q].present?
-        start_date = params[:q][:group_ended_between_gteq_datetime]
-        end_date = params[:q][:group_ended_between_lteq_datetime]
+        start_date = params[:q][:with_child_in_group_ended_between_gteq_datetime]
+        end_date = params[:q][:with_child_in_group_ended_between_lteq_datetime]
         if start_date.present? && end_date.present?
           scope = scope.with_child_in_group_ended_between(start_date, end_date)
         end
