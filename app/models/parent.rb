@@ -115,6 +115,7 @@ class Parent < ApplicationRecord
   after_save :change_the_other_parent_address, :should_not_contact_parent2
   after_save :change_child_support_address_suspected_invalid_at
   after_commit :create_aircall_contact, if: -> { created_by_us.present? }, on: :create
+  after_validation :geocode, if: -> { address.present? && (address_changed? || city_name_changed? || postal_code_changed?) }
 
   validates :gender, presence: true, inclusion: { in: GENDERS }
   validates :first_name, presence: true
@@ -145,17 +146,20 @@ class Parent < ApplicationRecord
   validate :phone_number_format, on: :create
   validate :book_delivery_organisation_name_presence, if: -> { book_delivery_location.in?(%w[pmi temporary_shelter association police_or_military_station]) }
 
+  geocoded_by :geocoder_address
+  reverse_geocoded_by :latitude, :longitude
+
   scope :potential_duplicates, -> {
     where("parents.phone_number IN (SELECT phone_number FROM parents WHERE parents.discarded_at IS NULL GROUP BY parents.phone_number HAVING COUNT(*) > 1)")
   }
   scope :with_a_parent1_child_in_active_group, -> { joins(parent1_children: :group).where(parent1_children: { group_status: 'active' }).distinct }
   scope :with_a_parent2_child_in_active_group, -> { joins(parent2_children: :group).where(parent2_children: { group_status: 'active' }).distinct }
   scope :with_a_child_in_active_group, -> {
-  joins("LEFT JOIN children parent1_children ON parents.id = parent1_children.parent1_id")
+    joins("LEFT JOIN children parent1_children ON parents.id = parent1_children.parent1_id")
     .joins("LEFT JOIN children parent2_children ON parents.id = parent2_children.parent2_id")
     .where("(parent1_children.group_status = 'active' OR parent2_children.group_status = 'active')")
     .distinct
-}
+  }
 
   def initialize(attributes = {})
     super
@@ -503,5 +507,9 @@ class Parent < ApplicationRecord
 
     service = Aircall::CreateContactService.new(parent_id: parent.id).call
     Rollbar.error('Aircall::CreateContactService', errors: service.errors, parent_id: parent.id) if service.errors.any?
+  end
+
+  def geocoder_address
+    [address, postal_code, city_name].compact.join(', ')
   end
 end
