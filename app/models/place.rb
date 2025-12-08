@@ -29,7 +29,6 @@ class Place < ApplicationRecord
   validates :name, presence: true
   validates :address, presence: true
 
-  scope :geocoded, -> { where('latitude IS NULL OR longitude IS NULL') }
   scope :laep, -> { where(place_type: 'laep') }
 
   geocoded_by :address
