@@ -94,7 +94,7 @@ ActiveAdmin.register ChildSupport do
          input_html: { data: { select2: {} } }
   filter :address_suspected_invalid_at
   filter :months,
-         label: "Âge d'au moins un enfant",
+         label: 'Au moins un enfant âgé de (en mois)',
          as: :numeric,
          filters: %i[equals gteq lt]
   filter :stopped_by_supporter,

@@ -240,7 +240,7 @@ ActiveAdmin.register Child do
            progress: proc { |output| puts output }
   end
 
-  batch_action :send_address_verification_message do |ids|
+  batch_action :send_address_verification_message, confirm: 'Des messages vont être envoyés aux parents pour confirmer leur adresse. Continuer ?' do |ids|
     parent_ids = Child.where(id: ids).map { |child| "parent.#{child.parent1_id}" }.uniq
     message = <<~MESSAGE
       1001mots : Bonjour,
