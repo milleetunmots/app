@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_11_18_163728) do
+ActiveRecord::Schema.define(version: 2025_11_28_122921) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -373,6 +373,7 @@ ActiveRecord::Schema.define(version: 2025_11_18_163728) do
     t.datetime "call2_avoid_disengagement_date"
     t.text "call3_avoid_disengagement_details"
     t.datetime "call3_avoid_disengagement_date"
+    t.string "stop_support_reason"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
@@ -630,6 +631,8 @@ ActiveRecord::Schema.define(version: 2025_11_18_163728) do
     t.string "security_token"
     t.string "book_delivery_organisation_name"
     t.string "book_delivery_location"
+    t.float "latitude"
+    t.float "longitude"
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
@@ -639,6 +642,7 @@ ActiveRecord::Schema.define(version: 2025_11_18_163728) do
     t.index ["is_ambassador"], name: "index_parents_on_is_ambassador"
     t.index ["job"], name: "index_parents_on_job"
     t.index ["last_name"], name: "index_parents_on_last_name"
+    t.index ["latitude", "longitude"], name: "index_parents_on_latitude_and_longitude"
     t.index ["phone_number_national"], name: "index_parents_on_phone_number_national"
     t.index ["postal_code"], name: "index_parents_on_postal_code"
   end
@@ -678,6 +682,18 @@ ActiveRecord::Schema.define(version: 2025_11_18_163728) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["searchable_type", "searchable_id"], name: "index_pg_search_documents_on_searchable_type_and_searchable_id"
+  end
+
+  create_table "places", force: :cascade do |t|
+    t.string "place_type", null: false
+    t.string "name", null: false
+    t.text "address", null: false
+    t.float "latitude"
+    t.float "longitude"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "redirection_target_id"
+    t.index ["redirection_target_id"], name: "index_places_on_redirection_target_id"
   end
 
   create_table "questions", force: :cascade do |t|
@@ -922,6 +938,7 @@ ActiveRecord::Schema.define(version: 2025_11_18_163728) do
   add_foreign_key "media", "media", column: "link3_id"
   add_foreign_key "media", "media_folders", column: "folder_id"
   add_foreign_key "media_folders", "media_folders", column: "parent_id"
+  add_foreign_key "places", "redirection_targets"
   add_foreign_key "redirection_targets", "media"
   add_foreign_key "support_module_weeks", "media", column: "additional_medium_id"
   add_foreign_key "support_modules", "books"

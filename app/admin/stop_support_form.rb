@@ -14,27 +14,31 @@ ActiveAdmin.register_page 'Stop Support Form' do
         hr
         div class: 'radio-input' do
           f.input :stop_reason, type: :radio, value: :program, name: :reason, class: 'stop-support-form-radio'
-          label "La famille que j'accompagne ne veut pas du programme complet."
+          label 'La famille ne veut pas du programme complet.'
         end
         div class: 'radio-input' do
-          f.input :stop_reason, type: :radio, value: :popi, name: :reason, class: 'stop-support-form-radio'
-          label "La famille que j'accompagne a un niveau socio-économique élevé (BAC+5)."
-        end
-        div class: 'radio-input' do
-          f.input :stop_reason, type: :radio, value: :professional, name: :reason, class: 'stop-support-form-radio'
-          label "La famille que j'accompagne est en fait un.e professionnel.le de santé qui souhaite tester l'accompagnement."
+          f.input :stop_reason, type: :radio, value: :very_advanced_practices, name: :reason, class: 'stop-support-form-radio'
+          label 'La famille a des pratiques très avancées.'
         end
         div class: 'radio-input' do
           f.input :stop_reason, type: :radio, value: :problematic_case, name: :reason, class: 'stop-support-form-radio'
-          label "La famille que j'accompagne me pose problème : je demande l’arrêt de l’accompagnement sur avis de ma coordinatrice."
+          label 'La famille me pose problème (insulte, propos gênants, raccroche au nez, etc).'
         end
         div class: 'radio-input' do
-          f.input :stop_reason, type: :radio, value: :renunciation, name: :reason, class: 'stop-support-form-radio'
-          label "La famille que j'accompagne m'a notifié par SMS qu'elle ne souhaitait pas la totalité de l'accompagnement."
+          f.input :stop_reason, type: :radio, value: :professional, name: :reason, class: 'stop-support-form-radio'
+          label "La famille est un.e professionnel.le de santé qui souhaite tester l'accompagnement."
         end
         div class: 'radio-input' do
-          f.input :stop_reason, type: :radio, value: :moving, name: :reason, class: 'stop-support-form-radio'
-          label "La famille que j’accompagne ne peut plus recevoir les livres, appels et SMS (ex : déménagement hors métropole ou à l'étranger)"
+          f.input :stop_reason, type: :radio, value: :registered_by_partner_without_consent, name: :reason, class: 'stop-support-form-radio'
+          label 'La famille a été inscrite par un partenaire sans son accord.'
+        end
+        div class: 'radio-input' do
+          f.input :stop_reason, type: :radio, value: :family_limited_french_for_support, name: :reason, class: 'stop-support-form-radio'
+          label 'La famille n’est pas assez francophone pour tirer profit de l’accompagnement.'
+        end
+        div class: 'radio-input' do
+          f.input :stop_reason, type: :radio, value: :family_unresponsive_after_adaptation, name: :reason, class: 'stop-support-form-radio'
+          label "La famille n'est pas assez francophone ; confirmation après des tentatives d'adaptation plus poussées (SMS, traduction, etc)."
         end
       end
       div id: 'form-details' do
@@ -69,9 +73,8 @@ ActiveAdmin.register_page 'Stop Support Form' do
       params[:details]
     ).call
 
-    notice = params[:reason] == 'renunciation' ? 'Message de désistement envoyé au parent' : 'Accompagnement arrêté'
     if stop_support_service.error.nil?
-      redirect_to admin_child_support_path(params[:child_support_id]), notice: notice
+      redirect_to admin_child_support_path(params[:child_support_id]), notice: 'Accompagnement arrêté et message de désistement envoyé aux parents'
     else
       redirect_to admin_child_support_path(params[:child_support_id]), alert: stop_support_service.error
     end

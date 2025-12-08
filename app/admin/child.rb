@@ -240,6 +240,32 @@ ActiveAdmin.register Child do
            progress: proc { |output| puts output }
   end
 
+  batch_action :send_address_verification_message, confirm: 'Des messages vont être envoyés aux parents pour confirmer leur adresse. Continuer ?' do |ids|
+    parent_ids = Child.where(id: ids).map { |child| "parent.#{child.parent1_id}" }.uniq
+    message = <<~MESSAGE
+      1001mots : Bonjour,
+      Votre accompagnement avec 1001mots est fini ou va bientôt être fini. Mais grâce à la générosité de l’un de nos partenaires qui a récolté des livres, vous allez recevoir un dernier livre en cadeau.
+      Nous allons l'envoyer à l'adresse suivante :
+      {PARENT_ADDRESS}
+      Si l'adresse postale ou le nom sur la boîte aux lettres ne sont pas bons, merci de les modifier ici : https://form.typeform.com/to/IDpRjIqI#st=xxxxx
+    MESSAGE
+    service = ProgramMessageService.new(
+      Time.zone.today,
+      Time.zone.now.strftime('%H:%M'),
+      parent_ids,
+      message,
+      nil, nil, false, nil, nil,
+      Child::GROUP_STATUS
+    ).call
+    if service.errors.any?
+      flash[:alert] = service.errors
+      redirect_back(fallback_location: root_path)
+    else
+      flash[:notice] = 'Messages envoyés'
+      redirect_to admin_sent_by_app_text_messages_url
+    end
+  end
+
   batch_action :generate_quit_sms, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     ids.reject! do |id|
       child = Child.find(id)

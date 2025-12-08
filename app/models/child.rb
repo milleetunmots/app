@@ -164,6 +164,9 @@ class Child < ApplicationRecord
   scope :without_group, -> { where(group_id: nil) }
   scope :available_for_the_workshops, -> { where(available_for_workshops: true) }
   scope :active_group, -> { where(group_status: 'active') }
+  scope :active_in_started_group, -> { with_ongoing_group.active_group }
+  scope :with_geolocated_parents, -> { joins(:parent1).where.not(parents: { latitude: nil }) }
+  scope :active_in_started_group_and_with_geolocated_parents, -> { joins(:group, :parent1).where.not(parents: { latitude: nil }).active_group.merge(Group.started) }
   scope :only_siblings, -> { where(child_support_id: ChildSupport.multiple_children.select(:id)) }
   scope :no_siblings, -> { where(child_support_id: ChildSupport.one_child.select(:id)) }
   scope :with_ongoing_group, -> { joins(:group).merge(Group.started) }

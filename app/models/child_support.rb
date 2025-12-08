@@ -163,6 +163,7 @@
 #  should_be_read                             :boolean
 #  stop_support_date                          :datetime
 #  stop_support_details                       :text
+#  stop_support_reason                        :string
 #  suggested_videos_counter                   :jsonb            is an Array
 #  to_call                                    :boolean
 #  will_stay_in_group                         :boolean          default(FALSE), not null
@@ -353,6 +354,9 @@ class ChildSupport < ApplicationRecord
       .where('groups.ended_at IS NULL OR groups.ended_at > ?', Time.zone.today)
       .distinct
   }
+  scope :with_child_in_group_ended_between, lambda { |start_date, end_date|
+    joins(children: :group).where(groups: { ended_at: start_date..end_date }).distinct
+  }
 
 
   class << self
@@ -416,6 +420,22 @@ class ChildSupport < ApplicationRecord
     where(id: Child.postal_code_starts_with(v).select('DISTINCT child_support_id'))
   end
 
+  def self.months_gteq(x)
+    where(id: Child.months_gteq(x).select('DISTINCT child_support_id'))
+  end
+
+  def self.months_lt(x)
+    where(id: Child.months_lt(x).select('DISTINCT child_support_id'))
+  end
+
+  def self.months_equals(x)
+    where(id: Child.months_equals(x).select('DISTINCT child_support_id'))
+  end
+
+  def self.months_between(x, y)
+    where(id: Child.months_between(x, y).select('DISTINCT child_support_id'))
+  end
+
   scope :with_book_not_received, -> { where.not(book_not_received: [nil, '']) }
 
   def self.group_active
@@ -445,10 +465,21 @@ class ChildSupport < ApplicationRecord
     child_support.table[:id]
   end
 
+  ransacker :stopped_by_supporter, formatter: proc { |values|
+    values = Array(values)
+    ids = []
+    ids += where.not(stop_support_date: nil).pluck(:id) if values.include?('stopped')
+    ids += where(stop_support_date: nil).pluck(:id) if values.include?('ongoing')
+    ids.uniq.presence
+  } do |child_support|
+    child_support.table[:id]
+  end
+
   def self.ransackable_scopes(auth_object = nil)
     super + %i[
       groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_in source_channel_in
-      source_details_matches_any group_id_in active_group_id_in
+      source_details_matches_any group_id_in active_group_id_in with_child_in_group_ended_between
+      months_gteq months_lt months_equals months_between
     ]
   end
 

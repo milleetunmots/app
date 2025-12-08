@@ -14,6 +14,7 @@ class TypeformController < ApplicationController
   UPDATING_ADDRESS_TYPEFORM_ID = ENV['UPDATING_ADDRESS_TYPEFORM_ID'].freeze
   UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID = ENV['UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID'].freeze
   CAF_SUBSCRIPTION_TYPEFORM_ID = ENV['CAF_SUBSCRIPTION_TYPEFORM_ID'].freeze
+  UPDATING_ADDRESS_FOR_PARTNERS_TYPEFORM_ID = ENV['UPDATING_ADDRESS_FOR_PARTNERS_TYPEFORM_ID'].freeze
   TYPEFORM_IDS = [
     MIDWAY_TYPEFORM_ID,
     CALL_ZERO_GOALS_TYPEFORM_ID,
@@ -22,7 +23,8 @@ class TypeformController < ApplicationController
     INITIAL_TYPEFORM_ID,
     UPDATING_ADDRESS_TYPEFORM_ID,
     UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID,
-    CAF_SUBSCRIPTION_TYPEFORM_ID
+    CAF_SUBSCRIPTION_TYPEFORM_ID,
+    UPDATING_ADDRESS_FOR_PARTNERS_TYPEFORM_ID
   ].freeze
 
   def webhooks
@@ -37,7 +39,7 @@ class TypeformController < ApplicationController
           Typeform::CallGoalsFormService.new(params[:form_response], 3).call
         when INITIAL_TYPEFORM_ID
           Typeform::InitialFormService.new(params[:form_response]).call
-        when UPDATING_ADDRESS_TYPEFORM_ID, UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID
+        when UPDATING_ADDRESS_TYPEFORM_ID, UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID, UPDATING_ADDRESS_FOR_PARTNERS_TYPEFORM_ID
           Typeform::UpdateAddressService.new(params[:form_response]).call
         when CAF_SUBSCRIPTION_TYPEFORM_ID
           Typeform::AddCafSubscriptionTagService.new(params[:form_response]).call

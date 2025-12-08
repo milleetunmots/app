@@ -28,6 +28,7 @@ fr:
         select_available_support_module: Selectionner les modules disponibles pour
         select_module: Selectionner un module pour
         support_modules_chosen_excel_export: Télécharger les listes d'enfants par module au format Excel V2
+        send_address_verification_message: Envoyer un SMS aux parents pour qu'ils vérifient leur adresse pour un envoi de livres (mécénat) pour
     edit_model: Modifier
     delete_model: Supprimer
     filters:

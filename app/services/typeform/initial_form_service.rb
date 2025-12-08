@@ -48,7 +48,6 @@ module Typeform
 
     def parse_answers
       @answers.each do |answer|
-        # byebug
         case answer[:field][:id]
         when FIELDS[:name]
           @data[:name] = answer[:text]

@@ -119,9 +119,9 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendSmsService).to(
         receive(:new).
         with(
-          { parent_2.id.to_s => {'PARENT_SECURITY_TOKEN' => parent_2.security_token, 'PRENOM_ENFANT' => parent_2.current_child.first_name, 'NUMERO_AIRCALL_ACCOMPAGNANTE' => nil, 'PRENOM_ACCOMPAGNANTE' => nil} },
-          Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
-          'N\'oubliez pas que {PRENOM_ENFANT} doit faire du sport.', workshop_id: nil, event_params: {}
+            [parent_2.id],
+            Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+            'N\'oubliez pas que votre enfant doit faire du sport.', workshop_id: nil, event_params: {}
         ).
         and_call_original
       )
@@ -130,7 +130,7 @@ RSpec.describe ProgramMessageService do
         Time.zone.today,
         Time.zone.now.strftime('%H:%M'),
         ["parent.#{parent_2.id}"],
-        'N\'oubliez pas que {PRENOM_ENFANT} doit faire du sport.',
+        'N\'oubliez pas que votre enfant doit faire du sport.',
       ).call
     end
   end
@@ -149,11 +149,7 @@ RSpec.describe ProgramMessageService do
         receive(:new).
         with(
           { parent_2.id.to_s => {
-            'PARENT_SECURITY_TOKEN' => parent_2.security_token,
-            'PRENOM_ENFANT' => parent_2.current_child.first_name,
-            'URL' => 'http://localhost:3000/r/95/c6',
-            'NUMERO_AIRCALL_ACCOMPAGNANTE' => nil,
-            'PRENOM_ACCOMPAGNANTE' => nil
+            'URL' => 'http://localhost:3000/r/95/c6'
             }
           },
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
@@ -178,14 +174,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendSmsService).to(
         receive(:new).
         with(
-          { parent_2.id.to_s => {
-            'PARENT_SECURITY_TOKEN' => parent_2.security_token,
-            'PRENOM_ENFANT' => parent_2.current_child.first_name,
-            'URL' => 'http://localhost:3000/r/95/c6',
-            'NUMERO_AIRCALL_ACCOMPAGNANTE' => nil,
-            'PRENOM_ACCOMPAGNANTE' => nil
-            }
-          },
+          { parent_2.id.to_s => {} },
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           'N\'oubliez l\'importance du sport. {URL}',
           workshop_id: nil,

@@ -38,6 +38,7 @@ class RedirectionTarget < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   belongs_to :medium
+  has_many :places, dependent: :nullify
   has_many :redirection_urls, dependent: :destroy
   has_many :children, through: :redirection_urls
 

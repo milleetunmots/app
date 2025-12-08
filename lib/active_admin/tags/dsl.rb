@@ -15,10 +15,16 @@ module ActiveAdmin
       # end
       def has_tags
         filter :tagged_with_all,
-          as: :select,
-          collection: proc { tag_name_collection(current_admin_user.caller? || current_admin_user.animator?) },
-          input_html: {multiple: true, data: {select2: {}}},
-          label: "Tags"
+               as: :select,
+               collection: proc { tag_name_collection(current_admin_user.caller? || current_admin_user.animator?) },
+               input_html: { multiple: true, data: { select2: {} } },
+               label: 'Tags'
+
+        filter :not_tagged_with_all,
+               as: :select,
+               collection: proc { tag_name_collection(current_admin_user.caller? || current_admin_user.animator?) },
+               input_html: { multiple: true, data: { select2: {} } },
+               label: 'Tag(s) différent(s) de'
 
         batch_action :add_tags, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
           @klass = collection.object.klass

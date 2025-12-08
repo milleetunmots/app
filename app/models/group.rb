@@ -69,6 +69,7 @@ class Group < ApplicationRecord
 
   scope :not_ended, -> { where('ended_at IS NULL OR ended_at > ?', Time.zone.today) }
   scope :ended, -> { where('ended_at <= ?', Time.zone.today) }
+  scope :ended_between, ->(start_date, end_date) { where(ended_at: start_date..end_date) }
   scope :not_started, -> { where('started_at >= ? AND support_module_programmed = ?', Time.zone.today, 0) }
   scope :started, -> { where('started_at < ? OR support_module_programmed > ?', Time.zone.today, 0) }
   scope :excluded_from_analytics, -> { where(is_excluded_from_analytics: true) }
@@ -170,7 +171,7 @@ class Group < ApplicationRecord
     self.call2_end_date = started_at + 76.days
     # call 3
     self.call3_start_date = started_at + 154.days
-    self.call3_end_date = started_at + 181.days
+    self.call3_end_date = started_at + 174.days
   end
 
   def closest_call_session(date)
