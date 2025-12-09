@@ -47,6 +47,7 @@ RSpec.describe ProgramMessageService do
 
   context 'when a tag is given' do
     it 'calls SpotHit::SendSmsService with only parent tagged by it' do
+      child_2.update(should_contact_parent1: true)
       expect(SpotHit::SendSmsService).to(
         receive(:new).
         with(

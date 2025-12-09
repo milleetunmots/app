@@ -232,7 +232,8 @@ class ProgramMessageService
   def find_parent_ids_from_tags
     @tag_ids.each do |tag_id|
       # taggable_id = id of the parent in our case
-      @parent_ids += Tagging.by_taggable_type('Parent').by_tag_id(tag_id).pluck(:taggable_id)
+      taggable_ids = Tagging.by_taggable_type('Parent').by_tag_id(tag_id).pluck(:taggable_id)
+      @parent_ids += Parent.where(id: taggable_ids).select(&:should_be_contacted?).pluck(:id)
     end
   end
 
