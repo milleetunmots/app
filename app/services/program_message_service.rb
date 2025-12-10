@@ -181,7 +181,7 @@ class ProgramMessageService
         @recipient_data[parent.id.to_s]['NUMERO_AIRCALL_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.aircall_phone_number if @variables.include?('NUMERO_AIRCALL_ACCOMPAGNANTE')
         @recipient_data[parent.id.to_s]['PARENT_ADDRESS'] = parent.decorate.full_address(', ') if @variables.include?('PARENT_ADDRESS')
         if @redirection_target && parent.current_child.present?
-          @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url if @variables.include?('URL')
+          @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
           increment_suggested_videos_counter(parent)
         end
