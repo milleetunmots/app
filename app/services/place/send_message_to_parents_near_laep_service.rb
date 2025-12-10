@@ -1,9 +1,7 @@
 class Place
 
-  class SendMessageToMoselleParentsService
+  class SendMessageToParentsNearLaepService
 
-    MAX_DISTANCE_KM = 10
-    SOURCE_ID = 4
     MESSAGE =
       <<~MESSAGE.freeze
         1001mots : Bonjour ! Vous connaissez {LAEP} à {CITY} ?
@@ -12,11 +10,14 @@ class Place
         Voir l'adresse et les horaires : {URL}
       MESSAGE
 
-    def initialize
+    def initialize(date: Time.zone.now, hour: '12:30', source_ids: [], max_distance: 10)
+      @date = date
+      @hour = hour
+      @max_distance = max_distance
       @nearest_places = {}
       @errors = []
       @places = Place.laep.geocoded
-      @children = Child.active_in_started_group_and_with_geolocated_parents.source_id_in([SOURCE_ID]).months_lt(48)
+      @children = Child.active_in_started_group_and_with_geolocated_parents.source_id_in(source_ids).months_lt(48)
     end
 
     def call
@@ -32,7 +33,7 @@ class Place
     def fill_nearest_places
       @children.find_each do |child|
         distance, nearest_place = @places.map { |place| [child.parent1.distance_from([place.latitude, place.longitude]), place] }.min_by(&:first)
-        next if distance > MAX_DISTANCE_KM
+        next if distance > @max_distance
 
         place = nearest_place.name.parameterize(separator: '_').to_sym
         if @nearest_places[place].present?
@@ -53,8 +54,8 @@ class Place
         @message = MESSAGE.dup.gsub('{LAEP}', place_informations[:name]).gsub('{CITY}', place_informations[:city])
         @message.gsub!('{URL}', '') if place_informations[:url_id].nil?
         program_message_service = ProgramMessageService.new(
-          Time.zone.now.strftime('%d-%m-%Y'),
-          '12:30',
+          @date.strftime('%d-%m-%Y'),
+          @hour,
           place_informations[:children_ids],
           @message,
           nil,
