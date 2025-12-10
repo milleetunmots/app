@@ -175,7 +175,9 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendSmsService).to(
         receive(:new).
         with(
-          { parent_2.id.to_s => {} },
+          { parent_2.id.to_s =>
+              {'URL' => 'http://localhost:3000/r/95/c6'}
+          },
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           'N\'oubliez l\'importance du sport. {URL}',
           workshop_id: nil,
