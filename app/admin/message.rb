@@ -132,7 +132,7 @@ ActiveAdmin.register_page 'Message' do
     else
       notice = "Message(s) programmé(s) via #{provider.capitalize}"
       if params[:call_goals_sms] && params[:call_goals_sms] != 'Non'
-        child_support.update_column("#{call_goal}_sms".to_sym, message)
+        child_support.paper_trail.update_column("#{call_goal}_sms".to_sym, message)
         notice += '. Et petite mission définie'
       end
       child_support.update_column(:call0_goal_sent, params[:call_goal]) if params[:call_goals_sms] == 'call0_goals'
