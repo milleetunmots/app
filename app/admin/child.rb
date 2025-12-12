@@ -240,6 +240,31 @@ ActiveAdmin.register Child do
            progress: proc { |output| puts output }
   end
 
+  batch_action :addresses_pdf_for_collect,
+               if: proc { current_admin_user.user_role.in? %w[reader contributor super_admin] },
+               confirm: "Cette action va taguer tous les éléments afin de les exclure des prochaines collectes. N'utilisez pas cette fonctionnalité à des fins de test. Continuer ?" do |ids|
+    @children = batch_action_collection.where(id: ids).decorate
+    Child.where(id: ids).find_each do |child|
+      child.tag_list += ['collecte et envoi de livres mécènes']
+      child.save
+    end
+    @debug = params.key?('debug')
+    render pdf: 'etiquettes',
+           disposition: 'attachment',
+           template: 'admin/children/addresses_pdf',
+           layout: 'pdf',
+           margin: {
+             top: 3,
+             bottom: 0,
+             left: 1,
+             right: 0
+           },
+           show_as_html: @debug,
+           disable_local_file_access: false,
+           enable_local_file_access: true,
+           progress: proc { |output| puts output }
+  end
+
   batch_action :send_address_verification_message,
                confirm: 'Des messages vont être envoyés aux parents pour confirmer leur adresse. Continuer ?',
                if: proc { current_admin_user.user_role.in?(%w[reader contributor super_admin]) } do |ids|

@@ -18,6 +18,7 @@ fr:
         create_redirection_url: Créer une URL courte pour
         create_support: Créer le suivi pour
         addresses_pdf: Générer les étiquettes pour
+        addresses_pdf_for_collect: Générer les étiquettes pour un envoi de livres (mécénat) pour
         quit_group: Mettre en pause la cohorte pour
         reactive_group: Réactiver la cohorte pour
         excel_export: Exporter un fichier Excel pour
