@@ -565,6 +565,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_09_105853) do
     t.bigint "link3_id"
     t.string "spot_hit_id"
     t.string "airtable_id"
+    t.integer "rcs_media1_id"
+    t.integer "rcs_media2_id"
+    t.integer "rcs_media3_id"
     t.string "rcs_title1", limit: 200
     t.string "rcs_title2", limit: 200
     t.string "rcs_title3", limit: 200
