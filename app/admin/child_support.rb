@@ -411,20 +411,23 @@ ActiveAdmin.register ChildSupport do
                   columns style:"margin-bottom: 50px" do
                     column do
                       label "Ressources", class:'ressource-label'
+                      bad_statuses = ['KO', 'Numéro erroné']
+                      call0_failed = resource.call0_status.in?(bad_statuses)
+                      call1_failed = resource.call1_status.in?(bad_statuses)
                       recommended_script_link =
                         case call_idx
                         when 0
                           ENV['CALL0_RECOMMENDED_SCRIPT_LINK']
                         when 1
-                          if resource.call0_status.in?(['KO', 'Numéro erroné'])
+                          if call0_failed
                             ENV['CALL1_WITHOUT_CALL0_RECOMMENDED_SCRIPT_LINK']
                           else
                             ENV['CALL1_WITH_CALL0_RECOMMENDED_SCRIPT_LINK']
                           end
                         when 2
-                          if resource.call0_status.in?(['KO', 'Numéro erroné']) && resource.call1_status.in?(['KO', 'Numéro erroné'])
+                          if call0_failed && call1_failed
                             ENV['CALL2_WITHOUT_CALL0_AND_WITHOUT_CALL1_RECOMMENDED_SCRIPT_LINK']
-                          elsif !(resource.call0_status.in?(['KO', 'Numéro erroné'])) && resource.call1_status.in?(['KO', 'Numéro erroné'])
+                          elsif !call0_failed && call1_failed
                             ENV['CALL2_WITH_CALL0_AND_WITHOUT_CALL1_RECOMMENDED_SCRIPT_LINK']
                           else
                             ENV['CALL2_WITH_CALL0_AND_CALL1_RECOMMENDED_SCRIPT_LINK']
