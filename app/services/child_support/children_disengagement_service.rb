@@ -17,9 +17,7 @@ class ChildSupport::ChildrenDisengagementService
 
   def call
     find_child_supports
-    return self unless @group
-
-    return self if group_without_calls?
+    return self if @errors.any? || group_without_calls?
 
     @child_supports.each do |child_support|
       @child_support = child_support
@@ -40,7 +38,7 @@ class ChildSupport::ChildrenDisengagementService
 
   def find_child_supports
     @group = Group.find_by(id: @group_id)
-    return unless @group
+    @errors << "No group with ID #{@group_id}" and return unless @group
 
     @child_supports =
       if @group&.type_of_support == 'without_calls'
