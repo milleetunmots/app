@@ -26,8 +26,7 @@ class ChildSupport
         group = Group.find(@group_id)
         return if group.type_of_support == 'without_calls'
 
-        Group::AddDisengagementTagService.new(@group_id, @call_number).call
-        disengagement_service = ChildSupport::ChildrenDisengagementService.new(@group_id).call
+        disengagement_service = ChildSupport::ChildrenDisengagementService.new(@group_id, @call_number).call
         return unless disengagement_service.errors.flatten.any?
 
         disengagement_service.parent_ids.each { |parent_id| create_parent_link(parent_id.gsub('parent.', '')) }
