@@ -2,26 +2,29 @@
 #
 # Table name: media
 #
-#  id           :bigint           not null, primary key
-#  body1        :text
-#  body2        :text
-#  body3        :text
-#  discarded_at :datetime
-#  name         :string
-#  theme        :string
-#  type         :string
-#  url          :string
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  airtable_id  :string
-#  folder_id    :bigint
-#  image1_id    :bigint
-#  image2_id    :bigint
-#  image3_id    :bigint
-#  link1_id     :bigint
-#  link2_id     :bigint
-#  link3_id     :bigint
-#  spot_hit_id  :string
+#  id            :bigint           not null, primary key
+#  body1         :text
+#  body2         :text
+#  body3         :text
+#  discarded_at  :datetime
+#  name          :string
+#  theme         :string
+#  type          :string
+#  url           :string
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  airtable_id   :string
+#  folder_id     :bigint
+#  image1_id     :bigint
+#  image2_id     :bigint
+#  image3_id     :bigint
+#  link1_id      :bigint
+#  link2_id      :bigint
+#  link3_id      :bigint
+#  rcs_media1_id :integer
+#  rcs_media2_id :integer
+#  rcs_media3_id :integer
+#  spot_hit_id   :string
 #
 # Indexes
 #
