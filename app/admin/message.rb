@@ -135,7 +135,7 @@ ActiveAdmin.register_page 'Message' do
         child_support.paper_trail.update_column("#{call_goal}_sms".to_sym, message)
         notice += '. Et petite mission définie'
       end
-      child_support.update_column(:call0_goal_sent, params[:call_goal]) if params[:call_goals_sms] == 'call0_goals'
+      child_support.paper_trail.update_column(:call0_goal_sent, params[:call_goal]) if params[:call_goals_sms] == 'call0_goals'
       redirect_back(fallback_location: root_path, notice: notice)
     end
   end
