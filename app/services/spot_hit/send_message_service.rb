@@ -80,7 +80,7 @@ class SpotHit::SendMessageService
       form.delete(key)
     end
 
-    @recipients = Parent.where(phone_number: numbers).pluck(:id)
+    # @recipients = Parent.where(phone_number: numbers).pluck(:id)
     form
   end
 end
