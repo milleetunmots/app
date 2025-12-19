@@ -18,13 +18,19 @@ class SpotHit::SendRcsService
 
   def call
     send_rcs
+    self
   end
 
   protected
 
   def send_rcs
+    if @recipients.first.is_a?(String)
+      @form['custom_list[]'] = @recipients
+    else
+      @form['custom_list_with_data[]'] = @recipients
+    end
     @form['date'] = Time.zone.now if Time.zone.at(@planned_timestamp).past?
-    response = HTTP.post(URL, form: @form.merge({ 'date' => Time.zone.at(@planned_timestamp).past? ? (Time.zone.now + 1.minute).strftime('%Y-%m-%d %H:%M:%S') : Time.zone.at(@planned_timestamp).strftime('%Y-%m-%d %H:%M:%S') }))
+    response = HTTP.post(URL, form: @form.merge({ 'date' => Time.zone.at(@planned_timestamp).past? ? 1.minute.from_now.strftime('%Y-%m-%d %H:%M:%S') : Time.zone.at(@planned_timestamp).strftime('%Y-%m-%d %H:%M:%S') }))
     response = JSON.parse(response.body.to_s)
     if response['success']
       # create_events(response['id'])
