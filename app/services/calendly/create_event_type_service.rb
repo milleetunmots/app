@@ -3,28 +3,41 @@ module Calendly
 
     attr_reader :errors
 
-    def initialize(owner:, name:, phone_number:)
+    def initialize(name:, calendly_user_uri:, aircall_phone_number:)
       @errors = []
-      @supporter_link = owner
-      @name = name
-      @supporter_phone_number = phone_number
+      @calendly_user_uri = calendly_user_uri
+      @aircall_phone_number = aircall_phone_number
+      @event_type_name = name
     end
 
     def call
+      user = AdminUser.find_by(aircall_phone_number: @aircall_phone_number, calendly_user_uri: @calendly_user_uri)
+      unless user
+        @errors << { message: "L'accompagnante n'a pas été trouvée",
+                     aircall_phone_number: @aircall_phone_number,
+                     calendly_user_uri: @calendly_user_uri }
+        return self
+      end
       response = http_client_with_auth.post(
         build_url(EVENT_TYPES_ENDPOINT),
         json: {
           active: true,
-          owner: @supporter_link,
-          name: @name,
+          owner: @calendly_user_uri,
+          name: @event_type_name,
           locations: [{
             kind: 'inbound_call',
-            phone_number: @supporter_phone_number
+            phone_number: @aircall_phone_number
           }],
           locale: 'fr'
         }
       )
-      @errors << { message: "La création de l'event type a échoué : #{response.status.reason}", status: response.status.to_i } unless response.status.success?
+      status = response.status
+      response = JSON.parse(response.body)
+      if status.success?
+        user.update(calendly_scheduling_url: response['resource']['scheduling_url'])
+      else
+        @errors << { message: "La création de l'event type a échoué", details: response['details'] }
+      end
       self
     end
   end
