@@ -1,5 +1,4 @@
 module Calendly
-
   class ApiBase
 
     BASE_URL = 'https://api.calendly.com'.freeze
