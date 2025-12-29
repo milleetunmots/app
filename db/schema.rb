@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_11_28_122921) do
-
+ActiveRecord::Schema[7.0].define(version: 2025_11_28_122921) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -292,10 +291,10 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.text "call3_goals_tracking"
     t.text "call4_goals_tracking"
     t.text "call5_goals_tracking"
-    t.string "parent1_available_support_module_list", array: true
-    t.string "parent2_available_support_module_list", array: true
     t.string "call2_family_progress"
     t.string "call2_previous_goals_follow_up"
+    t.string "parent1_available_support_module_list", array: true
+    t.string "parent2_available_support_module_list", array: true
     t.text "call0_parent_actions"
     t.text "call0_language_development"
     t.text "call0_notes"
@@ -313,16 +312,16 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.text "call1_goals_tracking"
     t.string "call1_family_progress"
     t.string "call1_previous_goals_follow_up"
-    t.bigint "module2_chosen_by_parents_id"
-    t.bigint "module3_chosen_by_parents_id"
-    t.bigint "module4_chosen_by_parents_id"
-    t.bigint "module5_chosen_by_parents_id"
     t.text "call0_goals_sms"
     t.text "call1_goals_sms"
     t.text "call2_goals_sms"
     t.text "call3_goals_sms"
     t.text "call4_goals_sms"
     t.text "call5_goals_sms"
+    t.bigint "module2_chosen_by_parents_id"
+    t.bigint "module3_chosen_by_parents_id"
+    t.bigint "module4_chosen_by_parents_id"
+    t.bigint "module5_chosen_by_parents_id"
     t.integer "parent_mid_term_rate"
     t.string "parent_mid_term_reaction"
     t.bigint "module6_chosen_by_parents_id"
@@ -368,11 +367,11 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.text "restart_support_details"
     t.datetime "restart_support_date", precision: nil
     t.text "call1_avoid_disengagement_details"
-    t.datetime "call1_avoid_disengagement_date"
+    t.datetime "call1_avoid_disengagement_date", precision: nil
     t.text "call2_avoid_disengagement_details"
-    t.datetime "call2_avoid_disengagement_date"
+    t.datetime "call2_avoid_disengagement_date", precision: nil
     t.text "call3_avoid_disengagement_details"
-    t.datetime "call3_avoid_disengagement_date"
+    t.datetime "call3_avoid_disengagement_date", precision: nil
     t.string "stop_support_reason"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
@@ -512,6 +511,10 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.datetime "updated_at", null: false
     t.index ["author_id"], name: "index_field_comments_on_author_id"
     t.index ["related_type", "related_id"], name: "index_field_comments_on_related_type_and_related_id"
+  end
+
+  create_table "foo", id: false, force: :cascade do |t|
+    t.integer "x"
   end
 
   create_table "groups", force: :cascade do |t|
@@ -686,8 +689,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.text "address", null: false
     t.float "latitude"
     t.float "longitude"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "redirection_target_id"
     t.index ["redirection_target_id"], name: "index_places_on_redirection_target_id"
   end
@@ -743,13 +746,13 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
   create_table "registration_limits", force: :cascade do |t|
     t.bigint "source_id", null: false
     t.bigint "registration_link_id", null: false
-    t.datetime "start_date", null: false
-    t.datetime "end_date"
+    t.datetime "start_date", precision: nil, null: false
+    t.datetime "end_date", precision: nil
     t.integer "limit", null: false
     t.string "registration_url_params"
     t.boolean "is_archived", default: false, null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["registration_link_id"], name: "index_registration_limits_on_registration_link_id"
     t.index ["source_id"], name: "index_registration_limits_on_source_id"
   end
@@ -758,8 +761,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "url", null: false
     t.string "channel", null: false
     t.string "label", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["label"], name: "index_registration_links_on_label", unique: true
     t.index ["url"], name: "index_registration_links_on_url", unique: true
   end
