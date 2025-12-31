@@ -4,6 +4,7 @@
 #
 #  id                      :bigint           not null, primary key
 #  aircall_phone_number    :string
+#  calendly_event_type_uri :string
 #  calendly_scheduling_url :string
 #  calendly_user_uri       :string
 #  can_export_data         :boolean          default(FALSE), not null
