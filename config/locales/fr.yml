@@ -120,3 +120,11 @@ fr:
   time:
     formats:
       message: "%e %b %Y %kh%M"
+  views:
+    pagination:
+      truncate: "…"
+      # Ou les autres clés courantes :
+      first: "&larr; Première"
+      last: "Dernière &rarr;"
+      previous: "Précédente"
+      next: "Suivante"

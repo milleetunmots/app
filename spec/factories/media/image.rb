@@ -42,7 +42,7 @@ FactoryBot.define do
     file do
       Rack::Test::UploadedFile.new(
         Dir.glob('db/seed/img/cbfd/**/*.jpg').sample,
-        'image/jpg'
+        'image/jpeg'
       )
     end
 

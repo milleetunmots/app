@@ -7,7 +7,7 @@ services:
     restart: always
 
   postgres:
-    image: postgres:11.3
+    image: postgres:13.18
     environment:
       POSTGRES_USER: rails
       POSTGRES_PASSWORD: rails

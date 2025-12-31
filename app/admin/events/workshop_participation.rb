@@ -82,7 +82,7 @@ ActiveAdmin.register Events::WorkshopParticipation do
   end
 
   form do |f|
-    f.semantic_errors *f.object.errors.keys
+    f.semantic_errors *f.object.errors.details.keys
     f.input :workshop
     f.inputs do
       if f.object.related

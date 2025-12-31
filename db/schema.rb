@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_11_28_122921) do
-
+ActiveRecord::Schema[7.0].define(version: 2025_11_28_122921) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -22,7 +21,7 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "record_type", null: false
     t.bigint "record_id", null: false
     t.bigint "blob_id", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
@@ -33,8 +32,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "content_type"
     t.text "metadata"
     t.bigint "byte_size", null: false
-    t.string "checksum", null: false
-    t.datetime "created_at", null: false
+    t.string "checksum"
+    t.datetime "created_at", precision: nil, null: false
     t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
@@ -49,15 +48,15 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at", precision: nil
+    t.datetime "remember_created_at", precision: nil
     t.integer "sign_in_count", default: 0, null: false
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
+    t.datetime "current_sign_in_at", precision: nil
+    t.datetime "last_sign_in_at", precision: nil
     t.inet "current_sign_in_ip"
     t.inet "last_sign_in_ip"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "name"
     t.string "user_role"
     t.boolean "is_disabled", default: false
@@ -78,17 +77,17 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.bigint "child_support_id"
     t.bigint "parent_id"
     t.bigint "caller_id", null: false
-    t.datetime "started_at"
-    t.datetime "answered_at"
-    t.datetime "ended_at"
+    t.datetime "started_at", precision: nil
+    t.datetime "answered_at", precision: nil
+    t.datetime "ended_at", precision: nil
     t.integer "duration"
     t.string "missed_call_reason"
     t.string "asset_url"
     t.integer "call_session"
     t.text "notes", default: [], array: true
     t.text "tags", default: [], array: true
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["call_uuid"], name: "index_aircall_calls_on_call_uuid"
     t.index ["caller_id"], name: "index_aircall_calls_on_caller_id"
     t.index ["child_support_id"], name: "index_aircall_calls_on_child_support_id"
@@ -101,11 +100,11 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.bigint "child_support_id"
     t.bigint "parent_id"
     t.bigint "caller_id", null: false
-    t.datetime "sent_at"
+    t.datetime "sent_at", precision: nil
     t.text "body"
     t.string "status"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["aircall_id"], name: "index_aircall_messages_on_aircall_id"
     t.index ["caller_id"], name: "index_aircall_messages_on_caller_id"
     t.index ["child_support_id"], name: "index_aircall_messages_on_child_support_id"
@@ -115,8 +114,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
   create_table "answers", force: :cascade do |t|
     t.bigint "question_id", null: false
     t.text "response", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text "options", array: true
     t.index ["question_id"], name: "index_answers_on_question_id"
   end
@@ -124,8 +123,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
   create_table "books", force: :cascade do |t|
     t.string "title", null: false
     t.string "ean", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "media_id"
     t.index ["ean"], name: "index_books_on_ean", unique: true
     t.index ["media_id"], name: "index_books_on_media_id"
@@ -171,14 +170,14 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "avis_contenu"
     t.string "avis_video"
     t.string "child_session"
-    t.datetime "derniere_ouverture"
+    t.datetime "derniere_ouverture", precision: nil
     t.date "created_date"
     t.string "lien"
     t.integer "pourcentage_video"
     t.integer "avis_rappel"
     t.bigint "module_session_id"
     t.bigint "video_id"
-    t.datetime "import_date"
+    t.datetime "import_date", precision: nil
     t.bigint "content_id"
     t.index ["content_id"], name: "index_bubble_sessions_on_content_id"
     t.index ["module_session_id"], name: "index_bubble_sessions_on_module_session_id"
@@ -215,8 +214,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.text "call3_language_development"
     t.text "call3_goals"
     t.text "call3_notes"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "supporter_id"
     t.boolean "should_be_read"
     t.string "call1_status"
@@ -243,7 +242,7 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "call3_reading_frequency"
     t.string "call2_sendings_benefits"
     t.text "call2_sendings_benefits_details"
-    t.datetime "discarded_at"
+    t.datetime "discarded_at", precision: nil
     t.text "call4_technical_information"
     t.text "call4_parent_actions"
     t.text "call4_language_development"
@@ -329,7 +328,7 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "parental_contexts", array: true
     t.bigint "stop_support_caller_id"
     t.text "stop_support_details"
-    t.datetime "stop_support_date"
+    t.datetime "stop_support_date", precision: nil
     t.string "family_support_should_be_stopped"
     t.string "call4_previous_goals_follow_up"
     t.jsonb "suggested_videos_counter", default: [], array: true
@@ -347,7 +346,7 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "call4_review"
     t.string "call5_review"
     t.string "call3_previous_goals_follow_up"
-    t.datetime "address_suspected_invalid_at"
+    t.datetime "address_suspected_invalid_at", precision: nil
     t.string "call0_goal_sent"
     t.boolean "call0_talk_needed", default: false, null: false
     t.boolean "call1_talk_needed", default: false, null: false
@@ -366,13 +365,13 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "instagram_user"
     t.bigint "restart_support_caller_id"
     t.text "restart_support_details"
-    t.datetime "restart_support_date"
+    t.datetime "restart_support_date", precision: nil
     t.text "call1_avoid_disengagement_details"
-    t.datetime "call1_avoid_disengagement_date"
+    t.datetime "call1_avoid_disengagement_date", precision: nil
     t.text "call2_avoid_disengagement_details"
-    t.datetime "call2_avoid_disengagement_date"
+    t.datetime "call2_avoid_disengagement_date", precision: nil
     t.text "call3_avoid_disengagement_details"
-    t.datetime "call3_avoid_disengagement_date"
+    t.datetime "call3_avoid_disengagement_date", precision: nil
     t.string "stop_support_reason"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
@@ -410,8 +409,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "last_name", null: false
     t.date "birthdate", null: false
     t.string "gender"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "should_contact_parent1", default: false, null: false
     t.boolean "should_contact_parent2", default: false, null: false
     t.bigint "child_support_id"
@@ -423,7 +422,7 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.integer "family_redirection_url_unique_visits_count"
     t.float "family_redirection_unique_visit_rate"
     t.float "family_redirection_visit_rate"
-    t.datetime "discarded_at"
+    t.datetime "discarded_at", precision: nil
     t.string "security_code"
     t.string "src_url"
     t.string "pmi_detail"
@@ -446,8 +445,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.bigint "child_id"
     t.string "details"
     t.integer "registration_department"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["child_id"], name: "index_children_sources_on_child_id"
     t.index ["source_id"], name: "index_children_sources_on_source_id"
   end
@@ -456,8 +455,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.bigint "child_id"
     t.bigint "support_module_id"
     t.bigint "parent_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "available_support_module_list", array: true
     t.date "choice_date"
     t.boolean "is_completed", default: false
@@ -475,11 +474,11 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "type"
     t.string "related_type"
     t.bigint "related_id"
-    t.datetime "occurred_at"
+    t.datetime "occurred_at", precision: nil
     t.text "body"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.datetime "discarded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "discarded_at", precision: nil
     t.string "subject"
     t.integer "spot_hit_status"
     t.string "spot_hit_message_id"
@@ -508,8 +507,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.bigint "related_id"
     t.string "field"
     t.text "content"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["author_id"], name: "index_field_comments_on_author_id"
     t.index ["related_type", "related_id"], name: "index_field_comments_on_related_type_and_related_id"
   end
@@ -522,9 +521,9 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "name"
     t.date "started_at"
     t.date "ended_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.datetime "discarded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "discarded_at", precision: nil
     t.integer "support_modules_count", default: 0, null: false
     t.boolean "is_programmed", default: false, null: false
     t.integer "support_module_programmed", default: 0
@@ -553,9 +552,9 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.text "body1"
     t.text "body2"
     t.text "body3"
-    t.datetime "discarded_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "discarded_at", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "folder_id"
     t.bigint "image1_id"
     t.bigint "image2_id"
@@ -581,8 +580,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
   create_table "media_folders", force: :cascade do |t|
     t.bigint "parent_id"
     t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["parent_id"], name: "index_media_folders_on_parent_id"
   end
 
@@ -595,19 +594,19 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "address", null: false
     t.string "postal_code", null: false
     t.string "city_name", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "phone_number_national"
     t.boolean "is_ambassador"
     t.string "job"
-    t.datetime "terms_accepted_at"
+    t.datetime "terms_accepted_at", precision: nil
     t.string "letterbox_name"
     t.integer "redirection_urls_count"
     t.integer "redirection_url_visits_count"
     t.integer "redirection_url_unique_visits_count"
     t.float "redirection_unique_visit_rate"
     t.float "redirection_visit_rate"
-    t.datetime "discarded_at"
+    t.datetime "discarded_at", precision: nil
     t.boolean "present_on_whatsapp"
     t.boolean "follow_us_on_whatsapp"
     t.string "degree"
@@ -650,8 +649,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
   create_table "parents_answers", force: :cascade do |t|
     t.bigint "parent_id", null: false
     t.bigint "answer_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["answer_id"], name: "index_parents_answers_on_answer_id"
     t.index ["parent_id"], name: "index_parents_answers_on_parent_id"
   end
@@ -662,8 +661,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.boolean "target_profile", default: true, null: false
     t.string "parent1_phone_number", null: false
     t.string "parent2_phone_number"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["parent1_id"], name: "index_parents_registrations_on_parent1_id"
     t.index ["parent2_id"], name: "index_parents_registrations_on_parent2_id"
   end
@@ -679,8 +678,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.text "content"
     t.string "searchable_type"
     t.bigint "searchable_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["searchable_type", "searchable_id"], name: "index_pg_search_documents_on_searchable_type_and_searchable_id"
   end
 
@@ -690,8 +689,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.text "address", null: false
     t.float "latitude"
     t.float "longitude"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "redirection_target_id"
     t.index ["redirection_target_id"], name: "index_places_on_redirection_target_id"
   end
@@ -701,8 +700,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.text "name", null: false
     t.boolean "with_open_ended_response", default: false, null: false
     t.text "uid", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "order", null: false
     t.index ["survey_id"], name: "index_questions_on_survey_id"
     t.index ["uid"], name: "index_questions_on_uid", unique: true
@@ -714,10 +713,10 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.integer "family_redirection_url_unique_visits_count"
     t.float "family_unique_visit_rate"
     t.float "family_visit_rate"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "family_redirection_urls_count"
-    t.datetime "discarded_at"
+    t.datetime "discarded_at", precision: nil
     t.bigint "medium_id"
     t.index ["discarded_at"], name: "index_redirection_targets_on_discarded_at"
     t.index ["medium_id"], name: "index_redirection_targets_on_medium_id", unique: true
@@ -725,7 +724,7 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
 
   create_table "redirection_url_visits", force: :cascade do |t|
     t.bigint "redirection_url_id"
-    t.datetime "occurred_at"
+    t.datetime "occurred_at", precision: nil
     t.index ["redirection_url_id"], name: "index_redirection_url_visits_on_redirection_url_id"
   end
 
@@ -735,9 +734,9 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.bigint "child_id"
     t.string "security_code"
     t.integer "redirection_url_visits_count"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.datetime "discarded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "discarded_at", precision: nil
     t.index ["child_id"], name: "index_redirection_urls_on_child_id"
     t.index ["discarded_at"], name: "index_redirection_urls_on_discarded_at"
     t.index ["parent_id"], name: "index_redirection_urls_on_parent_id"
@@ -747,13 +746,13 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
   create_table "registration_limits", force: :cascade do |t|
     t.bigint "source_id", null: false
     t.bigint "registration_link_id", null: false
-    t.datetime "start_date", null: false
-    t.datetime "end_date"
+    t.datetime "start_date", precision: nil, null: false
+    t.datetime "end_date", precision: nil
     t.integer "limit", null: false
     t.string "registration_url_params"
     t.boolean "is_archived", default: false, null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["registration_link_id"], name: "index_registration_limits_on_registration_link_id"
     t.index ["source_id"], name: "index_registration_limits_on_source_id"
   end
@@ -762,8 +761,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "url", null: false
     t.string "channel", null: false
     t.string "label", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["label"], name: "index_registration_links_on_label", unique: true
     t.index ["url"], name: "index_registration_links_on_url", unique: true
   end
@@ -774,8 +773,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.integer "department"
     t.string "utm"
     t.text "comment"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "is_archived", default: false, null: false
   end
 
@@ -796,9 +795,9 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
 
   create_table "support_modules", force: :cascade do |t|
     t.string "name"
-    t.datetime "discarded_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "discarded_at", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.date "start_at"
     t.boolean "for_bilingual", default: false, null: false
     t.string "theme"
@@ -812,8 +811,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
 
   create_table "surveys", force: :cascade do |t|
     t.text "name", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "taggings", id: :serial, force: :cascade do |t|
@@ -823,7 +822,7 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "tagger_type"
     t.integer "tagger_id"
     t.string "context", limit: 128
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.index ["context"], name: "index_taggings_on_context"
     t.index ["tag_id", "taggable_id", "taggable_type", "context", "tagger_id", "tagger_type"], name: "taggings_idx", unique: true
     t.index ["tag_id"], name: "index_taggings_on_tag_id"
@@ -837,8 +836,8 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
 
   create_table "tags", id: :serial, force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "taggings_count", default: 0
     t.string "color"
     t.boolean "is_visible_by_callers_and_animators", default: false, null: false
@@ -854,9 +853,9 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.text "description"
     t.date "due_date"
     t.date "done_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.datetime "discarded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "discarded_at", precision: nil
     t.string "status"
     t.bigint "treated_by_id"
     t.index ["assignee_id"], name: "index_tasks_on_assignee_id"
@@ -874,7 +873,7 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.bigint "item_id", null: false
     t.string "event", null: false
     t.string "whodunnit"
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.jsonb "object"
     t.jsonb "object_changes"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
@@ -890,15 +889,15 @@ ActiveRecord::Schema.define(version: 2025_11_28_122921) do
     t.string "city_name", null: false
     t.string "name"
     t.text "invitation_message", null: false
-    t.datetime "discarded_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "discarded_at", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "animator_id", null: false
     t.string "workshop_land"
     t.string "location"
     t.boolean "canceled", default: false, null: false
     t.string "address_supplement"
-    t.datetime "scheduled_invitation_date_time"
+    t.datetime "scheduled_invitation_date_time", precision: nil
     t.time "first_workshop_time_slot", default: "2000-01-01 10:00:00", null: false
     t.time "second_workshop_time_slot"
     t.index ["animator_id"], name: "index_workshops_on_animator_id"

@@ -340,7 +340,7 @@ ActiveAdmin.register Child do
     f.object.should_contact_parent2 = params[:should_contact_parent2] if params[:should_contact_parent2]
     f.object.available_for_workshops = params[:available_for_workshops] if params[:available_for_workshops]
 
-    f.semantic_errors(*f.object.errors.keys)
+    f.semantic_errors(*f.object.errors.details.keys)
     f.inputs do
       f.input :parent1_selection,
               as: :select,

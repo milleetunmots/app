@@ -39,7 +39,7 @@ ActiveAdmin.register RegistrationLimit do
   end
 
   form do |f|
-    f.semantic_errors(*f.object.errors.keys)
+    f.semantic_errors(*f.object.errors.details.keys)
     f.inputs do
       f.input :source,
               input_html: { data: { select2: {} } }
