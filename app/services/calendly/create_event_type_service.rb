@@ -34,7 +34,7 @@ module Calendly
       status = response.status
       response = JSON.parse(response.body)
       if status.success?
-        user.update(calendly_scheduling_url: response['resource']['scheduling_url'])
+        user.update(calendly_scheduling_url: response['resource']['scheduling_url'], calendly_event_type_uri: response['resource']['uri'])
       else
         @errors << { message: "La création de l'event type a échoué", details: response['details'] }
       end
