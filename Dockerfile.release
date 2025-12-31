@@ -1,4 +1,4 @@
-FROM ruby:3.0.6-slim
+FROM ruby:3.4.5-slim
 
 ENV INSTALL_PATH /rails
 ENV RAILS_ENV production
@@ -7,12 +7,13 @@ ENV RACK_ENV production
 ENV NODE_OPTIONS --openssl-legacy-provider
 ENV MALLOC_ARENA_MAX 2
 ENV RAILS_MAX_THREADS 5
+ENV RUBY_YJIT_ENABLE 1
 RUN mkdir -p $INSTALL_PATH
 WORKDIR $INSTALL_PATH
 
 # Install dependencies
 RUN apt-get update \
-  && apt-get install -qq -y --no-install-recommends \
+  && apt-get install -y --no-install-recommends \
     apt-transport-https \
     curl \
     wget \
@@ -23,32 +24,37 @@ RUN apt-get update \
     libfontconfig1 \
     libxrender1 \
     libxext6 \
-    netcat \
+    netcat-traditional \
     libpq-dev \
     file \
     git \
     libcurl4-openssl-dev \
-    shared-mime-info \
-  \
-  # We need bundler
-  && gem install bundler --no-document
+    shared-mime-info
 
-RUN wget https://dl.yarnpkg.com/debian/pubkey.gpg
-RUN curl https://deb.nodesource.com/setup_18.x | bash
-RUN cat pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+
+  # We need bundler
+RUN gem uninstall bundler \
+    && gem install bundler -v '2.7.2' --no-document
+
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash \
+    && mkdir -p /etc/apt/keyrings \
+    && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | tee /etc/apt/keyrings/yarn.gpg >/dev/null \
+    && echo "deb [signed-by=/etc/apt/keyrings/yarn.gpg] https://dl.yarnpkg.com/debian stable main" | tee /etc/apt/sources.list.d/yarn.list \
+    && apt-get update \
+    && apt-get install -y nodejs yarn
 
 RUN apt-get update && apt-get install -y nodejs yarn
 
-# remove pubkey
-RUN rm pubkey.gpg
+# remove pubkey if it exists
+RUN rm -f pubkey.gpg
 
 # Copy the package.json as well as the yarn.lock and install
 # the node modules. This is a separate step so the dependencies
 # will be cached unless changes to one of those two files
 # are made.
+RUN yarn config set registry https://registry.npmjs.org/
 COPY package.json yarn.lock ./
-RUN yarn install
+RUN yarn install --network-timeout 100000 --frozen-lockfile
 
 
 # Copy the Gemfile as well as the Gemfile.lock and install
@@ -76,17 +82,11 @@ RUN rm -rf  \
 
 # Precompile Rails assets
 RUN bundle exec rake SECRET_KEY_BASE=secret DATABASE_URL=nulldb://null ASSETS_PRECOMPILE=1 assets:precompile
-RUN rm -rf \
-  .browserslistrc \
-  babel.config.js \
-  package.json \
-  postcss.config.js \
-  yarn.lock \
-  app/assets \
-  lib/assets \
-  node_modules \
-  vendor/assets \
-  tmp
+
+# Clean up unnecessary files but keep app/assets/config
+RUN find app/assets -mindepth 1 -maxdepth 1 ! -name config -exec rm -rf {} + \
+  && rm -rf .browserslistrc babel.config.js package.json postcss.config.js yarn.lock app/javascript lib/assets node_modules vendor/assets tmp
+
 
 # Expose port 3000 to the Docker host, so we can access it
 # from the outside.
