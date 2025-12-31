@@ -8,6 +8,7 @@
 #  availability                               :string
 #  book_not_received                          :string
 #  books_quantity                             :string
+#  calendly_booking_url                       :string
 #  call0_attempt                              :string
 #  call0_duration                             :integer
 #  call0_goal_sent                            :string

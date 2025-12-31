@@ -1,5 +1,5 @@
 module Calendly
-  class FillAdminUserCalendlyUserUri
+  class FillAdminUserCalendlyUserUriService
 
     attr_reader :errors, :admin_users
 
