@@ -34,7 +34,6 @@ class SpotHit::SendRcsService
     response = JSON.parse(response.body.to_s)
     if response['success']
       # create_events(response['id'])
-      p response['id']
     else
       @errors << "Erreur lors de la programmation de la campagne : #{response['error']['message']}]"
     end
