@@ -385,6 +385,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_20_113025) do
     t.text "call3_avoid_disengagement_details"
     t.datetime "call3_avoid_disengagement_date", precision: nil
     t.string "stop_support_reason"
+    t.string "calendly_booking_url"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"

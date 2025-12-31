@@ -7,6 +7,7 @@ module Calendly
 
     EVENT_TYPES_ENDPOINT = '/event_types'.freeze
     LIST_ORGANIZATION_MEMBERSHIPS_ENDPOINT = '/organization_memberships'.freeze
+    SINGLE_USE_SCHEDULING_LINK_ENDPOINT = '/scheduling_links'.freeze
 
     protected
 
