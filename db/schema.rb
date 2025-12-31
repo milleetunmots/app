@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_12_23_165730) do
+ActiveRecord::Schema.define(version: 2025_12_31_123202) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -68,6 +68,7 @@ ActiveRecord::Schema.define(version: 2025_12_23_165730) do
     t.boolean "can_export_data", default: false, null: false
     t.string "calendly_user_uri"
     t.string "calendly_scheduling_url"
+    t.string "calendly_event_type_uri"
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
