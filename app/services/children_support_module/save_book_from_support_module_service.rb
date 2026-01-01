@@ -15,6 +15,9 @@ class ChildrenSupportModule
 			chosen_modules_ids = ChildrenSupportModule.joins(:child)
 													 .where(id: chosen_modules)
 													 .where(children: { group_status: 'active' }).ids.join(',')
+
+			return if chosen_modules_ids.empty?
+
 			# SQL query because AR update_call can't handle joins
 			ActiveRecord::Base.connection.execute(<<-SQL)
 				UPDATE children_support_modules
