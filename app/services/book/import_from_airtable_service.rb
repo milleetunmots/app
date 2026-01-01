@@ -64,7 +64,7 @@ class Book::ImportFromAirtableService
     FileUtils.mkdir_p(save_dir) unless Dir.exist?(save_dir)
 
     file_path = File.join(save_dir, @cover['filename'])
-    URI.open(@cover['url']) do |image|
+    URI.parse(@cover['url']).open do |image|
       File.open(file_path, 'wb') do |file|
         file.write(image.read)
       end
