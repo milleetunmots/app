@@ -30,8 +30,20 @@ class SpotHit::SendRcsService
       @form['custom_list_with_data[]'] = @recipients
     end
     @form['date'] = Time.zone.now if Time.zone.at(@planned_timestamp).past?
-    response = HTTP.post(URL, form: @form.merge({ 'date' => Time.zone.at(@planned_timestamp).past? ? 1.minute.from_now.strftime('%Y-%m-%d %H:%M:%S') : Time.zone.at(@planned_timestamp).strftime('%Y-%m-%d %H:%M:%S') }))
-    response = JSON.parse(response.body.to_s)
+    if Rails.env.development?
+      ssl_ctx = OpenSSL::SSL::SSLContext.new
+      ssl_ctx.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      response = HTTP.post(
+        URL,
+        form: @form.merge({ 'date' => Time.zone.at(@planned_timestamp).past? ? 1.minute.from_now.strftime('%Y-%m-%d %H:%M:%S') : Time.zone.at(@planned_timestamp).strftime('%Y-%m-%d %H:%M:%S') }),
+        ssl_context: ssl_ctx
+      )
+    else
+      response = HTTP.post(
+        URL,
+        form: @form.merge({ 'date' => Time.zone.at(@planned_timestamp).past? ? 1.minute.from_now.strftime('%Y-%m-%d %H:%M:%S') : Time.zone.at(@planned_timestamp).strftime('%Y-%m-%d %H:%M:%S') })
+      )
+    end
     if response['success']
       # create_events(response['id'])
     else
