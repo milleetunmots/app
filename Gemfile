@@ -100,6 +100,8 @@ gem "bootstrap", "~> 4.3.0"
 
 # errors tracking
 gem "rollbar"
+gem "sentry-ruby"
+gem "sentry-rails"
 
 # global search
 gem "pg_search"
