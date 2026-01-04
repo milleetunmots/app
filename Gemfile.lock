@@ -559,6 +559,12 @@ GEM
       rubyzip (>= 1.2.2, < 4.0)
       websocket (~> 1.0)
     semantic_range (3.1.0)
+    sentry-rails (6.2.0)
+      railties (>= 5.2.0)
+      sentry-ruby (~> 6.2.0)
+    sentry-ruby (6.2.0)
+      bigdecimal
+      concurrent-ruby (~> 1.0, >= 1.0.2)
     sidekiq (7.3.9)
       base64
       connection_pool (>= 2.3.0)
@@ -708,6 +714,8 @@ DEPENDENCIES
   sass-rails (~> 6.0)
   select2-rails
   selenium-webdriver (~> 4.11)
+  sentry-rails
+  sentry-ruby
   sidekiq
   sidekiq-scheduler
   simple_form
