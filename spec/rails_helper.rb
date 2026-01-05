@@ -41,6 +41,8 @@ ENV['LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'] = 'Jouer avec mon b
 ENV['MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'] = 'Jouer avec mon enfant 🧩'
 ENV['OPERATION_PROJECT_MANAGER_EMAIL'] ||= 'operation_manager@test.com'
 ENV['COORDINATOR_EMAIL'] ||= 'coordinator@test.com'
+ENV['CALENDLY_TOKEN'] ||= "valid_token"
+ENV['CALENDLY_ORGANIZATION_URI'] ||= "https://api.calendly.com/organizations/test-org-uri-xxxxxxxx"
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production
