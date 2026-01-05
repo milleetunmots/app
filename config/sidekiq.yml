@@ -45,3 +45,6 @@
     send_disengagement_warning_before_calls_job:
       cron: '0 18 * * 5'
       class: 'Parent::SendDisengagementWarningBeforeCallsJob'
+    calendly_sync_users_and_event_types_job:
+      cron: '0 3 * * *'
+      class: 'Calendly::SyncUsersAndEventTypesJob'
