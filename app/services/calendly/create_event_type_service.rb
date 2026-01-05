@@ -3,11 +3,12 @@ module Calendly
 
     attr_reader :errors
 
-    def initialize(name:, calendly_user_uri:, aircall_phone_number:)
+    def initialize(name:, calendly_user_uri:, aircall_phone_number:, call_number:)
       @errors = []
       @calendly_user_uri = calendly_user_uri
       @aircall_phone_number = aircall_phone_number
       @event_type_name = name
+      @call_number = call_number
     end
 
     def call
@@ -34,7 +35,9 @@ module Calendly
       status = response.status
       response = JSON.parse(response.body)
       if status.success?
-        user.update(calendly_scheduling_url: response['resource']['scheduling_url'], calendly_event_type_uri: response['resource']['uri'])
+        event_type_uris = user.calendly_event_type_uris || {}
+        event_type_uris["call#{@call_number}"] = response['resource']['uri']
+        user.update(calendly_event_type_uris: event_type_uris)
       else
         @errors << { message: "La création de l'event type a échoué", details: response['details'] }
       end
