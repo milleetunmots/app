@@ -175,10 +175,7 @@ class ProgramMessageService
   end
 
   def format_data_for_spot_hit(rcs)
-    if @variables.empty?
-      @recipient_data = Parent.where(id: @parent_ids).pluck(:phone_number)
-      @recipient_data = @recipient_data.join(', ') unless rcs
-    else
+    if @redirection_target || @variables.any?
       if rcs
         @recipient_data = [{}]
         Parent.where(id: @parent_ids).find_each do |parent|
@@ -270,6 +267,9 @@ class ProgramMessageService
           end
         end
       end
+    else
+      @recipient_data = Parent.where(id: @parent_ids).pluck(:phone_number)
+      @recipient_data = @recipient_data.join(', ') unless rcs
     end
   end
 
