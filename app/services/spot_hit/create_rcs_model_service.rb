@@ -54,12 +54,16 @@ class SpotHit::CreateRcsModelService
     end
   end
 
+  def rcs_title
+    @rcs_title ||= @text_messages_bundle.send("rcs_title#{@message_index}").presence || '1001mots'
+  end
+
   def create_rcs_template
     # RCS model JSON structure
     model_json = {
       "content" => {
         "card" => {
-          "title" => "1001mots",
+          "title" => rcs_title,
           "text" => body,
           "mediaType" => "image",
           "file" => "{cid:image}",
@@ -68,7 +72,7 @@ class SpotHit::CreateRcsModelService
           "options" => []
         },
         "property" => {
-          "stop" => true
+          "stop" => false
         }
       }
     }
