@@ -69,6 +69,11 @@ module ActiveAdmin
             (1..3).each do |msg_idx|
               column do
                 attributes_table title: "Message #{msg_idx}" do
+                  if resource.send("image#{msg_idx}_id").present?
+                    send (with_comments ? :row_with_comments : :row), 'Titre RCS' do |decorated|
+                      decorated.send("rcs_title#{msg_idx}").presence || '1001mots (par défaut)'
+                    end
+                  end
                   send (with_comments ? :row_with_comments : :row), "body#{msg_idx}", class: 'row-pre'
                   send (with_comments ? :row_with_comments : :row), "image#{msg_idx}_id" do |decorated|
                     decorated.send("image#{msg_idx}_admin_link_with_image", max_width: '100px')
@@ -100,6 +105,10 @@ module ActiveAdmin
               (1..3).each do |idx|
                 column do
                   h3 "Message #{idx}"
+                  f.input "rcs_title#{idx}",
+                          label: 'Titre RCS',
+                          hint: '200 car. maximum. Vide = "1001mots"',
+                          input_html: { maxlength: 200 }
                   f.input "body#{idx}",
                           as: :text,
                           label: false,
@@ -126,6 +135,7 @@ module ActiveAdmin
         end
 
         permit_params :folder_id, :name, :theme,
+                      :rcs_title1, :rcs_title2, :rcs_title3,
                       :body1, :body2, :body3,
                       :image1_id, :image2_id, :image3_id,
                       :link1_id, :link2_id, :link3_id,

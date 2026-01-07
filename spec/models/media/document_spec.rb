@@ -8,6 +8,9 @@
 #  body3         :text
 #  discarded_at  :datetime
 #  name          :string
+#  rcs_title1    :string(200)
+#  rcs_title2    :string(200)
+#  rcs_title3    :string(200)
 #  theme         :string
 #  type          :string
 #  url           :string

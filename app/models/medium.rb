@@ -8,6 +8,9 @@
 #  body3         :text
 #  discarded_at  :datetime
 #  name          :string
+#  rcs_title1    :string(200)
+#  rcs_title2    :string(200)
+#  rcs_title3    :string(200)
 #  theme         :string
 #  type          :string
 #  url           :string
@@ -74,6 +77,7 @@ class Medium < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   validates :name, presence: true
+  validates :rcs_title1, :rcs_title2, :rcs_title3, length: { maximum: 200 }, allow_blank: true
 
   # ---------------------------------------------------------------------------
   # scope
