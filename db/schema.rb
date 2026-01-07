@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_11_28_122921) do
+ActiveRecord::Schema[7.0].define(version: 2026_01_07_095535) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -565,6 +565,12 @@ ActiveRecord::Schema[7.0].define(version: 2025_11_28_122921) do
     t.bigint "link3_id"
     t.string "spot_hit_id"
     t.string "airtable_id"
+    t.integer "rcs_media1_id"
+    t.integer "rcs_media2_id"
+    t.integer "rcs_media3_id"
+    t.string "rcs_title1", limit: 200
+    t.string "rcs_title2", limit: 200
+    t.string "rcs_title3", limit: 200
     t.index ["airtable_id"], name: "index_media_on_airtable_id", unique: true
     t.index ["discarded_at"], name: "index_media_on_discarded_at"
     t.index ["folder_id"], name: "index_media_on_folder_id"
