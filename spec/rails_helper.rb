@@ -43,6 +43,7 @@ ENV['OPERATION_PROJECT_MANAGER_EMAIL'] ||= 'operation_manager@test.com'
 ENV['COORDINATOR_EMAIL'] ||= 'coordinator@test.com'
 ENV['CALENDLY_TOKEN'] ||= "valid_token"
 ENV['CALENDLY_ORGANIZATION_URI'] ||= "https://api.calendly.com/organizations/test-org-uri-xxxxxxxx"
+ENV['CALENDLY_WEBHOOK_SIGNING_KEY'] ||= "test_signing_key_123"
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production
