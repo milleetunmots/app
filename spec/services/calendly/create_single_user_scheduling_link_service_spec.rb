@@ -128,10 +128,128 @@ RSpec.describe Calendly::CreateSingleUserSchedulingLinkService do
         subject.call
         expect(WebMock).to have_requested(:post, 'https://api.calendly.com/scheduling_links')
           .with(body: hash_including(
-            'max_event_count' => '1',
+            'max_event_count' => 1,
             'owner' => calendly_event_type_uri,
             'owner_type' => 'EventType'
           ))
+      end
+
+      it 'does not include share_override when no dates are provided' do
+        subject.call
+        expect(WebMock).to have_requested(:post, 'https://api.calendly.com/scheduling_links')
+          .with { |req| !JSON.parse(req.body).key?('share_override') }
+      end
+    end
+
+    context 'with date range parameters' do
+      let(:start_date) { Date.today }
+      let(:end_date) { Date.today + 3.weeks }
+
+      subject do
+        described_class.new(
+          admin_user_id: admin_user.id,
+          child_support_id: child_support.id,
+          call_session: call_session,
+          start_date: start_date,
+          end_date: end_date
+        )
+      end
+
+      it 'includes share_override with date range' do
+        subject.call
+        expect(WebMock).to have_requested(:post, 'https://api.calendly.com/scheduling_links')
+          .with(body: hash_including(
+            'share_override' => {
+              'period_type' => 'fixed',
+              'start_date' => start_date.to_s,
+              'end_date' => end_date.to_s
+            }
+          ))
+      end
+
+      it 'returns booking_url on success' do
+        result = subject.call
+        expect(result.errors).to be_empty
+        expect(result.booking_url).to include(booking_url)
+      end
+
+      context 'with only end_date' do
+        subject do
+          described_class.new(
+            admin_user_id: admin_user.id,
+            child_support_id: child_support.id,
+            call_session: call_session,
+            end_date: end_date
+          )
+        end
+
+        it 'uses today as start_date' do
+          subject.call
+          expect(WebMock).to have_requested(:post, 'https://api.calendly.com/scheduling_links')
+            .with(body: hash_including(
+              'share_override' => {
+                'period_type' => 'fixed',
+                'start_date' => Date.today.to_s,
+                'end_date' => end_date.to_s
+              }
+            ))
+        end
+      end
+
+      context 'with only start_date' do
+        subject do
+          described_class.new(
+            admin_user_id: admin_user.id,
+            child_support_id: child_support.id,
+            call_session: call_session,
+            start_date: start_date
+          )
+        end
+
+        it 'includes share_override without end_date' do
+          subject.call
+          expect(WebMock).to have_requested(:post, 'https://api.calendly.com/scheduling_links')
+            .with(body: hash_including(
+              'share_override' => {
+                'period_type' => 'fixed',
+                'start_date' => start_date.to_s
+              }
+            ))
+        end
+      end
+
+      context 'with dates as strings' do
+        let(:start_date) { '2026-01-15' }
+        let(:end_date) { '2026-02-15' }
+
+        it 'accepts string dates' do
+          subject.call
+          expect(WebMock).to have_requested(:post, 'https://api.calendly.com/scheduling_links')
+            .with(body: hash_including(
+              'share_override' => {
+                'period_type' => 'fixed',
+                'start_date' => '2026-01-15',
+                'end_date' => '2026-02-15'
+              }
+            ))
+        end
+      end
+
+      context 'with DateTime objects' do
+        let(:start_date) { DateTime.now }
+        let(:end_date) { DateTime.now + 21.days }
+
+        it 'converts DateTime to date string' do
+          subject.call
+          expect(WebMock).to have_requested(:post, 'https://api.calendly.com/scheduling_links')
+            .with(body: hash_including(
+              'share_override' => hash_including(
+                'period_type' => 'fixed',
+                'start_date' => start_date.to_date.to_s,
+                'end_date' => end_date.to_date.to_s
+              )
+            ))
+        end
       end
     end
 
