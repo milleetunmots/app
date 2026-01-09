@@ -60,6 +60,7 @@ class Task < ApplicationRecord
   # callbacks
   # ---------------------------------------------------------------------------
 
+  before_create :assign_default_assignee
   before_create :translate_title
   after_commit :set_done_at, if: -> { saved_change_to_status? && status == 'done' }
 
@@ -128,6 +129,14 @@ class Task < ApplicationRecord
     return unless title.in?(Task::TITLES_WITH_ASSIGNEE_EMAIL.keys.map(&:to_s))
 
     self.title = Task.human_attribute_name("child_support_task_title.#{title}")
+  end
+
+  def assign_default_assignee
+    return if assignee_id.present?
+    return unless title.in?(Task::TITLES_WITH_ASSIGNEE_EMAIL.keys.map(&:to_s))
+
+    email = Task::TITLES_WITH_ASSIGNEE_EMAIL[title.to_sym]
+    self.assignee = AdminUser.find_by(email: email) if email.present?
   end
 
   def valid_treated_by
