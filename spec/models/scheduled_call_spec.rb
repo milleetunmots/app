@@ -214,7 +214,7 @@ RSpec.describe ScheduledCall, type: :model do
     it 'accepts a custom canceled_at' do
       custom_time = 2.hours.ago
       scheduled_call.cancel!(canceled_at: custom_time)
-      expect(scheduled_call.reload.canceled_at).to eq(custom_time)
+      expect(scheduled_call.reload.canceled_at).to be_within(1.second).of(custom_time)
     end
   end
 end

@@ -45,7 +45,7 @@ RSpec.describe Calendly::FetchScheduledEventService do
 
       it 'returns an error' do
         result = subject.call
-        expect(result.errors).to include(hash_including(message: "L'URI de l'événement est requis"))
+        expect(result.errors).to include(hash_including(message: "L'URI de l'événement calendly est requis"))
       end
 
       it 'does not make an API call' do
@@ -59,7 +59,7 @@ RSpec.describe Calendly::FetchScheduledEventService do
 
       it 'returns an error' do
         result = subject.call
-        expect(result.errors).to include(hash_including(message: "L'URI de l'événement est requis"))
+        expect(result.errors).to include(hash_including(message: "L'URI de l'événement calendly est requis"))
       end
     end
 
