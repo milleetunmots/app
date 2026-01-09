@@ -133,4 +133,34 @@ RSpec.describe Task, type: :model do
       end
     end
   end
+
+  describe "#assign_default_assignee" do
+    context "when title is in TITLES_WITH_ASSIGNEE_EMAIL" do
+      it "assigns the correct admin user based on the email in ENV" do
+        operation_manager = FactoryBot.create(:admin_user, email: ENV['OPERATION_PROJECT_MANAGER_EMAIL'])
+        task = Task.create!(title: 'reactivate_sms_parent')
+        expect(task.assignee).to eq(operation_manager)
+      end
+
+      it "assigns coordinator for coordinator tasks" do
+        coordinator = FactoryBot.create(:admin_user, email: ENV['COORDINATOR_EMAIL'])
+        task = Task.create!(title: 'stop_non_consenting_family_support')
+        expect(task.assignee).to eq(coordinator)
+      end
+
+      it "does not override existing assignee" do
+        FactoryBot.create(:admin_user, email: ENV['OPERATION_PROJECT_MANAGER_EMAIL'])
+        other_user = FactoryBot.create(:admin_user)
+        task = Task.create!(title: 'reactivate_sms_parent', assignee: other_user)
+        expect(task.assignee).to eq(other_user)
+      end
+    end
+
+    context "when title is not in TITLES_WITH_ASSIGNEE_EMAIL" do
+      it "does not assign an assignee" do
+        task = Task.create!(title: 'Some random task')
+        expect(task.assignee).to be_nil
+      end
+    end
+  end
 end
