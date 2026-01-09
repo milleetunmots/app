@@ -775,6 +775,34 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_20_113025) do
     t.index ["url"], name: "index_registration_links_on_url", unique: true
   end
 
+  create_table "scheduled_calls", force: :cascade do |t|
+    t.string "calendly_event_uri", null: false
+    t.string "calendly_invitee_uri"
+    t.bigint "admin_user_id"
+    t.bigint "child_support_id"
+    t.bigint "parent_id"
+    t.integer "call_session"
+    t.datetime "scheduled_at"
+    t.integer "duration_minutes"
+    t.string "event_type_name"
+    t.string "event_type_uri"
+    t.string "invitee_email"
+    t.string "invitee_name"
+    t.text "invitee_comment"
+    t.string "status", default: "scheduled", null: false
+    t.datetime "canceled_at"
+    t.text "cancellation_reason"
+    t.jsonb "raw_payload", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id"], name: "index_scheduled_calls_on_admin_user_id"
+    t.index ["calendly_event_uri"], name: "index_scheduled_calls_on_calendly_event_uri", unique: true
+    t.index ["child_support_id"], name: "index_scheduled_calls_on_child_support_id"
+    t.index ["parent_id"], name: "index_scheduled_calls_on_parent_id"
+    t.index ["scheduled_at"], name: "index_scheduled_calls_on_scheduled_at"
+    t.index ["status"], name: "index_scheduled_calls_on_status"
+  end
+
   create_table "sources", force: :cascade do |t|
     t.string "name", null: false
     t.string "channel", null: false
@@ -948,6 +976,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_20_113025) do
   add_foreign_key "media_folders", "media_folders", column: "parent_id"
   add_foreign_key "places", "redirection_targets"
   add_foreign_key "redirection_targets", "media"
+  add_foreign_key "scheduled_calls", "admin_users"
+  add_foreign_key "scheduled_calls", "child_supports"
+  add_foreign_key "scheduled_calls", "parents"
   add_foreign_key "support_module_weeks", "media", column: "additional_medium_id"
   add_foreign_key "support_modules", "books"
   add_foreign_key "taggings", "tags"

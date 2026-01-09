@@ -46,6 +46,7 @@ class AdminUser < ApplicationRecord
   has_many :workshops, foreign_key: 'animator_id', dependent: :nullify
   has_many :child_supports, foreign_key: 'supporter_id', inverse_of: :supporter, dependent: :nullify
   has_many :children, through: :child_supports
+  has_many :scheduled_calls, dependent: :nullify
 
   # ---------------------------------------------------------------------------
   # validations

@@ -14,7 +14,7 @@ class Ability
       can :manage, :all
     when 'contributor'
       can :manage,
-          [Parent, Child, ChildSupport, Workshop, Task, SupportModule, MediaFolder, Medium, Tag, Event, Group, Book, ChildrenSupportModule, Source, RegistrationLimit]
+          [Parent, Child, ChildSupport, Workshop, Task, SupportModule, MediaFolder, Medium, Tag, Event, Group, Book, ChildrenSupportModule, Source, RegistrationLimit, ScheduledCall]
       can :read, AdminUser
       can :manage, ActiveAdmin::Page, name: 'Message'
       can :manage, ActiveAdmin::Page, name: 'Module'
@@ -30,7 +30,7 @@ class Ability
       can :manage, [Parent, Child, ChildSupport]
       cannot %i[new create destroy discard select_module_for_parent1 select_module_for_parent2 add_child add_parent quit_group], [Parent, Child, ChildSupport]
       cannot :upload_undelivered_books, Parent
-      can :read, [Workshop, SupportModule, Group, Book, ChildrenSupportModule, AdminUser, Source]
+      can :read, [Workshop, SupportModule, Group, Book, ChildrenSupportModule, AdminUser, Source, ScheduledCall]
       can :read, Event, type: 'Events::WorkshopParticipation'
       can %i[create read update], Tag
       can :manage, ActiveAdmin::Page, name: 'Message'
@@ -66,6 +66,7 @@ class Ability
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
+      can :read, ScheduledCall, admin_user_id: user.id
     when 'animator'
       can :autocomplete, [Group, Tag]
       can :create, Task
@@ -86,6 +87,7 @@ class Ability
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
+      can :read, ScheduledCall, admin_user_id: user.id
     end
   end
 
