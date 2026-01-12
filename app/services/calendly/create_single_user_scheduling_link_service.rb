@@ -3,13 +3,11 @@ module Calendly
 
     attr_reader :errors, :booking_url
 
-    def initialize(admin_user_id:, child_support_id:, call_session:, start_date: nil, end_date: nil)
+    def initialize(admin_user_id:, child_support_id:, call_session:)
       @errors = []
       @admin_user = AdminUser.find_by(id: admin_user_id)
       @child_support = ChildSupport.find_by(id: child_support_id)
       @call_session = call_session
-      @start_date = start_date
-      @end_date = end_date
     end
 
     def call
@@ -52,27 +50,11 @@ module Calendly
     private
 
     def build_request_body(event_type_uri)
-      body = {
+      {
         max_event_count: 1,
         owner: event_type_uri,
         owner_type: 'EventType'
       }
-
-      if @start_date.present? || @end_date.present?
-        body[:share_override] = {
-          period_type: 'fixed',
-          start_date: format_date(@start_date || Date.today),
-          end_date: format_date(@end_date)
-        }.compact
-      end
-
-      body
-    end
-
-    def format_date(date)
-      return nil if date.nil?
-
-      date.is_a?(String) ? date : date.to_date.to_s
     end
 
     def add_utm_params(url)
