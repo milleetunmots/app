@@ -17,8 +17,8 @@ module Calendly
       return self if @errors.any?
 
       find_child_support
-      find_admin_user
       fetch_event_details
+      find_admin_user
       extract_invitee_comment
 
       create_or_update_scheduled_call
@@ -73,24 +73,17 @@ module Calendly
     end
 
     def find_admin_user
-      event_uri = @invitee_payload['event']
-      return unless event_uri
+      @event_type_uri = @event_data&.dig(:event_type_uri)
 
-      fetch_service = Calendly::FetchScheduledEventService.new(event_uri: event_uri).call
-      if fetch_service.errors.any?
-        @event_type_uri = nil
-        return
+      if @event_type_uri
+        @admin_user = AdminUser.find_by(
+          'calendly_event_type_uris @> ?',
+          { "call#{@call_session}" => @event_type_uri }.to_json
+        )
+        @admin_user ||= find_admin_user_by_event_type_uri(@event_type_uri)
       end
 
-      @event_type_uri = fetch_service.event_data[:event_type_uri]
-      return unless @event_type_uri
-
-      @admin_user = AdminUser.find_by(
-        'calendly_event_type_uris @> ?',
-        { "call#{@call_session}" => @event_type_uri }.to_json
-      )
-
-      @find_admin_user ||= find_admin_user_by_event_type_uri(@event_type_uri)
+      @admin_user ||= @child_support&.supporter
     end
 
     def find_admin_user_by_event_type_uri(event_type_uri)

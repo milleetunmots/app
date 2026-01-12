@@ -184,6 +184,19 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
         result = subject.call
         expect(result.errors).to include(hash_including(message: "Échec de la récupération de l'événement"))
       end
+
+      context 'when child_support has a supporter' do
+        let(:supporter) { FactoryBot.create(:admin_user) }
+
+        before do
+          child_support.update!(supporter: supporter)
+        end
+
+        it 'uses the supporter as admin_user fallback' do
+          result = subject.call
+          expect(result.scheduled_call.admin_user).to eq(supporter)
+        end
+      end
     end
 
     context 'when questions_and_answers is empty' do
