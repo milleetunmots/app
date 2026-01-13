@@ -233,7 +233,7 @@ RSpec.describe ChildSupport, type: :model do
   let_it_be(:group, reload: true) { FactoryBot.create(:group) }
 
   let!(:first_child) { FactoryBot.create(:child, parent1: first_parent, parent2: third_parent, group: group, group_status: "active") }
-  let!(:second_child) { FactoryBot.create(:child, parent1: second_parent, parent2: fourth_parent) }
+  let!(:second_child) { FactoryBot.create(:child, parent1: second_parent, parent2: fourth_parent, group: group, group_status: "active") }
   let!(:third_child) { FactoryBot.create(:child, parent1: first_parent, group: group, group_status: "paused") }
 
   let!(:first_child_support) { FactoryBot.create(:child_support, current_child: first_child, supporter: admin_user) }

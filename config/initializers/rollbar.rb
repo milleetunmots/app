@@ -33,17 +33,8 @@ if ENV['ROLLBAR_ACCESS_TOKEN']
     config.exception_level_filters.merge!(
       'MyCriticalException' => 'critical',
       'NoRollbarError' => 'ignore',
-      'ActionController::RoutingError' => lambda do |e|
-        # ignore bot probing for security holes (WordPress, config files, etc)
-        patterns = [
-          /No route matches \[(GET|POST|PUT|PATCH|DELETE)\] "\/.*\.(php|xml|yml|txt|png|asp|aspx|cgi|env|sql|bak|log|ini|conf)"$/,
-          /No route matches \[(GET|POST|PUT|PATCH|DELETE)\] "\/wp-(login|admin|content|includes|json)/,
-          /No route matches \[POST\] "\/"$/,
-          /No route matches \[(GET|POST|PUT|PATCH|DELETE)\] "\/(admin|phpmyadmin|pma|adminer|\.git|\.env|config)/
-        ]
-
-        patterns.any? { |pattern| e.message.match?(pattern) } ? 'ignore' : 'warning'
-      end
+      'ActionController::RoutingError' => 'ignore',
+      'ActionController::UnknownFormat' => 'ignore'
     )
     #
     # You can also specify a callable, which will be called with the exception instance.
