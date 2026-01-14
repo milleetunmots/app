@@ -116,12 +116,10 @@ ActiveAdmin.register Child do
          collection: proc { child_group_status_select_collection },
          input_html: { multiple: true, data: { select2: {} } }
   filter :group_start,
-         as: :datepicker,
-         required: false,
+         as: :date_range,
          label: "Début de l'accompagnement"
   filter :group_end,
-         as: :datepicker,
-         required: false,
+         as: :date_range,
          label: "Fin de l'accompagnement"
   filter :security_token
   filter :src_url
