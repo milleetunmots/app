@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_01_09_105853) do
+ActiveRecord::Schema[7.0].define(version: 2026_01_14_150303) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -88,6 +88,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_09_105853) do
     t.text "tags", default: [], array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "raw_transcription_payload"
+    t.datetime "transcription_not_found"
     t.index ["call_uuid"], name: "index_aircall_calls_on_call_uuid"
     t.index ["caller_id"], name: "index_aircall_calls_on_caller_id"
     t.index ["child_support_id"], name: "index_aircall_calls_on_child_support_id"
@@ -565,9 +567,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_09_105853) do
     t.bigint "link3_id"
     t.string "spot_hit_id"
     t.string "airtable_id"
-    t.string "rcs_title1", limit: 200
-    t.string "rcs_title2", limit: 200
-    t.string "rcs_title3", limit: 200
     t.index ["airtable_id"], name: "index_media_on_airtable_id", unique: true
     t.index ["discarded_at"], name: "index_media_on_discarded_at"
     t.index ["folder_id"], name: "index_media_on_folder_id"
