@@ -34,6 +34,7 @@ fr:
       registration_limit: Limite d'inscription
       redirection_target: URL cible
       redirection_url: URL courte
+      scheduled_call: RDV Calendly
       source: Source d'inscription
       support_module: Module
       support_module_week: Semaine
@@ -61,6 +62,9 @@ fr:
         is_disabled: Compte désactivé
         aircall_phone_number: Numéro aircall
         aircall_number_id: ID du numéro aircall
+        calendly_user_uri: URI utilisateur Calendly
+        calendly_event_type_uris: Types d'événements Calendly
+        calendly_booking_url: Lien de réservation Calendly
       admin_user/user_role:
         super_admin: Administrateur
         contributor: Contributeur
@@ -688,6 +692,28 @@ fr:
         state: État de la limite
         form_status: Statut formulaire
         not_closed: En cours
+      scheduled_call:
+        << : *SHARED
+        admin_user: Accompagnante
+        calendly_event_uri: URI événement Calendly
+        calendly_invitee_uri: URI invité Calendly
+        call_session: Session d'appel
+        canceled_at: Annulé le
+        cancellation_reason: Raison de l'annulation
+        child_support: Fiche de suivi
+        duration_minutes: Durée (minutes)
+        event_type_name: Type d'événement Calendly
+        event_type_uri: URI du type d'événement Calendly
+        invitee_comment: Commentaire
+        invitee_email: Email
+        invitee_name: Nom
+        parent: Parent
+        raw_payload: Payload brut
+        scheduled_at: Date prévue
+        status: Statut
+      scheduled_call/status:
+        scheduled: Programmé
+        canceled: Annulé
       source:
         << : *SHARED
         name: Source
