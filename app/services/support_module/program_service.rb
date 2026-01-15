@@ -95,13 +95,11 @@ class SupportModule::ProgramService
     return date.next_day(3) if date.saturday?
 
     if sms_count < 4
-      return date.next_day(2) if date.thursday?
-
+      date.next_day(2) if date.thursday?
     else
       return date.next_day if date.thursday?
 
-      return date.next_day if date.friday?
-
+      date.next_day if date.friday?
     end
   end
 end
