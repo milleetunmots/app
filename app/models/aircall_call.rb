@@ -2,25 +2,27 @@
 #
 # Table name: aircall_calls
 #
-#  id                 :bigint           not null, primary key
-#  answered           :boolean
-#  answered_at        :datetime
-#  asset_url          :string
-#  call_session       :integer
-#  call_uuid          :string
-#  direction          :string
-#  duration           :integer
-#  ended_at           :datetime
-#  missed_call_reason :string
-#  notes              :text             default([]), is an Array
-#  started_at         :datetime
-#  tags               :text             default([]), is an Array
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  aircall_id         :bigint
-#  caller_id          :bigint           not null
-#  child_support_id   :bigint
-#  parent_id          :bigint
+#  id                        :bigint           not null, primary key
+#  answered                  :boolean
+#  answered_at               :datetime
+#  asset_url                 :string
+#  call_session              :integer
+#  call_uuid                 :string
+#  direction                 :string
+#  duration                  :integer
+#  ended_at                  :datetime
+#  missed_call_reason        :string
+#  notes                     :text             default([]), is an Array
+#  raw_transcription_payload :jsonb
+#  started_at                :datetime
+#  tags                      :text             default([]), is an Array
+#  transcription_not_found   :datetime
+#  created_at                :datetime         not null
+#  updated_at                :datetime         not null
+#  aircall_id                :bigint
+#  caller_id                 :bigint           not null
+#  child_support_id          :bigint
+#  parent_id                 :bigint
 #
 # Indexes
 #
