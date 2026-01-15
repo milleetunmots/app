@@ -44,6 +44,7 @@ class SpotHit::SendRcsService
         form: @form.merge({ 'date' => Time.zone.at(@planned_timestamp).past? ? 1.minute.from_now.strftime('%Y-%m-%d %H:%M:%S') : Time.zone.at(@planned_timestamp).strftime('%Y-%m-%d %H:%M:%S') })
       )
     end
+    response = JSON.parse(response.to_s)
     if response['success']
       # create_events(response['id'])
     else
