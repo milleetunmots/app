@@ -19,7 +19,6 @@ module Aircall
         @transcriptions = body['transcription']['content']['utterances']
       else
         @errors << { message: "La récupération de la transcription de l'appel #{@call_id} a échoué : #{response.status.reason}", status: response.status.to_i }
-        raise NoRollbarError, @errors.first[:message]
       end
       self
     end
