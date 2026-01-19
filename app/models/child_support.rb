@@ -313,6 +313,9 @@ class ChildSupport < ApplicationRecord
     joins(children: :group).where(groups: { ended_at: start_date..end_date }).distinct
   }
 
+  scope :without_scheduled_calls, -> {
+    left_joins(:scheduled_calls).where(scheduled_calls: { id: nil })
+  }
 
   class << self
 
@@ -481,6 +484,10 @@ class ChildSupport < ApplicationRecord
 
   def other_family_child_supports
     other_children.with_support.map(&:child_support).uniq
+  end
+
+  def scheduled_call(index)
+    scheduled_calls.find_by(call_session: index.to_i)
   end
 
   # ---------------------------------------------------------------------------

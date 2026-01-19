@@ -123,6 +123,31 @@ class ChildSupportDecorator < BaseDecorator
       progress model.send("call#{call_idx}_parent_progress_index")
     end
 
+    define_method("call#{call_idx}_scheduled_session") do
+      scheduled_call = model.scheduled_call(call_idx)
+      return nil unless scheduled_call
+
+      case scheduled_call.status
+      when 'scheduled'
+        if scheduled_call.scheduled_at < 2.hours.ago
+          h.safe_join([
+                        h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
+                        h.content_tag(:span, 'rdv non honoré', style: 'color: #B02B2C')
+                      ])
+        else
+          h.safe_join([
+                        h.content_tag(:i, '', class: 'far fa-calendar', style: 'margin-right: 5px;'),
+                        I18n.l(model.scheduled_call(call_idx).scheduled_at, format: '%a %d/%m (%Hh%M)')
+                      ])
+        end
+      when 'canceled'
+        h.safe_join([
+                      h.content_tag(:i, '', class: 'far fa-times-circle', style: 'margin-right: 5px; color: #E6AF2E'),
+                      h.content_tag(:span, 'rdv annulé', style: 'color: #E6AF2E')
+                    ])
+      end
+    end
+
     define_method("call#{call_idx}_parent_actions_text") do
       model.send("call#{call_idx}_parent_actions")
     end
