@@ -19,7 +19,7 @@ ActiveAdmin.register ChildSupport do
     id_column
     column :children, sortable: 'children.birthdate'
     column :supporter if current_admin_user.admin? || current_admin_user.contributor? || current_admin_user.reader?
-    (0..5).each do |call_idx|
+    (0..3).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         [
           decorated.send("call#{call_idx}_status_in_index"),
@@ -102,7 +102,7 @@ ActiveAdmin.register ChildSupport do
          label: "Arrêt au cours de l'accompagnement (accompagnante)",
          collection: [%w[Oui stopped], %w[Non ongoing]],
          multiple: true
-  (0..5).each do |call_idx|
+  (0..3).each do |call_idx|
     filter "call#{call_idx}_status_filter", as: :check_boxes,  label: "Statut de l'appel #{call_idx}", collection: proc { call_statuses_with_nil }
     filter "call#{call_idx}_duration"
     filter "call#{call_idx}_parent_progress_present",
@@ -362,7 +362,7 @@ ActiveAdmin.register ChildSupport do
       end
       div id:'child_support_tabs_form' do
         tabs do
-          (0..5).each do |call_idx|
+          (0..3).each do |call_idx|
             tab "Appel #{call_idx}" do
               div style:"display:flex; flex-direction:row; flex-wrap:nowrap; justify-content:space-between; align-items:flex-start" do
                 div style:"width:50%; margin:15px; padding:15px; border:1px solid; border-radius:10px" do
@@ -908,7 +908,7 @@ ActiveAdmin.register ChildSupport do
           row :updated_at
         end
       end
-      (0..5).each do |call_idx|
+      (0..3).each do |call_idx|
         tab "Appel #{call_idx}" do
           attributes_table title: "Appel #{call_idx}" do
             row "call#{call_idx}_status"
@@ -1001,7 +1001,7 @@ ActiveAdmin.register ChildSupport do
     column :is_bilingual
     column :second_language
 
-    (0..5).each do |call_idx|
+    (0..3).each do |call_idx|
       column "call#{call_idx}_status"
       column "call#{call_idx}_status_details"
       column "call#{call_idx}_duration"

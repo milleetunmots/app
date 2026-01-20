@@ -113,7 +113,7 @@ class ChildSupportDecorator < BaseDecorator
     children_attribute(:group_name, glue)
   end
 
-  (0..5).each do |call_idx|
+  (0..3).each do |call_idx|
 
     define_method("call#{call_idx}_status_in_index") do
       model.send("call#{call_idx}_status") == 'Incomplet / Pas de choix de module' ? 'Incomplet' : model.send("call#{call_idx}_status")
