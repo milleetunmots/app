@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_01_14_150303) do
+ActiveRecord::Schema[7.0].define(version: 2026_01_20_113025) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -245,32 +245,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_14_150303) do
     t.string "call2_sendings_benefits"
     t.text "call2_sendings_benefits_details"
     t.datetime "discarded_at", precision: nil
-    t.text "call4_technical_information"
-    t.text "call4_parent_actions"
-    t.text "call4_language_development"
-    t.text "call4_goals"
-    t.text "call4_notes"
-    t.string "call4_status"
-    t.text "call4_status_details"
-    t.integer "call4_duration"
-    t.string "call4_language_awareness"
-    t.string "call4_parent_progress"
-    t.string "call4_sendings_benefits"
-    t.text "call4_sendings_benefits_details"
-    t.string "call4_reading_frequency"
-    t.text "call5_technical_information"
-    t.text "call5_parent_actions"
-    t.text "call5_language_development"
-    t.text "call5_goals"
-    t.text "call5_notes"
-    t.string "call5_status"
-    t.text "call5_status_details"
-    t.integer "call5_duration"
-    t.string "call5_language_awareness"
-    t.string "call5_parent_progress"
-    t.string "call5_sendings_benefits"
-    t.text "call5_sendings_benefits_details"
-    t.string "call5_reading_frequency"
     t.string "call1_sendings_benefits"
     t.text "call1_sendings_benefits_details"
     t.text "call1_technical_information"
@@ -285,14 +259,10 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_14_150303) do
     t.string "call1_tv_frequency"
     t.string "call2_tv_frequency"
     t.string "call3_tv_frequency"
-    t.string "call4_tv_frequency"
-    t.string "call5_tv_frequency"
     t.string "most_present_parent"
     t.boolean "already_working_with"
     t.text "call2_goals_tracking"
     t.text "call3_goals_tracking"
-    t.text "call4_goals_tracking"
-    t.text "call5_goals_tracking"
     t.string "call2_family_progress"
     t.string "call2_previous_goals_follow_up"
     t.string "parent1_available_support_module_list", array: true
@@ -318,8 +288,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_14_150303) do
     t.text "call1_goals_sms"
     t.text "call2_goals_sms"
     t.text "call3_goals_sms"
-    t.text "call4_goals_sms"
-    t.text "call5_goals_sms"
     t.bigint "module2_chosen_by_parents_id"
     t.bigint "module3_chosen_by_parents_id"
     t.bigint "module4_chosen_by_parents_id"
@@ -332,21 +300,16 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_14_150303) do
     t.text "stop_support_details"
     t.datetime "stop_support_date", precision: nil
     t.string "family_support_should_be_stopped"
-    t.string "call4_previous_goals_follow_up"
     t.jsonb "suggested_videos_counter", default: [], array: true
     t.string "is_bilingual", default: "2_no_information"
     t.string "call0_attempt"
     t.string "call1_attempt"
     t.string "call2_attempt"
     t.string "call3_attempt"
-    t.string "call4_attempt"
-    t.string "call5_attempt"
     t.string "call0_review"
     t.string "call1_review"
     t.string "call2_review"
     t.string "call3_review"
-    t.string "call4_review"
-    t.string "call5_review"
     t.string "call3_previous_goals_follow_up"
     t.datetime "address_suspected_invalid_at", precision: nil
     t.string "call0_goal_sent"
@@ -354,14 +317,10 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_14_150303) do
     t.boolean "call1_talk_needed", default: false, null: false
     t.boolean "call2_talk_needed", default: false, null: false
     t.boolean "call3_talk_needed", default: false, null: false
-    t.boolean "call4_talk_needed", default: false, null: false
-    t.boolean "call5_talk_needed", default: false, null: false
     t.text "call0_why_talk_needed"
     t.text "call1_why_talk_needed"
     t.text "call2_why_talk_needed"
     t.text "call3_why_talk_needed"
-    t.text "call4_why_talk_needed"
-    t.text "call5_why_talk_needed"
     t.boolean "has_important_information_parental_consent", default: false, null: false
     t.string "instagram_follower"
     t.string "instagram_user"
@@ -386,10 +345,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_14_150303) do
     t.index ["call2_parent_progress"], name: "index_child_supports_on_call2_parent_progress"
     t.index ["call3_language_awareness"], name: "index_child_supports_on_call3_language_awareness"
     t.index ["call3_parent_progress"], name: "index_child_supports_on_call3_parent_progress"
-    t.index ["call4_language_awareness"], name: "index_child_supports_on_call4_language_awareness"
-    t.index ["call4_parent_progress"], name: "index_child_supports_on_call4_parent_progress"
-    t.index ["call5_language_awareness"], name: "index_child_supports_on_call5_language_awareness"
-    t.index ["call5_parent_progress"], name: "index_child_supports_on_call5_parent_progress"
     t.index ["discarded_at"], name: "index_child_supports_on_discarded_at"
     t.index ["module2_chosen_by_parents_id"], name: "index_child_supports_on_module2_chosen_by_parents_id"
     t.index ["module3_chosen_by_parents_id"], name: "index_child_supports_on_module3_chosen_by_parents_id"
