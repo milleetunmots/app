@@ -201,7 +201,7 @@ RSpec.describe ChildSupport, type: :model do
         expect(FactoryBot.build_stubbed(:child_support)).to be_valid
       end
 
-      (1..5).each do |call_idx|
+      (0..3).each do |call_idx|
         it "if call#{call_idx}_language_awareness is provided by child_support::LANGUAGE_AWARENESS" do
           expect(FactoryBot.build_stubbed(:child_support, "call#{call_idx}_language_awareness": ChildSupport::LANGUAGE_AWARENESS.sample)).to be_valid
         end
@@ -233,7 +233,7 @@ RSpec.describe ChildSupport, type: :model do
     end
   end
 
-  (1..5).each do |call_idx|
+  (0..3).each do |call_idx|
     describe "call#{call_idx}_parent_progress_present" do
       context "returns" do
         it "child supports with parent progress in call #{call_idx} when the parameter is true" do
