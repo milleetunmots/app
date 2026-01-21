@@ -808,15 +808,6 @@ ActiveAdmin.register ChildSupport do
             end
           end
           if f.object.current_child
-            tab f.object.current_child.decorate.name do
-              f.semantic_fields_for :current_child do |current_child_f|
-                current_child_f.input :gender,
-                                      as: :radio,
-                                      collection: child_gender_select_collection
-                current_child_f.input :should_contact_parent1
-                current_child_f.input :should_contact_parent2
-              end
-            end
             tab 'Historique' do
               render 'admin/events/history', events: f.object.parent_events.order(occurred_at: :desc).decorate
             end
@@ -853,7 +844,6 @@ ActiveAdmin.register ChildSupport do
   current_child_attributes = [{
     current_child_attributes: [
       :id,
-      :gender, :should_contact_parent1, :should_contact_parent2,
       {
         parent1_attributes: parent_attributes,
         parent2_attributes: parent_attributes
