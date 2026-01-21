@@ -10,7 +10,7 @@ class Child::StopUnassignedNumberService < ProgramMessageService
   def call
     @child_supports.find_each do |child_support|
       call_status = []
-      (0..5).each do |call_idx|
+      (0..3).each do |call_idx|
         call_status << child_support.send("call#{call_idx}_status")
       end
       call_status.reject!(&:blank?)

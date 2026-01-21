@@ -99,47 +99,6 @@
 #  call3_technical_information                :text
 #  call3_tv_frequency                         :string
 #  call3_why_talk_needed                      :text
-#  call4_attempt                              :string
-#  call4_duration                             :integer
-#  call4_goals                                :text
-#  call4_goals_sms                            :text
-#  call4_goals_tracking                       :text
-#  call4_language_awareness                   :string
-#  call4_language_development                 :text
-#  call4_notes                                :text
-#  call4_parent_actions                       :text
-#  call4_parent_progress                      :string
-#  call4_previous_goals_follow_up             :string
-#  call4_reading_frequency                    :string
-#  call4_review                               :string
-#  call4_sendings_benefits                    :string
-#  call4_sendings_benefits_details            :text
-#  call4_status                               :string
-#  call4_status_details                       :text
-#  call4_talk_needed                          :boolean          default(FALSE), not null
-#  call4_technical_information                :text
-#  call4_tv_frequency                         :string
-#  call4_why_talk_needed                      :text
-#  call5_attempt                              :string
-#  call5_duration                             :integer
-#  call5_goals                                :text
-#  call5_goals_sms                            :text
-#  call5_goals_tracking                       :text
-#  call5_language_awareness                   :string
-#  call5_language_development                 :text
-#  call5_notes                                :text
-#  call5_parent_actions                       :text
-#  call5_parent_progress                      :string
-#  call5_reading_frequency                    :string
-#  call5_review                               :string
-#  call5_sendings_benefits                    :string
-#  call5_sendings_benefits_details            :text
-#  call5_status                               :string
-#  call5_status_details                       :text
-#  call5_talk_needed                          :boolean          default(FALSE), not null
-#  call5_technical_information                :text
-#  call5_tv_frequency                         :string
-#  call5_why_talk_needed                      :text
 #  call_infos                                 :string
 #  child_count                                :integer
 #  discarded_at                               :datetime
@@ -191,10 +150,6 @@
 #  index_child_supports_on_call2_parent_progress                  (call2_parent_progress)
 #  index_child_supports_on_call3_language_awareness               (call3_language_awareness)
 #  index_child_supports_on_call3_parent_progress                  (call3_parent_progress)
-#  index_child_supports_on_call4_language_awareness               (call4_language_awareness)
-#  index_child_supports_on_call4_parent_progress                  (call4_parent_progress)
-#  index_child_supports_on_call5_language_awareness               (call5_language_awareness)
-#  index_child_supports_on_call5_parent_progress                  (call5_parent_progress)
 #  index_child_supports_on_discarded_at                           (discarded_at)
 #  index_child_supports_on_module2_chosen_by_parents_id           (module2_chosen_by_parents_id)
 #  index_child_supports_on_module3_chosen_by_parents_id           (module3_chosen_by_parents_id)
@@ -246,7 +201,7 @@ RSpec.describe ChildSupport, type: :model do
         expect(FactoryBot.build_stubbed(:child_support)).to be_valid
       end
 
-      (1..5).each do |call_idx|
+      (0..3).each do |call_idx|
         it "if call#{call_idx}_language_awareness is provided by child_support::LANGUAGE_AWARENESS" do
           expect(FactoryBot.build_stubbed(:child_support, "call#{call_idx}_language_awareness": ChildSupport::LANGUAGE_AWARENESS.sample)).to be_valid
         end
@@ -278,7 +233,7 @@ RSpec.describe ChildSupport, type: :model do
     end
   end
 
-  (1..5).each do |call_idx|
+  (0..3).each do |call_idx|
     describe "call#{call_idx}_parent_progress_present" do
       context "returns" do
         it "child supports with parent progress in call #{call_idx} when the parameter is true" do
