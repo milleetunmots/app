@@ -80,10 +80,10 @@ ActiveAdmin.register_page 'Message' do
         small 'Variables disponibles: {PRENOM_ENFANT}, {URL}, {PRENOM_ACCOMPAGNANTE}, {NUMERO_AIRCALL_ACCOMPAGNANTE}'
       end
 
-      div id: 'image_to_send_div' do
-        label 'Image'
-        select name: 'image_to_send', id: 'image_to_send'
-      end
+      # div id: 'image_to_send_div' do
+      #   label 'Image'
+      #   select name: 'image_to_send', id: 'image_to_send'
+      # end
 
       div class: 'actions' do
         div class: 'action input_action' do
@@ -115,7 +115,7 @@ ActiveAdmin.register_page 'Message' do
       params[:planned_hour],
       params[:recipients],
       message,
-      get_spot_hit_file(params[:image_to_send]),
+      nil,
       params[:redirection_target],
       false,
       nil,
@@ -156,11 +156,11 @@ ActiveAdmin.register_page 'Message' do
     end
   end
 
-  page_action :image_to_send do
-    render json: {
-      results: get_image_to_send(params[:term])
-    }
-  end
+  # page_action :image_to_send do
+  #   render json: {
+  #     results: get_image_to_send(params[:term])
+  #   }
+  # end
 
   page_action :supporter do
     if params[:supporter_id]
