@@ -486,8 +486,8 @@ class ChildSupport < ApplicationRecord
     other_children.with_support.map(&:child_support).uniq
   end
 
-  def scheduled_call(index)
-    scheduled_calls.find_by(call_session: index.to_i)
+  def scheduled_call_sessions(index)
+    scheduled_calls.where(call_session: index.to_i)
   end
 
   # ---------------------------------------------------------------------------
