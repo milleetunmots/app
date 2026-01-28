@@ -28,7 +28,13 @@ class SpotHit::SendRcsService
     if @recipients.first.is_a?(String)
       @form['custom_list[]'] = @recipients
     else
-      @form['custom_list_with_data[]'] = @recipients
+      # form params: custom_list_with_data[phone][variable]=value
+      # same format as SMS with data but with custom_list_with_data instead of destinataires
+      @recipients.each do |phone, variables|
+        variables.each do |key, value|
+          @form["custom_list_with_data[#{phone}][#{key}]"] = value
+        end
+      end
     end
     @form['date'] = Time.zone.now if Time.zone.at(@planned_timestamp).past?
     response = HTTP.post(

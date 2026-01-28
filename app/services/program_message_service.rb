@@ -177,14 +177,14 @@ class ProgramMessageService
   def format_data_for_spot_hit(rcs)
     if @redirection_target || @variables.any?
       if rcs
-        @recipient_data = [{}]
+        @recipient_data = {}
         Parent.where(id: @parent_ids).find_each do |parent|
-          @recipient_data.first[parent.phone_number] = [{}]
-          @recipient_data.first[parent.phone_number].first['PRENOM_ENFANT'] = parent.current_child&.first_name || 'votre enfant' if @variables.include?('PRENOM_ENFANT')
-          @recipient_data.first[parent.phone_number].first['PARENT_SECURITY_TOKEN'] = parent.security_token if @variables.include?('PARENT_SECURITY_TOKEN')
-          @recipient_data.first[parent.phone_number].first['PRENOM_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.decorate&.first_name if @variables.include?('PRENOM_ACCOMPAGNANTE')
-          @recipient_data.first[parent.phone_number].first['NUMERO_AIRCALL_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.aircall_phone_number if @variables.include?('NUMERO_AIRCALL_ACCOMPAGNANTE')
-          @recipient_data.first[parent.phone_number].first['PARENT_ADDRESS'] = parent.decorate.full_address(', ') if @variables.include?('PARENT_ADDRESS')
+          @recipient_data[parent.phone_number] = {}
+          @recipient_data[parent.phone_number]['PRENOM_ENFANT'] = parent.current_child&.first_name || 'votre enfant' if @variables.include?('PRENOM_ENFANT')
+          @recipient_data[parent.phone_number]['PARENT_SECURITY_TOKEN'] = parent.security_token if @variables.include?('PARENT_SECURITY_TOKEN')
+          @recipient_data[parent.phone_number]['PRENOM_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.decorate&.first_name if @variables.include?('PRENOM_ACCOMPAGNANTE')
+          @recipient_data[parent.phone_number]['NUMERO_AIRCALL_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.aircall_phone_number if @variables.include?('NUMERO_AIRCALL_ACCOMPAGNANTE')
+          @recipient_data[parent.phone_number]['PARENT_ADDRESS'] = parent.decorate.full_address(', ') if @variables.include?('PARENT_ADDRESS')
           if @variables.include?('CALL0_CALENDLY_LINK')
             link = parent.calendly_booking_urls&.dig('call0')
             @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 0" if link.nil?
@@ -216,7 +216,7 @@ class ProgramMessageService
             @recipient_data[parent.phone_number]['RDV_CALENDLY_CANCEL_URL'] = cancel_url
           end
           if @redirection_target && parent.current_child.present?
-            @recipient_data.first[parent.phone_number].first['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
+            @recipient_data[parent.phone_number]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
             @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
             increment_suggested_videos_counter(parent)
           end
