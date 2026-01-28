@@ -124,27 +124,51 @@ class ChildSupportDecorator < BaseDecorator
     end
 
     define_method("call#{call_idx}_scheduled_session") do
-      scheduled_call = model.scheduled_call(call_idx)
-      return nil unless scheduled_call
+      scheduled_calls = model.scheduled_call_sessions(call_idx)
+      return nil if scheduled_calls.empty?
 
-      case scheduled_call.status
-      when 'scheduled'
-        if scheduled_call.scheduled_at < 2.hours.ago
+      if scheduled_calls.size == 1
+        scheduled_call = scheduled_calls.first
+        case scheduled_call.status
+        when 'scheduled'
+          if scheduled_call.scheduled_at <= 2.hours.ago
+            h.safe_join([
+                          h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
+                          h.content_tag(:span, 'rdv non honoré', style: 'color: #B02B2C')
+                        ])
+          else
+            h.safe_join([
+                          h.content_tag(:i, '', class: 'far fa-calendar', style: 'margin-right: 5px;'),
+                          I18n.l(scheduled_call.scheduled_at, format: '%a %d/%m (%Hh%M)')
+                        ])
+          end
+        when 'canceled'
           h.safe_join([
-                        h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
-                        h.content_tag(:span, 'rdv non honoré', style: 'color: #B02B2C')
+                        h.content_tag(:i, '', class: 'far fa-times-circle', style: 'margin-right: 5px; color: #E6AF2E'),
+                        h.content_tag(:span, 'rdv annulé', style: 'color: #E6AF2E')
+                      ])
+        end
+      else
+        upcoming_calls = scheduled_calls.upcoming.select { |call| call.scheduled_at > 2.hours.ago }
+        cancelled_calls = scheduled_calls.canceled
+        if cancelled_calls.size == scheduled_calls.size
+          h.safe_join([
+                        h.content_tag(:i, '', class: 'far fa-times-circle', style: 'margin-right: 5px; color: #E6AF2E'),
+                        h.content_tag(:span, 'rdv annulé', style: 'color: #E6AF2E')
                       ])
         else
           h.safe_join([
-                        h.content_tag(:i, '', class: 'far fa-calendar', style: 'margin-right: 5px;'),
-                        I18n.l(model.scheduled_call(call_idx).scheduled_at, format: '%a %d/%m (%Hh%M)')
+                        h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
+                        h.content_tag(:span, "#{upcoming_calls.count} rdv : ", style: 'color: #B02B2C'),
+                        h.content_tag(
+                          :span,
+                          upcoming_calls.map do |call|
+                            I18n.l(call.scheduled_at, format: '%a %d/%m (%Hh%M)')
+                          end.to_sentence(words_connector: ', ', two_words_connector: ' et ', last_word_connector: ' et ').html_safe,
+                          style: 'color: #B02B2C'
+                        )
                       ])
         end
-      when 'canceled'
-        h.safe_join([
-                      h.content_tag(:i, '', class: 'far fa-times-circle', style: 'margin-right: 5px; color: #E6AF2E'),
-                      h.content_tag(:span, 'rdv annulé', style: 'color: #E6AF2E')
-                    ])
       end
     end
 
