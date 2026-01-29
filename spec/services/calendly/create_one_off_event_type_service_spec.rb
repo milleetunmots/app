@@ -41,10 +41,6 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
     it 'initializes errors as an empty array' do
       expect(subject.errors).to eq([])
     end
-
-    it 'initializes booking_url as nil' do
-      expect(subject.booking_url).to be_nil
-    end
   end
 
   describe '#call' do
@@ -159,12 +155,14 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
         expect(result.errors).to be_empty
       end
 
-      it 'sets booking_url with UTM parameters' do
-        result = subject.call
-        expect(result.booking_url).to include(booking_url)
-        expect(result.booking_url).to include('utm_source=1001mots')
-        expect(result.booking_url).to include("utm_campaign=call#{call_session}")
-        expect(result.booking_url).to include("utm_content=#{parent.security_token}")
+      it 'saves booking_url to parent with UTM parameters' do
+        subject.call
+        parent.reload
+        saved_url = parent.calendly_booking_urls["call#{call_session}"]
+        expect(saved_url).to include(booking_url)
+        expect(saved_url).to include('utm_source=1001mots')
+        expect(saved_url).to include("utm_campaign=call#{call_session}")
+        expect(saved_url).to include("utm_content=#{parent.security_token}")
       end
 
       it 'sends correct parameters to Calendly API' do
@@ -180,7 +178,7 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
               'end_date' => group.call0_end_date.to_s
             },
             'location' => {
-              'kind' => 'phone_call',
+              'kind' => 'inbound_call',
               'phone_number' => aircall_phone_number,
               'additional_info' => 'Je vous appellerai sur votre numéro'
             },
@@ -210,8 +208,9 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
       end
 
       it 'does not set booking_url' do
-        result = subject.call
-        expect(result.booking_url).to be_nil
+        subject.call
+        parent.reload
+        expect(parent.calendly_booking_urls["call#{call_session}"]).to be_nil
       end
     end
 
@@ -226,8 +225,9 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
       end
 
       it 'extracts the URL correctly' do
-        result = subject.call
-        expect(result.booking_url).to include(booking_url)
+        subject.call
+        parent.reload
+        expect(parent.calendly_booking_urls["call#{call_session}"]).to include(booking_url)
       end
     end
 
@@ -237,15 +237,16 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
       end
 
       it 'still generates a valid URL without utm_content' do
-        result = subject.call
-        expect(result.booking_url).to include('utm_source=1001mots')
-        expect(result.booking_url).to include("utm_campaign=call#{call_session}")
-        expect(result.booking_url).not_to include('utm_content')
+        subject.call
+        parent.reload
+        expect(parent.calendly_booking_urls["call#{call_session}"]).to include('utm_source=1001mots')
+        expect(parent.calendly_booking_urls["call#{call_session}"]).to include("utm_campaign=call#{call_session}")
+        expect(parent.calendly_booking_urls["call#{call_session}"]).not_to include('utm_content')
       end
     end
 
     context 'with different call sessions' do
-      [0, 1, 2, 3].each do |session|
+      (0..3).each do |session|
         context "when call_session is #{session}" do
           let(:call_session) { session }
 
@@ -265,8 +266,9 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
           end
 
           it "includes utm_campaign=call#{session}" do
-            result = subject.call
-            expect(result.booking_url).to include("utm_campaign=call#{session}")
+            subject.call
+            parent.reload
+            expect(parent.calendly_booking_urls["call#{session}"]).to include("utm_campaign=call#{session}")
           end
         end
       end
@@ -276,8 +278,9 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
 
   describe '#add_utm_params' do
     it 'properly encodes special characters in security_token' do
-      result = subject.call
-      uri = URI.parse(result.booking_url)
+      subject.call
+      parent.reload
+      uri = URI.parse(parent.calendly_booking_urls["call#{call_session}"])
       params = URI.decode_www_form(uri.query).to_h
 
       expect(params['utm_source']).to eq('1001mots')
