@@ -127,49 +127,14 @@ class ChildSupportDecorator < BaseDecorator
       scheduled_calls = model.scheduled_call_sessions(call_idx)
       return nil if scheduled_calls.empty?
 
-      if scheduled_calls.size == 1
-        scheduled_call = scheduled_calls.first
-        case scheduled_call.status
-        when 'scheduled'
-          if scheduled_call.scheduled_at <= 2.hours.ago
-            h.safe_join([
-                          h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
-                          h.content_tag(:span, 'rdv non honoré', style: 'color: #B02B2C')
-                        ])
-          else
-            h.safe_join([
-                          h.content_tag(:i, '', class: 'far fa-calendar', style: 'margin-right: 5px;'),
-                          I18n.l(scheduled_call.scheduled_at, format: '%a %d/%m (%Hh%M)')
-                        ])
-          end
-        when 'canceled'
-          h.safe_join([
-                        h.content_tag(:i, '', class: 'far fa-times-circle', style: 'margin-right: 5px; color: #E6AF2E'),
-                        h.content_tag(:span, 'rdv annulé', style: 'color: #E6AF2E')
-                      ])
-        end
-      else
-        upcoming_calls = scheduled_calls.upcoming.select { |call| call.scheduled_at > 2.hours.ago }
-        cancelled_calls = scheduled_calls.canceled
-        if cancelled_calls.size == scheduled_calls.size
-          h.safe_join([
-                        h.content_tag(:i, '', class: 'far fa-times-circle', style: 'margin-right: 5px; color: #E6AF2E'),
-                        h.content_tag(:span, 'rdv annulé', style: 'color: #E6AF2E')
-                      ])
-        else
-          h.safe_join([
-                        h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
-                        h.content_tag(:span, "#{upcoming_calls.count} rdv : ", style: 'color: #B02B2C'),
-                        h.content_tag(
-                          :span,
-                          upcoming_calls.map do |call|
-                            I18n.l(call.scheduled_at, format: '%a %d/%m (%Hh%M)')
-                          end.to_sentence(words_connector: ', ', two_words_connector: ' et ', last_word_connector: ' et ').html_safe,
-                          style: 'color: #B02B2C'
-                        )
-                      ])
-        end
-      end
+      upcoming_calls = scheduled_calls.upcoming.select { |call| call.scheduled_at > 2.hours.ago }
+      all_canceled = scheduled_calls.all?(&:canceled?)
+
+      return canceled_badge if all_canceled
+      return missed_appointment_badge if upcoming_calls.empty?
+      return appointment_badge(upcoming_calls.first) if upcoming_calls.one?
+
+      multiple_appointments_badge(upcoming_calls)
     end
 
     define_method("call#{call_idx}_parent_actions_text") do
@@ -254,6 +219,44 @@ class ChildSupportDecorator < BaseDecorator
       h.content_tag :div, send("call#{call_idx}_technical_information_text"), class: 'free-text'
     end
 
+  end
+
+  def canceled_badge
+    h.safe_join([
+                  h.content_tag(:i, '', class: 'far fa-times-circle', style: 'margin-right: 5px; color: #E6AF2E'),
+                  h.content_tag(:span, 'rdv annulé', style: 'color: #E6AF2E')
+                ])
+  end
+
+  def missed_appointment_badge
+    h.safe_join([
+                  h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
+                  h.content_tag(:span, 'rdv non honoré', style: 'color: #B02B2C')
+                ])
+  end
+
+  def appointment_badge(call)
+    if call.scheduled_at <= 2.hours.ago
+      missed_appointment_badge
+    else
+      h.safe_join([
+                    h.content_tag(:i, '', class: 'far fa-calendar', style: 'margin-right: 5px;'),
+                    I18n.l(call.scheduled_at, format: '%a %d/%m (%Hh%M)')
+                  ])
+    end
+  end
+
+  def multiple_appointments_badge(calls)
+    h.safe_join([
+                  h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
+                  h.content_tag(:span, "#{calls.count} rdv : ", style: 'color: #B02B2C'),
+                  h.content_tag(:span, format_multiple_dates(calls), style: 'color: #B02B2C')
+                ])
+  end
+
+  def format_multiple_dates(calls)
+    calls.map { |call| I18n.l(call.scheduled_at, format: '%a %d/%m (%Hh%M)') }
+         .to_sentence(words_connector: ', ', two_words_connector: ' et ', last_word_connector: ' et ')
   end
 
   def dropdown_menu_item
