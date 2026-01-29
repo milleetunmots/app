@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_01_20_113025) do
+ActiveRecord::Schema[7.0].define(version: 2026_01_28_150703) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -640,6 +640,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_20_113025) do
     t.string "book_delivery_location"
     t.float "latitude"
     t.float "longitude"
+    t.jsonb "calendly_booking_urls", default: {}
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"

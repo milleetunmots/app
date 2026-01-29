@@ -3,7 +3,7 @@ module Calendly
 
     ONE_OFF_EVENT_TYPES_ENDPOINT = '/one_off_event_types'.freeze
 
-    attr_reader :errors, :booking_url
+    attr_reader :errors
 
     def initialize(child_support:, call_session:)
       @errors = []
@@ -17,6 +17,16 @@ module Calendly
       handle_errors
       return self if @errors.any?
 
+      create_one_off_event_type_for_parent(@child_support.parent1)
+      create_one_off_event_type_for_parent(@child_support.parent2)
+      self
+    end
+
+    private
+
+    def create_one_off_event_type_for_parent(parent)
+      return if parent.nil?
+
       response = http_client_with_auth.post(
         build_url(ONE_OFF_EVENT_TYPES_ENDPOINT),
         json: build_request_body
@@ -25,7 +35,9 @@ module Calendly
         body = JSON.parse(response.body)
         # get scheduling_url or booking_url from response
         @booking_url = extract_booking_url(body)
-        @booking_url = add_utm_params(@booking_url) if @booking_url
+        @booking_url = add_utm_params(@booking_url, parent) if @booking_url
+        parent.calendly_booking_urls["call#{@call_session}"] = @booking_url
+        parent.save!
       else
         @errors << {
           message: "La création d'un event type one-off a échoué",
@@ -34,17 +46,16 @@ module Calendly
           call_session: @call_session
         }
       end
-      self
     end
-
-    private
 
     def handle_errors
       @errors << "La fiche de suivi n'a pas été trouvée" and return unless @child_support
       @errors << "Pas d'accompagnante sur la fiche de suivi" and return unless @supporter
+
       @errors << "L'accompagnante n'a pas de calendly_user_uri" unless @supporter.calendly_user_uri.present?
       @errors << "L'accompagnante n'a pas de numéro Aircall" unless @supporter.aircall_phone_number.present?
-      @errors << "Cohorte introuvable" and return unless @group
+      @errors << 'Cohorte introuvable' and return unless @group
+
       @errors << "Les dates de la session d'appel de la cohorte sont manquantes" unless call_dates_present?
     end
 
@@ -52,7 +63,7 @@ module Calendly
       {
         name: build_event_name,
         host: @supporter.calendly_user_uri,
-        duration: 30,
+        duration: 20,
         date_setting: {
           type: 'date_range',
           start_date: call_start_date.to_s,
@@ -60,14 +71,28 @@ module Calendly
         },
         location: {
           kind: 'inbound_call',
-          phone_number: @supporter.aircall_phone_number
+          phone_number: @supporter.aircall_phone_number,
+          additional_info: 'Je vous appellerai sur votre numéro'
         },
         locale: 'fr'
       }
     end
 
     def build_event_name
-      "Appel #{@call_session} - #{@child_support.supporter_name.split.first}"
+      child_name = @child_support.current_child.first_name
+      event_name =
+        case @call_session
+        when 0
+          "Prenez rdv pour discuter de #{child_name} :)"
+        when 1
+          "#{child_name} et les livres"
+        when 2
+          "Aider #{child_name} à bien grandir"
+        when 3
+          "Parlons de ce qui intéresse #{child_name}"
+        end
+      event_name.gsub!(child_name, 'votre enfant') if event_name.size > 55
+      event_name
     end
 
     def call_start_date
@@ -89,14 +114,14 @@ module Calendly
         body['scheduling_url']
     end
 
-    def add_utm_params(url)
+    def add_utm_params(url, parent)
       return nil unless url
 
       uri = URI.parse(url)
       params = {
         utm_source: '1001mots',
         utm_campaign: "call#{@call_session}",
-        utm_content: @child_support.parent1&.security_token
+        utm_content: parent.security_token
       }.compact
       uri.query = URI.encode_www_form(params)
       uri.to_s
