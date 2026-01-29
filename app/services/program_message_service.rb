@@ -192,7 +192,7 @@ class ProgramMessageService
           @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 2" if parent.calendly_booking_urls['call2'].nil?
           @recipient_data[parent.id.to_s]['CALL2_CALENDLY_LINK'] = parent.calendly_booking_urls['call2']
         end
-        if @variables.include?('CALL1_CALENDLY_LINK')
+        if @variables.include?('CALL3_CALENDLY_LINK')
           @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 3" if parent.calendly_booking_urls['call3'].nil?
           @recipient_data[parent.id.to_s]['CALL3_CALENDLY_LINK'] = parent.calendly_booking_urls['call3']
         end

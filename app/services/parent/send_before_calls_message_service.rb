@@ -52,7 +52,7 @@ class Parent::SendBeforeCallsMessageService
     MSG2
     <<~MSG3
       Bonjour,
-      On espère que vous allez bien et {PRENOM_ENFANT} aussi :){PRENOM_ACCOMPAGNANTE} va bientôt vous appeler pour discuter avec vous de ce qui intéresse {PRENOM_ENFANT} en ce moment.
+      On espère que vous allez bien et {PRENOM_ENFANT} aussi :) {PRENOM_ACCOMPAGNANTE} va bientôt vous appeler pour discuter avec vous de ce qui intéresse {PRENOM_ENFANT} en ce moment.
       Prenez rendez-vous avec {PRENOM_ACCOMPAGNANTE} ici : {CALL3_CALENDLY_LINK}
       Si elle n'arrive pas à vous parler au téléphone cette fois-ci, le programme va s'arrêter automatiquement :(
       A très bientôt !
@@ -74,42 +74,48 @@ class Parent::SendBeforeCallsMessageService
   def call
     @groups.each_with_index do |group_list, call_index|
       group_list.each do |group|
-        parent_with_previous_calls_ok_or_unfinished_ids =
-          group.child_supports
-               .with_a_child_in_active_group
-               .joins(:supporter)
-               .where(supporter: { can_send_automatic_sms: true })
-               .where.not(supporter: { aircall_number_id: nil })
-               .where.not(supporter: { calendly_user_uri: nil })
-               .previous_calls_ok_or_unfinished_before(call_index)
-               .map { |child_support| %W[parent.#{child_support.parent1.id} parent.#{child_support.parent2&.id}] }.flatten.compact
-        previous_calls_ok_or_unfinished_warning_service = ProgramMessageService.new(
-          @date.strftime('%d-%m-%Y'),
-          '19:00',
-          parent_with_previous_calls_ok_or_unfinished_ids,
-          PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGE[call_index]
-        ).call
-        @errors << "Parent::SendDisengagementWarningBeforeCallsService (group: #{group.name}) : #{previous_calls_ok_or_unfinished_warning_service.errors.uniq}" if previous_calls_ok_or_unfinished_warning_service.errors
+        child_supports_with_correct_supporters = group.child_supports.with_valid_supporter_for_calendly
+        child_supports_with_previous_calls_ok_or_unfinished =
+          child_supports_with_correct_supporters.previous_calls_ok_or_unfinished_before(call_index)
+        create_one_off_event_types(child_supports_with_previous_calls_ok_or_unfinished, call_index)
+        send_before_calls_message(group, child_supports_with_previous_calls_ok_or_unfinished, PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGE[call_index])
         next if call_index.zero?
 
-        parent_with_at_least_one_call_not_ok_and_not_unfinished_ids =
-          group.child_supports
-               .with_a_child_in_active_group
-               .joins(:supporter)
-               .where(supporter: { can_send_automatic_sms: true })
-               .where.not(supporter: { aircall_number_id: nil })
-               .where.not(supporter: { calendly_user_uri: nil })
-               .at_least_one_call_not_ok_and_not_unfinished(call_index)
-               .map { |child_support| %W[parent.#{child_support.parent1.id} parent.#{child_support.parent2&.id}] }.flatten.compact
-        at_least_one_call_not_ok_and_not_unfinished_warning_service = ProgramMessageService.new(
-          @date.strftime('%d-%m-%Y'),
-          '19:00',
-          parent_with_at_least_one_call_not_ok_and_not_unfinished_ids,
-          AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGE[call_index - 1]
-        ).call
-        @errors << "Parent::SendDisengagementWarningBeforeCallsService (group: #{group.name}) : #{at_least_one_call_not_ok_and_not_unfinished_warning_service.errors.uniq}" if at_least_one_call_not_ok_and_not_unfinished_warning_service.errors
+        child_support_with_at_least_one_call_not_ok_and_not_unfinished =
+          child_supports_with_correct_supporters.at_least_one_call_not_ok_and_not_unfinished(call_index)
+        create_one_off_event_types(child_support_with_at_least_one_call_not_ok_and_not_unfinished, call_index)
+        send_before_calls_message(group, child_support_with_at_least_one_call_not_ok_and_not_unfinished, AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGE[call_index - 1])
       end
     end
     self
+  end
+
+  private
+
+  def create_one_off_event_types(child_supports, call_index)
+    return if child_supports.empty?
+
+    child_supports.each do |child_support|
+      create_one_off_event_type_service = Calendly::CreateOneOffEventTypeService.new(child_support: child_support, call_session: call_index).call
+      @errors << "Parent::SendBeforeCallsMessageService (child_support: #{child_support.id}) : #{create_one_off_event_type_service.errors.uniq}" if create_one_off_event_type_service.errors.any?
+    end
+  end
+
+  def parent_ids(child_supports)
+    return if child_supports.empty?
+
+    child_supports.map { |child_support| %W[parent.#{child_support.parent1.id} parent.#{child_support.parent2&.id}] }.flatten.compact
+  end
+
+  def send_before_calls_message(group, child_supports, message)
+    return if child_supports.empty?
+
+    message_service = ProgramMessageService.new(
+      @date.strftime('%d-%m-%Y'),
+      '19:00',
+      parent_ids(child_supports),
+      message
+    ).call
+    @errors << "Parent::SendBeforeCallsMessageService (group: #{group.name}) : #{message_service.errors.uniq}" if message_service.errors.any?
   end
 end

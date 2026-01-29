@@ -312,9 +312,15 @@ class ChildSupport < ApplicationRecord
   scope :with_child_in_group_ended_between, lambda { |start_date, end_date|
     joins(children: :group).where(groups: { ended_at: start_date..end_date }).distinct
   }
-
   scope :without_scheduled_calls, -> {
     left_joins(:scheduled_calls).where(scheduled_calls: { id: nil })
+  }
+  scope :with_valid_supporter_for_calendly, -> {
+    with_a_child_in_active_group
+      .joins(:supporter)
+      .where(supporter: { can_send_automatic_sms: true })
+      .where.not(supporter: { aircall_number_id: nil })
+      .where.not(supporter: { calendly_user_uri: nil })
   }
 
   class << self
