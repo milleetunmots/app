@@ -286,8 +286,6 @@ class ChildSupport < ApplicationRecord
       .or(where('call1_status ILIKE ?', 'Numéro erroné'))
       .or(where('call2_status ILIKE ?', 'Numéro erroné'))
       .or(where('call3_status ILIKE ?', 'Numéro erroné'))
-      .or(where('call4_status ILIKE ?', 'Numéro erroné'))
-      .or(where('call5_status ILIKE ?', 'Numéro erroné'))
   }
   scope :with_kept_children, -> {
     where(
