@@ -181,12 +181,6 @@ $(document).ready(function() {
   const onChildSupportCall3StatusUpdated = function(event) {
     updateCallStatusDetail(event, 3);
   }
-  const onChildSupportCall4StatusUpdated = function(event) {
-    updateCallStatusDetail(event, 4);
-  }
-  const onChildSupportCall5StatusUpdated = function(event) {
-    updateCallStatusDetail(event, 5);
-  }
 
   function toggleWhyTalkNeeded(idx) {
     var $checkbox = $("#call" + idx + "_talk_needed_checkbox");
@@ -205,8 +199,6 @@ $(document).ready(function() {
   $("#child_support_call1_status").on("change", onChildSupportCall1StatusUpdated);
   $("#child_support_call2_status").on("change", onChildSupportCall2StatusUpdated);
   $("#child_support_call3_status").on("change", onChildSupportCall3StatusUpdated);
-  $("#child_support_call4_status").on("change", onChildSupportCall4StatusUpdated);
-  $("#child_support_call5_status").on("change", onChildSupportCall5StatusUpdated);
 
   $("[id$='_talk_needed_checkbox']").each(function() {
     const idx = this.id.match(/\d+/)?.[0];

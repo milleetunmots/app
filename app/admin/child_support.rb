@@ -863,7 +863,7 @@ ActiveAdmin.register ChildSupport do
   children_support_modules_attributes = [{ children_support_modules_attributes: %i[id book_condition] }]
   # block is mandatory here because ChildSupport.call_attributes hits DB
   permit_params do
-    permitted = base_attributes + ChildSupport.call_attributes + current_child_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms call4_goals_sms call5_goals_sms tag_list] + parents_available_support_module_list_attributes
+    permitted = base_attributes + ChildSupport.call_attributes + current_child_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms tag_list] + parents_available_support_module_list_attributes
     permitted += tags_params_attributes unless AdminUser.any_caller_or_animator_with_id?(current_admin_user.id)
     permitted
   end
@@ -966,8 +966,6 @@ ActiveAdmin.register ChildSupport do
     column :call1_attempt
     column :call2_attempt
     column :call3_attempt
-    column :call4_attempt
-    column :call5_attempt
 
     column :parent1_first_name
     column :parent1_last_name
