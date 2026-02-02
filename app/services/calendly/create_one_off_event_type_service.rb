@@ -18,6 +18,8 @@ module Calendly
       return self if @errors.any?
 
       create_one_off_event_type_for_parent(@child_support.parent1)
+      return self if @errors.any?
+
       create_one_off_event_type_for_parent(@child_support.parent2)
       self
     end
@@ -31,6 +33,7 @@ module Calendly
         build_url(ONE_OFF_EVENT_TYPES_ENDPOINT),
         json: build_request_body
       )
+      sleep(0.25)
       if response.status.success?
         body = JSON.parse(response.body)
         # get scheduling_url or booking_url from response
@@ -42,6 +45,7 @@ module Calendly
         @errors << {
           message: "La création d'un event type one-off a échoué",
           child_support_id: @child_support.id,
+          parent_id: parent.id,
           supporter_id: @supporter.id,
           call_session: @call_session
         }
