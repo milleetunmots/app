@@ -13,36 +13,41 @@ class Group
 
     def call
       check_group_is_ready
-      if @errors.empty?
-        # making sure hours are within 1 - 8
-        @hour = (@group.started_at.month % 10).clamp(1, 8)
-        program_support_module_zero
-        program_sms_to_bilinguals
-        assign_default_call_status(0)
-        program_sms_to_verify_address
-        program_first_support_module
-        assign_default_call_status(1)
-        add_months_tag_to_child_support
-        fill_parents_available_support_modules
-        verify_available_module_list
-        create_call2_children_support_module
-        select_default_support_module2
-        verify_chosen_modules2
-        assign_default_call_status(2)
-        program_sms_to_choose_module2_to_parents
-        program_sms_to_choose_module_to_parents
-        assign_default_call_status(3)
-        select_default_support_module
-        verify_chosen_modules
-        program_support_module_sms
-        stop_support
-        @group.update(is_programmed: true)
-      end
+      return self if @errors.any?
 
+      initialize_parents_calendly_booking_urls
+      # making sure hours are within 1 - 8
+      @hour = (@group.started_at.month % 10).clamp(1, 8)
+      program_support_module_zero
+      program_sms_to_bilinguals
+      assign_default_call_status(0)
+      program_sms_to_verify_address
+      program_first_support_module
+      assign_default_call_status(1)
+      add_months_tag_to_child_support
+      fill_parents_available_support_modules
+      verify_available_module_list
+      create_call2_children_support_module
+      select_default_support_module2
+      verify_chosen_modules2
+      assign_default_call_status(2)
+      program_sms_to_choose_module2_to_parents
+      program_sms_to_choose_module_to_parents
+      assign_default_call_status(3)
+      select_default_support_module
+      verify_chosen_modules
+      program_support_module_sms
+      stop_support
+      @group.update(is_programmed: true)
       self
     end
 
     private
+
+    def initialize_parents_calendly_booking_urls
+      @group.parent1.update_all(calendly_booking_urls: {})
+      @group.parent2.update_all(calendly_booking_urls: {})
+    end
 
     def check_group_is_ready
       @errors << 'Date de début obligatoire.' if @group.started_at.blank?
