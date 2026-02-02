@@ -43,7 +43,7 @@
       cron: '0 9 * * *'
       class: 'Child::SendEvalMessageJob'
     send_before_calls_message_job:
-      cron: '0 18 * * 5'
+      cron: '0 5 * * 3'
       class: 'Parent::SendBeforeCallsMessageJob'
     calendly_sync_users_and_event_types_job:
       cron: '0 3 * * *'
