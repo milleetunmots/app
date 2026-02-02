@@ -181,20 +181,24 @@ class ProgramMessageService
         @recipient_data[parent.id.to_s]['NUMERO_AIRCALL_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.aircall_phone_number if @variables.include?('NUMERO_AIRCALL_ACCOMPAGNANTE')
         @recipient_data[parent.id.to_s]['PARENT_ADDRESS'] = parent.decorate.full_address(', ') if @variables.include?('PARENT_ADDRESS')
         if @variables.include?('CALL0_CALENDLY_LINK')
-          @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 0" if parent.calendly_booking_urls['call0'].nil?
-          @recipient_data[parent.id.to_s]['CALL0_CALENDLY_LINK'] = parent.calendly_booking_urls['call0']
+          link = parent.calendly_booking_urls&.dig('call0')
+          @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 0" if link.nil?
+          @recipient_data[parent.id.to_s]['CALL0_CALENDLY_LINK'] = link
         end
         if @variables.include?('CALL1_CALENDLY_LINK')
-          @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 1" if parent.calendly_booking_urls['call1'].nil?
-          @recipient_data[parent.id.to_s]['CALL1_CALENDLY_LINK'] = parent.calendly_booking_urls['call1']
+          link = parent.calendly_booking_urls&.dig('call1')
+          @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 1" if link.nil?
+          @recipient_data[parent.id.to_s]['CALL1_CALENDLY_LINK'] = link
         end
         if @variables.include?('CALL2_CALENDLY_LINK')
-          @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 2" if parent.calendly_booking_urls['call2'].nil?
-          @recipient_data[parent.id.to_s]['CALL2_CALENDLY_LINK'] = parent.calendly_booking_urls['call2']
+          link = parent.calendly_booking_urls&.dig('call2')
+          @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 2" if link.nil?
+          @recipient_data[parent.id.to_s]['CALL2_CALENDLY_LINK'] = link
         end
         if @variables.include?('CALL3_CALENDLY_LINK')
-          @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 3" if parent.calendly_booking_urls['call3'].nil?
-          @recipient_data[parent.id.to_s]['CALL3_CALENDLY_LINK'] = parent.calendly_booking_urls['call3']
+          link = parent.calendly_booking_urls&.dig('call3')
+          @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 3" if link.nil?
+          @recipient_data[parent.id.to_s]['CALL3_CALENDLY_LINK'] = link
         end
         if @redirection_target && parent.current_child.present?
           @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
