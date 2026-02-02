@@ -35,8 +35,8 @@ class TypeformController < ApplicationController
           Typeform::MidwayFormService.new(params[:form_response]).call
         when CALL_ZERO_GOALS_TYPEFORM_ID
           Typeform::CallGoalsFormService.new(params[:form_response], 0).call
-        when CALL_THREE_SPEAKING_TYPEFORM_ID, CALL_THREE_OBSERVING_TYPEFORM_ID
-          Typeform::CallGoalsFormService.new(params[:form_response], 3).call
+        # when CALL_THREE_SPEAKING_TYPEFORM_ID, CALL_THREE_OBSERVING_TYPEFORM_ID
+        #   Typeform::CallGoalsFormService.new(params[:form_response], 3).call
         when INITIAL_TYPEFORM_ID
           Typeform::InitialFormService.new(params[:form_response]).call
         when UPDATING_ADDRESS_TYPEFORM_ID, UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID, UPDATING_ADDRESS_FOR_PARTNERS_TYPEFORM_ID

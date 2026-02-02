@@ -23,7 +23,14 @@ class ChildSupport::SendCallGoalsMessagesService
 
   def send_call_goals_reminder_message
     call_informations
-    @group.child_supports.where.not(@call_goals_sms.to_sym => [nil, '']).where.not(@call_previous_goals_follow_up.to_sym => '1_succeed').find_each do |child_support|
+    # call4 doesnt exist anymore
+    qwery =
+      if @call_previous_goals_follow_up == 'call4_previous_goals_follow_up'
+        @group.child_supports.where.not(@call_goals_sms.to_sym => [nil, ''])
+      else
+        @group.child_supports.where.not(@call_goals_sms.to_sym => [nil, '']).where.not(@call_previous_goals_follow_up.to_sym => '1_succeed')
+      end
+    qwery.find_each do |child_support|
       @child_support = child_support
       message_informations
       next unless @goals_match.present? && @typeform_link_match.present?
@@ -36,6 +43,7 @@ class ChildSupport::SendCallGoalsMessagesService
   def call_informations
     if @call_index == 3
       @call_goals_sms = 'call3_goals_sms'
+      # call4 doesnt exist anymore
       @call_previous_goals_follow_up = 'call4_previous_goals_follow_up'
     else
       @call_goals_sms = 'call0_goals_sms'

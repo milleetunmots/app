@@ -45,8 +45,6 @@ ActiveAdmin.register_page 'Message' do
             option 'Appel 3', value: 'call3_goals'
             option 'Appel 3 - OBSERVER', value: 'call3_goals_observing'
             option 'Appel 3 - PARLER', value: 'call3_goals_speaking'
-            option 'Appel 4', value: 'call4_goals'
-            option 'Appel 5', value: 'call5_goals'
           end
         end
       end
