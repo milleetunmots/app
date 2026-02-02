@@ -62,9 +62,9 @@ class Parent::SendBeforeCallsMessageService
 
   attr_reader :errors
 
-  def initialize
+  def initialize(date: Time.zone.today.next_occurring(:friday))
     @errors = []
-    @date = ENV['DISENGAGEMENT_WARNING_BEFORE_CALLS_DATE'].present? ? Date.parse(ENV['DISENGAGEMENT_WARNING_BEFORE_CALLS_DATE']) : Time.zone.today
+    @date = ENV['DISENGAGEMENT_WARNING_BEFORE_CALLS_DATE'].present? ? Date.parse(ENV['DISENGAGEMENT_WARNING_BEFORE_CALLS_DATE']) : date
     @groups = []
     4.times do |call_index|
       @groups << Group.with_calls.where("call#{call_index}_start_date = ?", @date.next_occurring(:monday))
@@ -78,12 +78,16 @@ class Parent::SendBeforeCallsMessageService
         child_supports_with_previous_calls_ok_or_unfinished =
           child_supports_with_correct_supporters.previous_calls_ok_or_unfinished_before(call_index)
         create_one_off_event_types(child_supports_with_previous_calls_ok_or_unfinished, call_index)
+        return self if @errors.any?
+
         send_before_calls_message(group, child_supports_with_previous_calls_ok_or_unfinished, PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGE[call_index])
         next if call_index.zero?
 
         child_support_with_at_least_one_call_not_ok_and_not_unfinished =
           child_supports_with_correct_supporters.at_least_one_call_not_ok_and_not_unfinished(call_index)
         create_one_off_event_types(child_support_with_at_least_one_call_not_ok_and_not_unfinished, call_index)
+        return self if @errors.any?
+
         send_before_calls_message(group, child_support_with_at_least_one_call_not_ok_and_not_unfinished, AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGE[call_index - 1])
       end
     end
