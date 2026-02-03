@@ -1,6 +1,14 @@
 module Calendly
   class ProcessInviteeCreatedService
 
+    SCHEDULED_CALL_CONFIRMATION_MESSAGE = <<~MESSAGE.freeze
+      1001mots : Confirmation de RDV
+      Bonjour,
+      Vous avez RDV le {SCHEDULED_AT_DATE} à {SCHEDULED_AT_HOUR} avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante 1001mots. Elle vous appellera au {NUMERO_PARENT}. Pensez à enregistrer son numéro pour ne pas manquer l’appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.
+      Si vous n’êtes plus disponible, annulez le rdv ici : {CANCEL_URL}
+      A bientôt !
+    MESSAGE
+
     attr_reader :errors, :scheduled_call
 
     def initialize(payload:)
@@ -22,6 +30,9 @@ module Calendly
       extract_invitee_comment
 
       create_or_update_scheduled_call
+      return self if @errors.any?
+
+      send_scheduled_call_confirmation
       self
     end
 
@@ -144,6 +155,22 @@ module Calendly
         message: 'Échec de la sauvegarde du ScheduledCall',
         validation_errors: @scheduled_call.errors.full_messages
       }
+    end
+
+    def send_scheduled_call_confirmation
+      message = SCHEDULED_CALL_CONFIRMATION_MESSAGE.gsub('{SCHEDULED_AT_DATE}', @scheduled_call.scheduled_at.strftime('%d/%m'))
+                                                   .gsub('{SCHEDULED_AT_HOUR}', @scheduled_call.scheduled_at.strftime('%H:%M'))
+                                                   .gsub('{NUMERO_PARENT}', Phonelib.parse(@parent.phone_number).national)
+                                                   .gsub('{CANCEL_URL}', @scheduled_call.cancel_url)
+      service = ProgramMessageService.new(
+        Time.zone.now.strftime('%d-%m-%Y'),
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{@parent.id}"],
+        message
+      ).call
+      return if service.errors.empty?
+
+      @errors << { message: "Échec de l'envoi du message de confirmation de RDV", errors: service.errors }
     end
   end
 end
