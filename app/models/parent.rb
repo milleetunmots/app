@@ -8,6 +8,7 @@
 #  aircall_datas                       :jsonb
 #  book_delivery_location              :string
 #  book_delivery_organisation_name     :string
+#  calendly_booking_urls               :jsonb
 #  city_name                           :string           not null
 #  degree                              :string
 #  degree_country_at_registration      :string
@@ -100,6 +101,7 @@ class Parent < ApplicationRecord
     unscope(:where).where("parent1_id = :id OR parent2_id = :id", id: parent.id)
   }
   has_many :redirection_urls, dependent: :destroy
+  has_many :scheduled_calls, dependent: :nullify
   has_many :events, as: :related, dependent: :destroy
   has_many :children_support_modules, dependent: :destroy
   has_many :support_modules, through: :children_support_modules
