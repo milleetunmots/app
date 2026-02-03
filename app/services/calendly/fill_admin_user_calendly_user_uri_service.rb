@@ -10,7 +10,7 @@ module Calendly
 
     def call
       retrieve_organization_memberships_service = Calendly::RetrieveOrganizationMembershipsService.new.call
-      @errors << { service: 'FillAdminUserCalendlyUserUri', erreurs: retrieve_organization_memberships_service.errors }
+      @errors << { service: 'FillAdminUserCalendlyUserUri', erreurs: retrieve_organization_memberships_service.errors } if retrieve_organization_memberships_service.errors.any?
 
       users = retrieve_organization_memberships_service.users
       users.each do |user|
