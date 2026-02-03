@@ -6,6 +6,7 @@
 #  calendly_event_uri   :string           not null
 #  calendly_invitee_uri :string
 #  call_session         :integer
+#  cancel_url           :string
 #  canceled_at          :datetime
 #  cancellation_reason  :text
 #  duration_minutes     :integer

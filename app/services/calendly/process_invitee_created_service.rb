@@ -121,6 +121,7 @@ module Calendly
       @scheduled_call = ScheduledCall.find_or_initialize_by(calendly_event_uri: event_uri)
 
       @scheduled_call.assign_attributes(
+        cancel_url: @invitee_payload['cancel_url'],
         calendly_invitee_uri: @invitee_payload['uri'],
         admin_user: @admin_user,
         child_support: @child_support,
