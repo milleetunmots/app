@@ -62,9 +62,10 @@ class Parent::SendBeforeCallsMessageService
 
   attr_reader :errors
 
-  def initialize(date: Time.zone.today.next_occurring(:friday))
+  def initialize(date: Time.zone.today.next_occurring(:friday), send_at: nil)
     @errors = []
-    @date = ENV['DISENGAGEMENT_WARNING_BEFORE_CALLS_DATE'].present? ? Date.parse(ENV['DISENGAGEMENT_WARNING_BEFORE_CALLS_DATE']) : date
+    @date = date
+    @send_at = send_at
     @groups = []
     4.times do |call_index|
       @groups << Group.with_calls.where("call#{call_index}_start_date = ?", @date.next_occurring(:monday))
@@ -114,9 +115,11 @@ class Parent::SendBeforeCallsMessageService
   def send_before_calls_message(group, child_supports, message)
     return if child_supports.empty?
 
+    planned_date = (@send_at || @date).strftime('%d-%m-%Y')
+    planned_hour = @send_at ? @send_at&.strftime('%H:%M') : '19:00'
     message_service = ProgramMessageService.new(
-      @date.strftime('%d-%m-%Y'),
-      '19:00',
+      planned_date,
+      planned_hour,
       parent_ids(child_supports),
       message
     ).call
