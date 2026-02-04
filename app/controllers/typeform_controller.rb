@@ -44,7 +44,7 @@ class TypeformController < ApplicationController
         when CAF_SUBSCRIPTION_TYPEFORM_ID
           Typeform::AddCafSubscriptionTagService.new(params[:form_response]).call
         end
-      Rollbar.error('Typeform service error', service: service.class.to_s, errors: service.errors, form_response: params[:form_response]) unless service.errors.empty?
+      Rollbar.error('Typeform service error', service: service.class.to_s, errors: service.errors, form_response: params[:form_response]) unless service&.errors&.empty?
     else
       Rollbar.error('Typeform with unknown id', typeform_id: params[:form_response][:form_id], form_response: params[:form_response])
     end
