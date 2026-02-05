@@ -1,15 +1,17 @@
 ActiveAdmin.register ScheduledCall do
   menu label: 'RDV Calendly', priority: 15
 
+  config.sort_order = 'scheduled_at'
+
   actions :all, except: %i[new edit create destroy]
 
   includes :admin_user, :child_support, :parent
 
-  scope(:all, default: true, group: :all)
+  scope(:all, group: :all)
   scope(:mine, group: :supporter) { |scope| scope.where(admin_user: current_admin_user) }
   scope(:scheduled, group: :status) { |scope| scope.scheduled }
   scope(:canceled, group: :status) { |scope| scope.canceled }
-  scope(:upcoming, group: :time) { |scope| scope.upcoming }
+  scope(:upcoming, default: true, group: :time) { |scope| scope.upcoming }
 
   filter :scheduled_at
   filter :status, as: :select, collection: ScheduledCall::STATUSES
@@ -28,7 +30,7 @@ ActiveAdmin.register ScheduledCall do
     id_column
     column :scheduled_at
     column :status do |scheduled_call|
-      status_tag scheduled_call.status, class: scheduled_call.scheduled? ? 'ok' : 'error'
+      status_tag scheduled_call.scheduled? ? 'RDV pris' : 'RDV annulé', class: scheduled_call.scheduled? ? 'ok' : 'error'
     end
     column :call_session do |scheduled_call|
       "Appel #{scheduled_call.call_session}" if scheduled_call.call_session
@@ -52,7 +54,7 @@ ActiveAdmin.register ScheduledCall do
     attributes_table do
       row :id
       row :status do |scheduled_call|
-        status_tag scheduled_call.status, class: scheduled_call.scheduled? ? 'ok' : 'error'
+        status_tag scheduled_call.scheduled? ? 'RDV pris' : 'RDV annulé', class: scheduled_call.scheduled? ? 'ok' : 'error'
       end
       row :scheduled_at
       row :duration_minutes

@@ -65,6 +65,9 @@ fr:
       not_ended: En cours
       not_programmed: Pas encore programmé
       programmed: Programmé
+      scheduled: RDV pris
+      canceled: RDV annulés
+      upcoming: RDV à venir
       single_message: Messages uniques
       todo: À faire
       call_2_4: Accompagnement renforcé

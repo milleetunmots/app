@@ -52,7 +52,7 @@ class ScheduledCall < ApplicationRecord
 
   scope :scheduled, -> { where(status: 'scheduled') }
   scope :canceled, -> { where(status: 'canceled') }
-  scope :upcoming, -> { scheduled.where('scheduled_at > ?', Time.zone.now) }
+  scope :upcoming, -> { scheduled.where('scheduled_at >= ?', Time.zone.now) }
   scope :past, -> { where(scheduled_at: ..Time.zone.now) }
 
   def scheduled?
