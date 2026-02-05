@@ -201,7 +201,7 @@ module Calendly
       message.gsub('{SCHEDULED_AT_DATE}', @scheduled_call.scheduled_at.strftime('%d/%m'))
              .gsub('{SCHEDULED_AT_HOUR}', @scheduled_call.scheduled_at.strftime('%H:%M'))
              .gsub('{NUMERO_PARENT}', Phonelib.parse(@parent.phone_number).national)
-             .gsub('{CANCEL_URL}', @scheduled_call.cancel_url)
+             .gsub('{CANCEL_URL}', @scheduled_call.cancel_url.to_s)
     end
   end
 end
