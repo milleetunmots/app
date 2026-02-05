@@ -9,6 +9,22 @@ module Calendly
       A bientôt !
     MESSAGE
 
+    SCHEDULED_CALL_REMINDER_DAY_BEFORE = <<~MESSAGE.freeze
+      1001mots : Rappel de RDV
+      Bonjour,
+      Vous avez RDV demain à {SCHEDULED_AT_HOUR} avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante 1001mots. Elle vous appellera au {NUMERO_PARENT}. Pensez à enregistrer son numéro pour ne pas manquer l’appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.
+      Si vous n’êtes plus disponible, annulez le rdv ici : {CANCEL_URL}
+      A bientôt !
+    MESSAGE
+
+    SCHEDULED_CALL_REMINDER_SAME_DAY = <<~MESSAGE.freeze
+      1001mots : Rappel de RDV
+      Bonjour,
+      Vous avez RDV aujourd’hui à {SCHEDULED_AT_HOUR} avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante 1001mots. Elle vous appellera au {NUMERO_PARENT}. Pensez à enregistrer son numéro pour ne pas manquer l’appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.
+      Si vous n’êtes plus disponible, annulez le rdv ici : {CANCEL_URL}
+      A bientôt !
+    MESSAGE
+
     attr_reader :errors, :scheduled_call
 
     def initialize(payload:)
@@ -33,6 +49,7 @@ module Calendly
       return self if @errors.any?
 
       send_scheduled_call_confirmation
+      program_scheduled_call_reminder
       self
     end
 
@@ -158,19 +175,33 @@ module Calendly
     end
 
     def send_scheduled_call_confirmation
-      message = SCHEDULED_CALL_CONFIRMATION_MESSAGE.gsub('{SCHEDULED_AT_DATE}', @scheduled_call.scheduled_at.strftime('%d/%m'))
-                                                   .gsub('{SCHEDULED_AT_HOUR}', @scheduled_call.scheduled_at.strftime('%H:%M'))
-                                                   .gsub('{NUMERO_PARENT}', Phonelib.parse(@parent.phone_number).national)
-                                                   .gsub('{CANCEL_URL}', @scheduled_call.cancel_url)
       service = ProgramMessageService.new(
         Time.zone.now.strftime('%d-%m-%Y'),
         Time.zone.now.strftime('%H:%M'),
         ["parent.#{@parent.id}"],
-        message
+        interpolate_placeholders(SCHEDULED_CALL_CONFIRMATION_MESSAGE)
       ).call
       return if service.errors.empty?
 
       @errors << { message: "Échec de l'envoi du message de confirmation de RDV", errors: service.errors }
+    end
+
+    def program_scheduled_call_reminder
+      Parent::SendScheduledCallReminderJob.set(wait_until: (@scheduled_call.scheduled_at - 24.hours))
+                                          .perform_later(parent_id: @parent.id,
+                                                         scheduled_call_id: @scheduled_call.id,
+                                                         message: interpolate_placeholders(SCHEDULED_CALL_REMINDER_DAY_BEFORE))
+      Parent::SendScheduledCallReminderJob.set(wait_until: (@scheduled_call.scheduled_at - 2.hours))
+                                          .perform_later(parent_id: @parent.id,
+                                                         scheduled_call_id: @scheduled_call.id,
+                                                         message: interpolate_placeholders(SCHEDULED_CALL_REMINDER_SAME_DAY))
+    end
+
+    def interpolate_placeholders(message)
+      message.gsub('{SCHEDULED_AT_DATE}', @scheduled_call.scheduled_at.strftime('%d/%m'))
+             .gsub('{SCHEDULED_AT_HOUR}', @scheduled_call.scheduled_at.strftime('%H:%M'))
+             .gsub('{NUMERO_PARENT}', Phonelib.parse(@parent.phone_number).national)
+             .gsub('{CANCEL_URL}', @scheduled_call.cancel_url)
     end
   end
 end
