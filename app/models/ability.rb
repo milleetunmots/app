@@ -41,6 +41,7 @@ class Ability
     when 'caller'
       can :autocomplete, [Group, Tag] # we use this custom action to search Groups and Tags for users without read permission (ie. in get_recipients)
       can :read, ActiveAdmin::Page, name: 'Dashboard'
+      can :read, AdminUser, id: user.id
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
       can :create, Parent
@@ -62,12 +63,14 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
       can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
+      can :manage, ActiveAdmin::Page, name: 'Réglages'
       can :select_module_for_parent1, ChildSupport, supporter_id: user.id
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
       can :read, ScheduledCall, admin_user_id: user.id
     when 'animator'
+      can :read, AdminUser, id: user.id
       can :autocomplete, [Group, Tag]
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
@@ -83,6 +86,7 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
       can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
+      can :manage, ActiveAdmin::Page, name: 'Réglages'
       can :select_module_for_parent1, ChildSupport, supporter_id: user.id
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
