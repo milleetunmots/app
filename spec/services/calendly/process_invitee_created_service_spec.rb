@@ -56,8 +56,6 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
     program_message_service = instance_double(ProgramMessageService, call: nil, errors: [])
     allow(ProgramMessageService).to receive(:new).and_return(program_message_service)
     allow(program_message_service).to receive(:call).and_return(program_message_service)
-    allow(Parent::SendScheduledCallReminderJob).to receive(:set).and_return(Parent::SendScheduledCallReminderJob)
-    allow(Parent::SendScheduledCallReminderJob).to receive(:perform_later)
   end
 
   describe '#call' do
