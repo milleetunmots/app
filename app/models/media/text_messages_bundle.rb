@@ -2,29 +2,26 @@
 #
 # Table name: media
 #
-#  id            :bigint           not null, primary key
-#  body1         :text
-#  body2         :text
-#  body3         :text
-#  discarded_at  :datetime
-#  name          :string
-#  rcs_title1    :string(200)
-#  rcs_title2    :string(200)
-#  rcs_title3    :string(200)
-#  theme         :string
-#  type          :string
-#  url           :string
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#  airtable_id   :string
-#  folder_id     :bigint
-#  image1_id     :bigint
-#  image2_id     :bigint
-#  image3_id     :bigint
-#  link1_id      :bigint
-#  link2_id      :bigint
-#  link3_id      :bigint
-#  spot_hit_id   :string
+#  id           :bigint           not null, primary key
+#  body1        :text
+#  body2        :text
+#  body3        :text
+#  discarded_at :datetime
+#  name         :string
+#  theme        :string
+#  type         :string
+#  url          :string
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  airtable_id  :string
+#  folder_id    :bigint
+#  image1_id    :bigint
+#  image2_id    :bigint
+#  image3_id    :bigint
+#  link1_id     :bigint
+#  link2_id     :bigint
+#  link3_id     :bigint
+#  spot_hit_id  :string
 #
 # Indexes
 #
@@ -73,9 +70,6 @@ class Media::TextMessagesBundle < Medium
       tag_list: tag_list,
       folder_id: folder_id,
       type: type,
-      rcs_title1: rcs_title1,
-      rcs_title2: rcs_title2,
-      rcs_title3: rcs_title3,
       body1: body1,
       body2: body2,
       body3: body3,
