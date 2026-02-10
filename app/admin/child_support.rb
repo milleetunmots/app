@@ -469,7 +469,7 @@ ActiveAdmin.register ChildSupport do
                             i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
                           end
                         end
-                        if call_idx == 2 && (call0_failed || call1_failed) && ENV['OLD_CALL2_SCRIPT_FEATURE_FLAG'].present?
+                        if call_idx == 2 && !call0_failed && !call1_failed && ENV['OLD_CALL2_SCRIPT_FEATURE_FLAG'].present?
                           ul id: 'old-script' do
                             li link_to("Script ancien appel 2\u00A0", ENV['OLD_CALL2_SCRIPT_LINK'], target: '_blank', class: 'recommended_script') do
                               i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'

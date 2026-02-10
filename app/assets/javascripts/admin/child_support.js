@@ -10,14 +10,6 @@ $(document).ready(function() {
   let $closeModalButton = $addressValidationModal.find('.close');
   let $parent1Link = $('a[href="#parent-1"]')
   let childSupportId = $('#child_support_id').val();
-  let $call2RecommendedScript = $('#call2_recommended_script');
-  let $call2OldScript = $('#old-script');
-
-  $call2OldScript.hide();
-
-  $call2RecommendedScript.on('click', function() {
-    $call2OldScript.toggle();
-  });
 
   for (let call_index = 1; call_index < 4; call_index++) {
     $(`#child_support_call${call_index}_status`).on('change', function() {
