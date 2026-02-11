@@ -3,8 +3,8 @@ class Parent::SendNextDayScheduledCallReminderService
   SCHEDULED_CALL_REMINDER_DAY_BEFORE = <<~MESSAGE.freeze
     1001mots : Rappel de RDV
     Bonjour,
-    Vous avez RDV demain à {SCHEDULED_AT_HOUR} avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante 1001mots. Elle vous appellera au {NUMERO_PARENT}. Pensez à enregistrer son numéro pour ne pas manquer l’appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.
-    Si vous n’êtes plus disponible, annulez le rdv ici : {CANCEL_URL}
+    Vous avez RDV demain à {RDV_CALENDLY_SCHEDULED_AT_HOUR} avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante 1001mots. Elle vous appellera au {NUMERO_PARENT}. Pensez à enregistrer son numéro pour ne pas manquer l’appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.
+    Si vous n’êtes plus disponible, annulez le rdv ici : {RDV_CALENDLY_CANCEL_URL}
     A bientôt !
   MESSAGE
 

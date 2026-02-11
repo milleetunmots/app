@@ -200,16 +200,14 @@ class ProgramMessageService
           @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 3" if link.nil?
           @recipient_data[parent.id.to_s]['CALL3_CALENDLY_LINK'] = link
         end
-        if @variables.include?('SCHEDULED_AT_HOUR')
-          scheduled_calls = parent.scheduled_calls.scheduled.upcoming
-          @errors << "Le parent #{parent.id} ne dispose pas d'un seul rdv prévu" if scheduled_calls.size != 1
-          hour = scheduled_calls.last.scheduled_at.strftime('%H:%M')
+        if @variables.include?('RDV_CALENDLY_SCHEDULED_AT_HOUR')
+          hour = parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.scheduled_at&.strftime('%H:%M')
+          @errors << "Le parent #{parent.id} ne dispose pas d'un rdv réglementaire" unless hour
           @recipient_data[parent.id.to_s]['SCHEDULED_AT_HOUR'] = hour
         end
-        if @variables.include?('CANCEL_URL')
-          scheduled_calls = parent.scheduled_calls.scheduled.upcoming
-          @errors << "Le parent #{parent.id} ne dispose pas d'un seul rdv prévu" if scheduled_calls.size != 1
-          cancel_url = scheduled_calls.last.cancel_url.to_s
+        if @variables.include?('RDV_CALENDLY_CANCEL_URL')
+          cancel_url = parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.cancel_url&.to_s
+          @errors << "Le parent #{parent.id} ne dispose pas d'un lien d'annulation de rdv" unless cancel_url
           @recipient_data[parent.id.to_s]['CANCEL_URL'] = cancel_url
         end
         if @redirection_target && parent.current_child.present?

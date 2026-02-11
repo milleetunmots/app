@@ -3,8 +3,8 @@ class Parent::SendSameDayScheduledCallReminderService
   SCHEDULED_CALL_REMINDER_SAME_DAY = <<~MESSAGE.freeze
     1001mots : Rappel de RDV
     Bonjour,
-    Vous avez RDV aujourd’hui à {SCHEDULED_AT_HOUR} avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante 1001mots. Elle vous appellera au {NUMERO_PARENT}. Pensez à enregistrer son numéro pour ne pas manquer l’appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.
-    Si vous n’êtes plus disponible, annulez le rdv ici : {CANCEL_URL}
+    Vous avez RDV aujourd’hui à {RDV_CALENDLY_SCHEDULED_AT_HOUR} avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante 1001mots. Elle vous appellera au {NUMERO_PARENT}. Pensez à enregistrer son numéro pour ne pas manquer l’appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.
+    Si vous n’êtes plus disponible, annulez le rdv ici : {RDV_CALENDLY_CANCEL_URL}
     A bientôt !
   MESSAGE
 
@@ -20,7 +20,7 @@ class Parent::SendSameDayScheduledCallReminderService
   def call
     service = ProgramMessageService.new(
       Time.zone.now.strftime('%d-%m-%Y'),
-      Time.zone.now.strftime('%H:%M'),
+      Time.zone.now.hour < 8 ? '08:00' : Time.zone.now.strftime('%H:%M'),
       @recipients,
       @message
     ).call
