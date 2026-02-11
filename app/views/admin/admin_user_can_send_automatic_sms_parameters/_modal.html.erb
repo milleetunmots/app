@@ -1,0 +1,16 @@
+<% if current_admin_user.can_send_automatic_sms %>
+  <div id="can-send-automatic-sms-validation" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Êtes-vous sûr.e ?</h3>
+      <div id="can-send-automatic-sms-validation-content">
+          <p>Aucune famille ne recevra de SMS de prise de RDV avant les sessions d'appel.</p>
+          <p>C'est donc à vous désormais de les informer que vous allez les appeler, au début de chaque session d'appel.</p>
+      </div>
+      <div class="buttons-line">
+        <div id='modal-cancel-button' class='button button-outline'>Annuler</div>
+        <a href="<%= admin_reglages_toggle_automatic_sms_path %>" data-method="post" class='button button-primary'>Confirmer</a>
+      </div>
+    </div>
+  </div>
+<% end %>
