@@ -8,10 +8,7 @@ ActiveAdmin.register_page 'Réglages' do
 
   page_action :toggle_automatic_sms, method: :post do
     current_admin_user.update!(can_send_automatic_sms: !current_admin_user.can_send_automatic_sms)
-    if current_admin_user.can_send_automatic_sms
-      redirect_to admin_reglages_path
-    else
-      redirect_to admin_reglages_path, notice: 'SMS de RDV désactivés'
-    end
+    notice = current_admin_user.can_send_automatic_sms ? 'SMS de RDV activés' : 'SMS de RDV désactivés'
+    redirect_to admin_reglages_path, notice: notice
   end
 end
