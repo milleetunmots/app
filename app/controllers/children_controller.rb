@@ -336,7 +336,7 @@ class ChildrenController < ApplicationController
     return false if Time.zone.today >= Date.parse(ENV['SIGNUP_QUOTA_CAF_AIN_END_DATE'])
 
     current_signups_count = Child.kept.joins(:children_source).where('children_sources.source_id = ? AND children.created_at >= ?',
-                                                                    Source.find_by(utm: '01', channel: 'caf').id,
+                                                                    Source.find_by(utm: '01', channel: 'caf')&.id,
                                                                     Date.parse(ENV['SIGNUP_QUOTA_CAF_AIN_START_DATE'])).count
     current_signups_count >= ENV['SIGNUP_QUOTA_CAF_AIN_MAX_COUNT'].to_i
   end
@@ -350,10 +350,11 @@ class ChildrenController < ApplicationController
 
     registration_limits_with_params = active_registration_limits_reached.where.not(registration_url_params: [nil, ''])
     registration_limits_without_params = active_registration_limits_reached.where(registration_url_params: [nil, ''])
-    if query_params.nil?
-      @limit_reached = true if registration_limits_without_params.any?
+    if registration_limits_without_params.any?
+      @limit_reached = true
       return
     end
+    return if query_params.nil?
 
     url_params = query_params.split('&')
     @limit_reached = registration_limits_with_params.any? do |limit|
