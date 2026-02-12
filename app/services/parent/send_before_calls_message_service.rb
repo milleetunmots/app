@@ -1,6 +1,59 @@
 class Parent::SendBeforeCallsMessageService
 
-  PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGE = [
+  NO_BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES = [
+    <<~MSG1,
+      Bonjour,
+      C'est le début de votre accompagnement avec l'association 1001mots, qui va vous envoyer des SMS et des livres pour {PRENOM_ENFANT}. {PRENOM_ACCOMPAGNANTE} va bientôt vous appeler pour vous expliquer comment ça se passe, faire connaissance et discuter avec vous :)
+      Pensez à enregistrer son numéro {NUMERO_AIRCALL_ACCOMPAGNANTE}
+      A très bientôt !
+      L'équipe 1001mots
+    MSG1
+    <<~MSG2,
+      Bonjour,
+      Vous avez bien reçu le 1er livre de l’association 1001mots pour {PRENOM_ENFANT} ? {PRENOM_ACCOMPAGNANTE} va bientôt vous appeler pour en discuter avec vous et vous donner des astuces pour l'utiliser avec {PRENOM_ENFANT} ;)
+      Pensez à enregistrer son numéro {NUMERO_AIRCALL_ACCOMPAGNANTE}
+      A très bientôt !
+      L'équipe 1001mots
+    MSG2
+    <<~MSG3,
+      Bonjour,
+      A 1001mots on espère que vous allez bien et {PRENOM_ENFANT} aussi :) {PRENOM_ACCOMPAGNANTE} va bientôt vous appeler pour prendre des nouvelles, discuter avec vous et vous donner des astuces pour aider {PRENOM_ENFANT} avec son langage.
+      A très bientôt !
+      L'équipe 1001mots
+    MSG3
+    <<~MSG4
+      Bonjour,
+      A 1001mots on espère que vous allez bien et {PRENOM_ENFANT} aussi :) {PRENOM_ACCOMPAGNANTE} va bientôt vous appeler pour discuter avec vous de ce qui intéresse {PRENOM_ENFANT} en ce moment.
+      A très bientôt !
+      L'équipe 1001mots
+    MSG4
+  ].freeze
+
+  NO_BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES = [
+    <<~MSG1,
+      Bonjour,
+      Vous avez bien reçu le 1er livre de l'association 1001mots pour {PRENOM_ENFANT} ? {PRENOM_ACCOMPAGNANTE} va bientôt vous appeler pour en discuter avec vous et vous donner des astuces pour l'utiliser avec {PRENOM_ENFANT} ;)
+      Si elle n'arrive pas à vous parler au téléphone cette fois-ci, le programme va s'arrêter automatiquement :( Pensez à enregistrer son numéro {NUMERO_AIRCALL_ACCOMPAGNANTE}
+      A très bientôt !
+      L'équipe 1001mots
+    MSG1
+    <<~MSG2,
+      Bonjour,
+      A 1001mots on espère que vous allez bien et {PRENOM_ENFANT} aussi :) {PRENOM_ACCOMPAGNANTE} va bientôt vous appeler pour prendre des nouvelles, discuter avec vous et vous donner des astuces pour aider {PRENOM_ENFANT} avec son langage.
+      Si elle n’arrive pas à vous parler au téléphone cette fois-ci, le programme va s’arrêter automatiquement :(
+      A très bientôt !
+      L’équipe 1001mots
+    MSG2
+    <<~MSG3
+      Bonjour,
+      A 1001mots on espère que vous allez bien et {PRENOM_ENFANT} aussi :) {PRENOM_ACCOMPAGNANTE} va bientôt vous appeler pour discuter avec vous de ce qui intéresse {PRENOM_ENFANT} en ce moment.
+      Si elle n’arrive pas à vous parler au téléphone cette fois-ci, le programme va s’arrêter automatiquement :(
+      A très bientôt !
+      L'équipe 1001mots
+    MSG3
+  ].freeze
+
+  BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES = [
     <<~MSG0,
       Bonjour,
       C'est le début de votre accompagnement avec l'association 1001mots, qui va vous envoyer des SMS et des livres pour {PRENOM_ENFANT}.
@@ -33,7 +86,7 @@ class Parent::SendBeforeCallsMessageService
     MSG3
   ].freeze
 
-  AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGE = [
+  BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES = [
     <<~MSG1,
       Bonjour,
       Vous avez bien reçu le 1er livre de l'association 1001mots pour {PRENOM_ENFANT} ? {PRENOM_ACCOMPAGNANTE} va bientôt vous appeler pour en discuter avec vous et vous donner des astuces pour l'utiliser avec {PRENOM_ENFANT} ;)
@@ -78,18 +131,32 @@ class Parent::SendBeforeCallsMessageService
         child_supports_with_correct_supporters = group.child_supports.with_valid_supporter_for_calendly
         child_supports_with_previous_calls_ok_or_unfinished =
           child_supports_with_correct_supporters.previous_calls_ok_or_unfinished_before(call_index)
-        create_one_off_event_types(child_supports_with_previous_calls_ok_or_unfinished, call_index)
+        no_beta_test_child_supports_with_previous_calls_ok_or_unfinished =
+          child_supports_with_previous_calls_ok_or_unfinished.where.not(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
+        send_before_calls_message(group, no_beta_test_child_supports_with_previous_calls_ok_or_unfinished, NO_BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index])
         return self if @errors.any?
 
-        send_before_calls_message(group, child_supports_with_previous_calls_ok_or_unfinished, PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGE[call_index])
+        beta_test_child_supports_with_previous_calls_ok_or_unfinished =
+          child_supports_with_previous_calls_ok_or_unfinished.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
+        create_one_off_event_types(beta_test_child_supports_with_previous_calls_ok_or_unfinished, call_index)
+        return self if @errors.any?
+
+        send_before_calls_message(group, beta_test_child_supports_with_previous_calls_ok_or_unfinished, BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index])
         next if call_index.zero?
 
         child_support_with_at_least_one_call_not_ok_and_not_unfinished =
           child_supports_with_correct_supporters.at_least_one_call_not_ok_and_not_unfinished(call_index)
-        create_one_off_event_types(child_support_with_at_least_one_call_not_ok_and_not_unfinished, call_index)
+        no_beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished =
+          child_support_with_at_least_one_call_not_ok_and_not_unfinished.where.not(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
+        send_before_calls_message(group, no_beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, NO_BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1])
         return self if @errors.any?
 
-        send_before_calls_message(group, child_support_with_at_least_one_call_not_ok_and_not_unfinished, AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGE[call_index - 1])
+        beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished =
+          child_supports_with_correct_supporters.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
+        create_one_off_event_types(beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, call_index)
+        return self if @errors.any?
+
+        send_before_calls_message(group, beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1])
       end
     end
     self
