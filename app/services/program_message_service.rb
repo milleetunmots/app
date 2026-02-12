@@ -200,6 +200,16 @@ class ProgramMessageService
           @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 3" if link.nil?
           @recipient_data[parent.id.to_s]['CALL3_CALENDLY_LINK'] = link
         end
+        if @variables.include?('RDV_CALENDLY_SCHEDULED_AT_HOUR')
+          hour = parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.scheduled_at&.strftime('%H:%M')
+          @errors << "Le parent #{parent.id} ne dispose pas d'un rdv réglementaire" unless hour
+          @recipient_data[parent.id.to_s]['RDV_CALENDLY_SCHEDULED_AT_HOUR'] = hour
+        end
+        if @variables.include?('RDV_CALENDLY_CANCEL_URL')
+          cancel_url = parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.cancel_url&.to_s
+          @errors << "Le parent #{parent.id} ne dispose pas d'un lien d'annulation de rdv" unless cancel_url
+          @recipient_data[parent.id.to_s]['RDV_CALENDLY_CANCEL_URL'] = cancel_url
+        end
         if @redirection_target && parent.current_child.present?
           @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first

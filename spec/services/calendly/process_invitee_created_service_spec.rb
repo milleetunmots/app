@@ -17,6 +17,7 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
       'payload' => {
         'event' => event_uri,
         'uri' => invitee_uri,
+        'cancel_url' => 'https://calendly.com/cancellations/abc123',
         'email' => 'parent@example.com',
         'name' => 'Test Parent',
         'tracking' => {
@@ -49,6 +50,12 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
   before do
     stub_request(:get, event_uri)
       .to_return(status: 200, body: scheduled_event_response.to_json, headers: { 'Content-Type' => 'application/json' })
+    stub_request(:get, event_uri)
+      .to_return(status: 200, body: scheduled_event_response.to_json, headers: { 'Content-Type' => 'application/json' })
+
+    program_message_service = instance_double(ProgramMessageService, call: nil, errors: [])
+    allow(ProgramMessageService).to receive(:new).and_return(program_message_service)
+    allow(program_message_service).to receive(:call).and_return(program_message_service)
   end
 
   describe '#call' do

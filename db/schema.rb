@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_01_28_150703) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_03_152916) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -796,6 +796,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_28_150703) do
     t.jsonb "raw_payload", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "cancel_url"
     t.index ["admin_user_id"], name: "index_scheduled_calls_on_admin_user_id"
     t.index ["calendly_event_uri"], name: "index_scheduled_calls_on_calendly_event_uri", unique: true
     t.index ["child_support_id"], name: "index_scheduled_calls_on_child_support_id"

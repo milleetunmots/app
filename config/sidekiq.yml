@@ -48,3 +48,9 @@
     calendly_sync_users_and_event_types_job:
       cron: '0 3 * * *'
       class: 'Calendly::SyncUsersAndEventTypesJob'
+    send_next_day_scheduled_call_reminder_job:
+      cron: '0 9 * * *'
+      class: 'Parent::SendNextDayScheduledCallReminderJob'
+    send_same_day_scheduled_call_reminder_job:
+      cron: '0 7-15 * * *'
+      class: 'Parent::SendSameDayScheduledCallReminderJob'

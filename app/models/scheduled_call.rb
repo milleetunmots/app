@@ -5,23 +5,24 @@
 #  id                   :bigint           not null, primary key
 #  calendly_event_uri   :string           not null
 #  calendly_invitee_uri :string
-#  admin_user_id        :bigint
-#  child_support_id     :bigint
-#  parent_id            :bigint
 #  call_session         :integer
-#  scheduled_at         :datetime
+#  cancel_url           :string
+#  canceled_at          :datetime
+#  cancellation_reason  :text
 #  duration_minutes     :integer
 #  event_type_name      :string
 #  event_type_uri       :string
+#  invitee_comment      :text
 #  invitee_email        :string
 #  invitee_name         :string
-#  invitee_comment      :text
-#  status               :string           default("scheduled"), not null
-#  canceled_at          :datetime
-#  cancellation_reason  :text
 #  raw_payload          :jsonb
+#  scheduled_at         :datetime
+#  status               :string           default("scheduled"), not null
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
+#  admin_user_id        :bigint
+#  child_support_id     :bigint
+#  parent_id            :bigint
 #
 # Indexes
 #

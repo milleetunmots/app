@@ -6,6 +6,7 @@
 #  calendly_event_uri   :string           not null
 #  calendly_invitee_uri :string
 #  call_session         :integer
+#  cancel_url           :string
 #  canceled_at          :datetime
 #  cancellation_reason  :text
 #  duration_minutes     :integer
@@ -41,6 +42,7 @@
 FactoryBot.define do
   factory :scheduled_call do
     sequence(:calendly_event_uri) { |n| "https://api.calendly.com/scheduled_events/#{SecureRandom.uuid}-#{n}" }
+    cancel_url { Faker::Internet.url }
     call_session { (0..3).to_a.sample }
     status { 'scheduled' }
     scheduled_at { 1.day.from_now }
