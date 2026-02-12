@@ -244,7 +244,7 @@ ActiveAdmin.setup do |config|
       menu.add id: 'current_user',
                label: -> { display_name current_admin_user },
                url: -> { current_admin_user.user_role.in?(%w[caller animator]) ? admin_reglages_path : admin_admin_user_path(current_admin_user) },
-               if: :current_admin_user?
+               if: :current_active_admin_user?
       admin.add_logout_button_to_menu menu
     end
   end
