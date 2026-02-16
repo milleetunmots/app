@@ -126,6 +126,9 @@ class Parent::SendBeforeCallsMessageService
   end
 
   def call
+    @errors << { service: 'Parent::SendBeforeCallsMessageService', error: 'BETA_TEST_CALLERS_EMAIL is not set' } if ENV['BETA_TEST_CALLERS_EMAIL'].blank?
+    return self if @errors.any?
+
     @groups.each_with_index do |group_list, call_index|
       group_list.each do |group|
         child_supports_with_correct_supporters = group.child_supports.with_valid_supporter_for_calendly
@@ -134,13 +137,10 @@ class Parent::SendBeforeCallsMessageService
         no_beta_test_child_supports_with_previous_calls_ok_or_unfinished =
           child_supports_with_previous_calls_ok_or_unfinished.where.not(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
         send_before_calls_message(group, no_beta_test_child_supports_with_previous_calls_ok_or_unfinished, NO_BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index])
-        return self if @errors.any?
 
         beta_test_child_supports_with_previous_calls_ok_or_unfinished =
           child_supports_with_previous_calls_ok_or_unfinished.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
         create_one_off_event_types(beta_test_child_supports_with_previous_calls_ok_or_unfinished, call_index)
-        return self if @errors.any?
-
         send_before_calls_message(group, beta_test_child_supports_with_previous_calls_ok_or_unfinished, BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index])
         next if call_index.zero?
 
@@ -149,13 +149,10 @@ class Parent::SendBeforeCallsMessageService
         no_beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished =
           child_support_with_at_least_one_call_not_ok_and_not_unfinished.where.not(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
         send_before_calls_message(group, no_beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, NO_BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1])
-        return self if @errors.any?
 
         beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished =
           child_supports_with_correct_supporters.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
         create_one_off_event_types(beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, call_index)
-        return self if @errors.any?
-
         send_before_calls_message(group, beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1])
       end
     end
@@ -169,14 +166,22 @@ class Parent::SendBeforeCallsMessageService
 
     child_supports.each do |child_support|
       create_one_off_event_type_service = Calendly::CreateOneOffEventTypeService.new(child_support: child_support, call_session: call_index).call
-      @errors << "Parent::SendBeforeCallsMessageService (child_support: #{child_support.id}) : #{create_one_off_event_type_service.errors.uniq}" if create_one_off_event_type_service.errors.any?
+      next if create_one_off_event_type_service.errors.empty?
+
+      @errors << {
+        service: 'Parent::SendBeforeCallsMessageService',
+        method: 'create_one_off_event_types',
+        child_supports: child_supports.map(&:id),
+        call_index: call_index,
+        error: create_one_off_event_type_service.errors.uniq
+      }
     end
   end
 
   def parent_ids(child_supports)
     return if child_supports.empty?
 
-    child_supports.map { |child_support| %W[parent.#{child_support.parent1.id} parent.#{child_support.parent2&.id}] }.flatten.compact
+    child_supports.map { |child_support| %W[parent.#{child_support.parent1.id} parent.#{child_support.parent2&.id}] }.flatten.compact.reject { |recipient| recipient == 'parent.' }
   end
 
   def send_before_calls_message(group, child_supports, message)
@@ -190,6 +195,14 @@ class Parent::SendBeforeCallsMessageService
       parent_ids(child_supports),
       message
     ).call
-    @errors << "Parent::SendBeforeCallsMessageService (group: #{group.name}) : #{message_service.errors.uniq}" if message_service.errors.any?
+    return if message_service.errors.empty?
+
+    @errors << {
+      service: 'Parent::SendBeforeCallsMessageService',
+      method: 'send_before_calls_message',
+      group: group.name,
+      child_supports: child_supports.map(&:id),
+      error: message_service.errors.uniq
+    }
   end
 end
