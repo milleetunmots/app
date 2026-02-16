@@ -18,6 +18,8 @@ class Parent::SendNextDayScheduledCallReminderService
   end
 
   def call
+    return self if @scheduled_calls.empty?
+
     service = ProgramMessageService.new(
       Time.zone.now.strftime('%d-%m-%Y'),
       Time.zone.now.strftime('%H:%M'),
