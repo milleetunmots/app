@@ -131,32 +131,37 @@ class Parent::SendBeforeCallsMessageService
 
     @groups.each_with_index do |group_list, call_index|
       group_list.each do |group|
-        child_supports_with_correct_supporters = group.child_supports.with_valid_supporter_for_calendly
-        child_supports_with_previous_calls_ok_or_unfinished =
-          child_supports_with_correct_supporters.previous_calls_ok_or_unfinished_before(call_index)
-        no_beta_test_child_supports_with_previous_calls_ok_or_unfinished =
-          child_supports_with_previous_calls_ok_or_unfinished.where.not(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
-        send_before_calls_message(group, no_beta_test_child_supports_with_previous_calls_ok_or_unfinished, NO_BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index])
-
-        beta_test_child_supports_with_previous_calls_ok_or_unfinished =
-          child_supports_with_previous_calls_ok_or_unfinished.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
-        create_one_off_event_types(beta_test_child_supports_with_previous_calls_ok_or_unfinished, call_index)
-        send_before_calls_message(group, beta_test_child_supports_with_previous_calls_ok_or_unfinished, BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index])
-        next if call_index.zero?
-
-        child_support_with_at_least_one_call_not_ok_and_not_unfinished =
-          child_supports_with_correct_supporters.at_least_one_call_not_ok_and_not_unfinished(call_index)
-        no_beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished =
-          child_support_with_at_least_one_call_not_ok_and_not_unfinished.where.not(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
-        send_before_calls_message(group, no_beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, NO_BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1])
-
-        beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished =
-          child_supports_with_correct_supporters.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
-        create_one_off_event_types(beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, call_index)
-        send_before_calls_message(group, beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1])
+        handle_group_message(group, call_index)
       end
     end
     self
+  end
+
+  def handle_group_message(group, call_index)
+    child_supports_with_correct_supporters = group.child_supports.with_valid_supporter_for_calendly
+    child_supports_with_previous_calls_ok_or_unfinished =
+      child_supports_with_correct_supporters.previous_calls_ok_or_unfinished_before(call_index)
+
+    no_beta_test_child_supports_with_previous_calls_ok_or_unfinished =
+      child_supports_with_previous_calls_ok_or_unfinished.where.not(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
+    send_before_calls_message(group, no_beta_test_child_supports_with_previous_calls_ok_or_unfinished, NO_BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index])
+
+    beta_test_child_supports_with_previous_calls_ok_or_unfinished =
+      child_supports_with_previous_calls_ok_or_unfinished.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
+    create_one_off_event_types(beta_test_child_supports_with_previous_calls_ok_or_unfinished, call_index)
+    send_before_calls_message(group, beta_test_child_supports_with_previous_calls_ok_or_unfinished, BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index])
+    return if call_index.zero?
+
+    child_support_with_at_least_one_call_not_ok_and_not_unfinished =
+      child_supports_with_correct_supporters.at_least_one_call_not_ok_and_not_unfinished(call_index)
+    no_beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished =
+      child_support_with_at_least_one_call_not_ok_and_not_unfinished.where.not(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
+    send_before_calls_message(group, no_beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, NO_BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1])
+
+    beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished =
+      child_supports_with_correct_supporters.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
+    create_one_off_event_types(beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, call_index)
+    send_before_calls_message(group, beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1])
   end
 
   private
