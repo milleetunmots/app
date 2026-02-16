@@ -171,7 +171,7 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
           .with(body: hash_including(
             'name' => "Prenez rdv pour discuter de #{child.first_name} :)",
             'host' => calendly_user_uri,
-            'duration' => 20,
+            'duration' => 40,
             'date_setting' => {
               'type' => 'date_range',
               'start_date' => group.call0_start_date.to_s,
