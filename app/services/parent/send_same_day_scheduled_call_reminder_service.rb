@@ -3,8 +3,8 @@ class Parent::SendSameDayScheduledCallReminderService
   SCHEDULED_CALL_REMINDER_SAME_DAY = <<~MESSAGE.freeze
     1001mots : Rappel de RDV
     Bonjour,
-    Vous avez RDV aujourd’hui à {RDV_CALENDLY_SCHEDULED_AT_HOUR} avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante 1001mots. Elle vous appellera au {NUMERO_PARENT}. Pensez à enregistrer son numéro pour ne pas manquer l’appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.
-    Si vous n’êtes plus disponible, annulez le rdv ici : {RDV_CALENDLY_CANCEL_URL}
+    Vous avez RDV aujourd’hui avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante. Elle vous appellera vers {RDV_CALENDLY_SCHEDULED_AT_HOUR} sur votre numéro. Elle aura peut-être quelques minutes d’avance ou de retard. Pensez à enregistrer son numéro pour ne pas manquer l’appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.
+    Si vous n'êtes plus disponible, annulez le rdv ici : {RDV_CALENDLY_CANCEL_URL}
     A bientôt !
   MESSAGE
 

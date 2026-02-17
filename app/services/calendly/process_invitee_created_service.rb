@@ -4,7 +4,8 @@ module Calendly
     SCHEDULED_CALL_CONFIRMATION_MESSAGE = <<~MESSAGE.freeze
       1001mots : Confirmation de RDV
       Bonjour,
-      Vous avez RDV le {SCHEDULED_AT_DATE} à {SCHEDULED_AT_HOUR} avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante 1001mots. Elle vous appellera au {NUMERO_PARENT}. Pensez à enregistrer son numéro pour ne pas manquer l’appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.
+      Vous avez RDV le {SCHEDULED_AT_DATE} avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante 1001mots. Elle vous appellera vers {SCHEDULED_AT_HOUR} sur votre numéro.
+      L'appel durera environ 20 minutes. Pensez à enregistrer son numéro pour ne pas manquer l'appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.
       Si vous n’êtes plus disponible, annulez le rdv ici : {CANCEL_URL}
       A bientôt !
     MESSAGE
