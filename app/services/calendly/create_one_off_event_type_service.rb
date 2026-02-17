@@ -76,27 +76,28 @@ module Calendly
         location: {
           kind: 'inbound_call',
           phone_number: @supporter.aircall_phone_number,
-          additional_info: 'Je vous appellerai sur votre numéro'
+          additional_info: "Je vous appellerai sur votre numéro (j'aurai peut-être quelques minutes d'avance ou de retard)"
         },
         locale: 'fr'
       }
     end
 
+    def format_event_name(event_name, child_name)
+      event_name.size > 55 ? event_name.gsub(child_name, 'votre enfant') : event_name
+    end
+
     def build_event_name
       child_name = @child_support.current_child.first_name
-      event_name =
-        case @call_session
-        when 0
-          "Prenez rdv pour discuter de #{child_name} :)"
-        when 1
-          "#{child_name} et les livres"
-        when 2
-          "Aider #{child_name} à bien grandir"
-        when 3
-          "Parlons de ce qui intéresse #{child_name}"
-        end
-      event_name.gsub!(child_name, 'votre enfant') if event_name.size > 55
-      event_name
+      case @call_session
+      when 0
+        format_event_name("Prenons 20 minutes pour discuter de #{child_name} :)", child_name)
+      when 1
+        format_event_name("20 minutes pour parler de #{child_name} et les livres", child_name)
+      when 2
+        format_event_name("20 minutes pour aider #{child_name} à bien grandir", child_name)
+      when 3
+        format_event_name("20 minutes pour parler de ce qui intéresse #{child_name}", child_name)
+      end
     end
 
     def call_start_date

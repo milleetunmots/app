@@ -169,7 +169,7 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
         subject.call
         expect(WebMock).to have_requested(:post, 'https://api.calendly.com/one_off_event_types')
           .with(body: hash_including(
-            'name' => "Prenez rdv pour discuter de #{child.first_name} :)",
+            'name' => "Prenons 20 minutes pour discuter de #{child.first_name} :)",
             'host' => calendly_user_uri,
             'duration' => 40,
             'date_setting' => {
@@ -180,7 +180,7 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
             'location' => {
               'kind' => 'inbound_call',
               'phone_number' => aircall_phone_number,
-              'additional_info' => 'Je vous appellerai sur votre numéro'
+              'additional_info' => "Je vous appellerai sur votre numéro (j'aurai peut-être quelques minutes d'avance ou de retard)"
             },
             'locale' => 'fr'
           ))
