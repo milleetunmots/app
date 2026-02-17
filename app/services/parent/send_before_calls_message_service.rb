@@ -137,6 +137,23 @@ class Parent::SendBeforeCallsMessageService
     self
   end
 
+  # Pour un groupe et un numéro de session d'appel (call_index 0-3), envoie les SMS de rappel
+  # avant les appels en distinguant 4 catégories de familles :
+  #
+  # Variables principales :
+  #   child_supports_with_correct_supporters : tous les child_supports du groupe ayant un supporter valide pour Calendly
+  #   child_supports_with_previous_calls_ok_or_unfinished : sous-ensemble dont tous les appels précédents sont OK ou non terminés
+  #   child_support_with_at_least_one_call_not_ok_and_not_unfinished : sous-ensemble ayant au moins un appel KO (call_index > 0 uniquement)
+  #
+  # Chaque sous-ensemble est ensuite scindé en beta / non-beta selon BETA_TEST_CALLERS_EMAIL :
+  #   no_beta_test_* : familles dont le supporter n'est PAS beta-testeur
+  #   beta_test_*    : familles dont le supporter EST beta-testeur
+  #
+  # Flux :
+  #   1. no_beta_test_child_supports_with_previous_calls_ok_or_unfinished → SMS standard (sans lien Calendly)
+  #   2. beta_test_child_supports_with_previous_calls_ok_or_unfinished   → création créneau Calendly + SMS avec lien
+  #   3. no_beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished → SMS d'avertissement (arrêt programme)
+  #   4. beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished    → création créneau Calendly + SMS avertissement avec lien
   def handle_group_message(group, call_index)
     child_supports_with_correct_supporters = group.child_supports.with_valid_supporter_for_calendly
     child_supports_with_previous_calls_ok_or_unfinished =
@@ -159,7 +176,7 @@ class Parent::SendBeforeCallsMessageService
     send_before_calls_message(group, no_beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, NO_BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1])
 
     beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished =
-      child_supports_with_correct_supporters.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
+      child_support_with_at_least_one_call_not_ok_and_not_unfinished.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
     create_one_off_event_types(beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, call_index)
     send_before_calls_message(group, beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1])
   end
@@ -184,7 +201,7 @@ class Parent::SendBeforeCallsMessageService
   end
 
   def parent_ids(child_supports)
-    return if child_supports.empty?
+    return [] if child_supports.empty?
 
     child_supports.map { |child_support| %W[parent.#{child_support.parent1.id} parent.#{child_support.parent2&.id}] }.flatten.compact.reject { |recipient| recipient == 'parent.' }
   end
