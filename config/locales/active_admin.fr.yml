@@ -65,6 +65,9 @@ fr:
       not_ended: En cours
       not_programmed: Pas encore programmé
       programmed: Programmé
+      scheduled: RDV pris
+      canceled: RDV annulés
+      upcoming: RDV à venir
       single_message: Messages uniques
       todo: À faire
       call_2_4: Accompagnement renforcé
@@ -84,6 +87,7 @@ fr:
       with_the_choice_to_make_by_us: Laisse le choix à 1001mots
       with_theme_level_and_age_range: V2 (avec thème, niveau et tranche d'âge)
       without_choice: Pas encore choisi
+      without_scheduled_calls: Sans rdv
       account_disabled: Compte désactivé
       account_not_disabled: Compte actif
       supported: Inscrits ou accompagnés

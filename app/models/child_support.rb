@@ -8,6 +8,7 @@
 #  availability                               :string
 #  book_not_received                          :string
 #  books_quantity                             :string
+#  calendly_booking_url                       :string
 #  call0_attempt                              :string
 #  call0_duration                             :integer
 #  call0_goal_sent                            :string
@@ -205,6 +206,7 @@ class ChildSupport < ApplicationRecord
   belongs_to :module6_chosen_by_parents, class_name: :SupportModule, optional: true
   has_many :children, dependent: :nullify
   has_many :children_support_modules, through: :children
+  has_many :scheduled_calls, dependent: :nullify
   has_one :current_child, -> { order(Arel.sql("CASE WHEN group_status = 'active' THEN 0 ELSE 1 END, birthdate DESC")) }, class_name: :Child
   has_one :parent1, through: :current_child
   has_one :parent2, through: :current_child
@@ -310,7 +312,16 @@ class ChildSupport < ApplicationRecord
   scope :with_child_in_group_ended_between, lambda { |start_date, end_date|
     joins(children: :group).where(groups: { ended_at: start_date..end_date }).distinct
   }
-
+  scope :without_scheduled_calls, -> {
+    left_joins(:scheduled_calls).where(scheduled_calls: { id: nil })
+  }
+  scope :with_valid_supporter_for_calendly, -> {
+    with_a_child_in_active_group
+      .joins(:supporter)
+      .where(supporter: { can_send_automatic_sms: true })
+      .where.not(supporter: { aircall_number_id: nil })
+      .where.not(supporter: { calendly_user_uri: nil })
+  }
 
   class << self
 
@@ -479,6 +490,10 @@ class ChildSupport < ApplicationRecord
 
   def other_family_child_supports
     other_children.with_support.map(&:child_support).uniq
+  end
+
+  def scheduled_call_sessions(index)
+    scheduled_calls.where(call_session: index.to_i)
   end
 
   # ---------------------------------------------------------------------------
@@ -678,7 +693,10 @@ class ChildSupport < ApplicationRecord
   end
 
   def self.call_not_ok_and_not_unfinished_for(call_index)
-    where.not("call#{call_index}_status IN (?, ?)", ChildSupport.human_attribute_name("call_status.1_ok"), ChildSupport.human_attribute_name("call_status.5_unfinished"))
+    where("call#{call_index}_status IN (?, ?, ?)",
+          ChildSupport.human_attribute_name("call_status.2_ko"),
+          ChildSupport.human_attribute_name("call_status.3_unassigned_number"),
+          ChildSupport.human_attribute_name("call_status.4_dont_call"))
   end
 
   def self.at_least_one_call_not_ok_and_not_unfinished(call_index)

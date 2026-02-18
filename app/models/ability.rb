@@ -14,7 +14,7 @@ class Ability
       can :manage, :all
     when 'contributor'
       can :manage,
-          [Parent, Child, ChildSupport, Workshop, Task, SupportModule, MediaFolder, Medium, Tag, Event, Group, Book, ChildrenSupportModule, Source, RegistrationLimit]
+          [Parent, Child, ChildSupport, Workshop, Task, SupportModule, MediaFolder, Medium, Tag, Event, Group, Book, ChildrenSupportModule, Source, RegistrationLimit, ScheduledCall]
       can :read, AdminUser
       can :manage, ActiveAdmin::Page, name: 'Message'
       can :manage, ActiveAdmin::Page, name: 'Module'
@@ -30,7 +30,7 @@ class Ability
       can :manage, [Parent, Child, ChildSupport]
       cannot %i[new create destroy discard select_module_for_parent1 select_module_for_parent2 add_child add_parent quit_group], [Parent, Child, ChildSupport]
       cannot :upload_undelivered_books, Parent
-      can :read, [Workshop, SupportModule, Group, Book, ChildrenSupportModule, AdminUser, Source]
+      can :read, [Workshop, SupportModule, Group, Book, ChildrenSupportModule, AdminUser, Source, ScheduledCall]
       can :read, Event, type: 'Events::WorkshopParticipation'
       can %i[create read update], Tag
       can :manage, ActiveAdmin::Page, name: 'Message'
@@ -41,6 +41,7 @@ class Ability
     when 'caller'
       can :autocomplete, [Group, Tag] # we use this custom action to search Groups and Tags for users without read permission (ie. in get_recipients)
       can :read, ActiveAdmin::Page, name: 'Dashboard'
+      can :read, AdminUser, id: user.id
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
       can :create, Parent
@@ -62,11 +63,14 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
       can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
+      can :manage, ActiveAdmin::Page, name: 'Réglages'
       can :select_module_for_parent1, ChildSupport, supporter_id: user.id
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
+      can :read, ScheduledCall, admin_user_id: user.id, admin_user: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split }
     when 'animator'
+      can :read, AdminUser, id: user.id
       can :autocomplete, [Group, Tag]
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
@@ -82,10 +86,12 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
       can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
+      can :manage, ActiveAdmin::Page, name: 'Réglages'
       can :select_module_for_parent1, ChildSupport, supporter_id: user.id
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
+      can :read, ScheduledCall, admin_user_id: user.id, admin_user: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split }
     end
   end
 

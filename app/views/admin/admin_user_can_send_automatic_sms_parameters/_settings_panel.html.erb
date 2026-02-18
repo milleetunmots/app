@@ -1,0 +1,24 @@
+<div class="panel">
+  <h3>Paramètres des rendez-vous</h3>
+  <div class="panel_contents">
+    <div style="display: flex; align-items: center;">
+      <% if current_admin_user.can_send_automatic_sms %>
+        <i class="far fa-check-circle" style="margin-right: 8px; color: #555; font-size: 20px;"></i>
+        <span style="margin-right: 30px;">Toutes les familles reçoivent un SMS automatique de prise de RDV avant chaque session d'appel.</span>
+      <% else %>
+        <i class="far fa-times-circle" style="margin-right: 8px; color: #555; font-size: 20px;"></i>
+        <span style="margin-right: 30px;"><b>Aucune</b> famille ne reçoit de SMS automatique de prise de RDV avant chaque session d'appel.</span>
+      <% end %>
+      <% case on_dashboard %>
+      <% when true %>
+        <a href="<%= admin_reglages_path %>" class="button">Accéder aux réglages</a>
+      <% else %>
+        <% if current_admin_user.can_send_automatic_sms %>
+          <a href="#" id="toggle-automatic-sms-button" class="button">Désactiver les SMS de RDV</a>
+        <% else %>
+          <a href="<%= admin_reglages_toggle_automatic_sms_path %>" data-method="post" class="button">Activer les SMS de RDV</a>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

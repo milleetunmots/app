@@ -21,10 +21,14 @@ ActiveAdmin.register ChildSupport do
     column :supporter if current_admin_user.admin? || current_admin_user.contributor? || current_admin_user.reader?
     (0..3).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
-        [
-          decorated.send("call#{call_idx}_status_in_index"),
-          decorated.send("call#{call_idx}_parent_progress_index")
-        ].join(' ').html_safe
+        if decorated.send("call#{call_idx}_status").present?
+          [
+            decorated.send("call#{call_idx}_status_in_index"),
+            decorated.send("call#{call_idx}_parent_progress_index")
+          ].join(' ').html_safe
+        else
+          decorated.send("call#{call_idx}_scheduled_session")
+        end
       end
     end
     column :availability
@@ -49,6 +53,8 @@ ActiveAdmin.register ChildSupport do
   scope :with_book_not_received
   scope :call_2_4, if: proc { !current_admin_user.caller? && !current_admin_user.animator? }
   scope :paused_or_stopped
+
+  scope :without_scheduled_calls
 
   filter :availability, as: :string
   filter :call_infos, as: :string

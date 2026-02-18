@@ -68,7 +68,11 @@ class ArchiveCall4AndCall5Data < ActiveRecord::Migration[7.0]
       call5_talk_needed call5_why_talk_needed
     ]
 
-    all_columns = call4_columns + call5_columns
+    all_columns = (call4_columns + call5_columns).select do |col|
+      column_exists?(:child_supports, col)
+    end
+
+    return if all_columns.empty?
 
     # WHERE clause: at least one field is not null AND not empty
     # For boolean fields, we check if they are true

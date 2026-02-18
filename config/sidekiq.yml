@@ -42,6 +42,15 @@
     send_eval_message_job:
       cron: '0 9 * * *'
       class: 'Child::SendEvalMessageJob'
-    send_disengagement_warning_before_calls_job:
-      cron: '0 18 * * 5'
-      class: 'Parent::SendDisengagementWarningBeforeCallsJob'
+    send_before_calls_message_job:
+      cron: '0 5 * * 3'
+      class: 'Parent::SendBeforeCallsMessageJob'
+    calendly_sync_users_and_event_types_job:
+      cron: '0 3 * * *'
+      class: 'Calendly::SyncUsersAndEventTypesJob'
+    send_next_day_scheduled_call_reminder_job:
+      cron: '0 9 * * *'
+      class: 'Parent::SendNextDayScheduledCallReminderJob'
+    send_same_day_scheduled_call_reminder_job:
+      cron: '0 7-15 * * *'
+      class: 'Parent::SendSameDayScheduledCallReminderJob'
