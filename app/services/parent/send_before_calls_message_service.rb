@@ -191,7 +191,6 @@ class Parent::SendBeforeCallsMessageService
       next if create_one_off_event_type_service.errors.empty?
 
       @errors << {
-        service: 'Parent::SendBeforeCallsMessageService',
         method: 'create_one_off_event_types',
         child_supports: child_supports.map(&:id),
         call_index: call_index,
@@ -220,7 +219,6 @@ class Parent::SendBeforeCallsMessageService
     return if message_service.errors.empty?
 
     @errors << {
-      service: 'Parent::SendBeforeCallsMessageService',
       method: 'send_before_calls_message',
       group: group.name,
       child_supports: child_supports.map(&:id),
