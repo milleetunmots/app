@@ -51,7 +51,7 @@ class Group
     end
 
     def send_before_call0_message
-      date = @group.started_at.prev_occurring(:friday).change(hour: 17)
+      date = @group.started_at.prev_occurring(:friday).to_datetime.change(hour: 17)
       Parent::SendBeforeFirstCallMessageJob.set(wait_until: date).perform_later(@group.id, date)
     end
 
