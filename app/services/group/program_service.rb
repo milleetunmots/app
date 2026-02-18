@@ -16,6 +16,7 @@ class Group
       return self if @errors.any?
 
       initialize_parents_calendly_booking_urls
+      send_before_call0_message
       # making sure hours are within 1 - 8
       @hour = (@group.started_at.month % 10).clamp(1, 8)
       program_support_module_zero
@@ -47,6 +48,11 @@ class Group
     def initialize_parents_calendly_booking_urls
       @group.parent1.update_all(calendly_booking_urls: {})
       @group.parent2.update_all(calendly_booking_urls: {})
+    end
+
+    def send_before_call0_message
+      date = @group.started_at.prev_occurring(:friday).change(hour: 17)
+      Parent::SendBeforeFirstCallMessageJob.set(wait_until: date).perform_later(@group.id, date)
     end
 
     def check_group_is_ready
