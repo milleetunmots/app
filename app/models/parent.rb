@@ -88,6 +88,7 @@ class Parent < ApplicationRecord
   PITHIVIERS_POSTAL_CODE = %w[45300 45480 45170].freeze
   VILLENEUVE_LA_GARENNE_POSTAL_CODE = %w[92390].freeze
   ASNIERES_GENNEVILLIERS_POSTAL_CODE = %w[92600 92230].freeze
+  NANTERRE_POSTAL_CODE = %w[92000].freeze
   COMMUNICATION_CHANNELS = %w[sms whatsapp].freeze
   BOOK_DELIVERY_LOCATION = %w[home relative_home pmi temporary_shelter association police_or_military_station].freeze
 

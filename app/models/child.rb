@@ -67,7 +67,8 @@ class Child < ApplicationRecord
       'Gien' => Parent::GIEN_POSTAL_CODE,
       'Pithiviers' => Parent::PITHIVIERS_POSTAL_CODE,
       'Villeneuve-la-Garenne' => Parent::VILLENEUVE_LA_GARENNE_POSTAL_CODE,
-      'Asnières-Gennevilliers' => Parent::ASNIERES_GENNEVILLIERS_POSTAL_CODE
+      'Asnières-Gennevilliers' => Parent::ASNIERES_GENNEVILLIERS_POSTAL_CODE,
+      'Nanterre' => Parent::NANTERRE_POSTAL_CODE
     }
 
   # ---------------------------------------------------------------------------
