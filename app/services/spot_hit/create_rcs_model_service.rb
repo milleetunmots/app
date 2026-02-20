@@ -16,7 +16,7 @@ class SpotHit::CreateRcsModelService
     validate_params
     return self if @errors.any?
 
-    create_rcs_template
+    push_rcs_template
     save_rcs_media_id if @errors.empty? && @rcs_media_id.present?
     self
   end
@@ -58,52 +58,50 @@ class SpotHit::CreateRcsModelService
     @rcs_title ||= @text_messages_bundle.send("rcs_title#{@message_index}").presence || '1001mots'
   end
 
-  def create_rcs_template
-    # RCS model JSON structure
-    model_json = {
-      "content" => {
-        "card" => {
-          "title" => rcs_title,
-          "text" => body,
-          "mediaType" => "image",
-          "file" => "{cid:image}",
-          "buttons" => [],
-          "suggestions" => [],
-          "options" => []
+  def push_rcs_template
+    download_image_to_tmp_file
+    response = HTTP.post(URL, form: form_data)
+    parsed_response = JSON.parse(response.body.to_s)
+
+    if parsed_response['success'] == true && parsed_response['id'].present?
+      @rcs_media_id = parsed_response['id']
+    else
+      error_message = parsed_response['error']&.dig('message') || response.body.to_s
+      @errors << "Erreur lors de la création du modèle RCS: #{error_message}"
+    end
+  rescue => e
+    @errors << "Exception lors de la création du modèle RCS: #{e.message}"
+  ensure
+    # clean up tmp file if it was created
+    remove_tmp_file(@tmp_file) if @tmp_file && File.exist?(@tmp_file)
+  end
+
+  def model_json
+    {
+      'content' => {
+        'card' => {
+          'title' => rcs_title,
+          'text' => body,
+          'mediaType' => 'image',
+          'file' => '{cid:image}',
+          'buttons' => [],
+          'suggestions' => [],
+          'options' => []
         },
-        "property" => {
-          "stop" => false
+        'property' => {
+          'stop' => false
         }
       }
     }
+  end
 
-    form_data = {
+  def form_data
+    form = {
       'key' => ENV['SPOT_HIT_API_KEY'],
       'model' => model_json.to_json
     }
-
-    # add image file
-    if image&.file&.attached?
-      tmp_file_path = download_image_to_tmp_file
-      form_data['{cid:image}'] = HTTP::FormData::File.new(tmp_file_path, content_type: image.file.content_type)
-    end
-
-    begin
-      response = HTTP.post(URL, form: form_data)
-      parsed_response = JSON.parse(response.body.to_s)
-
-      if parsed_response['success'] == true && parsed_response['id'].present?
-        @rcs_media_id = parsed_response['id']
-      else
-        error_message = parsed_response['error']&.dig('message') || response.body.to_s
-        @errors << "Erreur lors de la création du modèle RCS: #{error_message}"
-      end
-    rescue => e
-      @errors << "Exception lors de la création du modèle RCS: #{e.message}"
-    ensure
-      # clean up tmp file if it was created
-      remove_tmp_file(tmp_file_path) if tmp_file_path && File.exist?(tmp_file_path)
-    end
+    form['{cid:image}'] = HTTP::FormData::File.new(@tmp_file, content_type: image.file.content_type) if image&.file&.attached?
+    form
   end
 
   def save_rcs_media_id
@@ -126,11 +124,10 @@ class SpotHit::CreateRcsModelService
   def download_image_to_tmp_file
     return nil unless image&.file&.attached?
 
-    tmp_file = "#{Dir.tmpdir}/rcs_#{@text_messages_bundle.id}_#{@message_index}_#{image.file.filename}"
-    File.open(tmp_file, 'wb') do |file|
+    @tmp_file = "#{Dir.tmpdir}/rcs_#{@text_messages_bundle.id}_#{@message_index}_#{image.file.filename}"
+    File.open(@tmp_file, 'wb') do |file|
       file.write(image.file.download)
     end
-    tmp_file
   end
 
   def remove_tmp_file(path)
