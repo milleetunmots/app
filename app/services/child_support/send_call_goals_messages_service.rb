@@ -89,24 +89,21 @@ class ChildSupport::SendCallGoalsMessagesService
   def program_text_message_bundle_body1
     return unless @text_message_bundle.body1
 
-    spot_hit_id = @text_message_bundle.image1_id.present? ? Media::Image.find(@text_message_bundle.image1_id)&.spot_hit_id : nil
-    service = ProgramMessageService.new(@date.next_occurring(:tuesday).strftime('%d-%m-%Y'), '12:30', recipient, @text_message_bundle.body1, spot_hit_id, @text_message_bundle.link1_id).call
+    service = ProgramMessageService.new(@date.next_occurring(:tuesday).strftime('%d-%m-%Y'), '12:30', recipient, @text_message_bundle.body1, @text_message_bundle.rcs_media1_id, @text_message_bundle.link1_id).call
     @errors << service.errors if service.errors
   end
 
   def program_text_message_bundle_body2
     return unless @text_message_bundle.body2
 
-    spot_hit_id = @text_message_bundle.image2_id.present? ? Media::Image.find(@text_message_bundle.image2_id)&.spot_hit_id : nil
-    service = ProgramMessageService.new(@date.next_occurring(:thursday).strftime('%d-%m-%Y'), '12:30', recipient, @text_message_bundle.body2, spot_hit_id, @text_message_bundle.link2_id).call
+    service = ProgramMessageService.new(@date.next_occurring(:thursday).strftime('%d-%m-%Y'), '12:30', recipient, @text_message_bundle.body2, @text_message_bundle.rcs_media2_id, @text_message_bundle.link2_id).call
     @errors << service.errors if service.errors
   end
 
   def program_text_message_bundle_body3
     return unless @text_message_bundle.body3
 
-    spot_hit_id = @text_message_bundle.image3_id.present? ? Media::Image.find(@text_message_bundle.image3_id)&.spot_hit_id : nil
-    service = ProgramMessageService.new(@date.next_occurring(:saturday).strftime('%d-%m-%Y'), '12:30', recipient, @text_message_bundle.body3, spot_hit_id, @text_message_bundle.link3_id).call
+    service = ProgramMessageService.new(@date.next_occurring(:saturday).strftime('%d-%m-%Y'), '12:30', recipient, @text_message_bundle.body3, @text_message_bundle.rcs_media3_id, @text_message_bundle.link3_id).call
     @errors << service.errors if service.errors
   end
 end
