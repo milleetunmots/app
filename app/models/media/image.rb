@@ -84,7 +84,8 @@ class Media::Image < Medium
   # callbacks
   # ---------------------------------------------------------------------------
 
-  after_save :upload_file_to_spot_hit
+  # On utilise désormais les RCS donc on a plus besoin d'upload les fichiers pour les MMS
+  # after_save :upload_file_to_spot_hit
 
   # ---------------------------------------------------------------------------
   # helpers
