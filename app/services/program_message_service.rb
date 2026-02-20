@@ -174,97 +174,39 @@ class ProgramMessageService
     end
   end
 
+  def add_recipient_data(parent, variable, value, error = nil)
+    return unless @variables.include?(variable)
+
+    @recipient_data[parent.phone_number][variable] = value
+    @errors << error if value.blank? && error.present?
+  end
+
   def format_data_for_spot_hit(rcs)
     if @redirection_target || @variables.any?
-      if rcs
-        @recipient_data = {}
-        Parent.where(id: @parent_ids).find_each do |parent|
-          @recipient_data[parent.phone_number] = {}
-          @recipient_data[parent.phone_number]['PRENOM_ENFANT'] = parent.current_child&.first_name || 'votre enfant' if @variables.include?('PRENOM_ENFANT')
-          @recipient_data[parent.phone_number]['PARENT_SECURITY_TOKEN'] = parent.security_token if @variables.include?('PARENT_SECURITY_TOKEN')
-          @recipient_data[parent.phone_number]['PRENOM_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.decorate&.first_name if @variables.include?('PRENOM_ACCOMPAGNANTE')
-          @recipient_data[parent.phone_number]['NUMERO_AIRCALL_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.aircall_phone_number if @variables.include?('NUMERO_AIRCALL_ACCOMPAGNANTE')
-          @recipient_data[parent.phone_number]['PARENT_ADDRESS'] = parent.decorate.full_address(', ') if @variables.include?('PARENT_ADDRESS')
-          if @variables.include?('CALL0_CALENDLY_LINK')
-            link = parent.calendly_booking_urls&.dig('call0')
-            @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 0" if link.nil?
-            @recipient_data[parent.phone_number]['CALL0_CALENDLY_LINK'] = link
-          end
-          if @variables.include?('CALL1_CALENDLY_LINK')
-            link = parent.calendly_booking_urls&.dig('call1')
-            @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 1" if link.nil?
-            @recipient_data[parent.phone_number]['CALL1_CALENDLY_LINK'] = link
-          end
-          if @variables.include?('CALL2_CALENDLY_LINK')
-            link = parent.calendly_booking_urls&.dig('call2')
-            @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 2" if link.nil?
-            @recipient_data[parent.phone_number]['CALL2_CALENDLY_LINK'] = link
-          end
-          if @variables.include?('CALL3_CALENDLY_LINK')
-            link = parent.calendly_booking_urls&.dig('call3')
-            @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 3" if link.nil?
-            @recipient_data[parent.phone_number]['CALL3_CALENDLY_LINK'] = link
-          end
-          if @variables.include?('RDV_CALENDLY_SCHEDULED_AT_HOUR')
-            hour = parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.scheduled_at&.strftime('%H:%M')
-            @errors << "Le parent #{parent.id} ne dispose pas d'un rdv réglementaire" unless hour
-            @recipient_data[parent.phone_number]['RDV_CALENDLY_SCHEDULED_AT_HOUR'] = hour
-          end
-          if @variables.include?('RDV_CALENDLY_CANCEL_URL')
-            cancel_url = parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.cancel_url&.to_s
-            @errors << "Le parent #{parent.id} ne dispose pas d'un lien d'annulation de rdv" unless cancel_url
-            @recipient_data[parent.phone_number]['RDV_CALENDLY_CANCEL_URL'] = cancel_url
-          end
-          if @redirection_target && parent.current_child.present?
-            @recipient_data[parent.phone_number]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
-            @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
-            increment_suggested_videos_counter(parent)
-          end
-        end
-      else
-        @recipient_data = {}
-        Parent.where(id: @parent_ids).find_each do |parent|
-          @recipient_data[parent.phone_number] = {}
-          @recipient_data[parent.phone_number]['PRENOM_ENFANT'] = parent.current_child&.first_name || 'votre enfant' if @variables.include?('PRENOM_ENFANT')
-          @recipient_data[parent.phone_number]['PARENT_SECURITY_TOKEN'] = parent.security_token if @variables.include?('PARENT_SECURITY_TOKEN')
-          @recipient_data[parent.phone_number]['PRENOM_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.decorate&.first_name if @variables.include?('PRENOM_ACCOMPAGNANTE')
-          @recipient_data[parent.phone_number]['NUMERO_AIRCALL_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.aircall_phone_number if @variables.include?('NUMERO_AIRCALL_ACCOMPAGNANTE')
-          @recipient_data[parent.phone_number]['PARENT_ADDRESS'] = parent.decorate.full_address(', ') if @variables.include?('PARENT_ADDRESS')
-          if @variables.include?('CALL0_CALENDLY_LINK')
-            link = parent.calendly_booking_urls&.dig('call0')
-            @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 0" if link.nil?
-            @recipient_data[parent.phone_number]['CALL0_CALENDLY_LINK'] = link
-          end
-          if @variables.include?('CALL1_CALENDLY_LINK')
-            link = parent.calendly_booking_urls&.dig('call1')
-            @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 1" if link.nil?
-            @recipient_data[parent.phone_number]['CALL1_CALENDLY_LINK'] = link
-          end
-          if @variables.include?('CALL2_CALENDLY_LINK')
-            link = parent.calendly_booking_urls&.dig('call2')
-            @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 2" if link.nil?
-            @recipient_data[parent.phone_number]['CALL2_CALENDLY_LINK'] = link
-          end
-          if @variables.include?('CALL3_CALENDLY_LINK')
-            link = parent.calendly_booking_urls&.dig('call3')
-            @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 3" if link.nil?
-            @recipient_data[parent.phone_number]['CALL3_CALENDLY_LINK'] = link
-          end
-          if @variables.include?('RDV_CALENDLY_SCHEDULED_AT_HOUR')
-            hour = parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.scheduled_at&.strftime('%H:%M')
-            @errors << "Le parent #{parent.id} ne dispose pas d'un rdv réglementaire" unless hour
-            @recipient_data[parent.phone_number]['RDV_CALENDLY_SCHEDULED_AT_HOUR'] = hour
-          end
-          if @variables.include?('RDV_CALENDLY_CANCEL_URL')
-            cancel_url = parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.cancel_url&.to_s
-            @errors << "Le parent #{parent.id} ne dispose pas d'un lien d'annulation de rdv" unless cancel_url
-            @recipient_data[parent.phone_number]['RDV_CALENDLY_CANCEL_URL'] = cancel_url
-          end
-          if @redirection_target && parent.current_child.present?
-            @recipient_data[parent.phone_number]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
-            @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
-            increment_suggested_videos_counter(parent)
-          end
+      @recipient_data = {}
+      Parent.where(id: @parent_ids).find_each do |parent|
+        @recipient_data[parent.phone_number] = {}
+        add_recipient_data(parent, 'PRENOM_ENFANT', parent.current_child&.first_name || 'votre enfant')
+        add_recipient_data(parent, 'PARENT_SECURITY_TOKEN', parent.security_token)
+        add_recipient_data(parent, 'PRENOM_ACCOMPAGNANTE', parent.current_child&.child_support&.supporter&.decorate&.first_name)
+        add_recipient_data(parent, 'NUMERO_AIRCALL_ACCOMPAGNANTE', parent.current_child&.child_support&.supporter&.aircall_phone_number)
+        add_recipient_data(parent, 'PARENT_ADDRESS', parent.decorate.full_address(', '))
+        add_recipient_data(parent, 'CALL0_CALENDLY_LINK', parent.calendly_booking_urls&.dig('call0'), "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 0")
+        add_recipient_data(parent, 'CALL1_CALENDLY_LINK', parent.calendly_booking_urls&.dig('call1'), "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 1")
+        add_recipient_data(parent, 'CALL2_CALENDLY_LINK', parent.calendly_booking_urls&.dig('call2'), "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 2")
+        add_recipient_data(parent, 'CALL3_CALENDLY_LINK', parent.calendly_booking_urls&.dig('call3'), "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 3")
+        add_recipient_data(parent,
+                           'RDV_CALENDLY_SCHEDULED_AT_HOUR',
+                           parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.scheduled_at&.strftime('%H:%M'),
+                           "Le parent #{parent.id} ne dispose pas d'un rdv réglementaire")
+        add_recipient_data(parent,
+                           'RDV_CALENDLY_CANCEL_URL',
+                           parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.cancel_url&.to_s,
+                           "Le parent #{parent.id} ne dispose pas d'un lien d'annulation de rdv")
+        if @redirection_target && parent.current_child.present?
+          @recipient_data[parent.phone_number]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
+          @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
+          increment_suggested_videos_counter(parent)
         end
       end
     else
