@@ -89,15 +89,7 @@ class SpotHit::CreateRcsModelService
     end
 
     begin
-      # SpotHit has CRL issues that cause SSL errors in some dev environments
-      # skip SSL verification in development only (works fine in production/staging)
-      if Rails.env.development?
-        ssl_ctx = OpenSSL::SSL::SSLContext.new
-        ssl_ctx.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        response = HTTP.post(URL, form: form_data, ssl_context: ssl_ctx)
-      else
-        response = HTTP.post(URL, form: form_data)
-      end
+      response = HTTP.post(URL, form: form_data)
       parsed_response = JSON.parse(response.body.to_s)
 
       if parsed_response['success'] == true && parsed_response['id'].present?
