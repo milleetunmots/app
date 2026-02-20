@@ -154,12 +154,15 @@ module ProgramMessagesHelper
       result["support_module_week_#{index + 1}"][:message_1][:body] = text_message_bundle.body1
       result["support_module_week_#{index + 1}"][:message_1][:link] = RedirectionTarget.where(medium_id: text_message_bundle.link1_id).first&.id
       result["support_module_week_#{index + 1}"][:message_1][:file] = Medium.where("type = ? and id = ?", "Media::Image", text_message_bundle.image1_id).first
+      result["support_module_week_#{index + 1}"][:message_1][:rcs_media] = text_message_bundle.rcs_media1_id
       result["support_module_week_#{index + 1}"][:message_2][:body] = text_message_bundle.body2
       result["support_module_week_#{index + 1}"][:message_2][:link] = RedirectionTarget.where(medium_id: text_message_bundle.link2_id).first&.id
       result["support_module_week_#{index + 1}"][:message_2][:file] = Medium.where("type = ? and id = ?", "Media::Image", text_message_bundle.image2_id).first
+      result["support_module_week_#{index + 1}"][:message_2][:rcs_media] = text_message_bundle.rcs_media2_id
       result["support_module_week_#{index + 1}"][:message_3][:body] = text_message_bundle.body3
       result["support_module_week_#{index + 1}"][:message_3][:link] = RedirectionTarget.where(medium_id: text_message_bundle.link3_id).first&.id
       result["support_module_week_#{index + 1}"][:message_3][:file] = Medium.where("type = ? and id = ?", "Media::Image", text_message_bundle.image3_id).first
+      result["support_module_week_#{index + 1}"][:message_3][:rcs_media] = text_message_bundle.rcs_media3_id
       next unless support_module_week.additional_medium_id
 
       additional_medium = Medium.find(support_module_week.additional_medium_id)
@@ -167,6 +170,7 @@ module ProgramMessagesHelper
       result["support_module_week_#{index + 1}"][:message_4][:body] = additional_medium.body1
       result["support_module_week_#{index + 1}"][:message_4][:link] = RedirectionTarget.where(medium_id: additional_medium.link1_id).first&.id
       result["support_module_week_#{index + 1}"][:message_4][:file] = Medium.where("type = ? and id = ?", "Media::Image", text_message_bundle.image1_id).first
+      result["support_module_week_#{index + 1}"][:message_4][:rcs_media] = text_message_bundle.rcs_media4_id
     end
     result
   end

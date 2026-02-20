@@ -10,8 +10,8 @@ $(document).ready(function() {
     var conclusion_field = $('#conclusion_div')
     var conclusion = $("textarea[name='conclusion']")
     var message = $("textarea[name='message']")
-    var imageToSendDiv = $('#image_to_send_div')
-    var imageToSendSelect = $('#image_to_send')
+    // var imageToSendDiv = $('#image_to_send_div')
+    // var imageToSendSelect = $('#image_to_send')
     var childSupportId = new URLSearchParams(window.location.search).get('child_support_id')
     var parentSecurityToken = new URLSearchParams(window.location.search).get('parent_st')
     var speakingLink = `${window.location.protocol}//${window.location.host}/c3/sf?st=${parentSecurityToken}`
@@ -71,12 +71,12 @@ $(document).ready(function() {
             if (selectedValue == 'call0_goals') {
                 conclusion.val(`À bientôt !`)
                 call_index = 0
-                imageToSendSelect.empty()
-                imageToSendDiv.hide()
+                // imageToSendSelect.empty()
+                // imageToSendDiv.hide()
             } else {
                 conclusion.val(`Bonne journée !`)
                 call_index = 3
-                imageToSendDiv.show()
+                // imageToSendDiv.show()
             }
 
             messageContent = "{INTRODUCTION}{CHAMP_PETITE_MISSION}\n{QUESTIONNAIRE_DE_PARTAGE}{type_form_link}\n{CONCLUSION}"
@@ -114,7 +114,6 @@ $(document).ready(function() {
             });
         } else {
             $("input[type='submit']").prop('disabled', false)
-            imageToSendDiv.show()
             message.css({'height': 'auto', 'background-color': 'white'})
             normalMessage()
             hideNewFields()

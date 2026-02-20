@@ -8,6 +8,9 @@
 #  body3        :text
 #  discarded_at :datetime
 #  name         :string
+#  rcs_title1    :string(200)
+#  rcs_title2    :string(200)
+#  rcs_title3    :string(200)
 #  theme        :string
 #  type         :string
 #  url          :string
@@ -21,6 +24,9 @@
 #  link1_id     :bigint
 #  link2_id     :bigint
 #  link3_id     :bigint
+#  rcs_media1_id :integer
+#  rcs_media2_id :integer
+#  rcs_media3_id :integer
 #  spot_hit_id  :string
 #
 # Indexes
@@ -78,7 +84,8 @@ class Media::Image < Medium
   # callbacks
   # ---------------------------------------------------------------------------
 
-  after_save :upload_file_to_spot_hit
+  # On utilise désormais les RCS donc on a plus besoin d'upload les fichiers pour les MMS
+  # after_save :upload_file_to_spot_hit
 
   # ---------------------------------------------------------------------------
   # helpers

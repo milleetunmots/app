@@ -8,6 +8,9 @@
 #  body3        :text
 #  discarded_at :datetime
 #  name         :string
+#  rcs_title1    :string(200)
+#  rcs_title2    :string(200)
+#  rcs_title3    :string(200)
 #  theme        :string
 #  type         :string
 #  url          :string
@@ -21,6 +24,9 @@
 #  link1_id     :bigint
 #  link2_id     :bigint
 #  link3_id     :bigint
+#  rcs_media1_id :integer
+#  rcs_media2_id :integer
+#  rcs_media3_id :integer
 #  spot_hit_id  :string
 #
 # Indexes
@@ -51,6 +57,10 @@ class Media::TextMessagesBundle < Medium
 
   include Media::TextMessagesBundleConcern
 
+  after_update :update_rcs_model1, if: -> { image1_id.present? && (saved_change_to_body1? || saved_change_to_image1_id?) }
+  after_update :update_rcs_model2, if: -> { image2_id.present? && (saved_change_to_body2? || saved_change_to_image2_id?) }
+  after_update :update_rcs_model3, if: -> { image3_id.present? && (saved_change_to_body3? || saved_change_to_image3_id?) }
+
   def draft
     update_attribute :type, 'Media::TextMessagesBundleDraft'
   end
@@ -70,6 +80,9 @@ class Media::TextMessagesBundle < Medium
       tag_list: tag_list,
       folder_id: folder_id,
       type: type,
+      rcs_title1: rcs_title1,
+      rcs_title2: rcs_title2,
+      rcs_title3: rcs_title3,
       body1: body1,
       body2: body2,
       body3: body3,
@@ -82,4 +95,20 @@ class Media::TextMessagesBundle < Medium
     )
   end
 
+  private
+
+  def update_rcs_model1
+    service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: 1).call
+    Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
+  end
+
+  def update_rcs_model2
+    service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: 2).call
+    Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
+  end
+
+  def update_rcs_model3
+    service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: 3).call
+    Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
+  end
 end

@@ -27,18 +27,21 @@ class SpotHit::SendMessageService
 
   def create_events(message_id)
     recipients = @recipients
-    recipients = { recipients => {} } if recipients.instance_of?(Integer)
-    recipients.each do |parent_id, keys|
-      parent = Parent.find(parent_id)
+    # convert string of phone numbers separated by commas to hash
+    if recipients.instance_of?(String)
+      recipients = recipients.split(', ').to_h { |phone| [phone, {}] }
+    end
+    recipients.each do |phone_number, keys|
+      parent = Parent.find_by!(phone_number: phone_number)
       event_attributes = {
-        related_id: parent_id,
+        related_id: parent.id,
         related_type: 'Parent',
         body: @message.dup,
         spot_hit_message_id: message_id,
         spot_hit_status: 0,
         type: 'Events::TextMessage',
         occurred_at: Time.at(@planned_timestamp)
-      }.merge(@event_params[parent_id] || {})
+      }.merge(@event_params[parent.id] || {})
       keys&.map { |key, value| event_attributes[:body].gsub!("{#{key}}", value.to_s) }
       event = Event.create(event_attributes)
 
@@ -48,7 +51,7 @@ class SpotHit::SendMessageService
 
       @workshop.workshop_participations.build(
         type: 'Events::WorkshopParticipation',
-        related_id: parent_id,
+        related_id: parent.id,
         related_type: 'Parent',
         body: @workshop.name,
         occurred_at: @workshop.workshop_date
@@ -79,8 +82,6 @@ class SpotHit::SendMessageService
 
       form.delete(key)
     end
-
-    @recipients = Parent.where(phone_number: numbers).pluck(:id)
     form
   end
 end

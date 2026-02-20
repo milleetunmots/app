@@ -8,6 +8,9 @@
 #  body3        :text
 #  discarded_at :datetime
 #  name         :string
+#  rcs_title1    :string(200)
+#  rcs_title2    :string(200)
+#  rcs_title3    :string(200)
 #  theme        :string
 #  type         :string
 #  url          :string
@@ -18,6 +21,9 @@
 #  image1_id    :bigint
 #  image2_id    :bigint
 #  image3_id    :bigint
+#  rcs_media1_id :integer
+#  rcs_media2_id :integer
+#  rcs_media3_id :integer
 #  link1_id     :bigint
 #  link2_id     :bigint
 #  link3_id     :bigint
