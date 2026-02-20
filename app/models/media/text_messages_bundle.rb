@@ -57,6 +57,10 @@ class Media::TextMessagesBundle < Medium
 
   include Media::TextMessagesBundleConcern
 
+  after_update :update_rcs_model1, if: -> { image1_id.present? && (saved_change_to_body1? || saved_change_to_image1_id?) }
+  after_update :update_rcs_model2, if: -> { image2_id.present? && (saved_change_to_body2? || saved_change_to_image2_id?) }
+  after_update :update_rcs_model3, if: -> { image3_id.present? && (saved_change_to_body3? || saved_change_to_image3_id?) }
+
   def draft
     update_attribute :type, 'Media::TextMessagesBundleDraft'
   end
@@ -91,4 +95,20 @@ class Media::TextMessagesBundle < Medium
     )
   end
 
+  private
+
+  def update_rcs_model1
+    service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: 1).call
+    Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
+  end
+
+  def update_rcs_model2
+    service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: 2).call
+    Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
+  end
+
+  def update_rcs_model3
+    service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: 3).call
+    Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
+  end
 end
