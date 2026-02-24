@@ -96,7 +96,7 @@ class Group
         when 1
           @group.started_at + 6.weeks
         when 2
-          @group.started_at + 11.weeks
+          (@group.started_at + 7.weeks + MODULE_ZERO_DURATION).prev_occurring(:friday)
         when 3
           @group.started_at + 25.weeks
         end
@@ -135,7 +135,7 @@ class Group
     def program_sms_to_choose_module2_to_parents
       # If you update select_module_date, check remaining_module_count in children_support_modules_controller
       # "Module 2" ==> module_index 3
-      select_module_date = @group.started_at + 7.weeks + MODULE_ZERO_DURATION
+      select_module_date = (@group.started_at + 7.weeks + MODULE_ZERO_DURATION).prev_occurring(:friday)
       ChildrenSupportModule::SelectModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: @hour)).perform_later(@group.id, select_module_date, 3)
     end
 
@@ -157,7 +157,7 @@ class Group
     end
 
     def select_default_support_module2
-      select_module_date = (@group.started_at + 7.weeks + MODULE_ZERO_DURATION).next_occurring(:thursday)
+      select_module_date = (@group.started_at + 6.weeks + MODULE_ZERO_DURATION).next_occurring(:monday)
       ChildrenSupportModule::SelectDefaultSupportModuleJob.set(wait_until: select_module_date.to_datetime.change(hour: @hour)).perform_later(@group.id)
     end
 
@@ -169,7 +169,7 @@ class Group
     end
 
     def verify_chosen_modules2
-      select_module_date = (@group.started_at + 7.weeks + MODULE_ZERO_DURATION).next_occurring(:thursday)
+      select_module_date = (@group.started_at + 6.weeks + MODULE_ZERO_DURATION).next_occurring(:monday)
       ChildrenSupportModule::VerifyChosenModulesTaskJob.set(wait_until: select_module_date.to_datetime.change(hour: @hour + 1)).perform_later(@group.id)
     end
 
