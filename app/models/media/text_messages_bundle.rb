@@ -57,9 +57,7 @@ class Media::TextMessagesBundle < Medium
 
   include Media::TextMessagesBundleConcern
 
-  after_update :update_rcs_model1, if: -> { image1_id.present? && (saved_change_to_body1? || saved_change_to_image1_id?) }
-  after_update :update_rcs_model2, if: -> { image2_id.present? && (saved_change_to_body2? || saved_change_to_image2_id?) }
-  after_update :update_rcs_model3, if: -> { image3_id.present? && (saved_change_to_body3? || saved_change_to_image3_id?) }
+  after_save :sync_rcs_models
 
   def draft
     update_attribute :type, 'Media::TextMessagesBundleDraft'
@@ -107,8 +105,20 @@ class Media::TextMessagesBundle < Medium
     Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
   end
 
-  def update_rcs_model3
-    service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: 3).call
-    Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
+  def sync_rcs_models
+    (1..3).each do |index|
+      next if send("body#{index}").blank?
+
+      if send("rcs_media#{index}_id").present? && send("image#{index}_id").nil?
+        SpotHit::DeleteRcsModelJob.set(wait_until: 2.months.from_now).perform_later(send("rcs_media#{index}_id"))
+        update_column("rcs_media#{index}_id", nil)
+      elsif send("rcs_media#{index}_id").present? && (send("saved_change_to_body#{index}?") || send("saved_change_to_image#{index}_id?") || send("saved_change_to_rcs_title#{index}?"))
+        service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: index).call
+        Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
+      elsif send("rcs_media#{index}_id").nil? && send("image#{index}_id").present?
+        service = SpotHit::CreateRcsModelService.new(text_messages_bundle: self, message_index: index).call
+        Rollbar.error('SpotHit::CreateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
+      end
+    end
   end
 end
