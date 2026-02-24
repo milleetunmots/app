@@ -1,19 +1,18 @@
 require 'rails_helper'
 
 RSpec.describe SpotHit::CreateRcsModelService do
-  let(:text_messages_bundle) { FactoryBot.create(:media_text_messages_bundle) }
   let(:image) { FactoryBot.create(:media_image) }
   let(:message_index) { 1 }
-
-  before do
-    # skip spotHit upload callback
-    allow_any_instance_of(Media::Image).to receive(:upload_file_to_spot_hit)
-
-    text_messages_bundle.update(
+  let(:text_messages_bundle) do
+    messages = FactoryBot.create(:media_text_messages_bundle)
+    messages.update_columns(
       body1: "Ceci est un message de test\nAvec plusieurs lignes",
       image1_id: image.id
     )
+    messages.reload
+  end
 
+  before(:each) do
     stub_request(:post, "https://www.spot-hit.fr/api/rcs/model/create")
       .to_return(
         status: 200,
@@ -69,7 +68,8 @@ RSpec.describe SpotHit::CreateRcsModelService do
 
     context 'when body is blank' do
       before do
-        text_messages_bundle.update(body1: nil)
+        text_messages_bundle.update_columns(body1: nil)
+        text_messages_bundle.reload
       end
 
       it 'returns an error' do
@@ -80,7 +80,8 @@ RSpec.describe SpotHit::CreateRcsModelService do
 
     context 'when image is missing' do
       before do
-        text_messages_bundle.update(image1_id: nil)
+        text_messages_bundle.update_columns(image1_id: nil)
+        text_messages_bundle.reload
       end
 
       it 'adds a warning but still processes' do
@@ -113,16 +114,14 @@ RSpec.describe SpotHit::CreateRcsModelService do
       let(:message_index) { 2 }
 
       before do
-        text_messages_bundle.update(
-          body2: "Second message",
-          image2_id: image.id
-        )
+        text_messages_bundle.update_columns(body2: "Second message", image2_id: image.id)
+        text_messages_bundle.reload
       end
 
       it 'saves to rcs_media2_id' do
         service
         expect(text_messages_bundle.reload.rcs_media2_id).to eq(12345)
-        expect(text_messages_bundle.rcs_media1_id).to be_nil
+        expect(text_messages_bundle.reload.rcs_media1_id).to be_nil
       end
     end
 
@@ -130,22 +129,21 @@ RSpec.describe SpotHit::CreateRcsModelService do
       let(:message_index) { 3 }
 
       before do
-        text_messages_bundle.update(
-          body3: "Third message",
-          image3_id: image.id
-        )
+        text_messages_bundle.update_columns(body3: "Third message", image3_id: image.id)
+        text_messages_bundle.reload
       end
 
       it 'saves to rcs_media3_id' do
         service
         expect(text_messages_bundle.reload.rcs_media3_id).to eq(12345)
-        expect(text_messages_bundle.rcs_media1_id).to be_nil
+        expect(text_messages_bundle.reload.rcs_media1_id).to be_nil
       end
     end
 
     context 'with custom rcs_title1' do
       before do
-        text_messages_bundle.update(rcs_title1: 'Mon titre personnalisé')
+        text_messages_bundle.update_columns(rcs_title1: 'Mon titre personnalisé')
+        text_messages_bundle.reload
       end
 
       it 'uses the custom title in the API request' do
@@ -160,7 +158,8 @@ RSpec.describe SpotHit::CreateRcsModelService do
 
     context 'without rcs_title1' do
       before do
-        text_messages_bundle.update(rcs_title1: nil)
+        text_messages_bundle.update_columns(rcs_title1: nil)
+        text_messages_bundle.reload
       end
 
       it 'uses "1001mots" as default title in the API request' do
@@ -175,7 +174,8 @@ RSpec.describe SpotHit::CreateRcsModelService do
 
     context 'with empty rcs_title1' do
       before do
-        text_messages_bundle.update(rcs_title1: '')
+        text_messages_bundle.update_columns(rcs_title1: '')
+        text_messages_bundle.reload
       end
 
       it 'uses "1001mots" as default title in the API request' do
@@ -192,11 +192,12 @@ RSpec.describe SpotHit::CreateRcsModelService do
       let(:message_index) { 2 }
 
       before do
-        text_messages_bundle.update(
+        text_messages_bundle.update_columns(
           body2: "Second message",
           image2_id: image.id,
           rcs_title2: 'Titre du message 2'
         )
+        text_messages_bundle.reload
       end
 
       it 'uses rcs_title2 for message 2' do
