@@ -116,6 +116,7 @@
 #  parent2_available_support_module_list      :string           is an Array
 #  parent_mid_term_rate                       :integer
 #  parent_mid_term_reaction                   :string
+#  parent_needs                               :text
 #  parental_contexts                          :string           is an Array
 #  restart_support_date                       :datetime
 #  restart_support_details                    :text

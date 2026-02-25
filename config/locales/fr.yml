@@ -20,6 +20,7 @@ fr:
       call1_parent_actions: "Réaction à la vidéo :\n\nLivres :\n\nAutres pratiques :"
       call3_parent_actions: "Nouvelles choses :\n\nIntérêts observés :\n\nComment observe son enfant :\n\nRéaction à la vidéo :"
       call3_language_development: "Changements :\n\nLangage :\n\nAutre : "
+      parent_needs: "Appel 0 :\n\nAppel 1 :\n\nAppel 2 :"
     parent1: Parent 1
     parent2: Parent 2
     parents: Parents
