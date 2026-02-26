@@ -105,6 +105,17 @@ class Media::TextMessagesBundle < Medium
     Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
   end
 
+  # Synchronise les modèles RCS SpotHit (messages 1 à 3) après chaque sauvegarde.
+  #
+  # Pour chaque message dont le contenu (body) est renseigné, trois cas sont gérés :
+  # - Le modèle RCS existe mais l'image a été supprimée → planifie la suppression
+  #   côté SpotHit dans 2 mois et réinitialise le rcs_media_id.
+  # - Le modèle RCS existe et le contenu a changé (body, image ou titre) → met à
+  #   jour le modèle via SpotHit::UpdateRcsModelService.
+  # - Aucun modèle RCS n'existe encore mais une image est présente → crée le
+  #   modèle via SpotHit::CreateRcsModelService.
+  #
+  # Les erreurs éventuelles sont remontées à Rollbar.
   def sync_rcs_models
     (1..3).each do |index|
       next if send("body#{index}").blank?
