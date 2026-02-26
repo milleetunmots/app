@@ -5,11 +5,11 @@ class ProgramMessageService
 
   attr_reader :errors
 
-  def initialize(planned_date, planned_hour, recipients, message, file = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil)
+  def initialize(planned_date, planned_hour, recipients, message, rcs_media_id = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil)
     @planned_timestamp = ActiveSupport::TimeZone['Europe/Paris'].parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []
     @message = message
-    @file = file
+    @rcs_media_id = rcs_media_id
     @tag_ids = []
     @parent_ids = []
     @redirection_target = RedirectionTarget.find(redirection_target_id) if redirection_target_id
@@ -74,12 +74,17 @@ class ProgramMessageService
       Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(@aircall_number_id, parent&.phone_number, @message, event.id)
       @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
     when 'spothit'
-      service = SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, workshop_id: @workshop_id, event_params: @event_params).call
-        # if @file.nil?
-        #   SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, workshop_id: @workshop_id, event_params: @event_params).call
-        # else
-        #   SpotHit::SendMmsService.new(@recipient_data, @planned_timestamp, @message, file: @file, event_params: @event_params).call
-        # end
+      service =
+        if @rcs_media_id.nil?
+          SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, workshop_id: @workshop_id, event_params: @event_params).call
+        else
+          SpotHit::SendRcsService.new(
+            recipients: @recipient_data,
+            planned_timestamp: @planned_timestamp,
+            media_id: @rcs_media_id,
+            fallback_message: @message
+          ).call
+        end
 
       if service.errors.any?
         @errors = service.errors
@@ -138,7 +143,7 @@ class ProgramMessageService
   def format_data_for_provider
     case @provider
     when 'spothit'
-      format_data_for_spot_hit
+      format_data_for_spot_hit(@rcs_media_id.present?)
     when 'aircall'
       format_data_for_aircall
     else
@@ -169,56 +174,44 @@ class ProgramMessageService
     end
   end
 
-  def format_data_for_spot_hit
-    # we need to format phone_numbers as hash inn order to include variables
+  def add_recipient_data(parent, variable, value, error = nil)
+    return unless @variables.include?(variable)
+
+    @recipient_data[parent.phone_number][variable] = value
+    @errors << error if value.blank? && error.present?
+  end
+
+  def format_data_for_spot_hit(rcs)
     if @redirection_target || @variables.any?
       @recipient_data = {}
       Parent.where(id: @parent_ids).find_each do |parent|
-        @recipient_data[parent.id.to_s] = {}
-        @recipient_data[parent.id.to_s]['PRENOM_ENFANT'] = parent.current_child&.first_name || 'votre enfant' if @variables.include?('PRENOM_ENFANT')
-        @recipient_data[parent.id.to_s]['PARENT_SECURITY_TOKEN'] = parent.security_token if @variables.include?('PARENT_SECURITY_TOKEN')
-        @recipient_data[parent.id.to_s]['PRENOM_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.decorate&.first_name if @variables.include?('PRENOM_ACCOMPAGNANTE')
-        @recipient_data[parent.id.to_s]['NUMERO_AIRCALL_ACCOMPAGNANTE'] = parent.current_child&.child_support&.supporter&.aircall_phone_number if @variables.include?('NUMERO_AIRCALL_ACCOMPAGNANTE')
-        @recipient_data[parent.id.to_s]['PARENT_ADDRESS'] = parent.decorate.full_address(', ') if @variables.include?('PARENT_ADDRESS')
-        if @variables.include?('CALL0_CALENDLY_LINK')
-          link = parent.calendly_booking_urls&.dig('call0')
-          @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 0" if link.nil?
-          @recipient_data[parent.id.to_s]['CALL0_CALENDLY_LINK'] = link
-        end
-        if @variables.include?('CALL1_CALENDLY_LINK')
-          link = parent.calendly_booking_urls&.dig('call1')
-          @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 1" if link.nil?
-          @recipient_data[parent.id.to_s]['CALL1_CALENDLY_LINK'] = link
-        end
-        if @variables.include?('CALL2_CALENDLY_LINK')
-          link = parent.calendly_booking_urls&.dig('call2')
-          @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 2" if link.nil?
-          @recipient_data[parent.id.to_s]['CALL2_CALENDLY_LINK'] = link
-        end
-        if @variables.include?('CALL3_CALENDLY_LINK')
-          link = parent.calendly_booking_urls&.dig('call3')
-          @errors << "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 3" if link.nil?
-          @recipient_data[parent.id.to_s]['CALL3_CALENDLY_LINK'] = link
-        end
-        if @variables.include?('RDV_CALENDLY_SCHEDULED_AT_HOUR')
-          hour = parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.scheduled_at&.strftime('%H:%M')
-          @errors << "Le parent #{parent.id} ne dispose pas d'un rdv réglementaire" unless hour
-          @recipient_data[parent.id.to_s]['RDV_CALENDLY_SCHEDULED_AT_HOUR'] = hour
-        end
-        if @variables.include?('RDV_CALENDLY_CANCEL_URL')
-          cancel_url = parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.cancel_url&.to_s
-          @errors << "Le parent #{parent.id} ne dispose pas d'un lien d'annulation de rdv" unless cancel_url
-          @recipient_data[parent.id.to_s]['RDV_CALENDLY_CANCEL_URL'] = cancel_url
-        end
+        @recipient_data[parent.phone_number] = {}
+        add_recipient_data(parent, 'PRENOM_ENFANT', parent.current_child&.first_name || 'votre enfant')
+        add_recipient_data(parent, 'PARENT_SECURITY_TOKEN', parent.security_token)
+        add_recipient_data(parent, 'PRENOM_ACCOMPAGNANTE', parent.current_child&.child_support&.supporter&.decorate&.first_name)
+        add_recipient_data(parent, 'NUMERO_AIRCALL_ACCOMPAGNANTE', parent.current_child&.child_support&.supporter&.aircall_phone_number)
+        add_recipient_data(parent, 'PARENT_ADDRESS', parent.decorate.full_address(', '))
+        add_recipient_data(parent, 'CALL0_CALENDLY_LINK', parent.calendly_booking_urls&.dig('call0'), "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 0")
+        add_recipient_data(parent, 'CALL1_CALENDLY_LINK', parent.calendly_booking_urls&.dig('call1'), "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 1")
+        add_recipient_data(parent, 'CALL2_CALENDLY_LINK', parent.calendly_booking_urls&.dig('call2'), "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 2")
+        add_recipient_data(parent, 'CALL3_CALENDLY_LINK', parent.calendly_booking_urls&.dig('call3'), "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 3")
+        add_recipient_data(parent,
+                           'RDV_CALENDLY_SCHEDULED_AT_HOUR',
+                           parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.scheduled_at&.strftime('%H:%M'),
+                           "Le parent #{parent.id} ne dispose pas d'un rdv réglementaire")
+        add_recipient_data(parent,
+                           'RDV_CALENDLY_CANCEL_URL',
+                           parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.cancel_url&.to_s,
+                           "Le parent #{parent.id} ne dispose pas d'un lien d'annulation de rdv")
         if @redirection_target && parent.current_child.present?
-          @recipient_data[parent.id.to_s]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
+          @recipient_data[parent.phone_number]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
           increment_suggested_videos_counter(parent)
         end
       end
     else
-      # If no variables, we can just sent an array of parent ids
-      @recipient_data = @parent_ids
+      @recipient_data = Parent.where(id: @parent_ids).pluck(:phone_number)
+      @recipient_data = @recipient_data.join(', ') unless rcs
     end
   end
 

@@ -8,6 +8,9 @@
 #  body3        :text
 #  discarded_at :datetime
 #  name         :string
+#  rcs_title1    :string(200)
+#  rcs_title2    :string(200)
+#  rcs_title3    :string(200)
 #  theme        :string
 #  type         :string
 #  url          :string
@@ -21,6 +24,9 @@
 #  link1_id     :bigint
 #  link2_id     :bigint
 #  link3_id     :bigint
+#  rcs_media1_id :integer
+#  rcs_media2_id :integer
+#  rcs_media3_id :integer
 #  spot_hit_id  :string
 #
 # Indexes
@@ -87,4 +93,88 @@ RSpec.describe Media::TextMessagesBundle, type: :model do
     end
   end
 
+  describe '#sync_rcs_models' do
+    let(:image) { FactoryBot.create(:media_image) }
+    let!(:bundle) do
+      text_messages = FactoryBot.create(:media_text_messages_bundle, body2: nil, body3: nil)
+      text_messages.update_columns(rcs_media1_id: 123, image1_id: image.id)
+      text_messages.reload
+    end
+
+    context 'when rcs_media_id is present and image_id is nil' do
+      it 'enqueues DeleteRcsModelJob with the rcs_media_id' do
+        allow(SpotHit::DeleteRcsModelJob).to receive(:set).and_return(SpotHit::DeleteRcsModelJob)
+        expect(SpotHit::DeleteRcsModelJob).to receive(:perform_later).with(123)
+        bundle.update!(image1_id: nil)
+      end
+
+      it 'sets rcs_media1_id to nil in the database' do
+        allow(SpotHit::DeleteRcsModelJob).to receive(:set).and_return(SpotHit::DeleteRcsModelJob)
+        bundle.update!(image1_id: nil)
+        expect(bundle.reload.rcs_media1_id).to be_nil
+      end
+    end
+
+    context 'when rcs_media_id is present and image changed' do
+      let(:bundle) do
+        text_messages = FactoryBot.create(:media_text_messages_bundle, body2: nil, body3: nil)
+        text_messages.update_columns(rcs_media1_id: 456, image1_id: image.id)
+        text_messages.reload
+      end
+
+      let(:service_result) { double('service_result', errors: []) }
+      let(:service_instance) { double('service_instance', call: service_result) }
+
+      it 'calls UpdateRcsModelService when body changes' do
+        expect(SpotHit::UpdateRcsModelService).to receive(:new)
+          .with(text_messages_bundle: bundle, message_index: 1)
+          .and_return(service_instance)
+        bundle.update!(body1: 'new body')
+      end
+
+      it 'calls UpdateRcsModelService when rcs_title changes' do
+        expect(SpotHit::UpdateRcsModelService).to receive(:new)
+          .with(text_messages_bundle: bundle, message_index: 1)
+          .and_return(service_instance)
+        bundle.update!(rcs_title1: 'new title')
+      end
+
+      it 'calls UpdateRcsModelService when image changes' do
+        new_image = FactoryBot.create(:media_image)
+        expect(SpotHit::UpdateRcsModelService).to receive(:new)
+          .with(text_messages_bundle: bundle, message_index: 1)
+          .and_return(service_instance)
+        bundle.update!(image1_id: new_image.id)
+      end
+
+      it 'reports to Rollbar when UpdateRcsModelService has errors' do
+        error_result = double('error_result', errors: ['SpotHit error'])
+        error_instance = double('error_instance', call: error_result)
+        allow(SpotHit::UpdateRcsModelService).to receive(:new).and_return(error_instance)
+        expect(Rollbar).to receive(:error).with('SpotHit::UpdateRcsModelService', anything)
+        bundle.update!(body1: 'new body')
+      end
+    end
+
+    context 'when rcs_media_id is nil and image_id is present' do
+      let(:bundle) { FactoryBot.create(:media_text_messages_bundle, body2: nil, body3: nil) }
+
+      it 'calls CreateRcsModelService when image is added' do
+        service_result = double('service_result', errors: [])
+        service_instance = double('service_instance', call: service_result)
+        expect(SpotHit::CreateRcsModelService).to receive(:new)
+          .with(text_messages_bundle: bundle, message_index: 1)
+          .and_return(service_instance)
+        bundle.update!(image1_id: image.id)
+      end
+
+      it 'reports to Rollbar when CreateRcsModelService has errors' do
+        error_result = double('error_result', errors: ['SpotHit error'])
+        error_instance = double('error_instance', call: error_result)
+        allow(SpotHit::CreateRcsModelService).to receive(:new).and_return(error_instance)
+        expect(Rollbar).to receive(:error).with('SpotHit::CreateRcsModelService', anything)
+        bundle.update!(image1_id: image.id)
+      end
+    end
+  end
 end
