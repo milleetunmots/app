@@ -96,7 +96,7 @@ class Group
         when 1
           @group.started_at + 6.weeks
         when 2
-          (@group.started_at + 7.weeks + MODULE_ZERO_DURATION).prev_occurring(:friday)
+          @group.started_at + 11.weeks
         when 3
           @group.started_at + 25.weeks
         end
