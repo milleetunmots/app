@@ -5,15 +5,15 @@ RSpec.describe Group::ProgramService do
 
   let!(:group) { FactoryBot.create(:group) }
 
-  let!(:four_months_child) { FactoryBot.create(:child, birthdate: Time.zone.now.months_ago(4)) } # four_to_ten
-  let!(:ten_months_child) { FactoryBot.create(:child, birthdate: Time.zone.now.months_ago(11)) } # eleven_to_sixteen
-  let!(:fifteen_months_child) { FactoryBot.create(:child, birthdate: Time.zone.now.months_ago(15)) } # eleven_to_sixteen
-  let!(:twenty_months_child) { FactoryBot.create(:child, birthdate: Time.zone.now.months_ago(20)) } # seventeen_to_twenty_two
+  let!(:four_months_child) { FactoryBot.create(:child, birthdate: Time.zone.now.months_ago(4), group: group, group_status: 'active') } # four_to_ten
+  let!(:ten_months_child) { FactoryBot.create(:child, birthdate: Time.zone.now.months_ago(11), group: group, group_status: 'active') } # eleven_to_sixteen
+  let!(:fifteen_months_child) { FactoryBot.create(:child, birthdate: Time.zone.now.months_ago(15), group: group, group_status: 'active') } # eleven_to_sixteen
+  let!(:twenty_months_child) { FactoryBot.create(:child, birthdate: Time.zone.now.months_ago(20), group: group, group_status: 'active') } # seventeen_to_twenty_two
 
-  let!(:twenty_six_months_child) { FactoryBot.create(:child, birthdate: Time.zone.now.months_ago(26)) } # twenty_four_and_more
-  let!(:thirty_two_months_child) { FactoryBot.create(:child) } # twenty_four_and_more
-  let!(:thirty_seven_months_child) { FactoryBot.create(:child) } # twenty_four_and_more
-  let!(:forty_two_months_child) { FactoryBot.create(:child) } # twenty_four_and_more
+  let!(:twenty_six_months_child) { FactoryBot.create(:child, birthdate: Time.zone.now.months_ago(26), group: group, group_status: 'active') } # twenty_four_and_more
+  let!(:thirty_two_months_child) { FactoryBot.create(:child, group: group, group_status: 'active') } # twenty_four_and_more
+  let!(:thirty_seven_months_child) { FactoryBot.create(:child, group: group, group_status: 'active') } # twenty_four_and_more
+  let!(:forty_two_months_child) { FactoryBot.create(:child, group: group, group_status: 'active') } # twenty_four_and_more
 
   let!(:four_to_ten_module_zero) { FactoryBot.create(:support_module, level: 1, for_bilingual: true, theme: "language_module_zero", age_ranges: %w[four_to_ten], name: "Enrichir la conversation 4-9") }
   let!(:eleven_to_sixteen_module_zero) { FactoryBot.create(:support_module, level: 1, for_bilingual: false, theme: "language_module_zero", age_ranges: %w[eleven_to_sixteen], name: "Enrichir la conversation 10-15") }

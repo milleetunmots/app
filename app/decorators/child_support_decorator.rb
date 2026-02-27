@@ -127,7 +127,7 @@ class ChildSupportDecorator < BaseDecorator
       scheduled_calls = model.scheduled_call_sessions(call_idx)
       return nil if scheduled_calls.empty?
 
-      upcoming_calls = scheduled_calls.upcoming.select { |call| call.scheduled_at > 2.hours.ago }
+      upcoming_calls = scheduled_calls.scheduled.select { |call| call.scheduled_at > 2.hours.ago }
       all_canceled = scheduled_calls.all?(&:canceled?)
 
       return canceled_badge if all_canceled

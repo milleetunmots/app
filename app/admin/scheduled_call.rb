@@ -1,7 +1,7 @@
 ActiveAdmin.register ScheduledCall do
   menu label: 'RDV Calendly', priority: 15, if: -> { current_admin_user.user_role.in?(%w[super_admin contributor reader]) || (current_admin_user.user_role.in?(%w[caller animator]) && current_admin_user.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].split)) }
 
-  config.sort_order = 'scheduled_at'
+  config.sort_order = 'scheduled_at_asc'
 
   actions :all, except: %i[new edit create destroy]
 
