@@ -569,6 +569,7 @@ class ChildSupport < ApplicationRecord
       'availability',
       'call_infos',
       'book_not_received',
+      'parent_needs',
       'tag_list'
     ).each do |attribute, value|
       self.notes << "#{I18n.t("activerecord.attributes.child_support.#{attribute}")} : #{value}\n"
