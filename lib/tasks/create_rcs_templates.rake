@@ -91,4 +91,60 @@ namespace :rcs do
       puts "Saved to rcs_media#{message_index}_id column"
     end
   end
+
+  desc "Delete RCS templates for all TextMessagesBundle with images"
+  task delete_templates: :environment do
+    puts "Starting RCS template deletion..."
+
+    bundles = Media::TextMessagesBundle.kept.all
+    total = bundles.count
+    success_count = 0
+    error_count = 0
+    skipped_count = 0
+
+    bundles.each_with_index do |bundle, index|
+      puts "\n[#{index + 1}/#{total}] Processing bundle ##{bundle.id} - #{bundle.name}"
+
+      # process each message in the bundle (1, 2, 3)
+      [1, 2, 3].each do |message_index|
+        body = bundle.send("body#{message_index}")
+        rcs_media_id = bundle.send("rcs_media#{message_index}_id")
+
+        if body.blank?
+          puts "Message #{message_index}: skipped (no body)"
+          skipped_count += 1
+          next
+        end
+
+        if rcs_media_id.blank?
+          puts "Message #{message_index}: skipped (no RCS template found)"
+          skipped_count += 1
+          next
+        end
+
+        service = SpotHit::DeleteRcsModelService.new(
+          rcs_media_id: rcs_media_id
+        ).call
+
+        if service.errors.any?
+          puts "Message #{message_index}: ERROR - #{service.errors.join(', ')}"
+          error_count += 1
+        else
+          puts "Message #{message_index}: SUCCESS - RCS template ID"
+          bundle.update_column("rcs_media#{message_index}_id", nil)
+          success_count += 1
+        end
+
+        # avoid rate limiting
+        sleep 0.5
+      end
+    end
+
+    puts "\n" + "="*10
+    puts "Results:"
+    puts "Total bundles processed: #{total}"
+    puts "Templates created: #{success_count}"
+    puts "Templates skipped: #{skipped_count}"
+    puts "Errors: #{error_count}"
+  end
 end
