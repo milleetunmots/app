@@ -58,6 +58,18 @@ class SpotHit::CreateRcsModelService
     @rcs_title ||= @text_messages_bundle.send("rcs_title#{@message_index}").presence || '1001mots'
   end
 
+  def link
+    @link ||= begin
+      link_id = @text_messages_bundle.send("link#{@message_index}_id")
+      return nil if link_id.nil?
+      Medium.find_by(id: link_id)
+    end
+  end
+
+  def cta_label
+    @text_messages_bundle.send("rcs_cta_title#{@message_index}").presence || 'Cliquez ici'
+  end
+
   def push_rcs_template
     download_image_to_tmp_file
     response = HTTP.post(URL, form: form_data)
@@ -84,7 +96,7 @@ class SpotHit::CreateRcsModelService
           'text' => body,
           'mediaType' => 'image',
           'file' => '{cid:image}',
-          'buttons' => [],
+          'buttons' => link.present? ? [{ 'type' => 'url', 'caption' => cta_label, 'url' => '{URL}' }] : [],
           'suggestions' => [],
           'options' => []
         },

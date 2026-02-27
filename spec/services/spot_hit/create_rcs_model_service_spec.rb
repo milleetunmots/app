@@ -209,5 +209,67 @@ RSpec.describe SpotHit::CreateRcsModelService do
           }
       end
     end
+
+    context 'when link is present' do
+      let(:link) { FactoryBot.create(:media_video) }
+
+      before do
+        text_messages_bundle.update_columns(link1_id: link.id)
+        text_messages_bundle.reload
+      end
+
+      it 'includes a url button with {URL} placeholder in the API request' do
+        service
+
+        expect(WebMock).to have_requested(:post, "https://www.spot-hit.fr/api/rcs/model/create")
+          .with { |req|
+            body = req.body.force_encoding('UTF-8')
+            body.include?('"type":"url"') && body.include?('{URL}')
+          }
+      end
+
+      it 'uses "Cliquez ici" as the default button label' do
+        service
+
+        expect(WebMock).to have_requested(:post, "https://www.spot-hit.fr/api/rcs/model/create")
+          .with { |req|
+            req.body.force_encoding('UTF-8').include?('Cliquez ici')
+          }
+      end
+    end
+
+    context 'when link is absent' do
+      before do
+        text_messages_bundle.update_columns(link1_id: nil)
+        text_messages_bundle.reload
+      end
+
+      it 'does not include a url button in the API request' do
+        service
+
+        expect(WebMock).to have_requested(:post, "https://www.spot-hit.fr/api/rcs/model/create")
+          .with { |req|
+            !req.body.force_encoding('UTF-8').include?('"type":"url"')
+          }
+      end
+    end
+
+    context 'with custom rcs_cta_title1' do
+      let(:link) { FactoryBot.create(:media_video) }
+
+      before do
+        text_messages_bundle.update_columns(link1_id: link.id, rcs_cta_title1: 'Voir la vidéo')
+        text_messages_bundle.reload
+      end
+
+      it 'uses the custom label in the API request' do
+        service
+
+        expect(WebMock).to have_requested(:post, "https://www.spot-hit.fr/api/rcs/model/create")
+          .with { |req|
+            req.body.force_encoding('UTF-8').include?('Voir la vidéo')
+          }
+      end
+    end
   end
 end

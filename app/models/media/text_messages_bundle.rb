@@ -2,32 +2,35 @@
 #
 # Table name: media
 #
-#  id           :bigint           not null, primary key
-#  body1        :text
-#  body2        :text
-#  body3        :text
-#  discarded_at :datetime
-#  name         :string
-#  rcs_title1    :string(200)
-#  rcs_title2    :string(200)
-#  rcs_title3    :string(200)
-#  theme        :string
-#  type         :string
-#  url          :string
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  airtable_id  :string
-#  folder_id    :bigint
-#  image1_id    :bigint
-#  image2_id    :bigint
-#  image3_id    :bigint
-#  link1_id     :bigint
-#  link2_id     :bigint
-#  link3_id     :bigint
-#  rcs_media1_id :integer
-#  rcs_media2_id :integer
-#  rcs_media3_id :integer
-#  spot_hit_id  :string
+#  id             :bigint           not null, primary key
+#  body1          :text
+#  body2          :text
+#  body3          :text
+#  discarded_at   :datetime
+#  name           :string
+#  rcs_cta_title1 :string
+#  rcs_cta_title2 :string
+#  rcs_cta_title3 :string
+#  rcs_title1     :string(200)
+#  rcs_title2     :string(200)
+#  rcs_title3     :string(200)
+#  theme          :string
+#  type           :string
+#  url            :string
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  airtable_id    :string
+#  folder_id      :bigint
+#  image1_id      :bigint
+#  image2_id      :bigint
+#  image3_id      :bigint
+#  link1_id       :bigint
+#  link2_id       :bigint
+#  link3_id       :bigint
+#  rcs_media1_id  :integer
+#  rcs_media2_id  :integer
+#  rcs_media3_id  :integer
+#  spot_hit_id    :string
 #
 # Indexes
 #
@@ -81,6 +84,9 @@ class Media::TextMessagesBundle < Medium
       rcs_title1: rcs_title1,
       rcs_title2: rcs_title2,
       rcs_title3: rcs_title3,
+      rcs_cta_title1: rcs_cta_title1,
+      rcs_cta_title2: rcs_cta_title2,
+      rcs_cta_title3: rcs_cta_title3,
       body1: body1,
       body2: body2,
       body3: body3,
@@ -123,7 +129,7 @@ class Media::TextMessagesBundle < Medium
       if send("rcs_media#{index}_id").present? && send("image#{index}_id").nil?
         SpotHit::DeleteRcsModelJob.set(wait_until: 2.months.from_now).perform_later(send("rcs_media#{index}_id"))
         update_column("rcs_media#{index}_id", nil)
-      elsif send("rcs_media#{index}_id").present? && (send("saved_change_to_body#{index}?") || send("saved_change_to_image#{index}_id?") || send("saved_change_to_rcs_title#{index}?"))
+      elsif send("rcs_media#{index}_id").present? && (send("saved_change_to_body#{index}?") || send("saved_change_to_image#{index}_id?") || send("saved_change_to_rcs_title#{index}?") || send("saved_change_to_link#{index}_id?") || send("saved_change_to_rcs_cta_title#{index}?"))
         service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: index).call
         Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
       elsif send("rcs_media#{index}_id").nil? && send("image#{index}_id").present?
