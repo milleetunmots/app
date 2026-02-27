@@ -1,6 +1,8 @@
 ActiveAdmin.register ScheduledCall do
   menu label: 'RDV Calendly', priority: 15, if: -> { current_admin_user.user_role.in?(%w[super_admin contributor reader]) || (current_admin_user.user_role.in?(%w[caller animator]) && current_admin_user.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].split)) }
 
+  config.sort_order = 'scheduled_at_asc'
+
   actions :all, except: %i[new edit create destroy]
 
   includes :admin_user, :child_support, :parent
@@ -105,13 +107,6 @@ ActiveAdmin.register ScheduledCall do
   # ---------------------------------------------------------------------------
 
   controller do
-    before_action :set_default_sort_order, only: :index
-
-    def set_default_sort_order
-      params[:q] ||= {}
-      params[:q][:s] ||= 'scheduled_at asc'
-    end
-
     def scoped_collection
       scope = super
       scope = scope.where(admin_user: current_admin_user) if current_admin_user.caller? || current_admin_user.animator?
