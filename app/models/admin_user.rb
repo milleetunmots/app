@@ -63,6 +63,7 @@ class AdminUser < ApplicationRecord
   scope :account_not_disabled, -> { where(is_disabled: false) }
 
   after_create :set_aircall_phone_number
+  after_create_commit :export_to_sheet
 
   def admin?
     user_role == 'super_admin'
@@ -98,6 +99,11 @@ class AdminUser < ApplicationRecord
 
   def self.any_caller_or_animator_with_id?(id)
     exists?(id: id, user_role: ['caller', 'animator'])
+  end
+
+  def export_to_sheet
+    service = AdminUser::ExportToSheetService.new(self).call
+    Rollbar.error('AdminUser::ExportToSheetService', errors: service.errors) if service.errors.any?
   end
 
   def set_aircall_phone_number
