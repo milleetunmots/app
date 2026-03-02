@@ -364,6 +364,19 @@ ActiveAdmin.register ChildSupport do
             end
           end
           tags_input(f, context_list = 'tag_list', label: 'Tags fiche de suivi', input_html: { disabled: AdminUser.any_caller_or_animator_with_id?(current_admin_user.id) })
+          columns do
+            column do
+              f.label :parent_needs
+              f.input :parent_needs,
+                label: false,
+                input_html: {
+                  rows: 5,
+                  style: 'width: 100%; margin-top:20px;',
+                  value: f.object.send("parent_needs").presence ||
+                    I18n.t('child_support.default.parent_needs')
+                }
+            end
+          end
         end
       end
       div id:'child_support_tabs_form' do
@@ -855,6 +868,7 @@ ActiveAdmin.register ChildSupport do
     family_support_should_be_stopped
     instagram_follower
     instagram_user
+    parent_needs
   ]
   tags_params_attributes = [tags_params]
   parents_available_support_module_list_attributes = [{ parent1_available_support_module_list: [], parent2_available_support_module_list: [] }]
