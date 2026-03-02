@@ -921,7 +921,6 @@ ActiveAdmin.register ChildSupport do
           row :children
           row :important_information
           row :availability
-          row :parent_needs
           row :call_infos
           row :should_be_read
           row :display_is_bilingual

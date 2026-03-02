@@ -617,8 +617,7 @@ class ChildSupport < ApplicationRecord
       'call_infos',
       'book_not_received',
       'tag_list',
-      'parent_needs',
-      'call_infos'
+      'parent_needs'
     ).each_key do |attribute|
       self[attribute.to_sym] = nil
     end
