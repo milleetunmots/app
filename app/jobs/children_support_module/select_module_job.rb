@@ -41,7 +41,7 @@ class ChildrenSupportModule
         service = ChildSupport::SelectModuleService.new(
           child,
           planned_date,
-          '10:00',
+          is_module_2 ? '10:00' : '12:30',
           module_index
         ).call
         if service.errors.any?
