@@ -61,4 +61,37 @@ ActiveAdmin.register Media::TextMessagesBundle do
     end
   end
 
+  csv do
+    column :id
+    column :name
+
+    column :body1
+    column :file1 do |decorated|
+      decorated.image1.name if decorated.image1
+    end
+    column :link1 do |decorated|
+      decorated.link1.url if decorated.link1
+    end
+    column :body2
+    column :file2 do |decorated|
+      decorated.image2.name if decorated.image2
+    end
+    column :link2 do |decorated|
+      decorated.link2.url if decorated.link2
+    end
+    column :body3
+    column :file3 do |decorated|
+      decorated.image3.name if decorated.image3
+    end
+    column :link3 do |decorated|
+      decorated.link3.url if decorated.link3
+    end
+    column :tag_list do |decorated|
+      decorated.tags
+    end
+    column :created_at
+    column :updated_at
+    column :discarded_at
+  end
+
 end
