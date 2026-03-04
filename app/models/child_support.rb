@@ -116,6 +116,7 @@
 #  parent2_available_support_module_list      :string           is an Array
 #  parent_mid_term_rate                       :integer
 #  parent_mid_term_reaction                   :string
+#  parent_needs                               :text
 #  parental_contexts                          :string           is an Array
 #  restart_support_date                       :datetime
 #  restart_support_details                    :text
@@ -568,6 +569,7 @@ class ChildSupport < ApplicationRecord
       'availability',
       'call_infos',
       'book_not_received',
+      'parent_needs',
       'tag_list'
     ).each do |attribute, value|
       self.notes << "#{I18n.t("activerecord.attributes.child_support.#{attribute}")} : #{value}\n"
@@ -614,7 +616,8 @@ class ChildSupport < ApplicationRecord
       'availability',
       'call_infos',
       'book_not_received',
-      'tag_list'
+      'tag_list',
+      'parent_needs'
     ).each_key do |attribute|
       self[attribute.to_sym] = nil
     end
