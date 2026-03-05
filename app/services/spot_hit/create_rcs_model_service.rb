@@ -42,7 +42,8 @@ class SpotHit::CreateRcsModelService
   def body
     @body ||= begin
       raw_body = @text_messages_bundle.send("body#{@message_index}")
-      clean_body(raw_body)
+      cleaned = clean_body(raw_body)
+      link.present? ? strip_url_placeholder(cleaned) : cleaned
     end
   end
 
@@ -120,6 +121,12 @@ class SpotHit::CreateRcsModelService
     column_name = "rcs_media#{@message_index}_id"
     @text_messages_bundle.update_column(column_name, @rcs_media_id)
     Rails.logger.info "Saved RCS media ID #{@rcs_media_id} to #{column_name} for TextMessagesBundle ##{@text_messages_bundle.id}"
+  end
+
+  def strip_url_placeholder(text)
+    return text if text.blank?
+
+    text.gsub(/\s*\{URL\}/, '').strip
   end
 
   def clean_body(raw_body)
