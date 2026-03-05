@@ -51,7 +51,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendSmsService).to(
         receive(:new).
         with(
-          [parent_3.id],
+          parent_3.phone_number,
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           message,
           workshop_id: nil,
@@ -74,7 +74,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendSmsService).to(
         receive(:new).
         with(
-          [parent_3.id],
+          parent_3.phone_number,
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           message,
           workshop_id: nil,
@@ -97,7 +97,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendSmsService).to(
         receive(:new).
         with(
-          [parent_2.id],
+          parent_2.phone_number,
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           message,
           workshop_id: nil,
@@ -120,7 +120,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendSmsService).to(
         receive(:new).
         with(
-            [parent_2.id],
+            parent_2.phone_number,
             Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
             'N\'oubliez pas que votre enfant doit faire du sport.', workshop_id: nil, event_params: {}
         ).
@@ -149,7 +149,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendSmsService).to(
         receive(:new).
         with(
-          { parent_2.id.to_s => {
+          { parent_2.phone_number => {
             'URL' => 'http://localhost:3000/r/95/c6'
             }
           },
@@ -175,7 +175,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendSmsService).to(
         receive(:new).
         with(
-          { parent_2.id.to_s =>
+          { parent_2.phone_number =>
               {'URL' => 'http://localhost:3000/r/95/c6'}
           },
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
