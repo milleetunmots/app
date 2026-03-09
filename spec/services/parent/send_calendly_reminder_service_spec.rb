@@ -2,12 +2,15 @@ require 'rails_helper'
 
 RSpec.describe Parent::SendCalendlyReminderService do
   include ActiveJob::TestHelper
+
   let(:sunday) { Date.new(2026, 3, 8) } # a Sunday
   let(:next_monday) { sunday + 1.day }
+  let(:beta_test_email) { 'beta@example.com' }
 
   let(:supporter) do
     FactoryBot.create(:admin_user,
       user_role: 'caller',
+      email: beta_test_email,
       can_send_automatic_sms: true,
       aircall_number_id: 12345,
       aircall_phone_number: '+33123456789',
@@ -45,6 +48,7 @@ RSpec.describe Parent::SendCalendlyReminderService do
 
   before do
     ActiveJob::Base.queue_adapter = :test
+    stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => beta_test_email))
     child_support # trigger setup
   end
 
@@ -55,6 +59,16 @@ RSpec.describe Parent::SendCalendlyReminderService do
   end
 
   describe '#call' do
+    context 'when BETA_TEST_CALLERS_EMAIL is not set' do
+      before { stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => '')) }
+
+      it 'returns an error and does not send' do
+        result = subject.call
+        expect(result.errors).not_to be_empty
+        expect(result.errors.first[:error]).to include('BETA_TEST_CALLERS_EMAIL')
+      end
+    end
+
     context 'when a parent is eligible' do
       it 'returns no errors' do
         result = subject.call
@@ -69,7 +83,7 @@ RSpec.describe Parent::SendCalendlyReminderService do
         expect { subject.call }.to have_enqueued_job(Aircall::SendMessageJob)
       end
 
-      it 'uses the supporter aircall_number_id' do
+      it 'creates the event with aircall provider' do
         subject.call
         event = Event.last
         expect(event.message_provider).to eq('aircall')
@@ -94,13 +108,17 @@ RSpec.describe Parent::SendCalendlyReminderService do
       end
     end
 
+    context 'when the supporter is not in BETA_TEST_CALLERS_EMAIL' do
+      before { stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => 'other@example.com')) }
+
+      it 'does not send the reminder' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      end
+    end
+
     context 'when the parent already has a scheduled call for the session' do
       before do
-        FactoryBot.create(:scheduled_call,
-          parent: parent,
-          call_session: 1,
-          status: 'scheduled'
-        )
+        FactoryBot.create(:scheduled_call, parent: parent, call_session: 1, status: 'scheduled')
       end
 
       it 'does not send the reminder' do
@@ -142,9 +160,11 @@ RSpec.describe Parent::SendCalendlyReminderService do
       end
     end
 
-    context 'with multiple eligible parents batched' do
-      let(:parents_with_children) do
-        35.times.map do
+    context 'with batching per supporter' do
+      let(:max_per_hour) { Parent::SendCalendlyReminderService::MAX_SMS_PER_HOUR_PER_SUPPORTER }
+
+      let(:extra_parents) do
+        (max_per_hour).times.map do
           p = FactoryBot.create(:parent,
             calendly_booking_urls: { 'call1' => 'https://calendly.com/d/abc/appel' }
           )
@@ -154,17 +174,50 @@ RSpec.describe Parent::SendCalendlyReminderService do
         end
       end
 
-      before { parents_with_children }
+      before { extra_parents }
 
-      it 'splits into batches at different hours' do
+      it 'puts the first batch at 14h and overflow at 15h' do
         subject.call
-        # First 30 at 14h, next 5 (+ original 1) at 15h
         expected_14h = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00")
         expected_15h = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 15:00")
         jobs_at_14h = enqueued_jobs.select { |j| j[:at].to_i == expected_14h.to_i }
         jobs_at_15h = enqueued_jobs.select { |j| j[:at].to_i == expected_15h.to_i }
-        expect(jobs_at_14h.size).to eq(30)
-        expect(jobs_at_15h.size).to be >= 1
+        expect(jobs_at_14h.size).to eq(max_per_hour)
+        expect(jobs_at_15h.size).to eq(1) # the original parent
+      end
+    end
+
+    context 'with two supporters, each with their own batch' do
+      let(:second_supporter_email) { 'beta2@example.com' }
+      let(:second_supporter) do
+        FactoryBot.create(:admin_user,
+          user_role: 'caller',
+          email: second_supporter_email,
+          can_send_automatic_sms: true,
+          aircall_number_id: 99999,
+          aircall_phone_number: '+33987654321',
+          calendly_user_uri: 'https://api.calendly.com/users/def456'
+        )
+      end
+      let(:second_parent) do
+        FactoryBot.create(:parent,
+          calendly_booking_urls: { 'call1' => 'https://calendly.com/d/xyz/appel' }
+        )
+      end
+      let(:second_child) do
+        FactoryBot.create(:child, parent1: second_parent, group: group, group_status: 'active', should_contact_parent1: true)
+      end
+
+      before do
+        stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => "#{beta_test_email} #{second_supporter_email}"))
+        second_child.child_support.update!(supporter: second_supporter, call1_status: nil)
+      end
+
+      it 'schedules one job per supporter at 14h' do
+        subject.call
+        expected_14h = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00")
+        jobs_at_14h = enqueued_jobs.select { |j| j[:at].to_i == expected_14h.to_i }
+        expect(jobs_at_14h.size).to eq(2)
       end
     end
   end

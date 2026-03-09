@@ -2,14 +2,18 @@ class Parent::SendCalendlyReminderService
 
   REMINDER_MESSAGE = <<~MSG.freeze
     Bonjour,
-    Je vais vous appeler dans les prochains jours pour discuter avec vous de {PRENOM_ENFANT}. Vous pouvez choisir le moment que vous préférez, en prenant RDV ici : {CALENDLY_LINK}
+    Je vais vous appeler dans les prochains jours pour discuter de {PRENOM_ENFANT}. Choisissez votre RDV ici : {CALENDLY_LINK}
     A très vite !
     {PRENOM_ACCOMPAGNANTE} de 1001mots
   MSG
 
-  BATCH_SIZE = 30
+  AIRCALL_SEGMENTS_LIMIT_PER_HOUR = 100
+  MANUAL_SEGMENTS_MARGIN = 40
+  AVAILABLE_SEGMENTS_PER_HOUR = AIRCALL_SEGMENTS_LIMIT_PER_HOUR - MANUAL_SEGMENTS_MARGIN
+  ESTIMATED_SEGMENTS_PER_SMS = 2
+  MAX_SMS_PER_HOUR_PER_SUPPORTER = AVAILABLE_SEGMENTS_PER_HOUR / ESTIMATED_SEGMENTS_PER_SMS
+
   BATCH_HOURS = [14, 15, 16, 17].freeze
-  MAX_RECIPIENTS = BATCH_SIZE * BATCH_HOURS.size
 
   attr_reader :errors
 
@@ -20,24 +24,18 @@ class Parent::SendCalendlyReminderService
   end
 
   def call
-    recipients = collect_eligible_recipients
+    @errors << { service: 'Parent::SendCalendlyReminderService', error: 'BETA_TEST_CALLERS_EMAIL is not set' } if ENV['BETA_TEST_CALLERS_EMAIL'].blank?
+    return self if @errors.any?
 
-    if recipients.size > MAX_RECIPIENTS
-      @errors << {
-        warning: "#{recipients.size} destinataires éligibles dépassent le maximum de #{MAX_RECIPIENTS}. Seuls les #{MAX_RECIPIENTS} premiers seront contactés.",
-        count: recipients.size
-      }
-      recipients = recipients.first(MAX_RECIPIENTS)
-    end
-
-    schedule_batched_messages(recipients)
+    recipients_by_supporter = collect_eligible_recipients_by_supporter
+    schedule_batched_messages(recipients_by_supporter)
     self
   end
 
   private
 
-  def collect_eligible_recipients
-    recipients = []
+  def collect_eligible_recipients_by_supporter
+    recipients_by_supporter = Hash.new { |h, k| h[k] = [] }
 
     (0..3).each do |call_index|
       child_supports = eligible_child_supports_for_call(call_index)
@@ -47,19 +45,22 @@ class Parent::SendCalendlyReminderService
         current_child = child_support.current_child
         next unless current_child
 
+        supporter = child_support.supporter
+
+        # envoyer le message aux 2 parents ou pas ???
         if current_child.should_contact_parent1? && child_support.parent1.present?
           recipient = build_recipient(child_support.parent1, child_support, call_index)
-          recipients << recipient if recipient
+          recipients_by_supporter[supporter] << recipient if recipient
         end
 
         if current_child.should_contact_parent2? && child_support.parent2.present?
           recipient = build_recipient(child_support.parent2, child_support, call_index)
-          recipients << recipient if recipient
+          recipients_by_supporter[supporter] << recipient if recipient
         end
       end
     end
 
-    recipients
+    recipients_by_supporter
   end
 
   def build_recipient(parent, child_support, call_index)
@@ -74,17 +75,29 @@ class Parent::SendCalendlyReminderService
     ChildSupport
       .kept
       .with_valid_supporter_for_calendly
+      .where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
       .where("groups.call#{call_index}_start_date" => @next_monday)
       .where("child_supports.call#{call_index}_status IS NULL OR child_supports.call#{call_index}_status = ''")
       .distinct
   end
 
-  def schedule_batched_messages(recipients)
-    recipients.each_slice(BATCH_SIZE).with_index do |batch, batch_index|
-      hour = BATCH_HOURS[batch_index]
-      send_time = ActiveSupport::TimeZone['Europe/Paris'].parse("#{@sunday_date.strftime('%Y-%m-%d')} #{hour}:00")
+  def schedule_batched_messages(recipients_by_supporter)
+    recipients_by_supporter.each do |supporter, recipients|
+      recipients.each_slice(MAX_SMS_PER_HOUR_PER_SUPPORTER).with_index do |batch, batch_index|
+        hour = BATCH_HOURS[batch_index]
 
-      batch.each { |recipient| schedule_reminder(recipient, send_time) }
+        unless hour
+          @errors << {
+            warning: "Trop de destinataires pour #{supporter.name} (#{recipients.size}) - les batchs au-delà de #{BATCH_HOURS.last}h ne sont pas envoyés",
+            supporter_id: supporter.id,
+            total_count: recipients.size
+          }
+          break
+        end
+
+        send_time = ActiveSupport::TimeZone['Europe/Paris'].parse("#{@sunday_date.strftime('%Y-%m-%d')} #{hour}:00")
+        batch.each { |recipient| schedule_reminder(recipient, send_time) }
+      end
     end
   end
 
