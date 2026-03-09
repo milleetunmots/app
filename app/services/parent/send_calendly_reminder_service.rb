@@ -2,7 +2,8 @@ class Parent::SendCalendlyReminderService
 
   REMINDER_MESSAGE = <<~MSG.freeze
     Bonjour,
-    Je vais vous appeler dans les prochains jours pour discuter de {PRENOM_ENFANT}. Choisissez votre RDV ici : {CALENDLY_LINK}
+    Je vais vous appeler dans les prochains jours pour discuter de {PRENOM_ENFANT}.
+    Prenez RDV ici : {CALENDLY_LINK}
     A très vite !
     {PRENOM_ACCOMPAGNANTE} de 1001mots
   MSG
