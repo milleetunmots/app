@@ -50,6 +50,9 @@ require File.expand_path("../../config/environment", __FILE__)
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require "rspec/rails"
 require "test_prof/recipes/rspec/let_it_be"
+
+# Disable Google Sheets export callback to avoid real HTTP calls in tests
+AdminUser.skip_callback(:commit, :after, :export_to_sheet)
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
