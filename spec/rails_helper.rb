@@ -119,8 +119,31 @@ RSpec.configure do |config|
   # Block all external requests
   WebMock.disable_net_connect!(allow_localhost: true)
 
+  # Stub Google Sheets API in before(:context) so let_it_be factories that create
+  # AdminUser records (which trigger after_create_commit :export_to_sheet) can work.
+  # webmock/rspec resets stubs after each example, so before(:context) re-registers
+  # them before each example group's setup phase.
+  config.before(:context) do
+    WebMock.stub_request(:post, "https://www.googleapis.com/oauth2/v4/token")
+      .to_return(status: 200,
+                 body: '{"access_token":"test_token","expires_in":3600,"token_type":"Bearer"}',
+                 headers: { 'Content-Type' => 'application/json' })
+    WebMock.stub_request(:post, /sheets\.googleapis\.com/)
+      .to_return(status: 200,
+                 body: '{"spreadsheetId":"test_sheet_id","updates":{}}',
+                 headers: { 'Content-Type' => 'application/json' })
+  end
+
   config.before(:each) do
     stub_request(:post, "https://www.spot-hit.fr/api/envoyer/sms").to_return(status: 200, body: "{}", headers: {})
+    stub_request(:post, "https://www.googleapis.com/oauth2/v4/token")
+      .to_return(status: 200,
+                 body: '{"access_token":"test_token","expires_in":3600,"token_type":"Bearer"}',
+                 headers: { 'Content-Type' => 'application/json' })
+    stub_request(:post, /sheets\.googleapis\.com/)
+      .to_return(status: 200,
+                 body: '{"spreadsheetId":"test_sheet_id","updates":{}}',
+                 headers: { 'Content-Type' => 'application/json' })
   end
 
   # Skip DatabaseCleaner's safeguard in order to be able to connect to a database using an URL (ie. Docker container)
