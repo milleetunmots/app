@@ -39,6 +39,7 @@ namespace :rcs do
     # 7=Rcs title2, 8=Message 2, 9=File2, 10=Lien 2, 11=Titre CTA Lien 2,
     # 12=Rcs title3, 13=Message 3, 14=File3, 15=Lien 3, 16=Titre CTA Lien 3
     CTA_COLUMNS = { 1 => 6, 2 => 11, 3 => 16 }.freeze
+    BODY_COLUMNS = { 1 => 3, 2 => 8, 3 => 13 }.freeze
 
     updated_count = 0
     error_count = 0
@@ -55,9 +56,14 @@ namespace :rcs do
       end
 
       cta_titles = CTA_COLUMNS.transform_values { |col| row[col].to_s.strip.presence }
+      bodies = BODY_COLUMNS.transform_values { |col| row[col].to_s.strip.presence }
 
       if cta_titles.values.all?(&:nil?)
         puts "Ligne #{row_number}: SKIP - Trio ##{trio_id} aucun titre CTA renseigné"
+        next
+      end
+      if bodies.values.all?(&:nil?)
+        puts "Ligne #{row_number}: SKIP - Trio ##{trio_id} aucun message renseigné"
         next
       end
 
@@ -86,6 +92,7 @@ namespace :rcs do
 
       updates = cta_titles.each_with_object({}) do |(n, cta_title), h|
         h["rcs_cta_title#{n}"] = cta_title
+        h["body#{n}"] = bodies[n]
       end
 
       bundle.update_columns(updates)
