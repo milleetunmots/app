@@ -24,55 +24,19 @@ class SupportModule::ProgramService
 
       (1..3).each do |index|
         next_date_and_hour(support_module_week, week_index, @first_support_module)
-
-        next if support_module_week.medium.send("body#{index}").blank?
-
-        image = Media::Image.find_by(id: support_module_week.medium.send("image#{index}_id"))
-        redirection_target = RedirectionTarget.find_or_create_by(medium_id: support_module_week.medium.send("link#{index}_id"))
-
-        program_message(
-          @date,
-          @hour,
-          @recipients,
-          support_module_week.medium.send("body#{index}"),
-          image&.spot_hit_id,
-          redirection_target&.id
-        )
+        program_support_module_week(support_module_week.medium, index)
       end
 
       next if support_module_week.additional_medium.nil?
 
       next_date_and_hour(support_module_week, week_index)
-
-      image = Media::Image.find_by(id: support_module_week.additional_medium.image1_id)
-      redirection_target = RedirectionTarget.find_or_create_by(medium_id: support_module_week.additional_medium.link1_id)
-
-      program_message(
-        @date,
-        @hour,
-        @recipients,
-        support_module_week.additional_medium.body1,
-        image&.spot_hit_id,
-        redirection_target&.id
-      )
+      program_support_module_week(support_module_week.additional_medium, 1)
     end
 
     self
   end
 
   private
-
-  def program_message(date, hour, recipients, message, image_id, redirection_target_id)
-    service = ProgramMessageService.new(
-      date,
-      hour,
-      recipients,
-      message,
-      image_id,
-      redirection_target_id
-    ).call
-    @errors += service.errors
-  end
 
   def next_date_and_hour(support_module_week, week_index, first_support_module = false)
     if @hour.nil? || @date.nil?
@@ -99,13 +63,49 @@ class SupportModule::ProgramService
     return date.next_day(3) if date.saturday?
 
     if sms_count < 4
-      return date.next_day(2) if date.thursday?
-
+      date.next_day(2) if date.thursday?
     else
       return date.next_day if date.thursday?
 
-      return date.next_day if date.friday?
-
+      date.next_day if date.friday?
     end
+  end
+
+  def program_support_module_week(support_module_week_medium, index)
+    return if support_module_week_medium.send("body#{index}").blank?
+
+    rcs_media_id = support_module_week_medium.send("rcs_media#{index}_id")
+    redirection_target = RedirectionTarget.find_or_create_by(medium_id: support_module_week_medium.send("link#{index}_id"))
+    create_rcs_template(support_module_week_medium, index)
+    program_message(
+      @date,
+      @hour,
+      @recipients,
+      support_module_week_medium.send("body#{index}"),
+      rcs_media_id,
+      redirection_target&.id
+    )
+  end
+
+  def create_rcs_template(text_messages_bundle, index)
+    return if text_messages_bundle.send("rcs_media#{index}_id").present? == text_messages_bundle.send("image#{index}_id").present?
+
+    create_rcs_template_service = SpotHit::CreateRcsModelService.new(
+      text_messages_bundle: text_messages_bundle,
+      message_index: index
+    ).call
+    @errors << "La création du template du message #{index} du trio #{text_messages_bundle.id} a échoué" if create_rcs_template_service.errors.any?
+  end
+
+  def program_message(date, hour, recipients, message, rcs_media_id, redirection_target_id)
+    service = ProgramMessageService.new(
+      date,
+      hour,
+      recipients,
+      message,
+      rcs_media_id,
+      redirection_target_id
+    ).call
+    @errors += service.errors
   end
 end

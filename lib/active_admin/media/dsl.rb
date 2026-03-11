@@ -81,6 +81,11 @@ module ActiveAdmin
                   send (with_comments ? :row_with_comments : :row), "link#{msg_idx}_id" do |decorated|
                     decorated.send("link#{msg_idx}_admin_link")
                   end
+                  if resource.send("link#{msg_idx}_id").present?
+                    send (with_comments ? :row_with_comments : :row), 'Titre CTA RCS' do |decorated|
+                      decorated.send("rcs_cta_title#{msg_idx}").presence || 'Cliquez ici (par défaut)'
+                    end
+                  end
                 end
               end
             end
@@ -126,7 +131,12 @@ module ActiveAdmin
                   f.input "link#{idx}",
                           collection: redirection_target_medium_select_collection,
                           include_blank: 'Aucun',
-                          input_html: { data: { select2: {} } }
+                          input_html: { data: { select2: {}, cta_link_index: idx } }
+                  f.input "rcs_cta_title#{idx}",
+                          label: 'Titre CTA',
+                          hint: '25 car. max. Vide = "Cliquez ici". Affiché uniquement si un lien est renseigné',
+                          input_html: { maxlength: 25 },
+                          wrapper_html: { data: { cta_title_index: idx } }
                 end
               end
             end
@@ -136,6 +146,7 @@ module ActiveAdmin
 
         permit_params :folder_id, :name, :theme,
                       :rcs_title1, :rcs_title2, :rcs_title3,
+                      :rcs_cta_title1, :rcs_cta_title2, :rcs_cta_title3,
                       :body1, :body2, :body3,
                       :image1_id, :image2_id, :image3_id,
                       :link1_id, :link2_id, :link3_id,
