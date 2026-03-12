@@ -34,13 +34,7 @@ module Calendly
       )
       status = response.status
       response = JSON.parse(response.body)
-      if status.success?
-        event_type_uris = user.calendly_event_type_uris || {}
-        event_type_uris["call#{@call_number}"] = response['resource']['uri']
-        user.update(calendly_event_type_uris: event_type_uris)
-      else
-        @errors << { message: "La création de l'event type a échoué", details: response['details'] }
-      end
+      @errors << { message: "La création de l'event type a échoué", details: response['details'] } unless status.success?
       self
     end
   end
