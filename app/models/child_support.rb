@@ -318,6 +318,7 @@ class ChildSupport < ApplicationRecord
   }
   scope :with_valid_supporter_for_calendly, -> {
     with_a_child_in_active_group
+      .where(groups: { type_of_support: 'with_calls' })
       .joins(:supporter)
       .where(supporter: { can_send_automatic_sms: true })
       .where.not(supporter: { aircall_number_id: nil })

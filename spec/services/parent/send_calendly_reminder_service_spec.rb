@@ -160,6 +160,14 @@ RSpec.describe Parent::SendCalendlyReminderService do
       end
     end
 
+    context "when the group has type_of_support 'without_calls'" do
+      before { group.update!(type_of_support: 'without_calls') }
+
+      it 'does not send the reminder' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      end
+    end
+
     context 'with batching per supporter' do
       let(:max_per_hour) { Parent::SendCalendlyReminderService::MAX_SMS_PER_HOUR_PER_SUPPORTER }
 
