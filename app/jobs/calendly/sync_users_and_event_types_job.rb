@@ -5,7 +5,7 @@ module Calendly
 
     def perform
       sync_calendly_user_uris
-      create_missing_event_types
+      # create_missing_event_types
     end
 
     private
@@ -33,13 +33,13 @@ module Calendly
     end
 
     def create_event_type(user, call_number)
-      service = Calendly::CreateEventTypeService.new(
-        name: "Appel #{call_number}",
-        calendly_user_uri: user.calendly_user_uri,
-        aircall_phone_number: user.aircall_phone_number,
-        call_number: call_number
-      ).call
-      Rollbar.error(service.errors) if service.errors.any?
+      # service = Calendly::CreateEventTypeService.new(
+      #   name: "Appel #{call_number}",
+      #   calendly_user_uri: user.calendly_user_uri,
+      #   aircall_phone_number: user.aircall_phone_number,
+      #   call_number: call_number
+      # ).call
+      # Rollbar.error(service.errors) if service.errors.any?
     end
   end
 end
