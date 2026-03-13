@@ -27,7 +27,6 @@ module Calendly
 
       find_child_support
       fetch_event_details
-      return self if @errors.any?
 
       find_admin_user
       extract_invitee_comment
