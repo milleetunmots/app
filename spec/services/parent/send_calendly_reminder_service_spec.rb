@@ -131,8 +131,8 @@ RSpec.describe Parent::SendCalendlyReminderService do
         FactoryBot.create(:scheduled_call, :canceled, parent: parent, call_session: 1)
       end
 
-      it 'sends the reminder (canceled does not count as booked)' do
-        expect { subject.call }.to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not send the reminder' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
       end
     end
 
