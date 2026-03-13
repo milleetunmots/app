@@ -67,7 +67,7 @@ module Calendly
       {
         name: build_event_name,
         host: @supporter.calendly_user_uri,
-        duration: 40,
+        duration: 30,
         date_setting: {
           type: 'date_range',
           start_date: call_start_date.to_s,

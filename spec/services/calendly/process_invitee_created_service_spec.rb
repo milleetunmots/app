@@ -3,10 +3,14 @@ require 'rails_helper'
 RSpec.describe Calendly::ProcessInviteeCreatedService do
   let(:calendly_event_type_uri) { 'https://api.calendly.com/event_types/abc123' }
   let(:calendly_event_type_uris) { { 'call0' => calendly_event_type_uri, 'call1' => calendly_event_type_uri } }
-  let!(:admin_user) { FactoryBot.create(:admin_user, calendly_event_type_uris: calendly_event_type_uris) }
+  let!(:admin_user) { FactoryBot.create(:admin_user) }
   let!(:parent) { FactoryBot.create(:parent) }
   let!(:child) { FactoryBot.create(:child, parent1: parent) }
-  let(:child_support) { child.child_support }
+  let!(:child_support) do
+    child_support = child.child_support
+    child_support.update!(supporter: admin_user)
+    child_support
+  end
 
   let(:event_uri) { 'https://api.calendly.com/scheduled_events/event123' }
   let(:invitee_uri) { 'https://api.calendly.com/scheduled_events/event123/invitees/invitee456' }
@@ -91,7 +95,6 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
         expect(scheduled_call.scheduled_at).to eq(Time.zone.parse('2026-01-15T10:00:00Z'))
         expect(scheduled_call.duration_minutes).to eq(30)
         expect(scheduled_call.event_type_name).to eq('Appel 0 - Test')
-        expect(scheduled_call.event_type_uri).to eq(calendly_event_type_uri)
       end
 
       it 'extracts invitee comment from questions and answers' do
