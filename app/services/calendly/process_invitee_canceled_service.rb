@@ -76,50 +76,52 @@ module Calendly
     end
 
     def recreate_one_off_event_type
-      child_support = @scheduled_call.child_support
-      call_session = @scheduled_call.call_session
-      return unless child_support && call_session
+      @child_support = @scheduled_call.child_support
+      unless @child_support
+        @errors << {
+          message: 'Le ScheduledCall ne dispose pas de child_support',
+          scheduled_call_id: @scheduled_call.id
+        }
+        return
+      end
+
+      @call_session = @scheduled_call.call_session
+      unless @call_session
+        @errors << {
+          message: 'Le ScheduledCall ne dispose pas de call_session',
+          scheduled_call_id: @scheduled_call.id
+        }
+        return
+      end
 
       service = Calendly::CreateOneOffEventTypeService.new(
-        child_support: child_support,
-        call_session: call_session
+        child_support: @child_support,
+        call_session: @call_session
       ).call
       return if service.errors.empty?
 
       @errors << {
-        message: 'Échec de la recréation du One-off event type après annulation',
+        message: 'Échec de la création du nouvel one-off event type après annulation',
         errors: service.errors
       }
     end
 
     def send_rebooking_message
-      parent = @scheduled_call.parent
-      child_support = @scheduled_call.child_support
-      return unless parent && child_support
-
-      supporter = child_support.supporter
-      if supporter.nil?
+      @parent = @scheduled_call.parent
+      unless @parent
         @errors << {
-          message: "La fiche de suivi n'a pas d'accompagnante",
-          child_support_id: child_support.id
+          message: 'Le ScheduledCall ne dispose pas de parent',
+          scheduled_call_id: @scheduled_call.id
         }
         return
       end
 
-      if supporter.aircall_number_id.blank? || supporter.aircall_phone_number.blank?
-        @errors << {
-          message: "L'accompagnante n'a pas de numéro ou d'idantifiant de numéro Aircall",
-          supporter_id: supporter.id
-        }
-        return
-      end
-
-      calendly_url = parent.reload.calendly_booking_urls&.dig("call#{@scheduled_call.call_session}")
+      calendly_url = @parent.reload.calendly_booking_urls&.dig("call#{@call_session}")
       if calendly_url.blank?
         @errors << {
           message: "Le lien calendly d'une nouvelle prise de rdv n'a pas pu être récupéré",
-          parent_id: parent.id,
-          call_session: call_session
+          parent_id: @parent.id,
+          call_session: @call_session
         }
         return
       end
@@ -127,11 +129,8 @@ module Calendly
       service = ProgramMessageService.new(
         Time.zone.today.strftime('%d-%m-%Y'),
         Time.zone.now.strftime('%H:%M'),
-        ["parent.#{parent.id}"],
-        REBOOKING_MESSAGE.dup.gsub('{CALENDLY_LINK}', calendly_url),
-        nil, nil, nil, nil, nil, ['active'],
-        'aircall',
-        supporter.aircall_number_id
+        ["parent.#{@parent.id}"],
+        REBOOKING_MESSAGE.dup.gsub('{CALENDLY_LINK}', calendly_url)
       ).call
       return if service.errors.empty?
 
