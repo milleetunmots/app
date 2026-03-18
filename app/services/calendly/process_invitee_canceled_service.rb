@@ -2,10 +2,9 @@ module Calendly
   class ProcessInviteeCanceledService
 
     REBOOKING_MESSAGE = <<~MESSAGE.freeze
-      1001mots : Votre RDV a bien été annulé.
-      Vous pouvez reprendre un créneau ici : {CALENDLY_LINK}
-      À bientôt !
-      {PRENOM_ACCOMPAGNANTE} de 1001mots
+      1001mots : Bonjour, vous venez d’annuler votre RDV avec {PRENOM_ACCOMPAGNANTE}.
+      Vous pouvez choisir un autre créneau pour lui parler ici : {CALENDLY_LINK}
+      A bientôt !
     MESSAGE
 
     attr_reader :errors, :scheduled_call
