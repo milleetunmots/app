@@ -43,6 +43,11 @@ module Typeform
       parse_answers
       update_parents
       update_child_support
+      # TO DO
+      # Si je soumets le formulaire Typeform dans les 2 heures qui suivent mon clic sur “Valider”, ALORS je reçois le SMS suivant :
+      #
+      # Bonjour, merci pour votre inscription à l’accompagnement de l’association 1001mots. Bienvenue, ça va bientôt démarrer !
+      # L’équipe 1001mots
       self
     end
 
