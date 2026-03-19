@@ -144,7 +144,7 @@ class Child
 
       # TO DO Vérifier si le formulaire a déjà été rempli via une information qu'il remonte
 
-      @sms_url_form = "#{ENV['INITIAL_TYPEFORM_URL']}#st=#{@child.parent1.security_token}&cn1=#{@child.first_name}"
+      @sms_url_form = Rails.application.routes.url_helpers.initial_typeform_url(st: @child.parent1.security_token)
       message =
         <<~MESSAGE
           Bonjour,
