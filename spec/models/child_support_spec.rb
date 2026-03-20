@@ -103,6 +103,7 @@
 #  call_infos                                 :string
 #  child_count                                :integer
 #  discarded_at                               :datetime
+#  enrollment_reasons                         :string           default([]), is an Array
 #  family_support_should_be_stopped           :string
 #  has_important_information_parental_consent :boolean          default(FALSE), not null
 #  important_information                      :text

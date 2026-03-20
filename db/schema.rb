@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_27_100000) do
+ActiveRecord::Schema[7.0].define(version: 2026_03_20_043805) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -386,6 +386,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_27_100000) do
     t.string "stop_support_reason"
     t.string "calendly_booking_url"
     t.text "parent_needs"
+    t.string "enrollment_reasons", default: [], array: true
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
