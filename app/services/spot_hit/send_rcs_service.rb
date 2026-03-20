@@ -51,7 +51,9 @@ class SpotHit::SendRcsService
 
   def create_events(rcs_id)
     recipients = @recipients
-    if recipients.first.is_a?(String)
+    if recipients.is_a?(Array)
+      recipients = recipients.to_h { |phone| [phone, {}] }
+    elsif recipients.is_a?(String)
       recipients = recipients.split(', ').to_h { |phone| [phone, {}] }
     end
     recipients.each do |phone_number, keys|
