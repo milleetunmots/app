@@ -12,7 +12,8 @@ module Typeform
       most_present_parent: ENV['INITIAL_TYPEFORM_MOST_PRESENT_PARENT'],
       reading_frequency: ENV['INITIAL_TYPEFORM_READING_FREQUENCY'],
       tv_frequency: ENV['INITIAL_TYPEFORM_TV_FREQUENCY'],
-      is_bilingual: ENV['INITIAL_TYPEFORM_IS_BILINGUAL']
+      is_bilingual: ENV['INITIAL_TYPEFORM_IS_BILINGUAL'],
+      other_parent_phone: ENV['INITIAL_TYPEFORM_OTHER_PARENT_PHONE']
     }.freeze
 
     attr_reader :data

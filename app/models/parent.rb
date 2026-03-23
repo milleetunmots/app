@@ -20,7 +20,6 @@
 #  first_name                          :string           not null
 #  follow_us_on_whatsapp               :boolean
 #  gender                              :string           not null
-#  help_my_child_to_learn_is_important :string
 #  is_ambassador                       :boolean
 #  is_ambassador_detail                :text
 #  is_excluded_from_workshop           :boolean          default(FALSE)
@@ -45,8 +44,6 @@
 #  security_code                       :string
 #  security_token                      :string
 #  terms_accepted_at                   :datetime
-#  would_like_to_do_more               :string
-#  would_receive_advices               :string
 #  created_at                          :datetime         not null
 #  updated_at                          :datetime         not null
 #  aircall_id                          :string
