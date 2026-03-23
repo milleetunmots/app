@@ -140,11 +140,10 @@ class Child
     end
 
     def send_form_by_sms
-      return if 'filtre-diplome-KO'.in? @child.tag_list
-
-      # TO DO Vérifier si le formulaire a déjà été rempli via une information qu'il remonte
-
       @sms_url_form = Rails.application.routes.url_helpers.initial_typeform_url(st: @child.parent1.security_token)
+      return if 'filtre-diplome-KO'.in? @child.tag_list
+      return if @child.child_support.enrollment_reasons.any?
+
       message =
         <<~MESSAGE
           Bonjour,
@@ -157,7 +156,7 @@ class Child
       if ENV['EVAL25'].present? && @child.source.name == ENV['CAF93']
         SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, eval25_message).call
       else
-        SpotHit::SendSmsService.new([@child.parent1_id], 2.hours.from_now.to_i, message).call if @registration_origin == 4 || (@registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].nil?)
+        Child::SendInitialFormSmsJob.set(wait: 2.hours).perform_later(@child.parent1_id, message) if @registration_origin == 4 || (@registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].nil?)
       end
 
       SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.change({ hour: 18 }).to_i, message).call if @registration_origin.in?([3, 5])

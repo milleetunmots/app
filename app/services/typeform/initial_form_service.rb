@@ -3,26 +3,16 @@ module Typeform
     include ApplicationHelper
 
     FIELDS = {
-      name: ENV['INITIAL_TYPEFORM_NAME'],
+      enrollment_reasons_baby: ENV['INITIAL_TYPEFORM_ENROLLMENT_REASONS_BABY'],
+      enrollment_reasons_child: ENV['INITIAL_TYPEFORM_ENROLLMENT_REASONS_CHILD'],
+      second_language: ENV['INITIAL_TYPEFORM_SECOND_LANGUAGE'],
       child_count: ENV['INITIAL_TYPEFORM_CHILD_COUNT'],
       already_working_with: ENV['INITIAL_TYPEFORM_ALREADY_WORKING_WITH'],
       books_quantity: ENV['INITIAL_TYPEFORM_BOOKS_QUANTITY'],
       most_present_parent: ENV['INITIAL_TYPEFORM_MOST_PRESENT_PARENT'],
-      other_parent_phone: ENV['INITIAL_TYPEFORM_OTHER_PARENT_PHONE'],
-      other_parent_degree: ENV['INITIAL_TYPEFORM_OTHER_PARENT_DEGREE'],
-      other_parent_degree_in_france: ENV['INITIAL_TYPEFORM_OTHER_PARENT_DEGREE_IN_FRANCE'],
-      # degree: ENV['INITIAL_TYPEFORM_DEGREE'],
-      # degree_in_france: ENV['INITIAL_TYPEFORM_DEGREE_IN_FRANCE'],
       reading_frequency: ENV['INITIAL_TYPEFORM_READING_FREQUENCY'],
       tv_frequency: ENV['INITIAL_TYPEFORM_TV_FREQUENCY'],
-      is_bilingual: ENV['INITIAL_TYPEFORM_IS_BILINGUAL'],
-      # help_my_child_to_learn_is_important: ENV['INITIAL_TYPEFORM_HELP_MY_CHILD_TO_LEARN_IS_IMPORTANT'],
-      # would_like_to_do_more: ENV['INITIAL_TYPEFORM_WOULD_LIKE_TO_DO_MORE'],
-      would_receive_advices: ENV['INITIAL_TYPEFORM_WOULD_LIKE_TO_RECEIVE_ADVICES'],
-      # parental_contexts: ENV['INITIAL_TYPEFORM_PARENTAL_CONTEXTS']
-      enrollment_reasons_baby: ENV['INITIAL_TYPEFORM_ENROLLMENT_REASONS_BABY'],
-      enrollment_reasons_child: ENV['INITIAL_TYPEFORM_ENROLLMENT_REASONS_CHILD'],
-      second_language: ENV['INITIAL_TYPEFORM_SECOND_LANGUAGE']
+      is_bilingual: ENV['INITIAL_TYPEFORM_IS_BILINGUAL']
     }.freeze
 
     attr_reader :data
@@ -44,13 +34,8 @@ module Typeform
       @parent1 = @child_support.parent1
       @parent2 = @child_support.parent2
       parse_answers
-      update_parents
       update_child_support
-      # TO DO
-      # Si je soumets le formulaire Typeform dans les 2 heures qui suivent mon clic sur “Valider”, ALORS je reçois le SMS suivant :
-      #
-      # Bonjour, merci pour votre inscription à l’accompagnement de l’association 1001mots. Bienvenue, ça va bientôt démarrer !
-      # L’équipe 1001mots
+      send_welcome_sms_if_submitted_in_time
       self
     end
 
@@ -65,13 +50,13 @@ module Typeform
           @data[:already_working_with] = answer[:choice][:label]
         when FIELDS[:books_quantity]
           case answer[:choice][:label]
-          when '0'
+          when 'Aucun'
             @data[:books_quantity] = ChildSupport::BOOKS_QUANTITY[0]
-          when '1', '2', '3'
+          when 'Entre 1 et 3'
             @data[:books_quantity] = ChildSupport::BOOKS_QUANTITY[1]
-          when  '4', '5', '6', '7', '8', '9', '10'
+          when 'Entre 4 et 10'
             @data[:books_quantity] = ChildSupport::BOOKS_QUANTITY[2]
-          else
+          when 'Plus de 10'
             @data[:books_quantity] = ChildSupport::BOOKS_QUANTITY[3]
           end
         when FIELDS[:most_present_parent]
@@ -98,28 +83,28 @@ module Typeform
           @data[:degree_in_france] = answer[:choice][:label] == 'France'
         when FIELDS[:reading_frequency]
           if answer[:choices][:labels] == ['Aucun']
-            @data[:call1_reading_frequency] = ChildSupport::READING_FREQUENCY[0]
+            @data[:call0_reading_frequency] = ChildSupport::READING_FREQUENCY[0]
           else
             case answer[:choices][:labels].size
             when 1, 2
-              @data[:call1_reading_frequency] = ChildSupport::READING_FREQUENCY[1]
+              @data[:call0_reading_frequency] = ChildSupport::READING_FREQUENCY[1]
             when 2, 3, 4, 5, 6
-              @data[:call1_reading_frequency] = ChildSupport::READING_FREQUENCY[2]
+              @data[:call0_reading_frequency] = ChildSupport::READING_FREQUENCY[2]
             when 7
-              @data[:call1_reading_frequency] = ChildSupport::READING_FREQUENCY[3]
+              @data[:call0_reading_frequency] = ChildSupport::READING_FREQUENCY[3]
             end
           end
         when FIELDS[:tv_frequency]
           if answer[:choices][:labels] == ['Aucun']
-            @data[:call1_tv_frequency] = ChildSupport::TV_FREQUENCY[0]
+            @data[:call0_tv_frequency] = ChildSupport::TV_FREQUENCY[0]
           else
             case answer[:choices][:labels].size
             when 1, 2
-              @data[:call1_tv_frequency] = ChildSupport::TV_FREQUENCY[1]
+              @data[:call0_tv_frequency] = ChildSupport::TV_FREQUENCY[1]
             when 3, 4, 5, 6
-              @data[:call1_tv_frequency] = ChildSupport::TV_FREQUENCY[2]
+              @data[:call0_tv_frequency] = ChildSupport::TV_FREQUENCY[2]
             when 7
-              @data[:call1_tv_frequency] = ChildSupport::TV_FREQUENCY[3]
+              @data[:call0_tv_frequency] = ChildSupport::TV_FREQUENCY[3]
             end
           end
         when FIELDS[:is_bilingual]
@@ -132,34 +117,12 @@ module Typeform
             else
               '2_no_information'
             end
-        when FIELDS[:help_my_child_to_learn_is_important]
-          @data[:help_my_child_to_learn_is_important] = answer[:choice][:label]
-        when FIELDS[:would_like_to_do_more]
-          @data[:would_like_to_do_more] = answer[:choice][:label]
-        when FIELDS[:would_receive_advices]
-          @data[:would_receive_advices] = answer[:choice][:label]
-        when FIELDS[:parental_contexts]
-          @data[:parental_contexts] = answer[:choices][:labels]
         when FIELDS[:enrollment_reasons_baby], FIELDS[:enrollment_reasons_child]
           @data[:enrollment_reasons] = answer[:choices][:labels]
         when FIELDS[:second_language]
           @data[:second_language] = answer[:text]
         end
       end
-    end
-
-    def update_parents
-      # @parent1.degree = @data[:degree]
-      # @parent1.degree_in_france = @data[:degree_in_france]
-      # @parent1.help_my_child_to_learn_is_important = @data[:help_my_child_to_learn_is_important]
-      # @parent1.would_like_to_do_more = @data[:would_like_to_do_more]
-      # @parent1.would_receive_advices = @data[:would_receive_advices]
-      # @errors << { message: 'Parent1 saving failed', parent1_id: @parent1.id } unless @parent1.save
-      # return unless @parent2
-
-      # @parent2&.degree = @data[:other_parent_degree]
-      # @parent2&.degree_in_france = @data[:other_parent_degree_in_france]
-      # @errors << { message: 'Parent2 saving failed', parent2_id: @parent2.id } unless @parent2.save
     end
 
     def update_child_support
@@ -177,16 +140,23 @@ module Typeform
 
       @child_support.is_bilingual = @data[:is_bilingual]
       @child_support.books_quantity = @data[:books_quantity]
-      @child_support.call1_reading_frequency = @data[:call1_reading_frequency]
-      @child_support.call1_tv_frequency = @data[:call1_tv_frequency]
+      @child_support.call0_reading_frequency = @data[:call0_reading_frequency]
+      @child_support.call0_tv_frequency = @data[:call0_tv_frequency]
       @child_support.child_count = @data[:child_count]
       @child_support.most_present_parent = @data[:most_present_parent]
       @child_support.already_working_with = @data[:already_working_with]
-      @child_support.parental_contexts = @data[:parental_contexts]
       @child_support.enrollment_reasons = @data[:enrollment_reasons]
       @child_support.second_language = @data[:second_language]
 
       @errors << { message: 'ChildSupport saving failed', child_support_id: @child_support.id } unless @child_support.save
+    end
+
+    def send_welcome_sms_if_submitted_in_time
+      child = @child_support.current_child
+      return unless child&.created_at&.> 2.hours.ago
+
+      message = "Bonjour, merci pour votre inscription à l'accompagnement de l'association 1001mots. Bienvenue, ça va bientôt démarrer !\nL'équipe 1001mots"
+      SpotHit::SendSmsService.new([@parent1.id], Time.zone.now.to_i, message).call
     end
   end
 end
