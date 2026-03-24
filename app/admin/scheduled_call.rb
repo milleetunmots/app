@@ -27,6 +27,7 @@ ActiveAdmin.register ScheduledCall do
   # ---------------------------------------------------------------------------
 
   index download_links: proc { current_admin_user.can_export_data? } do
+    render partial: 'admin/admin_user_can_send_automatic_sms_parameters/settings_panel', locals: { access_to_settings: true }
     id_column
     column :scheduled_at
     column :status do |scheduled_call|

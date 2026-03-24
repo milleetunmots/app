@@ -9,7 +9,7 @@
         <i class="far fa-times-circle" style="margin-right: 8px; color: #555; font-size: 20px;"></i>
         <span style="margin-right: 30px;"><b>Aucune</b> famille ne reçoit de SMS automatique de prise de RDV avant chaque session d'appel.</span>
       <% end %>
-      <% case on_dashboard %>
+      <% case access_to_settings %>
       <% when true %>
         <a href="<%= admin_reglages_path %>" class="button">Accéder aux réglages</a>
       <% else %>
