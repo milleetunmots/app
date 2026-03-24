@@ -3,7 +3,7 @@ ActiveAdmin.register_page 'Réglages' do
 
   content do
     render partial: 'admin/admin_user_can_send_automatic_sms_parameters/modal'
-    render partial: 'admin/admin_user_can_send_automatic_sms_parameters/settings_panel', locals: { on_dashboard: false }
+    render partial: 'admin/admin_user_can_send_automatic_sms_parameters/settings_panel', locals: { access_to_settings: false }
   end
 
   page_action :toggle_automatic_sms, method: :post do
