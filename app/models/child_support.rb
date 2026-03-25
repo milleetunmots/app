@@ -103,6 +103,7 @@
 #  call_infos                                 :string
 #  child_count                                :integer
 #  discarded_at                               :datetime
+#  enrollment_reasons                         :string           default([]), is an Array
 #  family_support_should_be_stopped           :string
 #  has_important_information_parental_consent :boolean          default(FALSE), not null
 #  important_information                      :text
@@ -117,7 +118,6 @@
 #  parent_mid_term_rate                       :integer
 #  parent_mid_term_reaction                   :string
 #  parent_needs                               :text
-#  parental_contexts                          :string           is an Array
 #  restart_support_date                       :datetime
 #  restart_support_details                    :text
 #  second_language                            :string

@@ -367,6 +367,16 @@ ActiveAdmin.register ChildSupport do
           columns do
             column do
               f.label :parent_needs
+              if f.object.enrollment_reasons.present?
+                li class: 'input', style: 'padding: 10px 0;' do
+                  label "Raisons d'inscription :", class: 'label', style: 'float: left; width: 20%;'
+                  div style: 'margin-left: 20%; padding-top: 2px;' do
+                    f.object.enrollment_reasons.each do |reason|
+                      span reason, style: 'display: inline-block; padding: 4px 10px; margin: 0 6px 6px 0; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em; color: #555;'
+                    end
+                  end
+                end
+              end
               f.input :parent_needs,
                 label: false,
                 input_html: {

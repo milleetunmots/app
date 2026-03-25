@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_27_100000) do
+ActiveRecord::Schema[7.0].define(version: 2026_03_23_155059) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -345,7 +345,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_27_100000) do
     t.integer "parent_mid_term_rate"
     t.string "parent_mid_term_reaction"
     t.bigint "module6_chosen_by_parents_id"
-    t.string "parental_contexts", array: true
     t.bigint "stop_support_caller_id"
     t.text "stop_support_details"
     t.datetime "stop_support_date", precision: nil
@@ -386,6 +385,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_27_100000) do
     t.string "stop_support_reason"
     t.string "calendly_booking_url"
     t.text "parent_needs"
+    t.string "enrollment_reasons", default: [], array: true
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
@@ -631,9 +631,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_27_100000) do
     t.boolean "follow_us_on_whatsapp"
     t.string "degree"
     t.boolean "degree_in_france"
-    t.string "help_my_child_to_learn_is_important"
-    t.string "would_like_to_do_more"
-    t.string "would_receive_advices"
     t.boolean "family_followed", default: false
     t.string "security_code"
     t.integer "mid_term_rate"
