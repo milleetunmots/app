@@ -27,6 +27,7 @@ class Child
       if @errors.empty?
         excel_files << { filename: 'choix-modules.xlsx', file: generate_modules_summary }
         create_zip_file(excel_files)
+        generate_logistic_export
       end
 
       self
@@ -112,6 +113,24 @@ class Child
       # see: https://stackoverflow.com/questions/31237809/ruby-auto-deleting-temp-file
 
       temp_files = nil
+    end
+
+    def generate_logistic_export
+      groups = Group.where(id: @group_ids)
+      group_modules = groups.map do |group|
+        { group_id: group.id, module_number: group.support_module_programmed }
+      end
+
+      export = LogisticExport.create!(group_modules: group_modules)
+
+      group_label = groups.map { |g| g.name.parameterize }.join("-")
+      export.archive.attach(
+        io: File.open(@zip_file.path),
+        filename: "yls-export-#{group_label}-#{Time.zone.today.strftime('%d-%m-%Y')}.zip",
+        content_type: 'application/zip'
+      )
+    rescue => e
+      Rollbar.error(message: 'LogisticExport generation in ExportBooksV2Service', group_ids: @group_ids, error: e)
     end
   end
 end
