@@ -43,8 +43,6 @@ module Typeform
     def parse_answers
       @answers.each do |answer|
         case answer[:field][:id]
-        when FIELDS[:name]
-          @data[:name] = answer[:text]
         when FIELDS[:child_count]
           @data[:child_count] = answer[:choice][:label]
         when FIELDS[:already_working_with]
@@ -74,14 +72,6 @@ module Typeform
           end
         when FIELDS[:other_parent_phone]
           @data[:other_parent_phone] = Phonelib.parse(answer[:text]).e164
-        when FIELDS[:other_parent_degree]
-          @data[:other_parent_degree] = answer[:choice][:label]
-        when FIELDS[:other_parent_degree_in_france]
-          @data[:other_parent_degree_in_france] = answer[:choice][:label]
-        when FIELDS[:degree]
-          @data[:degree] = answer[:choice][:label]
-        when FIELDS[:degree_in_france]
-          @data[:degree_in_france] = answer[:choice][:label] == 'France'
         when FIELDS[:reading_frequency]
           if answer[:choices][:labels] == ['Aucun']
             @data[:call0_reading_frequency] = ChildSupport::READING_FREQUENCY[0]
@@ -89,7 +79,7 @@ module Typeform
             case answer[:choices][:labels].size
             when 1, 2
               @data[:call0_reading_frequency] = ChildSupport::READING_FREQUENCY[1]
-            when 2, 3, 4, 5, 6
+            when 3, 4, 5, 6
               @data[:call0_reading_frequency] = ChildSupport::READING_FREQUENCY[2]
             when 7
               @data[:call0_reading_frequency] = ChildSupport::READING_FREQUENCY[3]
@@ -146,7 +136,7 @@ module Typeform
       @child_support.child_count = @data[:child_count]
       @child_support.most_present_parent = @data[:most_present_parent]
       @child_support.already_working_with = @data[:already_working_with]
-      @child_support.enrollment_reasons = @data[:enrollment_reasons]
+      @child_support.enrollment_reasons = @data[:enrollment_reasons] if @data[:enrollment_reasons]
       @child_support.second_language = @data[:second_language]
 
       @errors << { message: 'ChildSupport saving failed', child_support_id: @child_support.id } unless @child_support.save
