@@ -3,8 +3,6 @@ ActiveAdmin.register LogisticExport do
 
   config.sort_order = 'created_at_desc'
 
-  actions :all, except: %i[new edit create destroy]
-
   filter :by_group_ids,
          as: :select,
          multiple: true,
