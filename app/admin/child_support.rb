@@ -90,8 +90,7 @@ ActiveAdmin.register ChildSupport do
           input_html: { multiple: true, data: { select2: {} } },
           label: "Précisions sur l'origine"
   filter :parent1_book_delivery_location, as: :select, collection: proc { parent_book_delivery_location_select_collection }
-  filter :should_be_read,
-         input_html: { data: { select2: { width: '100%' } } }
+  filter :verbatim_present, as: :boolean, label: 'Verbatim disponible'
   filter :is_bilingual, as: :check_boxes, collection: proc { is_bilingual_collection }
   filter :second_language
   filter :postal_code,
@@ -151,18 +150,6 @@ ActiveAdmin.register ChildSupport do
       child_support.save!
     end
     redirect_to request.referer, notice: 'Accompagnante mis à jour'
-  end
-
-  batch_action :check_should_be_read, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
-    child_supports = batch_action_collection.where(id: ids)
-    child_supports.each { |child_support| child_support.should_be_read? ? next : child_support.update!(should_be_read: true) }
-    redirect_to collection_path, notice: 'Témoignages marquants ajoutés.'
-  end
-
-  batch_action :uncheck_should_be_read, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
-    child_supports = batch_action_collection.where(id: ids)
-    child_supports.each { |child_support| child_support.should_be_read? ? child_support.update!(should_be_read: false) : next }
-    redirect_to collection_path, notice: 'Témoignages marquants retirés.'
   end
 
   batch_action :check_call_2_4, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
@@ -932,7 +919,6 @@ ActiveAdmin.register ChildSupport do
           row :important_information
           row :availability
           row :call_infos
-          row :should_be_read
           row :display_is_bilingual
           row :second_language
           row :suggested_videos_sent_count if current_admin_user.admin? || current_admin_user.contributor? || current_admin_user.reader?
@@ -1032,7 +1018,6 @@ ActiveAdmin.register ChildSupport do
 
     column :children_book_not_received
     column(:important_information) { |cs| cs.important_information_text }
-    column :should_be_read
     column :is_bilingual
     column :second_language
 
