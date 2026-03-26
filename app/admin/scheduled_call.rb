@@ -27,7 +27,6 @@ ActiveAdmin.register ScheduledCall do
   # ---------------------------------------------------------------------------
 
   index download_links: proc { current_admin_user.can_export_data? } do
-    render partial: 'admin/admin_user_can_send_automatic_sms_parameters/settings_panel', locals: { access_to_settings: true }
     id_column
     column :scheduled_at
     column :status do |scheduled_call|
@@ -108,6 +107,15 @@ ActiveAdmin.register ScheduledCall do
   # ---------------------------------------------------------------------------
 
   controller do
+    before_action :set_before_index_partial, only: :index
+
+    def set_before_index_partial
+      @before_index_partial = {
+        partial: 'admin/admin_user_can_send_automatic_sms_parameters/settings_panel',
+        locals: { access_to_settings: true }
+      }
+    end
+
     def scoped_collection
       scope = super
       scope = scope.where(admin_user: current_admin_user) if current_admin_user.caller? || current_admin_user.animator?
