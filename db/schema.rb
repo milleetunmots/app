@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_03_23_155059) do
+ActiveRecord::Schema[7.0].define(version: 2026_03_26_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -269,7 +269,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_23_155059) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "supporter_id"
-    t.boolean "should_be_read"
     t.string "call1_status"
     t.string "call2_status"
     t.string "call3_status"
@@ -406,7 +405,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_23_155059) do
     t.index ["parent1_available_support_module_list"], name: "index_child_supports_on_parent1_available_support_module_list", using: :gin
     t.index ["parent2_available_support_module_list"], name: "index_child_supports_on_parent2_available_support_module_list", using: :gin
     t.index ["restart_support_caller_id"], name: "index_child_supports_on_restart_support_caller_id"
-    t.index ["should_be_read"], name: "index_child_supports_on_should_be_read"
     t.index ["stop_support_caller_id"], name: "index_child_supports_on_stop_support_caller_id"
     t.index ["supporter_id"], name: "index_child_supports_on_supporter_id"
   end
