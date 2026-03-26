@@ -103,6 +103,7 @@
 #  call_infos                                 :string
 #  child_count                                :integer
 #  discarded_at                               :datetime
+#  enrollment_reasons                         :string           default([]), is an Array
 #  family_support_should_be_stopped           :string
 #  has_important_information_parental_consent :boolean          default(FALSE), not null
 #  important_information                      :text
@@ -117,11 +118,9 @@
 #  parent_mid_term_rate                       :integer
 #  parent_mid_term_reaction                   :string
 #  parent_needs                               :text
-#  parental_contexts                          :string           is an Array
 #  restart_support_date                       :datetime
 #  restart_support_details                    :text
 #  second_language                            :string
-#  should_be_read                             :boolean
 #  stop_support_date                          :datetime
 #  stop_support_details                       :text
 #  stop_support_reason                        :string
@@ -161,7 +160,6 @@
 #  index_child_supports_on_parent1_available_support_module_list  (parent1_available_support_module_list) USING gin
 #  index_child_supports_on_parent2_available_support_module_list  (parent2_available_support_module_list) USING gin
 #  index_child_supports_on_restart_support_caller_id              (restart_support_caller_id)
-#  index_child_supports_on_should_be_read                         (should_be_read)
 #  index_child_supports_on_stop_support_caller_id                 (stop_support_caller_id)
 #  index_child_supports_on_supporter_id                           (supporter_id)
 #

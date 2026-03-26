@@ -140,16 +140,23 @@ class Child
     end
 
     def send_form_by_sms
+      @sms_url_form = Rails.application.routes.url_helpers.initial_typeform_url(st: @child.parent1.security_token)
       return if 'filtre-diplome-KO'.in? @child.tag_list
+      return if @child.child_support.enrollment_reasons.any?
 
-      @sms_url_form = "#{ENV['INITIAL_TYPEFORM_URL']}#st=#{@child.parent1.security_token}"
-      message = "1001mots: Bonjour ! Je suis ravie de votre inscription à notre accompagnement ! Si vous avez 3 minutes, merci de répondre à ce court questionnaire #{@sms_url_form}"
+      message =
+        <<~MESSAGE
+          Bonjour,
+          Merci pour votre inscription à l’accompagnement de l’association 1001mots !
+          Pour que les livres et les conseils soient adaptés à #{@child.siblings.map(&:first_name).to_sentence(words_connector: ', ', two_words_connector: ' et ', last_word_connector: ' et ')}, vous pouvez remplir ce rapide questionnaire ? (3 minutes) Merci beaucoup ! #{@sms_url_form}
+          L’équipe 1001mots
+        MESSAGE
       eval25_message = "1001mots : Bonjour, votre inscription au programme 1001mots est confirmée. L'accompagnement va bientôt démarrer. A bientôt !"
 
       if ENV['EVAL25'].present? && @child.source.name == ENV['CAF93']
         SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, eval25_message).call
       else
-        SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, message).call if @registration_origin == 4 || (@registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].nil?)
+        Child::SendInitialFormSmsJob.set(wait: 2.hours).perform_later(@child.parent1_id, message) if @registration_origin == 4 || (@registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].nil?)
       end
 
       SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.change({ hour: 18 }).to_i, message).call if @registration_origin.in?([3, 5])

@@ -103,6 +103,7 @@
 #  call_infos                                 :string
 #  child_count                                :integer
 #  discarded_at                               :datetime
+#  enrollment_reasons                         :string           default([]), is an Array
 #  family_support_should_be_stopped           :string
 #  has_important_information_parental_consent :boolean          default(FALSE), not null
 #  important_information                      :text
@@ -117,11 +118,9 @@
 #  parent_mid_term_rate                       :integer
 #  parent_mid_term_reaction                   :string
 #  parent_needs                               :text
-#  parental_contexts                          :string           is an Array
 #  restart_support_date                       :datetime
 #  restart_support_details                    :text
 #  second_language                            :string
-#  should_be_read                             :boolean
 #  stop_support_date                          :datetime
 #  stop_support_details                       :text
 #  stop_support_reason                        :string
@@ -161,7 +160,6 @@
 #  index_child_supports_on_parent1_available_support_module_list  (parent1_available_support_module_list) USING gin
 #  index_child_supports_on_parent2_available_support_module_list  (parent2_available_support_module_list) USING gin
 #  index_child_supports_on_restart_support_caller_id              (restart_support_caller_id)
-#  index_child_supports_on_should_be_read                         (should_be_read)
 #  index_child_supports_on_stop_support_caller_id                 (stop_support_caller_id)
 #  index_child_supports_on_supporter_id                           (supporter_id)
 #
@@ -346,6 +344,11 @@ class ChildSupport < ApplicationRecord
     end
   end
 
+  def self.verbatim_present(bool)
+    verbatim_condition = (0..3).map { |i| "call#{i}_sendings_benefits_details IS NOT NULL AND call#{i}_sendings_benefits_details != ''" }.join(' OR ')
+    ActiveModel::Type::Boolean.new.cast(bool) ? where(verbatim_condition) : where("NOT (#{verbatim_condition})")
+  end
+
   def self.groups_in(*v)
     where(id: Child.where(group_id: v).select('DISTINCT child_support_id'))
   end
@@ -445,7 +448,7 @@ class ChildSupport < ApplicationRecord
     super + %i[
       groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_in source_channel_in
       source_details_matches_any group_id_in active_group_id_in with_child_in_group_ended_between
-      months_gteq months_lt months_equals months_between
+      months_gteq months_lt months_equals months_between verbatim_present
     ]
   end
 
