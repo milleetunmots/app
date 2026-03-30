@@ -1,6 +1,8 @@
 ActiveAdmin.register ScheduledCall do
   menu label: 'RDV Calendly', priority: 15, if: -> { current_admin_user.user_role.in?(%w[super_admin contributor reader]) || (current_admin_user.user_role.in?(%w[caller animator]) && current_admin_user.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].split)) }
 
+  decorate_with ScheduledCallDecorator
+
   config.sort_order = 'scheduled_at_asc'
 
   actions :all, except: %i[new edit create destroy]
@@ -18,7 +20,6 @@ ActiveAdmin.register ScheduledCall do
   filter :call_session, as: :select, collection: (0..3).map { |i| ["Appel #{i}", i] }
   filter :admin_user, if: proc { !current_admin_user.caller? && !current_admin_user.animator? }
   filter :child_support_id
-  filter :invitee_name
   filter :invitee_email
   filter :created_at
 
@@ -37,12 +38,9 @@ ActiveAdmin.register ScheduledCall do
     end
     column :admin_user
     column :child_support
-    column :parent do |scheduled_call|
-      link_to scheduled_call.parent.decorate.name, admin_parent_path(scheduled_call.parent) if scheduled_call.parent
-    end
-    column :invitee_name
-    column :duration_minutes
-    column :created_at
+    column :parent
+    column :children
+    column :group
     actions
   end
 
@@ -64,10 +62,9 @@ ActiveAdmin.register ScheduledCall do
       row :event_type_name
       row :admin_user
       row :child_support
-      row :parent do |scheduled_call|
-        link_to scheduled_call.parent.decorate.name, admin_parent_path(scheduled_call.parent) if scheduled_call.parent
-      end
-      row :invitee_name
+      row :parent
+      row :children
+      row :group
       row :invitee_email
       row :invitee_comment
       row :canceled_at
