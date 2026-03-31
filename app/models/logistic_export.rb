@@ -19,7 +19,7 @@ class LogisticExport < ApplicationRecord
     return none if group_ids.empty?
 
     conditions = group_ids.map { |gid| sanitize_sql(["group_modules @> ?", [{ group_id: gid }].to_json]) }
-    where(conditions.join(" AND ")).where("jsonb_array_length(group_modules) = ?", group_ids.size)
+    where(conditions.join(" OR "))
   }
 
   def self.ransackable_scopes(_auth_object = nil)
