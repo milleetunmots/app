@@ -711,6 +711,8 @@ fr:
         raw_payload: Payload brut
         scheduled_at: Date prévue
         status: Statut
+        group: Cohorte
+        children: Enfants
       scheduled_call/status:
         scheduled: Programmé
         canceled: Annulé
