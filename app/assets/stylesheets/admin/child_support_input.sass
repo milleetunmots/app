@@ -30,15 +30,21 @@
     display: flex
     flex-direction: column
 
-.border
-  span
-    font-style: italic
+.availability-card
+  border: 1px solid $dark-grey
+  border-radius: 8px
+  overflow: hidden
+  margin-bottom: 15px
+
+  .availability-card-header
+    background-color: $grey
+    color: $black
+    padding: 8px 15px
     font-weight: bold
-    display: inline-block
-    margin-bottom: 10px
-  border: 1px solid black
-  border-radius: 20px
-  padding: 15px 0 0 15px
+    font-size: 14px
+
+  .availability-card-body
+    padding: 15px
 
 #child_support_parent1_available_support_module_list + .select2-container--default .select2-selection__choice
   &:nth-of-type(-n+3)

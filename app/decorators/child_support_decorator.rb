@@ -270,6 +270,26 @@ class ChildSupportDecorator < BaseDecorator
     ).join('<br/>-&nbsp;').html_safe
   end
 
+  def display_scheduled_call_info
+    active_call_index = model.active_call_index(days_before: 2)
+    next_call_index = model.next_call_index(days_before: 2)
+
+    if active_call_index
+      scheduled_call_info_during_session(active_call_index)
+    elsif next_call_index
+      scheduled_call_info_next_session(next_call_index)
+    else
+      scheduled_call_info_no_session
+    end
+  end
+
+  def active_session_without_appointment?
+    active_call_index = model.active_call_index(days_before: 2)
+    return false unless active_call_index
+
+    model.scheduled_call_sessions(active_call_index).scheduled.empty?
+  end
+
 
   ###
 
@@ -320,6 +340,45 @@ class ChildSupportDecorator < BaseDecorator
   end
 
   private
+
+  def scheduled_call_info_label(text)
+    h.content_tag(:label, text, class: 'label')
+  end
+
+  def scheduled_call_info_during_session(call_index)
+    label = scheduled_call_info_label("Prochain RDV (Appel #{call_index})")
+    info = send("call#{call_index}_scheduled_session") || no_appointment_info(call_index)
+
+    h.safe_join([label, info])
+  end
+
+  def no_appointment_info(call_index)
+    last_date_str = model.current_child&.parent1&.calendly_last_booking_dates&.dig("call#{call_index}")
+    elements = [h.content_tag(:span, 'Aucun RDV programmé')]
+
+    if last_date_str.present?
+      last_date = Date.parse(last_date_str)
+      subtitle = "Dernier envoi d'un lien de RDV : #{I18n.l(last_date, format: '%a %d/%m')}"
+      elements << h.content_tag(:span, subtitle, style: 'font-style: italic; font-size: 0.85em; color: #999;')
+    end
+
+    h.content_tag(:div, h.safe_join(elements), style: 'display: flex; flex-direction: column;')
+  end
+
+  def scheduled_call_info_next_session(call_index)
+    group = model.current_child&.group
+    return scheduled_call_info_no_session unless group
+
+    start_date = group.send("call#{call_index}_start_date")
+    label = scheduled_call_info_label("Prochaine session (Appel #{call_index})")
+    info = h.content_tag(:span, "À partir du #{I18n.l(start_date, format: '%d/%m')}", style: 'color: #999;')
+
+    h.safe_join([label, info])
+  end
+
+  def scheduled_call_info_no_session
+    scheduled_call_info_label("Plus de sessions d'appel prévues")
+  end
 
   def children_attribute(key, glue)
     result = model.children.decorate.map(&key)

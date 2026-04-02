@@ -298,10 +298,27 @@ ActiveAdmin.register ChildSupport do
         column class: 'column flex-column' do
           available_support_module_input(f, :parent1_available_support_module_list, (current_admin_user.user_role.in? %w[caller animator reader]))
           available_support_module_input(f, :parent2_available_support_module_list, (current_admin_user.user_role.in? %w[caller animator reader])) unless resource.parent2.nil?
-          div class: 'border' do
-            span "Ces informations apparaissent dans l'index des suivis"
-            f.input :availability, input_html: { style: 'width: 70%' }
-            f.input :call_infos, input_html: { style: 'width: 70%' }
+          div class: 'availability-card' do
+            div class: 'availability-card-header' do
+              'Disponibilités et RDV'
+            end
+            div class: 'availability-card-body' do
+              decorated = resource.decorate
+              li class: 'string input optional stringish', style: 'border-bottom: 0.8px solid; padding-bottom: 2rem; display: flex; align-items: center; gap: 10px;' do
+                text_node decorated.display_scheduled_call_info
+                if decorated.active_session_without_appointment?
+                  span style: 'margin-left: auto;' do
+                    a href: admin_message_path(parent_id: resource.parent1&.id, child_support_id: resource.id, parent_st: resource.parent1&.security_token),
+                      target: '_blank',
+                      style: 'background-color: #4a4a4a; color: #fff; padding: 8px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; white-space: nowrap;' do
+                      'Relancer'
+                    end
+                  end
+                end
+              end
+              f.input :availability, input_html: { style: 'width: 70%' }
+              f.input :call_infos, input_html: { style: 'width: 70%' }
+            end
           end
           if resource.address_suspected_invalid_at
             div class: 'address-suspected-invalid-info' do
