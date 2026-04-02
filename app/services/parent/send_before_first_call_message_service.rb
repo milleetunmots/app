@@ -26,11 +26,11 @@ class Parent::SendBeforeFirstCallMessageService < Parent::SendBeforeCallsMessage
 
     no_beta_test_child_supports =
       child_supports_with_correct_supporters.where.not(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
-    send_before_calls_message(group, no_beta_test_child_supports, NO_BETA_TEST_WARNING_MESSAGES)
+    send_before_calls_message(group, no_beta_test_child_supports, NO_BETA_TEST_WARNING_MESSAGES, 0)
 
     beta_test_child_supports =
       child_supports_with_correct_supporters.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
     create_one_off_event_types(beta_test_child_supports, 0)
-    send_before_calls_message(group, beta_test_child_supports, BETA_TEST_WARNING_MESSAGES)
+    send_before_calls_message(group, beta_test_child_supports, BETA_TEST_WARNING_MESSAGES, 0)
   end
 end

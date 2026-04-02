@@ -9,6 +9,7 @@
 #  book_delivery_location              :string
 #  book_delivery_organisation_name     :string
 #  calendly_booking_urls               :jsonb
+#  calendly_last_booking_dates         :jsonb
 #  city_name                           :string           not null
 #  degree                              :string
 #  degree_country_at_registration      :string

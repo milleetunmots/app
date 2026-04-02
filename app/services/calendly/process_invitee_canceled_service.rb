@@ -131,12 +131,17 @@ module Calendly
         ["parent.#{@parent.id}"],
         REBOOKING_MESSAGE.dup.gsub('{CALENDLY_LINK}', calendly_url)
       ).call
-      return if service.errors.empty?
 
-      @errors << {
-        message: "L'envoi du message de reprise de RDV a échoué",
-        errors: service.errors
-      }
+      if service.errors.empty?
+        @parent.calendly_last_booking_dates ||= {}
+        @parent.calendly_last_booking_dates["call#{@call_session}"] = Time.zone.today.to_s
+        @parent.save!
+      else
+        @errors << {
+          message: "L'envoi du message de reprise de RDV a échoué",
+          errors: service.errors
+        }
+      end
     end
   end
 end
