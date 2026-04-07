@@ -290,6 +290,17 @@ class ChildSupportDecorator < BaseDecorator
     model.scheduled_call_sessions(active_call_index).scheduled.empty?
   end
 
+  def should_show_reminder_button?
+    active_call_index = model.active_call_index(days_before: 2)
+    return false unless active_call_index
+
+    scheduled_calls = model.scheduled_call_sessions(active_call_index)
+    return true if scheduled_calls.empty?
+
+    upcoming_calls = scheduled_calls.scheduled.select { |call| call.scheduled_at > 2.hours.ago }
+    scheduled_calls.all?(&:canceled?) || upcoming_calls.empty?
+  end
+
 
   ###
 
@@ -347,22 +358,85 @@ class ChildSupportDecorator < BaseDecorator
 
   def scheduled_call_info_during_session(call_index)
     label = scheduled_call_info_label("Prochain RDV (Appel #{call_index})")
-    info = send("call#{call_index}_scheduled_session") || no_appointment_info(call_index)
+    scheduled_calls = model.scheduled_call_sessions(call_index)
+
+    if scheduled_calls.empty?
+      info = no_appointment_info(call_index)
+    else
+      upcoming_calls = scheduled_calls.scheduled.select { |call| call.scheduled_at > 2.hours.ago }
+      all_canceled = scheduled_calls.all?(&:canceled?)
+
+      if all_canceled
+        info = show_canceled_appointment_info(call_index, scheduled_calls)
+      elsif upcoming_calls.empty?
+        info = show_missed_appointment_info(call_index, scheduled_calls)
+      elsif upcoming_calls.one?
+        info = appointment_badge(upcoming_calls.first)
+      else
+        info = show_multiple_appointments_info(upcoming_calls)
+      end
+    end
 
     h.safe_join([label, info])
   end
 
   def no_appointment_info(call_index)
-    last_date_str = model.current_child&.parent1&.calendly_last_booking_dates&.dig("call#{call_index}")
     elements = [h.content_tag(:span, 'Aucun RDV programmé')]
+    elements << last_booking_date_subtitle(call_index)
+    h.content_tag(:div, h.safe_join(elements.compact), style: 'display: flex; flex-direction: column;')
+  end
 
-    if last_date_str.present?
-      last_date = Date.parse(last_date_str)
-      subtitle = "Dernier envoi d'un lien de RDV : #{I18n.l(last_date, format: '%a %d/%m')}"
-      elements << h.content_tag(:span, subtitle, style: 'font-style: italic; font-size: 0.85em; color: #999;')
+  def show_canceled_appointment_info(call_index, scheduled_calls)
+    last_call = scheduled_calls.order(scheduled_at: :desc).first
+    date_text = I18n.l(last_call.scheduled_at, format: '%a %d/%m (%Hh%M)')
+
+    first_line = h.content_tag(:div, h.safe_join([
+      h.content_tag(:i, '', class: 'far fa-times-circle', style: 'margin-right: 5px; color: #E6AF2E'),
+      h.content_tag(:span, 'RDV annulé', style: 'color: #E6AF2E'),
+      h.content_tag(:span, " — #{date_text}", style: 'color: #999;')
+    ]))
+    elements = [first_line, last_booking_date_subtitle(call_index)]
+
+    h.content_tag(:div, h.safe_join(elements.compact), style: 'display: flex; flex-direction: column;')
+  end
+
+  def show_missed_appointment_info(call_index, scheduled_calls)
+    last_call = scheduled_calls.scheduled.order(scheduled_at: :desc).first
+    date_text = I18n.l(last_call.scheduled_at, format: '%a %d/%m (%Hh%M)')
+
+    first_line = h.content_tag(:div, h.safe_join([
+      h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
+      h.content_tag(:span, 'RDV non honoré', style: 'color: #B02B2C'),
+      h.content_tag(:span, " — #{date_text}", style: 'color: #999;')
+    ]))
+    elements = [first_line, last_booking_date_subtitle(call_index)]
+
+    h.content_tag(:div, h.safe_join(elements.compact), style: 'display: flex; flex-direction: column;')
+  end
+
+  def show_multiple_appointments_info(upcoming_calls)
+    title = h.safe_join([
+      h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
+      h.content_tag(:span, "#{upcoming_calls.count} RDV programmés", style: 'color: #B02B2C; font-weight: bold;')
+    ])
+
+    date_lines = upcoming_calls.map do |call|
+      h.content_tag(:div, h.safe_join([
+        h.content_tag(:i, '', class: 'far fa-calendar', style: 'margin-right: 5px;'),
+        I18n.l(call.scheduled_at, format: '%a %d/%m (%Hh%M)')
+      ]), style: 'padding-left: 5px;')
     end
 
-    h.content_tag(:div, h.safe_join(elements), style: 'display: flex; flex-direction: column;')
+    h.content_tag(:div, h.safe_join([h.content_tag(:div, title)] + date_lines), style: 'display: flex; flex-direction: column;')
+  end
+
+  def last_booking_date_subtitle(call_index)
+    last_date_str = model.current_child&.parent1&.calendly_last_booking_dates&.dig("call#{call_index}")
+    return nil unless last_date_str.present?
+
+    last_date = Date.parse(last_date_str)
+    subtitle = "Dernier envoi d'un lien de RDV : #{I18n.l(last_date, format: '%a %d/%m')}"
+    h.content_tag(:span, subtitle, style: 'font-style: italic; font-size: 0.85em; color: #999;')
   end
 
   def scheduled_call_info_next_session(call_index)

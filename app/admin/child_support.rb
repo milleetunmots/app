@@ -306,12 +306,37 @@ ActiveAdmin.register ChildSupport do
               decorated = resource.decorate
               li class: 'string input optional stringish', style: 'border-bottom: 0.8px solid; padding-bottom: 2rem; display: flex; align-items: center; gap: 10px;' do
                 text_node decorated.display_scheduled_call_info
-                if decorated.active_session_without_appointment?
-                  span style: 'margin-left: auto;' do
-                    a href: admin_message_path(parent_id: resource.parent1&.id, child_support_id: resource.id, parent_st: resource.parent1&.security_token),
-                      target: '_blank',
-                      style: 'background-color: #4a4a4a; color: #fff; padding: 8px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; white-space: nowrap;' do
-                      'Relancer'
+                if decorated.should_show_reminder_button?
+                  if resource.parent2.present?
+                    div class: 'scheduled-call-reminder-dropdown', style: 'margin-left: auto; position: relative; display: inline-block;' do
+                      a class: 'scheduled-call-reminder-toggle',
+                        style: 'background-color: #4a4a4a; color: #fff; padding: 8px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; white-space: nowrap; cursor: pointer; display: inline-block;' do
+                        text_node 'Relancer '
+                        span '▼', style: 'font-size: 0.7em;'
+                      end
+                      div class: 'scheduled-call-reminder-menu', style: 'display: none; position: absolute; right: 0; top: calc(100% + 4px); background: #fff; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1000; min-width: 240px;' do
+                        ul style: 'list-style: none; margin: 0; padding: 4px 0;' do
+                          li style: 'margin: 0; padding: 0;' do
+                            a href: scheduled_call_reminder_admin_child_support_path(resource, parent_id: resource.parent1.id), target: '_blank',
+                              style: 'display: block; padding: 10px 16px; color: #323537; text-decoration: none; white-space: nowrap;' do
+                              text_node "#{resource.parent1.first_name} #{resource.parent1.last_name} "
+                              span "(Parent 1)", style: 'color: #999;'
+                            end
+                          end
+                          li style: 'margin: 0; padding: 0;' do
+                            a href: scheduled_call_reminder_admin_child_support_path(resource, parent_id: resource.parent2.id), target: '_blank',
+                              style: 'display: block; padding: 10px 16px; color: #323537; text-decoration: none; white-space: nowrap;' do
+                              text_node "#{resource.parent2.first_name} #{resource.parent2.last_name} "
+                              span "(Parent 2)", style: 'color: #999;'
+                            end
+                          end
+                        end
+                      end
+                    end
+                  else
+                    a href: scheduled_call_reminder_admin_child_support_path(resource, parent_id: resource.parent1.id), target: '_blank',
+                      style: 'background-color: #4a4a4a; color: #fff; padding: 8px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; white-space: nowrap; cursor: pointer; display: inline-block; margin-left: auto;' do
+                      text_node 'Relancer'
                     end
                   end
                 end
@@ -1235,6 +1260,41 @@ ActiveAdmin.register ChildSupport do
   member_action :send_message_to_parent2 do
     authorize! :send_message_to_parent1, resource
     redirect_to admin_message_path(parent_id: resource.model.parent2&.id,child_support_id: resource.model.id,  parent_st: resource.model.parent2&.security_token)
+  end
+
+  member_action :scheduled_call_reminder do
+    cs = resource.model
+    active_idx = cs.active_call_index(days_before: 2)
+
+    unless active_idx
+      redirect_back fallback_location: edit_admin_child_support_path(cs), alert: "Aucune session d'appel en cours"
+      return
+    end
+
+    parent_obj = [cs.parent1, cs.parent2].compact.find { |p| p.id == params[:parent_id].to_i }
+    unless parent_obj
+      redirect_back fallback_location: edit_admin_child_support_path(cs), alert: "Parent introuvable"
+      return
+    end
+
+    errors = []
+    unless parent_obj.calendly_booking_urls&.dig("call#{active_idx}").present?
+      service = Calendly::CreateOneOffEventTypeService.new(child_support: cs, call_session: active_idx).call
+      if service.errors.any?
+        errors.concat(service.errors.map { |e| e.is_a?(Hash) ? e[:message] : e.to_s })
+      end
+    end
+
+    if errors.any?
+      redirect_back fallback_location: edit_admin_child_support_path(cs), alert: errors.join("\n")
+    else
+      redirect_to admin_message_path(
+        parent_id: parent_obj.id,
+        child_support_id: cs.id,
+        parent_st: parent_obj.security_token,
+        template: 'scheduled_call_reminder'
+      )
+    end
   end
 
   controller do
