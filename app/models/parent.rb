@@ -381,6 +381,12 @@ class Parent < ApplicationRecord
 
   acts_as_taggable
 
+  def geocode
+    super
+  rescue OpenSSL::SSL::SSLError => e
+    Rollbar.warning(e, message: "Geocoding SSL error for parent #{id}, address: #{geocoder_address}")
+  end
+
   private
 
   def book_delivery_organisation_name_presence

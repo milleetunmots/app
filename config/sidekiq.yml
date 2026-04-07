@@ -52,7 +52,7 @@
       cron: '0 9 * * *'
       class: 'Parent::SendNextDayScheduledCallReminderJob'
     send_same_day_scheduled_call_reminder_job:
-      cron: '0 7-15 * * *'
+      cron: '0 7-17 * * *'
       class: 'Parent::SendSameDayScheduledCallReminderJob'
     send_calendly_reminder_job:
       cron: '0 13 * * 0' # every Sunday at 13h

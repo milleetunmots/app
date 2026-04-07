@@ -71,4 +71,16 @@ class ScheduledCall < ApplicationRecord
       cancellation_reason: reason
     )
   end
+
+  def group
+    return nil unless child_support
+
+    child_support.current_child&.group
+  end
+
+  def children
+    return nil unless child_support
+
+    child_support.children
+  end
 end
