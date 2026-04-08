@@ -230,7 +230,6 @@ class ChildrenController < ApplicationController
       session[:registration_origin] = 2
       @form_path = caf_registration_path
       @form_path_url = caf_registration_path(request.query_parameters)
-      # check quota, TEMPORARY
     when '/inscriptionmsa'
       session[:registration_origin] = 6
       @form_path = msa_registration_path
