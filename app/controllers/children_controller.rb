@@ -230,8 +230,6 @@ class ChildrenController < ApplicationController
       session[:registration_origin] = 2
       @form_path = caf_registration_path
       @form_path_url = caf_registration_path(request.query_parameters)
-      # check quota, TEMPORARY
-      @signup_quota_reached = signup_quota_reached?
     when '/inscriptionmsa'
       session[:registration_origin] = 6
       @form_path = msa_registration_path
@@ -328,17 +326,6 @@ class ChildrenController < ApplicationController
       sibling.build_child_support unless sibling.child_support
     end
     @child.tag_list = tags_by_utm_params
-  end
-
-  def signup_quota_reached?
-    return true if ENV['SIGNUP_QUOTA_CAF_77_REACHED'] == 'true' && @form_path_url.include?('utm_caf=77')
-    return false unless @form_path_url.include?('utm_caf=01')
-    return false if Time.zone.today >= Date.parse(ENV['SIGNUP_QUOTA_CAF_AIN_END_DATE'])
-
-    current_signups_count = Child.kept.joins(:children_source).where('children_sources.source_id = ? AND children.created_at >= ?',
-                                                                    Source.find_by(utm: '01', channel: 'caf')&.id,
-                                                                    Date.parse(ENV['SIGNUP_QUOTA_CAF_AIN_START_DATE'])).count
-    current_signups_count >= ENV['SIGNUP_QUOTA_CAF_AIN_MAX_COUNT'].to_i
   end
 
   def check_registration_limits
