@@ -3,9 +3,9 @@
     <div id="registration-closed">
       <p>Les inscriptions sont fermées. Si vous êtes une structure partenaire de 1001mots, contactez-nous à pmi@1001mots.org</p>
     </div>
-  <% elsif @limit_reached && @form_path_url.include?('utm_source=caf93') && @form_path_url.include?('utm_medium=mail') && @form_path_url.include?('utm_caf=93') %>
+  <% elsif @limit_reached && @form_path_url.include?('utm_source=') && @form_path_url.include?('utm_medium=mail') && @form_path_url.include?('utm_caf=') %>
     <div data-tf-live="01KNP1JC3T8SSBC28ECGPPRGWH"
-         data-tf-hidden="utm_source=caf93,utm_medium=mail,utm_caf=93"></div><script src="//embed.typeform.com/next/embed.js"></script>
+         data-tf-hidden="utm_source=<% params['utm_source'] %>,utm_medium=mail,utm_caf=<% params['utm_caf'] %>"></div><script src="//embed.typeform.com/next/embed.js"></script>
   <% elsif @limit_reached %>
     <div id="registration-closed">
       <p>Les inscriptions sont limitées et le formulaire est malheureusement temporairement fermé.</p>
