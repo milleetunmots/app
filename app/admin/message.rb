@@ -166,7 +166,7 @@ ActiveAdmin.register_page 'Message' do
       redirect_back(fallback_location: root_path, alert: service.errors.join("\n"))
     else
       notice = "Message(s) programmé(s) via #{provider.capitalize}"
-      if params[:call_goals_sms] && params[:call_goals_sms] != 'Aucun'
+      if params[:call_goals_sms] && !params[:call_goals_sms].in?(%w[Aucun scheduled_call_reminder])
         child_support.paper_trail.update_column("#{call_goal}_sms".to_sym, message)
         notice += '. Et petite mission définie'
       end
