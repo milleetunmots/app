@@ -1266,6 +1266,12 @@ ActiveAdmin.register ChildSupport do
     cs = resource.model
     active_idx = cs.active_call_index(days_before: 2)
 
+    unless cs.supporter.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].split)
+      redirect_back fallback_location: edit_admin_child_support_path(cs),
+                    alert: "L'accompagnante n'est pas dans la liste des beta-testeuses"
+      return
+    end
+
     unless active_idx
       redirect_back fallback_location: edit_admin_child_support_path(cs), alert: "Aucune session d'appel en cours"
       return
@@ -1273,7 +1279,7 @@ ActiveAdmin.register ChildSupport do
 
     parent_obj = [cs.parent1, cs.parent2].compact.find { |p| p.id == params[:parent_id].to_i }
     unless parent_obj
-      redirect_back fallback_location: edit_admin_child_support_path(cs), alert: "Parent introuvable"
+      redirect_back fallback_location: edit_admin_child_support_path(cs), alert: 'Parent introuvable'
       return
     end
 
