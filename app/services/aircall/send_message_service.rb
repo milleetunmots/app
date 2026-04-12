@@ -32,7 +32,12 @@ module Aircall
       if response.status.success?
         @errors << "Erreur lors de la mise à jour de l'event d'envoi de message pour #{@to}." unless update_event(2, JSON.parse(response.body)['id'])
       else
-        @errors << { status: response.status.to_s, key: response.parse['key'], message: response.parse['message'] }
+        parsed = begin
+          response.parse
+        rescue HTTP::Error
+          {}
+        end
+        @errors << { status: response.status.to_s, key: parsed['key'], message: parsed['message'] || response.body.to_s }
       end
       self
     end
