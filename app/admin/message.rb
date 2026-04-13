@@ -170,6 +170,15 @@ ActiveAdmin.register_page 'Message' do
         child_support.paper_trail.update_column("#{call_goal}_sms".to_sym, message)
         notice += '. Et petite mission définie'
       end
+      if params[:call_goals_sms] == 'scheduled_call_reminder'
+        parent = Parent.find_by(id: params['recipients'].first.gsub('parent.', '').to_i)
+        if parent
+          parent.calendly_last_booking_dates ||= {}
+          call_index = parent.current_child&.child_support&.active_call_index
+          parent.calendly_last_booking_dates["call#{call_index}"] = Time.zone.today.to_s
+          parent.save!
+        end
+      end
       child_support.paper_trail.update_column(:call0_goal_sent, params[:call_goal]) if params[:call_goals_sms] == 'call0_goals'
       redirect_back(fallback_location: root_path, notice: notice)
     end
