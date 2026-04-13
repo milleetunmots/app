@@ -138,11 +138,19 @@ class ChildrenSupportModule < ApplicationRecord
     return unless child.current_child?
 
     theme = support_module.theme
+    sibling_ids = child.siblings_on_same_group.pluck(:id)
+    used_book_ids = (
+      SupportModule.joins(:children_support_modules)
+                   .where(children_support_modules: { child_id: sibling_ids, parent_id: parent_id, is_programmed: true })
+                   .pluck(:book_id) + [support_module.book_id]
+    ).compact.uniq
+
     child.siblings_on_same_group.each do |sibling|
       next if child == sibling
 
       sibling_age = child_age_range(sibling.months)
-      sibling_support_module = find_sibling_support_module(sibling.id, sibling_age, parent_id, support_module.for_bilingual, theme: theme) || find_sibling_support_module(sibling.id, sibling_age, parent_id, support_module.for_bilingual)
+      sibling_support_module = find_sibling_support_module(sibling.id, sibling_age, parent_id, support_module.for_bilingual, theme: theme, excluded_book_ids: used_book_ids) ||
+                               find_sibling_support_module(sibling.id, sibling_age, parent_id, support_module.for_bilingual, excluded_book_ids: used_book_ids)
       find_or_create_children_support_module(sibling.id, sibling_support_module)
     end
   end
@@ -207,11 +215,12 @@ class ChildrenSupportModule < ApplicationRecord
     end
   end
 
-  def find_sibling_support_module(sibling_id, age, parent_id, for_bilingual, theme: nil)
+  def find_sibling_support_module(sibling_id, age, parent_id, for_bilingual, theme: nil, excluded_book_ids: [])
     support_modules = SupportModule.by_theme
     support_modules = theme.nil? ? support_modules.where("'#{age}' = ANY(age_ranges)") : support_modules.where("'#{age}' = ANY(age_ranges) AND theme = '#{theme}'")
     support_modules = support_modules.where(for_bilingual: for_bilingual) if for_bilingual == false
     support_modules = support_modules.where.not(id: ChildrenSupportModule.where(child_id: sibling_id, parent_id: parent_id, is_programmed: true).pluck(:support_module_id))
+    support_modules = support_modules.where.not(book_id: excluded_book_ids) if excluded_book_ids.any?
 
     # try to not redo the same theme if possible
     support_modules.select {|sm| !sm.theme.in?(ChildrenSupportModule.with_support_module.where(child_id: sibling_id, parent_id: parent_id, is_programmed: true).map(&:support_module).map(&:theme)) }.first || support_modules.first
