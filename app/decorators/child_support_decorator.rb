@@ -431,8 +431,12 @@ class ChildSupportDecorator < BaseDecorator
   end
 
   def last_booking_date_subtitle(call_index)
-    last_date_str = model.current_child&.parent1&.calendly_last_booking_dates&.dig("call#{call_index}")
-    return nil unless last_date_str.present?
+    current_child = model.current_child
+    return unless current_child
+
+    last_date_str = current_child.parent1&.calendly_last_booking_dates&.dig("call#{call_index}") ||
+                    current_child.parent2&.calendly_last_booking_dates&.dig("call#{call_index}")
+    return nil if last_date_str.blank?
 
     last_date = Date.parse(last_date_str)
     subtitle = "Dernier envoi d'un lien de RDV : #{I18n.l(last_date, format: '%a %d/%m')}"
