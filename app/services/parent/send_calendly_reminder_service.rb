@@ -67,7 +67,7 @@ class Parent::SendCalendlyReminderService
   def build_recipient(parent, child_support, call_index)
     calendly_url = parent.calendly_booking_urls&.dig("call#{call_index}")
     return nil if calendly_url.blank?
-    return nil if parent.scheduled_calls.where(call_session: call_index).any?
+    return nil if child_support.scheduled_calls.any? { |sc| sc.call_session == call_index && sc.scheduled? }
 
     { parent: parent, child_support: child_support, call_index: call_index, calendly_url: calendly_url }
   end
