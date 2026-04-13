@@ -283,13 +283,6 @@ class ChildSupportDecorator < BaseDecorator
     end
   end
 
-  def active_session_without_appointment?
-    active_call_index = model.active_call_index(days_before: 2)
-    return false unless active_call_index
-
-    model.scheduled_call_sessions(active_call_index).scheduled.empty?
-  end
-
   def should_show_reminder_button?
     active_call_index = model.active_call_index(days_before: 2)
     return false unless active_call_index
@@ -300,23 +293,6 @@ class ChildSupportDecorator < BaseDecorator
     upcoming_calls = scheduled_calls.scheduled.select { |call| call.scheduled_at > 2.hours.ago }
     scheduled_calls.all?(&:canceled?) || upcoming_calls.empty?
   end
-
-
-  ###
-
-  # def parent1_card
-  #   parent_card model.parent1, model.should_contact_parent1
-  # end
-
-  # def parent2_card
-  #   parent_card model.parent2, model.should_contact_parent2
-  # end
-
-  # def children_cards
-  #   model.children.each do |child|
-  #     h.render 'child', child: child.decorate
-  #   end
-  # end
 
   def parent1_available_support_modules
     SupportModule.where(id: parent1_available_support_module_list).pluck(:name).join(", ")
