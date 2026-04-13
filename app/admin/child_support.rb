@@ -1266,6 +1266,18 @@ ActiveAdmin.register ChildSupport do
     cs = resource.model
     active_idx = cs.active_call_index(days_before: 2)
 
+    unless cs.supporter
+      redirect_back fallback_location: edit_admin_child_support_path(cs),
+                    alert: "Cette fiche de suivi ne dispose pas d'accompagnante"
+      return
+    end
+
+    if cs.supporter.can_send_automatic_sms != true
+      redirect_back fallback_location: edit_admin_child_support_path(cs),
+                    alert: "L'accompagnante n'a pas activé l'option d'envoi automatique de message de prise de rdv"
+      return
+    end
+
     unless cs.supporter.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].split)
       redirect_back fallback_location: edit_admin_child_support_path(cs),
                     alert: "L'accompagnante n'est pas dans la liste des beta-testeuses"
