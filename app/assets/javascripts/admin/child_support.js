@@ -217,5 +217,16 @@ $(document).ready(function() {
     }
   });
 
+  $('.scheduled-call-reminder-toggle').on('click', function(e) {
+    e.preventDefault();
+    var $menu = $(this).siblings('.scheduled-call-reminder-menu');
+    $menu.toggle();
+  });
+
+  $(document).on('click', function(e) {
+    if (!$(e.target).closest('.scheduled-call-reminder-dropdown').length) {
+      $('.scheduled-call-reminder-menu').hide();
+    }
+  });
 });
 

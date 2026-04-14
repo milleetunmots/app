@@ -137,5 +137,8 @@ class Parent::SendCalendlyReminderService
       body,
       event.id
     )
+    parent.calendly_last_booking_dates ||= {}
+    parent.calendly_last_booking_dates["call#{recipient[:call_index]}"] = send_time.to_s
+    parent.save!
   end
 end

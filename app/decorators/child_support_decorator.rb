@@ -270,22 +270,29 @@ class ChildSupportDecorator < BaseDecorator
     ).join('<br/>-&nbsp;').html_safe
   end
 
+  def display_scheduled_call_info
+    active_call_index = model.active_call_index(days_before: 2)
+    next_call_index = model.next_call_index(days_before: 2)
 
-  ###
+    if active_call_index
+      scheduled_call_info_during_session(active_call_index)
+    elsif next_call_index
+      scheduled_call_info_next_session(next_call_index)
+    else
+      scheduled_call_info_no_session
+    end
+  end
 
-  # def parent1_card
-  #   parent_card model.parent1, model.should_contact_parent1
-  # end
+  def should_show_reminder_button?
+    active_call_index = model.active_call_index(days_before: 2)
+    return false unless active_call_index
 
-  # def parent2_card
-  #   parent_card model.parent2, model.should_contact_parent2
-  # end
+    scheduled_calls = model.scheduled_call_sessions(active_call_index)
+    return true if scheduled_calls.empty?
 
-  # def children_cards
-  #   model.children.each do |child|
-  #     h.render 'child', child: child.decorate
-  #   end
-  # end
+    upcoming_calls = scheduled_calls.scheduled.select { |call| call.scheduled_at > 2.hours.ago }
+    scheduled_calls.all?(&:canceled?) || upcoming_calls.empty?
+  end
 
   def parent1_available_support_modules
     SupportModule.where(id: parent1_available_support_module_list).pluck(:name).join(", ")
@@ -320,6 +327,112 @@ class ChildSupportDecorator < BaseDecorator
   end
 
   private
+
+  def scheduled_call_info_label(text)
+    h.content_tag(:label, text, class: 'label')
+  end
+
+  def scheduled_call_info_during_session(call_index)
+    label = scheduled_call_info_label("Prochain RDV (Appel #{call_index})")
+    scheduled_calls = model.scheduled_call_sessions(call_index)
+
+    if scheduled_calls.empty?
+      info = no_appointment_info(call_index)
+    else
+      upcoming_calls = scheduled_calls.scheduled.select { |call| call.scheduled_at > 2.hours.ago }
+      all_canceled = scheduled_calls.all?(&:canceled?)
+
+      if all_canceled
+        info = show_canceled_appointment_info(call_index, scheduled_calls)
+      elsif upcoming_calls.empty?
+        info = show_missed_appointment_info(call_index, scheduled_calls)
+      elsif upcoming_calls.one?
+        info = appointment_badge(upcoming_calls.first)
+      else
+        info = show_multiple_appointments_info(upcoming_calls)
+      end
+    end
+
+    h.safe_join([label, info])
+  end
+
+  def no_appointment_info(call_index)
+    elements = [h.content_tag(:span, 'Aucun RDV programmé')]
+    elements << last_booking_date_subtitle(call_index)
+    h.content_tag(:div, h.safe_join(elements.compact), style: 'display: flex; flex-direction: column;')
+  end
+
+  def show_canceled_appointment_info(call_index, scheduled_calls)
+    last_call = scheduled_calls.order(scheduled_at: :desc).first
+    date_text = I18n.l(last_call.scheduled_at, format: '%a %d/%m (%Hh%M)')
+
+    first_line = h.content_tag(:div, h.safe_join([
+      h.content_tag(:i, '', class: 'far fa-times-circle', style: 'margin-right: 5px; color: #E6AF2E'),
+      h.content_tag(:span, 'RDV annulé', style: 'color: #E6AF2E'),
+      h.content_tag(:span, " — #{date_text}", style: 'color: #999;')
+    ]))
+    elements = [first_line, last_booking_date_subtitle(call_index)]
+
+    h.content_tag(:div, h.safe_join(elements.compact), style: 'display: flex; flex-direction: column;')
+  end
+
+  def show_missed_appointment_info(call_index, scheduled_calls)
+    last_call = scheduled_calls.scheduled.order(scheduled_at: :desc).first
+    date_text = I18n.l(last_call.scheduled_at, format: '%a %d/%m (%Hh%M)')
+
+    first_line = h.content_tag(:div, h.safe_join([
+      h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
+      h.content_tag(:span, 'RDV non honoré', style: 'color: #B02B2C'),
+      h.content_tag(:span, " — #{date_text}", style: 'color: #999;')
+    ]))
+    elements = [first_line, last_booking_date_subtitle(call_index)]
+
+    h.content_tag(:div, h.safe_join(elements.compact), style: 'display: flex; flex-direction: column;')
+  end
+
+  def show_multiple_appointments_info(upcoming_calls)
+    title = h.safe_join([
+      h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
+      h.content_tag(:span, "#{upcoming_calls.count} RDV programmés", style: 'color: #B02B2C; font-weight: bold;')
+    ])
+
+    date_lines = upcoming_calls.map do |call|
+      h.content_tag(:div, h.safe_join([
+        h.content_tag(:i, '', class: 'far fa-calendar', style: 'margin-right: 5px;'),
+        I18n.l(call.scheduled_at, format: '%a %d/%m (%Hh%M)')
+      ]), style: 'padding-left: 5px;')
+    end
+
+    h.content_tag(:div, h.safe_join([h.content_tag(:div, title)] + date_lines), style: 'display: flex; flex-direction: column;')
+  end
+
+  def last_booking_date_subtitle(call_index)
+    current_child = model.current_child
+    return unless current_child
+
+    last_date_str = current_child.parent1&.calendly_last_booking_dates&.dig("call#{call_index}") ||
+                    current_child.parent2&.calendly_last_booking_dates&.dig("call#{call_index}")
+    return nil if last_date_str.blank?
+
+    last_date = Date.parse(last_date_str)
+    subtitle = "Dernier envoi d'un lien de RDV : #{I18n.l(last_date, format: '%a %d/%m')}"
+    h.content_tag(:span, subtitle, style: 'font-style: italic; font-size: 0.85em; color: #999;')
+  end
+
+  def scheduled_call_info_next_session(call_index)
+    group = model.current_child&.group
+    return scheduled_call_info_no_session unless group
+
+    start_date = group.send("call#{call_index}_start_date")
+    label = scheduled_call_info_label("Prochaine session (Appel #{call_index})")
+    info = h.content_tag(:span, "À partir du #{I18n.l(start_date, format: '%d/%m')}", style: 'color: #999;')
+
+    h.safe_join([label, info])
+  end
+
+  def scheduled_call_info_no_session
+    scheduled_call_info_label("Plus de sessions d'appel prévues")
+  end
 
   def children_attribute(key, glue)
     result = model.children.decorate.map(&key)

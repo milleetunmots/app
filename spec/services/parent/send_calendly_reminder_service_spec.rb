@@ -106,6 +106,12 @@ RSpec.describe Parent::SendCalendlyReminderService do
         expected_time = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00")
         expect(Aircall::SendMessageJob).to have_been_enqueued.at(expected_time)
       end
+
+      it 'updates calendly_last_booking_dates on the parent' do
+        subject.call
+        parent.reload
+        expect(parent.calendly_last_booking_dates['call1']).to be_present
+      end
     end
 
     context 'when the supporter is not in BETA_TEST_CALLERS_EMAIL' do
