@@ -210,7 +210,7 @@
         <div class="row justify-content-sm-center end-buttons" style="margin-top: 10px">
           <div class="col-sm-4 offset-sm-8">
             <div class="text-right accepted-fields">
-              <%= f.button :submit, @form_path == caf_registration_path && ENV['CAF_SUBSCRIPTION'].present? ? 'Enregistrer et continuer' : 'Valider', class: 'btn-primary btn-lg' %>
+              <%= f.button :submit, @form_path == caf_registration_path && ENV['CAF_SUBSCRIPTION'].present? ? 'Enregistrer et continuer' : 'Valider', class: 'btn-primary btn-lg', id: 'child-registration-submit' %>
             </div>
           </div>
         </div>
