@@ -59,6 +59,8 @@ ActiveAdmin.register Parent do
   filter :postal_code
   filter :city_name
   filter :book_delivery_organisation_name
+  filter :by_instagram_user, as: :check_boxes, label: 'Utilise régulièrement Instagram', collection: proc { instagram_information_collection }
+  filter :by_instagram_follower, as: :check_boxes, label: 'Nous suit sur Instagram', collection: proc { instagram_information_collection }
   filter :is_ambassador
   filter :created_at
   filter :updated_at
