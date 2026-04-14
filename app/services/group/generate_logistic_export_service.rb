@@ -14,7 +14,7 @@ class Group
       chosen_modules_groups = []
       missing_chosen_modules_groups = []
 
-      Group.kept.with_calls.excluded_from_analytics.where(id: group_ids_from_scheduled_sms_jobs).find_each do |group|
+      Group.kept.with_calls.not_excluded_from_analytics.where(id: group_ids_from_scheduled_sms_jobs).find_each do |group|
         @group = group
         (missing_chosen_modules? ? missing_chosen_modules_groups : chosen_modules_groups) << @group
       end
@@ -61,7 +61,7 @@ class Group
     end
 
     def create_task_for_logistic_team(complete_groups, incomplete_groups)
-      title = 'Choix de modules incomplets — export YLS logistique bloqué'
+      title = 'Choix de modules incomplets — export YLS logistique incomplet'
       without_choice_lines = incomplete_groups.map do |group|
         ActionController::Base.helpers.link_to(
           group.name,

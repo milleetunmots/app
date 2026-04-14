@@ -73,6 +73,7 @@ class Group < ApplicationRecord
   scope :not_started, -> { where('started_at >= ? AND support_module_programmed = ?', Time.zone.today, 0) }
   scope :started, -> { where('started_at < ? OR support_module_programmed > ?', Time.zone.today, 0) }
   scope :excluded_from_analytics, -> { where(is_excluded_from_analytics: true) }
+  scope :not_excluded_from_analytics, -> { where(is_excluded_from_analytics: false) }
   scope :with_calls, -> { where(type_of_support: 'with_calls') }
   scope :without_calls, -> { where(type_of_support: 'without_calls') }
 
