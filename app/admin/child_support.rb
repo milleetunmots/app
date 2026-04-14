@@ -1275,13 +1275,13 @@ ActiveAdmin.register ChildSupport do
 
     if cs.supporter.can_send_automatic_sms != true
       redirect_back fallback_location: edit_admin_child_support_path(cs),
-                    alert: "L'accompagnante n'a pas activé l'option d'envoi automatique de message de prise de rdv"
+                    alert: "La prise des rdv n'est pas activée"
       return
     end
 
     unless cs.supporter.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].split)
       redirect_back fallback_location: edit_admin_child_support_path(cs),
-                    alert: "L'accompagnante n'est pas dans la liste des beta-testeuses"
+                    alert: "La prise des rdv n'est pas activée"
       return
     end
 
