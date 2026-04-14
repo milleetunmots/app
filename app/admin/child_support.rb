@@ -1263,6 +1263,7 @@ ActiveAdmin.register ChildSupport do
   end
 
   member_action :scheduled_call_reminder do
+    authorize! :scheduled_call_reminder, resource
     cs = resource.model
     active_idx = cs.active_call_index(days_before: 2)
 
