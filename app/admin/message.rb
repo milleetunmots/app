@@ -4,12 +4,45 @@ ActiveAdmin.register_page 'Message' do
   menu priority: 12, parent: 'Programmer des envois'
 
   content do
+    calendly_url_for_relance = nil
+    calendly_errors = []
+
+    if params[:child_support_id].present? && params[:template] == 'scheduled_call_reminder'
+      cs = ChildSupport.find_by(id: params[:child_support_id])
+      if cs
+        active_idx = cs.active_call_index(days_before: 2)
+        parent_obj = Parent.find_by(id: params[:parent_id])
+        if active_idx
+          calendly_url_for_relance = parent_obj&.calendly_booking_urls&.dig("call#{active_idx}")
+          unless calendly_url_for_relance
+            create_service = Calendly::CreateOneOffEventTypeService.new(child_support: cs, call_session: active_idx).call
+
+            if create_service.errors.any?
+              calendly_errors = create_service.errors
+            else
+              calendly_url_for_relance = parent_obj&.reload&.calendly_booking_urls&.dig("call#{active_idx}")
+            end
+          end
+        end
+      end
+    end
+
+    if calendly_errors.any?
+      div class: 'flash flash_alert', style: 'margin-bottom: 15px;' do
+        calendly_errors.each do |error|
+          para error.is_a?(Hash) ? error[:message] : error.to_s
+        end
+      end
+    end
+
     form action: admin_message_program_sms_path, method: :post, id: 'sms-form' do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
       f.input :parent_id, type: :hidden, name: :parent_id, id: :parent_id, value: params[:parent_id]
       f.input :supporter_id, type: :hidden, name: :supporter_id, id: :supporter_id, value: (current_admin_user.caller? || current_admin_user.animator?) ? current_admin_user.id : nil
       f.input :provider, type: :hidden, name: :provider, id: :provider,
         value: current_admin_user.aircall_number_id && params[:parent_id].present? ? 'aircall' : 'spothit'
+      f.input :calendly_url, type: :hidden, name: :calendly_url, id: :calendly_url, value: calendly_url_for_relance
+      f.input :selected_template, type: :hidden, name: :selected_template, id: :selected_template, value: params[:template]
 
       div id: 'message_date_time' do
         label "Date et heure d'envoi du message"
@@ -36,15 +69,19 @@ ActiveAdmin.register_page 'Message' do
 
       if params[:parent_id].present?
         div do
-          label 'SMS de petite mission ?'
+          label 'Modèle de SMS'
           select name: 'call_goals_sms', id: 'call_goals_sms' do
-            option 'Non', value: nil
-            option 'Appel 0', value: 'call0_goals'
-            option 'Appel 1', value: 'call1_goals'
-            option 'Appel 2', value: 'call2_goals'
-            option 'Appel 3', value: 'call3_goals'
-            option 'Appel 3 - OBSERVER', value: 'call3_goals_observing'
-            option 'Appel 3 - PARLER', value: 'call3_goals_speaking'
+            if params[:template] == 'scheduled_call_reminder'
+              option 'Relance prise de RDV', value: 'scheduled_call_reminder', selected: params[:template] == 'scheduled_call_reminder'
+            else
+              option 'Aucun', value: nil
+              option 'Appel 0', value: 'call0_goals'
+              option 'Appel 1', value: 'call1_goals'
+              option 'Appel 2', value: 'call2_goals'
+              option 'Appel 3', value: 'call3_goals'
+              option 'Appel 3 - OBSERVER', value: 'call3_goals_observing'
+              option 'Appel 3 - PARLER', value: 'call3_goals_speaking'
+            end
           end
         end
       end
@@ -105,7 +142,7 @@ ActiveAdmin.register_page 'Message' do
     message.gsub!('{CHAMP_PETITE_MISSION}', '')
 
     provider =
-      if params[:call_goals_sms] == 'call0_goals' && params[:provider] == 'aircall' && current_admin_user.aircall_number_id
+      if params[:call_goals_sms].in?(%w[call0_goals scheduled_call_reminder]) && params[:provider] == 'aircall' && current_admin_user.aircall_number_id
         'aircall'
       else
         'spothit'
@@ -129,9 +166,18 @@ ActiveAdmin.register_page 'Message' do
       redirect_back(fallback_location: root_path, alert: service.errors.join("\n"))
     else
       notice = "Message(s) programmé(s) via #{provider.capitalize}"
-      if params[:call_goals_sms] && params[:call_goals_sms] != 'Non'
+      if params[:call_goals_sms] && !params[:call_goals_sms].in?(%w[Aucun scheduled_call_reminder])
         child_support.paper_trail.update_column("#{call_goal}_sms".to_sym, message)
         notice += '. Et petite mission définie'
+      end
+      if params[:call_goals_sms] == 'scheduled_call_reminder'
+        parent = Parent.find_by(id: params['recipients'].first.gsub('parent.', '').to_i)
+        if parent
+          parent.calendly_last_booking_dates ||= {}
+          call_index = parent.current_child&.child_support&.active_call_index
+          parent.calendly_last_booking_dates["call#{call_index}"] = Time.zone.today.to_s
+          parent.save!
+        end
       end
       child_support.paper_trail.update_column(:call0_goal_sent, params[:call_goal]) if params[:call_goals_sms] == 'call0_goals'
       redirect_back(fallback_location: root_path, notice: notice)

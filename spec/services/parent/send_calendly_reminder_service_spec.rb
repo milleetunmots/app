@@ -106,6 +106,12 @@ RSpec.describe Parent::SendCalendlyReminderService do
         expected_time = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00")
         expect(Aircall::SendMessageJob).to have_been_enqueued.at(expected_time)
       end
+
+      it 'updates calendly_last_booking_dates on the parent' do
+        subject.call
+        parent.reload
+        expect(parent.calendly_last_booking_dates['call1']).to be_present
+      end
     end
 
     context 'when the supporter is not in BETA_TEST_CALLERS_EMAIL' do
@@ -118,7 +124,7 @@ RSpec.describe Parent::SendCalendlyReminderService do
 
     context 'when the parent already has a scheduled call for the session' do
       before do
-        FactoryBot.create(:scheduled_call, parent: parent, call_session: 1, status: 'scheduled')
+        FactoryBot.create(:scheduled_call, parent: parent, child_support: child_support, call_session: 1, status: 'scheduled')
       end
 
       it 'does not send the reminder' do
@@ -128,11 +134,11 @@ RSpec.describe Parent::SendCalendlyReminderService do
 
     context 'when the parent has a canceled scheduled call' do
       before do
-        FactoryBot.create(:scheduled_call, :canceled, parent: parent, call_session: 1)
+        FactoryBot.create(:scheduled_call, :canceled, parent: parent, child_support: child_support, call_session: 1)
       end
 
-      it 'does not send the reminder' do
-        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      it 'sends the reminder (canceled call should not block)' do
+        expect { subject.call }.to have_enqueued_job(Aircall::SendMessageJob)
       end
     end
 

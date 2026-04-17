@@ -721,6 +721,30 @@ class ChildSupport < ApplicationRecord
     end
   end
 
+  def active_call_index(days_before: 0)
+    group = current_child&.group
+    return unless group
+
+    today = Time.zone.today
+    (0..3).find do |i|
+      start_date = group.send("call#{i}_start_date")
+      end_date = group.send("call#{i}_end_date")
+      start_date && end_date && today.between?(start_date - days_before.days, end_date)
+    end
+  end
+
+  def next_call_index(days_before: 0)
+    group = current_child&.group
+    return unless group
+
+    today = Time.zone.today
+
+    (0..3).find do |i|
+      start_date = group.send("call#{i}_start_date")
+      start_date && start_date - days_before.days > today
+    end
+  end
+
   # ---------------------------------------------------------------------------
   # versions history
   # ---------------------------------------------------------------------------

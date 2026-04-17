@@ -17,6 +17,8 @@ $(document).ready(function() {
     var speakingLink = `${window.location.protocol}//${window.location.host}/c3/sf?st=${parentSecurityToken}`
     var observingLink = `${window.location.protocol}//${window.location.host}/c3/of?st=${parentSecurityToken}`
     var call0Link = `${window.location.protocol}//${window.location.host}/c0?st=${parentSecurityToken}`
+    var calendlyUrl = $('#calendly_url').val()
+    var selectedTemplate = $('#selected_template').val()
 
     function assignDefaultValuesToFields() {
         message_intro.val(`Bonjour !\nVoici votre petite mission :\n`)
@@ -67,8 +69,8 @@ $(document).ready(function() {
 
     call_goal_sms.on('change', function() {
         var selectedValue = $(this).val()
-        if (selectedValue == 'call0_goals' || selectedValue == 'call3_goals_speaking' || selectedValue == 'call3_goals_observing') {
-            if (selectedValue == 'call0_goals') {
+        if (selectedValue === 'call0_goals' || selectedValue === 'call3_goals_speaking' || selectedValue === 'call3_goals_observing') {
+            if (selectedValue === 'call0_goals') {
                 conclusion.val(`À bientôt !`)
                 call_index = 0
                 // imageToSendSelect.empty()
@@ -112,13 +114,26 @@ $(document).ready(function() {
                     });
                 }
             });
-        } else {
+        }
+        else if (selectedValue === 'scheduled_call_reminder') {
+            hideNewFields()
+            var relanceMessage = "Bonjour, c'est {PRENOM_ACCOMPAGNANTE} de 1001mots. J'aimerais discuter avec vous de {PRENOM_ENFANT} par téléphone. Prenez RDV ici : " + (calendlyUrl || '') + " A bientôt !"
+            message.val(relanceMessage)
+            message.prop('readonly', false)
+            message.css({'height': '250px', 'background-color': 'white'})
+            $("input[type='submit']").prop('disabled', false)
+        }
+        else {
             $("input[type='submit']").prop('disabled', false)
             message.css({'height': 'auto', 'background-color': 'white'})
             normalMessage()
             hideNewFields()
         }
     })
+
+    if (selectedTemplate === 'scheduled_call_reminder') {
+        call_goal_sms.trigger('change');
+    }
 
     call_goal.on('input', function() {
         setSubmitBtnDisabledProp();

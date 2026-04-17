@@ -99,6 +99,12 @@ RSpec.describe Calendly::ProcessInviteeCanceledService do
         )
         subject.call
       end
+
+      it 'updates calendly_last_booking_dates on the parent' do
+        subject.call
+        parent.reload
+        expect(parent.calendly_last_booking_dates['call1']).to eq(Time.zone.today.to_s)
+      end
     end
 
     context 'when cancellation reason is not provided' do
@@ -263,6 +269,12 @@ RSpec.describe Calendly::ProcessInviteeCanceledService do
       it 'returns an error' do
         result = subject.call
         expect(result.errors).to include(hash_including(message: "L'envoi du message de reprise de RDV a échoué"))
+      end
+
+      it 'does not update calendly_last_booking_dates' do
+        subject.call
+        parent.reload
+        expect(parent.calendly_last_booking_dates).to eq({})
       end
     end
   end

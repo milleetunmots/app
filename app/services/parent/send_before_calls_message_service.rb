@@ -158,23 +158,23 @@ class Parent::SendBeforeCallsMessageService
 
     no_beta_test_child_supports_with_previous_calls_ok_or_unfinished =
       child_supports_with_previous_calls_ok_or_unfinished.where.not(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
-    send_before_calls_message(group, no_beta_test_child_supports_with_previous_calls_ok_or_unfinished, NO_BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index - 1])
+    send_before_calls_message(group, no_beta_test_child_supports_with_previous_calls_ok_or_unfinished, NO_BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index - 1], call_index)
 
     beta_test_child_supports_with_previous_calls_ok_or_unfinished =
       child_supports_with_previous_calls_ok_or_unfinished.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
     create_one_off_event_types(beta_test_child_supports_with_previous_calls_ok_or_unfinished, call_index)
-    send_before_calls_message(group, beta_test_child_supports_with_previous_calls_ok_or_unfinished, BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index - 1])
+    send_before_calls_message(group, beta_test_child_supports_with_previous_calls_ok_or_unfinished, BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index - 1], call_index)
 
     child_support_with_at_least_one_call_not_ok_and_not_unfinished =
       child_supports_with_correct_supporters.at_least_one_call_not_ok_and_not_unfinished(call_index)
     no_beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished =
       child_support_with_at_least_one_call_not_ok_and_not_unfinished.where.not(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
-    send_before_calls_message(group, no_beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, NO_BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1])
+    send_before_calls_message(group, no_beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, NO_BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1], call_index)
 
     beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished =
       child_support_with_at_least_one_call_not_ok_and_not_unfinished.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
     create_one_off_event_types(beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, call_index)
-    send_before_calls_message(group, beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1])
+    send_before_calls_message(group, beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1], call_index)
   end
 
   private
@@ -201,7 +201,17 @@ class Parent::SendBeforeCallsMessageService
     child_supports.map { |child_support| %W[parent.#{child_support.parent1.id} parent.#{child_support.parent2&.id}] }.flatten.compact.reject { |recipient| recipient == 'parent.' }
   end
 
-  def send_before_calls_message(group, child_supports, message)
+  def update_calendly_last_booking_date(child_supports, call_index)
+    child_supports.each do |cs|
+      [cs.parent1, cs.parent2].compact.select { |parent| parent.calendly_booking_urls&.dig("call#{call_index}").present? }.each do |parent|
+        parent.calendly_last_booking_dates ||= {}
+        parent.calendly_last_booking_dates["call#{call_index}"] = Time.zone.today.to_s
+        parent.save!
+      end
+    end
+  end
+
+  def send_before_calls_message(group, child_supports, message, call_index)
     return if child_supports.empty?
 
     planned_date = (@send_at || @date).strftime('%d-%m-%Y')
@@ -212,13 +222,16 @@ class Parent::SendBeforeCallsMessageService
       parent_ids(child_supports),
       message
     ).call
-    return if message_service.errors.empty?
 
-    @errors << {
-      method: 'send_before_calls_message',
-      group: group.name,
-      child_supports: child_supports.map(&:id),
-      error: message_service.errors.uniq
-    }
+    if message_service.errors.empty?
+      update_calendly_last_booking_date(child_supports, call_index)
+    else
+      @errors << {
+        method: 'send_before_calls_message',
+        group: group.name,
+        child_supports: child_supports.map(&:id),
+        error: message_service.errors.uniq
+      }
+    end
   end
 end
