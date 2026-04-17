@@ -501,6 +501,13 @@ class ChildSupport < ApplicationRecord
     scheduled_calls.where(call_session: index.to_i)
   end
 
+  def ended_support?
+    children.left_joins(:group)
+            .where('children.group_status IN (?) OR groups.ended_at <= ?',
+                   %w[stopped disengaged], Time.zone.today)
+            .exists?
+  end
+
   # ---------------------------------------------------------------------------
   # methods
   # ---------------------------------------------------------------------------

@@ -1139,8 +1139,9 @@ ActiveAdmin.register ChildSupport do
       parent2_id: resource.current_child.parent2_id,
       should_contact_parent1: resource.current_child.should_contact_parent1,
       should_contact_parent2: resource.current_child.should_contact_parent2,
-      source_id: Source.find_by(name: 'Je suis déjà inscrit à 1001mots', channel: 'bao').id,
-      available_for_workshops: true
+      source_id: resource.model.children.order(:created_at).first.source.id,
+      available_for_workshops: resource.model.children.group_ended.exists? ,
+      re_enrollment: resource.model.ended_support?
       )
   end
 

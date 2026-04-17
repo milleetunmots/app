@@ -97,6 +97,11 @@ ActiveAdmin.register Child do
           collection: proc { source_details_suggestions },
           input_html: { multiple: true, data: { select2: {} } },
           label: "Précisions sur l'origine"
+  filter :re_enrollment,
+         as: :check_boxes,
+         collection: [['Oui', true], ['Non', false]],
+         multiple: true,
+         label: 'Réinscription'
   filter :supporter_id_in,
           as: :select,
           collection: proc { child_supporter_select_collection },
@@ -383,11 +388,13 @@ ActiveAdmin.register Child do
       f.inputs do
         f.semantic_fields_for :children_source, (f.object.children_source || ChildrenSource.new) do |children_source_f|
           children_source_f.object.source_id = params[:source_id] if params[:source_id]
+          children_source_f.object.re_enrollment = params[:re_enrollment] if params[:re_enrollment] == 'true'
           children_source_f.input :source_id,
             as: :select,
             collection: source_select_collection,
             input_html: { data: { select2: {} } }
           children_source_f.input :details
+          children_source_f.input :re_enrollment, as: :hidden
         end
       end
       unless f.object.new_record? || current_admin_user.user_role.in?(%w[caller animator reader])
@@ -408,7 +415,7 @@ ActiveAdmin.register Child do
   permit_params do
     base = %i[parent1_id parent2_id should_contact_parent1 should_contact_parent2 gender first_name last_name birthdate available_for_workshops]
     group_attrs = %i[group_id group_status]
-    children_source_attributes = [{ children_source_attributes: %i[id source_id details] }]
+    children_source_attributes = [{ children_source_attributes: %i[id source_id details re_enrollment] }]
 
     permitted = base + children_source_attributes
     unless current_admin_user&.user_role.in?(%w[caller animator reader])

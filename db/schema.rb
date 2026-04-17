@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_04_02_113704) do
+ActiveRecord::Schema[7.0].define(version: 2026_04_15_132125) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -454,6 +454,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_04_02_113704) do
     t.integer "registration_department"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "re_enrollment", default: false
     t.index ["child_id"], name: "index_children_sources_on_child_id"
     t.index ["source_id"], name: "index_children_sources_on_source_id"
   end
