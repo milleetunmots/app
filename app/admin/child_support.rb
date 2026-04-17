@@ -1140,7 +1140,7 @@ ActiveAdmin.register ChildSupport do
       should_contact_parent1: resource.current_child.should_contact_parent1,
       should_contact_parent2: resource.current_child.should_contact_parent2,
       source_id: resource.model.children.order(:created_at).first.source.id,
-      available_for_workshops: resource.model.children.group_ended.exists? ,
+      available_for_workshops: true,
       re_enrollment: resource.model.ended_support?
       )
   end
