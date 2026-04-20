@@ -10,7 +10,7 @@
   var consentCheckbox = $('#child_child_support_attributes_has_important_information_parental_consent');
   var $addressPostalCodeInput = $('#address-postal_code');
   var $postalCodeWarning = $('.child_parent1_postal_code small');
-  var $submitButton = $("#inscription input[type='submit']");
+  var $submitButton = $('#child-registration-submit');
 
   sourceDetailsInput.on('input', function() {
     const value = $(this).val().toLowerCase();
@@ -157,15 +157,50 @@
 
   var init = function() {
     $postalCodeWarning.hide();
+    $submitButton.prop('disabled', true);
+
     $addressPostalCodeInput.on('input', function() {
       $postalCodeWarning.hide();
-      if(parseInt($(this).val()) == $(this).val() && $(this).val().length == 5) {
+      if(Number.isInteger(Number($(this).val())) && $(this).val().length === 5) {
         $postalCodeWarning.hide();
-        $submitButton.prop('disabled', false);
       } else {
         $postalCodeWarning.show();
-        $submitButton.prop('disabled', true);
       }
+    });
+
+    $('#new_child').on('input change', 'input[required], textarea[required], select[required]', function() {
+      let allFilled = true;
+
+      $('#new_child input[required]:not([type="radio"]):not([type="checkbox"]), #new_child textarea[required], #new_child select[required]').each(function() {
+        const val = $(this).val();
+        if (val === undefined || val.trim() === '') {
+          allFilled = false;
+          return false;
+        }
+      });
+
+      let checkedRadioNames = [];
+      $('#new_child input[required][type="radio"]').each(function() {
+        const name = $(this).attr('name');
+        if (checkedRadioNames.indexOf(name) === -1) {
+          checkedRadioNames.push(name);
+        }
+      });
+      for (let i = 0; i < checkedRadioNames.length; i++) {
+        if ($('#new_child input[name="' + checkedRadioNames[i] + '"]:checked').length === 0) {
+          allFilled = false;
+          break;
+        }
+      }
+
+      $('#new_child input[required][type="checkbox"]').each(function() {
+        if (!$(this).is(':checked')) {
+          allFilled = false;
+          return false;
+        }
+      });
+
+      $submitButton.prop('disabled', !allFilled);
     });
 
     if (bookDeliveryLocationSelect.length > 0) {
