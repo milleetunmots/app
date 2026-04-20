@@ -164,13 +164,13 @@ class Parent < ApplicationRecord
     .where("(parent1_children.group_status = 'active' OR parent2_children.group_status = 'active')")
     .distinct
   }
-  scope :by_instagram_user, ->(value) {
+  scope :by_instagram_user_in, ->(value) {
     joins("INNER JOIN children ON children.parent1_id = parents.id OR children.parent2_id = parents.id")
       .joins("INNER JOIN child_supports ON child_supports.id = children.child_support_id")
       .where(child_supports: { instagram_user: value })
       .distinct
   }
-  scope :by_instagram_follower, ->(value) {
+  scope :by_instagram_follower_in, ->(value) {
     joins("INNER JOIN children ON children.parent1_id = parents.id OR children.parent2_id = parents.id")
     .joins("INNER JOIN child_supports ON child_supports.id = children.child_support_id")
     .where(child_supports: { instagram_follower: value })
@@ -179,7 +179,7 @@ class Parent < ApplicationRecord
 
 
   def self.ransackable_scopes(_auth_object = nil)
-    super + %i[by_instagram_user by_instagram_follower]
+    super + %i[by_instagram_user_in by_instagram_follower_in]
   end
 
   def initialize(attributes = {})
