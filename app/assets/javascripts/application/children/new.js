@@ -161,7 +161,7 @@
 
     $addressPostalCodeInput.on('input', function() {
       $postalCodeWarning.hide();
-      if(parseInt($(this).val()) === $(this).val() && $(this).val().length === 5) {
+      if(Number.isInteger(Number($(this).val())) && $(this).val().length === 5) {
         $postalCodeWarning.hide();
       } else {
         $postalCodeWarning.show();
