@@ -107,8 +107,10 @@ ActiveAdmin.register ChildSupport do
          label: "Arrêt au cours de l'accompagnement (accompagnante)",
          collection: [%w[Oui stopped], %w[Non ongoing]],
          multiple: true
+  filter :instagram_user, as: :check_boxes, label: 'Utilise régulièrement Instagram', collection: proc { instagram_information_collection }
+  filter :instagram_follower, as: :check_boxes, label: 'Nous suit sur Instagram', collection: proc { instagram_information_collection }
   (0..3).each do |call_idx|
-    filter "call#{call_idx}_status_filter", as: :check_boxes,  label: "Statut de l'appel #{call_idx}", collection: proc { call_statuses_with_nil }
+    filter "call#{call_idx}_status_filter", as: :check_boxes, label: "Statut de l'appel #{call_idx}", collection: proc { call_statuses_with_nil }
     filter "call#{call_idx}_duration"
     filter "call#{call_idx}_parent_progress_present",
            as: :boolean,

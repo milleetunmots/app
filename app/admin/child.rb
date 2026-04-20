@@ -121,6 +121,8 @@ ActiveAdmin.register Child do
   filter :group_end,
          as: :date_range,
          label: "Fin de l'accompagnement"
+  filter :child_support_instagram_user, as: :check_boxes, label: 'Utilise régulièrement Instagram', collection: proc { instagram_information_collection }
+  filter :child_support_instagram_follower, as: :check_boxes, label: 'Nous suit sur Instagram', collection: proc { instagram_information_collection }
   filter :security_token
   filter :src_url
   filter :created_at
