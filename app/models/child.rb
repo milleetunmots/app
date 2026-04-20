@@ -761,8 +761,8 @@ class Child < ApplicationRecord
                .where(children_sources: { re_enrollment: values })
                .pluck(:id)
     ids.presence
-  } do |parent|
-    parent.table[:id]
+  } do |child|
+    child.table[:id]
   end
 
   def self.ransackable_scopes(auth_object = nil)
