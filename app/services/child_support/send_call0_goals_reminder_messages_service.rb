@@ -27,8 +27,8 @@ class ChildSupport::SendCall0GoalsReminderMessagesService
   private
 
   def message_informations
-    @call_goal = @child_support.call0_goal_sent.presence || @child_support.call0_goals_sms.match(CALL_GOALS_REGEX)[1]&.strip
-    @typeform_link = @child_support.call0_goals_sms.match(TYPEFORM_URL_REGEX)[0]
+    @call_goal = @child_support.call0_goal_sent.presence || @child_support.call0_goals_sms.match(CALL_GOALS_REGEX)&.[](1)&.strip
+    @typeform_link = @child_support.call0_goals_sms.match(TYPEFORM_URL_REGEX)&.[](0)
     @reminder_message = CALL_GOALS_REMINDER_MESSAGE.gsub('{call_goals}', @call_goal).gsub('{typeform_link}', @typeform_link)
     @recipient = ["parent.#{@child_support.parent1.id}"]
   end
