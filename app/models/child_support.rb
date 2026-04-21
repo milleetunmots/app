@@ -680,6 +680,10 @@ class ChildSupport < ApplicationRecord
     0
   end
 
+  def contactable_parents
+    [parent1, parent2].compact.select(&:should_be_contacted?)
+  end
+
   def self.call_ok_or_unfinished_for(call_index)
     where("call#{call_index}_status IN (?, ?)", ChildSupport.human_attribute_name("call_status.1_ok"), ChildSupport.human_attribute_name("call_status.5_unfinished"))
   end
