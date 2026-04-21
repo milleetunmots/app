@@ -34,10 +34,16 @@ module Typeform
 
       @parent1 = @child_support.parent1
       @parent2 = @child_support.parent2
+      @respondent_is_parent1 = @security_token == @parent1&.security_token
+      @child_first_name = @child_support.current_child&.first_name
       parse_answers
       update_child_support
       send_welcome_sms_if_submitted_in_time
       self
+    end
+
+    def strip_asterisks(text)
+      text&.delete('*')&.strip
     end
 
     def parse_answers
@@ -59,16 +65,24 @@ module Typeform
             @data[:books_quantity] = ChildSupport::BOOKS_QUANTITY[3]
           end
         when FIELDS[:most_present_parent]
-          case answer[:choice][:label]
+          label = strip_asterisks(answer[:choice][:label])
+          respondent_label = @respondent_is_parent1 ? 'Le Parent 1' : 'Le Parent 2'
+          other_label = @respondent_is_parent1 ? 'Le Parent 2' : 'Le Parent 1'
+          case label
           when 'Moi'
-            @data[:most_present_parent] = "#{@child_support.parent1.first_name} #{@child_support.parent1.last_name} passe plus plus de temps avec l'enfant"
+            @data[:most_present_parent] = "#{respondent_label} passe le plus de temps avec #{@child_first_name}"
           when "Plutôt l'autre parent"
-            parent_name = @child_support.parent2 ? "#{@child_support.parent2.first_name} #{@child_support.parent2.last_name}" : "L'autre parent"
-            @data[:most_present_parent] = "#{parent_name} passe le plus de temps avec l'enfant"
+            @data[:most_present_parent] = "#{other_label} passe le plus de temps avec #{@child_first_name}"
           when 'Les deux pareil !'
-            @data[:most_present_parent] = 'Les deux parents passent le plus de temps avec l\'enfant'
+            @data[:most_present_parent] = "Les 2 parents passent le plus de temps avec #{@child_first_name}"
+          when 'Une assistante maternelle / nourrice'
+            @data[:most_present_parent] = "Une assistante maternelle/nourrice passe le plus de temps avec #{@child_first_name}"
+          when 'Le personnel de la crèche'
+            @data[:most_present_parent] = "Le personnel de la crèche passe le plus de temps avec #{@child_first_name}"
+          when 'Un autre membre de la famille'
+            @data[:most_present_parent] = "Un autre membre de la famille passe le plus de temps avec #{@child_first_name}"
           else
-            @data[:most_present_parent] = "#{answer[:choice][:label]} passe le plus de temps avec l'enfant"
+            @data[:most_present_parent] = "Personne qui passe le plus de temps avec #{@child_first_name} :\"#{label}\""
           end
         when FIELDS[:other_parent_phone]
           @data[:other_parent_phone] = Phonelib.parse(answer[:text]).e164
@@ -109,7 +123,7 @@ module Typeform
               '2_no_information'
             end
         when FIELDS[:enrollment_reasons_baby], FIELDS[:enrollment_reasons_child]
-          @data[:enrollment_reasons] = answer[:choices][:labels]
+          @data[:enrollment_reasons] = answer[:choices][:labels].map { |label| strip_asterisks(label) }
         when FIELDS[:second_language]
           @data[:second_language] = answer[:text]
         end
@@ -129,15 +143,15 @@ module Typeform
         @child_support.important_information += "\nAutre numéro de téléphone: #{@data[:other_parent_phone]}"
       end
 
-      @child_support.is_bilingual = @data[:is_bilingual]
-      @child_support.books_quantity = @data[:books_quantity]
-      @child_support.call0_reading_frequency = @data[:call0_reading_frequency]
-      @child_support.call0_tv_frequency = @data[:call0_tv_frequency]
-      @child_support.child_count = @data[:child_count]
-      @child_support.most_present_parent = @data[:most_present_parent]
-      @child_support.already_working_with = @data[:already_working_with]
-      @child_support.enrollment_reasons = @data[:enrollment_reasons] if @data[:enrollment_reasons]
-      @child_support.second_language = @data[:second_language]
+      @child_support.is_bilingual = @data[:is_bilingual] if @data.key?(:is_bilingual)
+      @child_support.books_quantity = @data[:books_quantity] if @data.key?(:books_quantity)
+      @child_support.call0_reading_frequency = @data[:call0_reading_frequency] if @data.key?(:call0_reading_frequency)
+      @child_support.call0_tv_frequency = @data[:call0_tv_frequency] if @data.key?(:call0_tv_frequency)
+      @child_support.child_count = @data[:child_count] if @data.key?(:child_count)
+      @child_support.most_present_parent = @data[:most_present_parent] if @data.key?(:most_present_parent)
+      @child_support.already_working_with = @data[:already_working_with] if @data.key?(:already_working_with)
+      @child_support.enrollment_reasons = @data[:enrollment_reasons] if @data.key?(:enrollment_reasons)
+      @child_support.second_language = @data[:second_language] if @data.key?(:second_language)
 
       @errors << { message: 'ChildSupport saving failed', child_support_id: @child_support.id } unless @child_support.save
     end
