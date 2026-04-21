@@ -42,7 +42,7 @@ module Calendly
 
     def extract_tracking_info
       tracking = @invitee_payload['tracking'] || {}
-      @security_token = tracking['utm_content']
+      @security_token = tracking['utm_content']&.gsub(/[^[:alnum:]]/, '')
       @utm_campaign = tracking['utm_campaign']
       @call_session = extract_call_session(@utm_campaign)
 
