@@ -200,7 +200,7 @@
         }
       });
 
-      $submitButton.prop('disabled', !allFilled);
+      $submitButton.prop('disabled', !allFilled || $addressPostalCodeInput.val().length !== 5);
     });
 
     if (bookDeliveryLocationSelect.length > 0) {
