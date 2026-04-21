@@ -497,7 +497,9 @@ ActiveAdmin.register Child do
       parent2_id: resource.parent2_id,
       should_contact_parent1: resource.should_contact_parent1,
       should_contact_parent2: resource.should_contact_parent2,
-      source_id: Source.find_by(name: 'Je suis déjà inscrit à 1001mots', channel: 'bao').id
+      source_id: resource.model.children.order(:created_at).first.source.id,
+      available_for_workshops: true,
+      re_enrollment: resource.model.ended_support?
       )
   end
 
