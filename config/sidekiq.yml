@@ -58,5 +58,5 @@
       cron: '0 13 * * 0' # every Sunday at 13h
       class: 'Parent::SendCalendlyReminderJob'
     generate_logistic_export_job:
-      cron: '0 6 * * 1'
+      cron: '0 9 * * 1'
       class: 'Group::GenerateLogisticExportJob'
