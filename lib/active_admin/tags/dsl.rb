@@ -31,7 +31,15 @@ module ActiveAdmin
           @ids = ids
           @form_action = url_for(action: :perform_adding_tags)
           @back_url = request.referer
-          render "active_admin/tags/add_tags"
+          render "active_admin/tags/handle_tags"
+        end
+
+        batch_action :remove_tags, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
+          @klass = collection.object.klass
+          @ids = ids
+          @form_action = url_for(action: :perform_removing_tags)
+          @back_url = request.referer
+          render "active_admin/tags/handle_tags"
         end
 
         collection_action :perform_adding_tags, method: :post do
@@ -44,6 +52,18 @@ module ActiveAdmin
             object.save(validate: false)
           end
           redirect_to back_url, notice: "Tags ajoutés"
+        end
+
+        collection_action :perform_removing_tags, method: :post do
+          ids = params[:ids]
+          tags = params[:tag_list]
+          back_url = params[:back_url]
+
+          collection.object.klass.where(id: ids).each do |object|
+            object.tag_list -= tags
+            object.save(validate: false)
+          end
+          redirect_to back_url, notice: "Tags retirés"
         end
       end
 
