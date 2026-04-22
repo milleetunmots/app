@@ -502,10 +502,13 @@ class ChildSupport < ApplicationRecord
   end
 
   def ended_support?
-    children.left_joins(:group)
-            .where('children.group_status IN (?) OR groups.ended_at <= ?',
-                   %w[stopped disengaged], Time.zone.today)
-            .exists?
+    has_ended = children.left_joins(:group)
+                        .where('children.group_status IN (?) OR groups.ended_at <= ?',
+                               %w[stopped disengaged], Time.zone.today)
+                        .exists?
+    return false unless has_ended
+
+    !children.where(group_status: %w[active paused]).exists?
   end
 
   # ---------------------------------------------------------------------------

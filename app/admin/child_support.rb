@@ -1134,12 +1134,13 @@ ActiveAdmin.register ChildSupport do
 
   member_action :add_child do
     authorize! :add_child, resource
+    first_child = resource.model.children.order(:created_at).first
     redirect_to new_admin_child_path(
       parent1_id: resource.current_child.parent1_id,
       parent2_id: resource.current_child.parent2_id,
       should_contact_parent1: resource.current_child.should_contact_parent1,
       should_contact_parent2: resource.current_child.should_contact_parent2,
-      source_id: resource.model.children.order(:created_at).first.source.id,
+      source_id: first_child&.source&.id || resource.model.current_child.source&.id,
       available_for_workshops: true,
       re_enrollment: resource.model.ended_support?
       )
