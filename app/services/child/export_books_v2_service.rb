@@ -121,14 +121,14 @@ class Child
         { group_id: group.id, module_number: group.support_module_programmed }
       end
 
-      export = LogisticExport.create!(group_modules: group_modules)
-
       group_label = groups.map { |g| g.name.parameterize }.join("-")
+      export = LogisticExport.new(group_modules: group_modules)
       export.archive.attach(
         io: File.open(@zip_file.path),
         filename: "yls-export-#{group_label}-#{Time.zone.today.strftime('%d-%m-%Y')}.zip",
         content_type: 'application/zip'
       )
+      export.save!
     rescue => e
       Rollbar.error(message: 'LogisticExport generation in ExportBooksV2Service', group_ids: @group_ids, error: e)
     end
