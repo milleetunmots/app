@@ -6,6 +6,7 @@ fr:
       default_confirmation: Action groupée
       labels:
         add_tags: Taguer
+        remove_tags: Détaguer
         add_available_modules: Ajouter des modules disponibles
         add_to_group: Ajouter à une cohorte
         assign_supporter: Assigner une accompagnante pour
