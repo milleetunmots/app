@@ -309,7 +309,13 @@ ActiveAdmin.register ChildSupport do
               li class: 'string input optional stringish', style: 'border-bottom: 0.8px solid; padding-bottom: 2rem; display: flex; align-items: center; gap: 10px;' do
                 text_node decorated.display_scheduled_call_info
                 if decorated.should_show_reminder_button?
-                  if resource.parent2.present?
+                  case resource.contactable_parents.count
+                  when 1
+                    a href: scheduled_call_reminder_admin_child_support_path(resource, parent_id: resource.contactable_parents.first.id), target: '_blank',
+                      style: 'background-color: #4a4a4a; color: #fff; padding: 8px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; white-space: nowrap; cursor: pointer; display: inline-block; margin-left: auto;' do
+                      text_node 'Relancer'
+                    end
+                  when 2
                     div class: 'scheduled-call-reminder-dropdown', style: 'margin-left: auto; position: relative; display: inline-block;' do
                       a class: 'scheduled-call-reminder-toggle',
                         style: 'background-color: #4a4a4a; color: #fff; padding: 8px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; white-space: nowrap; cursor: pointer; display: inline-block;' do
@@ -336,10 +342,7 @@ ActiveAdmin.register ChildSupport do
                       end
                     end
                   else
-                    a href: scheduled_call_reminder_admin_child_support_path(resource, parent_id: resource.parent1.id), target: '_blank',
-                      style: 'background-color: #4a4a4a; color: #fff; padding: 8px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; white-space: nowrap; cursor: pointer; display: inline-block; margin-left: auto;' do
-                      text_node 'Relancer'
-                    end
+                    ''
                   end
                 end
               end
@@ -1298,8 +1301,13 @@ ActiveAdmin.register ChildSupport do
       return
     end
 
+    unless parent_obj.should_be_contacted?
+      redirect_back fallback_location: edit_admin_child_support_path(cs), alert: 'Ce parent est à ne pas contacter'
+      return
+    end
+
     errors = []
-    unless parent_obj.calendly_booking_urls&.dig("call#{active_idx}").present?
+    if parent_obj.calendly_booking_urls&.dig("call#{active_idx}").blank?
       service = Calendly::CreateOneOffEventTypeService.new(child_support: cs, call_session: active_idx).call
       if service.errors.any?
         errors.concat(service.errors.map { |e| e.is_a?(Hash) ? e[:message] : e.to_s })
