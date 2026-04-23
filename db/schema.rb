@@ -555,6 +555,12 @@ ActiveRecord::Schema[7.0].define(version: 2026_04_15_132125) do
     t.index ["started_at"], name: "index_groups_on_started_at"
   end
 
+  create_table "logistic_exports", force: :cascade do |t|
+    t.jsonb "group_modules", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "media", force: :cascade do |t|
     t.string "type"
     t.string "name"
