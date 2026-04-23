@@ -284,6 +284,14 @@ class Child < ApplicationRecord
     joins(:children_source).where(children_sources: { details: v })
   end
 
+  def self.re_enrollment_eq(v)
+    return none unless v.in? [true, false]
+
+    joins(:children_source).where(
+      children_sources: { re_enrollment: v }
+    )
+  end
+
   # ---------------------------------------------------------------------------
   # search by age (in months)
   # ---------------------------------------------------------------------------
@@ -743,6 +751,16 @@ class Child < ApplicationRecord
     ids += group_ended.pluck(:id) if values.include?('ended')
     ids += group_next.pluck(:id) if values.include?('next')
     ids.uniq.presence
+  } do |child|
+    child.table[:id]
+  end
+
+  ransacker :re_enrollment, formatter: proc { |values|
+    values = Array(values)
+    ids = Child.joins(:children_source)
+               .where(children_sources: { re_enrollment: values })
+               .pluck(:id)
+    ids.presence
   } do |child|
     child.table[:id]
   end
