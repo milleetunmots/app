@@ -277,7 +277,7 @@ class ChildSupportDecorator < BaseDecorator
     if active_call_index
       scheduled_call_info_during_session(active_call_index)
     elsif next_call_index
-      scheduled_call_info_next_session(next_call_index) if send("call#{active_call_index}_status").present?
+      scheduled_call_info_next_session(next_call_index)
     else
       scheduled_call_info_no_session
     end
@@ -286,6 +286,7 @@ class ChildSupportDecorator < BaseDecorator
   def should_show_reminder_button?
     active_call_index = model.active_call_index(days_before: 2)
     return false unless active_call_index
+    return false if model.send("call#{active_call_index}_status").present?
 
     scheduled_calls = model.scheduled_call_sessions(active_call_index)
     return true if scheduled_calls.empty?
