@@ -277,7 +277,7 @@ class ChildSupportDecorator < BaseDecorator
     if active_call_index
       scheduled_call_info_during_session(active_call_index)
     elsif next_call_index
-      scheduled_call_info_next_session(next_call_index)
+      scheduled_call_info_next_session(next_call_index) if send("call#{active_call_index}_status").present?
     else
       scheduled_call_info_no_session
     end
@@ -345,6 +345,8 @@ class ChildSupportDecorator < BaseDecorator
       if all_canceled
         info = show_canceled_appointment_info(call_index, scheduled_calls)
       elsif upcoming_calls.empty?
+        return if model.send("call#{call_index}_status").present?
+
         info = show_missed_appointment_info(call_index, scheduled_calls)
       elsif upcoming_calls.one?
         info = appointment_badge(upcoming_calls.first)
