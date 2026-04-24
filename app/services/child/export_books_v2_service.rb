@@ -55,7 +55,7 @@ class Child
           next unless csm
 
           module_num = csm.module_index - 1
-          module_label = "Module #{module_num}"
+          module_label = "M#{module_num}"
           module_name = csm.support_module.name
           age_ranges = csm.support_module.decorate.display_age_ranges.to_sym
 
