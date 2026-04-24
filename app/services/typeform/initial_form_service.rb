@@ -65,7 +65,7 @@ module Typeform
             @data[:books_quantity] = ChildSupport::BOOKS_QUANTITY[3]
           end
         when FIELDS[:most_present_parent]
-          label = strip_asterisks(answer[:choice][:label])
+          label = strip_asterisks(answer[:choice][:label]) || answer[:choice][:other]
           respondent_label = @respondent_is_parent1 ? 'Le Parent 1' : 'Le Parent 2'
           other_label = @respondent_is_parent1 ? 'Le Parent 2' : 'Le Parent 1'
           case label
@@ -82,7 +82,7 @@ module Typeform
           when 'Un autre membre de la famille'
             @data[:most_present_parent] = "Un autre membre de la famille passe le plus de temps avec #{@child_first_name}"
           else
-            @data[:most_present_parent] = "Personne qui passe le plus de temps avec #{@child_first_name} :\"#{label}\""
+            @data[:most_present_parent] = "Personne qui passe le plus de temps avec #{@child_first_name} : #{label}"
           end
         when FIELDS[:other_parent_phone]
           @data[:other_parent_phone] = Phonelib.parse(answer[:text]).e164
@@ -124,6 +124,7 @@ module Typeform
             end
         when FIELDS[:enrollment_reasons_baby], FIELDS[:enrollment_reasons_child]
           @data[:enrollment_reasons] = answer[:choices][:labels].map { |label| strip_asterisks(label) }
+          @data[:enrollment_reasons] << answer[:choices][:other] if answer[:choices][:other].present?
         when FIELDS[:second_language]
           @data[:second_language] = answer[:text]
         end
