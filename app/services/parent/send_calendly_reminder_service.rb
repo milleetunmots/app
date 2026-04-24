@@ -13,6 +13,7 @@ class Parent::SendCalendlyReminderService
   AVAILABLE_SEGMENTS_PER_HOUR = AIRCALL_SEGMENTS_LIMIT_PER_HOUR - MANUAL_SEGMENTS_MARGIN
   ESTIMATED_SEGMENTS_PER_SMS = 2
   MAX_SMS_PER_HOUR_PER_SUPPORTER = AVAILABLE_SEGMENTS_PER_HOUR / ESTIMATED_SEGMENTS_PER_SMS
+  AIRCALL_RATE_LIMIT_INTERVAL = 3.second
 
   BATCH_HOURS = [14, 15, 16, 17].freeze
 
@@ -83,7 +84,7 @@ class Parent::SendCalendlyReminderService
   end
 
   def schedule_batched_messages(recipients_by_supporter)
-    recipients_by_supporter.each do |supporter, recipients|
+    recipients_by_supporter.each_with_index do |(supporter, recipients), supporter_index|
       recipients.each_slice(MAX_SMS_PER_HOUR_PER_SUPPORTER).with_index do |batch, batch_index|
         hour = BATCH_HOURS[batch_index]
 
@@ -96,8 +97,11 @@ class Parent::SendCalendlyReminderService
           break
         end
 
-        send_time = ActiveSupport::TimeZone['Europe/Paris'].parse("#{@sunday_date.strftime('%Y-%m-%d')} #{hour}:00")
-        batch.each { |recipient| schedule_reminder(recipient, send_time) }
+        base_time = ActiveSupport::TimeZone['Europe/Paris'].parse("#{@sunday_date.strftime('%Y-%m-%d')} #{hour}:00") + (AIRCALL_RATE_LIMIT_INTERVAL * supporter_index)
+        batch.each do |recipient|
+          base_time += AIRCALL_RATE_LIMIT_INTERVAL * recipients_by_supporter.size
+          schedule_reminder(recipient, base_time)
+        end
       end
     end
   end
