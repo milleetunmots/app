@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
     redirect_to admin_children_url, alert: exception.message
   end
 
-  before_action :set_time_zone
+  around_action :set_time_zone
 
   def status
     checks = {
@@ -37,10 +37,9 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def set_time_zone
-    if time_zone = cookies[:time_zone]
-      Time.zone = ActiveSupport::TimeZone[time_zone]
-    end
+  def set_time_zone(&block)
+    zone = ActiveSupport::TimeZone[cookies[:time_zone]] if cookies[:time_zone]
+    Time.use_zone(zone || 'Europe/Paris', &block)
   end
 
   def check_database

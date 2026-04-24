@@ -207,6 +207,50 @@ RSpec.describe CalendlyController, type: :controller do
       end
     end
 
+    context 'timezone isolation' do
+      # Puma réutilise ses threads, il maintient un pool de threads fixes (ex. 5 threads).
+      # Chaque requête entrante est assignée à un thread disponible.
+      # Une fois la requête terminée, le thread attend la prochaine requête — il n'est pas détruit.
+      # Time.zone = est une variable de thread
+      # Time.zone = 'America/New_York' modifies cette variable sur le thread ET persiste
+      # Il y avait un bug intermittent où si une requête modifiait Time.zone et ne le réinitialisait pas, la requête suivante traitée par le même thread aurait encore Time.zone réglé sur 'America/New_York', ce qui causait un comportement inattendu.
+
+      let(:program_message_service_double) { instance_double(ProgramMessageService, call: nil, errors: []) }
+
+      before do
+        allow(ProgramMessageService).to receive(:new).and_return(program_message_service_double)
+        allow(program_message_service_double).to receive(:call).and_return(program_message_service_double)
+      end
+
+      it 'restores Europe/Paris after request even when thread had a different timezone' do
+        Thread.current[:time_zone] = ActiveSupport::TimeZone['America/New_York']
+
+        body = invitee_created_payload.to_json
+        request.headers['Calendly-Webhook-Signature'] = compute_signature(timestamp, body)
+        request.headers['Content-Type'] = 'application/json'
+        post :webhooks, body: body, as: :json
+
+        expect(Time.zone.name).to eq('Europe/Paris')
+      end
+
+      it 'uses Europe/Paris timezone during request when thread had a different timezone' do
+        Thread.current[:time_zone] = ActiveSupport::TimeZone['America/New_York']
+
+        zone_during_request = nil
+        allow_any_instance_of(Calendly::ProcessInviteeCreatedService).to receive(:call).and_wrap_original do |original|
+          zone_during_request = Time.zone.name
+          original.call
+        end
+
+        body = invitee_created_payload.to_json
+        request.headers['Calendly-Webhook-Signature'] = compute_signature(timestamp, body)
+        request.headers['Content-Type'] = 'application/json'
+        post :webhooks, body: body, as: :json
+
+        expect(zone_during_request).to eq('Europe/Paris')
+      end
+    end
+
     context 'when service returns errors' do
       let(:invalid_payload) do
         payload = invitee_created_payload.deep_dup
