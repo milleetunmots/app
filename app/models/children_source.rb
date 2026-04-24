@@ -4,6 +4,7 @@
 #
 #  id                      :bigint           not null, primary key
 #  details                 :string
+#  re_enrollment           :boolean          default(FALSE)
 #  registration_department :integer
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null

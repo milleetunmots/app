@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_04_02_113704) do
+ActiveRecord::Schema[7.0].define(version: 2026_04_15_132125) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -454,6 +454,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_04_02_113704) do
     t.integer "registration_department"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "re_enrollment", default: false
     t.index ["child_id"], name: "index_children_sources_on_child_id"
     t.index ["source_id"], name: "index_children_sources_on_source_id"
   end
@@ -552,6 +553,12 @@ ActiveRecord::Schema[7.0].define(version: 2026_04_02_113704) do
     t.index ["discarded_at"], name: "index_groups_on_discarded_at"
     t.index ["ended_at"], name: "index_groups_on_ended_at"
     t.index ["started_at"], name: "index_groups_on_started_at"
+  end
+
+  create_table "logistic_exports", force: :cascade do |t|
+    t.jsonb "group_modules", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "media", force: :cascade do |t|

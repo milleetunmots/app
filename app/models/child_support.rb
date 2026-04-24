@@ -501,6 +501,16 @@ class ChildSupport < ApplicationRecord
     scheduled_calls.where(call_session: index.to_i)
   end
 
+  def ended_support?
+    has_ended = children.left_joins(:group)
+                        .where('children.group_status IN (?) OR groups.ended_at <= ?',
+                               %w[stopped disengaged], Time.zone.today)
+                        .exists?
+    return false unless has_ended
+
+    !children.where(group_status: %w[active paused]).exists?
+  end
+
   # ---------------------------------------------------------------------------
   # methods
   # ---------------------------------------------------------------------------
@@ -678,6 +688,10 @@ class ChildSupport < ApplicationRecord
       return call_idx if send("call#{call_idx}_status").present?
     end
     0
+  end
+
+  def contactable_parents
+    [parent1, parent2].compact.select(&:should_be_contacted?)
   end
 
   def self.call_ok_or_unfinished_for(call_index)

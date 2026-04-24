@@ -286,6 +286,7 @@ class ChildSupportDecorator < BaseDecorator
   def should_show_reminder_button?
     active_call_index = model.active_call_index(days_before: 2)
     return false unless active_call_index
+    return false if model.send("call#{active_call_index}_status").present?
 
     scheduled_calls = model.scheduled_call_sessions(active_call_index)
     return true if scheduled_calls.empty?
@@ -345,6 +346,8 @@ class ChildSupportDecorator < BaseDecorator
       if all_canceled
         info = show_canceled_appointment_info(call_index, scheduled_calls)
       elsif upcoming_calls.empty?
+        return if model.send("call#{call_index}_status").present?
+
         info = show_missed_appointment_info(call_index, scheduled_calls)
       elsif upcoming_calls.one?
         info = appointment_badge(upcoming_calls.first)

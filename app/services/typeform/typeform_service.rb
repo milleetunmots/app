@@ -7,7 +7,7 @@ module Typeform
       @form_responses = form_responses
       @answers = @form_responses[:answers]
       @hidden_variables = @form_responses[:hidden]
-      @security_token = @form_responses[:hidden][:st]
+      @security_token = @form_responses[:hidden][:st]&.gsub(/[^[:alnum:]]/, '')
       @errors = []
     end
 
