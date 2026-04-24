@@ -44,7 +44,7 @@ RSpec.describe Typeform::InitialFormService do
       ] } }
       Typeform::InitialFormService.new(params[:form_response]).call
       child.child_support.reload
-      expect(child.child_support.most_present_parent).to eq("Personne qui passe le plus de temps avec #{child.first_name} :\"Ma grand-mère\"")
+      expect(child.child_support.most_present_parent).to eq("Personne qui passe le plus de temps avec #{child.first_name} : Ma grand-mère")
     end
   end
 end
