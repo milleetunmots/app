@@ -183,10 +183,10 @@ ActiveAdmin.register Workshop do
   end
 
   member_action :perform_parents_registration, method: :post do
-    params[:workshop][:parent_ids] = params[:workshop][:parent_ids].split(',').map(&:to_i) if params[:workshop][:parent_ids].present?
+    params[:workshop][:parent_ids] = params[:workshop][:parent_ids]&.split(',')&.map(&:to_i) if params[:workshop][:parent_ids].present?
     time_slot = params[:time_slot].to_i
     workshop = Workshop.find(params[:workshop_id])
-    parent_to_register_ids = params[:workshop][:parent_ids].reject(&:blank?)
+    parent_to_register_ids = params[:workshop][:parent_ids]&.reject(&:blank?) if params[:workshop][:parent_ids].present?
     parents_to_register = Parent.not_excluded_from_workshop.where(id: parent_to_register_ids)
     workshop.parents << parents_to_register
 
