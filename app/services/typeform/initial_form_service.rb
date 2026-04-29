@@ -123,7 +123,7 @@ module Typeform
               '2_no_information'
             end
         when FIELDS[:enrollment_reasons_baby], FIELDS[:enrollment_reasons_child]
-          @data[:enrollment_reasons] = answer[:choices][:labels].map { |label| strip_asterisks(label) }
+          @data[:enrollment_reasons] = answer[:choices][:labels].map { |label| strip_asterisks(label) } if answer[:choices][:labels].present?
           @data[:enrollment_reasons] << answer[:choices][:other] if answer[:choices][:other].present?
         when FIELDS[:second_language]
           @data[:second_language] = answer[:text]
