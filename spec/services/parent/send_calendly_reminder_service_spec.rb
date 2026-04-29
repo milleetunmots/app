@@ -75,50 +75,31 @@ RSpec.describe Parent::SendCalendlyReminderService do
         expect(result.errors).to be_empty
       end
 
-      it 'creates an Event for the parent' do
-        expect { subject.call }.to change(Event, :count).by(1)
+      it 'schedules an Aircall::SendCalendlyReminderJob' do
+        expect { subject.call }.to have_enqueued_job(Aircall::SendCalendlyReminderJob)
+          .with(child_support.id, 1, parent.id, 'https://calendly.com/d/abc-def/appel?utm_source=1001mots')
       end
 
-      it 'schedules an Aircall::SendMessageJob' do
-        expect { subject.call }.to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not create the Event yet (it is created at job execution)' do
+        expect { subject.call }.not_to change(Event, :count)
       end
 
-      it 'creates the event with aircall provider' do
-        subject.call
-        event = Event.last
-        expect(event.message_provider).to eq('aircall')
+      it 'does not enqueue Aircall::SendMessageJob directly (the reminder job will)' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
       end
 
-      it 'includes the child name in the message' do
-        subject.call
-        event = Event.last
-        expect(event.body).to include(child.first_name)
-      end
-
-      it 'includes the calendly link in the message' do
-        subject.call
-        event = Event.last
-        expect(event.body).to include('https://calendly.com/d/abc-def/appel')
-      end
-
-      it 'schedules the job at 14h on Sunday (offset by one rate-limit interval)' do
+      it 'schedules the reminder job at 14h on Sunday (offset by one rate-limit interval)' do
         subject.call
         expected_time = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00") + Parent::SendCalendlyReminderService::AIRCALL_RATE_LIMIT_INTERVAL
-        expect(Aircall::SendMessageJob).to have_been_enqueued.at(expected_time)
-      end
-
-      it 'updates calendly_last_booking_dates on the parent' do
-        subject.call
-        parent.reload
-        expect(parent.calendly_last_booking_dates['call1']).to be_present
+        expect(Aircall::SendCalendlyReminderJob).to have_been_enqueued.at(expected_time)
       end
     end
 
     context 'when the supporter is not in BETA_TEST_CALLERS_EMAIL' do
       before { stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => 'other@example.com')) }
 
-      it 'does not send the reminder' do
-        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not schedule the reminder job' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
@@ -127,8 +108,8 @@ RSpec.describe Parent::SendCalendlyReminderService do
         FactoryBot.create(:scheduled_call, parent: parent, child_support: child_support, call_session: 1, status: 'scheduled')
       end
 
-      it 'does not send the reminder' do
-        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not schedule the reminder job' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
@@ -137,40 +118,40 @@ RSpec.describe Parent::SendCalendlyReminderService do
         FactoryBot.create(:scheduled_call, :canceled, parent: parent, child_support: child_support, call_session: 1)
       end
 
-      it 'sends the reminder (canceled call should not block)' do
-        expect { subject.call }.to have_enqueued_job(Aircall::SendMessageJob)
+      it 'schedules the reminder job (canceled call should not block)' do
+        expect { subject.call }.to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
     context 'when the parent has no calendly booking url for the session' do
       before { parent.update!(calendly_booking_urls: {}) }
 
-      it 'does not send the reminder' do
-        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not schedule the reminder job' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
     context 'when the call status is already filled' do
       before { child_support.update!(call1_status: ChildSupport.human_attribute_name('call_status.1_ok')) }
 
-      it 'does not send the reminder' do
-        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not schedule the reminder job' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
     context 'when the supporter has no aircall_number_id' do
       before { supporter.update!(aircall_number_id: nil) }
 
-      it 'does not send the reminder' do
-        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not schedule the reminder job' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
     context "when the group has type_of_support 'without_calls'" do
       before { group.update!(type_of_support: 'without_calls') }
 
-      it 'does not send the reminder' do
-        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not schedule the reminder job' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
