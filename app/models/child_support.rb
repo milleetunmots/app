@@ -192,6 +192,48 @@ class ChildSupport < ApplicationRecord
   GOALS_FOLLOW_UP = %w[1_succeed 2_tried 3_no_tried 4_no_goal 5_not_enough_information].freeze
   IS_BILINGUAL_OPTIONS = %w[0_yes 1_no 2_no_information].freeze
   INSTAGRAM_INFORMATION_OPTIONS = %w[0_yes 1_no 2_no_information].freeze
+  SUPPORT_ATTRIBUTES_TO_RESET = %w[
+    is_bilingual
+    to_call
+    will_stay_in_group
+    other_phone_number
+    child_count
+    most_present_parent
+    already_working_with
+    parent1_available_support_module_list
+    parent2_available_support_module_list
+    module2_chosen_by_parents_id
+    module3_chosen_by_parents_id
+    module4_chosen_by_parents_id
+    module5_chosen_by_parents_id
+    module6_chosen_by_parents_id
+    parent_mid_term_rate
+    parent_mid_term_reaction
+    stop_support_caller_id
+    stop_support_details
+    stop_support_date
+    stop_support_reason
+    family_support_should_be_stopped
+    restart_support_caller_id
+    restart_support_details
+    restart_support_date
+    suggested_videos_counter
+    enrollment_reasons
+    address_suspected_invalid_at
+    has_important_information_parental_consent
+    instagram_follower
+    instagram_user
+    calendly_booking_url
+    books_quantity
+  ].freeze
+  GENERAL_ATTRIBUTES_TO_NIL = %w[
+    second_language
+    important_information
+    availability
+    book_not_received
+    tag_list
+    parent_needs
+  ].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -623,52 +665,18 @@ class ChildSupport < ApplicationRecord
 
   def clean_fields
     self.supporter_id = nil
-    self.is_bilingual = '2_no_information'
-    attributes.slice(
-      'second_language',
-      'important_information',
-      'availability',
-      'call_infos',
-      'book_not_received',
-      'tag_list',
-      'parent_needs'
-    ).each_key do |attribute|
-      self[attribute.to_sym] = nil
+    GENERAL_ATTRIBUTES_TO_NIL.each { |attr| self[attr.to_sym] = nil }
+
+    (self.class.call_attributes + SUPPORT_ATTRIBUTES_TO_RESET).each do |attr|
+      self[attr.to_sym] = default_for_attribute(attr)
     end
+  end
 
-    4.times.each do |call_idx|
-      call_attributes = [
-        "call#{call_idx}_status",
-        "call#{call_idx}_status_details",
-        "call#{call_idx}_duration",
-        "call#{call_idx}_why_talk_needed",
-        "call#{call_idx}_talk_needed",
-        "call#{call_idx}_technical_information",
-        "call#{call_idx}_parent_actions",
-        "call#{call_idx}_parent_progress",
-        "call#{call_idx}_sendings_benefits",
-        "call#{call_idx}_sendings_benefits_details",
-        "call#{call_idx}_language_development",
-        "call#{call_idx}_reading_frequency",
-        "call#{call_idx}_goals",
-        "call#{call_idx}_notes",
-        "call#{call_idx}_previous_goals_follow_up",
-        "call#{call_idx}_tv_frequency",
-        "call#{call_idx}_review"
-      ]
-      call_attributes += %w[call2_family_progress] if call_idx == 2
-      call_attributes -= %w[call0_previous_goals_follow_up] if call_idx == 0
-      call_attributes += ['books_quantity'] if call_idx == 1
-
-      call_attributes.each do |call_attr|
-        # handle attributes that dont accept nil (ie. booleans)
-        if self.class.respond_to?(:attribute_defaults)
-          default_value = self.class.attribute_defaults[call_attr.to_s]
-        else
-          default_value = self.class.columns_hash[call_attr.to_s]&.default
-        end
-        self[call_attr.to_sym] = default_value
-      end
+  def default_for_attribute(attr)
+    if self.class.respond_to?(:attribute_defaults)
+      self.class.attribute_defaults[attr.to_s]
+    else
+      self.class.columns_hash[attr.to_s]&.default
     end
   end
 
