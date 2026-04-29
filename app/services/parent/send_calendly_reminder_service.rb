@@ -5,7 +5,6 @@ class Parent::SendCalendlyReminderService
   AVAILABLE_SEGMENTS_PER_HOUR = AIRCALL_SEGMENTS_LIMIT_PER_HOUR - MANUAL_SEGMENTS_MARGIN
   ESTIMATED_SEGMENTS_PER_SMS = 2
   MAX_SMS_PER_HOUR_PER_SUPPORTER = AVAILABLE_SEGMENTS_PER_HOUR / ESTIMATED_SEGMENTS_PER_SMS
-  AIRCALL_RATE_LIMIT_INTERVAL = 3.second
 
   BATCH_HOURS = [14, 15, 16, 17].freeze
 
@@ -22,6 +21,8 @@ class Parent::SendCalendlyReminderService
     return self if @errors.any?
 
     recipients_by_supporter = collect_eligible_recipients_by_supporter
+    ## Si ça arrive, modifier l'algo de rate limiting pour mieux étaler les envois
+    Rollbar.warning('Parent::SendCalendlyReminderService', warning: "Il y a plus de 60 accompagnantes. On risque de dépasser le rate limiting d'aircall par organisation.") if recipients_by_supporter.keys.size > 59
     schedule_batched_messages(recipients_by_supporter)
     self
   end
@@ -89,9 +90,8 @@ class Parent::SendCalendlyReminderService
           break
         end
 
-        base_time = ActiveSupport::TimeZone['Europe/Paris'].parse("#{@sunday_date.strftime('%Y-%m-%d')} #{hour}:00") + (AIRCALL_RATE_LIMIT_INTERVAL * supporter_index)
+        base_time = ActiveSupport::TimeZone['Europe/Paris'].parse("#{@sunday_date.strftime('%Y-%m-%d')} #{hour}:00") + supporter_index.minutes
         batch.each do |recipient|
-          base_time += AIRCALL_RATE_LIMIT_INTERVAL * recipients_by_supporter.size
           schedule_reminder(recipient, base_time)
         end
       end
