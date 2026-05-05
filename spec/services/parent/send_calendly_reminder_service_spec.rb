@@ -88,9 +88,9 @@ RSpec.describe Parent::SendCalendlyReminderService do
         expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
       end
 
-      it 'schedules the reminder job at 14h on Sunday (offset by one rate-limit interval)' do
+      it 'schedules the reminder job at 14h on Sunday' do
         subject.call
-        expected_time = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00") + Parent::SendCalendlyReminderService::AIRCALL_RATE_LIMIT_INTERVAL
+        expected_time = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00")
         expect(Aircall::SendCalendlyReminderJob).to have_been_enqueued.at(expected_time)
       end
     end
@@ -181,16 +181,14 @@ RSpec.describe Parent::SendCalendlyReminderService do
         expect(jobs_in_15h_slot.size).to eq(1) # the original parent
       end
 
-      it 'staggers the jobs within the 14h slot by AIRCALL_RATE_LIMIT_INTERVAL' do
+      it 'schedules all jobs in the 14h slot at the same time (single supporter, no offset)' do
         subject.call
         expected_14h = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00").to_i
-        interval = Parent::SendCalendlyReminderService::AIRCALL_RATE_LIMIT_INTERVAL.to_i
         timestamps_in_14h_slot = enqueued_jobs
           .map { |j| j[:at].to_i }
           .select { |t| t >= expected_14h && t < expected_14h + 3600 }
-          .sort
-        expected_timestamps = (1..max_per_hour).map { |i| expected_14h + i * interval }
-        expect(timestamps_in_14h_slot).to eq(expected_timestamps)
+        expect(timestamps_in_14h_slot.size).to eq(max_per_hour)
+        expect(timestamps_in_14h_slot.uniq).to eq([expected_14h])
       end
     end
 
@@ -220,16 +218,15 @@ RSpec.describe Parent::SendCalendlyReminderService do
         second_child.child_support.update!(supporter: second_supporter, call1_status: nil)
       end
 
-      it 'schedules one job per supporter in the 14h slot, staggered' do
+      it 'schedules one job per supporter in the 14h slot, staggered by one minute per supporter' do
         subject.call
         expected_14h = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00").to_i
         expected_15h = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 15:00").to_i
-        interval = Parent::SendCalendlyReminderService::AIRCALL_RATE_LIMIT_INTERVAL.to_i
         timestamps_in_14h_slot = enqueued_jobs
           .map { |j| j[:at].to_i }
           .select { |t| t >= expected_14h && t < expected_15h }
           .sort
-        expect(timestamps_in_14h_slot).to eq([expected_14h + 2 * interval, expected_14h + 3 * interval])
+        expect(timestamps_in_14h_slot).to eq([expected_14h, expected_14h + 60])
       end
     end
   end
