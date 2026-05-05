@@ -1,13 +1,5 @@
 class Parent::SendCalendlyReminderService
 
-  REMINDER_MESSAGE = <<~MSG.freeze
-    Bonjour,
-    Je vais vous appeler dans les prochains jours pour discuter de {PRENOM_ENFANT}.
-    Prenez RDV ici : {CALENDLY_LINK}
-    A très vite !
-    {PRENOM_ACCOMPAGNANTE} de 1001mots
-  MSG
-
   AIRCALL_SEGMENTS_LIMIT_PER_HOUR = 100
   MANUAL_SEGMENTS_MARGIN = 40
   AVAILABLE_SEGMENTS_PER_HOUR = AIRCALL_SEGMENTS_LIMIT_PER_HOUR - MANUAL_SEGMENTS_MARGIN
@@ -29,6 +21,8 @@ class Parent::SendCalendlyReminderService
     return self if @errors.any?
 
     recipients_by_supporter = collect_eligible_recipients_by_supporter
+    ## Si ça arrive, modifier l'algo de rate limiting pour mieux étaler les envois
+    Rollbar.warning('Parent::SendCalendlyReminderService', warning: "Il y a plus de 60 accompagnantes. On risque de dépasser le rate limiting d'aircall par organisation.") if recipients_by_supporter.keys.size > 59
     schedule_batched_messages(recipients_by_supporter)
     self
   end
@@ -83,7 +77,7 @@ class Parent::SendCalendlyReminderService
   end
 
   def schedule_batched_messages(recipients_by_supporter)
-    recipients_by_supporter.each do |supporter, recipients|
+    recipients_by_supporter.each_with_index do |(supporter, recipients), supporter_index|
       recipients.each_slice(MAX_SMS_PER_HOUR_PER_SUPPORTER).with_index do |batch, batch_index|
         hour = BATCH_HOURS[batch_index]
 
@@ -96,49 +90,20 @@ class Parent::SendCalendlyReminderService
           break
         end
 
-        send_time = ActiveSupport::TimeZone['Europe/Paris'].parse("#{@sunday_date.strftime('%Y-%m-%d')} #{hour}:00")
-        batch.each { |recipient| schedule_reminder(recipient, send_time) }
+        base_time = ActiveSupport::TimeZone['Europe/Paris'].parse("#{@sunday_date.strftime('%Y-%m-%d')} #{hour}:00") + supporter_index.minutes
+        batch.each do |recipient|
+          schedule_reminder(recipient, base_time)
+        end
       end
     end
   end
 
   def schedule_reminder(recipient, send_time)
-    parent = recipient[:parent]
-    child_support = recipient[:child_support]
-    supporter = child_support.supporter
-    child_name = child_support.current_child&.first_name || 'votre enfant'
-    supporter_first_name = supporter.decorate.first_name
-
-    body = REMINDER_MESSAGE.dup
-    body.gsub!('{PRENOM_ENFANT}', child_name)
-    body.gsub!('{CALENDLY_LINK}', recipient[:calendly_url])
-    body.gsub!('{PRENOM_ACCOMPAGNANTE}', supporter_first_name)
-
-    event = Event.create(
-      related_id: parent.id,
-      related_type: 'Parent',
-      body: body,
-      type: 'Events::TextMessage',
-      occurred_at: send_time,
-      message_provider: 'aircall'
+    Aircall::SendCalendlyReminderJob.set(wait_until: send_time).perform_later(
+      recipient[:child_support].id,
+      recipient[:call_index],
+      recipient[:parent].id,
+      recipient[:calendly_url]
     )
-
-    unless event.persisted?
-      @errors << {
-        error: "Impossible de créer l'event pour le parent #{parent.id}",
-        event_errors: event.errors.full_messages
-      }
-      return
-    end
-
-    Aircall::SendMessageJob.set(wait_until: send_time).perform_later(
-      supporter.aircall_number_id,
-      parent.phone_number,
-      body,
-      event.id
-    )
-    parent.calendly_last_booking_dates ||= {}
-    parent.calendly_last_booking_dates["call#{recipient[:call_index]}"] = send_time.to_s
-    parent.save!
   end
 end
