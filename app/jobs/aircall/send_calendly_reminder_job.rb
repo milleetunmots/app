@@ -10,11 +10,35 @@ module Aircall
 
     def perform(child_support_id, call_session, parent_id, calendly_url)
       child_support = ChildSupport.find_by(id: child_support_id)
+      if child_support.nil?
+        Rollbar.error('Aircall::SendCalendlyReminderJob',
+                      error: "La fiche de suivi n'a pas été trouvée",
+                      child_support_id: child_support_id)
+        return
+      end
+
       parent = Parent.find_by(id: parent_id)
-      return if child_support.nil? || parent.nil?
+      if parent.nil?
+        Rollbar.error('Aircall::SendCalendlyReminderJob',
+                      error: "Le parent n'a pas été trouvé",
+                      parent_id: parent_id)
+        return
+      end
 
       supporter = child_support.supporter
-      return if supporter.nil? || supporter.aircall_number_id.blank?
+      if supporter.nil?
+        Rollbar.error('Aircall::SendCalendlyReminderJob',
+                      error: "La fiche de suivi n'a pas pas d'accompagnante",
+                      child_support_id: child_support_id)
+        return
+      end
+
+      if supporter.aircall_number_id.blank?
+        Rollbar.error('Aircall::SendCalendlyReminderJob',
+                      error: "L'accompagnante n'a pas de numéro aircall",
+                      supporter_id: supporter.id)
+        return
+      end
 
       return if rdv_already_booked?(child_support, call_session)
       return if call_status_already_filled?(child_support, call_session)
@@ -22,14 +46,21 @@ module Aircall
       body = build_body(child_support, supporter, calendly_url)
 
       event = Event.new(
-        related_id: parent.id,
+        related_id: parent_id,
         related_type: 'Parent',
         body: body,
         type: 'Events::TextMessage',
         occurred_at: Time.zone.now,
         message_provider: 'aircall'
       )
-      return unless event.save
+
+      unless event.save
+        Rollbar.error('Aircall::SendCalendlyReminderJob',
+                      error: "Impossible de créer l'event text",
+                      related_id: parent_id,
+                      body: body)
+        return
+      end
 
       Aircall::SendMessageJob.perform_later(
         supporter.aircall_number_id,
@@ -40,7 +71,13 @@ module Aircall
 
       parent.calendly_last_booking_dates ||= {}
       parent.calendly_last_booking_dates["call#{call_session}"] = Time.zone.now.to_s
-      parent.save!
+      return if parent.save
+
+      Rollbar.error('Aircall::SendCalendlyReminderJob',
+                    error: 'Impossible de modifier le parent',
+                    parent_id: parent.id,
+                    call_session: call_session,
+                    booking_date: Time.zone.now.to_s)
     end
 
     private
