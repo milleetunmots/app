@@ -85,6 +85,10 @@ class AdminUser < ApplicationRecord
     user_role == 'animator'
   end
 
+  def caller_or_animator?
+    caller? || animator?
+  end
+
   def supporter?
     child_supports.any?
   end

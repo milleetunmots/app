@@ -68,7 +68,7 @@ module ActiveAdmin
       end
 
       def tags_params
-        return {
+        {
           tag_list: []
         }
       end

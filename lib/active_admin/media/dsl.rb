@@ -105,7 +105,7 @@ module ActiveAdmin
             # f.input :theme,
             #         as: :datalist,
             #         collection: medium_theme_suggestions
-            tags_input(f)
+            tags_input(f, current_admin_user.caller_or_animator?)
             columns do
               (1..3).each do |idx|
                 column do

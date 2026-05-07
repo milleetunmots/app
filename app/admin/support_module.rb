@@ -66,7 +66,7 @@ ActiveAdmin.register SupportModule do
       f.input :start_at, as: :datepicker
       f.input :picture, as: :file,
                         hint: f.object.id && "Laissez ce champ vide pour ne pas modifier l'image"
-      tags_input(f)
+      tags_input(f, current_admin_user.caller_or_animator?)
     end
     f.inputs do
       f.has_many :support_module_weeks,
