@@ -60,3 +60,6 @@
     generate_logistic_export_job:
       cron: '0 9 * * 1'
       class: 'Group::GenerateLogisticExportJob'
+    detect_siblings_in_different_cohorts_job:
+      cron: '0 7 * * 1'
+      class: 'ChildSupport::DetectSiblingsInDifferentGroupsJob'

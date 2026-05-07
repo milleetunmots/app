@@ -407,7 +407,10 @@ ActiveAdmin.register Child do
                 collection: child_group_status_select_collection,
                 input_html: { data: { select2: {} } }
       end
-      tags_input(f, context_list = 'tag_list', input_html: { disabled: AdminUser.any_caller_or_animator_with_id?(current_admin_user.id) })
+      tags_input(f,
+                 current_admin_user.caller_or_animator?,
+                 'tag_list',
+                 input_html: { disabled: current_admin_user.caller_or_animator? })
     end
     f.actions
   end
@@ -423,7 +426,7 @@ ActiveAdmin.register Child do
     unless current_admin_user&.user_role.in?(%w[caller animator reader])
       permitted += group_attrs
     end
-    permitted += tags_params_attributes unless AdminUser.any_caller_or_animator_with_id?(current_admin_user&.id)
+    permitted += tags_params_attributes unless current_admin_user&.caller_or_animator?
     permitted
   end
 
