@@ -617,50 +617,36 @@ class ChildSupport < ApplicationRecord
     self.notes ||= ''
     self.notes << (('-' * 100) + "\n")
     self.notes << "\n#{I18n.l(Time.zone.now)} - Sauvegarde des informations de la fiche de suivi\n\n"
+
     self.notes << "Informations générales\n\n"
-    child_support.attributes.slice(
-      'is_bilingual',
-      'second_language',
-      'important_information',
-      'availability',
-      'call_infos',
-      'book_not_received',
-      'parent_needs',
-      'tag_list'
-    ).each do |attribute, value|
-      self.notes << "#{I18n.t("activerecord.attributes.child_support.#{attribute}")} : #{value}\n"
+    general_attributes = GENERAL_ATTRIBUTES_TO_NIL + %w[call_infos]
+    general_attributes.each do |attribute|
+      self.notes << "#{translate_child_support_attribute(attribute)} : #{child_support.send(attribute)}\n"
+    end
+
+    self.notes << "\nInformations d'accompagnement\n\n"
+    self.notes << "#{translate_child_support_attribute('supporter')} : #{child_support.supporter&.name}\n"
+    SUPPORT_ATTRIBUTES_TO_RESET.each do |attribute|
+      self.notes << "#{translate_child_support_attribute(attribute)} : #{child_support.send(attribute)}\n"
     end
 
     self.notes << "\nInformations de chaque appel\n"
-    self.notes << '='*22 + "\n"
-    (0..3).each do |call_idx|
+    self.notes << (('=' * 22) + "\n")
+
+    call_attributes_by_index = self.class.call_attributes.group_by { |attr| attr[/\Acall(\d+)_/, 1]&.to_i }
+    call_attributes_by_index.delete(nil)
+
+    call_attributes_by_index.keys.sort.each do |call_idx|
       self.notes << "\n--------Appel #{call_idx}--------\n"
-
-      call_attributes = [
-        "call#{call_idx}_status",
-        "call#{call_idx}_talk_needed",
-        "call#{call_idx}_why_talk_needed",
-        "call#{call_idx}_status_details",
-        "call#{call_idx}_duration",
-        "call#{call_idx}_technical_information",
-        "call#{call_idx}_parent_actions",
-        "call#{call_idx}_parent_progress",
-        "call#{call_idx}_sendings_benefits",
-        "call#{call_idx}_sendings_benefits_details",
-        "call#{call_idx}_language_development",
-        "call#{call_idx}_reading_frequency",
-        "call#{call_idx}_goals",
-        "call#{call_idx}_tv_frequency",
-        "call#{call_idx}_notes"
-      ]
-      call_attributes += %w[call2_family_progress call2_previous_goals_follow_up] if call_idx == 2
-      call_attributes += ['books_quantity'] if call_idx == 1
-
-      call_attributes.each do |call_attr|
-        self.notes << "#{I18n.t("activerecord.attributes.child_support.#{call_attr}")} : #{child_support.send(call_attr)}\n"
+      call_attributes_by_index[call_idx].each do |call_attr|
+        self.notes << "#{translate_child_support_attribute(call_attr)} : #{child_support.send(call_attr)}\n"
       end
     end
     self.notes << (('=' * 22) + "\n")
+  end
+
+  def translate_child_support_attribute(attribute)
+    I18n.t("activerecord.attributes.child_support.#{attribute}", default: attribute.to_s.humanize)
   end
 
   def clean_fields
