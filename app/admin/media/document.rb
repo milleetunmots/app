@@ -58,7 +58,10 @@ ActiveAdmin.register Media::Document do
       row :folder
       row :name
       # row :theme
-      row :tags
+      row :tags do |model|
+        model.current_admin_user = current_admin_user
+        model.tags(context: 'tags')
+      end
       row :file do |decorated|
         decorated.file_link_tag
       end
@@ -82,14 +85,20 @@ ActiveAdmin.register Media::Document do
       # f.input :theme,
       #         as: :datalist,
       #         collection: medium_theme_suggestions
-      tags_input(f)
+      tags_input(f, current_admin_user.caller_or_animator?)
       f.input :file,
               as: :file,
-              hint: f.object.id && "Laissez ce champ vide pour ne pas modifier le fichier"
+              hint: f.object.id && 'Laissez ce champ vide pour ne pas modifier le fichier'
     end
     f.actions
   end
 
-  permit_params :folder_id, :name, :theme, :file, tags_params
+  tags_params_attributes = [tags_params]
+
+  permit_params do
+    permitted = %i[folder_id name theme file]
+    permitted += tags_params_attributes unless current_admin_user.caller_or_animator?
+    permitted
+  end
 
 end

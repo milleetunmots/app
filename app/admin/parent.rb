@@ -116,7 +116,10 @@ ActiveAdmin.register Parent do
       f.input :job
       f.input :terms_accepted_at, as: :datepicker
       f.input :parent2_child_ids, as: :hidden, input_html: { value: f.object.parent2_child_ids.join(',') } if params[:parent2_child_ids]
-      tags_input(f, context_list = 'tag_list', input_html: { disabled: AdminUser.any_caller_or_animator_with_id?(current_admin_user.id) })
+      tags_input(f,
+                 current_admin_user.caller_or_animator?,
+                 'tag_list',
+                 input_html: { disabled: current_admin_user.caller_or_animator? })
     end
     f.actions
   end
@@ -130,7 +133,7 @@ ActiveAdmin.register Parent do
 
   permit_params do
     permitted = params_list
-    permitted += tags_params_attributes unless AdminUser.any_caller_or_animator_with_id?(current_admin_user.id)
+    permitted += tags_params_attributes unless current_admin_user.caller_or_animator?
     permitted
   end
 

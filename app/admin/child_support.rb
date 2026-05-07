@@ -397,7 +397,11 @@ ActiveAdmin.register ChildSupport do
               end
             end
           end
-          tags_input(f, context_list = 'tag_list', label: 'Tags fiche de suivi', input_html: { disabled: AdminUser.any_caller_or_animator_with_id?(current_admin_user.id) })
+          tags_input(f,
+                     current_admin_user.caller_or_animator?,
+                     'tag_list',
+                     label: 'Tags fiche de suivi',
+                     input_html: { disabled: current_admin_user.caller_or_animator? })
           columns do
             column do
               f.label :parent_needs
@@ -935,7 +939,7 @@ ActiveAdmin.register ChildSupport do
   # block is mandatory here because ChildSupport.call_attributes hits DB
   permit_params do
     permitted = base_attributes + ChildSupport.call_attributes + current_child_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms tag_list] + parents_available_support_module_list_attributes
-    permitted += tags_params_attributes unless AdminUser.any_caller_or_animator_with_id?(current_admin_user.id)
+    permitted += tags_params_attributes unless current_admin_user.caller_or_animator?
     permitted
   end
 

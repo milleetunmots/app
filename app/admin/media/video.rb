@@ -81,7 +81,7 @@ ActiveAdmin.register Media::Video do
       # f.input :theme,
       #         as: :datalist,
       #         collection: medium_theme_suggestions
-      tags_input(f)
+      tags_input(f, current_admin_user.caller_or_animator?)
       f.input :url
     end
     f.actions
@@ -97,5 +97,12 @@ ActiveAdmin.register Media::Video do
     redirect_back(fallback_location: root_path, notice: "Nouvelles vidéos: #{service.new_videos.count}. Vidéos modifiées: #{service.updated_videos.count}")
   end
 
-  permit_params :folder_id, :name, :theme, :url, tags_params
+  tags_params_attributes = [tags_params]
+
+  permit_params do
+    permitted = %i[folder_id name theme url]
+    permitted += tags_params_attributes unless current_admin_user.caller_or_animator?
+    permitted
+  end
+
 end
