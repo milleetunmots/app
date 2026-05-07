@@ -144,13 +144,18 @@ module ActiveAdmin
           f.actions
         end
 
-        permit_params :folder_id, :name, :theme,
-                      :rcs_title1, :rcs_title2, :rcs_title3,
-                      :rcs_cta_title1, :rcs_cta_title2, :rcs_cta_title3,
-                      :body1, :body2, :body3,
-                      :image1_id, :image2_id, :image3_id,
-                      :link1_id, :link2_id, :link3_id,
-                      tags_params
+        tags_params_attributes = [tags_params]
+
+        permit_params do
+          permitted = %i[folder_id name theme
+                         rcs_title1 rcs_title2 rcs_title3
+                         rcs_cta_title1 rcs_cta_title2 rcs_cta_title3
+                         body1 body2 body3
+                         image1_id image2_id image3_id
+                         link1_id link2_id link3_id]
+          permitted += tags_params_attributes unless current_admin_user.caller_or_animator?
+          permitted
+        end
       end
 
       def register_comments

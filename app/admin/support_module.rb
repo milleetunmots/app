@@ -90,16 +90,22 @@ ActiveAdmin.register SupportModule do
     f.actions
   end
 
-  permit_params :name, :start_at, :picture, :support_module_weeks, :for_bilingual, :level, :theme,
-  {
-    support_module_weeks_attributes: %i[
-      id medium_id position
-      has_been_sent1 has_been_sent2 has_been_sent3
-      additional_medium_id
-      has_been_sent4
-      _destroy
-    ]
-  }.merge(tags_params, age_ranges: [])
+  tags_params_value = tags_params
+
+  permit_params do
+    hash_params = {
+      support_module_weeks_attributes: %i[
+        id medium_id position
+        has_been_sent1 has_been_sent2 has_been_sent3
+        additional_medium_id
+        has_been_sent4
+        _destroy
+      ],
+      age_ranges: []
+    }
+    hash_params.merge!(tags_params_value) unless current_admin_user.caller_or_animator?
+    [:name, :start_at, :picture, :support_module_weeks, :for_bilingual, :level, :theme, hash_params]
+  end
 
   # ---------------------------------------------------------------------------
   # SHOW
