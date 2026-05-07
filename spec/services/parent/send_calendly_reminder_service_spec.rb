@@ -75,50 +75,31 @@ RSpec.describe Parent::SendCalendlyReminderService do
         expect(result.errors).to be_empty
       end
 
-      it 'creates an Event for the parent' do
-        expect { subject.call }.to change(Event, :count).by(1)
+      it 'schedules an Aircall::SendCalendlyReminderJob' do
+        expect { subject.call }.to have_enqueued_job(Aircall::SendCalendlyReminderJob)
+          .with(child_support.id, 1, parent.id, 'https://calendly.com/d/abc-def/appel?utm_source=1001mots')
       end
 
-      it 'schedules an Aircall::SendMessageJob' do
-        expect { subject.call }.to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not create the Event yet (it is created at job execution)' do
+        expect { subject.call }.not_to change(Event, :count)
       end
 
-      it 'creates the event with aircall provider' do
-        subject.call
-        event = Event.last
-        expect(event.message_provider).to eq('aircall')
+      it 'does not enqueue Aircall::SendMessageJob directly (the reminder job will)' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
       end
 
-      it 'includes the child name in the message' do
-        subject.call
-        event = Event.last
-        expect(event.body).to include(child.first_name)
-      end
-
-      it 'includes the calendly link in the message' do
-        subject.call
-        event = Event.last
-        expect(event.body).to include('https://calendly.com/d/abc-def/appel')
-      end
-
-      it 'schedules the job at 14h on Sunday' do
+      it 'schedules the reminder job at 14h on Sunday' do
         subject.call
         expected_time = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00")
-        expect(Aircall::SendMessageJob).to have_been_enqueued.at(expected_time)
-      end
-
-      it 'updates calendly_last_booking_dates on the parent' do
-        subject.call
-        parent.reload
-        expect(parent.calendly_last_booking_dates['call1']).to be_present
+        expect(Aircall::SendCalendlyReminderJob).to have_been_enqueued.at(expected_time)
       end
     end
 
     context 'when the supporter is not in BETA_TEST_CALLERS_EMAIL' do
       before { stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => 'other@example.com')) }
 
-      it 'does not send the reminder' do
-        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not schedule the reminder job' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
@@ -127,8 +108,8 @@ RSpec.describe Parent::SendCalendlyReminderService do
         FactoryBot.create(:scheduled_call, parent: parent, child_support: child_support, call_session: 1, status: 'scheduled')
       end
 
-      it 'does not send the reminder' do
-        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not schedule the reminder job' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
@@ -137,40 +118,40 @@ RSpec.describe Parent::SendCalendlyReminderService do
         FactoryBot.create(:scheduled_call, :canceled, parent: parent, child_support: child_support, call_session: 1)
       end
 
-      it 'sends the reminder (canceled call should not block)' do
-        expect { subject.call }.to have_enqueued_job(Aircall::SendMessageJob)
+      it 'schedules the reminder job (canceled call should not block)' do
+        expect { subject.call }.to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
     context 'when the parent has no calendly booking url for the session' do
       before { parent.update!(calendly_booking_urls: {}) }
 
-      it 'does not send the reminder' do
-        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not schedule the reminder job' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
     context 'when the call status is already filled' do
       before { child_support.update!(call1_status: ChildSupport.human_attribute_name('call_status.1_ok')) }
 
-      it 'does not send the reminder' do
-        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not schedule the reminder job' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
     context 'when the supporter has no aircall_number_id' do
       before { supporter.update!(aircall_number_id: nil) }
 
-      it 'does not send the reminder' do
-        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not schedule the reminder job' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
     context "when the group has type_of_support 'without_calls'" do
       before { group.update!(type_of_support: 'without_calls') }
 
-      it 'does not send the reminder' do
-        expect { subject.call }.not_to have_enqueued_job(Aircall::SendMessageJob)
+      it 'does not schedule the reminder job' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
@@ -190,14 +171,24 @@ RSpec.describe Parent::SendCalendlyReminderService do
 
       before { extra_parents }
 
-      it 'puts the first batch at 14h and overflow at 15h' do
+      it 'puts the first batch in the 14h slot and overflow in the 15h slot' do
         subject.call
-        expected_14h = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00")
-        expected_15h = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 15:00")
-        jobs_at_14h = enqueued_jobs.select { |j| j[:at].to_i == expected_14h.to_i }
-        jobs_at_15h = enqueued_jobs.select { |j| j[:at].to_i == expected_15h.to_i }
-        expect(jobs_at_14h.size).to eq(max_per_hour)
-        expect(jobs_at_15h.size).to eq(1) # the original parent
+        expected_14h = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00").to_i
+        expected_15h = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 15:00").to_i
+        jobs_in_14h_slot = enqueued_jobs.select { |j| j[:at].to_i >= expected_14h && j[:at].to_i < expected_15h }
+        jobs_in_15h_slot = enqueued_jobs.select { |j| j[:at].to_i >= expected_15h && j[:at].to_i < expected_15h + 3600 }
+        expect(jobs_in_14h_slot.size).to eq(max_per_hour)
+        expect(jobs_in_15h_slot.size).to eq(1) # the original parent
+      end
+
+      it 'schedules all jobs in the 14h slot at the same time (single supporter, no offset)' do
+        subject.call
+        expected_14h = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00").to_i
+        timestamps_in_14h_slot = enqueued_jobs
+          .map { |j| j[:at].to_i }
+          .select { |t| t >= expected_14h && t < expected_14h + 3600 }
+        expect(timestamps_in_14h_slot.size).to eq(max_per_hour)
+        expect(timestamps_in_14h_slot.uniq).to eq([expected_14h])
       end
     end
 
@@ -227,11 +218,15 @@ RSpec.describe Parent::SendCalendlyReminderService do
         second_child.child_support.update!(supporter: second_supporter, call1_status: nil)
       end
 
-      it 'schedules one job per supporter at 14h' do
+      it 'schedules one job per supporter in the 14h slot, staggered by one minute per supporter' do
         subject.call
-        expected_14h = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00")
-        jobs_at_14h = enqueued_jobs.select { |j| j[:at].to_i == expected_14h.to_i }
-        expect(jobs_at_14h.size).to eq(2)
+        expected_14h = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 14:00").to_i
+        expected_15h = ActiveSupport::TimeZone['Europe/Paris'].parse("#{sunday.strftime('%Y-%m-%d')} 15:00").to_i
+        timestamps_in_14h_slot = enqueued_jobs
+          .map { |j| j[:at].to_i }
+          .select { |t| t >= expected_14h && t < expected_15h }
+          .sort
+        expect(timestamps_in_14h_slot).to eq([expected_14h, expected_14h + 60])
       end
     end
   end
