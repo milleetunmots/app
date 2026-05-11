@@ -1,6 +1,11 @@
 namespace :rcs do
   desc "Create RCS templates for all TextMessagesBundle with images"
   task create_templates: :environment do
+    if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
+      puts 'Aborted: SPOT_HIT_SAFEGUARD active (or Rails.env=development). Refusing to sync RCS templates to SpotHit.'
+      exit 0
+    end
+
     puts "Starting RCS template creation..."
 
     bundles = Media::TextMessagesBundle.kept.all
@@ -62,6 +67,11 @@ namespace :rcs do
 
   desc "Create RCS template for a specific TextMessagesBundle and message index"
   task :create_template, [:bundle_id, :message_index] => :environment do |t, args|
+    if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
+      puts 'Aborted: SPOT_HIT_SAFEGUARD active (or Rails.env=development). Refusing to sync RCS template to SpotHit.'
+      exit 0
+    end
+
     bundle_id = args[:bundle_id]
     message_index = args[:message_index]&.to_i || 1
 
