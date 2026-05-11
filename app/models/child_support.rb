@@ -651,9 +651,12 @@ class ChildSupport < ApplicationRecord
 
   def clean_fields
     self.supporter_id = nil
-    GENERAL_ATTRIBUTES_TO_NIL.each { |attr| self[attr.to_sym] = nil }
+    self.class.call_attributes.each do |attr|
+      next if attr == 'call_infos'
+      next if attr == 'books_quantity'
+      next if attr == 'call0_reading_frequency'
+      next if attr == 'call0_tv_frequency'
 
-    (self.class.call_attributes + SUPPORT_ATTRIBUTES_TO_RESET).each do |attr|
       self[attr.to_sym] = default_for_attribute(attr)
     end
   end
