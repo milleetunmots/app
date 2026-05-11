@@ -34,6 +34,7 @@ ActiveAdmin.register AdminUser do
 
   scope :account_not_disabled, default: true
   scope :account_disabled
+  scope :beta_test_supporters_who_cannot_send_automatic_sms
 
   # ---------------------------------------------------------------------------
   # FORM

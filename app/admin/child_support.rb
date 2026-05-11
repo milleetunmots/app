@@ -1223,10 +1223,12 @@ ActiveAdmin.register ChildSupport do
 
     ChildSupport.call_attributes.each do |attribute|
       next if attribute == 'call_infos'
+      next if attribute == 'books_quantity'
+      next if attribute == 'call0_reading_frequency'
+      next if attribute == 'call0_tv_frequency'
 
       resource.assign_attributes({ attribute.to_sym => ChildSupport.column_defaults[attribute.to_s] })
     end
-    resource.books_quantity = ChildSupport.column_defaults['books_quantity']
     resource.save
     redirect_to [:admin, resource], notice: 'Fiche de suivi nettoyée'
   end
