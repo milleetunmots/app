@@ -61,6 +61,7 @@ class AdminUser < ApplicationRecord
   scope :supporters, -> { joins(:child_supports).distinct }
   scope :account_disabled, -> { where(is_disabled: true) }
   scope :account_not_disabled, -> { where(is_disabled: false) }
+  scope :beta_test_supporters_who_cannot_send_automatic_sms, -> { supporters.where(email: ENV['BETA_TEST_CALLERS_EMAIL'].split).where(can_send_automatic_sms: false) }
 
   after_create :set_aircall_phone_number
   after_create_commit :export_to_sheet
