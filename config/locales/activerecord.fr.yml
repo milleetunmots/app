@@ -463,6 +463,11 @@ fr:
         1_rather_satisfied: Plutôt satisfaite 🙂
         2_rather_dissatisfied: Plutôt insatisfaite 😕
         3_very_dissatisfied: Très insatisfaite 😞
+      child_support/call_recording_consent:
+        0_yes: Oui
+        1_no: Non
+        not_asked: Non demandé
+        no_clear_answer: Pas de réponse claire
       event: &EVENT
         << : *SHARED
         address: Adresse

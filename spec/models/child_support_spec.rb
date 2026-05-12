@@ -101,6 +101,7 @@
 #  call3_tv_frequency                         :string
 #  call3_why_talk_needed                      :text
 #  call_infos                                 :string
+#  call_recording_consent                     :string           default("not_asked")
 #  child_count                                :integer
 #  discarded_at                               :datetime
 #  enrollment_reasons                         :string           default([]), is an Array

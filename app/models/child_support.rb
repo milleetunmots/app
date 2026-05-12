@@ -101,6 +101,7 @@
 #  call3_tv_frequency                         :string
 #  call3_why_talk_needed                      :text
 #  call_infos                                 :string
+#  call_recording_consent                     :string           default("not_asked")
 #  child_count                                :integer
 #  discarded_at                               :datetime
 #  enrollment_reasons                         :string           default([]), is an Array
@@ -191,6 +192,7 @@ class ChildSupport < ApplicationRecord
   FAMILY_PROGRESS = %w[1_yes 2_no 3_no_information].freeze
   GOALS_FOLLOW_UP = %w[1_succeed 2_tried 3_no_tried 4_no_goal 5_not_enough_information].freeze
   IS_BILINGUAL_OPTIONS = %w[0_yes 1_no 2_no_information].freeze
+  CALL_RECORDING_CONSENT_OPTIONS = %w[0_yes 1_no not_asked no_clear_answer].freeze
   INSTAGRAM_INFORMATION_OPTIONS = %w[0_yes 1_no 2_no_information].freeze
   SUPPORT_ATTRIBUTES_TO_RESET = %w[
     is_bilingual
@@ -285,6 +287,7 @@ class ChildSupport < ApplicationRecord
 
   validates :books_quantity, inclusion: { in: BOOKS_QUANTITY, allow_blank: true }
   validates :is_bilingual, inclusion: { in: IS_BILINGUAL_OPTIONS }
+  validates :call_recording_consent, inclusion: { in: CALL_RECORDING_CONSENT_OPTIONS }
   validates :instagram_follower, inclusion: { in: INSTAGRAM_INFORMATION_OPTIONS, allow_blank: true }
   validates :instagram_user, inclusion: { in: INSTAGRAM_INFORMATION_OPTIONS, allow_blank: true }
   validates :has_important_information_parental_consent, acceptance: true, if: -> { important_information.present? && new_record? }
