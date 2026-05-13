@@ -235,3 +235,29 @@
 
   &:hover
     background-color: lighten(#5E6469, 10%)
+
+#enabled_call_style,
+#not_enabled_call_style
+  border-radius: 8px
+  padding-top: 12px
+  padding-bottom: 0
+  margin-bottom: 20px
+  display: flex !important
+  align-items: baseline
+
+  > .column
+    box-sizing: border-box
+
+    &:first-child
+      padding-left: 25px !important
+
+#enabled_call_style
+  background-color: $violet
+  color: white
+
+#not_enabled_call_style
+  background-color: white
+  border: 1px solid $violet
+
+  > .column:first-child label
+    color: $violet
