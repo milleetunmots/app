@@ -25,6 +25,10 @@ class SpotHit::SendRcsService
   protected
 
   def send_rcs
+    if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
+      @recipients = safeguard_recipients(@recipients)
+      return if @recipients.empty?
+    end
     if @recipients.first.is_a?(String)
       @form['custom_list[]'] = @recipients
     else
@@ -46,6 +50,15 @@ class SpotHit::SendRcsService
       create_events(response['campaign_id'])
     else
       @errors << "Erreur lors de la programmation de la campagne : #{response['error']['message']}]"
+    end
+  end
+
+  def safeguard_recipients(recipients)
+    safe_numbers = ENV['SAFE_PHONE_NUMBERS'].to_s.split(',').map(&:strip)
+    case recipients
+    when Hash  then recipients.select { |phone, _| safe_numbers.include?(phone) }
+    when Array then recipients.select { |phone| safe_numbers.include?(phone) }
+    else            recipients
     end
   end
 

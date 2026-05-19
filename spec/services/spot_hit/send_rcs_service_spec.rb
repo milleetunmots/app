@@ -67,5 +67,89 @@ RSpec.describe SpotHit::SendRcsService do
         expect(service.errors).to be_empty
       end
     end
+
+    context 'when SPOT_HIT_SAFEGUARD is set' do
+      let(:safe_parent) { FactoryBot.create(:parent, phone_number: '+33600000001') }
+
+      before do
+        ENV['SPOT_HIT_SAFEGUARD'] = 'true'
+        ENV['SAFE_PHONE_NUMBERS'] = safe_parent.phone_number
+      end
+
+      after do
+        ENV.delete('SPOT_HIT_SAFEGUARD')
+        ENV.delete('SAFE_PHONE_NUMBERS')
+      end
+
+      context 'when no recipient is whitelisted' do
+        let(:recipients) do
+          {
+            parent1.phone_number => { 'PRENOM_ENFANT' => 'Emma' },
+            parent2.phone_number => { 'PRENOM_ENFANT' => 'Lucas' }
+          }
+        end
+
+        it 'does not make an API call' do
+          service
+          expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+        end
+
+        it 'does not create any events' do
+          expect { service }.not_to change(Event, :count)
+        end
+      end
+
+      context 'when one recipient is whitelisted (Hash format)' do
+        let(:recipients) do
+          {
+            parent1.phone_number => { 'PRENOM_ENFANT' => 'Emma' },
+            safe_parent.phone_number => { 'PRENOM_ENFANT' => 'Lucas' }
+          }
+        end
+
+        it 'makes an API call' do
+          service
+          expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+        end
+
+        it 'only creates an event for the whitelisted recipient' do
+          expect { service }.to change(Event, :count).by(1)
+          expect(Event.last.related).to eq(safe_parent)
+        end
+      end
+
+      context 'when one recipient is whitelisted (Array format)' do
+        let(:fallback_message) { 'Bonjour !' }
+        let(:recipients) { [parent1.phone_number, safe_parent.phone_number] }
+
+        it 'makes an API call' do
+          service
+          expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+        end
+
+        it 'only creates an event for the whitelisted recipient' do
+          expect { service }.to change(Event, :count).by(1)
+          expect(Event.last.related).to eq(safe_parent)
+        end
+      end
+
+      context 'when SAFE_PHONE_NUMBERS contains multiple numbers (avec espaces)' do
+        let(:safe_parent2) { FactoryBot.create(:parent, phone_number: '+33600000002') }
+        let(:recipients) do
+          {
+            parent1.phone_number => { 'PRENOM_ENFANT' => 'Emma' },
+            safe_parent.phone_number => { 'PRENOM_ENFANT' => 'Lucas' },
+            safe_parent2.phone_number => { 'PRENOM_ENFANT' => 'Léa' }
+          }
+        end
+
+        before { ENV['SAFE_PHONE_NUMBERS'] = "#{safe_parent.phone_number}, #{safe_parent2.phone_number}" }
+
+        it 'creates events for both whitelisted recipients only' do
+          expect { service }.to change(Event, :count).by(2)
+          expect(Event.pluck(:related_id)).to contain_exactly(safe_parent.id, safe_parent2.id)
+        end
+      end
+    end
   end
 end
