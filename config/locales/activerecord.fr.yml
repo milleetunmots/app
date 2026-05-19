@@ -193,6 +193,7 @@ fr:
         availability: Disponibilités générales
         book_not_received: Livre non reçu
         books_quantity: Nombre de livres pour l'enfant suivi
+        call_recording_consent: Accord du parent pour l'enregistrement de l'appel
         call_infos: Autres informations
         call0_duration: Durée de l'appel 0 (en minutes)
         call0_status: Statut de l'appel 0

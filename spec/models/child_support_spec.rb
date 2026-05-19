@@ -311,4 +311,13 @@ RSpec.describe ChildSupport, type: :model do
       end
     end
   end
+
+  describe "#copy_fields" do
+    it "logs call_recording_consent value in notes" do
+      source = FactoryBot.create(:child_support, current_child: first_child, call_recording_consent: '0_yes')
+      target = FactoryBot.build(:child_support)
+      target.copy_fields(source)
+      expect(target.notes).to include('0_yes')
+    end
+  end
 end

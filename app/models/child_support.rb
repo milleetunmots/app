@@ -235,6 +235,7 @@ class ChildSupport < ApplicationRecord
     book_not_received
     tag_list
     parent_needs
+    call_recording_consent
   ].freeze
 
   # ---------------------------------------------------------------------------
