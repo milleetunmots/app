@@ -239,17 +239,20 @@
 #enabled_call_style,
 #not_enabled_call_style
   border-radius: 8px
-  padding-top: 12px
-  padding-bottom: 0
+  padding: 18px 0
+  min-height: 70px
   margin-bottom: 20px
   display: flex !important
-  align-items: baseline
+  align-items: center
 
   > .column
     box-sizing: border-box
 
     &:first-child
       padding-left: 25px !important
+
+    .input
+      margin-bottom: 0
 
 #enabled_call_style
   background-color: $violet
@@ -261,3 +264,7 @@
 
   > .column:first-child label
     color: $violet
+
+  > .column:nth-child(2)
+    label
+      visibility: hidden

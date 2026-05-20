@@ -385,7 +385,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_05_12_000000) do
     t.string "calendly_booking_url"
     t.text "parent_needs"
     t.string "enrollment_reasons", default: [], array: true
-    t.string "call_recording_consent", default: "not_asked"
+    t.string "call_recording_consent"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"

@@ -244,10 +244,10 @@ ActiveAdmin.register ChildSupport do
       end
       column do
         f.input :call_recording_consent,
-                label: f.object.group_enable_calls_recording ? 'Accord du parent :' : false,
+                label: f.object.group_enable_calls_recording ? 'Accord du parent' : true,
                 collection: call_recording_consent_collection,
                 input_html: { data: { select2: {} } },
-                include_blank: false
+                include_blank: true
       end
     end
     render partial: 'admin/child_supports/call_attempt_modal', locals: { call_index: 0 }
