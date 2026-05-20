@@ -193,6 +193,7 @@ fr:
         availability: Disponibilités générales
         book_not_received: Livre non reçu
         books_quantity: Nombre de livres pour l'enfant suivi
+        call_recording_consent: Accord du parent pour l'enregistrement de l'appel
         call_infos: Autres informations
         call0_duration: Durée de l'appel 0 (en minutes)
         call0_status: Statut de l'appel 0
@@ -463,6 +464,11 @@ fr:
         1_rather_satisfied: Plutôt satisfaite 🙂
         2_rather_dissatisfied: Plutôt insatisfaite 😕
         3_very_dissatisfied: Très insatisfaite 😞
+      child_support/call_recording_consent:
+        0_yes: Oui
+        1_no: Non
+        not_asked: Non demandé
+        no_clear_answer: Pas de réponse claire
       event: &EVENT
         << : *SHARED
         address: Adresse
