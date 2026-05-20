@@ -6,6 +6,7 @@ class ChildSupport
         @call_number = call_number
         @parent_link = {}
         assign_default_call_status
+        Group::StopSupportService.new(group_id, end_of_support: false).call if call_number.to_i.zero?
         check_and_process_disengagement
         send_disengagement_warning_message
         send_call_goals_messages
