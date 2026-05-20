@@ -112,6 +112,15 @@ module ActiveAdmin::ChildSupportsHelper
     end
   end
 
+  def call_recording_consent_collection
+    ChildSupport::CALL_RECORDING_CONSENT_OPTIONS.map do |v|
+      [
+        ChildSupport.human_attribute_name("call_recording_consent.#{v}"),
+        v
+      ]
+    end
+  end
+
   def call_statuses_with_nil
     ChildSupport::CALL_STATUS.map do |v|
       [

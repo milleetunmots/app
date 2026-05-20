@@ -10,6 +10,8 @@ class SpotHit::DeleteRcsModelService
   end
 
   def call
+    return self if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
+
     response = HTTP.post(
       URL,
       form: {

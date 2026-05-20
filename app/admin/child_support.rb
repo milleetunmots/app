@@ -224,12 +224,30 @@ ActiveAdmin.register ChildSupport do
 
   form(remote: true) do |f|
     f.semantic_errors(*f.object.errors.details.keys)
-    if f.object.group_enable_calls_recording
-      h3 id: 'call_recording_warning', class: 'full-width-warning' do
+    call_recording_consent_label =
+      if f.object.group_enable_calls_recording
         safe_join([
-          content_tag(:i, '', class: 'fas fa-microphone', style: 'margin-right: 5px;'),
-          'Enregistrement des appels : recommandé'
-        ])
+                    content_tag(:i, '', class: 'fas fa-microphone', style: 'margin-right: 5px;'),
+                    'Enregistrement des appels : ',
+                    content_tag(:span, 'recommandé', style: 'font-weight: bold;')
+                  ])
+      else
+        safe_join([
+                    content_tag(:i, '', class: 'fas fa-microphone', style: 'margin-right: 5px;'),
+                    content_tag(:span, 'Accord du parent', style: 'font-weight: bold;'),
+                    " si enregistrement de l'appel"
+                  ])
+      end
+    columns id: f.object.group_enable_calls_recording ? 'enabled_call_style' : 'not_enabled_call_style' do
+      column do
+        f.label :call_recording_consent, call_recording_consent_label
+      end
+      column do
+        f.input :call_recording_consent,
+                label: f.object.group_enable_calls_recording ? 'Accord du parent' : true,
+                collection: call_recording_consent_collection,
+                input_html: { data: { select2: {} } },
+                include_blank: true
       end
     end
     render partial: 'admin/child_supports/call_attempt_modal', locals: { call_index: 0 }

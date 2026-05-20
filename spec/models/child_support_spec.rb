@@ -101,6 +101,7 @@
 #  call3_tv_frequency                         :string
 #  call3_why_talk_needed                      :text
 #  call_infos                                 :string
+#  call_recording_consent                     :string
 #  child_count                                :integer
 #  discarded_at                               :datetime
 #  enrollment_reasons                         :string           default([]), is an Array
@@ -308,6 +309,15 @@ RSpec.describe ChildSupport, type: :model do
       it "child supports for child with parent postal code starts with v" do
         expect(ChildSupport.postal_code_starts_with(75)).to match_array [first_child_support, third_child_support]
       end
+    end
+  end
+
+  describe "#copy_fields" do
+    it "logs call_recording_consent value in notes" do
+      source = FactoryBot.create(:child_support, current_child: first_child, call_recording_consent: '0_yes')
+      target = FactoryBot.build(:child_support)
+      target.copy_fields(source)
+      expect(target.notes).to include('0_yes')
     end
   end
 end

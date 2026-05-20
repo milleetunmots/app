@@ -1,3 +1,32 @@
+# == Schema Information
+#
+# Table name: children_support_modules
+#
+#  id                            :bigint           not null, primary key
+#  available_support_module_list :string           is an Array
+#  book_condition                :string
+#  choice_date                   :date
+#  is_completed                  :boolean          default(FALSE)
+#  is_programmed                 :boolean          default(FALSE), not null
+#  module_index                  :integer
+#  created_at                    :datetime         not null
+#  updated_at                    :datetime         not null
+#  book_id                       :bigint
+#  child_id                      :bigint
+#  parent_id                     :bigint
+#  support_module_id             :bigint
+#
+# Indexes
+#
+#  index_children_support_modules_on_book_id            (book_id)
+#  index_children_support_modules_on_child_id           (child_id)
+#  index_children_support_modules_on_parent_id          (parent_id)
+#  index_children_support_modules_on_support_module_id  (support_module_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (book_id => books.id)
+#
 require 'rails_helper'
 
 RSpec.describe ChildrenSupportModule, type: :model do
