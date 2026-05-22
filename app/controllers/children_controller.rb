@@ -1,5 +1,7 @@
 class ChildrenController < ApplicationController
 
+  include ApplicationHelper
+
   SIBLINGS_COUNT = 3
 
   skip_before_action :authenticate_admin_user!
@@ -70,7 +72,8 @@ class ChildrenController < ApplicationController
 
     case current_registration_origin
     when 5
-      @message = I18n.t('inscription_success.pro')
+      message_key = summer_support_waiting? ? 'inscription_success.summer_support_waiting_local_partner' : 'inscription_success.pro'
+      @message = I18n.t(message_key)
       @again = true
       @widget = false
       @new_link = new_local_partner_registration_path
@@ -88,7 +91,8 @@ class ChildrenController < ApplicationController
     when 3
       # for this form we keep the registration_origin
       # so that multiple children can be registered
-      @message = I18n.t('inscription_success.pro')
+      message_key = summer_support_waiting? ? 'inscription_success.summer_support_waiting_pmi' : 'inscription_success.pro'
+      @message = I18n.t(message_key)
       @again = true
       @widget = false
       @new_link = new_pmi_registration_path

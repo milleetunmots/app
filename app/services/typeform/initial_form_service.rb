@@ -162,7 +162,12 @@ module Typeform
       child = @child_support.current_child
       return unless child&.created_at&.> 2.hours.ago
 
-      message = "Bonjour, merci pour votre inscription à l'accompagnement de l'association 1001mots. Bienvenue, ça va bientôt démarrer !\nL'équipe 1001mots"
+      message =
+        if summer_support_waiting?
+          "Bonjour, merci pour votre inscription à l'accompagnement de l'association 1001mots ! Pendant l'été, nous faisons une petite pause dans les accompagnements. Vous allez recevoir les premiers livres et conseils à la rentrée. A bientôt !\nL'équipe 1001mots"
+        else
+          "Bonjour, merci pour votre inscription à l'accompagnement de l'association 1001mots. Bienvenue, ça va bientôt démarrer !\nL'équipe 1001mots"
+        end
       SpotHit::SendSmsService.new([@parent1.id], Time.zone.now.to_i, message).call
     end
   end

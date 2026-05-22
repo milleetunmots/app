@@ -2,6 +2,8 @@ class Child
 
   class AddToGroupService
 
+    include ApplicationHelper
+
     LATE_SUPPORT_WARNING_MESSAGE = "1001mots : En raison d’un grand nombre de demandes, vous recevrez nos livres et conseils dans environ 2 mois. Pas d’inquiétude, c'est normal si vous avez moins de nouvelles de nous d'ici là. A bientôt!".freeze
 
     # Assign a child and its siblings to the right group for them
@@ -102,6 +104,7 @@ class Child
     def warn_family_of_late_support
       return unless @child
       return if @child&.source&.channel == 'caf' && ENV['CAF_SUBSCRIPTION'] == 'true'
+      return if summer_support_waiting?
 
       warn_family_with_siblings
       warn_family_without_siblings
