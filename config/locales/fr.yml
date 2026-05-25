@@ -87,6 +87,12 @@ fr:
       <li style="margin-bottom:8px;">✨ Inscription réservée aux parents ayant reçu un email ou SMS de leur <b>MSA</b></li>
       </ul>
     form5: "<b>L’accompagnement 1001mots est conseillé pour des enfants entre 0 et 3 ans.</b> Pour faciliter l’accompagnement, nous avons besoin des coordonnées d’au moins un parent.<br/><br/>La famille recevra gratuitement&nbsp;:<ul><li>3 SMS par semaine avec des idées de jeux et des conseils pour éveiller le langage de l'enfant</li><li>des livres adaptés à l’âge de l’enfant</li><li>des appels par des spécialistes de l'éveil langagier pour prendre de ses nouvelles et répondre à vos questions</li></ul><b>L'accompagnement 1001mots est gratuit et sans engagement&nbsp;:&nbsp;</b>la famille peut choisir d'arrêter à n'importe quel moment."
+  registration_confirmation_email:
+    checkbox_label: "Je souhaite recevoir une confirmation de l'inscription par email"
+    email_label: "Mon email professionnel&nbsp;"
+    email_placeholder: "prenom.nom@pmi-xxxxx.fr"
+    email_blank_warning: "Veuillez renseigner votre adresse email professionnelle ou décocher la case."
+    email_format_warning: "Veuillez renseigner une adresse email valide."
   inscription_terms_accepted_at_label:
     parent: "Dans le cadre des échanges avec votre accompagnante 1001mots, vous êtes susceptible de partager des informations sensibles (exemple : état de santé de votre enfant). En cochant cette case, vous confirmez votre accord pour que 1001mots collecte ces informations de façon à vous accompagner au mieux et à mesurer l’impact de l’association. <a href='https://1001mots.org/politique-de-confidentialite/' target='_blank'>En savoir plus</a>."
     pro: "Je confirme avoir informé les parents que leurs données seront collectées par 1001mots pour qu’ils puissent bénéficier de l’accompagnement. Je confirme que les parents ont donné leur accord. <a href='https://1001mots.org/politique-de-confidentialite/' target='_blank'>En savoir plus</a>."

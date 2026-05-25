@@ -257,6 +257,12 @@ class ChildrenController < ApplicationController
     end
     @title = I18n.t("inscription_title.form#{current_registration_origin}")
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
+    @registration_confirmation_email_block_enabled = current_registration_origin.in?([3, 5])
+    if @registration_confirmation_email_block_enabled
+      @registration_confirmation_email_wanted = true
+      @registration_confirmation_email_label = I18n.t('registration_confirmation_email.email_label')
+      @registration_confirmation_email_value = params[:registration_confirmation_email].to_s
+    end
     case current_registration_origin
     when 6
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
