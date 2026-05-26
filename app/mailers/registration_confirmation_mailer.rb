@@ -1,5 +1,5 @@
 class RegistrationConfirmationMailer < ApplicationMailer
-  default from: ENV['MAIL_SENDER'] || 'bot@1001mots.org'
+  default from: ENV['MAIL_SENDER'] || 'inscription-no-reply@1001mots.org'
 
   def confirmation(child_id, recipient_email)
     @child = Child.find(child_id)
