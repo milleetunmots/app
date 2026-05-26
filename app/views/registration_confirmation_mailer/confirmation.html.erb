@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>Inscription confirmée pour <%= @child.first_name %></title>
+</head>
+<body style="margin:0; padding:0; background-color:#FEFDF8; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; color:#0B4374; -webkit-font-smoothing:antialiased;">
+
+  <div style="display:none; max-height:0; overflow:hidden; mso-hide:all;">
+    L'inscription de <%= @child.first_name %> <%= @child.last_name.first.upcase %>. au programme 1001mots est confirmée.
+  </div>
+
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#FEFDF8;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px; width:100%; background-color:#FFFFFF; border-radius:12px; overflow:hidden; box-shadow:0 1px 3px rgba(11,67,116,0.06);">
+
+          <tr>
+            <td style="padding:40px 40px 8px 40px; font-size:16px; line-height:1.6; color:#0B4374;">
+
+              <p style="margin:0 0 16px 0;">Bonjour,</p>
+
+              <p style="margin:0 0 8px 0;">
+                L'inscription de <strong><%= @child.first_name %> <%= @child.last_name.first.upcase %>.</strong> au programme 1001mots est confirmée 🥳
+              </p>
+
+              <p style="margin:0 0 28px 0;">
+                Merci beaucoup d'avoir pris le temps de proposer l'accompagnement à sa famille.
+              </p>
+
+              <h2 style="margin:0 0 12px 0; font-size:17px; font-weight:700; color:#0B4374;">
+                Démarrage de l'accompagnement
+              </h2>
+
+              <p style="margin:0 0 12px 0;">
+                L'accompagnement va démarrer au maximum quelques semaines après l'inscription (sauf l'été : nous ne lançons pas de nouveaux accompagnements entre mi-juin et fin août).
+              </p>
+
+              <p style="margin:0 0 12px 0;">
+                Cela commence par des SMS et un premier appel de l'accompagnante référente de la famille, pour faire connaissance et échanger sur les conversations du quotidien (quand on donne le bain, change la couche…).
+              </p>
+
+              <p style="margin:0 0 20px 0;">
+                Le premier livre est envoyé 4 semaines après le début de l'accompagnement.
+              </p>
+
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 28px 0;">
+                <tr>
+                  <td style="background-color:#FFEFF6; border-left:4px solid #FFABCC; padding:14px 16px; border-radius:6px; font-size:15px; line-height:1.5; color:#0B4374;">
+                    <span style="font-size:18px; vertical-align:middle;">⏳</span>
+                    <span style="vertical-align:middle;"> <strong>Si l'enfant a moins de 4 mois</strong>, l'accompagnement ne démarrera qu'à ses 4 mois.</span>
+                  </td>
+                </tr>
+              </table>
+
+              <h2 style="margin:0 0 12px 0; font-size:17px; font-weight:700; color:#0B4374;">
+                Une question&nbsp;?
+              </h2>
+
+              <p style="margin:0 0 28px 0;">
+                Écrivez-nous à <a href="mailto:pmi@1001mots.org" style="color:#3596FF; text-decoration:underline;">pmi@1001mots.org</a>, nous vous répondrons rapidement.
+              </p>
+
+              <p style="margin:0 0 4px 0;">Merci pour votre engagement aux côtés des familles,</p>
+              <p style="margin:0 0 32px 0; font-weight:700;">L'équipe 1001mots</p>
+
+            </td>
+          </tr>
+
+          <tr>
+            <td style="background-color:#FEFDF8; padding:20px 40px; border-top:1px solid #F0EDE2; text-align:center;">
+              <p style="margin:0; font-size:12px; line-height:1.5; color:#6B7A8F;">
+                Cet email automatique est envoyé à l'adresse renseignée lors de l'inscription.<br>
+                Merci de ne pas répondre directement à ce message — utilisez
+                <a href="mailto:pmi@1001mots.org" style="color:#6B7A8F; text-decoration:underline;">pmi@1001mots.org</a>
+                pour nous contacter.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

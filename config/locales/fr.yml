@@ -93,6 +93,7 @@ fr:
     email_placeholder: "prenom.nom@pmi-xxxxx.fr"
     email_blank_warning: "Veuillez renseigner votre adresse email professionnelle ou décocher la case."
     email_format_warning: "Veuillez renseigner une adresse email valide."
+    email_subject: "Inscription confirmée pour %{first_name}"
   inscription_terms_accepted_at_label:
     parent: "Dans le cadre des échanges avec votre accompagnante 1001mots, vous êtes susceptible de partager des informations sensibles (exemple : état de santé de votre enfant). En cochant cette case, vous confirmez votre accord pour que 1001mots collecte ces informations de façon à vous accompagner au mieux et à mesurer l’impact de l’association. <a href='https://1001mots.org/politique-de-confidentialite/' target='_blank'>En savoir plus</a>."
     pro: "Je confirme avoir informé les parents que leurs données seront collectées par 1001mots pour qu’ils puissent bénéficier de l’accompagnement. Je confirme que les parents ont donné leur accord. <a href='https://1001mots.org/politique-de-confidentialite/' target='_blank'>En savoir plus</a>."
