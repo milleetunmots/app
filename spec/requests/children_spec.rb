@@ -54,6 +54,20 @@ RSpec.describe ChildrenController, type: :request do
       it "sets session[:registration_origin]" do
         expect(session[:registration_origin]).to eq 3
       end
+
+      it "renders the registration confirmation email block, pre-checked" do
+        expect(response.body).to include 'id="want_registration_confirmation_email"'
+        expect(response.body).to include I18n.t('registration_confirmation_email.email_label')
+        expect(response.body).to match(/id="want_registration_confirmation_email"[^>]*checked/)
+      end
+    end
+
+    context "when URL is inscriptioncaf (non-pro form)" do
+      before { get "/inscriptioncaf" }
+
+      it "does not render the registration confirmation email block" do
+        expect(response.body).not_to include 'id="want_registration_confirmation_email"'
+      end
     end
   end
 
@@ -151,6 +165,7 @@ RSpec.describe ChildrenController, type: :request do
         expect(response).to render_template(:new)
       end
     end
+
   end
 
   describe "#created" do

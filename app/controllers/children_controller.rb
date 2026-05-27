@@ -51,8 +51,10 @@ class ChildrenController < ApplicationController
         end
       redirect_to created_child_path(eval_25_child_id: current_child.id)
     elsif service.parent1_target_profile || current_registration_origin != 4
+      send_registration_confirmation_email
       redirect_to created_child_path(sms_url_form: service.sms_url_form, children_under_four_months: service.children_under_four_months, youngest_child_under_twenty_four_months: service.youngest_child_under_twenty_four_months)
     else
+      send_registration_confirmation_email
       redirect_to created_child_path(sms_url_form: service.sms_url_form, parent1: @child.parent1, children_under_four_months: service.children_under_four_months, youngest_child_under_twenty_four_months: service.youngest_child_under_twenty_four_months)
     end
   end
@@ -257,6 +259,12 @@ class ChildrenController < ApplicationController
     end
     @title = I18n.t("inscription_title.form#{current_registration_origin}")
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
+    @registration_confirmation_email_block_enabled = current_registration_origin.in?([3, 5])
+    if @registration_confirmation_email_block_enabled
+      @registration_confirmation_email_wanted = request.get? || params[:want_registration_confirmation_email] == '1'
+      @registration_confirmation_email_label = I18n.t('registration_confirmation_email.email_label')
+      @registration_confirmation_email_value = params[:registration_confirmation_email].to_s
+    end
     case current_registration_origin
     when 6
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
@@ -314,6 +322,16 @@ class ChildrenController < ApplicationController
 
   def current_registration_origin
     session[:registration_origin] || 1
+  end
+
+  def send_registration_confirmation_email
+    return unless current_registration_origin.in?([3, 5])
+    return unless params[:want_registration_confirmation_email] == '1'
+
+    email = params[:registration_confirmation_email].to_s.strip
+    return if email.blank?
+
+    RegistrationConfirmationMailer.confirmation(@child.id, email).deliver_later
   end
 
   def set_src_url
