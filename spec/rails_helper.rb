@@ -49,8 +49,8 @@ ENV['COORDINATOR_EMAIL'] ||= 'coordinator@test.com'
 ENV['CALENDLY_TOKEN'] ||= "valid_token"
 ENV['CALENDLY_ORGANIZATION_URI'] ||= "https://api.calendly.com/organizations/test-org-uri-xxxxxxxx"
 ENV['CALENDLY_WEBHOOK_SIGNING_KEY'] ||= "test_signing_key_123"
-ENV['SUMMER_SUPPORT_WAITING_START'] = nil
-ENV['SUMMER_SUPPORT_WAITING_END'] = nil
+ENV['SUMMER_SUPPORT_WAITING_START'] ||= ''
+ENV['SUMMER_SUPPORT_WAITING_END'] ||= ''
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production

@@ -261,7 +261,7 @@ class ChildrenController < ApplicationController
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
     @registration_confirmation_email_block_enabled = current_registration_origin.in?([3, 5])
     if @registration_confirmation_email_block_enabled
-      @registration_confirmation_email_wanted = true
+      @registration_confirmation_email_wanted = request.get? || params[:want_registration_confirmation_email] == '1'
       @registration_confirmation_email_label = I18n.t('registration_confirmation_email.email_label')
       @registration_confirmation_email_value = params[:registration_confirmation_email].to_s
     end
@@ -331,7 +331,7 @@ class ChildrenController < ApplicationController
     email = params[:registration_confirmation_email].to_s.strip
     return if email.blank?
 
-    RegistrationConfirmationMailer.confirmation(@child.id, email).deliver_now
+    RegistrationConfirmationMailer.confirmation(@child.id, email).deliver_later
   end
 
   def set_src_url
