@@ -205,6 +205,23 @@
                 <% end %>
               </div>
             </div>
+            <% if @registration_confirmation_email_block_enabled %>
+              <div class="card" id="registration-confirmation-email-card">
+                <div class="card-body">
+                  <div class="form-check">
+                    <%= check_box_tag :want_registration_confirmation_email, '1', @registration_confirmation_email_wanted, id: 'want_registration_confirmation_email', class: 'form-check-input' %>
+                    <%= label_tag :want_registration_confirmation_email, t('registration_confirmation_email.checkbox_label'), class: 'form-check-label' %>
+                  </div>
+                  <div id="registration_confirmation_email_field" class="form-group" style="<%= 'display:none;' unless @registration_confirmation_email_wanted %>">
+                    <%= label_tag :registration_confirmation_email, class: "label" do %>
+                      <%= @registration_confirmation_email_label.html_safe %><abbr title="required"> *</abbr>
+                    <% end %>
+                    <%= email_field_tag :registration_confirmation_email, @registration_confirmation_email_value, class: 'form-control', placeholder: t('registration_confirmation_email.email_placeholder'), required: true %>
+                    <small id="registration_confirmation_email_warning" class="form-text text-muted" style="display:none;" data-blank-message="<%= t('registration_confirmation_email.email_blank_warning') %>" data-invalid-message="<%= t('registration_confirmation_email.email_format_warning') %>"></small>
+                  </div>
+                </div>
+              </div>
+            <% end %>
           </div>
         </div>
         <div class="row justify-content-sm-center end-buttons" style="margin-top: 10px">

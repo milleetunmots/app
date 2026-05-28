@@ -155,9 +155,57 @@
     toggleParentalConsent();
   }
 
+  var REGISTRATION_CONFIRMATION_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  var registrationConfirmationEmailIsValid = function() {
+    var $checkbox = $('#want_registration_confirmation_email');
+    if (!$checkbox.length || !$checkbox.is(':checked')) { return true; }
+    return REGISTRATION_CONFIRMATION_EMAIL_REGEX.test($('#registration_confirmation_email').val());
+  };
+
+  var initRegistrationConfirmationEmail = function() {
+    var $checkbox = $('#want_registration_confirmation_email');
+    if (!$checkbox.length) { return; }
+
+    var $field = $('#registration_confirmation_email_field');
+    var $input = $('#registration_confirmation_email');
+    var $warning = $('#registration_confirmation_email_warning');
+
+    var checkEmailFormat = function() {
+      var val = $input.val();
+      if (!$checkbox.is(':checked')) {
+        $warning.hide();
+      } else if (val.trim() === '') {
+        $warning.text($warning.data('blank-message')).show();
+      } else if (REGISTRATION_CONFIRMATION_EMAIL_REGEX.test(val)) {
+        $warning.hide();
+      } else {
+        $warning.text($warning.data('invalid-message')).show();
+      }
+    };
+
+    var toggle = function() {
+      if ($checkbox.is(':checked')) {
+        $field.show();
+        $input.prop('required', true);
+      } else {
+        $field.hide();
+        $input.prop('required', false);
+        $input.val('');
+        $warning.hide();
+      }
+      checkEmailFormat();
+    };
+
+    $checkbox.on('change', toggle);
+    $input.on('input', checkEmailFormat);
+    toggle();
+  };
+
   var init = function() {
     $postalCodeWarning.hide();
     $submitButton.prop('disabled', true);
+    initRegistrationConfirmationEmail();
 
     $addressPostalCodeInput.on('input', function() {
       $postalCodeWarning.hide();
@@ -168,7 +216,7 @@
       }
     });
 
-    $('#new_child').on('input change', 'input[required], textarea[required], select[required]', function() {
+    $('#new_child').on('input change', 'input[required], textarea[required], select[required], #want_registration_confirmation_email', function() {
       let allFilled = true;
 
       $('#new_child input[required]:not([type="radio"]):not([type="checkbox"]), #new_child textarea[required], #new_child select[required]').each(function() {
@@ -200,7 +248,7 @@
         }
       });
 
-      $submitButton.prop('disabled', !allFilled || $addressPostalCodeInput.val().length !== 5);
+      $submitButton.prop('disabled', !allFilled || $addressPostalCodeInput.val().length !== 5 || !registrationConfirmationEmailIsValid());
     });
 
     if (bookDeliveryLocationSelect.length > 0) {
