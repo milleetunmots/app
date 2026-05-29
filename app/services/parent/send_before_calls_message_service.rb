@@ -211,7 +211,7 @@ class Parent::SendBeforeCallsMessageService
     end
   end
 
-  def send_before_calls_message(group, child_supports, message, call_index)
+  def send_before_calls_message(group, child_supports, message, call_index, rcs_media_id = nil)
     return if child_supports.empty?
 
     planned_date = (@send_at || @date).strftime('%d-%m-%Y')
@@ -220,7 +220,8 @@ class Parent::SendBeforeCallsMessageService
       planned_date,
       planned_hour,
       parent_ids(child_supports),
-      message
+      message,
+      rcs_media_id
     ).call
 
     if message_service.errors.empty?
