@@ -80,12 +80,9 @@ $(document).ready(function() {
             if (selectedValue === 'call0_goals') {
                 conclusion.val(`À bientôt !`)
                 call_index = 0
-                // imageToSendSelect.empty()
-                // imageToSendDiv.hide()
             } else {
                 conclusion.val(`Bonne journée !`)
                 call_index = 3
-                // imageToSendDiv.show()
             }
 
             messageContent = "{INTRODUCTION}{CHAMP_PETITE_MISSION}\n{QUESTIONNAIRE_DE_PARTAGE}{type_form_link}\n{CONCLUSION}"
