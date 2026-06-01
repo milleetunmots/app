@@ -26,7 +26,7 @@ class ChildSupport::AssignCalendlyInvitationChannelService
           @rcs_child_support_ids << child_support.id
         else
           @errors << {
-            service: 'ChildSupport::ABTestingCalendlyInviteRcsSmsService',
+            service: 'ChildSupport::AssignCalendlyInvitationChannelService',
             child_support_id: child_support.id,
             error: child_support.errors.full_messages
           }
@@ -41,7 +41,7 @@ class ChildSupport::AssignCalendlyInvitationChannelService
           @sms_child_support_ids << child_support.id
         else
           @errors << {
-            service: 'ChildSupport::ABTestingCalendlyInviteRcsSmsService',
+            service: 'ChildSupport::AssignCalendlyInvitationChannelService',
             child_support_id: child_support.id,
             error: child_support.errors.full_messages
           }

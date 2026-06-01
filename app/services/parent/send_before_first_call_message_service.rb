@@ -36,18 +36,5 @@ class Parent::SendBeforeFirstCallMessageService < Parent::SendBeforeCallsMessage
 
   private
 
-  def send_ab_tested_first_call_message(group, beta_test_child_supports)
-    assignment = ChildSupport::AssignCalendlyInvitationChannelService.new(beta_test_child_supports).call
-    @errors.concat(assignment.errors) if assignment.errors.any?
 
-    sms_child_supports = ChildSupport.where(id: assignment.sms_child_support_ids)
-    rcs_child_supports = ChildSupport.where(id: assignment.rcs_child_support_ids)
-
-    send_before_calls_message(group, sms_child_supports, BETA_TEST_WARNING_MESSAGES, 0)
-    send_before_calls_message(group, rcs_child_supports, BETA_TEST_WARNING_MESSAGES, 0, rcs_invitation_media_id)
-  end
-
-  def rcs_invitation_media_id
-    ENV['RCS_CALL0_INVITATION_MEDIA_ID'].presence
-  end
 end
