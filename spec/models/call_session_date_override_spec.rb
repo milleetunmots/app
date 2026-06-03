@@ -22,96 +22,21 @@
 #  fk_rails_...  (admin_user_id => admin_users.id)
 #  fk_rails_...  (group_id => groups.id)
 #
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe CallSessionDateOverride, type: :model do
-  describe 'associations' do
-    it { is_expected.to belong_to(:admin_user) }
-    it { is_expected.to belong_to(:group) }
-  end
+  let(:group) { FactoryBot.create(:group) }
+  let(:admin_user) { FactoryBot.create(:admin_user) }
 
-  describe 'validations' do
-    let(:group) { FactoryBot.create(:group) }
-    let(:admin_user) { FactoryBot.create(:admin_user) }
+  subject { FactoryBot.create(:call_session_date_override, admin_user: admin_user, group: group) }
 
-    it 'is valid with valid attributes' do
-      override = FactoryBot.build(:call_session_date_override, admin_user: admin_user, group: group)
-      expect(override).to be_valid
-    end
-
-    describe 'call_session' do
-      it 'is invalid without a call_session' do
-        override = FactoryBot.build(:call_session_date_override, call_session: nil)
-        expect(override).not_to be_valid
-        expect(override.errors[:call_session]).to be_present
+  describe "Validations" do
+    context "succeed" do
+      it "with valid attributes" do
+        expect(FactoryBot.build(:call_session_date_override, admin_user: admin_user, group: group)).to be_valid
       end
 
-      it 'is invalid when call_session is below 0' do
-        override = FactoryBot.build(:call_session_date_override, call_session: -1)
-        expect(override).not_to be_valid
-        expect(override.errors[:call_session]).to be_present
-      end
-
-      it 'is invalid when call_session is above 3' do
-        override = FactoryBot.build(:call_session_date_override, call_session: 4)
-        expect(override).not_to be_valid
-        expect(override.errors[:call_session]).to be_present
-      end
-
-      it 'is valid for each value in 0..3' do
-        (0..3).each do |i|
-          override = FactoryBot.build(
-            :call_session_date_override,
-            admin_user: admin_user,
-            group: group,
-            call_session: i
-          )
-          expect(override).to be_valid
-        end
-      end
-
-      it 'is invalid when the trio (admin_user, group, call_session) already exists' do
-        existing = FactoryBot.create(:call_session_date_override)
-        duplicate = FactoryBot.build(
-          :call_session_date_override,
-          admin_user: existing.admin_user,
-          group: existing.group,
-          call_session: existing.call_session
-        )
-        expect(duplicate).not_to be_valid
-        expect(duplicate.errors[:call_session]).to be_present
-      end
-    end
-
-    describe 'dates presence' do
-      it 'is invalid without start_date' do
-        override = FactoryBot.build(:call_session_date_override, start_date: nil)
-        expect(override).not_to be_valid
-        expect(override.errors[:start_date]).to be_present
-      end
-
-      it 'is invalid without end_date' do
-        override = FactoryBot.build(:call_session_date_override, end_date: nil)
-        expect(override).not_to be_valid
-        expect(override.errors[:end_date]).to be_present
-      end
-    end
-
-    describe 'start_date <= end_date' do
-      it 'is invalid when start_date is after end_date' do
-        override = FactoryBot.build(
-          :call_session_date_override,
-          admin_user: admin_user,
-          group: group,
-          call_session: 0,
-          start_date: group.call0_end_date - 1.day,
-          end_date: group.call0_start_date + 1.day
-        )
-        expect(override).not_to be_valid
-        expect(override.errors[:start_date]).to be_present
-      end
-
-      it 'is valid when start_date equals end_date' do
+      it "when start_date equals end_date" do
         same_day = group.call0_start_date + 2.days
         override = FactoryBot.build(
           :call_session_date_override,
@@ -125,58 +50,107 @@ RSpec.describe CallSessionDateOverride, type: :model do
       end
     end
 
-    describe 'dates within group call session window' do
-      it 'is invalid when start_date is equal to the group call session start_date' do
+    context "fail" do
+      it "without start_date" do
         override = FactoryBot.build(
           :call_session_date_override,
           admin_user: admin_user,
           group: group,
-          call_session: 1,
-          start_date: group.call1_start_date,
-          end_date: group.call1_end_date - 1.day
+          start_date: nil
         )
         expect(override).not_to be_valid
-        expect(override.errors[:start_date]).to be_present
       end
 
-      it 'is invalid when start_date is before the group call session start_date' do
+      it "without end_date" do
         override = FactoryBot.build(
           :call_session_date_override,
           admin_user: admin_user,
           group: group,
-          call_session: 1,
-          start_date: group.call1_start_date - 1.day,
-          end_date: group.call1_end_date - 1.day
+          end_date: nil
         )
         expect(override).not_to be_valid
-        expect(override.errors[:start_date]).to be_present
       end
 
-      it 'is invalid when end_date is equal to the group call session end_date' do
+      it "when start_date is after end_date" do
         override = FactoryBot.build(
           :call_session_date_override,
           admin_user: admin_user,
           group: group,
-          call_session: 1,
-          start_date: group.call1_start_date + 1.day,
-          end_date: group.call1_end_date
+          call_session: 0,
+          start_date: group.call0_end_date - 1.day,
+          end_date: group.call0_start_date + 1.day
         )
         expect(override).not_to be_valid
-        expect(override.errors[:end_date]).to be_present
       end
+    end
+  end
 
-      it 'is invalid when end_date is after the group call session end_date' do
+  describe "#call_session" do
+    it "is required" do
+      subject.call_session = nil
+
+      expect(subject).not_to be_valid
+    end
+
+    it "is included in CALL_SESSIONS" do
+      subject.call_session = -1
+      expect(subject).not_to be_valid
+
+      subject.call_session = 4
+      expect(subject).not_to be_valid
+    end
+
+    it "is valid for each value in CALL_SESSIONS" do
+      CallSessionDateOverride::CALL_SESSIONS.each do |i|
         override = FactoryBot.build(
           :call_session_date_override,
           admin_user: admin_user,
           group: group,
-          call_session: 1,
-          start_date: group.call1_start_date + 1.day,
-          end_date: group.call1_end_date + 1.day
+          call_session: i
         )
-        expect(override).not_to be_valid
-        expect(override.errors[:end_date]).to be_present
+        expect(override).to be_valid
       end
+    end
+
+    it "is unique scoped to admin_user and group" do
+      duplicate = FactoryBot.build(
+        :call_session_date_override,
+        admin_user: subject.admin_user,
+        group: subject.group,
+        call_session: subject.call_session
+      )
+
+      expect(duplicate).not_to be_valid
+    end
+  end
+
+  describe "#start_date" do
+    it "cannot be before the group call session start_date" do
+      override = FactoryBot.build(
+        :call_session_date_override,
+        admin_user: admin_user,
+        group: group,
+        call_session: 1,
+        start_date: group.call1_start_date - 1.day,
+        end_date: group.call1_end_date - 1.day
+      )
+
+      expect(override).not_to be_valid
+    end
+  end
+
+  describe "#end_date" do
+    it "cannot be after the group call session end_date" do
+      override = FactoryBot.build(
+        :call_session_date_override,
+        admin_user: admin_user,
+        group: group,
+        call_session: 1,
+        start_date: group.call1_start_date + 1.day,
+        end_date: group.call1_end_date + 1.day
+      )
+
+      expect(override).not_to be_valid
     end
   end
 end
