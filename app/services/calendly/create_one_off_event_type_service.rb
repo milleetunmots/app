@@ -101,11 +101,21 @@ module Calendly
     end
 
     def call_start_date
-      @group.send("call#{@call_session}_start_date")
+      date_override&.start_date || @group.send("call#{@call_session}_start_date")
     end
 
     def call_end_date
-      @group.send("call#{@call_session}_end_date")
+      date_override&.end_date || @group.send("call#{@call_session}_end_date")
+    end
+
+    def date_override
+      return @date_override if @date_override.present?
+
+      @date_override = CallSessionDateOverride.find_by(
+        group_id: @group.id,
+        call_session: @call_session,
+        admin_user_id: @supporter.id
+      )
     end
 
     def call_dates_present?
