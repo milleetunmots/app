@@ -11,12 +11,12 @@
       <% end %>
       <% case access_to_settings %>
       <% when true %>
-        <a href="<%= admin_reglages_path %>" class="button">Accéder aux réglages</a>
+        <a href="<%= admin_reglages_de_rdv_path %>" class="button">Accéder aux réglages</a>
       <% else %>
         <% if current_admin_user.can_send_automatic_sms %>
           <a href="#" id="toggle-automatic-sms-button" class="button">Désactiver les SMS de RDV</a>
         <% else %>
-          <a href="<%= admin_reglages_toggle_automatic_sms_path %>" data-method="post" class="button">Activer les SMS de RDV</a>
+          <a href="<%= admin_reglages_de_rdv_toggle_automatic_sms_path %>" data-method="post" class="button">Activer les SMS de RDV</a>
         <% end %>
       <% end %>
     </div>
