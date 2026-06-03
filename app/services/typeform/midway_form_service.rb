@@ -9,7 +9,7 @@ module Typeform
     attr_reader :errors
 
     def call
-      # verify_security_token
+      verify_security_token
       find_parent
       find_child_support
       return self unless @errors.empty?
