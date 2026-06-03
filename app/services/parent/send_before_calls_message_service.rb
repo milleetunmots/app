@@ -163,6 +163,7 @@ class Parent::SendBeforeCallsMessageService
     beta_test_child_supports_with_previous_calls_ok_or_unfinished =
       child_supports_with_previous_calls_ok_or_unfinished.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
     create_one_off_event_types(beta_test_child_supports_with_previous_calls_ok_or_unfinished, call_index)
+    assign_calendly_invitation_channel(beta_test_child_supports_with_previous_calls_ok_or_unfinished)
     send_ab_tested_call_message(group, beta_test_child_supports_with_previous_calls_ok_or_unfinished, BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index - 1], call_index)
 
     child_support_with_at_least_one_call_not_ok_and_not_unfinished =
@@ -174,6 +175,7 @@ class Parent::SendBeforeCallsMessageService
     beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished =
       child_support_with_at_least_one_call_not_ok_and_not_unfinished.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
     create_one_off_event_types(beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, call_index)
+    assign_calendly_invitation_channel(beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished)
     send_ab_tested_call_message(group, beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1], call_index)
   end
 
@@ -234,6 +236,11 @@ class Parent::SendBeforeCallsMessageService
         error: message_service.errors.uniq
       }
     end
+  end
+
+  def assign_calendly_invitation_channel(child_supports)
+    assignment = ChildSupport::AssignCalendlyInvitationChannelService.new(child_supports).call
+    @errors.concat(assignment.errors) if assignment.errors.any?
   end
 
   def send_ab_tested_call_message(group, child_supports, message, call_index)

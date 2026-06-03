@@ -35,10 +35,4 @@ class Parent::SendBeforeFirstCallMessageService < Parent::SendBeforeCallsMessage
     send_ab_tested_call_message(group, beta_test_child_supports, BETA_TEST_WARNING_MESSAGES, 0)
   end
 
-  private
-
-  def assign_calendly_invitation_channel(child_supports)
-    assignment = ChildSupport::AssignCalendlyInvitationChannelService.new(child_supports).call
-    @errors.concat(assignment.errors) if assignment.errors.any?
-  end
 end

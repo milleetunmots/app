@@ -48,7 +48,7 @@ module Calendly
           parent_id: parent.id,
           supporter_id: @supporter.id,
           call_session: @call_session,
-          error: JSON.parse(response.body)
+          error: (JSON.parse(response.body) rescue response.body)
         }
       end
     end
