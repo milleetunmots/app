@@ -32,6 +32,13 @@ $(document).ready(function() {
         conclusion_field.show()
     }
 
+    function showNewFieldsWithoutFeedbackForm() {
+        call_goal_sms_field.show()
+        message_intro_field.show()
+        feedback_form_field.hide()
+        conclusion_field.show()
+    }
+
     function hideNewFields() {
         call_goal_sms_field.hide()
         message_intro_field.hide()
@@ -73,12 +80,9 @@ $(document).ready(function() {
             if (selectedValue === 'call0_goals') {
                 conclusion.val(`À bientôt !`)
                 call_index = 0
-                // imageToSendSelect.empty()
-                // imageToSendDiv.hide()
             } else {
                 conclusion.val(`Bonne journée !`)
                 call_index = 3
-                // imageToSendDiv.show()
             }
 
             messageContent = "{INTRODUCTION}{CHAMP_PETITE_MISSION}\n{QUESTIONNAIRE_DE_PARTAGE}{type_form_link}\n{CONCLUSION}"
@@ -108,6 +112,43 @@ $(document).ready(function() {
                         }, complete: function() {
                             message.val(messageContentRefreshed)
                             showNewFields()
+                            message.prop('readonly', true)
+                            setSubmitBtnDisabledProp();
+                        }
+                    });
+                }
+            });
+        }
+        else if (selectedValue === 'call1_goals' || selectedValue === 'call2_goals' || selectedValue === 'call3_goals') {
+            call_index = parseInt(selectedValue.replace('call', '').replace('_goals', ''), 10)
+            conclusion.val(`Dites-moi quand vous aurez essayé :)\nA bientôt !`)
+
+            messageContent = "{INTRODUCTION}{CHAMP_PETITE_MISSION}\n{CONCLUSION}"
+            $.ajax({
+                type: 'GET',
+                url: `/child-support-supporter_first_name/${childSupportId}`,
+                success: function(response) {
+                    messageContent = `${messageContent}\n${response.name} 1001mots`
+                },
+                error: function() {
+                    messageContent = `${messageContent}\n1001mots`
+                },
+                complete: function() {
+                    message.css({'height': '250px', 'background-color': '#DDDDDD'})
+                    messageContentWithLink = messageContent
+                    messageContentRefreshed = messageContentWithLink.replace('{INTRODUCTION}', message_intro.val())
+                                                                    .replace('{CONCLUSION}', conclusion.val())
+                    $.ajax({
+                        type: 'GET',
+                        url: `/child-support-call-goal/${childSupportId}/${call_index}`,
+                        success: function(response) {
+                            call_goal.val(response.call_goal)
+                            if(response.call_goal !== '') {
+                                messageContentRefreshed = messageContentRefreshed.replace('{CHAMP_PETITE_MISSION}', response.call_goal)
+                            }
+                        }, complete: function() {
+                            message.val(messageContentRefreshed)
+                            showNewFieldsWithoutFeedbackForm()
                             message.prop('readonly', true)
                             setSubmitBtnDisabledProp();
                         }

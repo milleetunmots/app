@@ -75,12 +75,12 @@ ActiveAdmin.register_page 'Message' do
               option 'Relance prise de RDV', value: 'scheduled_call_reminder', selected: params[:template] == 'scheduled_call_reminder'
             else
               option 'Aucun', value: nil
-              option 'Appel 0', value: 'call0_goals'
-              option 'Appel 1', value: 'call1_goals'
-              option 'Appel 2', value: 'call2_goals'
-              option 'Appel 3', value: 'call3_goals'
-              option 'Appel 3 - OBSERVER', value: 'call3_goals_observing'
-              option 'Appel 3 - PARLER', value: 'call3_goals_speaking'
+              option 'PM appel 0', value: 'call0_goals'
+              option 'PM appel 1', value: 'call1_goals'
+              option 'PM appel 2', value: 'call2_goals'
+              option 'PM appel 3', value: 'call3_goals'
+              option 'PM appel 3 - OBSERVER', value: 'call3_goals_observing'
+              option 'PM appel 3 - PARLER', value: 'call3_goals_speaking'
             end
           end
         end
