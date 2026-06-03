@@ -1,4 +1,4 @@
-ActiveAdmin.register_page 'Réglages' do
+ActiveAdmin.register_page 'Réglages de RDV' do
   menu false
 
   content do
