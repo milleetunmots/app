@@ -68,7 +68,7 @@
               </td>
               <td>
                 <% if override.start_date %>
-                  <span style="color: #888;"><%= (session_start - 3.days).strftime('%d/%m/%Y') %></span>
+                  <span class="call-session-override-sms-date" style="color: #888;"><%= (override.start_date - 3.days).strftime('%d/%m/%Y') %></span>
                 <% end %>
               </td>
             </tr>
