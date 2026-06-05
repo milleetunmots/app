@@ -42,7 +42,7 @@ class CallSessionDateOverride < ApplicationRecord
   def start_date_before_or_equal_end_date
     return if start_date.blank? || end_date.blank?
 
-    errors.add(:start_date, :invalid, message: 'doit être antérieure ou égale à la date de fin') if start_date > end_date
+    errors.add(:base, :invalid, message: 'La date de début doit être antérieure ou égale à la date de fin') if start_date > end_date
   end
 
   def dates_within_group_call_session
@@ -52,11 +52,11 @@ class CallSessionDateOverride < ApplicationRecord
     group_end = group.send(:"call#{call_session}_end_date")
 
     if start_date.present? && group_start.present? && start_date < group_start
-      errors.add(:start_date, :invalid, message: "doit être ultérieure au #{I18n.l(group_start)}")
+      errors.add(:base, :invalid, message: "La date de début doit être ultérieure au #{I18n.l(group_start)}")
     end
 
     if end_date.present? && group_end.present? && end_date > group_end
-      errors.add(:end_date, :invalid, message: "doit être antérieure au #{I18n.l(group_end)}")
+      errors.add(:base, :invalid, message: "La date de fin doit être antérieure au #{I18n.l(group_end)}")
     end
   end
 end
