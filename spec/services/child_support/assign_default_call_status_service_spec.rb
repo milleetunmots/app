@@ -104,7 +104,7 @@ RSpec.describe ChildSupport::AssignDefaultCallStatusService do
       end
     end
 
-    context 'when handling call 2' do
+    context 'when handling call 2 (standard logic)' do
       let(:call_number) { 2 }
       let!(:support_module) { FactoryBot.create(:support_module) }
 
@@ -112,9 +112,9 @@ RSpec.describe ChildSupport::AssignDefaultCallStatusService do
         child_support_to_update.update!(call2_notes: nil, call2_duration: nil)
       end
 
-      context "when a 'not programmed' support module exists" do
+      context 'when call notes are present' do
         it "updates the status to 'OK'" do
-          FactoryBot.create(:children_support_module, is_programmed: false, child: active_child, support_module: support_module, parent: active_child.parent1)
+          child_support_to_update.update!(call2_notes: 'Parent answered, everything is fine.')
 
           service.call
           child_support_to_update.reload
@@ -123,19 +123,21 @@ RSpec.describe ChildSupport::AssignDefaultCallStatusService do
         end
       end
 
-      context "when only 'programmed' support modules exist" do
-        it "updates the status to 'KO'" do
-          FactoryBot.create(:children_support_module, is_programmed: true, child: active_child, support_module: support_module, parent: active_child.parent1)
+      context 'when call duration is present' do
+        it "updates the status to 'OK'" do
+          child_support_to_update.update!(call2_duration: 120)
 
           service.call
           child_support_to_update.reload
 
-          expect(child_support_to_update.call2_status).to eq('KO')
+          expect(child_support_to_update.call2_status).to eq('OK')
         end
       end
 
-      context 'when no support modules exist' do
-        it "updates the status to 'KO'" do
+      context 'when both notes and duration are blank' do
+        it "updates the status to 'KO' even if a 'not programmed' support module exists" do
+          FactoryBot.create(:children_support_module, is_programmed: false, child: active_child, support_module: support_module, parent: active_child.parent1)
+
           service.call
           child_support_to_update.reload
 
