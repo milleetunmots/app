@@ -20,7 +20,7 @@ module ActiveAdmin
                input_html: { multiple: true, data: { select2: {} } },
                label: 'Tags'
 
-        filter :not_tagged_with_all,
+        filter :not_tagged_with_any,
                as: :select,
                collection: proc { tag_name_collection(current_admin_user.caller? || current_admin_user.animator?) },
                input_html: { multiple: true, data: { select2: {} } },
