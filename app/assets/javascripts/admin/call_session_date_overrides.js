@@ -1,9 +1,10 @@
 (function($) {
 
-  var PERSISTED_BORDER = '4px solid #46be8a';
-  var PERSISTED_COLOR = '#46be8a';
   var DEFAULT_COLOR = '#5E6469';
-  var ERROR_COLOR = '#dc4747';
+  var PERSISTED_COLOR = '#46be8a';
+  var ALERT_COLOR = '#dc4747';
+  var PERSISTED_BORDER = `4px solid ${PERSISTED_COLOR}`;
+  var ALERT_BORDER = `4px solid ${ALERT_COLOR}`;
 
   var csrfToken = function() {
     var meta = document.querySelector('meta[name="csrf-token"]');
@@ -11,9 +12,34 @@
   };
 
   var setBorder = function($container, persisted) {
-    var $cell = $container.closest('tr').find('.call-session-override-border');
-    if (!$cell.length || $cell.data('urgent') === true) return;
-    $cell.css('border-left', persisted ? PERSISTED_BORDER : '');
+    var $row = $container.closest('tr');
+    var $cell = $row.find('.call-session-override-border');
+    if (!$cell.length) return;
+
+    if (persisted ) {
+      $cell.css('border-left', PERSISTED_BORDER);
+    }else if ($cell.data('alert') === true) {
+      $cell.css('border-left', ALERT_BORDER);
+    }else {
+      $cell.css('border-left', '');
+    }
+  };
+
+  var setDeadlineDateColor = function($container, persisted) {
+    var $row = $container.closest('tr');
+    var $deadline = $row.find('.call-session-override-modification-deadline');
+    if (!$deadline.length) return;
+
+    var $cell = $row.find('.call-session-override-border');
+    if (!$cell.length) return;
+
+    if (persisted) {
+      $deadline.css('color', '');
+    } else if ($cell.data('alert') === true) {
+      $deadline.css('color', ALERT_COLOR);
+    } else {
+      $deadline.css('color', '');
+    }
   };
 
   var setStatus = function($container, text, color) {
@@ -67,6 +93,7 @@
     }).done(function() {
       $container.find('.reset-call-session-override').css('color', PERSISTED_COLOR);
       setBorder($container, true);
+      setDeadlineDateColor($container, true);
       toastr.success('Enregistré');
     }).fail(function(xhr) {
       var errors = (xhr.responseJSON && xhr.responseJSON.errors) || ['Erreur'];
@@ -98,8 +125,9 @@
       toastr.success('Réinitialisé');
       $container.find('.reset-call-session-override').css('color', DEFAULT_COLOR);
       setBorder($container, false);
+      setDeadlineDateColor($container, false);
     }).fail(function() {
-      setStatus($container, 'Erreur', ERROR_COLOR);
+      setStatus($container, 'Erreur', ALERT_COLOR);
     });
   };
 
