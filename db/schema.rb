@@ -673,6 +673,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_06_15_131540) do
     t.float "longitude"
     t.jsonb "calendly_booking_urls", default: {}
     t.jsonb "calendly_last_booking_dates", default: {}
+    t.jsonb "calendly_initial_booking_dates", default: {}
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
