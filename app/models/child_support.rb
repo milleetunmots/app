@@ -678,6 +678,22 @@ class ChildSupport < ApplicationRecord
     end
   end
 
+  # Date de début de la session d'appel pour cette famille :
+  # la plage personnalisée par l'accompagnante si elle existe, sinon celle de la cohorte.
+  def call_session_start_date(call_index)
+    group = current_child&.group
+    return nil unless group
+
+    override = CallSessionDateOverride.find_by(
+      group: group,
+      admin_user: supporter,
+      call_session: call_index
+    )
+    override&.start_date || group.send("call#{call_index}_start_date")
+  end
+
+
+
   def current_call_session
     return 0 unless current_child
 
