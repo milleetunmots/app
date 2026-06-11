@@ -54,6 +54,7 @@ Rails.application.routes.draw do
   get 'spot_hit/status', to: 'events#update_status'
   get 'spot_hit/response', to: 'events#spot_hit_response'
   get 'spot_hit/stop', to: 'events#spot_hit_stop'
+  post 'spot_hit/rcs/response', to: 'events#spot_hit_rcs_response'
   get 's/:id', to: 'children_support_modules#edit', as: :children_support_module_link
   get 'c3/sf', to: 'child_supports#call3_speaking_form', as: :call3_speaking_form
   get 'c3/of', to: 'child_supports#call3_observing_form', as: :call3_observing_form

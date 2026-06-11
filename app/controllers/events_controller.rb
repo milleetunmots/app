@@ -80,4 +80,8 @@ class EventsController < ApplicationController
       head :unprocessable_entity
     end
   end
+
+  def spot_hit_rcs_response
+    head :ok
+  end
 end
