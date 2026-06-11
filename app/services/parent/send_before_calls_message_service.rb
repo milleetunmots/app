@@ -120,7 +120,9 @@ class Parent::SendBeforeCallsMessageService
 
   attr_reader :errors
 
-  def initialize(date: Time.zone.today.next_occurring(:friday), send_at: nil)
+  # Le job hebdomadaire tourne le vendredi à 17h : les SMS sont programmés pour
+  # 18h le jour même, à J-3 du lundi de début de session.
+  def initialize(date: Time.zone.today, send_at: nil)
     @errors = []
     @date = date
     @send_at = send_at
@@ -212,7 +214,9 @@ class Parent::SendBeforeCallsMessageService
     child_supports.each do |cs|
       [cs.parent1, cs.parent2].compact.select { |parent| parent.calendly_booking_urls&.dig("call#{call_index}").present? }.each do |parent|
         parent.calendly_initial_booking_dates ||= {}
-        parent.calendly_initial_booking_dates["call#{call_index}"] = @send_at || @date
+        # Sert de déduplication du 1er SMS et de référence pour la relance à
+        # J+2. Écrase une éventuelle date d'un accompagnement précédent.
+        parent.calendly_initial_booking_dates["call#{call_index}"] = (@send_at || @date).to_date.to_s
         parent.save!
       end
     end
@@ -222,7 +226,7 @@ class Parent::SendBeforeCallsMessageService
     child_supports.each do |cs|
       [cs.parent1, cs.parent2].compact.select { |parent| parent.calendly_booking_urls&.dig("call#{call_index}").present? }.each do |parent|
         parent.calendly_last_booking_dates ||= {}
-        parent.calendly_last_booking_dates["call#{call_index}"] = @send_at || @date
+        parent.calendly_last_booking_dates["call#{call_index}"] = (@send_at || @date).to_date.to_s
         parent.save!
       end
     end
