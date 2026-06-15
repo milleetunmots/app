@@ -144,6 +144,7 @@
       var $end = $container.find('.call-session-override-end');
       var $reset = $container.find('.reset-call-session-override');
 
+      $start.on('click', function() { try { this.showPicker(); } catch(e) {} });
       $start.on('keydown', function(e) { e.preventDefault(); });
       $start.on('change', function() {
         $end.attr('min', $start.val());
@@ -153,6 +154,7 @@
         persistOverride($container, upsertUrl);
       });
 
+      $end.on('click', function() { try { this.showPicker(); } catch(e) {} });
       $end.on('keydown', function(e) { e.preventDefault(); });
       $end.on('change', function() {
         $start.attr('min', $start.val());
