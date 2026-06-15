@@ -80,7 +80,7 @@ class ChildSupport::CallerRestartSupportService
 			raise ActiveRecord::Rollback
 		end
 
-		@child_support.important_information = "#{@child_support.important_information}\nAccompagnement redémarré le #{@date.strftime('%d/%m/%Y')} suite à la mise à jour du numéro à contacter."
+		@child_support.important_information = "Accompagnement redémarré le #{@date.strftime('%d/%m/%Y')} suite à la mise à jour du numéro à contacter.\n" + @child_support.important_information.to_s
 		@child_support.support_stopped_for_unassigned_number_at = nil
 		@child_support.save
 	end

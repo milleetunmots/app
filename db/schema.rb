@@ -202,19 +202,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_06_15_131540) do
     t.integer "avis_pas_adapte"
   end
 
-  create_table "call_session_date_overrides", force: :cascade do |t|
-    t.bigint "admin_user_id", null: false
-    t.bigint "group_id", null: false
-    t.integer "call_session", null: false
-    t.date "start_date", null: false
-    t.date "end_date", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["admin_user_id", "group_id", "call_session"], name: "index_call_session_date_overrides_on_trio", unique: true
-    t.index ["admin_user_id"], name: "index_call_session_date_overrides_on_admin_user_id"
-    t.index ["group_id"], name: "index_call_session_date_overrides_on_group_id"
-  end
-
   create_table "child_support_call_archives", force: :cascade do |t|
     t.bigint "child_support_id", null: false
     t.text "call4_technical_information"
@@ -673,7 +660,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_06_15_131540) do
     t.float "longitude"
     t.jsonb "calendly_booking_urls", default: {}
     t.jsonb "calendly_last_booking_dates", default: {}
-    t.jsonb "calendly_initial_booking_dates", default: {}
     t.index ["address"], name: "index_parents_on_address"
     t.index ["city_name"], name: "index_parents_on_city_name"
     t.index ["discarded_at"], name: "index_parents_on_discarded_at"
@@ -987,8 +973,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_06_15_131540) do
   add_foreign_key "bubble_sessions", "bubble_contents", column: "content_id"
   add_foreign_key "bubble_sessions", "bubble_modules", column: "module_session_id"
   add_foreign_key "bubble_sessions", "bubble_videos", column: "video_id"
-  add_foreign_key "call_session_date_overrides", "admin_users"
-  add_foreign_key "call_session_date_overrides", "groups"
   add_foreign_key "child_support_call_archives", "child_supports"
   add_foreign_key "child_supports", "admin_users", column: "restart_support_caller_id"
   add_foreign_key "child_supports", "admin_users", column: "stop_support_caller_id"

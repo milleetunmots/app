@@ -67,9 +67,9 @@ ActiveAdmin.register_page 'Restart Support Form' do
     ).call
 
     if restart_support_service.error.nil?
-      redirect_to admin_child_support_path(params[:child_support_id]), notice: 'Accompagnement repris'
+      redirect_to edit_admin_child_support_path(params[:child_support_id]), notice: 'Accompagnement repris'
     else
-      redirect_to admin_child_support_path(params[:child_support_id]), alert: restart_support_service.error
+      redirect_to edit_admin_child_support_path(params[:child_support_id]), alert: restart_support_service.error
     end
   end
 end
