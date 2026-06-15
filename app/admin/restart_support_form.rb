@@ -2,7 +2,6 @@ ActiveAdmin.register_page 'Restart Support Form' do
   menu false
 
   content title: "Formulaire de reprise de l'accompagnement" do
-
     form action: admin_restart_support_form_perform_path, method: :post, id: 'restart-support-form' do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
       f.input :child_support_id, type: :hidden, name: :child_support_id, value: params[:child_support_id]
@@ -32,7 +31,12 @@ ActiveAdmin.register_page 'Restart Support Form' do
           f.input :restart_reason, type: :checkbox, value: :other, name: :other, class: 'restart-support-form-checkbox'
           label 'Autre'
         end
-
+        if current_admin_user.admin? || current_admin_user.contributor?
+          div class: 'form-checkbox-input' do
+            f.input :restart_reason, type: :checkbox, value: :unreachable_number, name: :unreachable_number, class: 'restart-support-form-checkbox'
+            label "Le numéro à contacter était injoignable (numéro erroné, problème de forfait, départ à l'étranger...)"
+          end
+        end
       end
       div id: 'restart-support-details' do
         label class: 'label-for-group' do
@@ -50,7 +54,9 @@ ActiveAdmin.register_page 'Restart Support Form' do
   end
 
   page_action :perform, method: :post do
-    reason = [params['unavailability'], params['message_not_received'], params['incorrect_status'], params['motivated'], params['other']].compact
+    reason = [params['unavailability'], params['message_not_received'], params['incorrect_status'], params['motivated'], params['other']]
+    reason << params['unreachable_number'] if current_admin_user.admin? || current_admin_user.contributor?
+    reason = reason.compact
     details = params['details']
 
     restart_support_service = ChildSupport::CallerRestartSupportService.new(

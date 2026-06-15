@@ -126,6 +126,7 @@
 #  stop_support_details                       :text
 #  stop_support_reason                        :string
 #  suggested_videos_counter                   :jsonb            is an Array
+#  support_stopped_for_unassigned_number_at   :datetime
 #  to_call                                    :boolean
 #  will_stay_in_group                         :boolean          default(FALSE), not null
 #  created_at                                 :datetime         not null
@@ -545,6 +546,10 @@ class ChildSupport < ApplicationRecord
 
   def scheduled_call_sessions(index)
     scheduled_calls.where(call_session: index.to_i)
+  end
+
+  def stopped_for_unassigned_number?
+    support_stopped_for_unassigned_number_at.present?
   end
 
   def ended_support?
