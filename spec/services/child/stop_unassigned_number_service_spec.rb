@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Child::StopUnassignedNumberService do
-  let!(:group) { FactoryBot.create(:group, started_at: 8.weeks.ago, ended_at: 8.weeks.from_now) }
+  let!(:group) { FactoryBot.create(:group, started_at: 8.weeks.ago.prev_occurring(:monday), ended_at: 8.weeks.from_now) }
   let!(:child) { FactoryBot.create(:child, group: group, group_status: 'active', should_contact_parent1: true) }
   let!(:child_support) { child.child_support }
 

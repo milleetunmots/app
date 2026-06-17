@@ -274,6 +274,88 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
       end
     end
 
+    context 'when a CallSessionDateOverride exists for the supporter/group/session' do
+      let(:override_start_date) { group.call0_start_date + 1.day }
+      let(:override_end_date) { group.call0_end_date - 1.day }
+
+      before do
+        CallSessionDateOverride.create!(
+          admin_user: supporter,
+          group: group,
+          call_session: call_session,
+          start_date: override_start_date,
+          end_date: override_end_date
+        )
+      end
+
+      it 'uses the override dates instead of the group dates' do
+        subject.call
+        expect(WebMock).to have_requested(:post, 'https://api.calendly.com/one_off_event_types')
+          .with(body: hash_including(
+            'date_setting' => {
+              'type' => 'date_range',
+              'start_date' => override_start_date.to_s,
+              'end_date' => override_end_date.to_s
+            }
+          ))
+      end
+    end
+
+    context 'when a CallSessionDateOverride exists for a different supporter' do
+      let(:other_supporter) do
+        FactoryBot.create(:admin_user,
+          calendly_user_uri: 'https://api.calendly.com/users/other',
+          aircall_phone_number: '+33999999999'
+        )
+      end
+
+      before do
+        CallSessionDateOverride.create!(
+          admin_user: other_supporter,
+          group: group,
+          call_session: call_session,
+          start_date: group.call0_start_date + 1.day,
+          end_date: group.call0_end_date - 1.day
+        )
+      end
+
+      it 'falls back to the group dates' do
+        subject.call
+        expect(WebMock).to have_requested(:post, 'https://api.calendly.com/one_off_event_types')
+          .with(body: hash_including(
+            'date_setting' => {
+              'type' => 'date_range',
+              'start_date' => group.call0_start_date.to_s,
+              'end_date' => group.call0_end_date.to_s
+            }
+          ))
+      end
+    end
+
+    context 'when a CallSessionDateOverride exists for a different call_session' do
+      before do
+        CallSessionDateOverride.create!(
+          admin_user: supporter,
+          group: group,
+          call_session: 1,
+          start_date: group.call1_start_date + 1.day,
+          end_date: group.call1_end_date - 1.day
+        )
+      end
+
+      it 'falls back to the group dates for the current call_session' do
+        subject.call
+        expect(WebMock).to have_requested(:post, 'https://api.calendly.com/one_off_event_types')
+          .with(body: hash_including(
+            'date_setting' => {
+              'type' => 'date_range',
+              'start_date' => group.call0_start_date.to_s,
+              'end_date' => group.call0_end_date.to_s
+            }
+          ))
+      end
+    end
+
   end
 
   describe '#add_utm_params' do

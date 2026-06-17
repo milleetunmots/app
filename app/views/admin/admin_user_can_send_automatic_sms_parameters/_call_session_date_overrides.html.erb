@@ -1,0 +1,87 @@
+<div class="panel call-session-date-overrides-panel"
+     data-upsert-url="<%= admin_reglages_de_rdv_upsert_call_session_date_override_path %>"
+     data-reset-url="<%= admin_reglages_de_rdv_reset_call_session_date_override_path %>">
+  <h3>Plages de RDV par session d'appel</h3>
+  <div class="panel_contents">
+    <div style="display: flex; align-items: center; margin-bottom: 12px;">
+      <span style="text-transform: uppercase; letter-spacing: 0.04em; color: #777; font-weight: 600; margin-right: 8px;">Sessions à venir</span>
+      <span style="background: #eee; border-radius: 10px; padding: 1px 8px; color: #555; font-weight: 600;"><%= overrides.size %></span>
+    </div>
+
+    <% if overrides.empty? %>
+      <p style="color: #777;">Aucune session d'appel à venir pour le moment.</p>
+    <% else %>
+      <table class="index_table">
+        <thead>
+          <tr>
+            <th>Session d'appel</th>
+            <th>Familles</th>
+            <th>Session</th>
+            <th>Plage de RDV</th>
+            <th>Modifiable jusqu'au</th>
+            <th>SMS prévu le</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% overrides.each do |override| %>
+            <% group = override.group %>
+            <% session_start = group.send("call#{override.call_session}_start_date") %>
+            <% session_end = group.send("call#{override.call_session}_end_date") %>
+            <% families_count = ChildSupport.in_group(group.id).all_supported_by(current_admin_user.id).distinct.count %>
+            <% deadline = session_start ? session_start - 4.days : nil %>
+            <% alert = deadline && (deadline - Date.current).to_i < 8 %>
+            <% color = if override.persisted?
+                                '#46be8a'
+                                else
+                                  alert ? '#c00' : nil
+                              end %>
+          <% deadline_color = if override.persisted?
+                               ''
+                             elsif alert
+                               '#c00'
+                             else
+                               ''
+                             end %>
+            <tr>
+              <td class="call-session-override-border" data-alert="<%= alert %>" style="<%= "border-left: 4px solid #{color};" if color %>">Appel <%= override.call_session %> - <%= group.name %></td>
+              <td><%= link_to families_count, admin_child_supports_path(scope: 'mine', q: { group_id_in: [group.id] }), target: '_blank' %></td>
+              <td>
+                <% if session_start && session_end %>
+                  <%= session_start.strftime('%d/%m/%Y') %> &rarr; <%= session_end.strftime('%d/%m/%Y') %>
+                <% end %>
+              </td>
+              <td>
+                <% override_differs = (override.start_date != session_start) || (override.end_date != session_end) %>
+                <span class="call-session-override-range"
+                      data-group-id="<%= group.id %>"
+                      data-call-session="<%= override.call_session %>"
+                      data-session-start="<%= session_start&.iso8601 %>"
+                      data-session-end="<%= session_end&.iso8601 %>"
+                      style="display: inline-flex; align-items: center; gap: 6px;">
+                  <input type="date" class="call-session-override-start" value="<%= override.start_date&.iso8601 %>" min="<%= session_start&.iso8601 %>" max="<%= override.end_date&.iso8601 || session_end&.iso8601 %>">
+                  <span>&rarr;</span>
+                  <input type="date" class="call-session-override-end" value="<%= override.end_date&.iso8601 %>" min="<%= override.start_date&.iso8601 || session_start&.iso8601 %>" max="<%= session_end&.iso8601 %>">
+                  <a href="#"
+                     class="reset-call-session-override"
+                     title="Réinitialiser la plage de RDV"
+                     style="color: <%= override.persisted? ? '#46be8a' : '#5E6469' %>; text-decoration: none; <%= 'display: none;' unless override_differs && session_start && session_end %>">
+                    <i class="fas fa-undo"></i>
+                  </a>
+                  <span class="call-session-override-status" style="font-size: 12px; color: #888;"></span>
+                </span>
+              </td>
+              <td>
+                <strong class="call-session-override-modification-deadline" style="color: <%= deadline_color %>;"><%= deadline&.strftime('%d/%m/%Y') %></strong>
+              </td>
+              <td>
+                <% if override.start_date %>
+                  <span class="call-session-override-sms-date" style="color: #888;"><%= (override.start_date - 3.days).strftime('%d/%m/%Y') %></span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  </div>
+</div>

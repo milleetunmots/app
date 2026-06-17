@@ -34,7 +34,7 @@ RSpec.describe ChildSupport::DetectSiblingsInDifferentGroupsService do
     end
 
     context 'when active siblings of a same fiche de suivi are in the same cohort' do
-      let!(:sibling1) { FactoryBot.create(:child, group: group_a, group_status: 'active') }
+      let!(:sibling1) { FactoryBot.create(:child, group: group_a, group_status: 'active', birthdate: 3.month.ago) }
       let!(:sibling2) do
         FactoryBot.create(
           :child,
