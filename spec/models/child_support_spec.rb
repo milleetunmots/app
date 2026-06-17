@@ -126,6 +126,7 @@
 #  stop_support_details                       :text
 #  stop_support_reason                        :string
 #  suggested_videos_counter                   :jsonb            is an Array
+#  support_stopped_for_unassigned_number_at   :datetime
 #  to_call                                    :boolean
 #  will_stay_in_group                         :boolean          default(FALSE), not null
 #  created_at                                 :datetime         not null
@@ -318,6 +319,19 @@ RSpec.describe ChildSupport, type: :model do
       target = FactoryBot.build(:child_support)
       target.copy_fields(source)
       expect(target.notes).to include('0_yes')
+    end
+  end
+
+  describe '#stopped_for_unassigned_number?' do
+    let(:child_support) { FactoryBot.create(:child_support) }
+
+    it "est faux quand le timestamp est absent" do
+      expect(child_support.stopped_for_unassigned_number?).to be false
+    end
+
+    it "est vrai quand le timestamp est présent" do
+      child_support.update!(support_stopped_for_unassigned_number_at: Time.zone.now)
+      expect(child_support.stopped_for_unassigned_number?).to be true
     end
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_05_12_000000) do
+ActiveRecord::Schema[7.0].define(version: 2026_06_15_131540) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -386,6 +386,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_05_12_000000) do
     t.text "parent_needs"
     t.string "enrollment_reasons", default: [], array: true
     t.string "call_recording_consent"
+    t.datetime "support_stopped_for_unassigned_number_at"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
@@ -439,6 +440,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_05_12_000000) do
     t.date "group_end"
     t.boolean "available_for_workshops", default: false
     t.string "security_token"
+    t.boolean "contact_parent1_unset_for_unassigned_number", default: false, null: false
+    t.boolean "contact_parent2_unset_for_unassigned_number", default: false, null: false
     t.index ["birthdate"], name: "index_children_on_birthdate"
     t.index ["child_support_id"], name: "index_children_on_child_support_id"
     t.index ["discarded_at"], name: "index_children_on_discarded_at"

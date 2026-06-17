@@ -1151,6 +1151,8 @@ ActiveAdmin.register ChildSupport do
       if authorized?(:manage, ActiveAdmin::Page.new(ActiveAdmin.application, 'Stop Support Form', active_admin_namespace))
         if resource.decorate.model.current_child&.group_status == 'disengaged'
           item "Reprendre l'accompagnement", admin_restart_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
+        elsif resource.decorate.model.stopped_for_unassigned_number? && (current_admin_user.admin? || current_admin_user.contributor?)
+          item "Reprendre l'accompagnement", admin_restart_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
         elsif resource.decorate.model.children.any? { |child| child.group_status == 'active' }
           item "Arrêter l'accompagnement", admin_stop_support_form_path(child_support_id: resource.decorate.model.id), { target: '_blank' }
         end
