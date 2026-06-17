@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Admin child support actions', type: :request do
-  let!(:group) { FactoryBot.create(:group, started_at: 8.weeks.ago, ended_at: 8.weeks.from_now) }
+  let!(:group) { FactoryBot.create(:group, started_at: 8.weeks.ago.prev_occurring(:monday), ended_at: 8.weeks.from_now) }
   let!(:child) { FactoryBot.create(:child, group: group, group_status: 'stopped') }
   let!(:child_support) do
     cs = child.child_support

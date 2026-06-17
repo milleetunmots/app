@@ -4,7 +4,7 @@ RSpec.describe ChildSupport::CallerRestartSupportService do
   let!(:supporter) { FactoryBot.create(:admin_user, user_role: 'contributor') }
 
   describe 'reprise pour numéro injoignable' do
-    let!(:group) { FactoryBot.create(:group, started_at: 8.weeks.ago, ended_at: 8.weeks.from_now) }
+    let!(:group) { FactoryBot.create(:group, started_at: 8.weeks.ago.prev_occurring(:monday), ended_at: 8.weeks.from_now) }
     let!(:child) do
       FactoryBot.create(:child, group: group, group_status: 'stopped',
                                 should_contact_parent1: false,
@@ -69,7 +69,7 @@ RSpec.describe ChildSupport::CallerRestartSupportService do
   end
 
   describe 'reprise classique (désengagement) inchangée' do
-    let!(:group) { FactoryBot.create(:group, started_at: 8.weeks.ago, ended_at: 8.weeks.from_now) }
+    let!(:group) { FactoryBot.create(:group, started_at: 8.weeks.ago.prev_occurring(:monday), ended_at: 8.weeks.from_now) }
     let!(:child) { FactoryBot.create(:child, group: group, group_status: 'disengaged') }
     let!(:child_support) { child.child_support }
 
