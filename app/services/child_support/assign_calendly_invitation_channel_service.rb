@@ -45,7 +45,7 @@ class ChildSupport::AssignCalendlyInvitationChannelService
     child_supports.each do |child_support|
       next if child_support.tag_list.include?(RCS_TAG) || child_support.tag_list.include?(SMS_TAG)
 
-      child_support.tag_list.add(tag)
+      child_support.tag_list += [tag]
       if child_support.save
         ids << child_support.id
       else
