@@ -164,7 +164,7 @@ class Parent::SendBeforeCallsMessageService
       child_supports_with_previous_calls_ok_or_unfinished.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
     create_one_off_event_types(beta_test_child_supports_with_previous_calls_ok_or_unfinished, call_index)
     assign_calendly_invitation_channel(beta_test_child_supports_with_previous_calls_ok_or_unfinished)
-    send_ab_tested_call_message(group, beta_test_child_supports_with_previous_calls_ok_or_unfinished, BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index - 1], call_index)
+    send_ab_tested_call_message(group, beta_test_child_supports_with_previous_calls_ok_or_unfinished, BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[call_index - 1], call_index, with_previous_call_ok_or_unfinished: true)
 
     child_support_with_at_least_one_call_not_ok_and_not_unfinished =
       child_supports_with_correct_supporters.at_least_one_call_not_ok_and_not_unfinished(call_index)
@@ -176,7 +176,11 @@ class Parent::SendBeforeCallsMessageService
       child_support_with_at_least_one_call_not_ok_and_not_unfinished.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
     create_one_off_event_types(beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, call_index)
     assign_calendly_invitation_channel(beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished)
-    send_ab_tested_call_message(group, beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished, BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1], call_index)
+    send_ab_tested_call_message(group,
+                                beta_test_child_support_with_at_least_one_call_not_ok_and_not_unfinished,
+                                BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[call_index - 1],
+                                call_index,
+                                with_previous_call_ok_or_unfinished: false)
   end
 
   private
@@ -243,23 +247,23 @@ class Parent::SendBeforeCallsMessageService
     @errors.concat(assignment.errors) if assignment.errors.any?
   end
 
-  def send_ab_tested_call_message(group, child_supports, message, call_index)
+  def send_ab_tested_call_message(group, child_supports, message, call_index, with_previous_call_ok_or_unfinished: true)
     sms_child_supports = child_supports.tagged_with(ChildSupport::AssignCalendlyInvitationChannelService::SMS_TAG)
     rcs_child_supports = child_supports.tagged_with(ChildSupport::AssignCalendlyInvitationChannelService::RCS_TAG)
     send_before_calls_message(group, sms_child_supports, message, call_index)
-    send_before_calls_message(group, rcs_child_supports, message, call_index, rcs_invitation_media_id(call_index))
+    send_before_calls_message(group, rcs_child_supports, message, call_index, rcs_invitation_media_id(call_index, with_previous_call_ok_or_unfinished: with_previous_call_ok_or_unfinished))
   end
 
-  def rcs_invitation_media_id(call_index)
+  def rcs_invitation_media_id(call_index, with_previous_call_ok_or_unfinished: true)
     case call_index
     when 0
-      ENV['RCS_CALL0_INVITATION_MEDIA_ID'].presence
+      ENV['RCS_CALL0_MEDIA_ID'].presence
     when 1
-      ENV['RCS_CALL1_INVITATION_MEDIA_ID'].presence
+      with_previous_call_ok_or_unfinished ? ENV['RCS_CALL1_WITH_PREVIOUS_CALL_OK_OR_UNFINISHED_MEDIA_ID'].presence : ENV['RCS_CALL1_WITHOUT_PREVIOUS_CALL_OK_OR_UNFINISHED_MEDIA_ID'].presence
     when 2
-      ENV['RCS_CALL2_INVITATION_MEDIA_ID'].presence
+      with_previous_call_ok_or_unfinished ? ENV['RCS_CALL2_WITH_PREVIOUS_CALL_OK_OR_UNFINISHED_MEDIA_ID'].presence : ENV['RCS_CALL2_WITHOUT_PREVIOUS_CALL_OK_OR_UNFINISHED_MEDIA_ID'].presence
     when 3
-      ENV['RCS_CALL3_INVITATION_MEDIA_ID'].presence
+      with_previous_call_ok_or_unfinished ? ENV['RCS_CALL3_WITH_PREVIOUS_CALL_OK_OR_UNFINISHED_MEDIA_ID'].presence : ENV['RCS_CALL3_WITHOUT_PREVIOUS_CALL_OK_OR_UNFINISHED_MEDIA_ID'].presence
     end
   end
 end
