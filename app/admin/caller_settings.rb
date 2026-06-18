@@ -38,7 +38,7 @@ ActiveAdmin.register_page 'Réglages de RDV' do
   page_action :toggle_automatic_sms, method: :post do
     current_admin_user.update!(can_send_automatic_sms: !current_admin_user.can_send_automatic_sms)
     notice = current_admin_user.can_send_automatic_sms ? 'SMS de RDV activés' : 'SMS de RDV désactivés'
-    redirect_to admin_reglages_path, notice: notice
+    redirect_to admin_reglages_de_rdv_path, notice: notice
   end
 
   page_action :upsert_call_session_date_override, method: :post do
