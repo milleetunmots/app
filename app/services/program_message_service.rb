@@ -127,12 +127,6 @@ class ProgramMessageService
   def get_all_variables
     @variables += @message.scan(/\{(.*?)\}/).transpose[0].uniq
     @errors << 'Veuillez choisir un lien cible.' if @redirection_target.nil? && @variables.include?('URL')
-    return if @rcs_media_id.nil?
-    return unless @message.include?('_CALENDLY_LINK}')
-
-    @variables |= %w[ID_CALENDLY_LINK]
-    @variables |= %w[PRENOM_ENFANT]
-    @variables |= %w[PARENT_SECURITY_TOKEN]
   end
 
   def increment_suggested_videos_counter(parent)
@@ -200,16 +194,6 @@ class ProgramMessageService
         add_recipient_data(parent, 'CALL1_CALENDLY_LINK', parent.calendly_booking_urls&.dig('call1'), "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 1")
         add_recipient_data(parent, 'CALL2_CALENDLY_LINK', parent.calendly_booking_urls&.dig('call2'), "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 2")
         add_recipient_data(parent, 'CALL3_CALENDLY_LINK', parent.calendly_booking_urls&.dig('call3'), "Le parent #{parent.id} ne dispose pas d'un lien calendly pour prendre un rdv de l'appel 3")
-        calendly_link_url = @recipient_data[parent.phone_number]['CALL0_CALENDLY_LINK'] ||
-                            @recipient_data[parent.phone_number]['CALL1_CALENDLY_LINK'] ||
-                            @recipient_data[parent.phone_number]['CALL2_CALENDLY_LINK'] ||
-                            @recipient_data[parent.phone_number]['CALL3_CALENDLY_LINK']
-        if calendly_link_url
-          add_recipient_data(parent,
-                             'ID_CALENDLY_LINK',
-                             calendly_link_url[%r{calendly\.com/d/([^/]+)}, 1],
-                             "L'identifiant du lien calendly (#{calendly_link_url}) du parent #{parent.id} n'a pas pu être extrait")
-        end
         add_recipient_data(parent,
                            'RDV_CALENDLY_SCHEDULED_AT_HOUR',
                            parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.scheduled_at&.strftime('%H:%M'),
