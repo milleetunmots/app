@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_06_15_131540) do
+ActiveRecord::Schema[7.0].define(version: 2026_06_19_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -400,6 +400,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_06_15_131540) do
     t.string "enrollment_reasons", default: [], array: true
     t.string "call_recording_consent"
     t.datetime "support_stopped_for_unassigned_number_at"
+    t.datetime "unassigned_number_reactivated_at"
     t.index ["book_not_received"], name: "index_child_supports_on_book_not_received"
     t.index ["call0_parent_progress"], name: "index_child_supports_on_call0_parent_progress"
     t.index ["call0_reading_frequency"], name: "index_child_supports_on_call0_reading_frequency"
