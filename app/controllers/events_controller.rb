@@ -2,6 +2,22 @@ class EventsController < ApplicationController
   skip_before_action :authenticate_admin_user!
   skip_before_action :verify_authenticity_token
 
+  # Statut RCS Spot-Hit -> spot_hit_status de l'event (libellés : Event::SPOT_HIT_STATUS)
+  # cf. https://doc.spot-hit.fr/api/suivi.html
+  RCS_STATUS_MAPPING = {
+    'QUEUED' => 0,
+    'DELIVERED' => 1,
+    'SENT' => 2,
+    'DELIVERY_RETRIED' => 3,
+    'DELIVERY_FAILED' => 4,
+    'READ' => 6,
+    'SCHEDULE_QUEUED' => 0,
+    'SCHEDULED' => 0,
+    'SCHEDULE_DELETED' => 5,
+    'SCHEDULE_DELETION_FAILED' => 4
+  }.freeze
+
+  # Zapper quand c'est QUEUE
   def index
     head :no_content
   end

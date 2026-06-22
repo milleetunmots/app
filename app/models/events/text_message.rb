@@ -6,6 +6,7 @@
 #  acceptation_date          :date
 #  body                      :text
 #  discarded_at              :datetime
+#  is_fallback               :boolean          default(FALSE), not null
 #  is_support_module_message :boolean          default(FALSE), not null
 #  link_sent_substring       :string
 #  message_provider          :string
