@@ -51,7 +51,7 @@ class Event < ApplicationRecord
   # constantes
   # ---------------------------------------------------------------------------
 
-  SPOT_HIT_STATUS = ['En attente', 'Livré', 'Envoyé', 'En cours', 'Echec', 'Expiré'].freeze
+  SPOT_HIT_STATUS = ['En attente', 'Livré', 'Envoyé', 'En cours', 'Échec', 'Expiré', 'Lu'].freeze
   PARENT_PRESENCES = %w[present planned_absence not_planned_absence queue].freeze
 
   # ---------------------------------------------------------------------------
