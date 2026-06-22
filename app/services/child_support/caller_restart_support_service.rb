@@ -82,6 +82,9 @@ class ChildSupport::CallerRestartSupportService
 
 		@child_support.important_information = "Accompagnement redémarré le #{@date.strftime('%d/%m/%Y')} suite à la mise à jour du numéro à contacter.\n" + @child_support.important_information.to_s
 		@child_support.support_stopped_for_unassigned_number_at = nil
+		# Marque la famille comme réactivée afin que le job d'arrêt pour numéro erroné
+		# ne la ré-arrête pas tant que le statut d'appel reste "Numéro erroné".
+		@child_support.unassigned_number_reactivated_at = @date
 		@child_support.save
 	end
 

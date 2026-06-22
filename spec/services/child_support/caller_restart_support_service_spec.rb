@@ -54,6 +54,11 @@ RSpec.describe ChildSupport::CallerRestartSupportService do
       expect(child_support.reload.support_stopped_for_unassigned_number_at).to be_nil
     end
 
+    it "marque la famille comme réactivée pour que le job ne la ré-arrête pas" do
+      subject
+      expect(child_support.reload.unassigned_number_reactivated_at).to be_present
+    end
+
     it "ne réactive pas si la cohorte est terminée et renvoie une erreur" do
       group.update!(ended_at: 1.day.ago)
       result = subject

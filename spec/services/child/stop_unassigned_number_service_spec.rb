@@ -45,4 +45,47 @@ RSpec.describe Child::StopUnassignedNumberService do
     expect(child_with_parent2.reload.should_contact_parent2).to be false
     expect(child_with_parent2.reload.contact_parent2_unset_for_unassigned_number).to be true
   end
+
+  it "ne ré-arrête pas une famille réactivée via le formulaire" do
+    child_support.update!(unassigned_number_reactivated_at: Time.zone.now)
+
+    subject
+
+    expect(child.reload.group_status).to eq 'active'
+    expect(child.reload.should_contact_parent1).to be true
+  end
+
+  context "famille avec un enfant non actif et un enfant actif" do
+    # parent2 présent sur la famille pour reproduire l'ancienne condition boguée `|| parent2`
+    let!(:parent2) { FactoryBot.create(:parent) }
+    let!(:active_child_with_parent2) do
+      child.update!(parent2: parent2)
+      child
+    end
+    let!(:other_parent) { FactoryBot.create(:parent) }
+    let!(:paused_sibling) do
+      FactoryBot.create(
+        :child,
+        child_support: child_support,
+        group: group,
+        group_status: 'paused',
+        parent1: other_parent,
+        should_contact_parent1: true
+      )
+    end
+
+    it "n'arrête que les enfants actifs lors du passage du job" do
+      subject
+
+      expect(child.reload.group_status).to eq 'stopped'
+      expect(paused_sibling.reload.group_status).to eq 'paused'
+    end
+
+    it "ne décoche pas le contact des parents des enfants non arrêtés lors du passage" do
+      subject
+
+      expect(paused_sibling.reload.should_contact_parent1).to be true
+      expect(paused_sibling.reload.contact_parent1_unset_for_unassigned_number).to be false
+    end
+  end
 end

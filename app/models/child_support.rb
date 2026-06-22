@@ -128,6 +128,7 @@
 #  suggested_videos_counter                   :jsonb            is an Array
 #  support_stopped_for_unassigned_number_at   :datetime
 #  to_call                                    :boolean
+#  unassigned_number_reactivated_at           :datetime
 #  will_stay_in_group                         :boolean          default(FALSE), not null
 #  created_at                                 :datetime         not null
 #  updated_at                                 :datetime         not null
@@ -261,6 +262,10 @@ class ChildSupport < ApplicationRecord
 
   # getter to make select work in form
   attr_accessor :call0_resources_alternative_scripts, :call1_resources_alternative_scripts, :call2_resources_alternative_scripts, :call3_resources_alternative_scripts
+
+  # Si un nouveau statut d'appel est renseigné après une réactivation pour numéro erroné,
+  # on lève le marqueur : un nouveau "Numéro erroné" pourra de nouveau déclencher l'arrêt automatique.
+  before_save :clear_unassigned_number_reactivation_marker, if: :call_status_will_change?
 
   after_save do
     if saved_change_to_parent1_available_support_module_list?
@@ -550,6 +555,14 @@ class ChildSupport < ApplicationRecord
 
   def stopped_for_unassigned_number?
     support_stopped_for_unassigned_number_at.present?
+  end
+
+  def call_status_will_change?
+    (0..3).any? { |call_idx| will_save_change_to_attribute?("call#{call_idx}_status") }
+  end
+
+  def clear_unassigned_number_reactivation_marker
+    self.unassigned_number_reactivated_at = nil
   end
 
   def ended_support?
