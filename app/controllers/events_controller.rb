@@ -96,4 +96,57 @@ class EventsController < ApplicationController
       head :unprocessable_entity
     end
   end
+
+  def spot_hit_rcs_data
+    payload = JSON.parse(request.raw_post)
+
+    Array.wrap(payload['events']).each do |event|
+      change = event['messageStatusChanged']
+      apply_rcs_status_change(change) if change.present?
+    end
+
+    head :ok
+  rescue JSON::ParserError => e
+    Rollbar.error('spot_hit_rcs_data: payload JSON invalide', message: e.message, request: request)
+    head :bad_request
+  end
+
+  private
+
+  def apply_rcs_status_change(change)
+    spot_hit_status = RCS_STATUS_MAPPING[change['status']]
+    return if spot_hit_status.zero?
+
+    if spot_hit_status.nil?
+      Rollbar.error('spot_hit_rcs_data: statut RCS inconnu', status: change['status'], changes: change)
+      return
+    end
+
+    error = change['error']
+    Rollbar.error('spot_hit_rcs_data: erreur de livraison RCS', errors: error) if error.present?
+
+    message = find_rcs_event(change)
+    return if message.nil?
+
+    attributes = { spot_hit_status: spot_hit_status }
+    attributes[:is_fallback] = true if change['channelId'] == 'fallback'
+    message.update!(attributes)
+  end
+
+  def find_rcs_event(change)
+    campaign_id = change.dig('context', 'campaign_id')
+    unless campaign_id
+      Rollbar.error('spot_hit_rcs_data: event non trouvé', changes: change)
+      return
+    end
+
+    phone = Phonelib.parse(change['userId'].to_s.strip).e164
+    parent = Parent.find_by(phone_number: phone)
+    unless parent
+      Rollbar.error('spot_hit_rcs_data: parent non found', changes: change)
+      return
+    end
+
+    Events::TextMessage.find_by(spot_hit_rcs_id: campaign_id, related_type: 'Parent', related_id: parent.id)
+  end
 end
