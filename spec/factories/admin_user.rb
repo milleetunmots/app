@@ -28,7 +28,7 @@ FactoryBot.define do
     name { Faker::Name.name }
     user_role { AdminUser::ROLES.sample }
     email { Faker::Internet.email }
-    password { Faker::Internet.password(min_length: 10, mix_case: true, special_characters: true) }
+    password { '(Strass07591)' }
     aircall_phone_number { Faker::Number.number(digits: 10) }
     aircall_number_id { Faker::Number.number(digits: 10) }
   end
