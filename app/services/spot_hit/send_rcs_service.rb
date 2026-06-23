@@ -4,20 +4,23 @@ class SpotHit::SendRcsService
 
   attr_reader :errors
 
-  def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil)
+  def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil, basic: false)
     @recipients = recipients
     @planned_timestamp = planned_timestamp
     @form = {
       'key' => ENV['SPOT_HIT_API_KEY'],
+      'rcs_type' => basic ? 'basic' : 'single',
       'agent_id' => ENV['SPOT_HIT_AGENT_ID'],
-      'media_id' => media_id,
       'fallback_message' => fallback_message
     }
+    @media_id = media_id
     @errors = []
     @message = fallback_message
   end
 
   def call
+    @form.merge!({ 'media_id' => @media_id }) if @media_id.present?
+    @form.merge!({ 'rcs_basic_message' => @message }) if @form['rcs_type'] == 'basic'
     send_rcs
     self
   end
