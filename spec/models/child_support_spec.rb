@@ -126,7 +126,9 @@
 #  stop_support_details                       :text
 #  stop_support_reason                        :string
 #  suggested_videos_counter                   :jsonb            is an Array
+#  support_stopped_for_unassigned_number_at   :datetime
 #  to_call                                    :boolean
+#  unassigned_number_reactivated_at           :datetime
 #  will_stay_in_group                         :boolean          default(FALSE), not null
 #  created_at                                 :datetime         not null
 #  updated_at                                 :datetime         not null
@@ -318,6 +320,35 @@ RSpec.describe ChildSupport, type: :model do
       target = FactoryBot.build(:child_support)
       target.copy_fields(source)
       expect(target.notes).to include('0_yes')
+    end
+  end
+
+  describe '#stopped_for_unassigned_number?' do
+    let(:child_support) { FactoryBot.create(:child_support) }
+
+    it "est faux quand le timestamp est absent" do
+      expect(child_support.stopped_for_unassigned_number?).to be false
+    end
+
+    it "est vrai quand le timestamp est présent" do
+      child_support.update!(support_stopped_for_unassigned_number_at: Time.zone.now)
+      expect(child_support.stopped_for_unassigned_number?).to be true
+    end
+  end
+
+  describe 'effacement du marqueur de réactivation pour numéro erroné' do
+    let(:child_support) do
+      FactoryBot.create(:child_support, unassigned_number_reactivated_at: Time.zone.now)
+    end
+
+    it "efface le marqueur quand un statut d'appel change" do
+      child_support.update!(call1_status: 'Numéro erroné')
+      expect(child_support.reload.unassigned_number_reactivated_at).to be_nil
+    end
+
+    it "conserve le marqueur quand aucun statut d'appel ne change" do
+      child_support.update!(important_information: 'note quelconque')
+      expect(child_support.reload.unassigned_number_reactivated_at).to be_present
     end
   end
 end

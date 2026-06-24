@@ -120,7 +120,9 @@ class Parent::SendBeforeCallsMessageService
 
   attr_reader :errors
 
-  def initialize(date: Time.zone.today.next_occurring(:friday), send_at: nil)
+  # Le job hebdomadaire tourne le vendredi à 17h : les SMS sont programmés pour
+  # 18h le jour même, à J-3 du lundi de début de session.
+  def initialize(date: Time.zone.today, send_at: nil)
     @errors = []
     @date = date
     @send_at = send_at
@@ -139,7 +141,14 @@ class Parent::SendBeforeCallsMessageService
       next if call_index.zero?
 
       group_list.each do |group|
-        handle_group_message(group, call_index)
+        non_beta_child_support_ids = group.child_supports
+                                          .with_valid_supporter_for_calendly
+                                          .where.not(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
+                                          .distinct
+                                          .pluck(:id)
+        next if non_beta_child_support_ids.empty?
+
+        handle_group_message(group, call_index, non_beta_child_support_ids)
       end
     end
     self
@@ -201,11 +210,23 @@ class Parent::SendBeforeCallsMessageService
     child_supports.map { |child_support| %W[parent.#{child_support.parent1.id} parent.#{child_support.parent2&.id}] }.flatten.compact.reject { |recipient| recipient == 'parent.' }
   end
 
+  def update_calendly_initial_booking_date(child_supports, call_index)
+    child_supports.each do |cs|
+      [cs.parent1, cs.parent2].compact.select { |parent| parent.calendly_booking_urls&.dig("call#{call_index}").present? }.each do |parent|
+        parent.calendly_initial_booking_dates ||= {}
+        # Sert de déduplication du 1er SMS et de référence pour la relance à
+        # J+2. Écrase une éventuelle date d'un accompagnement précédent.
+        parent.calendly_initial_booking_dates["call#{call_index}"] = (@send_at || @date).to_date.to_s
+        parent.save!
+      end
+    end
+  end
+
   def update_calendly_last_booking_date(child_supports, call_index)
     child_supports.each do |cs|
       [cs.parent1, cs.parent2].compact.select { |parent| parent.calendly_booking_urls&.dig("call#{call_index}").present? }.each do |parent|
         parent.calendly_last_booking_dates ||= {}
-        parent.calendly_last_booking_dates["call#{call_index}"] = Time.zone.today.to_s
+        parent.calendly_last_booking_dates["call#{call_index}"] = (@send_at || @date).to_date.to_s
         parent.save!
       end
     end
@@ -224,6 +245,7 @@ class Parent::SendBeforeCallsMessageService
     ).call
 
     if message_service.errors.empty?
+      update_calendly_initial_booking_date(child_supports, call_index)
       update_calendly_last_booking_date(child_supports, call_index)
     else
       @errors << {

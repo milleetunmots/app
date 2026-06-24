@@ -50,6 +50,9 @@ class Group
       @group.parent2.update_all(calendly_booking_urls: {})
     end
 
+    # Familles hors beta-test Calendly uniquement : le service filtre les beta,
+    # qui reçoivent leur SMS via Parent::SendBeforeCallsMessageDailyJob (J-3 de
+    # leur plage de RDV personnalisée ou par défaut).
     def send_before_call0_message
       date = @group.started_at.prev_occurring(:friday).to_datetime.change(hour: 17)
       Parent::SendBeforeFirstCallMessageJob.set(wait_until: date).perform_later(@group.id, date)

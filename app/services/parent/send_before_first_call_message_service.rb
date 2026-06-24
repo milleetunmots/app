@@ -12,7 +12,12 @@ class Parent::SendBeforeFirstCallMessageService < Parent::SendBeforeCallsMessage
     @errors << { service: 'Parent::SendBeforeFirstCallMessageService', error: 'group is not found' } if @group.nil?
     return self if @errors.any?
 
-    handle_group_message(@group)
+    non_beta_child_support_ids = @group.child_supports
+                                       .with_valid_supporter_for_calendly
+                                       .where.not(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
+                                       .distinct
+                                       .pluck(:id)
+    handle_group_message(@group, non_beta_child_support_ids) if non_beta_child_support_ids.any?
     self
   end
 

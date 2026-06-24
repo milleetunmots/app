@@ -64,13 +64,14 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
       can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
-      can :manage, ActiveAdmin::Page, name: 'Réglages'
+      can :manage, ActiveAdmin::Page, name: 'Réglages de RDV'
+      can :manage, CallSessionDateOverride, admin_user_id: user.id
       can :select_module_for_parent1, ChildSupport, supporter_id: user.id
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
       can :scheduled_call_reminder, ChildSupport, supporter_id: user.id
-      can :read, ScheduledCall, admin_user_id: user.id, admin_user: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split }
+      can :read, ScheduledCall, admin_user_id: user.id, admin_user: { email: ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split }
     when 'animator'
       can :read, AdminUser, id: user.id
       can :autocomplete, [Group, Tag]
@@ -88,13 +89,14 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
       can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
-      can :manage, ActiveAdmin::Page, name: 'Réglages'
+      can :manage, ActiveAdmin::Page, name: 'Réglages de RDV'
+      can :manage, CallSessionDateOverride, admin_user_id: user.id
       can :select_module_for_parent1, ChildSupport, supporter_id: user.id
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
       can :scheduled_call_reminder, ChildSupport, supporter_id: user.id
-      can :read, ScheduledCall, admin_user_id: user.id, admin_user: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split }
+      can :read, ScheduledCall, admin_user_id: user.id, admin_user: { email: ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split }
     end
   end
 

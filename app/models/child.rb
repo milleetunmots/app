@@ -2,35 +2,37 @@
 #
 # Table name: children
 #
-#  id                                         :bigint           not null, primary key
-#  available_for_workshops                    :boolean          default(FALSE)
-#  birthdate                                  :date             not null
-#  discarded_at                               :datetime
-#  family_redirection_unique_visit_rate       :float
-#  family_redirection_url_unique_visits_count :integer
-#  family_redirection_url_visits_count        :integer
-#  family_redirection_urls_count              :integer
-#  family_redirection_visit_rate              :float
-#  first_name                                 :string           not null
-#  gender                                     :string
-#  group_end                                  :date
-#  group_start                                :date
-#  group_status                               :string           default("waiting")
-#  last_name                                  :string           not null
-#  pmi_detail                                 :string
-#  registration_source                        :string
-#  registration_source_details                :string
-#  security_code                              :string
-#  security_token                             :string
-#  should_contact_parent1                     :boolean          default(FALSE), not null
-#  should_contact_parent2                     :boolean          default(FALSE), not null
-#  src_url                                    :string
-#  created_at                                 :datetime         not null
-#  updated_at                                 :datetime         not null
-#  child_support_id                           :bigint
-#  group_id                                   :bigint
-#  parent1_id                                 :bigint           not null
-#  parent2_id                                 :bigint
+#  id                                          :bigint           not null, primary key
+#  available_for_workshops                     :boolean          default(FALSE)
+#  birthdate                                   :date             not null
+#  contact_parent1_unset_for_unassigned_number :boolean          default(FALSE), not null
+#  contact_parent2_unset_for_unassigned_number :boolean          default(FALSE), not null
+#  discarded_at                                :datetime
+#  family_redirection_unique_visit_rate        :float
+#  family_redirection_url_unique_visits_count  :integer
+#  family_redirection_url_visits_count         :integer
+#  family_redirection_urls_count               :integer
+#  family_redirection_visit_rate               :float
+#  first_name                                  :string           not null
+#  gender                                      :string
+#  group_end                                   :date
+#  group_start                                 :date
+#  group_status                                :string           default("waiting")
+#  last_name                                   :string           not null
+#  pmi_detail                                  :string
+#  registration_source                         :string
+#  registration_source_details                 :string
+#  security_code                               :string
+#  security_token                              :string
+#  should_contact_parent1                      :boolean          default(FALSE), not null
+#  should_contact_parent2                      :boolean          default(FALSE), not null
+#  src_url                                     :string
+#  created_at                                  :datetime         not null
+#  updated_at                                  :datetime         not null
+#  child_support_id                            :bigint
+#  group_id                                    :bigint
+#  parent1_id                                  :bigint           not null
+#  parent2_id                                  :bigint
 #
 # Indexes
 #
