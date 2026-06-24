@@ -2,7 +2,7 @@ namespace :support_module do
   desc 'Compte les messages des trios (TextMessagesBundle) des supports modules : ' \
        'messages sans image, et messages sans image ni variable de 160 caractères au plus'
   task count_short_messages: :environment do
-    VARIABLE_REGEX = /\{.*?\}/.freeze
+    # VARIABLE_REGEX = /\{.*?\}/.freeze
     MAX_LENGTH = 160
 
     total_messages = 0
@@ -30,8 +30,9 @@ namespace :support_module do
 
             messages_without_image += 1
 
-            has_variable = body.match?(VARIABLE_REGEX)
-            if !has_variable && body.length <= MAX_LENGTH
+            # has_variable = body.match?(VARIABLE_REGEX)
+            # if !has_variable && body.length <= MAX_LENGTH
+            if body.length <= MAX_LENGTH
               short_messages_without_image_nor_variable += 1
             end
           end
@@ -43,7 +44,8 @@ namespace :support_module do
     puts "Trios de message parcourus            : #{seen_bundle_ids.size}"
     puts "Messages (body) non vides au total    : #{total_messages}"
     puts "Messages sans image                   : #{messages_without_image}"
-    puts "Messages sans image ni variable ≤ #{MAX_LENGTH} car. : #{short_messages_without_image_nor_variable}"
+    # puts "Messages sans image ni variable ≤ #{MAX_LENGTH} car. : #{short_messages_without_image_nor_variable}"
+    puts "Messages sans image ≤ #{MAX_LENGTH} car. : #{short_messages_without_image_nor_variable}"
     puts '------------------------------------------------------------'
   end
 end

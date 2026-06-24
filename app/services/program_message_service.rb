@@ -76,7 +76,8 @@ class ProgramMessageService
     when 'spothit'
       service =
         if @rcs_media_id.nil?
-          if @variables.empty? && @message.length <= 160
+          if @message.length <= 160
+          # if @variables.empty? && @message.length <= 160
             SpotHit::SendRcsService.new(
               recipients: @recipient_data,
               planned_timestamp: @planned_timestamp,
