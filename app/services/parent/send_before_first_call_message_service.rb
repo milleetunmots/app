@@ -36,6 +36,8 @@ class Parent::SendBeforeFirstCallMessageService < Parent::SendBeforeCallsMessage
     beta_test_child_supports =
       child_supports_with_correct_supporters.where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
     create_one_off_event_types(beta_test_child_supports, 0)
-    send_before_calls_message(group, beta_test_child_supports, BETA_TEST_WARNING_MESSAGES, 0)
+    assign_calendly_invitation_channel(beta_test_child_supports)
+    send_ab_tested_call_message(group, beta_test_child_supports, BETA_TEST_WARNING_MESSAGES, 0)
   end
+
 end
