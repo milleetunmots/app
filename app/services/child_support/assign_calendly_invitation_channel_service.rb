@@ -7,7 +7,7 @@ class ChildSupport::AssignCalendlyInvitationChannelService
   attr_reader :errors
 
   def initialize(child_supports)
-    @child_supports = child_supports.with_a_child_in_active_group.not_tagged_with_all(CHANNELS).distinct.to_a.group_by(&:supporter_id)
+    @child_supports = child_supports.with_a_child_in_active_group.not_tagged_with_any(CHANNELS).distinct.to_a.group_by(&:supporter_id)
     @errors = []
     @rcs_child_support_ids = []
     @sms_child_support_ids = []
