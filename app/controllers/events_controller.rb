@@ -80,4 +80,16 @@ class EventsController < ApplicationController
       head :unprocessable_entity
     end
   end
+
+  def spot_hit_rcs_data
+    # Sous fort volume de webhooks RCS, on ne fait que valider/parser le payload
+    # ici puis on délègue tout le traitement (lookups + écritures DB) à Sidekiq,
+    # afin de libérer immédiatement le worker web.
+    payload = JSON.parse(request.raw_post)
+    Events::TextMessage::ProcessRcsDataJob.perform_later(payload)
+    head :ok
+  rescue JSON::ParserError => e
+    Rollbar.error('spot_hit_rcs_data: invalid payload JSON', message: e.message, request: request)
+    head :bad_request
+  end
 end

@@ -6,6 +6,7 @@
 #  acceptation_date          :date
 #  body                      :text
 #  discarded_at              :datetime
+#  is_fallback               :boolean          default(FALSE), not null
 #  is_support_module_message :boolean          default(FALSE), not null
 #  link_sent_substring       :string
 #  message_provider          :string
@@ -13,6 +14,7 @@
 #  originated_by_app         :boolean          default(TRUE), not null
 #  parent_presence           :string
 #  parent_response           :string
+#  rcs_error_code            :string
 #  related_type              :string
 #  spot_hit_status           :integer
 #  subject                   :string
@@ -50,7 +52,7 @@ class Event < ApplicationRecord
   # constantes
   # ---------------------------------------------------------------------------
 
-  SPOT_HIT_STATUS = ['En attente', 'Livré', 'Envoyé', 'En cours', 'Echec', 'Expiré'].freeze
+  SPOT_HIT_STATUS = ['En attente', 'Livré', 'Envoyé', 'En cours', 'Échec', 'Expiré', 'Lu'].freeze
   PARENT_PRESENCES = %w[present planned_absence not_planned_absence queue].freeze
 
   # ---------------------------------------------------------------------------

@@ -6,6 +6,7 @@
 #  acceptation_date          :date
 #  body                      :text
 #  discarded_at              :datetime
+#  is_fallback               :boolean          default(FALSE), not null
 #  is_support_module_message :boolean          default(FALSE), not null
 #  link_sent_substring       :string
 #  message_provider          :string
@@ -13,6 +14,7 @@
 #  originated_by_app         :boolean          default(TRUE), not null
 #  parent_presence           :string
 #  parent_response           :string
+#  rcs_error_code            :string
 #  related_type              :string
 #  spot_hit_status           :integer
 #  subject                   :string

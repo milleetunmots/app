@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_06_19_000000) do
+ActiveRecord::Schema[7.0].define(version: 2026_06_23_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -520,6 +520,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_06_19_000000) do
     t.string "message_provider"
     t.integer "workshop_time_slot"
     t.string "spot_hit_rcs_id"
+    t.boolean "is_fallback", default: false, null: false
+    t.string "rcs_error_code"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["quit_group_child_id"], name: "index_events_on_quit_group_child_id"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
