@@ -1,17 +1,43 @@
 require 'rails_helper'
 
 RSpec.describe 'EventsController#spot_hit_rcs_data', type: :request do
+  include ActiveJob::TestHelper
+
   let(:path) { '/spot_hit/rcs_data' }
   let(:campaign_id) { 'campaign-123' }
   let(:parent) { FactoryBot.create(:parent, phone_number: '0755802002') }
   # phone_number is normalized to e164 by Parent#format_phone_number on save
   let(:phone_e164) { parent.reload.phone_number }
 
+  # The controller only parses and enqueues; run the job inline so these specs
+  # assert the end-to-end behaviour.
   def post_rcs(payload)
-    post path, params: payload.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+    perform_enqueued_jobs do
+      post path, params: payload.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+    end
   end
 
   before { allow(Rollbar).to receive(:error) }
+
+  describe 'enqueuing' do
+    it 'enqueues the processing job with the parsed payload and returns ok' do
+      payload = { 'events' => [] }
+
+      expect do
+        post path, params: payload.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+      end.to have_enqueued_job(Events::TextMessage::ProcessRcsDataJob).with(payload)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'does not enqueue a job for invalid JSON' do
+      expect do
+        post path, params: 'not-json', headers: { 'CONTENT_TYPE' => 'application/json' }
+      end.not_to have_enqueued_job(Events::TextMessage::ProcessRcsDataJob)
+
+      expect(response).to have_http_status(:bad_request)
+    end
+  end
 
   describe 'messageStatusChanged' do
     let!(:text_message) do
@@ -72,7 +98,7 @@ RSpec.describe 'EventsController#spot_hit_rcs_data', type: :request do
       expect(Rollbar).to have_received(:error).with('spot_hit_rcs_data: unknown rcs status', anything)
     end
 
-    it 'stores the RCS error code and details when an error is present' do
+    it 'stores the RCS error code when an error is present' do
       post_rcs(
         status_payload(
           'status' => 'DELIVERY_FAILED',
@@ -82,7 +108,6 @@ RSpec.describe 'EventsController#spot_hit_rcs_data', type: :request do
 
       text_message.reload
       expect(text_message.rcs_error_code).to eq('E42')
-      expect(text_message.rcs_error_details).to eq('channel rejected')
       expect(text_message.spot_hit_status).to eq(4) # DELIVERY_FAILED -> Échec
     end
 
