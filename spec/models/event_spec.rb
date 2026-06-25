@@ -15,7 +15,6 @@
 #  parent_presence           :string
 #  parent_response           :string
 #  rcs_error_code            :string
-#  rcs_error_details         :string
 #  related_type              :string
 #  spot_hit_status           :integer
 #  subject                   :string

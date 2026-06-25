@@ -522,7 +522,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_06_23_090000) do
     t.string "spot_hit_rcs_id"
     t.boolean "is_fallback", default: false, null: false
     t.string "rcs_error_code"
-    t.string "rcs_error_details"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["quit_group_child_id"], name: "index_events_on_quit_group_child_id"
     t.index ["related_type", "related_id"], name: "index_events_on_related_type_and_related_id"
