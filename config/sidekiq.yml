@@ -4,6 +4,7 @@
   - active_storage_purge
   - default
   - mailers
+  - low # gros volume, non critiques, comme les webhooks rcs/sms
 
 :timezone: 'Europe/Paris'
 

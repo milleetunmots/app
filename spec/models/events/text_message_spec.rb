@@ -37,6 +37,7 @@
 #  index_events_on_spot_hit_rcs_id               (spot_hit_rcs_id)
 #  index_events_on_type                          (type)
 #  index_events_on_type_and_spot_hit_message_id  (type,spot_hit_message_id)
+#  index_events_on_unprogrammed                  (id) WHERE (((type)::text = 'Events::TextMessage'::text) AND originated_by_app AND (spot_hit_status = 0))
 #  index_events_on_workshop_id                   (workshop_id)
 #
 # Foreign Keys

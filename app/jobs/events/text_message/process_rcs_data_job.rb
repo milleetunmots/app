@@ -1,6 +1,7 @@
 class Events::TextMessage
 
   class ProcessRcsDataJob < ApplicationJob
+    queue_as :low
 
     RCS_STATUS_MAPPING = {
       'QUEUED' => 0,
