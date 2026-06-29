@@ -4,29 +4,29 @@ class Events::TextMessage
 
     RCS_STATUS_MAPPING = {
       'QUEUED' => 0,
-      'DELIVERED' => 3,
-      'SENT' => 3,
+      'DELIVERED' => 4,
+      'SENT' => 4,
       'DELIVERY_RETRIED' => 1,
-      'DELIVERY_FAILED' => 5,
-      'READ' => 4,
+      'DELIVERY_FAILED' => 2,
+      'READ' => 5,
       'SCHEDULE_QUEUED' => 0,
       'SCHEDULED' => 0,
-      'SCHEDULE_DELETED' => 5,
-      'SCHEDULE_DELETION_FAILED' => 5,
-      'CLIENT_MESSAGE_INVALID' => 5,
-      'CLIENT_CONFIGURATION_INVALID' => 5,
-      'CLIENT_MESSAGE_EXPIRED' => 5,
-      'CLIENT_QUOTA_EXCEEDED' => 5,
-      'CLIENT_MESSAGE_FORBIDDEN' => 5,
-      'CHANNEL_REJECTED' => 5,
-      'CHANNEL_UNAVAILABLE' => 5,
-      'CHANNEL_INTERNAL_ISSUE' => 5,
-      'CHANNEL_OTHER_ISSUE' => 5,
-      'USER_UKNOWN' => 5,
-      'USER_BLOCKED' => 5,
-      'USER_UNAVAILABLE' => 5,
-      'INTERNAL_NOT_IMPLEMENTED' => 5,
-      'INTERNAL_OTHER_ISSUE' => 5
+      'SCHEDULE_DELETED' => 2,
+      'SCHEDULE_DELETION_FAILED' => 2,
+      'CLIENT_MESSAGE_INVALID' => 2,
+      'CLIENT_CONFIGURATION_INVALID' => 2,
+      'CLIENT_MESSAGE_EXPIRED' => 2,
+      'CLIENT_QUOTA_EXCEEDED' => 2,
+      'CLIENT_MESSAGE_FORBIDDEN' => 2,
+      'CHANNEL_REJECTED' => 2,
+      'CHANNEL_UNAVAILABLE' => 2,
+      'CHANNEL_INTERNAL_ISSUE' => 2,
+      'CHANNEL_OTHER_ISSUE' => 2,
+      'USER_UKNOWN' => 2,
+      'USER_BLOCKED' => 2,
+      'USER_UNAVAILABLE' => 2,
+      'INTERNAL_NOT_IMPLEMENTED' => 2,
+      'INTERNAL_OTHER_ISSUE' => 2
       }.freeze
 
     def perform(payload)
@@ -52,14 +52,6 @@ class Events::TextMessage
           next if spot_hit_status.zero?
 
           text_message_datas = retrieve_text_message_datas(event_content)
-          if text_message_datas[:text_message].spot_hit_status.present? && text_message_datas[:text_message].spot_hit_status > status
-            Rollbar.error('spot_hit_rcs_data: retrograde rcs status',
-                          event_content: event_content,
-                          text_message_spot_hit_status: text_message_datas[:text_message].spot_hit_status,
-                          event_status: status)
-            next
-          end
-
           apply_rcs_status_change(event_content, text_message_datas, spot_hit_status)
         elsif event['userMessageReceived']
           unless event['on']
@@ -102,6 +94,14 @@ class Events::TextMessage
       text_message = text_message_datas[:text_message]
       unless text_message
         Rollbar.error('spot_hit_rcs_data: text_message not found', event_content: event_content)
+        return
+      end
+
+      if text_message.spot_hit_status > spot_hit_status
+        Rollbar.error('spot_hit_rcs_data: retrograde rcs status',
+                      event_content: event_content,
+                      text_message_spot_hit_status: text_message.spot_hit_status,
+                      event_status: spot_hit_status)
         return
       end
 
