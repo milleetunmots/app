@@ -1,32 +1,58 @@
-<div class="events-history">
+<div class="chat-history">
+
+  <div class="chat-legend">
+    <p><span class="dot rcs"></span> Format RCS : vous pouvez savoir si le message a été <strong>ouvert</strong> par le parent.</p>
+    <p><span class="dot sms"></span> Format SMS : on sait si le message a été <strong> reçu</strong>, mais pas s'il a été ouvert.</p>
+  </div>
 
   <% events.each do |event| %>
 
-    <div class="event <%= event.css_class_name %>">
+    <% if event.model.is_a?(Events::TextMessage) %>
 
-      <div class="description"><%= event.timeline_description %></div>
+      <div class="chat-message <%= event.originated_by_app ? 'outgoing' : 'incoming' %>">
 
-      <% if event.model.is_a?(Events::TextMessage) %>
-        <div class="body"><%= event.body %></div>
-      <% elsif event.model.is_a?(Events::WorkshopParticipation) %>
-        <div class="body workshop-participation-comment"><%= event.comments %></div>
-      <% elsif event.model.is_a?(Events::OtherEvent) %>
-        <div class="body"><%= event.body %></div>
-      <% elsif event.model.is_a?(Events::SurveyResponse) %>
-        <div class="body"><%= event.body %></div>
-      <% end %>
+        <div class="bubble <%= event.chat_bubble_class %>"><%= event.body %></div>
 
-      <% if event.received_text_message? %>
-        <%= link_to 'Détails', admin_events_text_message_path(event), class: 'admin-link' %>
-      <% elsif event.sent_by_app_text_message? %>
-        <%= link_to 'Détails', admin_sent_by_app_text_message_path(event), class: 'admin-link' %>
-      <% else %>
-        <%= link_to 'Détails', [:admin, event], class: 'admin-link' %>
-      <% end %>
+        <% if event.originated_by_app %>
+          <% status = event.chat_status %>
+          <div class="meta <%= status[:css_class] %>">
+            <i class="<%= status[:icon] %>"></i>
+            <span class="label"><%= status[:label] %></span>
+            <span class="sep">·</span> <%= event.timeline_occurred_at %>
+            <span class="sep">·</span> <%= link_to 'Détails', admin_sent_by_app_text_message_path(event), class: 'admin-link' %>
+          </div>
+        <% else %>
+          <div class="meta">
+            <i class="fas fa-user"></i>
+            <%= event.chat_sender %>
+            <span class="sep">·</span> <%= event.timeline_occurred_at %>
+            <span class="sep">·</span> <%= link_to 'Détails', admin_events_text_message_path(event), class: 'admin-link' %>
+          </div>
+        <% end %>
 
-      <span class="occurred-at <%= event.display_occurred_at[:css_class] %>"><i class="<%= event.display_occurred_at[:css_emoji] %>"></i> <%= event.timeline_occurred_at %></span>
+      </div>
 
-    </div>
+    <% else %>
+
+      <div class="chat-message system">
+
+        <div class="bubble neutral">
+          <div class="system-title"><%= event.timeline_description %></div>
+          <% if event.model.is_a?(Events::WorkshopParticipation) %>
+            <%= event.comments %>
+          <% else %>
+            <%= event.body %>
+          <% end %>
+        </div>
+
+        <div class="meta">
+          <%= event.timeline_occurred_at %>
+          <span class="sep">·</span> <%= link_to 'Détails', [:admin, event], class: 'admin-link' %>
+        </div>
+
+      </div>
+
+    <% end %>
 
   <% end %>
 
