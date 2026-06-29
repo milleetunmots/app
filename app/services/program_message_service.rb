@@ -76,8 +76,9 @@ class ProgramMessageService
     when 'spothit'
       service =
         if @rcs_media_id.nil?
-          if @message.length <= 160
-          # if @variables.empty? && @message.length <= 160
+          # SpotHit compte en octets UTF-8 (un accent = 2 octets, € = 3, etc.),
+          # d'où bytesize plutôt que length.
+          if @message.bytesize <= 160
             SpotHit::SendRcsService.new(
               recipients: @recipient_data,
               planned_timestamp: @planned_timestamp,

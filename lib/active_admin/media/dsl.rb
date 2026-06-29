@@ -17,6 +17,9 @@ module ActiveAdmin
             model.tags(context: 'tags')
           end
           (1..3).each do |msg_idx|
+            column "type#{msg_idx}".to_sym do |decorated|
+              decorated.message_type(msg_idx) if decorated.send("body#{msg_idx}").present?
+            end
             column "body#{msg_idx}".to_sym do |decorated|
               decorated.send("truncated_body#{msg_idx}")
             end
@@ -27,9 +30,9 @@ module ActiveAdmin
             #   decorated.send("link#{msg_idx}_admin_link")
             # end
           end
-          column :created_at do |decorated|
-            decorated.created_at_date
-          end
+          # column :created_at do |decorated|
+          #   decorated.created_at_date
+          # end
           actions dropdown: true do |decorated|
             discard_links_args(decorated.model).each do |args|
               item *args

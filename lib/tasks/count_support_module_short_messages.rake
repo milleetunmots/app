@@ -1,13 +1,15 @@
 namespace :support_module do
   desc 'Compte les messages des trios (TextMessagesBundle) des supports modules : ' \
-       'messages sans image, et messages sans image ni variable de 160 caractères au plus'
+       'messages sans image, et messages courts (≤ 160 octets, comptage SpotHit) ' \
+       'avec et sans variable'
   task count_short_messages: :environment do
-    # VARIABLE_REGEX = /\{.*?\}/.freeze
-    MAX_LENGTH = 160
+    VARIABLE_REGEX = /\{.*?}/.freeze
+    MAX_BYTESIZE = 160
 
     total_messages = 0
     messages_without_image = 0
-    short_messages_without_image_nor_variable = 0
+    short_messages_with_variable = 0
+    short_messages_without_variable = 0
 
     seen_bundle_ids = Set.new
 
@@ -30,10 +32,14 @@ namespace :support_module do
 
             messages_without_image += 1
 
-            # has_variable = body.match?(VARIABLE_REGEX)
-            # if !has_variable && body.length <= MAX_LENGTH
-            if body.length <= MAX_LENGTH
-              short_messages_without_image_nor_variable += 1
+            # SpotHit compte en octets UTF-8 (un accent = 2 octets, € = 3, etc.),
+            # d'où bytesize plutôt que length.
+            next unless body.bytesize <= MAX_BYTESIZE
+
+            if body.match?(VARIABLE_REGEX)
+              short_messages_with_variable += 1
+            else
+              short_messages_without_variable += 1
             end
           end
         end
@@ -44,8 +50,8 @@ namespace :support_module do
     puts "Trios de message parcourus            : #{seen_bundle_ids.size}"
     puts "Messages (body) non vides au total    : #{total_messages}"
     puts "Messages sans image                   : #{messages_without_image}"
-    # puts "Messages sans image ni variable ≤ #{MAX_LENGTH} car. : #{short_messages_without_image_nor_variable}"
-    puts "Messages sans image ≤ #{MAX_LENGTH} car. : #{short_messages_without_image_nor_variable}"
+    puts "Messages sans image, avec variable, ≤ #{MAX_BYTESIZE} octets  : #{short_messages_with_variable}"
+    puts "Messages sans image, sans variable, ≤ #{MAX_BYTESIZE} octets : #{short_messages_without_variable}"
     puts '------------------------------------------------------------'
   end
 end
