@@ -21,7 +21,7 @@ class Events::TextMessageDecorator < EventDecorator
   def spot_hit_status_value
     return unless spot_hit_status.present?
 
-    spot_hit_rcs_id.present? ? Event::SPOT_HIT_STATUS_ORDERED[spot_hit_status] : Event::SPOT_HIT_STATUS[spot_hit_status]
+    Event::SPOT_HIT_STATUS[spot_hit_status]
   end
 
   def truncated_body

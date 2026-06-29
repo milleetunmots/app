@@ -4,29 +4,29 @@ class Events::TextMessage
 
     RCS_STATUS_MAPPING = {
       'QUEUED' => 0,
-      'DELIVERED' => 4,
-      'SENT' => 4,
-      'DELIVERY_RETRIED' => 1,
-      'DELIVERY_FAILED' => 2,
-      'READ' => 5,
+      'DELIVERED' => 1,
+      'SENT' => 2,
+      'DELIVERY_RETRIED' => 3,
+      'DELIVERY_FAILED' => 4,
+      'READ' => 6,
       'SCHEDULE_QUEUED' => 0,
       'SCHEDULED' => 0,
-      'SCHEDULE_DELETED' => 2,
-      'SCHEDULE_DELETION_FAILED' => 2,
-      'CLIENT_MESSAGE_INVALID' => 2,
-      'CLIENT_CONFIGURATION_INVALID' => 2,
-      'CLIENT_MESSAGE_EXPIRED' => 2,
-      'CLIENT_QUOTA_EXCEEDED' => 2,
-      'CLIENT_MESSAGE_FORBIDDEN' => 2,
-      'CHANNEL_REJECTED' => 2,
-      'CHANNEL_UNAVAILABLE' => 2,
-      'CHANNEL_INTERNAL_ISSUE' => 2,
-      'CHANNEL_OTHER_ISSUE' => 2,
-      'USER_UKNOWN' => 2,
-      'USER_BLOCKED' => 2,
-      'USER_UNAVAILABLE' => 2,
-      'INTERNAL_NOT_IMPLEMENTED' => 2,
-      'INTERNAL_OTHER_ISSUE' => 2
+      'SCHEDULE_DELETED' => 4,
+      'SCHEDULE_DELETION_FAILED' => 4,
+      'CLIENT_MESSAGE_INVALID' => 4,
+      'CLIENT_CONFIGURATION_INVALID' => 4,
+      'CLIENT_MESSAGE_EXPIRED' => 4,
+      'CLIENT_QUOTA_EXCEEDED' => 4,
+      'CLIENT_MESSAGE_FORBIDDEN' => 4,
+      'CHANNEL_REJECTED' => 4,
+      'CHANNEL_UNAVAILABLE' => 4,
+      'CHANNEL_INTERNAL_ISSUE' => 4,
+      'CHANNEL_OTHER_ISSUE' => 4,
+      'USER_UKNOWN' => 4,
+      'USER_BLOCKED' => 4,
+      'USER_UNAVAILABLE' => 4,
+      'INTERNAL_NOT_IMPLEMENTED' => 4,
+      'INTERNAL_OTHER_ISSUE' => 4
       }.freeze
 
     def perform(payload)
@@ -97,7 +97,9 @@ class Events::TextMessage
         return
       end
 
-      if text_message.spot_hit_status > spot_hit_status
+      text_message_status = Event::SPOT_HIT_STATUS[text_message.spot_hit_status]
+      event_status = Event::SPOT_HIT_STATUS[spot_hit_status]
+      if Event::SPOT_HIT_STATUS_ORDERED.index(text_message_status) > Event::SPOT_HIT_STATUS_ORDERED.index(event_status)
         Rollbar.error('spot_hit_rcs_data: retrograde rcs status',
                       event_content: event_content,
                       text_message_spot_hit_status: text_message.spot_hit_status,
