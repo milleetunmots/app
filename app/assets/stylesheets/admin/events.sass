@@ -26,8 +26,6 @@ $bubble-text: #ffffff
       margin: 4px 0
       font-size: 14px
       color: #495057
-      display: flex
-      align-items: center
 
     .dot
       display: inline-block
@@ -35,7 +33,7 @@ $bubble-text: #ffffff
       height: 12px
       border-radius: 50%
       margin-right: 10px
-      flex-shrink: 0
+      vertical-align: middle
 
       &.rcs
         background-color: $rcs-color
@@ -58,11 +56,6 @@ $bubble-text: #ffffff
     &.incoming
       align-self: flex-start
       align-items: flex-start
-
-    &.system
-      align-self: center
-      align-items: center
-      max-width: 80%
 
   .bubble
     border-radius: 18px

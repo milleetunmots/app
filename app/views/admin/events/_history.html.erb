@@ -2,7 +2,7 @@
 
   <div class="chat-legend">
     <p><span class="dot rcs"></span> Format RCS : vous pouvez savoir si le message a été <strong>ouvert</strong> par le parent.</p>
-    <p><span class="dot sms"></span> Format SMS : on sait si le message a été <strong> reçu</strong>, mais pas s'il a été ouvert.</p>
+    <p><span class="dot sms"></span> Format SMS : on sait si le message a été <strong>reçu</strong>, mais pas s'il a été ouvert.</p>
   </div>
 
   <% events.each do |event| %>
@@ -34,10 +34,9 @@
 
     <% else %>
 
-      <div class="chat-message system">
+      <div class="chat-message outgoing">
 
         <div class="bubble neutral">
-          <div class="system-title"><%= event.timeline_description %></div>
           <% if event.model.is_a?(Events::WorkshopParticipation) %>
             <%= event.comments %>
           <% else %>
@@ -46,6 +45,7 @@
         </div>
 
         <div class="meta">
+          <span class="system-title"><%= event.timeline_description %></span>
           <%= event.timeline_occurred_at %>
           <span class="sep">·</span> <%= link_to 'Détails', [:admin, event], class: 'admin-link' %>
         </div>
