@@ -69,7 +69,7 @@ RSpec.describe 'EventsController#spot_hit_rcs_data', type: :request do
       post_rcs(status_payload)
 
       expect(response).to have_http_status(:ok)
-      expect(text_message.reload.spot_hit_status).to eq(4) # DELIVERED -> Livré
+      expect(text_message.reload.spot_hit_status).to eq(1) # DELIVERED -> Livré
     end
 
     it 'flags the message as fallback when channelId is fallback' do
@@ -108,7 +108,7 @@ RSpec.describe 'EventsController#spot_hit_rcs_data', type: :request do
 
       text_message.reload
       expect(text_message.rcs_error_code).to eq('E42')
-      expect(text_message.spot_hit_status).to eq(2) # DELIVERY_FAILED -> Échec
+      expect(text_message.spot_hit_status).to eq(4) # DELIVERY_FAILED -> Échec
     end
 
     it 'logs when no text_message matches the campaign' do
