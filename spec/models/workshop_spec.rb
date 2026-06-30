@@ -95,6 +95,8 @@ RSpec.describe Workshop, type: :model do
     before do
       stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms').
         to_return(status: 200, body: '{}')
+      stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').
+        to_return(status: 200, body: { success: true, campaign_id: '123' }.to_json)
     end
 
     context "create workshop_participation for each parent invited" do

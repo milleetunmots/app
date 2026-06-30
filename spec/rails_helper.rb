@@ -131,6 +131,7 @@ RSpec.configure do |config|
 
   config.before(:each) do
     stub_request(:post, "https://www.spot-hit.fr/api/envoyer/sms").to_return(status: 200, body: "{}", headers: {})
+    stub_request(:post, "https://www.spot-hit.fr/api/envoyer/rcs").to_return(status: 200, body: { success: true, campaign_id: "123" }.to_json, headers: {})
   end
 
   # Skip DatabaseCleaner's safeguard in order to be able to connect to a database using an URL (ie. Docker container)

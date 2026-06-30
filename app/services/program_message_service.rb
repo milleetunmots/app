@@ -75,27 +75,27 @@ class ProgramMessageService
       @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
     when 'spothit'
       service =
-        if @rcs_media_id.nil?
-          # SpotHit compte en octets UTF-8 (un accent = 2 octets, € = 3, etc.),
-          # d'où bytesize plutôt que length.
-          if @message.bytesize <= 160
-            SpotHit::SendRcsService.new(
-              recipients: @recipient_data,
-              planned_timestamp: @planned_timestamp,
-              fallback_message: @message,
-              basic: true
-            ).call
-          else
-            SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, workshop_id: @workshop_id, event_params: @event_params).call
-          end
-        else
+        if @rcs_media_id.present?
           SpotHit::SendRcsService.new(
             recipients: @recipient_data,
             planned_timestamp: @planned_timestamp,
             media_id: @rcs_media_id,
-            fallback_message: @message
+            fallback_message: @message,
+            workshop_id: @workshop_id,
+            event_params: @event_params
           ).call
-          end
+        elsif basic_rcs?
+          SpotHit::SendRcsService.new(
+            recipients: @recipient_data,
+            planned_timestamp: @planned_timestamp,
+            fallback_message: @message,
+            basic: true,
+            workshop_id: @workshop_id,
+            event_params: @event_params
+          ).call
+        else
+          SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, workshop_id: @workshop_id, event_params: @event_params).call
+        end
       if service.errors.any?
         @errors = service.errors
       elsif @invalid_parent_ids.any?
@@ -150,10 +150,17 @@ class ProgramMessageService
     child_support.save(touch: false)
   end
 
+  # Un message SpotHit sans média part en RCS basic s'il tient en 160 octets,
+  # sinon en SMS. SpotHit compte en octets UTF-8 (un accent = 2 octets, € = 3,
+  # etc.), d'où bytesize plutôt que length.
+  def basic_rcs?
+    @rcs_media_id.nil? && @message.bytesize <= 160
+  end
+
   def format_data_for_provider
     case @provider
     when 'spothit'
-      format_data_for_spot_hit(@rcs_media_id.present?)
+      format_data_for_spot_hit(@rcs_media_id.present? || basic_rcs?)
     when 'aircall'
       format_data_for_aircall
     else

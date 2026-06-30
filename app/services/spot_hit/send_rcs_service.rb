@@ -4,7 +4,7 @@ class SpotHit::SendRcsService
 
   attr_reader :errors
 
-  def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil, basic: false)
+  def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil, basic: false, workshop_id: nil, event_params: {})
     @recipients = recipients
     @planned_timestamp = planned_timestamp
     @form = {
@@ -16,6 +16,8 @@ class SpotHit::SendRcsService
     @media_id = media_id
     @errors = []
     @message = fallback_message
+    @event_params = event_params
+    @workshop = Workshop.find_by(id: workshop_id)
   end
 
   def call
@@ -82,10 +84,24 @@ class SpotHit::SendRcsService
         spot_hit_status: 0,
         type: 'Events::TextMessage',
         occurred_at: Time.at(@planned_timestamp)
-      }
+      }.merge(@event_params[parent.id] || {})
       keys&.map { |key, value| event_attributes[:body].gsub!("{#{key}}", value.to_s) }
       event = Event.create(event_attributes)
       @errors << "Erreur lors de la création de l'event d'envoi de rcs pour #{parent.phone_number}." if event.errors.any?
+
+      next unless @workshop
+
+      @workshop.workshop_participations.build(
+        type: 'Events::WorkshopParticipation',
+        related_id: parent.id,
+        related_type: 'Parent',
+        body: @workshop.name,
+        occurred_at: @workshop.workshop_date
+      )
     end
+
+    return unless @workshop
+
+    @errors << "Erreur lors de la sauvegarde de l'atelier #{@workshop.name}." unless @workshop.save
   end
 end
