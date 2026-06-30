@@ -17,7 +17,7 @@ module ActiveAdmin
             model.tags(context: 'tags')
           end
           (1..3).each do |msg_idx|
-            column "type#{msg_idx}".to_sym do |decorated|
+            column "spot_hit_type#{msg_idx}".to_sym do |decorated|
               decorated.message_type(msg_idx) if decorated.send("body#{msg_idx}").present?
             end
             column "body#{msg_idx}".to_sym do |decorated|
@@ -78,6 +78,9 @@ module ActiveAdmin
                     end
                   end
                   send (with_comments ? :row_with_comments : :row), "body#{msg_idx}", class: 'row-pre'
+                  send :row, "Spot Hit Type #{msg_idx}" do |decorated|
+                    decorated.message_type(msg_idx) if decorated.send("body#{msg_idx}").present?
+                  end
                   send (with_comments ? :row_with_comments : :row), "image#{msg_idx}_id" do |decorated|
                     decorated.send("image#{msg_idx}_admin_link_with_image", max_width: '100px')
                   end
