@@ -1,5 +1,15 @@
 class EventDecorator < BaseDecorator
 
+  STATUS_DISPLAY = {
+    'En attente' => { css_class: 'pending', css_emoji: 'fas fa-clock' },
+    'Livré' => { css_class: 'delivered', css_emoji: 'fas fa-check' },
+    'Envoyé' => { css_class: 'sent', css_emoji: 'fas fa-paper-plane' },
+    'En cours' => { css_class: 'in-progress', css_emoji: 'fas fa-sync-alt' },
+    'Échec' => { css_class: 'failed', css_emoji: 'fas fa-times' },
+    'Lu' => { css_class: 'read', css_emoji: 'fas fa-check-double' },
+    'Expiré' => { css_class: 'expired', css_emoji: 'fas fa-hourglass-end' }
+  }.freeze
+
   def related_link
     if related = model.related&.decorate
       if related.respond_to?(:admin_link)
@@ -41,20 +51,8 @@ class EventDecorator < BaseDecorator
   end
 
   def display_occurred_at
-    case model.spot_hit_status
-    when 0
-      { css_class: 'pending', css_emoji: 'fas fa-clock' }
-    when 1
-      { css_class: 'delivered', css_emoji: 'fas fa-check' }
-    when 2
-      { css_class: 'sent', css_emoji: 'fas fa-paper-plane' }
-    when 3
-      { css_class: 'in-progress', css_emoji: 'fas fa-sync-alt' }
-    when 4
-      { css_class: 'failed', css_emoji: 'fas fa-times' }
-    else
-      { css_class: 'exipired', css_emoji: 'fas fa-hourglass-end' }
-    end
+    label = Event::SPOT_HIT_STATUS[model.spot_hit_status] if model.spot_hit_status
+    STATUS_DISPLAY.fetch(label, STATUS_DISPLAY['Expiré'])
   end
 
   def timeline_occurred_at

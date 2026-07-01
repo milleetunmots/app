@@ -6,6 +6,7 @@
 #  acceptation_date          :date
 #  body                      :text
 #  discarded_at              :datetime
+#  is_fallback               :boolean          default(FALSE), not null
 #  is_support_module_message :boolean          default(FALSE), not null
 #  link_sent_substring       :string
 #  message_provider          :string
@@ -13,6 +14,7 @@
 #  originated_by_app         :boolean          default(TRUE), not null
 #  parent_presence           :string
 #  parent_response           :string
+#  rcs_error_code            :string
 #  related_type              :string
 #  spot_hit_status           :integer
 #  subject                   :string
@@ -35,6 +37,7 @@
 #  index_events_on_spot_hit_rcs_id               (spot_hit_rcs_id)
 #  index_events_on_type                          (type)
 #  index_events_on_type_and_spot_hit_message_id  (type,spot_hit_message_id)
+#  index_events_on_unprogrammed                  (id) WHERE (((type)::text = 'Events::TextMessage'::text) AND originated_by_app AND (spot_hit_status = 0))
 #  index_events_on_workshop_id                   (workshop_id)
 #
 # Foreign Keys

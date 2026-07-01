@@ -126,7 +126,6 @@ class ProgramMessageService
 
   def get_all_variables
     @variables += @message.scan(/\{(.*?)\}/).transpose[0].uniq
-
     @errors << 'Veuillez choisir un lien cible.' if @redirection_target.nil? && @variables.include?('URL')
   end
 
