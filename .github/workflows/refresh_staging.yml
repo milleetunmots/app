@@ -91,7 +91,6 @@ jobs:
             "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}" \
             "cd /opt/docker && docker-compose exec -T \
                -e SANITIZE_MONTHS_TO_KEEP='${{ inputs.months_to_keep }}' \
-               -e ADMIN_USERS_ACCOUNTS_WHITELIST='${{ secrets.ADMIN_USERS_ACCOUNTS_WHITELIST }}' \
                rails bundle exec rails db:sanitize"
 
       - name: Clean up dump file on staging
