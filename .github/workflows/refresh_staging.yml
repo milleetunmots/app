@@ -63,14 +63,14 @@ jobs:
             "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}" \
             "cd /opt/docker && \
              PGPASSWORD='${{ secrets.STAGING_DB_PASSWORD }}' docker-compose exec -T postgres \
-               psql -U postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${{ secrets.STAGING_DB_NAME }}' AND pid <> pg_backend_pid();\" && \
+               psql -U ${{ secrets.STAGING_DB_USER }} -d postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${{ secrets.STAGING_DB_NAME }}' AND pid <> pg_backend_pid();\" && \
              PGPASSWORD='${{ secrets.STAGING_DB_PASSWORD }}' docker-compose exec -T postgres \
-               dropdb -U postgres --if-exists '${{ secrets.STAGING_DB_NAME }}' && \
+               dropdb -U ${{ secrets.STAGING_DB_USER }} --maintenance-db=postgres --if-exists '${{ secrets.STAGING_DB_NAME }}' && \
              PGPASSWORD='${{ secrets.STAGING_DB_PASSWORD }}' docker-compose exec -T postgres \
-               createdb -U postgres '${{ secrets.STAGING_DB_NAME }}' && \
+               createdb -U ${{ secrets.STAGING_DB_USER }} --maintenance-db=postgres '${{ secrets.STAGING_DB_NAME }}' && \
              # /tmp/dumps is the container-internal path for the /opt/docker/dumps host volume mount
              PGPASSWORD='${{ secrets.STAGING_DB_PASSWORD }}' docker-compose exec -T postgres \
-               pg_restore --no-owner -U postgres -d '${{ secrets.STAGING_DB_NAME }}' /tmp/dumps/staging_dump.dump; \
+               pg_restore --no-owner -U ${{ secrets.STAGING_DB_USER }} -d '${{ secrets.STAGING_DB_NAME }}' /tmp/dumps/staging_dump.dump; \
              echo 'Restore complete'"
 
       - name: Start Rails and Sidekiq on staging
