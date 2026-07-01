@@ -40,6 +40,7 @@ jobs:
                --port=5432 \
                --username='${{ secrets.PROD_DB_USERNAME }}' \
                --dbname='${{ secrets.PROD_DB_NAME }}' \
+               --exclude-schema='metabase_cache*' \
                --exclude-table-data=versions \
                --exclude-table-data=events \
                --exclude-table-data=redirection_url_visits \
