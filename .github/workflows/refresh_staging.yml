@@ -1,0 +1,101 @@
+# .github/workflows/refresh_staging.yml
+name: Refresh Staging Database
+
+on:
+  workflow_dispatch:
+    inputs:
+      months_to_keep:
+        description: 'Months of data to keep (default: 12)'
+        required: false
+        default: '12'
+        type: string
+
+jobs:
+  refresh-staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Install PostgreSQL 16 client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client-16
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.STAGING_SSH_KEY }}" > ~/.ssh/staging_key
+          chmod 600 ~/.ssh/staging_key
+          ssh-keyscan -H "${{ secrets.STAGING_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Dump production database
+        env:
+          PGPASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+        run: |
+          pg_dump \
+            --host="${{ secrets.PROD_DB_HOST }}" \
+            --port=5432 \
+            --username="${{ secrets.PROD_DB_USERNAME }}" \
+            --dbname="${{ secrets.PROD_DB_NAME }}" \
+            --exclude-table-data=versions \
+            --exclude-table-data=events \
+            --exclude-table-data=redirection_url_visits \
+            --format=custom \
+            --no-owner \
+            --file=staging_dump.dump
+          echo "Dump size: $(du -sh staging_dump.dump | cut -f1)"
+
+      - name: Transfer dump to staging server
+        run: |
+          scp -i ~/.ssh/staging_key \
+            staging_dump.dump \
+            "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:/opt/docker/dumps/staging_dump.dump"
+
+      - name: Stop Rails and Sidekiq on staging
+        run: |
+          ssh -i ~/.ssh/staging_key \
+            "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}" \
+            "cd /opt/docker && docker-compose stop rails sidekiq"
+
+      - name: Restore database on staging
+        run: |
+          ssh -i ~/.ssh/staging_key \
+            "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}" \
+            "cd /opt/docker && \
+             PGPASSWORD='${{ secrets.STAGING_DB_PASSWORD }}' docker-compose exec -T postgres \
+               psql -U ${{ secrets.STAGING_DB_USER }} -d postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${{ secrets.STAGING_DB_NAME }}' AND pid <> pg_backend_pid();\" && \
+             PGPASSWORD='${{ secrets.STAGING_DB_PASSWORD }}' docker-compose exec -T postgres \
+               dropdb -U ${{ secrets.STAGING_DB_USER }} --maintenance-db=postgres --if-exists '${{ secrets.STAGING_DB_NAME }}' && \
+             PGPASSWORD='${{ secrets.STAGING_DB_PASSWORD }}' docker-compose exec -T postgres \
+               createdb -U ${{ secrets.STAGING_DB_USER }} --maintenance-db=postgres '${{ secrets.STAGING_DB_NAME }}' && \
+             # /tmp/dumps is the container-internal path for the /opt/docker/dumps host volume mount
+             PGPASSWORD='${{ secrets.STAGING_DB_PASSWORD }}' docker-compose exec -T postgres \
+               pg_restore --no-owner -U ${{ secrets.STAGING_DB_USER }} -d '${{ secrets.STAGING_DB_NAME }}' /tmp/dumps/staging_dump.dump; \
+             echo 'Restore complete'"
+
+      - name: Start Rails and Sidekiq on staging
+        run: |
+          ssh -i ~/.ssh/staging_key \
+            "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}" \
+            "cd /opt/docker && docker-compose start rails sidekiq"
+
+      - name: Wait for Rails to be ready
+        run: |
+          ssh -i ~/.ssh/staging_key \
+            "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}" \
+            "sleep 30"
+
+      - name: Run db:sanitize on staging
+        run: |
+          ssh -i ~/.ssh/staging_key \
+            "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}" \
+            "cd /opt/docker && docker-compose exec -T \
+               -e SANITIZE_MONTHS_TO_KEEP='${{ inputs.months_to_keep }}' \
+               rails bundle exec rails db:sanitize"
+
+      - name: Clean up dump file on staging
+        if: always()
+        run: |
+          ssh -i ~/.ssh/staging_key \
+            "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}" \
+            "rm -f /opt/docker/dumps/staging_dump.dump" || true
