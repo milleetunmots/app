@@ -63,8 +63,11 @@ $bubble-text: #ffffff
     font-size: 14px
     font-family: monospace
     white-space: pre-wrap
-    word-break: break-word
     line-height: 1.45
+
+    // uniquement les text_messages (les autres events ont la classe .neutral)
+    &:not(.neutral)
+      word-break: break-word
 
     &.rcs
       background-color: $rcs-color
@@ -82,7 +85,6 @@ $bubble-text: #ffffff
     &.neutral
       background-color: #7c7c7c
       color: #f1f1f1
-      font-family: inherit
 
       .system-title
         font-weight: bold

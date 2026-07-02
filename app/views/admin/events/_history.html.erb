@@ -36,13 +36,7 @@
 
       <div class="chat-message outgoing">
 
-        <div class="bubble neutral">
-          <% if event.model.is_a?(Events::WorkshopParticipation) %>
-            <%= event.comments %>
-          <% else %>
-            <%= event.body %>
-          <% end %>
-        </div>
+        <div class="bubble neutral"><%= event.model.is_a?(Events::WorkshopParticipation) ? event.comments : event.body %></div>
 
         <div class="meta">
           <span class="system-title"><%= event.timeline_description %></span>
