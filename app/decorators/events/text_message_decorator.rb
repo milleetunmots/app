@@ -4,12 +4,12 @@ class Events::TextMessageDecorator < EventDecorator
   # l'historique. La clé correspond à Event::SPOT_HIT_STATUS.
   CHAT_STATUS = {
     'En attente' => { label: 'Programmé', css_class: 'scheduled', icon: 'fas fa-clock' },
-    'En cours' => { label: 'En cours', css_class: 'in-progress', icon: 'fas fa-sync-alt' },
+    'En cours' => { label: 'Programmé', css_class: 'scheduled', icon: 'fas fa-clock' },
     'Échec' => { label: 'Non reçu', css_class: 'failed', icon: 'fas fa-times' },
     'Envoyé' => { label: 'Envoyé', css_class: 'sent', icon: 'fas fa-paper-plane' },
     'Livré' => { label: 'Reçu', css_class: 'delivered', icon: 'fas fa-check-double' },
     'Lu' => { label: 'Ouvert', css_class: 'read', icon: 'fas fa-check-double' },
-    'Expiré' => { label: 'Expiré', css_class: 'expired', icon: 'fas fa-hourglass-end' }
+    'Expiré' => { label: 'Non reçu', css_class: 'failed', icon: 'fas fa-times' }
   }.freeze
 
   def name
