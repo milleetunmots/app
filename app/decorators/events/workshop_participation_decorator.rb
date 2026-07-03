@@ -20,12 +20,12 @@ class Events::WorkshopParticipationDecorator < EventDecorator
         when "queue"
           "est sur la liste d'attente pour cet atelier"
         else
-          "a accepté l'invitation à un atelier le #{acceptation_date}"
+          "a accepté l'invitation l'atelier le #{acceptation_date}"
         end
-      elsif parent_response == "Non"
-        "a refusé l'invitation à un atelier le #{acceptation_date}"
+      elsif parent_response == 'Non'
+        "a refusé l'invitation à l'atelier"
       else
-        "a été invité à un atelier"
+        "a été invité à l'atelier"
       end
 
     participation_state << ", mais celui-ci a été annulé" if workshop&.canceled

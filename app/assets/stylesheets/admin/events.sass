@@ -1,75 +1,139 @@
 @import variables
 
-$bullet-size: 8px
-$timeline-color: #5E6469
+$rcs-color: #3b7ddd
+$sms-color: #4f9d5d
+$incoming-bg: #e9ebef
+$bubble-text: #ffffff
 
-.events-history
-  position: relative
+.chat-history
+  display: flex
+  flex-direction: column
+  max-width: 900px
+  margin: 0 auto
+  padding: 10px 0
 
-  .timeline
-    position: absolute
-    left: 0
-    width: 5px
-    height: 100%
-    border-left: 1px dashed $timeline-color
+  // -------------------------------------------------------------------------
+  // légende RCS / SMS
+  // -------------------------------------------------------------------------
+  .chat-legend
+    background-color: #f7f8fa
+    border: 1px solid #e3e6ea
+    border-radius: 12px
+    padding: 14px 18px
+    margin-bottom: 28px
 
-  .event
-    position: relative
-    margin: 30px 0
-
-    .occurred-at
-      margin-left: 5px
+    p
+      margin: 4px 0
       font-size: 14px
+      color: #495057
 
-    .pending
-      color: #ffcc00
+    .dot
+      display: inline-block
+      width: 12px
+      height: 12px
+      border-radius: 50%
+      margin-right: 10px
+      vertical-align: middle
 
-    .delivered
-      color: #28a745
+      &.rcs
+        background-color: $rcs-color
+      &.sms
+        background-color: $sms-color
 
-    .sent
-      color: #007bff
+  // -------------------------------------------------------------------------
+  // message (bulle + meta)
+  // -------------------------------------------------------------------------
+  .chat-message
+    display: flex
+    flex-direction: column
+    margin-bottom: 22px
+    max-width: 70%
 
-    .in-progress
-      color: #ff8800
+    &.outgoing
+      align-self: flex-end
+      align-items: flex-end
 
-    .failed
-      color: #dc3545
+    &.incoming
+      align-self: flex-start
+      align-items: flex-start
 
-    .read
-      color: #34b7f1
+  .bubble
+    border-radius: 18px
+    padding: 12px 16px
+    font-size: 14px
+    font-family: monospace
+    white-space: pre-wrap
+    line-height: 1.45
 
-    .exipired
-      color: #6c757d
+    // uniquement les text_messages (les autres events ont la classe .neutral)
+    &:not(.neutral)
+      word-break: break-word
+
+    &.rcs
+      background-color: $rcs-color
+      color: $bubble-text
+
+    &.sms
+      background-color: $sms-color
+      color: $bubble-text
+
+    &.scheduled,
+    &.incoming
+      background-color: $incoming-bg
+      color: #2b2f33
+
+    &.neutral
+      background-color: #7c7c7c
+      color: #f1f1f1
+
+      .system-title
+        font-weight: bold
+        margin-bottom: 6px
+
+  // -------------------------------------------------------------------------
+  // ligne d'état sous la bulle
+  // -------------------------------------------------------------------------
+  .meta
+    margin-top: 6px
+    font-size: 13px
+    color: #6c757d
+    display: flex
+    align-items: center
+    gap: 5px
+
+    i
+      margin-right: 2px
+
+    .label
+      font-weight: 600
+      margin-bottom: 0
+
+    .sep
+      color: #adb5bd
 
     .admin-link
-      display: block
-      position: absolute
-      top: 2px
-      right: 10px
-      font-size: 12px
+      color: #6c757d
+      text-decoration: underline
 
-    &.sent_by_app_text_messages
-      margin-left: 30%
-    
-    &.received_text_messages
-      margin-right: 30%
-      .body
-        background-color: #fe5e4d !important
-
-    &.text-message, &.workshop-participation, &.other-event, &.survey-response
-      .body
-        margin-top: 10px
-        border: 1px solid #dedede
-        background-color: #f1f1f1
-        border-radius: 5px
-        padding: 10px
-        font-size: 14px
-        font-family: monospace
-        white-space: pre-wrap
-        height: 3rem
-        overflow: hidden
-      .workshop-participation-comment
-        font-weight: bold
-        background-color: #7c7c7c
-        color: #f1f1f1
+    // couleurs des icônes / libellés par statut
+    &.scheduled
+      .label, i
+        color: #f0a500
+    &.sent
+      .label, i
+        color: #6c757d
+    &.delivered
+      .label, i
+        color: $sms-color
+    &.in-progress
+      .label, i
+        color: #ff8800
+    &.failed
+      .label, i
+        color: #dc3545
+    &.read
+      .label, i
+        color: $rcs-color
+    &.expired
+      .label, i
+        color: #6c757d
