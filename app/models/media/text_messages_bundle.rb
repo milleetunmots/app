@@ -60,10 +60,27 @@ class Media::TextMessagesBundle < Medium
 
   include Media::TextMessagesBundleConcern
 
+  # SpotHit compte en octets UTF-8 (un accent = 2 octets, € = 3, etc.),
+  # d'où le seuil exprimé en bytesize.
+  MESSAGE_TYPE_MAX_BYTESIZE = 160
+
   after_save :sync_rcs_models
 
   def draft
     update_attribute :type, 'Media::TextMessagesBundleDraft'
+  end
+
+  # Type d'envoi SpotHit du message d'index donné (1..3) :
+  # - 'single' : une image est présente (RCS avec média) ;
+  # - 'basic'  : pas d'image et corps ≤ 160 octets (RCS basic) ;
+  # - 'sms'    : sinon (texte long sans image).
+  def message_type(index)
+    return 'single' if public_send("image#{index}_id").present?
+
+    body = public_send("body#{index}")
+    return 'basic' if body.present? && body.bytesize <= MESSAGE_TYPE_MAX_BYTESIZE
+
+    'sms'
   end
 
   def self.single_message

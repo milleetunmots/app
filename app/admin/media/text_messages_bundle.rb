@@ -66,6 +66,9 @@ ActiveAdmin.register Media::TextMessagesBundle do
     column :name
 
     column :rcs_title1
+    column :spot_hit_type1 do |decorated|
+      decorated.message_type(1) if decorated.body1.present?
+    end
     column :body1
     column :file1 do |decorated|
       decorated.image1.name if decorated.image1
@@ -74,6 +77,9 @@ ActiveAdmin.register Media::TextMessagesBundle do
       decorated.link1.url if decorated.link1
     end
     column :rcs_title2
+    column :spot_hit_type2 do |decorated|
+      decorated.message_type(2) if decorated.body2.present?
+    end
     column :body2
     column :file2 do |decorated|
       decorated.image2.name if decorated.image2
@@ -82,6 +88,9 @@ ActiveAdmin.register Media::TextMessagesBundle do
       decorated.link2.url if decorated.link2
     end
     column :rcs_title3
+    column :spot_hit_type3 do |decorated|
+      decorated.message_type(3) if decorated.body3.present?
+    end
     column :body3
     column :file3 do |decorated|
       decorated.image3.name if decorated.image3

@@ -43,17 +43,20 @@ RSpec.describe ProgramMessageService do
   before do
     stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms').
       to_return(status: 200, body: '{}')
+    stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').
+      to_return(status: 200, body: { success: true, campaign_id: '123' }.to_json)
   end
 
   context 'when a tag is given' do
-    it 'calls SpotHit::SendSmsService with only parent tagged by it' do
+    it 'calls SpotHit::SendRcsService with only parent tagged by it' do
       child_2.update(should_contact_parent1: true)
-      expect(SpotHit::SendSmsService).to(
+      expect(SpotHit::SendRcsService).to(
         receive(:new).
         with(
-          parent_3.phone_number,
-          Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
-          message,
+          recipients: [parent_3.phone_number],
+          planned_timestamp: Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          fallback_message: message,
+          basic: true,
           workshop_id: nil,
           event_params: {}
         ).
@@ -70,13 +73,14 @@ RSpec.describe ProgramMessageService do
   end
 
   context 'when parents are given' do
-    it 'calls SpotHit::SendSmsService with parents given only' do
-      expect(SpotHit::SendSmsService).to(
+    it 'calls SpotHit::SendRcsService when the message fits in 160 bytes' do
+      expect(SpotHit::SendRcsService).to(
         receive(:new).
         with(
-          parent_3.phone_number,
-          Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
-          message,
+          recipients: [parent_3.phone_number],
+          planned_timestamp: Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          fallback_message: message,
+          basic: true,
           workshop_id: nil,
           event_params: {}
         ).
@@ -90,16 +94,40 @@ RSpec.describe ProgramMessageService do
         message
       ).call
     end
-  end
 
-  context 'when group is given' do
-    it 'calls SpotHit::SendSmsService with parents that should be contacted from group only' do
+    it 'calls SpotHit::SendSmsService when the message exceeds 160 bytes' do
+      long_message = 'a' * 161
+
       expect(SpotHit::SendSmsService).to(
         receive(:new).
         with(
-          parent_2.phone_number,
+          parent_3.phone_number,
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
-          message,
+          long_message,
+          workshop_id: nil,
+          event_params: {}
+        ).
+        and_call_original
+      )
+
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_3.id}"],
+        long_message
+      ).call
+    end
+  end
+
+  context 'when group is given' do
+    it 'calls SpotHit::SendRcsService with parents that should be contacted from group only' do
+      expect(SpotHit::SendRcsService).to(
+        receive(:new).
+        with(
+          recipients: [parent_2.phone_number],
+          planned_timestamp: Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          fallback_message: message,
+          basic: true,
           workshop_id: nil,
           event_params: {}
         ).
@@ -116,13 +144,16 @@ RSpec.describe ProgramMessageService do
   end
 
   context 'when parent and variable are given' do
-    it 'calls SpotHit::SendSmsService with parents given only' do
-      expect(SpotHit::SendSmsService).to(
+    it 'calls SpotHit::SendRcsService with parents given only' do
+      expect(SpotHit::SendRcsService).to(
         receive(:new).
         with(
-            parent_2.phone_number,
-            Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
-            'N\'oubliez pas que votre enfant doit faire du sport.', workshop_id: nil, event_params: {}
+          recipients: [parent_2.phone_number],
+          planned_timestamp: Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          fallback_message: 'N\'oubliez pas que votre enfant doit faire du sport.',
+          basic: true,
+          workshop_id: nil,
+          event_params: {}
         ).
         and_call_original
       )
@@ -145,16 +176,17 @@ RSpec.describe ProgramMessageService do
       )
     end
 
-    it 'calls SpotHit::SendSmsService with parents given only and url place in the message' do
-      expect(SpotHit::SendSmsService).to(
+    it 'calls SpotHit::SendRcsService with parents given only and url place in the message' do
+      expect(SpotHit::SendRcsService).to(
         receive(:new).
         with(
-          { parent_2.phone_number => {
+          recipients: { parent_2.phone_number => {
             'URL' => 'http://localhost:3000/r/95/c6'
             }
           },
-          Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
-          'N\'oubliez pas que {URL} doit faire du sport.',
+          planned_timestamp: Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          fallback_message: 'N\'oubliez pas que {URL} doit faire du sport.',
+          basic: true,
           workshop_id: nil,
           event_params: {}
         ).
@@ -171,15 +203,16 @@ RSpec.describe ProgramMessageService do
       ).call
     end
 
-    it 'calls SpotHit::SendSmsService with parents given only and url not place in the message' do
-      expect(SpotHit::SendSmsService).to(
+    it 'calls SpotHit::SendRcsService with parents given only and url not place in the message' do
+      expect(SpotHit::SendRcsService).to(
         receive(:new).
         with(
-          { parent_2.phone_number =>
+          recipients: { parent_2.phone_number =>
               {'URL' => 'http://localhost:3000/r/95/c6'}
           },
-          Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
-          'N\'oubliez l\'importance du sport. {URL}',
+          planned_timestamp: Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
+          fallback_message: 'N\'oubliez l\'importance du sport. {URL}',
+          basic: true,
           workshop_id: nil,
           event_params: {}
         ).
