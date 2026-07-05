@@ -15,10 +15,10 @@ RSpec.describe AdminUser::ImportGroupSubscriptionsService do
 
   def stub_airtable(registrations:, cohorts: { 'recCohortA' => 'Septembre26-A' }, cohort_start_dates: {}, callers: { 'recCaller1' => admin_user.id })
     cohort_doubles = cohorts.map do |id, name|
-      instance_double(Airtables::Cohort, id: id, name: name, start_date: (cohort_start_dates[id] || future_monday).to_s)
+      instance_double(Airtables::Group, id: id, name: name, start_date: (cohort_start_dates[id] || future_monday).to_s)
     end
     allow(Airtables::GroupSubscription).to receive(:validated).and_return(registrations)
-    allow(Airtables::Cohort).to receive(:all).and_return(cohort_doubles)
+    allow(Airtables::Group).to receive(:all).and_return(cohort_doubles)
     allow(Airtables::Caller).to receive(:caller_id_by_airtable_caller_id) { |airtable_caller_id| callers[airtable_caller_id] }
   end
 

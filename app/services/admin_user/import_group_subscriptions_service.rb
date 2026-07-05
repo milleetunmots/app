@@ -97,7 +97,7 @@ class AdminUser
     end
 
     def cohorts_by_airtable_id
-      @cohorts_by_airtable_id ||= Airtables::Cohort.all.index_by(&:id)
+      @cohorts_by_airtable_id ||= Airtables::Group.all.index_by(&:id)
     end
 
     def group_names
