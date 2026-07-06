@@ -11,4 +11,76 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
       }.to have_enqueued_job(described_class).on_queue('low').exactly(:once)
     end
   end
+
+  describe '#perform' do
+    let(:parent) { FactoryBot.create(:parent, phone_number: '0668021234') }
+    let!(:text_message) do
+      FactoryBot.create(
+        :text_message,
+        related: parent,
+        message_provider: 'spot_hit',
+        spot_hit_rcs_id: '45878',
+        spot_hit_status: initial_status
+      )
+    end
+
+    def payload(status:, channel_id:)
+      {
+        'events' => [
+          {
+            'messageStatusChanged' => {
+              'status' => status,
+              'channelId' => channel_id,
+              'userId' => parent.phone_number,
+              'context' => { 'campaign_id' => '45878' }
+            }
+          }
+        ]
+      }
+    end
+
+    context 'when a retrograde status arrives on the rcs channel' do
+      let(:initial_status) { 1 } # Livré
+
+      it 'reports to Rollbar and keeps the current status' do
+        expect(Rollbar).to receive(:error).with('spot_hit_rcs_data: retrograde rcs status', anything)
+        subject.perform_now(payload(status: 'SENT', channel_id: 'rcs'))
+        expect(text_message.reload.spot_hit_status).to eq(1)
+      end
+    end
+
+    context 'when the fallback sms fails after the rcs was sent' do
+      let(:initial_status) { 2 } # Envoyé
+
+      it 'applies the failed status and flags the message as fallback' do
+        expect(Rollbar).not_to receive(:error)
+        subject.perform_now(payload(status: 'DELIVERY_FAILED', channel_id: 'fallback'))
+        text_message.reload
+        expect(text_message.spot_hit_status).to eq(4)
+        expect(text_message.is_fallback).to be(true)
+      end
+    end
+
+    context 'when a retrograde status arrives on the fallback channel and the message is not failed' do
+      let(:initial_status) { 1 } # Livré
+
+      it 'reports to Rollbar and keeps the current status' do
+        expect(Rollbar).to receive(:error).with('spot_hit_rcs_data: retrograde rcs status', anything)
+        subject.perform_now(payload(status: 'SENT', channel_id: 'fallback'))
+        expect(text_message.reload.spot_hit_status).to eq(1)
+      end
+    end
+
+    context 'when the rcs failed and the fallback sms is then sent' do
+      let(:initial_status) { 4 } # Échec
+
+      it 'applies the sent status' do
+        expect(Rollbar).not_to receive(:error)
+        subject.perform_now(payload(status: 'SENT', channel_id: 'fallback'))
+        text_message.reload
+        expect(text_message.spot_hit_status).to eq(2)
+        expect(text_message.is_fallback).to be(true)
+      end
+    end
+  end
 end

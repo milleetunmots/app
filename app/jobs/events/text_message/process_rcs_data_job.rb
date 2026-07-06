@@ -100,7 +100,9 @@ class Events::TextMessage
 
       text_message_status = Event::SPOT_HIT_STATUS[text_message.spot_hit_status]
       event_status = Event::SPOT_HIT_STATUS[spot_hit_status]
-      if Event::SPOT_HIT_STATUS_ORDERED.index(text_message_status) > Event::SPOT_HIT_STATUS_ORDERED.index(event_status)
+      retrograde = Event::SPOT_HIT_STATUS_ORDERED.index(text_message_status) > Event::SPOT_HIT_STATUS_ORDERED.index(event_status)
+      fallback_after_failure = event_content['channelId'] == 'fallback' && text_message_status == 'Échec'
+      if retrograde && !fallback_after_failure
         Rollbar.error('spot_hit_rcs_data: retrograde rcs status',
                       event_content: event_content,
                       text_message_spot_hit_status: text_message.spot_hit_status,
