@@ -35,6 +35,10 @@ gem 'google-api-client'
 
 gem 'geocoder'
 
+# Not just a dev/test tool: DbSanitizer (rails db:sanitize) uses Faker to
+# anonymise PII, and it runs inside the production image on staging.
+gem "faker"
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem "byebug", platforms: [:mri, :mingw, :x64_mingw]
@@ -48,7 +52,6 @@ group :development, :test do
   gem 'rubocop-rspec'
   gem "simplecov", require: false
   gem "factory_bot_rails"
-  gem "faker"
   gem "database_cleaner-active_record"
 end
 
