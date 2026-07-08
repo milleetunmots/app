@@ -13,7 +13,7 @@ RSpec.describe Events::TextMessage::RemoveUnprogrammedJob, type: :job do
 
   describe '#perform' do
     context 'when the SMS campaign no longer exists on SpotHit' do
-      let!(:text_message) { FactoryBot.create(:text_message, spot_hit_status: 0, spot_hit_message_id: '245174') }
+      let!(:text_message) { FactoryBot.create(:text_message, spot_hit_status: 0, spot_hit_message_id: '245174', occurred_at: 1.day.ago) }
 
       it 'destroys the message' do
         stub_request(:get, api_url)
@@ -25,7 +25,7 @@ RSpec.describe Events::TextMessage::RemoveUnprogrammedJob, type: :job do
     end
 
     context 'when the SMS campaign exists' do
-      let!(:text_message) { FactoryBot.create(:text_message, spot_hit_status: 0, spot_hit_message_id: '245174') }
+      let!(:text_message) { FactoryBot.create(:text_message, spot_hit_status: 0, spot_hit_message_id: '245174', occurred_at: 1.day.ago) }
 
       it 'updates the status from the campaign status' do
         stub_request(:get, api_url)
@@ -49,8 +49,8 @@ RSpec.describe Events::TextMessage::RemoveUnprogrammedJob, type: :job do
     end
 
     context 'when several messages belong to the same campaign' do
-      let!(:first_message) { FactoryBot.create(:text_message, spot_hit_status: 0, spot_hit_message_id: '245174') }
-      let!(:second_message) { FactoryBot.create(:text_message, spot_hit_status: 0, spot_hit_message_id: '245174') }
+      let!(:first_message) { FactoryBot.create(:text_message, spot_hit_status: 0, spot_hit_message_id: '245174', occurred_at: 1.day.ago) }
+      let!(:second_message) { FactoryBot.create(:text_message, spot_hit_status: 0, spot_hit_message_id: '245174', occurred_at: 1.day.ago) }
 
       it 'calls the API once and updates every message of the campaign' do
         stub = stub_request(:get, api_url)
@@ -66,7 +66,7 @@ RSpec.describe Events::TextMessage::RemoveUnprogrammedJob, type: :job do
     end
 
     context 'with an RCS message' do
-      let!(:text_message) { FactoryBot.create(:text_message, spot_hit_status: 0, spot_hit_rcs_id: '999') }
+      let!(:text_message) { FactoryBot.create(:text_message, spot_hit_status: 0, spot_hit_rcs_id: '999', occurred_at: 1.day.ago) }
 
       it 'checks the rcs product with the RCS id' do
         stub = stub_request(:get, api_url)
@@ -80,8 +80,19 @@ RSpec.describe Events::TextMessage::RemoveUnprogrammedJob, type: :job do
       end
     end
 
+    context 'when the pending message is more than a month old' do
+      let!(:text_message) do
+        FactoryBot.create(:text_message, spot_hit_status: 0, spot_hit_message_id: '245174', occurred_at: 2.months.ago)
+      end
+
+      it 'ignores it without calling the API' do
+        expect { job.perform }.not_to change(Events::TextMessage, :count)
+        expect(a_request(:get, api_url)).not_to have_been_made
+      end
+    end
+
     context 'when the message has no SpotHit id' do
-      let!(:text_message) { FactoryBot.create(:text_message, spot_hit_status: 0) }
+      let!(:text_message) { FactoryBot.create(:text_message, spot_hit_status: 0, occurred_at: 1.day.ago) }
 
       it 'leaves the message untouched without calling the API' do
         job.perform
@@ -92,7 +103,7 @@ RSpec.describe Events::TextMessage::RemoveUnprogrammedJob, type: :job do
     end
 
     context 'when the API returns an error' do
-      let!(:text_message) { FactoryBot.create(:text_message, spot_hit_status: 0, spot_hit_message_id: '245174') }
+      let!(:text_message) { FactoryBot.create(:text_message, spot_hit_status: 0, spot_hit_message_id: '245174', occurred_at: 1.day.ago) }
 
       it 'keeps the message and moves on to the next one' do
         stub_request(:get, api_url)

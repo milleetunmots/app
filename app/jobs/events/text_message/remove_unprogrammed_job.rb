@@ -36,9 +36,14 @@ module Events
 
       # Les envois SpotHit sont des campagnes : plusieurs events partagent le même
       # spot_hit_message_id (SMS) ou spot_hit_rcs_id (RCS). On interroge l'API une
-      # seule fois par campagne. Les messages sans identifiant SpotHit sont ignorés.
+      # seule fois par campagne. Les events anciens (plus d'un mois) et ceux sans
+      # identifiant SpotHit sont ignorés.
       def messages_by_campaign
-        Events::TextMessage.sent_by_app_text_messages.where(spot_hit_status: 0).group_by do |message|
+        Events::TextMessage
+          .sent_by_app_text_messages
+          .where(spot_hit_status: 0)
+          .where(occurred_at: 1.month.ago..)
+          .group_by do |message|
           if message.spot_hit_message_id.present?
             ['sms', message.spot_hit_message_id]
           elsif message.spot_hit_rcs_id.present?
