@@ -13,6 +13,7 @@
 #  current_sign_in_ip       :inet
 #  email                    :string           default(""), not null
 #  encrypted_password       :string           default(""), not null
+#  group_subscriptions      :jsonb            not null
 #  is_disabled              :boolean          default(FALSE)
 #  last_sign_in_at          :datetime
 #  last_sign_in_ip          :inet

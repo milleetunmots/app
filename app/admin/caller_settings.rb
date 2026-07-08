@@ -5,7 +5,9 @@ ActiveAdmin.register_page 'Réglages de RDV' do
     render partial: 'admin/admin_user_can_send_automatic_sms_parameters/modal'
     render partial: 'admin/admin_user_can_send_automatic_sms_parameters/settings_panel', locals: { access_to_settings: false }
 
-    group_ids = ChildSupport.all_supported_by(current_admin_user.id).joins(:children).distinct.pluck('children.group_id').compact
+    assigned_group_ids = ChildSupport.all_supported_by(current_admin_user.id).joins(:children).distinct.pluck('children.group_id').compact
+    positioned_group_ids = Group.kept.where(id: current_admin_user.group_subscriptions.keys, is_programmed: false).ids
+    group_ids = assigned_group_ids | positioned_group_ids
     groups = Group.where(id: group_ids)
     existing_overrides = CallSessionDateOverride
                          .where(admin_user: current_admin_user, group_id: group_ids)
