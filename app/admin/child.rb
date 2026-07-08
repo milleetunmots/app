@@ -105,12 +105,12 @@ ActiveAdmin.register Child do
   filter :supporter_id_in,
           as: :select,
           collection: proc { child_supporter_select_collection },
-          input_html: { multiple: true, data: { select2: {} } },
+          input_html: { multiple: true, data: { select2: { closeOnSelect: false } } },
           label: 'Accompagnante'
   filter :group_id_in,
          as: :select,
          collection: proc { child_group_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
+         input_html: { multiple: true, data: { select2: { closeOnSelect: false } } },
          label: 'Cohorte'
   filter :child_group_status,
           as: :check_boxes,

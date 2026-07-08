@@ -85,8 +85,8 @@ ActiveAdmin.register ChildrenSupportModule do
   filter :group_id,
          as: :select,
          collection: proc { child_group_select_collection },
-         input_html: {multiple: true, data: {select2: {}}},
-         label: "Cohorte"
+         input_html: { multiple: true, data: { select2: { closeOnSelect: false } } },
+         label: 'Cohorte'
   filter :children_support_module_group_status,
          as: :check_boxes,
          label: '',
