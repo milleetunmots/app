@@ -9,7 +9,13 @@ class AdminUser
     end
 
     def call
-      apply_subscriptions(build_subscriptions)
+      subscriptions = build_subscriptions
+      if subscriptions.empty? && AdminUser.where.not(group_subscriptions: {}).exists?
+        @errors << 'Aucun positionnement récupéré depuis Airtable, import ignoré par sécurité.'
+        return self
+      end
+
+      apply_subscriptions(subscriptions)
       self
     end
 
@@ -41,10 +47,12 @@ class AdminUser
     end
 
     # Une accompagnante qui n'est plus positionnée perd ses plages personnalisées,
-    # sauf si des familles lui ont déjà été attribuées (la source est alors l'application).
+    # sauf si des familles lui ont déjà été attribuées (la source est alors l'application)
+    # ou si le groupe vient d'être programmé (la distribution des familles n'a pas encore eu lieu).
     def destroy_obsolete_overrides(admin_user, removed_group_ids)
       removed_group_ids.each do |group_id|
         next if ChildSupport.in_group(group_id).all_supported_by(admin_user.id).any?
+        next if Group.kept.exists?(id: group_id, is_programmed: true)
 
         CallSessionDateOverride.where(admin_user: admin_user, group_id: group_id).destroy_all
       end
@@ -83,6 +91,9 @@ class AdminUser
       admin_user_id = airtable_caller_id && admin_user_ids_by_airtable_caller_id(airtable_caller_id)
       @errors << "Accompagnante introuvable dans la base pour l'inscription #{registration.registration_id}" if admin_user_id.nil?
       admin_user_id
+    rescue Airrecord::Error => e
+      @errors << "Erreur Airtable pour l'inscription #{registration.registration_id} : #{e.message}"
+      nil
     end
 
     def admin_user_ids_by_airtable_caller_id(airtable_caller_id)
@@ -93,7 +104,7 @@ class AdminUser
     end
 
     def eligible_groups
-      @eligible_groups ||= Group.where(is_programmed: false).where('started_at > ?', Time.zone.today).to_a
+      @eligible_groups ||= Group.kept.where(is_programmed: false).where('started_at > ?', Time.zone.today).to_a
     end
 
     def cohorts_by_airtable_id
@@ -101,7 +112,7 @@ class AdminUser
     end
 
     def group_names
-      @group_names ||= Group.pluck(:name)
+      @group_names ||= Group.kept.pluck(:name)
     end
   end
 end
