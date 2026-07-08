@@ -118,8 +118,8 @@ RSpec.describe Child::CreateService do
       let(:parent1_attributes) { {} }
 
       it "sets the second parent as first parent" do
-        expect(subject.call.child.parent1.first_name).to eq parent2_attributes[:first_name]
-        expect(subject.call.child.parent1.last_name).to eq parent2_attributes[:last_name]
+        expect(subject.call.child.parent1.first_name).to eq NameFormatConcern.format_first_name(parent2_attributes[:first_name])
+        expect(subject.call.child.parent1.last_name).to eq NameFormatConcern.format_last_name(parent2_attributes[:last_name])
         expect(subject.call.child.parent2).to be nil
       end
     end

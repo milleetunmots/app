@@ -80,6 +80,15 @@ RSpec.describe Child, type: :model do
       end
     end
 
+    context "names formatting" do
+      it "capitalizes the first name and upcases the last name on save" do
+        first_child.update! first_name: "  jean-pierre ", last_name: " éloïse dupont "
+
+        expect(first_child.first_name).to eq "Jean-Pierre"
+        expect(first_child.last_name).to eq "ÉLOÏSE DUPONT"
+      end
+    end
+
     context "fail" do
       let(:new_child) { FactoryBot.build(:child, first_name: first_child.first_name, birthdate: first_child.birthdate, parent1: first_child.parent1) }
 

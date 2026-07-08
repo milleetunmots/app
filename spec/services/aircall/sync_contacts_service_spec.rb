@@ -3,9 +3,9 @@ require 'rails_helper'
 RSpec.describe Aircall::SyncContactsService do
   let(:aircall_id) { '123456789' }
   let(:phone_number) { '+33600000000' }
-  let(:parent_first_name) { Faker::Name.first_name }
-  let(:parent_last_name) { Faker::Name.last_name }
-  let(:child_first_name) { Faker::Name.first_name }
+  let(:parent_first_name) { NameFormatConcern.format_first_name(Faker::Name.first_name) }
+  let(:parent_last_name) { NameFormatConcern.format_last_name(Faker::Name.last_name) }
+  let(:child_first_name) { NameFormatConcern.format_first_name(Faker::Name.first_name) }
 
   let(:group) { FactoryBot.create(:group) }
 

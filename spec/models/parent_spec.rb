@@ -101,6 +101,15 @@ RSpec.describe Parent, type: :model do
     end
   end
 
+  describe "names formatting" do
+    it "capitalizes the first name and upcases the last name on save" do
+      subject.update! first_name: "  jean-pierre ", last_name: " éloïse dupont "
+
+      expect(subject.first_name).to eq "Jean-Pierre"
+      expect(subject.last_name).to eq "ÉLOÏSE DUPONT"
+    end
+  end
+
   describe "#address" do
     it "is required" do
       subject.address = nil
