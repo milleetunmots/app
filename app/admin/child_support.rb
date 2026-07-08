@@ -61,7 +61,7 @@ ActiveAdmin.register ChildSupport do
   filter :group_id_in,
          as: :select,
          collection: proc { child_group_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
+         input_html: { multiple: true, data: { select2: { closeOnSelect: false } } },
          label: 'Cohorte'
   filter :children_group_status,
           as: :check_boxes,
@@ -95,8 +95,11 @@ ActiveAdmin.register ChildSupport do
   filter :second_language
   filter :postal_code,
          as: :string
-  filter :supporter,
-         input_html: { data: { select2: {} } }
+  filter :supporter_id_in,
+         as: :select,
+         collection: proc { child_supporter_select_collection },
+         input_html: { multiple: true, data: { select2: { closeOnSelect: false } } },
+         label: 'Accompagnante'
   filter :address_suspected_invalid_at
   filter :months,
          label: 'Au moins un enfant âgé de (en mois)',
