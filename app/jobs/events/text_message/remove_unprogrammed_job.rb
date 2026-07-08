@@ -8,7 +8,7 @@ module Events
           reconcile_campaign(product, spot_hit_id, messages)
           sleep(1)
         rescue StandardError => e
-          Rails.logger.error("[Events::TextMessage::RemoveUnprogrammedJob] campagne #{product} #{spot_hit_id} : #{e.class} - #{e.message}")
+          Rollbar.error(e, 'Events::TextMessage::RemoveUnprogrammedJob', product: product, spot_hit_id: spot_hit_id)
           next
         end
       end
