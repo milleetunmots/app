@@ -70,6 +70,7 @@ class Parent < ApplicationRecord
 
   include Discard::Model
   include TagsSharedConcern
+  include NameFormatConcern
 
   attr_accessor :parent2_creation, :created_by_us
 

@@ -54,6 +54,7 @@ class Child < ApplicationRecord
 
   include Discard::Model
   include TagsSharedConcern
+  include NameFormatConcern
 
   attr_accessor :parent1_selection, :parent2_selection
 
