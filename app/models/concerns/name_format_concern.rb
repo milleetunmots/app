@@ -2,15 +2,15 @@ module :NameFormatConcern
   extend ActiveSupport::Concern
 
   def self.format_first_name(first_name)
-    first_name.strip.downcase.gsub(/\p{L}+/, &:capitalize)
+    first_name.strip.downcase.gsub(/\p{L}+/, &:capitalize).squish
   end
 
   def self.format_last_name(last_name)
-    last_name.strip.upcase
+    last_name.strip.upcase.squish
   end
 
   included do
-    before_validation :format_names
+    before_validation :format_names, if: -> { first_name_changed? || last_name_changed? }
 
     private
 
