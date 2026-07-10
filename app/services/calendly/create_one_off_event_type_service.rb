@@ -144,9 +144,13 @@ module Calendly
       params = {
         utm_source: '1001mots',
         utm_campaign: "call#{@call_session}",
-        utm_content: parent.security_token
+        utm_content: parent.security_token,
+        name: "#{parent.first_name} #{parent.last_name}",
+        first_name: parent.first_name,
+        last_name: parent.last_name,
+        email: parent.email.presence
       }.compact
-      uri.query = URI.encode_www_form(params)
+      uri.query = URI.encode_www_form(params).gsub('+', '%20')
       uri.to_s
     end
   end

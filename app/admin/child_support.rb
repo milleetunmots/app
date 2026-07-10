@@ -366,6 +366,44 @@ ActiveAdmin.register ChildSupport do
                     ''
                   end
                 end
+                outline_button_style = 'background-color: #fff; color: #323537; border: 1.5px solid #4a4a4a; padding: 8px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; white-space: nowrap; cursor: pointer; display: inline-block;'
+                if decorated.scheduled_call_creation_enabled?
+                  case resource.contactable_parents.count
+                  when 1
+                    a href: create_scheduled_call_admin_child_support_path(resource, parent_id: resource.contactable_parents.first.id), target: '_blank',
+                      style: "#{outline_button_style} margin-left: auto;" do
+                      text_node 'Créer un rdv'
+                    end
+                  when 2
+                    div class: 'scheduled-call-reminder-dropdown', style: "position: relative; display: inline-block; margin-left: auto;" do
+                      a class: 'scheduled-call-reminder-toggle',
+                        style: outline_button_style do
+                        text_node 'Créer un rdv '
+                        span '▼', style: 'font-size: 0.7em;'
+                      end
+                      div class: 'scheduled-call-reminder-menu', style: 'display: none; position: absolute; right: 0; top: calc(100% + 4px); background: #fff; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1000; min-width: 240px;' do
+                        ul style: 'list-style: none; margin: 0; padding: 4px 0;' do
+                          li style: 'margin: 0; padding: 0;' do
+                            a href: create_scheduled_call_admin_child_support_path(resource, parent_id: resource.parent1.id), target: '_blank',
+                              style: 'display: block; padding: 10px 16px; color: #323537; text-decoration: none; white-space: nowrap;' do
+                              text_node "#{resource.parent1.first_name} #{resource.parent1.last_name} "
+                              span '(Parent 1)', style: 'color: #999;'
+                            end
+                          end
+                          li style: 'margin: 0; padding: 0;' do
+                            a href: create_scheduled_call_admin_child_support_path(resource, parent_id: resource.parent2.id), target: '_blank',
+                              style: 'display: block; padding: 10px 16px; color: #323537; text-decoration: none; white-space: nowrap;' do
+                              text_node "#{resource.parent2.first_name} #{resource.parent2.last_name} "
+                              span '(Parent 2)', style: 'color: #999;'
+                            end
+                          end
+                        end
+                      end
+                    end
+                  else
+                    ''
+                  end
+                end
               end
               f.input :availability, input_html: { style: 'width: 70%' }
               f.input :call_infos, input_html: { style: 'width: 70%' }
@@ -1357,7 +1395,91 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
+  member_action :create_scheduled_call do
+    authorize! :create_scheduled_call, resource
+    cs = resource.model
+
+    unless cs.supporter
+      redirect_back fallback_location: edit_admin_child_support_path(cs),
+                    alert: "Cette fiche de suivi ne dispose pas d'accompagnante"
+      return
+    end
+
+    if cs.supporter.can_send_automatic_sms != true || !cs.supporter.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split)
+      redirect_back fallback_location: edit_admin_child_support_path(cs),
+                    alert: "La prise des rdv n'est pas activée"
+      return
+    end
+
+    call_idx = cs.active_call_index || cs.next_call_index
+    unless call_idx
+      redirect_back fallback_location: edit_admin_child_support_path(cs),
+                    alert: "Aucune session d'appel en cours ou à venir"
+      return
+    end
+
+    parent_obj = [cs.parent1, cs.parent2].compact.find { |p| p.id == params[:parent_id].to_i }
+    unless parent_obj
+      redirect_back fallback_location: edit_admin_child_support_path(cs), alert: 'Parent introuvable'
+      return
+    end
+
+    unless parent_obj.should_be_contacted?
+      redirect_back fallback_location: edit_admin_child_support_path(cs), alert: 'Ce parent est à ne pas contacter'
+      return
+    end
+
+    # un RDV actif sur la session impose un nouveau lien isolé pour ce parent :
+    # la réservation sur ce lien remplacera le RDV existant (via le webhook)
+    active_scheduled_call = cs.scheduled_call_sessions(call_idx).scheduled.exists?
+    booking_url = parent_obj.calendly_booking_urls&.dig("call#{call_idx}")
+
+    if active_scheduled_call || booking_url.blank?
+      service = Calendly::CreateOneOffEventTypeService.new(
+        child_support: cs,
+        call_session: call_idx,
+        parent: parent_obj
+      ).call
+
+      if service.errors.any?
+        Rollbar.error(
+          'Échec de la génération du lien de RDV Calendly par l’accompagnante',
+          child_support_id: cs.id,
+          parent_id: parent_obj.id,
+          call_session: call_idx,
+          errors: service.errors.map { |e| e.is_a?(Hash) ? e.except(:error) : e }
+        )
+        redirect_back fallback_location: edit_admin_child_support_path(cs),
+                      alert: 'La génération du lien de RDV a échoué, veuillez réessayer plus tard'
+        return
+      end
+
+      booking_url = parent_obj.reload.calendly_booking_urls&.dig("call#{call_idx}")
+    end
+
+    if booking_url.blank?
+      redirect_back fallback_location: edit_admin_child_support_path(cs),
+                    alert: "La génération du lien de RDV a échoué, veuillez contacter l'équipe tech"
+      return
+    end
+
+    redirect_to booking_url_with_prefill(booking_url, parent_obj), allow_other_host: true
+  end
+
   controller do
+    # les liens générés par CreateOneOffEventTypeService incluent déjà le
+    # préremplissage ; ceci couvre les liens mis en cache avant son introduction
+    def booking_url_with_prefill(url, parent)
+      uri = URI.parse(url)
+      params = URI.decode_www_form(uri.query.to_s).to_h
+      params['name'] ||= "#{parent.first_name} #{parent.last_name}"
+      params['first_name'] ||= parent.first_name
+      params['last_name'] ||= parent.last_name
+      params['email'] = parent.email if params['email'].blank? && parent.email.present?
+      uri.query = URI.encode_www_form(params).gsub('+', '%20')
+      uri.to_s
+    end
+
     def apply_filtering(chain)
       super(chain).distinct
     end
