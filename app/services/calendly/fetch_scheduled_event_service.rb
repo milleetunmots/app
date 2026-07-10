@@ -1,8 +1,6 @@
 module Calendly
   class FetchScheduledEventService < Calendly::ApiBase
 
-    SCHEDULED_EVENTS_ENDPOINT = '/scheduled_events'.freeze
-
     attr_reader :errors, :event_data
 
     def initialize(event_uri:)
