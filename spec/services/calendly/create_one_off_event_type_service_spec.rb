@@ -9,7 +9,7 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
       aircall_phone_number: aircall_phone_number
     )
   end
-  let(:parent) { FactoryBot.create(:parent) }
+  let(:parent) { FactoryBot.create(:parent, first_name: 'Chicot', last_name: 'Le') }
   let(:group) { FactoryBot.create(:group, started_at: Date.current.beginning_of_week(:monday)) }
   let(:child) { FactoryBot.create(:child, parent1: parent, group: group, group_status: 'active') }
   let(:child_support) { child.child_support.tap { |cs| cs.update!(supporter: supporter) } }
