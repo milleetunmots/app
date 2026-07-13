@@ -67,3 +67,6 @@
     detect_siblings_in_different_cohorts_job:
       cron: '0 7 * * 1'
       class: 'ChildSupport::DetectSiblingsInDifferentGroupsJob'
+    import_group_subscriptions_job:
+      cron: '0 4 * * 1' # lundi 4h, import hebdo du positionnement des accompagnantes depuis Airtable
+      class: 'AdminUser::ImportGroupSubscriptionsJob'
