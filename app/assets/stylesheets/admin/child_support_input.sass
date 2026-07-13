@@ -236,6 +236,13 @@
   &:hover
     background-color: lighten(#5E6469, 10%)
 
+  a
+    color: inherit
+
+.avoid-disengagement-text
+  font-size: 14px
+  margin-bottom: 20px
+
 #enabled_call_style,
 #not_enabled_call_style
   border-radius: 8px
@@ -268,3 +275,147 @@
   > .column:nth-child(2)
     label
       visibility: hidden
+
+// Utilitaires de largeur des champs du formulaire de suivi
+// (le préfixe .input garantit la priorité sur les largeurs d'arctic_admin)
+.input input.input-full-width,
+.input textarea.input-full-width,
+.input select.input-full-width
+  width: 100%
+
+.input input.input-full-width-spaced,
+.input textarea.input-full-width-spaced
+  width: 100%
+  margin-top: 20px
+
+.input input.input-two-thirds-width
+  width: 70%
+
+.input input.readonly-grey-input
+  background-color: #A7ACB2
+
+.initially-hidden
+  display: none
+
+.push-right
+  margin-left: auto
+
+.call-recording-icon
+  margin-right: 5px
+
+.bilingual-columns
+  margin-top: 50px
+
+// Carte "Disponibilités et RDV"
+.scheduled-call-info
+  border-bottom: 0.8px solid
+  padding-bottom: 2rem
+  display: flex
+  align-items: center
+  gap: 10px
+
+.scheduled-call-button
+  background-color: #4a4a4a
+  color: #fff
+  padding: 8px 20px
+  border-radius: 4px
+  text-decoration: none
+  font-weight: bold
+  white-space: nowrap
+  cursor: pointer
+  display: inline-block
+
+  &.outline
+    background-color: #fff
+    color: #323537
+    border: 1.5px solid #4a4a4a
+
+    &:hover
+      background-color: #4a4a4a
+      color: #fff
+
+  .dropdown-caret
+    font-size: 0.7em
+
+.scheduled-call-reminder-dropdown
+  position: relative
+  display: inline-block
+
+.scheduled-call-reminder-menu
+  display: none
+  position: absolute
+  right: 0
+  top: calc(100% + 4px)
+  background: #fff
+  border: 1px solid #ddd
+  border-radius: 4px
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15)
+  z-index: 1000
+  min-width: 240px
+
+  ul
+    list-style: none
+    margin: 0
+    padding: 4px 0
+
+  li
+    margin: 0
+    padding: 0
+
+  a
+    display: block
+    padding: 10px 16px
+    color: #323537
+    text-decoration: none
+    white-space: nowrap
+
+    span
+      color: #999
+
+// Raisons d'inscription (parent_needs)
+.enrollment-reasons
+  padding: 10px 0
+
+  > .label
+    float: left
+    width: 20%
+
+  .enrollment-reasons-list
+    margin-left: 20%
+    padding-top: 2px
+
+  .enrollment-reason-tag
+    display: inline-block
+    padding: 4px 10px
+    margin: 0 6px 6px 0
+    background: #f0f0f0
+    border: 1px solid #ddd
+    border-radius: 4px
+    font-size: 0.9em
+    color: #555
+
+// Onglets "Appel N"
+.call-tab-columns
+  display: flex
+  flex-direction: row
+  flex-wrap: nowrap
+  justify-content: space-between
+  align-items: flex-start
+
+  .call-tab-main
+    width: 50%
+    margin: 15px
+    padding: 15px
+    border: 1px solid
+    border-radius: 10px
+
+  .call-tab-side
+    width: 50%
+    margin-top: 35px
+
+.resources-columns
+  margin-bottom: 50px
+
+.call0-questionnaire-columns
+  justify-content: space-between
+  margin-top: 10px

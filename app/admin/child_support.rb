@@ -230,14 +230,14 @@ ActiveAdmin.register ChildSupport do
     call_recording_consent_label =
       if f.object.group_enable_calls_recording
         safe_join([
-                    content_tag(:i, '', class: 'fas fa-microphone', style: 'margin-right: 5px;'),
+                    content_tag(:i, '', class: 'fas fa-microphone call-recording-icon'),
                     'Enregistrement des appels : ',
-                    content_tag(:span, 'recommandé', style: 'font-weight: bold;')
+                    content_tag(:span, 'recommandé', class: 'txt-bold')
                   ])
       else
         safe_join([
-                    content_tag(:i, '', class: 'fas fa-microphone', style: 'margin-right: 5px;'),
-                    content_tag(:span, 'Accord du parent', style: 'font-weight: bold;'),
+                    content_tag(:i, '', class: 'fas fa-microphone call-recording-icon'),
+                    content_tag(:span, 'Accord du parent', class: 'txt-bold'),
                     " si enregistrement de l'appel"
                   ])
       end
@@ -293,14 +293,14 @@ ActiveAdmin.register ChildSupport do
               end
             end
           end
-          columns style: 'margin-top:50px;' do
-            column style: 'flex: 0 0 25%;' do
+          columns class: 'columns bilingual-columns' do
+            column do
               f.input :is_bilingual,
                         collection: is_bilingual_collection,
                         input_html: { data: { select2: {} } },
                         include_blank: false
             end
-            column style: 'flex: 1;' do
+            column do
               f.input :second_language
             end
           end
@@ -312,7 +312,7 @@ ActiveAdmin.register ChildSupport do
                 label: false,
                 input_html: {
                   rows: 7,
-                  style: 'width: 100%; margin-top:20px;',
+                  class: 'input-full-width-spaced',
                   value: important_information_with_typeform_link(f.object.important_information, current_admin_user.id)
                 }
             end
@@ -327,36 +327,33 @@ ActiveAdmin.register ChildSupport do
             end
             div class: 'availability-card-body' do
               decorated = resource.decorate
-              li class: 'string input optional stringish', style: 'border-bottom: 0.8px solid; padding-bottom: 2rem; display: flex; align-items: center; gap: 10px;' do
+              li class: 'string input optional stringish scheduled-call-info' do
                 text_node decorated.display_scheduled_call_info
                 if decorated.should_show_reminder_button?
                   case resource.contactable_parents.count
                   when 1
                     a href: scheduled_call_reminder_admin_child_support_path(resource, parent_id: resource.contactable_parents.first.id), target: '_blank',
-                      style: 'background-color: #4a4a4a; color: #fff; padding: 8px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; white-space: nowrap; cursor: pointer; display: inline-block; margin-left: auto;' do
+                      class: 'scheduled-call-button push-right' do
                       text_node 'Relancer'
                     end
                   when 2
-                    div class: 'scheduled-call-reminder-dropdown', style: 'margin-left: auto; position: relative; display: inline-block;' do
-                      a class: 'scheduled-call-reminder-toggle',
-                        style: 'background-color: #4a4a4a; color: #fff; padding: 8px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; white-space: nowrap; cursor: pointer; display: inline-block;' do
+                    div class: 'scheduled-call-reminder-dropdown push-right' do
+                      a class: 'scheduled-call-reminder-toggle scheduled-call-button' do
                         text_node 'Relancer '
-                        span '▼', style: 'font-size: 0.7em;'
+                        span '▼', class: 'dropdown-caret'
                       end
-                      div class: 'scheduled-call-reminder-menu', style: 'display: none; position: absolute; right: 0; top: calc(100% + 4px); background: #fff; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1000; min-width: 240px;' do
-                        ul style: 'list-style: none; margin: 0; padding: 4px 0;' do
-                          li style: 'margin: 0; padding: 0;' do
-                            a href: scheduled_call_reminder_admin_child_support_path(resource, parent_id: resource.parent1.id), target: '_blank',
-                              style: 'display: block; padding: 10px 16px; color: #323537; text-decoration: none; white-space: nowrap;' do
+                      div class: 'scheduled-call-reminder-menu' do
+                        ul do
+                          li do
+                            a href: scheduled_call_reminder_admin_child_support_path(resource, parent_id: resource.parent1.id), target: '_blank' do
                               text_node "#{resource.parent1.first_name} #{resource.parent1.last_name} "
-                              span "(Parent 1)", style: 'color: #999;'
+                              span "(Parent 1)"
                             end
                           end
-                          li style: 'margin: 0; padding: 0;' do
-                            a href: scheduled_call_reminder_admin_child_support_path(resource, parent_id: resource.parent2.id), target: '_blank',
-                              style: 'display: block; padding: 10px 16px; color: #323537; text-decoration: none; white-space: nowrap;' do
+                          li do
+                            a href: scheduled_call_reminder_admin_child_support_path(resource, parent_id: resource.parent2.id), target: '_blank' do
                               text_node "#{resource.parent2.first_name} #{resource.parent2.last_name} "
-                              span "(Parent 2)", style: 'color: #999;'
+                              span "(Parent 2)"
                             end
                           end
                         end
@@ -366,35 +363,31 @@ ActiveAdmin.register ChildSupport do
                     ''
                   end
                 end
-                outline_button_style = 'background-color: #fff; color: #323537; border: 1.5px solid #4a4a4a; padding: 8px 20px; border-radius: 4px; text-decoration: none; font-weight: bold; white-space: nowrap; cursor: pointer; display: inline-block;'
                 if decorated.scheduled_call_creation_enabled?
                   case resource.contactable_parents.count
                   when 1
                     a href: create_scheduled_call_admin_child_support_path(resource, parent_id: resource.contactable_parents.first.id), target: '_blank',
-                      style: "#{outline_button_style} margin-left: auto;" do
+                      class: 'scheduled-call-button outline push-right' do
                       text_node 'Créer un rdv'
                     end
                   when 2
-                    div class: 'scheduled-call-reminder-dropdown', style: "position: relative; display: inline-block; margin-left: auto;" do
-                      a class: 'scheduled-call-reminder-toggle',
-                        style: outline_button_style do
+                    div class: 'scheduled-call-reminder-dropdown push-right' do
+                      a class: 'scheduled-call-reminder-toggle scheduled-call-button outline' do
                         text_node 'Créer un rdv '
-                        span '▼', style: 'font-size: 0.7em;'
+                        span '▼', class: 'dropdown-caret'
                       end
-                      div class: 'scheduled-call-reminder-menu', style: 'display: none; position: absolute; right: 0; top: calc(100% + 4px); background: #fff; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1000; min-width: 240px;' do
-                        ul style: 'list-style: none; margin: 0; padding: 4px 0;' do
-                          li style: 'margin: 0; padding: 0;' do
-                            a href: create_scheduled_call_admin_child_support_path(resource, parent_id: resource.parent1.id), target: '_blank',
-                              style: 'display: block; padding: 10px 16px; color: #323537; text-decoration: none; white-space: nowrap;' do
+                      div class: 'scheduled-call-reminder-menu' do
+                        ul do
+                          li do
+                            a href: create_scheduled_call_admin_child_support_path(resource, parent_id: resource.parent1.id), target: '_blank' do
                               text_node "#{resource.parent1.first_name} #{resource.parent1.last_name} "
-                              span '(Parent 1)', style: 'color: #999;'
+                              span '(Parent 1)'
                             end
                           end
-                          li style: 'margin: 0; padding: 0;' do
-                            a href: create_scheduled_call_admin_child_support_path(resource, parent_id: resource.parent2.id), target: '_blank',
-                              style: 'display: block; padding: 10px 16px; color: #323537; text-decoration: none; white-space: nowrap;' do
+                          li do
+                            a href: create_scheduled_call_admin_child_support_path(resource, parent_id: resource.parent2.id), target: '_blank' do
                               text_node "#{resource.parent2.first_name} #{resource.parent2.last_name} "
-                              span '(Parent 2)', style: 'color: #999;'
+                              span '(Parent 2)'
                             end
                           end
                         end
@@ -405,8 +398,8 @@ ActiveAdmin.register ChildSupport do
                   end
                 end
               end
-              f.input :availability, input_html: { style: 'width: 70%' }
-              f.input :call_infos, input_html: { style: 'width: 70%' }
+              f.input :availability, input_html: { class: 'input-two-thirds-width' }
+              f.input :call_infos, input_html: { class: 'input-two-thirds-width' }
             end
           end
           if resource.address_suspected_invalid_at
@@ -465,11 +458,11 @@ ActiveAdmin.register ChildSupport do
             column do
               f.label :parent_needs
               if f.object.enrollment_reasons.present?
-                li class: 'input', style: 'padding: 10px 0;' do
-                  label "Raisons d'inscription :", class: 'label', style: 'float: left; width: 20%;'
-                  div style: 'margin-left: 20%; padding-top: 2px;' do
+                li class: 'input enrollment-reasons' do
+                  label "Raisons d'inscription :", class: 'label'
+                  div class: 'enrollment-reasons-list' do
                     f.object.enrollment_reasons.each do |reason|
-                      span reason, style: 'display: inline-block; padding: 4px 10px; margin: 0 6px 6px 0; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em; color: #555;'
+                      span reason, class: 'enrollment-reason-tag'
                     end
                   end
                 end
@@ -478,7 +471,7 @@ ActiveAdmin.register ChildSupport do
                 label: false,
                 input_html: {
                   rows: 5,
-                  style: 'width: 100%; margin-top:20px;',
+                  class: 'input-full-width-spaced',
                   value: f.object.send("parent_needs").presence ||
                     I18n.t('child_support.default.parent_needs')
                 }
@@ -490,28 +483,27 @@ ActiveAdmin.register ChildSupport do
         tabs do
           (0..3).each do |call_idx|
             tab "Appel #{call_idx}" do
-              div style:"display:flex; flex-direction:row; flex-wrap:nowrap; justify-content:space-between; align-items:flex-start" do
-                div style:"width:50%; margin:15px; padding:15px; border:1px solid; border-radius:10px" do
+              div class: 'call-tab-columns' do
+                div class: 'call-tab-main' do
                   columns do
                     column do
                       f.input "call#{call_idx}_status",
                         collection: call_status_collection,
                         input_html: {
                           data: { select2: { width: '100%' } },
-                          class: 'select2-call-status',
-                          style: 'width: 100%'
+                          class: 'select2-call-status input-full-width'
                         } # Statut de l'appel
                       if call_idx.in? [1, 2, 3]
                         div id: "avoid-disengagement-div-#{call_idx}", hidden: true do
-                          div style: 'font-size: 14px; margin-bottom: 20px' do
+                          div class: 'avoid-disengagement-text' do
                             "Cette famille va être considérée comme désengagée et son accompagnement va s'arrêter.".html_safe
                           end
                           div class: 'avoid-disengagement-btn' do
-                            link_to("Poursuivre l'accompagnement", admin_avoid_disengagement_form_path(child_support_id: resource.decorate.model.id, call_index: call_idx), style: 'color: inherit; decoration: none')
+                            link_to("Poursuivre l'accompagnement", admin_avoid_disengagement_form_path(child_support_id: resource.decorate.model.id, call_index: call_idx))
                           end
                         end
                       end
-                      f.input "call#{call_idx}_duration", input_html: { style: 'font-weight: bold;' } # Durée de l'appel
+                      f.input "call#{call_idx}_duration", input_html: { class: 'txt-bold' } # Durée de l'appel
                       f.input "call#{call_idx}_parent_progress",
                         as: :radio, collection: child_support_call_parent_progress_select_collection # Niveau de pratiques parentales
                     end
@@ -520,8 +512,8 @@ ActiveAdmin.register ChildSupport do
                               wrapper_html: { class: 'no-margin-checkbox' },
                               input_html: { id: "call#{call_idx}_talk_needed_checkbox" } # J'aimerais parler de cet appel à une coordinatrice
                       f.input "call#{call_idx}_why_talk_needed",
-                              wrapper_html: { id: "call#{call_idx}_why_talk_needed_wrapper", style: 'display: none;' },
-                              input_html: { rows: 5, style: 'width: 100%' } # Raisons
+                              wrapper_html: { id: "call#{call_idx}_why_talk_needed_wrapper", class: 'initially-hidden' },
+                              input_html: { rows: 5, class: 'input-full-width' } # Raisons
                       if call_idx == 2
                         f.input :instagram_follower,
                                 collection: instagram_information_collection,
@@ -533,8 +525,8 @@ ActiveAdmin.register ChildSupport do
                     end
                   end
                 end
-                div style:"width:50%; margin-top:35px;" do
-                  columns style:"margin-bottom: 50px" do
+                div class: 'call-tab-side' do
+                  columns class: 'columns resources-columns' do
                     column do
                       label "Ressources", class:'ressource-label'
                       bad_statuses = ['KO', 'Numéro erroné']
@@ -606,15 +598,15 @@ ActiveAdmin.register ChildSupport do
                   end
                   columns do
                     column do
-                      f.input "call#{call_idx}_status_details", input_html: { rows: 5, style: 'width: 100%' } # Suivi de l'appel
+                      f.input "call#{call_idx}_status_details", input_html: { rows: 5, class: 'input-full-width' } # Suivi de l'appel
                     end
                   end
                 end
               end
               if call_idx == 0
-                columns style: 'justify-content:space-between;margin-top:10px' do
+                columns class: 'columns call0-questionnaire-columns' do
                   column max_width: '8%' do
-                    f.label 'Informations questionnaire initial', style: 'font-weight:bold;font-size:14px'
+                    f.label 'Informations questionnaire initial', class: 'ressource-label'
                   end
                   column do
                     f.input :books_quantity,
@@ -635,40 +627,40 @@ ActiveAdmin.register ChildSupport do
                 columns do
                   column do
                     f.input "call#{call_idx}_notes",
-                      input_html: { rows: 5, style: 'width: 100%', value: f.object.send("call0_notes").presence || I18n.t('child_support.default.call0_notes') } # Notes appel
+                      input_html: { rows: 5, class: 'input-full-width', value: f.object.send("call0_notes").presence || I18n.t('child_support.default.call0_notes') } # Notes appel
                   end
                   column do
-                    f.input "call#{call_idx}_language_development", input_html: { rows: 5, style: 'width: 100%' } # Information sur l'enfant
+                    f.input "call#{call_idx}_language_development", input_html: { rows: 5, class: 'input-full-width' } # Information sur l'enfant
                   end
                 end
                 columns do
                   column do
                     f.input "call#{call_idx}_parent_actions",
-                      input_html: { rows: 5, style: 'width: 100%', value: f.object.send("call0_parent_actions").presence || I18n.t('child_support.default.call0_parent_actions') } # Pratiques parentales
+                      input_html: { rows: 5, class: 'input-full-width', value: f.object.send("call0_parent_actions").presence || I18n.t('child_support.default.call0_parent_actions') } # Pratiques parentales
                   end
                   column do
-                    f.input "call#{call_idx}_goals", input_html: { rows: 5, style: 'width: 100%' } # Vers la petite mission
-                  end
-                end
-                columns do
-                  column do
-                    f.input "call#{call_idx}_goals_sms", input_html: { rows: 5, style: 'width: 100%', readonly: true } # Petite mission envoyée (non modifiable)
-                  end
-                  column do
+                    f.input "call#{call_idx}_goals", input_html: { rows: 5, class: 'input-full-width' } # Vers la petite mission
                   end
                 end
                 columns do
                   column do
-                    f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, style: 'width: 100%' } # Verbatim
+                    f.input "call#{call_idx}_goals_sms", input_html: { rows: 5, class: 'input-full-width', readonly: true } # Petite mission envoyée (non modifiable)
+                  end
+                  column do
+                  end
+                end
+                columns do
+                  column do
+                    f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, class: 'input-full-width' } # Verbatim
                   end
                 end
               elsif call_idx == 1
                 columns do
                   column do
-                    f.input "call#{call_idx}_notes", input_html: { rows: 5, style: 'width: 100%' } # Notes appel
+                    f.input "call#{call_idx}_notes", input_html: { rows: 5, class: 'input-full-width' } # Notes appel
                   end
                   column do
-                    f.input "call#{call_idx}_language_development", input_html: { rows: 5, style: 'width: 100%' } # Information sur l'enfant
+                    f.input "call#{call_idx}_language_development", input_html: { rows: 5, class: 'input-full-width' } # Information sur l'enfant
                   end
                 end
                 columns do
@@ -676,7 +668,7 @@ ActiveAdmin.register ChildSupport do
                     f.input "call#{call_idx}_technical_information",
                             input_html: {
                               rows: 5,
-                              style: 'width: 100%',
+                              class: 'input-full-width',
                               value: f.object.send("call1_technical_information").presence ||
                                      I18n.t('child_support.default.call1_technical_information')
                             } # Retour sur les envois
@@ -687,7 +679,7 @@ ActiveAdmin.register ChildSupport do
                     f.input "call#{call_idx}_parent_actions",
                       input_html: {
                         rows: 5,
-                        style: 'width: 100%',
+                        class: 'input-full-width',
                         value: f.object.send("call1_parent_actions").presence || I18n.t('child_support.default.call1_parent_actions')  } # Pratiques parentales
                   end
                   column do
@@ -707,7 +699,7 @@ ActiveAdmin.register ChildSupport do
                               input_html: {
                                 rows: 8,
                                 readonly: true,
-                                style: 'width: 100%',
+                                class: 'input-full-width',
                                 value: f.object.send("call#{call_idx}_previous_call_goals").html_safe
                               } # Petite mission précédente (Non modifiable)
                   end
@@ -722,30 +714,30 @@ ActiveAdmin.register ChildSupport do
                     f.input "call#{call_idx}_goals_tracking",
                               input_html: {
                                 rows: 8,
-                                style: 'width: 100%'
+                                class: 'input-full-width'
                               } # Suivi petite mission précédente
                   end
                 end
                 columns do
                   column do
-                    f.input "call#{call_idx}_goals", input_html: { rows: 5, style: 'width: 100%' } # Vers une nouvelle petite mission
+                    f.input "call#{call_idx}_goals", input_html: { rows: 5, class: 'input-full-width' } # Vers une nouvelle petite mission
                   end
                   column do
-                    f.input "call#{call_idx}_goals_sms", input_html: { rows: 5, style: 'width: 100%', readonly: true } # Petite mission envoyée (non modifiable)
+                    f.input "call#{call_idx}_goals_sms", input_html: { rows: 5, class: 'input-full-width', readonly: true } # Petite mission envoyée (non modifiable)
                   end
                 end
                 columns do
                   column do
-                    f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, style: 'width: 100%' } # Verbatim
+                    f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, class: 'input-full-width' } # Verbatim
                   end
                 end
               elsif call_idx == 2
                 columns do
                   column do
-                    f.input "call#{call_idx}_notes", input_html: { rows: 5, style: 'width: 100%' } # Notes appel
+                    f.input "call#{call_idx}_notes", input_html: { rows: 5, class: 'input-full-width' } # Notes appel
                   end
                   column do
-                    f.input "call#{call_idx}_language_development", input_html: { rows: 5, style: 'width: 100%' } # Information sur l'enfant
+                    f.input "call#{call_idx}_language_development", input_html: { rows: 5, class: 'input-full-width' } # Information sur l'enfant
                   end
                 end
                 columns do
@@ -754,7 +746,7 @@ ActiveAdmin.register ChildSupport do
                               input_html: {
                                 rows: 8,
                                 readonly: true,
-                                style: 'width: 100%',
+                                class: 'input-full-width',
                                 value: f.object.send("call#{call_idx}_previous_call_goals").html_safe
                               } # Petite mission précédente (Non modifiable)
                   end
@@ -769,21 +761,21 @@ ActiveAdmin.register ChildSupport do
                     f.input "call#{call_idx}_goals_tracking",
                               input_html: {
                                 rows: 8,
-                                style: 'width: 100%'
+                                class: 'input-full-width'
                               } # Suivi petite mission précédente
                   end
                 end
                 columns do
                   column do
-                    f.input "call#{call_idx}_goals", input_html: { rows: 5, style: 'width: 100%' } # Vers une nouvelle petite mission
+                    f.input "call#{call_idx}_goals", input_html: { rows: 5, class: 'input-full-width' } # Vers une nouvelle petite mission
                   end
                   column do
-                    f.input "call#{call_idx}_goals_sms", input_html: { rows: 5, style: 'width: 100%', readonly: true } # Petite mission envoyée (non modifiable)
+                    f.input "call#{call_idx}_goals_sms", input_html: { rows: 5, class: 'input-full-width', readonly: true } # Petite mission envoyée (non modifiable)
                   end
                 end
                 columns do
                   column do
-                    f.input "call#{call_idx}_parent_actions", input_html: { rows: 5, style: 'width: 100%' } # Pratiques parentales
+                    f.input "call#{call_idx}_parent_actions", input_html: { rows: 5, class: 'input-full-width' } # Pratiques parentales
                   end
                   column do
                     f.input "call#{call_idx}_reading_frequency",
@@ -801,7 +793,7 @@ ActiveAdmin.register ChildSupport do
                     f.input "call#{call_idx}_technical_information",
                             input_html: {
                               rows: 5,
-                              style: 'width: 100%',
+                              class: 'input-full-width',
                               value: f.object.send("call#{call_idx}_technical_information").presence ||
                                      I18n.t('child_support.default.call_technical_information')
                             } # Retour sur les envois
@@ -809,19 +801,19 @@ ActiveAdmin.register ChildSupport do
                 end
                 columns do
                   column do
-                    f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, style: 'width: 100%' }
+                    f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, class: 'input-full-width' }
                   end
                 end
               else
                 columns do
                   column do
-                    f.input "call#{call_idx}_notes", input_html: { rows: 5, style: 'width: 100%' } # Notes appel
+                    f.input "call#{call_idx}_notes", input_html: { rows: 5, class: 'input-full-width' } # Notes appel
                   end
                   column do
                     f.input "call#{call_idx}_language_development",
                       input_html: {
                         rows: 5,
-                        style: 'width: 100%',
+                        class: 'input-full-width',
                         value: f.object.send("call#{call_idx}_language_development").presence ||
                                      I18n.t('child_support.default.call3_language_development')
                       } # Information sur l'enfant
@@ -832,7 +824,7 @@ ActiveAdmin.register ChildSupport do
                     f.input "call#{call_idx}_parent_actions",
                       input_html: {
                         rows: 5,
-                        style: 'width: 100%',
+                        class: 'input-full-width',
                         value: f.object.send("call#{call_idx}_parent_actions").presence ||
                                      I18n.t('child_support.default.call3_parent_actions')
                        } # Pratiques parentales
@@ -850,10 +842,10 @@ ActiveAdmin.register ChildSupport do
                 end
                 columns do
                   column do
-                    f.input "call#{call_idx}_goals", input_html: { rows: 5, style: 'width: 100%' } # Vers une nouvelle petite mission
+                    f.input "call#{call_idx}_goals", input_html: { rows: 5, class: 'input-full-width' } # Vers une nouvelle petite mission
                   end
                   column do
-                    f.input "call#{call_idx}_goals_sms", input_html: { rows: 5, style: 'width: 100%', readonly: true } # Petite mission envoyée (non modifiable)
+                    f.input "call#{call_idx}_goals_sms", input_html: { rows: 5, class: 'input-full-width', readonly: true } # Petite mission envoyée (non modifiable)
                   end
                 end
                 columns do
@@ -862,7 +854,7 @@ ActiveAdmin.register ChildSupport do
                               input_html: {
                                 rows: 8,
                                 readonly: true,
-                                style: 'width: 100%',
+                                class: 'input-full-width',
                                 value: f.object.send("call#{call_idx}_previous_call_goals").html_safe
                               } # Petite mission précédente (Non modifiable)
                   end
@@ -877,7 +869,7 @@ ActiveAdmin.register ChildSupport do
                     f.input "call#{call_idx}_goals_tracking",
                               input_html: {
                                 rows: 8,
-                                style: 'width: 100%'
+                                class: 'input-full-width'
                               } # Suivi petite mission précédente
                   end
                 end
@@ -886,7 +878,7 @@ ActiveAdmin.register ChildSupport do
                     f.input "call#{call_idx}_technical_information",
                             input_html: {
                               rows: 5,
-                              style: 'width: 100%',
+                              class: 'input-full-width',
                               value: f.object.send("call#{call_idx}_technical_information").presence ||
                                      I18n.t('child_support.default.call_technical_information')
                             } # Retour sur les envois
@@ -894,7 +886,7 @@ ActiveAdmin.register ChildSupport do
                 end
                 columns do
                   column do
-                    f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, style: 'width: 100%' }
+                    f.input "call#{call_idx}_sendings_benefits_details", input_html: { rows: 5, class: 'input-full-width' }
                   end
                 end
               end
@@ -930,7 +922,7 @@ ActiveAdmin.register ChildSupport do
                                      hint: "Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI. Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots."
                       parent_f.input :letterbox_name
                       parent_f.input :book_delivery_organisation_name
-                      parent_f.input :attention_to, label: "À l'attention de", input_html: { readonly: true, style: 'background-color: #A7ACB2', value: parent_f.object.attention_to&.gsub('Pour ', '') }, disabled: false
+                      parent_f.input :attention_to, label: "À l'attention de", input_html: { readonly: true, class: 'readonly-grey-input', value: parent_f.object.attention_to&.gsub('Pour ', '') }, disabled: false
                       address_input parent_f
                     end
                     parent_f.input :is_ambassador
