@@ -1403,7 +1403,7 @@ ActiveAdmin.register ChildSupport do
       return
     end
 
-    call_idx = cs.active_call_index || cs.next_call_index
+    call_idx = cs.active_call_index(days_before: 2) || cs.next_call_index(days_before: 2)
     unless call_idx
       redirect_back fallback_location: edit_admin_child_support_path(cs),
                     alert: "Aucune session d'appel en cours ou à venir"

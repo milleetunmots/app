@@ -10,6 +10,8 @@ module Calendly
       A bientôt !
     MESSAGE
 
+    REPLACED_CANCELLATION_REASON = 'Remplacé par un nouveau RDV'.freeze
+
     attr_reader :errors, :scheduled_call
 
     def initialize(payload:)
@@ -34,6 +36,11 @@ module Calendly
       create_or_update_scheduled_call
       return self if @errors.any?
 
+      # webhook dupliqué (retry Calendly) : l'événement a déjà été traité,
+      # on ne déclenche ni remplacement ni renvoi de confirmation
+      return self if @already_processed
+
+      cancel_replaced_scheduled_calls
       send_scheduled_call_confirmation
       self
     end
@@ -132,6 +139,7 @@ module Calendly
       event_uri = @invitee_payload['event']
 
       @scheduled_call = ScheduledCall.find_or_initialize_by(calendly_event_uri: event_uri)
+      @already_processed = @scheduled_call.persisted? && @scheduled_call.scheduled?
 
       @scheduled_call.assign_attributes(
         cancel_url: @invitee_payload['cancel_url'],
@@ -157,6 +165,33 @@ module Calendly
         message: 'Échec de la sauvegarde du ScheduledCall',
         validation_errors: @scheduled_call.errors.full_messages
       }
+    end
+
+    # un seul RDV actif par fiche de suivi et par session : le nouveau RDV
+    # remplace les précédents, annulés sur Calendly puis localement
+    def cancel_replaced_scheduled_calls
+      return unless @child_support && @call_session && @parent
+
+      ScheduledCall.scheduled
+                   .upcoming
+                   .where(child_support: @child_support, call_session: @call_session, parent: @parent)
+                   .where.not(id: @scheduled_call.id)
+                   .find_each do |replaced_call|
+        cancel_service = Calendly::CancelScheduledEventService.new(
+          event_uri: replaced_call.calendly_event_uri,
+          reason: REPLACED_CANCELLATION_REASON
+        ).call
+
+        if cancel_service.errors.any?
+          @errors << {
+            message: "L'annulation sur Calendly du RDV remplacé a échoué",
+            scheduled_call_id: replaced_call.id,
+            errors: cancel_service.errors
+          }
+        end
+
+        replaced_call.cancel!(reason: REPLACED_CANCELLATION_REASON)
+      end
     end
 
     def send_scheduled_call_confirmation

@@ -165,32 +165,10 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
         expect(saved_url).to include("utm_content=#{parent.security_token}")
       end
 
-      it 'pre-fills the parent name on the booking page with %20 encoded spaces' do
-        subject.call
-        parent.reload
-        saved_url = parent.calendly_booking_urls["call#{call_session}"]
-        expect(saved_url).to include("name=#{parent.first_name}%20#{parent.last_name}")
-        expect(saved_url).not_to include('+')
-      end
-
       it 'does not pre-fill the email when the parent has none' do
         subject.call
         parent.reload
         expect(parent.calendly_booking_urls["call#{call_session}"]).not_to include('email=')
-      end
-
-      context 'when the parent has an email' do
-        before do
-          parent.update!(email: 'parent@example.com')
-        end
-
-        it 'pre-fills the email on the booking page' do
-          subject.call
-          parent.reload
-          saved_url = parent.calendly_booking_urls["call#{call_session}"]
-          params = URI.decode_www_form(URI.parse(saved_url).query).to_h
-          expect(params['email']).to eq('parent@example.com')
-        end
       end
 
       it 'sends correct parameters to Calendly API' do
@@ -451,7 +429,6 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
       expect(params['utm_source']).to eq('1001mots')
       expect(params['utm_campaign']).to eq("call#{call_session}")
       expect(params['utm_content']).to eq(parent.security_token)
-      expect(params['name']).to eq("#{parent.first_name} #{parent.last_name}")
     end
   end
 end

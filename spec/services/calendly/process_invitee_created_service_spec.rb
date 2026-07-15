@@ -178,6 +178,118 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
         expect(existing_scheduled_call.parent).to eq(parent)
         expect(existing_scheduled_call.child_support).to eq(child_support)
       end
+
+      context 'when a duplicated webhook is received (Calendly retry)' do
+        let!(:other_active_call) do
+          ScheduledCall.create!(
+            calendly_event_uri: 'https://api.calendly.com/scheduled_events/other_event',
+            status: 'scheduled',
+            call_session: 0,
+            child_support: child_support,
+            parent: parent
+          )
+        end
+
+        it 'does not trigger a redundant replacement' do
+          subject.call
+          expect(other_active_call.reload.status).to eq('scheduled')
+          expect(WebMock).not_to have_requested(:post, %r{/cancellation})
+        end
+
+        it 'does not resend the confirmation message' do
+          subject.call
+          expect(ProgramMessageService).not_to have_received(:new)
+        end
+      end
+    end
+
+    context 'when an active ScheduledCall exists for the same child_support and call_session' do
+      let(:replaced_event_uri) { 'https://api.calendly.com/scheduled_events/replaced_event' }
+      let!(:replaced_scheduled_call) do
+        ScheduledCall.create!(
+          calendly_event_uri: replaced_event_uri,
+          status: 'scheduled',
+          call_session: 0,
+          child_support: child_support,
+          parent: parent,
+          scheduled_at: 2.days.from_now
+        )
+      end
+
+      before do
+        stub_request(:post, "#{replaced_event_uri}/cancellation")
+          .to_return(status: 201, body: {}.to_json, headers: { 'Content-Type' => 'application/json' })
+      end
+
+      it 'creates the new ScheduledCall with status scheduled' do
+        result = subject.call
+        expect(result.scheduled_call.status).to eq('scheduled')
+        expect(result.scheduled_call.calendly_event_uri).to eq(event_uri)
+      end
+
+      it 'cancels the replaced event via the Calendly API' do
+        subject.call
+        expect(WebMock).to have_requested(:post, "#{replaced_event_uri}/cancellation")
+      end
+
+      it 'marks the replaced ScheduledCall as canceled' do
+        subject.call
+        replaced_scheduled_call.reload
+        expect(replaced_scheduled_call.status).to eq('canceled')
+        expect(replaced_scheduled_call.cancellation_reason).to eq(described_class::REPLACED_CANCELLATION_REASON)
+      end
+
+      it 'returns self with no errors' do
+        result = subject.call
+        expect(result.errors).to be_empty
+      end
+
+      context 'when the replaced call targets another call_session' do
+        before do
+          replaced_scheduled_call.update!(call_session: 1)
+        end
+
+        it 'does not cancel it' do
+          subject.call
+          expect(replaced_scheduled_call.reload.status).to eq('scheduled')
+          expect(WebMock).not_to have_requested(:post, "#{replaced_event_uri}/cancellation")
+        end
+      end
+
+      context 'when the replaced call belongs to another child_support' do
+        let!(:other_parent) { FactoryBot.create(:parent) }
+        let!(:other_child) { FactoryBot.create(:child, parent1: other_parent) }
+
+        before do
+          replaced_scheduled_call.update!(child_support: other_child.child_support)
+        end
+
+        it 'does not cancel it' do
+          subject.call
+          expect(replaced_scheduled_call.reload.status).to eq('scheduled')
+          expect(WebMock).not_to have_requested(:post, "#{replaced_event_uri}/cancellation")
+        end
+      end
+
+      context 'when the Calendly cancellation API fails' do
+        before do
+          stub_request(:post, "#{replaced_event_uri}/cancellation")
+            .to_return(status: 500, body: { 'message' => 'Server error' }.to_json, headers: { 'Content-Type' => 'application/json' })
+        end
+
+        it 'still marks the replaced ScheduledCall as canceled locally' do
+          subject.call
+          expect(replaced_scheduled_call.reload.status).to eq('canceled')
+        end
+
+        it 'reports the error' do
+          result = subject.call
+          expect(result.errors).to include(hash_including(
+            message: "L'annulation sur Calendly du RDV remplacé a échoué",
+            scheduled_call_id: replaced_scheduled_call.id
+          ))
+        end
+      end
     end
 
     context 'when API call to fetch event details fails' do
