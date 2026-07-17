@@ -25,9 +25,7 @@ module DbSanitizer
         latitude: nil,
         longitude: nil,
         mid_term_speech: nil,
-        is_ambassador_detail: nil,
-        book_delivery_organisation_name: nil,
-        book_delivery_location: nil
+        is_ambassador_detail: nil
       )
       Parent.update_all("aircall_datas = '{}', calendly_booking_urls = '{}', calendly_last_booking_dates = '{}'")
 
