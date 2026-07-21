@@ -117,6 +117,15 @@ ActiveRecord::Schema[7.0].define(version: 2026_07_29_090840) do
     t.index ["parent_id"], name: "index_aircall_messages_on_parent_id"
   end
 
+  create_table "allowed_patterns", force: :cascade do |t|
+    t.string "kind", null: false
+    t.string "match_type", null: false
+    t.string "value", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["kind", "match_type", "value"], name: "index_allowed_patterns_on_kind_and_match_type_and_value", unique: true
+  end
+
   create_table "answers", force: :cascade do |t|
     t.bigint "question_id", null: false
     t.text "response", null: false

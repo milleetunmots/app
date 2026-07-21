@@ -2,6 +2,7 @@ fr:
   activerecord:
     models:
       admin_user: Utilisateur
+      allowed_pattern: Pattern autorisé
       book: Livre
       child: Enfant
       child_support: Suivi
@@ -72,6 +73,16 @@ fr:
         reader: Lecteur actif
         caller: Accompagnante
         animator: Accompagnante et/ou Animatrice
+      allowed_pattern:
+        << : *SHARED
+        kind: Type
+        match_type: Type de correspondance
+        value: Valeur
+      allowed_pattern/kind:
+        url: URL
+      allowed_pattern/match_type:
+        domain: Domaine
+        exact: URL exacte
       book:
         << : *SHARED
         ean: EAN
