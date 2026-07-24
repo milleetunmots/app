@@ -2,12 +2,12 @@
 #
 # Table name: allowed_patterns
 #
-#  id          :bigint           not null, primary key
-#  kind        :string           not null
-#  match_type  :string           not null
-#  value       :string           not null
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id         :bigint           not null, primary key
+#  kind       :string           not null
+#  match_type :string           not null
+#  value      :string           not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
 #
 # Indexes
 #
@@ -41,10 +41,29 @@ class AllowedPattern < ApplicationRecord
   # usage
   # ---------------------------------------------------------------------------
 
+  def self.url_allowed?(url)
+    return false if url.blank?
+
+    where(kind: 'url').any? { |pattern| pattern.url_matches?(url) }
+  end
+
   def in_use?
     return false unless kind == 'url'
 
     Medium.for_redirections.any? { |medium| url_matches?(medium.url) }
+  end
+
+  def url_matches?(url)
+    return false if url.blank?
+
+    case match_type
+    when 'exact'
+      url == value
+    when 'domain'
+      host_matches_domain?(url)
+    else
+      false
+    end
   end
 
   private
@@ -88,19 +107,6 @@ class AllowedPattern < ApplicationRecord
     label = match_type == 'domain' ? 'domaine' : 'url'
     errors.add(:base, "Un ou plusieurs médias utilisent encore ce #{label} (#{value}), la suppression est impossible.")
     throw :abort
-  end
-
-  def url_matches?(url)
-    return false if url.blank?
-
-    case match_type
-    when 'exact'
-      url == value
-    when 'domain'
-      host_matches_domain?(url)
-    else
-      false
-    end
   end
 
   def host_matches_domain?(url)

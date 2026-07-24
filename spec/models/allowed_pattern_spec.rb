@@ -2,12 +2,16 @@
 #
 # Table name: allowed_patterns
 #
-#  id          :bigint           not null, primary key
-#  kind        :string           not null
-#  match_type  :string           not null
-#  value       :string           not null
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id         :bigint           not null, primary key
+#  kind       :string           not null
+#  match_type :string           not null
+#  value      :string           not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+# Indexes
+#
+#  index_allowed_patterns_on_kind_and_match_type_and_value  (kind,match_type,value) UNIQUE
 #
 
 require 'rails_helper'
@@ -94,6 +98,35 @@ RSpec.describe AllowedPattern, type: :model do
 
         expect(allowed_pattern.destroy).to eq(allowed_pattern)
       end
+    end
+  end
+
+  describe '.url_allowed?' do
+    it 'renvoie false si aucun AllowedPattern ne correspond' do
+      expect(AllowedPattern.url_allowed?('https://non-whitelisted.example.com/page')).to be false
+    end
+
+    it 'renvoie false pour une url blank' do
+      expect(AllowedPattern.url_allowed?('')).to be false
+      expect(AllowedPattern.url_allowed?(nil)).to be false
+    end
+
+    it 'renvoie true si un domaine autorisé correspond' do
+      FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'domain', value: 'partenaire.fr')
+
+      expect(AllowedPattern.url_allowed?('https://www.partenaire.fr/page')).to be true
+    end
+
+    it 'renvoie true si une url exacte autorisée correspond' do
+      FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'exact', value: 'https://bit.ly/evenement')
+
+      expect(AllowedPattern.url_allowed?('https://bit.ly/evenement')).to be true
+    end
+
+    it 'renvoie false si une url exacte autorisée ne correspond pas exactement (query string différente)' do
+      FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'exact', value: 'https://bit.ly/evenement')
+
+      expect(AllowedPattern.url_allowed?('https://bit.ly/evenement?utm=1')).to be false
     end
   end
 end

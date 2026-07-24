@@ -5,7 +5,22 @@ class ProgramMessageService
 
   attr_reader :errors
 
-  def initialize(planned_date, planned_hour, recipients, message, rcs_media_id = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil)
+  def initialize(planned_date, planned_hour, recipients, message, rcs_media_id = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil, blocked_send_attempt: nil)
+    @replay_params = {
+      planned_date: planned_date,
+      planned_hour: planned_hour,
+      recipients: (recipients || []).dup,
+      message: message.dup,
+      rcs_media_id: rcs_media_id,
+      redirection_target_id: redirection_target_id,
+      quit_message: quit_message,
+      workshop_id: workshop_id,
+      supporter: supporter,
+      group_status: group_status,
+      provider: provider,
+      aircall_number_id: aircall_number_id
+    }
+    @blocked_send_attempt_id = blocked_send_attempt&.id
     @planned_timestamp = ActiveSupport::TimeZone['Europe/Paris'].parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []
     @message = message
@@ -71,7 +86,7 @@ class ProgramMessageService
           message_provider: 'aircall'
         }
       )
-      Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(@aircall_number_id, parent&.phone_number, @message, event.id)
+      Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(@aircall_number_id, parent&.phone_number, @message, event.id, @replay_params, @blocked_send_attempt_id)
       @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
     when 'spothit'
       service =
@@ -82,7 +97,9 @@ class ProgramMessageService
             media_id: @rcs_media_id,
             fallback_message: @message,
             workshop_id: @workshop_id,
-            event_params: @event_params
+            event_params: @event_params,
+            replay_params: @replay_params,
+            blocked_send_attempt_id: @blocked_send_attempt_id
           ).call
         elsif basic_rcs?
           SpotHit::SendRcsService.new(
@@ -91,10 +108,20 @@ class ProgramMessageService
             fallback_message: @message,
             basic: true,
             workshop_id: @workshop_id,
-            event_params: @event_params
+            event_params: @event_params,
+            replay_params: @replay_params,
+            blocked_send_attempt_id: @blocked_send_attempt_id
           ).call
         else
-          SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, workshop_id: @workshop_id, event_params: @event_params).call
+          SpotHit::SendSmsService.new(
+            @recipient_data,
+            @planned_timestamp,
+            @message,
+            workshop_id: @workshop_id,
+            event_params: @event_params,
+            replay_params: @replay_params,
+            blocked_send_attempt_id: @blocked_send_attempt_id
+          ).call
         end
       if service.errors.any?
         @errors = service.errors
