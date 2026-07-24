@@ -34,7 +34,7 @@ module Aircall
       if guard.blocked?
         guard.register!
         if guard.block_send?
-          @errors << "Envoi bloqué : URL(s) non autorisée(s) détectée(s) : #{guard.blocked_urls.join(', ')}"
+          @errors << 'Envoi bloqué : URL(s) non autorisée(s) détectée(s).'
           update_event(4)
           return self
         end
