@@ -90,7 +90,7 @@ fr:
   registration_confirmation_email:
     checkbox_label: "Je souhaite recevoir une confirmation de l'inscription par email"
     email_label: "Mon email professionnel&nbsp;"
-    email_placeholder: "prenom.nom@pmi-xxxxx.fr"
+    email_placeholder: "prenom.nom@exemple.fr"
     email_blank_warning: "Veuillez renseigner votre adresse email professionnelle ou décocher la case."
     email_format_warning: "Veuillez renseigner une adresse email valide."
     email_subject: "Inscription confirmée pour %{first_name}"
