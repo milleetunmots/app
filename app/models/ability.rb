@@ -71,6 +71,7 @@ class Ability
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
       can :scheduled_call_reminder, ChildSupport, supporter_id: user.id
+      can :create_scheduled_call, ChildSupport, supporter_id: user.id
       can :read, ScheduledCall, admin_user_id: user.id, admin_user: { email: ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split }
     when 'animator'
       can :read, AdminUser, id: user.id
@@ -96,6 +97,7 @@ class Ability
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
       can :scheduled_call_reminder, ChildSupport, supporter_id: user.id
+      can :create_scheduled_call, ChildSupport, supporter_id: user.id
       can :read, ScheduledCall, admin_user_id: user.id, admin_user: { email: ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split }
     end
   end

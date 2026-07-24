@@ -107,6 +107,59 @@ RSpec.describe Calendly::ProcessInviteeCanceledService do
       end
     end
 
+    context 'when an active replacement ScheduledCall exists for the same child_support and call_session' do
+      let!(:replacement_scheduled_call) do
+        FactoryBot.create(:scheduled_call,
+          calendly_event_uri: 'https://api.calendly.com/scheduled_events/replacement_event',
+          status: 'scheduled',
+          scheduled_at: 3.days.from_now,
+          call_session: 1,
+          child_support: child_support,
+          parent: parent
+        )
+      end
+
+      it 'still marks the canceled ScheduledCall as canceled' do
+        subject.call
+        expect(scheduled_call.reload.status).to eq('canceled')
+      end
+
+      it 'does not recreate a one-off event type' do
+        subject.call
+        expect(Calendly::CreateOneOffEventTypeService).not_to have_received(:new)
+      end
+
+      it 'does not send a rebooking message to the parent' do
+        subject.call
+        expect(ProgramMessageService).not_to have_received(:new)
+      end
+
+      it 'returns self with no errors' do
+        result = subject.call
+        expect(result.errors).to be_empty
+      end
+
+      context 'when the replacement targets another call_session' do
+        before { replacement_scheduled_call.update!(call_session: 2) }
+
+        it 'recreates a one-off event type and sends the rebooking message' do
+          subject.call
+          expect(Calendly::CreateOneOffEventTypeService).to have_received(:new)
+          expect(ProgramMessageService).to have_received(:new)
+        end
+      end
+
+      context 'when the replacement is itself canceled' do
+        before { replacement_scheduled_call.update!(status: 'canceled') }
+
+        it 'recreates a one-off event type and sends the rebooking message' do
+          subject.call
+          expect(Calendly::CreateOneOffEventTypeService).to have_received(:new)
+          expect(ProgramMessageService).to have_received(:new)
+        end
+      end
+    end
+
     context 'when cancellation reason is not provided' do
       before do
         payload['payload']['cancellation'] = {
