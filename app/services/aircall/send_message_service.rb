@@ -2,12 +2,14 @@ module Aircall
   class SendMessageService < Aircall::ApiBase
     attr_reader :errors, :event_id
 
-    def initialize(number_id:, to:, body:, event_id:)
+    def initialize(number_id:, to:, body:, event_id:, replay_params: {}, blocked_send_attempt_id: nil)
       @errors = []
       @number_id = number_id
       @to = to
       @body = body
       @event_id = event_id
+      @replay_params = replay_params
+      @blocked_send_attempt_id = blocked_send_attempt_id
     end
 
     def call
@@ -23,6 +25,16 @@ module Aircall
         safe_numbers = ENV['SAFE_PHONE_NUMBERS'].to_s.split(',').map(&:strip)
         unless safe_numbers.include?(@to)
           @errors << "Numéro invalide : il n'est pas whitelisté"
+          update_event(4)
+          return self
+        end
+      end
+
+      guard = BlockedSendAttempt::UrlSendGuard.new(@body, provider: 'aircall', replay_params: @replay_params, blocked_send_attempt_id: @blocked_send_attempt_id)
+      if guard.blocked?
+        guard.register!
+        if guard.block_send?
+          @errors << "Envoi bloqué : URL(s) non autorisée(s) détectée(s) : #{guard.blocked_urls.join(', ')}"
           update_event(4)
           return self
         end

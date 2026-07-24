@@ -135,6 +135,19 @@ ActiveRecord::Schema[7.0].define(version: 2026_07_29_090840) do
     t.index ["question_id"], name: "index_answers_on_question_id"
   end
 
+  create_table "blocked_send_attempts", force: :cascade do |t|
+    t.string "provider", null: false
+    t.string "kind", null: false
+    t.string "detected_values", default: [], null: false, array: true
+    t.text "message_body", null: false
+    t.jsonb "replay_params", default: {}, null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "resolved_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_blocked_send_attempts_on_status"
+  end
+
   create_table "books", force: :cascade do |t|
     t.string "title", null: false
     t.string "ean", null: false

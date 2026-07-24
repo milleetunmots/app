@@ -16,8 +16,15 @@ module Aircall
       Rollbar.error('Aircall::SendMessageJob', error: job['error_message'], arguments: job['args'][0]['arguments'])
     end
 
-    def perform(number_id, to, body, event_id)
-      service = Aircall::SendMessageService.new(number_id: number_id, to: to, body: body, event_id: event_id).call
+    def perform(number_id, to, body, event_id, replay_params = {}, blocked_send_attempt_id = nil)
+      service = Aircall::SendMessageService.new(
+        number_id: number_id,
+        to: to,
+        body: body,
+        event_id: event_id,
+        replay_params: replay_params,
+        blocked_send_attempt_id: blocked_send_attempt_id
+      ).call
       return unless service.errors.any?
 
       error = service.errors.first

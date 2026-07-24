@@ -4,7 +4,7 @@ class SpotHit::SendRcsService
 
   attr_reader :errors
 
-  def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil, basic: false, workshop_id: nil, event_params: {})
+  def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil, basic: false, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil)
     @recipients = recipients
     @planned_timestamp = planned_timestamp
     @form = {
@@ -18,6 +18,8 @@ class SpotHit::SendRcsService
     @message = fallback_message
     @event_params = event_params
     @workshop = Workshop.find_by(id: workshop_id)
+    @replay_params = replay_params
+    @blocked_send_attempt_id = blocked_send_attempt_id
   end
 
   def call
@@ -30,6 +32,15 @@ class SpotHit::SendRcsService
   protected
 
   def send_rcs
+    guard = BlockedSendAttempt::UrlSendGuard.new(@message, provider: 'spothit', replay_params: @replay_params, blocked_send_attempt_id: @blocked_send_attempt_id)
+    if guard.blocked?
+      guard.register!
+      if guard.block_send?
+        @errors << "Envoi bloqué : URL(s) non autorisée(s) détectée(s) : #{guard.blocked_urls.join(', ')}"
+        return
+      end
+    end
+
     if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
       @recipients = safeguard_recipients(@recipients)
       return if @recipients.empty?

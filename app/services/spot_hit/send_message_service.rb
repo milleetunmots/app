@@ -2,7 +2,7 @@ class SpotHit::SendMessageService
 
   attr_reader :errors
 
-  def initialize(recipients, planned_timestamp, message, file: nil, workshop_id: nil, event_params: {})
+  def initialize(recipients, planned_timestamp, message, file: nil, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil)
     @planned_timestamp = planned_timestamp
     @recipients = recipients
     @message = message
@@ -10,11 +10,22 @@ class SpotHit::SendMessageService
     @event_params = event_params
     @errors = []
     @workshop = Workshop.find_by(id: workshop_id)
+    @replay_params = replay_params
+    @blocked_send_attempt_id = blocked_send_attempt_id
   end
 
   protected
 
   def send_message(uri, form)
+    guard = BlockedSendAttempt::UrlSendGuard.new(@message, provider: 'spothit', replay_params: @replay_params, blocked_send_attempt_id: @blocked_send_attempt_id)
+    if guard.blocked?
+      guard.register!
+      if guard.block_send?
+        @errors << "Envoi bloqué : URL(s) non autorisée(s) détectée(s) : #{guard.blocked_urls.join(', ')}"
+        return
+      end
+    end
+
     form = safeguard(form) if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
 
     response = HTTP.post(uri, form: form)
