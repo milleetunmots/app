@@ -76,6 +76,15 @@ class ProgramMessageService
         @errors << 'Votre message dépasse la limite de 1600 caractères autorisée par Aircall. Veuillez le raccourcir avant de le renvoyer.'
         return self
       end
+      guard = BlockedSendAttempt::UrlSendGuard.new(@message, provider: 'aircall', replay_params: @replay_params, blocked_send_attempt_id: @blocked_send_attempt_id)
+      if guard.blocked?
+        blocked_send_attempt = guard.register!
+        @blocked_send_attempt_id ||= blocked_send_attempt&.id
+        if guard.block_send?
+          @errors << 'Envoi bloqué : URL(s) non autorisée(s) détectée(s).'
+          return self
+        end
+      end
       event = Event.create(
         {
           related_id: parent.id,
