@@ -1,14 +1,15 @@
 module Calendly
   class CreateOneOffEventTypeService < Calendly::ApiBase
 
-    ONE_OFF_EVENT_TYPES_ENDPOINT = '/one_off_event_types'.freeze
-
     attr_reader :errors
 
-    def initialize(child_support:, call_session:)
+    # parent: cible un seul parent (lien généré ou régénéré pour lui seul) ;
+    # sans parent, les liens de parent1 et parent2 sont générés
+    def initialize(child_support:, call_session:, parent: nil)
       @errors = []
       @child_support = child_support
       @call_session = call_session
+      @parent = parent
       @supporter = child_support&.supporter
       @group = child_support&.current_child&.group
     end
@@ -17,14 +18,20 @@ module Calendly
       handle_errors
       return self if @errors.any?
 
-      create_one_off_event_type_for_parent(@child_support.parent1)
-      return self if @errors.any?
-
-      create_one_off_event_type_for_parent(@child_support.parent2)
+      target_parents.each do |parent|
+        create_one_off_event_type_for_parent(parent)
+        return self if @errors.any?
+      end
       self
     end
 
     private
+
+    def target_parents
+      return [@parent] if @parent
+
+      [@child_support.parent1, @child_support.parent2].compact
+    end
 
     def create_one_off_event_type_for_parent(parent)
       return if parent.nil?
@@ -139,7 +146,7 @@ module Calendly
         utm_campaign: "call#{@call_session}",
         utm_content: parent.security_token
       }.compact
-      uri.query = URI.encode_www_form(params)
+      uri.query = URI.encode_www_form(params).gsub('+', '%20')
       uri.to_s
     end
   end

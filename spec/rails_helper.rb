@@ -51,6 +51,7 @@ ENV['CALENDLY_ORGANIZATION_URI'] ||= "https://api.calendly.com/organizations/tes
 ENV['CALENDLY_WEBHOOK_SIGNING_KEY'] ||= "test_signing_key_123"
 ENV['SUMMER_SUPPORT_WAITING_START'] ||= ''
 ENV['SUMMER_SUPPORT_WAITING_END'] ||= ''
+ENV['TYPEFORM_LINK_SUPPORTERS_IDS'] ||= ''
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production
@@ -76,6 +77,7 @@ AdminUser.skip_callback(:commit, :after, :export_to_sheet)
 # require only the support files necessary.
 #
 # Dir[Rails.root.join('spec', 'support', '**', '*.rb')].each { |f| require f }
+Dir[Rails.root.join('spec', 'support', '**', '*.rb')].sort.each { |f| require f }
 
 # Checks for pending migrations and applies them before tests are run.
 # If you are not using ActiveRecord, you can remove these lines.

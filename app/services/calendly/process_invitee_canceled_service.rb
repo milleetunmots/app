@@ -18,9 +18,14 @@ module Calendly
     def call
       find_scheduled_call
       return self if @errors.any?
+      return self if @scheduled_call.canceled?
 
       update_scheduled_call
       return self if @errors.any?
+
+      # annulation consécutive à un remplacement : un autre RDV actif couvre
+      # déjà cette session, inutile de régénérer un lien ou de relancer le parent
+      return self if replacement_scheduled_call_exists?
 
       recreate_one_off_event_type
       return self if @errors.any?
@@ -72,6 +77,18 @@ module Calendly
         message: 'Échec de la mise à jour du ScheduledCall',
         validation_errors: @scheduled_call.errors.full_messages
       }
+    end
+
+    def replacement_scheduled_call_exists?
+      return false unless @scheduled_call.child_support_id && @scheduled_call.call_session
+
+      ScheduledCall.scheduled
+                   .where(
+                     child_support_id: @scheduled_call.child_support_id,
+                     call_session: @scheduled_call.call_session
+                   )
+                   .where.not(id: @scheduled_call.id)
+                   .exists?
     end
 
     def recreate_one_off_event_type

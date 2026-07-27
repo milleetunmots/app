@@ -9,7 +9,7 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
       aircall_phone_number: aircall_phone_number
     )
   end
-  let(:parent) { FactoryBot.create(:parent) }
+  let(:parent) { FactoryBot.create(:parent, first_name: 'Chicot', last_name: 'Le') }
   let(:group) { FactoryBot.create(:group, started_at: Date.current.beginning_of_week(:monday)) }
   let(:child) { FactoryBot.create(:child, parent1: parent, group: group, group_status: 'active') }
   let(:child_support) { child.child_support.tap { |cs| cs.update!(supporter: supporter) } }
@@ -163,6 +163,12 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
         expect(saved_url).to include('utm_source=1001mots')
         expect(saved_url).to include("utm_campaign=call#{call_session}")
         expect(saved_url).to include("utm_content=#{parent.security_token}")
+      end
+
+      it 'does not pre-fill the email when the parent has none' do
+        subject.call
+        parent.reload
+        expect(parent.calendly_booking_urls["call#{call_session}"]).not_to include('email=')
       end
 
       it 'sends correct parameters to Calendly API' do
@@ -356,6 +362,61 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
       end
     end
 
+    context 'when a parent is provided' do
+      let(:parent2) { FactoryBot.create(:parent) }
+
+      before do
+        child.update!(parent2: parent2)
+        parent2.update!(calendly_booking_urls: { "call#{call_session}" => 'https://calendly.com/d/existing-parent2' })
+      end
+
+      subject do
+        described_class.new(
+          child_support: child_support,
+          call_session: call_session,
+          parent: parent
+        )
+      end
+
+      it 'creates a single one-off event type' do
+        subject.call
+        expect(WebMock).to have_requested(:post, 'https://api.calendly.com/one_off_event_types').once
+      end
+
+      it 'saves the booking_url on the targeted parent only' do
+        subject.call
+        expect(parent.reload.calendly_booking_urls["call#{call_session}"]).to include(booking_url)
+      end
+
+      it 'does not modify the other parent booking_url' do
+        subject.call
+        expect(parent2.reload.calendly_booking_urls["call#{call_session}"]).to eq('https://calendly.com/d/existing-parent2')
+      end
+
+      it 'uses the targeted parent security_token in utm_content' do
+        subject.call
+        expect(parent.reload.calendly_booking_urls["call#{call_session}"]).to include("utm_content=#{parent.security_token}")
+      end
+    end
+
+    context 'when no parent is provided and child has two parents' do
+      let(:parent2) { FactoryBot.create(:parent) }
+
+      before do
+        child.update!(parent2: parent2)
+      end
+
+      it 'creates a one-off event type for each parent' do
+        subject.call
+        expect(WebMock).to have_requested(:post, 'https://api.calendly.com/one_off_event_types').twice
+      end
+
+      it 'saves a booking_url for both parents' do
+        subject.call
+        expect(parent.reload.calendly_booking_urls["call#{call_session}"]).to include(booking_url)
+        expect(parent2.reload.calendly_booking_urls["call#{call_session}"]).to include(booking_url)
+      end
+    end
   end
 
   describe '#add_utm_params' do
