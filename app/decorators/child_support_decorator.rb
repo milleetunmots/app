@@ -298,6 +298,9 @@ class ChildSupportDecorator < BaseDecorator
   def scheduled_call_creation_enabled?
     supporter = model.supporter
     return false unless supporter
+    # sans session en cours ou à venir, create_scheduled_call repart en erreur :
+    # autant ne pas afficher le bouton
+    return false unless model.active_call_index(days_before: 2) || model.next_call_index(days_before: 2)
 
     supporter.can_send_automatic_sms == true &&
       supporter.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split)

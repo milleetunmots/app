@@ -1,3 +1,8 @@
+# Jusqu'ici rack-attack utilisait Rails.cache, soit :null_store en test : le
+# throttle des webhooks Spot Hit ci-dessous ne comptait donc jamais. Le store
+# dédié le rend actif et ferait échouer les specs qui enchaînent les requêtes.
+Rack::Attack.enabled = !Rails.env.test?
+
 # Store dédié à rack-attack : compteurs partagés entre workers Puma / serveurs.
 # On ne modifie PAS config.cache_store global.
 Rack::Attack.cache.store =
@@ -11,14 +16,22 @@ Rack::Attack.cache.store =
     ActiveSupport::Cache::MemoryStore.new
   end
 
-# Throttle du login par IP : 3 tentatives / 60 s.
-Rack::Attack.throttle('login/ip', limit: 3, period: 60) do |request|
-  request.ip if request.post? && request.path == '/admin/login'
+# La route Devise est `POST /admin/login(.:format)` : comparer le chemin exact
+# laisserait `/admin/login.json` (ou un slash final) contourner le throttle.
+login_path_prefix = '/admin/login'
+
+# Throttle du login par IP : 15 tentatives / 60 s.
+# Le compteur inclut les connexions réussies (le middleware s'exécute avant
+# Rails et ignore l'issue du login) et une IP est partagée par tout un bureau
+# ou tout un opérateur mobile : le seuil doit rester loin de l'usage normal.
+# La vraie protection par compte est le throttle login/email ci-dessous.
+Rack::Attack.throttle('login/ip', limit: 15, period: 60) do |request|
+  request.ip if request.post? && request.path.start_with?(login_path_prefix)
 end
 
 # Throttle du login par email : protège un compte ciblé depuis plusieurs IP.
 Rack::Attack.throttle('login/email', limit: 5, period: 60) do |request|
-  if request.post? && request.path == '/admin/login'
+  if request.post? && request.path.start_with?(login_path_prefix)
     email = request.params.dig('admin_user', 'email')
     email.to_s.downcase.strip.presence
   end
@@ -34,9 +47,21 @@ Rack::Attack.throttled_responder = ->(request) do
   ]
 end
 
-# 5 requests per second per IP
+# 3 requêtes / seconde / IP (abaissé de 5 à 3 en mai 2023, cf. d62ecfe3)
 Rack::Attack.throttle('limit webhooks', limit: 3, period: 1) do |request|
   if request.path.start_with?('/spot_hit/')
     request.ip
   end
+end
+
+# Sans trace, impossible de savoir si une limite se déclenche réellement.
+# C'est surtout vrai pour les webhooks Spot Hit : aucun mécanisme ne rejoue un
+# callback refusé, donc chaque 429 est une donnée définitivement perdue
+# (statut de délivrance, réponse d'un parent, ou demande de STOP).
+ActiveSupport::Notifications.subscribe('throttle.rack_attack') do |_name, _start, _finish, _id, payload|
+  request = payload[:request]
+  Rails.logger.warn(
+    "[rack-attack] throttled rule=#{request.env['rack.attack.matched']} " \
+    "path=#{request.path} ip=#{request.ip}"
+  )
 end

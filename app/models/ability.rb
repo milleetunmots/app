@@ -29,7 +29,7 @@ class Ability
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
       can :manage, [Parent, Child, ChildSupport]
-      cannot %i[new create destroy discard select_module_for_parent1 select_module_for_parent2 add_child add_parent quit_group], [Parent, Child, ChildSupport]
+      cannot %i[new create destroy discard select_module_for_parent1 select_module_for_parent2 add_child add_parent quit_group create_scheduled_call], [Parent, Child, ChildSupport]
       cannot :upload_undelivered_books, Parent
       can :read, [Workshop, SupportModule, Group, Book, ChildrenSupportModule, AdminUser, Source, ScheduledCall]
       can :read, Event, type: 'Events::WorkshopParticipation'

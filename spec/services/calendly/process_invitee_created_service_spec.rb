@@ -277,9 +277,11 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
             .to_return(status: 500, body: { 'message' => 'Server error' }.to_json, headers: { 'Content-Type' => 'application/json' })
         end
 
-        it 'still marks the replaced ScheduledCall as canceled locally' do
+        # le créneau est toujours réservé côté Calendly : le laisser « scheduled »
+        # localement reste l'état le plus fidèle, et l'accompagnante voit le conflit
+        it 'leaves the replaced ScheduledCall scheduled locally' do
           subject.call
-          expect(replaced_scheduled_call.reload.status).to eq('canceled')
+          expect(replaced_scheduled_call.reload.status).to eq('scheduled')
         end
 
         it 'reports the error' do

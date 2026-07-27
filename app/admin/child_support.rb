@@ -363,7 +363,7 @@ ActiveAdmin.register ChildSupport do
                     ''
                   end
                 end
-                if decorated.scheduled_call_creation_enabled?
+                if decorated.scheduled_call_creation_enabled? && authorized?(:create_scheduled_call, resource)
                   case resource.contactable_parents.count
                   when 1
                     a href: create_scheduled_call_admin_child_support_path(resource, parent_id: resource.contactable_parents.first.id), target: '_blank',
@@ -1345,7 +1345,7 @@ ActiveAdmin.register ChildSupport do
       return
     end
 
-    unless cs.supporter.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].split)
+    unless cs.supporter.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split)
       redirect_back fallback_location: edit_admin_child_support_path(cs),
                     alert: "La prise des rdv n'est pas activée"
       return

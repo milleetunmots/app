@@ -54,6 +54,42 @@ RSpec.describe 'Admin child support - création de RDV par l’accompagnante', t
         expect(response.body).to include("create_scheduled_call?parent_id=#{parent2.id}")
       end
     end
+
+    context 'quand la cohorte n’a plus de session en cours ni à venir' do
+      # les dates call0..call3 sont dérivées de started_at, toutes dans le passé ici
+      before { group.update!(started_at: 1.year.ago.to_date.beginning_of_week(:monday)) }
+
+      it 'masque le bouton plutôt que de le laisser en erreur' do
+        get edit_path
+        expect(response.body).not_to include('Créer un rdv')
+      end
+    end
+
+    context 'quand un reader consulte la fiche' do
+      let(:reader) { FactoryBot.create(:admin_user, user_role: 'reader') }
+
+      before { sign_in reader }
+
+      it 'ne lui propose pas le bouton' do
+        get edit_path
+        expect(response.body).not_to include('Créer un rdv')
+      end
+    end
+  end
+
+  describe 'permissions' do
+    context 'quand un reader déclenche l’action' do
+      let(:reader) { FactoryBot.create(:admin_user, user_role: 'reader') }
+
+      before { sign_in reader }
+
+      it 'refuse la création et n’appelle pas Calendly' do
+        get action_path
+        expect(response).to have_http_status(:redirect)
+        expect(response.location).not_to include('create_scheduled_call')
+        expect(WebMock).not_to have_requested(:post, 'https://api.calendly.com/one_off_event_types')
+      end
+    end
   end
 
   context 'quand aucun RDV actif n’existe et qu’un lien est en cache' do

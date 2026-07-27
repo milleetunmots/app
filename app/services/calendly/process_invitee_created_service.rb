@@ -182,12 +182,15 @@ module Calendly
           reason: REPLACED_CANCELLATION_REASON
         ).call
 
+        # si Calendly a refusé l'annulation, le créneau y est toujours réservé :
+        # le laisser « scheduled » localement reste l'état le plus fidèle
         if cancel_service.errors.any?
           @errors << {
             message: "L'annulation sur Calendly du RDV remplacé a échoué",
             scheduled_call_id: replaced_call.id,
             errors: cancel_service.errors
           }
+          next
         end
 
         replaced_call.cancel!(reason: REPLACED_CANCELLATION_REASON)
