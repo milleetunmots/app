@@ -277,19 +277,20 @@
       visibility: hidden
 
 // Utilitaires de largeur des champs du formulaire de suivi
-// (le préfixe .input garantit la priorité sur les largeurs d'arctic_admin)
+// (!important requis : arctic_admin fixe "body.logged_in.edit .input textarea" à 50%,
+// spécificité qu'un simple préfixe .input ne suffit pas à battre)
 .input input.input-full-width,
 .input textarea.input-full-width,
 .input select.input-full-width
-  width: 100%
+  width: 100% !important
 
 .input input.input-full-width-spaced,
 .input textarea.input-full-width-spaced
-  width: 100%
+  width: 100% !important
   margin-top: 20px
 
 .input input.input-two-thirds-width
-  width: 70%
+  width: 70% !important
 
 .input input.readonly-grey-input
   background-color: #A7ACB2

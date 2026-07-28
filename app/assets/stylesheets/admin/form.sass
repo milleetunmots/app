@@ -40,6 +40,14 @@ body.logged_in
 
     ol.choices-group
       li.choice
+        // arctic_admin flotte les radios (float: left) : à certains niveaux de zoom
+        // le float déborde de sa ligne et chaque choix se décale en escalier
+        input[type="radio"]
+          float: none
+          display: inline-block
+          vertical-align: middle
+          margin-top: 0
+
         label
           cursor: pointer
 
