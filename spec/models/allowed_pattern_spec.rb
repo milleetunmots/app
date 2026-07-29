@@ -128,5 +128,49 @@ RSpec.describe AllowedPattern, type: :model do
 
       expect(AllowedPattern.url_allowed?('https://bit.ly/evenement?utm=1')).to be false
     end
+
+    context 'casse' do
+      it 'downcase la valeur des patterns domain à la sauvegarde (index unique case-sensitive)' do
+        pattern = FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'domain', value: 'Partenaire.FR')
+
+        expect(pattern.reload.value).to eq('partenaire.fr')
+      end
+
+      it 'refuse un doublon domain ne différant que par la casse' do
+        FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'domain', value: 'partenaire.fr')
+        duplicate = FactoryBot.build(:allowed_pattern, kind: 'url', match_type: 'domain', value: 'PARTENAIRE.FR')
+
+        expect(duplicate).not_to be_valid
+      end
+
+      it 'matche en exact malgré une casse différente sur le schéma et le host' do
+        FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'exact', value: 'HTTPS://Exemple.FR/Page')
+
+        expect(AllowedPattern.url_allowed?('https://exemple.fr/Page')).to be true
+      end
+
+      it 'reste sensible à la casse sur le chemin en exact' do
+        FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'exact', value: 'https://exemple.fr/Page')
+
+        expect(AllowedPattern.url_allowed?('https://exemple.fr/page')).to be false
+      end
+    end
+
+    context "domaine de l'app (liens de redirection /r/:id/:code)" do
+      around do |example|
+        previous = ENV.fetch('DEFAULT_HOSTNAME', nil)
+        ENV['DEFAULT_HOSTNAME'] = 'monapp.example.org'
+        example.run
+        ENV['DEFAULT_HOSTNAME'] = previous
+      end
+
+      it 'autorise toujours DEFAULT_HOSTNAME sans pattern en base' do
+        expect(AllowedPattern.url_allowed?('https://monapp.example.org/r/12/ab')).to be true
+      end
+
+      it "n'autorise pas pour autant un autre domaine" do
+        expect(AllowedPattern.url_allowed?('https://autre.example.org/r/12/ab')).to be false
+      end
+    end
   end
 end

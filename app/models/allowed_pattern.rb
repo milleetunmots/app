@@ -28,6 +28,10 @@ class AllowedPattern < ApplicationRecord
   # validations
   # ---------------------------------------------------------------------------
 
+  # L'index unique (kind, match_type, value) est case-sensitive : sans
+  # normalisation, "Partenaire.FR" et "partenaire.fr" coexisteraient en base.
+  before_validation :normalize_value
+
   validates :kind, presence: true, inclusion: { in: KINDS }
   validates :match_type, presence: true
   validates :value, presence: true
@@ -43,8 +47,37 @@ class AllowedPattern < ApplicationRecord
 
   def self.url_allowed?(url)
     return false if url.blank?
+    return true if app_host?(url)
 
     where(kind: 'url').any? { |pattern| pattern.url_matches?(url) }
+  end
+
+  # Le domaine de l'app est toujours autorisé sans pattern en base : les liens de
+  # redirection (/r/:id/:code) sont substitués dans le message avant le guard côté
+  # Aircall, et DEFAULT_HOSTNAME varie selon l'environnement.
+  def self.app_host?(url)
+    app_host = ENV.fetch('DEFAULT_HOSTNAME', nil)
+    return false if app_host.blank?
+
+    host =
+      begin
+        URI.parse(url).host
+      rescue URI::InvalidURIError
+        nil
+      end
+    host.present? && normalize_host(host) == normalize_host(app_host)
+  end
+
+  def self.normalize_host(host)
+    host.to_s.downcase.delete_prefix('www.')
+  end
+
+  # URI#normalize downcase le schéma et le host (et complète le chemin vide
+  # en "/"), sans toucher à la casse du chemin.
+  def self.normalize_exact_url(url)
+    URI.parse(url).normalize.to_s
+  rescue URI::Error
+    url
   end
 
   def in_use?
@@ -58,7 +91,8 @@ class AllowedPattern < ApplicationRecord
 
     case match_type
     when 'exact'
-      url == value
+      # Schéma et host sont insensibles à la casse, le chemin reste sensible.
+      self.class.normalize_exact_url(url) == self.class.normalize_exact_url(value)
     when 'domain'
       host_matches_domain?(url)
     else
@@ -67,6 +101,14 @@ class AllowedPattern < ApplicationRecord
   end
 
   private
+
+  def normalize_value
+    return if value.blank?
+
+    self.value = value.strip
+    self.value = value.downcase if match_type == 'domain'
+    self.value = self.class.normalize_exact_url(value) if match_type == 'exact'
+  end
 
   def match_type_allowed_for_kind
     return if kind.blank?
@@ -118,12 +160,8 @@ class AllowedPattern < ApplicationRecord
       end
     return false if host.blank?
 
-    normalized_host = normalize_host(host)
-    normalized_domain = normalize_host(value)
+    normalized_host = self.class.normalize_host(host)
+    normalized_domain = self.class.normalize_host(value)
     normalized_host == normalized_domain || normalized_host.end_with?(".#{normalized_domain}")
-  end
-
-  def normalize_host(host)
-    host.to_s.downcase.delete_prefix('www.')
   end
 end

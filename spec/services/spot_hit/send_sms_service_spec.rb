@@ -14,6 +14,13 @@ RSpec.describe SpotHit::SendSmsService do
       let(:message) { 'Cliquez ici : https://non-whitelisted.example.com/page' }
 
       context 'without URL_FILTER_BLOCKING_ENABLED (monitoring mode, default)' do
+        around do |example|
+          previous = ENV['URL_FILTER_BLOCKING_ENABLED']
+          ENV.delete('URL_FILTER_BLOCKING_ENABLED')
+          example.run
+          ENV['URL_FILTER_BLOCKING_ENABLED'] = previous
+        end
+
         it 'still transmits the message to SpotHit, but tracks a BlockedSendAttempt' do
           service = nil
           expect {
@@ -59,6 +66,40 @@ RSpec.describe SpotHit::SendSmsService do
             ).call
           }.not_to change(BlockedSendAttempt, :count)
         end
+      end
+    end
+
+    context 'when a recipient variable contains a URL (message itself clean)' do
+      let(:message) { 'Regardez cette vidéo : {URL}' }
+
+      around do |example|
+        previous = ENV['URL_FILTER_BLOCKING_ENABLED']
+        ENV['URL_FILTER_BLOCKING_ENABLED'] = 'true'
+        example.run
+        ENV['URL_FILTER_BLOCKING_ENABLED'] = previous
+      end
+
+      it 'blocks the send when the substituted value is not whitelisted' do
+        recipients = { parent.phone_number => { 'URL' => 'https://non-whitelisted.example.com/page' } }
+
+        service = nil
+        expect {
+          service = described_class.new(recipients, planned_timestamp, message).call
+        }.to change(BlockedSendAttempt, :count).by(1)
+
+        expect(service.errors).not_to be_empty
+        expect(BlockedSendAttempt.last.detected_values).to eq(['https://non-whitelisted.example.com/page'])
+        expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
+      end
+
+      it 'still sends when the substituted value is whitelisted' do
+        FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'domain', value: 'partenaire.fr')
+        recipients = { parent.phone_number => { 'URL' => 'https://partenaire.fr/video' } }
+
+        service = described_class.new(recipients, planned_timestamp, message).call
+
+        expect(service.errors).to be_empty
+        expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms').once
       end
     end
 

@@ -32,7 +32,13 @@ class SpotHit::SendRcsService
   protected
 
   def send_rcs
-    guard = BlockedSendAttempt::UrlSendGuard.new(@message, provider: 'spothit', replay_params: @replay_params, blocked_send_attempt_id: @blocked_send_attempt_id)
+    guard = BlockedSendAttempt::UrlSendGuard.new(
+      @message,
+      provider: 'spothit',
+      extra_texts: recipient_variable_values,
+      replay_params: @replay_params,
+      blocked_send_attempt_id: @blocked_send_attempt_id
+    )
     if guard.blocked?
       guard.register!
       if guard.block_send?
@@ -67,6 +73,14 @@ class SpotHit::SendRcsService
     else
       @errors << "Erreur lors de la programmation de la campagne : #{response['error']['message']}]"
     end
+  end
+
+  # Les vraies URLs envoyées sont souvent dans les variables destinataires
+  # ({URL}, {CALLx_CALENDLY_LINK}…), le message ne contenant que des placeholders.
+  def recipient_variable_values
+    return [] unless @recipients.is_a?(Hash)
+
+    @recipients.values.flat_map { |variables| variables.respond_to?(:values) ? variables.values : [] }
   end
 
   def safeguard_recipients(recipients)

@@ -20,6 +20,48 @@ RSpec.describe BlockedSendAttempt::UrlSendGuard do
 
       expect(guard.blocked_urls).to eq([])
     end
+
+    context 'avec un point sans espace entre deux mots (faute de frappe SMS courante)' do
+      it 'ne détecte pas mot.mot quand le pseudo-TLD est inconnu' do
+        [
+          'Coucou ca va.Tu viens ?',
+          "Merci d'avoir repondu.Bonne journee",
+          'Rendez-vous 12h.Salle 3',
+          "c'est bon.commencez demain"
+        ].each do |text|
+          guard = described_class.new(text, provider: 'spothit')
+
+          expect(guard.blocked_urls).to eq([]), "faux positif pour : #{text.inspect}"
+        end
+      end
+
+      it 'détecte toujours un domaine sans schéma avec un TLD connu' do
+        guard = described_class.new('Va sur site-inconnu.com stp', provider: 'spothit')
+
+        expect(guard.blocked_urls).to eq(['site-inconnu.com'])
+      end
+
+      it 'détecte un domaine préfixé www. même avec un TLD hors liste' do
+        guard = described_class.new('Va sur www.site-inconnu.shop stp', provider: 'spothit')
+
+        expect(guard.blocked_urls).to eq(['www.site-inconnu.shop'])
+      end
+    end
+
+    context 'avec de la ponctuation collée à la fin de l\'URL' do
+      it 'ne capture pas la ponctuation finale dans la valeur détectée' do
+        guard = described_class.new('Va sur https://mechant.example.com/x! vite', provider: 'spothit')
+
+        expect(guard.blocked_urls).to eq(['https://mechant.example.com/x'])
+      end
+
+      it 'autorise une URL exacte whitelistée suivie d\'un point de fin de phrase' do
+        FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'exact', value: 'https://exemple.fr/page')
+        guard = described_class.new('Regarde https://exemple.fr/page.', provider: 'spothit')
+
+        expect(guard.blocked_urls).to eq([])
+      end
+    end
   end
 
   describe '#blocked?' do
@@ -105,6 +147,14 @@ RSpec.describe BlockedSendAttempt::UrlSendGuard do
       guard = described_class.new(blocked_url, provider: 'spothit', blocked_send_attempt_id: existing.id)
 
       expect { guard.register! }.not_to change(BlockedSendAttempt, :count)
+    end
+
+    it 'ne crée pas de doublon quand la même tentative est ré-enregistrée (retry Sidekiq du job Aircall)' do
+      replay_params = { 'message' => blocked_url, 'provider' => 'aircall' }
+      described_class.new(blocked_url, provider: 'aircall', replay_params: replay_params).register!
+
+      retried_guard = described_class.new(blocked_url, provider: 'aircall', replay_params: replay_params)
+      expect { retried_guard.register! }.not_to change(BlockedSendAttempt, :count)
     end
   end
 end
