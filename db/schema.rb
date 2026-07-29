@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_07_08_095437) do
+ActiveRecord::Schema[7.0].define(version: 2026_07_29_090840) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -68,6 +68,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_07_08_095437) do
     t.string "calendly_user_uri"
     t.jsonb "calendly_event_type_uris", default: {}
     t.jsonb "group_subscriptions", default: {}, null: false
+    t.datetime "automatic_sms_activated_at"
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end

@@ -43,12 +43,15 @@ class Parent::SendBeforeCallsMessageDailyService
   # le début effectif de la plage est à J+SMS_OFFSET_DAYS ou moins (cas nominal
   # J-3 ; si un run quotidien a sauté, on rattrape tant que la plage n'est pas
   # finie, la déduplication par calendly_initial_booking_dates évite les doublons).
+  # Pas de rattrapage si l'accompagnante a (ré)activé l'envoi auto après J-3 du
+  # début effectif : la date limite de paramétrage des dispos est passée.
   def recipients_for_call(call_index)
     candidate_child_supports(call_index).flat_map do |child_support|
       start_date = child_support.call_session_start_date(call_index)
       end_date = child_support.call_session_end_date(call_index)
       next [] unless start_date.present? && start_date <= target_start_date
       next [] unless end_date.present? && end_date >= @date
+      next [] if automatic_sms_activated_too_late?(child_support.supporter, start_date)
 
       parents_awaiting_initial_message(child_support, call_index, start_date).map do |parent|
         { parent: parent, child_support: child_support, call_index: call_index }
@@ -70,6 +73,14 @@ class Parent::SendBeforeCallsMessageDailyService
       .where("child_supports.call#{call_index}_status IS NULL OR child_supports.call#{call_index}_status = ''")
       .includes(:supporter, :current_child, :parent1, :parent2)
       .distinct
+  end
+
+  # NULL = jamais re-activé depuis l'ajout de la colonne : comportement historique, on envoie.
+  def automatic_sms_activated_too_late?(supporter, session_start_date)
+    activated_at = supporter&.automatic_sms_activated_at
+    return false if activated_at.blank?
+
+    activated_at.to_date > session_start_date - SMS_OFFSET_DAYS.days
   end
 
   # Parents à contacter, sauf ceux qui ont déjà reçu leur 1er message pour cette session.
