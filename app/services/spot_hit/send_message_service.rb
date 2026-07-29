@@ -17,7 +17,13 @@ class SpotHit::SendMessageService
   protected
 
   def send_message(uri, form)
-    guard = BlockedSendAttempt::UrlSendGuard.new(@message, provider: 'spothit', replay_params: @replay_params, blocked_send_attempt_id: @blocked_send_attempt_id)
+    guard = BlockedSendAttempt::UrlSendGuard.new(
+      @message,
+      provider: 'spothit',
+      extra_texts: recipient_variable_values,
+      replay_params: @replay_params,
+      blocked_send_attempt_id: @blocked_send_attempt_id
+    )
     if guard.blocked?
       guard.register!
       if guard.block_send?
@@ -74,6 +80,14 @@ class SpotHit::SendMessageService
     unless @workshop.save
       @errors << "Erreur lors de la sauvegarde de l'atelier #{@workshop.name}."
     end
+  end
+
+  # Les vraies URLs envoyées sont souvent dans les variables destinataires
+  # ({URL}, {CALLx_CALENDLY_LINK}…), le message ne contenant que des placeholders.
+  def recipient_variable_values
+    return [] unless @recipients.is_a?(Hash)
+
+    @recipients.values.flat_map { |variables| variables.respond_to?(:values) ? variables.values : [] }
   end
 
   def safeguard(form)

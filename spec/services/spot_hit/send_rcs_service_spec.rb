@@ -73,6 +73,13 @@ RSpec.describe SpotHit::SendRcsService do
       let(:recipients) { [parent1.phone_number, parent2.phone_number] }
 
       context 'without URL_FILTER_BLOCKING_ENABLED (monitoring mode, default)' do
+        around do |example|
+          previous = ENV['URL_FILTER_BLOCKING_ENABLED']
+          ENV.delete('URL_FILTER_BLOCKING_ENABLED')
+          example.run
+          ENV['URL_FILTER_BLOCKING_ENABLED'] = previous
+        end
+
         it 'still makes the API call and creates events, but also tracks a BlockedSendAttempt' do
           expect { service }.to change(BlockedSendAttempt, :count).by(1)
           expect(BlockedSendAttempt.last.status).to eq('not_blocked')
@@ -114,6 +121,42 @@ RSpec.describe SpotHit::SendRcsService do
 
           expect(service.errors).not_to be_empty
           expect(BlockedSendAttempt.count).to eq(1)
+        end
+      end
+    end
+
+    context 'when a recipient variable contains a URL (fallback message clean)' do
+      let(:fallback_message) { 'Regardez cette vidéo : {URL}' }
+
+      around do |example|
+        previous = ENV['URL_FILTER_BLOCKING_ENABLED']
+        ENV['URL_FILTER_BLOCKING_ENABLED'] = 'true'
+        example.run
+        ENV['URL_FILTER_BLOCKING_ENABLED'] = previous
+      end
+
+      context 'when the substituted value is not whitelisted' do
+        let(:recipients) do
+          { parent1.phone_number => { 'URL' => 'https://non-whitelisted.example.com/page' } }
+        end
+
+        it 'does not make an API call and creates a BlockedSendAttempt instead' do
+          expect { service }.to change(BlockedSendAttempt, :count).by(1)
+          expect(BlockedSendAttempt.last.detected_values).to eq(['https://non-whitelisted.example.com/page'])
+          expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+        end
+      end
+
+      context 'when the substituted value is whitelisted' do
+        let(:recipients) do
+          { parent1.phone_number => { 'URL' => 'https://partenaire.fr/video' } }
+        end
+
+        it 'makes the API call without errors' do
+          FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'domain', value: 'partenaire.fr')
+
+          expect(service.errors).to be_empty
+          expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').once
         end
       end
     end

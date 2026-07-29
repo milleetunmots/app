@@ -60,6 +60,11 @@ class Medium < ApplicationRecord
 
   include Discard::Model
 
+  # Types envoyables aux parents via un redirection_target : le message final ne
+  # contient que le short link de l'app (toujours autorisé), l'URL cible doit
+  # donc être contrôlée ici, à l'entrée dans la médiathèque.
+  FOR_REDIRECTION_TYPES = %w[Media::Form Media::Video].freeze
+
   # ---------------------------------------------------------------------------
   # relations
   # ---------------------------------------------------------------------------
@@ -82,6 +87,9 @@ class Medium < ApplicationRecord
   validates :name, presence: true
   validates :rcs_title1, :rcs_title2, :rcs_title3, length: { maximum: 200 }, allow_blank: true
   validates :rcs_cta_title1, :rcs_cta_title2, :rcs_cta_title3, length: { maximum: 25 }, allow_blank: true
+  # Uniquement quand l'url change : ne pas invalider les médias existants sur une
+  # modification sans rapport (nom, tags…).
+  validate :url_must_be_allowed, if: -> { url_changed? && url.present? && type.in?(FOR_REDIRECTION_TYPES) }
 
   # ---------------------------------------------------------------------------
   # scope
@@ -96,7 +104,7 @@ class Medium < ApplicationRecord
   scope :text_messages_bundle_drafts, -> { where(type: "Media::TextMessagesBundleDraft") }
 
   scope :for_redirections, -> {
-    where(type: %w[Media::Form Media::Video])
+    where(type: FOR_REDIRECTION_TYPES)
   }
 
   # ---------------------------------------------------------------------------
@@ -110,5 +118,14 @@ class Medium < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   acts_as_taggable
+
+  private
+
+  def url_must_be_allowed
+    return unless BlockedSendAttempt::UrlSendGuard.blocking_enabled?
+    return if AllowedPattern.url_allowed?(url)
+
+    errors.add(:url, "n'est pas autorisée : ajoutez d'abord son domaine (ou l'URL exacte) dans les patterns autorisés (AllowedPattern).")
+  end
 
 end

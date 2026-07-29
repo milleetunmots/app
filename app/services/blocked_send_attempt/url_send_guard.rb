@@ -1,24 +1,35 @@
 class BlockedSendAttempt::UrlSendGuard
 
-  # Capture aussi les liens sans schéma (ex: "partenaire.fr/page") : un ou plusieurs
-  # labels suivis d'un point puis un TLD alphabétique, pour éviter de matcher des
-  # nombres décimaux (3.5) ou des numéros de version (v2.1).
-  DOMAIN_REGEX = /(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:\/\S*)?/i
+  # Liste de TLD connus, partagée par les détections sans schéma et espacée : sans
+  # elle, tout "mot.mot" (oubli d'espace après un point, très courant en SMS :
+  # "ca va.Tu viens ?") deviendrait un faux positif.
+  KNOWN_TLDS = %w[com fr net org io co be ch ca eu info app dev me biz uk de es it nl pt].freeze
+
+  # Capture aussi les liens sans schéma (ex: "partenaire.fr/page") : TLD connu
+  # obligatoire, sauf préfixe www. qui suffit à identifier un lien. Le lookahead
+  # évite de matcher un TLD suivi de lettres ("bon.commencez").
+  DOMAIN_LABELS = /(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+/i
+  DOMAIN_REGEX = /(?:www\.#{DOMAIN_LABELS}[a-z]{2,24}|#{DOMAIN_LABELS}(?:#{KNOWN_TLDS.join('|')}))(?![a-z0-9-])(?:\/\S*)?/i
   URL_REGEX = %r{https?://\S+|\b#{DOMAIN_REGEX}}i
 
   # Contournement fréquent : espacer un lien pour échapper aux filtres naïfs
-  # (ex: "www blocked url . com"). On se limite à une liste de TLD connus pour ce
-  # cas, faute de quoi n'importe quelle phrase se terminant par un point suivi d'un
-  # mot court deviendrait un faux positif.
-  SPACED_TLDS = %w[com fr net org io co be ch ca eu info app dev me biz uk de es it nl pt].freeze
-  SPACED_DOMAIN_REGEX = /\b(?:[a-z0-9-]+\s+){1,4}\.\s*(?:#{SPACED_TLDS.join('|')})\b(?:\s*\.\s*(?:#{SPACED_TLDS.join('|')})\b)?/i
+  # (ex: "www blocked url . com").
+  SPACED_DOMAIN_REGEX = /\b(?:[a-z0-9-]+\s+){1,4}\.\s*(?:#{KNOWN_TLDS.join('|')})\b(?:\s*\.\s*(?:#{KNOWN_TLDS.join('|')})\b)?/i
+
+  # https?://\S+ capture la ponctuation de fin de phrase collée à l'URL
+  # ("https://exemple.fr/page.") : sans strip, le match_type exact échoue.
+  TRAILING_PUNCTUATION_REGEX = /[.,;:!?)\]}]+\z/
 
   def self.blocking_enabled?
     ENV['URL_FILTER_BLOCKING_ENABLED'].present?
   end
 
-  def initialize(text, provider:, replay_params: {}, blocked_send_attempt_id: nil)
+  # extra_texts : contenus scannés en plus du message mais non stockés comme
+  # message_body — typiquement les valeurs des variables destinataires SpotHit
+  # ({URL}, {CALLx_CALENDLY_LINK}…), encore sous forme de placeholders dans text.
+  def initialize(text, provider:, extra_texts: [], replay_params: {}, blocked_send_attempt_id: nil)
     @text = text
+    @extra_texts = extra_texts
     @provider = provider
     @replay_params = replay_params
     @blocked_send_attempt_id = blocked_send_attempt_id
@@ -41,6 +52,14 @@ class BlockedSendAttempt::UrlSendGuard
   def register!
     return if @blocked_send_attempt_id.present?
 
+    # Aircall::SendMessageJob (retry: 10) repasse ici à chaque tentative après un
+    # échec API : on retrouve la tentative identique déjà tracée plutôt que d'en
+    # créer une par retry.
+    existing = BlockedSendAttempt
+               .where(status: %w[pending not_blocked], provider: @provider, kind: 'url', message_body: @text)
+               .find_by(replay_params: @replay_params)
+    return existing if existing
+
     BlockedSendAttempt.create!(
       provider: @provider,
       kind: 'url',
@@ -53,12 +72,16 @@ class BlockedSendAttempt::UrlSendGuard
 
   private
 
+  def scannable_text
+    @scannable_text ||= ([@text] + Array(@extra_texts)).map(&:to_s).join("\n")
+  end
+
   def scan_urls
-    @text.to_s.scan(URL_REGEX)
+    scannable_text.scan(URL_REGEX).map { |url| url.sub(TRAILING_PUNCTUATION_REGEX, '') }
   end
 
   def scan_spaced_domains
-    @text.to_s.scan(SPACED_DOMAIN_REGEX).map { |match| match.gsub(/\s+/, '') }
+    scannable_text.scan(SPACED_DOMAIN_REGEX).map { |match| match.gsub(/\s+/, '') }
   end
 
   def normalize_url(url)

@@ -50,6 +50,21 @@ RSpec.describe BlockedSendAttempt do
     ).call
   end
 
+  describe 'validations' do
+    it 'refuse un provider inconnu' do
+      attempt = FactoryBot.build(:blocked_send_attempt, provider: 'pigeon-voyageur')
+
+      expect(attempt).not_to be_valid
+      expect(attempt.errors[:provider]).to be_present
+    end
+
+    it 'accepte les providers connus' do
+      %w[spothit aircall].each do |provider|
+        expect(FactoryBot.build(:blocked_send_attempt, provider: provider)).to be_valid
+      end
+    end
+  end
+
   describe 'un envoi contenant une URL non whitelistée' do
     it 'crée un BlockedSendAttempt pending et ne transmet pas le message au provider' do
       expect { send_program_message! }.to change(BlockedSendAttempt, :count).by(1)
@@ -85,6 +100,22 @@ RSpec.describe BlockedSendAttempt do
       expect { attempt.relaunch! }.not_to change(BlockedSendAttempt, :count)
       expect(attempt.reload.status).to eq('pending')
       expect(attempt.resolved_at).to be_nil
+      expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+    end
+  end
+
+  describe 'un envoi automatique enregistré sans paramètres de relance (replay_params vide)' do
+    let(:attempt) { FactoryBot.create(:blocked_send_attempt, replay_params: {}) }
+
+    it "n'est pas replayable" do
+      expect(attempt.replayable?).to be(false)
+    end
+
+    it 'refuse la relance avec une erreur explicite au lieu de planter' do
+      result = attempt.relaunch!
+
+      expect(result.errors).to be_any
+      expect(attempt.reload.status).to eq('pending')
       expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
     end
   end

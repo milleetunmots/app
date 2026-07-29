@@ -85,6 +85,7 @@ class ProgramMessageService
           return self
         end
       end
+      increment_suggested_videos_counters
       event = Event.create(
         {
           related_id: parent.id,
@@ -132,6 +133,7 @@ class ProgramMessageService
             blocked_send_attempt_id: @blocked_send_attempt_id
           ).call
         end
+      increment_suggested_videos_counters if service.errors.empty?
       if service.errors.any?
         @errors = service.errors
       elsif @invalid_parent_ids.any?
@@ -173,6 +175,13 @@ class ProgramMessageService
   def get_all_variables
     @variables += @message.scan(/\{(.*?)\}/).transpose[0].uniq
     @errors << 'Veuillez choisir un lien cible.' if @redirection_target.nil? && @variables.include?('URL')
+  end
+
+  # Incrémente après le guard d'URLs / l'appel provider, jamais pendant le
+  # formatage : un envoi bloqué puis relancé compterait double. En cas d'erreur
+  # provider on préfère sous-compter que sur-compter.
+  def increment_suggested_videos_counters
+    Array(@parents_with_redirection).each { |parent| increment_suggested_videos_counter(parent) }
   end
 
   def increment_suggested_videos_counter(parent)
@@ -219,7 +228,7 @@ class ProgramMessageService
         @message.gsub!('{NUMERO_AIRCALL_ACCOMPAGNANTE}', supporter_aircall_phone_number)
         if @redirection_target && parent.current_child.present?
           url = redirection_url_for_a_parent(parent)&.decorate&.visit_url
-          increment_suggested_videos_counter(parent)
+          (@parents_with_redirection ||= []) << parent
           @message.gsub!('{URL}', url)
         end
       end
@@ -258,7 +267,7 @@ class ProgramMessageService
         if @redirection_target && parent.current_child.present?
           @recipient_data[parent.phone_number]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
-          increment_suggested_videos_counter(parent)
+          (@parents_with_redirection ||= []) << parent
         end
       end
     else
