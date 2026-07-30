@@ -21,7 +21,6 @@ module DbSanitizer
         phone_number: SAFE_PHONE,
         phone_number_national: SAFE_PHONE,
         aircall_id: nil,
-        address_supplement: nil,
         latitude: nil,
         longitude: nil,
         mid_term_speech: nil,
@@ -33,10 +32,8 @@ module DbSanitizer
       Parent.where.not(email: nil).update_all("email = 'parent_' || id || '@example.com'")
       Parent.update_all("security_token = md5(random()::text) || md5(random()::text)")
       Parent.update_all("security_code = left(md5(random()::text), 2)")
-      Parent.update_all("address = 'Adresse fictive ' || id")
-      Parent.update_all("city_name = 'Ville fictive'")
 
-      # Faker for names (deterministic by ID)
+      # Faker for names and addresses (deterministic by ID)
       Parent.find_each do |parent|
         Faker::Config.random = Random.new(parent.id)
         last_name = Faker::Name.last_name
@@ -44,11 +41,23 @@ module DbSanitizer
         parent.update_columns(
           first_name: first_name,
           last_name: last_name,
-          letterbox_name: parent.letterbox_name.present? ? last_name : nil,
-          job: parent.job.present? ? Faker::Job.title : nil
+          letterbox_name: fake_letterbox_name(parent, last_name),
+          job: parent.job.present? ? Faker::Job.title : nil,
+          address: Faker::Address.street_address,
+          address_supplement: parent.address_supplement.present? ? Faker::Address.secondary_address : nil,
+          city_name: Faker::Address.city
         )
       end
       Faker::Config.random = nil
+    end
+
+    # letterbox_name est obligatoire pour une livraison à domicile et doit
+    # rester vide pour une livraison en organisme (cf. validations Parent).
+    def fake_letterbox_name(parent, last_name)
+      return nil if parent.book_delivery_location.in?(%w[pmi temporary_shelter association police_or_military_station])
+      return last_name if parent.book_delivery_location.in?(%w[home relative_home]) || parent.letterbox_name.present?
+
+      nil
     end
 
     def anonymize_children

@@ -11,9 +11,19 @@ RSpec.describe DbSanitizer::Anonymizer do
         first_name: 'Cécile', last_name: 'Dupont', letterbox_name: 'Dupont C.',
         phone_number: '0612345678', phone_number_national: '0612345678',
         email: 'cecile.dupont@gmail.com', address: '12 rue des Lilas',
+        address_supplement: 'Chez Mme Martin, bât. B',
         city_name: 'Lyon', job: 'Infirmière', aircall_id: 'AC123',
         security_token: 'realtoken', security_code: 'ab'
       )
+    end
+
+    let!(:parent_home_without_letterbox) do
+      FactoryBot.create(:parent).tap { |p| p.update_columns(letterbox_name: nil, address_supplement: nil) }
+    end
+
+    let!(:parent_pmi) do
+      FactoryBot.create(:parent, book_delivery_location: 'pmi', book_delivery_organisation_name: 'PMI des Lilas')
+                .tap { |p| p.update_columns(letterbox_name: 'Nom Legacy') }
     end
 
     let!(:child) do
@@ -67,12 +77,29 @@ RSpec.describe DbSanitizer::Anonymizer do
         expect(subject.address).not_to eq('12 rue des Lilas')
       end
 
+      it 'replaces address with a realistic street address' do
+        expect(subject.address).to match(/\A\d+ /)
+      end
+
       it 'replaces city_name' do
         expect(subject.city_name).not_to eq('Lyon')
       end
 
+      it 'replaces city_name with a realistic city name' do
+        expect(subject.city_name).not_to eq('Ville fictive')
+      end
+
+      it 'replaces address_supplement with a fake one when present' do
+        expect(subject.address_supplement).to be_present
+        expect(subject.address_supplement).not_to eq('Chez Mme Martin, bât. B')
+      end
+
       it 'sets letterbox_name to anonymized last_name' do
         expect(subject.letterbox_name).to eq(subject.last_name)
+      end
+
+      it 'stays valid' do
+        expect(subject).to be_valid
       end
 
       it 'replaces job' do
@@ -85,6 +112,38 @@ RSpec.describe DbSanitizer::Anonymizer do
 
       it 'replaces security_token' do
         expect(subject.security_token).not_to eq('realtoken')
+      end
+    end
+
+    context 'Parent delivered at home without letterbox_name (legacy data)' do
+      subject { parent_home_without_letterbox.reload }
+
+      it 'fills letterbox_name with the anonymized last_name' do
+        expect(subject.letterbox_name).to eq(subject.last_name)
+      end
+
+      it 'leaves blank address_supplement blank' do
+        expect(subject.address_supplement).to be_nil
+      end
+
+      it 'stays valid' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'Parent delivered to an organisation (pmi)' do
+      subject { parent_pmi.reload }
+
+      it 'clears letterbox_name' do
+        expect(subject.letterbox_name).to be_nil
+      end
+
+      it 'keeps book_delivery_organisation_name' do
+        expect(subject.book_delivery_organisation_name).to eq('PMI des Lilas')
+      end
+
+      it 'stays valid' do
+        expect(subject).to be_valid
       end
     end
 

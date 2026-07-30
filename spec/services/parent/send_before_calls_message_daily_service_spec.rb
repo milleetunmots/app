@@ -120,6 +120,65 @@ RSpec.describe Parent::SendBeforeCallsMessageDailyService do
       end
     end
 
+    context 'when the automatic SMS feature was activated before J-3 of the session' do
+      before { supporter.update!(automatic_sms_activated_at: (call1_start - 10.days).to_datetime) }
+
+      it 'dispatches the initial booking SMS' do
+        subject.call
+        expect(calls_message_service).to have_received(:handle_group_message).with(group, 1, [child_support.id])
+      end
+    end
+
+    context 'when the automatic SMS feature was activated on J-3 of the session exactly' do
+      before { supporter.update!(automatic_sms_activated_at: (call1_start - 3.days).to_datetime) }
+
+      it 'dispatches the initial booking SMS (the availability setup deadline is met)' do
+        subject.call
+        expect(calls_message_service).to have_received(:handle_group_message).with(group, 1, [child_support.id])
+      end
+    end
+
+    context 'when the automatic SMS feature was reactivated at J-2 of the session' do
+      let(:today) { call1_start - 2.days }
+
+      before { supporter.update!(automatic_sms_activated_at: today.to_datetime) }
+
+      it 'does not dispatch (availability setup deadline missed)' do
+        subject.call
+        expect(calls_message_service).not_to have_received(:handle_group_message)
+      end
+    end
+
+    context 'when the automatic SMS feature was reactivated during the session' do
+      let(:today) { call1_start + 2.days }
+
+      before { supporter.update!(automatic_sms_activated_at: today.to_datetime) }
+
+      it 'does not dispatch to the ongoing session families' do
+        subject.call
+        expect(calls_message_service).not_to have_received(:handle_group_message)
+      end
+    end
+
+    context 'when the feature was reactivated after the default J-3 but the supporter customized a later booking window' do
+      let!(:override) do
+        FactoryBot.create(:call_session_date_override,
+                          admin_user: supporter,
+                          group: group,
+                          call_session: 1,
+                          start_date: call1_start + 7.days,
+                          end_date: call1_end)
+      end
+      let(:today) { call1_start + 7.days - 3.days }
+
+      before { supporter.update!(automatic_sms_activated_at: (call1_start - 1.day).to_datetime) }
+
+      it 'dispatches at J-3 of the customized start date' do
+        subject.call
+        expect(calls_message_service).to have_received(:handle_group_message).with(group, 1, [child_support.id])
+      end
+    end
+
     context 'when the session booking window is over' do
       let(:today) { call1_end + 1.day }
 

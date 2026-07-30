@@ -60,8 +60,15 @@ end
 # (statut de délivrance, réponse d'un parent, ou demande de STOP).
 ActiveSupport::Notifications.subscribe('throttle.rack_attack') do |_name, _start, _finish, _id, payload|
   request = payload[:request]
+  rule = request.env['rack.attack.matched']
   Rails.logger.warn(
-    "[rack-attack] throttled rule=#{request.env['rack.attack.matched']} " \
+    "[rack-attack] throttled rule=#{rule} " \
     "path=#{request.path} ip=#{request.ip}"
   )
+
+  # Rollbar uniquement pour les throttles de login : les 429 sur les webhooks
+  # Spot Hit sont trop fréquents et satureraient le quota du plan gratuit.
+  if rule.to_s.start_with?('login/')
+    Rollbar.warning('Rack::Attack throttle triggered', rule: rule, path: request.path, ip: request.ip)
+  end
 end
