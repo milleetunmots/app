@@ -32,7 +32,7 @@ class SpotHit::SendRcsService
   protected
 
   def send_rcs
-    guard = BlockedSendAttempt::UrlSendGuard.new(
+    guard = BlockedSendAttempt::SendGuard.new(
       @message,
       provider: 'spothit',
       extra_texts: recipient_variable_values,
@@ -42,7 +42,7 @@ class SpotHit::SendRcsService
     if guard.blocked?
       guard.register!
       if guard.block_send?
-        @errors << 'Envoi bloqué : URL(s) non autorisée(s) détectée(s).'
+        @errors << guard.error_message
         return
       end
     end

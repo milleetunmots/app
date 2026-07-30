@@ -18,7 +18,7 @@ class SpotHit::CreateRcsModelService
     validate_params
     return self if @errors.any?
 
-    check_template_urls
+    check_template_content
     return self if @errors.any?
 
     push_rcs_template
@@ -48,14 +48,14 @@ class SpotHit::CreateRcsModelService
   # chaque envoi RCS sans repasser par le guard d'envoi : on le contrôle donc dès
   # la création. L'URL du CTA, elle, reste un placeholder {URL} substitué par
   # destinataire à l'envoi (contrôlé côté SendRcsService).
-  def check_template_urls
-    guard = BlockedSendAttempt::UrlSendGuard.new(body, provider: 'spothit', extra_texts: [rcs_title, cta_label])
+  def check_template_content
+    guard = BlockedSendAttempt::SendGuard.new(body, provider: 'spothit', extra_texts: [rcs_title, cta_label])
     return unless guard.blocked?
 
     guard.register!
     return unless guard.block_send?
 
-    @errors << "Création du modèle RCS bloquée : URL(s) non autorisée(s) dans le message #{@message_index} (#{guard.blocked_urls.join(', ')})"
+    @errors << guard.error_message
   end
 
   def body

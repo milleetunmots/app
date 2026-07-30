@@ -1,6 +1,6 @@
 ActiveAdmin.register AllowedPattern do
 
-  menu parent: 'Médiathèque', label: 'Patterns autorisés', priority: 7
+  menu parent: 'Gestion des envois', label: 'Patterns autorisés', priority: 2
 
   # ---------------------------------------------------------------------------
   # INDEX

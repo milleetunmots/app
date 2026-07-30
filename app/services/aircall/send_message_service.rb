@@ -30,11 +30,11 @@ module Aircall
         end
       end
 
-      guard = BlockedSendAttempt::UrlSendGuard.new(@body, provider: 'aircall', replay_params: @replay_params, blocked_send_attempt_id: @blocked_send_attempt_id)
+      guard = BlockedSendAttempt::SendGuard.new(@body, provider: 'aircall', replay_params: @replay_params, blocked_send_attempt_id: @blocked_send_attempt_id)
       if guard.blocked?
         guard.register!
         if guard.block_send?
-          @errors << 'Envoi bloqué : URL(s) non autorisée(s) détectée(s).'
+          @errors << guard.error_message
           update_event(4)
           return self
         end

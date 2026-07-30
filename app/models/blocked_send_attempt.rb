@@ -4,6 +4,7 @@
 #
 #  id              :bigint           not null, primary key
 #  detected_values :string           default([]), not null, is an Array
+#  force_send      :boolean          default(FALSE), not null
 #  kind            :string           not null
 #  message_body    :text             not null
 #  provider        :string           not null
@@ -19,7 +20,7 @@
 #
 class BlockedSendAttempt < ApplicationRecord
 
-  KINDS = %w[url].freeze
+  KINDS = %w[url keyword].freeze
   PROVIDERS = %w[spothit aircall].freeze
   # not_blocked : détecté en mode surveillance (URL_FILTER_BLOCKING_ENABLED absent), le message a quand même
   # été transmis au provider — ne devrait pas être relancé puisqu'il n'a jamais été réellement bloqué.
@@ -32,6 +33,8 @@ class BlockedSendAttempt < ApplicationRecord
   validates :status, inclusion: { in: STATUSES }
 
   scope :pending, -> { where(status: 'pending') }
+  scope :relaunched, -> { where(status: 'relaunched') }
+  scope :not_blocked, -> { where(status: 'not_blocked') }
 
   # Les envois automatiques (Child::CreateService, SendCalendlyReminderJob…)
   # enregistrent leur tentative avec replay_params vide : le replayer rappellerait
@@ -46,8 +49,12 @@ class BlockedSendAttempt < ApplicationRecord
       return self
     end
 
+    # Doit être persisté avant le replay : le blocage réel a lieu plus tard, dans
+    # le job d'envoi, qui relit la tentative depuis la base via son id.
+    update!(force_send: true)
+
     service = SendAttemptReplayer.new(self).call
-    return service if service.errors.any? # re-bloqué : statut inchangé
+    return service if service.errors.any? # échec pour une autre raison : statut inchangé
 
     update!(status: 'relaunched', resolved_at: Time.zone.now)
     service
