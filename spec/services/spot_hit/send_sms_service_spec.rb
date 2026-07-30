@@ -103,6 +103,28 @@ RSpec.describe SpotHit::SendSmsService do
       end
     end
 
+    context 'when the message contains a blocked keyword' do
+      around do |example|
+        previous = ENV['KEYWORD_FILTER_BLOCKING_ENABLED']
+        ENV['KEYWORD_FILTER_BLOCKING_ENABLED'] = 'true'
+        example.run
+        previous.nil? ? ENV.delete('KEYWORD_FILTER_BLOCKING_ENABLED') : ENV['KEYWORD_FILTER_BLOCKING_ENABLED'] = previous
+      end
+
+      it 'blocks the send with a generic error and records a keyword BlockedSendAttempt' do
+        FactoryBot.create(:blocked_pattern, value: 'virement')
+
+        service = nil
+        expect {
+          service = described_class.new([parent.phone_number], planned_timestamp, 'Faites un virement immédiat').call
+        }.to change(BlockedSendAttempt, :count).by(1)
+
+        expect(service.errors).to eq(['Ce message ne peut pas être envoyé, veuillez contacter le pôle tech.'])
+        expect(BlockedSendAttempt.last).to have_attributes(kind: 'keyword', status: 'pending')
+        expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
+      end
+    end
+
     context 'when the message does not contain a non-whitelisted URL' do
       let(:message) { 'Bonjour, ceci est un message sans lien.' }
 

@@ -4,6 +4,7 @@
 #
 #  id              :bigint           not null, primary key
 #  detected_values :string           default([]), not null, is an Array
+#  force_send      :boolean          default(FALSE), not null
 #  kind            :string           not null
 #  message_body    :text             not null
 #  provider        :string           not null
@@ -92,15 +93,26 @@ RSpec.describe BlockedSendAttempt do
     end
   end
 
-  describe "un admin technique tente de relancer alors que l'URL n'est toujours pas whitelistée" do
-    it 'rebloque le message par le même contrôle, reste pending et ne crée pas de doublon' do
+  describe "un admin technique relance alors que l'URL n'est toujours pas whitelistée" do
+    it 'transmet quand même le message : la relance est un feu vert humain qui court-circuite les contrôles' do
       send_program_message!
       attempt = BlockedSendAttempt.last
 
       expect { attempt.relaunch! }.not_to change(BlockedSendAttempt, :count)
-      expect(attempt.reload.status).to eq('pending')
-      expect(attempt.resolved_at).to be_nil
-      expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+      expect(attempt.reload.status).to eq('relaunched')
+      expect(attempt.resolved_at).to be_present
+      expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').once
+    end
+
+    it "n'est pas bloqué non plus par un terme interdit ajouté après le blocage initial" do
+      send_program_message!
+      attempt = BlockedSendAttempt.last
+      FactoryBot.create(:blocked_pattern, value: 'Regardez')
+
+      attempt.relaunch!
+
+      expect(attempt.reload.status).to eq('relaunched')
+      expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').once
     end
   end
 

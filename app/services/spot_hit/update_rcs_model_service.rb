@@ -15,6 +15,12 @@ class SpotHit::UpdateRcsModelService < SpotHit::CreateRcsModelService
     validate_params
     return self if @errors.any?
 
+    # Même contrôle qu'à la création (cf. CreateRcsModelService#check_template_content) :
+    # sans ça, on peut créer un template propre puis l'éditer pour y mettre
+    # n'importe quel contenu, qui repartira tel quel à chaque envoi RCS.
+    check_template_content
+    return self if @errors.any?
+
     push_rcs_template
     self
   end

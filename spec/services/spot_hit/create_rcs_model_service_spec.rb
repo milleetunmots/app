@@ -70,7 +70,7 @@ RSpec.describe SpotHit::CreateRcsModelService do
           result = nil
           expect { result = service }.to change(BlockedSendAttempt, :count).by(1)
 
-          expect(result.errors).to include(/URL\(s\) non autorisée\(s\)/)
+          expect(result.errors).to include('Ce message ne peut pas être envoyé, veuillez contacter le pôle tech.')
           expect(result.rcs_media_id).to be_nil
           expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
         end
@@ -95,7 +95,7 @@ RSpec.describe SpotHit::CreateRcsModelService do
           text_messages_bundle.update_columns(body1: 'Message sans lien', rcs_title1: 'Promo https://non-whitelisted.example.com')
           text_messages_bundle.reload
 
-          expect(service.errors).to include(/URL\(s\) non autorisée\(s\)/)
+          expect(service.errors).to include('Ce message ne peut pas être envoyé, veuillez contacter le pôle tech.')
           expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
         end
 
@@ -105,7 +105,7 @@ RSpec.describe SpotHit::CreateRcsModelService do
           text_messages_bundle.update_columns(body1: 'Message sans lien', link1_id: link.id, rcs_cta_title1: 'site-inconnu.com')
           text_messages_bundle.reload
 
-          expect(service.errors).to include(/URL\(s\) non autorisée\(s\)/)
+          expect(service.errors).to include('Ce message ne peut pas être envoyé, veuillez contacter le pôle tech.')
           expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
         end
       end

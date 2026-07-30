@@ -76,12 +76,15 @@ class ProgramMessageService
         @errors << 'Votre message dépasse la limite de 1600 caractères autorisée par Aircall. Veuillez le raccourcir avant de le renvoyer.'
         return self
       end
-      guard = BlockedSendAttempt::UrlSendGuard.new(@message, provider: 'aircall', replay_params: @replay_params, blocked_send_attempt_id: @blocked_send_attempt_id)
+      guard = BlockedSendAttempt::SendGuard.new(@message, provider: 'aircall', replay_params: @replay_params, blocked_send_attempt_id: @blocked_send_attempt_id)
       if guard.blocked?
-        blocked_send_attempt = guard.register!
-        @blocked_send_attempt_id ||= blocked_send_attempt&.id
+        attempts = guard.register!
+        # En surveillance, le job réexécute le guard côté service : on lui
+        # transmet une des tentatives déjà tracées, la déduplication de
+        # BaseSendGuard#register! couvre l'autre kind le cas échéant.
+        @blocked_send_attempt_id ||= Array(attempts).first&.id
         if guard.block_send?
-          @errors << 'Envoi bloqué : URL(s) non autorisée(s) détectée(s).'
+          @errors << guard.error_message
           return self
         end
       end

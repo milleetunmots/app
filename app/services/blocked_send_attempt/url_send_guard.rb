@@ -1,4 +1,4 @@
-class BlockedSendAttempt::UrlSendGuard
+class BlockedSendAttempt::UrlSendGuard < BlockedSendAttempt::BaseSendGuard
 
   # Liste de TLD connus, partagée par les détections sans schéma et espacée : sans
   # elle, tout "mot.mot" (oubli d'espace après un point, très courant en SMS :
@@ -24,57 +24,19 @@ class BlockedSendAttempt::UrlSendGuard
     ENV['URL_FILTER_BLOCKING_ENABLED'].present?
   end
 
-  # extra_texts : contenus scannés en plus du message mais non stockés comme
-  # message_body — typiquement les valeurs des variables destinataires SpotHit
-  # ({URL}, {CALLx_CALENDLY_LINK}…), encore sous forme de placeholders dans text.
-  def initialize(text, provider:, extra_texts: [], replay_params: {}, blocked_send_attempt_id: nil)
-    @text = text
-    @extra_texts = extra_texts
-    @provider = provider
-    @replay_params = replay_params
-    @blocked_send_attempt_id = blocked_send_attempt_id
+  def self.kind
+    'url'
   end
 
-  def blocked?
-    blocked_urls.any?
-  end
-
-  # Tant que URL_FILTER_BLOCKING_ENABLED n'est pas activé, on se contente de tracer
-  # la tentative (via register!) sans empêcher l'envoi réel.
-  def block_send?
-    blocked? && self.class.blocking_enabled?
+  def detected_values
+    blocked_urls
   end
 
   def blocked_urls
     @blocked_urls ||= (scan_urls + scan_spaced_domains).uniq.reject { |url| AllowedPattern.url_allowed?(normalize_url(url)) }
   end
 
-  def register!
-    return if @blocked_send_attempt_id.present?
-
-    # Aircall::SendMessageJob (retry: 10) repasse ici à chaque tentative après un
-    # échec API : on retrouve la tentative identique déjà tracée plutôt que d'en
-    # créer une par retry.
-    existing = BlockedSendAttempt
-               .where(status: %w[pending not_blocked], provider: @provider, kind: 'url', message_body: @text)
-               .find_by(replay_params: @replay_params)
-    return existing if existing
-
-    BlockedSendAttempt.create!(
-      provider: @provider,
-      kind: 'url',
-      detected_values: blocked_urls,
-      message_body: @text,
-      replay_params: @replay_params,
-      status: block_send? ? 'pending' : 'not_blocked'
-    )
-  end
-
   private
-
-  def scannable_text
-    @scannable_text ||= ([@text] + Array(@extra_texts)).map(&:to_s).join("\n")
-  end
 
   def scan_urls
     scannable_text.scan(URL_REGEX).map { |url| url.sub(TRAILING_PUNCTUATION_REGEX, '') }

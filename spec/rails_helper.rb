@@ -52,14 +52,12 @@ ENV['CALENDLY_WEBHOOK_SIGNING_KEY'] ||= "test_signing_key_123"
 ENV['SUMMER_SUPPORT_WAITING_START'] ||= ''
 ENV['SUMMER_SUPPORT_WAITING_END'] ||= ''
 ENV['TYPEFORM_LINK_SUPPORTERS_IDS'] ||= ''
+ENV['URL_FILTER_BLOCKING_ENABLED'] ||= ''
+ENV['KEYWORD_FILTER_BLOCKING_ENABLED'] ||= ''
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
-# Le mode blocage des URLs dépend de l'application.yml du poste (rechargé par
-# Figaro au boot ci-dessus) : on repart toujours du mode surveillance, les specs
-# qui testent le blocage activent le flag explicitement (around).
-ENV.delete('URL_FILTER_BLOCKING_ENABLED')
 require "rspec/rails"
 require "test_prof/recipes/rspec/let_it_be"
 
