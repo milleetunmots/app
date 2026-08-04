@@ -450,6 +450,7 @@ ActiveAdmin.register Child do
           row :source
           row :channel
           row :source_details
+          row :children_source_professional_email, label: 'Email inscription'
           row :territory
           row :land
           row :available_for_workshops
