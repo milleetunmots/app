@@ -34,6 +34,7 @@ module TagsSharedConcern
     end
 
     def add_tags_to(element)
+      return if element.blank?
       return if tags_to_add.blank?
 
       element.tag_list.add(tags_to_add)
@@ -41,6 +42,7 @@ module TagsSharedConcern
     end
 
     def remove_tags_from(element)
+      return if element.blank?
       return if tags_to_remove.blank?
 
       element.tag_list.remove(tags_to_remove)
