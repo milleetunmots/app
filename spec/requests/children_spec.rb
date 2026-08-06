@@ -121,6 +121,58 @@ RSpec.describe ChildrenController, type: :request do
       end
     end
 
+    context "when registering through the PMI channel with a professional email" do
+      let(:birthdate) { Faker::Date.birthday(min_age: 1, max_age: 2) }
+      let(:source) { FactoryBot.create(:source, channel: 'pmi', department: 75) }
+      let(:params) {
+        {
+          child: {
+            parent1_attributes: {
+              terms_accepted_at: Time.zone.now,
+              first_name: Faker::Name.first_name,
+              last_name: Faker::Name.last_name,
+              phone_number: "066802#{Faker::Number.number(digits: 4)}",
+              book_delivery_location: 'pmi',
+              book_delivery_organisation_name: 'PMI Henri Barbusse',
+              address: Faker::Address.street_address,
+              postal_code: Faker::Address.postcode,
+              city_name: Faker::Address.city,
+              gender: 'f'
+            },
+            gender: "",
+            first_name: Faker::Name.first_name,
+            last_name: Faker::Name.last_name,
+            "birthdate(3i)" => birthdate.day.to_s,
+            "birthdate(2i)" => birthdate.month.to_s,
+            "birthdate(1i)" => birthdate.year.to_s,
+            tag_list: "",
+            child_support_attributes: { important_information: "" },
+            parent2_attributes: {
+              first_name: "",
+              last_name: "",
+              phone_number: ""
+            },
+            children_source_attributes: {
+              source_id: source.id,
+              details: "",
+              registration_department: source.department
+            }
+          },
+          want_registration_confirmation_email: "1",
+          registration_confirmation_email: "professionnel@pmi75.fr"
+        }
+      }
+
+      before do
+        allow_any_instance_of(SpotHit::SendSmsService).to receive(:call).and_return(SpotHit::SendSmsService.new(nil, nil, nil))
+        post "/inscription3", params: params
+      end
+
+      it "saves the professional email on the child's children_source" do
+        expect(Child.last.children_source_professional_email).to eq "professionnel@pmi75.fr"
+      end
+    end
+
     context "when there are errors" do
       let(:birthdate) { Faker::Date.between(from: Child.min_birthdate.tomorrow, to: Child.max_birthdate.yesterday) }
       let(:source) { FactoryBot.create(:source) }

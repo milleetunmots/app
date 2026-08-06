@@ -42,4 +42,8 @@ module ActiveAdmin::SourcesHelper
   def source_details_suggestions
     ChildrenSource.select('DISTINCT ON (LOWER(details)) details').pluck(:details).uniq.compact.sort_by(&:downcase).reject(&:blank?)
   end
+
+  def source_professional_email_suggestions
+    ChildrenSource.where.not(professional_email: nil).pluck(:professional_email).uniq.compact.sort_by(&:downcase)
+  end
 end
