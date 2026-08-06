@@ -57,15 +57,15 @@ class ParentDecorator < BaseDecorator
   end
 
   def full_address(separator = '<br/>')
-    attention_to = model.attention_to&.gsub('Pour', "A l'attention de")
+    attention_to = model.attention_to&.upcase&.gsub('POUR', "A l'attention de")
     full_address =
       case model.book_delivery_location
       when 'home'
-        [letterbox_name, address]
+        [letterbox_name.upcase, address]
       when 'relative_home'
-        [letterbox_name, attention_to, address]
+        [letterbox_name.upcase, attention_to, address]
       else
-        [book_delivery_organisation_name, attention_to, address]
+        [book_delivery_organisation_name.upcase, attention_to, address]
       end
     full_address << address_supplement if address_supplement.present?
     full_address << [postal_code, city_name].join(' ')
