@@ -5,7 +5,22 @@ class ProgramMessageService
 
   attr_reader :errors
 
-  def initialize(planned_date, planned_hour, recipients, message, rcs_media_id = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil)
+  def initialize(planned_date, planned_hour, recipients, message, rcs_media_id = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil, blocked_send_attempt: nil)
+    @replay_params = {
+      planned_date: planned_date,
+      planned_hour: planned_hour,
+      recipients: (recipients || []).dup,
+      message: message.dup,
+      rcs_media_id: rcs_media_id,
+      redirection_target_id: redirection_target_id,
+      quit_message: quit_message,
+      workshop_id: workshop_id,
+      supporter: supporter,
+      group_status: group_status,
+      provider: provider,
+      aircall_number_id: aircall_number_id
+    }
+    @blocked_send_attempt_id = blocked_send_attempt&.id
     @planned_timestamp = ActiveSupport::TimeZone['Europe/Paris'].parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []
     @message = message
@@ -61,6 +76,19 @@ class ProgramMessageService
         @errors << 'Votre message dépasse la limite de 1600 caractères autorisée par Aircall. Veuillez le raccourcir avant de le renvoyer.'
         return self
       end
+      guard = BlockedSendAttempt::SendGuard.new(@message, provider: 'aircall', replay_params: @replay_params, blocked_send_attempt_id: @blocked_send_attempt_id)
+      if guard.blocked?
+        attempts = guard.register!
+        # En surveillance, le job réexécute le guard côté service : on lui
+        # transmet une des tentatives déjà tracées, la déduplication de
+        # BaseSendGuard#register! couvre l'autre kind le cas échéant.
+        @blocked_send_attempt_id ||= Array(attempts).first&.id
+        if guard.block_send?
+          @errors << guard.error_message
+          return self
+        end
+      end
+      increment_suggested_videos_counters
       event = Event.create(
         {
           related_id: parent.id,
@@ -71,7 +99,7 @@ class ProgramMessageService
           message_provider: 'aircall'
         }
       )
-      Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(@aircall_number_id, parent&.phone_number, @message, event.id)
+      Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(@aircall_number_id, parent&.phone_number, @message, event.id, @replay_params, @blocked_send_attempt_id)
       @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
     when 'spothit'
       service =
@@ -82,7 +110,9 @@ class ProgramMessageService
             media_id: @rcs_media_id,
             fallback_message: @message,
             workshop_id: @workshop_id,
-            event_params: @event_params
+            event_params: @event_params,
+            replay_params: @replay_params,
+            blocked_send_attempt_id: @blocked_send_attempt_id
           ).call
         elsif basic_rcs?
           SpotHit::SendRcsService.new(
@@ -91,11 +121,22 @@ class ProgramMessageService
             fallback_message: @message,
             basic: true,
             workshop_id: @workshop_id,
-            event_params: @event_params
+            event_params: @event_params,
+            replay_params: @replay_params,
+            blocked_send_attempt_id: @blocked_send_attempt_id
           ).call
         else
-          SpotHit::SendSmsService.new(@recipient_data, @planned_timestamp, @message, workshop_id: @workshop_id, event_params: @event_params).call
+          SpotHit::SendSmsService.new(
+            @recipient_data,
+            @planned_timestamp,
+            @message,
+            workshop_id: @workshop_id,
+            event_params: @event_params,
+            replay_params: @replay_params,
+            blocked_send_attempt_id: @blocked_send_attempt_id
+          ).call
         end
+      increment_suggested_videos_counters if service.errors.empty?
       if service.errors.any?
         @errors = service.errors
       elsif @invalid_parent_ids.any?
@@ -137,6 +178,13 @@ class ProgramMessageService
   def get_all_variables
     @variables += @message.scan(/\{(.*?)\}/).transpose[0].uniq
     @errors << 'Veuillez choisir un lien cible.' if @redirection_target.nil? && @variables.include?('URL')
+  end
+
+  # Incrémente après le guard d'URLs / l'appel provider, jamais pendant le
+  # formatage : un envoi bloqué puis relancé compterait double. En cas d'erreur
+  # provider on préfère sous-compter que sur-compter.
+  def increment_suggested_videos_counters
+    Array(@parents_with_redirection).each { |parent| increment_suggested_videos_counter(parent) }
   end
 
   def increment_suggested_videos_counter(parent)
@@ -183,7 +231,7 @@ class ProgramMessageService
         @message.gsub!('{NUMERO_AIRCALL_ACCOMPAGNANTE}', supporter_aircall_phone_number)
         if @redirection_target && parent.current_child.present?
           url = redirection_url_for_a_parent(parent)&.decorate&.visit_url
-          increment_suggested_videos_counter(parent)
+          (@parents_with_redirection ||= []) << parent
           @message.gsub!('{URL}', url)
         end
       end
@@ -222,7 +270,7 @@ class ProgramMessageService
         if @redirection_target && parent.current_child.present?
           @recipient_data[parent.phone_number]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
-          increment_suggested_videos_counter(parent)
+          (@parents_with_redirection ||= []) << parent
         end
       end
     else

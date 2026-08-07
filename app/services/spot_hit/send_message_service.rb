@@ -2,7 +2,7 @@ class SpotHit::SendMessageService
 
   attr_reader :errors
 
-  def initialize(recipients, planned_timestamp, message, file: nil, workshop_id: nil, event_params: {})
+  def initialize(recipients, planned_timestamp, message, file: nil, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil)
     @planned_timestamp = planned_timestamp
     @recipients = recipients
     @message = message
@@ -10,11 +10,28 @@ class SpotHit::SendMessageService
     @event_params = event_params
     @errors = []
     @workshop = Workshop.find_by(id: workshop_id)
+    @replay_params = replay_params
+    @blocked_send_attempt_id = blocked_send_attempt_id
   end
 
   protected
 
   def send_message(uri, form)
+    guard = BlockedSendAttempt::SendGuard.new(
+      @message,
+      provider: 'spothit',
+      extra_texts: recipient_variable_values,
+      replay_params: @replay_params,
+      blocked_send_attempt_id: @blocked_send_attempt_id
+    )
+    if guard.blocked?
+      guard.register!
+      if guard.block_send?
+        @errors << guard.error_message
+        return
+      end
+    end
+
     form = safeguard(form) if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
 
     response = HTTP.post(uri, form: form)
@@ -63,6 +80,14 @@ class SpotHit::SendMessageService
     unless @workshop.save
       @errors << "Erreur lors de la sauvegarde de l'atelier #{@workshop.name}."
     end
+  end
+
+  # Les vraies URLs envoyées sont souvent dans les variables destinataires
+  # ({URL}, {CALLx_CALENDLY_LINK}…), le message ne contenant que des placeholders.
+  def recipient_variable_values
+    return [] unless @recipients.is_a?(Hash)
+
+    @recipients.values.flat_map { |variables| variables.respond_to?(:values) ? variables.values : [] }
   end
 
   def safeguard(form)

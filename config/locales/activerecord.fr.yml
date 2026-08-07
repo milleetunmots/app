@@ -2,6 +2,9 @@ fr:
   activerecord:
     models:
       admin_user: Utilisateur
+      allowed_pattern: Pattern autorisé
+      blocked_pattern: Pattern interdit
+      blocked_send_attempt: Envoi bloqué
       book: Livre
       child: Enfant
       child_support: Suivi
@@ -72,6 +75,39 @@ fr:
         reader: Lecteur actif
         caller: Accompagnante
         animator: Accompagnante et/ou Animatrice
+      allowed_pattern:
+        << : *SHARED
+        kind: Type
+        match_type: Type de correspondance
+        value: Valeur
+      allowed_pattern/kind:
+        url: URL
+      allowed_pattern/match_type:
+        domain: Domaine
+        exact: URL exacte
+      blocked_pattern:
+        << : *SHARED
+        kind: Type
+        value: Valeur
+        normalized_value: Valeur normalisée
+      blocked_pattern/kind:
+        keyword: Mot-clé
+      blocked_send_attempt:
+        << : *SHARED
+        detected_values: Valeurs détectées
+        kind: Type
+        message_body: Message
+        provider: Provider
+        replay_params: Paramètres de relance
+        resolved_at: Traité le
+        status: Statut
+      blocked_send_attempt/kind:
+        keyword: Mot-clé
+        url: URL
+      blocked_send_attempt/status:
+        pending: À traiter
+        relaunched: Relancé
+        not_blocked: Non bloqué (surveillance)
       book:
         << : *SHARED
         ean: EAN
