@@ -245,13 +245,44 @@ ActiveAdmin.register Child do
            progress: proc { |output| puts output }
   end
 
+  batch_action :mecenat_addresses_pdf,
+               confirm: 'Cette action va taguer tous les éléments afin de les exclure des prochaines collectes. N’utilisez pas cette fonctionnalité à des fins de test. Continuer ?',
+               if: proc { current_admin_user.user_role.in?(%w[reader contributor super_admin]) } do |ids|
+    children = batch_action_collection.where(id: ids)
+    tag = Tag.find_or_create_by(name: 'collecte et envoi de livres mécènes', is_visible_by_callers_and_animators: false)
+
+    children.each do |child|
+      next unless child.child_support
+
+      child.child_support.tag_list += [tag]
+      child.child_support.save(validate: false)
+    end
+
+    @children = children.decorate
+    @debug = params.key?('debug')
+    render pdf: 'etiquettes_mecenat',
+           disposition: 'attachment',
+           template: 'admin/children/addresses_pdf',
+           layout: 'pdf',
+           margin: {
+             top: 3,
+             bottom: 0,
+             left: 1,
+             right: 0
+           },
+           show_as_html: @debug,
+           disable_local_file_access: false,
+           enable_local_file_access: true,
+           progress: proc { |output| puts output }
+  end
+
   batch_action :send_address_verification_message,
                confirm: 'Des messages vont être envoyés aux parents pour confirmer leur adresse. Continuer ?',
                if: proc { current_admin_user.user_role.in?(%w[reader contributor super_admin]) } do |ids|
     parent_ids = Child.where(id: ids).map { |child| "parent.#{child.parent1_id}" }.uniq
     message = <<~MESSAGE
       1001mots : Bonjour,
-      Votre accompagnement avec 1001mots est fini ou va bientôt être fini. Mais grâce à la générosité de l’un de nos partenaires qui a récolté des livres, vous allez recevoir un dernier livre en cadeau.
+      Votre accompagnement avec 1001mots est fini ou sera bientôt fini. Mais un de nos partenaires tient à vous offrir un dernier livre, récolté auprès de parents d'enfants plus grands, qui ont eu envie de partager les livres qu'ils ont aimés à l'âge de {PRENOM_ENFANT}.
       Nous allons l'envoyer à l'adresse suivante :
       {PARENT_ADDRESS}
       Si l'adresse postale ou le nom sur la boîte aux lettres ne sont pas bons, merci de les modifier ici : https://form.typeform.com/to/IDpRjIqI#st=xxxxx
