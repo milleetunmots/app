@@ -73,3 +73,6 @@
     import_group_subscriptions_job:
       cron: '0 4 * * 1' # lundi 4h, import hebdo du positionnement des accompagnantes depuis Airtable
       class: 'AdminUser::ImportGroupSubscriptionsJob'
+    ensure_upcoming_shipment_dates_job:
+      cron: '0 5 * * *' # tous les jours à 5h, maintient 2 dates de renvoi SAV à venir
+      class: 'Book::EnsureUpcomingShipmentDatesJob'
