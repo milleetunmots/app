@@ -1,0 +1,16 @@
+<% upcoming_dates = BookShipmentDate.upcoming.limit(2).to_a %>
+
+<div class="panel book-shipment-dates-banner" data-upsert-url="<%= upsert_shipment_date_admin_books_path %>">
+  <h3>Dates du prochain renvoi de SAV (tous les 45 jours)</h3>
+
+  <div class="buttons-line">
+    <% [0, 1].each do |i| %>
+      <% shipment_date = upcoming_dates[i] %>
+      <div class="book-shipment-date-field" data-id="<%= shipment_date&.id %>">
+        <span><%= i.zero? ? '1ère date :' : '2ème date :' %></span>
+        <input type="date" class="book-shipment-date-input" value="<%= shipment_date&.date&.iso8601 %>" min="<%= Date.current.iso8601 %>">
+        <a href="#" class="button button-outline book-shipment-date-save">Enregistrer</a>
+      </div>
+    <% end %>
+  </div>
+</div>
