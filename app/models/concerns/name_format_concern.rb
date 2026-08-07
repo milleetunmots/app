@@ -1,4 +1,4 @@
-module :NameFormatConcern
+module NameFormatConcern
   extend ActiveSupport::Concern
 
   def self.format_first_name(first_name)
