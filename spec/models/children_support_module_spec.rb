@@ -6,6 +6,7 @@
 #  available_support_module_list :string           is an Array
 #  book_condition                :string
 #  book_condition_changed_at     :datetime
+#  book_resent_on                :date
 #  choice_date                   :date
 #  is_completed                  :boolean          default(FALSE)
 #  is_programmed                 :boolean          default(FALSE), not null

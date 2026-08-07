@@ -15,6 +15,21 @@ ActiveAdmin.register Book do
     end
   end
 
+  action_item :sav_management, only: :index do
+    link_to 'Gestion du SAV', new_sav_import_admin_books_path
+  end
+
+  collection_action :new_sav_import do
+    @import_action = perform_sav_import_admin_books_path
+  end
+
+  collection_action :perform_sav_import, method: :post do
+    service = Book::SavImportService.new(csv_file: params[:csv_file]).call
+    @matched_count = service.matched_count
+    @errors = service.errors
+    render :sav_import_results
+  end
+
   # ---------------------------------------------------------------------------
   # INDEX
   # ---------------------------------------------------------------------------

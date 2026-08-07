@@ -351,4 +351,25 @@ RSpec.describe ChildSupport, type: :model do
       expect(child_support.reload.unassigned_number_reactivated_at).to be_present
     end
   end
+
+  describe '#pending_book_resend_date' do
+    let_it_be(:book) { FactoryBot.create(:book) }
+    let!(:next_resend_date) { BookShipmentDate.create!(date: Date.current + 10.days).date }
+
+    it "retourne nil quand aucun livre n'est signalé non reçu / défectueux" do
+      expect(first_child_support.pending_book_resend_date).to be_nil
+    end
+
+    it "retourne la prochaine date de renvoi quand un livre est signalé et pas encore renvoyé" do
+      FactoryBot.create(:children_support_module, child: first_child, parent: first_parent, book: book, book_condition: 'not_received')
+
+      expect(first_child_support.pending_book_resend_date).to eq(next_resend_date)
+    end
+
+    it 'retourne nil quand le livre signalé a déjà été renvoyé' do
+      FactoryBot.create(:children_support_module, child: first_child, parent: first_parent, book: book, book_condition: 'not_received', book_resent_on: Date.current)
+
+      expect(first_child_support.pending_book_resend_date).to be_nil
+    end
+  end
 end

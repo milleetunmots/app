@@ -1,0 +1,12 @@
+<p><%= @matched_count %> ligne(s) traitée(s) avec succès.</p>
+
+<% if @errors.any? %>
+  <p><%= @errors.count %> ligne(s) en erreur :</p>
+  <ul>
+    <% @errors.each do |line, message| %>
+      <li>Ligne <%= line %>&nbsp;: <%= message %></li>
+    <% end %>
+  </ul>
+<% end %>
+
+<%= link_to "Retour à la liste des livres", admin_books_path %>

@@ -443,6 +443,11 @@ ActiveAdmin.register ChildSupport do
                                       collection: book_condition_select_collection,
                                       input_html: { class: 'book-select', data: { select2: {} } }
                         end
+                        if support_module.book_resent_on
+                          div class: 'book-resent-alert' do
+                            span "Renvoyé le #{support_module.book_resent_on.strftime('%d/%m/%Y')}", class: 'txt-warning'
+                          end
+                        end
                         small class: 'book-issue-confirmation-message' do
                           i class: 'fa-solid fa-check'
                           span 'Problème signalé'
