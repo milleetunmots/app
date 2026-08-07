@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_07_29_090840) do
+ActiveRecord::Schema[7.0].define(version: 2026_08_06_090100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -124,6 +124,13 @@ ActiveRecord::Schema[7.0].define(version: 2026_07_29_090840) do
     t.datetime "updated_at", null: false
     t.text "options", array: true
     t.index ["question_id"], name: "index_answers_on_question_id"
+  end
+
+  create_table "book_shipment_dates", force: :cascade do |t|
+    t.date "date", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["date"], name: "index_book_shipment_dates_on_date", unique: true
   end
 
   create_table "books", force: :cascade do |t|
