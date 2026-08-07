@@ -4,11 +4,41 @@ ActiveAdmin.register Book do
 
   actions :all, except: %i[new edit]
 
+  collection_action :upsert_shipment_date, method: :post do
+    shipment_date = BookShipmentDate.find_or_initialize_by(id: params[:id].presence)
+    shipment_date.date = params[:date]
+
+    if shipment_date.save
+      render json: { ok: true, id: shipment_date.id }
+    else
+      render json: { ok: false, errors: shipment_date.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  action_item :sav_management, only: :index do
+    link_to 'Gestion du SAV', new_sav_import_admin_books_path
+  end
+
+  collection_action :new_sav_import do
+    @import_action = perform_sav_import_admin_books_path
+  end
+
+  collection_action :perform_sav_import, method: :post do
+    service = Book::SavImportService.new(csv_file: params[:csv_file]).call
+    @matched_count = service.matched_count
+    @errors = service.errors
+    render :sav_import_results
+  end
+
   # ---------------------------------------------------------------------------
   # INDEX
   # ---------------------------------------------------------------------------
 
   index do
+    div do
+      render 'index_top'
+    end
+
     selectable_column
     id_column
     column :ean

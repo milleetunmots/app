@@ -5,6 +5,8 @@
 #  id                            :bigint           not null, primary key
 #  available_support_module_list :string           is an Array
 #  book_condition                :string
+#  book_condition_changed_at     :datetime
+#  book_resent_on                :date
 #  choice_date                   :date
 #  is_completed                  :boolean          default(FALSE)
 #  is_programmed                 :boolean          default(FALSE), not null
@@ -76,6 +78,7 @@ class ChildrenSupportModule < ApplicationRecord
   after_update :select_for_siblings
   before_create :set_module_index
   after_save :save_chosen_module_to_child_support, if: :saved_change_to_support_module_id?
+  before_save :set_book_condition_changed_at, if: :book_condition_changed?
 
   def name
     return support_module.decorate.name_with_tags if support_module
@@ -245,6 +248,10 @@ class ChildrenSupportModule < ApplicationRecord
 
     next_module_index = child.group.support_module_programmed + 1
     self.module_index = next_module_index
+  end
+
+  def set_book_condition_changed_at
+    self.book_condition_changed_at = book_condition.present? ? Time.zone.now : nil
   end
 
   def save_chosen_module_to_child_support
