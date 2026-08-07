@@ -635,6 +635,22 @@ class ChildSupport < ApplicationRecord
     super((val || []).reject(&:blank?).join(';'))
   end
 
+  # date à laquelle les livres non reçus / défectueux de cette fiche seront renvoyés,
+  # ou nil si aucune alerte de renvoi SAV ne doit être affichée
+  def pending_book_resend_date
+    return nil if address_suspected_invalid_at.present?
+
+    next_resend_date = BookShipmentDate.upcoming.first&.date
+    return nil if next_resend_date.blank?
+
+    return nil unless children_support_modules.with_books.exists?(
+      book_condition: ChildrenSupportModule::CONDITIONS,
+      book_condition_changed_at: ...next_resend_date
+    )
+
+    next_resend_date
+  end
+
   def copy_fields(child_support)
     self.notes ||= ''
     self.notes << (('-' * 100) + "\n")
