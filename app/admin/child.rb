@@ -97,6 +97,9 @@ ActiveAdmin.register Child do
           collection: proc { source_details_suggestions },
           input_html: { multiple: true, data: { select2: {} } },
           label: "Précisions sur l'origine"
+  filter :children_source_professional_email_cont,
+         as: :string,
+         label: "Email d'inscription"
   filter :re_enrollment,
          as: :check_boxes,
          collection: [['Oui', true], ['Non', false]],
@@ -450,6 +453,7 @@ ActiveAdmin.register Child do
           row :source
           row :channel
           row :source_details
+          row :children_source_professional_email, label: 'Email inscription'
           row :territory
           row :land
           row :available_for_workshops
@@ -624,6 +628,7 @@ ActiveAdmin.register Child do
     column :children_source_name
     column :channel
     column :source_details
+    column :children_source_professional_email
 
     column :child_group_name
     column :child_group_months

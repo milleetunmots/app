@@ -4,6 +4,7 @@
 #
 #  id                      :bigint           not null, primary key
 #  details                 :string
+#  professional_email      :string
 #  re_enrollment           :boolean          default(FALSE)
 #  registration_department :integer
 #  created_at              :datetime         not null
@@ -21,5 +22,8 @@ class ChildrenSource < ApplicationRecord
   belongs_to :child
 
   delegate :name, to: :source, prefix: false, allow_nil: true
+
+  validates :professional_email,
+            format: { with: REGEX_VALID_EMAIL, allow_blank: true, message: "doit être au format adresse email (xxxx@xx.com)." }
 
 end
