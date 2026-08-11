@@ -382,6 +382,7 @@ fr:
         call1_resources_alternative_scripts: Scripts alternatifs
         call2_resources_alternative_scripts: Scripts alternatifs
         call3_resources_alternative_scripts: Scripts alternatifs
+        call0_resources_translated_videos: Vidéos traduites
       current_child/parent1:
         phone_number: Téléphone du parent 1
         letterbox_name: Nom de famille sur la boîte aux lettres

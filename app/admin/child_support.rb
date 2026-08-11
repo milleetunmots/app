@@ -588,9 +588,15 @@ ActiveAdmin.register ChildSupport do
                             end
                           end
                         end
-                        ul do
-                          li do
+                        translated_video_links = resources_translated_video_links(call_idx, resource.current_child&.months)
+                        div class: 'resources-selects-row' do
+                          div class: 'resources-select-col' do
                             f.input "call#{call_idx}_resources_alternative_scripts", as: :select, collection: resources_alternative_script_links
+                          end
+                          if translated_video_links.present?
+                            div class: 'resources-select-col' do
+                              f.input "call#{call_idx}_resources_translated_videos", as: :select, collection: translated_video_links
+                            end
                           end
                         end
                       end

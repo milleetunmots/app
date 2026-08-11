@@ -7,7 +7,8 @@
     '#child_support_call0_resources_alternative_scripts',
     '#child_support_call1_resources_alternative_scripts',
     '#child_support_call2_resources_alternative_scripts',
-    '#child_support_call3_resources_alternative_scripts'
+    '#child_support_call3_resources_alternative_scripts',
+    '#child_support_call0_resources_translated_videos'
   ];
   var formTriggerSelector = 'input, textarea, select';
 

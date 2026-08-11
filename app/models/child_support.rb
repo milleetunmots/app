@@ -262,6 +262,7 @@ class ChildSupport < ApplicationRecord
 
   # getter to make select work in form
   attr_accessor :call0_resources_alternative_scripts, :call1_resources_alternative_scripts, :call2_resources_alternative_scripts, :call3_resources_alternative_scripts
+  attr_accessor :call0_resources_translated_videos
 
   # Si un nouveau statut d'appel est renseigné après une réactivation pour numéro erroné,
   # on lève le marqueur : un nouveau "Numéro erroné" pourra de nouveau déclencher l'arrêt automatique.

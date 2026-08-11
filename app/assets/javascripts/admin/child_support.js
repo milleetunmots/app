@@ -29,7 +29,7 @@ $(document).ready(function() {
   }
 
   window.scrollTo(0, 0);
-  $("[id^='child_support_call'][id$='_resources_alternative_scripts']").each(function() {
+  $("[id^='child_support_call'][id$='_resources_alternative_scripts'], [id^='child_support_call'][id$='_resources_translated_videos']").each(function() {
     $(this).select2({
       width: '100%',
       escapeMarkup: function(markup) { return markup; },
@@ -210,7 +210,7 @@ $(document).ready(function() {
     if (idx) toggleWhyTalkNeeded(idx);
   });
 
-  $("[id^='child_support_call'][id$='_resources_alternative_scripts']").on('change', function() {
+  $("[id^='child_support_call'][id$='_resources_alternative_scripts'], [id^='child_support_call'][id$='_resources_translated_videos']").on('change', function() {
     var url = $(this).val();
     if(url) {
       window.open(url, '_blank');
