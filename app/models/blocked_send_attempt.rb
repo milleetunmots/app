@@ -57,6 +57,19 @@ class BlockedSendAttempt < ApplicationRecord
     return service if service.errors.any? # échec pour une autre raison : statut inchangé
 
     update!(status: 'relaunched', resolved_at: Time.zone.now)
+    resolve_other_attempts_for_same_message!
     service
+  end
+
+  private
+
+  # Un même message peut être tracé deux fois (une URL ET un mot-clé détectés) :
+  # la relance l'a envoyé une bonne fois pour toutes, l'autre tentative ne doit
+  # pas rester « à traiter » indéfiniment.
+  def resolve_other_attempts_for_same_message!
+    self.class.pending
+        .where(provider: provider, message_body: message_body, replay_params: replay_params)
+        .where.not(id: id)
+        .find_each { |attempt| attempt.update(status: 'relaunched', resolved_at: Time.zone.now) }
   end
 end

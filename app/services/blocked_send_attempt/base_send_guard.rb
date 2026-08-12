@@ -37,7 +37,9 @@ class BlockedSendAttempt::BaseSendGuard
                .find_by(replay_params: @replay_params)
     return existing if existing
 
-    BlockedSendAttempt.create!(
+    # `create` et non `create!` : on est en plein chemin d'envoi, une trace
+    # invalide (message vide…) ne doit pas faire échouer l'envoi lui-même.
+    attempt = BlockedSendAttempt.create(
       provider: @provider,
       kind: kind,
       detected_values: detected_values,
@@ -45,6 +47,9 @@ class BlockedSendAttempt::BaseSendGuard
       replay_params: @replay_params,
       status: block_send? ? 'pending' : 'not_blocked'
     )
+    Rollbar.error('BlockedSendAttempt non tracé', errors: attempt.errors.full_messages, provider: @provider, kind: kind) unless attempt.persisted?
+
+    attempt
   end
 
   private

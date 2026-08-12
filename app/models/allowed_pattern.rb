@@ -45,11 +45,13 @@ class AllowedPattern < ApplicationRecord
   # usage
   # ---------------------------------------------------------------------------
 
-  def self.url_allowed?(url)
+  # patterns : collection déjà chargée, pour éviter une requête par URL quand on
+  # en contrôle plusieurs d'affilée (cf. BlockedSendAttempt::UrlSendGuard).
+  def self.url_allowed?(url, patterns: nil)
     return false if url.blank?
     return true if app_host?(url)
 
-    where(kind: 'url').any? { |pattern| pattern.url_matches?(url) }
+    (patterns || where(kind: 'url')).any? { |pattern| pattern.url_matches?(url) }
   end
 
   # Le domaine de l'app est toujours autorisé sans pattern en base : les liens de

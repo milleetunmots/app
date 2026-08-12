@@ -27,7 +27,11 @@ RSpec.describe BlockedSendAttempt::UrlSendGuard do
           'Coucou ca va.Tu viens ?',
           "Merci d'avoir repondu.Bonne journee",
           'Rendez-vous 12h.Salle 3',
-          "c'est bon.commencez demain"
+          "c'est bon.commencez demain",
+          # mots français qui sont aussi des TLD, volontairement retirés de KNOWN_TLDS
+          'Coucou ca va.De plus, pensez a lire !',
+          'Rendez-vous a 10h.Ca marche pour vous ?',
+          'Appelez-nous.Me joindre est simple'
         ].each do |text|
           guard = described_class.new(text, provider: 'spothit')
 

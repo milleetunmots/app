@@ -197,9 +197,18 @@ RSpec.describe Medium, type: :model do
     end
 
     context 'sans URL_FILTER_BLOCKING_ENABLED (mode surveillance)' do
-      it 'accepte une url non whitelistée' do
+      it 'accepte une url non whitelistée mais la signale' do
         video = FactoryBot.build(:media_video, url: 'https://non-whitelisted.example.com/video')
 
+        expect(Rollbar).to receive(:warning).with('Medium : url qui serait refusée par le filtre', hash_including(url: 'https://non-whitelisted.example.com/video'))
+        expect(video).to be_valid
+      end
+
+      it 'ne signale rien pour une url whitelistée' do
+        FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'domain', value: 'partenaire.fr')
+        video = FactoryBot.build(:media_video, url: 'https://partenaire.fr/video')
+
+        expect(Rollbar).not_to receive(:warning)
         expect(video).to be_valid
       end
     end

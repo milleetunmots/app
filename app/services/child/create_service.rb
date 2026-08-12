@@ -211,7 +211,15 @@ class Child
     def send_not_supported_sms
       return unless @registration_origin == 4 && 'filtre-diplome-KO'.in?(@child.tag_list)
 
+      # find_or_create_by renvoie un objet non persisté si la création échoue
+      # (url refusée par la validation AllowedPattern) : sans ce garde-fou, le
+      # `media.redirection_target.id` ci-dessous fait échouer la création d'enfant.
       media = Media::Form.find_or_create_by(name: 'Lien - non accompagnement', url: ENV['NOT_SUPPORTED_LINK'])
+      unless media.persisted? && media.redirection_target
+        Rollbar.error('Child::CreateService#send_not_supported_sms : média indisponible', errors: media.errors.full_messages)
+        return
+      end
+
       message = "1001mots : Bonjour ! Suite à votre demande d'inscription, nous regrettons de ne pas pouvoir accompagner votre enfant. Les places sont limitées et attribuées selon des critères spécifiques. Toutefois, nous avons préparé un ensemble de conseils qui peuvent aider votre enfant à développer son langage. Vous les trouverez ici : {URL}"
       ProgramMessageService.new(Time.zone.now.next_day(3).strftime('%d-%m-%Y'), '12:30', ["child.#{@child.id}"], message, nil, media.redirection_target.id, false, nil, nil, ['not_supported']).call
     end

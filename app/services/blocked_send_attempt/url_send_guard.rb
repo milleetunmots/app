@@ -3,7 +3,13 @@ class BlockedSendAttempt::UrlSendGuard < BlockedSendAttempt::BaseSendGuard
   # Liste de TLD connus, partagée par les détections sans schéma et espacée : sans
   # elle, tout "mot.mot" (oubli d'espace après un point, très courant en SMS :
   # "ca va.Tu viens ?") deviendrait un faux positif.
-  KNOWN_TLDS = %w[com fr net org io co be ch ca eu info app dev me biz uk de es it nl pt].freeze
+  #
+  # de / ca / me / es / it en sont volontairement absents : ce sont aussi des mots
+  # français de début de phrase, et le point sans espace qui suit est fréquent en
+  # SMS ("ca va.De plus…", "10h.Ca marche ?"). Les garder faisait bloquer des
+  # messages légitimes. Un lien sur ces TLD reste détecté s'il porte son schéma
+  # (https://…) ou le préfixe www.
+  KNOWN_TLDS = %w[com fr net org io co be ch eu info app dev biz uk nl pt].freeze
 
   # Capture aussi les liens sans schéma (ex: "partenaire.fr/page") : TLD connu
   # obligatoire, sauf préfixe www. qui suffit à identifier un lien. Le lookahead
@@ -32,8 +38,20 @@ class BlockedSendAttempt::UrlSendGuard < BlockedSendAttempt::BaseSendGuard
     blocked_urls
   end
 
+  # Les patterns sont chargés une seule fois : un envoi de masse avec une variable
+  # {URL} ou {CALLx_CALENDLY_LINK} par destinataire produit autant d'URLs
+  # distinctes que de parents, et rechargeait la table pour chacune.
   def blocked_urls
-    @blocked_urls ||= (scan_urls + scan_spaced_domains).uniq.reject { |url| AllowedPattern.url_allowed?(normalize_url(url)) }
+    @blocked_urls ||=
+      begin
+        urls = (scan_urls + scan_spaced_domains).uniq
+        if urls.empty?
+          []
+        else
+          patterns = AllowedPattern.where(kind: 'url').to_a
+          urls.reject { |url| AllowedPattern.url_allowed?(normalize_url(url), patterns: patterns) }
+        end
+      end
   end
 
   private
