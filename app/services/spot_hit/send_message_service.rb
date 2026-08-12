@@ -49,7 +49,9 @@ class SpotHit::SendMessageService
       recipients = recipients.split(', ').to_h { |phone| [phone, {}] }
     end
     recipients.each do |phone_number, keys|
-      parent = Parent.find_by!(phone_number: phone_number)
+      parent = resolve_parent(phone_number)
+      next unless parent
+
       event_attributes = {
         related_id: parent.id,
         related_type: 'Parent',
@@ -61,7 +63,6 @@ class SpotHit::SendMessageService
       }.merge(@event_params[parent.id] || {})
       keys&.map { |key, value| event_attributes[:body].gsub!("{#{key}}", value.to_s) }
       event = Event.create(event_attributes)
-
       @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
 
       next unless @workshop
@@ -74,11 +75,22 @@ class SpotHit::SendMessageService
         occurred_at: @workshop.workshop_date
       )
     end
-
     return unless @workshop
 
-    unless @workshop.save
-      @errors << "Erreur lors de la sauvegarde de l'atelier #{@workshop.name}."
+    @errors << "Erreur lors de la sauvegarde de l'atelier #{@workshop.name}." unless @workshop.save
+  end
+
+  def resolve_parent(phone_number)
+    parents = Parent.kept.where(phone_number: phone_number)
+    case parents.count
+    when 0
+      @errors << "Impossible d'enregistrer le message dans l'historique : Parent non trouvé pour le numéro de téléphone #{phone_number}."
+      nil
+    when 1
+      parents.first
+    else
+      @errors << "Impossible d'enregistrer le message dans l'historique : Plusieurs parents ont le même numéro de téléphone #{phone_number}."
+      nil
     end
   end
 
