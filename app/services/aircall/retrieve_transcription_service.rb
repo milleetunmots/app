@@ -14,9 +14,9 @@ module Aircall
       return self unless ENV['AIRCALL_ENABLED']
 
       response = http_client_with_auth.get(@url)
-      if response.status.success?
-        body = JSON.parse(response.body)
-        @transcriptions = body['transcription']['content']['utterances']
+      transcription = parse_json_resource(response, 'transcription')
+      if transcription.is_a?(Hash)
+        @transcriptions = transcription['content']['utterances']
       else
         @errors << { message: "La récupération de la transcription de l'appel #{@call_id} a échoué : #{response.status.reason}", status: response.status.to_i }
       end

@@ -18,8 +18,8 @@ module Calendly
             organization: ORGANIZATION_URI
           }
         )
-        if response.status.success?
-          body = JSON.parse(response.body)
+        body = parse_json_response(response)
+        if body.is_a?(Hash) && body['collection'].is_a?(Array)
           @users.concat(body['collection'].map { |membership| membership['user']}).uniq!
           next_page = next_page_link(body)
           break if next_page.nil?

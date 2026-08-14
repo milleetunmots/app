@@ -1,5 +1,7 @@
 class SpotHit::SendMessageService
 
+  include JsonResponseConcern
+
   attr_reader :errors
 
   def initialize(recipients, planned_timestamp, message, file: nil, workshop_id: nil, event_params: {})
@@ -18,10 +20,12 @@ class SpotHit::SendMessageService
     form = safeguard(form) if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
 
     response = HTTP.post(uri, form: form)
-    if JSON.parse(response.body.to_s).key? 'erreurs'
-      @errors << "Erreur lors de la programmation de la campagne. [Réponse SPOT_HIT API #{response.body}]"
+    body = parse_json_response(response)
+
+    if !body.is_a?(Hash) || body.key?('erreurs')
+      @errors << "Erreur lors de la programmation de la campagne. [Réponse SPOT_HIT API #{json_error_message(response, body)}]"
     else
-      create_events(JSON.parse(response.body.to_s)['id'])
+      create_events(body['id'])
     end
   end
 

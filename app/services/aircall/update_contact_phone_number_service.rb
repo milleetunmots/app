@@ -23,8 +23,8 @@ module Aircall
 
       sleep(1)
       response = http_client_with_auth.put(@url, json: @contact_phone_number_form)
-      if response.status.success?
-        @phone_detail = JSON.parse(response)['phone_detail']
+      @phone_detail = parse_json_resource(response, 'phone_detail')
+      if @phone_detail.present?
         @parent.aircall_datas['phone_numbers'] = [@phone_detail]
         @parent.save
       else

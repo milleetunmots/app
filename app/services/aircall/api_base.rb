@@ -1,6 +1,8 @@
 module Aircall
   class ApiBase
 
+    include JsonResponseConcern
+
     BASE_URL = 'https://api.aircall.io'.freeze
     CONTACTS_ENDPOINT = '/v1/contacts'.freeze
     USERS_ENDPOINT = '/v1/users'.freeze

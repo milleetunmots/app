@@ -1,5 +1,7 @@
 class Event::UpdateTextMessageStatusService
 
+  include JsonResponseConcern
+
   def initialize(message_id_from_spot_hit:, status:)
     @message_id_from_spot_hit = message_id_from_spot_hit
     @status = status
@@ -26,8 +28,12 @@ class Event::UpdateTextMessageStatusService
       "key" => ENV["SPOT_HIT_API_KEY"],
       "id" => campaign_id
     }
-    @receipts = HTTP.post(uri, form: form)
-    @receipts = JSON.parse(@receipts.body.to_s)
+    response = HTTP.post(uri, form: form)
+    @receipts = parse_json_response(response)
+
+    # sans liste de reçus fiable, on ne touche à aucun statut : le fallback
+    # `spot_hit_status: 4` plus bas passerait toute la campagne en échec
+    return unless usable_receipts?(response, campaign_id)
 
     result = @receipts.map { |receipt| {phone_number: receipt[0], status: receipt[1] } }
 
@@ -36,6 +42,17 @@ class Event::UpdateTextMessageStatusService
 
       receipt.nil? ? message.update!(spot_hit_status: 4): message.update!(spot_hit_status: receipt[:status])
     end
+  end
+
+  def usable_receipts?(response, campaign_id)
+    return true if @receipts.is_a?(Hash) && !@receipts.key?('erreurs')
+
+    Rollbar.error(
+      'Event::UpdateTextMessageStatusService: réponse DLR inexploitable',
+      campaign_id: campaign_id,
+      response: json_error_message(response, @receipts)
+    )
+    false
   end
 
   def update_text_message(message_id, status)

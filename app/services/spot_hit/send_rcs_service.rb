@@ -1,5 +1,7 @@
 class SpotHit::SendRcsService
 
+  include JsonResponseConcern
+
   URL = URI('https://www.spot-hit.fr/api/envoyer/rcs')
 
   attr_reader :errors
@@ -50,11 +52,11 @@ class SpotHit::SendRcsService
       URL,
       form: @form.merge({ 'date' => Time.zone.at(@planned_timestamp).past? ? 1.minute.from_now.strftime('%Y-%m-%d %H:%M:%S') : Time.zone.at(@planned_timestamp).strftime('%Y-%m-%d %H:%M:%S') })
     )
-    response = JSON.parse(response.to_s)
-    if response['success']
-      create_events(response['campaign_id'])
+    body = parse_json_response(response)
+    if body.is_a?(Hash) && body['success']
+      create_events(body['campaign_id'])
     else
-      @errors << "Erreur lors de la programmation de la campagne : #{response['error']['message']}]"
+      @errors << "Erreur lors de la programmation de la campagne : #{json_error_message(response, body)}"
     end
   end
 

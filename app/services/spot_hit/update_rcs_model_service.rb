@@ -29,12 +29,10 @@ class SpotHit::UpdateRcsModelService < SpotHit::CreateRcsModelService
   def push_rcs_template
     download_image_to_tmp_file
     response = HTTP.post(URL, form: form_data)
-    parsed_response = JSON.parse(response.body.to_s)
+    parsed_response = parse_json_response(response)
+    failed = !parsed_response.is_a?(Hash) || parsed_response['success'] == false
 
-    if parsed_response['success'] == false
-      error_message = parsed_response['error']&.dig('message') || response.body.to_s
-      @errors << "Erreur lors de la modification du modèle RCS: #{error_message}"
-    end
+    @errors << "Erreur lors de la modification du modèle RCS: #{json_error_message(response, parsed_response)}" if failed
   rescue => e
     @errors << "Exception lors de la modification du modèle RCS: #{e.message}"
   ensure

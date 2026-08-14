@@ -3,6 +3,8 @@ module Events
 
     class RemoveUnprogrammedJob < ApplicationJob
 
+      include JsonResponseConcern
+
       def perform
         messages_by_campaign.each do |(product, spot_hit_id), messages|
           reconcile_campaign(product, spot_hit_id, messages)
@@ -76,9 +78,9 @@ module Events
 
       def spothit_check(params)
         raw_response = HTTP.get('https://www.spot-hit.fr/api/campaign/list', params: params)
-        response = JSON.parse(raw_response.body.to_s)
-        if response.is_a?(Hash) && response.key?('erreurs')
-          raise "Error: #{response}"
+        response = parse_json_response(raw_response)
+        if response.nil? || (response.is_a?(Hash) && response.key?('erreurs'))
+          raise "Error: #{json_error_message(raw_response, response)}"
         elsif response.empty?
           nil
           # response looks like

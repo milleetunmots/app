@@ -1,6 +1,8 @@
 module Calendly
   class ApiBase
 
+    include JsonResponseConcern
+
     ORGANIZATION_URI = ENV['CALENDLY_ORGANIZATION_URI']
 
     BASE_URL = 'https://api.calendly.com'.freeze

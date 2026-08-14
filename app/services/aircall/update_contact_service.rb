@@ -19,8 +19,8 @@ module Aircall
 
       sleep(1)
       response = http_client_with_auth.post(@url, json: @contact_form)
-      if response.status.success?
-        @contact = JSON.parse(response)['contact']
+      @contact = parse_json_resource(response, 'contact')
+      if @contact.is_a?(Hash)
         @parent.aircall_id = @contact['id']
         @parent.aircall_datas = @contact
         @parent.save
