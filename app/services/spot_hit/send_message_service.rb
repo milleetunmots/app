@@ -82,15 +82,11 @@ class SpotHit::SendMessageService
 
   def resolve_parent(phone_number)
     parents = Parent.kept.where(phone_number: phone_number)
-    case parents.count
-    when 0
+    if parents.empty?
       @errors << "Impossible d'enregistrer le message dans l'historique : Parent non trouvé pour le numéro de téléphone #{phone_number}."
       nil
-    when 1
-      parents.first
     else
-      @errors << "Impossible d'enregistrer le message dans l'historique : Plusieurs parents ont le même numéro de téléphone #{phone_number}."
-      nil
+      parents.first
     end
   end
 

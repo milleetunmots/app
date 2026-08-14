@@ -79,15 +79,26 @@ class Events::TextMessage
       end
 
       phone = Phonelib.parse(event_content['userId'].to_s.strip).e164
-      parent = Parent.find_by(phone_number: phone)
-      unless parent
+      if phone.blank?
+        Rollbar.error('spot_hit_rcs_data: unparsable userId', event_content: event_content)
+        return {}
+      end
+
+      parents = Parent.kept.where(phone_number: phone).order(:created_at)
+      if parents.empty?
         Rollbar.error('spot_hit_rcs_data: parent not found', event_content: event_content)
         return {}
       end
+
+      text_message = Events::TextMessage
+                     .where(spot_hit_rcs_id: campaign_id, related_type: 'Parent', related_id: parents.map(&:id))
+                     .order(:occurred_at)
+                     .last
+
       {
-        parent: parent,
+        parent: text_message&.related || parents.last,
         campaign_id: campaign_id,
-        text_message: Events::TextMessage.find_by(spot_hit_rcs_id: campaign_id, related_type: 'Parent', related_id: parent.id)
+        text_message: text_message
       }
     end
 
