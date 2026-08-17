@@ -37,8 +37,12 @@ module JsonResponseConcern
   # Message d'erreur lisible : détail fourni par l'API si on a pu le parser,
   # sinon repli sur le corps brut. Le statut est toujours inclus, sans quoi une
   # panne d'infra est indiscernable d'une erreur métier dans Rollbar.
+  #
+  # `body` est optionnel : les appelants qui gatent le succès sur
+  # `parse_json_response` n'ont rien à passer sur un 4xx/5xx, on re-parse le
+  # corps ici pour exploiter quand même le JSON d'erreur de l'API.
   def json_error_message(response, body = nil)
-    detail = json_error_detail(body)
+    detail = json_error_detail(body || parse_json_body(response))
     detail = response.body.to_s.truncate(500) if detail.blank?
 
     "HTTP #{response.status} — #{detail}"

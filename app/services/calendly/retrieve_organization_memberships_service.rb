@@ -26,7 +26,7 @@ module Calendly
 
           @url = next_page
         else
-          @errors << { message: "La récupération des utilisateurs a échoué : #{response.status.reason}", status: response.status.to_i }
+          @errors << { message: "La récupération des utilisateurs a échoué : #{json_error_message(response, body)}", status: response.status.to_i }
           break
         end
       end

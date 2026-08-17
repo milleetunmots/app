@@ -33,7 +33,7 @@ module Aircall
 
           @url = next_page
         else
-          @errors << { message: "La récupération de appels a échoué : #{response.status.reason}", status: response.status.to_i }
+          @errors << { message: "La récupération de appels a échoué : #{json_error_message(response, body)}", status: response.status.to_i }
           break
         end
       end

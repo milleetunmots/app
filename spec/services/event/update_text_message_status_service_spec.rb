@@ -70,4 +70,30 @@ RSpec.describe Event::UpdateTextMessageStatusService do
       expect(message2.reload.spot_hit_status).to eq(0)
     end
   end
+
+  # Un corps vide n'est pas une liste de reçus « tous en échec » : c'est le cas
+  # normal d'une campagne pas encore distribuée. Sans cette garde, le fallback
+  # `spot_hit_status: 4` basculait toute la campagne en échec.
+  [['an empty JSON object', '{}'], ['an empty JSON array', '[]']].each do |label, body|
+    context "when the DLR endpoint returns #{label}" do
+      before do
+        allow(Rollbar).to receive(:error)
+        stub_dlr(status: 200, body: body)
+      end
+
+      it 'leaves every status untouched' do
+        service
+        expect(message1.reload.spot_hit_status).to eq(0)
+        expect(message2.reload.spot_hit_status).to eq(0)
+      end
+
+      it 'reports the incident to Rollbar' do
+        service
+        expect(Rollbar).to have_received(:error).with(
+          'Event::UpdateTextMessageStatusService: réponse DLR inexploitable',
+          hash_including(campaign_id: campaign_id)
+        )
+      end
+    end
+  end
 end

@@ -25,7 +25,7 @@ module Aircall
         @parent.aircall_datas = contact
         @parent.save
       else
-        @errors << { message: "La création de contact a échoué : #{response.status.reason}", status: response.status.to_i }
+        @errors << { message: "La création de contact a échoué : #{json_error_message(response)}", status: response.status.to_i }
       end
       self
     end

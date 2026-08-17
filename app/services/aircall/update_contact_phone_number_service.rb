@@ -28,7 +28,7 @@ module Aircall
         @parent.aircall_datas['phone_numbers'] = [@phone_detail]
         @parent.save
       else
-        @errors << { message: "L'update du numéro de téléphone a échoué : #{response.status.reason}", status: response.status.to_i }
+        @errors << { message: "L'update du numéro de téléphone a échoué : #{json_error_message(response)}", status: response.status.to_i }
       end
       self
     end

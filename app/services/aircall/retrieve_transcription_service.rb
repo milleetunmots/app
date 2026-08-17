@@ -18,7 +18,7 @@ module Aircall
       if transcription.is_a?(Hash)
         @transcriptions = transcription['content']['utterances']
       else
-        @errors << { message: "La récupération de la transcription de l'appel #{@call_id} a échoué : #{response.status.reason}", status: response.status.to_i }
+        @errors << { message: "La récupération de la transcription de l'appel #{@call_id} a échoué : #{json_error_message(response)}", status: response.status.to_i }
       end
       self
     end

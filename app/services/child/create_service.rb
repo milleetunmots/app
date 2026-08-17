@@ -154,12 +154,21 @@ class Child
       eval25_message = "1001mots : Bonjour, votre inscription au programme 1001mots est confirmée. L'accompagnement va bientôt démarrer. A bientôt !"
 
       if ENV['EVAL25'].present? && @child.source.name == ENV['CAF93']
-        SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, eval25_message).call
+        report_message_errors(SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, eval25_message).call, 'SMS eval25')
       else
         Child::SendInitialFormSmsJob.set(wait: 2.hours).perform_later(@child.parent1_id, message) if @registration_origin == 4 || (@registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].nil?)
       end
 
-      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.change({ hour: 18 }).to_i, message).call if @registration_origin.in?([3, 5])
+      report_message_errors(SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.change({ hour: 18 }).to_i, message).call, 'SMS formulaire initial') if @registration_origin.in?([3, 5])
+    end
+
+    # Ces envois sont en « fire and forget » : sans cette remontée, une panne du
+    # fournisseur (réponse non-JSON) se solde par un SMS perdu en silence, alors
+    # qu'elle faisait auparavant échouer bruyamment l'appelant.
+    def report_message_errors(service, context)
+      return if service.errors.blank?
+
+      Rollbar.error("Child::CreateService — #{context} non envoyé : #{service.errors}", child_id: @child.id, parent_id: @child.parent1_id)
     end
 
     def parent1_present?
@@ -213,14 +222,17 @@ class Child
 
       media = Media::Form.find_or_create_by(name: 'Lien - non accompagnement', url: ENV['NOT_SUPPORTED_LINK'])
       message = "1001mots : Bonjour ! Suite à votre demande d'inscription, nous regrettons de ne pas pouvoir accompagner votre enfant. Les places sont limitées et attribuées selon des critères spécifiques. Toutefois, nous avons préparé un ensemble de conseils qui peuvent aider votre enfant à développer son langage. Vous les trouverez ici : {URL}"
-      ProgramMessageService.new(Time.zone.now.next_day(3).strftime('%d-%m-%Y'), '12:30', ["child.#{@child.id}"], message, nil, media.redirection_target.id, false, nil, nil, ['not_supported']).call
+      report_message_errors(
+        ProgramMessageService.new(Time.zone.now.next_day(3).strftime('%d-%m-%Y'), '12:30', ["child.#{@child.id}"], message, nil, media.redirection_target.id, false, nil, nil, ['not_supported']).call,
+        'SMS non accompagnement'
+      )
     end
 
     def send_instagram_message
       return unless @child.group_status.in? %w[active waiting]
 
       message = "1001mots : #{ENV['CAF_SUBSCRIPTION'].present? ? 'R' : 'En attendant que votre accompagnement 1001mots commence, r'}etrouvez sur Instagram nos idées d’activités et nos conseils pour occuper #{@child.first_name}, abonnez-vous ! #{ENV['INSTAGRAM_LINK']}"
-      SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.advance(days: 3).change({ hour: 18 }).to_i, message).call
+      report_message_errors(SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.advance(days: 3).change({ hour: 18 }).to_i, message).call, 'SMS Instagram')
     end
 
     def create_parent_registration

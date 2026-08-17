@@ -31,8 +31,7 @@ class Event::UpdateTextMessageStatusService
     response = HTTP.post(uri, form: form)
     @receipts = parse_json_response(response)
 
-    # sans liste de reçus fiable, on ne touche à aucun statut : le fallback
-    # `spot_hit_status: 4` plus bas passerait toute la campagne en échec
+    # sans liste de reçus fiable, on ne touche à aucun statut
     return unless usable_receipts?(response, campaign_id)
 
     result = @receipts.map { |receipt| {phone_number: receipt[0], status: receipt[1] } }
@@ -44,8 +43,12 @@ class Event::UpdateTextMessageStatusService
     end
   end
 
+  # Un corps vide (`{}` ou `[]`) n'est pas une liste de reçus « tous en échec » :
+  # c'est le cas normal d'une campagne pas encore distribuée. On l'écarte au même
+  # titre qu'une réponse illisible, sans quoi le fallback `spot_hit_status: 4`
+  # plus haut basculerait toute la campagne en échec.
   def usable_receipts?(response, campaign_id)
-    return true if @receipts.is_a?(Hash) && !@receipts.key?('erreurs')
+    return true if @receipts.is_a?(Hash) && @receipts.present? && !@receipts.key?('erreurs')
 
     Rollbar.error(
       'Event::UpdateTextMessageStatusService: réponse DLR inexploitable',

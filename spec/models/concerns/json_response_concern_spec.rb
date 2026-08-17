@@ -117,5 +117,16 @@ RSpec.describe JsonResponseConcern do
         expect(service.json_error_message(response, nil)).to include('502', 'error')
       end
     end
+
+    # Les appelants qui gatent le succès sur parse_json_response n'ont pas de
+    # corps parsé à passer sur un 4xx : on doit quand même exploiter le JSON
+    # d'erreur de l'API plutôt que recracher le corps brut.
+    context 'when no body is passed but the response carries a JSON error' do
+      before { stub_api(status: 400, body: { 'error' => { 'message' => 'Invalid template' } }.to_json) }
+
+      it 'parses the body itself to extract the detail' do
+        expect(service.json_error_message(response)).to eq('HTTP 400 Bad Request — Invalid template')
+      end
+    end
   end
 end
