@@ -152,4 +152,65 @@ RSpec.describe SpotHit::SendSmsService do
       end
     end
   end
+
+  describe '#call / create_events' do
+    let(:message) { 'Bonjour {PRENOM_ENFANT} !' }
+
+    before do
+      stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
+        .to_return(status: 200, body: { id: 4242 }.to_json, headers: { 'Content-Type' => 'application/json' })
+    end
+
+    subject(:service) { described_class.new(recipients, planned_timestamp, message).call }
+
+    context 'when two parents share the same phone number' do
+      let(:shared_phone) { '+33612349999' }
+      let!(:old_parent) { FactoryBot.create(:parent, phone_number: shared_phone, first_name: 'Ancien') }
+      let!(:new_parent) { FactoryBot.create(:parent, phone_number: shared_phone, first_name: 'Nouveau') }
+
+      context 'when recipients is a Hash keyed by parent id' do
+        let(:recipients) do
+          {
+            old_parent.id => { 'PRENOM_ENFANT' => 'Emma' },
+            new_parent.id => { 'PRENOM_ENFANT' => 'Lucas' }
+          }
+        end
+
+        it 'creates one event per parent, each attached to the right parent' do
+          expect { service }.to change(Event, :count).by(2)
+          expect(Event.find_by(related: old_parent).body).to eq('Bonjour Emma !')
+          expect(Event.find_by(related: new_parent).body).to eq('Bonjour Lucas !')
+        end
+
+        it 'sends phone numbers to Spot Hit, not parent ids' do
+          service
+          expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms').with do |req|
+            req.body.include?(CGI.escape(shared_phone)) && req.body.exclude?("destinataires%5B#{old_parent.id}%5D")
+          end)
+        end
+      end
+
+      context 'when recipients is an Array of parent ids' do
+        let(:message) { 'Bonjour !' }
+        let(:recipients) { [old_parent.id, new_parent.id] }
+
+        it 'creates one event per parent' do
+          expect { service }.to change(Event, :count).by(2)
+          expect(Event.pluck(:related_id)).to contain_exactly(old_parent.id, new_parent.id)
+        end
+      end
+    end
+
+    context 'when recipients is a String of comma-separated phone numbers' do
+      let(:message) { 'Bonjour !' }
+      let!(:parent1) { FactoryBot.create(:parent, phone_number: '+33612345678') }
+      let!(:parent2) { FactoryBot.create(:parent, phone_number: '+33687654321') }
+      let(:recipients) { "#{parent1.phone_number}, #{parent2.phone_number}" }
+
+      it 'still creates one event per parent' do
+        expect { service }.to change(Event, :count).by(2)
+        expect(Event.pluck(:related_id)).to contain_exactly(parent1.id, parent2.id)
+      end
+    end
+  end
 end

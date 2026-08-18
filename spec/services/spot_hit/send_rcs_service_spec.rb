@@ -302,5 +302,74 @@ RSpec.describe SpotHit::SendRcsService do
         end
       end
     end
+
+    context 'when two parents share the same phone number' do
+      let(:shared_phone) { '+33612349999' }
+      let!(:old_parent) { FactoryBot.create(:parent, phone_number: shared_phone, first_name: 'Ancien') }
+      let!(:new_parent) { FactoryBot.create(:parent, phone_number: shared_phone, first_name: 'Nouveau') }
+
+      context 'when recipients is a Hash keyed by parent id' do
+        let(:recipients) do
+          {
+            old_parent.id => { 'PRENOM_ENFANT' => 'Emma' },
+            new_parent.id => { 'PRENOM_ENFANT' => 'Lucas' }
+          }
+        end
+
+        it 'creates one event per parent, each attached to the right parent' do
+          expect { service }.to change(Event, :count).by(2)
+          expect(Event.find_by(related: old_parent).body).to eq('Bonjour Emma !')
+          expect(Event.find_by(related: new_parent).body).to eq('Bonjour Lucas !')
+        end
+
+        it 'sends phone numbers to Spot Hit, not parent ids' do
+          service
+          expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').with do |req|
+            req.body.include?(CGI.escape(shared_phone)) && req.body.exclude?("custom_list_with_data%5B#{old_parent.id}%5D")
+          end)
+        end
+      end
+
+      context 'when recipients is an Array of parent ids' do
+        let(:fallback_message) { 'Bonjour !' }
+        let(:recipients) { [old_parent.id, new_parent.id] }
+
+        it 'creates one event per parent' do
+          expect { service }.to change(Event, :count).by(2)
+          expect(Event.pluck(:related_id)).to contain_exactly(old_parent.id, new_parent.id)
+        end
+      end
+    end
+
+    context 'when a recipient has been discarded' do
+      let(:fallback_message) { 'Bonjour !' }
+      let!(:discarded_parent) { FactoryBot.create(:parent, phone_number: '+33612340000') }
+
+      before { discarded_parent.discard }
+
+      context 'when recipients is an Array of parent ids' do
+        let(:recipients) { [parent1.id, discarded_parent.id] }
+
+        it 'does not create an event for the discarded parent' do
+          expect { service }.to change(Event, :count).by(1)
+          expect(Event.last.related).to eq(parent1)
+        end
+
+        it 'does not send the message to the discarded parent' do
+          service
+          expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').with do |req|
+            req.body.exclude?(CGI.escape(discarded_parent.phone_number))
+          end)
+        end
+      end
+
+      context 'when recipients is a Hash keyed by phone number' do
+        let(:recipients) { { discarded_parent.phone_number => { 'PRENOM_ENFANT' => 'Emma' } } }
+
+        it 'creates no event at all' do
+          expect { service }.not_to change(Event, :count)
+        end
+      end
+    end
   end
 end

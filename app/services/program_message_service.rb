@@ -243,7 +243,7 @@ class ProgramMessageService
     if @parent_ids.many?
       @errors << "Un seul destinataire possible lors d'un envoi de message Aircall"
     elsif @redirection_target || @variables.any?
-      Parent.where(id: @parent_ids).find_each do |parent|
+      Parent.kept.where(id: @parent_ids).find_each do |parent|
         child_name = parent.current_child&.first_name || 'votre enfant'
         child_support_id = parent.current_child&.child_support&.id.to_s
         supporter_name = parent.current_child&.child_support&.supporter&.decorate&.first_name
@@ -264,31 +264,29 @@ class ProgramMessageService
   def add_recipient_data(parent, variable, value, error = nil)
     return unless @variables.include?(variable)
 
-    @recipient_data[parent.phone_number][variable] = value
+    @recipient_data[parent.id][variable] = value
     @errors << error if value.blank? && error.present?
   end
 
   # Unité de décompte du quota : le nombre de destinataires effectivement
   # transmis à Spot-Hit, après tous les filtres (accompagnante, statut de
   # cohorte, validité parent/enfant, exclusion des ateliers) et dédoublonné par
-  # numéro de téléphone. La longueur du message est indifférente.
-  # Trois formes possibles selon le canal : hash variables => destinataire,
-  # tableau de numéros (RCS sans variable), chaîne de numéros séparés par des
-  # virgules (SMS sans variable).
+  # numéro de téléphone. @recipient_data contient désormais des IDs parents ;
+  # la longueur du message est indifférente.
   def spot_hit_recipients_count
-    case @recipient_data
-    when Hash then @recipient_data.size
-    when Array then @recipient_data.uniq.size
-    when String then @recipient_data.split(', ').uniq.size
-    else 0
-    end
+    parent_ids = @recipient_data.is_a?(Hash) ? @recipient_data.keys : Array(@recipient_data)
+    Parent.kept.where(id: parent_ids).where.not(phone_number: nil).distinct.count(:phone_number)
   end
 
-  def format_data_for_spot_hit(rcs)
+  # @recipient_data est indexé par parent_id : un numéro de téléphone n'identifie
+  # pas un parent de façon unique (parents d'une même famille partageant un
+  # numéro, familles réinscrites plus tard). La conversion vers le numéro a lieu
+  # dans les services d'envoi Spot Hit.
+  def format_data_for_spot_hit(_rcs = false)
     if @redirection_target || @variables.any?
       @recipient_data = {}
-      Parent.where(id: @parent_ids).find_each do |parent|
-        @recipient_data[parent.phone_number] = {}
+      Parent.kept.where(id: @parent_ids).find_each do |parent|
+        @recipient_data[parent.id] = {}
         add_recipient_data(parent, 'PRENOM_ENFANT', parent.current_child&.first_name || 'votre enfant')
         add_recipient_data(parent, 'PARENT_SECURITY_TOKEN', parent.security_token)
         add_recipient_data(parent, 'PRENOM_ACCOMPAGNANTE', parent.current_child&.child_support&.supporter&.decorate&.first_name)
@@ -307,14 +305,13 @@ class ProgramMessageService
                            parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.cancel_url&.to_s,
                            "Le parent #{parent.id} ne dispose pas d'un lien d'annulation de rdv")
         if @redirection_target && parent.current_child.present?
-          @recipient_data[parent.phone_number]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
+          @recipient_data[parent.id]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
           (@parents_with_redirection ||= []) << parent
         end
       end
     else
-      @recipient_data = Parent.where(id: @parent_ids).pluck(:phone_number)
-      @recipient_data = @recipient_data.join(', ') unless rcs
+      @recipient_data = @parent_ids
     end
   end
 
@@ -359,21 +356,21 @@ class ProgramMessageService
     @tag_ids.each do |tag_id|
       # taggable_id = id of the parent in our case
       taggable_ids = Tagging.by_taggable_type('Parent').by_tag_id(tag_id).pluck(:taggable_id)
-      @parent_ids += Parent.where(id: taggable_ids).select(&:should_be_contacted?).pluck(:id)
+      @parent_ids += Parent.kept.where(id: taggable_ids).select(&:should_be_contacted?).pluck(:id)
     end
   end
 
   def filter_by_supporter
     return unless @supporter_id
 
-    parent1_ids = Parent.joins(parent1_children: :child_support).where(id: @parent_ids).where(child_support: { supporter_id: @supporter_id }).ids
-    parent2_ids = Parent.joins(parent2_children: :child_support).where(id: @parent_ids).where(child_support: { supporter_id: @supporter_id }).ids
+    parent1_ids = Parent.kept.joins(parent1_children: :child_support).where(id: @parent_ids).where(child_support: { supporter_id: @supporter_id }).ids
+    parent2_ids = Parent.kept.joins(parent2_children: :child_support).where(id: @parent_ids).where(child_support: { supporter_id: @supporter_id }).ids
     @parent_ids = (parent1_ids + parent2_ids).uniq
   end
 
   def filter_by_group_status
-    parent1_ids = Parent.joins(:parent1_children).where(id: @parent_ids).where(parent1_children: { group_status: @group_status }).ids
-    parent2_ids = Parent.joins(:parent2_children).where(id: @parent_ids).where(parent2_children: { group_status: @group_status }).ids
+    parent1_ids = Parent.kept.joins(:parent1_children).where(id: @parent_ids).where(parent1_children: { group_status: @group_status }).ids
+    parent2_ids = Parent.kept.joins(:parent2_children).where(id: @parent_ids).where(parent2_children: { group_status: @group_status }).ids
     @parent_ids = (parent1_ids + parent2_ids).uniq
   end
 

@@ -13,10 +13,10 @@ class SpotHit::SendMmsService < SpotHit::SendMessageService
 
     if @recipients.class == Array
       form.delete("destinataires_type")
-      form["destinataires"] = Parent.where(id: @recipients).pluck(:phone_number).join(", ")
+      form["destinataires"] = Parent.kept.where(id: @recipients).pluck(:phone_number).join(", ")
     else
       @recipients.each do |parent_id, keys|
-        parent = Parent.find(parent_id)
+        parent = Parent.kept.find(parent_id)
         keys.each { |key, value| form.store("destinataires[#{parent.phone_number}][#{key}]", value) }
       end
     end

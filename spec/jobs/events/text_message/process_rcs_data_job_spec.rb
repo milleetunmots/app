@@ -82,6 +82,99 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
         expect(text_message.is_fallback).to be(true)
       end
     end
+
+    context 'when two parents share the phone number targeted by the campaign' do
+      let(:initial_status) { 0 } # En attente
+      let!(:sibling_parent) { FactoryBot.create(:parent, phone_number: parent.phone_number, first_name: 'Nouveau') }
+      let!(:sibling_text_message) do
+        FactoryBot.create(
+          :text_message,
+          related: sibling_parent,
+          message_provider: 'spot_hit',
+          spot_hit_rcs_id: '45878',
+          spot_hit_status: 0
+        )
+      end
+
+      it 'applies the status to every event of the campaign for that number' do
+        expect(Rollbar).not_to receive(:error)
+        subject.perform_now(payload(status: 'DELIVERED', channel_id: 'rcs'))
+        expect(text_message.reload.spot_hit_status).to eq(1)
+        expect(sibling_text_message.reload.spot_hit_status).to eq(1)
+      end
+    end
+
+    context 'when one of the two parents sharing the number has been discarded' do
+      let(:initial_status) { 0 } # En attente
+      let!(:discarded_parent) { FactoryBot.create(:parent, phone_number: parent.phone_number, first_name: 'Supprime') }
+      let!(:discarded_parent_text_message) do
+        FactoryBot.create(
+          :text_message,
+          related: discarded_parent,
+          message_provider: 'spot_hit',
+          spot_hit_rcs_id: '45878',
+          spot_hit_status: 0
+        )
+      end
+
+      before { discarded_parent.discard }
+
+      it 'still updates the event of the discarded parent' do
+        expect(Rollbar).not_to receive(:error)
+        subject.perform_now(payload(status: 'DELIVERED', channel_id: 'rcs'))
+        expect(text_message.reload.spot_hit_status).to eq(1)
+        expect(discarded_parent_text_message.reload.spot_hit_status).to eq(1)
+      end
+    end
+
+    context 'when the only parent found for the number has been discarded' do
+      let(:initial_status) { 0 } # En attente
+
+      before { parent.discard }
+
+      it 'still updates the event' do
+        expect(Rollbar).not_to receive(:error)
+        subject.perform_now(payload(status: 'DELIVERED', channel_id: 'rcs'))
+        expect(text_message.reload.spot_hit_status).to eq(1)
+      end
+    end
+
+    context 'when a message is received from a number shared by a discarded and a kept parent' do
+      let(:initial_status) { 1 } # Livré
+      let!(:kept_parent) { FactoryBot.create(:parent, phone_number: parent.phone_number, first_name: 'Actif') }
+      let!(:kept_parent_text_message) do
+        FactoryBot.create(
+          :text_message,
+          related: kept_parent,
+          message_provider: 'spot_hit',
+          spot_hit_rcs_id: '45878',
+          spot_hit_status: 1
+        )
+      end
+
+      before { parent.discard }
+
+      def received_payload
+        {
+          'events' => [
+            {
+              'on' => Time.zone.now.iso8601,
+              'userMessageReceived' => {
+                'userId' => kept_parent.phone_number,
+                'context' => { 'campaign_id' => '45878' },
+                'content' => { 'text' => 'Merci !' }
+              }
+            }
+          ]
+        }
+      end
+
+      it 'attaches the received message to the parent still active' do
+        expect(Rollbar).not_to receive(:error)
+        expect { subject.perform_now(received_payload) }.to change(Events::TextMessage, :count).by(1)
+        expect(Events::TextMessage.order(:id).last.related).to eq(kept_parent)
+      end
+    end
   end
 
   describe '#perform parent resolution' do

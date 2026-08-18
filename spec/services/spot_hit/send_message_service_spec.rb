@@ -1,9 +1,10 @@
 require 'rails_helper'
 
 # SpotHit::SendMessageService is an abstract base: its methods are protected and
-# it has no public entry point of its own. Its shared logic (create_events /
-# resolve_parent) is exercised here through the concrete SpotHit::SendSmsService
-# subclass, which is the production path that reaches it.
+# it has no public entry point of its own. Its shared logic (create_events, et la
+# normalisation des destinataires de SpotHit::Recipients) is exercised here through
+# the concrete SpotHit::SendSmsService subclass, which is the production path that
+# reaches it.
 RSpec.describe SpotHit::SendMessageService do
   let(:parent1) { FactoryBot.create(:parent, phone_number: '0612345678') }
   let(:parent2) { FactoryBot.create(:parent, phone_number: '0687654321') }
@@ -135,14 +136,23 @@ RSpec.describe SpotHit::SendMessageService do
       let!(:parent_b) { FactoryBot.create(:parent, phone_number: '0655667788') }
       let(:recipients) { [parent_a.phone_number] }
 
-      it 'creates a single event without raising or erroring' do
-        expect { service }.to change(Event, :count).by(1)
+      # Spot Hit dédoublonne par numéro : un seul SMS part, mais les deux parents
+      # l'ont bien reçu, donc chacun doit le retrouver dans son historique.
+      it 'creates one event per parent sharing the number, without erroring' do
+        expect { service }.to change(Event, :count).by(2)
         expect(service.errors).to be_empty
       end
 
-      it 'attaches the event to one of the parents sharing the number' do
+      it 'attaches an event to each of the parents sharing the number' do
         service
-        expect([parent_a.id, parent_b.id]).to include(Event.last.related_id)
+        expect(Event.pluck(:related_id)).to contain_exactly(parent_a.id, parent_b.id)
+      end
+
+      it 'only sends the number once to Spot Hit' do
+        service
+        expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms').with do |req|
+          req.body.scan(CGI.escape(parent_a.phone_number)).size == 1
+        end)
       end
     end
   end

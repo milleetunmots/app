@@ -1,6 +1,7 @@
 class SpotHit::SendRcsService
 
   include JsonResponseConcern
+  include SpotHit::Recipients
 
   URL = URI('https://www.spot-hit.fr/api/envoyer/rcs')
 
@@ -60,19 +61,23 @@ class SpotHit::SendRcsService
     end
 
     if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
-      @recipients = safeguard_recipients(@recipients)
-      return if @recipients.empty?
+      restrict_recipients_to_safe_numbers!
+      return if recipient_variables.empty?
     end
-    if @recipients.first.is_a?(String)
-      @form['custom_list[]'] = @recipients
-    else
+
+    if personalized_recipients?
       # form params: custom_list_with_data[phone][variable]=value
       # same format as SMS with data but with custom_list_with_data instead of destinataires
-      @recipients.each do |phone, variables|
+      recipient_variables.each do |parent_id, variables|
+        phone_number = phone_numbers_by_parent_id[parent_id]
+        next if phone_number.blank?
+
         variables.each do |key, value|
-          @form["custom_list_with_data[#{phone}][#{key}]"] = value
+          @form["custom_list_with_data[#{phone_number}][#{key}]"] = value
         end
       end
+    else
+      @form['custom_list[]'] = recipient_phone_numbers
     end
     @form['date'] = Time.zone.now if Time.zone.at(@planned_timestamp).past?
     response = HTTP.post(
@@ -91,30 +96,19 @@ class SpotHit::SendRcsService
   # Les vraies URLs envoyées sont souvent dans les variables destinataires
   # ({URL}, {CALLx_CALENDLY_LINK}…), le message ne contenant que des placeholders.
   def recipient_variable_values
-    return [] unless @recipients.is_a?(Hash)
-
-    @recipients.values.flat_map { |variables| variables.respond_to?(:values) ? variables.values : [] }
+    recipient_variables.values.flat_map(&:values)
   end
 
-  def safeguard_recipients(recipients)
-    safe_numbers = ENV['SAFE_PHONE_NUMBERS'].to_s.split(',').map(&:strip)
-    case recipients
-    when Hash  then recipients.select { |phone, _| safe_numbers.include?(phone) }
-    when Array then recipients.select { |phone| safe_numbers.include?(phone) }
-    else            recipients
-    end
+  def recipient_history_label
+    'rcs'
   end
 
   def create_events(rcs_id)
-    recipients = @recipients
-    if recipients.is_a?(Array)
-      recipients = recipients.to_h { |phone| [phone, {}] }
-    elsif recipients.is_a?(String)
-      recipients = recipients.split(', ').to_h { |phone| [phone, {}] }
-    end
-    recipients.each do |phone_number, keys|
-      parent = resolve_parent(phone_number)
-      next unless parent
+    parents_by_id = Parent.where(id: recipient_variables.keys).index_by(&:id)
+
+    recipient_variables.each do |parent_id, keys|
+      parent = parents_by_id[parent_id]
+      @errors << "Erreur lors de la création de l'event d'envoi de rcs : parent #{parent_id} introuvable." and next if parent.nil?
 
       event_attributes = {
         related_id: parent.id,
@@ -143,15 +137,5 @@ class SpotHit::SendRcsService
     return unless @workshop
 
     @errors << "Erreur lors de la sauvegarde de l'atelier #{@workshop.name}." unless @workshop.save
-  end
-
-  def resolve_parent(phone_number)
-    parents = Parent.kept.where(phone_number: phone_number)
-    if parents.empty?
-      @errors << "Impossible d'enregistrer le rcs dans l'historique : Parent non trouvé pour le numéro de téléphone #{phone_number}."
-      nil
-    else
-      parents.first
-    end
   end
 end

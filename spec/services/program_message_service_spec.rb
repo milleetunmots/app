@@ -53,7 +53,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendRcsService).to(
         receive(:new).
         with(
-          recipients: [parent_3.phone_number],
+          recipients: [parent_3.id],
           planned_timestamp: Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           fallback_message: message,
           basic: true,
@@ -79,7 +79,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendRcsService).to(
         receive(:new).
         with(
-          recipients: [parent_3.phone_number],
+          recipients: [parent_3.id],
           planned_timestamp: Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           fallback_message: message,
           basic: true,
@@ -105,7 +105,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendSmsService).to(
         receive(:new).
         with(
-          parent_3.phone_number,
+          [parent_3.id],
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           long_message,
           workshop_id: nil,
@@ -130,7 +130,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendRcsService).to(
         receive(:new).
         with(
-          recipients: [parent_2.phone_number],
+          recipients: [parent_2.id],
           planned_timestamp: Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           fallback_message: message,
           basic: true,
@@ -156,7 +156,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendRcsService).to(
         receive(:new).
         with(
-          recipients: [parent_2.phone_number],
+          recipients: [parent_2.id],
           planned_timestamp: Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           fallback_message: 'N\'oubliez pas que votre enfant doit faire du sport.',
           basic: true,
@@ -190,7 +190,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendRcsService).to(
         receive(:new).
         with(
-          recipients: { parent_2.phone_number => {
+          recipients: { parent_2.id => {
             'URL' => 'http://localhost:3000/r/95/c6'
             }
           },
@@ -219,7 +219,7 @@ RSpec.describe ProgramMessageService do
       expect(SpotHit::SendRcsService).to(
         receive(:new).
         with(
-          recipients: { parent_2.phone_number =>
+          recipients: { parent_2.id =>
               {'URL' => 'http://localhost:3000/r/95/c6'}
           },
           planned_timestamp: Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
@@ -276,6 +276,51 @@ RSpec.describe ProgramMessageService do
       expect(service.errors).to eq(['Aucun parent à contacter.'])
     end
   end
+  context 'when the targeted parent has been discarded' do
+    let!(:discarded_parent) { FactoryBot.create(:parent, first_name: 'Supprime') }
+    let!(:discarded_parent_child) do
+      FactoryBot.create(
+        :child,
+        parent1_id: discarded_parent.id,
+        should_contact_parent1: true,
+        group_id: group.id,
+        group_status: 'active',
+        first_name: 'Nina'
+      )
+    end
+
+    before { discarded_parent.discard }
+
+    it 'does not send any message' do
+      expect(SpotHit::SendRcsService).not_to receive(:new)
+      expect(SpotHit::SendSmsService).not_to receive(:new)
+
+      service = ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{discarded_parent.id}"],
+        message
+      ).call
+
+      expect(service.errors).to eq(['Aucun parent à contacter.'])
+    end
+
+    it 'is excluded from a group wide sending' do
+      expect(SpotHit::SendRcsService).to(
+        receive(:new).
+        with(hash_including(recipients: [parent_2.id])).
+        and_call_original
+      )
+
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["group.#{group.id}"],
+        message
+      ).call
+    end
+  end
+
 
   context 'when the message contains a non-whitelisted URL' do
     let(:blocked_message) { 'Cliquez ici : https://non-whitelisted.example.com/page' }
