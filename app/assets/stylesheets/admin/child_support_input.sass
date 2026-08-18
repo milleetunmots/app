@@ -199,39 +199,66 @@
     color: black !important
     font-weight: bold
 
+// même grille que .resources-selects-row : les colonnes des deux rangées sont
+// alignées verticalement (lien n° 2 au-dessus du select n° 2, etc.)
+// la 3e colonne ne porte que « Briefing », d'où les deux premières plus larges
 .resource-links
-  list-style: none
-  padding: 0
-  margin: 0
-  display: flex
-  gap: 40px
+  display: grid
+  grid-template-columns: 2fr 2fr 1fr
+  align-items: start
+  width: 100%
+  gap: 12px
+  overflow-x: auto
 
-  li
-    display: inline-flex
+  // le composant Columns d'ActiveAdmin pose width/margin en style inline, ce qui
+  // s'applique aussi aux items de grille : on les neutralise pour que chaque
+  // colonne remplisse sa cellule
+  > .column
+    width: auto !important
+    margin-right: 0 !important
+    display: flex
     align-items: center
-
+    justify-content: flex-start
+    gap: 5px
+    white-space: nowrap
     a
       display: flex
       align-items: center
       gap: 5px
 
-    &.scripts-select
-      .select2-container
-        min-width: 200px
+    // colonne contenant plusieurs liens empilés : sa première ligne doit
+    // s'aligner sur celle des colonnes à un seul lien
+    &.stacked-links
+      align-items: flex-start
 
-      label
-        margin-right: 8px
+      ul
+        list-style: none
+        margin: 0
+        padding: 0
+        display: flex
+        flex-direction: column
+        gap: 4px
 
+      li
+        display: flex
+        align-items: center
+        gap: 5px
+
+  // div de clearfix ajouté par Columns#closing_tag
+  > div:not(.column)
+    display: none
+
+// grille identique à .resource-links pour l'alignement vertical des colonnes
 .resources-selects-row
-  display: flex
-  gap: 24px
+  display: grid
+  grid-template-columns: 2fr 2fr 1fr
+  gap: 12px
   margin-top: 8px
 
+  // ces inputs sont des <select> natifs (pas de select2) : leur largeur est
+  // celle de la colonne de grille, plafonnée par le min-width d'arctic_admin
   .resources-select-col
-    max-width: 220px
-
-    .select2-container
-      width: 100% !important
+    min-width: 0
 
 .avoid-disengagement-btn
   background-color: #5E6469

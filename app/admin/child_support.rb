@@ -558,26 +558,35 @@ ActiveAdmin.register ChildSupport do
                           end
                         end
                       if recommended_script_link.present?
-                        ul class: 'resource-links' do
-                          li link_to("Script recommandé\u00A0", recommended_script_link, target: '_blank', class: 'recommended_script', id: "call#{call_idx}_recommended_script") do
+                        columns class: 'columns resource-links' do
+                          column do
+                            text_node link_to("Script recommandé\u00A0", recommended_script_link, target: '_blank', class: 'recommended_script', id: "call#{call_idx}_recommended_script")
                             i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
                           end
 
                           if call_idx.in?([0, 1])
-                            li link_to("Vidéo recommandée\u00A0", resources_recommended_video_link(call_idx, resource.current_child&.months), target: '_blank', class: 'recommended_script') do
+                            column do
+                              text_node link_to("Vidéo recommandée\u00A0", resources_recommended_video_link(call_idx, resource.current_child&.months), target: '_blank', class: 'recommended_script')
                               i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
                             end
                           elsif call_idx.eql?(3) && resource.current_child&.months >= 9 && resource.current_child&.months <= 22
                             links = resources_recommended_video_link(call_idx, resource.current_child&.months)
-                            li link_to("Vidéo OBSERVEZ\u00A0", links.first, target: '_blank', class: 'recommended_script') do
-                              i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
-                            end
-                            li link_to("Vidéo PARLEZ\u00A0", links.second, target: '_blank', class: 'recommended_script') do
-                              i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
+                            column class: 'column stacked-links' do
+                              ul do
+                                li do
+                                  text_node link_to("Vidéo OBSERVEZ\u00A0", links.first, target: '_blank', class: 'recommended_script')
+                                  i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
+                                end
+                                li do
+                                  text_node link_to("Vidéo PARLEZ\u00A0", links.second, target: '_blank', class: 'recommended_script')
+                                  i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
+                                end
+                              end
                             end
                           end
 
-                          li link_to("Briefing\u00A0", resources_briefing_link(call_idx), target: '_blank', class: 'recommended_script') do
+                          column do
+                            text_node link_to("Briefing\u00A0", resources_briefing_link(call_idx), target: '_blank', class: 'recommended_script')
                             i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
                           end
                         end
