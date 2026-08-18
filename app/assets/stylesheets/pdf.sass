@@ -9,12 +9,14 @@
       display: inline-block
       width: $w
       height: $h
+      vertical-align: top
       overflow: hidden
       // border: 1px solid black
 
     .address-content, .gift-card-content
       display: table-cell
       vertical-align: middle
+      box-sizing: border-box
       width: $w
       height: $h
       text-align: center
@@ -28,6 +30,14 @@
       font-size: 15pt
       line-height: 22pt
       color: #431F78
+
+    .address-content--small
+      font-size: 12pt
+      line-height: 17pt
+
+    .address-content--tiny
+      font-size: 9pt
+      line-height: 12pt
 
     .gift-card-content
       table

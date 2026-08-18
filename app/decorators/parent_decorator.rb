@@ -56,20 +56,50 @@ class ParentDecorator < BaseDecorator
     r.join.html_safe
   end
 
-  def full_address(separator = '<br/>')
-    attention_to = model.attention_to&.upcase&.gsub('POUR', "A l'attention de")
-    full_address =
+  # Longueur max d'une ligne d'étiquette. L'AFNOR recommande 38 caractères ; au-delà
+  # il s'agit de texte libre saisi par le parent, qui pousserait la dernière ligne
+  # (code postal + ville) hors de l'étiquette de 44 mm.
+  LABEL_LINE_MAX_LENGTH = 44
+
+  # [caractères par ligne rendue, lignes tenant dans l'étiquette, classe CSS]
+  LABEL_FONT_TIERS = [
+    [26, 4, nil],
+    [33, 5, 'address-content--small'],
+    [44, 7, 'address-content--tiny']
+  ].freeze
+
+  def address_lines
+    attention_to = model.attention_to&.upcase&.sub(/\APOUR\b/, "A l'attention de")
+    lines =
       case model.book_delivery_location
       when 'home'
-        [letterbox_name.upcase, address]
+        [letterbox_name.to_s.upcase, address]
       when 'relative_home'
-        [letterbox_name.upcase, attention_to, address]
+        [letterbox_name.to_s.upcase, attention_to, address]
       else
-        [book_delivery_organisation_name.upcase, attention_to, address]
+        [book_delivery_organisation_name.to_s.upcase, attention_to, address]
       end
-    full_address << address_supplement if address_supplement.present?
-    full_address << [postal_code, city_name].join(' ')
-    full_address.join(separator).html_safe
+    lines << address_supplement if address_supplement.present?
+    lines << [postal_code, city_name].join(' ')
+    lines.compact_blank
+  end
+
+  def full_address(separator = '<br/>')
+    address_lines.join(separator).html_safe
+  end
+
+  def label_address_lines
+    address_lines.map { |line| line.squish.truncate(LABEL_LINE_MAX_LENGTH) }
+  end
+
+  # Réduit la police quand l'adresse ne tient pas dans l'étiquette, pour que la
+  # dernière ligne (code postal + ville) reste toujours visible.
+  def label_size_class
+    lines = label_address_lines
+    tier = LABEL_FONT_TIERS.find do |chars_per_line, max_rows, _css_class|
+      lines.sum { |line| [(line.length.to_f / chars_per_line).ceil, 1].max } <= max_rows
+    end
+    (tier || LABEL_FONT_TIERS.last).last
   end
 
   def icon_class

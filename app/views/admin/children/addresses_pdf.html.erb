@@ -5,8 +5,8 @@
     <% children_slice.each do |child| %>
 
       <div class="address">
-        <div class="address-content">
-          <%= child.full_address %>
+        <div class="address-content <%= child.label_size_class %>">
+          <%= safe_join(child.label_address_lines, tag.br) %>
         </div>
       </div>
 

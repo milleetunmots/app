@@ -249,17 +249,11 @@ ActiveAdmin.register Child do
                confirm: 'Cette action va taguer tous les éléments afin de les exclure des prochaines collectes. N’utilisez pas cette fonctionnalité à des fins de test. Continuer ?',
                if: proc { current_admin_user.user_role.in?(%w[reader contributor super_admin]) } do |ids|
     children = batch_action_collection.where(id: ids)
-    tag = Tag.find_or_create_by(name: 'collecte et envoi de livres mécènes', is_visible_by_callers_and_animators: false)
-
-    children.each do |child|
-      next unless child.child_support
-
-      child.child_support.tag_list += [tag]
-      child.child_support.save(validate: false)
-    end
-
     @children = children.decorate
     @debug = params.key?('debug')
+
+    # Le PDF est rendu avant le taguage : si wkhtmltopdf échoue, aucune famille
+    # n'est exclue des prochaines collectes.
     render pdf: 'etiquettes_mecenat',
            disposition: 'attachment',
            template: 'admin/children/addresses_pdf',
@@ -274,6 +268,19 @@ ActiveAdmin.register Child do
            disable_local_file_access: false,
            enable_local_file_access: true,
            progress: proc { |output| puts output }
+
+    tag = Tag.find_or_create_by(name: 'collecte et envoi de livres mecenes') do |t|
+      t.is_visible_by_callers_and_animators = false
+    end
+
+    ActiveRecord::Base.transaction do
+      children.each do |child|
+        next unless child.child_support
+
+        child.child_support.tag_list += [tag]
+        child.child_support.save(validate: false)
+      end
+    end
   end
 
   batch_action :send_address_verification_message,
