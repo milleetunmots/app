@@ -40,6 +40,7 @@ fr:
       redirection_url: URL courte
       scheduled_call: RDV Calendly
       source: Source d'inscription
+      sms_send_record: Envoi comptabilisé
       support_module: Module
       support_module_week: Semaine
       task: Tâche
@@ -57,6 +58,8 @@ fr:
         can_treat_task: Traite les tâches
         can_send_automatic_sms: Envoi d’un SMS auto aux familles en début de session
         can_export_data: Peut exporter des données
+        sms_hourly_recipients_limit: Plafond de destinataires par heure
+        sms_daily_recipients_limit: Plafond de destinataires par jour
         email: Email
         name: Nom
         user_role: Rôle
@@ -780,6 +783,10 @@ fr:
         pmi: PMI
         local_partner: Partenaire local
         other: Autre
+      sms_send_record:
+        << : *SHARED
+        admin_user: Utilisateur
+        recipients_count: Nombre de destinataires
       support_module:
         << : *SHARED
         ages: Tranche d'âge
