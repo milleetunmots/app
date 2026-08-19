@@ -156,6 +156,40 @@ RSpec.describe AllowedPattern, type: :model do
       end
     end
 
+    context 'urls non canoniques (saisies humaines : médiathèque, import Airtable)' do
+      before { FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'domain', value: 'form.typeform.com') }
+
+      it 'autorise une url sans schéma' do
+        expect(AllowedPattern.url_allowed?('form.typeform.com/to/abc')).to be true
+      end
+
+      it 'autorise un domaine nu' do
+        expect(AllowedPattern.url_allowed?('form.typeform.com')).to be true
+      end
+
+      it 'autorise une url sans schéma préfixée de www.' do
+        expect(AllowedPattern.url_allowed?('www.form.typeform.com/to/abc')).to be true
+      end
+
+      it 'autorise une url entourée d\'espaces' do
+        expect(AllowedPattern.url_allowed?('  https://form.typeform.com/to/abc  ')).to be true
+      end
+
+      it 'autorise une url dont le chemin contient des caractères non ascii' do
+        expect(AllowedPattern.url_allowed?('https://form.typeform.com/to/abc?prénom=Zoé')).to be true
+      end
+
+      it 'ne relâche pas le contrôle pour autant sur un domaine non autorisé sans schéma' do
+        expect(AllowedPattern.url_allowed?('form.typeform.com.attaquant.fr/to/abc')).to be false
+      end
+
+      it 'matche un pattern exact depuis une url saisie sans schéma' do
+        FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'exact', value: 'https://bit.ly/evenement')
+
+        expect(AllowedPattern.url_allowed?('bit.ly/evenement')).to be true
+      end
+    end
+
     context "domaine de l'app (liens de redirection /r/:id/:code)" do
       around do |example|
         previous = ENV.fetch('DEFAULT_HOSTNAME', nil)

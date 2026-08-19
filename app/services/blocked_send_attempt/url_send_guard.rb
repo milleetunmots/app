@@ -49,7 +49,7 @@ class BlockedSendAttempt::UrlSendGuard < BlockedSendAttempt::BaseSendGuard
           []
         else
           patterns = AllowedPattern.where(kind: 'url').to_a
-          urls.reject { |url| AllowedPattern.url_allowed?(normalize_url(url), patterns: patterns) }
+          urls.reject { |url| AllowedPattern.url_allowed?(url, patterns: patterns) }
         end
       end
   end
@@ -62,9 +62,5 @@ class BlockedSendAttempt::UrlSendGuard < BlockedSendAttempt::BaseSendGuard
 
   def scan_spaced_domains
     scannable_text.scan(SPACED_DOMAIN_REGEX).map { |match| match.gsub(/\s+/, '') }
-  end
-
-  def normalize_url(url)
-    url.match?(%r{\Ahttps?://}i) ? url : "https://#{url}"
   end
 end

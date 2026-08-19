@@ -75,7 +75,7 @@ ActiveAdmin.register Media::Document do
   # ---------------------------------------------------------------------------
 
   form do |f|
-    f.semantic_errors
+    f.semantic_errors(*f.object.errors.details.keys)
     f.inputs do
       f.input :folder,
               collection: medium_folder_select_collection,

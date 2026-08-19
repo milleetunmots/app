@@ -24,6 +24,9 @@ class AllowedPattern < ApplicationRecord
     'url' => %w[domain exact]
   }.freeze
 
+  # Schéma d'une url absolue (cf. canonicalize_url).
+  SCHEME_REGEX = %r{\A[a-z][a-z0-9+.-]*://}i
+
   # ---------------------------------------------------------------------------
   # validations
   # ---------------------------------------------------------------------------
@@ -61,12 +64,7 @@ class AllowedPattern < ApplicationRecord
     app_host = ENV.fetch('DEFAULT_HOSTNAME', nil)
     return false if app_host.blank?
 
-    host =
-      begin
-        URI.parse(url).host
-      rescue URI::InvalidURIError
-        nil
-      end
+    host = extract_host(url)
     host.present? && normalize_host(host) == normalize_host(app_host)
   end
 
@@ -74,12 +72,39 @@ class AllowedPattern < ApplicationRecord
     host.to_s.downcase.delete_prefix('www.')
   end
 
+  # Les urls contrôlées viennent de saisies humaines (médiathèque, import
+  # Airtable) ou de messages : espaces autour, et très souvent pas de schéma
+  # ("form.typeform.com/to/abc"). URI.parse voit alors un chemin et non un host,
+  # renvoie nil, et aucun pattern `domain` ne peut matcher : un domaine pourtant
+  # autorisé était refusé selon la façon dont l'url était écrite.
+  # On canonicalise donc systématiquement avant toute comparaison.
+  def self.canonicalize_url(url)
+    candidate = url.to_s.strip
+    return '' if candidate.empty?
+
+    candidate.match?(SCHEME_REGEX) ? candidate : "https://#{candidate}"
+  end
+
+  # URI.parse lève InvalidURIError dès qu'un caractère non ascii ou un espace
+  # traîne dans le chemin ou la query ("…/to/abc?prénom=Zoé") : sans le repli sur
+  # une url échappée, ces urls étaient elles aussi refusées.
+  def self.extract_host(url)
+    canonical = canonicalize_url(url)
+    URI.parse(canonical).host
+  rescue URI::Error
+    begin
+      URI.parse(URI::DEFAULT_PARSER.escape(canonical)).host
+    rescue URI::Error
+      nil
+    end
+  end
+
   # URI#normalize downcase le schéma et le host (et complète le chemin vide
   # en "/"), sans toucher à la casse du chemin.
   def self.normalize_exact_url(url)
-    URI.parse(url).normalize.to_s
+    URI.parse(canonicalize_url(url)).normalize.to_s
   rescue URI::Error
-    url
+    canonicalize_url(url)
   end
 
   def in_use?
@@ -109,7 +134,10 @@ class AllowedPattern < ApplicationRecord
 
     self.value = value.strip
     self.value = value.downcase if match_type == 'domain'
-    self.value = self.class.normalize_exact_url(value) if match_type == 'exact'
+    # Uniquement si la valeur est déjà une url absolue : canonicaliser une valeur
+    # sans schéma lui ajouterait le https:// que value_format_matches_match_type
+    # doit justement refuser sur un pattern `exact`.
+    self.value = self.class.normalize_exact_url(value) if match_type == 'exact' && absolute_url_value?
   end
 
   def match_type_allowed_for_kind
@@ -154,12 +182,7 @@ class AllowedPattern < ApplicationRecord
   end
 
   def host_matches_domain?(url)
-    host =
-      begin
-        URI.parse(url).host
-      rescue URI::InvalidURIError
-        nil
-      end
+    host = self.class.extract_host(url)
     return false if host.blank?
 
     normalized_host = self.class.normalize_host(host)
