@@ -52,6 +52,83 @@ RSpec.describe SpotHit::CreateRcsModelService do
       end
     end
 
+    context 'when the body contains a non-whitelisted URL' do
+      before do
+        text_messages_bundle.update_columns(body1: 'Regardez : https://non-whitelisted.example.com/page')
+        text_messages_bundle.reload
+      end
+
+      context 'with URL_FILTER_BLOCKING_ENABLED' do
+        around do |example|
+          previous = ENV['URL_FILTER_BLOCKING_ENABLED']
+          ENV['URL_FILTER_BLOCKING_ENABLED'] = 'true'
+          example.run
+          ENV['URL_FILTER_BLOCKING_ENABLED'] = previous
+        end
+
+        it 'refuses the template creation and records a BlockedSendAttempt' do
+          result = nil
+          expect { result = service }.to change(BlockedSendAttempt, :count).by(1)
+
+          expect(result.errors).to include('Ce message ne peut pas être envoyé, veuillez contacter le pôle tech.')
+          expect(result.rcs_media_id).to be_nil
+          expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
+        end
+
+        it 'creates the template when the URL is whitelisted' do
+          FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'domain', value: 'non-whitelisted.example.com')
+
+          expect(service.errors).to be_empty
+          expect(service.rcs_media_id).to eq(12345)
+        end
+      end
+
+      context 'quand l\'URL est dans le titre ou le libellé du CTA plutôt que le body' do
+        around do |example|
+          previous = ENV['URL_FILTER_BLOCKING_ENABLED']
+          ENV['URL_FILTER_BLOCKING_ENABLED'] = 'true'
+          example.run
+          ENV['URL_FILTER_BLOCKING_ENABLED'] = previous
+        end
+
+        it 'refuse un titre contenant une URL non whitelistée' do
+          text_messages_bundle.update_columns(body1: 'Message sans lien', rcs_title1: 'Promo https://non-whitelisted.example.com')
+          text_messages_bundle.reload
+
+          expect(service.errors).to include('Ce message ne peut pas être envoyé, veuillez contacter le pôle tech.')
+          expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
+        end
+
+        it 'refuse un libellé de CTA contenant un domaine non whitelisté' do
+          FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'domain', value: 'partenaire.fr')
+          link = FactoryBot.create(:media_video, url: 'https://partenaire.fr/video')
+          text_messages_bundle.update_columns(body1: 'Message sans lien', link1_id: link.id, rcs_cta_title1: 'site-inconnu.com')
+          text_messages_bundle.reload
+
+          expect(service.errors).to include('Ce message ne peut pas être envoyé, veuillez contacter le pôle tech.')
+          expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
+        end
+      end
+
+      context 'without URL_FILTER_BLOCKING_ENABLED (monitoring mode)' do
+        around do |example|
+          previous = ENV['URL_FILTER_BLOCKING_ENABLED']
+          ENV.delete('URL_FILTER_BLOCKING_ENABLED')
+          example.run
+          ENV['URL_FILTER_BLOCKING_ENABLED'] = previous
+        end
+
+        it 'still creates the template but tracks a not_blocked BlockedSendAttempt' do
+          result = nil
+          expect { result = service }.to change(BlockedSendAttempt, :count).by(1)
+
+          expect(result.errors).to be_empty
+          expect(result.rcs_media_id).to eq(12345)
+          expect(BlockedSendAttempt.last.status).to eq('not_blocked')
+        end
+      end
+    end
+
     context 'with invalid message_index' do
       let(:message_index) { 5 }
 

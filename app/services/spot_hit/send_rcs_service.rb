@@ -4,7 +4,7 @@ class SpotHit::SendRcsService
 
   attr_reader :errors
 
-  def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil, basic: false, workshop_id: nil, event_params: {})
+  def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil, basic: false, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil)
     @recipients = recipients
     @planned_timestamp = planned_timestamp
     @form = {
@@ -18,6 +18,8 @@ class SpotHit::SendRcsService
     @message = fallback_message
     @event_params = event_params
     @workshop = Workshop.find_by(id: workshop_id)
+    @replay_params = replay_params
+    @blocked_send_attempt_id = blocked_send_attempt_id
   end
 
   def call
@@ -30,6 +32,21 @@ class SpotHit::SendRcsService
   protected
 
   def send_rcs
+    guard = BlockedSendAttempt::SendGuard.new(
+      @message,
+      provider: 'spothit',
+      extra_texts: recipient_variable_values,
+      replay_params: @replay_params,
+      blocked_send_attempt_id: @blocked_send_attempt_id
+    )
+    if guard.blocked?
+      guard.register!
+      if guard.block_send?
+        @errors << guard.error_message
+        return
+      end
+    end
+
     if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
       @recipients = safeguard_recipients(@recipients)
       return if @recipients.empty?
@@ -56,6 +73,14 @@ class SpotHit::SendRcsService
     else
       @errors << "Erreur lors de la programmation de la campagne : #{response['error']['message']}]"
     end
+  end
+
+  # Les vraies URLs envoyées sont souvent dans les variables destinataires
+  # ({URL}, {CALLx_CALENDLY_LINK}…), le message ne contenant que des placeholders.
+  def recipient_variable_values
+    return [] unless @recipients.is_a?(Hash)
+
+    @recipients.values.flat_map { |variables| variables.respond_to?(:values) ? variables.values : [] }
   end
 
   def safeguard_recipients(recipients)

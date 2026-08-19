@@ -60,6 +60,11 @@ class Medium < ApplicationRecord
 
   include Discard::Model
 
+  # Types envoyables aux parents via un redirection_target : le message final ne
+  # contient que le short link de l'app (toujours autorisé), l'URL cible doit
+  # donc être contrôlée ici, à l'entrée dans la médiathèque.
+  FOR_REDIRECTION_TYPES = %w[Media::Form Media::Video].freeze
+
   # ---------------------------------------------------------------------------
   # relations
   # ---------------------------------------------------------------------------
@@ -82,6 +87,9 @@ class Medium < ApplicationRecord
   validates :name, presence: true
   validates :rcs_title1, :rcs_title2, :rcs_title3, length: { maximum: 200 }, allow_blank: true
   validates :rcs_cta_title1, :rcs_cta_title2, :rcs_cta_title3, length: { maximum: 25 }, allow_blank: true
+  # Uniquement quand l'url change : ne pas invalider les médias existants sur une
+  # modification sans rapport (nom, tags…).
+  validate :url_must_be_allowed, if: -> { url_changed? && url.present? && type.in?(FOR_REDIRECTION_TYPES) }
 
   # ---------------------------------------------------------------------------
   # scope
@@ -96,8 +104,22 @@ class Medium < ApplicationRecord
   scope :text_messages_bundle_drafts, -> { where(type: "Media::TextMessagesBundleDraft") }
 
   scope :for_redirections, -> {
-    where(type: %w[Media::Form Media::Video])
+    where(type: FOR_REDIRECTION_TYPES)
   }
+
+  # ---------------------------------------------------------------------------
+  # helpers
+  # ---------------------------------------------------------------------------
+
+  # Médias dont l'url serait refusée par le filtre. Le filtrage se fait en Ruby
+  # (les patterns ne sont pas exprimables en SQL), d'où un tableau et non un scope.
+  def self.refused_by_url_filter
+    patterns = AllowedPattern.where(kind: 'url').to_a
+
+    for_redirections.kept.where.not(url: [nil, '']).reject do |medium|
+      AllowedPattern.url_allowed?(medium.url, patterns: patterns)
+    end
+  end
 
   # ---------------------------------------------------------------------------
   # versions history
@@ -110,5 +132,25 @@ class Medium < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   acts_as_taggable
+
+  private
+
+  # Volontairement générique, comme BlockedSendAttempt::SendGuard::BLOCKED_MESSAGE :
+  # ne rien dire du mécanisme ni de la façon d'y échapper. La médiathèque est
+  # accessible aux contributeurs, qui n'ont pas accès aux patterns autorisés.
+  def url_must_be_allowed
+    return if AllowedPattern.url_allowed?(url)
+
+    # Mode surveillance : on laisse passer, mais on trace. L'url cible n'apparaît
+    # jamais dans le message envoyé (le parent reçoit le short link de l'app), le
+    # guard d'envoi ne peut donc pas la voir : sans cette alerte, rien ne signale
+    # le problème avant l'activation du filtre.
+    unless BlockedSendAttempt::UrlSendGuard.blocking_enabled?
+      Rollbar.warning('Medium : url qui serait refusée par le filtre', medium_id: id, type: type, name: name, url: url)
+      return
+    end
+
+    errors.add(:url, 'ne peut pas être enregistrée, veuillez contacter le pôle tech.')
+  end
 
 end

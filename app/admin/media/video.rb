@@ -94,7 +94,10 @@ ActiveAdmin.register Media::Video do
   collection_action :import_from_airtable do
     service = Video::ImportFromAirtableService.new.call
 
-    redirect_back(fallback_location: root_path, notice: "Nouvelles vidéos: #{service.new_videos.count}. Vidéos modifiées: #{service.updated_videos.count}")
+    notice = "Nouvelles vidéos: #{service.new_videos.count}. Vidéos modifiées: #{service.updated_videos.count}"
+    notice += ". Vidéos en échec: #{service.errors.count}" if service.errors.any?
+
+    redirect_back(fallback_location: root_path, notice: notice)
   end
 
   tags_params_attributes = [tags_params]

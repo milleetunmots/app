@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_08_03_120000) do
+ActiveRecord::Schema[7.0].define(version: 2026_08_12_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -135,6 +135,15 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_03_120000) do
     t.index ["question_id"], name: "index_answers_on_question_id"
   end
 
+  create_table "blocked_patterns", force: :cascade do |t|
+    t.string "kind", null: false
+    t.string "value", null: false
+    t.string "normalized_value", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["kind", "normalized_value"], name: "index_blocked_patterns_on_kind_and_normalized_value", unique: true
+  end
+
   create_table "blocked_send_attempts", force: :cascade do |t|
     t.string "provider", null: false
     t.string "kind", null: false
@@ -145,6 +154,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_03_120000) do
     t.datetime "resolved_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "force_send", default: false, null: false
     t.index ["status"], name: "index_blocked_send_attempts_on_status"
   end
 
