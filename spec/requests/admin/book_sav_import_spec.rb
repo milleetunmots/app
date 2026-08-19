@@ -13,7 +13,7 @@ RSpec.describe 'Admin book SAV import', type: :request do
 
   def csv_upload_with(content)
     file = Tempfile.new(['sav_import', '.csv'])
-    file.write(content)
+    file.write("Date d'envoi fichier SAV YLS,Children Support Modules → ID,Book condition\n#{content}")
     file.rewind
     Rack::Test::UploadedFile.new(file.path, 'text/csv')
   end

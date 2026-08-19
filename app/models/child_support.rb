@@ -645,8 +645,9 @@ class ChildSupport < ApplicationRecord
 
     return nil unless children_support_modules.with_books.exists?(
       book_condition: ChildrenSupportModule::CONDITIONS,
-      book_condition_changed_at: ...next_resend_date,
-      book_resent_on: nil
+      book_condition_changed_at: ...next_resend_date
+      # book_condition_changed_at: ...next_resend_date,
+      # book_resent_on: nil
     )
 
     next_resend_date

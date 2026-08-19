@@ -32,11 +32,20 @@
         headers: { 'X-CSRF-Token': csrfToken() },
         data: {
           id: $field.data('id'),
+          position: $field.data('position'),
           date: $input.val()
         }
       }).done(function(response) {
         $field.data('id', response.id);
-        toastr.success('Date de renvoi SAV mise à jour');
+
+        if (response.following) {
+          var $following = $banner.find('.book-shipment-date-field').eq(1);
+          $following.data('id', response.following.id);
+          $following.find('.book-shipment-date-input').val(response.following.date);
+        }
+
+        toastr.success(response.following ? 'Dates de renvoi SAV mises à jour' : 'Date de renvoi SAV mise à jour');
+        if (response.warning) toastr.warning(response.warning);
       }).fail(function(xhr) {
         var errors = (xhr.responseJSON && xhr.responseJSON.errors) || ['Erreur'];
         toastr.error(errors.join(', '));

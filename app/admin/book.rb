@@ -10,11 +10,24 @@ ActiveAdmin.register Book do
     shipment_date = BookShipmentDate.find_or_initialize_by(id: params[:id].presence)
     shipment_date.date = params[:date]
 
-    if shipment_date.save
-      render json: { ok: true, id: shipment_date.id }
-    else
+    unless shipment_date.save
       render json: { ok: false, errors: shipment_date.errors.full_messages }, status: :unprocessable_entity
+      return
     end
+
+    payload = { ok: true, id: shipment_date.id }
+
+    # Modifier la 1ère date décale la 2ème sur le cycle de 45 jours.
+    if params[:position].to_s == '0'
+      following = BookShipmentDate.reschedule_following(shipment_date)
+      if following.errors.any?
+        payload[:warning] = "La 2ème date n'a pas pu être recalculée : #{following.errors.full_messages.join(', ')}"
+      else
+        payload[:following] = { id: following.id, date: following.date.iso8601 }
+      end
+    end
+
+    render json: payload
   end
 
   action_item :sav_management, only: :index do

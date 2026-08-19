@@ -11,9 +11,13 @@ RSpec.describe Book::SavImportService do
     FactoryBot.create(:children_support_module, child: child, parent: child.parent1, book: book, book_condition: 'damaged', is_programmed: true)
   end
 
+  def csv_header
+    "Date d'envoi fichier SAV YLS,Children Support Modules → ID,Book condition\n"
+  end
+
   def csv_file_with(content)
     file = Tempfile.new(['sav_import', '.csv'])
-    file.write(content)
+    file.write(csv_header + content)
     file.rewind
     file
   end
@@ -44,7 +48,26 @@ RSpec.describe Book::SavImportService do
 
       expect(result.matched_count).to eq(0)
       expect(result.errors.size).to eq(1)
-      expect(result.errors.first[0]).to eq(1)
+      expect(result.errors.first[0]).to eq(2)
+    end
+
+    it 'ignores the header row' do
+      csv_file = csv_file_with('')
+
+      result = described_class.new(csv_file: csv_file).call
+
+      expect(result.matched_count).to eq(0)
+      expect(result.errors).to be_empty
+    end
+
+    it 'reports an error when the id is not a number' do
+      csv_file = csv_file_with("05/08/2026,ABC123,not_received\n")
+
+      result = described_class.new(csv_file: csv_file).call
+
+      expect(result.matched_count).to eq(0)
+      expect(result.errors.size).to eq(1)
+      expect(result.errors.first[1]).to include('Identifiant invalide')
     end
 
     it 'reports an error when the condition in the csv does not match the current book condition' do
@@ -59,6 +82,54 @@ RSpec.describe Book::SavImportService do
 
     it 'reports an error when the resend date is invalid' do
       csv_file = csv_file_with("not-a-date,#{not_received_module.id},not_received\n")
+
+      result = described_class.new(csv_file: csv_file).call
+
+      expect(result.matched_count).to eq(0)
+      expect(result.errors.size).to eq(1)
+    end
+
+    it 'reports an error when the year is written on two digits' do
+      csv_file = csv_file_with("05/08/26,#{not_received_module.id},not_received\n")
+
+      result = described_class.new(csv_file: csv_file).call
+
+      expect(result.matched_count).to eq(0)
+      expect(result.errors.size).to eq(1)
+      expect(not_received_module.reload.book_resent_on).to be_nil
+    end
+
+    it 'reports an error when the date is followed by extra text' do
+      csv_file = csv_file_with("05/08/2026 renvoyé,#{not_received_module.id},not_received\n")
+
+      result = described_class.new(csv_file: csv_file).call
+
+      expect(result.matched_count).to eq(0)
+      expect(result.errors.size).to eq(1)
+      expect(not_received_module.reload.book_resent_on).to be_nil
+    end
+
+    it 'reports an error when the day does not exist in the month' do
+      csv_file = csv_file_with("31/02/2026,#{not_received_module.id},not_received\n")
+
+      result = described_class.new(csv_file: csv_file).call
+
+      expect(result.matched_count).to eq(0)
+      expect(result.errors.size).to eq(1)
+    end
+
+    it 'reports an error when the book condition is not a known value' do
+      csv_file = csv_file_with("05/08/2026,#{not_received_module.id},non reçu\n")
+
+      result = described_class.new(csv_file: csv_file).call
+
+      expect(result.matched_count).to eq(0)
+      expect(result.errors.size).to eq(1)
+      expect(result.errors.first[1]).to include('Statut du livre invalide')
+    end
+
+    it 'reports an error when the book condition is missing' do
+      csv_file = csv_file_with("05/08/2026,#{not_received_module.id},\n")
 
       result = described_class.new(csv_file: csv_file).call
 
