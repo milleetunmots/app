@@ -34,10 +34,23 @@ module SpotHit::Recipients
     phone_numbers_by_parent_id.values.compact.uniq
   end
 
-  # Les formes sans variables (Array/String de numéros ou d'ids) ne portent aucune
-  # donnée de personnalisation : l'envoi se fait alors en liste simple.
+  # Les vraies URLs envoyées sont souvent dans les variables destinataires
+  # ({URL}, {CALLx_CALENDLY_LINK}…), le message ne contenant que des placeholders :
+  # les filtres d'URL et de mots-clés doivent donc aussi inspecter ces valeurs.
+  # La normalisation garantit déjà un Hash ; le test de type reste une ceinture de
+  # sécurité, ce filtre étant un contrôle de sécurité qui ne doit jamais planter.
+  def recipient_variable_values
+    recipient_variables.values.flat_map { |variables| variables.respond_to?(:values) ? variables.values : [] }
+  end
+
+  # Une forme Hash exprime une intention de personnalisation, même si toutes les
+  # variables se révèlent vides (message contenant un `{TOKEN}` non reconnu) : on
+  # reste alors en mode `datas`, que Spot Hit rejette, plutôt que de basculer en
+  # liste simple et de diffuser le message avec ses placeholders non substitués.
+  # Les formes Array/String ne portent aucune donnée de personnalisation.
   def personalized_recipients?
-    recipient_variables.values.any?(&:present?)
+    recipient_variables # force la normalisation
+    @personalized_recipients
   end
 
   # Restreint les destinataires aux numéros autorisés (dev / SPOT_HIT_SAFEGUARD).
@@ -50,22 +63,17 @@ module SpotHit::Recipients
 
   private
 
-  # Un envoi vers un numéro qui ne correspond à aucun parent actif part quand même
-  # chez Spot Hit, mais ne peut pas être tracé dans l'historique : on le signale.
-  # Seules les formes indexées par numéro sont concernées, celles indexées par
-  # `parent_id` n'ayant rien à résoudre.
+  # Un numéro qui ne correspond à aucun parent actif est retiré des destinataires :
+  # il n'est donc ni envoyé, ni traçable dans l'historique. On le signale pour que
+  # l'opérateur sache que ce destinataire a été écarté. Seules les formes indexées
+  # par numéro sont concernées, celles indexées par `parent_id` n'ayant rien à résoudre.
   def report_unresolved_phone_numbers(kept_variables)
     return if @requested_phone_numbers.blank?
 
     resolved = Parent.where(id: kept_variables.keys).pluck(:phone_number).uniq
     (@requested_phone_numbers.uniq - resolved).each do |phone|
-      @errors << "Impossible d'enregistrer le #{recipient_history_label} dans l'historique : Parent non trouvé pour le numéro de téléphone #{phone}."
+      @errors << "Message non envoyé pour certains destinataires : aucun parent actif ne correspond au numéro #{phone}."
     end
-  end
-
-  # Surchargé par les services dont l'historique parle d'autre chose qu'un message.
-  def recipient_history_label
-    'message'
   end
 
   # Un parent supprimé (discard) ne doit plus recevoir de message. Le filtrage a
@@ -78,6 +86,7 @@ module SpotHit::Recipients
   end
 
   def normalize_recipients(recipients)
+    @personalized_recipients = recipients.is_a?(Hash) && recipients.any?
     case recipients
     when Hash   then normalize_hash_recipients(recipients)
     when Array  then normalize_array_recipients(recipients)
@@ -87,14 +96,16 @@ module SpotHit::Recipients
     end
   end
 
+  # La valeur est toujours ramenée à un Hash : tout l'aval (construction du
+  # formulaire, filtres d'URL) itère dessus sans avoir à se garder du nil.
   def normalize_hash_recipients(recipients)
     return {} if recipients.empty?
-    return recipients.transform_keys(&:to_i) if recipients.keys.first.is_a?(Integer)
+    return recipients.to_h { |parent_id, variables| [parent_id.to_i, variables || {}] } if recipients.keys.first.is_a?(Integer)
 
     # Forme historique indexée par numéro : un numéro partagé alimente chacun des
     # parents qui le portent, pour que tous aient leur Event.
     recipients.each_with_object({}) do |(phone, variables), normalized|
-      parent_ids_for_phone_numbers([phone]).each { |parent_id| normalized[parent_id] = variables }
+      parent_ids_for_phone_numbers([phone]).each { |parent_id| normalized[parent_id] = variables || {} }
     end
   end
 

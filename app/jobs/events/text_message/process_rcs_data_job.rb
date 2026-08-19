@@ -96,11 +96,15 @@ class Events::TextMessage
         return {}
       end
 
+      # `originated_by_app` exclut les réponses entrantes : elles portent le même
+      # `spot_hit_rcs_id` que la campagne, et un callback de statut (READ…) les
+      # ferait basculer à « Lu » alors qu'elles viennent du parent, pas de nous.
       text_messages = Events::TextMessage.where(
         spot_hit_rcs_id: campaign_id,
         related_type: 'Parent',
-        related_id: parent_ids
-      ).to_a
+        related_id: parent_ids,
+        originated_by_app: true
+      ).order(:occurred_at).to_a
       {
         parent: parent_for_received_message(text_messages, parent_ids),
         campaign_id: campaign_id,
@@ -110,10 +114,13 @@ class Events::TextMessage
 
     # Un message entrant est rattaché en priorité à un parent encore actif, et à
     # celui à qui la campagne a réellement été envoyée.
+    # À défaut d'Event de campagne, on retombe sur le parent le plus récemment créé
+    # (et non un ordre arbitraire) : c'est celui de la réinscription la plus récente.
     def parent_for_received_message(text_messages, parent_ids)
       parents = text_messages.filter_map(&:related)
       parents.find(&:kept?) || parents.first ||
-        Parent.kept.where(id: parent_ids).first || Parent.find_by(id: parent_ids.first)
+        Parent.kept.where(id: parent_ids).order(:created_at).last ||
+        Parent.where(id: parent_ids).order(:created_at).last
     end
 
     def apply_rcs_status_change(event_content, text_message_datas, spot_hit_status)

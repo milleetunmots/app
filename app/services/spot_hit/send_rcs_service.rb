@@ -93,16 +93,6 @@ class SpotHit::SendRcsService
     end
   end
 
-  # Les vraies URLs envoyées sont souvent dans les variables destinataires
-  # ({URL}, {CALLx_CALENDLY_LINK}…), le message ne contenant que des placeholders.
-  def recipient_variable_values
-    recipient_variables.values.flat_map(&:values)
-  end
-
-  def recipient_history_label
-    'rcs'
-  end
-
   def create_events(rcs_id)
     parents_by_id = Parent.where(id: recipient_variables.keys).index_by(&:id)
 

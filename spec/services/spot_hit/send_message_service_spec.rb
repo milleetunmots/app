@@ -124,8 +124,8 @@ RSpec.describe SpotHit::SendMessageService do
 
       it 'reports one error per unresolved recipient' do
         expect(service.errors).to contain_exactly(
-          "Impossible d'enregistrer le message dans l'historique : Parent non trouvé pour le numéro de téléphone +33699999999.",
-          "Impossible d'enregistrer le message dans l'historique : Parent non trouvé pour le numéro de téléphone #{discarded_parent.phone_number}."
+          'Message non envoyé pour certains destinataires : aucun parent actif ne correspond au numéro +33699999999.',
+          "Message non envoyé pour certains destinataires : aucun parent actif ne correspond au numéro #{discarded_parent.phone_number}."
         )
       end
     end
@@ -153,6 +153,34 @@ RSpec.describe SpotHit::SendMessageService do
         expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms').with do |req|
           req.body.scan(CGI.escape(parent_a.phone_number)).size == 1
         end)
+      end
+    end
+
+    # Un {TOKEN} non reconnu laisse toutes les variables vides. L'envoi doit rester
+    # en mode `datas` (que Spot Hit rejette) plutôt que de basculer en liste simple
+    # et de diffuser le message avec son placeholder non substitué.
+    context 'when the message holds an unsupported variable' do
+      let(:message) { 'Bonjour {BAD_VARIABLE} !' }
+      let(:recipients) { { parent1.id => {}, parent2.id => {} } }
+
+      it 'does not broadcast the un-substituted message as a plain list' do
+        service
+        expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms').with do |req|
+          body = CGI.unescape(req.body)
+          body.include?('destinataires_type=datas') && !body.match?(/destinataires=\+\d/)
+        end)
+      end
+    end
+
+    # Le filtre d'URL / mots-clés inspecte aussi les variables destinataires : il
+    # doit tolérer un destinataire sans variables plutôt que de faire échouer l'envoi.
+    context 'when a recipient carries no variables hash' do
+      let(:message) { 'Bonjour !' }
+      let(:recipients) { { parent1.id => nil } }
+
+      it 'does not raise and still creates the event' do
+        expect { service }.to change(Event, :count).by(1)
+        expect(service.errors).to be_empty
       end
     end
   end

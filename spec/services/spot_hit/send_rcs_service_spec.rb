@@ -213,8 +213,8 @@ RSpec.describe SpotHit::SendRcsService do
 
       it 'reports one error per unresolved recipient' do
         expect(service.errors).to contain_exactly(
-          "Impossible d'enregistrer le rcs dans l'historique : Parent non trouvé pour le numéro de téléphone +33699999999.",
-          "Impossible d'enregistrer le rcs dans l'historique : Parent non trouvé pour le numéro de téléphone #{discarded_parent.phone_number}."
+          'Message non envoyé pour certains destinataires : aucun parent actif ne correspond au numéro +33699999999.',
+          "Message non envoyé pour certains destinataires : aucun parent actif ne correspond au numéro #{discarded_parent.phone_number}."
         )
       end
     end

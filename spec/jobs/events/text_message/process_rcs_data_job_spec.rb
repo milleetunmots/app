@@ -39,6 +39,29 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
       }
     end
 
+    # Une réponse entrante porte le même spot_hit_rcs_id que la campagne : un
+    # callback de statut ne doit jamais la réécrire, elle vient du parent.
+    context 'when the parent replied to the campaign' do
+      let(:initial_status) { 2 } # Envoyé
+      let!(:received_message) do
+        Events::TextMessage.create!(
+          related: parent,
+          body: 'Réponse du parent',
+          spot_hit_rcs_id: '45878',
+          spot_hit_status: 1,
+          occurred_at: 1.hour.ago,
+          originated_by_app: false
+        )
+      end
+
+      it 'applies the status to the sent message only' do
+        subject.perform_now(payload(status: 'READ', channel_id: 'rcs'))
+
+        expect(text_message.reload.spot_hit_status).to eq(6)
+        expect(received_message.reload.spot_hit_status).to eq(1)
+      end
+    end
+
     context 'when a retrograde status arrives on the rcs channel' do
       let(:initial_status) { 1 } # Livré
 

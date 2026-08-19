@@ -95,12 +95,6 @@ class SpotHit::SendMessageService
     @errors << "Erreur lors de la sauvegarde de l'atelier #{@workshop.name}." unless @workshop.save
   end
 
-  # Les vraies URLs envoyées sont souvent dans les variables destinataires
-  # ({URL}, {CALLx_CALENDLY_LINK}…), le message ne contenant que des placeholders.
-  def recipient_variable_values
-    recipient_variables.values.flat_map(&:values)
-  end
-
   # Seam pour les envois qui n'ont rien à voir avec le contenu destiné aux
   # familles (ex: code 2FA d'un administrateur) : voir SpotHit::SendAdminCodeService.
   def content_guard_enabled?
