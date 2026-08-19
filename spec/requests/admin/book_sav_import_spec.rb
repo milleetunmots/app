@@ -43,6 +43,15 @@ RSpec.describe 'Admin book SAV import', type: :request do
 
       expect(response.body).to include('1 ligne(s) en erreur')
     end
+
+    it 'renvoie au formulaire avec une alerte quand aucun fichier n\'est fourni' do
+      expect(Book::SavImportService).not_to receive(:new)
+
+      post '/admin/books/perform_sav_import'
+
+      expect(response).to redirect_to(new_sav_import_admin_books_path)
+      expect(flash[:alert]).to eq('Veuillez sélectionner un fichier csv.')
+    end
   end
 
   describe "alerte 'Renvoyé le' sur la fiche de suivi" do

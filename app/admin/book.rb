@@ -5,6 +5,8 @@ ActiveAdmin.register Book do
   actions :all, except: %i[new edit]
 
   collection_action :upsert_shipment_date, method: :post do
+    authorize!(:upsert_shipment_date, Book)
+
     shipment_date = BookShipmentDate.find_or_initialize_by(id: params[:id].presence)
     shipment_date.date = params[:date]
 
@@ -16,14 +18,23 @@ ActiveAdmin.register Book do
   end
 
   action_item :sav_management, only: :index do
-    link_to 'Gestion du SAV', new_sav_import_admin_books_path
+    link_to 'Gestion du SAV', new_sav_import_admin_books_path if authorized?(:sav_management, Book)
   end
 
   collection_action :new_sav_import do
+    authorize!(:sav_management, Book)
+
     @import_action = perform_sav_import_admin_books_path
   end
 
   collection_action :perform_sav_import, method: :post do
+    authorize!(:sav_management, Book)
+
+    if params[:csv_file].blank?
+      redirect_to new_sav_import_admin_books_path, alert: 'Veuillez sélectionner un fichier csv.'
+      return
+    end
+
     service = Book::SavImportService.new(csv_file: params[:csv_file]).call
     @matched_count = service.matched_count
     @errors = service.errors
@@ -35,8 +46,10 @@ ActiveAdmin.register Book do
   # ---------------------------------------------------------------------------
 
   index do
-    div do
-      render 'index_top'
+    if authorized?(:upsert_shipment_date, Book)
+      div do
+        render 'index_top'
+      end
     end
 
     selectable_column
