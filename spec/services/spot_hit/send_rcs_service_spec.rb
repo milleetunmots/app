@@ -160,6 +160,25 @@ RSpec.describe SpotHit::SendRcsService do
         end
       end
     end
+    
+    context 'when a recipient has no matching kept parent' do
+      let(:fallback_message) { 'Bonjour !' }
+      let(:discarded_parent) { FactoryBot.create(:parent, phone_number: '0611223344', discarded_at: Time.zone.now) }
+      let(:recipients) { [parent1.phone_number, '+33699999999', discarded_parent.phone_number, parent2.phone_number] }
+
+      it 'still creates the events of the other recipients' do
+        expect { service }.to change(Event, :count).by(2)
+        expect(Event.find_by(related: parent1)).to be_present
+        expect(Event.find_by(related: parent2)).to be_present
+      end
+
+      it 'reports one error per unresolved recipient' do
+        expect(service.errors).to contain_exactly(
+          "Impossible d'enregistrer le rcs dans l'historique : Parent non trouvé pour le numéro de téléphone +33699999999.",
+          "Impossible d'enregistrer le rcs dans l'historique : Parent non trouvé pour le numéro de téléphone #{discarded_parent.phone_number}."
+        )
+      end
+    end
 
     context 'when SPOT_HIT_SAFEGUARD is set' do
       let(:safe_parent) { FactoryBot.create(:parent, phone_number: '+33600000001') }

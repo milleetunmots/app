@@ -100,7 +100,9 @@ class SpotHit::SendRcsService
       recipients = recipients.split(', ').to_h { |phone| [phone, {}] }
     end
     recipients.each do |phone_number, keys|
-      parent = Parent.find_by!(phone_number: phone_number)
+      parent = resolve_parent(phone_number)
+      next unless parent
+
       event_attributes = {
         related_id: parent.id,
         related_type: 'Parent',
@@ -128,5 +130,15 @@ class SpotHit::SendRcsService
     return unless @workshop
 
     @errors << "Erreur lors de la sauvegarde de l'atelier #{@workshop.name}." unless @workshop.save
+  end
+
+  def resolve_parent(phone_number)
+    parents = Parent.kept.where(phone_number: phone_number)
+    if parents.empty?
+      @errors << "Impossible d'enregistrer le rcs dans l'historique : Parent non trouvé pour le numéro de téléphone #{phone_number}."
+      nil
+    else
+      parents.first
+    end
   end
 end
