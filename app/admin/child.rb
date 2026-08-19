@@ -97,7 +97,7 @@ ActiveAdmin.register Child do
           collection: proc { source_details_suggestions },
           input_html: { multiple: true, data: { select2: {} } },
           label: "Précisions sur l'origine"
-  filter :children_source_professional_email_cont,
+  filter :registration_professional_email_contains,
          as: :string,
          label: "Email d'inscription"
   filter :re_enrollment,

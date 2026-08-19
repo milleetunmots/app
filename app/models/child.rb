@@ -287,6 +287,17 @@ class Child < ApplicationRecord
     joins(:children_source).where(children_sources: { details: v })
   end
 
+  # info: on passe par une sous-requête et non par l'association children_source,
+  # sinon Ransack ajoute sa propre jointure sur children_sources. Comme les filtres
+  # Source et Canal occupent déjà cette table (via has_one :source, through:), la
+  # condition serait construite sur l'alias children_sources_children, absent du FROM.
+  def self.registration_professional_email_contains(value)
+    return all if value.blank?
+
+    where(id: ChildrenSource.where('professional_email ILIKE ?', "%#{sanitize_sql_like(value)}%")
+                            .select(:child_id))
+  end
+
   def self.re_enrollment_eq(v)
     return none unless v.in? [true, false]
 
@@ -769,7 +780,7 @@ class Child < ApplicationRecord
   end
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_details_matches_any book_delivery_location]
+    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_details_matches_any book_delivery_location registration_professional_email_contains]
   end
 
   def siblings_on_same_group
