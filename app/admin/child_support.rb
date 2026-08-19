@@ -558,20 +558,25 @@ ActiveAdmin.register ChildSupport do
                           end
                         end
                       if recommended_script_link.present?
+                        stacked_video_links = call_idx.eql?(3) && resource.current_child&.months >= 9 && resource.current_child&.months <= 22
                         columns class: 'columns resource-links' do
                           column do
                             text_node link_to("Script recommandé\u00A0", recommended_script_link, target: '_blank', class: 'recommended_script', id: "call#{call_idx}_recommended_script")
                             i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
                           end
 
-                          if call_idx.in?([0, 1])
-                            column do
-                              text_node link_to("Vidéo recommandée\u00A0", resources_recommended_video_link(call_idx, resource.current_child&.months), target: '_blank', class: 'recommended_script')
-                              i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
-                            end
-                          elsif call_idx.eql?(3) && resource.current_child&.months >= 9 && resource.current_child&.months <= 22
-                            links = resources_recommended_video_link(call_idx, resource.current_child&.months)
-                            column class: 'column stacked-links' do
+                          # « Briefing » garde sa place à droite de la rangée mais partage la
+                          # 2e colonne avec la vidéo recommandée : la grille ne compte que
+                          # 2 colonnes, pour que chaque select de la rangée du dessous occupe
+                          # la moitié de la largeur du panneau
+                          column class: "column video-and-briefing#{' stacked-links' if stacked_video_links}" do
+                            if call_idx.in?([0, 1])
+                              span class: 'resource-link' do
+                                text_node link_to("Vidéo recommandée\u00A0", resources_recommended_video_link(call_idx, resource.current_child&.months), target: '_blank', class: 'recommended_script')
+                                i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
+                              end
+                            elsif stacked_video_links
+                              links = resources_recommended_video_link(call_idx, resource.current_child&.months)
                               ul do
                                 li do
                                   text_node link_to("Vidéo OBSERVEZ\u00A0", links.first, target: '_blank', class: 'recommended_script')
@@ -583,11 +588,10 @@ ActiveAdmin.register ChildSupport do
                                 end
                               end
                             end
-                          end
-
-                          column do
-                            text_node link_to("Briefing\u00A0", resources_briefing_link(call_idx), target: '_blank', class: 'recommended_script')
-                            i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
+                            span class: 'resource-link briefing-link' do
+                              text_node link_to("Briefing\u00A0", resources_briefing_link(call_idx), target: '_blank', class: 'recommended_script')
+                              i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
+                            end
                           end
                         end
                         if call_idx == 2 && !call0_failed && !call1_failed && ENV['OLD_CALL2_SCRIPT_FEATURE_FLAG'].present?
