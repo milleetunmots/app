@@ -57,7 +57,10 @@ RSpec.describe Child::CreateService do
     context "when registration_origin = 3" do
       let(:registration_origin) { 3 }
 
-      before { expect_any_instance_of(SpotHit::SendSmsService).to receive(:errors).and_return([]) }
+      # `allow` et non `expect` : plusieurs envois du parcours d'inscription
+      # lisent maintenant `errors` pour les remonter à Rollbar, et
+      # `expect_any_instance_of` n'admet qu'une seule instance réceptrice.
+      before { allow_any_instance_of(SpotHit::SendSmsService).to receive(:errors).and_return([]) }
 
       it "adds 'inscription3' tag" do
         child_count = Child.count
@@ -70,7 +73,10 @@ RSpec.describe Child::CreateService do
     context "when registration_origin = 2" do
       let(:registration_origin) { 2 }
 
-      before { expect_any_instance_of(SpotHit::SendSmsService).to receive(:errors).and_return([]) }
+      # `allow` et non `expect` : plusieurs envois du parcours d'inscription
+      # lisent maintenant `errors` pour les remonter à Rollbar, et
+      # `expect_any_instance_of` n'admet qu'une seule instance réceptrice.
+      before { allow_any_instance_of(SpotHit::SendSmsService).to receive(:errors).and_return([]) }
 
       it "adds 'inscriptioncaf' tag" do
         child_count = Child.count

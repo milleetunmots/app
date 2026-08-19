@@ -41,8 +41,8 @@ module Calendly
         json: build_request_body
       )
       sleep(0.25)
-      if response.status.success?
-        body = JSON.parse(response.body)
+      body = parse_json_body(response)
+      if response.status.success? && body.present?
         # get scheduling_url or booking_url from response
         @booking_url = extract_booking_url(body)
         @booking_url = add_utm_params(@booking_url, parent) if @booking_url
@@ -55,7 +55,7 @@ module Calendly
           parent_id: parent.id,
           supporter_id: @supporter.id,
           call_session: @call_session,
-          error: (JSON.parse(response.body) rescue response.body)
+          error: body || response.body.to_s.truncate(500)
         }
       end
     end

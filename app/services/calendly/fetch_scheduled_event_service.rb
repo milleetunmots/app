@@ -16,14 +16,14 @@ module Calendly
 
       response = http_client_with_auth.get(@event_uri)
       status = response.status
-      body = JSON.parse(response.body)
+      body = parse_json_body(response) || {}
 
-      if status.success?
+      if status.success? && body['resource'].present?
         @event_data = parse_event_data(body['resource'])
       else
         @errors << {
           message: "Échec de la récupération de l'événement",
-          details: body['message'] || body['title'],
+          details: body['message'] || body['title'] || response.body.to_s.truncate(500),
           event_uri: @event_uri
         }
       end

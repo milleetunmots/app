@@ -1,5 +1,7 @@
 class SpotHit::CreateRcsModelService
 
+  include JsonResponseConcern
+
   URL = 'https://www.spot-hit.fr/api/rcs/model/create'.freeze
 
   attr_reader :errors, :rcs_media_id
@@ -93,13 +95,12 @@ class SpotHit::CreateRcsModelService
   def push_rcs_template
     download_image_to_tmp_file
     response = HTTP.post(URL, form: form_data)
-    parsed_response = JSON.parse(response.body.to_s)
+    parsed_response = parse_json_response(response)
 
-    if parsed_response['success'] == true && parsed_response['id'].present?
+    if parsed_response.is_a?(Hash) && parsed_response['success'] == true && parsed_response['id'].present?
       @rcs_media_id = parsed_response['id']
     else
-      error_message = parsed_response['error']&.dig('message') || response.body.to_s
-      @errors << "Erreur lors de la création du modèle RCS: #{error_message}"
+      @errors << "Erreur lors de la création du modèle RCS: #{json_error_message(response, parsed_response)}"
     end
   rescue => e
     @errors << "Exception lors de la création du modèle RCS: #{e.message}"

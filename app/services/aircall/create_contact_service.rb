@@ -19,13 +19,13 @@ module Aircall
 
       sleep(1)
       response = http_client_with_auth.post(build_url(CONTACTS_ENDPOINT), json: @contact_form)
-      if response.status.success?
-        contact = JSON.parse(response)['contact']
+      contact = parse_json_resource(response, 'contact')
+      if contact.is_a?(Hash)
         @parent.aircall_id = contact['id']
         @parent.aircall_datas = contact
         @parent.save
       else
-        @errors << { message: "La création de contact a échoué : #{response.status.reason}", status: response.status.to_i }
+        @errors << { message: "La création de contact a échoué : #{json_error_message(response)}", status: response.status.to_i }
       end
       self
     end
