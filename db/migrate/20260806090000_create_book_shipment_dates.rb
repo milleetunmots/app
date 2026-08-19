@@ -1,4 +1,4 @@
-class CreateBookShipmentDates < ActiveRecord::Migration[6.1]
+class CreateBookShipmentDates < ActiveRecord::Migration[7.0]
 
   def change
     create_table :book_shipment_dates do |t|

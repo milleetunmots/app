@@ -499,7 +499,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_12_100000) do
     t.integer "module_index"
     t.bigint "book_id"
     t.string "book_condition"
-    t.datetime "book_condition_changed_at", precision: nil
+    t.datetime "book_condition_changed_at"
     t.date "book_resent_on"
     t.index ["book_id"], name: "index_children_support_modules_on_book_id"
     t.index ["child_id"], name: "index_children_support_modules_on_child_id"

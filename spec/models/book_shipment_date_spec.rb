@@ -1,3 +1,16 @@
+# == Schema Information
+#
+# Table name: book_shipment_dates
+#
+#  id         :bigint           not null, primary key
+#  date       :date             not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+# Indexes
+#
+#  index_book_shipment_dates_on_date  (date) UNIQUE
+#
 require 'rails_helper'
 
 RSpec.describe BookShipmentDate do
