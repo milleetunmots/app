@@ -150,6 +150,98 @@ RSpec.describe SmsSendRecord::QuotaGuard, type: :service do
         described_class.new(admin_user, 5).reserve!
       end
     end
+
+    context 'alerte de blocage' do
+      # L'email est dans le libellé et non dans le payload : c'est ce qui fait
+      # créer à Rollbar un item par utilisatrice, donc une notification Slack
+      # dès qu'une nouvelle personne atteint son plafond.
+      let(:label) { "SmsSendRecord::QuotaGuard : envoi bloqué — #{admin_user.email}" }
+
+      it 'alerte quand le plafond horaire bloque' do
+        consume(50, 10.minutes.ago)
+
+        expect(Rollbar).to receive(:warning).with(label, hash_including(exceeded_windows: ['horaire']))
+
+        described_class.new(admin_user, 1).reserve!
+      end
+
+      it 'alerte quand seul le plafond journalier bloque' do
+        consume(200, 5.hours.ago)
+
+        expect(Rollbar).to receive(:warning).with(label, hash_including(exceeded_windows: ['journalier']))
+
+        described_class.new(admin_user, 1).reserve!
+      end
+
+      it 'nomme les deux fenêtres quand les deux sont franchies' do
+        consume(200, 10.minutes.ago)
+
+        expect(Rollbar).to receive(:warning).with(label, hash_including(exceeded_windows: %w[horaire journalier]))
+
+        described_class.new(admin_user, 1).reserve!
+      end
+
+      it 'porte les compteurs de consommation et les plafonds' do
+        consume(30, 10.minutes.ago)
+        consume(120, 5.hours.ago)
+
+        expect(Rollbar).to receive(:warning).with(
+          label,
+          hash_including(
+            admin_user_id: admin_user.id,
+            recipients_count: 40,
+            consumed_hourly: 30,
+            consumed_daily: 150,
+            hourly_limit: 50,
+            daily_limit: 200
+          )
+        )
+
+        described_class.new(admin_user, 40).reserve!
+      end
+
+      it "n'alerte pas quand l'envoi passe" do
+        consume(10, 30.minutes.ago)
+
+        expect(Rollbar).not_to receive(:warning)
+
+        described_class.new(admin_user, 5).reserve!
+      end
+
+      it "n'alerte pas pour les périmètres exclus" do
+        super_admin = FactoryBot.create(:admin_user, user_role: 'super_admin')
+        consume(500, 10.minutes.ago, user: super_admin)
+
+        expect(Rollbar).not_to receive(:warning)
+
+        described_class.new(nil, 500).reserve!
+        described_class.new(super_admin, 100).reserve!
+      end
+
+      it "n'alerte pas pour un envoi sans destinataire" do
+        consume(50, 10.minutes.ago)
+
+        expect(Rollbar).not_to receive(:warning)
+
+        described_class.new(admin_user, 0).reserve!
+      end
+
+      # L'invariant qui justifie d'alerter après le commit : `Rollbar.warning`
+      # est synchrone, l'appeler sous le SELECT … FOR UPDATE retiendrait le
+      # verrou de la ligne admin_users pendant l'aller-retour HTTP. On compare
+      # des profondeurs plutôt que d'attendre zéro, à cause de la transaction
+      # que DatabaseCleaner ouvre autour de chaque exemple.
+      it 'alerte hors de la transaction, pour ne pas retenir le verrou' do
+        consume(50, 10.minutes.ago)
+        depth_outside = ActiveRecord::Base.connection.open_transactions
+        depth_at_alert = nil
+        allow(Rollbar).to receive(:warning) { depth_at_alert = ActiveRecord::Base.connection.open_transactions }
+
+        described_class.new(admin_user, 1).reserve!
+
+        expect(depth_at_alert).to eq(depth_outside)
+      end
+    end
   end
 
   describe '#release!' do

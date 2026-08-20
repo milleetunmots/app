@@ -221,7 +221,7 @@ RSpec.describe 'Plafonnement des envois Spot-Hit', type: :request do
       get "/admin/admin_users/#{target.id}/edit"
 
       expect(response.body).to include('Plafond de destinataires par heure')
-      expect(response.body).to include('Plafond de destinataires par 24 h')
+      expect(response.body).to include('Plafond de destinataires par jour')
     end
 
     it 'ne les expose pas à un contributeur' do
