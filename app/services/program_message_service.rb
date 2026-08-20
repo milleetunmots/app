@@ -5,7 +5,7 @@ class ProgramMessageService
 
   attr_reader :errors
 
-  def initialize(planned_date, planned_hour, recipients, message, rcs_media_id = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil, blocked_send_attempt: nil)
+  def initialize(planned_date, planned_hour, recipients, message, rcs_media_id = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil, blocked_send_attempt: nil, acting_admin_user: nil)
     @replay_params = {
       planned_date: planned_date,
       planned_hour: planned_hour,
@@ -41,6 +41,14 @@ class ProgramMessageService
     @provider = provider
     @aircall_number_id = aircall_number_id
     @errors = []
+    # AdminUser à l'origine de l'envoi, transmis uniquement par les envois
+    # manuels (formulaire Message, batch actions, atelier) : c'est lui que le
+    # quota anti-fraude décompte. Les envois automatiques ne le passent pas et
+    # ne sont donc ni limités ni décomptés. Volontairement absent de
+    # @replay_params : la relance d'un envoi bloqué est une action super_admin,
+    # donc exemptée par nature.
+    @acting_admin_user = acting_admin_user
+    @quota_exceeded = false
   end
 
   def call
@@ -102,6 +110,15 @@ class ProgramMessageService
       Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(@aircall_number_id, parent&.phone_number, @message, event.id, @replay_params, @blocked_send_attempt_id)
       @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
     when 'spothit'
+      # Garde anti-fraude : le quota est réservé avant tout appel au provider, sur
+      # le nombre de destinataires réellement transmis à Spot-Hit. Placée ici, la
+      # garde couvre les trois routes (RCS avec média, RCS basic, SMS) : un
+      # message de moins de 160 octets part en RCS basic et échapperait au
+      # plafond si seul le chemin SMS était gardé.
+      quota_guard = SmsSendRecord::QuotaGuard.new(@acting_admin_user, spot_hit_recipients_count)
+      @quota_exceeded = !quota_guard.reserve!
+      @errors << quota_guard.error_message and return self if @quota_exceeded
+
       service =
         if @rcs_media_id.present?
           SpotHit::SendRcsService.new(
@@ -138,6 +155,9 @@ class ProgramMessageService
         end
       increment_suggested_videos_counters if service.errors.empty?
       if service.errors.any?
+        # Rien n'est parti (erreur API Spot-Hit ou message bloqué par le
+        # BlockedSendAttempt::SendGuard) : le quota réservé est rendu.
+        quota_guard.release!
         @errors = service.errors
       elsif @invalid_parent_ids.any?
         invalid_parents = Parent.includes(:parent1_children, :parent2_children).where(id: @invalid_parent_ids)
@@ -164,6 +184,13 @@ class ProgramMessageService
       @errors << "Provider inconnu : #{@provider}" and return self if service.blank?
     end
     self
+  end
+
+  # Permet aux appelants qui doivent annuler autre chose (création d'atelier) de
+  # distinguer un blocage de quota d'une erreur d'envoi ordinaire — `errors` peut
+  # être non vide alors que le message est bien parti.
+  def quota_exceeded?
+    @quota_exceeded
   end
 
   protected
@@ -243,6 +270,22 @@ class ProgramMessageService
 
     @recipient_data[parent.phone_number][variable] = value
     @errors << error if value.blank? && error.present?
+  end
+
+  # Unité de décompte du quota : le nombre de destinataires effectivement
+  # transmis à Spot-Hit, après tous les filtres (accompagnante, statut de
+  # cohorte, validité parent/enfant, exclusion des ateliers) et dédoublonné par
+  # numéro de téléphone. La longueur du message est indifférente.
+  # Trois formes possibles selon le canal : hash variables => destinataire,
+  # tableau de numéros (RCS sans variable), chaîne de numéros séparés par des
+  # virgules (SMS sans variable).
+  def spot_hit_recipients_count
+    case @recipient_data
+    when Hash then @recipient_data.size
+    when Array then @recipient_data.uniq.size
+    when String then @recipient_data.split(', ').uniq.size
+    else 0
+    end
   end
 
   def format_data_for_spot_hit(rcs)

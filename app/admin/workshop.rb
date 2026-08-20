@@ -7,8 +7,16 @@ ActiveAdmin.register Workshop do
   includes :animator, :parents
 
   before_action :format_parent_ids, only: :create
+  # Le modèle n'a pas accès à current_admin_user : on le lui injecte avant la
+  # création pour que le quota d'envoi soit décompté sur le bon compte.
+  before_create do |workshop|
+    workshop.acting_admin_user = current_admin_user
+  end
+  # Les callbacks after_create d'ActiveAdmin s'exécutent même quand la sauvegarde
+  # a échoué : sans le persisted?, un atelier bloqué par le plafond afficherait
+  # aussi ce message, en plus de l'erreur de plafond.
   after_create do |workshop|
-    flash[:error] = "Aucune invitation n'a pu être envoyée. Prévenez le pôle technique" if workshop.workshop_participations.empty?
+    flash[:error] = "Aucune invitation n'a pu être envoyée. Prévenez le pôle technique" if workshop.persisted? && workshop.workshop_participations.empty?
   end
 
   index do

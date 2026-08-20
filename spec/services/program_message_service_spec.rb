@@ -385,4 +385,221 @@ RSpec.describe ProgramMessageService do
       ).call
     end
   end
+
+  # ---------------------------------------------------------------------------
+  # Plafonnement anti-fraude du nombre de destinataires
+  # ---------------------------------------------------------------------------
+
+  describe 'plafonnement du nombre de destinataires' do
+    let(:acting_admin_user) { FactoryBot.create(:admin_user, user_role: 'contributor') }
+    # Message dépassant 160 octets : force la route SMS plutôt que le RCS basic.
+    let(:long_message) { 'a' * 400 }
+
+    def program(recipients, body = message, **options)
+      described_class.new(
+        options.fetch(:planned_date, Time.zone.today),
+        Time.zone.now.strftime('%H:%M'),
+        recipients,
+        body,
+        nil,
+        nil,
+        false,
+        nil,
+        nil,
+        options.fetch(:group_status, ['active']),
+        options.fetch(:provider, 'spothit'),
+        options[:aircall_number_id],
+        acting_admin_user: options.fetch(:acting_admin_user, acting_admin_user)
+      ).call
+    end
+
+    # Consomme du quota au nom de l'utilisatrice sans passer par un envoi réel.
+    def consume(count, ago = 10.minutes.ago, user: acting_admin_user)
+      FactoryBot.create(:sms_send_record, admin_user: user, recipients_count: count, created_at: ago)
+    end
+
+    context 'comptage' do
+      it 'enregistre un envoi avec le nombre de destinataires transmis' do
+        child_2.update(should_contact_parent1: true)
+
+        program(["parent.#{parent_2.id}", "parent.#{parent_3.id}"])
+
+        expect(SmsSendRecord.last.recipients_count).to eq(2)
+      end
+
+      it "compte aussi les destinataires d'un message long, parti en SMS" do
+        child_2.update(should_contact_parent1: true)
+
+        program(["parent.#{parent_2.id}", "parent.#{parent_3.id}"], long_message)
+
+        expect(SmsSendRecord.last.recipients_count).to eq(2)
+      end
+
+      it 'compte pour deux un enfant dont les deux parents sont à contacter' do
+        child_1.update(parent2_id: parent_1.id, should_contact_parent2: true)
+
+        program(["child.#{child_1.id}"])
+
+        expect(SmsSendRecord.last.recipients_count).to eq(2)
+      end
+
+      it "ne compte qu'une fois un destinataire sélectionné deux fois" do
+        program(["parent.#{parent_2.id}", "group.#{group.id}"])
+
+        expect(SmsSendRecord.last.recipients_count).to eq(1)
+      end
+
+      it "ne compte pas les destinataires écartés parce qu'ils ne sont pas valides" do
+        child_2.update(should_contact_parent1: true)
+        # postal_code est NOT NULL en base : on le rend invalide sans le vider
+        # (numericality + length: 5 échouent), ce qui suffit à écarter le parent.
+        parent_3.update_column(:postal_code, 'abc')
+
+        program(["parent.#{parent_2.id}", "parent.#{parent_3.id}"])
+
+        expect(SmsSendRecord.last.recipients_count).to eq(1)
+      end
+
+      it "horodate l'enregistrement à l'instant de la programmation, pas à la date d'envoi" do
+        program(["parent.#{parent_2.id}"], message, planned_date: 3.days.from_now.to_date)
+
+        expect(SmsSendRecord.last.created_at).to be_within(5.seconds).of(Time.zone.now)
+      end
+    end
+
+    context 'quand le plafond est atteint' do
+      before { consume(50) }
+
+      it "retourne le message d'erreur de dépassement" do
+        service = program(["parent.#{parent_2.id}"])
+
+        expect(service.errors).to eq(["Vous avez atteint la limite d'envoi de messages. Aucun message n'a pu être envoyé. Contactez un admin."])
+      end
+
+      it 'signale le dépassement via quota_exceeded?' do
+        expect(program(["parent.#{parent_2.id}"])).to be_quota_exceeded
+      end
+
+      it "n'appelle pas l'API Spot-Hit" do
+        program(["parent.#{parent_2.id}"])
+
+        expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
+        expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+      end
+
+      it 'ne crée aucun événement de SMS envoyé' do
+        expect { program(["parent.#{parent_2.id}"]) }.not_to change(Events::TextMessage, :count)
+      end
+
+      it "ne crée aucun enregistrement d'envoi" do
+        expect { program(["parent.#{parent_2.id}"]) }.not_to change(SmsSendRecord, :count)
+      end
+
+      it 'bloque aussi les messages courts, qui partent en RCS basic' do
+        expect(program(["parent.#{parent_2.id}"], 'court')).to be_quota_exceeded
+      end
+    end
+
+    context 'dépassement partiel' do
+      it "bloque la totalité de l'envoi" do
+        child_2.update(should_contact_parent1: true)
+        consume(49)
+
+        service = program(["parent.#{parent_2.id}", "parent.#{parent_3.id}"])
+
+        expect(service).to be_quota_exceeded
+        expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+      end
+    end
+
+    context 'programmation dans le futur' do
+      it 'consomme le quota immédiatement et bloque' do
+        consume(49)
+        child_2.update(should_contact_parent1: true)
+
+        service = program(["parent.#{parent_2.id}", "parent.#{parent_3.id}"], message, planned_date: 3.days.from_now.to_date)
+
+        expect(service).to be_quota_exceeded
+      end
+    end
+
+    context "quand l'appel Spot-Hit échoue" do
+      before do
+        stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').
+          to_return(status: 200, body: { erreurs: ['nope'] }.to_json)
+      end
+
+      it "n'incrémente pas le compteur" do
+        expect { program(["parent.#{parent_2.id}"]) }.not_to change(SmsSendRecord, :count)
+      end
+
+      it "retourne l'erreur de Spot-Hit et non une erreur de plafond" do
+        service = program(["parent.#{parent_2.id}"])
+
+        expect(service).not_to be_quota_exceeded
+        expect(service.errors.first).to match(/Erreur lors de la programmation de la campagne/)
+      end
+    end
+
+    context "quand l'envoi n'atteint pas le contrôle de plafond" do
+      it 'ne consomme pas de quota sans destinataire éligible' do
+        service = nil
+
+        expect { service = program(["parent.#{parent_1.id}"]) }.not_to change(SmsSendRecord, :count)
+        expect(service.errors).to eq(['Aucun parent à contacter.'])
+      end
+
+      it 'ne consomme pas de quota si le message est vide' do
+        service = nil
+
+        expect { service = program(["parent.#{parent_2.id}"], '') }.not_to change(SmsSendRecord, :count)
+        expect(service.errors).to include('Un message est requis. Veuillez le compléter.')
+      end
+    end
+
+    context 'périmètre exclu' do
+      it "ne limite ni ne compte les envois sans utilisatrice à l'origine" do
+        consume(50)
+
+        service = nil
+        expect { service = program(["parent.#{parent_2.id}"], message, acting_admin_user: nil) }
+          .not_to change(SmsSendRecord, :count)
+        expect(service).not_to be_quota_exceeded
+      end
+
+      it "ne limite ni ne compte les envois d'un super_admin" do
+        super_admin = FactoryBot.create(:admin_user, user_role: 'super_admin')
+        consume(500, 10.minutes.ago, user: super_admin)
+
+        service = nil
+        expect { service = program(["parent.#{parent_2.id}"], message, acting_admin_user: super_admin) }
+          .not_to change(SmsSendRecord, :count)
+        expect(service).not_to be_quota_exceeded
+      end
+
+      it 'ne limite ni ne compte les envois Aircall' do
+        consume(50)
+
+        service = nil
+        expect do
+          service = program(["parent.#{parent_2.id}"], message, provider: 'aircall', aircall_number_id: 42)
+        end.not_to change(SmsSendRecord, :count)
+        expect(service).not_to be_quota_exceeded
+      end
+    end
+
+    context "compteur partagé entre points d'entrée" do
+      it "additionne les envois de tous les points d'entrée" do
+        # 30 invitations d'atelier puis 15 destinataires depuis le formulaire.
+        consume(30)
+        consume(15)
+        child_2.update(should_contact_parent1: true)
+
+        expect(program(["parent.#{parent_2.id}", "parent.#{parent_3.id}"])).not_to be_quota_exceeded
+
+        consume(4)
+        expect(program(["parent.#{parent_2.id}", "parent.#{parent_3.id}"])).to be_quota_exceeded
+      end
+    end
+  end
 end

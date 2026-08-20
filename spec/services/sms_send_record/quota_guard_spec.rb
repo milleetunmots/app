@@ -1,0 +1,184 @@
+require 'rails_helper'
+
+RSpec.describe SmsSendRecord::QuotaGuard, type: :service do
+  let(:admin_user) { FactoryBot.create(:admin_user, user_role: 'contributor') }
+
+  # Pose des envois déjà comptabilisés à un instant donné dans le passé.
+  def consume(count, ago, user: admin_user)
+    FactoryBot.create(:sms_send_record, admin_user: user, recipients_count: count, created_at: ago)
+  end
+
+  describe '#reserve!' do
+    context 'périmètre exclu' do
+      it "ne limite ni ne comptabilise les envois sans utilisateur à l'origine" do
+        expect(described_class.new(nil, 500).reserve!).to be(true)
+        expect(SmsSendRecord.count).to eq(0)
+      end
+
+      it "n'applique pas le plafond à un super_admin" do
+        super_admin = FactoryBot.create(:admin_user, user_role: 'super_admin')
+        consume(500, 10.minutes.ago, user: super_admin)
+
+        expect(described_class.new(super_admin, 100).reserve!).to be(true)
+      end
+
+      it "ne comptabilise pas les envois d'un super_admin" do
+        super_admin = FactoryBot.create(:admin_user, user_role: 'super_admin')
+
+        expect { described_class.new(super_admin, 10).reserve! }.not_to change(SmsSendRecord, :count)
+      end
+    end
+
+    context 'sous le plafond' do
+      it 'réserve le quota et enregistre le nombre de destinataires' do
+        consume(10, 30.minutes.ago)
+
+        expect(described_class.new(admin_user, 5).reserve!).to be(true)
+        expect(SmsSendRecord.order(:created_at).last.recipients_count).to eq(5)
+      end
+
+      it "horodate l'enregistrement à l'instant de la programmation" do
+        described_class.new(admin_user, 5).reserve!
+
+        expect(SmsSendRecord.last.created_at).to be_within(5.seconds).of(Time.zone.now)
+      end
+
+      it 'autorise un envoi atteignant exactement le plafond horaire' do
+        consume(45, 10.minutes.ago)
+
+        expect(described_class.new(admin_user, 5).reserve!).to be(true)
+      end
+    end
+
+    context 'plafond horaire' do
+      it 'bloque quand le plafond est atteint' do
+        consume(50, 10.minutes.ago)
+
+        expect(described_class.new(admin_user, 1).reserve!).to be(false)
+      end
+
+      it "ne crée aucun enregistrement quand il bloque" do
+        consume(50, 10.minutes.ago)
+
+        expect { described_class.new(admin_user, 1).reserve! }.not_to change(SmsSendRecord, :count)
+      end
+
+      it 'bloque totalement un envoi qui ne dépasse que partiellement' do
+        consume(48, 10.minutes.ago)
+
+        expect(described_class.new(admin_user, 5).reserve!).to be(false)
+        expect(SmsSendRecord.sum(:recipients_count)).to eq(48)
+      end
+
+      it 'ne compte plus les envois sortis de la fenêtre horaire' do
+        consume(45, 61.minutes.ago)
+        consume(5, 10.minutes.ago)
+
+        expect(described_class.new(admin_user, 40).reserve!).to be(true)
+      end
+    end
+
+    context 'plafond journalier' do
+      it 'bloque quand le plafond de 24 h est atteint alors que le plafond horaire est libre' do
+        [2, 6, 10, 20].each { |hours| consume(50, hours.hours.ago) }
+
+        expect(described_class.new(admin_user, 1).reserve!).to be(false)
+      end
+
+      it 'ne compte plus les envois sortis de la fenêtre de 24 h' do
+        consume(200, 25.hours.ago)
+
+        expect(described_class.new(admin_user, 10).reserve!).to be(true)
+      end
+
+      it 'ne se réinitialise pas à minuit' do
+        # 200 destinataires programmés « hier soir », soit deux heures plus tôt
+        # quand il est 00h30 : toujours dans la fenêtre glissante.
+        consume(200, 2.hours.ago)
+
+        expect(described_class.new(admin_user, 1).reserve!).to be(false)
+      end
+    end
+
+    context 'entre utilisatrices' do
+      it 'garde des compteurs indépendants' do
+        other = FactoryBot.create(:admin_user, user_role: 'contributor')
+        consume(50, 10.minutes.ago)
+
+        expect(described_class.new(other, 5).reserve!).to be(true)
+      end
+    end
+
+    context 'selon le rôle' do
+      %w[contributor reader caller animator].each do |role|
+        it "n'exempte pas le rôle #{role}" do
+          user = FactoryBot.create(:admin_user, user_role: role)
+          consume(50, 10.minutes.ago, user: user)
+
+          expect(described_class.new(user, 1).reserve!).to be(false)
+        end
+      end
+    end
+
+    context 'avec des plafonds personnalisés' do
+      it 'respecte les colonnes de l’utilisatrice' do
+        admin_user.update!(sms_hourly_recipients_limit: 2, sms_daily_recipients_limit: 5)
+
+        expect(described_class.new(admin_user, 2).reserve!).to be(true)
+        expect(described_class.new(admin_user, 1).reserve!).to be(false)
+      end
+    end
+
+    context 'concurrence' do
+      # Deux guards construits AVANT toute réservation : c'est l'interleaving que
+      # deux requêtes simultanées produiraient. Le parallélisme réel n'est pas
+      # reproductible ici (transactions de test par exemple), mais le résultat
+      # observable attendu par la spec l'est.
+      it 'ne laisse passer qu’une seule des deux programmations' do
+        consume(45, 10.minutes.ago)
+        first = described_class.new(admin_user, 5)
+        second = described_class.new(admin_user, 5)
+
+        expect(first.reserve!).to be(true)
+        expect(second.reserve!).to be(false)
+        expect(SmsSendRecord.since(1.hour).sum(:recipients_count)).to eq(50)
+      end
+
+      it 'prend un verrou sur la ligne de l’utilisatrice' do
+        expect(AdminUser).to receive(:lock).and_call_original
+
+        described_class.new(admin_user, 5).reserve!
+      end
+    end
+  end
+
+  describe '#release!' do
+    it 'rend le quota réservé' do
+      guard = described_class.new(admin_user, 5)
+      guard.reserve!
+
+      expect { guard.release! }.to change(SmsSendRecord, :count).by(-1)
+    end
+
+    it 'est idempotent' do
+      guard = described_class.new(admin_user, 5)
+      guard.reserve!
+      guard.release!
+
+      expect { guard.release! }.not_to change(SmsSendRecord, :count)
+    end
+
+    it 'ne fait rien quand rien n’a été réservé' do
+      guard = described_class.new(admin_user, 5)
+
+      expect { guard.release! }.not_to change(SmsSendRecord, :count)
+    end
+  end
+
+  describe '#error_message' do
+    it 'expose le message affiché à l’utilisatrice' do
+      expect(described_class.new(admin_user, 1).error_message)
+        .to eq("Vous avez atteint la limite d'envoi de messages. Aucun message n'a pu être envoyé. Contactez un admin.")
+    end
+  end
+end
