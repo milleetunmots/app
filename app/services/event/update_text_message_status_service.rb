@@ -47,7 +47,12 @@ class Event::UpdateTextMessageStatusService
   # c'est le cas normal d'une campagne pas encore distribuée. On l'écarte au même
   # titre qu'une réponse illisible, sans quoi le fallback `spot_hit_status: 4`
   # plus haut basculerait toute la campagne en échec.
+  #
+  # L'API DLR renvoie ses reçus sous forme de tableau (`[[numéro, statut, ...], ...]`)
+  # et non d'objet : les deux formes alimentent le `map` plus haut, seul l'objet
+  # peut porter une clé `erreurs`.
   def usable_receipts?(response, campaign_id)
+    return true if @receipts.is_a?(Array) && @receipts.present?
     return true if @receipts.is_a?(Hash) && @receipts.present? && !@receipts.key?('erreurs')
 
     Rollbar.error(
