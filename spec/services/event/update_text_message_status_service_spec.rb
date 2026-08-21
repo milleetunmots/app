@@ -19,7 +19,34 @@ RSpec.describe Event::UpdateTextMessageStatusService do
       .to_return(status: status, body: body, headers: { 'Content-Type' => content_type })
   end
 
-  context 'when the DLR endpoint returns the receipts' do
+  # Format réel observé en production (Rollbar du 21/08/2026) : l'API DLR renvoie
+  # un tableau de reçus `[numéro, statut, envoyé_le, reçu_le, ..., campagne, ...]`
+  # et non un objet. La garde `usable_receipts?` doit l'accepter.
+  context 'when the DLR endpoint returns the receipts as an array of receipts' do
+    before do
+      stub_dlr(
+        status: 200,
+        body: [
+          [parent1.phone_number, 1, 1_787_221_817, 1_787_221_826, 0, campaign_id.to_i, '', ''],
+          [parent2.phone_number, 2, 1_787_221_817, 1_787_221_837, 0, campaign_id.to_i, '', '']
+        ].to_json
+      )
+    end
+
+    it 'updates each message with its receipt status' do
+      service
+      expect(message1.reload.spot_hit_status).to eq(1)
+      expect(message2.reload.spot_hit_status).to eq(2)
+    end
+
+    it 'does not report anything to Rollbar' do
+      allow(Rollbar).to receive(:error)
+      service
+      expect(Rollbar).not_to have_received(:error)
+    end
+  end
+
+  context 'when the DLR endpoint returns the receipts as an object keyed by phone number' do
     before do
       stub_dlr(status: 200, body: { parent1.phone_number => 1, parent2.phone_number => 2 }.to_json)
     end
