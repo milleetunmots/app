@@ -1,10 +1,12 @@
 class SpotHit::SendRcsService
 
+  include JsonResponseConcern
+
   URL = URI('https://www.spot-hit.fr/api/envoyer/rcs')
 
   attr_reader :errors
 
-  def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil, basic: false, workshop_id: nil, event_params: {})
+  def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil, basic: false, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil)
     @recipients = recipients
     @planned_timestamp = planned_timestamp
     @form = {
@@ -18,6 +20,8 @@ class SpotHit::SendRcsService
     @message = fallback_message
     @event_params = event_params
     @workshop = Workshop.find_by(id: workshop_id)
+    @replay_params = replay_params
+    @blocked_send_attempt_id = blocked_send_attempt_id
   end
 
   def call
@@ -30,6 +34,21 @@ class SpotHit::SendRcsService
   protected
 
   def send_rcs
+    guard = BlockedSendAttempt::SendGuard.new(
+      @message,
+      provider: 'spothit',
+      extra_texts: recipient_variable_values,
+      replay_params: @replay_params,
+      blocked_send_attempt_id: @blocked_send_attempt_id
+    )
+    if guard.blocked?
+      guard.register!
+      if guard.block_send?
+        @errors << guard.error_message
+        return
+      end
+    end
+
     if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
       @recipients = safeguard_recipients(@recipients)
       return if @recipients.empty?
@@ -50,12 +69,20 @@ class SpotHit::SendRcsService
       URL,
       form: @form.merge({ 'date' => Time.zone.at(@planned_timestamp).past? ? 1.minute.from_now.strftime('%Y-%m-%d %H:%M:%S') : Time.zone.at(@planned_timestamp).strftime('%Y-%m-%d %H:%M:%S') })
     )
-    response = JSON.parse(response.to_s)
-    if response['success']
-      create_events(response['campaign_id'])
+    body = parse_json_response(response)
+    if body.is_a?(Hash) && body['success']
+      create_events(body['campaign_id'])
     else
-      @errors << "Erreur lors de la programmation de la campagne : #{response['error']['message']}]"
+      @errors << "Erreur lors de la programmation de la campagne : #{json_error_message(response, body)}"
     end
+  end
+
+  # Les vraies URLs envoyées sont souvent dans les variables destinataires
+  # ({URL}, {CALLx_CALENDLY_LINK}…), le message ne contenant que des placeholders.
+  def recipient_variable_values
+    return [] unless @recipients.is_a?(Hash)
+
+    @recipients.values.flat_map { |variables| variables.respond_to?(:values) ? variables.values : [] }
   end
 
   def safeguard_recipients(recipients)
@@ -75,7 +102,9 @@ class SpotHit::SendRcsService
       recipients = recipients.split(', ').to_h { |phone| [phone, {}] }
     end
     recipients.each do |phone_number, keys|
-      parent = Parent.find_by!(phone_number: phone_number)
+      parent = resolve_parent(phone_number)
+      next unless parent
+
       event_attributes = {
         related_id: parent.id,
         related_type: 'Parent',
@@ -103,5 +132,15 @@ class SpotHit::SendRcsService
     return unless @workshop
 
     @errors << "Erreur lors de la sauvegarde de l'atelier #{@workshop.name}." unless @workshop.save
+  end
+
+  def resolve_parent(phone_number)
+    parents = Parent.kept.where(phone_number: phone_number)
+    if parents.empty?
+      @errors << "Impossible d'enregistrer le rcs dans l'historique : Parent non trouvé pour le numéro de téléphone #{phone_number}."
+      nil
+    else
+      parents.first
+    end
   end
 end

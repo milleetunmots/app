@@ -22,7 +22,7 @@ RSpec.describe ProgramMessageService do
       parent1_id: parent_2.id,
       should_contact_parent1: true,
       group_id: group.id,
-      group_status: "active",
+      group_status: 'active',
       first_name: 'Kevin'
     )
   end
@@ -33,7 +33,7 @@ RSpec.describe ProgramMessageService do
       parent1_id: parent_3.id,
       should_contact_parent1: false,
       group_id: group.id,
-      group_status: "active",
+      group_status: 'active',
       first_name: 'Joe'
     )
   end
@@ -58,7 +58,9 @@ RSpec.describe ProgramMessageService do
           fallback_message: message,
           basic: true,
           workshop_id: nil,
-          event_params: {}
+          event_params: {},
+          replay_params: an_instance_of(Hash),
+          blocked_send_attempt_id: nil
         ).
         and_call_original
       )
@@ -82,7 +84,9 @@ RSpec.describe ProgramMessageService do
           fallback_message: message,
           basic: true,
           workshop_id: nil,
-          event_params: {}
+          event_params: {},
+          replay_params: an_instance_of(Hash),
+          blocked_send_attempt_id: nil
         ).
         and_call_original
       )
@@ -105,7 +109,9 @@ RSpec.describe ProgramMessageService do
           Time.zone.parse("#{Time.zone.today} #{Time.zone.now.strftime('%H:%M')}").to_i,
           long_message,
           workshop_id: nil,
-          event_params: {}
+          event_params: {},
+          replay_params: an_instance_of(Hash),
+          blocked_send_attempt_id: nil
         ).
         and_call_original
       )
@@ -129,7 +135,9 @@ RSpec.describe ProgramMessageService do
           fallback_message: message,
           basic: true,
           workshop_id: nil,
-          event_params: {}
+          event_params: {},
+          replay_params: an_instance_of(Hash),
+          blocked_send_attempt_id: nil
         ).
         and_call_original
       )
@@ -153,7 +161,9 @@ RSpec.describe ProgramMessageService do
           fallback_message: 'N\'oubliez pas que votre enfant doit faire du sport.',
           basic: true,
           workshop_id: nil,
-          event_params: {}
+          event_params: {},
+          replay_params: an_instance_of(Hash),
+          blocked_send_attempt_id: nil
         ).
         and_call_original
       )
@@ -188,7 +198,9 @@ RSpec.describe ProgramMessageService do
           fallback_message: 'N\'oubliez pas que {URL} doit faire du sport.',
           basic: true,
           workshop_id: nil,
-          event_params: {}
+          event_params: {},
+          replay_params: an_instance_of(Hash),
+          blocked_send_attempt_id: nil
         ).
         and_call_original
       )
@@ -214,7 +226,9 @@ RSpec.describe ProgramMessageService do
           fallback_message: 'N\'oubliez l\'importance du sport. {URL}',
           basic: true,
           workshop_id: nil,
-          event_params: {}
+          event_params: {},
+          replay_params: an_instance_of(Hash),
+          blocked_send_attempt_id: nil
         ).
         and_call_original
       )
@@ -263,4 +277,112 @@ RSpec.describe ProgramMessageService do
     end
   end
 
+  context 'when the message contains a non-whitelisted URL' do
+    let(:blocked_message) { 'Cliquez ici : https://non-whitelisted.example.com/page' }
+
+    it 'still calls the SpotHit API but tracks a BlockedSendAttempt (monitoring mode, default)' do
+      expect {
+        ProgramMessageService.new(
+          Time.zone.today,
+          Time.zone.now.strftime('%H:%M'),
+          ["parent.#{parent_3.id}"],
+          blocked_message
+        ).call
+      }.to change(BlockedSendAttempt, :count).by(1)
+
+      expect(BlockedSendAttempt.last.status).to eq('not_blocked')
+      expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+    end
+
+    context 'with URL_FILTER_BLOCKING_ENABLED' do
+      around do |example|
+        previous = ENV.fetch('URL_FILTER_BLOCKING_ENABLED', nil)
+        ENV['URL_FILTER_BLOCKING_ENABLED'] = 'true'
+        example.run
+        ENV['URL_FILTER_BLOCKING_ENABLED'] = previous
+      end
+
+      it 'does not call the SpotHit API and creates a BlockedSendAttempt instead' do
+        expect {
+          ProgramMessageService.new(
+            Time.zone.today,
+            Time.zone.now.strftime('%H:%M'),
+            ["parent.#{parent_3.id}"],
+            blocked_message
+          ).call
+        }.to change(BlockedSendAttempt, :count).by(1)
+
+        expect(BlockedSendAttempt.last.status).to eq('pending')
+        expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+      end
+    end
+  end
+
+  context 'compteur de vidéos suggérées (suggested_videos_counter)' do
+    let(:suggested_medium) { FactoryBot.create(:medium, name: 'Appel 3 - vidéos suggérées', url: 'http://google.com') }
+    let(:suggested_target) { FactoryBot.create(:redirection_target, medium_id: suggested_medium.id) }
+    let(:child_support) { parent_2.current_child.child_support }
+
+    around do |example|
+      previous_flag = ENV.fetch('URL_FILTER_BLOCKING_ENABLED', nil)
+      previous_host = ENV.fetch('DEFAULT_HOSTNAME', nil)
+      ENV['URL_FILTER_BLOCKING_ENABLED'] = 'true'
+      ENV['DEFAULT_HOSTNAME'] = 'localhost'
+      example.run
+      ENV['URL_FILTER_BLOCKING_ENABLED'] = previous_flag
+      previous_host.nil? ? ENV.delete('DEFAULT_HOSTNAME') : ENV['DEFAULT_HOSTNAME'] = previous_host
+    end
+
+    before do
+      allow_any_instance_of(RedirectionUrlDecorator).to(
+        receive(:visit_url).and_return('http://localhost:3000/r/95/c6')
+      )
+    end
+
+    it "n'est pas incrémenté quand l'envoi est bloqué (sinon double comptage à la relance)" do
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_2.id}"],
+        'Cliquez ici : https://non-whitelisted.example.com/page',
+        nil,
+        suggested_target.id
+      ).call
+
+      expect(child_support.reload.suggested_videos_counter).to eq([])
+    end
+
+    it "est incrémenté une seule fois quand l'envoi passe" do
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_2.id}"],
+        'Une nouvelle vidéo pour vous.',
+        nil,
+        suggested_target.id
+      ).call
+
+      expect(child_support.reload.suggested_videos_counter.size).to eq(1)
+    end
+  end
+
+  context 'when replaying a blocked attempt' do
+    it 'forwards blocked_send_attempt_id to the provider service' do
+      blocked_send_attempt = FactoryBot.create(:blocked_send_attempt)
+
+      expect(SpotHit::SendRcsService).to(
+        receive(:new).
+        with(hash_including(blocked_send_attempt_id: blocked_send_attempt.id)).
+        and_call_original
+      )
+
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_3.id}"],
+        message,
+        blocked_send_attempt: blocked_send_attempt
+      ).call
+    end
+  end
 end

@@ -2,12 +2,14 @@ module Aircall
   class SendMessageService < Aircall::ApiBase
     attr_reader :errors, :event_id
 
-    def initialize(number_id:, to:, body:, event_id:)
+    def initialize(number_id:, to:, body:, event_id:, replay_params: {}, blocked_send_attempt_id: nil)
       @errors = []
       @number_id = number_id
       @to = to
       @body = body
       @event_id = event_id
+      @replay_params = replay_params
+      @blocked_send_attempt_id = blocked_send_attempt_id
     end
 
     def call
@@ -28,15 +30,22 @@ module Aircall
         end
       end
 
-      response = http_client_with_auth.post(build_url(NUMBERS_ENDPOINT, "/#{@number_id}/messages/native/send"), json: { to: Phonelib.parse(@to).e164, body: @body })
-      if response.status.success?
-        @errors << "Erreur lors de la mise à jour de l'event d'envoi de message pour #{@to}." unless update_event(2, JSON.parse(response.body)['id'])
-      else
-        parsed = begin
-          response.parse
-        rescue HTTP::Error
-          {}
+      guard = BlockedSendAttempt::SendGuard.new(@body, provider: 'aircall', replay_params: @replay_params, blocked_send_attempt_id: @blocked_send_attempt_id)
+      if guard.blocked?
+        guard.register!
+        if guard.block_send?
+          @errors << guard.error_message
+          update_event(4)
+          return self
         end
+      end
+
+      response = http_client_with_auth.post(build_url(NUMBERS_ENDPOINT, "/#{@number_id}/messages/native/send"), json: { to: Phonelib.parse(@to).e164, body: @body })
+      aircall_message_id = parse_json_resource(response, 'id')
+      if aircall_message_id.present?
+        @errors << "Erreur lors de la mise à jour de l'event d'envoi de message pour #{@to}." unless update_event(2, aircall_message_id)
+      else
+        parsed = parse_json_body(response) || {}
         @errors << { status: response.status.to_s, key: parsed['key'], message: parsed['message'] || response.body.to_s }
       end
       self

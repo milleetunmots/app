@@ -168,7 +168,12 @@ module Typeform
         else
           "Bonjour, merci pour votre inscription à l'accompagnement de l'association 1001mots. Bienvenue, ça va bientôt démarrer !\nL'équipe 1001mots"
         end
-      SpotHit::SendSmsService.new([@parent1.id], Time.zone.now.to_i, message).call
+      service = SpotHit::SendSmsService.new([@parent1.id], Time.zone.now.to_i, message).call
+      return if service.errors.blank?
+
+      # sans cette remontée, une panne du fournisseur (réponse non-JSON) se solde
+      # par un SMS de bienvenue perdu en silence
+      Rollbar.error("Typeform::InitialFormService — SMS de bienvenue non envoyé : #{service.errors}", parent_id: @parent1.id)
     end
   end
 end

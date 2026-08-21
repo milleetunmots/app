@@ -1,8 +1,10 @@
 class SpotHit::SendMessageService
 
+  include JsonResponseConcern
+
   attr_reader :errors
 
-  def initialize(recipients, planned_timestamp, message, file: nil, workshop_id: nil, event_params: {})
+  def initialize(recipients, planned_timestamp, message, file: nil, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil)
     @planned_timestamp = planned_timestamp
     @recipients = recipients
     @message = message
@@ -10,18 +12,37 @@ class SpotHit::SendMessageService
     @event_params = event_params
     @errors = []
     @workshop = Workshop.find_by(id: workshop_id)
+    @replay_params = replay_params
+    @blocked_send_attempt_id = blocked_send_attempt_id
   end
 
   protected
 
   def send_message(uri, form)
+    guard = BlockedSendAttempt::SendGuard.new(
+      @message,
+      provider: 'spothit',
+      extra_texts: recipient_variable_values,
+      replay_params: @replay_params,
+      blocked_send_attempt_id: @blocked_send_attempt_id
+    )
+    if guard.blocked?
+      guard.register!
+      if guard.block_send?
+        @errors << guard.error_message
+        return
+      end
+    end
+
     form = safeguard(form) if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
 
     response = HTTP.post(uri, form: form)
-    if JSON.parse(response.body.to_s).key? 'erreurs'
-      @errors << "Erreur lors de la programmation de la campagne. [Réponse SPOT_HIT API #{response.body}]"
+    body = parse_json_response(response)
+
+    if !body.is_a?(Hash) || body.key?('erreurs')
+      @errors << "Erreur lors de la programmation de la campagne. [Réponse SPOT_HIT API #{json_error_message(response, body)}]"
     else
-      create_events(JSON.parse(response.body.to_s)['id'])
+      create_events(body['id'])
     end
   end
 
@@ -32,7 +53,9 @@ class SpotHit::SendMessageService
       recipients = recipients.split(', ').to_h { |phone| [phone, {}] }
     end
     recipients.each do |phone_number, keys|
-      parent = Parent.find_by!(phone_number: phone_number)
+      parent = resolve_parent(phone_number)
+      next unless parent
+
       event_attributes = {
         related_id: parent.id,
         related_type: 'Parent',
@@ -44,7 +67,6 @@ class SpotHit::SendMessageService
       }.merge(@event_params[parent.id] || {})
       keys&.map { |key, value| event_attributes[:body].gsub!("{#{key}}", value.to_s) }
       event = Event.create(event_attributes)
-
       @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
 
       next unless @workshop
@@ -57,12 +79,27 @@ class SpotHit::SendMessageService
         occurred_at: @workshop.workshop_date
       )
     end
-
     return unless @workshop
 
-    unless @workshop.save
-      @errors << "Erreur lors de la sauvegarde de l'atelier #{@workshop.name}."
+    @errors << "Erreur lors de la sauvegarde de l'atelier #{@workshop.name}." unless @workshop.save
+  end
+
+  def resolve_parent(phone_number)
+    parents = Parent.kept.where(phone_number: phone_number)
+    if parents.empty?
+      @errors << "Impossible d'enregistrer le message dans l'historique : Parent non trouvé pour le numéro de téléphone #{phone_number}."
+      nil
+    else
+      parents.first
     end
+  end
+
+  # Les vraies URLs envoyées sont souvent dans les variables destinataires
+  # ({URL}, {CALLx_CALENDLY_LINK}…), le message ne contenant que des placeholders.
+  def recipient_variable_values
+    return [] unless @recipients.is_a?(Hash)
+
+    @recipients.values.flat_map { |variables| variables.respond_to?(:values) ? variables.values : [] }
   end
 
   def safeguard(form)

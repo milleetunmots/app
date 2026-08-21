@@ -33,8 +33,13 @@ module Calendly
         }
       )
       status = response.status
-      response = JSON.parse(response.body)
-      @errors << { message: "La création de l'event type a échoué", details: response['details'] } unless status.success?
+      body = parse_json_body(response) || {}
+      unless status.success?
+        @errors << {
+          message: "La création de l'event type a échoué",
+          details: body['details'] || response.body.to_s.truncate(500)
+        }
+      end
       self
     end
   end

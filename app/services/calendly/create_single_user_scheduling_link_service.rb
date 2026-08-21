@@ -32,22 +32,27 @@ module Calendly
         build_url(SINGLE_USE_SCHEDULING_LINK_ENDPOINT),
         json: build_request_body(event_type_uri)
       )
-      status = response.status
-      response = JSON.parse(response.body)
-      if status.success?
-        @booking_url = add_utm_params(response['resource']['booking_url'])
-      else
-        @errors << {
-          message: 'La création du lien à usage unique a échoué',
-          details: response['details'],
-          child_support_id: @child_support.id,
-          admin_user_id: @admin_user.id
-        }
-      end
+      handle_scheduling_link_response(response)
       self
     end
 
     private
+
+    def handle_scheduling_link_response(response)
+      body = parse_json_body(response) || {}
+      resource = body['resource']
+
+      if response.status.success? && resource.is_a?(Hash) && resource['booking_url'].present?
+        @booking_url = add_utm_params(resource['booking_url'])
+      else
+        @errors << {
+          message: 'La création du lien à usage unique a échoué',
+          details: body['details'] || response.body.to_s.truncate(500),
+          child_support_id: @child_support.id,
+          admin_user_id: @admin_user.id
+        }
+      end
+    end
 
     def build_request_body(event_type_uri)
       {

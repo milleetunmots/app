@@ -1,5 +1,7 @@
 class SpotHit::CreateRcsModelService
 
+  include JsonResponseConcern
+
   URL = 'https://www.spot-hit.fr/api/rcs/model/create'.freeze
 
   attr_reader :errors, :rcs_media_id
@@ -16,6 +18,9 @@ class SpotHit::CreateRcsModelService
     return self if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
 
     validate_params
+    return self if @errors.any?
+
+    check_template_content
     return self if @errors.any?
 
     push_rcs_template
@@ -39,6 +44,20 @@ class SpotHit::CreateRcsModelService
     if image.blank?
       @errors << "image#{@message_index} is blank, cannot create RCS template"
     end
+  end
+
+  # Le contenu riche du template (body, titre, libellé du CTA) part tel quel à
+  # chaque envoi RCS sans repasser par le guard d'envoi : on le contrôle donc dès
+  # la création. L'URL du CTA, elle, reste un placeholder {URL} substitué par
+  # destinataire à l'envoi (contrôlé côté SendRcsService).
+  def check_template_content
+    guard = BlockedSendAttempt::SendGuard.new(body, provider: 'spothit', extra_texts: [rcs_title, cta_label])
+    return unless guard.blocked?
+
+    guard.register!
+    return unless guard.block_send?
+
+    @errors << guard.error_message
   end
 
   def body
@@ -76,13 +95,12 @@ class SpotHit::CreateRcsModelService
   def push_rcs_template
     download_image_to_tmp_file
     response = HTTP.post(URL, form: form_data)
-    parsed_response = JSON.parse(response.body.to_s)
+    parsed_response = parse_json_response(response)
 
-    if parsed_response['success'] == true && parsed_response['id'].present?
+    if parsed_response.is_a?(Hash) && parsed_response['success'] == true && parsed_response['id'].present?
       @rcs_media_id = parsed_response['id']
     else
-      error_message = parsed_response['error']&.dig('message') || response.body.to_s
-      @errors << "Erreur lors de la création du modèle RCS: #{error_message}"
+      @errors << "Erreur lors de la création du modèle RCS: #{json_error_message(response, parsed_response)}"
     end
   rescue => e
     @errors << "Exception lors de la création du modèle RCS: #{e.message}"

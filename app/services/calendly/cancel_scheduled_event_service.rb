@@ -22,12 +22,12 @@ module Calendly
         json: build_request_body
       )
       status = response.status
-      body = JSON.parse(response.body)
+      body = parse_json_body(response) || {}
 
       unless status.success?
         @errors << {
           message: "L'annulation de l'événement Calendly a échoué",
-          details: body['message'] || body['title'],
+          details: body['message'] || body['title'] || response.body.to_s.truncate(500),
           event_uri: @event_uri
         }
       end

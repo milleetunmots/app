@@ -1,6 +1,8 @@
 module Bubble
 
   class BubbleService
+    include JsonResponseConcern
+
     def initialize(bubble_model)
       @uri = URI("#{ENV.fetch('BUBBLE_DATA_API_URL')}/#{bubble_model}")
       @headers = {
@@ -38,9 +40,11 @@ module Bubble
 
     def get_response(params)
       response = HTTP.headers(@headers).get(@uri, params: params)
-      raise "Impossible de récupérer toutes les vidéos de bubble. Erreur lors de l'appel à l'API : #{response.code}" unless response.code == 200
+      body = parse_json_response(response)
+      datas = body['response'] if body.is_a?(Hash)
+      raise "Impossible de récupérer toutes les vidéos de bubble. Erreur lors de l'appel à l'API : #{json_error_message(response, body)}" if datas.blank?
 
-      JSON.parse(response.body.to_s)['response']
+      datas
     end
   end
 end

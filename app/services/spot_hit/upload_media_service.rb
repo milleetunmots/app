@@ -1,5 +1,7 @@
 class SpotHit::UploadMediaService
 
+  include JsonResponseConcern
+
   attr_reader :errors
 
   def initialize(media)
@@ -31,12 +33,12 @@ class SpotHit::UploadMediaService
     # remove file only if we created it
     remove_tmp_file(tmp_file_path) unless @media.attachment_changes['file'].present?
 
-    parsed_response = JSON.parse(response.body.to_s)
+    parsed_response = parse_json_response(response)
 
-    if parsed_response['success'] == true && parsed_response['file'].present?
+    if parsed_response.is_a?(Hash) && parsed_response['success'] == true && parsed_response['file'].present?
       @media.update_columns(spot_hit_id: parsed_response['file'])
     else
-      @errors << "Erreur lors de l'upload de l'image sur Spot Hit"
+      @errors << "Erreur lors de l'upload de l'image sur Spot Hit : #{json_error_message(response, parsed_response)}"
     end
     self
   end

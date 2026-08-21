@@ -83,4 +83,91 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
       end
     end
   end
+
+  describe '#perform parent resolution' do
+    let(:phone_number) { '0668021234' }
+
+    def status_payload(user_id:, status: 'DELIVERED')
+      {
+        'events' => [
+          {
+            'messageStatusChanged' => {
+              'status' => status,
+              'channelId' => 'rcs',
+              'userId' => user_id,
+              'context' => { 'campaign_id' => '45878' }
+            }
+          }
+        ]
+      }
+    end
+
+    def received_payload(user_id:)
+      {
+        'events' => [
+          {
+            'on' => '2026-08-14T10:00:00+02:00',
+            'userMessageReceived' => {
+              'userId' => user_id,
+              'context' => { 'campaign_id' => '45878' },
+              'content' => { 'text' => 'Merci beaucoup !' }
+            }
+          }
+        ]
+      }
+    end
+
+    context 'when two parents share the same phone number' do
+      let!(:other_parent) { FactoryBot.create(:parent, phone_number: phone_number) }
+      let!(:recipient) { FactoryBot.create(:parent, phone_number: phone_number) }
+      let!(:text_message) do
+        FactoryBot.create(
+          :text_message,
+          related: recipient,
+          message_provider: 'spot_hit',
+          spot_hit_rcs_id: '45878',
+          spot_hit_status: 2 # Envoyé
+        )
+      end
+
+      it 'applies the status to the message of the parent who received the campaign' do
+        expect(Rollbar).not_to receive(:error)
+        subject.perform_now(status_payload(user_id: recipient.phone_number))
+        expect(text_message.reload.spot_hit_status).to eq(1)
+      end
+
+      it 'attaches an incoming message to the parent who received the campaign' do
+        expect(Rollbar).not_to receive(:error)
+        expect {
+          subject.perform_now(received_payload(user_id: recipient.phone_number))
+        }.to change { Events::TextMessage.where(originated_by_app: false).count }.by(1)
+
+        received = Events::TextMessage.where(originated_by_app: false).last
+        expect(received.related).to eq(recipient)
+        expect(received.related).not_to eq(other_parent)
+      end
+    end
+
+    context 'when a discarded parent shares the phone number of an active parent' do
+      let!(:discarded_parent) { FactoryBot.create(:parent, phone_number: phone_number, discarded_at: Time.zone.now) }
+      let!(:active_parent) { FactoryBot.create(:parent, phone_number: phone_number) }
+
+      it 'attaches an incoming message to the active parent' do
+        expect(Rollbar).not_to receive(:error)
+        subject.perform_now(received_payload(user_id: active_parent.phone_number))
+
+        received = Events::TextMessage.where(originated_by_app: false).last
+        expect(received.related).to eq(active_parent)
+      end
+    end
+
+    context 'when the userId cannot be parsed' do
+      it 'reports to Rollbar and creates nothing' do
+        expect(Rollbar).to receive(:error).with('spot_hit_rcs_data: unparsable userId', anything)
+        expect {
+          subject.perform_now(received_payload(user_id: ''))
+        }.not_to change(Events::TextMessage, :count)
+      end
+    end
+  end
 end

@@ -72,6 +72,11 @@ RSpec.describe ChildrenController, type: :request do
   end
 
   describe "#create" do
+    # Faker::Address.postcode tire parfois un code 97xxx (outre-mer), que
+    # Child::CreateService#overseas_child_validation refuse : l'inscription
+    # échouait alors selon la seed rspec. On fixe un code de métropole.
+    let(:parent_postal_code) { '75001' }
+
     context "when params are valid" do
       let(:birthdate) { Faker::Date.birthday(min_age: 1, max_age: 2) }
       let(:source) { FactoryBot.create(:source) }
@@ -85,7 +90,7 @@ RSpec.describe ChildrenController, type: :request do
               phone_number: "066802#{Faker::Number.number(digits: 4)}",
               letterbox_name: Faker::Name.name,
               address: Faker::Address.street_address,
-              postal_code: Faker::Address.postcode,
+              postal_code: parent_postal_code,
               city_name: Faker::Address.city,
               gender: 'f'
             },
@@ -135,7 +140,7 @@ RSpec.describe ChildrenController, type: :request do
               book_delivery_location: 'pmi',
               book_delivery_organisation_name: 'PMI Henri Barbusse',
               address: Faker::Address.street_address,
-              postal_code: Faker::Address.postcode,
+              postal_code: parent_postal_code,
               city_name: Faker::Address.city,
               gender: 'f'
             },
@@ -186,7 +191,7 @@ RSpec.describe ChildrenController, type: :request do
               phone_number: Faker::PhoneNumber.phone_number,
               letterbox_name: Faker::Name.name,
               address: Faker::Address.street_address,
-              postal_code: Faker::Address.postcode,
+              postal_code: parent_postal_code,
               city_name: Faker::Address.city
             },
             gender: "",

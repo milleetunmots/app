@@ -23,15 +23,15 @@ module Aircall
       loop do
         sleep(1) # basic rate limiting
         response = http_client_with_auth.get(@url)
-        if response.status.success?
-          body = JSON.parse(response.body)
+        body = parse_json_response(response)
+        if body.is_a?(Hash)
           @users.concat(body['users'] || [body['user']]).uniq!
           next_page = next_page_link(body)
           break if next_page.nil?
 
           @url = next_page
         else
-          @errors << { message: "La récupération d'utilisateurs a échoué : #{response.status.reason}", status: response.status.to_i }
+          @errors << { message: "La récupération d'utilisateurs a échoué : #{json_error_message(response, body)}", status: response.status.to_i }
           break
         end
       end
