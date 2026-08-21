@@ -419,9 +419,10 @@ ActiveAdmin.register ChildSupport do
             div id: 'children-books-sent' do
               f.object.children.each do |child|
                 h4 "Livres envoyés à #{child.first_name} :"
-                if resource.pending_book_resend_date
+                pending_book_resend_date = resource.pending_book_resend_date(child.id)
+                if pending_book_resend_date
                   div class: 'book-resend-alert' do
-                    span "Les livres non reçus / défectueux seront renvoyés le #{resource.pending_book_resend_date.strftime('%d/%m/%Y')}", class: 'txt-warning'
+                    span "Les livres non reçus / défectueux seront renvoyés le #{pending_book_resend_date.strftime('%d/%m/%Y')}", class: 'txt-warning'
                   end
                 end
                 div id: 'child-books-sent' do

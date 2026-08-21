@@ -19,6 +19,7 @@ class BookShipmentDate < ApplicationRecord
   validate :date_cannot_be_in_the_past, if: :date_changed?
 
   scope :upcoming, -> { where(date: Date.current..).order(:date) }
+  scope :past, -> { where(date: ...Date.current).order(:date) }
 
   # Date du cycle suivant : +45 jours, recalé sur le lundi suivant.
   def self.cycle_after(date)
