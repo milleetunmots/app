@@ -54,6 +54,15 @@ RSpec.describe 'Rack::Attack login throttling', :rack_attack, type: :request do
       end
       expect(response).to have_http_status(:too_many_requests)
     end
+
+    it 'throttle aussi /admin/two_factor/verify.json' do
+      11.times do
+        post '/admin/two_factor/verify.json',
+             params: { otp_code: '000000' },
+             headers: { 'REMOTE_ADDR' => '198.51.100.5' }
+      end
+      expect(response).to have_http_status(:too_many_requests)
+    end
   end
 
   describe 'traçabilité' do
@@ -70,6 +79,28 @@ RSpec.describe 'Rack::Attack login throttling', :rack_attack, type: :request do
       expect(response).to have_http_status(:too_many_requests)
       expect(response.body).to include('Trop de tentatives')
       expect(response.headers['Retry-After']).to be_present
+    end
+  end
+
+  describe 'throttle de la saisie du code 2FA' do
+    def post_code(ip:)
+      post '/admin/two_factor/verify',
+           params: { otp_code: '000000' },
+           headers: { 'REMOTE_ADDR' => ip }
+    end
+
+    it 'renvoie 429 au-delà de 10 requêtes depuis la même IP' do
+      10.times { post_code(ip: '9.9.9.10') }
+      expect(response).not_to have_http_status(:too_many_requests)
+
+      post_code(ip: '9.9.9.10')
+      expect(response).to have_http_status(:too_many_requests)
+    end
+
+    it 'couvre aussi le renvoi de code' do
+      10.times { post '/admin/two_factor/resend', headers: { 'REMOTE_ADDR' => '9.9.9.11' } }
+      post '/admin/two_factor/resend', headers: { 'REMOTE_ADDR' => '9.9.9.11' }
+      expect(response).to have_http_status(:too_many_requests)
     end
   end
 end

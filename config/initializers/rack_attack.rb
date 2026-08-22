@@ -37,6 +37,14 @@ Rack::Attack.throttle('login/email', limit: 5, period: 60) do |request|
   end
 end
 
+# Throttle de la double authentification : couvre la vérification du code et
+# son renvoi. Le modèle limite déjà à 5 tentatives par code et 1 renvoi par
+# minute ; cette règle borne l'attaquant qui enchaînerait les sessions en
+# attente pour multiplier les essais.
+Rack::Attack.throttle('two_factor/ip', limit: 10, period: 60) do |request|
+  request.ip if request.post? && request.path.start_with?('/admin/two_factor')
+end
+
 # Réponse renvoyée quand une limite est atteinte.
 Rack::Attack.throttled_responder = ->(request) do
   retry_after = (request.env['rack.attack.match_data'] || {})[:period]

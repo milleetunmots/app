@@ -125,6 +125,22 @@ RSpec.describe SpotHit::SendSmsService do
       end
     end
 
+    context 'garde-fou : le filtre de mots-clés reste actif par défaut (seam content_guard_enabled?)' do
+      # SpotHit::SendAdminCodeService désactive ce filtre pour son propre envoi
+      # (2FA). Cet exemple garantit que ce n'est pas le filtre lui-même qui a
+      # été désactivé pour tout le monde : un envoi ordinaire, avec le même
+      # pattern, doit continuer à être tracé.
+      it 'trace toujours un BlockedSendAttempt pour un envoi ordinaire' do
+        FactoryBot.create(:blocked_pattern, value: 'code')
+
+        expect {
+          described_class.new([parent.phone_number], planned_timestamp, 'Voici votre code promo').call
+        }.to change(BlockedSendAttempt, :count).by(1)
+
+        expect(BlockedSendAttempt.last).to have_attributes(kind: 'keyword', status: 'not_blocked')
+      end
+    end
+
     context 'when the message does not contain a non-whitelisted URL' do
       let(:message) { 'Bonjour, ceci est un message sans lien.' }
 

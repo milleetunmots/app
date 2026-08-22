@@ -17,6 +17,7 @@ ActiveAdmin.register AdminUser do
     end
     column :user_role
     column :aircall_phone_number
+    column :two_factor_enabled
     column :sign_in_count
     column :created_at do |decorated|
       l decorated.created_at.to_date, format: :default
@@ -50,6 +51,9 @@ ActiveAdmin.register AdminUser do
           collection: admin_user_role_select_collection,
           input_html: {data: {select2: {}}}
         f.input :can_export_data
+        f.input :phone_number, label: 'Téléphone pour la double authentification',
+                               hint: 'Téléphone français, requis pour activer la double authentification.'
+        f.input :two_factor_enabled, as: :boolean, label: 'Double authentification par SMS'
       end
       if !params[:id] || current_admin_user == admin_user_in_params
         f.input :password
@@ -72,6 +76,8 @@ ActiveAdmin.register AdminUser do
     if current_admin_user.admin?
       parameters.push :user_role
       parameters.push :can_export_data
+      parameters.push :phone_number
+      parameters.push :two_factor_enabled
     end
     if !params[:id] || current_admin_user == AdminUser.find(params[:id])
       parameters.push :password
