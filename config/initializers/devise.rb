@@ -152,7 +152,10 @@ Devise.setup do |config|
 
   # ==> Configuration for :rememberable
   # The time the user will be remembered without asking for credentials again.
-  # config.remember_for = 2.weeks
+  # Sept jours plutôt que les deux semaines par défaut : sur un compte protégé
+  # par le second facteur, ce cookie fait sauter le mot de passe ET le code,
+  # donc sa durée est la vraie borne de l'exposition en cas de vol du poste.
+  config.remember_for = 7.days
 
   # Invalidates all the remember me tokens when the user signs out.
   config.expire_all_remember_me_on_sign_out = true

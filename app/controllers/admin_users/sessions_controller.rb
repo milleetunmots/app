@@ -15,15 +15,24 @@ module AdminUsers
         return
       end
 
-      # Pas de clé « remember_me » : la spec impose un code à chaque connexion,
-      # sans navigateur de confiance. Un compte sans second facteur garde le
-      # comportement « se souvenir de moi » habituel de Devise.
-      session[:pending_two_factor] = { 'id' => resource.id, 'at' => Time.current.to_i }
+      session[:pending_two_factor] = pending_state_for(resource)
       send_two_factor_code(resource)
       redirect_to admin_two_factor_path
     end
 
     private
+
+    # La case « se souvenir de moi » vaut pour les deux facteurs : on la
+    # transporte jusqu'à la validation du code, qui posera le cookie de sept
+    # jours. Le sign_out a effacé celui que warden.authenticate! venait de
+    # poser, donc rien n'est mémorisé tant que le code n'est pas validé.
+    def pending_state_for(admin_user)
+      {
+        'id' => admin_user.id,
+        'at' => Time.current.to_i,
+        'remember_me' => params.dig(:admin_user, :remember_me).in?(['1', 'true', true])
+      }
+    end
 
     def sign_in_without_second_factor
       # Une tentative précédente sur un compte protégé a pu laisser un état en

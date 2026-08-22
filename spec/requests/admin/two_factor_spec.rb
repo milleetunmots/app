@@ -238,17 +238,29 @@ RSpec.describe 'Connexion avec double authentification', type: :request do
       expect(response).to redirect_to(new_admin_user_session_path)
     end
 
-    # « Un code à chaque connexion, pas de navigateur de confiance » : un code
-    # validé ne doit pas acheter quatorze jours d'accès sans second facteur.
-    it 'ne pose aucun cookie « se souvenir de moi », même si la case était cochée' do
+    # La case cochée vaut pour les deux facteurs : pendant sept jours, ce
+    # navigateur rouvre une session sans mot de passe ni code.
+    it 'pose un cookie « se souvenir de moi » quand la case était cochée' do
       code = login_and_capture_code(remember: true)
 
       post '/admin/two_factor/verify', params: { otp_code: code }
 
-      expect(cookies['remember_admin_user_token']).to be_blank
+      expect(cookies['remember_admin_user_token']).to be_present
 
       get '/admin/children'
       expect(response).to have_http_status(:ok)
+    end
+
+    it 'ne pose aucun cookie « se souvenir de moi » quand la case n’était pas cochée' do
+      code = login_and_capture_code(remember: false)
+
+      post '/admin/two_factor/verify', params: { otp_code: code }
+
+      expect(cookies['remember_admin_user_token']).to be_blank
+    end
+
+    it 'limite la mémorisation à sept jours' do
+      expect(Devise.remember_for).to eq(7.days)
     end
 
     it 'filtre le paramètre otp_code dans les logs applicatifs (ne journalise jamais le code en clair)' do

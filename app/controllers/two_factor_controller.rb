@@ -73,11 +73,13 @@ class TwoFactorController < ApplicationController
     session[:pending_two_factor] = pending_two_factor.merge('at' => Time.current.to_i)
   end
 
-  # Aucun cookie « se souvenir de moi » n'est posé ici : la spec impose un code
-  # à chaque connexion, sans navigateur de confiance. Un code validé n'achète
-  # donc pas quatorze jours d'accès sans second facteur.
+  # `should_remember` et non `remember_me` : une variable locale de ce nom
+  # masquerait le helper Devise. L'attribut virtuel est lu par le hook
+  # after_set_user, qui pose le cookie de sept jours au moment du sign_in.
   def complete_sign_in
+    should_remember = pending_two_factor['remember_me']
     session.delete(:pending_two_factor)
+    @admin_user.remember_me = should_remember
     sign_in(:admin_user, @admin_user)
     redirect_to after_sign_in_path_for(@admin_user), notice: 'Connexion réussie.'
   end
