@@ -81,7 +81,7 @@ class AdminUser < ApplicationRecord
   scope :supporters, -> { joins(:child_supports).distinct }
   scope :account_disabled, -> { where(is_disabled: true) }
   scope :account_not_disabled, -> { where(is_disabled: false) }
-  scope :beta_test_supporters_who_cannot_send_automatic_sms, -> { supporters.where(email: ENV['BETA_TEST_CALLERS_EMAIL'].split).where(can_send_automatic_sms: false) }
+  scope :beta_test_supporters_who_cannot_send_automatic_sms, -> { supporters.where(email: ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split).where(can_send_automatic_sms: false) }
 
   before_save :set_automatic_sms_activated_at, if: -> { will_save_change_to_can_send_automatic_sms?(to: true) }
   before_save :format_phone_number, if: -> { will_save_change_to_phone_number? }

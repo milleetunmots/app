@@ -185,6 +185,16 @@ RSpec.describe AdminUser, type: :model do
     end
   end
 
+  describe '.beta_test_supporters_who_cannot_send_automatic_sms' do
+    # Le scope est évalué par ActiveAdmin au rendu de l'index des AdminUser :
+    # une variable absente y ferait planter la page, pas seulement un service.
+    it 'ne lève pas quand BETA_TEST_CALLERS_EMAIL n’est pas défini' do
+      stub_const('ENV', ENV.to_h.except('BETA_TEST_CALLERS_EMAIL'))
+
+      expect(described_class.beta_test_supporters_who_cannot_send_automatic_sms).to be_empty
+    end
+  end
+
   describe 'numéro de téléphone du 2FA' do
     it 'accepte un mobile français et le normalise en e164' do
       admin_user = FactoryBot.create(:admin_user, phone_number: '0612345678')
