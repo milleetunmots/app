@@ -43,7 +43,7 @@ class TwoFactorController < ApplicationController
       redirect_to admin_two_factor_path, notice: 'Un nouveau code vient de vous être envoyé.'
     else
       Rollbar.error("2FA : échec de l'envoi du code", admin_user_id: @admin_user.id, errors: service.errors)
-      redirect_to admin_two_factor_path, alert: "L'envoi du code a échoué. Réessayez dans un instant."
+      redirect_to admin_two_factor_path, alert: "Echec de l'envoi du code. Réessayez dans 60 secondes."
     end
   end
 
