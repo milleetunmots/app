@@ -351,4 +351,73 @@ RSpec.describe ChildSupport, type: :model do
       expect(child_support.reload.unassigned_number_reactivated_at).to be_present
     end
   end
+
+  describe '#pending_book_resend_date' do
+    let_it_be(:book) { FactoryBot.create(:book) }
+    let!(:next_resend_date) { BookShipmentDate.create!(date: Date.current + 10.days).date }
+    # La validation refuse une date passée à la création : on la recale ensuite.
+    let!(:last_shipment_date) do
+      BookShipmentDate.create!(date: Date.current + 1.day).tap { |shipment| shipment.update_column(:date, Date.current - 45.days) }.date
+    end
+    # Second enfant sur la même fiche : l'alerte doit être propre à chaque enfant.
+    let!(:sibling) do
+      FactoryBot.create(:child, parent1: first_parent, group: group, group_status: 'active')
+                .tap { |child| child.update!(child_support: first_child_support) }
+    end
+
+    # `book_condition_changed_at` étant posé à Time.zone.now par le before_save dès que
+    # la condition est présente, antidater un signalement impose update_columns.
+    def report_book_problem(child, reported_at:, resent_on: nil)
+      FactoryBot.create(:children_support_module, child: child, parent: first_parent, book: book, book_condition: 'not_received')
+                .update_columns(book_condition_changed_at: reported_at, book_resent_on: resent_on)
+    end
+
+    it "retourne nil quand aucun livre n'est signalé non reçu / défectueux" do
+      expect(first_child_support.pending_book_resend_date(first_child.id)).to be_nil
+    end
+
+    it 'retourne la prochaine date de renvoi quand un livre est signalé depuis le dernier envoi' do
+      report_book_problem(first_child, reported_at: 2.days.ago)
+
+      expect(first_child_support.pending_book_resend_date(first_child.id)).to eq(next_resend_date)
+    end
+
+    it 'retourne nil quand le signalement est antérieur au dernier envoi' do
+      report_book_problem(first_child, reported_at: last_shipment_date - 1.day)
+
+      expect(first_child_support.pending_book_resend_date(first_child.id)).to be_nil
+    end
+
+    it 'retourne nil quand le livre signalé a déjà été renvoyé depuis le dernier envoi' do
+      report_book_problem(first_child, reported_at: 2.days.ago, resent_on: Date.current - 1.day)
+
+      expect(first_child_support.pending_book_resend_date(first_child.id)).to be_nil
+    end
+
+    it "retourne la prochaine date de renvoi quand un livre renvoyé lors d'un cycle précédent est re-signalé" do
+      report_book_problem(first_child, reported_at: 2.days.ago, resent_on: last_shipment_date - 1.day)
+
+      expect(first_child_support.pending_book_resend_date(first_child.id)).to eq(next_resend_date)
+    end
+
+    it "retourne nil pour un enfant de la fiche qui n'a pas de livre signalé" do
+      report_book_problem(first_child, reported_at: 2.days.ago)
+
+      expect(first_child_support.pending_book_resend_date(sibling.id)).to be_nil
+    end
+
+    it "retourne nil quand aucune date d'envoi n'est programmée" do
+      report_book_problem(first_child, reported_at: 2.days.ago)
+      BookShipmentDate.upcoming.destroy_all
+
+      expect(first_child_support.pending_book_resend_date(first_child.id)).to be_nil
+    end
+
+    it "retourne nil quand l'adresse est suspectée invalide" do
+      report_book_problem(first_child, reported_at: 2.days.ago)
+      first_child_support.update!(address_suspected_invalid_at: Time.zone.now)
+
+      expect(first_child_support.pending_book_resend_date(first_child.id)).to be_nil
+    end
+  end
 end

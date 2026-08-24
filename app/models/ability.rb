@@ -17,6 +17,8 @@ class Ability
           [Parent, Child, ChildSupport, Workshop, Task, SupportModule, MediaFolder, Medium, Tag, Event, Group, Book, ChildrenSupportModule, Source, RegistrationLimit, ScheduledCall]
       can :read, [AdminUser, LogisticExport]
       can :download, LogisticExport
+      can :upsert_shipment_date, Book
+      can :sav_management, Book
       can :manage, ActiveAdmin::Page, name: 'Message'
       can :manage, ActiveAdmin::Page, name: 'Module'
       can :manage, ActiveAdmin::Page, name: 'Messages'

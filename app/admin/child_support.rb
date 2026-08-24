@@ -419,6 +419,12 @@ ActiveAdmin.register ChildSupport do
             div id: 'children-books-sent' do
               f.object.children.each do |child|
                 h4 "Livres envoyés à #{child.first_name} :"
+                pending_book_resend_date = resource.pending_book_resend_date(child.id)
+                if pending_book_resend_date
+                  div class: 'book-resend-alert' do
+                    span "Les livres non reçus / défectueux seront renvoyés le #{pending_book_resend_date.strftime('%d/%m/%Y')}", class: 'txt-warning'
+                  end
+                end
                 div id: 'child-books-sent' do
                   child.children_support_modules.with_books.order(:module_index).each do |support_module|
                     div class: 'card book-card' do
@@ -437,6 +443,11 @@ ActiveAdmin.register ChildSupport do
                                       as: :select,
                                       collection: book_condition_select_collection,
                                       input_html: { class: 'book-select', data: { select2: {} } }
+                        end
+                        if support_module.book_resent_on
+                          div class: 'book-resent-alert' do
+                            span "Renvoyé le #{support_module.book_resent_on.strftime('%d/%m/%Y')}", class: 'txt-warning'
+                          end
                         end
                         small class: 'book-issue-confirmation-message' do
                           i class: 'fa-solid fa-check'
