@@ -5,8 +5,8 @@
     <% children_slice.each do |child| %>
 
       <div class="address">
-        <div class="address-content">
-          <%= child.full_address %>
+        <div class="address-content <%= child.label_size_class %>">
+          <%= safe_join(child.label_address_lines, tag.br) %>
         </div>
       </div>
 
@@ -20,8 +20,16 @@
 
       <div class="gift-card">
         <div class="gift-card-content">
-          <%= @debug ? image_tag('gift.png') : wicked_pdf_image_tag('gift.png') %>
-          Un cadeau pour <%= child.first_name %>&nbsp;!
+          <table>
+            <tr>
+              <td class="gift-card-icon">
+                <%= @debug ? image_tag('gift.png') : wicked_pdf_image_tag('gift.png') %>
+              </td>
+              <td class="gift-card-text">
+                Un cadeau pour <%= child.first_name %>&nbsp;!
+              </td>
+            </tr>
+          </table>
         </div>
       </div>
 

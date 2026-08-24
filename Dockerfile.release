@@ -67,6 +67,12 @@ RUN bundle install --without development test --jobs 20 --retry 5
 # Allow wkhtmltopdf-binary to expand
 RUN chmod o+w $(bundle show wkhtmltopdf-binary)/bin
 
+# Polices des PDF (étiquettes d'adresses). Elles doivent être installées dans le
+# système : chargée en @font-face ou depuis Google Fonts, wkhtmltopdf rend une
+# planche partielle sur ~15 % des générations. fontconfig scanne /usr/share/fonts
+# et construit son cache au premier rendu
+COPY app/assets/fonts/*.ttf /usr/share/fonts/truetype/1001mots/
+
 # Copy the main application.
 COPY . .
 RUN rm -rf  \

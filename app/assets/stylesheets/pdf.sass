@@ -9,27 +9,56 @@
       display: inline-block
       width: $w
       height: $h
+      vertical-align: top
+      overflow: hidden
       // border: 1px solid black
 
     .address-content, .gift-card-content
       display: table-cell
       vertical-align: middle
+      box-sizing: border-box
       width: $w
       height: $h
       text-align: center
       padding: 20px
+      word-break: break-word
+      overflow-wrap: break-word
 
     .address-content
-      font-family: 'Open Sans', sans-serif
+      font-family: 'Nunito', sans-serif
+      font-weight: 800
+      font-size: 15pt
+      line-height: 22pt
+      color: #431F78
+
+    .address-content--small
       font-size: 12pt
-      line-height: 20pt
+      line-height: 17pt
+
+    .address-content--tiny
+      font-size: 9pt
+      line-height: 12pt
 
     .gift-card-content
-      font-family: 'Cedarville Cursive', cursive
-      font-size: 20pt
-      line-height: 28pt
-      color: #FC0D1B
+      table
+        width: 100%
+        border-collapse: collapse
 
-      img
-        vertical-align: bottom
-        width: 70px
+      td
+        vertical-align: middle
+
+      .gift-card-icon
+        width: 80px
+        padding-right: 15px
+
+        img
+          width: 60px
+          display: block
+
+      .gift-card-text
+        font-family: 'Nunito', sans-serif
+        font-weight: 800
+        font-size: 15pt
+        line-height: 20pt
+        color: #431F78
+        text-align: left
