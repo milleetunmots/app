@@ -26,7 +26,7 @@ class SmsSendRecord::QuotaGuard
       # with unpersisted changes is not supported » si l'AdminUser porte des
       # attributs sales, ce qui peut arriver avec le trackable de Devise.
       AdminUser.lock.find(@admin_user.id)
-      @record = SmsSendRecord.create!(admin_user_id: @admin_user.id, recipients_count: @recipients_count) unless exceeds_limits?
+      @record = SmsSendRecord.create!(admin_user_id: @admin_user.id, recipients_count: @recipients_count, blocked: false) unless exceeds_limits?
     end
 
     return true if @record.present?
@@ -40,9 +40,11 @@ class SmsSendRecord::QuotaGuard
 
   # Finalement rien n'est parti (erreur API Spot-Hit, message bloqué par le
   # BlockedSendAttempt::SendGuard) : le quota réservé est rendu, l'utilisateur
-  # ne doit pas être pénalisé pour un envoi qui n'a pas eu lieu.
-  def release!
-    @record&.destroy
+  # ne doit pas être pénalisé pour un envoi qui n'a pas eu lieu. La ligne est
+  # marquée et non supprimée, pour garder la trace de la tentative — c'est le
+  # scope `not_blocked` qui l'exclut du décompte.
+  def mark_blocked!
+    @record&.update!(blocked: true)
     @record = nil
   end
 
@@ -74,7 +76,7 @@ class SmsSendRecord::QuotaGuard
   # prise, et non des valeurs relues après relâchement du verrou.
   def consumed(window)
     @consumed ||= {}
-    @consumed[window] ||= @admin_user.sms_send_records.since(window).sum(:recipients_count)
+    @consumed[window] ||= @admin_user.sms_send_records.not_blocked.since(window).sum(:recipients_count)
   end
 
   # Signal anti-fraude à destination de l'équipe tech, relayé dans Slack par

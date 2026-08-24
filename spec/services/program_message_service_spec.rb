@@ -529,8 +529,11 @@ RSpec.describe ProgramMessageService do
           to_return(status: 200, body: { erreurs: ['nope'] }.to_json)
       end
 
-      it "n'incrémente pas le compteur" do
-        expect { program(["parent.#{parent_2.id}"]) }.not_to change(SmsSendRecord, :count)
+      it 'ne consomme pas de quota et garde la trace de la tentative' do
+        expect { program(["parent.#{parent_2.id}"]) }.to change(SmsSendRecord, :count).by(1)
+
+        expect(SmsSendRecord.last).to be_blocked
+        expect(SmsSendRecord.not_blocked.since(SmsSendRecord::HOURLY_WINDOW).sum(:recipients_count)).to eq(0)
       end
 
       it "retourne l'erreur de Spot-Hit et non une erreur de plafond" do

@@ -157,7 +157,7 @@ class ProgramMessageService
       if service.errors.any?
         # Rien n'est parti (erreur API Spot-Hit ou message bloqué par le
         # BlockedSendAttempt::SendGuard) : le quota réservé est rendu.
-        quota_guard.release!
+        quota_guard.mark_blocked!
         @errors = service.errors
       elsif @invalid_parent_ids.any?
         invalid_parents = Parent.includes(:parent1_children, :parent2_children).where(id: @invalid_parent_ids)

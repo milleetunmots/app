@@ -786,6 +786,7 @@ fr:
       sms_send_record:
         << : *SHARED
         admin_user: Utilisateur
+        blocked: Annulé
         recipients_count: Nombre de destinataires
       support_module:
         << : *SHARED

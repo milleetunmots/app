@@ -898,7 +898,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_21_170000) do
     t.integer "recipients_count", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["admin_user_id", "created_at"], name: "index_sms_send_records_on_admin_user_id_and_created_at"
+    t.boolean "blocked", default: false, null: false
+    t.index ["admin_user_id", "blocked", "created_at"], name: "index_sms_send_records_on_admin_user_blocked_created_at"
   end
 
   create_table "sources", force: :cascade do |t|

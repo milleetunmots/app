@@ -8,6 +8,7 @@ ActiveAdmin.register SmsSendRecord do
   config.sort_order = 'created_at_desc'
 
   filter :admin_user
+  filter :blocked
   filter :created_at
 
   index do
@@ -15,5 +16,8 @@ ActiveAdmin.register SmsSendRecord do
     column :created_at
     column :admin_user
     column :recipients_count
+    # Envoi finalement non parti : la ligne subsiste pour la trace, mais ne
+    # consomme plus le quota de l'utilisateur.
+    column :blocked
   end
 end

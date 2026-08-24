@@ -244,26 +244,35 @@ RSpec.describe SmsSendRecord::QuotaGuard, type: :service do
     end
   end
 
-  describe '#release!' do
-    it 'rend le quota réservé' do
+  describe '#mark_blocked!' do
+    it 'marque la réservation sans supprimer la trace de la tentative' do
       guard = described_class.new(admin_user, 5)
       guard.reserve!
 
-      expect { guard.release! }.to change(SmsSendRecord, :count).by(-1)
+      expect { guard.mark_blocked! }.not_to change(SmsSendRecord, :count)
+      expect(SmsSendRecord.last).to be_blocked
+    end
+
+    it 'rend le quota réservé' do
+      guard = described_class.new(admin_user, 50)
+      guard.reserve!
+      guard.mark_blocked!
+
+      expect(described_class.new(admin_user, 50).reserve!).to be(true)
     end
 
     it 'est idempotent' do
       guard = described_class.new(admin_user, 5)
       guard.reserve!
-      guard.release!
+      guard.mark_blocked!
 
-      expect { guard.release! }.not_to change(SmsSendRecord, :count)
+      expect { guard.mark_blocked! }.not_to(change { SmsSendRecord.last.updated_at })
     end
 
     it 'ne fait rien quand rien n’a été réservé' do
       guard = described_class.new(admin_user, 5)
 
-      expect { guard.release! }.not_to change(SmsSendRecord, :count)
+      expect { guard.mark_blocked! }.not_to change(SmsSendRecord, :count)
     end
   end
 

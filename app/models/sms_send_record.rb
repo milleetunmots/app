@@ -3,6 +3,7 @@
 # Table name: sms_send_records
 #
 #  id               :bigint           not null, primary key
+#  blocked          :boolean          default(FALSE), not null
 #  recipients_count :integer          not null
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
@@ -10,14 +11,12 @@
 #
 # Indexes
 #
-#  index_sms_send_records_on_admin_user_id_and_created_at  (admin_user_id,created_at)
+#  index_sms_send_records_on_admin_user_blocked_created_at  (admin_user_id,blocked,created_at)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (admin_user_id => admin_users.id)
 #
-# Consommation du quota d'envoi Spot-Hit : une ligne = un envoi manuel accepté
-# par le provider, avec le nombre de destinataires réellement transmis.
 class SmsSendRecord < ApplicationRecord
 
   HOURLY_WINDOW = 1.hour
@@ -31,4 +30,9 @@ class SmsSendRecord < ApplicationRecord
   # et jamais la date d'envoi planifiée : un envoi programmé pour dans trois
   # jours consomme le quota immédiatement, et rien ne se réinitialise à minuit.
   scope :since, ->(window) { where(created_at: window.ago..) }
+
+  # Un envoi finalement non parti (erreur API Spot-Hit, message retenu par le
+  # BlockedSendAttempt::SendGuard) est marqué plutôt que supprimé : la trace de
+  # la tentative reste consultable, mais la ligne ne consomme plus le quota.
+  scope :not_blocked, -> { where(blocked: false) }
 end

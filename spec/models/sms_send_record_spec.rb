@@ -1,3 +1,22 @@
+# == Schema Information
+#
+# Table name: sms_send_records
+#
+#  id               :bigint           not null, primary key
+#  blocked          :boolean          default(FALSE), not null
+#  recipients_count :integer          not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  admin_user_id    :bigint           not null
+#
+# Indexes
+#
+#  index_sms_send_records_on_admin_user_blocked_created_at  (admin_user_id,blocked,created_at)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (admin_user_id => admin_users.id)
+#
 require 'rails_helper'
 
 RSpec.describe SmsSendRecord, type: :model do
@@ -36,6 +55,21 @@ RSpec.describe SmsSendRecord, type: :model do
       record = FactoryBot.create(:sms_send_record, admin_user: admin_user, created_at: 61.minutes.ago)
 
       expect(described_class.since(1.hour)).not_to include(record)
+    end
+  end
+
+  describe '.not_blocked' do
+    it 'inclut les envois partis' do
+      record = FactoryBot.create(:sms_send_record, admin_user: admin_user)
+
+      expect(record.blocked).to be(false)
+      expect(described_class.not_blocked).to include(record)
+    end
+
+    it 'exclut les envois annulés' do
+      record = FactoryBot.create(:sms_send_record, admin_user: admin_user, blocked: true)
+
+      expect(described_class.not_blocked).not_to include(record)
     end
   end
 end
