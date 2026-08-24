@@ -186,4 +186,16 @@ module ActiveAdmin::ChildSupportsHelper
       return [ENV['ALTERNATIVE_SCRIPT_VIDEO_CALL3_OBSERVEZ_LINK'], ENV['ALTERNATIVE_SCRIPT_VIDEO_CALL3_PARLEZ_LINK']]
     end
   end
+
+  def resources_translated_video_links(call_idx, child_age_in_months)
+    return {} unless call_idx.zero? && child_age_in_months.present?
+
+    if child_age_in_months < 10
+      { 'Anglais 🇬🇧' => ENV['TRANSLATED_VIDEO_CALL0_ENGLISH_UNDER_10_MONTHS_LINK'] }
+    elsif child_age_in_months < 16
+      { 'Anglais 🇬🇧' => ENV['TRANSLATED_VIDEO_CALL0_ENGLISH_10_TO_16_MONTHS_LINK'] }
+    else
+      {}
+    end
+  end
 end
