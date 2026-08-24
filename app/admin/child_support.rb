@@ -570,38 +570,48 @@ ActiveAdmin.register ChildSupport do
                         end
                       if recommended_script_link.present?
                         stacked_video_links = call_idx.eql?(3) && resource.current_child&.months >= 9 && resource.current_child&.months <= 22
-                        columns class: 'columns resource-links' do
-                          column do
-                            text_node link_to("Script recommandé\u00A0", recommended_script_link, target: '_blank', class: 'recommended_script', id: "call#{call_idx}_recommended_script")
+                        video_in_second_column = call_idx.in?([0, 1]) || stacked_video_links
+                        # « Briefing » se place toujours à droite du dernier lien de la rangée :
+                        # dans la 2e colonne quand celle-ci porte une vidéo recommandée, sinon
+                        # juste après le script recommandé plutôt que seul tout à droite
+                        briefing_link = proc do
+                          span class: 'resource-link briefing-link' do
+                            text_node link_to("Briefing\u00A0", resources_briefing_link(call_idx), target: '_blank', class: 'recommended_script')
                             i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
                           end
-
-                          # « Briefing » garde sa place à droite de la rangée mais partage la
-                          # 2e colonne avec la vidéo recommandée : la grille ne compte que
-                          # 2 colonnes, pour que chaque select de la rangée du dessous occupe
-                          # la moitié de la largeur du panneau
-                          column class: "column video-and-briefing#{' stacked-links' if stacked_video_links}" do
-                            if call_idx.in?([0, 1])
-                              span class: 'resource-link' do
-                                text_node link_to("Vidéo recommandée\u00A0", resources_recommended_video_link(call_idx, resource.current_child&.months), target: '_blank', class: 'recommended_script')
-                                i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
-                              end
-                            elsif stacked_video_links
-                              links = resources_recommended_video_link(call_idx, resource.current_child&.months)
-                              ul do
-                                li do
-                                  text_node link_to("Vidéo OBSERVEZ\u00A0", links.first, target: '_blank', class: 'recommended_script')
-                                  i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
-                                end
-                                li do
-                                  text_node link_to("Vidéo PARLEZ\u00A0", links.second, target: '_blank', class: 'recommended_script')
-                                  i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
-                                end
-                              end
-                            end
-                            span class: 'resource-link briefing-link' do
-                              text_node link_to("Briefing\u00A0", resources_briefing_link(call_idx), target: '_blank', class: 'recommended_script')
+                        end
+                        columns class: 'columns resource-links' do
+                          column class: 'column script-column' do
+                            span class: 'resource-link' do
+                              text_node link_to("Script recommandé\u00A0", recommended_script_link, target: '_blank', class: 'recommended_script', id: "call#{call_idx}_recommended_script")
                               i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
+                            end
+                            briefing_link.call unless video_in_second_column
+                          end
+
+                          # la grille ne compte que 2 colonnes, pour que chaque select de la
+                          # rangée du dessous occupe la moitié de la largeur du panneau
+                          if video_in_second_column
+                            column class: "column video-and-briefing#{' stacked-links' if stacked_video_links}" do
+                              if call_idx.in?([0, 1])
+                                span class: 'resource-link' do
+                                  text_node link_to("Vidéo recommandée\u00A0", resources_recommended_video_link(call_idx, resource.current_child&.months), target: '_blank', class: 'recommended_script')
+                                  i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
+                                end
+                              elsif stacked_video_links
+                                links = resources_recommended_video_link(call_idx, resource.current_child&.months)
+                                ul do
+                                  li do
+                                    text_node link_to("Vidéo OBSERVEZ\u00A0", links.first, target: '_blank', class: 'recommended_script')
+                                    i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
+                                  end
+                                  li do
+                                    text_node link_to("Vidéo PARLEZ\u00A0", links.second, target: '_blank', class: 'recommended_script')
+                                    i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
+                                  end
+                                end
+                              end
+                              briefing_link.call
                             end
                           end
                         end

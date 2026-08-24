@@ -209,6 +209,9 @@
 // et repoussé à droite, plutôt que dans une 3e colonne qui rognerait les selects
 $resources-grid-columns: minmax(0, 1fr) minmax(0, 1fr)
 $resources-grid-gap: 12px
+// les selects ne remplissent pas toute leur colonne, pour respirer un peu
+$resources-select-width: 75%
+$resources-links-gap: 24px
 
 .resource-links
   display: grid
@@ -234,16 +237,21 @@ $resources-grid-gap: 12px
       align-items: center
       gap: 5px
 
-    // colonne portant la vidéo recommandée et le briefing : tous les liens
-    // restent sur la même ligne, « Briefing » collé à droite de la rangée
+    .resource-link
+      display: flex
+      align-items: center
+      gap: 5px
+
+    // colonnes pouvant porter plusieurs liens sur une même ligne
+    &.script-column,
     &.video-and-briefing
-      gap: 24px
+      gap: $resources-links-gap
 
-      .resource-link
-        display: flex
-        align-items: center
-        gap: 5px
-
+    // colonne portant la vidéo recommandée et le briefing : « Briefing » est
+    // collé à droite de la rangée pour aligner le reste. Quand il n'y a pas de
+    // vidéo, « Briefing » est rendu dans la colonne du script et suit donc
+    // simplement le lien du script recommandé
+    &.video-and-briefing
       .briefing-link
         margin-left: auto
 
@@ -284,7 +292,7 @@ $resources-grid-gap: 12px
     min-width: 0
 
     .input.select .select2-container
-      width: 100% !important
+      width: $resources-select-width !important
 
 .avoid-disengagement-btn
   background-color: #5E6469
