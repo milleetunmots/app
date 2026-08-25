@@ -26,10 +26,14 @@ class SmsSendRecord::QuotaGuard
       # with unpersisted changes is not supported » si l'AdminUser porte des
       # attributs sales, ce qui peut arriver avec le trackable de Devise.
       AdminUser.lock.find(@admin_user.id)
-      @record = SmsSendRecord.create!(admin_user_id: @admin_user.id, recipients_count: @recipients_count, blocked: false) unless exceeds_limits?
+      @record = SmsSendRecord.create!(
+        admin_user_id: @admin_user.id,
+        recipients_count: @recipients_count,
+        blocked: exceeds_limits?
+      )
     end
 
-    return true if @record.present?
+    return true if @record&.blocked == false
 
     # Hors transaction, verrou relâché : `Rollbar.warning` est synchrone
     # (`use_async` non activé), alerter sous le SELECT … FOR UPDATE retiendrait
