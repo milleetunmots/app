@@ -191,9 +191,9 @@ module ActiveAdmin::ChildSupportsHelper
     return {} unless call_idx.zero? && child_age_in_months.present?
 
     if child_age_in_months < 10
-      { 'Anglais 🇬🇧' => ENV['TRANSLATED_VIDEO_CALL0_ENGLISH_UNDER_10_MONTHS_LINK'] }
+      { 'Anglais' => ENV['TRANSLATED_VIDEO_CALL0_ENGLISH_UNDER_10_MONTHS_LINK'] }
     elsif child_age_in_months < 16
-      { 'Anglais 🇬🇧' => ENV['TRANSLATED_VIDEO_CALL0_ENGLISH_10_TO_16_MONTHS_LINK'] }
+      { 'Anglais' => ENV['TRANSLATED_VIDEO_CALL0_ENGLISH_10_TO_16_MONTHS_LINK'] }
     else
       {}
     end
