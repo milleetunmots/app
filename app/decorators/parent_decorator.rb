@@ -62,10 +62,16 @@ class ParentDecorator < BaseDecorator
   LABEL_LINE_MAX_LENGTH = 44
 
   # [caractères par ligne rendue, lignes tenant dans l'étiquette, classe CSS]
+  #
+  # Calibré sur les étiquettes Agipa 119006 de 70 × 35 mm, soit 64 mm de large et
+  # 30 mm de haut une fois la marge intérieure retirée (cf. pdf.sass). Le nombre de
+  # lignes vient de l'interligne du palier — 4 × 18pt = 25.4 mm, 6 × 14pt = 29.6 mm,
+  # 7 × 11pt = 27.2 mm — et le nombre de caractères de la largeur utile.
+  # À reprendre si la taille des étiquettes ou les paddings de pdf.sass changent.
   LABEL_FONT_TIERS = [
     [26, 4, nil],
-    [33, 5, 'address-content--small'],
-    [44, 7, 'address-content--tiny']
+    [34, 6, 'address-content--small'],
+    [42, 7, 'address-content--tiny']
   ].freeze
 
   def address_lines

@@ -232,14 +232,26 @@ ActiveAdmin.register Child do
   batch_action :addresses_pdf, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     @children = batch_action_collection.where(id: ids).decorate
     @debug = params.key?('debug')
+    # Calage sur la planche Agipa 119006 (24 étiquettes de 70 × 35 mm par A4,
+    # 3 colonnes × 8 rangées, cf. app/assets/stylesheets/pdf.sass) :
+    # - marges latérales à 0, la grille fait 3 × 70 = 210 mm, la largeur d'une A4 ;
+    # - marge haute (297 − 8 × 35) / 2 = 8.5 mm, c'est le réglage à retoucher si
+    #   les étiquettes sortent trop haut ou trop bas ;
+    # - marge basse à 0 pour laisser du mou : les 8 rangées font 280 mm et un
+    #   arrondi au millimètre suffirait à renvoyer la dernière sur une page en plus ;
+    # - disable_smart_shrinking est indispensable, sans lui wkhtmltopdf remet la
+    #   page à l'échelle et les millimètres du CSS ne valent plus rien sur le papier.
     render pdf: 'etiquettes',
            disposition: 'attachment',
            template: 'admin/children/addresses_pdf',
            layout: 'pdf',
+           page_size: 'A4',
+           dpi: 96,
+           disable_smart_shrinking: true,
            margin: {
-             top: 3,
+             top: 8.5,
              bottom: 0,
-             left: 1,
+             left: 0,
              right: 0
            },
            show_as_html: @debug,
@@ -257,14 +269,18 @@ ActiveAdmin.register Child do
 
     # Le PDF est rendu avant le taguage : si wkhtmltopdf échoue, aucune famille
     # n'est exclue des prochaines collectes.
+    # Mêmes options de calage que la batch action addresses_pdf ci-dessus.
     render pdf: 'etiquettes_mecenat',
            disposition: 'attachment',
            template: 'admin/children/addresses_pdf',
            layout: 'pdf',
+           page_size: 'A4',
+           dpi: 96,
+           disable_smart_shrinking: true,
            margin: {
-             top: 3,
+             top: 8.5,
              bottom: 0,
-             left: 1,
+             left: 0,
              right: 0
            },
            show_as_html: @debug,
