@@ -17,7 +17,7 @@ ActiveAdmin.register Book do
 
     payload = { ok: true, id: shipment_date.id }
 
-    # Modifier la 1ère date décale la 2ème sur le cycle de 45 jours.
+    # Modifier la 1ère date décale la 2ème sur le cycle de 42 jours.
     if params[:position].to_s == '0'
       following = BookShipmentDate.reschedule_following(shipment_date)
       if following.errors.any?

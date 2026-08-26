@@ -15,14 +15,23 @@ require 'rails_helper'
 
 RSpec.describe BookShipmentDate do
   describe '.cycle_after' do
-    it 'adds 45 days and moves to the next monday' do
-      # 08/06/2026 est un lundi, +45 jours donne le jeudi 23/07/2026
-      expect(described_class.cycle_after(Date.new(2026, 6, 8))).to eq(Date.new(2026, 7, 27))
+    it 'adds 42 days and moves to the next monday' do
+      # 05/06/2026 est un vendredi, +42 jours donne le vendredi 17/07/2026
+      expect(described_class.cycle_after(Date.new(2026, 6, 5))).to eq(Date.new(2026, 7, 20))
     end
 
-    it 'keeps the date when +45 days already falls on a monday' do
-      # 05/06/2026 est un vendredi, +45 jours donne le lundi 20/07/2026
-      expect(described_class.cycle_after(Date.new(2026, 6, 5))).to eq(Date.new(2026, 7, 20))
+    it 'keeps the date when +42 days already falls on a monday' do
+      # 08/06/2026 est un lundi, +42 jours donne le lundi 20/07/2026
+      expect(described_class.cycle_after(Date.new(2026, 6, 8))).to eq(Date.new(2026, 7, 20))
+    end
+
+    # Le cycle vaut 6 semaines pleines : parti d'un lundi, il ne peut plus en
+    # sortir, et le recalage ci-dessus ne sert que pour une date saisie à la main.
+    it 'stays on a monday across successive cycles' do
+      dates = 15.times.reduce([Date.new(2026, 8, 31)]) { |acc, _| acc << described_class.cycle_after(acc.last) }
+
+      expect(dates).to all(be_monday)
+      expect(dates.each_cons(2).map { |a, b| b - a }.uniq).to eq([42])
     end
   end
 

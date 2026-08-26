@@ -13,7 +13,7 @@
 #
 class BookShipmentDate < ApplicationRecord
 
-  CYCLE_DAYS = 45
+  CYCLE_DAYS = 42
 
   validates :date, presence: true, uniqueness: true
   validate :date_cannot_be_in_the_past, if: :date_changed?
@@ -21,7 +21,7 @@ class BookShipmentDate < ApplicationRecord
   scope :upcoming, -> { where(date: Date.current..).order(:date) }
   scope :past, -> { where(date: ...Date.current).order(:date) }
 
-  # Date du cycle suivant : +45 jours, recalé sur le lundi suivant.
+  # Date du cycle suivant : +42 jours, recalé sur le lundi suivant.
   def self.cycle_after(date)
     base = date + CYCLE_DAYS.days
     base.monday? ? base : base.next_occurring(:monday)
