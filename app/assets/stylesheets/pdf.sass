@@ -1,35 +1,99 @@
+// WebKit applique 8px de marge au body par défaut. Sur une grille large de
+// 210 mm — exactement une A4 — ces 2.1 mm décalent tout vers la droite et font
+// déborder la troisième colonne hors de la page.
+body
+  margin: 0
+  padding: 0
+
 #content
 
   .addresses
 
-    $w: 84mm
-    $h: 44mm
+    // Planche Agipa 119006 : 24 étiquettes de 70 × 35 mm par feuille A4,
+    // 3 colonnes × 8 rangées, sans gouttière. 3 × 70 = 210 mm, soit exactement
+    // la largeur d'une A4 : les marges latérales du PDF doivent rester à 0
+    // (cf. app/admin/child.rb, batch actions addresses_pdf / mecenat_addresses_pdf).
+    $w: 70mm
+    $h: 35mm
+
+    // Marge intérieure de l'étiquette. La hauteur utile qui en découle
+    // (35 − 2 × 2.5 = 30 mm) et la largeur utile (70 − 2 × 3 = 64 mm)
+    // conditionnent les paliers LABEL_FONT_TIERS de ParentDecorator :
+    // toute modification ici impose de les recalculer.
+    $pad-v: 2.5mm
+    $pad-h: 3mm
+
+    // Largeur figée à 3 colonnes. Sans elle la grille se replierait sur la largeur
+    // disponible, ce qui ne se voit pas dans le PDF (une A4 fait justement 210 mm)
+    // mais rend l'aperçu HTML ?debug trompeur dès que la fenêtre est plus étroite.
+    width: $w * 3
+
+    // Les étiquettes sont des inline-block et 3 × 70 mm remplit la largeur au
+    // millimètre près : le moindre blanc entre deux balises ferait passer la
+    // troisième à la ligne. font-size: 0 neutralise ces espaces, chaque contenu
+    // redéclarant ensuite sa propre taille.
+    font-size: 0
 
     .address, .gift-card
       display: inline-block
+      box-sizing: border-box
       width: $w
       height: $h
-      // border: 1px solid black
+      vertical-align: top
+      overflow: hidden
+      // Décommenter pour matérialiser les cases et contrôler le calage sur la
+      // planche : box-sizing garde la bordure à l'intérieur des 70 × 35 mm.
+      // border: 0.2mm solid red
 
     .address-content, .gift-card-content
       display: table-cell
       vertical-align: middle
+      box-sizing: border-box
       width: $w
       height: $h
       text-align: center
-      padding: 20px
+      padding: $pad-v $pad-h
+      word-break: break-word
+      overflow-wrap: break-word
 
+    // Paliers de police, du plus grand au plus petit. Interlignes choisis pour
+    // que le nombre de lignes annoncé par LABEL_FONT_TIERS tienne dans les 30 mm
+    // utiles : 4 × 18pt = 25.4 mm, 6 × 14pt = 29.6 mm, 7 × 11pt = 27.2 mm.
     .address-content
-      font-family: 'Open Sans', sans-serif
-      font-size: 12pt
-      line-height: 20pt
+      font-family: 'Nunito', sans-serif
+      font-weight: 800
+      font-size: 13pt
+      line-height: 18pt
+      color: #431F78
+
+    .address-content--small
+      font-size: 10pt
+      line-height: 14pt
+
+    .address-content--tiny
+      font-size: 8pt
+      line-height: 11pt
 
     .gift-card-content
-      font-family: 'Cedarville Cursive', cursive
-      font-size: 20pt
-      line-height: 28pt
-      color: #FC0D1B
+      table
+        width: 100%
+        border-collapse: collapse
 
-      img
-        vertical-align: bottom
-        width: 70px
+      td
+        vertical-align: middle
+
+      .gift-card-icon
+        width: 52px
+        padding-right: 12px
+
+        img
+          width: 40px
+          display: block
+
+      .gift-card-text
+        font-family: 'Nunito', sans-serif
+        font-weight: 800
+        font-size: 12pt
+        line-height: 16pt
+        color: #431F78
+        text-align: left

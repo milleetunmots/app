@@ -262,6 +262,7 @@ class ChildSupport < ApplicationRecord
 
   # getter to make select work in form
   attr_accessor :call0_resources_alternative_scripts, :call1_resources_alternative_scripts, :call2_resources_alternative_scripts, :call3_resources_alternative_scripts
+  attr_accessor :call0_resources_translated_videos
 
   # Si un nouveau statut d'appel est renseigné après une réactivation pour numéro erroné,
   # on lève le marqueur : un nouveau "Numéro erroné" pourra de nouveau déclencher l'arrêt automatique.
@@ -633,6 +634,27 @@ class ChildSupport < ApplicationRecord
 
   def book_not_received=(val)
     super((val || []).reject(&:blank?).join(';'))
+  end
+
+  # date à laquelle les livres non reçus / défectueux d'un enfant de cette fiche seront renvoyés,
+  # ou nil si aucune alerte de renvoi SAV ne doit être affichée
+  def pending_book_resend_date(child_id)
+    return nil if address_suspected_invalid_at.present?
+
+    next_resend_date = BookShipmentDate.upcoming.first&.date
+    return nil if next_resend_date.blank?
+
+    last_shipment_date = BookShipmentDate.past.last&.date
+    no_resend_since = last_shipment_date ? [nil, ...last_shipment_date] : nil
+
+    return nil unless children_support_modules.with_books.exists?(
+      child_id: child_id,
+      book_condition: ChildrenSupportModule::CONDITIONS,
+      book_condition_changed_at: last_shipment_date...next_resend_date,
+      book_resent_on: no_resend_since
+    )
+
+    next_resend_date
   end
 
   def copy_fields(child_support)

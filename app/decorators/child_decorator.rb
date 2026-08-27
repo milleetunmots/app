@@ -211,6 +211,14 @@ class ChildDecorator < BaseDecorator
     model.parent1.decorate.full_address
   end
 
+  def label_address_lines
+    model.parent1.decorate.label_address_lines
+  end
+
+  def label_size_class
+    model.parent1.decorate.label_size_class
+  end
+
   def address_with_letterbox_name
     [letterbox_name, address].reject(&:blank?).join(' ')
   end

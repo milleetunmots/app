@@ -232,14 +232,26 @@ ActiveAdmin.register Child do
   batch_action :addresses_pdf, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
     @children = batch_action_collection.where(id: ids).decorate
     @debug = params.key?('debug')
+    # Calage sur la planche Agipa 119006 (24 étiquettes de 70 × 35 mm par A4,
+    # 3 colonnes × 8 rangées, cf. app/assets/stylesheets/pdf.sass) :
+    # - marges latérales à 0, la grille fait 3 × 70 = 210 mm, la largeur d'une A4 ;
+    # - marge haute (297 − 8 × 35) / 2 = 8.5 mm, c'est le réglage à retoucher si
+    #   les étiquettes sortent trop haut ou trop bas ;
+    # - marge basse à 0 pour laisser du mou : les 8 rangées font 280 mm et un
+    #   arrondi au millimètre suffirait à renvoyer la dernière sur une page en plus ;
+    # - disable_smart_shrinking est indispensable, sans lui wkhtmltopdf remet la
+    #   page à l'échelle et les millimètres du CSS ne valent plus rien sur le papier.
     render pdf: 'etiquettes',
            disposition: 'attachment',
            template: 'admin/children/addresses_pdf',
            layout: 'pdf',
+           page_size: 'A4',
+           dpi: 96,
+           disable_smart_shrinking: true,
            margin: {
-             top: 3,
+             top: 8.5,
              bottom: 0,
-             left: 1,
+             left: 0,
              right: 0
            },
            show_as_html: @debug,
@@ -248,13 +260,55 @@ ActiveAdmin.register Child do
            progress: proc { |output| puts output }
   end
 
+  batch_action :mecenat_addresses_pdf,
+               confirm: 'Cette action va taguer tous les éléments afin de les exclure des prochaines collectes. N’utilisez pas cette fonctionnalité à des fins de test. Continuer ?',
+               if: proc { current_admin_user.user_role.in?(%w[reader contributor super_admin]) } do |ids|
+    children = batch_action_collection.where(id: ids)
+    @children = children.decorate
+    @debug = params.key?('debug')
+
+    # Le PDF est rendu avant le taguage : si wkhtmltopdf échoue, aucune famille
+    # n'est exclue des prochaines collectes.
+    # Mêmes options de calage que la batch action addresses_pdf ci-dessus.
+    render pdf: 'etiquettes_mecenat',
+           disposition: 'attachment',
+           template: 'admin/children/addresses_pdf',
+           layout: 'pdf',
+           page_size: 'A4',
+           dpi: 96,
+           disable_smart_shrinking: true,
+           margin: {
+             top: 8.5,
+             bottom: 0,
+             left: 0,
+             right: 0
+           },
+           show_as_html: @debug,
+           disable_local_file_access: false,
+           enable_local_file_access: true,
+           progress: proc { |output| puts output }
+
+    tag = Tag.find_or_create_by(name: 'collecte et envoi de livres mecenes') do |t|
+      t.is_visible_by_callers_and_animators = false
+    end
+
+    ActiveRecord::Base.transaction do
+      children.each do |child|
+        next unless child.child_support
+
+        child.child_support.tag_list += [tag]
+        child.child_support.save(validate: false)
+      end
+    end
+  end
+
   batch_action :send_address_verification_message,
                confirm: 'Des messages vont être envoyés aux parents pour confirmer leur adresse. Continuer ?',
                if: proc { current_admin_user.user_role.in?(%w[reader contributor super_admin]) } do |ids|
     parent_ids = Child.where(id: ids).map { |child| "parent.#{child.parent1_id}" }.uniq
     message = <<~MESSAGE
       1001mots : Bonjour,
-      Votre accompagnement avec 1001mots est fini ou va bientôt être fini. Mais grâce à la générosité de l’un de nos partenaires qui a récolté des livres, vous allez recevoir un dernier livre en cadeau.
+      Votre accompagnement avec 1001mots est fini ou sera bientôt fini. Mais un de nos partenaires tient à vous offrir un dernier livre, récolté auprès de parents d'enfants plus grands, qui ont eu envie de partager les livres qu'ils ont aimés à l'âge de {PRENOM_ENFANT}.
       Nous allons l'envoyer à l'adresse suivante :
       {PARENT_ADDRESS}
       Si l'adresse postale ou le nom sur la boîte aux lettres ne sont pas bons, merci de les modifier ici : https://form.typeform.com/to/IDpRjIqI#st=xxxxx

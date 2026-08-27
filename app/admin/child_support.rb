@@ -419,6 +419,12 @@ ActiveAdmin.register ChildSupport do
             div id: 'children-books-sent' do
               f.object.children.each do |child|
                 h4 "Livres envoyés à #{child.first_name} :"
+                pending_book_resend_date = resource.pending_book_resend_date(child.id)
+                if pending_book_resend_date
+                  div class: 'book-resend-alert' do
+                    span "Les livres non reçus / défectueux seront renvoyés le #{pending_book_resend_date.strftime('%d/%m/%Y')}", class: 'txt-warning'
+                  end
+                end
                 div id: 'child-books-sent' do
                   child.children_support_modules.with_books.order(:module_index).each do |support_module|
                     div class: 'card book-card' do
@@ -437,6 +443,11 @@ ActiveAdmin.register ChildSupport do
                                       as: :select,
                                       collection: book_condition_select_collection,
                                       input_html: { class: 'book-select', data: { select2: {} } }
+                        end
+                        if support_module.book_resent_on
+                          div class: 'book-resent-alert' do
+                            span "Renvoyé le #{support_module.book_resent_on.strftime('%d/%m/%Y')}", class: 'txt-warning'
+                          end
                         end
                         small class: 'book-issue-confirmation-message' do
                           i class: 'fa-solid fa-check'
@@ -558,27 +569,50 @@ ActiveAdmin.register ChildSupport do
                           end
                         end
                       if recommended_script_link.present?
-                        ul class: 'resource-links' do
-                          li link_to("Script recommandé\u00A0", recommended_script_link, target: '_blank', class: 'recommended_script', id: "call#{call_idx}_recommended_script") do
+                        stacked_video_links = call_idx.eql?(3) && resource.current_child&.months >= 9 && resource.current_child&.months <= 22
+                        video_in_second_column = call_idx.in?([0, 1]) || stacked_video_links
+                        # « Briefing » se place toujours à droite du dernier lien de la rangée :
+                        # dans la 2e colonne quand celle-ci porte une vidéo recommandée, sinon
+                        # juste après le script recommandé plutôt que seul tout à droite
+                        briefing_link = proc do
+                          span class: 'resource-link briefing-link' do
+                            text_node link_to("Briefing\u00A0", resources_briefing_link(call_idx), target: '_blank', class: 'recommended_script')
                             i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
                           end
-
-                          if call_idx.in?([0, 1])
-                            li link_to("Vidéo recommandée\u00A0", resources_recommended_video_link(call_idx, resource.current_child&.months), target: '_blank', class: 'recommended_script') do
+                        end
+                        columns class: 'columns resource-links' do
+                          column class: 'column script-column' do
+                            span class: 'resource-link' do
+                              text_node link_to("Script recommandé\u00A0", recommended_script_link, target: '_blank', class: 'recommended_script', id: "call#{call_idx}_recommended_script")
                               i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
                             end
-                          elsif call_idx.eql?(3) && resource.current_child&.months >= 9 && resource.current_child&.months <= 22
-                            links = resources_recommended_video_link(call_idx, resource.current_child&.months)
-                            li link_to("Vidéo OBSERVEZ\u00A0", links.first, target: '_blank', class: 'recommended_script') do
-                              i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
-                            end
-                            li link_to("Vidéo PARLEZ\u00A0", links.second, target: '_blank', class: 'recommended_script') do
-                              i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
-                            end
+                            briefing_link.call unless video_in_second_column
                           end
 
-                          li link_to("Briefing\u00A0", resources_briefing_link(call_idx), target: '_blank', class: 'recommended_script') do
-                            i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
+                          # la grille ne compte que 2 colonnes, pour que chaque select de la
+                          # rangée du dessous occupe la moitié de la largeur du panneau
+                          if video_in_second_column
+                            column class: "column video-and-briefing#{' stacked-links' if stacked_video_links}" do
+                              if call_idx.in?([0, 1])
+                                span class: 'resource-link' do
+                                  text_node link_to("Vidéo recommandée\u00A0", resources_recommended_video_link(call_idx, resource.current_child&.months), target: '_blank', class: 'recommended_script')
+                                  i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
+                                end
+                              elsif stacked_video_links
+                                links = resources_recommended_video_link(call_idx, resource.current_child&.months)
+                                ul do
+                                  li do
+                                    text_node link_to("Vidéo OBSERVEZ\u00A0", links.first, target: '_blank', class: 'recommended_script')
+                                    i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
+                                  end
+                                  li do
+                                    text_node link_to("Vidéo PARLEZ\u00A0", links.second, target: '_blank', class: 'recommended_script')
+                                    i class: 'fa-solid fa-arrow-up-right-from-square recommended_script'
+                                  end
+                                end
+                              end
+                              briefing_link.call
+                            end
                           end
                         end
                         if call_idx == 2 && !call0_failed && !call1_failed && ENV['OLD_CALL2_SCRIPT_FEATURE_FLAG'].present?
@@ -588,9 +622,15 @@ ActiveAdmin.register ChildSupport do
                             end
                           end
                         end
-                        ul do
-                          li do
+                        translated_video_links = resources_translated_video_links(call_idx, resource.current_child&.months)
+                        div class: 'resources-selects-row' do
+                          div class: 'resources-select-col' do
                             f.input "call#{call_idx}_resources_alternative_scripts", as: :select, collection: resources_alternative_script_links
+                          end
+                          if translated_video_links.present?
+                            div class: 'resources-select-col' do
+                              f.input "call#{call_idx}_resources_translated_videos", as: :select, collection: translated_video_links
+                            end
                           end
                         end
                       end
@@ -1467,7 +1507,7 @@ ActiveAdmin.register ChildSupport do
       params['name'] ||= "#{parent.first_name} #{parent.last_name}"
       params['first_name'] ||= parent.first_name
       params['last_name'] ||= parent.last_name
-      params['email'] = parent.email if params['email'].blank? && parent.email.present?
+      params['email'] = params['email'].blank? && parent.email.present? ? parent.email : 'rdv@1001mots.org'
       uri.query = URI.encode_www_form(params).gsub('+', '%20')
       uri.to_s
     end

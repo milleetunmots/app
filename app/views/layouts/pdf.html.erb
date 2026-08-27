@@ -1,8 +1,10 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <%= stylesheet_link_tag 'https://fonts.googleapis.com/css?family=Open+Sans&display=swap' %>
-    <%= stylesheet_link_tag 'https://fonts.googleapis.com/css?family=Cedarville+Cursive&display=swap' %>
+    <%# Aucune webfont dans le rendu PDF : qu'elle vienne de Google Fonts ou d'un
+        @font-face en base64, wkhtmltopdf rend une planche d'étiquettes partielle
+        sur ~15 % des générations (mesuré sur 20 rendus). Nunito est installée dans
+        l'image (cf. Dockerfile.release) et résolue nativement. %>
     <%= @debug ? stylesheet_link_tag('pdf') : wicked_pdf_stylesheet_link_tag('pdf') %>
   </head>
   <body>

@@ -191,6 +191,9 @@
           color: $success
           margin-top: -1rem
           display: none
+        .book-resent-alert
+          font-size: 80%
+          margin-top: 5px
       .select2-container
           width: 70% !important
 
@@ -199,28 +202,97 @@
     color: black !important
     font-weight: bold
 
+// grille partagée par .resource-links et .resources-selects-row : les colonnes
+// des deux rangées sont alignées verticalement (lien n° 2 au-dessus du select
+// n° 2, etc.). Deux colonnes seulement, pour que chaque select prenne la moitié
+// de la largeur du panneau : le lien « Briefing » est rendu dans la 2e colonne
+// et repoussé à droite, plutôt que dans une 3e colonne qui rognerait les selects
+$resources-grid-columns: minmax(0, 1fr) minmax(0, 1fr)
+$resources-grid-gap: 12px
+// les selects ne remplissent pas toute leur colonne, pour respirer un peu
+$resources-select-width: 75%
+$resources-links-gap: 24px
+
 .resource-links
-  list-style: none
-  padding: 0
-  margin: 0
-  display: flex
-  gap: 40px
+  display: grid
+  grid-template-columns: $resources-grid-columns
+  align-items: start
+  width: 100%
+  gap: $resources-grid-gap
+  overflow-x: auto
 
-  li
-    display: inline-flex
+  // le composant Columns d'ActiveAdmin pose width/margin en style inline, ce qui
+  // s'applique aussi aux items de grille : on les neutralise pour que chaque
+  // colonne remplisse sa cellule
+  > .column
+    width: auto !important
+    margin-right: 0 !important
+    display: flex
     align-items: center
-
+    justify-content: flex-start
+    gap: 5px
+    white-space: nowrap
     a
       display: flex
       align-items: center
       gap: 5px
 
-    &.scripts-select
-      .select2-container
-        min-width: 200px
+    .resource-link
+      display: flex
+      align-items: center
+      gap: 5px
 
-      label
-        margin-right: 8px
+    // colonnes pouvant porter plusieurs liens sur une même ligne
+    &.script-column,
+    &.video-and-briefing
+      gap: $resources-links-gap
+
+    // colonne portant la vidéo recommandée et le briefing : « Briefing » est
+    // collé à droite de la rangée pour aligner le reste. Quand il n'y a pas de
+    // vidéo, « Briefing » est rendu dans la colonne du script et suit donc
+    // simplement le lien du script recommandé
+    &.video-and-briefing
+      .briefing-link
+        margin-left: auto
+
+    // colonne contenant plusieurs liens empilés : sa première ligne doit
+    // s'aligner sur celle des colonnes à un seul lien
+    &.stacked-links
+      align-items: flex-start
+
+      ul
+        list-style: none
+        margin: 0
+        padding: 0
+        display: flex
+        flex-direction: column
+        gap: 4px
+
+      li
+        display: flex
+        align-items: center
+        gap: 5px
+
+  // div de clearfix ajouté par Columns#closing_tag
+  > div:not(.column)
+    display: none
+
+// grille identique à .resource-links pour l'alignement vertical des colonnes
+.resources-selects-row
+  display: grid
+  grid-template-columns: $resources-grid-columns
+  gap: $resources-grid-gap
+  margin-top: 8px
+
+  // ces selects sont transformés en select2 : pour qu'ils remplissent leur
+  // colonne de grille il faut battre la règle d'arctic_admin
+  // « body.logged_in.edit .input .select2-container { width: 50% !important } »,
+  // d'où le sélecteur volontairement plus spécifique
+  .resources-select-col
+    min-width: 0
+
+    .input.select .select2-container
+      width: $resources-select-width !important
 
 .avoid-disengagement-btn
   background-color: #5E6469

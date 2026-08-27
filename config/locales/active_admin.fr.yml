@@ -2,6 +2,7 @@ fr:
   active_admin:
     distribute_child_supports: Attribuer les familles aux accompagnantes
     upload_undelivered_books_csv: Gestion des plis non distribués
+    new_sav_import: Gestion du SAV
     batch_actions:
       default_confirmation: Action groupée
       labels:
@@ -17,6 +18,7 @@ fr:
         create_redirection_url: Créer une URL courte pour
         create_support: Créer le suivi pour
         addresses_pdf: Générer les étiquettes pour
+        mecenat_addresses_pdf: Générer les étiquettes pour un envoi de livres (mécénat) pour
         quit_group: Mettre en pause la cohorte pour
         reactive_group: Réactiver la cohorte pour
         excel_export: Exporter un fichier Excel pour
