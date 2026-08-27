@@ -8,6 +8,12 @@ class SmsSendRecord::QuotaGuard
   # savoir laquelle est atteinte, il doit contacter un admin.
   QUOTA_EXCEEDED_MESSAGE = "Vous avez atteint la limite d'envoi de messages. Aucun message n'a pu être envoyé. Contactez un admin.".freeze
 
+  # Identité du message d'alerte, pour le repérer d'un coup d'œil dans le canal.
+  # Slack exige le scope `chat:write.customize` sur le bot, sans quoi les deux
+  # sont ignorés et le message part sous l'identité par défaut de l'app.
+  ALERT_ICON_EMOJI = ':rotating_light:'.freeze
+  ALERT_USERNAME = 'Alerte quota message'.freeze
+
   def initialize(admin_user, recipients_count)
     @admin_user = admin_user
     @recipients_count = recipients_count.to_i
@@ -35,9 +41,9 @@ class SmsSendRecord::QuotaGuard
 
     return true if @record&.blocked == false
 
-    # Hors transaction, verrou relâché : `Rollbar.warning` est synchrone
-    # (`use_async` non activé), alerter sous le SELECT … FOR UPDATE retiendrait
-    # le verrou de la ligne admin_users pendant l'aller-retour HTTP.
+    # Hors transaction, verrou relâché : l'alerte part par un appel HTTP
+    # synchrone à Slack, l'émettre sous le SELECT … FOR UPDATE retiendrait le
+    # verrou de la ligne admin_users pendant tout l'aller-retour.
     report_block!
     false
   end
@@ -83,22 +89,34 @@ class SmsSendRecord::QuotaGuard
     @consumed[window] ||= @admin_user.sms_send_records.not_blocked.since(window).sum(:recipients_count)
   end
 
-  # Signal anti-fraude à destination de l'équipe tech, relayé dans Slack par
-  # l'intégration Rollbar. L'email est dans le libellé et non dans le payload
-  # pour que Rollbar crée un item par utilisatrice : un libellé constant ne
-  # formerait qu'un seul item, et Slack ne serait notifié qu'aux 1er, 10e et
-  # 100e blocages toutes utilisatrices confondues. Contrairement au message
-  # affiché à l'utilisatrice, le payload peut nommer la fenêtre franchie.
+  # Signal anti-fraude à destination de l'équipe tech, posté dans Slack.
+  # Contrairement au message affiché à l'utilisatrice, l'alerte nomme la fenêtre
+  # franchie et porte les compteurs. Le Rollbar de secours n'est pas l'alerte :
+  # c'est le filet qui évite qu'un blocage disparaisse sans trace si Slack est
+  # injoignable.
   def report_block!
-    Rollbar.warning(
-      "SmsSendRecord::QuotaGuard : envoi bloqué — #{@admin_user.email}",
-      admin_user_id: @admin_user.id,
-      recipients_count: @recipients_count,
-      exceeded_windows: @exceeded_windows,
-      consumed_hourly: consumed(SmsSendRecord::HOURLY_WINDOW),
-      consumed_daily: consumed(SmsSendRecord::DAILY_WINDOW),
-      hourly_limit: @admin_user.sms_hourly_recipients_limit,
-      daily_limit: @admin_user.sms_daily_recipients_limit
-    )
+    service = Slack::PostMessageService.new(
+      channel: "##{ENV['SLACK_QUOTA_ALERT_CHANNEL']}",
+      text: alert_text,
+      icon_emoji: ALERT_ICON_EMOJI,
+      username: ALERT_USERNAME
+    ).call
+
+    Rollbar.error('Slack::PostMessageService', errors: service.errors) if service.errors.any?
+  end
+
+  # Une ligne par information, en mrkdwn. Les compteurs sont lus par `consumed`,
+  # mémoïsé : l'alerte porte les valeurs sur lesquelles la décision a été prise
+  # sous verrou, et non des valeurs relues après son relâchement.
+  def alert_text
+    [
+      '*Envoi SMS bloqué — quota atteint*',
+      "*Utilisatrice* : #{@admin_user.name}",
+      "*Destinataires demandés* : #{@recipients_count}",
+      "*Quota horaire* : #{consumed(SmsSendRecord::HOURLY_WINDOW)} / #{@admin_user.sms_hourly_recipients_limit}",
+      "*Quota journalier* : #{consumed(SmsSendRecord::DAILY_WINDOW)} / #{@admin_user.sms_daily_recipients_limit}",
+      "*Fenêtre(s) franchie(s)* : #{@exceeded_windows.join(', ')}",
+      "_#{Time.current.strftime('%d/%m %H:%M')}_"
+    ].join("\n")
   end
 end

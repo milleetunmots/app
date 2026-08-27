@@ -152,90 +152,145 @@ RSpec.describe SmsSendRecord::QuotaGuard, type: :service do
     end
 
     context 'alerte de blocage' do
-      # L'email est dans le libellé et non dans le payload : c'est ce qui fait
-      # créer à Rollbar un item par utilisatrice, donc une notification Slack
-      # dès qu'une nouvelle personne atteint son plafond.
-      let(:label) { "SmsSendRecord::QuotaGuard : envoi bloqué — #{admin_user.email}" }
+      let(:slack) { instance_double(Slack::PostMessageService, errors: []) }
+      let(:alerts) { [] }
+
+      before do
+        allow(slack).to receive(:call).and_return(slack)
+        allow(Slack::PostMessageService).to receive(:new) do |payload|
+          alerts << payload
+          slack
+        end
+      end
+
+      def alert_payload
+        alerts.last
+      end
+
+      def alert_content
+        alert_payload[:text]
+      end
+
+      it 'poste l’alerte dans le canal configuré' do
+        consume(50, 10.minutes.ago)
+
+        described_class.new(admin_user, 1).reserve!
+
+        expect(alert_payload[:channel]).to eq("##{ENV['SLACK_QUOTA_ALERT_CHANNEL']}")
+      end
+
+      # L'emoji et le nom affiché sont ce qui rend l'alerte repérable dans le
+      # canal, avant même d'en lire le contenu.
+      it 'signe le message avec l’identité d’alerte' do
+        consume(50, 10.minutes.ago)
+
+        described_class.new(admin_user, 1).reserve!
+
+        expect(alert_payload[:icon_emoji]).to eq(SmsSendRecord::QuotaGuard::ALERT_ICON_EMOJI)
+        expect(alert_payload[:username]).to eq(SmsSendRecord::QuotaGuard::ALERT_USERNAME)
+      end
 
       it 'alerte quand le plafond horaire bloque' do
         consume(50, 10.minutes.ago)
 
-        expect(Rollbar).to receive(:warning).with(label, hash_including(exceeded_windows: ['horaire']))
-
         described_class.new(admin_user, 1).reserve!
+
+        expect(alert_content).to include('*Fenêtre(s) franchie(s)* : horaire')
       end
 
       it 'alerte quand seul le plafond journalier bloque' do
         consume(200, 5.hours.ago)
 
-        expect(Rollbar).to receive(:warning).with(label, hash_including(exceeded_windows: ['journalier']))
-
         described_class.new(admin_user, 1).reserve!
+
+        expect(alert_content).to include('*Fenêtre(s) franchie(s)* : journalier')
       end
 
       it 'nomme les deux fenêtres quand les deux sont franchies' do
         consume(200, 10.minutes.ago)
 
-        expect(Rollbar).to receive(:warning).with(label, hash_including(exceeded_windows: %w[horaire journalier]))
+        described_class.new(admin_user, 1).reserve!
+
+        expect(alert_content).to include('*Fenêtre(s) franchie(s)* : horaire, journalier')
+      end
+
+      it 'identifie l’utilisatrice bloquée' do
+        consume(50, 10.minutes.ago)
 
         described_class.new(admin_user, 1).reserve!
+
+        expect(alert_content).to include("*Utilisatrice* : #{admin_user.name}")
       end
 
       it 'porte les compteurs de consommation et les plafonds' do
         consume(30, 10.minutes.ago)
         consume(120, 5.hours.ago)
 
-        expect(Rollbar).to receive(:warning).with(
-          label,
-          hash_including(
-            admin_user_id: admin_user.id,
-            recipients_count: 40,
-            consumed_hourly: 30,
-            consumed_daily: 150,
-            hourly_limit: 50,
-            daily_limit: 200
-          )
-        )
-
         described_class.new(admin_user, 40).reserve!
+
+        expect(alert_content).to include('*Destinataires demandés* : 40')
+        expect(alert_content).to include('*Quota horaire* : 30 / 50')
+        expect(alert_content).to include('*Quota journalier* : 150 / 200')
+      end
+
+      it 'annonce le blocage en première ligne' do
+        consume(50, 10.minutes.ago)
+
+        described_class.new(admin_user, 1).reserve!
+
+        expect(alert_content.lines.first).to include('Envoi SMS bloqué')
       end
 
       it "n'alerte pas quand l'envoi passe" do
         consume(10, 30.minutes.ago)
 
-        expect(Rollbar).not_to receive(:warning)
-
         described_class.new(admin_user, 5).reserve!
+
+        expect(Slack::PostMessageService).not_to have_received(:new)
       end
 
       it "n'alerte pas pour les périmètres exclus" do
         super_admin = FactoryBot.create(:admin_user, user_role: 'super_admin')
         consume(500, 10.minutes.ago, user: super_admin)
 
-        expect(Rollbar).not_to receive(:warning)
-
         described_class.new(nil, 500).reserve!
         described_class.new(super_admin, 100).reserve!
+
+        expect(Slack::PostMessageService).not_to have_received(:new)
       end
 
       it "n'alerte pas pour un envoi sans destinataire" do
         consume(50, 10.minutes.ago)
 
-        expect(Rollbar).not_to receive(:warning)
-
         described_class.new(admin_user, 0).reserve!
+
+        expect(Slack::PostMessageService).not_to have_received(:new)
       end
 
-      # L'invariant qui justifie d'alerter après le commit : `Rollbar.warning`
-      # est synchrone, l'appeler sous le SELECT … FOR UPDATE retiendrait le
-      # verrou de la ligne admin_users pendant l'aller-retour HTTP. On compare
-      # des profondeurs plutôt que d'attendre zéro, à cause de la transaction
-      # que DatabaseCleaner ouvre autour de chaque exemple.
+      # Slack indisponible ne doit pas changer l'issue de l'envoi : le blocage
+      # reste un blocage, et la trace part dans Rollbar pour ne pas se perdre.
+      it 'trace dans Rollbar quand Slack échoue, sans changer l’issue' do
+        consume(50, 10.minutes.ago)
+        allow(slack).to receive(:errors).and_return(['Slack chat.postMessage vers #test_app : channel_not_found'])
+
+        expect(Rollbar).to receive(:error).with('Slack::PostMessageService', hash_including(:errors))
+
+        expect(described_class.new(admin_user, 1).reserve!).to be(false)
+      end
+
+      # L'invariant qui justifie d'alerter après le commit : l'appel HTTP à Slack
+      # est synchrone, l'émettre sous le SELECT … FOR UPDATE retiendrait le
+      # verrou de la ligne admin_users pendant l'aller-retour. On compare des
+      # profondeurs plutôt que d'attendre zéro, à cause de la transaction que
+      # DatabaseCleaner ouvre autour de chaque exemple.
       it 'alerte hors de la transaction, pour ne pas retenir le verrou' do
         consume(50, 10.minutes.ago)
         depth_outside = ActiveRecord::Base.connection.open_transactions
         depth_at_alert = nil
-        allow(Rollbar).to receive(:warning) { depth_at_alert = ActiveRecord::Base.connection.open_transactions }
+        allow(slack).to receive(:call) do
+          depth_at_alert = ActiveRecord::Base.connection.open_transactions
+          slack
+        end
 
         described_class.new(admin_user, 1).reserve!
 
