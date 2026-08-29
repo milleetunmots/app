@@ -7,20 +7,19 @@
 # être rattachés à un `parent_id`, et la conversion vers le numéro n'a lieu qu'au
 # moment de construire le formulaire envoyé à Spot Hit.
 #
-# Formes acceptées en entrée (historique) :
-#   - Hash{parent_id => {var => valeur}}  (forme privilégiée)
-#   - Hash{phone     => {var => valeur}}
+# Formes acceptées en entrée :
+#   - Hash{parent_id => {var => valeur}}
 #   - Array<Integer> d'ids de parents
-#   - Array<String> de numéros
-#   - String de numéros séparés par ', '
+#   - Integer pour un parent unique
 module SpotHit::Recipients
 
   # {parent_id => {variable => valeur}}, restreint aux parents non supprimés.
   def recipient_variables
     @recipient_variables ||= begin
-      kept = reject_discarded_parents(normalize_recipients(@recipients))
-      report_unresolved_phone_numbers(kept)
-      kept
+      normalized = normalize_recipients(@recipients)
+      kept = reject_discarded_parents(normalized)
+      report_unresolved_parent_ids(normalized, kept)
+      keep_preferred_parent_per_phone_number(kept)
     end
   end
 
@@ -61,19 +60,42 @@ module SpotHit::Recipients
     @phone_numbers_by_parent_id = nil
   end
 
+  def recipients_available?
+    return true if recipient_variables.any?
+
+    @errors << 'Aucun parent actif à contacter.' if @errors.empty?
+    false
+  end
+
   private
 
-  # Un numéro qui ne correspond à aucun parent actif est retiré des destinataires :
-  # il n'est donc ni envoyé, ni traçable dans l'historique. On le signale pour que
-  # l'opérateur sache que ce destinataire a été écarté. Seules les formes indexées
-  # par numéro sont concernées, celles indexées par `parent_id` n'ayant rien à résoudre.
-  def report_unresolved_phone_numbers(kept_variables)
-    return if @requested_phone_numbers.blank?
-
-    resolved = Parent.where(id: kept_variables.keys).pluck(:phone_number).uniq
-    (@requested_phone_numbers.uniq - resolved).each do |phone|
-      @errors << "Message non envoyé pour certains destinataires : aucun parent actif ne correspond au numéro #{phone}."
+  def report_unresolved_parent_ids(normalized, kept)
+    (normalized.keys - kept.keys).each do |parent_id|
+      @errors << "Message non envoyé : aucun parent actif ne correspond à l'identifiant #{parent_id}."
     end
+  end
+
+  # Spot Hit n'accepte qu'une personnalisation par numéro. Si les IDs sont les
+  # parent1 et parent2 d'un même enfant, parent1 est prioritaire. Dans les autres
+  # cas (notamment une réinscription), on conserve la fiche la plus récente.
+  # Le formulaire et l'Event restent ainsi strictement cohérents.
+  def keep_preferred_parent_per_phone_number(variables)
+    return variables if variables.one?
+
+    parents = Parent.where(id: variables.keys).order(:created_at, :id).pluck(:id, :phone_number)
+    phone_number_by_parent_id = parents.to_h
+    parent_pairs = Child.kept
+                        .where(parent1_id: variables.keys, parent2_id: variables.keys)
+                        .pluck(:parent1_id, :parent2_id)
+    priority_parent1_ids = parent_pairs.filter_map do |parent1_id, parent2_id|
+      parent1_id if phone_number_by_parent_id[parent1_id] == phone_number_by_parent_id[parent2_id]
+    end.index_with(true)
+
+    preferred_parent_ids = parents.group_by(&:second).values.map do |parents_with_same_phone|
+      parent1s = parents_with_same_phone.select { |parent_id, _phone| priority_parent1_ids.key?(parent_id) }
+      (parent1s.presence || parents_with_same_phone).last.first
+    end
+    variables.slice(*preferred_parent_ids)
   end
 
   # Un parent supprimé (discard) ne doit plus recevoir de message. Le filtrage a
@@ -90,9 +112,8 @@ module SpotHit::Recipients
     case recipients
     when Hash   then normalize_hash_recipients(recipients)
     when Array  then normalize_array_recipients(recipients)
-    when String then parent_ids_for_phone_numbers(recipients.split(',')).index_with { {} }
     when Integer then { recipients => {} }
-    else {}
+    else invalid_recipient_format
     end
   end
 
@@ -100,28 +121,20 @@ module SpotHit::Recipients
   # formulaire, filtres d'URL) itère dessus sans avoir à se garder du nil.
   def normalize_hash_recipients(recipients)
     return {} if recipients.empty?
-    return recipients.to_h { |parent_id, variables| [parent_id.to_i, variables || {}] } if recipients.keys.first.is_a?(Integer)
+    return invalid_recipient_format unless recipients.keys.all? { |parent_id| parent_id.is_a?(Integer) }
 
-    # Forme historique indexée par numéro : un numéro partagé alimente chacun des
-    # parents qui le portent, pour que tous aient leur Event.
-    recipients.each_with_object({}) do |(phone, variables), normalized|
-      parent_ids_for_phone_numbers([phone]).each { |parent_id| normalized[parent_id] = variables || {} }
-    end
+    recipients.to_h { |parent_id, variables| [parent_id, variables || {}] }
   end
 
   def normalize_array_recipients(recipients)
     return {} if recipients.empty?
+    return invalid_recipient_format unless recipients.all? { |parent_id| parent_id.is_a?(Integer) }
 
-    if recipients.first.is_a?(Integer)
-      recipients.uniq.index_with { {} }
-    else
-      parent_ids_for_phone_numbers(recipients).index_with { {} }
-    end
+    recipients.uniq.index_with { {} }
   end
 
-  def parent_ids_for_phone_numbers(phone_numbers)
-    formatted = phone_numbers.map { |phone| Phonelib.parse(phone.to_s.strip).e164.presence || phone.to_s.strip }
-    (@requested_phone_numbers ||= []).concat(formatted)
-    Parent.where(phone_number: formatted.uniq).ids
+  def invalid_recipient_format
+    @errors << 'Format de destinataires invalide : utilisez uniquement des identifiants de parents.'
+    {}
   end
 end

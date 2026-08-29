@@ -3,13 +3,16 @@ class Child::StopSupportMessageService < ProgramMessageService
     @recipient_data = {}
     @child_ids.each do |child_id|
       child = Child.find(child_id)
-      fill_child_name_recipient_data(child.first_name, child.parent1_id)
-      fill_redirection_url_recipient_data(child, child.parent1)
-      next unless child.parent2
-
-      fill_child_name_recipient_data(child.first_name, child.parent2_id)
-      fill_redirection_url_recipient_data(child, child.parent2)
+      add_recipient_data(child, child.parent1) if child.should_contact_parent1
+      add_recipient_data(child, child.parent2) if child.should_contact_parent2
     end
+  end
+
+  def add_recipient_data(child, parent)
+    return if parent.blank? || !@parent_ids.include?(parent.id)
+
+    fill_child_name_recipient_data(child.first_name, parent.id)
+    fill_redirection_url_recipient_data(child, parent)
   end
 
   # Les enfants d'une même fratrie partagent le même parent : leurs prénoms sont

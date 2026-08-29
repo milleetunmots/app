@@ -22,17 +22,17 @@ RSpec.describe SpotHit::SendRcsService do
   describe '#sent?' do
     subject(:service) { described_class.new(recipients: recipients, planned_timestamp: planned_timestamp, fallback_message: fallback_message).call }
 
-    let(:recipients) { [parent1.phone_number] }
+    let(:recipients) { [parent1.id] }
 
     it 'est vrai quand Spot-Hit accepte la campagne' do
       expect(service).to be_sent
     end
 
     it "reste vrai quand la campagne est partie mais qu'un destinataire n'est pas historisable" do
-      recipients << '0600000000'
+      recipients << -1
 
       expect(service).to be_sent
-      expect(service.errors.first).to include('Parent non trouvé')
+      expect(service.errors.first).to include('aucun parent actif ne correspond à l\'identifiant -1')
     end
 
     it "est faux quand l'API refuse la campagne" do
@@ -61,8 +61,8 @@ RSpec.describe SpotHit::SendRcsService do
     context 'when recipients is a Hash (avec variables)' do
       let(:recipients) do
         {
-          parent1.phone_number => { 'PRENOM_ENFANT' => 'Emma' },
-          parent2.phone_number => { 'PRENOM_ENFANT' => 'Lucas' }
+          parent1.id => { 'PRENOM_ENFANT' => 'Emma' },
+          parent2.id => { 'PRENOM_ENFANT' => 'Lucas' }
         }
       end
 
@@ -81,22 +81,9 @@ RSpec.describe SpotHit::SendRcsService do
       end
     end
 
-    context 'when recipients is an Array of strings (sans variables ni redirection)' do
+    context 'when recipients is an Array of parent ids (sans variables ni redirection)' do
       let(:fallback_message) { 'Bonjour !' }
-      let(:recipients) { [parent1.phone_number, parent2.phone_number] }
-
-      it 'creates one event per recipient' do
-        expect { service }.to change(Event, :count).by(2)
-      end
-
-      it 'returns no errors' do
-        expect(service.errors).to be_empty
-      end
-    end
-
-    context 'when recipients is a String comma-separated' do
-      let(:fallback_message) { 'Bonjour !' }
-      let(:recipients) { "#{parent1.phone_number}, #{parent2.phone_number}" }
+      let(:recipients) { [parent1.id, parent2.id] }
 
       it 'creates one event per recipient' do
         expect { service }.to change(Event, :count).by(2)
@@ -109,7 +96,7 @@ RSpec.describe SpotHit::SendRcsService do
 
     context 'when the fallback message contains a non-whitelisted URL' do
       let(:fallback_message) { 'Cliquez ici : https://non-whitelisted.example.com/page' }
-      let(:recipients) { [parent1.phone_number, parent2.phone_number] }
+      let(:recipients) { [parent1.id, parent2.id] }
 
       context 'without URL_FILTER_BLOCKING_ENABLED (monitoring mode, default)' do
         around do |example|
@@ -176,7 +163,7 @@ RSpec.describe SpotHit::SendRcsService do
 
       context 'when the substituted value is not whitelisted' do
         let(:recipients) do
-          { parent1.phone_number => { 'URL' => 'https://non-whitelisted.example.com/page' } }
+          { parent1.id => { 'URL' => 'https://non-whitelisted.example.com/page' } }
         end
 
         it 'does not make an API call and creates a BlockedSendAttempt instead' do
@@ -188,7 +175,7 @@ RSpec.describe SpotHit::SendRcsService do
 
       context 'when the substituted value is whitelisted' do
         let(:recipients) do
-          { parent1.phone_number => { 'URL' => 'https://partenaire.fr/video' } }
+          { parent1.id => { 'URL' => 'https://partenaire.fr/video' } }
         end
 
         it 'makes the API call without errors' do
@@ -203,7 +190,8 @@ RSpec.describe SpotHit::SendRcsService do
     context 'when a recipient has no matching kept parent' do
       let(:fallback_message) { 'Bonjour !' }
       let(:discarded_parent) { FactoryBot.create(:parent, phone_number: '0611223344', discarded_at: Time.zone.now) }
-      let(:recipients) { [parent1.phone_number, '+33699999999', discarded_parent.phone_number, parent2.phone_number] }
+      let(:missing_parent_id) { Parent.maximum(:id).to_i + 10_000 }
+      let(:recipients) { [parent1.id, missing_parent_id, discarded_parent.id, parent2.id] }
 
       it 'still creates the events of the other recipients' do
         expect { service }.to change(Event, :count).by(2)
@@ -213,8 +201,8 @@ RSpec.describe SpotHit::SendRcsService do
 
       it 'reports one error per unresolved recipient' do
         expect(service.errors).to contain_exactly(
-          'Message non envoyé pour certains destinataires : aucun parent actif ne correspond au numéro +33699999999.',
-          "Message non envoyé pour certains destinataires : aucun parent actif ne correspond au numéro #{discarded_parent.phone_number}."
+          "Message non envoyé : aucun parent actif ne correspond à l'identifiant #{missing_parent_id}.",
+          "Message non envoyé : aucun parent actif ne correspond à l'identifiant #{discarded_parent.id}."
         )
       end
     end
@@ -235,8 +223,8 @@ RSpec.describe SpotHit::SendRcsService do
       context 'when no recipient is whitelisted' do
         let(:recipients) do
           {
-            parent1.phone_number => { 'PRENOM_ENFANT' => 'Emma' },
-            parent2.phone_number => { 'PRENOM_ENFANT' => 'Lucas' }
+            parent1.id => { 'PRENOM_ENFANT' => 'Emma' },
+            parent2.id => { 'PRENOM_ENFANT' => 'Lucas' }
           }
         end
 
@@ -253,8 +241,8 @@ RSpec.describe SpotHit::SendRcsService do
       context 'when one recipient is whitelisted (Hash format)' do
         let(:recipients) do
           {
-            parent1.phone_number => { 'PRENOM_ENFANT' => 'Emma' },
-            safe_parent.phone_number => { 'PRENOM_ENFANT' => 'Lucas' }
+            parent1.id => { 'PRENOM_ENFANT' => 'Emma' },
+            safe_parent.id => { 'PRENOM_ENFANT' => 'Lucas' }
           }
         end
 
@@ -271,7 +259,7 @@ RSpec.describe SpotHit::SendRcsService do
 
       context 'when one recipient is whitelisted (Array format)' do
         let(:fallback_message) { 'Bonjour !' }
-        let(:recipients) { [parent1.phone_number, safe_parent.phone_number] }
+        let(:recipients) { [parent1.id, safe_parent.id] }
 
         it 'makes an API call' do
           service
@@ -288,9 +276,9 @@ RSpec.describe SpotHit::SendRcsService do
         let(:safe_parent2) { FactoryBot.create(:parent, phone_number: '+33600000002') }
         let(:recipients) do
           {
-            parent1.phone_number => { 'PRENOM_ENFANT' => 'Emma' },
-            safe_parent.phone_number => { 'PRENOM_ENFANT' => 'Lucas' },
-            safe_parent2.phone_number => { 'PRENOM_ENFANT' => 'Léa' }
+            parent1.id => { 'PRENOM_ENFANT' => 'Emma' },
+            safe_parent.id => { 'PRENOM_ENFANT' => 'Lucas' },
+            safe_parent2.id => { 'PRENOM_ENFANT' => 'Léa' }
           }
         end
 
@@ -316,16 +304,17 @@ RSpec.describe SpotHit::SendRcsService do
           }
         end
 
-        it 'creates one event per parent, each attached to the right parent' do
-          expect { service }.to change(Event, :count).by(2)
-          expect(Event.find_by(related: old_parent).body).to eq('Bonjour Emma !')
+        it 'sends once and attaches the event to the most recent parent' do
+          expect { service }.to change(Event, :count).by(1)
+          expect(Event.find_by(related: old_parent)).to be_nil
           expect(Event.find_by(related: new_parent).body).to eq('Bonjour Lucas !')
         end
 
-        it 'sends phone numbers to Spot Hit, not parent ids' do
+        it 'sends only the most recent parent variables to Spot Hit' do
           service
           expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').with do |req|
-            req.body.include?(CGI.escape(shared_phone)) && req.body.exclude?("custom_list_with_data%5B#{old_parent.id}%5D")
+            body = CGI.unescape(req.body)
+            body.include?(shared_phone) && body.include?('Lucas') && body.exclude?('Emma')
           end)
         end
       end
@@ -334,9 +323,28 @@ RSpec.describe SpotHit::SendRcsService do
         let(:fallback_message) { 'Bonjour !' }
         let(:recipients) { [old_parent.id, new_parent.id] }
 
-        it 'creates one event per parent' do
-          expect { service }.to change(Event, :count).by(2)
-          expect(Event.pluck(:related_id)).to contain_exactly(old_parent.id, new_parent.id)
+        it 'creates one event for the most recent parent' do
+          expect { service }.to change(Event, :count).by(1)
+          expect(Event.last.related_id).to eq(new_parent.id)
+        end
+      end
+
+      context 'when the parents are parent1 and parent2 of the same child' do
+        let!(:child) { FactoryBot.create(:child, parent1: old_parent, parent2: new_parent) }
+        let(:recipients) do
+          {
+            old_parent.id => { 'PRENOM_ENFANT' => 'Emma' },
+            new_parent.id => { 'PRENOM_ENFANT' => 'Lucas' }
+          }
+        end
+
+        it 'prioritizes parent1 even when parent2 is more recent' do
+          expect { service }.to change(Event, :count).by(1)
+          expect(Event.order(:id).last).to have_attributes(related: old_parent, body: 'Bonjour Emma !')
+          expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').with do |req|
+            body = CGI.unescape(req.body)
+            body.include?('Emma') && body.exclude?('Lucas')
+          end)
         end
       end
     end
@@ -363,13 +371,6 @@ RSpec.describe SpotHit::SendRcsService do
         end
       end
 
-      context 'when recipients is a Hash keyed by phone number' do
-        let(:recipients) { { discarded_parent.phone_number => { 'PRENOM_ENFANT' => 'Emma' } } }
-
-        it 'creates no event at all' do
-          expect { service }.not_to change(Event, :count)
-        end
-      end
     end
   end
 end

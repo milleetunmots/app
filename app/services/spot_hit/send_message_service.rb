@@ -47,7 +47,14 @@ class SpotHit::SendMessageService
       end
     end
 
-    form = safeguard(form) if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
+    return unless recipients_available?
+
+    if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
+      restrict_recipients_to_safe_numbers!
+      return if recipient_variables.empty?
+
+      form = safeguard(form)
+    end
 
     response = HTTP.post(uri, form: form)
     body = parse_json_response(response)
