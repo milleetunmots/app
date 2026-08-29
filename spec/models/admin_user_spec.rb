@@ -308,6 +308,28 @@ RSpec.describe AdminUser, type: :model do
 
         expect(admin_user.verify_otp('000000')).to eq(:too_many_attempts)
       end
+
+      it 'ne consomme un bon code qu’une fois sous deux requêtes concurrentes', js: true do
+        code = admin_user.generate_otp!
+        ready = Queue.new
+        start = Queue.new
+
+        threads = Array.new(2) do
+          Thread.new do
+            ActiveRecord::Base.connection_pool.with_connection do
+              user = AdminUser.find(admin_user.id)
+              ready << true
+              start.pop
+              user.verify_otp(code)
+            end
+          end
+        end
+
+        2.times { ready.pop }
+        2.times { start << true }
+
+        expect(threads.map(&:value)).to contain_exactly(:ok, :no_code)
+      end
     end
 
     describe '#clear_otp!' do

@@ -87,6 +87,15 @@ RSpec.describe 'Connexion avec double authentification', type: :request do
       get '/admin/children'
       expect(response).to redirect_to(new_admin_user_session_path)
     end
+
+    it 'ne révoque pas les navigateurs déjà mémorisés pendant le premier facteur' do
+      remembered_at = 1.day.ago
+      admin_user.update!(remember_created_at: remembered_at)
+
+      post_login
+
+      expect(admin_user.reload.remember_created_at).to be_within(1.second).of(remembered_at)
+    end
   end
 
   describe 'réinitialisation du mot de passe' do
@@ -293,6 +302,21 @@ RSpec.describe 'Connexion avec double authentification', type: :request do
 
       expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms').twice
       expect(admin_user.reload.otp_code_digest).not_to eq(previous_digest)
+    end
+
+    it 'gère une panne réseau sans erreur 500 et laisse l’utilisateur déconnecté' do
+      stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms').to_raise(HTTP::ConnectionError)
+
+      travel_to(61.seconds.from_now) do
+        post '/admin/two_factor/resend'
+
+        expect(response).to redirect_to('/admin/two_factor')
+        follow_redirect!
+        expect(response.body).to include('envoi du code a échoué')
+      end
+
+      get '/admin/children'
+      expect(response).to redirect_to(new_admin_user_session_path)
     end
 
     # Sans quoi la boucle « 5 codes faux → renvoi gratuit → 5 codes faux »

@@ -1,14 +1,15 @@
 module AdminUsers
   class SessionsController < ActiveAdmin::Devise::SessionsController
 
-    def create
-      self.resource = warden.authenticate!(auth_options)
-      return sign_in_without_second_factor unless resource.two_factor_enabled?
+    skip_before_action :authenticate_admin_user!
+    skip_before_action :set_paper_trail_whodunnit
 
-      # warden.authenticate! a déjà ouvert la session : on la referme avant
-      # d'écrire l'état « en attente ». Le logout scopé ne vide que les clés
-      # du scope :admin_user et efface le cookie « se souvenir de moi ».
-      sign_out(resource)
+    def create
+      # Le premier facteur est validé sans persister de session Warden. On
+      # évite ainsi le sign_out intermédiaire qui déclenchait forget_me! et
+      # révoquait les cookies « se souvenir de moi » de tous les navigateurs.
+      self.resource = warden.authenticate!(auth_options.merge(store: false))
+      return sign_in_without_second_factor unless resource.two_factor_enabled?
 
       if resource.phone_number.blank?
         redirect_to new_admin_user_session_path, alert: TwoFactorMessages::MISSING_PHONE_NUMBER
@@ -24,8 +25,8 @@ module AdminUsers
 
     # La case « se souvenir de moi » vaut pour les deux facteurs : on la
     # transporte jusqu'à la validation du code, qui posera le cookie de sept
-    # jours. Le sign_out a effacé celui que warden.authenticate! venait de
-    # poser, donc rien n'est mémorisé tant que le code n'est pas validé.
+    # jours. L'authentification du premier facteur utilise store: false, donc
+    # rien n'est mémorisé tant que le code n'est pas validé.
     def pending_state_for(admin_user)
       {
         'id' => admin_user.id,
@@ -39,7 +40,9 @@ module AdminUsers
       # attente : il n'a plus lieu d'être une fois une session ouverte.
       session.delete(:pending_two_factor)
       set_flash_message!(:notice, :signed_in)
-      sign_in(resource_name, resource)
+      # Warden connaît déjà la ressource issue de l'authentification store:false.
+      # force est nécessaire pour la sérialiser réellement dans la session.
+      sign_in(resource_name, resource, force: true)
       respond_with resource, location: after_sign_in_path_for(resource)
     end
 

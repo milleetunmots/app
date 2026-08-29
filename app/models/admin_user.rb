@@ -142,23 +142,22 @@ class AdminUser < ApplicationRecord
   end
 
   def verify_otp(code)
-    return :no_code if otp_code_digest.blank?
-    return :expired if otp_expired?
-
-    if BCrypt::Password.new(otp_code_digest) == code.to_s
-      clear_otp!
-      return :ok
+    # Le verrou couvre la comparaison ET l'effacement. Sans lui, deux requêtes
+    # portant le bon code peuvent toutes les deux comparer le même digest avant
+    # que la première ne l'efface, et ouvrir deux sessions avec un OTP supposé
+    # à usage unique. with_lock recharge aussi l'état courant depuis la base.
+    with_lock do
+      if otp_code_digest.blank?
+        :no_code
+      elsif otp_expired?
+        :expired
+      elsif BCrypt::Password.new(otp_code_digest) == code.to_s
+        clear_otp!
+        :ok
+      else
+        register_failed_otp_attempt!
+      end
     end
-
-    # increment! écrit en SQL atomique mais laisse l'attribut en mémoire à
-    # « valeur lue + 1 » : sans reload, N requêtes concurrentes liraient toutes
-    # 0 et s'accorderaient chacune une tentative. On décide sur la base.
-    increment!(:otp_attempts)
-    reload
-    return :invalid if otp_attempts < OTP_MAX_ATTEMPTS
-
-    clear_otp!
-    :too_many_attempts
   end
   # rubocop:enable Rails/SkipsModelValidations
 
@@ -255,6 +254,17 @@ class AdminUser < ApplicationRecord
 
   def format_phone_number
     self.phone_number = Phonelib.parse(phone_number).e164 if phone_number.present?
+  end
+
+  def register_failed_otp_attempt!
+    attempts = otp_attempts + 1
+    if attempts >= OTP_MAX_ATTEMPTS
+      clear_otp!
+      :too_many_attempts
+    else
+      update_columns(otp_attempts: attempts, updated_at: Time.current)
+      :invalid
+    end
   end
 
   # Devise valide les cookies « se souvenir de moi » contre remember_created_at :

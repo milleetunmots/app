@@ -2,8 +2,9 @@
   <h2>Code de connexion</h2>
 
   <p>
-    Un code à <%= AdminUser::OTP_LENGTH %> chiffres vient d'être envoyé au
-    <strong><%= @admin_user.masked_phone_number %></strong>. Il est valable <%= AdminUser::OTP_VALIDITY.inspect %>.
+    Un code à <%= AdminUser::OTP_LENGTH %> chiffres vient d'être envoyé au numéro de téléphone
+    <strong><%= @admin_user.masked_phone_number %></strong>.
+    <br>Il est valable <%= AdminUser::OTP_VALIDITY.inspect %>.
   </p>
 
   <%= form_with url: admin_verify_two_factor_path, method: :post, local: true do |f| %>

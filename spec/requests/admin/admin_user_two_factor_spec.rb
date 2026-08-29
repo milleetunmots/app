@@ -22,6 +22,14 @@ RSpec.describe 'Admin — activation du 2FA', type: :request do
       get '/admin/admin_users'
       expect(response.body).to include('two_factor_enabled')
     end
+
+    it 'permet de consulter le numéro personnel dans le formulaire d’édition' do
+      target.update!(phone_number: '0612345678', two_factor_enabled: true)
+
+      get "/admin/admin_users/#{target.id}/edit"
+
+      expect(response.body).to include(target.reload.phone_number)
+    end
   end
 
   describe 'utilisateur non super_admin' do
@@ -43,6 +51,15 @@ RSpec.describe 'Admin — activation du 2FA', type: :request do
           params: { admin_user: { phone_number: '0799999999' } }
 
       expect(contributor.reload.phone_number).to eq('+33612345678')
+    end
+
+    it 'ne voit pas le numéro personnel d’un autre utilisateur sur sa fiche' do
+      target.update!(phone_number: '0612345678', two_factor_enabled: true)
+
+      get "/admin/admin_users/#{target.id}"
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include(target.reload.phone_number)
     end
   end
 end

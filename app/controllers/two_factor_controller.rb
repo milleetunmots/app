@@ -42,9 +42,12 @@ class TwoFactorController < ApplicationController
       refresh_pending_window
       redirect_to admin_two_factor_path, notice: 'Un nouveau code vient de vous être envoyé.'
     else
-      Rollbar.error("2FA : échec de l'envoi du code", admin_user_id: @admin_user.id, errors: service.errors)
-      redirect_to admin_two_factor_path, alert: "Echec de l'envoi du code. Réessayez dans 60 secondes."
+      report_send_failure(service.errors)
     end
+  rescue StandardError => e
+    # Même garde que sur le premier envoi : une coupure réseau ne doit pas
+    # transformer le renvoi en erreur 500 ni ouvrir une session.
+    report_send_failure([e.class.name])
   end
 
   private
@@ -87,5 +90,10 @@ class TwoFactorController < ApplicationController
   def render_error(message)
     flash.now[:alert] = message
     render :show, status: :unprocessable_entity
+  end
+
+  def report_send_failure(errors)
+    Rollbar.error("2FA : échec de l'envoi du code", admin_user_id: @admin_user.id, errors: errors)
+    redirect_to admin_two_factor_path, alert: TwoFactorMessages::SEND_FAILED
   end
 end
