@@ -20,7 +20,7 @@
 #
 class BlockedSendAttempt < ApplicationRecord
 
-  KINDS = %w[url keyword].freeze
+  KINDS = %w[url keyword phone_number].freeze
   PROVIDERS = %w[spothit aircall].freeze
   # not_blocked : détecté en mode surveillance (URL_FILTER_BLOCKING_ENABLED absent), le message a quand même
   # été transmis au provider — ne devrait pas être relancé puisqu'il n'a jamais été réellement bloqué.

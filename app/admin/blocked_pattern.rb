@@ -16,15 +16,15 @@ ActiveAdmin.register BlockedPattern do
     actions
   end
 
-  filter :kind, as: :select, collection: BlockedPattern::KINDS
+  filter :kind, as: :select, collection: -> { BlockedPattern::KINDS.map { |kind| [BlockedPattern.human_attribute_name("kind.#{kind}"), kind] } }
   filter :value
   filter :created_at
 
   form do |f|
     f.semantic_errors(*f.object.errors.details.keys)
     f.inputs do
-      f.input :kind, as: :select, collection: BlockedPattern::KINDS, include_blank: false
-      f.input :value, hint: 'Mot ou expression. Le matching ignore casse et accents, sur frontières de mots.'
+      f.input :kind, as: :select, collection: BlockedPattern::KINDS.map { |kind| [BlockedPattern.human_attribute_name("kind.#{kind}"), kind] }, include_blank: false
+      f.input :value, hint: 'Mot-clé : mot ou expression, le matching ignore casse et accents, sur frontières de mots.'
     end
     f.actions
   end

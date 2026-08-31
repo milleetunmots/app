@@ -1,6 +1,6 @@
 # Point d'entrée unique des services d'envoi : exécute tous les contrôles de
-# contenu (URLs, mots-clés) en un appel. Un futur kind (phone_number…) s'ajoute
-# ici sans toucher aux services d'envoi.
+# contenu (URLs, mots-clés, numéros surtaxés) en un appel. Un futur kind s'ajoute
+# à GUARD_CLASSES sans toucher aux services d'envoi.
 class BlockedSendAttempt::SendGuard
 
   # Volontairement générique : ne jamais révéler quel contrôle a déclenché ni
@@ -8,7 +8,7 @@ class BlockedSendAttempt::SendGuard
   # successifs. Le détail reste dans BlockedSendAttempt (super_admin).
   BLOCKED_MESSAGE = 'Ce message ne peut pas être envoyé, veuillez contacter le pôle tech.'.freeze
 
-  GUARD_CLASSES = [BlockedSendAttempt::UrlSendGuard, BlockedSendAttempt::KeywordSendGuard].freeze
+  GUARD_CLASSES = [BlockedSendAttempt::UrlSendGuard, BlockedSendAttempt::KeywordSendGuard, BlockedSendAttempt::PhoneNumberSendGuard].freeze
 
   def initialize(text, provider:, extra_texts: [], replay_params: {}, blocked_send_attempt_id: nil)
     # Garde explicite : sur le chemin nominal (pas de relance), l'id est nil

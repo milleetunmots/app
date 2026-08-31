@@ -146,6 +146,12 @@ class AdminUser < ApplicationRecord
     self.update(aircall_phone_number: Phonelib.parse(phone_number).e164, aircall_number_id: number_id)
   end
 
+  def self.aircall_numbers
+    where.not(aircall_phone_number: [nil, ''])
+         .pluck(:aircall_phone_number)
+         .map { |number| PhoneNormalizationConcern.canonical(number) }
+  end
+
   private
 
   def set_automatic_sms_activated_at

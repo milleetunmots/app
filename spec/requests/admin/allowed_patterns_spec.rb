@@ -17,6 +17,37 @@ RSpec.describe 'Admin allowed patterns', type: :request do
       expect(response.body).to include('monpartenaire.fr')
     end
 
+    # Contrat dont dépend admin/allowed_patterns.js pour restreindre la liste au
+    # kind sélectionné : toutes les options sont rendues, étiquetées data-kinds.
+    describe 'formulaire' do
+      it 'rend toutes les options de match_type, étiquetées des kinds auxquels elles valent' do
+        get '/admin/allowed_patterns/new'
+
+        select = response.body[%r{<select[^>]*id="allowed_pattern_match_type".*?</select>}m]
+        expect(select).to include('data-kinds="url" value="domain"')
+        expect(select).to include('data-kinds="url phone_number" value="exact"')
+      end
+
+      it 'expose les deux kinds, sur les identifiants attendus par le script' do
+        get '/admin/allowed_patterns/new'
+
+        expect(response.body).to include('id="allowed_pattern_kind"')
+        expect(response.body).to match(%r{<select[^>]*id="allowed_pattern_kind".*?value="phone_number".*?</select>}m)
+      end
+    end
+
+    it 'peut ajouter un numéro autorisé, canonicalisé à l\'enregistrement' do
+      post '/admin/allowed_patterns', params: { allowed_pattern: { kind: 'phone_number', match_type: 'exact', value: '+33 810 12 34 56' } }
+
+      expect(AllowedPattern.exists?(kind: 'phone_number', match_type: 'exact', value: '0810123456')).to be true
+    end
+
+    it "rejette un match_type de numéro réservé aux URLs" do
+      expect do
+        post '/admin/allowed_patterns', params: { allowed_pattern: { kind: 'phone_number', match_type: 'domain', value: '0810123456' } }
+      end.not_to change(AllowedPattern, :count)
+    end
+
     it "rejette la création d'un kind non supporté" do
       expect do
         post '/admin/allowed_patterns', params: { allowed_pattern: { kind: 'keyword', match_type: 'domain', value: 'test' } }
