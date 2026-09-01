@@ -79,11 +79,19 @@ class AllowedPattern < ApplicationRecord
     host.to_s.downcase.delete_prefix('www.')
   end
 
-  def self.phone_allowed?(canonical_number)
+  # allowed_numbers : ensemble déjà chargé, pour éviter deux requêtes par numéro
+  # quand on en contrôle plusieurs d'affilée (cf.
+  # BlockedSendAttempt::PhoneNumberSendGuard).
+  def self.phone_allowed?(canonical_number, allowed_numbers: nil)
     return false if canonical_number.blank?
-    return true if AdminUser.aircall_numbers.include?(canonical_number)
 
-    where(kind: 'phone_number').any? { |pattern| pattern.value == canonical_number }
+    (allowed_numbers || allowed_phone_numbers).include?(canonical_number)
+  end
+
+  # Les numéros Aircall sont nos propres lignes : toujours autorisés, sans qu'un
+  # pattern ait à être saisi.
+  def self.allowed_phone_numbers
+    where(kind: 'phone_number').pluck(:value).to_set.merge(AdminUser.aircall_numbers)
   end
 
   # Les urls contrôlées viennent de saisies humaines (médiathèque, import

@@ -1,5 +1,5 @@
 # Point d'entrée unique des services d'envoi : exécute tous les contrôles de
-# contenu (URLs, mots-clés, numéros surtaxés) en un appel. Un futur kind s'ajoute
+# contenu (URLs, mots-clés, numéros de téléphone) en un appel. Un futur kind s'ajoute
 # à GUARD_CLASSES sans toucher aux services d'envoi.
 class BlockedSendAttempt::SendGuard
 

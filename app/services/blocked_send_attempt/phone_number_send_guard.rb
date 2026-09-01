@@ -1,16 +1,11 @@
-# Détection des numéros surtaxés dans les messages sortants.
-# Miroir de UrlSendGuard : surveillance par défaut, blocage via
+# Détection des numéros de téléphone dans les messages sortants.
+# Miroir de UrlSendGuard, whitelist comprise : tout numéro détecté qui n'est pas
+# explicitement autorisé (AllowedPattern) est retenu, quel que soit son type —
+# fixe, mobile, numéro vert ou surtaxé. Surveillance par défaut, blocage via
 # PHONE_NUMBER_FILTER_BLOCKING_ENABLED.
 #
-# Contrairement aux URLs, le périmètre est volontairement restreint aux numéros
-# à valeur ajoutée : les messages automatiques contiennent légitimement des
-# numéros ({NUMERO_AIRCALL_ACCOMPAGNANTE}, {NUMERO_PARENT}), et un fixe ou un
-# mobile n'est donc ni bloqué ni tracé.
-#
-# Les numéros courts (118 XYZ, 3BPQ) sont eux aussi hors périmètre : Phonelib ne
-# les type que si `parse_special` est activé — un réglage global qui changerait
-# la validité des numéros partout ailleurs — et sa métadonnée y classe à tort en
-# premium_rate des numéros d'aide gratuits (3919, 3977, 3237).
+# Les numéros courts (118 XYZ, 3BPQ) sont hors périmètre : le scan s'arrête aux
+# numéros français à 10 chiffres.
 class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGuard
 
   # Numéros français à 10 chiffres, dans toutes les notations (+33, 0033, 0) et
@@ -18,21 +13,6 @@ class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGua
   # mordre dans une séquence plus longue : EAN à 13 chiffres d'un livre,
   # {PARENT_SECURITY_TOKEN} (hex, qui contient des suites de chiffres)…
   NATIONAL_PHONE_REGEX = %r{(?<!\d)(?:\+\s?33|0033|0)[\s.\-/]?[1-9](?:[\s.\-/]?\d){8}(?!\d)}
-
-  # Les numéros courts (118 XYZ, 3BPQ) sont hors périmètre : Phonelib ne les
-  # type que si `parse_special` est activé — un réglage global qui changerait la
-  # validité des numéros partout ailleurs — et sa métadonnée y classe à tort en
-  # premium_rate des numéros d'aide gratuits (3919, 3977, 3237).
-
-  # Catégories libphonenumber facturées au-delà d'un appel ordinaire. Elles
-  # couvrent l'ensemble du plan de numérotation français à valeur ajoutée, sans
-  # liste de préfixes à maintenir :
-  #   :uan          → 0806-0809, « numéros gris » (service gratuit + prix appel)
-  #   :shared_cost  → 0810 0811 0820 0821 0825 0826 0840 0842 0844 0884
-  #   :premium_rate → 0812-0819, 0822-0839, 0850-0869, 0880-0899
-  # Les fixes (:fixed_line), mobiles (:mobile) et numéros verts (:toll_free,
-  # 0800-0805) en sont exclus.
-  PREMIUM_TYPES = %i[premium_rate shared_cost uan].freeze
 
   def self.blocking_enabled?
     ENV['PHONE_NUMBER_FILTER_BLOCKING_ENABLED'].present?
@@ -46,13 +26,20 @@ class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGua
     blocked_phone_numbers
   end
 
-  # Le typage Phonelib est appliqué avant la whitelist : un envoi de masse avec
-  # une variable {NUMERO_AIRCALL_ACCOMPAGNANTE} produit un candidat par
-  # destinataire, mais ce sont des mobiles, écartés sans aucune requête.
+  # Les numéros autorisés sont chargés une seule fois : un envoi de masse avec une
+  # variable {NUMERO_AIRCALL_ACCOMPAGNANTE} ou {NUMERO_PARENT} produit un candidat
+  # par destinataire, et rechargeait whitelist et numéros Aircall pour chacun.
   def blocked_phone_numbers
-    @blocked_phone_numbers ||= scan_candidates
-                               .select { |number| PREMIUM_TYPES.include?(Phonelib.parse(number).type) }
-                               .reject { |number| AllowedPattern.phone_allowed?(number) }
+    @blocked_phone_numbers ||=
+      begin
+        numbers = scan_candidates
+        if numbers.empty?
+          []
+        else
+          allowed_numbers = AllowedPattern.allowed_phone_numbers
+          numbers.reject { |number| AllowedPattern.phone_allowed?(number, allowed_numbers: allowed_numbers) }
+        end
+      end
   end
 
   private

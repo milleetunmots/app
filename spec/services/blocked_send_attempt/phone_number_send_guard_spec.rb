@@ -10,22 +10,24 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
       expect(guard.blocked_phone_numbers).to eq([premium_number])
     end
 
-    it 'ignore un mobile' do
+    # Whitelist stricte : le type du numéro n'entre pas en jeu, seule compte son
+    # absence de la liste des numéros autorisés.
+    it 'retient un mobile non autorisé' do
       guard = described_class.new('Son numéro est le 07 55 80 00 00', provider: 'spothit')
 
-      expect(guard.blocked_phone_numbers).to eq([])
+      expect(guard.blocked_phone_numbers).to eq(['0755800000'])
     end
 
-    it 'ignore un fixe' do
+    it 'retient un fixe non autorisé' do
       guard = described_class.new('Le centre est au 01 70 12 34 56', provider: 'spothit')
 
-      expect(guard.blocked_phone_numbers).to eq([])
+      expect(guard.blocked_phone_numbers).to eq(['0170123456'])
     end
 
-    it 'ignore un numéro vert' do
+    it 'retient un numéro vert non autorisé' do
       guard = described_class.new('Appelez gratuitement le 0800 12 34 56', provider: 'spothit')
 
-      expect(guard.blocked_phone_numbers).to eq([])
+      expect(guard.blocked_phone_numbers).to eq(['0800123456'])
     end
 
     it "renvoie un tableau vide quand le texte ne contient aucun numéro" do
@@ -49,18 +51,13 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
       expect(guard.blocked_phone_numbers).to contain_exactly('0890000000', '0899999999')
     end
 
-    # Les trois catégories libphonenumber facturées, cf. PREMIUM_TYPES.
-    it 'couvre les numéros gris (:uan) et à coût partagé (:shared_cost)' do
-      {
-        '0806123456' => :uan,
-        '0809123456' => :uan,
-        '0810123456' => :shared_cost,
-        '0825123456' => :shared_cost,
-        '0812345678' => :premium_rate
-      }.each do |number, type|
+    # Non-régression du besoin d'origine : toutes les tranches à valeur ajoutée
+    # (numéros gris, coût partagé, surtaxés) restent couvertes.
+    it 'couvre les tranches à valeur ajoutée' do
+      %w[0806123456 0809123456 0810123456 0825123456 0812345678].each do |number|
         guard = described_class.new("Appelez le #{number}", provider: 'spothit')
 
-        expect(guard.blocked_phone_numbers).to eq([number]), "#{type} non retenu : #{number}"
+        expect(guard.blocked_phone_numbers).to eq([number]), "numéro non retenu : #{number}"
       end
     end
 
@@ -78,13 +75,16 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
       expect(guard.blocked_phone_numbers).to eq([premium_number])
     end
 
+    # Depuis que le type du numéro n'est plus contrôlé, seuls les lookarounds de
+    # NATIONAL_PHONE_REGEX écartent ces séquences. Token hex figé : tiré au sort,
+    # il finit par contenir 10 chiffres d'affilée et rend l'exemple instable.
     context 'faux positifs' do
       it "ne confond pas un numéro avec une suite de chiffres plus longue ni avec une date" do
         [
           'EAN 9782070612758 du livre',
           'Rendez-vous le 04.09.2026 à 10h',
           '35 rue des Lilas 75012 Paris',
-          "Voici votre token #{SecureRandom.hex(16)}"
+          'Voici votre token 9f3a1c7e4b8d2056af13c9e7b4d0a682'
         ].each do |text|
           guard = described_class.new(text, provider: 'spothit')
 
@@ -107,6 +107,16 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
 
         expect(guard.blocked_phone_numbers).to eq([])
       end
+
+      # Un envoi de masse produit un candidat par destinataire : les numéros
+      # autorisés doivent être chargés une fois, pas une fois par numéro.
+      it 'ne charge les numéros autorisés qu\'une seule fois' do
+        guard = described_class.new('0890123456, 0899999999 et 0810123456', provider: 'spothit')
+
+        expect(AllowedPattern).to receive(:allowed_phone_numbers).once.and_call_original
+
+        expect(guard.blocked_phone_numbers.size).to eq(3)
+      end
     end
   end
 
@@ -117,8 +127,8 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
       expect(guard.blocked?).to be(true)
     end
 
-    it 'est false quand aucun numéro surtaxé est présent' do
-      guard = described_class.new('0755800000', provider: 'spothit')
+    it "est false quand aucun numéro n'est présent" do
+      guard = described_class.new('Bonjour, ceci est un message sans numéro.', provider: 'spothit')
 
       expect(guard.blocked?).to be(false)
     end
@@ -147,7 +157,7 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
 
     it "est false quand le flag est défini mais qu'aucun numéro n'est bloqué" do
       ENV['PHONE_NUMBER_FILTER_BLOCKING_ENABLED'] = 'true'
-      guard = described_class.new('0755800000', provider: 'spothit')
+      guard = described_class.new('Bonjour, ceci est un message sans numéro.', provider: 'spothit')
 
       expect(guard.block_send?).to be(false)
     end
