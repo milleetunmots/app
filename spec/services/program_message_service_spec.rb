@@ -491,8 +491,11 @@ RSpec.describe ProgramMessageService do
         expect { program(["parent.#{parent_2.id}"]) }.not_to change(Events::TextMessage, :count)
       end
 
-      it "ne crée aucun enregistrement d'envoi" do
-        expect { program(["parent.#{parent_2.id}"]) }.not_to change(SmsSendRecord, :count)
+      it 'ne consomme aucun quota et garde la trace de la tentative' do
+        expect { program(["parent.#{parent_2.id}"]) }.to change(SmsSendRecord, :count).by(1)
+
+        expect(SmsSendRecord.last).to be_blocked
+        expect(SmsSendRecord.not_blocked.since(SmsSendRecord::HOURLY_WINDOW).sum(:recipients_count)).to eq(50)
       end
 
       it 'bloque aussi les messages courts, qui partent en RCS basic' do

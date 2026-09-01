@@ -35,4 +35,5 @@ class SmsSendRecord < ApplicationRecord
   # BlockedSendAttempt::SendGuard) est marqué plutôt que supprimé : la trace de
   # la tentative reste consultable, mais la ligne ne consomme plus le quota.
   scope :not_blocked, -> { where(blocked: false) }
+  scope :blocked, -> { where(blocked: true) }
 end

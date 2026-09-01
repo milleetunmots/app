@@ -48,10 +48,12 @@ RSpec.describe 'Plafonnement des envois Spot-Hit', type: :request do
       expect(SmsSendRecord.last.recipients_count).to eq(1)
     end
 
+    # La tentative refusée est tracée en `blocked` : c'est le quota consommé,
+    # hors lignes bloquées, qui ne doit pas bouger.
     it "affiche le message de dépassement et n'envoie rien au-dessus du plafond" do
       saturate(admin_user)
 
-      expect { program_sms }.not_to change(SmsSendRecord, :count)
+      expect { program_sms }.not_to(change { SmsSendRecord.not_blocked.sum(:recipients_count) })
       expect(flash[:alert]).to include(limit_message)
       expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
     end
@@ -83,10 +85,10 @@ RSpec.describe 'Plafonnement des envois Spot-Hit', type: :request do
       expect(SmsSendRecord.last.recipients_count).to eq(1)
     end
 
-    it 'ne transmet rien et affiche le message au-dessus du plafond' do
+    it 'ne transmet rien, ne consomme aucun quota et affiche le message au-dessus du plafond' do
       saturate(admin_user)
 
-      expect { send_address_verification }.not_to change(SmsSendRecord, :count)
+      expect { send_address_verification }.not_to(change { SmsSendRecord.not_blocked.sum(:recipients_count) })
       expect(flash[:alert]).to include(limit_message)
       expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
       expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
@@ -119,10 +121,10 @@ RSpec.describe 'Plafonnement des envois Spot-Hit', type: :request do
       expect(child.reload.group_status).to eq('active')
     end
 
-    it 'ne transmet rien, ne comptabilise rien et affiche le message au-dessus du plafond' do
+    it 'ne transmet rien, ne consomme aucun quota et affiche le message au-dessus du plafond' do
       saturate(admin_user)
 
-      expect { generate_quit_sms }.not_to change(SmsSendRecord, :count)
+      expect { generate_quit_sms }.not_to(change { SmsSendRecord.not_blocked.sum(:recipients_count) })
       expect(flash[:alert]).to include(limit_message)
       expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
       expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')

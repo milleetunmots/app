@@ -57,17 +57,20 @@ RSpec.describe SmsSendRecord::QuotaGuard, type: :service do
         expect(described_class.new(admin_user, 1).reserve!).to be(false)
       end
 
-      it "ne crée aucun enregistrement quand il bloque" do
+      it "crée un enregistrement quand il bloque" do
         consume(50, 10.minutes.ago)
 
-        expect { described_class.new(admin_user, 1).reserve! }.not_to change(SmsSendRecord, :count)
+        expect { described_class.new(admin_user, 1).reserve! }.to change(SmsSendRecord, :count)
       end
 
       it 'bloque totalement un envoi qui ne dépasse que partiellement' do
         consume(48, 10.minutes.ago)
 
         expect(described_class.new(admin_user, 5).reserve!).to be(false)
-        expect(SmsSendRecord.sum(:recipients_count)).to eq(48)
+        # La tentative est tracée mais en `blocked` : c'est le décompte hors
+        # lignes bloquées, seul à alimenter le quota, qui ne doit pas bouger.
+        expect(SmsSendRecord.not_blocked.sum(:recipients_count)).to eq(48)
+        expect(SmsSendRecord.blocked.sum(:recipients_count)).to eq(5)
       end
 
       it 'ne compte plus les envois sortis de la fenêtre horaire' do
@@ -141,7 +144,7 @@ RSpec.describe SmsSendRecord::QuotaGuard, type: :service do
 
         expect(first.reserve!).to be(true)
         expect(second.reserve!).to be(false)
-        expect(SmsSendRecord.since(1.hour).sum(:recipients_count)).to eq(50)
+        expect(SmsSendRecord.not_blocked.since(1.hour).sum(:recipients_count)).to eq(50)
       end
 
       it 'prend un verrou sur la ligne de l’utilisatrice' do

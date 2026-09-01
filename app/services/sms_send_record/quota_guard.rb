@@ -19,10 +19,12 @@ class SmsSendRecord::QuotaGuard
     @recipients_count = recipients_count.to_i
   end
 
-  # Réserve le quota AVANT l'appel au provider, et renvoie false sans rien
-  # écrire si l'un des deux plafonds serait dépassé. La vérification et
-  # l'écriture sont faites sous verrou de la ligne admin_users : deux envois
-  # simultanés du même utilisateur ne peuvent pas passer tous les deux.
+  # Réserve le quota AVANT l'appel au provider, et renvoie false si l'un des deux
+  # plafonds serait dépassé. La tentative refusée est tout de même tracée, en
+  # `blocked` : elle garde trace de l'essai sans entrer dans le décompte, que le
+  # scope `not_blocked` restreint. La vérification et l'écriture sont faites sous
+  # verrou de la ligne admin_users : deux envois simultanés du même utilisateur
+  # ne peuvent pas passer tous les deux.
   def reserve!
     return true if exempt? || @recipients_count.zero?
 
