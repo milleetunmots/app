@@ -34,6 +34,23 @@ RSpec.describe 'Admin allowed patterns', type: :request do
         expect(response.body).to include('id="allowed_pattern_kind"')
         expect(response.body).to match(%r{<select[^>]*id="allowed_pattern_kind".*?value="phone_number".*?</select>}m)
       end
+
+      # Second contrat du script : il pioche le hint de `value` dans data-hints,
+      # sur les clés "kind/match_type".
+      it 'expose tous les hints de value, et rend celui de la sélection par défaut' do
+        get '/admin/allowed_patterns/new'
+
+        expect(rendered_value_hints.keys).to contain_exactly('url/domain', 'url/exact', 'phone_number/exact')
+        expect(rendered_value_hint).to eq rendered_value_hints['url/domain']
+      end
+
+      it 'rend, en édition, le hint du couple enregistré' do
+        allowed_pattern = FactoryBot.create(:allowed_pattern, kind: 'phone_number', match_type: 'exact', value: '0810123456')
+
+        get "/admin/allowed_patterns/#{allowed_pattern.id}/edit"
+
+        expect(rendered_value_hint).to eq rendered_value_hints['phone_number/exact']
+      end
     end
 
     it 'peut ajouter un numéro autorisé, canonicalisé à l\'enregistrement' do
@@ -101,5 +118,17 @@ RSpec.describe 'Admin allowed patterns', type: :request do
         end.not_to change(AllowedPattern, :count)
       end
     end
+  end
+
+  def rendered_value_input
+    response.body[/<input[^>]*id="allowed_pattern_value"[^>]*>/]
+  end
+
+  def rendered_value_hints
+    JSON.parse(CGI.unescapeHTML(rendered_value_input[/data-hints="([^"]*)"/, 1]))
+  end
+
+  def rendered_value_hint
+    CGI.unescapeHTML(response.body[%r{id="allowed_pattern_value_input".*?<p class="inline-hints">(.*?)</p>}m, 1])
   end
 end

@@ -11,6 +11,19 @@ $(document).ready(function() {
 
   var $allOptions = $matchType.find('option');
 
+  // Le format attendu pour `value` dépend du couple (kind, match_type) : le hint
+  // du champ est rendu avec celui de la sélection initiale, et tous les autres
+  // sont exposés en data-hints (cf. ActiveAdmin::AllowedPatternsHelper).
+  var $hint = $('#allowed_pattern_value_input .inline-hints');
+  var hints = $('#allowed_pattern_value').data('hints') || {};
+
+  var refreshHint = function() {
+    if ($hint.length === 0) { return; }
+
+    var hint = hints[`${$kind.val()}/${$matchType.val()}`];
+    if (hint) { $hint.text(hint); }
+  };
+
   var refreshMatchTypes = function() {
     var kind = $kind.val();
     var previousValue = $matchType.val();
@@ -29,8 +42,13 @@ $(document).ready(function() {
     // pattern existant), sinon la première option valide.
     var values = $options.map(function() { return this.value; }).get();
     $matchType.val(values.indexOf(previousValue) === -1 ? values[0] : previousValue);
+
+    // Changer de kind peut réaffecter le match_type : le hint doit suivre ce
+    // nouveau couple, pas seulement le kind.
+    refreshHint();
   };
 
   $kind.on('change', refreshMatchTypes);
+  $matchType.on('change', refreshHint);
   refreshMatchTypes();
 });

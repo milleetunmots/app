@@ -37,7 +37,9 @@ ActiveAdmin.register AllowedPattern do
               as: :select,
               collection: allowed_pattern_match_type_select_collection,
               include_blank: false
-      f.input :value, hint: "URL : un domaine (monpartenaire.fr) ou une URL complète (https://exemple.fr/page) selon le type de correspondance. Numéro de téléphone : le numéro autorisé, dans n'importe quelle notation (0810123456, +33 810 12 34 56)."
+      f.input :value,
+              hint: allowed_pattern_value_hint(f.object),
+              input_html: { data: { hints: allowed_pattern_value_hints.to_json } }
     end
     f.actions
   end
