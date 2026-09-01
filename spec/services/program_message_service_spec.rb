@@ -352,6 +352,25 @@ RSpec.describe ProgramMessageService do
       expect(child_support.reload.suggested_videos_counter).to eq([])
     end
 
+    # Même famille que le quota : la campagne est partie, les liens de redirection
+    # avec elle, seule l'historisation a échoué.
+    it "est incrémenté quand la campagne est partie malgré une erreur d'historisation" do
+      service = instance_double(SpotHit::SendRcsService, errors: ["Impossible d'enregistrer le message dans l'historique : Parent non trouvé"], sent?: true)
+      allow(service).to receive(:call).and_return(service)
+      allow(SpotHit::SendRcsService).to receive(:new).and_return(service)
+
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_2.id}"],
+        'Une nouvelle vidéo pour vous.',
+        nil,
+        suggested_target.id
+      ).call
+
+      expect(child_support.reload.suggested_videos_counter.size).to eq(1)
+    end
+
     it "est incrémenté une seule fois quand l'envoi passe" do
       ProgramMessageService.new(
         Time.zone.today,
@@ -363,6 +382,44 @@ RSpec.describe ProgramMessageService do
       ).call
 
       expect(child_support.reload.suggested_videos_counter.size).to eq(1)
+    end
+  end
+
+  # La tâche signale les fiches à corriger : elle ne dépend pas de l'issue de
+  # l'envoi, seulement des parents écartés à la validation.
+  context 'parents écartés parce qu’ils ne sont pas valides' do
+    before do
+      FactoryBot.create(:admin_user, email: ENV.fetch('OPERATION_PROJECT_MANAGER_EMAIL', nil))
+      child_2.update(should_contact_parent1: true)
+      # postal_code est NOT NULL en base : on le rend invalide sans le vider
+      # (numericality + length: 5 échouent), ce qui suffit à écarter le parent.
+      parent_3.update_column(:postal_code, 'abc')
+    end
+
+    def program_to_both_parents
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_2.id}", "parent.#{parent_3.id}"],
+        'Bonjour'
+      ).call
+    end
+
+    it "crée une tâche automatique quand l'envoi passe" do
+      expect { program_to_both_parents }.to change(Task, :count).by(1)
+
+      expect(Task.last.title).to eq('Message non envoyé à des parents')
+    end
+
+    it "crée la tâche même quand l'envoi échoue, et cumule les deux erreurs" do
+      stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').
+        to_return(status: 200, body: { erreurs: ['nope'] }.to_json)
+
+      service = nil
+      expect { service = program_to_both_parents }.to change(Task, :count).by(1)
+
+      expect(service.errors.first).to match(/Erreur lors de la programmation de la campagne/)
+      expect(service.errors.last).to include("Message non envoyé à #{parent_3.decorate.name}")
     end
   end
 
@@ -523,6 +580,28 @@ RSpec.describe ProgramMessageService do
         service = program(["parent.#{parent_2.id}", "parent.#{parent_3.id}"], message, planned_date: 3.days.from_now.to_date)
 
         expect(service).to be_quota_exceeded
+      end
+    end
+
+    # Les erreurs d'historisation (event invalide, parent non résolu) surviennent
+    # après l'acceptation de la campagne : les messages sont partis, le quota
+    # doit rester consommé sans quoi ils échapperaient au plafond.
+    context "quand la campagne est partie malgré des erreurs" do
+      before do
+        service = instance_double(
+          SpotHit::SendRcsService,
+          errors: ['Impossible d\'enregistrer le message dans l\'historique : Parent non trouvé pour le numéro de téléphone 0600000000'],
+          sent?: true
+        )
+        allow(service).to receive(:call).and_return(service)
+        allow(SpotHit::SendRcsService).to receive(:new).and_return(service)
+      end
+
+      it 'consomme le quota et ne marque pas la ligne bloquée' do
+        expect { program(["parent.#{parent_2.id}"]) }
+          .to change { SmsSendRecord.not_blocked.sum(:recipients_count) }.by(1)
+
+        expect(SmsSendRecord.last).not_to be_blocked
       end
     end
 

@@ -153,33 +153,24 @@ class ProgramMessageService
             blocked_send_attempt_id: @blocked_send_attempt_id
           ).call
         end
-      increment_suggested_videos_counters if service.errors.empty?
-      if service.errors.any?
-        # Rien n'est parti (erreur API Spot-Hit ou message bloqué par le
-        # BlockedSendAttempt::SendGuard) : le quota réservé est rendu.
-        quota_guard.mark_blocked!
-        @errors = service.errors
-      elsif @invalid_parent_ids.any?
-        invalid_parents = Parent.includes(:parent1_children, :parent2_children).where(id: @invalid_parent_ids)
-        description_text = "Le message \"#{@message}\" n'a pas été envoyé aux parents pour les raisons suivantes :"
-        invalid_parents.each do |parent|
-          if parent.valid?
-            parent.children.each do |child|
-              unless child.valid?
-                @errors << "Message non envoyé à #{parent.decorate.name} parce que son enfant #{child.decorate.name} n'est pas valide"
-                description_text << "<br>#{ActionController::Base.helpers.link_to(child.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: child.id), target: '_blank')} : #{child.errors.messages.to_json}"
-              end
-            end
-          else
-            @errors << "Message non envoyé à #{parent.decorate.name} parce qu'il n'est pas valide"
-            description_text << "<br>#{ActionController::Base.helpers.link_to(parent.decorate.name, Rails.application.routes.url_helpers.edit_admin_parent_url(id: parent.id), target: '_blank')} : #{parent.errors.messages.to_json}"
-          end
-        end
-        Task::CreateAutomaticTaskService.new(
-          title: 'Message non envoyé à des parents',
-          description: description_text
-        ).call
-      end
+      # Même critère que le quota : les liens de redirection sont partis avec la
+      # campagne, une erreur d'historisation postérieure ne doit pas empêcher de
+      # les comptabiliser — la même vidéo serait resuggérée à ces familles.
+      increment_suggested_videos_counters if service.sent?
+      # Le quota n'est rendu que si rien n'est parti (message bloqué par le
+      # BlockedSendAttempt::SendGuard, erreur API Spot-Hit). Une fois la campagne
+      # acceptée, les erreurs restantes portent sur l'historisation (event
+      # invalide, parent non résolu) : les messages sont bel et bien partis et
+      # doivent rester décomptés, sans quoi ils échapperaient au plafond.
+      quota_guard.mark_blocked! unless service.sent?
+      # `dup` : `report_invalid_parents!` complète ensuite `@errors`, et sans copie
+      # ce sont les erreurs du service qu'on modifierait.
+      @errors = service.errors.dup if service.errors.any?
+
+      # Les parents écartés pour invalidité sont un sujet distinct de l'issue de
+      # l'envoi : la tâche doit être créée même quand la campagne a échoué, sans
+      # quoi plus personne ne reprend ces familles.
+      report_invalid_parents! if @invalid_parent_ids.any?
     else
       @errors << "Provider inconnu : #{@provider}" and return self if service.blank?
     end
@@ -395,6 +386,31 @@ class ProgramMessageService
       @parent_ids << child.parent1_id if child.parent1_id && child.should_contact_parent1
       @parent_ids << child.parent2_id if child.parent2_id && child.should_contact_parent2
     end
+  end
+
+  # Trace les parents écartés à la validation : une erreur par parent pour
+  # l'utilisatrice, et une tâche automatique pour que quelqu'un corrige les
+  # fiches.
+  def report_invalid_parents!
+    invalid_parents = Parent.includes(:parent1_children, :parent2_children).where(id: @invalid_parent_ids)
+    description_text = "Le message \"#{@message}\" n'a pas été envoyé aux parents pour les raisons suivantes :"
+    invalid_parents.each do |parent|
+      if parent.valid?
+        parent.children.each do |child|
+          unless child.valid?
+            @errors << "Message non envoyé à #{parent.decorate.name} parce que son enfant #{child.decorate.name} n'est pas valide"
+            description_text << "<br>#{ActionController::Base.helpers.link_to(child.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: child.id), target: '_blank')} : #{child.errors.messages.to_json}"
+          end
+        end
+      else
+        @errors << "Message non envoyé à #{parent.decorate.name} parce qu'il n'est pas valide"
+        description_text << "<br>#{ActionController::Base.helpers.link_to(parent.decorate.name, Rails.application.routes.url_helpers.edit_admin_parent_url(id: parent.id), target: '_blank')} : #{parent.errors.messages.to_json}"
+      end
+    end
+    Task::CreateAutomaticTaskService.new(
+      title: 'Message non envoyé à des parents',
+      description: description_text
+    ).call
   end
 
   def verify_parent_and_children_validity

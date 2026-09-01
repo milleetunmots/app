@@ -113,12 +113,47 @@ class SmsSendRecord::QuotaGuard
   def alert_text
     [
       '*Envoi SMS bloqué — quota atteint*',
-      "*Utilisatrice* : #{@admin_user.name}",
+      "*Compte* : #{account_link}",
       "*Destinataires demandés* : #{@recipients_count}",
       "*Quota horaire* : #{consumed(SmsSendRecord::HOURLY_WINDOW)} / #{@admin_user.sms_hourly_recipients_limit}",
       "*Quota journalier* : #{consumed(SmsSendRecord::DAILY_WINDOW)} / #{@admin_user.sms_daily_recipients_limit}",
       "*Fenêtre(s) franchie(s)* : #{@exceeded_windows.join(', ')}",
+      blocked_record_line,
       "_#{Time.current.strftime('%d/%m %H:%M')}_"
-    ].join("\n")
+    ].compact.join("\n")
+  end
+
+  def account_link
+    slack_link(@admin_user.name) { routes.admin_admin_user_url(id: @admin_user.id) }
+  end
+
+  # La ligne est omise plutôt que de risquer un NoMethodError : l'alerte ne doit
+  # jamais faire échouer le geste métier.
+  def blocked_record_line
+    return if @record.nil?
+
+    "*Envoi bloqué* : #{slack_link("n° #{@record.id}") { routes.admin_sms_send_record_url(id: @record.id) }}"
+  end
+
+  # mrkdwn : `<url|libellé>`. Slack impose d'échapper &, < et > dans le libellé,
+  # faute de quoi un nom de compte qui en contient tronque le lien.
+  #
+  # L'url est construite dans un bloc pour rester sous le rescue : sans
+  # DEFAULT_HOSTNAME, les helpers `_url` lèvent, et `alert_text` étant évalué à
+  # la construction des arguments de Slack::PostMessageService — donc hors de son
+  # propre rescue —, `reserve!` remonterait l'exception au lieu de bloquer l'envoi
+  # proprement. L'alerte perd son lien, jamais le blocage.
+  def slack_link(label)
+    escaped_label = label.to_s.gsub('&', '&amp;').gsub('<', '&lt;').gsub('>', '&gt;')
+    url = yield
+
+    "<#{url}|#{escaped_label}>"
+  rescue StandardError => e
+    Rollbar.error('SmsSendRecord::QuotaGuard lien Slack', errors: [e.message])
+    escaped_label
+  end
+
+  def routes
+    Rails.application.routes.url_helpers
   end
 end

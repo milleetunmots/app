@@ -19,6 +19,33 @@ RSpec.describe SpotHit::SendMessageService do
       )
   end
 
+  # `errors` ne dit pas si l'envoi a eu lieu : une campagne acceptée peut ensuite
+  # échouer à s'historiser. C'est `sent?` qui tranche, et ProgramMessageService
+  # s'en sert pour décider de rendre ou non le quota réservé.
+  describe '#sent?' do
+    subject(:service) { SpotHit::SendSmsService.new(recipients, planned_timestamp, message).call }
+
+    let(:recipients) { [parent1.phone_number] }
+
+    it 'est vrai quand Spot-Hit accepte la campagne' do
+      expect(service).to be_sent
+    end
+
+    it "reste vrai quand la campagne est partie mais qu'un destinataire n'est pas historisable" do
+      recipients << '0600000000'
+
+      expect(service).to be_sent
+      expect(service.errors.first).to include('Parent non trouvé')
+    end
+
+    it "est faux quand l'API refuse la campagne" do
+      stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
+        .to_return(status: 200, body: { erreurs: ['nope'] }.to_json, headers: { 'Content-Type' => 'application/json' })
+
+      expect(service).not_to be_sent
+    end
+  end
+
   describe '#call / create_events' do
     subject(:service) do
       SpotHit::SendSmsService.new(recipients, planned_timestamp, message).call

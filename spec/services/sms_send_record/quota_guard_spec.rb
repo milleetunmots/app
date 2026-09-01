@@ -217,12 +217,54 @@ RSpec.describe SmsSendRecord::QuotaGuard, type: :service do
         expect(alert_content).to include('*Fenêtre(s) franchie(s)* : horaire, journalier')
       end
 
-      it 'identifie l’utilisatrice bloquée' do
+      it 'identifie le compte bloqué et lie sa fiche admin' do
         consume(50, 10.minutes.ago)
 
         described_class.new(admin_user, 1).reserve!
 
-        expect(alert_content).to include("*Utilisatrice* : #{admin_user.name}")
+        url = Rails.application.routes.url_helpers.admin_admin_user_url(id: admin_user.id)
+        expect(alert_content).to include("*Compte* : <#{url}|#{admin_user.name}>")
+      end
+
+      it "lie la trace de l'envoi bloqué" do
+        consume(50, 10.minutes.ago)
+
+        described_class.new(admin_user, 1).reserve!
+
+        record = SmsSendRecord.blocked.last
+        url = Rails.application.routes.url_helpers.admin_sms_send_record_url(id: record.id)
+        expect(alert_content).to include("*Envoi bloqué* : <#{url}|n° #{record.id}>")
+      end
+
+      # Un & non échappé dans le libellé tronque le lien côté Slack.
+      it 'échappe le libellé du lien de compte' do
+        allow(admin_user).to receive(:name).and_return('Marie & Cie')
+        consume(50, 10.minutes.ago)
+
+        described_class.new(admin_user, 1).reserve!
+
+        expect(alert_content).to include('|Marie &amp; Cie>')
+      end
+
+      context 'sans host configuré' do
+        around do |example|
+          previous = Rails.application.routes.default_url_options.dup
+          Rails.application.routes.default_url_options.clear
+          example.run
+          Rails.application.routes.default_url_options.merge!(previous)
+        end
+
+        # Les helpers `_url` lèvent alors. `alert_text` étant évalué hors du rescue
+        # de Slack::PostMessageService, l'exception ferait échouer `reserve!` :
+        # l'alerte doit perdre ses liens, jamais le blocage.
+        it 'bloque quand même et retombe sur les libellés nus' do
+          allow(Rollbar).to receive(:error)
+          consume(50, 10.minutes.ago)
+
+          expect(described_class.new(admin_user, 1).reserve!).to be(false)
+          expect(alert_content).to include("*Compte* : #{admin_user.name}")
+          expect(alert_content).not_to include('<http')
+        end
       end
 
       it 'porte les compteurs de consommation et les plafonds' do

@@ -8,6 +8,7 @@ class SpotHit::SendRcsService
 
   def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil, basic: false, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil)
     @recipients = recipients
+    @sent = false
     @planned_timestamp = planned_timestamp
     @form = {
       'key' => ENV['SPOT_HIT_API_KEY'],
@@ -29,6 +30,15 @@ class SpotHit::SendRcsService
     @form.merge!({ 'rcs_basic_message' => @message }) if @form['rcs_type'] == 'basic'
     send_rcs
     self
+  end
+
+  # Vrai dès que Spot-Hit a accepté la campagne. Les erreurs qui suivent (event
+  # invalide, parent non résolu, atelier non sauvegardé) n'empêchent pas les
+  # messages de partir : `errors` seul ne permet donc pas de savoir si l'envoi a
+  # eu lieu, et l'appelant doit s'appuyer sur cet indicateur pour décider de
+  # rendre le quota réservé (cf. ProgramMessageService).
+  def sent?
+    @sent
   end
 
   protected
@@ -71,6 +81,7 @@ class SpotHit::SendRcsService
     )
     body = parse_json_response(response)
     if body.is_a?(Hash) && body['success']
+      @sent = true
       create_events(body['campaign_id'])
     else
       @errors << "Erreur lors de la programmation de la campagne : #{json_error_message(response, body)}"

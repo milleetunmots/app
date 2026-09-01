@@ -1,7 +1,7 @@
 ActiveAdmin.register SmsSendRecord do
   menu parent: 'Gestion des envois', label: 'Envois comptabilisés', priority: 4
 
-  actions :index # compteur technique : ni création, ni édition, ni suppression
+  actions :index, :show # compteur technique : ni création, ni édition, ni suppression
 
   includes :admin_user
 
@@ -19,5 +19,17 @@ ActiveAdmin.register SmsSendRecord do
     # Envoi finalement non parti : la ligne subsiste pour la trace, mais ne
     # consomme plus le quota de l'utilisateur.
     column :blocked
+  end
+
+  # Cible du lien porté par l'alerte Slack de dépassement de quota
+  # (cf. SmsSendRecord::QuotaGuard#blocked_record_line).
+  show do
+    attributes_table do
+      row :created_at
+      row :admin_user
+      row :recipients_count
+      row :blocked
+      row :updated_at
+    end
   end
 end
