@@ -3,9 +3,9 @@ class ProgramMessageService
   TYPEFORM_URL_REGEX = %r{https://form.typeform.com/[^\s]*#st=[^\s]+}.freeze
   VIDEOASK_URL_REGEX = %r{https://www\.videoask\.com/[^\s]*#st=[^\s]+}.freeze
 
-  attr_reader :errors
+  attr_reader :errors, :quota_guard
 
-  def initialize(planned_date, planned_hour, recipients, message, rcs_media_id = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil, blocked_send_attempt: nil, acting_admin_user: nil)
+  def initialize(planned_date, planned_hour, recipients, message, rcs_media_id = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil, blocked_send_attempt: nil, acting_admin_user: nil, defer_quota_block_report: false)
     @replay_params = {
       planned_date: planned_date,
       planned_hour: planned_hour,
@@ -48,6 +48,7 @@ class ProgramMessageService
     # @replay_params : la relance d'un envoi bloqué est une action super_admin,
     # donc exemptée par nature.
     @acting_admin_user = acting_admin_user
+    @defer_quota_block_report = defer_quota_block_report
     @quota_exceeded = false
   end
 
@@ -115,9 +116,13 @@ class ProgramMessageService
       # garde couvre les trois routes (RCS avec média, RCS basic, SMS) : un
       # message de moins de 160 octets part en RCS basic et échapperait au
       # plafond si seul le chemin SMS était gardé.
-      quota_guard = SmsSendRecord::QuotaGuard.new(@acting_admin_user, spot_hit_recipients_count)
-      @quota_exceeded = !quota_guard.reserve!
-      @errors << quota_guard.error_message and return self if @quota_exceeded
+      @quota_guard = SmsSendRecord::QuotaGuard.new(
+        @acting_admin_user,
+        spot_hit_recipients_count,
+        defer_block_report: @defer_quota_block_report
+      )
+      @quota_exceeded = !@quota_guard.reserve!
+      @errors << @quota_guard.error_message and return self if @quota_exceeded
 
       service =
         if @rcs_media_id.present?
@@ -162,7 +167,7 @@ class ProgramMessageService
       # acceptée, les erreurs restantes portent sur l'historisation (event
       # invalide, parent non résolu) : les messages sont bel et bien partis et
       # doivent rester décomptés, sans quoi ils échapperaient au plafond.
-      quota_guard.mark_blocked! unless service.sent?
+      @quota_guard.mark_blocked! unless service.sent?
       # `dup` : `report_invalid_parents!` complète ensuite `@errors`, et sans copie
       # ce sont les erreurs du service qu'on modifierait.
       @errors = service.errors.dup if service.errors.any?

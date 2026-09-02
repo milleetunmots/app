@@ -236,6 +236,23 @@ RSpec.describe SmsSendRecord::QuotaGuard, type: :service do
         expect(alert_content).to include("*Envoi bloqué* : <#{url}|n° #{record.id}>")
       end
 
+      it "peut différer la trace et l'alerte jusqu'après le rollback de l'appelant" do
+        consume(50, 10.minutes.ago)
+        guard = nil
+
+        SmsSendRecord.transaction(requires_new: true) do
+          guard = described_class.new(admin_user, 1, defer_block_report: true)
+          expect(guard.reserve!).to be(false)
+          expect(Slack::PostMessageService).not_to have_received(:new)
+          raise ActiveRecord::Rollback
+        end
+
+        expect { guard.report_deferred_block! }.to change(SmsSendRecord.blocked, :count).by(1)
+        record = SmsSendRecord.blocked.last
+        url = Rails.application.routes.url_helpers.admin_sms_send_record_url(id: record.id)
+        expect(alert_content).to include("*Envoi bloqué* : <#{url}|n° #{record.id}>")
+      end
+
       # Un & non échappé dans le libellé tronque le lien côté Slack.
       it 'échappe le libellé du lien de compte' do
         allow(admin_user).to receive(:name).and_return('Marie & Cie')

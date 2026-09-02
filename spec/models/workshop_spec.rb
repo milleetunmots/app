@@ -189,8 +189,24 @@ RSpec.describe Workshop, type: :model do
         expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
       end
 
-      it "ne crée aucun enregistrement d'envoi" do
-        expect { build_workshop.save }.not_to change(SmsSendRecord, :count)
+      it "conserve la trace bloquée après l'annulation de l'atelier" do
+        expect { build_workshop.save }.to change(SmsSendRecord.blocked, :count).by(1)
+      end
+
+      it "envoie dans Slack un lien vers la trace conservée" do
+        alert_payload = nil
+        slack = instance_double(Slack::PostMessageService, errors: [])
+        allow(slack).to receive(:call).and_return(slack)
+        allow(Slack::PostMessageService).to receive(:new) do |payload|
+          alert_payload = payload
+          slack
+        end
+
+        build_workshop.save
+
+        record = SmsSendRecord.blocked.last
+        url = Rails.application.routes.url_helpers.admin_sms_send_record_url(id: record.id)
+        expect(alert_payload[:text]).to include("<#{url}|n° #{record.id}>")
       end
 
       it "expose le message de dépassement de limite sur l'atelier" do

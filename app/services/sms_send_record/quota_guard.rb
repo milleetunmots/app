@@ -14,9 +14,10 @@ class SmsSendRecord::QuotaGuard
   ALERT_ICON_EMOJI = ':rotating_light:'.freeze
   ALERT_USERNAME = 'Alerte quota message'.freeze
 
-  def initialize(admin_user, recipients_count)
+  def initialize(admin_user, recipients_count, defer_block_report: false)
     @admin_user = admin_user
     @recipients_count = recipients_count.to_i
+    @defer_block_report = defer_block_report
   end
 
   # Réserve le quota AVANT l'appel au provider, et renvoie false si l'un des deux
@@ -45,8 +46,11 @@ class SmsSendRecord::QuotaGuard
 
     # Hors transaction, verrou relâché : l'alerte part par un appel HTTP
     # synchrone à Slack, l'émettre sous le SELECT … FOR UPDATE retiendrait le
-    # verrou de la ligne admin_users pendant tout l'aller-retour.
-    report_block!
+    # verrou de la ligne admin_users pendant tout l'aller-retour. La création
+    # d'atelier diffère ce signal jusqu'à son after_rollback : la ligne créée
+    # ici appartient à la transaction de l'atelier et va être annulée avec lui.
+    @block_report_deferred = @defer_block_report
+    report_block! unless @block_report_deferred
     false
   end
 
@@ -58,6 +62,26 @@ class SmsSendRecord::QuotaGuard
   def mark_blocked!
     @record&.update!(blocked: true)
     @record = nil
+  end
+
+  # Après le rollback de l'appelant, recrée durablement la tentative bloquée
+  # avant de construire le lien Slack. L'alerte reste envoyée si la trace ne peut
+  # exceptionnellement pas être persistée, mais sans lien vers une ligne absente.
+  def report_deferred_block!
+    return unless @block_report_deferred
+
+    @record = SmsSendRecord.create(
+      admin_user_id: @admin_user.id,
+      recipients_count: @recipients_count,
+      blocked: true
+    )
+    unless @record.persisted?
+      Rollbar.error('SmsSendRecord bloqué non tracé', errors: @record.errors.full_messages)
+      @record = nil
+    end
+
+    @block_report_deferred = false
+    report_block!
   end
 
   def error_message
@@ -130,7 +154,7 @@ class SmsSendRecord::QuotaGuard
   # La ligne est omise plutôt que de risquer un NoMethodError : l'alerte ne doit
   # jamais faire échouer le geste métier.
   def blocked_record_line
-    return if @record.nil?
+    return unless @record&.persisted?
 
     "*Envoi bloqué* : #{slack_link("n° #{@record.id}") { routes.admin_sms_send_record_url(id: @record.id) }}"
   end

@@ -53,6 +53,7 @@ class Workshop < ApplicationRecord
   before_create :select_recipients
   after_create :send_message
   after_save :update_workshop_participation
+  after_rollback :report_deferred_quota_block, on: :create
 
   validates :topic, inclusion: { in: TOPICS, allow_blank: true }
   validates :animator, presence: true
@@ -108,7 +109,8 @@ class Workshop < ApplicationRecord
     service = Workshop::ProgramWorkshopInvitationService.new(
       date.to_date, date.strftime('%H:%M'), recipients, message, nil, nil, nil, id, nil,
       %w[waiting active paused stopped disengaged],
-      acting_admin_user: acting_admin_user
+      acting_admin_user: acting_admin_user,
+      defer_quota_block_report: true
     ).call
 
     # Plafond d'envoi atteint : aucune invitation n'est partie, l'atelier ne doit
@@ -118,11 +120,16 @@ class Workshop < ApplicationRecord
     # Attention : ce Rollback serait absorbé sans effet si un appelant enveloppait
     # un jour la création dans sa propre transaction joignable.
     if service.quota_exceeded?
+      @deferred_quota_guard = service.quota_guard
       errors.add(:base, service.errors.first)
       raise ActiveRecord::Rollback
     end
 
     Rollbar.error(service.errors) if service.errors.any?
+  end
+
+  def report_deferred_quota_block
+    @deferred_quota_guard&.report_deferred_block!
   end
 
   def update_workshop_participation

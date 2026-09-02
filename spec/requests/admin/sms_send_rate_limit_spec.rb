@@ -182,10 +182,12 @@ RSpec.describe 'Plafonnement des envois Spot-Hit', type: :request do
       expect(response.body).not_to include('Aucune invitation n&#39;a pu être envoyée')
     end
 
-    it 'ne comptabilise ni ne transmet rien au-dessus du plafond' do
+    it 'trace le blocage sans consommer de quota ni transmettre au-dessus du plafond' do
       saturate(admin_user)
+      consumed_before = SmsSendRecord.not_blocked.sum(:recipients_count)
 
-      expect { create_workshop }.not_to change(SmsSendRecord, :count)
+      expect { create_workshop }.to change(SmsSendRecord.blocked, :count).by(1)
+      expect(SmsSendRecord.not_blocked.sum(:recipients_count)).to eq(consumed_before)
       expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
       expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
     end
