@@ -54,6 +54,8 @@ ActiveAdmin.register AdminUser do
         f.input :phone_number, label: 'Téléphone pour la double authentification',
                                hint: 'Téléphone français, requis pour activer la double authentification.'
         f.input :two_factor_enabled, as: :boolean, label: 'Double authentification par SMS'
+        f.input :sms_hourly_recipients_limit
+        f.input :sms_daily_recipients_limit
       end
       if !params[:id] || current_admin_user == admin_user_in_params
         f.input :password
@@ -78,6 +80,8 @@ ActiveAdmin.register AdminUser do
       parameters.push :can_export_data
       parameters.push :phone_number
       parameters.push :two_factor_enabled
+      parameters.push :sms_hourly_recipients_limit
+      parameters.push :sms_daily_recipients_limit
     end
     if !params[:id] || current_admin_user == AdminUser.find(params[:id])
       parameters.push :password

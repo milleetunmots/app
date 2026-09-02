@@ -74,6 +74,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_21_170000) do
     t.string "otp_code_digest"
     t.datetime "otp_sent_at"
     t.integer "otp_attempts", default: 0, null: false
+    t.integer "sms_hourly_recipients_limit", default: 50, null: false
+    t.integer "sms_daily_recipients_limit", default: 200, null: false
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
@@ -891,6 +893,15 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_21_170000) do
     t.index ["status"], name: "index_scheduled_calls_on_status"
   end
 
+  create_table "sms_send_records", force: :cascade do |t|
+    t.bigint "admin_user_id", null: false
+    t.integer "recipients_count", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "blocked", default: false, null: false
+    t.index ["admin_user_id", "blocked", "created_at"], name: "index_sms_send_records_on_admin_user_blocked_created_at"
+  end
+
   create_table "sources", force: :cascade do |t|
     t.string "name", null: false
     t.string "channel", null: false
@@ -1069,6 +1080,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_21_170000) do
   add_foreign_key "scheduled_calls", "admin_users"
   add_foreign_key "scheduled_calls", "child_supports"
   add_foreign_key "scheduled_calls", "parents"
+  add_foreign_key "sms_send_records", "admin_users"
   add_foreign_key "support_module_weeks", "media", column: "additional_medium_id"
   add_foreign_key "support_modules", "books"
   add_foreign_key "taggings", "tags"

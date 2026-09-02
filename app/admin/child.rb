@@ -319,7 +319,8 @@ ActiveAdmin.register Child do
       parent_ids,
       message,
       nil, nil, false, nil, nil,
-      Child::GROUP_STATUS
+      Child::GROUP_STATUS,
+      acting_admin_user: current_admin_user
     ).call
     if service.errors.any?
       flash[:alert] = service.errors
@@ -362,15 +363,17 @@ ActiveAdmin.register Child do
         nil,
         nil,
         true,
-        nil
+        nil,
+        acting_admin_user: current_admin_user
       ).call
-
-      @children.update_all(group_status: 'paused')
 
       if service.errors.any?
         flash[:alert] = service.errors
         redirect_back(fallback_location: root_path)
       else
+        # Les enfants ne passent en pause qu'en cas de succès : un envoi bloqué
+        # (plafond atteint, message refusé) doit les laisser actifs.
+        @children.update_all(group_status: 'paused')
         flash[:notice] = 'Message de continuation envoyé'
         redirect_to admin_sent_by_app_text_messages_url
       end

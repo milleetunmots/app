@@ -4,8 +4,18 @@ class SpotHit::SendMessageService
 
   attr_reader :errors
 
+  # Vrai dès que Spot-Hit a accepté la campagne. Les erreurs qui suivent (event
+  # invalide, parent non résolu, atelier non sauvegardé) n'empêchent pas les
+  # messages de partir : `errors` seul ne permet donc pas de savoir si l'envoi a
+  # eu lieu, et l'appelant doit s'appuyer sur cet indicateur pour décider de
+  # rendre le quota réservé (cf. ProgramMessageService).
+  def sent?
+    @sent
+  end
+
   def initialize(recipients, planned_timestamp, message, file: nil, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil)
     @planned_timestamp = planned_timestamp
+    @sent = false
     @recipients = recipients
     @message = message
     @file = file
@@ -44,6 +54,7 @@ class SpotHit::SendMessageService
     if !body.is_a?(Hash) || body.key?('erreurs')
       @errors << "Erreur lors de la programmation de la campagne. [Réponse SPOT_HIT API #{json_error_message(response, body)}]"
     else
+      @sent = true
       create_events(body['id'])
     end
   end

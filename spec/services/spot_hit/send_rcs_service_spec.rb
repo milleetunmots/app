@@ -16,6 +16,45 @@ RSpec.describe SpotHit::SendRcsService do
       )
   end
 
+  # `errors` ne dit pas si l'envoi a eu lieu : une campagne acceptée peut ensuite
+  # échouer à s'historiser. C'est `sent?` qui tranche, et ProgramMessageService
+  # s'en sert pour décider de rendre ou non le quota réservé.
+  describe '#sent?' do
+    subject(:service) { described_class.new(recipients: recipients, planned_timestamp: planned_timestamp, fallback_message: fallback_message).call }
+
+    let(:recipients) { [parent1.phone_number] }
+
+    it 'est vrai quand Spot-Hit accepte la campagne' do
+      expect(service).to be_sent
+    end
+
+    it "reste vrai quand la campagne est partie mais qu'un destinataire n'est pas historisable" do
+      recipients << '0600000000'
+
+      expect(service).to be_sent
+      expect(service.errors.first).to include('Parent non trouvé')
+    end
+
+    it "est faux quand l'API refuse la campagne" do
+      stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+        .to_return(status: 200, body: { erreurs: ['nope'] }.to_json, headers: { 'Content-Type' => 'application/json' })
+
+      expect(service).not_to be_sent
+    end
+
+    it 'est faux quand le contrôle de contenu bloque le message' do
+      FactoryBot.create(:blocked_pattern, kind: 'keyword', value: 'interdit')
+      ENV['KEYWORD_FILTER_BLOCKING_ENABLED'] = 'true'
+
+      service = described_class.new(recipients: recipients, planned_timestamp: planned_timestamp, fallback_message: 'mot interdit').call
+
+      expect(service).not_to be_sent
+      expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+    ensure
+      ENV.delete('KEYWORD_FILTER_BLOCKING_ENABLED')
+    end
+  end
+
   describe '#call / create_events' do
     subject(:service) { described_class.new(recipients: recipients, planned_timestamp: planned_timestamp, media_id: media_id, fallback_message: fallback_message).call }
 

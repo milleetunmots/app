@@ -122,4 +122,120 @@ RSpec.describe Workshop, type: :model do
       end
     end
   end
+
+  describe 'plafonnement des invitations' do
+    let!(:acting_admin_user) { FactoryBot.create(:admin_user, user_role: 'contributor') }
+    let!(:group) { FactoryBot.create(:group) }
+    let!(:first_parent) { FactoryBot.create(:parent, postal_code: 75020) }
+    let!(:second_parent) { FactoryBot.create(:parent, postal_code: 75020) }
+    let!(:excluded_parent) { FactoryBot.create(:parent, postal_code: 75020, is_excluded_from_workshop: true) }
+
+    before do
+      stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms').
+        to_return(status: 200, body: '{}')
+      stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').
+        to_return(status: 200, body: { success: true, campaign_id: '123' }.to_json)
+
+      [first_parent, second_parent, excluded_parent].each do |parent|
+        FactoryBot.create(
+          :child,
+          parent1: parent,
+          available_for_workshops: true,
+          should_contact_parent1: true,
+          group: group,
+          group_status: 'active'
+        )
+      end
+    end
+
+    def build_workshop
+      FactoryBot.build(:workshop, acting_admin_user: acting_admin_user, workshop_land: 'Paris 20 eme')
+    end
+
+    context 'sous le plafond' do
+      it "crée l'atelier et transmet les invitations" do
+        workshop = build_workshop
+
+        expect(workshop.save).to be_truthy
+        expect(workshop.workshop_participations.count).to eq(2)
+      end
+
+      it "ne comptabilise que les destinataires éligibles de l'invitation" do
+        build_workshop.save
+
+        # Le parent exclu des ateliers ne reçoit rien et n'est donc pas décompté.
+        expect(SmsSendRecord.last.recipients_count).to eq(2)
+      end
+    end
+
+    context 'au-dessus du plafond' do
+      before { FactoryBot.create(:sms_send_record, admin_user: acting_admin_user, recipients_count: 50) }
+
+      it "ne persiste pas l'atelier" do
+        workshop = build_workshop
+
+        expect(workshop.save).to be_falsey
+        expect(Workshop.count).to eq(0)
+      end
+
+      it "ne crée aucune participation à l'atelier" do
+        expect { build_workshop.save }.not_to change(Events::WorkshopParticipation, :count)
+      end
+
+      it 'ne transmet aucune invitation à Spot-Hit' do
+        build_workshop.save
+
+        expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
+        expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+      end
+
+      it "conserve la trace bloquée après l'annulation de l'atelier" do
+        expect { build_workshop.save }.to change(SmsSendRecord.blocked, :count).by(1)
+      end
+
+      it "envoie dans Slack un lien vers la trace conservée" do
+        alert_payload = nil
+        slack = instance_double(Slack::PostMessageService, errors: [])
+        allow(slack).to receive(:call).and_return(slack)
+        allow(Slack::PostMessageService).to receive(:new) do |payload|
+          alert_payload = payload
+          slack
+        end
+
+        build_workshop.save
+
+        record = SmsSendRecord.blocked.last
+        url = Rails.application.routes.url_helpers.admin_sms_send_record_url(id: record.id)
+        expect(alert_payload[:text]).to include("<#{url}|n° #{record.id}>")
+      end
+
+      it "expose le message de dépassement de limite sur l'atelier" do
+        workshop = build_workshop
+        workshop.save
+
+        expect(workshop.errors[:base])
+          .to eq(["Vous avez atteint la limite d'envoi de messages. Aucun message n'a pu être envoyé. Contactez un admin."])
+      end
+
+      it 'conserve les données saisies pour le ré-affichage du formulaire' do
+        workshop = build_workshop
+        invitation_message = workshop.invitation_message
+        workshop.save
+
+        expect(workshop).not_to be_persisted
+        expect(workshop.invitation_message).to eq(invitation_message)
+      end
+    end
+
+    context 'quand la créatrice est super_admin' do
+      it "n'applique pas le plafond" do
+        super_admin = FactoryBot.create(:admin_user, user_role: 'super_admin')
+        FactoryBot.create(:sms_send_record, admin_user: super_admin, recipients_count: 500)
+        workshop = FactoryBot.build(:workshop, acting_admin_user: super_admin, workshop_land: 'Paris 20 eme')
+
+        expect(workshop.save).to be_truthy
+        expect(SmsSendRecord.where(admin_user: super_admin).count).to eq(1)
+      end
+    end
+  end
 end

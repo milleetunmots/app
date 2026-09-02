@@ -1,0 +1,183 @@
+# Garde anti-fraude des envois Spot-Hit déclenchés à la main depuis l'admin : un
+# AdminUser ne peut toucher qu'un nombre limité de destinataires sur des
+# fenêtres glissantes. Le blocage est total — si l'envoi complet ne tient pas
+# dans le quota restant, aucun message ne part.
+class SmsSendRecord::QuotaGuard
+
+  # Volontairement identique pour les deux fenêtres : l'utilisateur n'a pas à
+  # savoir laquelle est atteinte, il doit contacter un admin.
+  QUOTA_EXCEEDED_MESSAGE = "Vous avez atteint la limite d'envoi de messages. Aucun message n'a pu être envoyé. Contactez un admin.".freeze
+
+  # Identité du message d'alerte, pour le repérer d'un coup d'œil dans le canal.
+  # Slack exige le scope `chat:write.customize` sur le bot, sans quoi les deux
+  # sont ignorés et le message part sous l'identité par défaut de l'app.
+  ALERT_ICON_EMOJI = ':rotating_light:'.freeze
+  ALERT_USERNAME = 'Alerte quota message'.freeze
+
+  def initialize(admin_user, recipients_count, defer_block_report: false)
+    @admin_user = admin_user
+    @recipients_count = recipients_count.to_i
+    @defer_block_report = defer_block_report
+  end
+
+  # Réserve le quota AVANT l'appel au provider, et renvoie false si l'un des deux
+  # plafonds serait dépassé. La tentative refusée est tout de même tracée, en
+  # `blocked` : elle garde trace de l'essai sans entrer dans le décompte, que le
+  # scope `not_blocked` restreint. La vérification et l'écriture sont faites sous
+  # verrou de la ligne admin_users : deux envois simultanés du même utilisateur
+  # ne peuvent pas passer tous les deux.
+  def reserve!
+    return true if exempt? || @recipients_count.zero?
+
+    SmsSendRecord.transaction do
+      # `AdminUser.lock.find` (SELECT … FOR UPDATE) plutôt que `with_lock` /
+      # `lock!` : ces derniers rechargent l'objet et lèvent « Locking a record
+      # with unpersisted changes is not supported » si l'AdminUser porte des
+      # attributs sales, ce qui peut arriver avec le trackable de Devise.
+      AdminUser.lock.find(@admin_user.id)
+      @record = SmsSendRecord.create!(
+        admin_user_id: @admin_user.id,
+        recipients_count: @recipients_count,
+        blocked: exceeds_limits?
+      )
+    end
+
+    return true if @record&.blocked == false
+
+    # Hors transaction, verrou relâché : l'alerte part par un appel HTTP
+    # synchrone à Slack, l'émettre sous le SELECT … FOR UPDATE retiendrait le
+    # verrou de la ligne admin_users pendant tout l'aller-retour. La création
+    # d'atelier diffère ce signal jusqu'à son after_rollback : la ligne créée
+    # ici appartient à la transaction de l'atelier et va être annulée avec lui.
+    @block_report_deferred = @defer_block_report
+    report_block! unless @block_report_deferred
+    false
+  end
+
+  # Finalement rien n'est parti (erreur API Spot-Hit, message bloqué par le
+  # BlockedSendAttempt::SendGuard) : le quota réservé est rendu, l'utilisateur
+  # ne doit pas être pénalisé pour un envoi qui n'a pas eu lieu. La ligne est
+  # marquée et non supprimée, pour garder la trace de la tentative — c'est le
+  # scope `not_blocked` qui l'exclut du décompte.
+  def mark_blocked!
+    @record&.update!(blocked: true)
+    @record = nil
+  end
+
+  # Après le rollback de l'appelant, recrée durablement la tentative bloquée
+  # avant de construire le lien Slack. L'alerte reste envoyée si la trace ne peut
+  # exceptionnellement pas être persistée, mais sans lien vers une ligne absente.
+  def report_deferred_block!
+    return unless @block_report_deferred
+
+    @record = SmsSendRecord.create(
+      admin_user_id: @admin_user.id,
+      recipients_count: @recipients_count,
+      blocked: true
+    )
+    unless @record.persisted?
+      Rollbar.error('SmsSendRecord bloqué non tracé', errors: @record.errors.full_messages)
+      @record = nil
+    end
+
+    @block_report_deferred = false
+    report_block!
+  end
+
+  def error_message
+    QUOTA_EXCEEDED_MESSAGE
+  end
+
+  private
+
+  # Contrôle opt-in : sans utilisateur à l'origine (crons, jobs, webhooks,
+  # messages de modules) aucun plafond ne s'applique. Les super_admin non plus,
+  # ils doivent pouvoir débloquer une situation sans être freinés.
+  def exempt?
+    @admin_user.nil? || @admin_user.admin?
+  end
+
+  # Comparaison stricte : un envoi qui atteint exactement le plafond passe.
+  # Les deux fenêtres sont évaluées sans court-circuit : le `||` d'origine
+  # laissait la consommation journalière non calculée dès que l'horaire sautait,
+  # et elle manquerait à l'alerte.
+  def exceeds_limits?
+    @exceeded_windows = []
+    @exceeded_windows << 'horaire' if consumed(SmsSendRecord::HOURLY_WINDOW) + @recipients_count > @admin_user.sms_hourly_recipients_limit
+    @exceeded_windows << 'journalier' if consumed(SmsSendRecord::DAILY_WINDOW) + @recipients_count > @admin_user.sms_daily_recipients_limit
+    @exceeded_windows.any?
+  end
+
+  # Mémoïsé pour que l'alerte porte les valeurs sur lesquelles la décision a été
+  # prise, et non des valeurs relues après relâchement du verrou.
+  def consumed(window)
+    @consumed ||= {}
+    @consumed[window] ||= @admin_user.sms_send_records.not_blocked.since(window).sum(:recipients_count)
+  end
+
+  # Signal anti-fraude à destination de l'équipe tech, posté dans Slack.
+  # Contrairement au message affiché à l'utilisatrice, l'alerte nomme la fenêtre
+  # franchie et porte les compteurs. Le Rollbar de secours n'est pas l'alerte :
+  # c'est le filet qui évite qu'un blocage disparaisse sans trace si Slack est
+  # injoignable.
+  def report_block!
+    service = Slack::PostMessageService.new(
+      channel: "##{ENV['SLACK_QUOTA_ALERT_CHANNEL']}",
+      text: alert_text,
+      icon_emoji: ALERT_ICON_EMOJI,
+      username: ALERT_USERNAME
+    ).call
+
+    Rollbar.error('Slack::PostMessageService', errors: service.errors) if service.errors.any?
+  end
+
+  # Une ligne par information, en mrkdwn. Les compteurs sont lus par `consumed`,
+  # mémoïsé : l'alerte porte les valeurs sur lesquelles la décision a été prise
+  # sous verrou, et non des valeurs relues après son relâchement.
+  def alert_text
+    [
+      '*Envoi SMS bloqué — quota atteint*',
+      "*Compte* : #{account_link}",
+      "*Destinataires demandés* : #{@recipients_count}",
+      "*Quota horaire* : #{consumed(SmsSendRecord::HOURLY_WINDOW)} / #{@admin_user.sms_hourly_recipients_limit}",
+      "*Quota journalier* : #{consumed(SmsSendRecord::DAILY_WINDOW)} / #{@admin_user.sms_daily_recipients_limit}",
+      "*Fenêtre(s) franchie(s)* : #{@exceeded_windows.join(', ')}",
+      blocked_record_line,
+      "_#{Time.current.strftime('%d/%m %H:%M')}_"
+    ].compact.join("\n")
+  end
+
+  def account_link
+    slack_link(@admin_user.name) { routes.admin_admin_user_url(id: @admin_user.id) }
+  end
+
+  # La ligne est omise plutôt que de risquer un NoMethodError : l'alerte ne doit
+  # jamais faire échouer le geste métier.
+  def blocked_record_line
+    return unless @record&.persisted?
+
+    "*Envoi bloqué* : #{slack_link("n° #{@record.id}") { routes.admin_sms_send_record_url(id: @record.id) }}"
+  end
+
+  # mrkdwn : `<url|libellé>`. Slack impose d'échapper &, < et > dans le libellé,
+  # faute de quoi un nom de compte qui en contient tronque le lien.
+  #
+  # L'url est construite dans un bloc pour rester sous le rescue : sans
+  # DEFAULT_HOSTNAME, les helpers `_url` lèvent, et `alert_text` étant évalué à
+  # la construction des arguments de Slack::PostMessageService — donc hors de son
+  # propre rescue —, `reserve!` remonterait l'exception au lieu de bloquer l'envoi
+  # proprement. L'alerte perd son lien, jamais le blocage.
+  def slack_link(label)
+    escaped_label = label.to_s.gsub('&', '&amp;').gsub('<', '&lt;').gsub('>', '&gt;')
+    url = yield
+
+    "<#{url}|#{escaped_label}>"
+  rescue StandardError => e
+    Rollbar.error('SmsSendRecord::QuotaGuard lien Slack', errors: [e.message])
+    escaped_label
+  end
+
+  def routes
+    Rails.application.routes.url_helpers
+  end
+end
