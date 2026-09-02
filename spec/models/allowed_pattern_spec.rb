@@ -207,4 +207,53 @@ RSpec.describe AllowedPattern, type: :model do
       end
     end
   end
+
+  describe "kind phone_number" do
+    it 'canonicalise la valeur saisie, quelle que soit la notation' do
+      pattern = FactoryBot.create(:allowed_pattern, kind: 'phone_number', match_type: 'exact', value: '+33 8 10 12 34 56')
+
+      expect(pattern.value).to eq('0810123456')
+    end
+
+    it 'refuse le match_type domain, réservé aux URLs' do
+      pattern = FactoryBot.build(:allowed_pattern, kind: 'phone_number', match_type: 'domain', value: '0810123456')
+
+      expect(pattern).not_to be_valid
+      expect(pattern.errors[:match_type]).to be_present
+    end
+
+    it 'refuse une valeur qui ne contient pas assez de chiffres' do
+      pattern = FactoryBot.build(:allowed_pattern, kind: 'phone_number', match_type: 'exact', value: 'mon numéro')
+
+      expect(pattern).not_to be_valid
+    end
+
+    describe '.phone_allowed?' do
+      it 'autorise un numéro whitelisté, saisi dans une autre notation' do
+        FactoryBot.create(:allowed_pattern, kind: 'phone_number', match_type: 'exact', value: '+33 810 12 34 56')
+
+        expect(described_class.phone_allowed?('0810123456')).to be true
+      end
+
+      it "n'autorise pas un numéro absent de la whitelist" do
+        expect(described_class.phone_allowed?('0810123456')).to be false
+      end
+
+      it 'est false sur une valeur vide' do
+        expect(described_class.phone_allowed?('')).to be false
+      end
+
+      it "autorise sans saisie le numéro Aircall d'une accompagnante" do
+        FactoryBot.create(:admin_user, aircall_phone_number: '+33810123456')
+
+        expect(described_class.phone_allowed?('0810123456')).to be true
+      end
+
+      it "n'autorise pas pour autant un numéro qui n'est celui d'aucune accompagnante" do
+        FactoryBot.create(:admin_user, aircall_phone_number: '+33810123456')
+
+        expect(described_class.phone_allowed?('0810999999')).to be false
+      end
+    end
+  end
 end

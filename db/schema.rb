@@ -122,6 +122,15 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_21_170000) do
     t.index ["parent_id"], name: "index_aircall_messages_on_parent_id"
   end
 
+  create_table "allowed_patterns", force: :cascade do |t|
+    t.string "kind", null: false
+    t.string "match_type", null: false
+    t.string "value", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["kind", "match_type", "value"], name: "index_allowed_patterns_on_kind_and_match_type_and_value", unique: true
+  end
+
   create_table "answers", force: :cascade do |t|
     t.bigint "question_id", null: false
     t.text "response", null: false
@@ -129,6 +138,29 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_21_170000) do
     t.datetime "updated_at", null: false
     t.text "options", array: true
     t.index ["question_id"], name: "index_answers_on_question_id"
+  end
+
+  create_table "blocked_patterns", force: :cascade do |t|
+    t.string "kind", null: false
+    t.string "value", null: false
+    t.string "normalized_value", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["kind", "normalized_value"], name: "index_blocked_patterns_on_kind_and_normalized_value", unique: true
+  end
+
+  create_table "blocked_send_attempts", force: :cascade do |t|
+    t.string "provider", null: false
+    t.string "kind", null: false
+    t.string "detected_values", default: [], null: false, array: true
+    t.text "message_body", null: false
+    t.jsonb "replay_params", default: {}, null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "resolved_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "force_send", default: false, null: false
+    t.index ["status"], name: "index_blocked_send_attempts_on_status"
   end
 
   create_table "book_shipment_dates", force: :cascade do |t|
@@ -487,6 +519,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_21_170000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "re_enrollment", default: false
+    t.string "professional_email"
     t.index ["child_id"], name: "index_children_sources_on_child_id"
     t.index ["source_id"], name: "index_children_sources_on_source_id"
   end

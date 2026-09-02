@@ -14,18 +14,25 @@
 #  index_allowed_patterns_on_kind_and_match_type_and_value  (kind,match_type,value) UNIQUE
 #
 
-# Generic allow-list of patterns used to validate external content (URLs today,
-# other kinds like keyword/phone_number can be added later without a migration).
+# Generic allow-list of patterns used to validate external content (URLs and
+# phone numbers, other kinds can be added later without a migration).
 class AllowedPattern < ApplicationRecord
 
-  KINDS = %w[url].freeze
+  KINDS = %w[url phone_number].freeze
 
   MATCH_TYPES_BY_KIND = {
-    'url' => %w[domain exact]
+    'url' => %w[domain exact],
+    # Une tranche de numéros est un besoin de blacklist (BlockedPattern), pas de
+    # whitelist : on n'autorise que des numéros précis.
+    'phone_number' => %w[exact]
   }.freeze
 
   # Schéma d'une url absolue (cf. canonicalize_url).
   SCHEME_REGEX = %r{\A[a-z][a-z0-9+.-]*://}i
+
+  # Un numéro whitelisté est déjà canonicalisé par normalize_value : il ne reste
+  # que des chiffres. Le minimum de 3 écarte les saisies tronquées.
+  PHONE_VALUE_REGEX = /\A\d{3,15}\z/
 
   # ---------------------------------------------------------------------------
   # validations
@@ -70,6 +77,21 @@ class AllowedPattern < ApplicationRecord
 
   def self.normalize_host(host)
     host.to_s.downcase.delete_prefix('www.')
+  end
+
+  # allowed_numbers : ensemble déjà chargé, pour éviter deux requêtes par numéro
+  # quand on en contrôle plusieurs d'affilée (cf.
+  # BlockedSendAttempt::PhoneNumberSendGuard).
+  def self.phone_allowed?(canonical_number, allowed_numbers: nil)
+    return false if canonical_number.blank?
+
+    (allowed_numbers || allowed_phone_numbers).include?(canonical_number)
+  end
+
+  # Les numéros Aircall sont nos propres lignes : toujours autorisés, sans qu'un
+  # pattern ait à être saisi.
+  def self.allowed_phone_numbers
+    where(kind: 'phone_number').pluck(:value).to_set.merge(AdminUser.aircall_numbers)
   end
 
   # Les urls contrôlées viennent de saisies humaines (médiathèque, import
@@ -133,6 +155,12 @@ class AllowedPattern < ApplicationRecord
     return if value.blank?
 
     self.value = value.strip
+
+    if kind == 'phone_number'
+      self.value = PhoneNormalizationConcern.canonical(value)
+      return
+    end
+
     self.value = value.downcase if match_type == 'domain'
     # Uniquement si la valeur est déjà une url absolue : canonicaliser une valeur
     # sans schéma lui ajouterait le https:// que value_format_matches_match_type
@@ -149,15 +177,28 @@ class AllowedPattern < ApplicationRecord
     errors.add(:match_type, "n'est pas valide pour le type #{kind}")
   end
 
+  # Le match_type `exact` existe pour les deux kinds : on discrimine sur le kind
+  # avant de contrôler le format attendu.
   def value_format_matches_match_type
-    return if kind != 'url' || value.blank?
+    return if value.blank?
+    return validate_url_value_format if kind == 'url'
 
+    validate_phone_number_value_format if kind == 'phone_number'
+  end
+
+  def validate_url_value_format
     case match_type
     when 'domain'
       errors.add(:value, 'doit être un domaine sans schéma ni chemin (ex: monpartenaire.fr), pas une URL complète') unless domain_value?
     when 'exact'
       errors.add(:value, 'doit être une URL complète avec son schéma (ex: https://exemple.fr/page), pas un simple domaine') unless absolute_url_value?
     end
+  end
+
+  def validate_phone_number_value_format
+    return if value.match?(PHONE_VALUE_REGEX)
+
+    errors.add(:value, 'doit être un numéro de téléphone (ex: 0810123456, +33810123456)')
   end
 
   def domain_value?

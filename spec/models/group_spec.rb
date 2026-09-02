@@ -60,7 +60,7 @@ RSpec.describe Group, type: :model do
   describe "#not_ended" do
     context "returns" do
       it "groups not ended" do
-        expect(Group.not_ended).to eq [@group_not_ended1, @group_not_ended2]
+        expect(Group.not_ended).to contain_exactly(@group_not_ended1, @group_not_ended2)
       end
     end
   end
@@ -68,7 +68,7 @@ RSpec.describe Group, type: :model do
   describe "#ended" do
     context "returns" do
       it "groups ended" do
-        expect(Group.ended).to eq [@group_ended1, @group_ended2]
+        expect(Group.ended).to contain_exactly(@group_ended1, @group_ended2)
       end
     end
   end

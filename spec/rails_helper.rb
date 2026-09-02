@@ -54,6 +54,7 @@ ENV['SUMMER_SUPPORT_WAITING_END'] ||= ''
 ENV['TYPEFORM_LINK_SUPPORTERS_IDS'] ||= ''
 ENV['URL_FILTER_BLOCKING_ENABLED'] ||= ''
 ENV['KEYWORD_FILTER_BLOCKING_ENABLED'] ||= ''
+ENV['PHONE_NUMBER_FILTER_BLOCKING_ENABLED'] ||= ''
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production

@@ -2,13 +2,10 @@ require 'rails_helper'
 
 RSpec.describe BlockedSendAttempt::SendGuard do
   around do |example|
-    previous_url = ENV['URL_FILTER_BLOCKING_ENABLED']
-    previous_keyword = ENV['KEYWORD_FILTER_BLOCKING_ENABLED']
-    ENV['URL_FILTER_BLOCKING_ENABLED'] = 'true'
-    ENV['KEYWORD_FILTER_BLOCKING_ENABLED'] = 'true'
+    previous = %w[URL_FILTER_BLOCKING_ENABLED KEYWORD_FILTER_BLOCKING_ENABLED PHONE_NUMBER_FILTER_BLOCKING_ENABLED].index_with { |flag| ENV[flag] }
+    previous.each_key { |flag| ENV[flag] = 'true' }
     example.run
-    previous_url.nil? ? ENV.delete('URL_FILTER_BLOCKING_ENABLED') : ENV['URL_FILTER_BLOCKING_ENABLED'] = previous_url
-    previous_keyword.nil? ? ENV.delete('KEYWORD_FILTER_BLOCKING_ENABLED') : ENV['KEYWORD_FILTER_BLOCKING_ENABLED'] = previous_keyword
+    previous.each { |flag, value| value.nil? ? ENV.delete(flag) : ENV[flag] = value }
   end
 
   it 'bloque et trace kind url quand seule une URL non whitelistée est détectée' do
@@ -26,6 +23,14 @@ RSpec.describe BlockedSendAttempt::SendGuard do
     expect(guard.block_send?).to be(true)
     expect { guard.register! }.to change(BlockedSendAttempt, :count).by(1)
     expect(BlockedSendAttempt.last.kind).to eq('keyword')
+  end
+
+  it 'bloque et trace kind phone_number quand seul un numéro surtaxé est détecté' do
+    guard = described_class.new('Appelez le 0890 12 34 56', provider: 'spothit')
+
+    expect(guard.block_send?).to be(true)
+    expect { guard.register! }.to change(BlockedSendAttempt, :count).by(1)
+    expect(BlockedSendAttempt.last.kind).to eq('phone_number')
   end
 
   it 'crée un attempt par kind quand URL et terme sont détectés ensemble' do

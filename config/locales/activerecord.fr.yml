@@ -84,9 +84,10 @@ fr:
         value: Valeur
       allowed_pattern/kind:
         url: URL
+        phone_number: Numéro de téléphone
       allowed_pattern/match_type:
         domain: Domaine
-        exact: URL exacte
+        exact: Valeur exacte
       blocked_pattern:
         << : *SHARED
         kind: Type
@@ -106,6 +107,7 @@ fr:
       blocked_send_attempt/kind:
         keyword: Mot-clé
         url: URL
+        phone_number: Numéro de téléphone
       blocked_send_attempt/status:
         pending: À traiter
         relaunched: Relancé
