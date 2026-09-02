@@ -3,16 +3,23 @@
 # explicitement autorisé (AllowedPattern) est retenu, quel que soit son type —
 # fixe, mobile, numéro vert ou surtaxé. Surveillance par défaut, blocage via
 # PHONE_NUMBER_FILTER_BLOCKING_ENABLED.
-#
-# Les numéros courts (118 XYZ, 3BPQ) sont hors périmètre : le scan s'arrête aux
-# numéros français à 10 chiffres.
 class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGuard
 
-  # Numéros français à 10 chiffres, dans toutes les notations (+33, 0033, 0) et
-  # avec les séparateurs habituels. Les lookarounds sur les chiffres évitent de
-  # mordre dans une séquence plus longue : EAN à 13 chiffres d'un livre,
-  # {PARENT_SECURITY_TOKEN} (hex, qui contient des suites de chiffres)…
-  NATIONAL_PHONE_REGEX = %r{(?<!\d)(?:\+\s?33|0033|0)[\s.\-/]?[1-9](?:[\s.\-/]?\d){8}(?!\d)}
+  # On extrait largement les graphies humaines (préfixe international,
+  # parenthèses, séparateurs), puis Phonelib décide si le candidat est réellement
+  # un numéro. Les bornes alphanumériques empêchent de scanner une sous-chaîne de
+  # token hexadécimal comme PARENT_SECURITY_TOKEN.
+  PHONE_CANDIDATE_REGEX = %r{(?<![[:alnum:]])(?:\+|00|0)[[:blank:](]*\d(?:[\d[:blank:]./()-]*\d)?(?![[:alnum:]])}
+
+  # Phonelib ne valide pas les numéros courts. On limite volontairement ce scan
+  # aux formats de services français : 10XY, 3BPQ et renseignements 118 XYZ.
+  SHORT_PHONE_REGEX = %r{(?<![[:alnum:]])(?:10\d{2}|3\d{3}|118[[:blank:]./-]?\d{3})(?![[:alnum:]])}
+
+  # Un ISBN-10 peut être un numéro français parfaitement valide après retrait de
+  # ses tirets. Le libellé adjacent est le seul moyen fiable de le distinguer.
+  IDENTIFIER_LABEL_REGEX = /(?:isbn(?:-1[03])?|ean)\s*[:#]?\s*\z/i
+  IDENTIFIER_CONTEXT_LENGTH = 16
+  PHONE_DIGIT_COUNT = (7..15)
 
   def self.blocking_enabled?
     ENV['PHONE_NUMBER_FILTER_BLOCKING_ENABLED'].present?
@@ -48,8 +55,37 @@ class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGua
   # écrit de plusieurs façons dans un message ne doit produire qu'une seule
   # valeur détectée.
   def scan_candidates
-    scannable_text.scan(NATIONAL_PHONE_REGEX)
-                  .map { |raw| PhoneNormalizationConcern.canonical(raw) }
-                  .uniq
+    (scan_long_phone_numbers + scan_short_phone_numbers).uniq
+  end
+
+  def scan_long_phone_numbers
+    matches_for(PHONE_CANDIDATE_REGEX).filter_map do |raw, offset|
+      next if identifier_context?(offset)
+      next unless PHONE_DIGIT_COUNT.cover?(raw.count('0-9'))
+      next unless Phonelib.parse(raw).valid?
+
+      PhoneNormalizationConcern.canonical(raw)
+    end
+  end
+
+  def scan_short_phone_numbers
+    matches_for(SHORT_PHONE_REGEX).map do |raw, _offset|
+      PhoneNormalizationConcern.canonical(raw)
+    end
+  end
+
+  # String#scan ne fournit pas directement les offsets, nécessaires pour lire le
+  # contexte précédant un ISBN/EAN. On capture le MatchData avant que Phonelib
+  # n'exécute ses propres expressions régulières.
+  def matches_for(regex)
+    scannable_text.to_enum(:scan, regex).map do
+      match = Regexp.last_match
+      [match[0].strip, match.begin(0)]
+    end
+  end
+
+  def identifier_context?(offset)
+    from = [offset - IDENTIFIER_CONTEXT_LENGTH, 0].max
+    scannable_text[from...offset].match?(IDENTIFIER_LABEL_REGEX)
   end
 end

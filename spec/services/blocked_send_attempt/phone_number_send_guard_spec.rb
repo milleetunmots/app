@@ -38,11 +38,23 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
 
     it 'canonicalise toutes les notations en une seule valeur détectée' do
       guard = described_class.new(
-        "Appelez #{premium_number} ou 08.90.12.34.56 ou +33 8 90 12 34 56 ou 0033890123456",
+        "Appelez #{premium_number} ou 08.90.12.34.56 ou +33 (0)8 90 12 34 56 ou 0033890123456",
         provider: 'spothit'
       )
 
       expect(guard.blocked_phone_numbers).to eq([premium_number])
+    end
+
+    it 'retient les formats français avec des groupes entre parenthèses' do
+      guard = described_class.new('Le centre est au 01 (70) 12 34 56', provider: 'spothit')
+
+      expect(guard.blocked_phone_numbers).to eq(['0170123456'])
+    end
+
+    it 'retient et canonicalise les numéros internationaux valides' do
+      guard = described_class.new('Londres : +44 20 7946 0958', provider: 'spothit')
+
+      expect(guard.blocked_phone_numbers).to eq(['02079460958'])
     end
 
     it 'couvre toute la tranche surtaxée' do
@@ -61,12 +73,10 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
       end
     end
 
-    # Le périmètre s'arrête aux numéros à 10 chiffres : les numéros courts ne
-    # sont pas scannés, qu'ils soient surtaxés (118 712) ou gratuits (3919).
-    it 'ne scanne pas les numéros courts' do
+    it 'retient les numéros courts de services français' do
       guard = described_class.new('Appelez le 118 712, le 3919 ou le 3020', provider: 'spothit')
 
-      expect(guard.blocked_phone_numbers).to eq([])
+      expect(guard.blocked_phone_numbers).to contain_exactly('118712', '3919', '3020')
     end
 
     it 'scanne aussi les extra_texts (variables destinataires SpotHit)' do
@@ -75,16 +85,26 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
       expect(guard.blocked_phone_numbers).to eq([premium_number])
     end
 
-    # Depuis que le type du numéro n'est plus contrôlé, seuls les lookarounds de
-    # NATIONAL_PHONE_REGEX écartent ces séquences. Token hex figé : tiré au sort,
-    # il finit par contenir 10 chiffres d'affilée et rend l'exemple instable.
+    it 'ne confond pas un security token personnalisé avec un numéro' do
+      guard = described_class.new(
+        'Votre lien contient {PARENT_SECURITY_TOKEN}',
+        provider: 'spothit',
+        extra_texts: ['0123456789abcdef0123456789abcdef']
+      )
+
+      expect(guard.blocked_phone_numbers).to eq([])
+    end
+
     context 'faux positifs' do
       it "ne confond pas un numéro avec une suite de chiffres plus longue ni avec une date" do
         [
           'EAN 9782070612758 du livre',
+          'ISBN 0-123-45678-9',
+          'Référence 123456789',
           'Rendez-vous le 04.09.2026 à 10h',
           '35 rue des Lilas 75012 Paris',
-          'Voici votre token 9f3a1c7e4b8d2056af13c9e7b4d0a682'
+          'Voici votre token 9f3a1c7e4b8d2056af13c9e7b4d0a682',
+          'Voici votre token 0123456789abcdef0123456789abcdef'
         ].each do |text|
           guard = described_class.new(text, provider: 'spothit')
 
@@ -104,6 +124,13 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
       it "autorise le numéro Aircall d'une accompagnante sans aucune saisie" do
         FactoryBot.create(:admin_user, aircall_phone_number: '+33810123456')
         guard = described_class.new('Enregistrez son numéro : 0810 12 34 56', provider: 'spothit')
+
+        expect(guard.blocked_phone_numbers).to eq([])
+      end
+
+      it 'autorise un numéro international saisi dans une autre notation' do
+        FactoryBot.create(:allowed_pattern, kind: 'phone_number', match_type: 'exact', value: '+44 20 7946 0958')
+        guard = described_class.new('Londres : +44 (20) 7946-0958', provider: 'spothit')
 
         expect(guard.blocked_phone_numbers).to eq([])
       end
