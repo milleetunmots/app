@@ -130,8 +130,7 @@ RSpec.describe Parent::SendBeforeCallsMessageService do
 
   describe '#call' do
     context 'when BETA_TEST_CALLERS_EMAIL is blank' do
-      before { ENV['BETA_TEST_CALLERS_EMAIL'] = '' }
-      after  { ENV.delete('BETA_TEST_CALLERS_EMAIL') }
+      before { stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => '')) }
 
       it 'records an error and returns early without raising' do
         result = described_class.new.call
@@ -198,9 +197,14 @@ RSpec.describe Parent::SendBeforeCallsMessageService do
     let(:calendly_stub) { instance_double(Calendly::CreateOneOffEventTypeService, call: nil, errors: []) }
 
     before do
-      ENV['BETA_TEST_CALLERS_EMAIL'] = beta_email
-      ENV['RCS_CALL1_WITH_PREVIOUS_CALL_OK_OR_UNFINISHED_MEDIA_ID'] = 'media-with'
-      ENV['RCS_CALL1_WITHOUT_PREVIOUS_CALL_OK_OR_UNFINISHED_MEDIA_ID'] = 'media-without'
+      # stub_const et non une écriture dans ENV : un ENV.delete en `after`
+      # supprimerait pour de bon des variables définies par application.yml,
+      # cassant les specs suivantes selon l'ordre d'exécution.
+      stub_const('ENV', ENV.to_h.merge(
+                          'BETA_TEST_CALLERS_EMAIL' => beta_email,
+                          'RCS_CALL1_WITH_PREVIOUS_CALL_OK_OR_UNFINISHED_MEDIA_ID' => 'media-with',
+                          'RCS_CALL1_WITHOUT_PREVIOUS_CALL_OK_OR_UNFINISHED_MEDIA_ID' => 'media-without'
+                        ))
 
       allow(ProgramMessageService).to receive(:new).and_return(message_service_stub)
       allow(Calendly::CreateOneOffEventTypeService).to receive(:new).and_return(calendly_stub)
@@ -209,11 +213,6 @@ RSpec.describe Parent::SendBeforeCallsMessageService do
       allow(Rollbar).to receive(:error)
     end
 
-    after do
-      ENV.delete('BETA_TEST_CALLERS_EMAIL')
-      ENV.delete('RCS_CALL1_WITH_PREVIOUS_CALL_OK_OR_UNFINISHED_MEDIA_ID')
-      ENV.delete('RCS_CALL1_WITHOUT_PREVIOUS_CALL_OK_OR_UNFINISHED_MEDIA_ID')
-    end
 
     it 'routes non-beta + previous calls OK to the NO_BETA OK message without media_id' do
       described_class.new(date: date).handle_group_message(group, 1)

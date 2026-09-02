@@ -1,0 +1,23 @@
+<div id="login">
+  <h2>Code de connexion</h2>
+
+  <p>
+    Un code à <%= AdminUser::OTP_LENGTH %> chiffres vient d'être envoyé au numéro de téléphone
+    <strong><%= @admin_user.masked_phone_number %></strong>.
+    <br>Il est valable <%= AdminUser::OTP_VALIDITY.inspect %>.
+  </p>
+
+  <%= form_with url: admin_verify_two_factor_path, method: :post, local: true do |f| %>
+    <%= f.label :otp_code, 'Code reçu par SMS' %>
+    <%= f.text_field :otp_code,
+                     autofocus: true,
+                     autocomplete: 'one-time-code',
+                     inputmode: 'numeric',
+                     maxlength: AdminUser::OTP_LENGTH %>
+    <%= f.submit 'Valider' %>
+  <% end %>
+
+  <%= button_to 'Renvoyer un code', admin_resend_two_factor_path, method: :post %>
+
+  <p><%= link_to 'Revenir à la page de connexion', new_admin_user_session_path %></p>
+</div>

@@ -19,18 +19,20 @@ class SpotHit::SendMessageService
   protected
 
   def send_message(uri, form)
-    guard = BlockedSendAttempt::SendGuard.new(
-      @message,
-      provider: 'spothit',
-      extra_texts: recipient_variable_values,
-      replay_params: @replay_params,
-      blocked_send_attempt_id: @blocked_send_attempt_id
-    )
-    if guard.blocked?
-      guard.register!
-      if guard.block_send?
-        @errors << guard.error_message
-        return
+    if content_guard_enabled?
+      guard = BlockedSendAttempt::SendGuard.new(
+        @message,
+        provider: 'spothit',
+        extra_texts: recipient_variable_values,
+        replay_params: @replay_params,
+        blocked_send_attempt_id: @blocked_send_attempt_id
+      )
+      if guard.blocked?
+        guard.register!
+        if guard.block_send?
+          @errors << guard.error_message
+          return
+        end
       end
     end
 
@@ -100,6 +102,12 @@ class SpotHit::SendMessageService
     return [] unless @recipients.is_a?(Hash)
 
     @recipients.values.flat_map { |variables| variables.respond_to?(:values) ? variables.values : [] }
+  end
+
+  # Seam pour les envois qui n'ont rien à voir avec le contenu destiné aux
+  # familles (ex: code 2FA d'un administrateur) : voir SpotHit::SendAdminCodeService.
+  def content_guard_enabled?
+    true
   end
 
   def safeguard(form)

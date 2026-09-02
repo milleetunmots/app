@@ -65,6 +65,8 @@ fr:
         sign_in_count: Connexions
         is_disabled: Compte désactivé
         aircall_phone_number: Numéro aircall
+        phone_number: Téléphone pour la double authentification
+        two_factor_enabled: Double authentification
         aircall_number_id: ID du numéro aircall
         calendly_user_uri: URI utilisateur Calendly
         calendly_event_type_uris: Types d'événements Calendly
