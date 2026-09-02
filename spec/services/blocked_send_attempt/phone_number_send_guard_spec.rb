@@ -128,6 +128,13 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
         expect(guard.blocked_phone_numbers).to eq([])
       end
 
+      it "autorise le numéro personnel d'une accompagnante sans aucune saisie" do
+        FactoryBot.create(:admin_user, phone_number: '+33612345678')
+        guard = described_class.new('Vous pouvez la joindre au 06 12 34 56 78', provider: 'spothit')
+
+        expect(guard.blocked_phone_numbers).to eq([])
+      end
+
       it 'autorise un numéro international saisi dans une autre notation' do
         FactoryBot.create(:allowed_pattern, kind: 'phone_number', match_type: 'exact', value: '+44 20 7946 0958')
         guard = described_class.new('Londres : +44 (20) 7946-0958', provider: 'spothit')

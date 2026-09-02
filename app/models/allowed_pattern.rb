@@ -88,10 +88,10 @@ class AllowedPattern < ApplicationRecord
     (allowed_numbers || allowed_phone_numbers).include?(canonical_number)
   end
 
-  # Les numéros Aircall sont nos propres lignes : toujours autorisés, sans qu'un
-  # pattern ait à être saisi.
+  # Les numéros Aircall et personnels des membres de l'équipe sont nos propres
+  # lignes : toujours autorisés, sans qu'un pattern ait à être saisi.
   def self.allowed_phone_numbers
-    where(kind: 'phone_number').pluck(:value).to_set.merge(AdminUser.aircall_numbers)
+    where(kind: 'phone_number').pluck(:value).to_set.merge(AdminUser.message_filter_allowed_phone_numbers)
   end
 
   # Les urls contrôlées viennent de saisies humaines (médiathèque, import

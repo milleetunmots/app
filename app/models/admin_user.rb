@@ -250,6 +250,16 @@ class AdminUser < ApplicationRecord
          .map { |number| PhoneNormalizationConcern.canonical(number) }
   end
 
+  # Les deux numéros d'un membre de l'équipe peuvent être insérés dans un
+  # message sortant : la ligne Aircall pour être rappelé et le mobile personnel
+  # utilisé notamment pour la double authentification.
+  def self.message_filter_allowed_phone_numbers
+    pluck(:aircall_phone_number, :phone_number)
+      .flatten
+      .compact_blank
+      .to_set { |number| PhoneNormalizationConcern.canonical(number) }
+  end
+
   private
 
   def set_automatic_sms_activated_at

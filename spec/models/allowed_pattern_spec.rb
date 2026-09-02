@@ -249,6 +249,12 @@ RSpec.describe AllowedPattern, type: :model do
         expect(described_class.phone_allowed?('0810123456')).to be true
       end
 
+      it "autorise sans saisie le numéro personnel d'une accompagnante" do
+        FactoryBot.create(:admin_user, phone_number: '+33612345678')
+
+        expect(described_class.phone_allowed?('0612345678')).to be true
+      end
+
       it "n'autorise pas pour autant un numéro qui n'est celui d'aucune accompagnante" do
         FactoryBot.create(:admin_user, aircall_phone_number: '+33810123456')
 
