@@ -84,31 +84,56 @@ class Events::TextMessage
         return {}
       end
 
-      parents = Parent.kept.where(phone_number: phone).order(:created_at)
-      if parents.empty?
+      # Un numéro peut appartenir à plusieurs parents (parents d'une même famille
+      # partageant un numéro, familles réinscrites plus tard) : la campagne porte
+      # un Event par parent destinataire, tous concernés par ce même message.
+      # Volontairement sans `.kept` : un parent supprimé après l'envoi doit tout de
+      # même voir le statut de son message évoluer, sans quoi l'Event resterait
+      # bloqué en attente.
+      parent_ids = Parent.where(phone_number: phone).ids
+      if parent_ids.empty?
         Rollbar.error('spot_hit_rcs_data: parent not found', event_content: event_content)
         return {}
       end
 
-      text_message = Events::TextMessage
-                     .where(spot_hit_rcs_id: campaign_id, related_type: 'Parent', related_id: parents.map(&:id))
-                     .order(:occurred_at)
-                     .last
-
+      # `originated_by_app` exclut les réponses entrantes : elles portent le même
+      # `spot_hit_rcs_id` que la campagne, et un callback de statut (READ…) les
+      # ferait basculer à « Lu » alors qu'elles viennent du parent, pas de nous.
+      text_messages = Events::TextMessage.where(
+        spot_hit_rcs_id: campaign_id,
+        related_type: 'Parent',
+        related_id: parent_ids,
+        originated_by_app: true
+      ).order(:occurred_at).to_a
       {
-        parent: text_message&.related || parents.last,
+        parent: parent_for_received_message(text_messages, parent_ids),
         campaign_id: campaign_id,
-        text_message: text_message
+        text_messages: text_messages
       }
     end
 
+    # Un message entrant est rattaché en priorité à un parent encore actif, et à
+    # celui à qui la campagne a réellement été envoyée.
+    # À défaut d'Event de campagne, on retombe sur le parent le plus récemment créé
+    # (et non un ordre arbitraire) : c'est celui de la réinscription la plus récente.
+    def parent_for_received_message(text_messages, parent_ids)
+      parents = text_messages.filter_map(&:related)
+      parents.find(&:kept?) || parents.first ||
+        Parent.kept.where(id: parent_ids).order(:created_at).last ||
+        Parent.where(id: parent_ids).order(:created_at).last
+    end
+
     def apply_rcs_status_change(event_content, text_message_datas, spot_hit_status)
-      text_message = text_message_datas[:text_message]
-      unless text_message
+      text_messages = text_message_datas[:text_messages]
+      if text_messages.blank?
         Rollbar.error('spot_hit_rcs_data: text_message not found', event_content: event_content)
         return
       end
 
+      text_messages.each { |text_message| apply_status_to_text_message(event_content, text_message, spot_hit_status) }
+    end
+
+    def apply_status_to_text_message(event_content, text_message, spot_hit_status)
       text_message_status = Event::SPOT_HIT_STATUS[text_message.spot_hit_status]
       event_status = Event::SPOT_HIT_STATUS[spot_hit_status]
       retrograde = Event::SPOT_HIT_STATUS_ORDERED.index(text_message_status) > Event::SPOT_HIT_STATUS_ORDERED.index(event_status)

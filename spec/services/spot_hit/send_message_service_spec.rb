@@ -1,9 +1,10 @@
 require 'rails_helper'
 
 # SpotHit::SendMessageService is an abstract base: its methods are protected and
-# it has no public entry point of its own. Its shared logic (create_events /
-# resolve_parent) is exercised here through the concrete SpotHit::SendSmsService
-# subclass, which is the production path that reaches it.
+# it has no public entry point of its own. Its shared logic (create_events, et la
+# normalisation des destinataires de SpotHit::Recipients) is exercised here through
+# the concrete SpotHit::SendSmsService subclass, which is the production path that
+# reaches it.
 RSpec.describe SpotHit::SendMessageService do
   let(:parent1) { FactoryBot.create(:parent, phone_number: '0612345678') }
   let(:parent2) { FactoryBot.create(:parent, phone_number: '0687654321') }
@@ -25,17 +26,17 @@ RSpec.describe SpotHit::SendMessageService do
   describe '#sent?' do
     subject(:service) { SpotHit::SendSmsService.new(recipients, planned_timestamp, message).call }
 
-    let(:recipients) { [parent1.phone_number] }
+    let(:recipients) { [parent1.id] }
 
     it 'est vrai quand Spot-Hit accepte la campagne' do
       expect(service).to be_sent
     end
 
     it "reste vrai quand la campagne est partie mais qu'un destinataire n'est pas historisable" do
-      recipients << '0600000000'
+      recipients << -1
 
       expect(service).to be_sent
-      expect(service.errors.first).to include('Parent non trouvé')
+      expect(service.errors.first).to include('aucun parent actif ne correspond à l\'identifiant -1')
     end
 
     it "est faux quand l'API refuse la campagne" do
@@ -54,8 +55,8 @@ RSpec.describe SpotHit::SendMessageService do
     context 'when recipients is a Hash (avec variables)' do
       let(:recipients) do
         {
-          parent1.phone_number => { 'PRENOM_ENFANT' => 'Emma' },
-          parent2.phone_number => { 'PRENOM_ENFANT' => 'Lucas' }
+          parent1.id => { 'PRENOM_ENFANT' => 'Emma' },
+          parent2.id => { 'PRENOM_ENFANT' => 'Lucas' }
         }
       end
 
@@ -79,22 +80,9 @@ RSpec.describe SpotHit::SendMessageService do
       end
     end
 
-    context 'when recipients is an Array of phone strings' do
+    context 'when recipients is an Array of parent ids' do
       let(:message) { 'Bonjour !' }
-      let(:recipients) { [parent1.phone_number, parent2.phone_number] }
-
-      it 'creates one event per recipient' do
-        expect { service }.to change(Event, :count).by(2)
-      end
-
-      it 'returns no errors' do
-        expect(service.errors).to be_empty
-      end
-    end
-
-    context 'when recipients is a String comma-separated' do
-      let(:message) { 'Bonjour !' }
-      let(:recipients) { "#{parent1.phone_number}, #{parent2.phone_number}" }
+      let(:recipients) { [parent1.id, parent2.id] }
 
       it 'creates one event per recipient' do
         expect { service }.to change(Event, :count).by(2)
@@ -108,7 +96,8 @@ RSpec.describe SpotHit::SendMessageService do
     context 'when a recipient has no matching kept parent' do
       let(:message) { 'Bonjour !' }
       let(:discarded_parent) { FactoryBot.create(:parent, phone_number: '0611223344', discarded_at: Time.zone.now) }
-      let(:recipients) { [parent1.phone_number, '+33699999999', discarded_parent.phone_number, parent2.phone_number] }
+      let(:missing_parent_id) { Parent.maximum(:id).to_i + 10_000 }
+      let(:recipients) { [parent1.id, missing_parent_id, discarded_parent.id, parent2.id] }
 
       it 'still creates the events of the other recipients' do
         expect { service }.to change(Event, :count).by(2)
@@ -123,26 +112,37 @@ RSpec.describe SpotHit::SendMessageService do
 
       it 'reports one error per unresolved recipient' do
         expect(service.errors).to contain_exactly(
-          "Impossible d'enregistrer le message dans l'historique : Parent non trouvé pour le numéro de téléphone +33699999999.",
-          "Impossible d'enregistrer le message dans l'historique : Parent non trouvé pour le numéro de téléphone #{discarded_parent.phone_number}."
+          "Message non envoyé : aucun parent actif ne correspond à l'identifiant #{missing_parent_id}.",
+          "Message non envoyé : aucun parent actif ne correspond à l'identifiant #{discarded_parent.id}."
         )
       end
     end
 
-    context 'when several kept parents share the same phone number' do
-      let(:message) { 'Bonjour !' }
-      let!(:parent_a) { FactoryBot.create(:parent, phone_number: '0655667788') }
-      let!(:parent_b) { FactoryBot.create(:parent, phone_number: '0655667788') }
-      let(:recipients) { [parent_a.phone_number] }
+    # Un {TOKEN} non reconnu laisse toutes les variables vides. L'envoi doit rester
+    # en mode `datas` (que Spot Hit rejette) plutôt que de basculer en liste simple
+    # et de diffuser le message avec son placeholder non substitué.
+    context 'when the message holds an unsupported variable' do
+      let(:message) { 'Bonjour {BAD_VARIABLE} !' }
+      let(:recipients) { { parent1.id => {}, parent2.id => {} } }
 
-      it 'creates a single event without raising or erroring' do
+      it 'does not broadcast the un-substituted message as a plain list' do
+        service
+        expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms').with do |req|
+          body = CGI.unescape(req.body)
+          body.include?('destinataires_type=datas') && !body.match?(/destinataires=\+\d/)
+        end)
+      end
+    end
+
+    # Le filtre d'URL / mots-clés inspecte aussi les variables destinataires : il
+    # doit tolérer un destinataire sans variables plutôt que de faire échouer l'envoi.
+    context 'when a recipient carries no variables hash' do
+      let(:message) { 'Bonjour !' }
+      let(:recipients) { { parent1.id => nil } }
+
+      it 'does not raise and still creates the event' do
         expect { service }.to change(Event, :count).by(1)
         expect(service.errors).to be_empty
-      end
-
-      it 'attaches the event to one of the parents sharing the number' do
-        service
-        expect([parent_a.id, parent_b.id]).to include(Event.last.related_id)
       end
     end
   end
@@ -150,7 +150,7 @@ RSpec.describe SpotHit::SendMessageService do
   describe 'workshop participations' do
     let(:message) { 'Bonjour !' }
     let(:workshop) { FactoryBot.create(:workshop) }
-    let(:recipients) { [parent1.phone_number, parent2.phone_number] }
+    let(:recipients) { [parent1.id, parent2.id] }
     subject(:service) do
       SpotHit::SendSmsService.new(recipients, planned_timestamp, message, workshop_id: workshop.id).call
     end

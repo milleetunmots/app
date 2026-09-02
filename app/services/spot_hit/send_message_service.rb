@@ -1,6 +1,7 @@
 class SpotHit::SendMessageService
 
   include JsonResponseConcern
+  include SpotHit::Recipients
 
   attr_reader :errors
 
@@ -46,7 +47,14 @@ class SpotHit::SendMessageService
       end
     end
 
-    form = safeguard(form) if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
+    return unless recipients_available?
+
+    if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
+      restrict_recipients_to_safe_numbers!
+      return if recipient_variables.empty?
+
+      form = safeguard(form)
+    end
 
     response = HTTP.post(uri, form: form)
     body = parse_json_response(response)
@@ -60,14 +68,11 @@ class SpotHit::SendMessageService
   end
 
   def create_events(message_id)
-    recipients = @recipients
-    # convert string of phone numbers separated by commas to hash
-    if recipients.instance_of?(String)
-      recipients = recipients.split(', ').to_h { |phone| [phone, {}] }
-    end
-    recipients.each do |phone_number, keys|
-      parent = resolve_parent(phone_number)
-      next unless parent
+    parents_by_id = Parent.where(id: recipient_variables.keys).index_by(&:id)
+
+    recipient_variables.each do |parent_id, keys|
+      parent = parents_by_id[parent_id]
+      @errors << "Erreur lors de la création de l'event d'envoi de message : parent #{parent_id} introuvable." and next if parent.nil?
 
       event_attributes = {
         related_id: parent.id,
@@ -95,24 +100,6 @@ class SpotHit::SendMessageService
     return unless @workshop
 
     @errors << "Erreur lors de la sauvegarde de l'atelier #{@workshop.name}." unless @workshop.save
-  end
-
-  def resolve_parent(phone_number)
-    parents = Parent.kept.where(phone_number: phone_number)
-    if parents.empty?
-      @errors << "Impossible d'enregistrer le message dans l'historique : Parent non trouvé pour le numéro de téléphone #{phone_number}."
-      nil
-    else
-      parents.first
-    end
-  end
-
-  # Les vraies URLs envoyées sont souvent dans les variables destinataires
-  # ({URL}, {CALLx_CALENDLY_LINK}…), le message ne contenant que des placeholders.
-  def recipient_variable_values
-    return [] unless @recipients.is_a?(Hash)
-
-    @recipients.values.flat_map { |variables| variables.respond_to?(:values) ? variables.values : [] }
   end
 
   # Seam pour les envois qui n'ont rien à voir avec le contenu destiné aux
