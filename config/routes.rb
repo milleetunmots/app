@@ -2,7 +2,16 @@ require 'sidekiq/web'
 require 'sidekiq-scheduler/web'
 
 Rails.application.routes.draw do
-  devise_for :admin_users, ActiveAdmin::Devise.config
+  # deep_merge et non merge : un merge simple écraserait toute la table
+  # `controllers` d'ActiveAdmin (passwords, registrations, ...).
+  devise_for :admin_users,
+             ActiveAdmin::Devise.config.deep_merge(controllers: { sessions: 'admin_users/sessions' })
+
+  scope path: 'admin', as: 'admin' do
+    get  'two_factor',        to: 'two_factor#show',   as: :two_factor
+    post 'two_factor/verify', to: 'two_factor#verify', as: :verify_two_factor
+    post 'two_factor/resend', to: 'two_factor#resend', as: :resend_two_factor
+  end
 
   ActiveAdmin.routes(self)
 

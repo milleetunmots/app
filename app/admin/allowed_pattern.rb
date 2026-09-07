@@ -35,9 +35,11 @@ ActiveAdmin.register AllowedPattern do
       f.input :kind, as: :select, collection: allowed_pattern_kind_select_collection, include_blank: false
       f.input :match_type,
               as: :select,
-              collection: allowed_pattern_match_type_select_collection(f.object.kind || AllowedPattern::KINDS.first),
+              collection: allowed_pattern_match_type_select_collection,
               include_blank: false
-      f.input :value
+      f.input :value,
+              hint: allowed_pattern_value_hint(f.object),
+              input_html: { data: { hints: allowed_pattern_value_hints.to_json } }
     end
     f.actions
   end

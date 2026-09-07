@@ -54,6 +54,9 @@ ENV['SUMMER_SUPPORT_WAITING_END'] ||= ''
 ENV['TYPEFORM_LINK_SUPPORTERS_IDS'] ||= ''
 ENV['URL_FILTER_BLOCKING_ENABLED'] ||= ''
 ENV['KEYWORD_FILTER_BLOCKING_ENABLED'] ||= ''
+ENV['PHONE_NUMBER_FILTER_BLOCKING_ENABLED'] ||= ''
+ENV['SLACK_BOT_USER_OAUTH_TOKEN'] ||= "valid_token"
+ENV['SLACK_QUOTA_ALERT_CHANNEL'] ||= "test_app"
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production
@@ -164,4 +167,5 @@ RSpec.configure do |config|
   end
 
   config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include ActiveSupport::Testing::TimeHelpers
 end

@@ -9,7 +9,7 @@ RSpec.describe 'SpotHit avec une réponse non-JSON' do
   let(:message) { 'Bonjour !' }
 
   describe SpotHit::SendSmsService do
-    subject(:service) { described_class.new([parent.phone_number], planned_timestamp, message).call }
+    subject(:service) { described_class.new([parent.id], planned_timestamp, message).call }
 
     before do
       stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
@@ -33,7 +33,7 @@ RSpec.describe 'SpotHit avec une réponse non-JSON' do
   describe SpotHit::SendRcsService do
     subject(:service) do
       described_class.new(
-        recipients: [parent.phone_number],
+        recipients: [parent.id],
         planned_timestamp: planned_timestamp,
         media_id: 42,
         fallback_message: message

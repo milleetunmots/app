@@ -40,6 +40,7 @@ fr:
       redirection_url: URL courte
       scheduled_call: RDV Calendly
       source: Source d'inscription
+      sms_send_record: Envoi comptabilisé
       support_module: Module
       support_module_week: Semaine
       task: Tâche
@@ -57,6 +58,8 @@ fr:
         can_treat_task: Traite les tâches
         can_send_automatic_sms: Envoi d’un SMS auto aux familles en début de session
         can_export_data: Peut exporter des données
+        sms_hourly_recipients_limit: Plafond de destinataires par heure
+        sms_daily_recipients_limit: Plafond de destinataires par jour
         email: Email
         name: Nom
         user_role: Rôle
@@ -65,6 +68,8 @@ fr:
         sign_in_count: Connexions
         is_disabled: Compte désactivé
         aircall_phone_number: Numéro aircall
+        phone_number: Téléphone pour la double authentification
+        two_factor_enabled: Double authentification
         aircall_number_id: ID du numéro aircall
         calendly_user_uri: URI utilisateur Calendly
         calendly_event_type_uris: Types d'événements Calendly
@@ -82,9 +87,10 @@ fr:
         value: Valeur
       allowed_pattern/kind:
         url: URL
+        phone_number: Numéro de téléphone
       allowed_pattern/match_type:
         domain: Domaine
-        exact: URL exacte
+        exact: Valeur exacte
       blocked_pattern:
         << : *SHARED
         kind: Type
@@ -104,6 +110,7 @@ fr:
       blocked_send_attempt/kind:
         keyword: Mot-clé
         url: URL
+        phone_number: Numéro de téléphone
       blocked_send_attempt/status:
         pending: À traiter
         relaunched: Relancé
@@ -776,6 +783,11 @@ fr:
         pmi: PMI
         local_partner: Partenaire local
         other: Autre
+      sms_send_record:
+        << : *SHARED
+        admin_user: Utilisateur
+        blocked: Annulé
+        recipients_count: Nombre de destinataires
       support_module:
         << : *SHARED
         ages: Tranche d'âge

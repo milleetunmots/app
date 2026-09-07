@@ -3,9 +3,9 @@ class ProgramMessageService
   TYPEFORM_URL_REGEX = %r{https://form.typeform.com/[^\s]*#st=[^\s]+}.freeze
   VIDEOASK_URL_REGEX = %r{https://www\.videoask\.com/[^\s]*#st=[^\s]+}.freeze
 
-  attr_reader :errors
+  attr_reader :errors, :quota_guard
 
-  def initialize(planned_date, planned_hour, recipients, message, rcs_media_id = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil, blocked_send_attempt: nil)
+  def initialize(planned_date, planned_hour, recipients, message, rcs_media_id = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil, blocked_send_attempt: nil, acting_admin_user: nil, defer_quota_block_report: false)
     @replay_params = {
       planned_date: planned_date,
       planned_hour: planned_hour,
@@ -41,6 +41,15 @@ class ProgramMessageService
     @provider = provider
     @aircall_number_id = aircall_number_id
     @errors = []
+    # AdminUser à l'origine de l'envoi, transmis uniquement par les envois
+    # manuels (formulaire Message, batch actions, atelier) : c'est lui que le
+    # quota anti-fraude décompte. Les envois automatiques ne le passent pas et
+    # ne sont donc ni limités ni décomptés. Volontairement absent de
+    # @replay_params : la relance d'un envoi bloqué est une action super_admin,
+    # donc exemptée par nature.
+    @acting_admin_user = acting_admin_user
+    @defer_quota_block_report = defer_quota_block_report
+    @quota_exceeded = false
   end
 
   def call
@@ -102,6 +111,19 @@ class ProgramMessageService
       Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(@aircall_number_id, parent&.phone_number, @message, event.id, @replay_params, @blocked_send_attempt_id)
       @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
     when 'spothit'
+      # Garde anti-fraude : le quota est réservé avant tout appel au provider, sur
+      # le nombre de destinataires réellement transmis à Spot-Hit. Placée ici, la
+      # garde couvre les trois routes (RCS avec média, RCS basic, SMS) : un
+      # message de moins de 160 octets part en RCS basic et échapperait au
+      # plafond si seul le chemin SMS était gardé.
+      @quota_guard = SmsSendRecord::QuotaGuard.new(
+        @acting_admin_user,
+        spot_hit_recipients_count,
+        defer_block_report: @defer_quota_block_report
+      )
+      @quota_exceeded = !@quota_guard.reserve!
+      @errors << @quota_guard.error_message and return self if @quota_exceeded
+
       service =
         if @rcs_media_id.present?
           SpotHit::SendRcsService.new(
@@ -136,34 +158,35 @@ class ProgramMessageService
             blocked_send_attempt_id: @blocked_send_attempt_id
           ).call
         end
-      increment_suggested_videos_counters if service.errors.empty?
-      if service.errors.any?
-        @errors = service.errors
-      elsif @invalid_parent_ids.any?
-        invalid_parents = Parent.includes(:parent1_children, :parent2_children).where(id: @invalid_parent_ids)
-        description_text = "Le message \"#{@message}\" n'a pas été envoyé aux parents pour les raisons suivantes :"
-        invalid_parents.each do |parent|
-          if parent.valid?
-            parent.children.each do |child|
-              unless child.valid?
-                @errors << "Message non envoyé à #{parent.decorate.name} parce que son enfant #{child.decorate.name} n'est pas valide"
-                description_text << "<br>#{ActionController::Base.helpers.link_to(child.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: child.id), target: '_blank')} : #{child.errors.messages.to_json}"
-              end
-            end
-          else
-            @errors << "Message non envoyé à #{parent.decorate.name} parce qu'il n'est pas valide"
-            description_text << "<br>#{ActionController::Base.helpers.link_to(parent.decorate.name, Rails.application.routes.url_helpers.edit_admin_parent_url(id: parent.id), target: '_blank')} : #{parent.errors.messages.to_json}"
-          end
-        end
-        Task::CreateAutomaticTaskService.new(
-          title: 'Message non envoyé à des parents',
-          description: description_text
-        ).call
-      end
+      # Même critère que le quota : les liens de redirection sont partis avec la
+      # campagne, une erreur d'historisation postérieure ne doit pas empêcher de
+      # les comptabiliser — la même vidéo serait resuggérée à ces familles.
+      increment_suggested_videos_counters if service.sent?
+      # Le quota n'est rendu que si rien n'est parti (message bloqué par le
+      # BlockedSendAttempt::SendGuard, erreur API Spot-Hit). Une fois la campagne
+      # acceptée, les erreurs restantes portent sur l'historisation (event
+      # invalide, parent non résolu) : les messages sont bel et bien partis et
+      # doivent rester décomptés, sans quoi ils échapperaient au plafond.
+      @quota_guard.mark_blocked! unless service.sent?
+      # `dup` : `report_invalid_parents!` complète ensuite `@errors`, et sans copie
+      # ce sont les erreurs du service qu'on modifierait.
+      @errors = service.errors.dup if service.errors.any?
+
+      # Les parents écartés pour invalidité sont un sujet distinct de l'issue de
+      # l'envoi : la tâche doit être créée même quand la campagne a échoué, sans
+      # quoi plus personne ne reprend ces familles.
+      report_invalid_parents! if @invalid_parent_ids.any?
     else
       @errors << "Provider inconnu : #{@provider}" and return self if service.blank?
     end
     self
+  end
+
+  # Permet aux appelants qui doivent annuler autre chose (création d'atelier) de
+  # distinguer un blocage de quota d'une erreur d'envoi ordinaire — `errors` peut
+  # être non vide alors que le message est bien parti.
+  def quota_exceeded?
+    @quota_exceeded
   end
 
   protected
@@ -220,7 +243,7 @@ class ProgramMessageService
     if @parent_ids.many?
       @errors << "Un seul destinataire possible lors d'un envoi de message Aircall"
     elsif @redirection_target || @variables.any?
-      Parent.where(id: @parent_ids).find_each do |parent|
+      Parent.kept.where(id: @parent_ids).find_each do |parent|
         child_name = parent.current_child&.first_name || 'votre enfant'
         child_support_id = parent.current_child&.child_support&.id.to_s
         supporter_name = parent.current_child&.child_support&.supporter&.decorate&.first_name
@@ -241,15 +264,29 @@ class ProgramMessageService
   def add_recipient_data(parent, variable, value, error = nil)
     return unless @variables.include?(variable)
 
-    @recipient_data[parent.phone_number][variable] = value
+    @recipient_data[parent.id][variable] = value
     @errors << error if value.blank? && error.present?
   end
 
-  def format_data_for_spot_hit(rcs)
+  # Unité de décompte du quota : le nombre de destinataires effectivement
+  # transmis à Spot-Hit, après tous les filtres (accompagnante, statut de
+  # cohorte, validité parent/enfant, exclusion des ateliers) et dédoublonné par
+  # numéro de téléphone. @recipient_data contient désormais des IDs parents ;
+  # la longueur du message est indifférente.
+  def spot_hit_recipients_count
+    parent_ids = @recipient_data.is_a?(Hash) ? @recipient_data.keys : Array(@recipient_data)
+    Parent.kept.where(id: parent_ids).where.not(phone_number: nil).distinct.count(:phone_number)
+  end
+
+  # @recipient_data est indexé par parent_id : un numéro de téléphone n'identifie
+  # pas un parent de façon unique (parents d'une même famille partageant un
+  # numéro, familles réinscrites plus tard). La conversion vers le numéro a lieu
+  # dans les services d'envoi Spot Hit.
+  def format_data_for_spot_hit(_rcs = false)
     if @redirection_target || @variables.any?
       @recipient_data = {}
-      Parent.where(id: @parent_ids).find_each do |parent|
-        @recipient_data[parent.phone_number] = {}
+      Parent.kept.where(id: @parent_ids).find_each do |parent|
+        @recipient_data[parent.id] = {}
         add_recipient_data(parent, 'PRENOM_ENFANT', parent.current_child&.first_name || 'votre enfant')
         add_recipient_data(parent, 'PARENT_SECURITY_TOKEN', parent.security_token)
         add_recipient_data(parent, 'PRENOM_ACCOMPAGNANTE', parent.current_child&.child_support&.supporter&.decorate&.first_name)
@@ -268,14 +305,13 @@ class ProgramMessageService
                            parent.scheduled_calls&.scheduled&.upcoming&.order(:scheduled_at)&.last&.cancel_url&.to_s,
                            "Le parent #{parent.id} ne dispose pas d'un lien d'annulation de rdv")
         if @redirection_target && parent.current_child.present?
-          @recipient_data[parent.phone_number]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
+          @recipient_data[parent.id]['URL'] = redirection_url_for_a_parent(parent)&.decorate&.visit_url
           @url = RedirectionUrl.where(redirection_target: @redirection_target, parent: parent).first
           (@parents_with_redirection ||= []) << parent
         end
       end
     else
-      @recipient_data = Parent.where(id: @parent_ids).pluck(:phone_number)
-      @recipient_data = @recipient_data.join(', ') unless rcs
+      @recipient_data = @parent_ids
     end
   end
 
@@ -320,21 +356,21 @@ class ProgramMessageService
     @tag_ids.each do |tag_id|
       # taggable_id = id of the parent in our case
       taggable_ids = Tagging.by_taggable_type('Parent').by_tag_id(tag_id).pluck(:taggable_id)
-      @parent_ids += Parent.where(id: taggable_ids).select(&:should_be_contacted?).pluck(:id)
+      @parent_ids += Parent.kept.where(id: taggable_ids).select(&:should_be_contacted?).pluck(:id)
     end
   end
 
   def filter_by_supporter
     return unless @supporter_id
 
-    parent1_ids = Parent.joins(parent1_children: :child_support).where(id: @parent_ids).where(child_support: { supporter_id: @supporter_id }).ids
-    parent2_ids = Parent.joins(parent2_children: :child_support).where(id: @parent_ids).where(child_support: { supporter_id: @supporter_id }).ids
+    parent1_ids = Parent.kept.joins(parent1_children: :child_support).where(id: @parent_ids).where(child_support: { supporter_id: @supporter_id }).ids
+    parent2_ids = Parent.kept.joins(parent2_children: :child_support).where(id: @parent_ids).where(child_support: { supporter_id: @supporter_id }).ids
     @parent_ids = (parent1_ids + parent2_ids).uniq
   end
 
   def filter_by_group_status
-    parent1_ids = Parent.joins(:parent1_children).where(id: @parent_ids).where(parent1_children: { group_status: @group_status }).ids
-    parent2_ids = Parent.joins(:parent2_children).where(id: @parent_ids).where(parent2_children: { group_status: @group_status }).ids
+    parent1_ids = Parent.kept.joins(:parent1_children).where(id: @parent_ids).where(parent1_children: { group_status: @group_status }).ids
+    parent2_ids = Parent.kept.joins(:parent2_children).where(id: @parent_ids).where(parent2_children: { group_status: @group_status }).ids
     @parent_ids = (parent1_ids + parent2_ids).uniq
   end
 
@@ -352,6 +388,31 @@ class ProgramMessageService
       @parent_ids << child.parent1_id if child.parent1_id && child.should_contact_parent1
       @parent_ids << child.parent2_id if child.parent2_id && child.should_contact_parent2
     end
+  end
+
+  # Trace les parents écartés à la validation : une erreur par parent pour
+  # l'utilisatrice, et une tâche automatique pour que quelqu'un corrige les
+  # fiches.
+  def report_invalid_parents!
+    invalid_parents = Parent.includes(:parent1_children, :parent2_children).where(id: @invalid_parent_ids)
+    description_text = "Le message \"#{@message}\" n'a pas été envoyé aux parents pour les raisons suivantes :"
+    invalid_parents.each do |parent|
+      if parent.valid?
+        parent.children.each do |child|
+          unless child.valid?
+            @errors << "Message non envoyé à #{parent.decorate.name} parce que son enfant #{child.decorate.name} n'est pas valide"
+            description_text << "<br>#{ActionController::Base.helpers.link_to(child.decorate.name, Rails.application.routes.url_helpers.edit_admin_child_url(id: child.id), target: '_blank')} : #{child.errors.messages.to_json}"
+          end
+        end
+      else
+        @errors << "Message non envoyé à #{parent.decorate.name} parce qu'il n'est pas valide"
+        description_text << "<br>#{ActionController::Base.helpers.link_to(parent.decorate.name, Rails.application.routes.url_helpers.edit_admin_parent_url(id: parent.id), target: '_blank')} : #{parent.errors.messages.to_json}"
+      end
+    end
+    Task::CreateAutomaticTaskService.new(
+      title: 'Message non envoyé à des parents',
+      description: description_text
+    ).call
   end
 
   def verify_parent_and_children_validity

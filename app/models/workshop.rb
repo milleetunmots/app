@@ -38,6 +38,11 @@ class Workshop < ApplicationRecord
   attr_accessor :parent_selection
   attr_reader :invitation_scheduled, :scheduled_invitation_date, :scheduled_invitation_time
 
+  # AdminUser qui crée l'atelier depuis l'admin : ce n'est pas forcément
+  # l'animateur choisi dans le formulaire, et c'est bien lui que le quota
+  # d'envoi doit décompter.
+  attr_accessor :acting_admin_user
+
   TOPICS = %w[meal sleep nursery_rhymes books games outside bath emotion].freeze
 
   belongs_to :animator, class_name: 'AdminUser'
@@ -48,6 +53,7 @@ class Workshop < ApplicationRecord
   before_create :select_recipients
   after_create :send_message
   after_save :update_workshop_participation
+  after_rollback :report_deferred_quota_block, on: :create
 
   validates :topic, inclusion: { in: TOPICS, allow_blank: true }
   validates :animator, presence: true
@@ -100,8 +106,30 @@ class Workshop < ApplicationRecord
     date = scheduled_invitation_date_time.nil? ? Time.zone.now : scheduled_invitation_date_time
 
     message = "#{invitation_message} Pour vous inscrire ou dire que vous ne venez pas, cliquez sur ce lien: {RESPONSE_LINK}"
-    service = Workshop::ProgramWorkshopInvitationService.new(date.to_date, date.strftime('%H:%M'), recipients, message, nil, nil, nil, id, nil, %w[waiting active paused stopped disengaged]).call
+    service = Workshop::ProgramWorkshopInvitationService.new(
+      date.to_date, date.strftime('%H:%M'), recipients, message, nil, nil, nil, id, nil,
+      %w[waiting active paused stopped disengaged],
+      acting_admin_user: acting_admin_user,
+      defer_quota_block_report: true
+    ).call
+
+    # Plafond d'envoi atteint : aucune invitation n'est partie, l'atelier ne doit
+    # pas exister. `throw :abort` est inopérant dans un after_create — After.halting
+    # n'installe pas de catch(:abort) — on annule donc la transaction de création,
+    # ce qui fait renvoyer falsy à `save` et ré-affiche le formulaire avec l'erreur.
+    # Attention : ce Rollback serait absorbé sans effet si un appelant enveloppait
+    # un jour la création dans sa propre transaction joignable.
+    if service.quota_exceeded?
+      @deferred_quota_guard = service.quota_guard
+      errors.add(:base, service.errors.first)
+      raise ActiveRecord::Rollback
+    end
+
     Rollbar.error(service.errors) if service.errors.any?
+  end
+
+  def report_deferred_quota_block
+    @deferred_quota_guard&.report_deferred_block!
   end
 
   def update_workshop_participation

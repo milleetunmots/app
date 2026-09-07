@@ -3,7 +3,7 @@ ActiveAdmin.register_page "Search" do
 
   controller do
     def index
-      term = params[:term]
+      term = normalized_term(params[:term])
 
       # filter Parent & Child results to match caller permissions
       authorized_parent_ids = if current_admin_user.caller?
@@ -44,6 +44,26 @@ ActiveAdmin.register_page "Search" do
           }
         end
       }
+    end
+
+    private
+
+    # phone numbers are indexed in their national unformatted form
+    # (ex: "0612345678"), so any phone-looking term is brought back to that
+    # form before being searched. Other terms are left untouched.
+    def normalized_term(term)
+      term = term.to_s.strip
+
+      # a term made only of digits and usual phone separators is considered as a
+      # phone number search (ex: "06 12 34 56 78", "+33 6.12.34.56.78")
+      return term unless term.match?(%r{\A[+\d][\d\s.\-()/]*\z})
+
+      digits = term.gsub(/[^+\d]/, '')
+      phone = Phonelib.parse(digits)
+      return phone.national(false) if phone.valid?
+
+      # partial number: only the international prefix can be normalized
+      digits.sub(/\A(?:\+33|0033)/, '0')
     end
   end
 

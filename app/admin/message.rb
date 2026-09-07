@@ -159,7 +159,8 @@ ActiveAdmin.register_page 'Message' do
       (current_admin_user.caller? || current_admin_user.animator?) ? current_admin_user.id : params[:supporter],
       params[:group_status],
       provider,
-      current_admin_user.aircall_number_id
+      current_admin_user.aircall_number_id,
+      acting_admin_user: current_admin_user
     ).call
 
     if service.errors.any?

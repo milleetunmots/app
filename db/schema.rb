@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_08_12_100000) do
+ActiveRecord::Schema[7.0].define(version: 2026_08_21_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -69,6 +69,13 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_12_100000) do
     t.jsonb "calendly_event_type_uris", default: {}
     t.jsonb "group_subscriptions", default: {}, null: false
     t.datetime "automatic_sms_activated_at"
+    t.string "phone_number"
+    t.boolean "two_factor_enabled", default: false, null: false
+    t.string "otp_code_digest"
+    t.datetime "otp_sent_at"
+    t.integer "otp_attempts", default: 0, null: false
+    t.integer "sms_hourly_recipients_limit", default: 50, null: false
+    t.integer "sms_daily_recipients_limit", default: 200, null: false
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
@@ -117,6 +124,15 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_12_100000) do
     t.index ["parent_id"], name: "index_aircall_messages_on_parent_id"
   end
 
+  create_table "allowed_patterns", force: :cascade do |t|
+    t.string "kind", null: false
+    t.string "match_type", null: false
+    t.string "value", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["kind", "match_type", "value"], name: "index_allowed_patterns_on_kind_and_match_type_and_value", unique: true
+  end
+
   create_table "answers", force: :cascade do |t|
     t.bigint "question_id", null: false
     t.text "response", null: false
@@ -124,6 +140,29 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_12_100000) do
     t.datetime "updated_at", null: false
     t.text "options", array: true
     t.index ["question_id"], name: "index_answers_on_question_id"
+  end
+
+  create_table "blocked_patterns", force: :cascade do |t|
+    t.string "kind", null: false
+    t.string "value", null: false
+    t.string "normalized_value", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["kind", "normalized_value"], name: "index_blocked_patterns_on_kind_and_normalized_value", unique: true
+  end
+
+  create_table "blocked_send_attempts", force: :cascade do |t|
+    t.string "provider", null: false
+    t.string "kind", null: false
+    t.string "detected_values", default: [], null: false, array: true
+    t.text "message_body", null: false
+    t.jsonb "replay_params", default: {}, null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "resolved_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "force_send", default: false, null: false
+    t.index ["status"], name: "index_blocked_send_attempts_on_status"
   end
 
   create_table "book_shipment_dates", force: :cascade do |t|
@@ -482,6 +521,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_12_100000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "re_enrollment", default: false
+    t.string "professional_email"
     t.index ["child_id"], name: "index_children_sources_on_child_id"
     t.index ["source_id"], name: "index_children_sources_on_source_id"
   end
@@ -853,6 +893,15 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_12_100000) do
     t.index ["status"], name: "index_scheduled_calls_on_status"
   end
 
+  create_table "sms_send_records", force: :cascade do |t|
+    t.bigint "admin_user_id", null: false
+    t.integer "recipients_count", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "blocked", default: false, null: false
+    t.index ["admin_user_id", "blocked", "created_at"], name: "index_sms_send_records_on_admin_user_blocked_created_at"
+  end
+
   create_table "sources", force: :cascade do |t|
     t.string "name", null: false
     t.string "channel", null: false
@@ -1031,6 +1080,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_12_100000) do
   add_foreign_key "scheduled_calls", "admin_users"
   add_foreign_key "scheduled_calls", "child_supports"
   add_foreign_key "scheduled_calls", "parents"
+  add_foreign_key "sms_send_records", "admin_users"
   add_foreign_key "support_module_weeks", "media", column: "additional_medium_id"
   add_foreign_key "support_modules", "books"
   add_foreign_key "taggings", "tags"

@@ -11,20 +11,16 @@ class SpotHit::SendSmsService < SpotHit::SendMessageService
       'smslong' => 1
     }
 
-    if @recipients.instance_of?(Array)
-      form.delete('destinataires_type')
-      # Convert parent IDs to phone numbers if needed
-      if @recipients.first.is_a?(Integer)
-        @recipients = Parent.where(id: @recipients).pluck(:phone_number)
+    if personalized_recipients?
+      recipient_variables.each do |parent_id, keys|
+        phone_number = phone_numbers_by_parent_id[parent_id]
+        next if phone_number.blank?
+
+        keys.each { |key, value| form.store("destinataires[#{phone_number}][#{key}]", value) }
       end
-      form['destinataires'] = @recipients.join(', ')
-    elsif @recipients.instance_of?(String)
-      form.delete('destinataires_type')
-      form['destinataires'] = @recipients
     else
-      @recipients.each do |parent_phone_number, keys|
-        keys.each { |key, value| form.store("destinataires[#{parent_phone_number}][#{key}]", value) }
-      end
+      form.delete('destinataires_type')
+      form['destinataires'] = recipient_phone_numbers.join(', ')
     end
 
     send_message(uri, form)
