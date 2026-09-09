@@ -492,3 +492,104 @@ $resources-links-gap: 24px
 .call0-questionnaire-columns
   justify-content: space-between
   margin-top: 10px
+
+// Modules disponibles du parent : vue lecture en blocs cliquables. Les 3
+// premiers modules de la liste sont ceux réellement proposés au parent, d'où
+// l'étoile « Module recommandé » (même sémantique que les règles
+// nth-of-type(-n+3) posées plus haut sur le select2 d'édition)
+.support-module-section
+  margin-bottom: 15px
+
+  .support-module-section-header
+    display: flex
+    align-items: baseline
+    justify-content: space-between
+    gap: 10px
+
+    .label
+      margin-bottom: 5px
+
+  .support-module-edit-toggle
+    flex-shrink: 0
+    font-size: 12px
+    color: $dark-grey
+    text-decoration: underline
+    cursor: pointer
+    white-space: nowrap
+
+.support-module-blocks
+  display: flex
+  flex-direction: column
+  gap: 6px
+
+.support-module-blocks-empty
+  color: $dark-grey
+  font-size: 13px
+  font-style: italic
+
+.support-module-block
+  display: flex
+  align-items: center
+  gap: 8px
+  padding: 8px 12px
+  border: 1px solid $grey
+  border-radius: 6px
+  background-color: #F4F4F4
+  color: $black
+  font-size: 13px
+  text-decoration: none
+
+  &:hover
+    border-color: $dark-grey
+
+  &--recommended
+    background-color: #EAF7EA
+    border-color: #98FB98
+
+    .support-module-block__name
+      font-weight: bold
+
+  // module pas encore relié à un enregistrement Airtable : non cliquable
+  &--unlinked
+    cursor: default
+    color: $dark-grey
+
+    &:hover
+      border-color: $grey
+
+  &__star
+    flex-shrink: 0
+    width: 12px
+    color: $green
+
+  // la tranche d'âge suit directement le nom, séparée par le gap du bloc plus
+  // un filet de marge ; seule l'icône de lien est repoussée en bout de bloc
+  &__age
+    margin-left: 2px
+
+  &__icon
+    margin-left: auto
+
+  &__age,
+  &__icon
+    flex-shrink: 0
+    color: $dark-grey
+    font-size: 11px
+
+.support-module-legend
+  display: flex
+  flex-wrap: wrap
+  gap: 16px
+  margin-top: 6px
+  color: $dark-grey
+  font-size: 11px
+
+  .support-module-block__star
+    color: $green
+
+// les blocs sont rendus côté serveur : ils ne reflètent la sélection qu'après
+// enregistrement de la fiche
+.support-module-stale-notice
+  color: $error
+  font-size: 11px
+  font-style: italic

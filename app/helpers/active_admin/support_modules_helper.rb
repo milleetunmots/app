@@ -1,4 +1,34 @@
 module ActiveAdmin::SupportModulesHelper
+  # Les modules réellement proposés au parent sont les premiers de la liste :
+  # FillParentsAvailableSupportModulesService n'en retient que 3
+  RECOMMENDED_SUPPORT_MODULE_COUNT = 3
+
+  # Décore les modules dans l'ordre de la colonne tableau, en une seule requête
+  def decorated_support_modules(support_module_ids)
+    ids = Array(support_module_ids).compact_blank
+    by_id = SupportModule.where(id: ids).index_by { |support_module| support_module.id.to_s }
+    ids.filter_map { |id| by_id[id.to_s]&.decorate }
+  end
+
+  # Lien vers le contenu du module sur Airtable, ouvert dans un nouvel onglet.
+  # Accessible à tous les rôles : c'est une simple URL externe.
+  def support_module_airtable_link(support_module, label: nil)
+    return if support_module.nil?
+
+    decorated = support_module.decorated? ? support_module : support_module.decorate
+    url = decorated.airtable_folder_url
+    return if url.blank?
+
+    link_to url, target: '_blank', rel: 'noopener',
+                 class: 'support-module-airtable-link',
+                 title: 'Ouvrir le contenu du module sur Airtable' do
+      safe_join([
+                  label || decorated.name_without_emoji,
+                  tag.i(class: 'fas fa-external-link-alt')
+                ], ' ')
+    end
+  end
+
   def support_module_collection(selected_values = [])
     # puts selected values in order first so they appear in the input in the right order
 

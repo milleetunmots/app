@@ -12,11 +12,13 @@
 #  theme         :string
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
+#  airtable_id   :string
 #  book_id       :bigint
 #
 # Indexes
 #
 #  index_support_modules_on_age_ranges    (age_ranges) USING gin
+#  index_support_modules_on_airtable_id   (airtable_id) UNIQUE
 #  index_support_modules_on_book_id       (book_id)
 #  index_support_modules_on_discarded_at  (discarded_at)
 #

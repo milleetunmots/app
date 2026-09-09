@@ -1,0 +1,59 @@
+<%#
+  Vue lecture des modules disponibles d'un parent : un bloc par module, étoile
+  sur les modules recommandés, chaque bloc ouvrant le contenu du module sur
+  Airtable dans un nouvel onglet.
+  Locals : label_text, support_module_ids, editable, blocks_id, input_id
+%>
+<% support_modules = decorated_support_modules(support_module_ids) %>
+
+<div class="support-module-section">
+  <div class="support-module-section-header">
+    <label class="label"><%= label_text %></label>
+    <% if editable %>
+      <a href="#" class="support-module-edit-toggle"
+         data-blocks="#<%= blocks_id %>"
+         data-input="#<%= input_id %>"
+         data-read-label="Aperçu">Modifier</a>
+    <% end %>
+  </div>
+
+  <div class="support-module-blocks" id="<%= blocks_id %>">
+    <% if editable %>
+      <div class="support-module-stale-notice initially-hidden">
+        Sélection modifiée : actualisez la page pour mettre à jour l'aperçu.
+      </div>
+    <% end %>
+    <% if support_modules.empty? %>
+      <div class="support-module-blocks-empty">Aucun module disponible</div>
+    <% else %>
+      <% support_modules.each_with_index do |support_module, index| %>
+        <%
+          recommended = index < ActiveAdmin::SupportModulesHelper::RECOMMENDED_SUPPORT_MODULE_COUNT
+          url = support_module.airtable_folder_url
+          block_class = ['support-module-block']
+          block_class << 'support-module-block--recommended' if recommended
+          block_class << 'support-module-block--unlinked' if url.blank?
+        %>
+        <%= content_tag(url.present? ? :a : :div,
+                        class: block_class.join(' '),
+                        href: url.presence,
+                        target: url.present? ? '_blank' : nil,
+                        rel: url.present? ? 'noopener' : nil,
+                        title: url.present? ? 'Ouvrir le contenu du module sur Airtable' : "Le contenu de ce module n'est pas encore relié à Airtable") do %>
+          <span class="support-module-block__star"><%= '★' if recommended %></span>
+          <span class="support-module-block__name"><%= support_module.name_without_emoji %></span>
+          <% if support_module.short_age_ranges.present? %>
+            <span class="support-module-block__age"><%= support_module.short_age_ranges %></span>
+          <% end %>
+          <% if url.present? %>
+            <i class="fas fa-external-link-alt support-module-block__icon"></i>
+          <% end %>
+        <% end %>
+      <% end %>
+
+      <div class="support-module-legend">
+        <span><span class="support-module-block__star">★</span> Module recommandé</span>
+      </div>
+    <% end %>
+  </div>
+</div>

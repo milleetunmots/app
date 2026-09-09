@@ -173,12 +173,23 @@ class ParentDecorator < BaseDecorator
           children_support_modules.each do |children_support_module|
             display_selected_module = "#{children_support_module.name} - #{children_support_module.created_at.strftime("%d/%m/%Y")}"
             display_selected_module = "#{display_selected_module} - #{children_support_module.child.first_name}" if children_support_module.child.have_siblings_on_same_group?
+            airtable_url = children_support_module.support_module&.decorate&.airtable_folder_url
             div do
               a display_selected_module,
                 href: admin_children_support_module_path(children_support_module),
                 class: 'available_support_module',
                 target: '_blank'
               text_node "&nbsp;".html_safe
+              # accès direct au contenu du module sur Airtable
+              if airtable_url
+                a href: airtable_url,
+                  target: '_blank',
+                  rel: 'noopener',
+                  class: 'support-module-airtable-link',
+                  title: 'Ouvrir le contenu du module sur Airtable' do
+                  i class: 'fas fa-external-link-alt'
+                end
+              end
             end
           end
         end

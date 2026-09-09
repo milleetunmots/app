@@ -141,6 +141,13 @@ RSpec.configure do |config|
     stub_request(:post, "https://www.spot-hit.fr/api/envoyer/rcs").to_return(status: 200, body: { success: true, campaign_id: "123" }.to_json, headers: {})
   end
 
+  # Le rendu des fiches de suivi cherche sur Airtable le contenu de chaque
+  # module affiché : par défaut aucun contenu n'est apparié, les specs qui
+  # testent le lien posent leur propre stub.
+  config.before(:each) do
+    allow(Airtables::SupportModuleContent).to receive(:record_url_for).and_return(nil)
+  end
+
   # Skip DatabaseCleaner's safeguard in order to be able to connect to a database using an URL (ie. Docker container)
   if Rails.env.test?
     DatabaseCleaner.allow_remote_database_url = true

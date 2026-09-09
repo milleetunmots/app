@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_08_21_170000) do
+ActiveRecord::Schema[7.0].define(version: 2026_09_04_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -939,7 +939,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_21_170000) do
     t.string "age_ranges", array: true
     t.integer "level"
     t.bigint "book_id"
+    t.string "airtable_id"
     t.index ["age_ranges"], name: "index_support_modules_on_age_ranges", using: :gin
+    t.index ["airtable_id"], name: "index_support_modules_on_airtable_id", unique: true
     t.index ["book_id"], name: "index_support_modules_on_book_id"
     t.index ["discarded_at"], name: "index_support_modules_on_discarded_at"
   end
