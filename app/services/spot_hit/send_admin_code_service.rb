@@ -2,6 +2,12 @@ class SpotHit::SendAdminCodeService < SpotHit::SendSmsService
 
   protected
 
+  # Un code de connexion doit toujours partir immédiatement, même si une
+  # date future a été transmise par l'appelant.
+  def send_message(uri, form)
+    super(uri, form.except('date'))
+  end
+
   # Contrairement aux messages destinés aux familles, un code 2FA cible un
   # AdminUser, qui n'a pas d'identifiant Parent. Ce service conserve donc son
   # contrat historique (un numéro brut) sans réautoriser ce format dans les

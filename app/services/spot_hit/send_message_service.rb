@@ -56,9 +56,12 @@ class SpotHit::SendMessageService
       form = safeguard(form)
     end
 
+    # Sans date, Spot Hit utilise l'envoi immédiat. Vérifier au dernier moment,
+    # car l'heure peut être dépassée pendant la préparation des destinataires.
+    form.delete('date') if form.key?('date') && Time.zone.at(@planned_timestamp) <= Time.current
+
     response = HTTP.post(uri, form: form)
     body = parse_json_response(response)
-
     if !body.is_a?(Hash) || body.key?('erreurs')
       @errors << "Erreur lors de la programmation de la campagne. [Réponse SPOT_HIT API #{json_error_message(response, body)}]"
     else
