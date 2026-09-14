@@ -2,18 +2,19 @@
 #
 # Table name: support_modules
 #
-#  id            :bigint           not null, primary key
-#  age_ranges    :string           is an Array
-#  discarded_at  :datetime
-#  for_bilingual :boolean          default(FALSE), not null
-#  level         :integer
-#  name          :string
-#  start_at      :date
-#  theme         :string
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#  airtable_id   :string
-#  book_id       :bigint
+#  id                  :bigint           not null, primary key
+#  age_ranges          :string           is an Array
+#  discarded_at        :datetime
+#  for_bilingual       :boolean          default(FALSE), not null
+#  level               :integer
+#  name                :string
+#  start_at            :date
+#  theme               :string
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  airtable_content_id :string
+#  airtable_id         :string
+#  book_id             :bigint
 #
 # Indexes
 #

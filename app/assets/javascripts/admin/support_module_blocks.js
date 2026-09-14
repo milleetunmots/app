@@ -25,15 +25,39 @@
     setLabel($toggle, editing);
   });
 
-  // Les blocs sont rendus côté serveur : après une modification du select ils
-  // ne reflètent plus la sélection tant que la fiche n'est pas enregistrée
+  // L'aperçu suit la sélection locale, indépendamment de l'enregistrement automatique.
+  // Une ancienne réponse ne doit pas remplacer une sélection plus récente.
   $(document).ready(function() {
     $('.support-module-edit-toggle').each(function() {
       var $toggle = $(this);
+      var $blocks = $($toggle.data('blocks'));
+      var revision = 0;
+      var request;
 
       $toggle.data('edit-label', $toggle.text());
       $($toggle.data('input')).find('select').on('change', function() {
-        $($toggle.data('blocks')).find('.support-module-stale-notice').removeClass(HIDDEN_CLASS);
+        var currentRevision = ++revision;
+        if (request) request.abort();
+
+        $blocks.empty().append($('<span>', {
+          class: 'support-module-blocks-empty',
+          text: 'Mise à jour de l’aperçu…'
+        }));
+        request = $.ajax({
+          url: $toggle.data('preview-url'),
+          data: { support_module_ids: $(this).val() || [] },
+          dataType: 'html'
+        }).done(function(html) {
+          if (currentRevision !== revision) return;
+          var $preview = $('<div>').append($.parseHTML(html));
+          $blocks.empty().append($preview.find('.support-module-blocks').contents());
+        }).fail(function(_xhr, status) {
+          if (status === 'abort' || currentRevision !== revision) return;
+          $blocks.empty().append($('<span>', {
+            class: 'support-module-blocks-empty',
+            text: 'L’aperçu est temporairement indisponible. Votre sélection reste visible en mode Modifier.'
+          }));
+        });
       });
     });
   });

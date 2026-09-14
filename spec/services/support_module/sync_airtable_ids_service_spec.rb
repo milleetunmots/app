@@ -78,6 +78,16 @@ RSpec.describe SupportModule::SyncAirtableIdsService do
     expect(support_module.reload.airtable_id).to eq('recAAA')
   end
 
+  it "préserve les identifiants existants si l'appariement est seulement partiel" do
+    other_module = FactoryBot.create(:support_module, airtable_id: 'recBBB')
+    stub_airtable([airtable_record('recAAA', support_module), unmatched_airtable_record('recBBB')])
+
+    service = described_class.new.call
+
+    expect(service.errors).not_to be_empty
+    expect(other_module.reload.airtable_id).to eq('recBBB')
+  end
+
   it 'ignore la synchronisation quand Airtable ne renvoie aucun module' do
     support_module.update!(airtable_id: 'recAAA')
     stub_airtable([])

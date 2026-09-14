@@ -56,21 +56,21 @@ RSpec.describe SupportModuleDecorator do
     end
   end
 
-  # L'URL vient du contenu apparié sur Airtable, pas de l'airtable_id du module :
-  # on stubbe la classe Airtables::*, jamais le HTTP
   describe '#airtable_folder_url' do
-    let(:support_module) { FactoryBot.build(:support_module) }
-
-    it "pointe vers l'enregistrement Airtable du contenu apparié" do
-      allow(Airtables::SupportModuleContent).to receive(:record_url_for)
-        .with(support_module).and_return('https://airtable.com/appTEST/tblTEST/recABC123')
-
-      expect(support_module.decorate.airtable_folder_url).to end_with('/recABC123')
+    before do
+      allow(Airtables::SupportModuleContent).to receive(:base_key).and_return('appTEST')
+      allow(Airtables::SupportModuleContent).to receive(:table_name).and_return('tblTEST')
+      allow(Airtables::SupportModuleContent).to receive(:all).and_raise('Accès réseau interdit')
     end
 
-    it "retourne nil quand aucun contenu n'est apparié" do
-      allow(Airtables::SupportModuleContent).to receive(:record_url_for).and_return(nil)
+    it "utilise l'identifiant du contenu stocké en base" do
+      support_module = FactoryBot.build(:support_module, airtable_id: 'recBOOK', airtable_content_id: 'recCONTENT')
+      expect(support_module.decorate.airtable_folder_url).to end_with('/recCONTENT')
+      expect(Airtables::SupportModuleContent).not_to have_received(:all)
+    end
 
+    it 'retourne nil pour un module sans dossier synchronisé' do
+      support_module = FactoryBot.build(:support_module, airtable_id: 'recBOOK')
       expect(support_module.decorate.airtable_folder_url).to be_nil
     end
   end

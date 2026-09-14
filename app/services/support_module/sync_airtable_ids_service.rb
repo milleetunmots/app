@@ -10,13 +10,13 @@ class SupportModule::SyncAirtableIdsService
     airtable_modules = fetch_airtable_modules
     return self if airtable_modules.nil?
 
-    if airtable_modules.empty? && SupportModule.unscoped.where.not(airtable_id: nil).exists?
+    if airtable_modules.empty?
       @errors << 'Aucun module récupéré depuis Airtable, synchronisation ignorée par sécurité.'
       return self
     end
 
     synced_record_ids = airtable_modules.filter_map { |airtable_module| sync(airtable_module) }
-    clean_missing_records(synced_record_ids)
+    clean_missing_records(synced_record_ids) if errors.empty?
     self
   end
 
@@ -24,7 +24,7 @@ class SupportModule::SyncAirtableIdsService
 
   def fetch_airtable_modules
     Airtables::Module.all
-  rescue Airrecord::Error => e
+  rescue Airrecord::Error, Faraday::Error => e
     @errors << "Erreur Airtable lors de la récupération des modules : #{e.message}"
     nil
   end

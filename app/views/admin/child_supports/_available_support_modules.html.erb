@@ -13,16 +13,12 @@
       <a href="#" class="support-module-edit-toggle"
          data-blocks="#<%= blocks_id %>"
          data-input="#<%= input_id %>"
+         data-preview-url="<%= preview_url %>"
          data-read-label="Aperçu">Modifier</a>
     <% end %>
   </div>
 
   <div class="support-module-blocks" id="<%= blocks_id %>">
-    <% if editable %>
-      <div class="support-module-stale-notice initially-hidden">
-        Sélection modifiée : actualisez la page pour mettre à jour l'aperçu.
-      </div>
-    <% end %>
     <% if support_modules.empty? %>
       <div class="support-module-blocks-empty">Aucun module disponible</div>
     <% else %>

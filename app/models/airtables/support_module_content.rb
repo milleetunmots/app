@@ -19,44 +19,30 @@ class Airtables::SupportModuleContent < Airrecord::Table
 
   AIRTABLE_AGE_BY_AGE_RANGE = AGE_RANGE_BY_AIRTABLE_AGE.invert.freeze
 
+  # Aucun accès réseau à l'affichage : l'identifiant est synchronisé en amont.
   def self.record_url_for(support_module)
-    record = for_support_module(support_module)
-    return if record.blank?
+    record_id = support_module&.airtable_content_id
+    return if record_id.blank? || base_key.blank? || table_name.blank?
 
-    "https://airtable.com/#{base_key}/shrrFRdYIrDKqvy1u/#{table_name}/viwvzXW4OIZ0flR7h/#{record.id}"
+    "https://airtable.com/#{base_key}/shrrFRdYIrDKqvy1u/#{table_name}/viwvzXW4OIZ0flR7h/#{record_id}"
   end
 
-  def self.for_support_module(support_module)
-    return if support_module.blank?
-
+  def self.matches_for(support_module, records)
     airtable_age = AIRTABLE_AGE_BY_AGE_RANGE[support_module.age_ranges&.first]
-    return if airtable_age.blank?
+    return [] if airtable_age.blank?
 
     title = support_module.name.to_s.strip
-    records = all(filter: support_module_filter(airtable_age, title, support_module.id))
+    module_url = "#{SUPPORT_MODULE_URL_PREFIX}#{support_module.id}"
+    candidates = records.select do |record|
+      Array(record['Age']) == [airtable_age] &&
+        (record.title == title || record['SMS envoyés'] == module_url)
+    end
 
-    records.find { |record| record.title == title } || records.first
-  end
-
-  def self.support_module_filter(airtable_age, title, support_module_id)
-    <<~FORMULA.squish
-      AND(
-        ARRAYJOIN({Age}) = "#{escape(airtable_age)}",
-        OR(
-          TRIM({titre}) = "#{escape(title)}",
-          {SMS envoyés} = "#{SUPPORT_MODULE_URL_PREFIX}#{support_module_id}"
-        )
-      )
-    FORMULA
+    same_title = candidates.select { |record| record.title == title }
+    same_title.presence || candidates
   end
 
   def title
     self['titre'].to_s.strip
-  end
-
-  # Une valeur interpolée dans une formule Airtable est délimitée par des
-  # guillemets : sans échappement, un titre en contenant casserait la formule.
-  def self.escape(value)
-    value.to_s.gsub(/[\\"]/) { |character| "\\#{character}" }
   end
 end

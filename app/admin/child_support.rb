@@ -332,6 +332,7 @@ ActiveAdmin.register ChildSupport do
                      label_text: ChildSupport.human_attribute_name(input_name),
                      support_module_ids: resource.public_send(input_name),
                      editable: support_modules_editable,
+                     preview_url: preview_available_support_modules_admin_child_support_path(resource),
                      blocks_id: "#{parent_key}-available-support-module-blocks",
                      input_id: "child_support_#{input_name}_input"
                    }
@@ -1253,6 +1254,19 @@ ActiveAdmin.register ChildSupport do
       end
       item 'Potentiel parent bénévole', admin_volunteer_parent_form_path(child_support_id: resource.decorate.model.id, parent1_id: resource.decorate.model.parent1, parent2_id: resource.decorate.model.parent2), { target: '_blank' } if authorized?(:manage, ActiveAdmin::Page.new(ActiveAdmin.application, 'Volunteer Parent Form', active_admin_namespace))
     end
+  end
+
+  member_action :preview_available_support_modules, method: :get do
+    authorize! :update, resource
+    head :forbidden and return unless current_admin_user.admin? || current_admin_user.contributor?
+
+    render partial: 'admin/child_supports/available_support_modules',
+           locals: {
+             label_text: '',
+             support_module_ids: Array(params[:support_module_ids]),
+             editable: false,
+             blocks_id: 'available-support-module-preview'
+           }
   end
 
   member_action :add_child do
