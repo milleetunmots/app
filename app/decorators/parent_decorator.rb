@@ -6,7 +6,12 @@ class ParentDecorator < BaseDecorator
   }
 
   def admin_link(options = {})
-    super(options.merge(class: GENDER_COLORS[model.gender.to_sym]))
+    with_update_link = options.delete(:with_update_link)
+    admin_link = super(options.merge(class: GENDER_COLORS[model.gender.to_sym]))
+    return admin_link unless with_update_link
+
+    icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil')
+    admin_link + h.link_to(icon, [:edit, :admin, model], target: '_blank', rel: 'noopener')
   end
 
   def children
