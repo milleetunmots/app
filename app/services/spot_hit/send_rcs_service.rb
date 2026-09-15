@@ -81,11 +81,12 @@ class SpotHit::SendRcsService
     else
       @form['custom_list[]'] = recipient_phone_numbers
     end
-    @form['date'] = Time.zone.now if Time.zone.at(@planned_timestamp).past?
-    response = HTTP.post(
-      URL,
-      form: @form.merge({ 'date' => Time.zone.at(@planned_timestamp).past? ? 1.minute.from_now.strftime('%Y-%m-%d %H:%M:%S') : Time.zone.at(@planned_timestamp).strftime('%Y-%m-%d %H:%M:%S') })
-    )
+    # Une heure dépassée correspond à un envoi immédiat (date omise), sans
+    # ajouter une minute d'attente après la validation du formulaire.
+    @form.delete('date')
+    planned_at = Time.at(@planned_timestamp).in_time_zone('Europe/Paris')
+    @form['date'] = planned_at.strftime('%Y-%m-%d %H:%M:%S') if planned_at > Time.current
+    response = HTTP.post(URL, form: @form)
     body = parse_json_response(response)
     if body.is_a?(Hash) && body['success']
       @sent = true
