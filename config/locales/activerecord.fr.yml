@@ -791,6 +791,7 @@ fr:
       support_module:
         << : *SHARED
         ages: Tranche d'âge
+        airtable_id: Identifiant Airtable
         book_title: Livre
         name: Nom
         start_at: Démarrage
