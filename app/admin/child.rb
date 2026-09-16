@@ -406,6 +406,7 @@ ActiveAdmin.register Child do
     f.object.available_for_workshops = params[:available_for_workshops] if params[:available_for_workshops]
 
     f.semantic_errors(*f.object.errors.details.keys)
+    text_node hidden_field_tag(:back_to_child_support_id, params[:back_to_child_support_id]) if params[:back_to_child_support_id].present?
     f.inputs do
       f.input :parent1_selection,
               as: :select,
@@ -729,6 +730,16 @@ ActiveAdmin.register Child do
   end
 
   controller do
+    # retour vers la fiche de suivi d'où vient le lien d'édition
+    # (l'onglet est ensuite refermé, cf. app/assets/javascripts/admin/return_to.js)
+    def update
+      child_support_id = params[:back_to_child_support_id].presence
+
+      update! do |success, _failure|
+        success.html { redirect_to edit_admin_child_support_path(child_support_id, close_tab: 1) } if child_support_id
+      end
+    end
+
     after_save do |child|
       next if child.errors.any?
 

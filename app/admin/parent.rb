@@ -82,6 +82,7 @@ ActiveAdmin.register Parent do
     f.object.created_by_us = true if f.object.new_record?
 
     f.semantic_errors *f.object.errors.details.keys
+    text_node hidden_field_tag(:back_to_child_support_id, params[:back_to_child_support_id]) if params[:back_to_child_support_id].present?
     f.inputs do
       if f.object.current_child
         f.hidden_field :current_child_first_name, value: f.object.current_child.first_name, disabled: true
@@ -314,6 +315,16 @@ ActiveAdmin.register Parent do
   end
 
   controller do
+    # retour vers la fiche de suivi d'où vient le lien d'édition
+    # (l'onglet est ensuite refermé, cf. app/assets/javascripts/admin/return_to.js)
+    def update
+      child_support_id = params[:back_to_child_support_id].presence
+
+      update! do |success, _failure|
+        success.html { redirect_to edit_admin_child_support_path(child_support_id, close_tab: 1) } if child_support_id
+      end
+    end
+
     before_save do |parent|
       parent.parent2_child_ids = params[:parent][:parent2_child_ids]&.split(',')&.map(&:to_i) if params[:parent][:parent2_child_ids]
     end

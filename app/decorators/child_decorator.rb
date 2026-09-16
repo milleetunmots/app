@@ -8,7 +8,7 @@ class ChildDecorator < BaseDecorator
     super(options.merge(class: GENDER_COLORS[safe_gender.to_sym]))
   end
 
-  def child_link(with_update_link: false)
+  def child_link(child_support_id: nil)
     options = { with_icon: true, target: '_blank' }
     txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + '&nbsp;'.html_safe + name
     is_current_child = model.current_child?
@@ -27,12 +27,16 @@ class ChildDecorator < BaseDecorator
       options[:class],
       GENDER_COLORS[safe_gender.to_sym]
     ].compact.join(' ')
-    if with_update_link
-      icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil')
-      h.link_to(txt, [:admin, model], options) + h.link_to(icon, [:edit, :admin, model], target: '_blank', rel: 'noopener')
-    else
-      h.link_to(txt, [:admin, model], options)
-    end
+    return h.link_to(txt, [:admin, model], options) if child_support_id.blank?
+
+    icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil')
+    h.link_to(txt, [:admin, model], options) +
+      h.link_to(
+        icon,
+        h.edit_admin_child_path(model, back_to_child_support_id: child_support_id),
+        target: '_blank',
+        class: 'js-scripted-tab-link'
+      )
   end
 
   def public_edit_url

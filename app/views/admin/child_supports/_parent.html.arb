@@ -1,6 +1,6 @@
 div class: 'card card-parent' do
   (
-    div parent.admin_link(with_icon: true, target: '_blank', with_update_link: with_update_link)
+    div parent.admin_link(with_icon: true, target: '_blank', child_support_id: child_support_id)
   ) + (
     div parent.phone_number(with_icon: true)
   ) + (

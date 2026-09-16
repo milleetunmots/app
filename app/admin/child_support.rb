@@ -281,7 +281,7 @@ ActiveAdmin.register ChildSupport do
                 render 'parent',
                        parent: parent,
                        should_contact_parent: should_contact_parent,
-                       with_update_link: true
+                       child_support_id: f.object.id
               end
             end
             column do
@@ -289,7 +289,7 @@ ActiveAdmin.register ChildSupport do
               f.object.children.each do |c|
                 child = c.decorate
 
-                render 'child', child: child, with_update_link: true
+                render 'child', child: child, child_support_id: f.object.id
               end
             end
           end
@@ -1006,7 +1006,7 @@ ActiveAdmin.register ChildSupport do
               render 'parent',
                      parent: decorated.model.parent1.decorate,
                      should_contact_parent: decorated.should_contact_parent1?,
-                     with_update_link: false
+                     child_support_id: nil
             end
           end
           row :parent2 do |decorated|
@@ -1014,7 +1014,7 @@ ActiveAdmin.register ChildSupport do
               render 'parent',
                      parent: decorated.model.parent2.decorate,
                      should_contact_parent: decorated.should_contact_parent2?,
-                     with_update_link: false
+                     child_support_id: nil
             end
           end
           row :children
