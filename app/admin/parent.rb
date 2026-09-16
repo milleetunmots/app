@@ -83,6 +83,11 @@ ActiveAdmin.register Parent do
 
     f.semantic_errors *f.object.errors.details.keys
     text_node hidden_field_tag(:back_to_child_support_id, params[:back_to_child_support_id]) if params[:back_to_child_support_id].present?
+    # alerte si la fiche a été sauvegardée ailleurs depuis l'ouverture de cet onglet
+    # (cf. app/assets/javascripts/admin/form_freshness.js)
+    if f.object.persisted?
+      text_node content_tag(:div, '', class: 'js-form-freshness', data: { url: parent_updated_at_path(f.object) })
+    end
     f.inputs do
       if f.object.current_child
         f.hidden_field :current_child_first_name, value: f.object.current_child.first_name, disabled: true
