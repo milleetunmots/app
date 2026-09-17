@@ -56,10 +56,29 @@ module ProgramMessagesHelper
     video&.decorate
   end
 
-  def instagram_link
-    medium = Media::Form.find_or_create_by(url: ENV['INSTAGRAM_LINK'], name: 'Page d’accueil du compte Instagram 1001mots')
-    link = RedirectionTarget.joins(:medium).find_by(medium: medium)
-    link&.decorate
+  # L'url du compte vit en ENV et n'est pas saisie en médiathèque : le medium est
+  # donc amorcé au premier accès, ainsi que sa RedirectionTarget (créée par le
+  # after_create de Media::Form).
+  def social_account_link(account_key)
+    account = RedirectionTarget::SOCIAL_ACCOUNTS.fetch(account_key)
+    url = ENV[account[:key]]
+    return if url.blank?
+
+    # Sans pattern autorisé, Medium#url_must_be_allowed refuse la création du medium
+    # dès que le filtre d'urls est actif.
+    AllowedPattern.find_or_create_by(kind: 'url', value: url, match_type: 'exact')
+
+    medium = Media::Form.find_or_create_by(url: url, name: account[:medium_name])
+    return unless medium.persisted?
+
+    RedirectionTarget.joins(:medium).find_by(medium: medium)&.decorate
+  end
+
+  def social_account_links
+    RedirectionTarget::SOCIAL_ACCOUNTS.each_key.filter_map do |account_key|
+      link = social_account_link(account_key)
+      format_result(link) if link
+    end
   end
 
   def call3_suggested_videos
@@ -100,7 +119,7 @@ module ProgramMessagesHelper
 
     [
       { text: 'Vidéos suggérées pour ce parent', children: suggested_videos(parent_decorated) },
-      { text: 'Page instagram', children: [format_result(instagram_link)] },
+      { text: 'Réseaux sociaux', children: social_account_links },
       { text: 'Autres vidéos', children: redirection_targets }
     ]
   end
