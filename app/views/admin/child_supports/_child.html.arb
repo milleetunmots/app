@@ -1,6 +1,6 @@
 div class: 'card card-child' do
   (
-    div child.child_link
+    div child.child_link(child_support_id: child_support_id)
   ) + (
     div child.age
   ) + (

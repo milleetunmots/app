@@ -3,6 +3,7 @@
   var ajaxSuccessRegex = /^\s*<!DOCTYPE/gmi;
   var formChanged = false;
   var originalUpdatedAt;
+  var remoteForm;
   var formTriggerExclusions = [
     '#child_support_call0_resources_alternative_scripts',
     '#child_support_call1_resources_alternative_scripts',
@@ -54,6 +55,7 @@
   };
 
   var initForm = function(form) {
+    remoteForm = form;
     fetchUpdatedAt();
     trackChanges(form);
     // display notifications
@@ -99,6 +101,21 @@
         }
       });
     });
+  };
+
+  // Rafraîchit la page à la demande d'un autre onglet (cf. admin/return_to.js).
+  // Une saisie en cours est d'abord sauvegardée pour ne rien perdre — et parce que
+  // recharger avec des modifications en attente déclencherait l'alerte beforeunload.
+  window.adminReloadAfterSave = function() {
+    if (!remoteForm || !formChanged) {
+      window.location.reload();
+      return;
+    }
+
+    $(remoteForm).one('ajax:success', function() {
+      window.location.reload();
+    });
+    Rails.fire(remoteForm, 'submit');
   };
 
   var init = function() {
