@@ -17,7 +17,7 @@ div class: 'card card-parent' do
   ) + (
   div do
     span do
-      "Module choisis : "
+      "Modules choisis : "
     end +
     span do
       parent.selected_support_module

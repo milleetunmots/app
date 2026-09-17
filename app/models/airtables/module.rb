@@ -35,7 +35,7 @@ class Airtables::Module < Airrecord::Table
   # Un module de la base est identifié côté Airtable par son titre et sa tranche
   # d'âge : il existe plusieurs modules homonymes ne différant que par l'âge.
   def support_module
-    SupportModule.find_by(name: title, age_ranges: [ages])
+    SupportModule.find_by(name: title, age_ranges: [ages]) || SupportModule.find_by(name: "#{title} #{self['age'].gsub(' mois', '')}")
   end
 
   # URL de l'enregistrement Airtable du module. Airtable résout la vue par
