@@ -64,23 +64,21 @@ module ProgramMessagesHelper
     url = ENV[account[:key]]
     return if url.blank?
 
+    # Sans pattern autorisé, Medium#url_must_be_allowed refuse la création du medium
+    # dès que le filtre d'urls est actif.
+    AllowedPattern.find_or_create_by(kind: 'url', value: url, match_type: 'exact')
+
     medium = Media::Form.find_or_create_by(url: url, name: account[:medium_name])
     return unless medium.persisted?
 
     RedirectionTarget.joins(:medium).find_by(medium: medium)&.decorate
   end
 
-  def instagram_link
-    social_account_link(:instagram)
-  end
-
-  # Sans pattern autorisé, Medium#url_must_be_allowed refuse la création du medium
-  # dès que le filtre d'urls est actif.
-  def tiktok_link
-    url = ENV[RedirectionTarget::SOCIAL_ACCOUNTS.dig(:tiktok, :key)]
-    AllowedPattern.find_or_create_by(kind: 'url', value: url, match_type: 'exact') if url.present?
-
-    social_account_link(:tiktok)
+  def social_account_links
+    RedirectionTarget::SOCIAL_ACCOUNTS.each_key.filter_map do |account_key|
+      link = social_account_link(account_key)
+      format_result(link) if link
+    end
   end
 
   def call3_suggested_videos
@@ -98,13 +96,6 @@ module ProgramMessagesHelper
     suggested_videos << format_result(module_one_video) if module_one_video
     suggested_videos += call3_suggested_videos if call3_suggested_videos
     suggested_videos
-  end
-
-  def suggested_links(parent_decorated)
-    links = suggested_videos(parent_decorated)
-    link = tiktok_link
-    links << format_result(link) if link
-    links
   end
 
   def get_recipients(term, parent_decorated = nil)
@@ -127,8 +118,8 @@ module ProgramMessagesHelper
     return redirection_targets unless parent_decorated
 
     [
-      { text: 'Vidéos suggérées pour ce parent', children: suggested_links(parent_decorated) },
-      { text: 'Page instagram', children: [format_result(instagram_link)] },
+      { text: 'Vidéos suggérées pour ce parent', children: suggested_videos(parent_decorated) },
+      { text: 'Réseaux sociaux', children: social_account_links },
       { text: 'Autres vidéos', children: redirection_targets }
     ]
   end
