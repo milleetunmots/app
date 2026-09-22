@@ -5,7 +5,6 @@ module Aircall
     def initialize(started_at:)
       @aircall_calls = AircallCall.where.not(asset_url: nil)
                                   .where(raw_transcription_payload: nil)
-                                  .where.not(transcription_not_found: Time.zone.today)
                                   .where('started_at >= ?', started_at)
       @errors = []
     end
