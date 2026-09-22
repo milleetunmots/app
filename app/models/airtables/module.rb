@@ -27,4 +27,22 @@ class Airtables::Module < Airrecord::Table
       SupportModule::TWENTY_THREE_AND_MORE
     end
   end
+
+  def title
+    self['titre'].to_s.strip
+  end
+
+  # Un module de la base est identifié côté Airtable par son titre et sa tranche
+  # d'âge : il existe plusieurs modules homonymes ne différant que par l'âge.
+  def support_module
+    SupportModule.find_by(name: title, age_ranges: [ages]) || SupportModule.find_by(name: "#{title} #{self['age'].gsub(' mois', '')}")
+  end
+
+  # URL de l'enregistrement Airtable du module. Airtable résout la vue par
+  # défaut de la table : suffisant pour rendre une erreur d'import actionnable.
+  def self.record_url(record_id)
+    return if record_id.blank?
+
+    "https://airtable.com/#{base_key}/#{table_name}/#{record_id}"
+  end
 end

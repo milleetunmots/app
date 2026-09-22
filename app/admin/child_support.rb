@@ -319,8 +319,27 @@ ActiveAdmin.register ChildSupport do
           end
         end
         column class: 'column flex-column' do
-          available_support_module_input(f, :parent1_available_support_module_list, (current_admin_user.user_role.in? %w[caller animator reader]))
-          available_support_module_input(f, :parent2_available_support_module_list, (current_admin_user.user_role.in? %w[caller animator reader])) unless resource.parent2.nil?
+          # seuls les contributeurs et administrateurs peuvent modifier la liste :
+          # les autres rôles restent en lecture, comme aujourd'hui
+          support_modules_editable = current_admin_user.admin? || current_admin_user.contributor?
+
+          %i[parent1 parent2].each do |parent_key|
+            next if parent_key == :parent2 && resource.parent2.nil?
+
+            input_name = :"#{parent_key}_available_support_module_list"
+            render partial: 'admin/child_supports/available_support_modules',
+                   locals: {
+                     label_text: ChildSupport.human_attribute_name(input_name),
+                     support_module_ids: resource.public_send(input_name),
+                     editable: support_modules_editable,
+                     preview_url: preview_available_support_modules_admin_child_support_path(resource),
+                     blocks_id: "#{parent_key}-available-support-module-blocks",
+                     input_id: "child_support_#{input_name}_input"
+                   }
+            available_support_module_input(f, input_name, !support_modules_editable,
+                                           label: false,
+                                           wrapper_html: { class: 'initially-hidden' })
+          end
           div class: 'availability-card' do
             div class: 'availability-card-header' do
               'Disponibilités et RDV'
@@ -432,6 +451,9 @@ ActiveAdmin.register ChildSupport do
                         support_module.book.decorate.cover_link_tag(max_width: '100px')
                       end
                       div class: 'card-body' do
+                        div class: 'card-text' do
+                          support_module_airtable_link(support_module.support_module)
+                        end
                         span class: 'card-text' do
                           'Signaler un problème'
                         end
@@ -1232,6 +1254,19 @@ ActiveAdmin.register ChildSupport do
       end
       item 'Potentiel parent bénévole', admin_volunteer_parent_form_path(child_support_id: resource.decorate.model.id, parent1_id: resource.decorate.model.parent1, parent2_id: resource.decorate.model.parent2), { target: '_blank' } if authorized?(:manage, ActiveAdmin::Page.new(ActiveAdmin.application, 'Volunteer Parent Form', active_admin_namespace))
     end
+  end
+
+  member_action :preview_available_support_modules, method: :get do
+    authorize! :update, resource
+    head :forbidden and return unless current_admin_user.admin? || current_admin_user.contributor?
+
+    render partial: 'admin/child_supports/available_support_modules',
+           locals: {
+             label_text: '',
+             support_module_ids: Array(params[:support_module_ids]),
+             editable: false,
+             blocks_id: 'available-support-module-preview'
+           }
   end
 
   member_action :add_child do

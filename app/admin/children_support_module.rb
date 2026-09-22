@@ -56,7 +56,9 @@ ActiveAdmin.register ChildrenSupportModule do
               input_html: {data: {select2: {}}}
       f.input :support_module,
               collection: resource.available_support_module_collection,
-              input_html: {data: {select2: {}}}
+              input_html: {data: {select2: {}}},
+              hint: support_module_airtable_link(resource.support_module,
+                                                 label: 'Voir le contenu du module sur Airtable')
       if params[:available_support_module_list]
         f.object.available_support_module_list.reject(&:blank?).each do |asm|
           f.input :available_support_module_list,

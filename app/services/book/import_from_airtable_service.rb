@@ -8,40 +8,35 @@ class Book::ImportFromAirtableService
   end
 
   def call
-    begin
-      Media::Image.skip_callback(:save, :after, :upload_file_to_spot_hit, raise: false)
-      @airtable_books.each do |airtable_book|
-        @to_save = false
-        @ean = airtable_book[:ean]
-        @title = airtable_book[:title]
-        @cover = airtable_book[:cover]
-        @support_module_ids = []
-        @modules = airtable_book[:modules]
-        retrieve_support_modules
-        @book = Book.find_by(ean: @ean)
-        import_new_book
-        update_title
-        update_support_modules
-        update_cover
-        @book.save! if @to_save
-      end
-      clean_missing_books
-    ensure
-      Media::Image.set_callback(:save, :after, :upload_file_to_spot_hit)
+    @airtable_books.each do |airtable_book|
+      @to_save = false
+      @ean = airtable_book[:ean]
+      @title = airtable_book[:title]
+      @cover = airtable_book[:cover]
+      @support_module_ids = []
+      @modules = airtable_book[:modules]
+      retrieve_support_modules
+      @book = Book.find_by(ean: @ean)
+      import_new_book
+      update_title
+      update_support_modules
+      update_cover
+      @book.save! if @to_save
     end
+    clean_missing_books
     self
   end
 
   private
 
   def retrieve_support_modules
-    @modules.map do |module_id|
-      airtable_module = Airtables::Module.find(module_id)
-      support_module = SupportModule.where(name: airtable_module['titre'].strip, age_ranges: [airtable_module.ages]).first
-      if support_module.present?
+    by_airtable_id = SupportModule.where(airtable_id: @modules).index_by(&:airtable_id)
+    @modules.each do |record_id|
+      support_module = by_airtable_id[record_id]
+      if support_module
         @support_module_ids << support_module.id
       else
-        @errors[:support_modules] << "#{airtable_module['titre']} #{airtable_module.ages} introuvable"
+        @errors[:support_modules] << "Module Airtable introuvable : #{Airtables::Module.record_url(record_id)}"
       end
     end
   end
