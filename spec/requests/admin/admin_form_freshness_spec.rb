@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'Admin - détection d’une fiche parent / enfant périmée', type: :request do
+RSpec.describe 'Admin - détection d’une fiche parent / enfant / suivi périmée', type: :request do
   let(:admin_user) { FactoryBot.create(:admin_user, user_role: 'caller') }
   let!(:group) { FactoryBot.create(:group, started_at: Date.current.beginning_of_week(:monday)) }
   let!(:parent) { FactoryBot.create(:parent) }
@@ -51,6 +51,27 @@ RSpec.describe 'Admin - détection d’une fiche parent / enfant périmée', typ
     end
   end
 
+  describe 'GET /child-support-updated-at/:id' do
+    before { sign_in admin_user }
+
+    it 'renvoie la date de dernière sauvegarde en base' do
+      get "/child-support-updated-at/#{child_support.id}"
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body['updated_at']).to eq(child_support.reload.updated_at.as_json)
+    end
+
+    it 'reflète une sauvegarde faite entre-temps' do
+      get "/child-support-updated-at/#{child_support.id}"
+      before_update = response.parsed_body['updated_at']
+
+      travel_to(2.minutes.from_now) { child_support.update!(call0_notes: 'Rappeler demain') }
+
+      get "/child-support-updated-at/#{child_support.id}"
+      expect(response.parsed_body['updated_at']).to be > before_update
+    end
+  end
+
   describe 'le formulaire d’édition déclare l’URL de vérification' do
     before { sign_in admin_user }
 
@@ -66,6 +87,13 @@ RSpec.describe 'Admin - détection d’une fiche parent / enfant périmée', typ
 
       expect(response.body).to include('js-form-freshness')
       expect(response.body).to include("data-url=\"/child-updated-at/#{child.id}\"")
+    end
+
+    it 'sur la fiche de suivi' do
+      get "/admin/child_supports/#{child_support.id}/edit?r=true"
+
+      expect(response.body).to include('js-form-freshness')
+      expect(response.body).to include("data-url=\"/child-support-updated-at/#{child_support.id}\"")
     end
 
     it 'mais pas sur un formulaire de création' do

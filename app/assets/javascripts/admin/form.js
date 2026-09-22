@@ -13,11 +13,6 @@
   ];
   var formTriggerSelector = 'input, textarea, select';
 
-  var trackChanges = function(form) {
-    $(form).on('input change', function() {
-      formChanged = true;
-    });
-  };
 
   var setupUnloadWarning = function() {
     $(window).on('beforeunload', function(event) {
@@ -26,24 +21,6 @@
         event.returnValue = '';
       }
     });
-  };
-
-  var fetchUpdatedAt = function() {
-    return $.get('/child-support-updated-at/'+Number($('#child_support_id').val())).then(function(response) {
-      originalUpdatedAt = response.updated_at;
-    })
-  };
-
-  var checkForUpdates = function() {
-    return $.get('/child-support-updated-at/'+Number($('#child_support_id').val())).then(function(response) {
-      return response.updated_at !== originalUpdatedAt;
-    })
-  };
-
-  var showUpdateAlert = function() {
-    if (confirm('Les données ont été modifiées dans un autre onglet. Souhaitez-vous rafraîchir la page pour voir les dernières modifications ?')) {
-      window.location.reload();
-    }
   };
 
   var onAjaxSuccess = function() {
@@ -56,9 +33,6 @@
 
   var initForm = function(form) {
     remoteForm = form;
-    fetchUpdatedAt();
-    trackChanges(form);
-    // display notifications
     var formErrorsListSelector = '#' + form.id + ' ul.errors';
     $(form).on('ajax:success', function(event) {
       var detail = event.detail;
@@ -67,7 +41,6 @@
 
       if (typeof(data) == typeof('')) {
         onAjaxSuccess();
-        fetchUpdatedAt();
         $(formErrorsListSelector).remove();
       } else {
         var $newErrorsList = $(detail[0]).find(formErrorsListSelector);
@@ -93,13 +66,7 @@
     // trigger submit on change
     $(form).find(formTriggerSelector).change(function() {
       if ($(this).is(formTriggerExclusions.join(', '))) return;
-      checkForUpdates().then(function(isUpdated) {
-        if (isUpdated) {
-          showUpdateAlert();
-        } else {
-          Rails.fire(form, 'submit');
-        }
-      });
+      Rails.fire(form, 'submit');
     });
   };
 

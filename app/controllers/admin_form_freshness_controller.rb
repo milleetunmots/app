@@ -3,7 +3,7 @@
 # mécanisme déjà en place sur la fiche de suivi (ChildSupportsController#updated_at).
 class AdminFormFreshnessController < ApplicationController
 
-  RECORD_CLASSES = { 'parent' => Parent, 'child' => Child }.freeze
+  RECORD_CLASSES = { 'parent' => Parent, 'child' => Child, 'child_support' => ChildSupport }.freeze
 
   def updated_at
     record = RECORD_CLASSES.fetch(params[:record]).find_by(id: params[:id])
