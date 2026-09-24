@@ -192,6 +192,13 @@ class AdminUser < ApplicationRecord
     "•• •• •• •• #{phone_number.last(2)}"
   end
 
+  # La 2FA repose sur un SMS réel, or SpotHit restreint les destinataires aux
+  # SAFE_PHONE_NUMBERS en développement : le code n'arriverait jamais et le compte
+  # serait inaccessible en local. Le premier facteur reste requis.
+  def two_factor_required?
+    two_factor_enabled? && !Rails.env.development?
+  end
+
   # Retourne le service : l'appelant inspecte `#errors` pour savoir si le SMS
   # est parti. `OTP_VALIDITY.inspect` rend « 10 minutes » : le message reste
   # synchronisé avec la constante.
