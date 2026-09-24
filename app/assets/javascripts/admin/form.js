@@ -2,7 +2,6 @@
 
   var ajaxSuccessRegex = /^\s*<!DOCTYPE/gmi;
   var formChanged = false;
-  var originalUpdatedAt;
   var remoteForm;
   var formTriggerExclusions = [
     '#child_support_call0_resources_alternative_scripts',
@@ -13,6 +12,12 @@
   ];
   var formTriggerSelector = 'input, textarea, select';
 
+
+  var trackChanges = function(form) {
+    $(form).on('input change', function() {
+      formChanged = true;
+    });
+  };
 
   var setupUnloadWarning = function() {
     $(window).on('beforeunload', function(event) {
@@ -33,6 +38,7 @@
 
   var initForm = function(form) {
     remoteForm = form;
+    trackChanges(form);
     var formErrorsListSelector = '#' + form.id + ' ul.errors';
     $(form).on('ajax:success', function(event) {
       var detail = event.detail;
@@ -70,18 +76,23 @@
     });
   };
 
-  // Rafraîchit la page à la demande d'un autre onglet (cf. admin/return_to.js).
-  // Une saisie en cours est d'abord sauvegardée pour ne rien perdre — et parce que
-  // recharger avec des modifications en attente déclencherait l'alerte beforeunload.
-  window.adminReloadAfterSave = function() {
+  // Quitte la page en s'assurant que la saisie en cours est enregistrée (cf.
+  // admin/return_to.js) : une navigation immédiate avorterait l'auto-save en vol.
+  // Si la fiche est périmée, form_freshness.js bloque l'envoi et affiche son alerte :
+  // on reste alors sur place, volontairement.
+  window.adminNavigateAfterSave = function(url) {
+    var go = function() {
+      window.location.href = url;
+    };
+
     if (!remoteForm || !formChanged) {
-      window.location.reload();
+      go();
       return;
     }
 
-    $(remoteForm).one('ajax:success', function() {
-      window.location.reload();
-    });
+    // `ajax:success` remet formChanged à false avant `ajax:complete` : l'alerte
+    // beforeunload ne se déclenchera pas au moment de la navigation.
+    $(remoteForm).one('ajax:complete', go);
     Rails.fire(remoteForm, 'submit');
   };
 

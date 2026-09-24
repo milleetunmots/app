@@ -127,7 +127,15 @@ ActiveAdmin.register Parent do
                  'tag_list',
                  input_html: { disabled: current_admin_user.caller_or_animator? })
     end
-    f.actions
+    if params[:back_to_child_support_id].present?
+      # le crayon de la fiche de suivi a amené ici : « Annuler » y ramène
+      f.actions do
+        f.action :submit
+        f.cancel_link edit_admin_child_support_path(params[:back_to_child_support_id])
+      end
+    else
+      f.actions
+    end
   end
 
   params_list = [:gender, :first_name, :last_name,
@@ -321,12 +329,11 @@ ActiveAdmin.register Parent do
 
   controller do
     # retour vers la fiche de suivi d'où vient le lien d'édition
-    # (l'onglet est ensuite refermé, cf. app/assets/javascripts/admin/return_to.js)
     def update
       child_support_id = params[:back_to_child_support_id].presence
 
       update! do |success, _failure|
-        success.html { redirect_to edit_admin_child_support_path(child_support_id, close_tab: 1) } if child_support_id
+        success.html { redirect_to edit_admin_child_support_path(child_support_id) } if child_support_id
       end
     end
 

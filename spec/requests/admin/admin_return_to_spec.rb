@@ -7,7 +7,7 @@ RSpec.describe 'Admin - retour à la fiche de suivi après modification d’un p
   let!(:child) { FactoryBot.create(:child, parent1: parent, group: group, group_status: 'active') }
   let!(:child_support) { child.child_support.tap { |cs| cs.update!(supporter: supporter) } }
 
-  let(:return_path) { "/admin/child_supports/#{child_support.id}/edit?close_tab=1" }
+  let(:return_path) { "/admin/child_supports/#{child_support.id}/edit" }
 
   before { sign_in supporter }
 
@@ -21,17 +21,16 @@ RSpec.describe 'Admin - retour à la fiche de suivi après modification d’un p
       expect(response.body).to include(
         "/admin/children/#{child.id}/edit?back_to_child_support_id=#{child_support.id}"
       )
-      expect(response.body).to include('js-scripted-tab-link')
+      expect(response.body).to include('js-save-before-leave')
     end
-  end
 
-  describe "l'URL de retour conserve le marqueur de fermeture d'onglet" do
-    it 'préserve close_tab lors de la redirection vers l’onglet d’appel courant' do
-      get "/admin/child_supports/#{child_support.id}/edit?close_tab=1"
+    it 'ouvre l’édition dans le même onglet' do
+      get "/admin/child_supports/#{child_support.id}/edit?r=true"
 
-      expect(response).to redirect_to(
-        "/admin/child_supports/#{child_support.id}/edit?close_tab=1&r=true#appel-#{child_support.current_call_session}"
-      )
+      pencil_link = response.body[/<a[^>]*back_to_child_support_id=#{child_support.id}[^>]*>/]
+
+      expect(pencil_link).to be_present
+      expect(pencil_link).not_to include('target="_blank"')
     end
   end
 
@@ -53,6 +52,30 @@ RSpec.describe 'Admin - retour à la fiche de suivi après modification d’un p
       get "/admin/parents/#{parent.id}/edit"
 
       expect(response.body).not_to include('name="back_to_child_support_id"')
+    end
+  end
+
+  describe 'le lien « Annuler » ramène à la fiche de suivi' do
+    it 'pointe vers la fiche de suivi en édition depuis la fiche parent' do
+      get "/admin/parents/#{parent.id}/edit", params: { back_to_child_support_id: child_support.id }
+
+      expect(response.body).to include(
+        "<li class=\"cancel\"><a href=\"#{return_path}\">Annuler</a></li>"
+      )
+    end
+
+    it 'pointe vers la fiche de suivi en édition depuis la fiche enfant' do
+      get "/admin/children/#{child.id}/edit", params: { back_to_child_support_id: child_support.id }
+
+      expect(response.body).to include(
+        "<li class=\"cancel\"><a href=\"#{return_path}\">Annuler</a></li>"
+      )
+    end
+
+    it "conserve le lien d'annulation par défaut sans retour demandé" do
+      get "/admin/parents/#{parent.id}/edit"
+
+      expect(response.body).not_to include("<a href=\"#{return_path}\">Annuler</a>")
     end
   end
 

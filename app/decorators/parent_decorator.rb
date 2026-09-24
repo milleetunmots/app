@@ -15,8 +15,7 @@ class ParentDecorator < BaseDecorator
       h.link_to(
         icon,
         h.edit_admin_parent_path(model, back_to_child_support_id: child_support_id),
-        target: '_blank',
-        class: 'js-scripted-tab-link'
+        class: 'js-save-before-leave'
       )
   end
 
