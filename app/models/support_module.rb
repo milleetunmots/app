@@ -67,6 +67,10 @@ class SupportModule < ApplicationRecord
     THIRTY_SIX_TO_FORTY,
     FORTY_ONE_TO_FORTY_FOUR
   ].freeze
+  # Dernier mois couvert par le référentiel (cf. age_range_for) : au-delà, la
+  # tranche est vide. Les appelants qui doivent quand même rattacher l'enfant à
+  # une tranche plafonnent sur cette valeur plutôt que de coder 44 en dur.
+  MAXIMUM_AGE_IN_MONTHS = 44
   MODULE_ZERO_AGE_RANGE_LIST = [
     FOUR_TO_TEN,
     ELEVEN_TO_SIXTEEN,
@@ -163,6 +167,50 @@ class SupportModule < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   acts_as_taggable
+
+  # Tranche d'âge canonique d'un enfant, en mois. Unique référentiel : tout
+  # appelant doit passer par ici, sous peine de retenir un découpage divergent.
+  #
+  # Renvoie la vraie tranche, sans plafond : les appelants qui cherchent des
+  # modules adaptés à l'âge en dépendent — un enfant de 42 mois doit se voir
+  # proposer les modules 41-44, pas ceux conçus pour 30-35. Hors référentiel
+  # (moins de 4 mois, plus de 44), la tranche est vide, et c'est à chaque
+  # appelant de décider ce qu'il en fait.
+  def self.age_range_for(months)
+    case months
+    when 4..11
+      FOUR_TO_ELEVEN
+    when 12..17
+      TWELVE_TO_SEVENTEEN
+    when 18..23
+      EIGHTEEN_TO_TWENTY_THREE
+    when 24..29
+      TWENTY_FOUR_TO_TWENTY_NINE
+    when 30..35
+      THIRTY_TO_THIRTY_FIVE
+    when 36..40
+      THIRTY_SIX_TO_FORTY
+    when 41..MAXIMUM_AGE_IN_MONTHS
+      FORTY_ONE_TO_FORTY_FOUR
+    else
+      ''
+    end
+  end
+
+  # Rattache à une tranche un enfant que le référentiel ne couvre plus. Un
+  # enfant s'inscrit jusqu'à 30 mois (Child.min_birthdate) et l'accompagnement
+  # dure deux ans : dépasser 44 mois en cours de route est un cas courant, pas
+  # une anomalie. Les appelants qui cherchent des modules à lui proposer ont
+  # besoin d'une tranche — une tranche vide ne ramène aucun module, et le
+  # parent se retrouve sans rien à choisir.
+  #
+  # `cap` permet de plafonner plus bas quand l'appelant sait que les modules
+  # qu'il cherche n'existent pas jusqu'en haut du référentiel.
+  def self.age_range_for_capped(months, cap: MAXIMUM_AGE_IN_MONTHS)
+    return '' if months.blank?
+
+    age_range_for([months, cap].min)
+  end
 
   def self.order_by_theme
     ret = 'CASE'

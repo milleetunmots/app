@@ -67,20 +67,15 @@ class ChildSupport::FillParentsAvailableSupportModulesService
   end
 
   def find_available_support_modules(child, parent)
-    child_age_range = case child.duration_in_months(child.birthdate, @support_module_sent_date)
-                      when 4..11
-                        SupportModule::FOUR_TO_ELEVEN
-                      when 12..17
-                        SupportModule::TWELVE_TO_SEVENTEEN
-                      when 18..23
-                        SupportModule::EIGHTEEN_TO_TWENTY_THREE
-                      when 24..29
-                        SupportModule::TWENTY_FOUR_TO_TWENTY_NINE
-                      when 30..Float::INFINITY
-                        SupportModule::THIRTY_TO_THIRTY_FIVE
-                      else
-                        ''
-                      end
+    # Plafonné : l'ancien `case` rattachait tout enfant de 30 mois et plus à
+    # 30-35, et ce plafond ne doit pas disparaître avec lui. Sans lui, un enfant
+    # de plus de 44 mois n'a aucune tranche, la requête ci-dessous ne ramène
+    # rien, et le parent se voit proposer une liste vide. Le plafond porte
+    # désormais sur la vraie dernière tranche du référentiel, pas sur 30-35 :
+    # un enfant de 50 mois reçoit les modules 41-44.
+    child_age_range = SupportModule.age_range_for_capped(
+      child.duration_in_months(child.birthdate, @support_module_sent_date)
+    )
 
     already_done_ids = child.children_support_modules.where(parent: parent).pluck(:support_module_id)
 

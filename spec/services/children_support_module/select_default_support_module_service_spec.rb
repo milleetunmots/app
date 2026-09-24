@@ -40,11 +40,73 @@ RSpec.describe ChildrenSupportModule::SelectDefaultSupportModuleService do
       let!(:csm) { FactoryBot.create(:children_support_module, child: child, parent: parent1, support_module: nil, available_support_module_list: [support_module1.id, support_module2.id]) }
       let!(:sibling_csm) { FactoryBot.create(:children_support_module, child: sibling, parent: parent1, support_module: nil, available_support_module_list: []) }
 
-      it 'does not update the children_support_module for the sibling' do
+      it 'does not give the sibling the choice-based module of the current child' do
         subject.call
         csm.reload
+        sibling_csm.reload
         expect(csm.support_module).to eq support_module1
-        expect(sibling_csm.support_module).to be_nil
+        expect(sibling_csm.support_module).not_to eq support_module1
+      end
+
+      # 4e passe du service : le filet de sécurité couvre tous les enfants
+      # actifs, pas seulement les courants. Sans lui le frère/sœur restait à
+      # nil et bloquait l'export logistique de toute la cohorte.
+      it 'rescues the sibling with the age-based fallback module' do
+        subject.call
+        expect(sibling_csm.reload.support_module).to eq more_than_twelve_specific_default_support_module
+      end
+    end
+
+    # Le case sur child.months s'arrêtait à 35 mois : au-delà, support_module
+    # restait nil et l'opération était quand même comptée comme réussie.
+    context 'when the child is older than 35 months' do
+      # Prérequis : un module par défaut doit exister pour la tranche
+      # thirty_to_thirty_five, sur laquelle le service plafonne tous les enfants
+      # de 30 mois et plus — SupportModule.age_range_for, lui, continue de
+      # renvoyer leur vraie tranche.
+      let!(:thirty_to_thirty_five_default) do
+        FactoryBot.create(:support_module, name: ENV['MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'],
+                                           age_ranges: [SupportModule::THIRTY_TO_THIRTY_FIVE])
+      end
+
+      # La validation de birthdate ne s'applique qu'à la création : un enfant
+      # inscrit à 28 mois dépasse 35 mois en cours d'accompagnement.
+      let!(:older_child) do
+        FactoryBot.create(:child, parent1: FactoryBot.create(:parent), group: group, group_status: 'active',
+                                  birthdate: 28.months.ago.to_date)
+                  .tap { |child| child.update_column(:birthdate, 40.months.ago.to_date) }
+      end
+      let!(:older_csm) do
+        FactoryBot.create(:children_support_module, child: older_child, parent: older_child.parent1,
+                                                    support_module: nil, available_support_module_list: [])
+      end
+
+      it 'assigns the age-based fallback module instead of leaving it nil' do
+        subject.call
+        expect(older_csm.reload.support_module).to eq thirty_to_thirty_five_default
+      end
+    end
+
+    context 'when no fallback module exists for the age range' do
+      let!(:lonely_child) do
+        FactoryBot.create(:child, parent1: FactoryBot.create(:parent), group: group, group_status: 'active',
+                                  birthdate: 8.months.ago.to_date)
+      end
+      let!(:lonely_csm) do
+        FactoryBot.create(:children_support_module, child: lonely_child, parent: lonely_child.parent1,
+                                                    support_module: nil, available_support_module_list: [])
+      end
+
+      before { less_than_eleven_specific_default_support_module.discard }
+
+      it 'reports it to Rollbar instead of failing silently' do
+        subject.call
+
+        expect(lonely_csm.reload.support_module).to be_nil
+        expect(Rollbar).to have_received(:error).with(
+          'SelectDefaultSupportModuleService : aucun module attribuable',
+          hash_including(group_id: group.id, children_support_modules: include(lonely_csm.id))
+        )
       end
     end
 
