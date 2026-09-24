@@ -111,6 +111,29 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
           expect(guard.blocked_phone_numbers).to eq([]), "faux positif pour : #{text.inspect}"
         end
       end
+
+      # Le 3119 d'un UUID Calendly est entouré de tirets, des bornes valides pour
+      # SHORT_PHONE_REGEX : sans élargissement au token complet, chaque lien
+      # {CALLx_CALENDLY_LINK} envoyé en masse remontait comme numéro court.
+      it 'ne confond pas un identifiant technique avec un numéro' do
+        [
+          'Annulez ici : https://calendly.com/cancellations/ff026f26-3119-4abf-be26-fa1c63353d53',
+          'Votre commande REF-3119-AB est prête',
+          'Voir https://exemple.fr/page/3119'
+        ].each do |text|
+          guard = described_class.new(text, provider: 'spothit')
+
+          expect(guard.blocked_phone_numbers).to eq([]), "faux positif pour : #{text.inspect}"
+        end
+      end
+
+      # Les tirets restent une graphie humaine courante : seule la présence d'une
+      # lettre dans le token disqualifie le candidat.
+      it 'retient un numéro écrit avec des tirets' do
+        guard = described_class.new('Appelez le 06-12-34-56-78', provider: 'spothit')
+
+        expect(guard.blocked_phone_numbers).to eq(['0612345678'])
+      end
     end
 
     context 'avec une whitelist' do

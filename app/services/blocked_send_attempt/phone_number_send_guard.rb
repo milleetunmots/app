@@ -21,6 +21,14 @@ class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGua
   IDENTIFIER_CONTEXT_LENGTH = 16
   PHONE_DIGIT_COUNT = (7..15)
 
+  # Un identifiant technique (UUID d'un lien Calendly, référence produit, segment de
+  # chemin d'URL) enchaîne chiffres et lettres autour de tirets et de slashs : la suite
+  # de chiffres qu'on y lit n'est pas un numéro. Une lettre dans le token qui entoure le
+  # match suffit à l'écarter — même principe que les bornes alphanumériques des regex
+  # ci-dessus, étendu aux séparateurs qui soudent un identifiant.
+  TOKEN_PREFIX_REGEX = %r{[[:alnum:]_/-]*\z}
+  TOKEN_SUFFIX_REGEX = %r{\A[[:alnum:]_/-]*}
+
   def self.blocking_enabled?
     ENV['PHONE_NUMBER_FILTER_BLOCKING_ENABLED'].present?
   end
@@ -59,8 +67,9 @@ class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGua
   end
 
   def scan_long_phone_numbers
-    matches_for(PHONE_CANDIDATE_REGEX).filter_map do |raw, offset|
-      next if identifier_context?(offset)
+    matches_for(PHONE_CANDIDATE_REGEX).filter_map do |raw, from, to|
+      next if technical_identifier_context?(from, to)
+      next if identifier_context?(from)
       next unless PHONE_DIGIT_COUNT.cover?(raw.count('0-9'))
       next unless Phonelib.parse(raw).valid?
 
@@ -69,7 +78,9 @@ class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGua
   end
 
   def scan_short_phone_numbers
-    matches_for(SHORT_PHONE_REGEX).map do |raw, _offset|
+    matches_for(SHORT_PHONE_REGEX).filter_map do |raw, from, to|
+      next if technical_identifier_context?(from, to)
+
       PhoneNormalizationConcern.canonical(raw)
     end
   end
@@ -80,12 +91,21 @@ class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGua
   def matches_for(regex)
     scannable_text.to_enum(:scan, regex).map do
       match = Regexp.last_match
-      [match[0].strip, match.begin(0)]
+      [match[0].strip, match.begin(0), match.end(0)]
     end
   end
 
   def identifier_context?(offset)
     from = [offset - IDENTIFIER_CONTEXT_LENGTH, 0].max
     scannable_text[from...offset].match?(IDENTIFIER_LABEL_REGEX)
+  end
+
+  # On élargit le match à son token complet (tirets et slashs compris) : une lettre
+  # dans ce voisinage signe un identifiant technique, pas un numéro de téléphone.
+  def technical_identifier_context?(from, to)
+    prefix = scannable_text[0...from].to_s[TOKEN_PREFIX_REGEX]
+    suffix = scannable_text[to..].to_s[TOKEN_SUFFIX_REGEX]
+
+    "#{prefix}#{suffix}".match?(/[[:alpha:]]/)
   end
 end
