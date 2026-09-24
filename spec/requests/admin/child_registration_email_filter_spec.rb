@@ -1,12 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe "Admin children — filtre Email d'inscription", type: :request do
+  # Prénoms volontairement improbables : la page d'index affiche aussi les
+  # parents, dont la factory tire les noms via Faker. Chercher « Bob » dans
+  # tout le HTML rendait ces exemples dépendants de la graine.
   let!(:pmi_source) { FactoryBot.create(:source, channel: 'pmi', department: 80) }
   let!(:other_source) { FactoryBot.create(:source, channel: 'bao') }
 
-  let!(:matching_child) { FactoryBot.create(:child, first_name: 'Alice') }
-  let!(:other_child) { FactoryBot.create(:child, first_name: 'Bob') }
-  let!(:child_without_source) { FactoryBot.create(:child, first_name: 'Chloé') }
+  let!(:matching_child) { FactoryBot.create(:child, first_name: 'Zalicempi') }
+  let!(:other_child) { FactoryBot.create(:child, first_name: 'Zbobempi') }
+  let!(:child_without_source) { FactoryBot.create(:child, first_name: 'Zchloempi') }
 
   before do
     ChildrenSource.create!(child: matching_child, source: pmi_source,
@@ -20,9 +23,9 @@ RSpec.describe "Admin children — filtre Email d'inscription", type: :request d
     get '/admin/children', params: { q: { registration_professional_email_contains: 'pmi-somme' } }
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include('Alice')
-    expect(response.body).not_to include('Bob')
-    expect(response.body).not_to include('Chloé')
+    expect(response.body).to include('Zalicempi')
+    expect(response.body).not_to include('Zbobempi')
+    expect(response.body).not_to include('Zchloempi')
   end
 
   it 'conserve la valeur saisie dans le champ du filtre' do
@@ -39,8 +42,8 @@ RSpec.describe "Admin children — filtre Email d'inscription", type: :request d
                                           registration_professional_email_contains: 'pmi-somme' } }
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include('Alice')
-    expect(response.body).not_to include('Bob')
+    expect(response.body).to include('Zalicempi')
+    expect(response.body).not_to include('Zbobempi')
   end
 
   it "répond quand le filtre Source d'inscription est soumis avant l'email" do
@@ -48,24 +51,24 @@ RSpec.describe "Admin children — filtre Email d'inscription", type: :request d
                                           registration_professional_email_contains: 'pmi-somme' } }
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include('Alice')
+    expect(response.body).to include('Zalicempi')
   end
 
   it "répond quand l'email est combiné à plusieurs autres filtres" do
     get '/admin/children', params: { q: { source_channel_in: ['pmi'],
                                           registration_professional_email_contains: 'pmi-somme',
-                                          first_name_contains: 'Ali' } }
+                                          first_name_contains: 'Zalice' } }
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include('Alice')
+    expect(response.body).to include('Zalicempi')
   end
 
   it 'ignore le filtre quand il est vide' do
     get '/admin/children', params: { q: { registration_professional_email_contains: '' } }
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include('Alice')
-    expect(response.body).to include('Bob')
-    expect(response.body).to include('Chloé')
+    expect(response.body).to include('Zalicempi')
+    expect(response.body).to include('Zbobempi')
+    expect(response.body).to include('Zchloempi')
   end
 end
