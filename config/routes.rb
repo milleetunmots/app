@@ -50,7 +50,9 @@ Rails.application.routes.draw do
   end
 
   get 'confirm-end-support/:st', to: 'child_supports#confirm_end_support', as: :confirm_end_support
-  get 'child-support-updated-at/:child_support_id', to: 'child_supports#updated_at', as: :child_support_updated_at
+  get 'child-support-updated-at/:id', to: 'admin_form_freshness#updated_at', defaults: { record: 'child_support' }, as: :child_support_updated_at
+  get 'parent-updated-at/:id', to: 'admin_form_freshness#updated_at', defaults: { record: 'parent' }, as: :parent_updated_at
+  get 'child-updated-at/:id', to: 'admin_form_freshness#updated_at', defaults: { record: 'child' }, as: :child_updated_at
   get 'child-support-supporter_first_name/:child_support_id', to: 'child_supports#supporter_first_name', as: :child_support_supporter_first_name
   get 'child-support-call-goal/:child_support_id/:call_index', to: 'child_supports#call_goal', as: :child_support_call_goals
   get 'child-support-task-reporter/:task_title/', to: 'child_supports#task_reporter', as: :child_support_task_reporter
