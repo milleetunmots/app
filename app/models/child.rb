@@ -60,6 +60,32 @@ class Child < ApplicationRecord
 
   GENDERS = %w[m f].freeze
   GROUP_STATUS = %w[waiting active paused stopped disengaged not_supported].freeze
+
+  # Ordre canonique de désignation de l'« enfant courant » d'une fratrie :
+  #   1. les enfants actifs d'abord
+  #   2. puis le plus jeune (birthdate la plus récente)
+  #   3. puis, à birthdate égale (jumeaux), le plus petit id = le premier inscrit
+  #
+  # (3) est indispensable : sans lui l'ordre n'est pas total et PostgreSQL renvoie
+  # une ligne arbitraire, potentiellement différente d'une requête à l'autre —
+  # c'est ce qui laissait un jumeau sans module d'accompagnement.
+  # `id ASC` reconduit le choix majoritaire actuel (ordre de scan du heap).
+  #
+  # Cet ordre est la seule désignation : ChildSupport#current_child,
+  # Parent#current_child, Child#current_sibling_in_group et le LATERAL de
+  # Parent.current_child_couples le partagent tous. Toute nouvelle source doit
+  # passer par lui — c'est en désignant chacun de son côté qu'on laissait un
+  # jumeau sans module.
+  #
+  # Les colonnes sont qualifiées `children.` car cet ordre est aussi injecté dans
+  # ChildSupport#parent1/#parent2 (has_one through), où `id` serait ambigu entre
+  # `parents.id` et `children.id`.
+  #
+  # /!\ Toujours consommer cet ordre avec `.first`, jamais avec `.last` :
+  # `.last` inverserait le départageur et désignerait l'autre jumeau.
+  CURRENT_CHILD_ORDER = Arel.sql(
+    "CASE WHEN children.group_status = 'active' THEN 0 ELSE 1 END ASC, children.birthdate DESC, children.id ASC"
+  ).freeze
   TERRITORIES = %w[Loiret Yvelines Seine-Saint-Denis Paris Moselle].freeze
   LANDS = {
       'Paris 20 eme' => Parent::PARIS_20_EME_POSTAL_CODE,
@@ -162,6 +188,7 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   scope :with_support, -> { joins(:child_support) }
+  scope :by_current_child_priority, -> { order(CURRENT_CHILD_ORDER) }
   scope :without_support, -> { where(child_support_id: nil) }
   scope :with_group, -> { where.not(group_id: nil) }
   scope :with_stopped_group, -> { where.not(group_id: nil).where(group_status: 'stopped') }
@@ -573,10 +600,6 @@ class Child < ApplicationRecord
     end
   end
 
-  def youngest_sibling
-    siblings.order(:birthdate).last
-  end
-
   def self.first_active_group
     active_group.first&.group
   end
@@ -783,10 +806,27 @@ class Child < ApplicationRecord
     super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_details_matches_any book_delivery_location registration_professional_email_contains]
   end
 
+  # Périmètre : les enfants de la fiche de suivi, et non ceux qui partagent
+  # `parent1_id`. C'est la population contre laquelle `current_child?` est défini,
+  # et celle que `create_support!` constitue via `true_siblings` — lequel apparie
+  # aussi les fratries dont les deux parents sont inversés d'un enfant à l'autre,
+  # ce que `siblings` manque. Les deux définitions désignaient sinon des familles
+  # différentes selon l'appelant.
   def siblings_on_same_group
-    return unless group_id
+    return unless group_id && child_support
 
-    siblings.where(group_id: group_id)
+    child_support.children.kept.where(group_id: group_id)
+  end
+
+  # L'enfant « courant » parmi les enfants de la fiche suivis dans cette cohorte.
+  # Même population et même ordre que child_support.current_child, qui n'est lui
+  # borné ni au groupe ni au statut (cf. ProgramSupportModuleSmsJob) : les deux
+  # désignent donc le même enfant dès lors qu'il est éligible à la cohorte.
+  def current_sibling_in_group(target_group = group, status: 'active')
+    return if target_group.nil? || child_support.nil?
+
+    child_support.children.kept.where(group: target_group, group_status: status)
+                 .by_current_child_priority.first
   end
 
   def have_siblings_on_same_group?

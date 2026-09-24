@@ -18,16 +18,31 @@ class ChildrenSupportModule
 
     private
 
-    def current_children
-      @group.children.where(group_status: 'active').map do |child|
-        child.siblings.where(group: @group, group_status: 'active').order(:birthdate).last
-      end
+    def active_children
+      @active_children ||= @group.children.where(group_status: 'active').to_a
     end
 
+    # Même ordre canonique que ChildSupport#current_child : sans le départageur
+    # porté par Child::CURRENT_CHILD_ORDER, deux jumeaux pouvaient être désignés
+    # ici et dans le reste de la chaîne d'attribution comme deux enfants différents.
+    def current_children
+      @current_children ||= active_children.filter_map { |child| current_sibling_for(child) }.uniq
+    end
+
+    # Partition stricte : tout enfant actif est soit courant, soit non courant.
     def not_current_children
-      @group.children.where(group_status: 'active').reject do |child|
-        child == child.siblings.where(group: group, group_status: 'active').order(:birthdate).last
-      end
+      active_children - current_children
+    end
+
+    # Mémoïsé par fiche de suivi : c'est la population sur laquelle la désignation
+    # porte, donc tous les enfants d'une même fiche donnent le même résultat.
+    # `key?` plutôt que `||=` : une fiche sans enfant courant dans la cohorte
+    # rejouerait sinon la requête pour chacun de ses enfants.
+    def current_sibling_for(child)
+      @current_sibling_by_child_support ||= {}
+      return @current_sibling_by_child_support[child.child_support_id] if @current_sibling_by_child_support.key?(child.child_support_id)
+
+      @current_sibling_by_child_support[child.child_support_id] = child.current_sibling_in_group(@group)
     end
 
     def create_tasks(group, check_service)

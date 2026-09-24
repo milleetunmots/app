@@ -213,22 +213,30 @@ class Parent < ApplicationRecord
     save!
   end
 
+  # Une ligne (parent_id, current_child_id) par parent, avec exactement la
+  # désignation de #current_child : LATERAL + LIMIT 1 sur l'ordre canonique.
+  #
+  # L'ancien MIN(children.id) ignorait statut et birthdate : pour deux enfants
+  # actifs il renvoyait l'aîné là où #current_child renvoie le plus jeune, si
+  # bien que l'invariant ci-dessous — écrit dès l'origine — était faux. Il est
+  # désormais vérifié par spec/models/current_child_designation_spec.rb.
+  #
+  # Parent.current_child_couples.all? do |couple|
+  #   Parent.find(couple['parent_id']).current_child&.id == couple['current_child_id']
+  # end
   def self.current_child_couples
-    # Gets table of parent_id, current_child_id couples
-    #
-    # Make sure this is working properly with something like
-    # Parent.current_child_couples.all? do |couple|
-    #   Parent.find(couple['parent_id']).current_child&.id === couple['current_child_id']
-    # end
-
     Parent.joins(
-      "LEFT OUTER JOIN children
-                    ON children.parent1_id = parents.id OR children.parent2_id = parents.id"
-    ).group(
-      :id
+      "LEFT OUTER JOIN LATERAL (
+         SELECT children.id
+           FROM children
+          WHERE (children.parent1_id = parents.id OR children.parent2_id = parents.id)
+            AND children.discarded_at IS NULL
+          ORDER BY #{Child::CURRENT_CHILD_ORDER}
+          LIMIT 1
+       ) current_child_lateral ON TRUE"
     ).select(
       "parents.id AS parent_id,
-      MIN(children.id) AS current_child_id"
+      current_child_lateral.id AS current_child_id"
     )
   end
 
@@ -296,8 +304,10 @@ class Parent < ApplicationRecord
     parent1_children.or(parent2_children)
   end
 
+  # Même désignation que ChildSupport#current_child, `kept` compris : les deux
+  # doivent répondre la même chose, y compris quand un enfant est archivé.
   def current_child
-    children.order(Arel.sql("CASE WHEN group_status = 'active' THEN 0 ELSE 1 END, birthdate DESC")).first
+    children.kept.by_current_child_priority.first
   end
 
   def duplicate_of?(other_parent)
