@@ -80,6 +80,7 @@ RSpec.describe 'Admin - détection d’une fiche parent / enfant / suivi périm�
 
       expect(response.body).to include('js-form-freshness')
       expect(response.body).to include("data-url=\"/parent-updated-at/#{parent.id}\"")
+      expect(response.body).to include("data-updated-at=\"#{parent.reload.updated_at.iso8601(3)}\"")
     end
 
     it 'sur la fiche enfant' do
@@ -87,6 +88,7 @@ RSpec.describe 'Admin - détection d’une fiche parent / enfant / suivi périm�
 
       expect(response.body).to include('js-form-freshness')
       expect(response.body).to include("data-url=\"/child-updated-at/#{child.id}\"")
+      expect(response.body).to include("data-updated-at=\"#{child.reload.updated_at.iso8601(3)}\"")
     end
 
     it 'sur la fiche de suivi' do
@@ -94,6 +96,7 @@ RSpec.describe 'Admin - détection d’une fiche parent / enfant / suivi périm�
 
       expect(response.body).to include('js-form-freshness')
       expect(response.body).to include("data-url=\"/child-support-updated-at/#{child_support.id}\"")
+      expect(response.body).to include("data-updated-at=\"#{child_support.reload.updated_at.iso8601(3)}\"")
     end
 
     it 'mais pas sur un formulaire de création' do

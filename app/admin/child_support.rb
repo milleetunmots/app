@@ -228,7 +228,12 @@ ActiveAdmin.register ChildSupport do
   form(remote: true) do |f|
     f.semantic_errors(*f.object.errors.details.keys)
     if f.object.persisted?
-      text_node content_tag(:div, '', class: 'js-form-freshness', data: { url: child_support_updated_at_path(f.object) })
+      text_node content_tag(:div, '',
+                            class: 'js-form-freshness',
+                            data: {
+                              url: child_support_updated_at_path(f.object),
+                              updated_at: f.object.updated_at.iso8601(3)
+                            })
     end
     call_recording_consent_label =
       if f.object.group_enable_calls_recording

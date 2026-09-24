@@ -410,7 +410,12 @@ ActiveAdmin.register Child do
     # alerte si la fiche a été sauvegardée ailleurs depuis l'ouverture de cet onglet
     # (cf. app/assets/javascripts/admin/form_freshness.js)
     if f.object.persisted?
-      text_node content_tag(:div, '', class: 'js-form-freshness', data: { url: child_updated_at_path(f.object) })
+      text_node content_tag(:div, '',
+                            class: 'js-form-freshness',
+                            data: {
+                              url: child_updated_at_path(f.object),
+                              updated_at: f.object.updated_at.iso8601(3)
+                            })
     end
     f.inputs do
       f.input :parent1_selection,
