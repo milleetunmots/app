@@ -3,8 +3,17 @@ class Book::ImportFromAirtableService
   attr_reader :errors
 
   def initialize
-    @airtable_books = Airtables::Book.all.map { |book| { ean: book['EAN'], title: book['Titre du livre'], cover: book['Photo de la couverture'].first, modules: book['Modules'] } }
-    @errors = { support_modules: [], cover: [] }
+    @airtable_books = Airtables::Book.all.map do |book|
+      {
+        ean: book['EAN'],
+        title: book['Titre du livre'],
+        cover: book['Photo de la couverture'].first,
+        # Le champ n'est pas renseigné pour tous les livres : Array(nil) => []
+        interior_photos: Array(book['Photos intérieures']),
+        modules: book['Modules']
+      }
+    end
+    @errors = { support_modules: [], cover: [], interior_photos: [] }
   end
 
   def call
@@ -13,6 +22,7 @@ class Book::ImportFromAirtableService
       @ean = airtable_book[:ean]
       @title = airtable_book[:title]
       @cover = airtable_book[:cover]
+      @interior_photos = airtable_book[:interior_photos]
       @support_module_ids = []
       @modules = airtable_book[:modules]
       retrieve_support_modules
@@ -22,6 +32,9 @@ class Book::ImportFromAirtableService
       update_support_modules
       update_cover
       @book.save! if @to_save
+      # Après la sauvegarde : un livre tout juste créé doit être persisté
+      # avant qu'on puisse lui attacher des fichiers.
+      sync_interior_photos
     end
     clean_missing_books
     self
@@ -54,14 +67,16 @@ class Book::ImportFromAirtableService
     @book.title = @title
   end
 
-  def download_cover
+  # Télécharge une pièce jointe Airtable dans tmp/images et renvoie son chemin.
+  # L'appelant est responsable de la suppression du fichier.
+  def download_to_tmp(attachment)
     save_dir = Rails.root.join('tmp', 'images')
-    FileUtils.mkdir_p(save_dir) unless Dir.exist?(save_dir)
+    FileUtils.mkdir_p(save_dir)
 
-    file_path = File.join(save_dir, @cover['filename'])
-    URI.parse(@cover['url']).open do |image|
+    file_path = File.join(save_dir, attachment['filename'])
+    URI.parse(attachment['url']).open do |remote|
       File.open(file_path, 'wb') do |file|
-        file.write(image.read)
+        file.write(remote.read)
       end
     end
     file_path
@@ -71,16 +86,34 @@ class Book::ImportFromAirtableService
     return if @book.media&.name == @cover['filename']
 
     @to_save = true
+    file_path = download_to_tmp(@cover)
     cover = Media::Image.new(name: @cover['filename'])
     cover.file.attach(
-      io: File.open(download_cover),
+      io: File.open(file_path),
       filename: @cover['filename'],
       content_type: @cover['type']
     )
     @errors[:cover] << "Erreur lors de la sauvegarde de l'image #{@book.media&.name}" unless cover.save
 
     @book.media = cover
-    FileUtils.rm_f(download_cover)
+    FileUtils.rm_f(file_path)
+  end
+
+  def sync_interior_photos
+    return unless @book&.persisted?
+
+    @interior_photos.each { |photo| attach_interior_photo(photo) }
+  end
+
+  def attach_interior_photo(photo)
+    file_path = download_to_tmp(photo)
+    @book.interior_photos.attach(
+      io: File.open(file_path),
+      filename: photo['filename'],
+      content_type: photo['type']
+    )
+  ensure
+    FileUtils.rm_f(file_path) if file_path
   end
 
   def update_support_modules
