@@ -8,9 +8,12 @@ class ChildDecorator < BaseDecorator
     super(options.merge(class: GENDER_COLORS[safe_gender.to_sym]))
   end
 
-  def child_link
+  def child_link(child_support_id: nil)
     options = { with_icon: true, target: '_blank' }
-    txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + '&nbsp;'.html_safe + name
+    # Le nom est isolé dans un span sécable : lui seul peut se couper en bout de
+    # ligne, les icônes restent solidaires du dernier fragment (cf. cards.sass).
+    txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + '&nbsp;'.html_safe +
+          h.content_tag(:span, name, class: 'name-text')
     is_current_child = model.current_child?
     txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-sms') if is_current_child
     txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-book') if model.group_status == 'active'
@@ -27,7 +30,17 @@ class ChildDecorator < BaseDecorator
       options[:class],
       GENDER_COLORS[safe_gender.to_sym]
     ].compact.join(' ')
-    h.link_to txt, [:admin, model], options
+    return h.link_to(txt, [:admin, model], options) if child_support_id.blank?
+
+    icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil')
+    h.content_tag(:span, class: 'name-with-edit') do
+      h.link_to(txt, [:admin, model], options) +
+        h.link_to(
+          icon,
+          h.edit_admin_child_path(model, back_to_child_support_id: child_support_id),
+          class: 'js-save-before-leave'
+        )
+    end
   end
 
   def public_edit_url

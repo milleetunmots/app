@@ -1,0 +1,30 @@
+@import variables
+
+// Trace d'un écrasement consenti, posée en tête de formulaire par
+// form_freshness.js. `sticky` parce que le consentement peut être donné au
+// milieu d'une fiche de suivi : un bandeau resté en haut du document serait
+// hors écran au moment où il compte. Si un ancêtre le neutralise, il retombe
+// en bandeau statique — dégradé, mais toujours une trace.
+.form-freshness-notice
+  position: sticky
+  top: 0
+  z-index: 10
+  display: flex
+  align-items: center
+  justify-content: space-between
+  margin-bottom: 20px
+  padding: 20px
+  background-color: $warning
+  color: white
+
+  .form-freshness-notice-refresh
+    flex-shrink: 0
+    margin-left: 20px
+    padding: 0
+    border: none
+    background: none
+    color: white
+    font-size: inherit
+    text-decoration: underline
+    white-space: nowrap
+    cursor: pointer

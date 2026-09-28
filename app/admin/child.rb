@@ -406,6 +406,17 @@ ActiveAdmin.register Child do
     f.object.available_for_workshops = params[:available_for_workshops] if params[:available_for_workshops]
 
     f.semantic_errors(*f.object.errors.details.keys)
+    text_node hidden_field_tag(:back_to_child_support_id, params[:back_to_child_support_id]) if params[:back_to_child_support_id].present?
+    # alerte si la fiche a été sauvegardée ailleurs depuis l'ouverture de cet onglet
+    # (cf. app/assets/javascripts/admin/form_freshness.js)
+    if f.object.persisted?
+      text_node content_tag(:div, '',
+                            class: 'js-form-freshness',
+                            data: {
+                              url: child_updated_at_path(f.object),
+                              updated_at: f.object.updated_at.iso8601(3)
+                            })
+    end
     f.inputs do
       f.input :parent1_selection,
               as: :select,
@@ -472,7 +483,15 @@ ActiveAdmin.register Child do
                  'tag_list',
                  input_html: { disabled: current_admin_user.caller_or_animator? })
     end
-    f.actions
+    if params[:back_to_child_support_id].present?
+      # le crayon de la fiche de suivi a amené ici : « Annuler » y ramène
+      f.actions do
+        f.action :submit
+        f.cancel_link edit_admin_child_support_path(params[:back_to_child_support_id])
+      end
+    else
+      f.actions
+    end
   end
 
   tags_params_attributes = [tags_params]
@@ -729,6 +748,15 @@ ActiveAdmin.register Child do
   end
 
   controller do
+    # retour vers la fiche de suivi d'où vient le lien d'édition
+    def update
+      child_support_id = params[:back_to_child_support_id].presence
+
+      update! do |success, _failure|
+        success.html { redirect_to edit_admin_child_support_path(child_support_id) } if child_support_id
+      end
+    end
+
     after_save do |child|
       next if child.errors.any?
 

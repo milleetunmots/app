@@ -32,6 +32,10 @@ class RedirectionTarget < ApplicationRecord
   SUGGESTED_VIDEOS_MODULE_1_NAME_STARTS_WITH = 'Lecture - Pour debuter'.freeze
   SUGGESTED_VIDEOS_CALL_3_NAME_STARTS_WITH = 'Appel 3'.freeze
   SUGGESTED_VIDEOS = [SUGGESTED_VIDEOS_MODULE_0_NAME_STARTS_WITH, SUGGESTED_VIDEOS_MODULE_1_NAME_STARTS_WITH, SUGGESTED_VIDEOS_CALL_3_NAME_STARTS_WITH].freeze
+  SOCIAL_ACCOUNTS = {
+    instagram: { key: 'INSTAGRAM_LINK', medium_name: 'Page d’accueil du compte Instagram 1001mots' },
+    tiktok: { key: 'TIKTOK_LINK', medium_name: 'Page d’accueil du compte TikTok 1001mots' }
+  }.freeze
 
   # ---------------------------------------------------------------------------
   # relations

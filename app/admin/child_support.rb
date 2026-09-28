@@ -227,6 +227,14 @@ ActiveAdmin.register ChildSupport do
 
   form(remote: true) do |f|
     f.semantic_errors(*f.object.errors.details.keys)
+    if f.object.persisted?
+      text_node content_tag(:div, '',
+                            class: 'js-form-freshness',
+                            data: {
+                              url: child_support_updated_at_path(f.object),
+                              updated_at: f.object.updated_at.iso8601(3)
+                            })
+    end
     call_recording_consent_label =
       if f.object.group_enable_calls_recording
         safe_join([
@@ -277,11 +285,11 @@ ActiveAdmin.register ChildSupport do
 
               parent = p[0].decorate
               should_contact_parent = p[1]
-
               column do
                 render 'parent',
                        parent: parent,
-                       should_contact_parent: should_contact_parent
+                       should_contact_parent: should_contact_parent,
+                       child_support_id: f.object.id
               end
             end
             column do
@@ -289,7 +297,7 @@ ActiveAdmin.register ChildSupport do
               f.object.children.each do |c|
                 child = c.decorate
 
-                render 'child', child: child
+                render 'child', child: child, child_support_id: f.object.id
               end
             end
           end
@@ -954,62 +962,13 @@ ActiveAdmin.register ChildSupport do
               end
             end
           end
-          if f.object.current_child
-            %i[parent1 parent2].each do |k|
-              next unless f.object.current_child.send(k)
-
-              tab I18n.t("child_support.#{k}") do
-                f.semantic_fields_for :current_child do |current_child_f|
-                  current_child_f.semantic_fields_for k do |parent_f|
-                    f.hidden_field :"#{k}_first_name", value: f.object.send(k).first_name, disabled: true
-                    f.hidden_field :"#{k}_last_name", value: f.object.send(k).last_name, disabled: true
-                    if f.object.current_child && k == :parent1
-                      f.hidden_field :current_child_first_name, value: f.object.current_child.first_name, disabled: true
-                      f.hidden_field :current_child_last_name, value: f.object.current_child.last_name, disabled: true
-                      if f.object.current_child.source
-                        f.hidden_field :current_child_source_channel, value: f.object.current_child.source.channel, disabled: true
-                        f.hidden_field :current_child_source_name, value: f.object.current_child.source.name, disabled: true
-                      end
-                    end
-                    parent_f.input :phone_number
-                    parent_f.input :present_on_whatsapp
-                    parent_f.input :follow_us_on_whatsapp
-                    parent_f.input :email
-                    if k == :parent1
-                      parent_f.input :book_delivery_location,
-                                     input_html: { data: { select2: {} } },
-                                     label: 'La famille souhaite recevoir les livres',
-                                     collection: parent_book_delivery_location_select_collection,
-                                     include_blank: false,
-                                     hint: "Nous vous recommandons de proposer à la famille de recevoir les livres à la PMI. Les livres envoyés aux hébergements d'urgence (hôtels, CHU, etc.) sont souvent retournés à 1001mots."
-                      parent_f.input :letterbox_name
-                      parent_f.input :book_delivery_organisation_name
-                      parent_f.input :attention_to, label: "À l'attention de", input_html: { readonly: true, class: 'readonly-grey-input', value: parent_f.object.attention_to&.gsub('Pour ', '') }, disabled: false
-                      address_input parent_f
-                    end
-                    parent_f.input :is_ambassador
-                    parent_f.input :job
-                  end
-                end
-              end
-            end
+          tab 'Notes' do
+            f.input :notes, as: :text
           end
           if f.object.current_child
-            tab f.object.current_child.decorate.name do
-              f.semantic_fields_for :current_child do |current_child_f|
-                current_child_f.input :gender,
-                                      as: :radio,
-                                      collection: child_gender_select_collection
-                current_child_f.input :should_contact_parent1
-                current_child_f.input :should_contact_parent2
-              end
-            end
             tab 'Historique' do
               render 'admin/events/history', events: f.object.parent_events.order(occurred_at: :desc).decorate
             end
-          end
-          tab 'Notes' do
-            f.input :notes, as: :text
           end
         end
       end
@@ -1033,25 +992,10 @@ ActiveAdmin.register ChildSupport do
   ]
   tags_params_attributes = [tags_params]
   parents_available_support_module_list_attributes = [{ parent1_available_support_module_list: [], parent2_available_support_module_list: [] }]
-  parent_attributes = %i[
-    id
-    gender first_name last_name phone_number email book_delivery_location letterbox_name book_delivery_organisation_name address postal_code city_name
-    is_ambassador address_supplement present_on_whatsapp follow_us_on_whatsapp job
-  ]
-  current_child_attributes = [{
-    current_child_attributes: [
-      :id,
-      :gender, :should_contact_parent1, :should_contact_parent2,
-      {
-        parent1_attributes: parent_attributes,
-        parent2_attributes: parent_attributes
-      }
-    ]
-  }]
   children_support_modules_attributes = [{ children_support_modules_attributes: %i[id book_condition] }]
   # block is mandatory here because ChildSupport.call_attributes hits DB
   permit_params do
-    permitted = base_attributes + ChildSupport.call_attributes + current_child_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms tag_list] + parents_available_support_module_list_attributes
+    permitted = base_attributes + ChildSupport.call_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms tag_list] + parents_available_support_module_list_attributes
     permitted += tags_params_attributes unless current_admin_user.caller_or_animator?
     permitted
   end
@@ -1069,14 +1013,16 @@ ActiveAdmin.register ChildSupport do
             if decorated.model.parent1
               render 'parent',
                      parent: decorated.model.parent1.decorate,
-                     should_contact_parent: decorated.should_contact_parent1?
+                     should_contact_parent: decorated.should_contact_parent1?,
+                     child_support_id: nil
             end
           end
           row :parent2 do |decorated|
             if decorated.model.parent2
               render 'parent',
                      parent: decorated.model.parent2.decorate,
-                     should_contact_parent: decorated.should_contact_parent2?
+                     should_contact_parent: decorated.should_contact_parent2?,
+                     child_support_id: nil
             end
           end
           row :children
