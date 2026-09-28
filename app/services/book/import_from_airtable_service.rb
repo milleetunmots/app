@@ -1,5 +1,17 @@
 class Book::ImportFromAirtableService
 
+  # Les liens Airtable sont signés et temporaires : un téléchargement peut
+  # légitimement échouer sans que l'import entier doive s'arrêter. Sur une URL
+  # S3 signée, un délai dépassé ou une URL malformée sont bien plus probables
+  # qu'un refus de connexion.
+  DOWNLOAD_ERRORS = [
+    OpenURI::HTTPError, SocketError, URI::InvalidURIError,
+    Net::OpenTimeout, Net::ReadTimeout, OpenSSL::SSL::SSLError,
+    Errno::ECONNREFUSED, Errno::ETIMEDOUT, Errno::EHOSTUNREACH, Errno::ENETUNREACH,
+    # Conservé en filet : attach ne lève pas, mais d'autres chemins ActiveStorage si.
+    ActiveRecord::RecordInvalid
+  ].freeze
+
   attr_reader :errors
 
   def initialize
@@ -7,7 +19,8 @@ class Book::ImportFromAirtableService
       {
         ean: book['EAN'],
         title: book['Titre du livre'],
-        cover: book['Photo de la couverture'].first,
+        # Array() : tous les livres n'ont pas de couverture renseignée
+        cover: Array(book['Photo de la couverture']).first,
         # Le champ n'est pas renseigné pour tous les livres : Array(nil) => []
         interior_photos: Array(book['Photos intérieures']),
         modules: book['Modules']
@@ -67,13 +80,19 @@ class Book::ImportFromAirtableService
     @book.title = @title
   end
 
+  # Le nom de fichier vient d'Airtable : réduit à son basename, il ne peut pas
+  # désigner un chemin hors de tmp/images. Le nom d'origine reste transmis tel
+  # quel à ActiveStorage, l'affichage n'est pas affecté.
+  def tmp_path(filename)
+    Rails.root.join('tmp/images', File.basename(filename))
+  end
+
   # Télécharge une pièce jointe Airtable dans tmp/images et renvoie son chemin.
   # L'appelant est responsable de la suppression du fichier.
   def download_to_tmp(attachment)
-    save_dir = Rails.root.join('tmp', 'images')
-    FileUtils.mkdir_p(save_dir)
+    FileUtils.mkdir_p(Rails.root.join('tmp/images'))
 
-    file_path = File.join(save_dir, attachment['filename'])
+    file_path = tmp_path(attachment['filename'])
     URI.parse(attachment['url']).open do |remote|
       File.open(file_path, 'wb') do |file|
         file.write(remote.read)
@@ -82,21 +101,37 @@ class Book::ImportFromAirtableService
     file_path
   end
 
+  # Isolée au même titre que les photos intérieures : une couverture en échec
+  # ne doit pas interrompre l'import des livres suivants.
   def update_cover
+    return if @cover.blank?
     return if @book.media&.name == @cover['filename']
 
     @to_save = true
-    file_path = download_to_tmp(@cover)
+    cover = build_cover
+    if cover.save
+      @book.media = cover
+    else
+      @errors[:cover] << cover_error(cover.errors.full_messages.join(', '))
+    end
+  rescue *DOWNLOAD_ERRORS => e
+    @errors[:cover] << cover_error(e.message)
+  ensure
+    FileUtils.rm_f(tmp_path(@cover['filename'])) if @cover.present?
+  end
+
+  def build_cover
     cover = Media::Image.new(name: @cover['filename'])
     cover.file.attach(
-      io: File.open(file_path),
+      io: File.open(download_to_tmp(@cover)),
       filename: @cover['filename'],
       content_type: @cover['type']
     )
-    @errors[:cover] << "Erreur lors de la sauvegarde de l'image #{@book.media&.name}" unless cover.save
+    cover
+  end
 
-    @book.media = cover
-    FileUtils.rm_f(file_path)
+  def cover_error(message)
+    "Couverture #{@cover['filename']} (EAN #{@ean}) : #{message}"
   end
 
   # Airtable fait foi : les photos retirées là-bas sont supprimées ici, les
@@ -122,24 +157,43 @@ class Book::ImportFromAirtableService
     surplus.each(&:purge)
   end
 
+  # La clé ne compare que ce qu'Airtable a annoncé, jamais ce qui a été
+  # téléchargé : le nom est assaini des deux côtés comme le fait ActiveStorage
+  # au stockage, et la taille retenue est celle déclarée, mémorisée sur le blob.
+  # Comparer la taille réelle retéléchargerait à chaque passage dès qu'Airtable
+  # annonce un nombre d'octets différent de ce qu'il sert.
   def airtable_photo_key(photo)
-    [photo['filename'], photo['size']]
+    [ActiveStorage::Filename.new(photo['filename'].to_s).sanitized, photo['size']]
   end
 
   def attached_interior_photos_by_key
-    @book.interior_photos.includes(:blob)
-         .group_by { |attachment| [attachment.blob.filename.to_s, attachment.blob.byte_size] }
+    @book.interior_photos.includes(:blob).group_by do |attachment|
+      # Repli sur la taille réelle pour les photos importées avant cette clé.
+      [attachment.blob.filename.to_s,
+       attachment.blob.metadata['airtable_size'] || attachment.blob.byte_size]
+    end
   end
 
   def attach_interior_photo(photo)
-    file_path = download_to_tmp(photo)
-    @book.interior_photos.attach(
-      io: File.open(file_path),
+    attached = @book.interior_photos.attach(
+      io: File.open(download_to_tmp(photo)),
       filename: photo['filename'],
-      content_type: photo['type']
+      content_type: photo['type'],
+      metadata: { airtable_size: photo['size'] }
     )
+    # attach ne lève pas quand la validation échoue : il renvoie false. Sans ce
+    # contrôle, une photo refusée disparaîtrait sans erreur ni alerte Rollbar.
+    record_photo_error(photo, @book.errors.full_messages.join(', ')) unless attached
+  rescue *DOWNLOAD_ERRORS => e
+    record_photo_error(photo, e.message)
   ensure
-    FileUtils.rm_f(file_path) if file_path
+    # Chemin recalculé plutôt que mémorisé : le fichier doit disparaître même
+    # si le téléchargement s'est interrompu en cours d'écriture.
+    FileUtils.rm_f(tmp_path(photo['filename']))
+  end
+
+  def record_photo_error(photo, message)
+    @errors[:interior_photos] << "Photo #{photo['filename']} (EAN #{@ean}) : #{message}"
   end
 
   def update_support_modules
