@@ -6,6 +6,8 @@ RSpec.describe Book::ImportFromAirtableService do
   # stubbés au niveau HTTP.
   let(:cover_url) { 'https://airtable.test/couverture.jpg' }
   let(:image_body) { File.binread(Dir.glob('db/seed/img/**/*.jpg').first) }
+  # Taille franchement différente : c'est ce qui distingue deux photos de même nom.
+  let(:other_image_body) { File.binread(Dir.glob('db/seed/img/**/*.jpg')[1]) }
   let!(:book) { FactoryBot.create(:book, ean: '1234567890', title: 'Petit ours brun') }
 
   # Les modules sont appariés sur l'airtable_id rapatrié en amont par
@@ -21,6 +23,10 @@ RSpec.describe Book::ImportFromAirtableService do
     stub_request(:get, cover_url).to_return(status: 200, body: image_body)
   end
 
+  def attached_filenames(record)
+    record.reload.interior_photos.map { |photo| photo.blob.filename.to_s }
+  end
+
   def photo_url(filename)
     "https://airtable.test/#{filename}"
   end
@@ -32,15 +38,25 @@ RSpec.describe Book::ImportFromAirtableService do
   end
 
   # interior_photos: :absent => la clé n'existe pas du tout côté Airtable.
-  def stub_airtable(module_record_ids, interior_photos: :absent, ean: book.ean, title: book.title)
-    airtable_book = {
+  def airtable_record(ean:, title:, modules: [], interior_photos: :absent)
+    record = {
       'EAN' => ean,
       'Titre du livre' => title,
       'Photo de la couverture' => [{ 'filename' => 'couverture.jpg', 'url' => cover_url, 'type' => 'image/jpeg' }],
-      'Modules' => module_record_ids
+      'Modules' => modules
     }
-    airtable_book['Photos intérieures'] = interior_photos unless interior_photos == :absent
-    allow(Airtables::Book).to receive(:all).and_return([airtable_book])
+    record['Photos intérieures'] = interior_photos unless interior_photos == :absent
+    record
+  end
+
+  def stub_airtable_records(records)
+    allow(Airtables::Book).to receive(:all).and_return(records)
+  end
+
+  def stub_airtable(module_record_ids, interior_photos: :absent, ean: book.ean, title: book.title)
+    stub_airtable_records(
+      [airtable_record(ean: ean, title: title, modules: module_record_ids, interior_photos: interior_photos)]
+    )
   end
 
   it 'rattache au livre les modules appariés sur Airtable' do
@@ -82,10 +98,6 @@ RSpec.describe Book::ImportFromAirtableService do
   end
 
   describe 'photos intérieures' do
-    def attached_filenames(record)
-      record.reload.interior_photos.map { |photo| photo.blob.filename.to_s }
-    end
-
     it 'télécharge et rattache les photos intérieures du livre' do
       stub_airtable(['recAAA'],
                     interior_photos: [airtable_photo('interieur-1.jpg'), airtable_photo('interieur-2.jpg')])
@@ -148,6 +160,91 @@ RSpec.describe Book::ImportFromAirtableService do
 
       expect(File).not_to exist(Rails.root.join('tmp/images/interieur-1.jpg'))
       expect(File).not_to exist(Rails.root.join('tmp/images/couverture.jpg'))
+    end
+  end
+
+  describe 'resynchronisation des photos intérieures' do
+    it "supprime de la base une photo retirée d'Airtable" do
+      stub_airtable(['recAAA'],
+                    interior_photos: [airtable_photo('interieur-1.jpg'), airtable_photo('interieur-2.jpg')])
+      described_class.new.call
+      expect(attached_filenames(book)).to contain_exactly('interieur-1.jpg', 'interieur-2.jpg')
+
+      stub_airtable(['recAAA'], interior_photos: [airtable_photo('interieur-1.jpg')])
+      described_class.new.call
+
+      expect(attached_filenames(book)).to contain_exactly('interieur-1.jpg')
+    end
+
+    it 'télécharge une photo ajoutée dans Airtable' do
+      stub_airtable(['recAAA'], interior_photos: [airtable_photo('interieur-1.jpg')])
+      described_class.new.call
+
+      stub_airtable(['recAAA'],
+                    interior_photos: [airtable_photo('interieur-1.jpg'), airtable_photo('interieur-2.jpg')])
+      described_class.new.call
+
+      expect(attached_filenames(book)).to contain_exactly('interieur-1.jpg', 'interieur-2.jpg')
+    end
+
+    # Garde-fou : sans clé d'identité fiable, le job nocturne retéléchargerait
+    # toutes les photos de tous les livres à chaque passage.
+    it "ne retélécharge rien lors d'un second passage identique" do
+      stub_airtable(['recAAA'],
+                    interior_photos: [airtable_photo('interieur-1.jpg'), airtable_photo('interieur-2.jpg')])
+
+      described_class.new.call
+      described_class.new.call
+
+      expect(a_request(:get, photo_url('interieur-1.jpg'))).to have_been_made.once
+      expect(a_request(:get, photo_url('interieur-2.jpg'))).to have_been_made.once
+      expect(book.reload.interior_photos.count).to eq(2)
+    end
+
+    it 'retélécharge une photo de même nom mais de taille différente' do
+      stub_airtable(['recAAA'], interior_photos: [airtable_photo('interieur-1.jpg')])
+      described_class.new.call
+      expect(book.reload.interior_photos.first.blob.byte_size).to eq(image_body.bytesize)
+
+      stub_airtable(['recAAA'], interior_photos: [airtable_photo('interieur-1.jpg', body: other_image_body)])
+      described_class.new.call
+
+      expect(book.reload.interior_photos.count).to eq(1)
+      expect(book.reload.interior_photos.first.blob.byte_size).to eq(other_image_body.bytesize)
+    end
+
+    # Un import interrompu puis relancé peut laisser deux fois la même photo.
+    # La clé d'identité ne distinguant pas les exemplaires, il faut purger les
+    # surnuméraires, sans quoi le doublon reste en base indéfiniment.
+    it "purge les exemplaires en double laissés par un import interrompu" do
+      stub_airtable(['recAAA'], interior_photos: [airtable_photo('interieur-1.jpg')])
+      described_class.new.call
+
+      book.interior_photos.attach(
+        io: StringIO.new(image_body), filename: 'interieur-1.jpg', content_type: 'image/jpeg'
+      )
+      expect(book.reload.interior_photos.count).to eq(2)
+
+      described_class.new.call
+
+      expect(attached_filenames(book)).to contain_exactly('interieur-1.jpg')
+    end
+
+    it "ne touche pas aux photos d'un autre livre" do
+      other_book = FactoryBot.create(:book, ean: '9999999999', title: 'Autre livre')
+      stub_airtable_records(
+        [
+          airtable_record(ean: book.ean, title: book.title,
+                          interior_photos: [airtable_photo('interieur-1.jpg')]),
+          airtable_record(ean: other_book.ean, title: other_book.title,
+                          interior_photos: [airtable_photo('interieur-2.jpg')])
+        ]
+      )
+
+      described_class.new.call
+
+      expect(attached_filenames(book)).to contain_exactly('interieur-1.jpg')
+      expect(attached_filenames(other_book)).to contain_exactly('interieur-2.jpg')
     end
   end
 end

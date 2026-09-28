@@ -99,10 +99,36 @@ class Book::ImportFromAirtableService
     FileUtils.rm_f(file_path)
   end
 
+  # Airtable fait foi : les photos retirées là-bas sont supprimées ici, les
+  # nouvelles sont téléchargées, et celles déjà présentes sont laissées telles
+  # quelles — sans quoi le job nocturne retéléchargerait tout chaque nuit.
+  # L'identité d'une photo tient au couple nom de fichier + taille : le nom seul
+  # ne détecterait pas le remplacement d'une photo par une autre de même nom.
   def sync_interior_photos
     return unless @book&.persisted?
 
-    @interior_photos.each { |photo| attach_interior_photo(photo) }
+    desired = @interior_photos.index_by { |photo| airtable_photo_key(photo) }
+    existing = attached_interior_photos_by_key
+
+    existing.each { |key, attachments| purge_surplus(attachments, keep: desired.key?(key)) }
+    (desired.keys - existing.keys).each { |key| attach_interior_photo(desired[key]) }
+  end
+
+  # Airtable ne référence qu'un exemplaire par clé. On purge donc ceux qui n'y
+  # sont plus, et les surnuméraires qu'un import interrompu aurait laissés :
+  # la clé ne les distinguant pas, ils resteraient sinon en base pour toujours.
+  def purge_surplus(attachments, keep:)
+    surplus = keep ? attachments.drop(1) : attachments
+    surplus.each(&:purge)
+  end
+
+  def airtable_photo_key(photo)
+    [photo['filename'], photo['size']]
+  end
+
+  def attached_interior_photos_by_key
+    @book.interior_photos.includes(:blob)
+         .group_by { |attachment| [attachment.blob.filename.to_s, attachment.blob.byte_size] }
   end
 
   def attach_interior_photo(photo)
