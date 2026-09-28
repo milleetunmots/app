@@ -116,6 +116,59 @@ RSpec.describe BlockedSendAttempt do
     end
   end
 
+  describe 'la relance vaut autorisation durable' do
+    it "whiteliste l'URL détectée : le même lien passe ensuite sans blocage" do
+      send_program_message!
+      attempt = BlockedSendAttempt.last
+
+      expect { attempt.relaunch! }.to change(AllowedPattern, :count).by(1)
+
+      expect(AllowedPattern.last).to have_attributes(kind: 'url', match_type: 'exact', value: blocked_url)
+      expect(attempt.whitelisted_values).to eq([blocked_url])
+      expect { send_program_message! }.not_to change(BlockedSendAttempt, :count)
+    end
+
+    it 'ne whiteliste rien quand la relance échoue : la tentative reste à traiter' do
+      attempt = FactoryBot.create(:blocked_send_attempt, replay_params: {})
+
+      expect { attempt.relaunch! }.not_to change(AllowedPattern, :count)
+      expect(attempt.reload.status).to eq('pending')
+      expect(attempt.whitelisted_values).to eq([])
+    end
+
+    # Un message bloqué à la fois sur son URL et sur son numéro produit deux
+    # tentatives : relancer l'une résout l'autre, autoriser l'une doit donc
+    # autoriser l'autre — sinon le numéro rebloquerait le prochain envoi.
+    context 'quand le message a été bloqué sur deux motifs' do
+      around do |example|
+        previous = ENV.fetch('PHONE_NUMBER_FILTER_BLOCKING_ENABLED', nil)
+        ENV['PHONE_NUMBER_FILTER_BLOCKING_ENABLED'] = 'true'
+        example.run
+        ENV['PHONE_NUMBER_FILTER_BLOCKING_ENABLED'] = previous
+      end
+
+      let(:message) { "Cliquez ici : #{blocked_url} ou appelez le 0810 12 34 56" }
+
+      it 'whiteliste aussi les valeurs de la tentative sœur résolue' do
+        expect { send_program_message! }.to change(BlockedSendAttempt, :count).by(2)
+        url_attempt = BlockedSendAttempt.find_by(kind: 'url')
+
+        expect { url_attempt.relaunch! }.to change(AllowedPattern, :count).by(2)
+
+        expect(url_attempt.whitelisted_values).to match_array([blocked_url, '0810123456'])
+        expect(AllowedPattern.exists?(kind: 'phone_number', match_type: 'exact', value: '0810123456')).to be(true)
+        expect(BlockedSendAttempt.find_by(kind: 'phone_number').status).to eq('relaunched')
+      end
+    end
+
+    it 'ne whiteliste pas un mot-clé : le terme reste interdit' do
+      attempt = FactoryBot.create(:blocked_send_attempt, kind: 'keyword', detected_values: ['carte cadeau'])
+
+      expect { attempt.relaunch! }.not_to change(AllowedPattern, :count)
+      expect(attempt.whitelisted_values).to eq([])
+    end
+  end
+
   describe 'un envoi automatique enregistré sans paramètres de relance (replay_params vide)' do
     let(:attempt) { FactoryBot.create(:blocked_send_attempt, replay_params: {}) }
 

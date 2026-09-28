@@ -64,6 +64,7 @@ ActiveAdmin.register BlockedSendAttempt do
       para do
         link_to 'Relancer cet envoi', relaunch_admin_blocked_send_attempt_path(resource), method: :put, class: 'button'
       end
+      para { blocked_send_attempt_relaunch_warning(resource) }
     end
   end
 
@@ -80,7 +81,9 @@ ActiveAdmin.register BlockedSendAttempt do
     if errors.any?
       redirect_to admin_blocked_send_attempt_path(resource), alert: "La relance a échoué : #{errors.to_sentence}"
     else
-      redirect_to admin_blocked_send_attempt_path(resource), notice: "L'envoi a été relancé."
+      notice = "L'envoi a été relancé."
+      notice += " Valeurs ajoutées aux patterns autorisés : #{resource.whitelisted_values.to_sentence}." if resource.whitelisted_values.any?
+      redirect_to admin_blocked_send_attempt_path(resource), notice: notice
     end
   end
 end

@@ -12,6 +12,7 @@ RSpec.describe 'Admin blocked send attempts', type: :request do
 
       get "/admin/blocked_send_attempts/#{attempt.id}"
       expect(response.body).to include('Relancer cet envoi')
+      expect(response.body).to include('ajoute les valeurs détectées aux patterns autorisés')
     end
 
     it 'relance une tentative et la marque comme relancée' do
@@ -24,6 +25,34 @@ RSpec.describe 'Admin blocked send attempts', type: :request do
 
       expect(attempt.reload.status).to eq('relaunched')
       expect(attempt.resolved_at).to be_present
+    end
+
+    it 'annonce les valeurs ajoutées aux patterns autorisés' do
+      attempt = FactoryBot.create(:blocked_send_attempt)
+      service = instance_double(ProgramMessageService, errors: [])
+      allow(ProgramMessageService).to receive(:new).and_return(service)
+      allow(service).to receive(:call).and_return(service)
+
+      put "/admin/blocked_send_attempts/#{attempt.id}/relaunch"
+
+      follow_redirect!
+      expect(response.body).to include('Valeurs ajoutées aux patterns autorisés')
+      expect(response.body).to include('non-whitelisted.example.com/page')
+      expect(AllowedPattern.exists?(kind: 'url', match_type: 'exact')).to be(true)
+    end
+
+    it 'ne parle pas de patterns autorisés pour un mot-clé, qui reste interdit' do
+      attempt = FactoryBot.create(:blocked_send_attempt, kind: 'keyword', detected_values: ['carte cadeau'])
+      service = instance_double(ProgramMessageService, errors: [])
+      allow(ProgramMessageService).to receive(:new).and_return(service)
+      allow(service).to receive(:call).and_return(service)
+
+      put "/admin/blocked_send_attempts/#{attempt.id}/relaunch"
+
+      follow_redirect!
+      expect(response.body).to include('envoi a été relancé.')
+      expect(response.body).not_to include('Valeurs ajoutées aux patterns autorisés')
+      expect(AllowedPattern.count).to eq(0)
     end
 
     it "laisse la tentative en attente et affiche l'erreur quand la relance échoue" do

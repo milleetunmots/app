@@ -36,6 +36,12 @@ class BlockedSendAttempt < ApplicationRecord
   scope :relaunched, -> { where(status: 'relaunched') }
   scope :not_blocked, -> { where(status: 'not_blocked') }
 
+  # Valeurs ajoutées à la whitelist par la dernière relance, pour en rendre compte
+  # à l'admin : vide tant que relaunch! n'a pas abouti, et pour un mot-clé.
+  def whitelisted_values
+    @whitelisted_values ||= []
+  end
+
   # Les envois automatiques (Child::CreateService, SendCalendlyReminderJob…)
   # enregistrent leur tentative avec replay_params vide : le replayer rappellerait
   # ProgramMessageService avec des nils et planterait.
@@ -57,7 +63,10 @@ class BlockedSendAttempt < ApplicationRecord
     return service if service.errors.any? # échec pour une autre raison : statut inchangé
 
     update!(status: 'relaunched', resolved_at: Time.zone.now)
-    resolve_other_attempts_for_same_message!
+    siblings = resolve_other_attempts_for_same_message!
+    # Après le replay seulement : si l'envoi avait échoué, la tentative reste à
+    # traiter et la whitelist ne doit pas en garder la trace.
+    @whitelisted_values = DetectedValuesWhitelister.new([self] + siblings).call
     service
   end
 
@@ -66,10 +75,16 @@ class BlockedSendAttempt < ApplicationRecord
   # Un même message peut être tracé deux fois (une URL ET un mot-clé détectés) :
   # la relance l'a envoyé une bonne fois pour toutes, l'autre tentative ne doit
   # pas rester « à traiter » indéfiniment.
+  #
+  # Les tentatives résolues sont renvoyées : leurs valeurs détectées sont
+  # whitelistées avec celles de la tentative relancée, sans quoi le numéro d'un
+  # message autorisé pour son URL serait rebloqué au prochain envoi.
   def resolve_other_attempts_for_same_message!
-    self.class.pending
-        .where(provider: provider, message_body: message_body, replay_params: replay_params)
-        .where.not(id: id)
-        .find_each { |attempt| attempt.update(status: 'relaunched', resolved_at: Time.zone.now) }
+    siblings = self.class.pending
+                   .where(provider: provider, message_body: message_body, replay_params: replay_params)
+                   .where.not(id: id)
+                   .to_a
+    siblings.each { |attempt| attempt.update(status: 'relaunched', resolved_at: Time.zone.now) }
+    siblings
   end
 end
