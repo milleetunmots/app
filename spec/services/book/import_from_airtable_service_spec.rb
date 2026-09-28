@@ -31,6 +31,12 @@ RSpec.describe Book::ImportFromAirtableService do
     "https://airtable.test/#{filename}"
   end
 
+  # Pièce jointe dont le téléchargement échoue.
+  def failing_airtable_photo(filename, status: 404)
+    stub_request(:get, photo_url(filename)).to_return(status: status)
+    { 'filename' => filename, 'url' => photo_url(filename), 'type' => 'image/jpeg', 'size' => 1234 }
+  end
+
   # Façonne une pièce jointe Airtable et stubbe son téléchargement.
   def airtable_photo(filename, body: image_body)
     stub_request(:get, photo_url(filename)).to_return(status: 200, body: body)
@@ -38,13 +44,17 @@ RSpec.describe Book::ImportFromAirtableService do
   end
 
   # interior_photos: :absent => la clé n'existe pas du tout côté Airtable.
-  def airtable_record(ean:, title:, modules: [], interior_photos: :absent)
+  def airtable_record(ean:, title:, modules: [], interior_photos: :absent, cover: :default)
     record = {
       'EAN' => ean,
       'Titre du livre' => title,
-      'Photo de la couverture' => [{ 'filename' => 'couverture.jpg', 'url' => cover_url, 'type' => 'image/jpeg' }],
       'Modules' => modules
     }
+    if cover == :default
+      record['Photo de la couverture'] = [{ 'filename' => 'couverture.jpg', 'url' => cover_url, 'type' => 'image/jpeg' }]
+    elsif cover != :absent
+      record['Photo de la couverture'] = cover
+    end
     record['Photos intérieures'] = interior_photos unless interior_photos == :absent
     record
   end
@@ -53,9 +63,10 @@ RSpec.describe Book::ImportFromAirtableService do
     allow(Airtables::Book).to receive(:all).and_return(records)
   end
 
-  def stub_airtable(module_record_ids, interior_photos: :absent, ean: book.ean, title: book.title)
+  def stub_airtable(module_record_ids, interior_photos: :absent, ean: book.ean, title: book.title, cover: :default)
     stub_airtable_records(
-      [airtable_record(ean: ean, title: title, modules: module_record_ids, interior_photos: interior_photos)]
+      [airtable_record(ean: ean, title: title, modules: module_record_ids,
+                       interior_photos: interior_photos, cover: cover)]
     )
   end
 
@@ -216,7 +227,7 @@ RSpec.describe Book::ImportFromAirtableService do
     # Un import interrompu puis relancé peut laisser deux fois la même photo.
     # La clé d'identité ne distinguant pas les exemplaires, il faut purger les
     # surnuméraires, sans quoi le doublon reste en base indéfiniment.
-    it "purge les exemplaires en double laissés par un import interrompu" do
+    it 'purge les exemplaires en double laissés par un import interrompu' do
       stub_airtable(['recAAA'], interior_photos: [airtable_photo('interieur-1.jpg')])
       described_class.new.call
 
@@ -245,6 +256,173 @@ RSpec.describe Book::ImportFromAirtableService do
 
       expect(attached_filenames(book)).to contain_exactly('interieur-1.jpg')
       expect(attached_filenames(other_book)).to contain_exactly('interieur-2.jpg')
+    end
+  end
+
+  describe 'robustesse des téléchargements' do
+    # Une photo en échec ne doit compromettre ni les autres photos du livre,
+    # ni les livres suivants : l'import nocturne irait sinon droit dans le mur
+    # au premier lien Airtable expiré.
+    it "consigne l'erreur et poursuit quand une photo est introuvable" do
+      stub_airtable(['recAAA'],
+                    interior_photos: [failing_airtable_photo('absente.jpg'), airtable_photo('interieur-1.jpg')])
+
+      service = described_class.new.call
+
+      expect(service.errors[:interior_photos].size).to eq(1)
+      expect(attached_filenames(book)).to contain_exactly('interieur-1.jpg')
+    end
+
+    it "identifie le livre et le fichier dans le message d'erreur" do
+      stub_airtable(['recAAA'], interior_photos: [failing_airtable_photo('absente.jpg')])
+
+      service = described_class.new.call
+
+      expect(service.errors[:interior_photos].first).to include('absente.jpg').and include(book.ean)
+    end
+
+    it 'traite les livres suivants malgré une photo en échec' do
+      other_book = FactoryBot.create(:book, ean: '9999999999', title: 'Autre livre')
+      stub_airtable_records(
+        [
+          airtable_record(ean: book.ean, title: book.title,
+                          interior_photos: [failing_airtable_photo('absente.jpg')]),
+          airtable_record(ean: other_book.ean, title: other_book.title,
+                          interior_photos: [airtable_photo('interieur-2.jpg')])
+        ]
+      )
+
+      described_class.new.call
+
+      expect(attached_filenames(other_book)).to contain_exactly('interieur-2.jpg')
+    end
+
+    it 'ne laisse aucun fichier temporaire après un échec' do
+      stub_airtable(['recAAA'], interior_photos: [failing_airtable_photo('absente.jpg')])
+
+      described_class.new.call
+
+      expect(File).not_to exist(Rails.root.join('tmp/images/absente.jpg'))
+    end
+  end
+
+  describe 'défenses aux frontières' do
+    # C1 — le nom de fichier vient d'une API externe : il ne doit jamais
+    # pouvoir désigner un chemin hors de tmp/images.
+    it 'ne sort pas de tmp/images quand Airtable renvoie un chemin relatif' do
+      stub_request(:get, photo_url('evil')).to_return(status: 200, body: image_body)
+      evil = { 'filename' => '../../../evil_payload.jpg', 'url' => photo_url('evil'),
+               'type' => 'image/jpeg', 'size' => image_body.bytesize }
+      stub_airtable(['recAAA'], interior_photos: [evil])
+
+      described_class.new.call
+
+      # Le fichier temporaire étant effacé en fin de traitement, constater son
+      # absence ne prouverait rien : c'est le chemin calculé qu'on vérifie.
+      resolved = described_class.allocate.send(:tmp_path, '../../../evil_payload.jpg')
+      expect(resolved.to_s).to start_with(Rails.root.join('tmp/images').to_s)
+      expect(book.reload.interior_photos.count).to eq(1)
+    end
+
+    # R1 — attach ne lève pas quand la validation échoue, il renvoie false.
+    # Sans contrôle du retour, la photo disparaît sans la moindre trace.
+    it 'consigne une erreur quand le type de contenu est refusé' do
+      stub_request(:get, photo_url('doc.pdf')).to_return(status: 200, body: '%PDF-1.4 faux')
+      pdf = { 'filename' => 'doc.pdf', 'url' => photo_url('doc.pdf'),
+              'type' => 'application/pdf', 'size' => 13 }
+      stub_airtable(['recAAA'], interior_photos: [pdf])
+
+      service = described_class.new.call
+
+      expect(service.errors[:interior_photos].size).to eq(1)
+      expect(service.errors[:interior_photos].first).to include('doc.pdf')
+      expect(book.reload.interior_photos).to be_empty
+    end
+
+    # R2 — un délai dépassé est bien plus probable qu'un refus de connexion
+    # sur une URL S3 signée ; il ne doit pas avorter l'import.
+    it 'consigne une erreur et poursuit quand le téléchargement expire' do
+      stub_request(:get, photo_url('lente.jpg')).to_timeout
+      slow = { 'filename' => 'lente.jpg', 'url' => photo_url('lente.jpg'),
+               'type' => 'image/jpeg', 'size' => 10 }
+      stub_airtable(['recAAA'], interior_photos: [slow, airtable_photo('interieur-1.jpg')])
+
+      service = described_class.new.call
+
+      expect(service.errors[:interior_photos].size).to eq(1)
+      expect(attached_filenames(book)).to contain_exactly('interieur-1.jpg')
+    end
+
+    it "consigne une erreur quand l'URL Airtable est malformée" do
+      broken = { 'filename' => 'cassee.jpg', 'url' => 'http://exa mple.test/cassee.jpg',
+                 'type' => 'image/jpeg', 'size' => 10 }
+      stub_airtable(['recAAA'], interior_photos: [broken])
+
+      service = described_class.new.call
+
+      expect(service.errors[:interior_photos].size).to eq(1)
+      expect(book.reload.interior_photos).to be_empty
+    end
+  end
+
+  describe 'confiance accordée à Airtable' do
+    # Point 1 — une couverture en échec ne doit pas emporter tout l'import.
+    it "consigne l'erreur et poursuit quand la couverture est introuvable" do
+      stub_request(:get, cover_url).to_return(status: 404)
+      other_book = FactoryBot.create(:book, ean: '9999999999', title: 'Autre livre')
+      stub_airtable_records(
+        [
+          airtable_record(ean: book.ean, title: book.title),
+          airtable_record(ean: other_book.ean, title: other_book.title,
+                          interior_photos: [airtable_photo('interieur-2.jpg')])
+        ]
+      )
+
+      service = described_class.new.call
+
+      expect(service.errors[:cover].size).to eq(2)
+      expect(service.errors[:cover].first).to include(book.ean)
+      expect(attached_filenames(other_book)).to contain_exactly('interieur-2.jpg')
+    end
+
+    it "n'échoue pas quand le livre n'a aucune couverture dans Airtable" do
+      stub_airtable(['recAAA'], cover: :absent,
+                                interior_photos: [airtable_photo('interieur-1.jpg')])
+
+      service = described_class.new.call
+
+      expect(service.errors[:cover]).to be_empty
+      expect(attached_filenames(book)).to contain_exactly('interieur-1.jpg')
+    end
+
+    # Point 2 — ActiveStorage réécrit certains noms au stockage ; la clé doit
+    # comparer ce qui est comparable, sans quoi la photo revient chaque nuit.
+    it 'ne retélécharge pas une photo dont le nom est réécrit au stockage' do
+      stub_request(:get, photo_url('weird')).to_return(status: 200, body: image_body)
+      weird = { 'filename' => '../../interieur.jpg', 'url' => photo_url('weird'),
+                'type' => 'image/jpeg', 'size' => image_body.bytesize }
+      stub_airtable(['recAAA'], interior_photos: [weird])
+
+      described_class.new.call
+      described_class.new.call
+
+      expect(a_request(:get, photo_url('weird'))).to have_been_made.once
+      expect(book.reload.interior_photos.count).to eq(1)
+    end
+
+    # Point 3 — le vrai risque : la taille annoncée ne correspond pas aux
+    # octets servis. Sans garde, tout est retéléchargé chaque nuit en silence.
+    it 'ne retélécharge pas quand la taille annoncée diffère des octets servis' do
+      stub_request(:get, photo_url('interieur-1.jpg')).to_return(status: 200, body: image_body)
+      mismatched = { 'filename' => 'interieur-1.jpg', 'url' => photo_url('interieur-1.jpg'),
+                     'type' => 'image/jpeg', 'size' => 999_999 }
+      stub_airtable(['recAAA'], interior_photos: [mismatched])
+
+      described_class.new.call
+      described_class.new.call
+
+      expect(a_request(:get, photo_url('interieur-1.jpg'))).to have_been_made.once
+      expect(book.reload.interior_photos.count).to eq(1)
     end
   end
 end

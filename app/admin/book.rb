@@ -86,6 +86,9 @@ ActiveAdmin.register Book do
       row :file do |decorated|
         decorated.cover_link_tag(max_height: '500px')
       end
+      row :interior_photos do |decorated|
+        decorated.interior_photos_tags(max_height: '200px')
+      end
     end
   end
 end
