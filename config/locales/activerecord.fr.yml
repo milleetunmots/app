@@ -121,6 +121,7 @@ fr:
         title: Titre
         book_support_modules: Modules
         file: Couverture
+        interior_photos: Photos intérieures
       child:
         << : *SHARED
         address: Adresse
