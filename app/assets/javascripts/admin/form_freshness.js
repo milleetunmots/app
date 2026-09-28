@@ -28,9 +28,9 @@
   // rempart.
   const EDIT_CHECK_THROTTLE_MS = 10000;
 
-  const STALE_MESSAGE_PREFIX = 'Cette fiche a été modifiée ailleurs. Ce que vous voyez n’est ' +
+  const STALE_MESSAGE_PREFIX = 'Cette fiche a été modifiée dans un autre onglet. Ce que vous voyez n\'est ' +
     'plus à jour.\n\n' +
-    'OK pour actualiser (votre saisie en cours sera perdue), ';
+    'Cliquez sur "OK" pour actualiser : Attention, votre saisie en cours sera perdue.\n';
 
   // Deux moments, deux conséquences : à la saisie rien n'est encore parti, alors
   // qu'au moment de l'envoi l'écrasement est immédiat. Un message unique
@@ -39,15 +39,15 @@
   // même vérification sert la frappe et l'envoi, et c'est l'envoi qui doit
   // dicter ce qu'on annonce.
   const STALE_MESSAGE_ON_EDIT = STALE_MESSAGE_PREFIX +
-    'Annuler pour continuer : votre enregistrement écrasera la modification faite ailleurs.';
+    'Cliquez sur "Annuler" pour conserver votre saisie : Attention, en enregistrant, vous remplacerez l\'autre modification.';
 
   const STALE_MESSAGE_ON_SUBMIT = STALE_MESSAGE_PREFIX +
-    'Annuler pour enregistrer quand même : la modification faite ailleurs sera écrasée.';
+    'Cliquez sur "Annuler" pour enrégistrer quand même votre saisie : Attention, en enregistrant, vous remplacerez l\'autre modification.';
 
   // Formulé pour rester vrai avant comme après l'enregistrement qui écrase :
   // le bandeau est une trace, pas une alerte en attente.
   const NOTICE_MESSAGE = 'Vous avez choisi de poursuivre malgré une modification faite ' +
-    'ailleurs : vos enregistrements l’écrasent.';
+    'dans un autre onglet : vos enregistrements l’écrasent.';
 
 
   // ---------------------------------------------------------------------------

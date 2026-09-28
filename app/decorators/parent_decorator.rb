@@ -7,16 +7,21 @@ class ParentDecorator < BaseDecorator
 
   def admin_link(options = {})
     child_support_id = options.delete(:child_support_id)
-    admin_link = super(options.merge(class: GENDER_COLORS[model.gender.to_sym]))
-    return admin_link if child_support_id.blank?
+    link_options = options.merge(class: GENDER_COLORS[model.gender.to_sym])
+    return super(link_options) if child_support_id.blank?
 
+    # Le nom est isolé dans un span sécable : lui seul peut se couper en bout de
+    # ligne, les icônes restent solidaires du dernier fragment (cf. cards.sass).
+    name_link = super(link_options.merge(label: h.content_tag(:span, name, class: 'name-text')))
     icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil')
-    admin_link +
-      h.link_to(
-        icon,
-        h.edit_admin_parent_path(model, back_to_child_support_id: child_support_id),
-        class: 'js-save-before-leave'
-      )
+    h.content_tag(:span, class: 'name-with-edit') do
+      name_link +
+        h.link_to(
+          icon,
+          h.edit_admin_parent_path(model, back_to_child_support_id: child_support_id),
+          class: 'js-save-before-leave'
+        )
+    end
   end
 
   def children

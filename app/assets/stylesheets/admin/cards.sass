@@ -2,6 +2,17 @@
   position: relative
   margin-bottom: 10px
 
+  // Les icônes (genre, SMS, livre, crayon) doivent rester sur la ligne du nom :
+  // le nowrap du conteneur supprime toute coupure, y compris entre les deux
+  // liens. Seul le texte du nom réautorise le retour à la ligne, avec coupure
+  // arbitraire pour les noms d'un seul mot qui déborderaient de la colonne.
+  .name-with-edit
+    white-space: nowrap
+
+    .name-text
+      white-space: normal
+      overflow-wrap: break-word
+
   &.card-parent
     .should-be-contacted, .is-ambassador
       display: inline-block
