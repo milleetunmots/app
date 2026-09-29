@@ -112,14 +112,21 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
         end
       end
 
-      # Le 3119 d'un UUID Calendly est entouré de tirets, des bornes valides pour
-      # SHORT_PHONE_REGEX : sans élargissement au token complet, chaque lien
-      # {CALLx_CALENDLY_LINK} envoyé en masse remontait comme numéro court.
-      it 'ne confond pas un identifiant technique avec un numéro' do
+      # Le 3119 d'un UUID Calendly est bordé de tirets, et le 0612345678 d'une
+      # query string de « ? » et « = » : autant de bornes valides pour les regex
+      # de numéros. Chaque lien {CALLx_CALENDLY_LINK} envoyé en masse remontait
+      # ainsi comme numéro court. On neutralise les liens avant le scan.
+      it 'ne lit pas de numéro dans un lien, quelle que soit sa forme' do
         [
           'Annulez ici : https://calendly.com/cancellations/ff026f26-3119-4abf-be26-fa1c63353d53',
-          'Votre commande REF-3119-AB est prête',
-          'Voir https://exemple.fr/page/3119'
+          'Voir https://exemple.fr/page/3119',
+          'Voir https://exemple.fr/page?ref=3119',
+          'Voir https://exemple.fr/page?id=0612345678&utm_source=sms',
+          'Voir https://exemple.fr/doc.0612345678',
+          'Voir https://exemple.fr/page#0612345678',
+          'Voir https://exemple.fr/2024/06/0612345678',
+          'Voir www.exemple.fr/3119',
+          'Voir exemple.fr/p/0612345678'
         ].each do |text|
           guard = described_class.new(text, provider: 'spothit')
 
@@ -127,8 +134,32 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
         end
       end
 
-      # Les tirets restent une graphie humaine courante : seule la présence d'une
-      # lettre dans le token disqualifie le candidat.
+      # Hors lien, une référence technique enchaîne des segments alphanumériques
+      # des deux côtés du nombre.
+      it 'ne confond pas une référence technique avec un numéro' do
+        guard = described_class.new('Votre commande REF-3119-AB est prête', provider: 'spothit')
+
+        expect(guard.blocked_phone_numbers).to eq([])
+      end
+    end
+
+    # Écarter tout candidat bordé d'une lettre ouvrirait un contournement trivial
+    # du filtre : en français, un tiret colle couramment un mot à un nombre.
+    context 'faux négatifs' do
+      it "retient un numéro accolé à un mot par un tiret" do
+        {
+          'Urgence-3949' => ['3949'],
+          'contact-0612345678' => ['0612345678'],
+          '0612345678-bis' => ['0612345678'],
+          'Appelez-moi-0612345678' => ['0612345678']
+        }.each do |text, expected|
+          guard = described_class.new(text, provider: 'spothit')
+
+          expect(guard.blocked_phone_numbers).to eq(expected), "faux négatif pour : #{text.inspect}"
+        end
+      end
+
+      # Les tirets restent une graphie humaine courante.
       it 'retient un numéro écrit avec des tirets' do
         guard = described_class.new('Appelez le 06-12-34-56-78', provider: 'spothit')
 

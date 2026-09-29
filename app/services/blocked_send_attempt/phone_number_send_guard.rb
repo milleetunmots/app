@@ -21,13 +21,18 @@ class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGua
   IDENTIFIER_CONTEXT_LENGTH = 16
   PHONE_DIGIT_COUNT = (7..15)
 
-  # Un identifiant technique (UUID d'un lien Calendly, référence produit, segment de
-  # chemin d'URL) enchaîne chiffres et lettres autour de tirets et de slashs : la suite
-  # de chiffres qu'on y lit n'est pas un numéro. Une lettre dans le token qui entoure le
-  # match suffit à l'écarter — même principe que les bornes alphanumériques des regex
-  # ci-dessus, étendu aux séparateurs qui soudent un identifiant.
-  TOKEN_PREFIX_REGEX = %r{[[:alnum:]_/-]*\z}
-  TOKEN_SUFFIX_REGEX = %r{\A[[:alnum:]_/-]*}
+  # Hors lien, un identifiant technique (référence produit « REF-3119-AB »)
+  # enchaîne des segments alphanumériques des DEUX côtés du nombre. Exiger les
+  # deux bornes est essentiel : « Urgence-3949 », « contact-0612345678 » ou
+  # « 0612345678-bis » ne sont que de la prose, et les écarter ouvrirait un
+  # contournement trivial du filtre.
+  PRECEDING_SEGMENT_REGEX = /(?<![[:alnum:]])[[:alnum:]]+[_-]\z/
+  FOLLOWING_SEGMENT_REGEX = /\A[_-][[:alnum:]]+(?![[:alnum:]])/
+  TOKEN_CONTEXT_LENGTH = 24
+
+  # Caractère de masquage des liens : hors [[:alnum:]] et hors des classes des
+  # deux regex ci-dessus, pour ne créer aucun candidat et ne casser aucune borne.
+  URL_MASK_CHAR = '·'.freeze
 
   def self.blocking_enabled?
     ENV['PHONE_NUMBER_FILTER_BLOCKING_ENABLED'].present?
@@ -59,16 +64,29 @@ class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGua
 
   private
 
-  # On retient la forme canonique et non la graphie d'origine : un même numéro
-  # écrit de plusieurs façons dans un message ne doit produire qu'une seule
-  # valeur détectée.
+  # Les chiffres qu'on lit dans un lien (segment de chemin, UUID Calendly, valeur
+  # de query string, fragment) ne sont jamais un numéro à composer, et le lien
+  # lui-même est déjà contrôlé par UrlSendGuard. On les masque donc en amont
+  # plutôt que d'inspecter le voisinage de chaque match : une seule passe
+  # linéaire, là où lire le contexte coûtait une copie du texte entier par match —
+  # sur un envoi de masse, scannable_text pèse plusieurs centaines de Ko.
+  # Le masque garde la longueur de l'url pour préserver les offsets.
+  def scannable_text
+    @phone_scannable_text ||= super.gsub(BlockedSendAttempt::UrlSendGuard::URL_REGEX) do |url|
+      URL_MASK_CHAR * url.length
+    end
+  end
+
   def scan_candidates
     (scan_long_phone_numbers + scan_short_phone_numbers).uniq
   end
 
+  # On retient la forme canonique et non la graphie d'origine : un même numéro
+  # écrit de plusieurs façons dans un message ne doit produire qu'une seule
+  # valeur détectée.
   def scan_long_phone_numbers
     matches_for(PHONE_CANDIDATE_REGEX).filter_map do |raw, from, to|
-      next if technical_identifier_context?(from, to)
+      next if technical_identifier?(from, to)
       next if identifier_context?(from)
       next unless PHONE_DIGIT_COUNT.cover?(raw.count('0-9'))
       next unless Phonelib.parse(raw).valid?
@@ -79,14 +97,14 @@ class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGua
 
   def scan_short_phone_numbers
     matches_for(SHORT_PHONE_REGEX).filter_map do |raw, from, to|
-      next if technical_identifier_context?(from, to)
+      next if technical_identifier?(from, to)
 
       PhoneNormalizationConcern.canonical(raw)
     end
   end
 
   # String#scan ne fournit pas directement les offsets, nécessaires pour lire le
-  # contexte précédant un ISBN/EAN. On capture le MatchData avant que Phonelib
+  # contexte entourant le match. On capture le MatchData avant que Phonelib
   # n'exécute ses propres expressions régulières.
   def matches_for(regex)
     scannable_text.to_enum(:scan, regex).map do
@@ -96,16 +114,24 @@ class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGua
   end
 
   def identifier_context?(offset)
-    from = [offset - IDENTIFIER_CONTEXT_LENGTH, 0].max
-    scannable_text[from...offset].match?(IDENTIFIER_LABEL_REGEX)
+    scannable_text[context_before(offset, IDENTIFIER_CONTEXT_LENGTH)...offset].match?(IDENTIFIER_LABEL_REGEX)
   end
 
-  # On élargit le match à son token complet (tirets et slashs compris) : une lettre
-  # dans ce voisinage signe un identifiant technique, pas un numéro de téléphone.
-  def technical_identifier_context?(from, to)
-    prefix = scannable_text[0...from].to_s[TOKEN_PREFIX_REGEX]
-    suffix = scannable_text[to..].to_s[TOKEN_SUFFIX_REGEX]
+  # Fenêtres bornées des deux côtés, comme identifier_context? : jamais de slice
+  # sur l'intégralité du texte scanné.
+  def technical_identifier?(from, to)
+    before = scannable_text[context_before(from, TOKEN_CONTEXT_LENGTH)...from].to_s[PRECEDING_SEGMENT_REGEX]
+    return false if before.blank?
 
-    "#{prefix}#{suffix}".match?(/[[:alpha:]]/)
+    after = scannable_text[to, TOKEN_CONTEXT_LENGTH].to_s[FOLLOWING_SEGMENT_REGEX]
+    return false if after.blank?
+
+    # Une suite de nombres tirets-séparés (une date, un horaire) n'est pas un
+    # identifiant : on exige une lettre dans l'un des segments adjacents.
+    "#{before}#{after}".match?(/[[:alpha:]]/)
+  end
+
+  def context_before(offset, length)
+    [offset - length, 0].max
   end
 end

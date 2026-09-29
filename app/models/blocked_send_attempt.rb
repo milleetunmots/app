@@ -84,7 +84,10 @@ class BlockedSendAttempt < ApplicationRecord
                    .where(provider: provider, message_body: message_body, replay_params: replay_params)
                    .where.not(id: id)
                    .to_a
-    siblings.each { |attempt| attempt.update(status: 'relaunched', resolved_at: Time.zone.now) }
-    siblings
+    # `update` et non `update!` : le message est déjà parti, l'échec d'une trace
+    # ne doit pas le faire remonter en erreur. Seules les sœurs réellement
+    # résolues sont renvoyées : whitelister les valeurs d'une tentative restée
+    # « à traiter » autoriserait un contenu que personne n'a validé.
+    siblings.select { |attempt| attempt.update(status: 'relaunched', resolved_at: Time.zone.now) }
   end
 end

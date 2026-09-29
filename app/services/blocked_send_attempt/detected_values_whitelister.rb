@@ -8,6 +8,18 @@ class BlockedSendAttempt::DetectedValuesWhitelister
   # douce depuis un écran qui ne la nomme même pas.
   MATCH_TYPE_BY_KIND = { 'url' => 'exact', 'phone_number' => 'exact' }.freeze
 
+  # Un envoi de masse produit une valeur détectée PAR DESTINATAIRE (cf.
+  # UrlSendGuard#blocked_urls) : whitelister en bloc créerait des centaines de
+  # lignes, chacune avec sa requête d'unicité, en plein cycle HTTP. Au-delà du
+  # plafond on n'autorise rien et on le signale : c'est un pattern `domain`
+  # saisi à la main qu'il faut, pas des centaines de patterns `exact`.
+  MAX_VALUES = 25
+
+  # Un lien personnalisé (UUID Calendly, query string de suivi) est unique par
+  # destinataire : le whitelister en `exact` crée une ligne morte qui ne matchera
+  # plus jamais. L'admin créera un pattern `domain` s'il veut autoriser la source.
+  PER_RECIPIENT_URL_REGEX = /\h{8}-\h{4}-\h{4}-\h{4}-\h{12}|[?#]/
+
   def initialize(attempts)
     @attempts = Array(attempts)
   end
@@ -15,20 +27,38 @@ class BlockedSendAttempt::DetectedValuesWhitelister
   # Renvoie les valeurs réellement ajoutées, pour que l'admin sache ce que sa
   # relance vient d'autoriser.
   def call
-    @attempts.flat_map { |attempt| whitelist_attempt(attempt) }.uniq
+    candidates = @attempts.flat_map { |attempt| candidates_for(attempt) }.uniq
+    return [] if candidates.empty?
+    return [] if too_many?(candidates)
+
+    candidates.filter_map { |kind, value| create_pattern(kind, value) }
   end
 
   private
 
-  def whitelist_attempt(attempt)
-    match_type = MATCH_TYPE_BY_KIND[attempt.kind]
-    return [] if match_type.blank?
+  def candidates_for(attempt)
+    return [] if MATCH_TYPE_BY_KIND[attempt.kind].blank?
 
-    attempt.detected_values.filter_map { |value| create_pattern(attempt.kind, match_type, value) }
+    attempt.detected_values.filter_map do |value|
+      whitelistable = whitelistable_value(attempt.kind, value)
+      next if attempt.kind == 'url' && whitelistable.match?(PER_RECIPIENT_URL_REGEX)
+
+      [attempt.kind, whitelistable]
+    end
   end
 
-  def create_pattern(kind, match_type, value)
-    pattern = AllowedPattern.new(kind: kind, match_type: match_type, value: whitelistable_value(kind, value))
+  def too_many?(candidates)
+    return false if candidates.size <= MAX_VALUES
+
+    Rollbar.warning(
+      'Relance : trop de valeurs détectées pour être whitelistées',
+      count: candidates.size, attempt_ids: @attempts.map(&:id)
+    )
+    true
+  end
+
+  def create_pattern(kind, value)
+    pattern = AllowedPattern.new(kind: kind, match_type: MATCH_TYPE_BY_KIND[kind], value: value)
     return pattern.value if pattern.save
 
     # Déjà whitelistée : c'est le résultat attendu, rien à signaler.

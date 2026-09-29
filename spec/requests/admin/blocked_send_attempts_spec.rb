@@ -41,6 +41,21 @@ RSpec.describe 'Admin blocked send attempts', type: :request do
       expect(AllowedPattern.exists?(kind: 'url', match_type: 'exact')).to be(true)
     end
 
+    # La session est en cookie (4 Ko) : tout lister ferait échouer la redirection
+    # sur un CookieOverflow, alors même que le message est déjà parti.
+    it 'tronque la liste des valeurs ajoutées au lieu de faire déborder le cookie' do
+      values = Array.new(8) { |n| "https://partenaire#{n}.fr/page" }
+      attempt = FactoryBot.create(:blocked_send_attempt, kind: 'url', detected_values: values)
+      service = instance_double(ProgramMessageService, errors: [])
+      allow(ProgramMessageService).to receive(:new).and_return(service)
+      allow(service).to receive(:call).and_return(service)
+
+      put "/admin/blocked_send_attempts/#{attempt.id}/relaunch"
+
+      expect(flash[:notice]).to include('partenaire0.fr/page', 'et 3 autres')
+      expect(flash[:notice]).not_to include('partenaire7.fr')
+    end
+
     it 'ne parle pas de patterns autorisés pour un mot-clé, qui reste interdit' do
       attempt = FactoryBot.create(:blocked_send_attempt, kind: 'keyword', detected_values: ['carte cadeau'])
       service = instance_double(ProgramMessageService, errors: [])
