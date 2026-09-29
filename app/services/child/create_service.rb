@@ -22,6 +22,7 @@ class Child
     def call
       add_registration_origin_as_tag
       add_target_tag_and_handle_children_not_supported
+      reject_ai_sourced_registration
       build
       set_should_contact_parent
       build_siblings
@@ -96,6 +97,25 @@ class Child
       @attributes[:group_status] = 'not_supported'
     end
 
+    # Inscriptions arrivées via une URL proposée par une IA générative : ni
+    # financées, ni ciblées. Contrairement au filtre diplôme ci-dessus, la règle
+    # s'applique quelle que soit l'origine de l'inscription.
+    # Inscription refusée, quel qu'en soit le motif : ni le SMS de bienvenue ni
+    # le lien vers le questionnaire ne doivent partir. `SendInitialFormSmsJob` ne
+    # consulte pas `group_status`, c'est donc ici que la garde doit vivre.
+    def registration_rejected?
+      'filtre-diplome-KO'.in?(@child.tag_list) || @child.group_status == 'not_supported'
+    end
+
+    def reject_ai_sourced_registration
+      return unless Child::AiRegistrationDetector.ai_sourced?(
+        tag_list: @attributes[:tag_list],
+        src_url: @attributes[:src_url]
+      )
+
+      @attributes[:group_status] = 'not_supported'
+    end
+
     def build
       @attributes.merge!(children_source_attributes: @children_source_attributes)
       parent1_attributes = @parent1_attributes.merge(parent1_present? ? @parent1_attributes : @parent2_attributes).merge(tag_list: @attributes[:tag_list])
@@ -141,7 +161,7 @@ class Child
 
     def send_form_by_sms
       @sms_url_form = Rails.application.routes.url_helpers.initial_typeform_url(st: @child.parent1.security_token)
-      return if 'filtre-diplome-KO'.in? @child.tag_list
+      return if registration_rejected?
       return if @child.child_support.enrollment_reasons.any?
 
       message =

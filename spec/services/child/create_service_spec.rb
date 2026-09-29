@@ -279,4 +279,69 @@ RSpec.describe Child::CreateService do
       end
     end
   end
+
+  # Les inscriptions arrivant via une URL proposée par une IA générative ne sont
+  # ni financées ni ciblées : elles doivent être écartées dès l'inscription.
+  describe "inscription issue d'une IA générative" do
+    let(:registration_origin) { 2 }
+
+    before { allow_any_instance_of(SpotHit::SendSmsService).to receive(:errors).and_return([]) }
+
+    context "quand utm_source désigne une IA" do
+      let(:attributes) { super().merge(tag_list: ['utm_source=chatgpt.com']) }
+
+      it "passe l'enfant en « Non accompagné »" do
+        subject.call
+        expect(subject.child.group_status).to eq 'not_supported'
+      end
+
+      it "n'envoie pas le SMS de bienvenue" do
+        expect(Child::SendInitialFormSmsJob).not_to receive(:set)
+        subject.call
+      end
+    end
+
+    %w[claude.ai gemini.google.com ChatGPT.com chatgpt].each do |utm_source|
+      context "quand utm_source vaut #{utm_source}" do
+        let(:attributes) { super().merge(tag_list: ["utm_source=#{utm_source}"]) }
+
+        it "passe l'enfant en « Non accompagné »" do
+          subject.call
+          expect(subject.child.group_status).to eq 'not_supported'
+        end
+      end
+    end
+
+    context "quand seul src_url porte l'information" do
+      let(:attributes) {
+        super().merge(src_url: 'https://1001mots.org/inscription?utm_source=chatgpt.com')
+      }
+
+      it "passe l'enfant en « Non accompagné »" do
+        subject.call
+        expect(subject.child.group_status).to eq 'not_supported'
+      end
+    end
+
+    context "quand utm_source est une source légitime" do
+      let(:attributes) { super().merge(tag_list: ['utm_source=caf01']) }
+
+      it "n'écarte pas l'enfant" do
+        subject.call
+        expect(subject.child.group_status).not_to eq 'not_supported'
+      end
+
+      it "envoie toujours le SMS de bienvenue" do
+        expect(Child::SendInitialFormSmsJob).to receive(:set).and_return(double(perform_later: true))
+        subject.call
+      end
+    end
+
+    context "quand aucun utm_source n'est présent" do
+      it "n'écarte pas l'enfant" do
+        subject.call
+        expect(subject.child.group_status).not_to eq 'not_supported'
+      end
+    end
+  end
 end
