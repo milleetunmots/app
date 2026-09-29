@@ -57,5 +57,7 @@ mise.toml
 
 .solargraph.yml
 CLAUDE.md
-
+SPEC.md
 /docs
+
+/tasks
