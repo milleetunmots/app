@@ -1494,7 +1494,23 @@ ActiveAdmin.register ChildSupport do
     end
 
     def apply_filtering(chain)
-      super(chain).distinct
+      result = super(chain).distinct
+      expose_group_end_filter_dates
+      result
+    end
+
+    # « Date de fin de cohorte » s'appuie sur le scope Ransack
+    # `with_child_in_group_ended_between` : le Ransack::Search ne sait pas
+    # résoudre ce nom suffixé d'un prédicat, l'input date_range d'ActiveAdmin
+    # rescue l'erreur et rend un champ vide — d'où des dates à ressaisir à
+    # chaque recherche. On expose donc les valeurs soumises sur l'objet de
+    # recherche, que le formulaire de filtres relit pour préremplir les champs.
+    def expose_group_end_filter_dates
+      %w[gteq lteq].each do |predicate|
+        field = "with_child_in_group_ended_between_#{predicate}_datetime"
+        value = params.dig(:q, field)
+        @search.define_singleton_method(field) { value }
+      end
     end
 
     def scoped_collection
