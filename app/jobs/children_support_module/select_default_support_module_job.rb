@@ -13,7 +13,7 @@ class ChildrenSupportModule
 
     def active_current_children_with_child_support(group)
       active_children_with_child_support = group.children.where(group_status: 'active').ids
-      ChildSupport.includes(:children).where(children: { id: active_children_with_child_support }).map { |child_support| child_support.current_child.id }
+      ChildSupport.includes(:children).where(children: { id: active_children_with_child_support }).filter_map { |child_support| child_support.current_child&.id }
     end
 
     def any_current_child_without_children_support_module?(group)
