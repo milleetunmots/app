@@ -367,6 +367,15 @@
         // remote imbriqué, qui n'est pas l'enregistrement de la fiche.
         if (event.target !== form) return;
 
+        // L'admin charge deux bibliothèques UJS : rails-ujs et jquery_ujs
+        // (tiré par active_admin/base). Quand on suspend l'envoi de rails-ujs,
+        // jquery_ujs tente d'envoyer le formulaire à sa place : la requête
+        // partirait en double, sans attendre la vérification.
+        //
+        // On le refuse ici. Son `ajax:before` se reconnaît à l'absence
+        // d'évènement natif, et seul `return false` l'arrête.
+        if (remote && !event.originalEvent) return false;
+
         if (replayingSubmit) {
           replayingSubmit = false;
           return;
