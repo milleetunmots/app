@@ -21,7 +21,7 @@ class ChildSupport::ProgramChosenModulesService
       service = SupportModule::ProgramService.new(
         support_module,
         @first_message_date,
-        recipients: children_support_modules.map {|csm| "parent.#{csm.parent_id}"},
+        recipients: children_support_modules.map { |csm| "parent.#{csm.parent_id}" },
         first_support_module: group.support_module_programmed.zero?
       ).call
 
