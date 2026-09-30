@@ -341,7 +341,7 @@ class Parent < ApplicationRecord
   end
 
   def target_parent?
-    return unless current_child.group
+    return unless current_child&.group
 
     current_child.target_child?
   end

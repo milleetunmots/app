@@ -38,7 +38,12 @@ class ChildrenSupportModule
     # porte, donc tous les enfants d'une même fiche donnent le même résultat.
     # `key?` plutôt que `||=` : une fiche sans enfant courant dans la cohorte
     # rejouerait sinon la requête pour chacun de ses enfants.
+    #
+    # Un enfant sans fiche n'a pas de fratrie connue : il reste son propre enfant
+    # courant, sinon ses CSM seraient marqués programmés sans qu'aucun SMS parte.
     def current_sibling_for(child)
+      return child if child.child_support_id.nil?
+
       @current_sibling_by_child_support ||= {}
       return @current_sibling_by_child_support[child.child_support_id] if @current_sibling_by_child_support.key?(child.child_support_id)
 

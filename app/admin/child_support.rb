@@ -1272,12 +1272,13 @@ ActiveAdmin.register ChildSupport do
   member_action :add_child do
     authorize! :add_child, resource
     first_child = resource.model.children.order(:created_at).first
+    current_child = resource.model.current_child
     redirect_to new_admin_child_path(
-      parent1_id: resource.current_child.parent1_id,
-      parent2_id: resource.current_child.parent2_id,
-      should_contact_parent1: resource.current_child.should_contact_parent1,
-      should_contact_parent2: resource.current_child.should_contact_parent2,
-      source_id: first_child&.source&.id || resource.model.current_child.source&.id,
+      parent1_id: current_child&.parent1_id,
+      parent2_id: current_child&.parent2_id,
+      should_contact_parent1: current_child&.should_contact_parent1,
+      should_contact_parent2: current_child&.should_contact_parent2,
+      source_id: first_child&.source&.id || current_child&.source&.id,
       available_for_workshops: true,
       re_enrollment: resource.model.ended_support?
       )
@@ -1285,12 +1286,13 @@ ActiveAdmin.register ChildSupport do
 
   member_action :add_parent do
     authorize! :add_parent, resource
+    current_child = resource.model.current_child
     redirect_to new_admin_parent_path(
-      address: resource.model.current_child.parent1.address,
-      postal_code: resource.model.current_child.parent1.postal_code,
-      city_name: resource.model.current_child.parent1.city_name,
-      letterbox_name: resource.model.current_child.parent1.letterbox_name,
-      parent2_child_ids: resource.model.current_child.sibling_ids,
+      address: current_child&.parent1&.address,
+      postal_code: current_child&.parent1&.postal_code,
+      city_name: current_child&.parent1&.city_name,
+      letterbox_name: current_child&.parent1&.letterbox_name,
+      parent2_child_ids: current_child&.sibling_ids,
       family_followed: true,
       parent2_creation: true
     )
@@ -1395,7 +1397,7 @@ ActiveAdmin.register ChildSupport do
 
   member_action :send_message_to_parent1 do
     authorize! :send_message_to_parent1, resource
-    redirect_to admin_message_path(parent_id: resource.model.parent1.id, child_support_id: resource.model.id, parent_st: resource.model.parent1.security_token)
+    redirect_to admin_message_path(parent_id: resource.model.parent1&.id, child_support_id: resource.model.id, parent_st: resource.model.parent1&.security_token)
   end
 
   member_action :send_message_to_parent2 do

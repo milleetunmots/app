@@ -50,4 +50,23 @@ RSpec.describe ChildrenSupportModule::ProgramSupportModuleSmsJob do
       expect(job.send(:current_children)).to eq [[twin_a, twin_b].max_by(&:id)]
     end
   end
+
+  # Sans fiche de suivi, pas de fratrie connue : l'enfant doit rester courant,
+  # sinon ses CSM passeraient programmés sans qu'aucun SMS ne parte.
+  describe 'enfant actif sans fiche de suivi' do
+    let!(:group) { FactoryBot.create(:group) }
+    let!(:lonely_child) { FactoryBot.create(:child, group: group, group_status: 'active') }
+    let!(:other_lonely_child) { FactoryBot.create(:child, group: group, group_status: 'active') }
+    let(:job) { described_class.new.tap { |j| j.instance_variable_set(:@group, group) } }
+
+    before do
+      lonely_child.update_column(:child_support_id, nil)
+      other_lonely_child.update_column(:child_support_id, nil)
+    end
+
+    it 'le désigne comme courant, chacun pour soi' do
+      expect(job.send(:current_children)).to contain_exactly(lonely_child, other_lonely_child)
+      expect(job.send(:not_current_children)).to be_empty
+    end
+  end
 end
