@@ -137,9 +137,14 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
       # Hors lien, une référence technique enchaîne des segments alphanumériques
       # des deux côtés du nombre.
       it 'ne confond pas une référence technique avec un numéro' do
-        guard = described_class.new('Votre commande REF-3119-AB est prête', provider: 'spothit')
+        [
+          'Votre commande REF-3119-AB est prête',
+          'Votre code : abcf-3562-2rg8'
+        ].each do |text|
+          guard = described_class.new(text, provider: 'spothit')
 
-        expect(guard.blocked_phone_numbers).to eq([])
+          expect(guard.blocked_phone_numbers).to eq([]), "faux positif pour : #{text.inspect}"
+        end
       end
     end
 
@@ -152,6 +157,21 @@ RSpec.describe BlockedSendAttempt::PhoneNumberSendGuard do
           'contact-0612345678' => ['0612345678'],
           '0612345678-bis' => ['0612345678'],
           'Appelez-moi-0612345678' => ['0612345678']
+        }.each do |text, expected|
+          guard = described_class.new(text, provider: 'spothit')
+
+          expect(guard.blocked_phone_numbers).to eq(expected), "faux négatif pour : #{text.inspect}"
+        end
+      end
+
+      # Deux mots autour du numéro ne font pas une référence technique : sans
+      # cela, il suffirait d'encadrer le numéro pour contourner le filtre.
+      it 'retient un numéro encadré de deux mots par des tirets' do
+        {
+          'Appelez-le-0612345678-merci' => ['0612345678'],
+          'tel-06-12-34-56-78-merci' => ['0612345678'],
+          'REF-0612345678-AB' => ['0612345678'],
+          'Urgence-3949-gratuit' => ['3949']
         }.each do |text, expected|
           guard = described_class.new(text, provider: 'spothit')
 

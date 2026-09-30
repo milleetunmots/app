@@ -30,6 +30,11 @@ class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGua
   FOLLOWING_SEGMENT_REGEX = /\A[_-][[:alnum:]]+(?![[:alnum:]])/
   TOKEN_CONTEXT_LENGTH = 24
 
+  # Deux bornes ne suffisent pas : « Urgence-3949-gratuit » en a deux aussi. Un
+  # segment voisin doit en plus ressembler à du code et non à un mot : mélange
+  # de lettres et de chiffres (« 2rg8 ») ou sigle court en majuscules (« REF »).
+  CODE_SEGMENT_REGEX = /\A(?:(?=[[:alnum:]]*[[:alpha:]])(?=[[:alnum:]]*\d)[[:alnum:]]+|[A-Z]{1,4})\z/
+
   # Caractère de masquage des liens : hors [[:alnum:]] et hors des classes des
   # deux regex ci-dessus, pour ne créer aucun candidat et ne casser aucune borne.
   URL_MASK_CHAR = '·'.freeze
@@ -84,9 +89,11 @@ class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGua
   # On retient la forme canonique et non la graphie d'origine : un même numéro
   # écrit de plusieurs façons dans un message ne doit produire qu'une seule
   # valeur détectée.
+  # Pas d'exemption « identifiant technique » ici : un segment de référence qui
+  # forme un numéro complet valide pour Phonelib est trop improbable pour
+  # justifier la porte qu'elle ouvrirait.
   def scan_long_phone_numbers
-    matches_for(PHONE_CANDIDATE_REGEX).filter_map do |raw, from, to|
-      next if technical_identifier?(from, to)
+    matches_for(PHONE_CANDIDATE_REGEX).filter_map do |raw, from, _to|
       next if identifier_context?(from)
       next unless PHONE_DIGIT_COUNT.cover?(raw.count('0-9'))
       next unless Phonelib.parse(raw).valid?
@@ -126,9 +133,9 @@ class BlockedSendAttempt::PhoneNumberSendGuard < BlockedSendAttempt::BaseSendGua
     after = scannable_text[to, TOKEN_CONTEXT_LENGTH].to_s[FOLLOWING_SEGMENT_REGEX]
     return false if after.blank?
 
-    # Une suite de nombres tirets-séparés (une date, un horaire) n'est pas un
-    # identifiant : on exige une lettre dans l'un des segments adjacents.
-    "#{before}#{after}".match?(/[[:alpha:]]/)
+    # Ni une suite de nombres (une date, un horaire) ni deux mots de prose ne
+    # font un identifiant.
+    [before, after].any? { |segment| segment.delete('_-').match?(CODE_SEGMENT_REGEX) }
   end
 
   def context_before(offset, length)
