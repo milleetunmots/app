@@ -42,10 +42,22 @@ module JsonResponseConcern
   # `parse_json_response` n'ont rien à passer sur un 4xx/5xx, on re-parse le
   # corps ici pour exploiter quand même le JSON d'erreur de l'API.
   def json_error_message(response, body = nil)
-    detail = json_error_detail(body || parse_json_body(response))
+    detail = stringify_error_detail(json_error_detail(body || parse_json_body(response)))
     detail = response.body.to_s.truncate(500) if detail.blank?
 
     "HTTP #{response.status} — #{detail}"
+  end
+
+  # Trace l'échec d'un appel API tiers dans Rollbar, statut et corps brut inclus.
+  # Beaucoup de ces appels partent d'un job (envois programmés, crons) : sans ça
+  # l'échec ne vit que dans `errors`, que personne ne lit en dehors de l'admin.
+  def report_api_failure(context, response, **extra)
+    Rollbar.error(
+      context,
+      status: response.status.to_i,
+      body: response.body.to_s.truncate(1000),
+      **extra
+    )
   end
 
   private
@@ -56,6 +68,22 @@ module JsonResponseConcern
     error = body['error']
     return error['message'] if error.is_a?(Hash) && error['message'].present?
 
-    error.presence || body['message'] || body['title'] || body['details'] || body['erreurs']
+    detail = error.presence || body['message'] || body['title'] || body['details'] || body['erreurs']
+    return detail if detail.present?
+
+    # Spot-Hit encapsule parfois ses erreurs dans `resultat` : sans ce second
+    # niveau, on retombe sur le corps brut alors que le message est exploitable.
+    json_error_detail(body['resultat'])
+  end
+
+  # Les API renvoient le détail sous des formes variées (Spot-Hit indexe ses
+  # erreurs par destinataire). Interpoler un Hash ou un Array tel quel donne un
+  # flash admin illisible : on aplatit sur les valeurs.
+  def stringify_error_detail(detail)
+    case detail
+    when Hash then detail.values.flatten.join(', ')
+    when Array then detail.flatten.join(', ')
+    else detail
+    end
   end
 end
