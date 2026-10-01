@@ -45,6 +45,14 @@ class SpotHit::SendRcsService
   protected
 
   def send_rcs
+    # Spot-Hit refuse la campagne par un 403 opaque quand l'agent RCS n'est pas
+    # transmis : on le détecte avant tout appel, et avant le SendGuard pour ne
+    # pas tracer une tentative bloquée sur un simple défaut de configuration.
+    if ENV['SPOT_HIT_AGENT_ID'].blank?
+      @errors << "Envoi RCS impossible : SPOT_HIT_AGENT_ID n'est pas configuré."
+      return
+    end
+
     guard = BlockedSendAttempt::SendGuard.new(
       @message,
       provider: 'spothit',
@@ -92,6 +100,12 @@ class SpotHit::SendRcsService
       @sent = true
       create_events(body['campaign_id'])
     else
+      report_api_failure(
+        'SpotHit::SendRcsService — campagne refusée',
+        response,
+        recipients_count: recipient_variables.size,
+        rcs_type: @form['rcs_type']
+      )
       @errors << "Erreur lors de la programmation de la campagne : #{json_error_message(response, body)}"
     end
   end
