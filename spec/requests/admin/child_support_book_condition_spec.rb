@@ -107,14 +107,33 @@ RSpec.describe 'Admin child support book condition', type: :request do
     end
   end
 
+  describe "alerte d'adresse après une pose manuelle de « Non envoyé »" do
+    before do
+      BookShipmentDate.create!(date: Date.current + 10.days)
+      sign_in_as('contributor')
+      submit_book_condition('not_sent')
+      get "/admin/child_supports/#{child_support.id}/edit?r=true"
+    end
+
+    it "marque l'adresse suspecte et affiche l'alerte d'adresse" do
+      expect(child_support.reload.address_suspected_invalid_at).to be_present
+      expect(response.body).to include('Problème avec l’adresse')
+    end
+
+    it "masque l'alerte de renvoi tant que l'adresse n'est pas validée" do
+      expect(response.body).not_to include('seront renvoyés le')
+    end
+  end
+
   describe 'alerte de renvoi' do
     before do
       BookShipmentDate.create!(date: Date.current + 10.days)
       sign_in_as('contributor')
     end
 
-    it 'mentionne les livres non envoyés' do
+    it "mentionne les livres non envoyés une fois l'adresse validée" do
       support_module.update!(book_condition: 'not_sent')
+      post "/child-support-address-valid/#{child_support.id}"
 
       get "/admin/child_supports/#{child_support.id}/edit?r=true"
 

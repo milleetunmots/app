@@ -82,6 +82,7 @@ class ChildrenSupportModule < ApplicationRecord
   before_create :set_module_index
   after_save :save_chosen_module_to_child_support, if: :saved_change_to_support_module_id?
   before_save :set_book_condition_changed_at, if: :book_condition_changed?
+  after_save :flag_address_as_suspected, if: -> { saved_change_to_book_condition?(to: NOT_SENT) }
 
   def name
     return support_module.decorate.name_with_tags if support_module
@@ -273,6 +274,17 @@ class ChildrenSupportModule < ApplicationRecord
 
   def set_book_condition_changed_at
     self.book_condition_changed_at = book_condition.present? ? Time.zone.now : nil
+  end
+
+  # Un « Non envoyé » posé à la main signale un problème d'expédition : on marque l'adresse
+  # suspecte pour que les accompagnantes la vérifient (et que les envois suivants soient suspendus).
+  # La pose automatique à l'attribution passe volontairement par update_all, qui saute ce callback :
+  # une famille interrompue a une adresse correcte, la marquer serait un faux positif.
+  def flag_address_as_suspected
+    child_support = child.child_support
+    return if child_support.nil? || child_support.address_suspected_invalid_at.present?
+
+    child_support.update_column(:address_suspected_invalid_at, Time.zone.now)
   end
 
   def save_chosen_module_to_child_support
