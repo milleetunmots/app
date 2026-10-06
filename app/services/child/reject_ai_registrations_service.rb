@@ -20,7 +20,13 @@ class Child
 
         reject(child)
       end
-      Rails.logger.info("#{self.class}: #{@rejected_children_ids.size} enfant(s) écarté(s)")
+      if @rejected_children_ids.any?
+        Rollbar.info(
+          "#{self.class} done",
+          rejected_children_count: @rejected_children_ids.size,
+          rejected_children_ids: @rejected_children_ids
+        )
+      end
       self
     end
 

@@ -138,10 +138,21 @@ RSpec.describe Child::RejectAiRegistrationsService do
       expect(Rails.logger).to have_received(:info).with(/#{child.id}.*chatgpt\.com/)
     end
 
-    it 'logue le total du passage' do
-      allow(Rails.logger).to receive(:info)
+    it 'remonte le total du passage dans Rollbar' do
+      allow(Rollbar).to receive(:info)
       subject
-      expect(Rails.logger).to have_received(:info).with(/1 enfant/)
+      expect(Rollbar).to have_received(:info).with(
+        'Child::RejectAiRegistrationsService done',
+        rejected_children_count: 1,
+        rejected_children_ids: [child.id]
+      )
+    end
+
+    it 'ne remonte rien dans Rollbar quand aucun enfant n’est écarté' do
+      described_class.new.call
+      allow(Rollbar).to receive(:info)
+      described_class.new.call
+      expect(Rollbar).not_to have_received(:info)
     end
   end
 end
