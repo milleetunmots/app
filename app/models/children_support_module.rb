@@ -141,20 +141,26 @@ class ChildrenSupportModule < ApplicationRecord
     return unless child.current_child?
 
     theme = support_module.theme
-    sibling_ids = child.siblings_on_same_group.pluck(:id)
+    # Une seule fois : `siblings_on_same_group` reconstruit sa relation à chaque
+    # appel, et on la parcourt deux fois ci-dessous.
+    siblings = child.siblings_on_same_group.to_a
+    sibling_ids = siblings.map(&:id)
     used_book_ids = (
       SupportModule.joins(:children_support_modules)
                    .where(children_support_modules: { child_id: sibling_ids, parent_id: parent_id, is_programmed: true })
                    .pluck(:book_id) + [support_module.book_id]
     ).compact.uniq
 
-    child.siblings_on_same_group.each do |sibling|
+    siblings.each do |sibling|
       next if child == sibling
 
       sibling_age = child_age_range(sibling.months)
       sibling_support_module = find_sibling_support_module(sibling.id, sibling_age, parent_id, support_module.for_bilingual, theme: theme, excluded_book_ids: used_book_ids) ||
                                find_sibling_support_module(sibling.id, sibling_age, parent_id, support_module.for_bilingual, excluded_book_ids: used_book_ids)
       find_or_create_children_support_module(sibling.id, sibling_support_module)
+      # au-delà de deux enfants, le livre qu'on vient d'attribuer doit être
+      # exclu pour les frères/sœurs suivants de la même vague
+      used_book_ids |= [sibling_support_module&.book_id].compact
     end
   end
 
@@ -200,22 +206,7 @@ class ChildrenSupportModule < ApplicationRecord
   private
 
   def child_age_range(months)
-    case months
-    when 4..11
-      SupportModule::FOUR_TO_ELEVEN
-    when 12..17
-      SupportModule::TWELVE_TO_SEVENTEEN
-    when 18..23
-      SupportModule::EIGHTEEN_TO_TWENTY_THREE
-    when 24..29
-      SupportModule::TWENTY_FOUR_TO_TWENTY_NINE
-    when 30..35
-      SupportModule::THIRTY_TO_THIRTY_FIVE
-    when 36..40
-      SupportModule::THIRTY_SIX_TO_FORTY
-    when 41..44
-      SupportModule::FORTY_ONE_TO_FORTY_FOUR
-    end
+    SupportModule.age_range_for(months)
   end
 
   def find_sibling_support_module(sibling_id, age, parent_id, for_bilingual, theme: nil, excluded_book_ids: [])
@@ -223,10 +214,20 @@ class ChildrenSupportModule < ApplicationRecord
     support_modules = theme.nil? ? support_modules.where("'#{age}' = ANY(age_ranges)") : support_modules.where("'#{age}' = ANY(age_ranges) AND theme = '#{theme}'")
     support_modules = support_modules.where(for_bilingual: for_bilingual) if for_bilingual == false
     support_modules = support_modules.where.not(id: ChildrenSupportModule.where(child_id: sibling_id, parent_id: parent_id, is_programmed: true).pluck(:support_module_id))
-    support_modules = support_modules.where.not(book_id: excluded_book_ids) if excluded_book_ids.any?
+    # `where.not(book_id: ...)` génère un NOT IN, qui écarte aussi les modules
+    # dont le book_id est NULL — ils redeviennent éligibles ici.
+    support_modules = support_modules.where('book_id IS NULL OR book_id NOT IN (?)', excluded_book_ids) if excluded_book_ids.any?
+
+    candidates = support_modules.to_a
+    # un module sans livre reste un dernier recours : on privilégie ceux qui en portent un
+    candidates = candidates.select { |sm| sm.book_id.present? }.presence || candidates
+
+    already_done_themes = ChildrenSupportModule.with_support_module
+                                               .where(child_id: sibling_id, parent_id: parent_id, is_programmed: true)
+                                               .map { |csm| csm.support_module.theme }
 
     # try to not redo the same theme if possible
-    support_modules.select {|sm| !sm.theme.in?(ChildrenSupportModule.with_support_module.where(child_id: sibling_id, parent_id: parent_id, is_programmed: true).map(&:support_module).map(&:theme)) }.first || support_modules.first
+    candidates.reject { |sm| sm.theme.in?(already_done_themes) }.first || candidates.first
   end
 
   def find_or_create_children_support_module(sibling_id, sibling_support_module)
@@ -235,12 +236,29 @@ class ChildrenSupportModule < ApplicationRecord
       parent_id: parent_id,
       is_programmed: false
     )
-    sibling_children_support_module.update(
+
+    attributes = {
       available_support_module_list: available_support_module_list,
-      support_module: sibling_support_module,
       choice_date: choice_date,
       is_completed: is_completed
-    )
+    }
+
+    if sibling_support_module.nil?
+      # `find_or_create_by` peut rendre une ligne déjà pourvue : écrire nil
+      # écraserait le module du frère ou de la sœur, et le vivier épuisé — cause
+      # la plus fréquente — passerait pour une attribution réussie.
+      Rollbar.error(
+        "ChildrenSupportModule#select_for_siblings : aucun module attribuable au frère/sœur",
+        child_id: child_id,
+        sibling_id: sibling_id,
+        parent_id: parent_id,
+        source: 'ChildrenSupportModule#select_for_siblings'
+      )
+    else
+      attributes[:support_module] = sibling_support_module
+    end
+
+    sibling_children_support_module.update(attributes)
   end
 
   def set_module_index

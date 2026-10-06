@@ -253,7 +253,12 @@ class ChildSupport < ApplicationRecord
   has_many :children, dependent: :nullify
   has_many :children_support_modules, through: :children
   has_many :scheduled_calls, dependent: :nullify
-  has_one :current_child, -> { order(Arel.sql("CASE WHEN group_status = 'active' THEN 0 ELSE 1 END, birthdate DESC")) }, class_name: :Child
+  # `kept` fait partie de la désignation, pas du confort d'appel : les fratries
+  # écartent déjà les enfants archivés (Child#current_sibling_in_group,
+  # #siblings_on_same_group). Sans lui ici, un enfant archivé restait « courant »
+  # pour la fiche tandis que le job SMS désignait son jumeau — les deux moitiés
+  # de la chaîne d'attribution repartaient sur deux enfants différents.
+  has_one :current_child, -> { kept.by_current_child_priority }, class_name: :Child
   has_one :parent1, through: :current_child
   has_one :parent2, through: :current_child
 

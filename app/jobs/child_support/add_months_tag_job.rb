@@ -6,10 +6,13 @@ class ChildSupport
       mt23_tag = Tag.find_or_create_by(name: '23 mois et +', color: '#ff9500', is_visible_by_callers_and_animators: true)
       group = Group.includes(child_supports: :children).find(group_id)
       group.child_supports.with_a_child_in_active_group.find_each do |child_support|
+        months = child_support.current_child&.months
+        next if months.nil?
+
         child_support.tag_list +=
-          if child_support.current_child.months < 9
+          if months < 9
             [lt9_tag].flatten
-          elsif child_support.current_child.months < 23
+          elsif months < 23
             [btw9_and22_tag].flatten
           else
             [mt23_tag].flatten

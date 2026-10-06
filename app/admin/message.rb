@@ -168,7 +168,7 @@ ActiveAdmin.register_page 'Message' do
     else
       notice = "Message(s) programmé(s) via #{provider.capitalize}"
       if params[:call_goals_sms] && !params[:call_goals_sms].in?(%w[Aucun scheduled_call_reminder])
-        child_support.paper_trail.update_column("#{call_goal}_sms".to_sym, message)
+        child_support&.paper_trail&.update_column("#{call_goal}_sms".to_sym, message)
         notice += '. Et petite mission définie'
       end
       if params[:call_goals_sms] == 'scheduled_call_reminder'
@@ -180,7 +180,7 @@ ActiveAdmin.register_page 'Message' do
           parent.save!
         end
       end
-      child_support.paper_trail.update_column(:call0_goal_sent, params[:call_goal]) if params[:call_goals_sms] == 'call0_goals'
+      child_support&.paper_trail&.update_column(:call0_goal_sent, params[:call_goal]) if params[:call_goals_sms] == 'call0_goals'
       redirect_back(fallback_location: root_path, notice: notice)
     end
   end
@@ -239,7 +239,7 @@ ActiveAdmin.register_page 'Message' do
     end
 
     def child_support
-      parent.current_child.child_support
+      parent&.current_child&.child_support
     end
   end
 end

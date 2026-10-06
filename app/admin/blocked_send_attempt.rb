@@ -64,7 +64,15 @@ ActiveAdmin.register BlockedSendAttempt do
       para do
         link_to 'Relancer cet envoi', relaunch_admin_blocked_send_attempt_path(resource), method: :put, class: 'button'
       end
+      para { blocked_send_attempt_relaunch_warning(resource) }
     end
+  end
+
+  # Le message de relance est construit dans le helper (plafonné pour ne pas faire
+  # déborder le cookie de session) : la member_action tourne dans le contrôleur,
+  # qui n'accède pas aux helpers de vue sans cet include explicite.
+  controller do
+    include ActiveAdmin::BlockedSendAttemptsHelper
   end
 
   # Un `not_blocked` a déjà été transmis au provider : le relancer créerait un doublon.
@@ -80,7 +88,7 @@ ActiveAdmin.register BlockedSendAttempt do
     if errors.any?
       redirect_to admin_blocked_send_attempt_path(resource), alert: "La relance a échoué : #{errors.to_sentence}"
     else
-      redirect_to admin_blocked_send_attempt_path(resource), notice: "L'envoi a été relancé."
+      redirect_to admin_blocked_send_attempt_path(resource), notice: blocked_send_attempt_relaunch_notice(resource.whitelisted_values)
     end
   end
 end

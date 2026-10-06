@@ -3,13 +3,16 @@ class ChildrenSupportModule
 
     LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME = ENV['LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'].freeze
     MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME = ENV['MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'].freeze
+    # Dernier mois couvert par un module par défaut (cf. default_module_age_range_for).
+    DEFAULT_MODULE_AGE_CAP_IN_MONTHS = 35
 
     def initialize(group_id)
       @group = Group.find(group_id)
       @children_with_missing_child_support = []
       @children_support_modules_with_support_module_selected = []
+      @children_support_modules_without_support_module = []
       @active_children = @group.children.where(group_status: 'active').ids
-      @active_current_children = ChildSupport.includes(:children).where(children: { id: @active_children }).map { |child_support| child_support.current_child.id }
+      @active_current_children = ChildSupport.includes(:children).where(children: { id: @active_children }).filter_map { |child_support| child_support.current_child&.id }
     end
 
     def call
@@ -36,6 +39,14 @@ class ChildrenSupportModule
           'SelectDefaultSupportModuleService : Fail safe triggered',
           group_id: @group.id,
           children_support_modules: @children_support_modules_with_support_module_selected.uniq,
+          source: 'ChildrenSupportModule::SelectDefaultSupportModuleService'
+        )
+      end
+      if @children_support_modules_without_support_module.any?
+        Rollbar.error(
+          'SelectDefaultSupportModuleService : aucun module attribuable',
+          group_id: @group.id,
+          children_support_modules: @children_support_modules_without_support_module.uniq,
           source: 'ChildrenSupportModule::SelectDefaultSupportModuleService'
         )
       end
@@ -86,28 +97,53 @@ class ChildrenSupportModule
     end
 
     def assign_specific_default_support_module
-      four_to_eleven_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::FOUR_TO_ELEVEN}' = ANY (age_ranges)").first
-      twelve_to_seventeen_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::TWELVE_TO_SEVENTEEN}' = ANY (age_ranges)").first
-      eighteen_to_twenty_three_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::EIGHTEEN_TO_TWENTY_THREE}' = ANY (age_ranges)").first
-      twenty_four_to_twenty_nine_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::TWENTY_FOUR_TO_TWENTY_NINE}' = ANY (age_ranges)").first
-      thirty_to_thirty_five_specific_default_support_module = SupportModule.where("name ILIKE ?", "#{MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME}%").where("'#{SupportModule::THIRTY_TO_THIRTY_FIVE}' = ANY (age_ranges)").first
-
       @missing_support_modules.each do |children_support_module|
-        support_module =
-          case children_support_module.child.months
-          when 4..11
-            four_to_eleven_specific_default_support_module
-          when 12..17
-            twelve_to_seventeen_specific_default_support_module
-          when 18..23
-            eighteen_to_twenty_three_specific_default_support_module
-          when 24..29
-            twenty_four_to_twenty_nine_specific_default_support_module
-          when 30..35
-            thirty_to_thirty_five_specific_default_support_module
-          end
+        support_module = specific_default_support_module_for(children_support_module.child)
+
+        # `update(support_module: nil)` réussirait sans rien changer — ces
+        # lignes ont déjà `support_module: nil` — et l'enfant serait rangé
+        # parmi ceux que le fail safe a servis. On le compte plutôt comme
+        # sans module attribuable, ce qui a sa propre alerte.
+        if support_module.nil?
+          @children_support_modules_without_support_module << children_support_module.id
+          next
+        end
+
         @children_support_modules_with_support_module_selected << children_support_module.id if children_support_module.update(support_module: support_module)
       end
+    end
+
+    # Renvoie nil dans deux cas, tous deux normaux : l'enfant a moins de 4 mois
+    # — il n'a rien à recevoir —, ou aucun module par défaut n'existe pour sa
+    # tranche. Les noms de ces modules viennent de l'ENV, leur existence est une
+    # question de données : l'appelant compte ces enfants et les remonte à
+    # Rollbar plutôt que de les considérer comme servis.
+    #
+    # Le cache mémorise aussi les absences (`key?`), pour ne pas rejouer à
+    # chaque enfant de la cohorte une requête qui ne trouvera rien.
+    def specific_default_support_module_for(child)
+      age_range = default_module_age_range_for(child)
+      return if age_range.blank?
+
+      @specific_default_support_modules ||= {}
+      return @specific_default_support_modules[age_range] if @specific_default_support_modules.key?(age_range)
+
+      name = age_range == SupportModule::FOUR_TO_ELEVEN ? LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME : MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME
+      @specific_default_support_modules[age_range] = SupportModule.where('name ILIKE ?', "#{name}%")
+                                                                  .where("'#{age_range}' = ANY (age_ranges)")
+                                                                  .first
+    end
+
+    # Les modules par défaut ne couvrent que jusqu'à THIRTY_TO_THIRTY_FIVE —
+    # c'est la liste qu'énumérait l'ancien `case`. Un enfant plus âgé emprunte
+    # le module de cette tranche plutôt que de rester sans module ; avant, il
+    # gardait `support_module: nil`.
+    #
+    # Le plafond porte sur les mois, pas sur la tranche : `age_range_for`
+    # reste la seule source du découpage, et le jour où un module par défaut
+    # existera pour 36-40, il suffira de relever cette constante.
+    def default_module_age_range_for(child)
+      SupportModule.age_range_for_capped(child.months, cap: DEFAULT_MODULE_AGE_CAP_IN_MONTHS)
     end
 
     def missing_support_modules_for_current_children?

@@ -12,6 +12,7 @@ RSpec.describe 'Admin blocked send attempts', type: :request do
 
       get "/admin/blocked_send_attempts/#{attempt.id}"
       expect(response.body).to include('Relancer cet envoi')
+      expect(response.body).to include('ajoute les valeurs détectées aux patterns autorisés')
     end
 
     it 'relance une tentative et la marque comme relancée' do
@@ -24,6 +25,49 @@ RSpec.describe 'Admin blocked send attempts', type: :request do
 
       expect(attempt.reload.status).to eq('relaunched')
       expect(attempt.resolved_at).to be_present
+    end
+
+    it 'annonce les valeurs ajoutées aux patterns autorisés' do
+      attempt = FactoryBot.create(:blocked_send_attempt)
+      service = instance_double(ProgramMessageService, errors: [])
+      allow(ProgramMessageService).to receive(:new).and_return(service)
+      allow(service).to receive(:call).and_return(service)
+
+      put "/admin/blocked_send_attempts/#{attempt.id}/relaunch"
+
+      follow_redirect!
+      expect(response.body).to include('Valeurs ajoutées aux patterns autorisés')
+      expect(response.body).to include('non-whitelisted.example.com/page')
+      expect(AllowedPattern.exists?(kind: 'url', match_type: 'exact')).to be(true)
+    end
+
+    # La session est en cookie (4 Ko) : tout lister ferait échouer la redirection
+    # sur un CookieOverflow, alors même que le message est déjà parti.
+    it 'tronque la liste des valeurs ajoutées au lieu de faire déborder le cookie' do
+      values = Array.new(8) { |n| "https://partenaire#{n}.fr/page" }
+      attempt = FactoryBot.create(:blocked_send_attempt, kind: 'url', detected_values: values)
+      service = instance_double(ProgramMessageService, errors: [])
+      allow(ProgramMessageService).to receive(:new).and_return(service)
+      allow(service).to receive(:call).and_return(service)
+
+      put "/admin/blocked_send_attempts/#{attempt.id}/relaunch"
+
+      expect(flash[:notice]).to include('partenaire0.fr/page', 'et 3 autres')
+      expect(flash[:notice]).not_to include('partenaire7.fr')
+    end
+
+    it 'ne parle pas de patterns autorisés pour un mot-clé, qui reste interdit' do
+      attempt = FactoryBot.create(:blocked_send_attempt, kind: 'keyword', detected_values: ['carte cadeau'])
+      service = instance_double(ProgramMessageService, errors: [])
+      allow(ProgramMessageService).to receive(:new).and_return(service)
+      allow(service).to receive(:call).and_return(service)
+
+      put "/admin/blocked_send_attempts/#{attempt.id}/relaunch"
+
+      follow_redirect!
+      expect(response.body).to include('envoi a été relancé.')
+      expect(response.body).not_to include('Valeurs ajoutées aux patterns autorisés')
+      expect(AllowedPattern.count).to eq(0)
     end
 
     it "laisse la tentative en attente et affiche l'erreur quand la relance échoue" do
