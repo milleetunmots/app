@@ -31,7 +31,10 @@
 #
 class ChildrenSupportModule < ApplicationRecord
 
-  CONDITIONS = %w[not_received damaged].freeze
+  NOT_SENT = 'not_sent'.freeze
+  # not_sent : le livre n'est jamais parti (adresse suspecte, accompagnement interrompu…),
+  # seuls les administrateurs et contributeurs peuvent le poser ou le retirer à la main
+  CONDITIONS = ['not_received', 'damaged', NOT_SENT].freeze
 
   # ---------------------------------------------------------------------------
   # relations

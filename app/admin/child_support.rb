@@ -444,12 +444,13 @@ ActiveAdmin.register ChildSupport do
           end
           if ChildrenSupportModule.where(child_id: [resource.children.ids]).with_books.any?
             div id: 'children-books-sent' do
+              can_manage_not_sent = can_manage_not_sent_books?
               f.object.children.each do |child|
                 h4 "Livres envoyés à #{child.first_name} :"
                 pending_book_resend_date = resource.pending_book_resend_date(child.id)
                 if pending_book_resend_date
                   div class: 'book-resend-alert' do
-                    span "Les livres non reçus / défectueux seront renvoyés le #{pending_book_resend_date.strftime('%d/%m/%Y')}", class: 'txt-warning'
+                    span "Les livres non reçus / défectueux / non envoyés seront renvoyés le #{pending_book_resend_date.strftime('%d/%m/%Y')}", class: 'txt-warning'
                   end
                 end
                 div id: 'child-books-sent' do
@@ -471,8 +472,13 @@ ActiveAdmin.register ChildSupport do
                           csm_f.input :book_condition,
                                       label: false,
                                       as: :select,
-                                      collection: book_condition_select_collection,
-                                      input_html: { class: 'book-select', data: { select2: {} } }
+                                      collection: book_condition_select_collection(can_manage_not_sent: can_manage_not_sent,
+                                                                                   current_condition: support_module.book_condition),
+                                      input_html: {
+                                        class: 'book-select',
+                                        data: { select2: {} },
+                                        disabled: !can_manage_not_sent && support_module.book_condition == ChildrenSupportModule::NOT_SENT
+                                      }
                         end
                         if support_module.book_resent_on
                           div class: 'book-resent-alert' do
@@ -1525,6 +1531,31 @@ ActiveAdmin.register ChildSupport do
         end
       end
       scope
+    end
+
+    # seuls les administrateurs et contributeurs peuvent poser ou retirer « Non envoyé »
+    helper_method :can_manage_not_sent_books?
+    def can_manage_not_sent_books?
+      current_admin_user.admin? || current_admin_user.contributor?
+    end
+
+    # pour les autres rôles, le select désactivé ne suffit pas : on ignore toute
+    # modification qui pose ou retire « Non envoyé »
+    before_action :ignore_not_sent_book_condition_changes, only: :update, unless: :can_manage_not_sent_books?
+
+    def ignore_not_sent_book_condition_changes
+      csm_attributes = params.dig(:child_support, :children_support_modules_attributes)
+      return if csm_attributes.blank?
+
+      # Rails accepte les attributs imbriqués sous forme de hash indexé ou de tableau
+      submitted_modules = csm_attributes.is_a?(Array) ? csm_attributes : csm_attributes.values
+      not_sent_ids = ChildrenSupportModule.where(id: submitted_modules.pluck(:id), book_condition: ChildrenSupportModule::NOT_SENT)
+                                          .ids.map(&:to_s)
+      submitted_modules.each do |attributes|
+        next unless attributes[:book_condition] == ChildrenSupportModule::NOT_SENT || attributes[:id].to_s.in?(not_sent_ids)
+
+        attributes.delete(:book_condition)
+      end
     end
 
     before_action only: [:edit] do
