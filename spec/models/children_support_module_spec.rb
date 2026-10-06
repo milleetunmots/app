@@ -49,6 +49,36 @@ RSpec.describe ChildrenSupportModule, type: :model do
     end
   end
 
+  describe '#shippable?' do
+    let(:child) { FactoryBot.create(:child, group: FactoryBot.create(:group), group_status: 'active') }
+    let(:children_support_module) { FactoryBot.build(:children_support_module, child: child, parent: child.parent1) }
+
+    it "est vrai pour un enfant actif dont l'adresse n'est pas suspecte" do
+      expect(children_support_module).to be_shippable
+    end
+
+    it "est faux quand l'adresse est suspecte" do
+      child.child_support.update_column(:address_suspected_invalid_at, Time.zone.now)
+
+      expect(children_support_module).not_to be_shippable
+    end
+
+    %w[paused stopped disengaged not_supported waiting].each do |group_status|
+      it "est faux pour un enfant #{group_status}" do
+        child.update_column(:group_status, group_status)
+
+        expect(children_support_module).not_to be_shippable
+      end
+    end
+
+    # comme le LEFT JOIN de chosen_modules_for_group : sans fiche, pas d'adresse suspecte
+    it 'est vrai pour un enfant actif sans fiche de suivi' do
+      child.update_column(:child_support_id, nil)
+
+      expect(children_support_module).to be_shippable
+    end
+  end
+
   describe 'adresse suspecte quand le livre est déclaré « Non envoyé »' do
     let(:child) { FactoryBot.create(:child) }
     let(:child_support) { child.child_support }

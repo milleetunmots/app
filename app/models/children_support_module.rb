@@ -91,6 +91,12 @@ class ChildrenSupportModule < ApplicationRecord
     'Pas encore choisi'
   end
 
+  # Le livre de ce module partira-t-il chez la famille ? Règle unique partagée par l'export
+  # logistique (pour exclure) et l'attribution des livres (pour marquer « Non envoyé »)
+  def shippable?
+    child.group_status == 'active' && child.child_support&.address_suspected_invalid_at.nil?
+  end
+
   def available_support_modules
     return [] if available_support_module_list.blank?
 
