@@ -433,6 +433,30 @@ RSpec.describe ChildSupport, type: :model do
       end
     end
 
+    # on ne renvoie pas de livre à une famille dont l'accompagnement est arrêté
+    context "quand l'enfant n'est plus actif" do
+      before { first_child.update_column(:group_status, 'stopped') }
+
+      it 'retourne nil pour un livre signalé non reçu' do
+        report_book_problem(first_child, reported_at: 2.days.ago)
+
+        expect(first_child_support.pending_book_resend_date(first_child.id)).to be_nil
+      end
+
+      it "retourne nil pour un livre « Non envoyé » même une fois l'adresse validée" do
+        report_book_problem(first_child, reported_at: 2.days.ago, condition: 'not_sent')
+        first_child_support.update_column(:address_suspected_invalid_at, nil)
+
+        expect(first_child_support.pending_book_resend_date(first_child.id)).to be_nil
+      end
+
+      it "n'empêche pas l'alerte d'un frère ou d'une sœur toujours actif" do
+        report_book_problem(sibling, reported_at: 2.days.ago)
+
+        expect(first_child_support.pending_book_resend_date(sibling.id)).to eq(next_resend_date)
+      end
+    end
+
     it "retourne nil quand l'adresse est suspectée invalide" do
       report_book_problem(first_child, reported_at: 2.days.ago)
       first_child_support.update!(address_suspected_invalid_at: Time.zone.now)
