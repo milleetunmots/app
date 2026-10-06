@@ -63,6 +63,15 @@ RSpec.describe 'Admin book SAV import', type: :request do
       expect(response.body).to include('Renvoyé le 05/08/2026')
     end
 
+    it "reste affichée quand l'accompagnement de l'enfant est arrêté" do
+      post '/admin/books/perform_sav_import', params: { csv_file: csv_upload_with("05/08/2026,#{support_module.id},not_received\n") }
+      child.update_column(:group_status, 'stopped')
+
+      get "/admin/child_supports/#{child.child_support.id}/edit?r=true"
+
+      expect(response.body).to include('Renvoyé le 05/08/2026')
+    end
+
     context 'pour un livre « Non envoyé »' do
       let!(:not_sent_module) do
         # un seul module non programmé par enfant et par parent
