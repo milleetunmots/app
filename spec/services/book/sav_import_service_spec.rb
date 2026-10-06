@@ -33,6 +33,28 @@ RSpec.describe Book::SavImportService do
       expect(not_received_module.reload.book_resent_on).to eq(Date.new(2026, 8, 5))
     end
 
+    it 'sets book_resent_on for a not_sent book and keeps its condition' do
+      not_sent_module = FactoryBot.create(:children_support_module, child: child, parent: child.parent1, book: book,
+                                                                    book_condition: 'not_sent', is_programmed: true)
+      csv_file = csv_file_with("05/08/2026,#{not_sent_module.id},not_sent\n")
+
+      result = described_class.new(csv_file: csv_file).call
+
+      expect(result.errors).to be_empty
+      expect(not_sent_module.reload.book_resent_on).to eq(Date.new(2026, 8, 5))
+      expect(not_sent_module.book_condition).to eq('not_sent')
+    end
+
+    it 'reports an error when a not_sent row targets a book with another condition' do
+      csv_file = csv_file_with("05/08/2026,#{not_received_module.id},not_sent\n")
+
+      result = described_class.new(csv_file: csv_file).call
+
+      expect(result.matched_count).to eq(0)
+      expect(result.errors.first[1]).to include("Aucune fiche trouvée pour l'identifiant #{not_received_module.id} avec le statut not_sent")
+      expect(not_received_module.reload.book_resent_on).to be_nil
+    end
+
     it 'does not update the other book of the same child' do
       csv_file = csv_file_with("05/08/2026,#{not_received_module.id},not_received\n")
 

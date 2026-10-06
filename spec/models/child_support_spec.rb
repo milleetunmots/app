@@ -367,8 +367,8 @@ RSpec.describe ChildSupport, type: :model do
 
     # `book_condition_changed_at` étant posé à Time.zone.now par le before_save dès que
     # la condition est présente, antidater un signalement impose update_columns.
-    def report_book_problem(child, reported_at:, resent_on: nil)
-      FactoryBot.create(:children_support_module, child: child, parent: first_parent, book: book, book_condition: 'not_received')
+    def report_book_problem(child, reported_at:, resent_on: nil, condition: 'not_received')
+      FactoryBot.create(:children_support_module, child: child, parent: first_parent, book: book, book_condition: condition)
                 .update_columns(book_condition_changed_at: reported_at, book_resent_on: resent_on)
     end
 
@@ -411,6 +411,26 @@ RSpec.describe ChildSupport, type: :model do
       BookShipmentDate.upcoming.destroy_all
 
       expect(first_child_support.pending_book_resend_date(first_child.id)).to be_nil
+    end
+
+    context 'pour un livre « Non envoyé »' do
+      # la pose de « Non envoyé » marque l'adresse suspecte : on la considère validée
+      def report_not_sent_book(reported_at:, resent_on: nil)
+        report_book_problem(first_child, reported_at: reported_at, resent_on: resent_on, condition: 'not_sent')
+        first_child_support.update_column(:address_suspected_invalid_at, nil)
+      end
+
+      it "retourne la prochaine date de renvoi une fois l'adresse validée" do
+        report_not_sent_book(reported_at: 2.days.ago)
+
+        expect(first_child_support.pending_book_resend_date(first_child.id)).to eq(next_resend_date)
+      end
+
+      it 'retourne nil quand le livre a été renvoyé depuis le dernier envoi' do
+        report_not_sent_book(reported_at: 2.days.ago, resent_on: Date.current - 1.day)
+
+        expect(first_child_support.pending_book_resend_date(first_child.id)).to be_nil
+      end
     end
 
     it "retourne nil quand l'adresse est suspectée invalide" do
