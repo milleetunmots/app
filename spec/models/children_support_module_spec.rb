@@ -32,6 +32,23 @@
 require 'rails_helper'
 
 RSpec.describe ChildrenSupportModule, type: :model do
+  describe 'book_condition' do
+    let(:child) { FactoryBot.create(:child) }
+    let(:children_support_module) { FactoryBot.build(:children_support_module, child: child, parent: child.parent1) }
+
+    it 'accepte « Non envoyé »' do
+      children_support_module.book_condition = 'not_sent'
+
+      expect(children_support_module).to be_valid
+    end
+
+    it 'refuse une condition inconnue' do
+      children_support_module.book_condition = 'lost'
+
+      expect(children_support_module).not_to be_valid
+    end
+  end
+
   describe '#select_for_siblings' do
     # Scenario: two siblings in the same active group share a child_support.
     # The younger child (current_child) is assigned a reading module with book A.
