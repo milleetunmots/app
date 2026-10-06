@@ -54,6 +54,13 @@ ActiveAdmin.register Book do
     render :sav_import_results
   end
 
+  # Pages du livre (couverture + photos intérieures), ouvertes depuis la fiche de suivi.
+  member_action :read_content do
+    authorize!(:read_content, resource)
+
+    @page_title = resource.title
+  end
+
   # ---------------------------------------------------------------------------
   # INDEX
   # ---------------------------------------------------------------------------

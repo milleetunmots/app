@@ -34,6 +34,7 @@ class Ability
       cannot %i[new create destroy discard select_module_for_parent1 select_module_for_parent2 add_child add_parent quit_group create_scheduled_call], [Parent, Child, ChildSupport]
       cannot :upload_undelivered_books, Parent
       can :read, [Workshop, SupportModule, Group, Book, ChildrenSupportModule, AdminUser, Source, ScheduledCall]
+      can :read_content, Book
       can :read, Event, type: 'Events::WorkshopParticipation'
       can %i[create read update], Tag
       can :manage, ActiveAdmin::Page, name: 'Message'
@@ -57,6 +58,8 @@ class Ability
       can :create, ChildrenSupportModule
       can %i[read update], ChildrenSupportModule, child: { child_support: { supporter_id: user.id } }
       can :read, SupportModule
+      # Pages du livre (couverture + photos intérieures) ouvertes depuis la fiche de suivi, sans accès à la fiche technique.
+      can :read_content, Book
       can :read, Event, type: 'Events::TextMessage', related_type: 'Parent', related_id: Parent.joins(parent1_children: :child_support).where(child_supports: { supporter_id: user.id }).pluck(:id)
       can :read, Event, type: 'Events::TextMessage', related_type: 'Parent', related_id: Parent.joins(parent2_children: :child_support).where(child_supports: { supporter_id: user.id }).pluck(:id)
       can :read, Event, type: 'Events::WorkshopParticipation', related_type: 'Parent', related_id: Parent.joins(parent1_children: :child_support).where(child_supports: { supporter_id: user.id }).pluck(:id)
@@ -87,6 +90,7 @@ class Ability
       can :manage, Event, type: %w[Events::TextMessage Events::WorkshopParticipation]
       cannot :read, [Events::OtherEvent, Events::SurveyResponse]
       can :read, SupportModule
+      can :read_content, Book
       can :read, ActiveAdmin::Page, name: 'Dashboard'
       can :manage, ActiveAdmin::Page, name: 'Stop Support Form'
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'

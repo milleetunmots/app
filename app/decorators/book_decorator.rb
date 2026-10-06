@@ -17,6 +17,15 @@ class BookDecorator < BaseDecorator
     image_link_tag(**options)
   end
 
+  # Couverture cliquable qui ouvre les pages du livre (couverture + photos intérieures)
+  # dans un nouvel onglet, plutôt que l'image de couverture seule.
+  def cover_content_link_tag(**options)
+    return nil unless model.media&.file&.attached?
+
+    cover = h.image_tag_with_max_size(**options, source: model.media.file)
+    h.link_to cover, h.read_content_admin_book_path(model), target: '_blank', rel: 'noopener'
+  end
+
   def interior_photos_tags(**options)
     return nil unless model.interior_photos.attached?
 

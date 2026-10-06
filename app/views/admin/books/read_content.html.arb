@@ -1,0 +1,13 @@
+panel 'Pages du livre' do
+  if (cover = resource.cover_link_tag(max_height: '400px'))
+    div(class: 'book-page') { cover }
+  end
+
+  if resource.model.interior_photos.attached?
+    resource.model.interior_photos.each do |photo|
+      div(class: 'book-page') { resource.image_link_tag(source: photo, max_height: '400px') }
+    end
+  else
+    para 'Aucune photo intérieure pour ce livre.'
+  end
+end
