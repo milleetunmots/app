@@ -132,12 +132,6 @@ RSpec.describe Child::RejectAiRegistrationsService do
   context 'traçabilité' do
     let!(:child) { create_child(tag: 'utm_source=chatgpt.com') }
 
-    it 'logue chaque enfant écarté avec son utm_source' do
-      allow(Rails.logger).to receive(:info)
-      subject
-      expect(Rails.logger).to have_received(:info).with(/#{child.id}.*chatgpt\.com/)
-    end
-
     it 'remonte le total du passage dans Rollbar' do
       allow(Rollbar).to receive(:info)
       subject

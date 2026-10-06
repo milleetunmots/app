@@ -44,12 +44,7 @@ class Child
 
     def reject(child)
       # `remove_group` (callback sur Child) détache la cohorte tout seul.
-      if child.update(group_status: 'not_supported')
-        @rejected_children_ids << child.id
-        Rails.logger.info("#{self.class}: enfant #{child.id} écarté (utm_source=#{child.utm_source})")
-      else
-        Rails.logger.error("#{self.class}: échec sur l'enfant #{child.id} : #{child.errors.full_messages.join(', ')}")
-      end
+      @rejected_children_ids << child.id if child.update(group_status: 'not_supported')
     end
   end
 end
