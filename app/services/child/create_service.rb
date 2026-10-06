@@ -22,8 +22,8 @@ class Child
     def call
       add_registration_origin_as_tag
       add_target_tag_and_handle_children_not_supported
-      reject_ai_sourced_registration
       build
+      reject_ai_sourced_registration
       set_should_contact_parent
       build_siblings
       detect_errors
@@ -106,14 +106,10 @@ class Child
 
     # Inscriptions arrivées via une URL proposée par une IA générative : ni
     # financées, ni ciblées. Contrairement au filtre diplôme ci-dessus, la règle
-    # s'applique quelle que soit l'origine de l'inscription.
+    # s'applique quelle que soit l'origine de l'inscription. Appelée avant
+    # `build_siblings`, qui recopie alors le statut sur la fratrie.
     def reject_ai_sourced_registration
-      return unless Child::AiRegistrationDetector.ai_sourced?(
-        tag_list: @attributes[:tag_list],
-        src_url: @attributes[:src_url]
-      )
-
-      @attributes[:group_status] = 'not_supported'
+      @child.group_status = 'not_supported' if @child.ai_sourced_registration?
     end
 
     def build
@@ -133,6 +129,7 @@ class Child
     end
 
     def build_siblings
+      share_group_status = @registration_origin == 4 || @child.ai_sourced_registration?
       @siblings_attributes.each do |attributes|
         attributes[:parent1] = @child.parent1
         attributes[:parent2] = @child.parent2
@@ -141,9 +138,7 @@ class Child
         attributes[:child_support] = @child.child_support
         attributes[:tag_list] = @child.tag_list
         attributes[:children_source_attributes] = @children_source_attributes
-        next unless @registration_origin == 4
-
-        attributes[:group_status] = @child.group_status
+        attributes[:group_status] = @child.group_status if share_group_status
       end
       @child.siblings.build(@siblings_attributes)
     end

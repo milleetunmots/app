@@ -16,10 +16,9 @@ class Child
 
     def call
       eligible_children.find_each do |child|
-        utm_source = Child::AiRegistrationDetector.utm_source(tag_list: child.tag_list, src_url: child.src_url)
-        next unless Child::AiRegistrationDetector.ai_sourced?(tag_list: child.tag_list, src_url: child.src_url)
+        next unless child.ai_sourced_registration?
 
-        reject(child, utm_source)
+        reject(child)
       end
       Rails.logger.info("#{self.class}: #{@rejected_children_ids.size} enfant(s) écarté(s)")
       self
@@ -37,11 +36,11 @@ class Child
            .where('children.group_id IS NULL OR groups.is_programmed = ?', false)
     end
 
-    def reject(child, utm_source)
+    def reject(child)
       # `remove_group` (callback sur Child) détache la cohorte tout seul.
       if child.update(group_status: 'not_supported')
         @rejected_children_ids << child.id
-        Rails.logger.info("#{self.class}: enfant #{child.id} écarté (utm_source=#{utm_source})")
+        Rails.logger.info("#{self.class}: enfant #{child.id} écarté (utm_source=#{child.utm_source})")
       else
         Rails.logger.error("#{self.class}: échec sur l'enfant #{child.id} : #{child.errors.full_messages.join(', ')}")
       end

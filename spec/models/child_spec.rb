@@ -403,4 +403,90 @@ RSpec.describe Child, type: :model do
       end
     end
   end
+
+  describe '#utm_source' do
+    it 'lit la valeur du tag utm_source' do
+      expect(Child.new(tag_list: ['utm_source=chatgpt.com']).utm_source).to eq 'chatgpt.com'
+    end
+
+    it 'se rabat sur src_url à défaut de tag' do
+      expect(Child.new(src_url: 'https://1001mots.org/inscription?utm_source=caf01').utm_source).to eq 'caf01'
+    end
+
+    it "vaut nil quand aucune source n'est trouvée" do
+      expect(Child.new.utm_source).to be_nil
+    end
+  end
+
+  describe '#ai_sourced_registration?' do
+    def ai_sourced?(tag_list: [], src_url: nil)
+      Child.new(tag_list: tag_list, src_url: src_url).ai_sourced_registration?
+    end
+
+    context 'à partir du tag utm_source' do
+      it 'détecte chatgpt.com' do
+        expect(ai_sourced?(tag_list: ['utm_source=chatgpt.com'])).to be true
+      end
+
+      it 'détecte claude.ai' do
+        expect(ai_sourced?(tag_list: ['utm_source=claude.ai'])).to be true
+      end
+
+      it 'détecte gemini.google.com' do
+        expect(ai_sourced?(tag_list: ['utm_source=gemini.google.com'])).to be true
+      end
+
+      it 'ignore la casse' do
+        expect(ai_sourced?(tag_list: ['utm_source=ChatGPT.com'])).to be true
+      end
+
+      it 'reconnaît le mot-clé nu, sans domaine' do
+        expect(ai_sourced?(tag_list: ['utm_source=chatgpt'])).to be true
+      end
+
+      it 'ne se déclenche pas sur une source légitime' do
+        expect(ai_sourced?(tag_list: ['utm_source=caf01'])).to be false
+      end
+
+      it 'ignore les autres tags utm' do
+        expect(ai_sourced?(tag_list: ['utm_medium=chatgpt', 'utm_source=caf01'])).to be false
+      end
+
+      it 'retient le tag utm_source parmi plusieurs tags' do
+        expect(ai_sourced?(tag_list: ['inscription3', 'utm_medium=mail', 'utm_source=chatgpt.com'])).to be true
+      end
+    end
+
+    context 'repli sur src_url quand le tag est absent' do
+      it "détecte le paramètre utm_source de l'URL" do
+        expect(ai_sourced?(src_url: 'https://1001mots.org/inscription?utm_source=chatgpt.com&utm_medium=referral')).to be true
+      end
+
+      it "ne se déclenche pas sur une source légitime dans l'URL" do
+        expect(ai_sourced?(src_url: 'https://1001mots.org/inscription?utm_source=caf01')).to be false
+      end
+
+      it 'renvoie false pour une URL sans utm_source' do
+        expect(ai_sourced?(src_url: 'https://1001mots.org/inscription')).to be false
+      end
+
+      it 'renvoie false sans lever pour une URL malformée' do
+        expect(ai_sourced?(src_url: 'pas une url du tout ::')).to be false
+      end
+    end
+
+    context 'priorité et cas limites' do
+      it 'privilégie le tag sur src_url' do
+        expect(ai_sourced?(tag_list: ['utm_source=caf01'], src_url: 'https://1001mots.org/inscription?utm_source=chatgpt.com')).to be false
+      end
+
+      it 'renvoie false sans tag ni src_url' do
+        expect(ai_sourced?).to be false
+      end
+
+      it 'renvoie false pour un tag utm_source vide' do
+        expect(ai_sourced?(tag_list: ['utm_source='])).to be false
+      end
+    end
+  end
 end
