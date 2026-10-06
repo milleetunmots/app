@@ -97,9 +97,6 @@ class Child
       @attributes[:group_status] = 'not_supported'
     end
 
-    # Inscriptions arrivées via une URL proposée par une IA générative : ni
-    # financées, ni ciblées. Contrairement au filtre diplôme ci-dessus, la règle
-    # s'applique quelle que soit l'origine de l'inscription.
     # Inscription refusée, quel qu'en soit le motif : ni le SMS de bienvenue ni
     # le lien vers le questionnaire ne doivent partir. `SendInitialFormSmsJob` ne
     # consulte pas `group_status`, c'est donc ici que la garde doit vivre.
@@ -107,6 +104,9 @@ class Child
       'filtre-diplome-KO'.in?(@child.tag_list) || @child.group_status == 'not_supported'
     end
 
+    # Inscriptions arrivées via une URL proposée par une IA générative : ni
+    # financées, ni ciblées. Contrairement au filtre diplôme ci-dessus, la règle
+    # s'applique quelle que soit l'origine de l'inscription.
     def reject_ai_sourced_registration
       return unless Child::AiRegistrationDetector.ai_sourced?(
         tag_list: @attributes[:tag_list],

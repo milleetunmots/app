@@ -86,6 +86,34 @@ RSpec.describe Child::RejectAiRegistrationsService do
     end
   end
 
+  # Données anciennes : la validation interdit un statut vide aujourd'hui, mais
+  # la colonne l'accepte. `where.not` les écarterait silencieusement (NULL en SQL).
+  context 'enfant sans statut' do
+    let!(:child) do
+      create_child(tag: 'utm_source=chatgpt.com').tap { |c| c.update_column(:group_status, nil) }
+    end
+
+    it 'le passe en « Non accompagné »' do
+      subject
+      expect(child.reload.group_status).to eq 'not_supported'
+    end
+  end
+
+  context 'enfant supprimé' do
+    let!(:child) do
+      create_child(tag: 'utm_source=chatgpt.com').tap(&:discard)
+    end
+
+    it 'ne le touche pas' do
+      subject
+      expect(child.reload.group_status).to eq 'waiting'
+    end
+
+    it 'ne le compte pas parmi les enfants écartés' do
+      expect(subject.rejected_children_ids).not_to include child.id
+    end
+  end
+
   context 'idempotence' do
     let!(:child) { create_child(tag: 'utm_source=chatgpt.com') }
 

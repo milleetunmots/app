@@ -28,9 +28,11 @@ class Child
     private
 
     # Sans cohorte, ou dans une cohorte pas encore programmée. `find_each` car le
-    # premier passage traite un stock dont le volume est inconnu.
+    # premier passage traite un stock dont le volume est inconnu. `IS DISTINCT
+    # FROM` garde les statuts vides (données anciennes), que `where.not` exclurait.
     def eligible_children
-      Child.where.not(group_status: 'not_supported')
+      Child.kept
+           .where('children.group_status IS DISTINCT FROM ?', 'not_supported')
            .left_joins(:group)
            .where('children.group_id IS NULL OR groups.is_programmed = ?', false)
     end
