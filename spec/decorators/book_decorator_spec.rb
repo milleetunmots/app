@@ -19,4 +19,28 @@ RSpec.describe BookDecorator do
       expect(link).to have_css('img[style*="max-width: 100px;"]')
     end
   end
+
+  describe '#pages' do
+    it 'liste la couverture puis les photos intérieures, avec leurs libellés' do
+      book = FactoryBot.create(:book, :with_interior_photos, media: FactoryBot.create(:media_image))
+
+      pages = book.decorate.pages
+
+      expect(pages.pluck(:label)).to eq(['Couverture', 'Image 1', 'Image 2'])
+      expect(pages.first[:source]).to eq(book.media.file)
+      expect(pages.drop(1).pluck(:source)).to eq(book.interior_photos.to_a)
+    end
+
+    it "commence à l'image 1 pour un livre sans couverture" do
+      book = FactoryBot.create(:book, :with_interior_photos)
+
+      expect(book.decorate.pages.pluck(:label)).to eq(['Image 1', 'Image 2'])
+    end
+
+    it 'ne renvoie aucune page pour un livre sans image' do
+      book = FactoryBot.create(:book)
+
+      expect(book.decorate.pages).to eq([])
+    end
+  end
 end

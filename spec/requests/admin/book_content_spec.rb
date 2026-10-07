@@ -20,6 +20,17 @@ RSpec.describe 'Admin book content', type: :request do
           expect(response.body).to include(photo.blob.filename.to_s)
         end
       end
+
+      it 'affiche une card par page et la vue agrandie' do
+        get "/admin/books/#{book.id}/read_content"
+
+        html = Capybara.string(response.body)
+        expect(html).to have_css('.book-gallery a.book-gallery-card', count: 3)
+        expect(html.all('.book-gallery-card-label').map(&:text)).to eq(['Couverture', 'Image 1', 'Image 2'])
+        expect(html).to have_css('.book-gallery-card[target]', count: 0)
+        expect(html).to have_css('.book-gallery-card img[loading="lazy"]', count: 3)
+        expect(html).to have_css('.book-lightbox[hidden]', visible: :all)
+      end
     end
   end
 
