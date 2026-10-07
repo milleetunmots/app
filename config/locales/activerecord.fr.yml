@@ -231,6 +231,7 @@ fr:
       children_support_module/condition:
         not_received: Non reçu
         damaged: Défectueux
+        not_sent: Non envoyé
       child_support:
         << : *SHARED
         address: Adresse

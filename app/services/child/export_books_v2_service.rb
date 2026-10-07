@@ -83,7 +83,7 @@ class Child
       chosen_modules.group_by(&:support_module_book_id).each do |support_module_book_id, children_support_modules|
         book = Book.find(support_module_book_id) if support_module_book_id
 
-        children = Child.where(group_status: 'active', id: children_support_modules.map(&:child_id).uniq)
+        children = Child.where(id: children_support_modules.select(&:shippable?).map(&:child_id).uniq)
 
         filename = book.present? ? "#{book.ean} #{book.title} #{Time.zone.now.strftime("%d-%m-%Y")}" : 'Sans livre'
         children_list_sorted_by_module[filename] = children

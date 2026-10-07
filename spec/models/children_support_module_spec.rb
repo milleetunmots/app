@@ -32,6 +32,104 @@
 require 'rails_helper'
 
 RSpec.describe ChildrenSupportModule, type: :model do
+  describe 'book_condition' do
+    let(:child) { FactoryBot.create(:child) }
+    let(:children_support_module) { FactoryBot.build(:children_support_module, child: child, parent: child.parent1) }
+
+    it 'accepte « Non envoyé »' do
+      children_support_module.book_condition = 'not_sent'
+
+      expect(children_support_module).to be_valid
+    end
+
+    it 'refuse une condition inconnue' do
+      children_support_module.book_condition = 'lost'
+
+      expect(children_support_module).not_to be_valid
+    end
+  end
+
+  describe '#shippable?' do
+    let(:child) { FactoryBot.create(:child, group: FactoryBot.create(:group), group_status: 'active') }
+    let(:children_support_module) { FactoryBot.build(:children_support_module, child: child, parent: child.parent1) }
+
+    it "est vrai pour un enfant actif dont l'adresse n'est pas suspecte" do
+      expect(children_support_module).to be_shippable
+    end
+
+    it "est faux quand l'adresse est suspecte" do
+      child.child_support.update_column(:address_suspected_invalid_at, Time.zone.now)
+
+      expect(children_support_module).not_to be_shippable
+    end
+
+    %w[paused stopped disengaged not_supported waiting].each do |group_status|
+      it "est faux pour un enfant #{group_status}" do
+        child.update_column(:group_status, group_status)
+
+        expect(children_support_module).not_to be_shippable
+      end
+    end
+
+    # comme le LEFT JOIN de chosen_modules_for_group : sans fiche, pas d'adresse suspecte
+    it 'est vrai pour un enfant actif sans fiche de suivi' do
+      child.update_column(:child_support_id, nil)
+
+      expect(children_support_module).to be_shippable
+    end
+  end
+
+  describe 'adresse suspecte quand le livre est déclaré « Non envoyé »' do
+    let(:child) { FactoryBot.create(:child) }
+    let(:child_support) { child.child_support }
+    let!(:children_support_module) { FactoryBot.create(:children_support_module, child: child, parent: child.parent1) }
+
+    it "marque l'adresse suspecte lors d'une pose manuelle" do
+      freeze_time do
+        children_support_module.update!(book_condition: 'not_sent')
+
+        expect(child_support.reload.address_suspected_invalid_at).to eq(Time.zone.now)
+      end
+    end
+
+    it "ne réécrit pas la date d'une adresse déjà suspecte" do
+      flagged_at = 3.days.ago.change(usec: 0)
+      child_support.update_column(:address_suspected_invalid_at, flagged_at)
+
+      children_support_module.update!(book_condition: 'not_sent')
+
+      expect(child_support.reload.address_suspected_invalid_at).to eq(flagged_at)
+    end
+
+    it "ne marque pas l'adresse pour les autres conditions" do
+      children_support_module.update!(book_condition: 'not_received')
+
+      expect(child_support.reload.address_suspected_invalid_at).to be_nil
+    end
+
+    # la pose automatique à l'attribution passe par update_all : une famille
+    # interrompue a une adresse correcte, la marquer serait un faux positif
+    it "ne marque pas l'adresse lors d'une pose en masse (update_all)" do
+      ChildrenSupportModule.where(id: children_support_module.id).update_all(book_condition: 'not_sent')
+
+      expect(child_support.reload.address_suspected_invalid_at).to be_nil
+    end
+
+    it 'ne lève pas le marquage quand « Non envoyé » est retiré' do
+      children_support_module.update!(book_condition: 'not_sent')
+
+      children_support_module.update!(book_condition: nil)
+
+      expect(child_support.reload.address_suspected_invalid_at).to be_present
+    end
+
+    it "ne plante pas quand l'enfant n'a pas de fiche de suivi" do
+      child.update_column(:child_support_id, nil)
+
+      expect { children_support_module.reload.update!(book_condition: 'not_sent') }.not_to raise_error
+    end
+  end
+
   describe '#select_for_siblings' do
     # Scenario: two siblings in the same active group share a child_support.
     # The younger child (current_child) is assigned a reading module with book A.

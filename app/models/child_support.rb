@@ -641,8 +641,9 @@ class ChildSupport < ApplicationRecord
     super((val || []).reject(&:blank?).join(';'))
   end
 
-  # date à laquelle les livres non reçus / défectueux d'un enfant de cette fiche seront renvoyés,
-  # ou nil si aucune alerte de renvoi SAV ne doit être affichée
+  # date à laquelle les livres non reçus / défectueux / non envoyés d'un enfant de cette fiche seront renvoyés,
+  # ou nil si aucune alerte de renvoi SAV ne doit être affichée (on ne renvoie pas de livre à un enfant
+  # dont l'accompagnement est arrêté)
   def pending_book_resend_date(child_id)
     return nil if address_suspected_invalid_at.present?
 
@@ -654,6 +655,7 @@ class ChildSupport < ApplicationRecord
 
     return nil unless children_support_modules.with_books.exists?(
       child_id: child_id,
+      children: { group_status: 'active' },
       book_condition: ChildrenSupportModule::CONDITIONS,
       book_condition_changed_at: last_shipment_date...next_resend_date,
       book_resent_on: no_resend_since
