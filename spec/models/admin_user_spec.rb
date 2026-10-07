@@ -224,6 +224,32 @@ RSpec.describe AdminUser, type: :model do
     end
   end
 
+  describe '#two_factor_required?' do
+    let(:admin_user) { FactoryBot.create(:admin_user, phone_number: '0612345678', two_factor_enabled: true) }
+
+    def stub_env(name)
+      allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new(name))
+    end
+
+    it 'exige le second facteur hors développement quand le flag est actif' do
+      stub_env('production')
+      expect(admin_user.two_factor_required?).to be(true)
+    end
+
+    # Le code OTP part par SMS, or SpotHit restreint les destinataires aux
+    # SAFE_PHONE_NUMBERS en développement : sans ce court-circuit, un compte
+    # protégé serait inaccessible en local.
+    it 'court-circuite le second facteur en développement malgré le flag' do
+      stub_env('development')
+      expect(admin_user.two_factor_required?).to be(false)
+    end
+
+    it "n'exige rien quand le flag est inactif" do
+      stub_env('production')
+      expect(FactoryBot.create(:admin_user).two_factor_required?).to be(false)
+    end
+  end
+
   describe 'activation du second facteur' do
     # Warden authentifie depuis le cookie « se souvenir de moi » sans jamais
     # repasser par le controller de sessions : un cookie posé avant l'activation
