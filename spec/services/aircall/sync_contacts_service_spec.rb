@@ -295,6 +295,18 @@ RSpec.describe Aircall::SyncContactsService do
       end   
     end
 
+    context 'when the only active child is discarded' do
+      before do
+        child.discard!
+      end
+
+      it 'does not raise and does not update the contact informations' do
+        expect(Aircall::UpdateContactService).not_to receive(:new)
+        expect { subject.call }.not_to raise_error
+        expect(subject.updated_info_ids).to be_empty
+      end
+    end
+
     context 'when no data has changed' do
       it 'does not call any update services' do
         expect(Aircall::UpdateContactPhoneNumberService).not_to receive(:new)
