@@ -6,7 +6,7 @@ module Typeform
     def call
       return self if ENV['CAF_SUBSCRIPTION'].nil?
 
-      # verify_security_token
+      verify_security_token
       find_child_support
       return self unless @errors.empty?
 
