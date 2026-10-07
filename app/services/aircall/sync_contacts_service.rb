@@ -56,6 +56,11 @@ module Aircall
     end
 
     def parent_informations_changed?
+      # Le scope with_a_child_in_active_group retient aussi les enfants archivés,
+      # que current_child écarte : sans enfant principal, rien à comparer.
+      current_child = @parent.current_child
+      return false unless current_child
+
       information = @aircall_datas['information']
       company_name = @aircall_datas['company_name']
       child_support_link_match = information.match(CHILD_SUPPORT_LINK_REGEX)
@@ -65,9 +70,9 @@ module Aircall
 
       child_support_link = child_support_link_match[1]
       group_match = group_match[1]
-      return true unless Rails.application.routes.url_helpers.edit_admin_child_support_url(id: @parent.current_child.child_support_id || '').in?(child_support_link)
+      return true unless Rails.application.routes.url_helpers.edit_admin_child_support_url(id: current_child.child_support_id || '').in?(child_support_link)
 
-      @parent.current_child.group_name != group_match
+      current_child.group_name != group_match
     end
   end
 end
