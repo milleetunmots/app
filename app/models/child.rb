@@ -60,6 +60,10 @@ class Child < ApplicationRecord
 
   GENDERS = %w[m f].freeze
   GROUP_STATUS = %w[waiting active paused stopped disengaged not_supported].freeze
+  # Inscriptions arrivées via une URL proposée par une IA générative : ni
+  # financées, ni ciblées. Correspondance par sous-chaîne, insensible à la casse.
+  AI_SOURCE_KEYWORDS = %w[chatgpt claude gemini].freeze
+  UTM_SOURCE_TAG_PREFIX = 'utm_source='.freeze
 
   # Ordre canonique de désignation de l'« enfant courant » d'une fratrie :
   #   1. les enfants actifs d'abord
@@ -574,6 +578,17 @@ class Child < ApplicationRecord
     duration_in_months(group_start)
   end
 
+  # Le tag prime : c'est la valeur telle qu'elle a été soumise au formulaire.
+  # `src_url` ne sert que de repli pour les parcours où le tag n'a pas été posé.
+  def utm_source
+    utm_source_from_tag_list.presence || utm_source_from_src_url.presence
+  end
+
+  def ai_sourced_registration?
+    source = utm_source
+    source.present? && AI_SOURCE_KEYWORDS.any? { |keyword| source.downcase.include?(keyword) }
+  end
+
   # we do not call this 'siblings' because real siblings may have only
   # one parent in common
   def strict_siblings
@@ -889,5 +904,23 @@ class Child < ApplicationRecord
 
     self.group_id = nil
     save(validate: false)
+  end
+
+  def utm_source_from_tag_list
+    tag = tag_list.find { |t| t.downcase.start_with?(UTM_SOURCE_TAG_PREFIX) }
+    tag && tag[UTM_SOURCE_TAG_PREFIX.length..]
+  end
+
+  # Une `src_url` illisible ne doit pas faire échouer une inscription :
+  # en cas de doute, on ne détecte rien.
+  def utm_source_from_src_url
+    return if src_url.blank?
+
+    query = URI.parse(src_url).query
+    return if query.blank?
+
+    URI.decode_www_form(query).to_h['utm_source']
+  rescue URI::InvalidURIError, ArgumentError
+    nil
   end
 end
