@@ -49,4 +49,20 @@ RSpec.describe BlockedSendAttempt::SendAttemptReplayer do
 
     expect(result).to eq(fake_service)
   end
+
+  # Seul le service d'invitation sait remplir {RESPONSE_LINK} : rejouée par
+  # ProgramMessageService, une invitation partait sans aucune variable et
+  # Spot-Hit la rejetait faute de destinataire (erreur 4).
+  it "rejoue une invitation d'atelier avec le service d'invitation" do
+    attempt.update!(replay_params: attempt.replay_params.merge('workshop_id' => 7))
+    fake_service = instance_double(Workshop::ProgramWorkshopInvitationService, errors: [])
+    allow(fake_service).to receive(:call).and_return(fake_service)
+    allow(Workshop::ProgramWorkshopInvitationService).to receive(:new).and_return(fake_service)
+
+    result = described_class.new(attempt).call
+
+    expect(Workshop::ProgramWorkshopInvitationService).to have_received(:new)
+      .with(anything, anything, anything, anything, nil, nil, false, 7, nil, ['active'], 'spothit', nil, blocked_send_attempt: attempt)
+    expect(result).to eq(fake_service)
+  end
 end
