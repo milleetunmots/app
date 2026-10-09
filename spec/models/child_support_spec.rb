@@ -122,6 +122,7 @@
 #  restart_support_date                       :datetime
 #  restart_support_details                    :text
 #  second_language                            :string
+#  sensitive_information                      :text
 #  stop_support_date                          :datetime
 #  stop_support_details                       :text
 #  stop_support_reason                        :string
@@ -418,6 +419,89 @@ RSpec.describe ChildSupport, type: :model do
       first_child_support.update!(address_suspected_invalid_at: Time.zone.now)
 
       expect(first_child_support.pending_book_resend_date(first_child.id)).to be_nil
+    end
+  end
+
+  describe "#sensitive_information" do
+    let(:texte) { "Père sous mesure d'éloignement" }
+    let(:child_support) { FactoryBot.create(:child_support, supporter: admin_user) }
+
+    def valeur_en_base(child_support)
+      ChildSupport.connection.select_value("SELECT sensitive_information FROM child_supports WHERE id = #{child_support.id}")
+    end
+
+    context "quand un texte est enregistré" do
+      before { child_support.update!(sensitive_information: texte) }
+
+      it "le relit en clair via le modèle" do
+        expect(ChildSupport.find(child_support.id).sensitive_information).to eq(texte)
+      end
+
+      it "ne stocke pas le texte en clair dans la colonne" do
+        expect(valeur_en_base(child_support)).to be_present
+        expect(valeur_en_base(child_support)).not_to include("éloignement")
+      end
+    end
+
+    context "quand le champ et un autre attribut sont modifiés" do
+      before do
+        child_support.update!(notes: "Appel du matin")
+        child_support.update!(sensitive_information: texte, notes: "Appel du soir")
+      end
+
+      it "enregistre bien des versions pour l'autre attribut" do
+        expect(child_support.versions.count).to be >= 2
+      end
+
+      it "n'écrit jamais le texte dans l'historique" do
+        historique = child_support.versions.map { |version| [version.object, version.object_changes] }.to_json
+
+        expect(historique).not_to include("éloignement")
+        expect(historique).not_to include("sensitive_information")
+      end
+    end
+
+    context "quand le texte ne contient que des espaces" do
+      it "le considère comme vide" do
+        child_support.update!(sensitive_information: "   ")
+
+        expect(child_support.reload.sensitive_information).to be_nil
+      end
+    end
+
+    context "quand le texte est une chaîne vide" do
+      it "le considère comme vide" do
+        child_support.update!(sensitive_information: "")
+
+        expect(child_support.reload.sensitive_information).to be_nil
+      end
+    end
+
+    context "quand le texte est vidé après avoir été renseigné" do
+      it "repasse à nil" do
+        child_support.update!(sensitive_information: texte)
+        child_support.update!(sensitive_information: nil)
+
+        expect(child_support.reload.sensitive_information).to be_nil
+      end
+    end
+
+    context "quand la valeur a été chiffrée avec une autre clé" do
+      before do
+        autre_clef = ActiveRecord::Encryption::DerivedSecretKeyProvider.new("une autre clé")
+        ActiveRecord::Encryption.with_encryption_context(key_provider: autre_clef) do
+          child_support.update!(sensitive_information: texte)
+        end
+      end
+
+      it "lève une erreur de déchiffrement à la lecture du champ" do
+        expect { ChildSupport.find(child_support.id).sensitive_information }
+          .to raise_error(ActiveRecord::Encryption::Errors::Decryption)
+      end
+
+      it "permet de lire les autres champs de la fiche" do
+        expect(ChildSupport.find(child_support.id).supporter_id).to eq(admin_user.id)
+      end
     end
   end
 end
