@@ -54,6 +54,13 @@ ActiveAdmin.register Book do
     render :sav_import_results
   end
 
+  # Pages du livre (couverture + photos intérieures), ouvertes depuis la fiche de suivi.
+  member_action :read_content do
+    authorize!(:read_content, resource)
+
+    @page_title = resource.title
+  end
+
   # ---------------------------------------------------------------------------
   # INDEX
   # ---------------------------------------------------------------------------
@@ -85,6 +92,9 @@ ActiveAdmin.register Book do
       row :book_support_modules
       row :file do |decorated|
         decorated.cover_link_tag(max_height: '500px')
+      end
+      row :interior_photos do |decorated|
+        decorated.interior_photos_tags(max_height: '200px')
       end
     end
   end
