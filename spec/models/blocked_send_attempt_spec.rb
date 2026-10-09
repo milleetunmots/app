@@ -223,4 +223,37 @@ RSpec.describe BlockedSendAttempt do
       expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').once
     end
   end
+
+  describe "un admin technique relance une invitation d'atelier bloquée" do
+    let_it_be(:animator) { FactoryBot.create(:admin_user, user_role: 'animator') }
+    let(:workshop) do
+      FactoryBot.create(
+        :workshop,
+        animator: animator,
+        parents: [parent],
+        invitation_message: "Atelier parents bébés mardi à la PMI : lecture d'histoires, comptines et jeux. Pour toute information, contactez l'animatrice au 0612345678."
+      )
+    end
+
+    before do
+      allow(BlockedSendAttempt::PhoneNumberSendGuard).to receive(:blocking_enabled?).and_return(true)
+    end
+
+    it "transmet l'invitation avec le lien de réponse et met à jour les participants de l'atelier" do
+      expect(workshop.workshop_participations).to be_empty
+      attempt = BlockedSendAttempt.find_by!(kind: 'phone_number')
+
+      service = attempt.relaunch!
+
+      expect(service.errors).to be_empty
+      expect(attempt.reload.status).to eq('relaunched')
+      expect(workshop.workshop_participations.pluck(:related_id)).to eq([parent.id])
+      expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms').with do |request|
+        # Rejouée par le mauvais service, l'invitation partait avec un champ
+        # `destinataires` vide : Spot-Hit répondait par son erreur 4.
+        form = URI.decode_www_form(request.body).to_h
+        form["destinataires[#{parent.phone_number}][RESPONSE_LINK]"].to_s.end_with?("/#{parent.security_token}/#{workshop.id}")
+      end)
+    end
+  end
 end
