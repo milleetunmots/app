@@ -17,6 +17,12 @@ AIRTABLE_MODULE_TABLE_NAME: xxx
 AIRTABLE_MODULE_CONTENT_APPLICATION_BASE_KEY: xxx
 AIRTABLE_MODULE_CONTENT_TABLE_NAME: xxx
 
+# ActiveRecord Encryption (colonnes chiffrées). Générer avec `bin/rails db:encryption:init`.
+# Obligatoires en production, à sauvegarder dans le gestionnaire de secrets : une clé perdue = données illisibles.
+AR_ENCRYPTION_PRIMARY_KEY: xxx
+AR_ENCRYPTION_DETERMINISTIC_KEY: xxx
+AR_ENCRYPTION_KEY_DERIVATION_SALT: xxx
+
 #URL_FILTER_BLOCKING_ENABLED: true
 #KEYWORD_FILTER_BLOCKING_ENABLED: true
 #PHONE_NUMBER_FILTER_BLOCKING_ENABLED: true
