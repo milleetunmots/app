@@ -57,6 +57,9 @@ ENV['KEYWORD_FILTER_BLOCKING_ENABLED'] ||= ''
 ENV['PHONE_NUMBER_FILTER_BLOCKING_ENABLED'] ||= ''
 ENV['SLACK_BOT_USER_OAUTH_TOKEN'] ||= "valid_token"
 ENV['SLACK_QUOTA_ALERT_CHANNEL'] ||= "test_app"
+ENV['AR_ENCRYPTION_PRIMARY_KEY'] ||= 'test_primary_key_0123456789abcdef'
+ENV['AR_ENCRYPTION_DETERMINISTIC_KEY'] ||= 'test_deterministic_key_0123456789ab'
+ENV['AR_ENCRYPTION_KEY_DERIVATION_SALT'] ||= 'test_key_derivation_salt_0123456789'
 
 require File.expand_path("../../config/environment", __FILE__)
 # Prevent database truncation if the environment is production
