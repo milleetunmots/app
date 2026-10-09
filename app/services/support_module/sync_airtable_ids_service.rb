@@ -33,7 +33,12 @@ class SupportModule::SyncAirtableIdsService
   def sync(airtable_module)
     support_module = airtable_module.support_module
     if support_module.nil?
-      @errors << "#{airtable_module.title} #{airtable_module.ages} introuvable"
+      @errors << "#{airtable_module.title} #{airtable_module.ages} introuvable" unless
+        airtable_module.title.squish.in?([
+          "Parler dès la naissance - module unique spécial",
+          "Module 0 conversation",
+          "Module 0 conversation - bilingue"
+        ])
       return nil
     end
 
