@@ -12,9 +12,27 @@ class Ability
     case user.user_role
     when 'super_admin'
       can :manage, :all
+      cannot :read_sensitive_information, ChildSupport
+      cannot :update_sensitive_information, ChildSupport
+      cannot :update_ok_for_solicitation, ChildSupport
+      can :read_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_ok_for_solicitation, ChildSupport, supporter_id: user.id
+      can :read_sensitive_information, ChildSupport, supporter_id: nil
+      can :update_sensitive_information, ChildSupport, supporter_id: nil
+      can :update_ok_for_solicitation, ChildSupport, supporter_id: nil
     when 'contributor'
       can :manage,
           [Parent, Child, ChildSupport, Workshop, Task, SupportModule, MediaFolder, Medium, Tag, Event, Group, Book, ChildrenSupportModule, Source, RegistrationLimit, ScheduledCall]
+      cannot :read_sensitive_information, ChildSupport
+      cannot :update_sensitive_information, ChildSupport
+      cannot :update_ok_for_solicitation, ChildSupport
+      can :read_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_ok_for_solicitation, ChildSupport, supporter_id: user.id
+      can :read_sensitive_information, ChildSupport, supporter_id: nil
+      can :update_sensitive_information, ChildSupport, supporter_id: nil
+      can :update_ok_for_solicitation, ChildSupport, supporter_id: nil
       can :read, [AdminUser, LogisticExport]
       can :download, LogisticExport
       can :upsert_shipment_date, Book
@@ -54,6 +72,9 @@ class Ability
       can :create, Child
       can %i[read update add_parent add_child], Child, child_support: { supporter_id: user.id }
       can %i[create read update add_parent add_child], ChildSupport, supporter_id: user.id
+      can :read_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_ok_for_solicitation, ChildSupport, supporter_id: user.id
       can :create, ChildrenSupportModule
       can %i[read update], ChildrenSupportModule, child: { child_support: { supporter_id: user.id } }
       can :read, SupportModule
@@ -82,6 +103,12 @@ class Ability
       can %i[read update destroy], Task, reporter_id: user.id
       can :manage, [Parent, Child, ChildSupport, ChildrenSupportModule]
       cannot %i[destroy discard], [Parent, Child, ChildSupport, ChildrenSupportModule]
+      cannot :read_sensitive_information, ChildSupport
+      cannot :update_sensitive_information, ChildSupport
+      cannot :update_ok_for_solicitation, ChildSupport
+      can :read_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_ok_for_solicitation, ChildSupport, supporter_id: user.id
       cannot :upload_undelivered_books, Parent
       can :manage, Workshop
       can :manage, Event, type: %w[Events::TextMessage Events::WorkshopParticipation]
