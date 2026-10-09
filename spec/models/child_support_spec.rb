@@ -426,10 +426,6 @@ RSpec.describe ChildSupport, type: :model do
     let(:texte) { "Père sous mesure d'éloignement" }
     let(:child_support) { FactoryBot.create(:child_support, supporter: admin_user) }
 
-    def valeur_en_base(child_support)
-      ChildSupport.connection.select_value("SELECT sensitive_information FROM child_supports WHERE id = #{child_support.id}")
-    end
-
     context "quand un texte est enregistré" do
       before { child_support.update!(sensitive_information: texte) }
 
@@ -438,8 +434,10 @@ RSpec.describe ChildSupport, type: :model do
       end
 
       it "ne stocke pas le texte en clair dans la colonne" do
-        expect(valeur_en_base(child_support)).to be_present
-        expect(valeur_en_base(child_support)).not_to include("éloignement")
+        valeur_brute = ChildSupport.find(child_support.id).read_attribute_before_type_cast(:sensitive_information)
+
+        expect(valeur_brute).to be_present
+        expect(valeur_brute).not_to include("éloignement")
       end
     end
 
