@@ -122,6 +122,7 @@
 #  restart_support_date                       :datetime
 #  restart_support_details                    :text
 #  second_language                            :string
+#  sensitive_information                      :text
 #  stop_support_date                          :datetime
 #  stop_support_details                       :text
 #  stop_support_reason                        :string
@@ -833,7 +834,19 @@ class ChildSupport < ApplicationRecord
   # versions history
   # ---------------------------------------------------------------------------
 
-  has_paper_trail
+  # `skip` (et non `ignore`) : le champ chiffré ne doit jamais apparaître dans les versions
+  has_paper_trail skip: [:sensitive_information]
+
+  # ---------------------------------------------------------------------------
+  # encryption
+  # ---------------------------------------------------------------------------
+
+  encrypts :sensitive_information
+
+  # Écrit nil plutôt qu'un texte blanc, sans relire (donc sans déchiffrer) la valeur en base
+  def sensitive_information=(value)
+    super(value.presence)
+  end
 
   # ---------------------------------------------------------------------------
   # tags
