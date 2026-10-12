@@ -112,6 +112,31 @@ body.logged_in
     label[for=child_support_important_information], label[for=child_support_sensitive_information], label[for=child_support_parent_needs]
       font-weight: bold
 
+    // Étiquette et menu sur une ligne, cadre ajusté au contenu
+    .ok-for-solicitation
+      display: inline-block
+      width: auto
+      padding: 6px
+      border: 4px solid transparent
+      border-radius: 4px
+
+      label
+        float: none
+        display: inline-block
+        width: auto !important
+        margin-right: 8px
+
+      select
+        width: auto
+        min-width: 120px
+
+    // Un texte sensible existe : le menu s'encadre en rouge (visible de tous, sans montrer le texte)
+    .ok-for-solicitation.sensitive-information-alert
+      border-color: #d32f2f
+
+      label::before
+        content: "⚠️ "
+
     #child_support_tag_list_input,
     #child_support_book_not_received_input
       .select2-container

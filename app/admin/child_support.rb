@@ -339,6 +339,17 @@ ActiveAdmin.register ChildSupport do
               end
             end
           end
+
+          columns do
+            column do
+              f.input :ok_for_solicitation,
+                      as: :select,
+                      collection: [['Oui', true], ['Non', false]],
+                      include_blank: true,
+                      wrapper_html: { class: ['ok-for-solicitation', ('sensitive-information-alert' if f.object.sensitive_information_present?)].compact.join(' ') },
+                      input_html: { disabled: !authorized?(:update_ok_for_solicitation, f.object) }
+            end
+          end
         end
         column class: 'column flex-column' do
           # seuls les contributeurs et administrateurs peuvent modifier la liste :
@@ -1011,7 +1022,11 @@ ActiveAdmin.register ChildSupport do
   permit_params do
     permitted = base_attributes + ChildSupport.call_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms tag_list] + parents_available_support_module_list_attributes
     permitted += tags_params_attributes unless current_admin_user.caller_or_animator?
-    permitted += %i[sensitive_information] if params[:id].present? && current_ability.can?(:update_sensitive_information, ChildSupport.find(params[:id]))
+    if params[:id].present?
+      child_support = ChildSupport.find(params[:id])
+      permitted += %i[sensitive_information] if current_ability.can?(:update_sensitive_information, child_support)
+      permitted += %i[ok_for_solicitation] if current_ability.can?(:update_ok_for_solicitation, child_support)
+    end
     permitted
   end
 
