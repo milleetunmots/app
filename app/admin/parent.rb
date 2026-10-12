@@ -62,6 +62,7 @@ ActiveAdmin.register Parent do
   filter :by_instagram_user, as: :check_boxes, label: 'Utilise régulièrement Instagram', collection: proc { instagram_information_collection }
   filter :by_instagram_follower, as: :check_boxes, label: 'Nous suit sur Instagram', collection: proc { instagram_information_collection }
   filter :is_ambassador
+  filter :ok_for_solicitation_is, as: :select, collection: proc { ok_for_solicitation_filter_collection }, label: 'OK pour sollicitation ?'
   filter :created_at
   filter :updated_at
 
@@ -170,6 +171,7 @@ ActiveAdmin.register Parent do
           row :first_name
           row :last_name
           row :phone_number
+          row :ok_for_solicitation
           row :is_excluded_from_workshop
           row :family_followed
           row :present_on_whatsapp

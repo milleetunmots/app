@@ -123,6 +123,7 @@ fr:
         file: Couverture
         interior_photos: Photos intérieures
       child:
+        ok_for_solicitation: OK pour sollicitation ?
         << : *SHARED
         address: Adresse
         address_supplement: Complément d'adresse
@@ -632,6 +633,7 @@ fr:
       media/text_messages_bundle_draft:
         << : *TEXT_MESSAGES_BUNDLE
       parent:
+        ok_for_solicitation: OK pour sollicitation ?
         << : *SHARED
         address: Adresse
         address_supplement: Complément d'adresse

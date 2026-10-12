@@ -192,6 +192,11 @@ class Child < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   scope :with_support, -> { joins(:child_support) }
+  scope :ok_for_solicitation_is, ->(value) {
+    next none unless ChildSupport::OK_FOR_SOLICITATION_FILTER.key?(value)
+
+    joins(:child_support).where(child_supports: { ok_for_solicitation: ChildSupport::OK_FOR_SOLICITATION_FILTER[value] })
+  }
   scope :by_current_child_priority, -> { order(CURRENT_CHILD_ORDER) }
   scope :without_support, -> { where(child_support_id: nil) }
   scope :with_group, -> { where.not(group_id: nil) }
@@ -818,7 +823,7 @@ class Child < ApplicationRecord
   end
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_details_matches_any book_delivery_location registration_professional_email_contains]
+    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_details_matches_any book_delivery_location registration_professional_email_contains ok_for_solicitation_is]
   end
 
   # Périmètre : les enfants de la fiche de suivi, et non ceux qui partagent

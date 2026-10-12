@@ -576,4 +576,29 @@ RSpec.describe ChildSupport, type: :model do
       expect(ChildSupport.find(fiche.id).sensitive_information_present?).to be(true)
     end
   end
+
+  describe ".ok_for_solicitation_is" do
+    let!(:fiche_oui) { FactoryBot.create(:child_support, ok_for_solicitation: true) }
+    let!(:fiche_non) { FactoryBot.create(:child_support, ok_for_solicitation: false) }
+    let!(:fiche_vide) { FactoryBot.create(:child_support, ok_for_solicitation: nil) }
+
+    it "retourne les fiches à Oui" do
+      expect(ChildSupport.ok_for_solicitation_is("yes")).to contain_exactly(fiche_oui)
+    end
+
+    it "retourne les fiches à Non" do
+      expect(ChildSupport.ok_for_solicitation_is("no")).to contain_exactly(fiche_non)
+    end
+
+    it "retourne les fiches vides" do
+      resultat = ChildSupport.ok_for_solicitation_is("empty")
+
+      expect(resultat).to include(fiche_vide)
+      expect(resultat).not_to include(fiche_oui, fiche_non)
+    end
+
+    it "ne retourne aucune fiche pour une valeur inconnue" do
+      expect(ChildSupport.ok_for_solicitation_is("peut-être")).to be_empty
+    end
+  end
 end

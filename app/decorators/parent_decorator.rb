@@ -5,6 +5,11 @@ class ParentDecorator < BaseDecorator
     f: :rose
   }
 
+  # La fiche de l'enfant courant, comme pour le reste de la fiche parent
+  def ok_for_solicitation
+    model.current_child&.child_support&.ok_for_solicitation
+  end
+
   def admin_link(options = {})
     child_support_id = options.delete(:child_support_id)
     link_options = options.merge(class: GENDER_COLORS[model.gender.to_sym])
