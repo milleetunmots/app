@@ -12,12 +12,15 @@ RSpec.describe Ability, type: :model do
         let(:utilisateur) { FactoryBot.create(:admin_user, user_role: role) }
         let(:ability) { Ability.new(utilisateur) }
 
-        context "quand il est la référente de la fiche" do
-          let(:fiche) { FactoryBot.build_stubbed(:child_support, supporter: utilisateur) }
+        # un reader n'est jamais référent d'une fiche
+        unless role == 'reader'
+          context "quand il est la référente de la fiche" do
+            let(:fiche) { FactoryBot.build_stubbed(:child_support, supporter: utilisateur) }
 
-          actions_sensibles.each do |action|
-            it "peut #{action}" do
-              expect(ability.can?(action, fiche)).to be(true)
+            actions_sensibles.each do |action|
+              it "peut #{action}" do
+                expect(ability.can?(action, fiche)).to be(true)
+              end
             end
           end
         end

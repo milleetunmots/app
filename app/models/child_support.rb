@@ -843,6 +843,13 @@ class ChildSupport < ApplicationRecord
 
   encrypts :sensitive_information
 
+  # Le champ ne doit sortir ni en JSON ni en XML (ActiveAdmin les sert même sans lien de téléchargement)
+  def serializable_hash(options = nil)
+    options = (options || {}).dup
+    options[:except] = Array(options[:except]) + [:sensitive_information]
+    super
+  end
+
   # Écrit nil plutôt qu'un texte blanc, sans relire (donc sans déchiffrer) la valeur en base
   def sensitive_information=(value)
     super(value.presence)
