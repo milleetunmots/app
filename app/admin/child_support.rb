@@ -101,6 +101,7 @@ ActiveAdmin.register ChildSupport do
          input_html: { multiple: true, data: { select2: { closeOnSelect: false } } },
          label: 'Accompagnante'
   filter :address_suspected_invalid_at
+  filter :ok_for_solicitation_is, as: :select, collection: proc { ok_for_solicitation_filter_collection }, label: 'OK pour sollicitation ?'
   filter :months,
          label: 'Au moins un enfant âgé de (en mois)',
          as: :numeric,
@@ -1056,6 +1057,14 @@ ActiveAdmin.register ChildSupport do
             end
           end
           row :children
+          # Sans bloc, ActiveAdmin affiche « Non » pour un menu vide, ce qui serait une fausse contre-indication
+          row(:ok_for_solicitation) do |decorated|
+            if decorated.ok_for_solicitation.nil?
+              span I18n.t('active_admin.empty'), class: 'empty'
+            else
+              status_tag decorated.ok_for_solicitation
+            end
+          end
           row :important_information
           row :sensitive_information if authorized?(:read_sensitive_information, resource)
           row :availability

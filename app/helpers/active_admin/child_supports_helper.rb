@@ -103,6 +103,10 @@ module ActiveAdmin::ChildSupportsHelper
     end
   end
 
+  def ok_for_solicitation_filter_collection
+    [%w[Oui yes], %w[Non no], %w[Vide empty]]
+  end
+
   def instagram_information_collection
     ChildSupport::INSTAGRAM_INFORMATION_OPTIONS.map do |v|
       [

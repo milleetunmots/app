@@ -131,6 +131,7 @@ ActiveAdmin.register Child do
          label: "Fin de l'accompagnement"
   filter :child_support_instagram_user, as: :check_boxes, label: 'Utilise régulièrement Instagram', collection: proc { instagram_information_collection }
   filter :child_support_instagram_follower, as: :check_boxes, label: 'Nous suit sur Instagram', collection: proc { instagram_information_collection }
+  filter :ok_for_solicitation_is, as: :select, collection: proc { ok_for_solicitation_filter_collection }, label: 'OK pour sollicitation ?'
   filter :security_token
   filter :src_url
   filter :created_at
@@ -517,6 +518,7 @@ ActiveAdmin.register Child do
     tabs do
       tab 'Infos' do
         attributes_table do
+          row :ok_for_solicitation
           row :parent1
           row :should_contact_parent1
           row :parent2

@@ -19,8 +19,10 @@ RSpec.describe 'Admin suivis — filtre Date de fin de cohorte', type: :request 
 
   before { sign_in FactoryBot.create(:admin_user, user_role: 'contributor') }
 
+  # L'enfant « courant » de la factory est placé dans la même cohorte : laissé en « waiting », il serait
+  # affecté à une cohorte selon son âge tiré au hasard, ce qui rendrait le filtre dépendant de la graine.
   def create_support_with_child(first_name, group)
-    FactoryBot.create(:child_support).tap do |child_support|
+    FactoryBot.create(:child_support, current_child: FactoryBot.build(:child, group: group, group_status: 'stopped')).tap do |child_support|
       FactoryBot.create(:child, first_name: first_name, child_support: child_support,
                                 group: group, group_status: 'stopped')
     end

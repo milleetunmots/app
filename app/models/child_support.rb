@@ -467,6 +467,14 @@ class ChildSupport < ApplicationRecord
 
   scope :with_book_not_received, -> { where.not(book_not_received: [nil, '']) }
 
+  # Filtre « OK pour sollicitation ? » : yes / no / empty (menu vide) ; toute autre valeur ne retourne rien
+  OK_FOR_SOLICITATION_FILTER = { 'yes' => true, 'no' => false, 'empty' => nil }.freeze
+  scope :ok_for_solicitation_is, ->(value) {
+    next none unless OK_FOR_SOLICITATION_FILTER.key?(value)
+
+    where(ok_for_solicitation: OK_FOR_SOLICITATION_FILTER[value])
+  }
+
   def self.group_active
     where(id: Child.group_active.select('DISTINCT child_support_id'))
   end
@@ -508,7 +516,7 @@ class ChildSupport < ApplicationRecord
     super + %i[
       groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_in source_channel_in
       source_details_matches_any group_id_in active_group_id_in with_child_in_group_ended_between
-      months_gteq months_lt months_equals months_between verbatim_present
+      months_gteq months_lt months_equals months_between verbatim_present ok_for_solicitation_is
     ]
   end
 
