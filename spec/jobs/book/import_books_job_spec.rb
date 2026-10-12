@@ -65,6 +65,20 @@ RSpec.describe Book::ImportBooksJob do
     expect(Airtables::Book).not_to have_received(:all)
   end
 
+  it 'signale à Rollbar les photos intérieures en échec' do
+    record = Airtables::Module.new({ 'titre' => support_module.name, 'age' => '12-17 mois' }, id: 'recEXISTING')
+    allow(Airtables::Module).to receive(:all).and_return([record])
+    allow_any_instance_of(Book::ImportFromAirtableService).to receive(:errors).and_return(
+      { support_modules: [], cover: [], interior_photos: ['Photo absente.jpg (EAN 123) : 404 Not Found'] }
+    )
+
+    described_class.new.perform
+
+    expect(Rollbar).to have_received(:error)
+      .with('Book::ImportFromAirtableService',
+            hash_including(interior_photos: ['Photo absente.jpg (EAN 123) : 404 Not Found']))
+  end
+
   it 'continue l’import des livres si seule la synchronisation des liens échoue' do
     record = Airtables::Module.new({ 'titre' => support_module.name, 'age' => '12-17 mois' }, id: 'recEXISTING')
     allow(Airtables::Module).to receive(:all).and_return([record])

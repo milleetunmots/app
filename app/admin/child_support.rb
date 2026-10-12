@@ -456,7 +456,7 @@ ActiveAdmin.register ChildSupport do
                   child.children_support_modules.with_books.order(:module_index).each do |support_module|
                     div class: 'card book-card' do
                       div class: 'card-img-top' do
-                        support_module.book.decorate.cover_link_tag(max_width: '100px')
+                        support_module.book.decorate.cover_content_link_tag(max_width: '100px')
                       end
                       div class: 'card-body' do
                         div class: 'card-text' do
