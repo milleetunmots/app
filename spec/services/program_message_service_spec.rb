@@ -74,6 +74,22 @@ RSpec.describe ProgramMessageService do
     end
   end
 
+  context 'when SPOT_HIT_DISABLE_RCS_BASIC is set' do
+    before { stub_const('ENV', ENV.to_h.merge('SPOT_HIT_DISABLE_RCS_BASIC' => 'true')) }
+
+    it 'routes short messages through SMS instead of RCS basic' do
+      expect(SpotHit::SendRcsService).not_to receive(:new)
+      expect(SpotHit::SendSmsService).to receive(:new).and_call_original
+
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_3.id}"],
+        message
+      ).call
+    end
+  end
+
   context 'when parents are given' do
     it 'calls SpotHit::SendRcsService when the message fits in 160 bytes' do
       expect(SpotHit::SendRcsService).to(
