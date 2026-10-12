@@ -16,6 +16,17 @@ class Book::ImportBooksJob < ApplicationJob
 
     service = Book::ImportFromAirtableService.new.call
 
-    Rollbar.error("Book::ImportFromAirtableService", :support_module => service.errors[:support_modules], :cover => service.errors[:cover]) if service.errors[:support_modules].any? || service.errors[:cover].any?
+    report_import_errors(service.errors)
+  end
+
+  private
+
+  def report_import_errors(import_errors)
+    return if import_errors.each_value.all?(&:empty?)
+
+    Rollbar.error('Book::ImportFromAirtableService',
+                  support_module: import_errors[:support_modules],
+                  cover: import_errors[:cover],
+                  interior_photos: import_errors[:interior_photos])
   end
 end
