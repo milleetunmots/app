@@ -325,6 +325,20 @@ ActiveAdmin.register ChildSupport do
                 }
             end
           end
+
+          if authorized?(:update_sensitive_information, f.object)
+            columns do
+              column do
+                f.label :sensitive_information
+                # text_area_tag plutôt que f.input : Formtastic relit l'attribut, ce qui échoue si la valeur est illisible
+                text_node text_area_tag('child_support[sensitive_information]',
+                                        f.object.decorate.sensitive_information,
+                                        id: 'child_support_sensitive_information',
+                                        rows: 7,
+                                        class: 'input-full-width-spaced')
+              end
+            end
+          end
         end
         column class: 'column flex-column' do
           # seuls les contributeurs et administrateurs peuvent modifier la liste :
@@ -997,6 +1011,7 @@ ActiveAdmin.register ChildSupport do
   permit_params do
     permitted = base_attributes + ChildSupport.call_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms tag_list] + parents_available_support_module_list_attributes
     permitted += tags_params_attributes unless current_admin_user.caller_or_animator?
+    permitted += %i[sensitive_information] if params[:id].present? && current_ability.can?(:update_sensitive_information, ChildSupport.find(params[:id]))
     permitted
   end
 
@@ -1027,6 +1042,7 @@ ActiveAdmin.register ChildSupport do
           end
           row :children
           row :important_information
+          row :sensitive_information if authorized?(:read_sensitive_information, resource)
           row :availability
           row :call_infos
           row :display_is_bilingual
