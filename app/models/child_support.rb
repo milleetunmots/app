@@ -113,6 +113,7 @@
 #  is_bilingual                               :string           default("2_no_information")
 #  most_present_parent                        :string
 #  notes                                      :text
+#  ok_for_solicitation                        :boolean
 #  other_phone_number                         :string
 #  parent1_available_support_module_list      :string           is an Array
 #  parent2_available_support_module_list      :string           is an Array
@@ -853,6 +854,18 @@ class ChildSupport < ApplicationRecord
   # Écrit nil plutôt qu'un texte blanc, sans relire (donc sans déchiffrer) la valeur en base
   def sensitive_information=(value)
     super(value.presence)
+  end
+
+  # Sans déchiffrer : signale l'existence du texte à ceux qui n'ont pas le droit de le lire
+  def sensitive_information_present?
+    read_attribute_before_type_cast('sensitive_information').present?
+  end
+
+  # Le menu n'a de sens que tant qu'un texte sensible le justifie : il repart à vide quand le texte est vidé
+  before_save :reset_ok_for_solicitation, if: -> { will_save_change_to_sensitive_information? && sensitive_information.nil? }
+
+  def reset_ok_for_solicitation
+    self.ok_for_solicitation = nil
   end
 
   # ---------------------------------------------------------------------------

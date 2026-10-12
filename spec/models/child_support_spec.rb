@@ -113,6 +113,7 @@
 #  is_bilingual                               :string           default("2_no_information")
 #  most_present_parent                        :string
 #  notes                                      :text
+#  ok_for_solicitation                        :boolean
 #  other_phone_number                         :string
 #  parent1_available_support_module_list      :string           is an Array
 #  parent2_available_support_module_list      :string           is an Array
@@ -500,6 +501,79 @@ RSpec.describe ChildSupport, type: :model do
       it "permet de lire les autres champs de la fiche" do
         expect(ChildSupport.find(child_support.id).supporter_id).to eq(admin_user.id)
       end
+    end
+  end
+
+  describe "#ok_for_solicitation" do
+    let(:child_support) { FactoryBot.create(:child_support, supporter: admin_user) }
+
+    it "est vide par défaut" do
+      expect(child_support.ok_for_solicitation).to be_nil
+    end
+
+    context "quand le texte sensible est vidé après avoir été renseigné" do
+      it "repasse à vide" do
+        child_support.update!(sensitive_information: "Père placé en foyer", ok_for_solicitation: false)
+        child_support.update!(sensitive_information: "")
+
+        expect(child_support.reload.ok_for_solicitation).to be_nil
+      end
+    end
+
+    context "quand le texte sensible est modifié sans être vidé" do
+      it "garde sa valeur" do
+        child_support.update!(sensitive_information: "Père placé en foyer", ok_for_solicitation: false)
+        child_support.update!(sensitive_information: "Mère hospitalisée")
+
+        expect(child_support.reload.ok_for_solicitation).to be(false)
+      end
+    end
+
+    context "quand il n'y a pas de texte sensible" do
+      it "garde sa valeur lors d'un enregistrement avec un texte vide" do
+        child_support.update!(ok_for_solicitation: true)
+        child_support.update!(sensitive_information: "", notes: "Appel du soir")
+
+        expect(child_support.reload.ok_for_solicitation).to be(true)
+      end
+    end
+
+    context "quand le texte sensible est présent et le menu vide" do
+      it "est valide" do
+        child_support.sensitive_information = "Père placé en foyer"
+
+        expect(child_support).to be_valid
+      end
+    end
+  end
+
+  describe "#sensitive_information_present?" do
+    let(:child_support) { FactoryBot.create(:child_support, supporter: admin_user) }
+
+    it "est faux sans texte" do
+      expect(child_support.sensitive_information_present?).to be(false)
+    end
+
+    it "est vrai avec un texte" do
+      child_support.update!(sensitive_information: "Père placé en foyer")
+
+      expect(ChildSupport.find(child_support.id).sensitive_information_present?).to be(true)
+    end
+
+    it "est faux après le vidage du texte" do
+      child_support.update!(sensitive_information: "Père placé en foyer")
+      child_support.update!(sensitive_information: nil)
+
+      expect(ChildSupport.find(child_support.id).sensitive_information_present?).to be(false)
+    end
+
+    it "est vrai même si le texte ne peut plus être déchiffré" do
+      autre_clef = ActiveRecord::Encryption::DerivedSecretKeyProvider.new("une autre clé")
+      fiche = ActiveRecord::Encryption.with_encryption_context(key_provider: autre_clef) do
+        FactoryBot.create(:child_support, sensitive_information: "Père placé en foyer")
+      end
+
+      expect(ChildSupport.find(fiche.id).sensitive_information_present?).to be(true)
     end
   end
 end
