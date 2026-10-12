@@ -343,14 +343,15 @@ ActiveAdmin.register ChildSupport do
             end
           end
 
-          columns do
-            column do
-              f.input :ok_for_solicitation,
-                      as: :select,
-                      collection: [['Oui', true], ['Non', false]],
-                      include_blank: true,
-                      wrapper_html: { class: ['ok-for-solicitation', ('sensitive-information-alert' if f.object.sensitive_information_present?)].compact.join(' ') },
-                      input_html: { disabled: !authorized?(:update_ok_for_solicitation, f.object) }
+          if authorized?(:update_ok_for_solicitation, f.object)
+            columns do
+              column do
+                f.input :ok_for_solicitation,
+                        as: :select,
+                        collection: [['Oui', true], ['Non', false]],
+                        include_blank: true,
+                        wrapper_html: { class: ['ok-for-solicitation', ('sensitive-information-alert' if f.object.sensitive_information_present?)].compact.join(' ') }
+              end
             end
           end
         end

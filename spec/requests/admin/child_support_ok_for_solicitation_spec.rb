@@ -35,26 +35,19 @@ RSpec.describe "Admin menu OK pour sollicitation de la fiche de suivi", type: :r
       context "pour un #{role} qui n'est pas la référente" do
         before { sign_in FactoryBot.create(:admin_user, user_role: role) }
 
-        it "affiche le menu en lecture seule" do
-          select = menu("/admin/child_supports/#{fiche.id}/edit")
-
-          expect(select).to be_present
-          expect(select['disabled']).to be_present
+        it "n'affiche pas le menu dans le formulaire" do
+          expect(menu("/admin/child_supports/#{fiche.id}/edit")).to be_nil
         end
       end
     end
 
     context "quand la fiche n'a pas de référente" do
-      it "laisse un super_admin modifier le menu" do
-        sign_in FactoryBot.create(:admin_user, user_role: 'super_admin')
+      %w[super_admin contributor reader animator].each do |role|
+        it "n'affiche le menu à aucun #{role}" do
+          sign_in FactoryBot.create(:admin_user, user_role: role)
 
-        expect(menu("/admin/child_supports/#{fiche_sans_referente.id}/edit")['disabled']).to be_nil
-      end
-
-      it "affiche le menu en lecture seule à un reader" do
-        sign_in FactoryBot.create(:admin_user, user_role: 'reader')
-
-        expect(menu("/admin/child_supports/#{fiche_sans_referente.id}/edit")['disabled']).to be_present
+          expect(menu("/admin/child_supports/#{fiche_sans_referente.id}/edit")).to be_nil
+        end
       end
     end
   end
@@ -64,12 +57,12 @@ RSpec.describe "Admin menu OK pour sollicitation de la fiche de suivi", type: :r
       before { fiche.update!(sensitive_information: texte) }
 
       %w[super_admin contributor reader animator].each do |role|
-        it "l'affiche à un #{role} qui n'a pas le droit de lire le texte" do
+        it "ne l'affiche pas à un #{role} qui n'est pas le supporter, et ne montre pas le texte" do
           sign_in FactoryBot.create(:admin_user, user_role: role)
 
           get "/admin/child_supports/#{fiche.id}/edit", params: { r: 'true' }
 
-          expect(response.body).to include('sensitive-information-alert')
+          expect(response.body).not_to include('sensitive-information-alert')
           expect(response.body).not_to include(texte)
         end
       end
@@ -162,23 +155,15 @@ RSpec.describe "Admin menu OK pour sollicitation de la fiche de suivi", type: :r
       end
     end
 
-    context "par un super_admin sur une fiche sans référente" do
-      it "enregistre le menu" do
-        sign_in FactoryBot.create(:admin_user, user_role: 'super_admin')
+    %w[super_admin contributor reader animator].each do |role|
+      context "par un #{role} sur une fiche sans référente, avec une requête forgée" do
+        it "ne modifie pas le menu" do
+          sign_in FactoryBot.create(:admin_user, user_role: role)
 
-        patch "/admin/child_supports/#{fiche_sans_referente.id}", params: { child_support: { ok_for_solicitation: 'false' } }
+          patch "/admin/child_supports/#{fiche_sans_referente.id}", params: { child_support: { ok_for_solicitation: 'false' } }
 
-        expect(fiche_sans_referente.reload.ok_for_solicitation).to be(false)
-      end
-    end
-
-    context "par un reader sur une fiche sans référente, avec une requête forgée" do
-      it "ne modifie pas le menu" do
-        sign_in FactoryBot.create(:admin_user, user_role: 'reader')
-
-        patch "/admin/child_supports/#{fiche_sans_referente.id}", params: { child_support: { ok_for_solicitation: 'false' } }
-
-        expect(fiche_sans_referente.reload.ok_for_solicitation).to be_nil
+          expect(fiche_sans_referente.reload.ok_for_solicitation).to be_nil
+        end
       end
     end
   end

@@ -50,23 +50,33 @@ RSpec.describe 'Admin infos sensibles de la fiche de suivi', type: :request do
     end
 
     context 'quand la fiche n\'a pas de référente' do
-      %w[super_admin contributor].each do |role|
-        it "montre le champ à un #{role}" do
+      %w[super_admin contributor reader animator].each do |role|
+        it "ne montre le champ à aucun #{role}" do
           sign_in FactoryBot.create(:admin_user, user_role: role)
           get "/admin/child_supports/#{fiche_sans_referente.id}/edit", params: { r: 'true' }
 
-          expect(response.body).to include('Infos sensibles')
-          expect(response.body).to include(texte)
-        end
-      end
-
-      %w[reader animator].each do |role|
-        it "ne montre pas le champ à un #{role}" do
-          sign_in FactoryBot.create(:admin_user, user_role: role)
-          get "/admin/child_supports/#{fiche_sans_referente.id}/edit", params: { r: 'true' }
-
+          expect(response.body).not_to include('Infos sensibles')
           expect(response.body).not_to include(texte)
         end
+      end
+    end
+
+    context 'quand le supporter est retiré de la fiche' do
+      it 'rend le champ inaccessible à tous et garde le contenu chiffré' do
+        admin = FactoryBot.create(:admin_user, user_role: 'super_admin')
+        sign_in admin
+        patch "/admin/child_supports/#{fiche.id}", params: { child_support: { supporter_id: '' } }
+        fiche.reload
+
+        expect(fiche.supporter_id).to be_nil
+        expect(fiche.sensitive_information).to eq(texte)
+
+        get "/admin/child_supports/#{fiche.id}/edit", params: { r: 'true' }
+        expect(response.body).not_to include(texte)
+
+        sign_in referente
+        get "/admin/child_supports/#{fiche.id}/edit", params: { r: 'true' }
+        expect(response.body).not_to include(texte)
       end
     end
 
@@ -124,23 +134,15 @@ RSpec.describe 'Admin infos sensibles de la fiche de suivi', type: :request do
       end
     end
 
-    context 'par un super_admin sur une fiche sans référente' do
-      it 'enregistre le nouveau texte' do
-        sign_in FactoryBot.create(:admin_user, user_role: 'super_admin')
+    %w[super_admin contributor reader animator].each do |role|
+      context "par un #{role} sur une fiche sans référente, avec une requête forgée" do
+        it 'ne modifie pas le champ' do
+          sign_in FactoryBot.create(:admin_user, user_role: role)
 
-        patch "/admin/child_supports/#{fiche_sans_referente.id}", params: { child_support: { sensitive_information: 'Mère hospitalisée' } }
+          patch "/admin/child_supports/#{fiche_sans_referente.id}", params: { child_support: { sensitive_information: 'Texte pirate' } }
 
-        expect(fiche_sans_referente.reload.sensitive_information).to eq('Mère hospitalisée')
-      end
-    end
-
-    context 'par un reader sur une fiche sans référente, avec une requête forgée' do
-      it 'ne modifie pas le champ' do
-        sign_in FactoryBot.create(:admin_user, user_role: 'reader')
-
-        patch "/admin/child_supports/#{fiche_sans_referente.id}", params: { child_support: { sensitive_information: 'Texte pirate' } }
-
-        expect(fiche_sans_referente.reload.sensitive_information).to eq(texte)
+          expect(fiche_sans_referente.reload.sensitive_information).to eq(texte)
+        end
       end
     end
   end

@@ -2,7 +2,6 @@ require 'rails_helper'
 
 RSpec.describe Ability, type: :model do
   actions_sensibles = %i[read_sensitive_information update_sensitive_information update_ok_for_solicitation]
-  roles_sans_referente_autorises = %w[super_admin contributor]
 
   let_it_be(:autre_accompagnante) { FactoryBot.create(:admin_user, user_role: 'caller') }
 
@@ -37,11 +36,10 @@ RSpec.describe Ability, type: :model do
 
         context "quand la fiche n'a pas de référente" do
           let(:fiche) { FactoryBot.build_stubbed(:child_support, supporter: nil) }
-          autorise = roles_sans_referente_autorises.include?(role)
 
           actions_sensibles.each do |action|
-            it "#{autorise ? 'peut' : 'ne peut pas'} #{action}" do
-              expect(ability.can?(action, fiche)).to be(autorise)
+            it "ne peut pas #{action}" do
+              expect(ability.can?(action, fiche)).to be(false)
             end
           end
         end
