@@ -339,6 +339,21 @@ RSpec.describe Book::ImportFromAirtableService do
       expect(book.reload.interior_photos).to be_empty
     end
 
+    # Une photo refusée reste en attente sur le livre : elle ne doit pas
+    # entraîner l'échec des photos suivantes, valides, du même livre.
+    it 'rattache les photos valides qui suivent une photo refusée' do
+      stub_request(:get, photo_url('doc.pdf')).to_return(status: 200, body: '%PDF-1.4 faux')
+      pdf = { 'filename' => 'doc.pdf', 'url' => photo_url('doc.pdf'),
+              'type' => 'application/pdf', 'size' => 13 }
+      stub_airtable(['recAAA'], interior_photos: [pdf, airtable_photo('a.jpg'), airtable_photo('b.jpg')])
+
+      service = described_class.new.call
+
+      expect(service.errors[:interior_photos].size).to eq(1)
+      expect(service.errors[:interior_photos].first).to include('doc.pdf')
+      expect(attached_filenames(book)).to contain_exactly('a.jpg', 'b.jpg')
+    end
+
     # R2 — un délai dépassé est bien plus probable qu'un refus de connexion
     # sur une URL S3 signée ; il ne doit pas avorter l'import.
     it 'consigne une erreur et poursuit quand le téléchargement expire' do

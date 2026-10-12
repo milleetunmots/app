@@ -27,10 +27,9 @@ class BookDecorator < BaseDecorator
   end
 
   # Pages affichées dans la galerie du livre : couverture d'abord, puis photos intérieures.
-  # Sans tri explicite, l'ordre des pièces jointes n'est pas garanti : on suit l'ordre d'import.
   def pages
     cover = model.media&.file&.attached? ? [{ label: 'Couverture', source: model.media.file }] : []
-    photos = model.interior_photos_attachments.includes(:blob).order(:id).map.with_index(1) do |photo, number|
+    photos = ordered_interior_photos.map.with_index(1) do |photo, number|
       { label: "Image #{number}", source: photo }
     end
     cover + photos
@@ -40,8 +39,15 @@ class BookDecorator < BaseDecorator
     return nil unless model.interior_photos.attached?
 
     h.safe_join(
-      model.interior_photos.map { |photo| image_link_tag(**options, source: photo) },
+      ordered_interior_photos.map { |photo| image_link_tag(**options, source: photo) },
       ' '
     )
+  end
+
+  private
+
+  # Sans tri explicite, l'ordre des pièces jointes n'est pas garanti : on suit l'ordre d'import.
+  def ordered_interior_photos
+    model.interior_photos_attachments.includes(:blob).order(:id)
   end
 end

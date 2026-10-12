@@ -108,11 +108,14 @@ class Book::ImportFromAirtableService
     return if @book.media&.name == @cover['filename']
 
     @to_save = true
-    cover = build_cover
-    if cover.save
-      @book.media = cover
-    else
-      @errors[:cover] << cover_error(cover.errors.full_messages.join(', '))
+    # Le fichier doit rester ouvert jusqu'au save : c'est là qu'ActiveStorage l'envoie au stockage.
+    File.open(download_to_tmp(@cover)) do |io|
+      cover = build_cover(io)
+      if cover.save
+        @book.media = cover
+      else
+        @errors[:cover] << cover_error(cover.errors.full_messages.join(', '))
+      end
     end
   rescue *DOWNLOAD_ERRORS => e
     @errors[:cover] << cover_error(e.message)
@@ -120,10 +123,10 @@ class Book::ImportFromAirtableService
     FileUtils.rm_f(tmp_path(@cover['filename'])) if @cover.present?
   end
 
-  def build_cover
+  def build_cover(io)
     cover = Media::Image.new(name: @cover['filename'])
     cover.file.attach(
-      io: File.open(download_to_tmp(@cover)),
+      io: io,
       filename: @cover['filename'],
       content_type: @cover['type']
     )
@@ -175,15 +178,22 @@ class Book::ImportFromAirtableService
   end
 
   def attach_interior_photo(photo)
-    attached = @book.interior_photos.attach(
-      io: File.open(download_to_tmp(photo)),
-      filename: photo['filename'],
-      content_type: photo['type'],
-      metadata: { airtable_size: photo['size'] }
-    )
+    attached = File.open(download_to_tmp(photo)) do |io|
+      @book.interior_photos.attach(
+        io: io,
+        filename: photo['filename'],
+        content_type: photo['type'],
+        metadata: { airtable_size: photo['size'] }
+      )
+    end
+    return if attached
+
     # attach ne lève pas quand la validation échoue : il renvoie false. Sans ce
     # contrôle, une photo refusée disparaîtrait sans erreur ni alerte Rollbar.
-    record_photo_error(photo, @book.errors.full_messages.join(', ')) unless attached
+    record_photo_error(photo, @book.errors.full_messages.join(', '))
+    # La photo refusée reste en attente sur @book : sans reload, chaque attach
+    # suivant la réinclurait et échouerait à son tour sur la même validation.
+    @book.reload
   rescue *DOWNLOAD_ERRORS => e
     record_photo_error(photo, e.message)
   ensure
