@@ -149,7 +149,9 @@ ActiveAdmin.register ChildSupport do
     {
       I18n.t('activerecord.attributes.child_support.supporter') => AdminUser.pluck(:name, :id)
     }
-  }, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids, inputs|
+  }, if: proc { authorized?(:assign_supporter, ChildSupport) } do |ids, inputs|
+    # le `if:` ne fait qu'afficher l'action : le droit est aussi vérifié côté serveur
+    authorize!(:assign_supporter, ChildSupport)
     batch_action_collection.find(ids).each do |child_support|
       supporter_id = inputs[I18n.t('activerecord.attributes.child_support.supporter')]
       child_support.supporter_id = supporter_id
@@ -274,7 +276,7 @@ ActiveAdmin.register ChildSupport do
       columns do
         column do
           f.input :supporter,
-                  input_html: { data: { select2: {} } }
+                  input_html: { data: { select2: {} }, disabled: !authorized?(:assign_supporter, f.object) }
           # parents & children
           columns do
             # parents
@@ -1004,7 +1006,6 @@ ActiveAdmin.register ChildSupport do
 
   base_attributes = %i[
     important_information
-    supporter_id
     is_bilingual
     second_language
     books_quantity
@@ -1027,6 +1028,7 @@ ActiveAdmin.register ChildSupport do
       child_support = ChildSupport.find(params[:id])
       permitted += %i[sensitive_information] if current_ability.can?(:update_sensitive_information, child_support)
       permitted += %i[ok_for_solicitation] if current_ability.can?(:update_ok_for_solicitation, child_support)
+      permitted += %i[supporter_id] if current_ability.can?(:assign_supporter, child_support)
     end
     permitted
   end

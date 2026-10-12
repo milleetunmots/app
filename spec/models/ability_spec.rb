@@ -94,4 +94,88 @@ RSpec.describe Ability, type: :model do
       end
     end
   end
+
+  describe "droit de changer le supporter d'une fiche de suivi" do
+    let(:fiche) { FactoryBot.build_stubbed(:child_support, supporter: autre_accompagnante) }
+
+    def ability_avec_liste(utilisateur, liste)
+      stub_const('ENV', ENV.to_h.merge('SUPPORTER_ASSIGNMENT_EMAILS' => liste))
+      Ability.new(utilisateur)
+    end
+
+    context "pour un super_admin" do
+      let(:super_admin) { FactoryBot.create(:admin_user, user_role: 'super_admin') }
+
+      it "peut, même quand la liste est vide" do
+        expect(ability_avec_liste(super_admin, '').can?(:assign_supporter, fiche)).to be(true)
+      end
+
+      it "peut, même quand la variable n'est pas définie" do
+        stub_const('ENV', ENV.to_h.except('SUPPORTER_ASSIGNMENT_EMAILS'))
+
+        expect(Ability.new(super_admin).can?(:assign_supporter, fiche)).to be(true)
+      end
+    end
+
+    context "pour un contributor" do
+      let(:contributor) { FactoryBot.create(:admin_user, user_role: 'contributor', email: 'camille@1001mots.org') }
+
+      it "peut quand son e-mail est dans la liste" do
+        expect(ability_avec_liste(contributor, 'camille@1001mots.org').can?(:assign_supporter, fiche)).to be(true)
+      end
+
+      it "peut quand son e-mail est l'un de plusieurs e-mails de la liste" do
+        liste = 'autre@1001mots.org camille@1001mots.org dernier@1001mots.org'
+
+        expect(ability_avec_liste(contributor, liste).can?(:assign_supporter, fiche)).to be(true)
+      end
+
+      it "peut quand la casse de l'e-mail diffère de celle de la liste" do
+        expect(ability_avec_liste(contributor, 'CAMILLE@1001mots.ORG').can?(:assign_supporter, fiche)).to be(true)
+      end
+
+      it "ne peut pas quand son e-mail n'est pas dans la liste" do
+        expect(ability_avec_liste(contributor, 'autre@1001mots.org').can?(:assign_supporter, fiche)).to be(false)
+      end
+
+      it "ne peut pas quand la liste est vide" do
+        expect(ability_avec_liste(contributor, '').can?(:assign_supporter, fiche)).to be(false)
+      end
+
+      it "ne peut pas quand la variable n'est pas définie" do
+        stub_const('ENV', ENV.to_h.except('SUPPORTER_ASSIGNMENT_EMAILS'))
+
+        expect(Ability.new(contributor).can?(:assign_supporter, fiche)).to be(false)
+      end
+
+      it "ne peut pas quand son e-mail n'est qu'une partie d'un e-mail listé" do
+        expect(ability_avec_liste(contributor, 'camille@1001mots.org.fr').can?(:assign_supporter, fiche)).to be(false)
+      end
+
+      it "ne peut pas quand il est désactivé, même listé" do
+        contributor.update!(is_disabled: true)
+
+        expect(ability_avec_liste(contributor, 'camille@1001mots.org').can?(:assign_supporter, fiche)).to be(false)
+      end
+    end
+
+    %w[reader animator caller].each do |role|
+      context "pour un #{role}" do
+        let(:utilisateur) { FactoryBot.create(:admin_user, user_role: role, email: 'camille@1001mots.org') }
+
+        it "ne peut pas, même quand son e-mail est dans la liste" do
+          expect(ability_avec_liste(utilisateur, 'camille@1001mots.org').can?(:assign_supporter, fiche)).to be(false)
+        end
+      end
+    end
+
+    context "pour la supporter actuelle de la fiche" do
+      it "ne peut pas changer le supporter de sa propre fiche" do
+        awa = FactoryBot.create(:admin_user, user_role: 'caller', email: 'awa@1001mots.org')
+        sa_fiche = FactoryBot.build_stubbed(:child_support, supporter: awa)
+
+        expect(ability_avec_liste(awa, 'awa@1001mots.org').can?(:assign_supporter, sa_fiche)).to be(false)
+      end
+    end
+  end
 end

@@ -33,6 +33,8 @@ class Ability
       can :read_sensitive_information, ChildSupport, supporter_id: nil
       can :update_sensitive_information, ChildSupport, supporter_id: nil
       can :update_ok_for_solicitation, ChildSupport, supporter_id: nil
+      cannot :assign_supporter, ChildSupport
+      can :assign_supporter, ChildSupport if ENV['SUPPORTER_ASSIGNMENT_EMAILS'].to_s.downcase.split.include?(user.email.to_s.downcase)
       can :read, [AdminUser, LogisticExport]
       can :download, LogisticExport
       can :upsert_shipment_date, Book
@@ -53,6 +55,7 @@ class Ability
       cannot :read_sensitive_information, ChildSupport
       cannot :update_sensitive_information, ChildSupport
       cannot :update_ok_for_solicitation, ChildSupport
+      cannot :assign_supporter, ChildSupport
       cannot :upload_undelivered_books, Parent
       can :read, [Workshop, SupportModule, Group, Book, ChildrenSupportModule, AdminUser, Source, ScheduledCall]
       can :read_content, Book
@@ -115,6 +118,7 @@ class Ability
       can :read_sensitive_information, ChildSupport, supporter_id: user.id
       can :update_sensitive_information, ChildSupport, supporter_id: user.id
       can :update_ok_for_solicitation, ChildSupport, supporter_id: user.id
+      cannot :assign_supporter, ChildSupport
       cannot :upload_undelivered_books, Parent
       can :manage, Workshop
       can :manage, Event, type: %w[Events::TextMessage Events::WorkshopParticipation]
