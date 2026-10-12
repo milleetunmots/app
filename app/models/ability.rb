@@ -18,9 +18,6 @@ class Ability
       can :read_sensitive_information, ChildSupport, supporter_id: user.id
       can :update_sensitive_information, ChildSupport, supporter_id: user.id
       can :update_ok_for_solicitation, ChildSupport, supporter_id: user.id
-      can :read_sensitive_information, ChildSupport, supporter_id: nil
-      can :update_sensitive_information, ChildSupport, supporter_id: nil
-      can :update_ok_for_solicitation, ChildSupport, supporter_id: nil
     when 'contributor'
       can :manage,
           [Parent, Child, ChildSupport, Workshop, Task, SupportModule, MediaFolder, Medium, Tag, Event, Group, Book, ChildrenSupportModule, Source, RegistrationLimit, ScheduledCall]
@@ -30,9 +27,6 @@ class Ability
       can :read_sensitive_information, ChildSupport, supporter_id: user.id
       can :update_sensitive_information, ChildSupport, supporter_id: user.id
       can :update_ok_for_solicitation, ChildSupport, supporter_id: user.id
-      can :read_sensitive_information, ChildSupport, supporter_id: nil
-      can :update_sensitive_information, ChildSupport, supporter_id: nil
-      can :update_ok_for_solicitation, ChildSupport, supporter_id: nil
       cannot :assign_supporter, ChildSupport
       can :assign_supporter, ChildSupport if ENV['SUPPORTER_ASSIGNMENT_EMAILS'].to_s.downcase.split.include?(user.email.to_s.downcase)
       can :read, [AdminUser, LogisticExport]
