@@ -224,6 +224,8 @@ class ProgramMessageService
   # sinon en SMS. SpotHit compte en octets UTF-8 (un accent = 2 octets, € = 3,
   # etc.), d'où bytesize plutôt que length.
   def basic_rcs?
+    return false if ENV['SPOT_HIT_DISABLE_RCS_BASIC'].present?
+
     @rcs_media_id.nil? && @message.bytesize <= 160
   end
 
