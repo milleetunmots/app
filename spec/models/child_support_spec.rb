@@ -601,4 +601,35 @@ RSpec.describe ChildSupport, type: :model do
       expect(ChildSupport.ok_for_solicitation_is("peut-être")).to be_empty
     end
   end
+
+  describe "#solicitation_alert?" do
+    let(:child_support) { FactoryBot.create(:child_support, supporter: admin_user) }
+
+    it "est vrai quand un texte sensible existe et que le menu est vide" do
+      child_support.update!(sensitive_information: "Père placé en foyer")
+
+      expect(child_support.solicitation_alert?).to be(true)
+    end
+
+    [true, false].each do |valeur|
+      it "est faux quand un texte sensible existe et que le menu vaut #{valeur ? 'Oui' : 'Non'}" do
+        child_support.update!(sensitive_information: "Père placé en foyer", ok_for_solicitation: valeur)
+
+        expect(child_support.solicitation_alert?).to be(false)
+      end
+    end
+
+    it "est faux sans texte sensible, même si le menu est vide" do
+      expect(child_support.solicitation_alert?).to be(false)
+    end
+
+    it "est vrai même si le texte ne peut plus être déchiffré" do
+      autre_clef = ActiveRecord::Encryption::DerivedSecretKeyProvider.new("une autre clé")
+      fiche = ActiveRecord::Encryption.with_encryption_context(key_provider: autre_clef) do
+        FactoryBot.create(:child_support, sensitive_information: "Père placé en foyer")
+      end
+
+      expect(ChildSupport.find(fiche.id).solicitation_alert?).to be(true)
+    end
+  end
 end

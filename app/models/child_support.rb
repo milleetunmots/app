@@ -869,6 +869,11 @@ class ChildSupport < ApplicationRecord
     read_attribute_before_type_cast('sensitive_information').present?
   end
 
+  # Un texte sensible existe mais le menu n'est pas renseigné : déclenche le cadre rouge du formulaire
+  def solicitation_alert?
+    sensitive_information_present? && ok_for_solicitation.nil?
+  end
+
   # Le menu n'a de sens que tant qu'un texte sensible le justifie : il repart à vide quand le texte est vidé
   before_save :reset_ok_for_solicitation, if: -> { will_save_change_to_sensitive_information? && sensitive_information.nil? }
 
