@@ -88,6 +88,8 @@ class AdminUser < ApplicationRecord
   scope :supporters, -> { joins(:child_supports).distinct }
   scope :account_disabled, -> { where(is_disabled: true) }
   scope :account_not_disabled, -> { where(is_disabled: false) }
+  # Les seuls comptes qu'on peut désigner comme supporter d'une fiche : ni les rôles qui assignent, ni les lecteurs
+  scope :assignable_as_supporter, -> { account_not_disabled.where(user_role: %w[caller animator]) }
   scope :beta_test_supporters_who_cannot_send_automatic_sms, -> { supporters.where(email: ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split).where(can_send_automatic_sms: false) }
 
   before_save :set_automatic_sms_activated_at, if: -> { will_save_change_to_can_send_automatic_sms?(to: true) }

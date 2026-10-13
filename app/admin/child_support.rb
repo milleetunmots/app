@@ -147,17 +147,21 @@ ActiveAdmin.register ChildSupport do
 
   batch_action :assign_supporter, form: -> {
     {
-      I18n.t('activerecord.attributes.child_support.supporter') => AdminUser.pluck(:name, :id)
+      I18n.t('activerecord.attributes.child_support.supporter') => AdminUser.assignable_as_supporter.order(:name).pluck(:name, :id)
     }
   }, if: proc { authorized?(:assign_supporter, ChildSupport) } do |ids, inputs|
     # le `if:` ne fait qu'afficher l'action : le droit est aussi vérifié côté serveur
     authorize!(:assign_supporter, ChildSupport)
-    batch_action_collection.find(ids).each do |child_support|
-      supporter_id = inputs[I18n.t('activerecord.attributes.child_support.supporter')]
-      child_support.supporter_id = supporter_id
-      child_support.save!
+    supporter_id = inputs[I18n.t('activerecord.attributes.child_support.supporter')]
+    if AdminUser.assignable_as_supporter.exists?(id: supporter_id)
+      batch_action_collection.find(ids).each do |child_support|
+        child_support.supporter_id = supporter_id
+        child_support.save!
+      end
+      redirect_to request.referer, notice: 'Accompagnante mis à jour'
+    else
+      redirect_to request.referer, alert: 'Cette personne ne peut pas être désignée comme accompagnante'
     end
-    redirect_to request.referer, notice: 'Accompagnante mis à jour'
   end
 
   batch_action :check_call_2_4, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
@@ -276,6 +280,7 @@ ActiveAdmin.register ChildSupport do
       columns do
         column do
           f.input :supporter,
+                  collection: supporter_form_collection(f.object),
                   input_html: { data: { select2: {} }, disabled: !authorized?(:assign_supporter, f.object) }
           # parents & children
           columns do
@@ -1029,7 +1034,12 @@ ActiveAdmin.register ChildSupport do
       child_support = ChildSupport.find(params[:id])
       permitted += %i[sensitive_information] if current_ability.can?(:update_sensitive_information, child_support)
       permitted += %i[ok_for_solicitation] if current_ability.can?(:update_ok_for_solicitation, child_support)
-      permitted += %i[supporter_id] if current_ability.can?(:assign_supporter, child_support)
+      if current_ability.can?(:assign_supporter, child_support)
+        new_supporter_id = params.dig(:child_support, :supporter_id)
+        eligible = new_supporter_id.blank? || new_supporter_id.to_s == child_support.supporter_id.to_s ||
+                   AdminUser.assignable_as_supporter.exists?(id: new_supporter_id)
+        permitted += %i[supporter_id] if eligible
+      end
     end
     permitted
   end
