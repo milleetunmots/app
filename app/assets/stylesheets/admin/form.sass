@@ -112,25 +112,29 @@ body.logged_in
     label[for=child_support_important_information], label[for=child_support_sensitive_information], label[for=child_support_parent_needs]
       font-weight: bold
 
-    // Étiquette et menu sur une ligne, cadre ajusté au contenu
+    // Étiquette au-dessus du menu, cadre ajusté au contenu. Le retrait de 10px (bordure + marge
+    // intérieure) aligne l'étiquette sur celle de « Infos sensibles », cadre visible ou non.
     .ok-for-solicitation
       display: inline-block
       width: auto
+      margin-left: -10px
       padding: 6px
       border: 4px solid transparent
       border-radius: 4px
 
       label
-        float: none
-        display: inline-block
+        display: block
+        float: none !important
         width: auto !important
-        margin-right: 8px
+        margin: 0 0 4px
+        font-weight: bold
 
       select
+        display: block
         width: auto
         min-width: 120px
 
-    // Un texte sensible existe : le menu s'encadre en rouge (visible de tous, sans montrer le texte)
+    // Un texte sensible existe et le menu est vide : le menu s'encadre en rouge
     .ok-for-solicitation.sensitive-information-alert
       border-color: #d32f2f
 

@@ -350,7 +350,7 @@ ActiveAdmin.register ChildSupport do
                         as: :select,
                         collection: [['Oui', true], ['Non', false]],
                         include_blank: true,
-                        wrapper_html: { class: ['ok-for-solicitation', ('sensitive-information-alert' if f.object.sensitive_information_present?)].compact.join(' ') }
+                        wrapper_html: { class: ['ok-for-solicitation', ('sensitive-information-alert' if f.object.solicitation_alert?)].compact.join(' ') }
               end
             end
           end

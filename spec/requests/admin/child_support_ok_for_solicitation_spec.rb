@@ -24,6 +24,14 @@ RSpec.describe "Admin menu OK pour sollicitation de la fiche de suivi", type: :r
         expect(select.css('option').map(&:text)).to include('Oui', 'Non')
       end
 
+      it "place l'étiquette avant le menu, dans le même bloc" do
+        document = Nokogiri::HTML(get("/admin/child_supports/#{fiche.id}/edit", params: { r: 'true' }) && response.body)
+        bloc = document.at_css('select#child_support_ok_for_solicitation').ancestors('li').first
+
+        expect(bloc.element_children.map(&:name).first(2)).to eq(%w[label select])
+        expect(bloc.at_css('label').text.strip).to eq('OK pour sollicitation ?')
+      end
+
       it "place le menu sous le champ Infos sensibles" do
         menu("/admin/child_supports/#{fiche.id}/edit")
 
@@ -67,12 +75,39 @@ RSpec.describe "Admin menu OK pour sollicitation de la fiche de suivi", type: :r
         end
       end
 
-      it "l'affiche à la référente" do
+      it "l'affiche à la référente quand le menu est vide" do
         sign_in referente
 
         get "/admin/child_supports/#{fiche.id}/edit", params: { r: 'true' }
 
         expect(response.body).to include('sensitive-information-alert')
+      end
+    end
+
+    context "quand le texte sensible est présent et le menu renseigné" do
+      [true, false].each do |valeur|
+        it "ne l'affiche pas quand le menu vaut #{valeur ? 'Oui' : 'Non'}" do
+          fiche.update!(sensitive_information: texte, ok_for_solicitation: valeur)
+          sign_in referente
+
+          get "/admin/child_supports/#{fiche.id}/edit", params: { r: 'true' }
+
+          expect(response.body).not_to include('sensitive-information-alert')
+        end
+      end
+
+      it "le retire dès que la supporter choisit Oui et enregistre" do
+        fiche.update!(sensitive_information: texte)
+        sign_in referente
+
+        get "/admin/child_supports/#{fiche.id}/edit", params: { r: 'true' }
+        expect(response.body).to include('sensitive-information-alert')
+
+        patch "/admin/child_supports/#{fiche.id}", params: { child_support: { ok_for_solicitation: 'true' } }
+        get "/admin/child_supports/#{fiche.id}/edit", params: { r: 'true' }
+
+        expect(response.body).not_to include('sensitive-information-alert')
+        expect(fiche.reload.sensitive_information).to eq(texte)
       end
     end
 
