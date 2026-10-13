@@ -103,6 +103,10 @@ module ActiveAdmin::ChildSupportsHelper
     end
   end
 
+  def supporter_form_collection(child_support)
+    AdminUser.assignable_as_supporter.or(AdminUser.where(id: child_support.supporter_id)).order(:name)
+  end
+
   def ok_for_solicitation_filter_collection
     [%w[Oui yes], %w[Non no], %w[Vide empty]]
   end

@@ -148,4 +148,98 @@ RSpec.describe "Admin changement du supporter d'une fiche de suivi", type: :requ
       end
     end
   end
+
+  describe "supporters choisissables : caller et animator seulement" do
+    let(:super_admin) { FactoryBot.create(:admin_user, user_role: 'super_admin') }
+    let!(:animator_actif) { FactoryBot.create(:admin_user, user_role: 'animator', name: 'Anne Animatrice') }
+    let!(:contributor_inscrit) { FactoryBot.create(:admin_user, user_role: 'contributor', name: 'Camille Contributrice') }
+    let!(:reader_inscrit) { FactoryBot.create(:admin_user, user_role: 'reader', name: 'Rémi Lecteur') }
+    let!(:caller_desactive) { FactoryBot.create(:admin_user, user_role: 'caller', is_disabled: true, name: 'Dora Désactivée') }
+
+    def noms_proposes(path)
+      get path, params: { r: 'true' }
+      Nokogiri::HTML(response.body).css('select#child_support_supporter_id option').map { |option| option.text.strip }
+    end
+
+    context "dans le formulaire de la fiche" do
+      before do
+        binta
+        sign_in super_admin
+      end
+
+      it "propose les caller et animator actifs" do
+        noms = noms_proposes("/admin/child_supports/#{fiche.id}/edit")
+
+        expect(noms).to include(referente.name, binta.name, 'Anne Animatrice')
+      end
+
+      it "ne propose ni super_admin, ni contributor, ni reader, ni compte désactivé" do
+        noms = noms_proposes("/admin/child_supports/#{fiche.id}/edit")
+
+        expect(noms).not_to include(super_admin.name, 'Camille Contributrice', 'Rémi Lecteur', 'Dora Désactivée')
+      end
+
+      it "garde le supporter actuel dans la liste même s'il n'est plus choisissable" do
+        fiche.update_columns(supporter_id: contributor_inscrit.id)
+
+        expect(noms_proposes("/admin/child_supports/#{fiche.id}/edit")).to include('Camille Contributrice')
+      end
+    end
+
+    context "à l'enregistrement" do
+      before { sign_in super_admin }
+
+      it "ignore un supporter non éligible, y compris le super_admin lui-même" do
+        patch "/admin/child_supports/#{fiche.id}", params: { child_support: { supporter_id: super_admin.id, notes: 'Note ordinaire' } }
+
+        expect(fiche.reload.supporter_id).to eq(referente.id)
+        expect(fiche.notes).to eq('Note ordinaire')
+      end
+
+      [:contributor_inscrit, :reader_inscrit, :caller_desactive].each do |nom|
+        it "ignore #{nom}" do
+          patch "/admin/child_supports/#{fiche.id}", params: { child_support: { supporter_id: send(nom).id } }
+
+          expect(fiche.reload.supporter_id).to eq(referente.id)
+        end
+      end
+
+      it "accepte un animator" do
+        patch "/admin/child_supports/#{fiche.id}", params: { child_support: { supporter_id: animator_actif.id } }
+
+        expect(fiche.reload.supporter_id).to eq(animator_actif.id)
+      end
+
+      it "ne retire pas un supporter existant non éligible quand le formulaire le renvoie inchangé" do
+        fiche.update_columns(supporter_id: contributor_inscrit.id)
+
+        patch "/admin/child_supports/#{fiche.id}", params: { child_support: { supporter_id: contributor_inscrit.id, notes: 'Note ordinaire' } }
+
+        expect(fiche.reload.supporter_id).to eq(contributor_inscrit.id)
+        expect(fiche.notes).to eq('Note ordinaire')
+      end
+
+      it "permet de retirer le supporter" do
+        patch "/admin/child_supports/#{fiche.id}", params: { child_support: { supporter_id: '' } }
+
+        expect(fiche.reload.supporter_id).to be_nil
+      end
+    end
+
+    context "avec l'action de masse" do
+      before { sign_in super_admin }
+
+      it "n'assigne pas un supporter non éligible" do
+        action_de_masse(super_admin, [fiche])
+
+        expect(fiche.reload.supporter_id).to eq(referente.id)
+      end
+
+      it "assigne un animator" do
+        action_de_masse(animator_actif, [fiche])
+
+        expect(fiche.reload.supporter_id).to eq(animator_actif.id)
+      end
+    end
+  end
 end
