@@ -153,6 +153,9 @@ class ChildrenSupportModule < ApplicationRecord
 
     siblings.each do |sibling|
       next if child == sibling
+      # seuls les enfants actifs reçoivent leurs modules (cf. ProgramSupportModuleSmsJob) :
+      # un frère/sœur arrêté (trop âgé, désengagé…) n'a pas besoin d'un module
+      next unless sibling.group_status == 'active'
 
       sibling_age = child_age_range(sibling.months)
       sibling_support_module = find_sibling_support_module(sibling.id, sibling_age, parent_id, support_module.for_bilingual, theme: theme, excluded_book_ids: used_book_ids) ||
