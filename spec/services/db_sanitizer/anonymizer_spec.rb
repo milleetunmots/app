@@ -196,4 +196,104 @@ RSpec.describe DbSanitizer::Anonymizer do
       end
     end
   end
+
+  describe '#call : informations sensibles' do
+    subject(:anonymizer) { described_class.new }
+
+    let(:texte_original) { 'Père placé en foyer, mesure d éloignement en cours' }
+    let!(:fiche_avec_texte) do
+      FactoryBot.create(:child_support, ok_for_solicitation: false).tap { |fiche| fiche.update!(sensitive_information: texte_original) }
+    end
+    let!(:fiche_menu_oui) do
+      FactoryBot.create(:child_support, ok_for_solicitation: true).tap { |fiche| fiche.update!(sensitive_information: texte_original) }
+    end
+    let!(:fiche_texte_sans_menu) do
+      FactoryBot.create(:child_support).tap { |fiche| fiche.update!(sensitive_information: texte_original) }
+    end
+    let!(:fiche_sans_texte) { FactoryBot.create(:child_support, ok_for_solicitation: true) }
+
+    def valeur_brute(fiche)
+      ChildSupport.find(fiche.id).read_attribute_before_type_cast(:sensitive_information)
+    end
+
+    context 'quand une fiche contient un texte sensible' do
+      before { anonymizer.call }
+
+      it 'le remplace par un texte différent de l\'original' do
+        nouveau = fiche_avec_texte.reload.sensitive_information
+
+        expect(nouveau).to be_present
+        expect(nouveau).not_to eq(texte_original)
+      end
+
+      it 'ne garde rien de l\'original dans la colonne' do
+        expect(valeur_brute(fiche_avec_texte)).not_to include('foyer')
+        expect(valeur_brute(fiche_avec_texte)).not_to include('éloignement')
+      end
+
+      it 'stocke le nouveau texte chiffré' do
+        nouveau = fiche_avec_texte.reload.sensitive_information
+
+        expect(valeur_brute(fiche_avec_texte)).not_to include(nouveau)
+      end
+    end
+
+    context 'quand une fiche n\'a pas de texte sensible' do
+      before { anonymizer.call }
+
+      it 'reste sans texte' do
+        expect(fiche_sans_texte.reload.sensitive_information).to be_nil
+        expect(valeur_brute(fiche_sans_texte)).to be_nil
+      end
+    end
+
+    context 'pour le menu OK pour sollicitation' do
+      before { anonymizer.call }
+
+      it 'conserve Non' do
+        expect(fiche_avec_texte.reload.ok_for_solicitation).to be(false)
+      end
+
+      it 'conserve Oui' do
+        expect(fiche_menu_oui.reload.ok_for_solicitation).to be(true)
+      end
+
+      it 'conserve un menu vide, donc l\'état texte présent et menu vide' do
+        fiche = fiche_texte_sans_menu.reload
+
+        expect(fiche.ok_for_solicitation).to be_nil
+        expect(fiche.solicitation_alert?).to be(true)
+      end
+
+      it 'conserve un menu renseigné sur une fiche sans texte' do
+        expect(fiche_sans_texte.reload.ok_for_solicitation).to be(true)
+      end
+    end
+
+    context 'quand le texte d\'origine ne peut pas être déchiffré avec les clés de cet environnement' do
+      let!(:fiche_chiffree_ailleurs) do
+        autre_clef = ActiveRecord::Encryption::DerivedSecretKeyProvider.new('clé de production')
+        ActiveRecord::Encryption.with_encryption_context(key_provider: autre_clef) do
+          FactoryBot.create(:child_support, sensitive_information: texte_original)
+        end
+      end
+
+      it 'ne plante pas et rend le champ lisible avec les clés actuelles' do
+        expect { anonymizer.call }.not_to raise_error
+
+        nouveau = ChildSupport.find(fiche_chiffree_ailleurs.id).sensitive_information
+        expect(nouveau).to be_present
+        expect(nouveau).not_to eq(texte_original)
+      end
+    end
+
+    context 'quand le texte contient du clair dans l\'historique' do
+      it 'n\'a jamais écrit le texte dans les versions' do
+        anonymizer.call
+
+        historique = fiche_avec_texte.versions.map { |version| [version.object, version.object_changes] }.to_json
+        expect(historique).not_to include('foyer')
+      end
+    end
+  end
 end
