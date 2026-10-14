@@ -196,7 +196,7 @@ RSpec.describe "Admin changement du supporter d'une fiche de suivi", type: :requ
         expect(fiche.notes).to eq('Note ordinaire')
       end
 
-      [:contributor_inscrit, :reader_inscrit, :caller_desactive].each do |nom|
+      %i[contributor_inscrit reader_inscrit caller_desactive].each do |nom|
         it "ignore #{nom}" do
           patch "/admin/child_supports/#{fiche.id}", params: { child_support: { supporter_id: send(nom).id } }
 

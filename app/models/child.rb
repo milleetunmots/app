@@ -823,7 +823,10 @@ class Child < ApplicationRecord
   end
 
   def self.ransackable_scopes(auth_object = nil)
-    super + %i[months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_details_matches_any book_delivery_location registration_professional_email_contains ok_for_solicitation_is]
+    super + %i[
+      months_equals months_gteq months_lt postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with
+      source_details_matches_any book_delivery_location registration_professional_email_contains ok_for_solicitation_is
+    ]
   end
 
   # Périmètre : les enfants de la fiche de suivi, et non ceux qui partagent
