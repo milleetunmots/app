@@ -110,6 +110,16 @@ RSpec.describe ChildrenSupportModule, type: :model do
       # rester sans module, sinon il disparaît de l'export logistique
       expect(child1_csm&.support_module).to be_present
     end
+
+    it "n'attribue rien et ne remonte pas d'erreur pour un frère/sœur arrêté" do
+      child1.update!(group_status: 'stopped')
+      allow(Rollbar).to receive(:error)
+
+      csm_child2.update!(support_module: sm_reading_4_11, is_completed: true)
+
+      expect(ChildrenSupportModule.where(child: child1)).to be_empty
+      expect(Rollbar).not_to have_received(:error)
+    end
   end
 
   # Des jumeaux partagent la même tranche d'âge : ils puisent dans le même
