@@ -188,9 +188,7 @@ RSpec.describe "Admin menu OK pour sollicitation de la fiche de suivi", type: :r
           expect(fiche.reload.notes).to eq('Note ordinaire')
         end
       end
-    end
 
-    %w[super_admin contributor reader animator].each do |role|
       context "par un #{role} sur une fiche sans référente, avec une requête forgée" do
         it "ne modifie pas le menu" do
           sign_in FactoryBot.create(:admin_user, user_role: role)

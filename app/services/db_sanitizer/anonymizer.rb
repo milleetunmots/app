@@ -105,7 +105,7 @@ module DbSanitizer
     # Seules les fiches qui en avaient un sont concernées, pour garder l'état « texte présent » ;
     # l'ancien texte n'est jamais lu, donc une base chiffrée avec d'autres clés ne pose pas de problème.
     def anonymize_sensitive_information
-      ChildSupport.where('sensitive_information IS NOT NULL').find_each do |child_support|
+      ChildSupport.where.not(sensitive_information: nil).find_each do |child_support|
         child_support.update_columns(sensitive_information: Faker::Lorem.paragraph(sentence_count: 2))
       end
     end
