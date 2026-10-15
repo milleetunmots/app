@@ -176,4 +176,63 @@ RSpec.describe Ability, type: :model do
       end
     end
   end
+
+  describe "droit de rattacher un enfant à un parent (link_child)" do
+    let(:utilisateur_id) { FactoryBot.create(:admin_user, user_role: 'caller').id }
+    let(:parent_cible) { FactoryBot.create(:parent) }
+
+    def avec_fiche_suivie_par(supporter)
+      FactoryBot.create(:child, parent1: parent_cible).tap { |enfant| enfant.child_support.update!(supporter: supporter) }
+    end
+
+    %w[caller animator].each do |role|
+      context "pour un #{role}" do
+        let(:utilisateur) { FactoryBot.create(:admin_user, user_role: role) }
+        let(:ability) { Ability.new(utilisateur) }
+
+        it "peut rattacher un enfant à un parent qui n'a encore aucun enfant" do
+          expect(ability.can?(:link_child, parent_cible)).to be(true)
+        end
+
+        it "peut rattacher un enfant à un parent dont toutes les fiches suivies sont les siennes" do
+          avec_fiche_suivie_par(utilisateur)
+
+          expect(ability.can?(:link_child, parent_cible)).to be(true)
+        end
+
+        it "ne peut pas rattacher un enfant à un parent dont la fiche est suivie par quelqu'un d'autre" do
+          avec_fiche_suivie_par(autre_accompagnante)
+
+          expect(ability.can?(:link_child, parent_cible)).to be(false)
+        end
+
+        it "ne peut pas rattacher un enfant à un parent dont la fiche n'a pas de supporter" do
+          avec_fiche_suivie_par(nil)
+
+          expect(ability.can?(:link_child, parent_cible)).to be(false)
+        end
+
+        it "ne peut pas rattacher un enfant à un parent dont une seule des fiches est suivie par quelqu'un d'autre" do
+          avec_fiche_suivie_par(utilisateur)
+          avec_fiche_suivie_par(autre_accompagnante)
+
+          expect(ability.can?(:link_child, parent_cible)).to be(false)
+        end
+
+        it "ignore les enfants archivés du parent" do
+          avec_fiche_suivie_par(autre_accompagnante).discard
+
+          expect(ability.can?(:link_child, parent_cible)).to be(true)
+        end
+      end
+    end
+
+    %w[super_admin contributor reader].each do |role|
+      it "reste autorisé pour un #{role}, même sur la famille d'un autre" do
+        avec_fiche_suivie_par(autre_accompagnante)
+
+        expect(Ability.new(FactoryBot.create(:admin_user, user_role: role)).can?(:link_child, parent_cible)).to be(true)
+      end
+    end
+  end
 end

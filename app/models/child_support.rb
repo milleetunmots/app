@@ -512,6 +512,12 @@ class ChildSupport < ApplicationRecord
     child_support.table[:id]
   end
 
+  # Ni recherche ni tri sur le texte chiffré : sans contenu révélé, `q[sensitive_information_present]=1`
+  # dirait déjà quelles fiches en ont un
+  def self.ransackable_attributes(auth_object = nil)
+    super - %w[sensitive_information]
+  end
+
   def self.ransackable_scopes(auth_object = nil)
     super + %i[
       groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_in source_channel_in
@@ -851,6 +857,8 @@ class ChildSupport < ApplicationRecord
   # ---------------------------------------------------------------------------
 
   encrypts :sensitive_information
+  # `inspect` (messages d'erreur, consoles) ne doit pas afficher le texte en clair
+  self.filter_attributes += [:sensitive_information]
 
   # Le champ ne doit sortir ni en JSON ni en XML (ActiveAdmin les sert même sans lien de téléchargement)
   def serializable_hash(options = nil)

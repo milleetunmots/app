@@ -70,6 +70,11 @@ class Ability
       can %i[read update], Parent, parent1_children: { child_support: { supporter_id: user.id } }
       can %i[read update], Parent, parent2_children: { child_support: { supporter_id: user.id } }
       cannot :upload_undelivered_books, Parent
+      # Rattacher un enfant à un parent peut réaffecter la fiche de ce parent au supporter de l'enfant
+      # (Child#handle_support_changes) : seulement les parents sans fiche suivie, ou dont les fiches sont les siennes
+      can :link_child, Parent do |parent|
+        parent.children.kept.joins(:child_support).where('child_supports.supporter_id IS DISTINCT FROM ?', user.id).none?
+      end
       can :create, Child
       can %i[read update add_parent add_child], Child, child_support: { supporter_id: user.id }
       can %i[create read update add_parent add_child], ChildSupport, supporter_id: user.id
@@ -114,6 +119,12 @@ class Ability
       can :update_ok_for_solicitation, ChildSupport, supporter_id: user.id
       cannot :assign_supporter, ChildSupport
       cannot :upload_undelivered_books, Parent
+      # Rattacher un enfant à un parent peut réaffecter la fiche de ce parent au supporter de l'enfant
+      # (Child#handle_support_changes) : seulement les parents sans fiche suivie, ou dont les fiches sont les siennes
+      cannot :link_child, Parent
+      can :link_child, Parent do |parent|
+        parent.children.kept.joins(:child_support).where('child_supports.supporter_id IS DISTINCT FROM ?', user.id).none?
+      end
       can :manage, Workshop
       can :manage, Event, type: %w[Events::TextMessage Events::WorkshopParticipation]
       cannot :read, [Events::OtherEvent, Events::SurveyResponse]

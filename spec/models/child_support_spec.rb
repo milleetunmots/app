@@ -632,4 +632,13 @@ RSpec.describe ChildSupport, type: :model do
       expect(ChildSupport.find(fiche.id).solicitation_alert?).to be(true)
     end
   end
+
+  describe "#inspect" do
+    it "ne montre pas le texte sensible" do
+      fiche = FactoryBot.build(:child_support, sensitive_information: "Père placé en foyer")
+
+      expect(fiche.inspect).not_to include("Père placé en foyer")
+      expect(fiche.inspect).to include("sensitive_information: [FILTERED]")
+    end
+  end
 end

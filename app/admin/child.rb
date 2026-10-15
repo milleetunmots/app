@@ -503,6 +503,8 @@ ActiveAdmin.register Child do
     children_source_attributes = [{ children_source_attributes: %i[id source_id details re_enrollment] }]
 
     permitted = base + children_source_attributes
+    # Un parent n'est accepté que si l'utilisateur a le droit de lui rattacher un enfant (cf. Ability#link_child)
+    permitted -= %i[parent1_id parent2_id].reject { |attribute| parent_linkable?(params.dig(:child, attribute)) }
     unless current_admin_user&.user_role.in?(%w[caller animator reader])
       permitted += group_attrs
     end
@@ -750,6 +752,20 @@ ActiveAdmin.register Child do
   end
 
   controller do
+    # Accepte un parent vide, inchangé ou inexistant (la validation s'en charge), ou un parent auquel
+    # l'utilisateur peut rattacher un enfant : un identifiant forgé vers la famille d'un autre est refusé.
+    def parent_linkable?(parent_id)
+      return true if parent_id.blank?
+
+      parent = Parent.find_by(id: parent_id)
+      return true if parent.nil?
+
+      child = Child.find_by(id: params[:id]) if params[:id].present?
+      return true if child && [child.parent1_id, child.parent2_id].compact.include?(parent.id)
+
+      current_ability.can?(:link_child, parent)
+    end
+
     # retour vers la fiche de suivi d'où vient le lien d'édition
     def update
       child_support_id = params[:back_to_child_support_id].presence

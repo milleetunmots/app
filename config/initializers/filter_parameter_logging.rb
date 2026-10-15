@@ -4,5 +4,8 @@
 # sensitive information. See the ActiveSupport::ParameterFilter documentation for supported
 # notations and behaviors.
 Rails.application.config.filter_parameters += [
-  :passw, :secret, :token, :_key, :crypt, :salt, :certificate, :otp, :ssn, :password
+  :passw, :secret, :token, :_key, :crypt, :salt, :certificate, :otp, :ssn, :password,
+  # Rails ajoute « child_support.sensitive_information » au chargement du modèle ; la clé seule
+  # couvre aussi les cas sans préfixe et ne dépend pas de l'ordre de chargement
+  :sensitive_information
 ]
