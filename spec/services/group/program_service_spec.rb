@@ -44,6 +44,20 @@ RSpec.describe Group::ProgramService do
     self.use_transactional_tests = true
   end
 
+  context 'quand la cohorte est programmée' do
+    before do
+      group.update!(started_at: Time.zone.today.next_occurring(:monday), support_modules_count: 3)
+      ActiveJob::Base.queue_adapter = :test
+    end
+
+    it "n'enfile aucun job d'ancien SMS d'amont de session (sans lien)" do
+      service = described_class.new(group).call
+
+      expect(service.errors).to be_empty
+      expect(enqueued_jobs.map { |job| job[:job].to_s }).not_to include('Parent::SendBeforeFirstCallMessageJob')
+    end
+  end
+
   context 'when module zero is programmed' do
     it 'a zero module support module is selected for each child according to their age' do
       ChildrenSupportModule::ProgramSupportModuleZeroJob.perform_now(group.id, Time.zone.now.next_occurring(:monday))

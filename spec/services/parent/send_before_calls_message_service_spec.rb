@@ -129,27 +129,15 @@ RSpec.describe Parent::SendBeforeCallsMessageService do
   end
 
   describe '#call' do
-    context 'when BETA_TEST_CALLERS_EMAIL is blank' do
-      before { stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => '')) }
-
-      it 'records an error and returns early without raising' do
-        result = described_class.new.call
-
-        expect(result.errors).to include(
-          hash_including(
-            service: 'Parent::SendBeforeCallsMessageService',
-            error: 'BETA_TEST_CALLERS_EMAIL is not set'
-          )
-        )
-      end
+    it "n'expose plus d'entrée #call : le flux ne passe que par handle_group_message" do
+      expect(described_class.new).not_to respond_to(:call)
     end
   end
 
   describe '#handle_group_message (integration)' do
     let(:date) { Date.new(2026, 6, 19) }
     let(:next_monday) { date.next_occurring(:monday) }
-    let(:beta_email) { 'beta@1001mots.test' }
-    let(:other_email) { 'other@1001mots.test' }
+    let(:supporter_email) { 'awa@1001mots.test' }
 
     let(:ok)    { ChildSupport.human_attribute_name('call_status.1_ok') }
     let(:ko)    { ChildSupport.human_attribute_name('call_status.2_ko') }
@@ -163,30 +151,23 @@ RSpec.describe Parent::SendBeforeCallsMessageService do
       )
     end
 
-    let!(:beta_supporter) do
-      FactoryBot.create(:admin_user, email: beta_email, can_send_automatic_sms: true, calendly_user_uri: 'https://calendly.com/beta')
-    end
-    let!(:non_beta_supporter) do
-      FactoryBot.create(:admin_user, email: other_email, can_send_automatic_sms: true, calendly_user_uri: 'https://calendly.com/non-beta')
+    let!(:supporter) do
+      FactoryBot.create(:admin_user, email: supporter_email, can_send_automatic_sms: true, calendly_user_uri: 'https://calendly.com/awa')
     end
 
-    def build_cs(supporter:, call0_status:, tag: nil)
+    def build_cs(call0_status:, tag:)
       child = FactoryBot.create(:child, group: group, group_status: 'active')
       cs = child.child_support
       cs.update!(supporter: supporter, call0_status: call0_status)
-      if tag
-        cs.tag_list.add(tag)
-        cs.save!
-      end
+      cs.tag_list.add(tag)
+      cs.save!
       cs
     end
 
-    let!(:non_beta_ok)     { build_cs(supporter: non_beta_supporter, call0_status: ok) }
-    let!(:non_beta_ko)     { build_cs(supporter: non_beta_supporter, call0_status: ko) }
-    let!(:beta_ok_sms)     { build_cs(supporter: beta_supporter, call0_status: ok, tag: sms_tag) }
-    let!(:beta_ok_rcs)     { build_cs(supporter: beta_supporter, call0_status: ok, tag: rcs_tag) }
-    let!(:beta_ko_sms)     { build_cs(supporter: beta_supporter, call0_status: ko, tag: sms_tag) }
-    let!(:beta_ko_rcs)     { build_cs(supporter: beta_supporter, call0_status: ko, tag: rcs_tag) }
+    let!(:ok_sms) { build_cs(call0_status: ok, tag: sms_tag) }
+    let!(:ok_rcs) { build_cs(call0_status: ok, tag: rcs_tag) }
+    let!(:ko_sms) { build_cs(call0_status: ko, tag: sms_tag) }
+    let!(:ko_rcs) { build_cs(call0_status: ko, tag: rcs_tag) }
 
     let(:message_service_stub) do
       stub = instance_double(ProgramMessageService, errors: [])
@@ -200,8 +181,7 @@ RSpec.describe Parent::SendBeforeCallsMessageService do
       # stub_const et non une écriture dans ENV : un ENV.delete en `after`
       # supprimerait pour de bon des variables définies par application.yml,
       # cassant les specs suivantes selon l'ordre d'exécution.
-      stub_const('ENV', ENV.to_h.merge(
-                          'BETA_TEST_CALLERS_EMAIL' => beta_email,
+      stub_const('ENV', ENV.to_h.except('BETA_TEST_CALLERS_EMAIL').merge(
                           'RCS_CALL1_WITH_PREVIOUS_CALL_OK_OR_UNFINISHED_MEDIA_ID' => 'media-with',
                           'RCS_CALL1_WITHOUT_PREVIOUS_CALL_OK_OR_UNFINISHED_MEDIA_ID' => 'media-without'
                         ))
@@ -213,91 +193,66 @@ RSpec.describe Parent::SendBeforeCallsMessageService do
       allow(Rollbar).to receive(:error)
     end
 
-
-    it 'routes non-beta + previous calls OK to the NO_BETA OK message without media_id' do
+    it "envoie, sans dépendre d'une liste bêta, deux lots (SMS sans media, RCS avec le media WITH) quand les appels précédents sont OK" do
       described_class.new(date: date).handle_group_message(group, 1)
 
       expect(ProgramMessageService).to have_received(:new).with(
         anything,
         anything,
-        %W[parent.#{non_beta_ok.parent1.id}],
-        described_class::NO_BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[0],
-        nil
-      )
-    end
-
-    it 'routes non-beta + at least one call not OK to the NO_BETA not-OK message without media_id' do
-      described_class.new(date: date).handle_group_message(group, 1)
-
-      expect(ProgramMessageService).to have_received(:new).with(
-        anything,
-        anything,
-        %W[parent.#{non_beta_ko.parent1.id}],
-        described_class::NO_BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[0],
-        nil
-      )
-    end
-
-    it 'routes beta + previous calls OK to two batches: SMS without media and RCS with the WITH media_id' do
-      described_class.new(date: date).handle_group_message(group, 1)
-
-      expect(ProgramMessageService).to have_received(:new).with(
-        anything,
-        anything,
-        %W[parent.#{beta_ok_sms.parent1.id}],
-        described_class::BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[0],
+        %W[parent.#{ok_sms.parent1.id}],
+        described_class::PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[0],
         nil
       )
       expect(ProgramMessageService).to have_received(:new).with(
         anything,
         anything,
-        %W[parent.#{beta_ok_rcs.parent1.id}],
-        described_class::BETA_TEST_PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[0],
+        %W[parent.#{ok_rcs.parent1.id}],
+        described_class::PREVIOUS_CALLS_OK_OR_UNFINISHED_WARNING_MESSAGES[0],
         'media-with'
       )
     end
 
-    it 'routes beta + at least one call not OK to two batches: SMS without media and RCS with the WITHOUT media_id' do
+    it 'envoie deux lots (SMS sans media, RCS avec le media WITHOUT) quand au moins un appel précédent est KO' do
       described_class.new(date: date).handle_group_message(group, 1)
 
       expect(ProgramMessageService).to have_received(:new).with(
         anything,
         anything,
-        %W[parent.#{beta_ko_sms.parent1.id}],
-        described_class::BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[0],
+        %W[parent.#{ko_sms.parent1.id}],
+        described_class::AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[0],
         nil
       )
       expect(ProgramMessageService).to have_received(:new).with(
         anything,
         anything,
-        %W[parent.#{beta_ko_rcs.parent1.id}],
-        described_class::BETA_TEST_AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[0],
+        %W[parent.#{ko_rcs.parent1.id}],
+        described_class::AT_LEAST_ONE_CALL_NOT_OK_AND_NOT_UNFINISHED_WARNING_MESSAGES[0],
         'media-without'
       )
     end
 
-    it 'creates Calendly one-off event types only for beta-test child supports' do
+    it 'crée un lien Calendly à usage unique pour chaque fiche de suivi' do
       described_class.new(date: date).handle_group_message(group, 1)
 
-      beta_cs_ids = [beta_ok_sms, beta_ok_rcs, beta_ko_sms, beta_ko_rcs].map(&:id)
-      non_beta_cs_ids = [non_beta_ok, non_beta_ko].map(&:id)
-
-      beta_cs_ids.each do |id|
+      [ok_sms, ok_rcs, ko_sms, ko_rcs].map(&:id).each do |id|
         expect(Calendly::CreateOneOffEventTypeService).to have_received(:new).with(
           child_support: have_attributes(id: id), call_session: 1
         )
       end
-      non_beta_cs_ids.each do |id|
-        expect(Calendly::CreateOneOffEventTypeService).not_to have_received(:new).with(
-          child_support: have_attributes(id: id), call_session: anything
-        )
-      end
     end
 
-    it 'issues exactly 6 ProgramMessageService calls (2 non-beta SMS batches + 2 beta SMS batches + 2 beta RCS batches)' do
+    it "n'envoie aucun message sans lien : 4 appels à ProgramMessageService (2 lots SMS et 2 lots RCS)" do
       described_class.new(date: date).handle_group_message(group, 1)
 
-      expect(ProgramMessageService).to have_received(:new).exactly(6).times
+      expect(ProgramMessageService).to have_received(:new).exactly(4).times
+    end
+
+    it "ne dépend pas de BETA_TEST_CALLERS_EMAIL : une liste contenant d'autres e-mails donne le même résultat" do
+      stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => 'other@1001mots.test'))
+
+      described_class.new(date: date).handle_group_message(group, 1)
+
+      expect(ProgramMessageService).to have_received(:new).exactly(4).times
     end
   end
 end
