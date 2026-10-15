@@ -172,6 +172,14 @@ class Parent < ApplicationRecord
       .where(child_supports: { instagram_user: value })
       .distinct
   }
+  scope :ok_for_solicitation_is, ->(value) {
+    next none unless ChildSupport::OK_FOR_SOLICITATION_FILTER.key?(value)
+
+    joins('INNER JOIN children ON children.parent1_id = parents.id OR children.parent2_id = parents.id')
+      .joins('INNER JOIN child_supports ON child_supports.id = children.child_support_id')
+      .where(child_supports: { ok_for_solicitation: ChildSupport::OK_FOR_SOLICITATION_FILTER[value] })
+      .distinct
+  }
   scope :by_instagram_follower_in, ->(value) {
     joins("INNER JOIN children ON children.parent1_id = parents.id OR children.parent2_id = parents.id")
     .joins("INNER JOIN child_supports ON child_supports.id = children.child_support_id")
@@ -181,7 +189,7 @@ class Parent < ApplicationRecord
 
 
   def self.ransackable_scopes(_auth_object = nil)
-    super + %i[by_instagram_user_in by_instagram_follower_in]
+    super + %i[by_instagram_user_in by_instagram_follower_in ok_for_solicitation_is]
   end
 
   def initialize(attributes = {})

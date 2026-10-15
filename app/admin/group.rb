@@ -211,6 +211,14 @@ ActiveAdmin.register Group do
     total_capacity = child_supports_count_by_supporter.sum { |supporter_count| supporter_count[:child_supports_count] } if supporters_without_child_supports_count.empty?
     families_count = resource.model.child_supports.with_kept_children.with_a_child_in_active_group.count
     if supporters_without_id.empty? && supporters_without_child_supports_count.empty? && total_capacity == families_count
+      # Les supporters viennent d'Airtable, sans filtre de rôle : on répartit comme avant, mais on signale les cas inattendus
+      supporter_ids = child_supports_count_by_supporter.pluck(:admin_user_id)
+      ineligible = AdminUser.where(id: supporter_ids).where.not(id: AdminUser.assignable_as_supporter.select(:id))
+      if ineligible.any?
+        Rollbar.error('Group répartition : supporters non éligibles (ni caller ni animator actif)',
+                      group_id: resource.model.id,
+                      supporters: ineligible.map { |user| { id: user.id, role: user.user_role, disabled: user.is_disabled } })
+      end
       Group::DistributeChildSupportsToSupportersJob.perform_later(resource.model, child_supports_count_by_supporter)
       redirect_to admin_group_path, notice: message
     else

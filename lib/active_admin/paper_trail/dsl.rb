@@ -33,7 +33,11 @@ module ActiveAdmin
             @versions_count = resource.versions.count
 
             # use ?version=2 to see version 2 of the resource
-            if params[:version]
+            # Consultation seulement (GET) : sur une modification, la fiche reconstituée serait enregistrée
+            # telle quelle (supporter d'époque restauré, champs non versionnés remis à nil), et les droits
+            # seraient évalués sur l'instantané. On autorise donc d'abord la fiche actuelle.
+            if params[:version] && request.get?
+              authorize_resource!(resource)
               @version_number = params[:version].to_i
               @version = resource.versions[@version_number]
               @version_date = @version.previous.created_at

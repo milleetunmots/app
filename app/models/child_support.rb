@@ -113,6 +113,7 @@
 #  is_bilingual                               :string           default("2_no_information")
 #  most_present_parent                        :string
 #  notes                                      :text
+#  ok_for_solicitation                        :boolean
 #  other_phone_number                         :string
 #  parent1_available_support_module_list      :string           is an Array
 #  parent2_available_support_module_list      :string           is an Array
@@ -122,6 +123,7 @@
 #  restart_support_date                       :datetime
 #  restart_support_details                    :text
 #  second_language                            :string
+#  sensitive_information                      :text
 #  stop_support_date                          :datetime
 #  stop_support_details                       :text
 #  stop_support_reason                        :string
@@ -465,6 +467,14 @@ class ChildSupport < ApplicationRecord
 
   scope :with_book_not_received, -> { where.not(book_not_received: [nil, '']) }
 
+  # Filtre « OK pour sollicitation ? » : yes / no / empty (menu vide) ; toute autre valeur ne retourne rien
+  OK_FOR_SOLICITATION_FILTER = { 'yes' => true, 'no' => false, 'empty' => nil }.freeze
+  scope :ok_for_solicitation_is, ->(value) {
+    next none unless OK_FOR_SOLICITATION_FILTER.key?(value)
+
+    where(ok_for_solicitation: OK_FOR_SOLICITATION_FILTER[value])
+  }
+
   def self.group_active
     where(id: Child.group_active.select('DISTINCT child_support_id'))
   end
@@ -502,11 +512,17 @@ class ChildSupport < ApplicationRecord
     child_support.table[:id]
   end
 
+  # Ni recherche ni tri sur le texte chiffré : sans contenu révélé, `q[sensitive_information_present]=1`
+  # dirait déjà quelles fiches en ont un
+  def self.ransackable_attributes(auth_object = nil)
+    super - %w[sensitive_information]
+  end
+
   def self.ransackable_scopes(auth_object = nil)
     super + %i[
       groups_in postal_code_contains postal_code_ends_with postal_code_equals postal_code_starts_with source_in source_channel_in
       source_details_matches_any group_id_in active_group_id_in with_child_in_group_ended_between
-      months_gteq months_lt months_equals months_between verbatim_present
+      months_gteq months_lt months_equals months_between verbatim_present ok_for_solicitation_is
     ]
   end
 
@@ -833,7 +849,45 @@ class ChildSupport < ApplicationRecord
   # versions history
   # ---------------------------------------------------------------------------
 
-  has_paper_trail
+  # `skip` (et non `ignore`) : le champ chiffré ne doit jamais apparaître dans les versions
+  has_paper_trail skip: [:sensitive_information]
+
+  # ---------------------------------------------------------------------------
+  # encryption
+  # ---------------------------------------------------------------------------
+
+  encrypts :sensitive_information
+  # `inspect` (messages d'erreur, consoles) ne doit pas afficher le texte en clair
+  self.filter_attributes += [:sensitive_information]
+
+  # Le champ ne doit sortir ni en JSON ni en XML (ActiveAdmin les sert même sans lien de téléchargement)
+  def serializable_hash(options = nil)
+    options = (options || {}).dup
+    options[:except] = Array(options[:except]) + [:sensitive_information]
+    super
+  end
+
+  # Écrit nil plutôt qu'un texte blanc, sans relire (donc sans déchiffrer) la valeur en base
+  def sensitive_information=(value)
+    super(value.presence)
+  end
+
+  # Sans déchiffrer : signale l'existence du texte à ceux qui n'ont pas le droit de le lire
+  def sensitive_information_present?
+    read_attribute_before_type_cast('sensitive_information').present?
+  end
+
+  # Un texte sensible existe mais le menu n'est pas renseigné : déclenche le cadre rouge du formulaire
+  def solicitation_alert?
+    sensitive_information_present? && ok_for_solicitation.nil?
+  end
+
+  # Le menu n'a de sens que tant qu'un texte sensible le justifie : il repart à vide quand le texte est vidé
+  before_save :reset_ok_for_solicitation, if: -> { will_save_change_to_sensitive_information? && sensitive_information.nil? }
+
+  def reset_ok_for_solicitation
+    self.ok_for_solicitation = nil
+  end
 
   # ---------------------------------------------------------------------------
   # tags

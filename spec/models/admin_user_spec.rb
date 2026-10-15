@@ -392,4 +392,17 @@ RSpec.describe AdminUser, type: :model do
       end
     end
   end
+
+  describe ".assignable_as_supporter" do
+    let!(:caller_actif) { FactoryBot.create(:admin_user, user_role: 'caller') }
+    let!(:animator_actif) { FactoryBot.create(:admin_user, user_role: 'animator') }
+    let!(:caller_desactive) { FactoryBot.create(:admin_user, user_role: 'caller', is_disabled: true) }
+    let!(:super_admin) { FactoryBot.create(:admin_user, user_role: 'super_admin') }
+    let!(:contributor) { FactoryBot.create(:admin_user, user_role: 'contributor') }
+    let!(:reader) { FactoryBot.create(:admin_user, user_role: 'reader') }
+
+    it "ne retourne que les caller et animator non désactivés" do
+      expect(AdminUser.assignable_as_supporter).to contain_exactly(caller_actif, animator_actif)
+    end
+  end
 end
