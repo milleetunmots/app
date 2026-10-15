@@ -145,6 +145,27 @@ RSpec.describe 'Admin infos sensibles de la fiche de suivi', type: :request do
     end
   end
 
+  describe 'recherche forgée sur le champ' do
+    it 'ne permet pas de savoir quelles fiches ont un texte (le critère est ignoré)' do
+      avec_texte = fiche
+      sans_texte = FactoryBot.create(:child_support, supporter: referente)
+      sign_in FactoryBot.create(:admin_user, user_role: 'super_admin')
+
+      get '/admin/child_supports', params: { scope: 'all', q: { sensitive_information_present: '1' } }
+
+      expect(response.body).to include("id=\"child_support_#{avec_texte.id}\"")
+      expect(response.body).to include("id=\"child_support_#{sans_texte.id}\"")
+    end
+
+    it 'ne permet pas non plus de chercher dans le texte chiffré' do
+      sign_in FactoryBot.create(:admin_user, user_role: 'super_admin')
+
+      get '/admin/child_supports', params: { scope: 'all', q: { sensitive_information_cont: 'zzzz-introuvable' } }
+
+      expect(response.body).to include("id=\"child_support_#{fiche.id}\"")
+    end
+  end
+
   describe 'fuites par les exports et les filtres' do
     let(:exporteur) { FactoryBot.create(:admin_user, user_role: 'super_admin', can_export_data: true) }
 
