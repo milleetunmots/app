@@ -77,6 +77,26 @@ RSpec.describe 'Admin - accès à la prise de RDV sans liste bêta', type: :requ
     end
   end
 
+  describe 'filtre des accompagnantes sans envoi automatique' do
+    let!(:silent_supporter) { FactoryBot.create(:admin_user, user_role: 'caller', can_send_automatic_sms: false, name: 'Bintou Silencieuse') }
+    let!(:active_supporter) { FactoryBot.create(:admin_user, user_role: 'caller', can_send_automatic_sms: true, name: 'Awa Active') }
+
+    before do
+      FactoryBot.create(:child).child_support.update!(supporter: silent_supporter)
+      FactoryBot.create(:child).child_support.update!(supporter: active_supporter)
+      sign_in FactoryBot.create(:admin_user, user_role: 'super_admin')
+    end
+
+    it 'affiche le filtre libellé sans notion de bêta et liste les accompagnantes désactivées' do
+      get '/admin/admin_users', params: { scope: 'supporters_who_cannot_send_automatic_sms' }
+
+      expect(response.body).to include('Accompagnantes sans envoi automatique')
+      expect(response.body).not_to include('Beta testeuses')
+      expect(response.body).to include(silent_supporter.email)
+      expect(response.body).not_to include(active_supporter.email)
+    end
+  end
+
   describe 'liste et fiche des RDV Calendly' do
     let!(:awa_call) { FactoryBot.create(:scheduled_call, :with_child_support, :with_parent, admin_user: awa) }
     let!(:bintou_call) { FactoryBot.create(:scheduled_call, :with_child_support, :with_parent, admin_user: bintou) }
