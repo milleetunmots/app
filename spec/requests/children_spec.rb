@@ -178,6 +178,61 @@ RSpec.describe ChildrenController, type: :request do
       end
     end
 
+    context "avec le formulaire public d'inscription" do
+      let(:admin_tag_name) { 'ajoute par accompagnante' }
+      let(:birthdate) { Faker::Date.birthday(min_age: 1, max_age: 2) }
+      let(:source) { FactoryBot.create(:source, channel: 'pmi', department: 75) }
+      let(:params) {
+        {
+          child: {
+            parent1_attributes: {
+              terms_accepted_at: Time.zone.now,
+              first_name: 'Mariama',
+              last_name: 'Diallo',
+              phone_number: "066802#{Faker::Number.number(digits: 4)}",
+              book_delivery_location: 'pmi',
+              book_delivery_organisation_name: 'PMI Henri Barbusse',
+              address: Faker::Address.street_address,
+              postal_code: parent_postal_code,
+              city_name: Faker::Address.city,
+              gender: 'f'
+            },
+            gender: "",
+            first_name: 'Aminata',
+            last_name: 'Diallo',
+            "birthdate(3i)" => birthdate.day.to_s,
+            "birthdate(2i)" => birthdate.month.to_s,
+            "birthdate(1i)" => birthdate.year.to_s,
+            tag_list: "",
+            child_support_attributes: { important_information: "" },
+            parent2_attributes: { first_name: "", last_name: "", phone_number: "" },
+            children_source_attributes: { source_id: source.id, details: "", registration_department: source.department }
+          }
+        }
+      }
+
+      before do
+        allow_any_instance_of(SpotHit::SendSmsService).to receive(:call).and_return(SpotHit::SendSmsService.new(nil, nil, nil))
+      end
+
+      it "pose le tag d'origine mais pas le tag de création admin, ni sur l'enfant ni sur sa famille" do
+        post "/inscription3", params: params
+
+        child = Child.find_by(first_name: 'Aminata')
+        expect(child.tag_list).to eq(['inscription3'])
+        expect(child.parent1.tag_list).not_to include(admin_tag_name)
+        expect(child.child_support.tag_list).not_to include(admin_tag_name)
+      end
+
+      it "ne pose pas le tag de création admin même si un AdminUser est connecté dans le navigateur" do
+        sign_in FactoryBot.create(:admin_user, user_role: 'caller')
+
+        post "/inscription3", params: params
+
+        expect(Child.find_by(first_name: 'Aminata').tag_list).to eq(['inscription3'])
+      end
+    end
+
     context "when there are errors" do
       let(:birthdate) { Faker::Date.between(from: Child.min_birthdate.tomorrow, to: Child.max_birthdate.yesterday) }
       let(:source) { FactoryBot.create(:source) }

@@ -757,6 +757,13 @@ ActiveAdmin.register Child do
       end
     end
 
+    # Posé côté serveur : caller et animator n'ont pas le droit d'envoyer tag_list.
+    # TagsSharedConcern ne distribue qu'au before_update, d'où la mise à jour après création.
+    after_create do |child|
+      child.tag_list += [Child::ADMIN_CREATION_TAG]
+      child.save
+    end
+
     after_save do |child|
       next if child.errors.any?
 

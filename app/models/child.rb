@@ -64,6 +64,8 @@ class Child < ApplicationRecord
   # financées, ni ciblées. Correspondance par sous-chaîne, insensible à la casse.
   AI_SOURCE_KEYWORDS = %w[chatgpt claude gemini].freeze
   UTM_SOURCE_TAG_PREFIX = 'utm_source='.freeze
+  # Posé à la création depuis l'admin. Déjà normalisé (sans accent) : voir Tag#format_name.
+  ADMIN_CREATION_TAG = 'ajoute par accompagnante'.freeze
 
   # Ordre canonique de désignation de l'« enfant courant » d'une fratrie :
   #   1. les enfants actifs d'abord
