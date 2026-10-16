@@ -31,7 +31,13 @@
 #
 class ChildrenSupportModule < ApplicationRecord
 
-  CONDITIONS = %w[not_received damaged].freeze
+  NOT_SENT = 'not_sent'.freeze
+  # not_sent : le livre n'est jamais parti (adresse suspecte, accompagnement interrompu…),
+  # seuls les administrateurs et contributeurs peuvent le poser ou le retirer à la main
+  CONDITIONS = ['not_received', 'damaged', NOT_SENT].freeze
+  # statuts pour lesquels on garde la trace du livre du module choisi, même s'il n'est pas expédié
+  # (not_supported et waiting en sont exclus) ; liste blanche : un nouveau statut n'y entre pas par défaut
+  BOOK_TRACKED_GROUP_STATUSES = %w[active paused stopped disengaged].freeze
 
   # ---------------------------------------------------------------------------
   # relations
@@ -79,12 +85,19 @@ class ChildrenSupportModule < ApplicationRecord
   before_create :set_module_index
   after_save :save_chosen_module_to_child_support, if: :saved_change_to_support_module_id?
   before_save :set_book_condition_changed_at, if: :book_condition_changed?
+  after_save :flag_address_as_suspected, if: -> { saved_change_to_book_condition?(to: NOT_SENT) }
 
   def name
     return support_module.decorate.name_with_tags if support_module
     return 'Laisse le choix à 1001mots' if is_completed
 
     'Pas encore choisi'
+  end
+
+  # Le livre de ce module partira-t-il chez la famille ? Règle unique partagée par l'export
+  # logistique (pour exclure) et l'attribution des livres (pour marquer « Non envoyé »)
+  def shippable?
+    child.group_status == 'active' && child.child_support&.address_suspected_invalid_at.nil?
   end
 
   def available_support_modules
@@ -168,14 +181,15 @@ class ChildrenSupportModule < ApplicationRecord
     super + %i[group_id_in]
   end
 
-  def self.chosen_modules_for_group(group_ids = nil, is_programmed = false)
+  def self.chosen_modules_for_group(group_ids = nil, is_programmed = false, include_unshippable: false)
     # return children_support_modules with a module, from children of the group(s) passed as parameter
     # we keep csm of parent1 only
-    # we don't retrieve modules of families that cannot receive books at the address they gave us
+    # we don't retrieve modules of families that cannot receive books at the address they gave us,
+    # unless include_unshippable (book attribution, which marks them as not sent)
     modules = includes(child: :child_support).references(:child).with_support_module
     modules = modules.where(is_programmed: is_programmed)
     modules = modules.where(children: { group_id: group_ids }) if group_ids.present?
-    modules = modules.where(child_support: { address_suspected_invalid_at: nil } )
+    modules = modules.where(child_support: { address_suspected_invalid_at: nil }) unless include_unshippable
 
     modules.select { |csm| csm.parent_id == csm.child.parent1_id }
   end
@@ -270,6 +284,17 @@ class ChildrenSupportModule < ApplicationRecord
 
   def set_book_condition_changed_at
     self.book_condition_changed_at = book_condition.present? ? Time.zone.now : nil
+  end
+
+  # Un « Non envoyé » posé à la main signale un problème d'expédition : on marque l'adresse
+  # suspecte pour que les accompagnantes la vérifient (et que les envois suivants soient suspendus).
+  # La pose automatique à l'attribution passe volontairement par update_all, qui saute ce callback :
+  # une famille interrompue a une adresse correcte, la marquer serait un faux positif.
+  def flag_address_as_suspected
+    child_support = child.child_support
+    return if child_support.nil? || child_support.address_suspected_invalid_at.present?
+
+    child_support.update_column(:address_suspected_invalid_at, Time.zone.now)
   end
 
   def save_chosen_module_to_child_support
