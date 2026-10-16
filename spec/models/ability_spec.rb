@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Ability do
-  describe "le droit d'incarner une accompagnante" do
+  describe "le droit de se connecter en tant qu'accompagnante" do
     {
       'super_admin' => true,
       'contributor' => true,

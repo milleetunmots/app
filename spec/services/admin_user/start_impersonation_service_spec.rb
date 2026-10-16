@@ -8,7 +8,7 @@ RSpec.describe AdminUser::StartImpersonationService do
   end
 
   describe '#call' do
-    it 'ouvre une ligne de journal quand un opérateur autorisé incarne une accompagnante' do
+    it "ouvre une ligne de journal quand un opérateur autorisé se connecte en tant qu'accompagnante" do
       operator = FactoryBot.create(:admin_user, user_role: 'contributor')
       target = FactoryBot.create(:admin_user, user_role: 'caller')
 
@@ -23,7 +23,7 @@ RSpec.describe AdminUser::StartImpersonationService do
       expect(service.impersonation.started_at).to be_within(5.seconds).of(Time.current)
     end
 
-    it "refuse un opérateur qui n'a pas le droit d'incarner sans rien enregistrer" do
+    it "refuse un opérateur qui n'a pas le droit de se connecter en tant qu'un autre compte sans rien enregistrer" do
       operator = FactoryBot.create(:admin_user, user_role: 'reader')
       target = FactoryBot.create(:admin_user, user_role: 'caller')
 
@@ -37,7 +37,7 @@ RSpec.describe AdminUser::StartImpersonationService do
       )
     end
 
-    it 'refuse une cible non incarnable sans rien enregistrer' do
+    it 'refuse une cible à laquelle on ne peut pas se connecter sans rien enregistrer' do
       operator = FactoryBot.create(:admin_user, user_role: 'contributor')
       target = FactoryBot.create(:admin_user, user_role: 'caller', is_disabled: true)
 

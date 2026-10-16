@@ -62,7 +62,7 @@ RSpec.describe AdminUserImpersonation do
   end
 
   describe '.ongoing' do
-    it 'ne retourne que les incarnations sans fin' do
+    it 'ne retourne que les connexions en tant que sans fin' do
       ongoing = FactoryBot.create(:admin_user_impersonation, operator: operator, target: target)
       FactoryBot.create(:admin_user_impersonation, operator: operator, target: target, ended_at: 1.hour.ago)
 

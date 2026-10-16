@@ -1,5 +1,7 @@
 fr:
   impersonation:
+    started: "Vous consultez l'admin en tant que %{name}"
     errors:
       not_authorized: "Action non autorisée"
       target_not_impersonable: "Impossible de se connecter en tant que ce compte"
+      already_impersonating: "Revenez d'abord à votre propre compte"

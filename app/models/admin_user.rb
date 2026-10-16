@@ -124,7 +124,7 @@ class AdminUser < ApplicationRecord
     child_supports.any?
   end
 
-  # Une cible d'incarnation : un compte actif dont le rôle est celui d'une accompagnante.
+  # On ne peut se connecter qu'en tant qu'accompagnante (caller ou animator) au compte actif.
   def impersonable?
     caller_or_animator? && !is_disabled?
   end
