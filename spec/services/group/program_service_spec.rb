@@ -46,8 +46,9 @@ RSpec.describe Group::ProgramService do
 
   context 'quand la cohorte est programmée' do
     before do
-      group.update!(started_at: Time.zone.today.next_occurring(:monday), support_modules_count: 3)
-      ActiveJob::Base.queue_adapter = :test
+      group.update!(started_at: Time.zone.today.next_occurring(:monday))
+      # update_column : la validation du plafond dépend de MAX_GROUP_SUPPORT_MODULES_COUNT, absente de la CI
+      group.update_column(:support_modules_count, 3)
     end
 
     it "n'enfile aucun job d'ancien SMS d'amont de session (sans lien)" do
