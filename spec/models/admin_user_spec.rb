@@ -187,13 +187,32 @@ RSpec.describe AdminUser, type: :model do
     end
   end
 
-  describe '.beta_test_supporters_who_cannot_send_automatic_sms' do
-    # Le scope est évalué par ActiveAdmin au rendu de l'index des AdminUser :
-    # une variable absente y ferait planter la page, pas seulement un service.
-    it 'ne lève pas quand BETA_TEST_CALLERS_EMAIL n’est pas défini' do
-      stub_const('ENV', ENV.to_h.except('BETA_TEST_CALLERS_EMAIL'))
+  describe '.supporters_who_cannot_send_automatic_sms' do
+    def supporter_with_child_support(can_send_automatic_sms:)
+      admin_user = FactoryBot.create(:admin_user, can_send_automatic_sms: can_send_automatic_sms)
+      FactoryBot.create(:child).child_support.update!(supporter: admin_user)
+      admin_user
+    end
 
-      expect(described_class.beta_test_supporters_who_cannot_send_automatic_sms).to be_empty
+    let!(:awa) { supporter_with_child_support(can_send_automatic_sms: true) }
+    let!(:bintou) { supporter_with_child_support(can_send_automatic_sms: false) }
+    let!(:juliette) { supporter_with_child_support(can_send_automatic_sms: false) }
+    let!(:admin_sans_fiche) { FactoryBot.create(:admin_user, can_send_automatic_sms: false) }
+
+    it "liste les accompagnantes qui ont des fiches et dont l'envoi automatique est désactivé" do
+      expect(described_class.supporters_who_cannot_send_automatic_sms).to contain_exactly(bintou, juliette)
+    end
+
+    it "n'exclut aucune accompagnante à cause de BETA_TEST_CALLERS_EMAIL" do
+      stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => awa.email))
+
+      expect(described_class.supporters_who_cannot_send_automatic_sms).to contain_exactly(bintou, juliette)
+    end
+
+    it 'ne liste pas deux fois une accompagnante qui a plusieurs fiches' do
+      FactoryBot.create(:child).child_support.update!(supporter: bintou)
+
+      expect(described_class.supporters_who_cannot_send_automatic_sms.count).to eq(2)
     end
   end
 

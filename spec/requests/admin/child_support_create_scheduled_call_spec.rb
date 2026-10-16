@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Admin child support - création de RDV par l’accompagnante', type: :request do
-  let(:supporter_email) { 'beta.caller@1001mots.org' }
+  let(:supporter_email) { 'awa@1001mots.org' }
   let(:supporter) do
     FactoryBot.create(:admin_user,
       user_role: 'caller',
@@ -26,7 +26,6 @@ RSpec.describe 'Admin child support - création de RDV par l’accompagnante', t
   end
 
   before do
-    stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => supporter_email))
     stub_request(:post, 'https://api.calendly.com/one_off_event_types')
       .to_return(status: 201, body: one_off_response.to_json, headers: { 'Content-Type' => 'application/json' })
     sign_in supporter
@@ -39,6 +38,16 @@ RSpec.describe 'Admin child support - création de RDV par l’accompagnante', t
       get edit_path
       expect(response.body).to include('Créer un rdv')
       expect(response.body).not_to include('La prise des rdv n&#39;est pas activée')
+    end
+
+    context 'quand l’envoi automatique est désactivé' do
+      before { supporter.update!(can_send_automatic_sms: false) }
+
+      it 'masque Créer un rdv mais garde Relancer' do
+        get edit_path
+        expect(response.body).not_to include('Créer un rdv')
+        expect(response.body).to include('Relancer')
+      end
     end
 
     context 'quand la fiche a deux parents contactables' do
@@ -172,15 +181,46 @@ RSpec.describe 'Admin child support - création de RDV par l’accompagnante', t
     end
   end
 
-  context 'quand le supporter n’est pas dans la liste bêta' do
+  context 'quand BETA_TEST_CALLERS_EMAIL ne contient pas l’e-mail de l’accompagnante' do
     before do
       stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => 'other@1001mots.org'))
     end
 
-    it 'refuse avec le message de fonctionnalité désactivée' do
+    it 'crée quand même le lien de RDV' do
       get action_path
-      expect(response).to redirect_to(edit_admin_child_support_path(child_support))
-      expect(flash[:alert]).to eq("La prise des rdv n'est pas activée")
+      expect(response.headers['Location']).to include(booking_url)
+    end
+  end
+
+  context 'quand BETA_TEST_CALLERS_EMAIL est absente' do
+    before { stub_const('ENV', ENV.to_h.except('BETA_TEST_CALLERS_EMAIL')) }
+
+    it 'crée quand même le lien de RDV' do
+      get action_path
+      expect(response.headers['Location']).to include(booking_url)
+    end
+  end
+
+  describe 'action de relance (scheduled_call_reminder)' do
+    let(:reminder_path) do
+      "/admin/child_supports/#{child_support.id}/scheduled_call_reminder?parent_id=#{parent.id}"
+    end
+
+    it 'redirige vers le message de relance prérempli, sans liste bêta' do
+      get reminder_path
+      expect(response.location).to include('template=scheduled_call_reminder')
+      expect(response.location).to include("parent_id=#{parent.id}")
+    end
+
+    context 'quand le supporter a can_send_automatic_sms = false' do
+      before { supporter.update!(can_send_automatic_sms: false) }
+
+      it 'refuse avec le message de fonctionnalité désactivée et ne génère aucun lien' do
+        get reminder_path
+        expect(response).to redirect_to(edit_admin_child_support_path(child_support))
+        expect(flash[:alert]).to eq("La prise des rdv n'est pas activée")
+        expect(WebMock).not_to have_requested(:post, 'https://api.calendly.com/one_off_event_types')
+      end
     end
   end
 

@@ -17,9 +17,6 @@ class Parent::SendCalendlyReminderService
   end
 
   def call
-    @errors << { service: 'Parent::SendCalendlyReminderService', error: 'BETA_TEST_CALLERS_EMAIL is not set' } if ENV['BETA_TEST_CALLERS_EMAIL'].blank?
-    return self if @errors.any?
-
     recipients_by_supporter = collect_eligible_recipients_by_supporter
     ## Si ça arrive, modifier l'algo de rate limiting pour mieux étaler les envois
     Rollbar.warning('Parent::SendCalendlyReminderService', warning: "Il y a plus de 60 accompagnantes. On risque de dépasser le rate limiting d'aircall par organisation.") if recipients_by_supporter.keys.size > 59
@@ -87,7 +84,7 @@ class Parent::SendCalendlyReminderService
     end
   end
 
-  # Sur-ensemble SQL : familles beta dont la fenêtre de session de cohorte est
+  # Sur-ensemble SQL : familles dont la fenêtre de session de cohorte est
   # encore en cours. Le 1er SMS partant au plus tôt à J-3 du début effectif et
   # la relance 2 jours après, une session relançable aujourd'hui commence au
   # plus tard demain. Le ciblage précis (1er SMS envoyé à
@@ -97,7 +94,6 @@ class Parent::SendCalendlyReminderService
     ChildSupport
       .kept
       .with_valid_supporter_for_calendly
-      .where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
       .where("groups.call#{call_index}_start_date <= ?", @date + 1.day)
       .where("groups.call#{call_index}_end_date > ?", @date)
       .where("child_supports.call#{call_index}_status IS NULL OR child_supports.call#{call_index}_status = ''")

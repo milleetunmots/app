@@ -302,8 +302,7 @@ class ChildSupportDecorator < BaseDecorator
     # autant ne pas afficher le bouton
     return false unless model.active_call_index(days_before: 2) || model.next_call_index(days_before: 2)
 
-    supporter.can_send_automatic_sms == true &&
-      supporter.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split)
+    supporter.can_send_automatic_sms == true
   end
 
   def parent1_available_support_modules
