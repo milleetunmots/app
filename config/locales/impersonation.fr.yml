@@ -5,3 +5,7 @@ fr:
       not_authorized: "Action non autorisée"
       target_not_impersonable: "Impossible de se connecter en tant que ce compte"
       already_impersonating: "Revenez d'abord à votre propre compte"
+    ended:
+      target_disabled: "La connexion en tant que %{name} a pris fin : le compte est désactivé"
+      target_not_impersonable: "La connexion en tant que %{name} a pris fin : ce compte n'est plus une accompagnante ni une animatrice"
+      operator_not_authorized: "La connexion en tant que %{name} a pris fin : vos droits ne la permettent plus"

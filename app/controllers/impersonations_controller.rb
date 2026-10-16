@@ -12,8 +12,7 @@ class ImpersonationsController < ApplicationController
   end
 
   def destroy
-    impersonation&.finish!
-    session.delete(Impersonation::SESSION_KEY)
+    end_impersonation
     redirect_to admin_root_path
   end
 

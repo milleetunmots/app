@@ -8,6 +8,10 @@ module Impersonation
 
   included do
     helper_method :true_admin_user, :impersonating?, :impersonation
+
+    # Pas sur les contrôleurs Devise : appeler Warden avant SessionsController#create
+    # persisterait la session et contournerait sa gestion de la 2FA.
+    before_action :end_invalid_impersonation, unless: :devise_controller?
   end
 
   # La cible pendant une connexion en tant que, l'opérateur sinon : les contrôles de rôle,
@@ -32,6 +36,29 @@ module Impersonation
   end
 
   private
+
+  def end_impersonation
+    impersonation&.finish!
+    session.delete(SESSION_KEY)
+  end
+
+  # La requête qui découvre la fin n'est jamais rejouée sous le compte de l'opérateur :
+  # elle visait la vue de la cible, dont il n'a pas les droits.
+  def end_invalid_impersonation
+    reason = invalid_impersonation_reason
+    return if reason.nil?
+
+    end_impersonation
+    redirect_to admin_root_path, alert: t("impersonation.ended.#{reason}", name: impersonation.target.name)
+  end
+
+  def invalid_impersonation_reason
+    return if impersonation.nil?
+    return :operator_not_authorized unless impersonation.operator.can_impersonate?
+    return :target_disabled if impersonation.target.is_disabled?
+
+    :target_not_impersonable unless impersonation.target.impersonable?
+  end
 
   def find_impersonation
     return if session[SESSION_KEY].blank?
