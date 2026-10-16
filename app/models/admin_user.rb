@@ -124,6 +124,15 @@ class AdminUser < ApplicationRecord
     child_supports.any?
   end
 
+  # Une cible d'incarnation : un compte actif dont le rôle est celui d'une accompagnante.
+  def impersonable?
+    caller_or_animator? && !is_disabled?
+  end
+
+  def can_impersonate?
+    Ability.new(self).can?(:impersonate, AdminUser)
+  end
+
   def active_for_authentication?
     super and !self.is_disabled?
   end

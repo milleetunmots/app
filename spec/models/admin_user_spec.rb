@@ -138,6 +138,36 @@ RSpec.describe AdminUser, type: :model do
     end
   end
 
+  describe '#impersonable?' do
+    {
+      'super_admin' => false,
+      'contributor' => false,
+      'reader' => false,
+      'caller' => true,
+      'animator' => true
+    }.each do |role, impersonable|
+      it "est #{impersonable ? 'vrai' : 'faux'} pour un #{role} actif" do
+        expect(FactoryBot.create(:admin_user, user_role: role).impersonable?).to be(impersonable)
+      end
+    end
+
+    it 'est faux pour une accompagnante désactivée' do
+      expect(FactoryBot.create(:admin_user, user_role: 'caller', is_disabled: true).impersonable?).to be(false)
+    end
+  end
+
+  describe '#can_impersonate?' do
+    # La matrice complète des rôles est couverte par spec/models/ability_spec.rb :
+    # on vérifie ici que la méthode s'appuie bien sur la règle d'Ability.
+    it 'est vrai pour un contributor' do
+      expect(FactoryBot.create(:admin_user, user_role: 'contributor').can_impersonate?).to be(true)
+    end
+
+    it 'est faux pour une accompagnante' do
+      expect(FactoryBot.create(:admin_user, user_role: 'caller').can_impersonate?).to be(false)
+    end
+  end
+
   describe 'automatic_sms_activated_at tracking' do
     subject { FactoryBot.create(:admin_user, can_send_automatic_sms: false) }
 

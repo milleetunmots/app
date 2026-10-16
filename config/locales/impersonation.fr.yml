@@ -1,0 +1,5 @@
+fr:
+  impersonation:
+    errors:
+      not_authorized: "Action non autorisée"
+      target_not_impersonable: "Impossible de se connecter en tant que ce compte"
