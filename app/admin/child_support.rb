@@ -1368,12 +1368,6 @@ ActiveAdmin.register ChildSupport do
       return
     end
 
-    unless cs.supporter.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split)
-      redirect_back fallback_location: edit_admin_child_support_path(cs),
-                    alert: "La prise des rdv n'est pas activée"
-      return
-    end
-
     unless active_idx
       redirect_back fallback_location: edit_admin_child_support_path(cs), alert: "Aucune session d'appel en cours"
       return
@@ -1420,7 +1414,7 @@ ActiveAdmin.register ChildSupport do
       return
     end
 
-    if cs.supporter.can_send_automatic_sms != true || !cs.supporter.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split)
+    if cs.supporter.can_send_automatic_sms != true
       redirect_back fallback_location: edit_admin_child_support_path(cs),
                     alert: "La prise des rdv n'est pas activée"
       return
