@@ -79,6 +79,21 @@ class ChildSupportDecorator < BaseDecorator
     h.content_tag :div, important_information_text, class: 'free-text'
   end
 
+  # ActiveAdmin sérialise le décorateur (JSON / XML) : le champ chiffré n'en fait jamais partie
+  def serializable_hash(options = nil)
+    options = (options || {}).dup
+    options[:except] = Array(options[:except]) + [:sensitive_information]
+    super
+  end
+
+  # Une valeur chiffrée avec une autre clé ne doit pas empêcher d'ouvrir la fiche
+  def sensitive_information
+    model.sensitive_information
+  rescue ActiveRecord::Encryption::Errors::Decryption => e
+    Rollbar.error('ChildSupportDecorator#sensitive_information', child_support_id: model.id, error: e.message)
+    nil
+  end
+
   def books_quantity
     if model.books_quantity
       ChildSupport.human_attribute_name("books_quantity.#{model.books_quantity}")

@@ -8,6 +8,10 @@ class ChildDecorator < BaseDecorator
     super(options.merge(class: GENDER_COLORS[safe_gender.to_sym]))
   end
 
+  def ok_for_solicitation
+    model.child_support&.ok_for_solicitation
+  end
+
   def child_link(child_support_id: nil)
     options = { with_icon: true, target: '_blank' }
     # Le nom est isolé dans un span sécable : lui seul peut se couper en bout de
