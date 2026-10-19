@@ -1,4 +1,4 @@
-xrequire 'rails_helper'
+require 'rails_helper'
 
 RSpec.describe 'Admin children — détail de source « Ajouté par 1001mots »', type: :request do
   let(:admin_details) { ChildrenSource::ADMIN_CREATION_DETAILS }
