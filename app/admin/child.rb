@@ -467,7 +467,7 @@ ActiveAdmin.register Child do
             as: :select,
             collection: source_select_collection,
             input_html: { data: { select2: {} } }
-          children_source_f.object.details = ChildrenSource::ADMIN_CREATION_DETAILS if f.object.new_record? && children_source_f.object.details.blank?
+          children_source_f.object.details = ChildrenSource::ADMIN_CREATION_DETAILS if f.object.new_record? && children_source_f.object.details.blank? && current_admin_user.caller_or_animator?
           children_source_f.input :details, input_html: { disabled: current_admin_user.caller_or_animator? }
           children_source_f.input :re_enrollment, as: :hidden
         end
@@ -779,9 +779,10 @@ ActiveAdmin.register Child do
       end
     end
 
+    # Le champ grisé n'étant ni envoyé ni permis pour les accompagnantes, la valeur est posée ici.
     before_create do |child|
       source = child.children_source
-      source.details = ChildrenSource::ADMIN_CREATION_DETAILS if source && source.details.blank?
+      source.details = ChildrenSource::ADMIN_CREATION_DETAILS if source && current_admin_user.caller_or_animator?
     end
 
     after_save do |child|

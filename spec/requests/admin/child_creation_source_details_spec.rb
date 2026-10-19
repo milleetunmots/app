@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'Admin children — détail de source « Ajouté par 1001mots »', type: :request do
+RSpec.describe 'Admin children — détail de source « Ajouté par accompagnante »', type: :request do
   let(:admin_details) { ChildrenSource::ADMIN_CREATION_DETAILS }
   let!(:parent) { FactoryBot.create(:parent, first_name: 'Mariama', last_name: 'Diallo') }
   let!(:source) { FactoryBot.create(:source, channel: 'pmi', department: 75) }
@@ -24,7 +24,7 @@ RSpec.describe 'Admin children — détail de source « Ajouté par 1001mots »'
   end
 
   describe 'POST /admin/children' do
-    %w[caller animator contributor super_admin].each do |role|
+    %w[caller animator].each do |role|
       context "avec un utilisateur de rôle #{role}" do
         it "pose le détail de source sur l'enfant créé" do
           sign_in FactoryBot.create(:admin_user, user_role: role)
@@ -37,19 +37,27 @@ RSpec.describe 'Admin children — détail de source « Ajouté par 1001mots »'
       end
     end
 
-    context 'avec un contributor' do
-      before { sign_in FactoryBot.create(:admin_user, user_role: 'contributor') }
+    %w[contributor super_admin].each do |role|
+      context "avec un utilisateur de rôle #{role}" do
+        before { sign_in FactoryBot.create(:admin_user, user_role: role) }
 
-      it 'conserve le détail qu’il a saisi' do
-        post '/admin/children', params: child_params(details: 'Salon petite enfance')
+        it 'conserve le détail qu’il a saisi' do
+          post '/admin/children', params: child_params(details: 'Salon petite enfance')
 
-        expect(created_child.children_source_details).to eq('Salon petite enfance')
-      end
+          expect(created_child.children_source_details).to eq('Salon petite enfance')
+        end
 
-      it 'pose la valeur quand il vide le détail' do
-        post '/admin/children', params: child_params(details: '')
+        it 'ne pose pas la valeur quand il vide le détail' do
+          post '/admin/children', params: child_params(details: '')
 
-        expect(created_child.children_source_details).to eq(admin_details)
+          expect(created_child.children_source_details).to be_blank
+        end
+
+        it "ne pose pas la valeur quand il n'envoie pas de détail" do
+          post '/admin/children', params: child_params
+
+          expect(created_child.children_source_details).to be_blank
+        end
       end
     end
 
@@ -118,21 +126,29 @@ RSpec.describe 'Admin children — détail de source « Ajouté par 1001mots »'
   end
 
   describe 'formulaire de création' do
-    {
-      'caller' => true,
-      'animator' => true,
-      'contributor' => false,
-      'super_admin' => false
-    }.each do |role, greyed|
+    %w[caller animator].each do |role|
       context "avec un utilisateur de rôle #{role}" do
-        it "pré-remplit le détail, #{greyed ? 'grisé' : 'modifiable'}" do
+        it 'pré-remplit le détail, grisé' do
+          sign_in FactoryBot.create(:admin_user, user_role: role)
+
+          get '/admin/children/new'
+
+          expect(details_input).to include(%(value="#{admin_details}"))
+          expect(details_input).to include('disabled')
+        end
+      end
+    end
+
+    %w[contributor super_admin].each do |role|
+      context "avec un utilisateur de rôle #{role}" do
+        it 'laisse le détail vide et modifiable' do
           sign_in FactoryBot.create(:admin_user, user_role: role)
 
           get '/admin/children/new'
 
           expect(details_input).to be_present
-          expect(details_input).to include(%(value="#{admin_details}"))
-          expect(details_input.include?('disabled')).to eq(greyed)
+          expect(details_input).not_to include(admin_details)
+          expect(details_input).not_to include('disabled')
         end
       end
     end

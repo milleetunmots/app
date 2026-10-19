@@ -224,7 +224,7 @@ RSpec.describe ChildrenController, type: :request do
       context "quand le détail est vide" do
         let(:details) { '' }
 
-        it "ne pose pas « Ajouté par 1001mots »" do
+        it "ne pose pas « Ajouté par accompagnante »" do
           post "/inscription3", params: params
 
           expect(Child.find_by(first_name: 'Aminata').children_source_details).to be_blank
