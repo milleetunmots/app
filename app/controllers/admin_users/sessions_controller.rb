@@ -9,7 +9,7 @@ module AdminUsers
       # évite ainsi le sign_out intermédiaire qui déclenchait forget_me! et
       # révoquait les cookies « se souvenir de moi » de tous les navigateurs.
       self.resource = warden.authenticate!(auth_options.merge(store: false))
-      return sign_in_without_second_factor unless resource.two_factor_enabled?
+      return sign_in_without_second_factor unless resource.two_factor_required?
 
       if resource.phone_number.blank?
         redirect_to new_admin_user_session_path, alert: TwoFactorMessages::MISSING_PHONE_NUMBER
