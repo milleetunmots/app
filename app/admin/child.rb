@@ -467,7 +467,8 @@ ActiveAdmin.register Child do
             as: :select,
             collection: source_select_collection,
             input_html: { data: { select2: {} } }
-          children_source_f.input :details
+          children_source_f.object.details = ChildrenSource::ADMIN_CREATION_DETAILS if f.object.new_record? && children_source_f.object.details.blank?
+          children_source_f.input :details, input_html: { disabled: current_admin_user.caller_or_animator? }
           children_source_f.input :re_enrollment, as: :hidden
         end
       end
@@ -500,7 +501,10 @@ ActiveAdmin.register Child do
   permit_params do
     base = %i[parent1_id parent2_id should_contact_parent1 should_contact_parent2 gender first_name last_name birthdate available_for_workshops]
     group_attrs = %i[group_id group_status]
-    children_source_attributes = [{ children_source_attributes: %i[id source_id details re_enrollment] }]
+    # Le détail est imposé aux accompagnantes : un champ grisé n'est pas une protection serveur.
+    source_attrs = %i[id source_id re_enrollment]
+    source_attrs << :details unless current_admin_user&.caller_or_animator?
+    children_source_attributes = [{ children_source_attributes: source_attrs }]
 
     permitted = base + children_source_attributes
     # Un parent n'est accepté que si l'utilisateur a le droit de lui rattacher un enfant (cf. Ability#link_child)
@@ -773,6 +777,11 @@ ActiveAdmin.register Child do
       update! do |success, _failure|
         success.html { redirect_to edit_admin_child_support_path(child_support_id) } if child_support_id
       end
+    end
+
+    before_create do |child|
+      source = child.children_source
+      source.details = ChildrenSource::ADMIN_CREATION_DETAILS if source && source.details.blank?
     end
 
     after_save do |child|
