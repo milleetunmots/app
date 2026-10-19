@@ -882,13 +882,6 @@ class ChildSupport < ApplicationRecord
     sensitive_information_present? && ok_for_solicitation.nil?
   end
 
-  # Le menu n'a de sens que tant qu'un texte sensible le justifie : il repart à vide quand le texte est vidé
-  before_save :reset_ok_for_solicitation, if: -> { will_save_change_to_sensitive_information? && sensitive_information.nil? }
-
-  def reset_ok_for_solicitation
-    self.ok_for_solicitation = nil
-  end
-
   # ---------------------------------------------------------------------------
   # tags
   # ---------------------------------------------------------------------------

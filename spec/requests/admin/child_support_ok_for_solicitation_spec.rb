@@ -160,13 +160,13 @@ RSpec.describe "Admin menu OK pour sollicitation de la fiche de suivi", type: :r
         expect(fiche.reload.ok_for_solicitation).to be(false)
       end
 
-      it "remet le menu à vide et retire l'alerte quand le texte est vidé" do
+      it "garde le menu et retire l'alerte quand le texte est vidé" do
         fiche.update!(sensitive_information: texte, ok_for_solicitation: false)
 
         patch "/admin/child_supports/#{fiche.id}", params: { child_support: { sensitive_information: '' } }
         get "/admin/child_supports/#{fiche.id}/edit", params: { r: 'true' }
 
-        expect(fiche.reload.ok_for_solicitation).to be_nil
+        expect(fiche.reload.ok_for_solicitation).to be(false)
         expect(response.body).not_to include('sensitive-information-alert')
       end
     end

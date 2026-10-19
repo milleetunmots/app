@@ -512,11 +512,11 @@ RSpec.describe ChildSupport, type: :model do
     end
 
     context "quand le texte sensible est vidé après avoir été renseigné" do
-      it "repasse à vide" do
+      it "garde la valeur choisie" do
         child_support.update!(sensitive_information: "Père placé en foyer", ok_for_solicitation: false)
         child_support.update!(sensitive_information: "")
 
-        expect(child_support.reload.ok_for_solicitation).to be_nil
+        expect(child_support.reload.ok_for_solicitation).to be(false)
       end
     end
 

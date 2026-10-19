@@ -112,6 +112,12 @@ body.logged_in
     label[for=child_support_important_information], label[for=child_support_sensitive_information], label[for=child_support_parent_needs]
       font-weight: bold
 
+    // Même écart étiquette / champ que les labels Formtastic d'arctic_admin (.label)
+    label[for=child_support_sensitive_information]
+      display: inline-block
+      padding-bottom: 5px
+      margin-bottom: 5px
+
     // Étiquette au-dessus du menu, cadre ajusté au contenu. Le retrait de 10px (bordure + marge
     // intérieure) aligne l'étiquette sur celle de « Infos sensibles », cadre visible ou non.
     .ok-for-solicitation
@@ -126,7 +132,10 @@ body.logged_in
         display: block
         float: none !important
         width: auto !important
-        margin: 0 0 4px
+        // arctic_admin (sélecteur avec id) impose height: 25px, padding-bottom: 0 et margin: auto 0
+        height: auto !important
+        margin: 0 0 5px !important
+        padding-bottom: 5px !important
         font-weight: bold
 
       select
