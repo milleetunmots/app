@@ -179,7 +179,7 @@ RSpec.describe ChildrenController, type: :request do
     end
 
     context "avec le formulaire public d'inscription" do
-      let(:admin_tag_name) { 'ajoute par accompagnante' }
+      let(:details) { 'Instagram' }
       let(:birthdate) { Faker::Date.birthday(min_age: 1, max_age: 2) }
       let(:source) { FactoryBot.create(:source, channel: 'pmi', department: 75) }
       let(:params) {
@@ -206,7 +206,7 @@ RSpec.describe ChildrenController, type: :request do
             tag_list: "",
             child_support_attributes: { important_information: "" },
             parent2_attributes: { first_name: "", last_name: "", phone_number: "" },
-            children_source_attributes: { source_id: source.id, details: "", registration_department: source.department }
+            children_source_attributes: { source_id: source.id, details: details, registration_department: source.department }
           }
         }
       }
@@ -215,21 +215,28 @@ RSpec.describe ChildrenController, type: :request do
         allow_any_instance_of(SpotHit::SendSmsService).to receive(:call).and_return(SpotHit::SendSmsService.new(nil, nil, nil))
       end
 
-      it "pose le tag d'origine mais pas le tag de création admin, ni sur l'enfant ni sur sa famille" do
+      it "conserve le détail de source saisi par la famille" do
         post "/inscription3", params: params
 
-        child = Child.find_by(first_name: 'Aminata')
-        expect(child.tag_list).to eq(['inscription3'])
-        expect(child.parent1.tag_list).not_to include(admin_tag_name)
-        expect(child.child_support.tag_list).not_to include(admin_tag_name)
+        expect(Child.find_by(first_name: 'Aminata').children_source_details).to eq('Instagram')
       end
 
-      it "ne pose pas le tag de création admin même si un AdminUser est connecté dans le navigateur" do
-        sign_in FactoryBot.create(:admin_user, user_role: 'caller')
+      context "quand le détail est vide" do
+        let(:details) { '' }
 
-        post "/inscription3", params: params
+        it "ne pose pas « Ajouté par 1001mots »" do
+          post "/inscription3", params: params
 
-        expect(Child.find_by(first_name: 'Aminata').tag_list).to eq(['inscription3'])
+          expect(Child.find_by(first_name: 'Aminata').children_source_details).to be_blank
+        end
+
+        it "ne le pose pas non plus si un AdminUser est connecté dans le navigateur" do
+          sign_in FactoryBot.create(:admin_user, user_role: 'caller')
+
+          post "/inscription3", params: params
+
+          expect(Child.find_by(first_name: 'Aminata').children_source_details).to be_blank
+        end
       end
     end
 

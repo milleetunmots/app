@@ -18,6 +18,10 @@
 #  index_children_sources_on_source_id  (source_id)
 #
 class ChildrenSource < ApplicationRecord
+  # Détail posé sur les enfants créés depuis l'admin. Comparé tel quel par le filtre
+  # source_details_matches_any (sensible à la casse) : ne pas le dupliquer en dur.
+  ADMIN_CREATION_DETAILS = 'Ajouté par 1001mots'.freeze
+
   belongs_to :source
   belongs_to :child
 
