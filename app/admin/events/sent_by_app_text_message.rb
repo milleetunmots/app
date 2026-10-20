@@ -48,8 +48,8 @@ ActiveAdmin.register Events::TextMessage, as: 'Sent By App TextMessage' do
 
   filter :parent_current_child_supporter_id_in,
          as: :select,
-         collection: proc { child_support_supporter_select_collection },
-         input_html: { multiple: true, data: { select2: {} } },
+         collection: proc { supporter_select_collection },
+         input_html: { multiple: true, data: { select2: { closeOnSelect: false } } },
          label: 'Accompagnante'
 
   filter :body

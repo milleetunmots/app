@@ -46,10 +46,6 @@ module ActiveAdmin::ChildrenHelper
     Child::LANDS
   end
 
-  def child_supporter_select_collection
-    AdminUser.order(:name).map(&:decorate)
-  end
-
   def caf_form_received_from
     [
       ['La CAF', 'caf'],

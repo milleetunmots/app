@@ -38,7 +38,6 @@ ActiveAdmin.register_page 'Message' do
     form action: admin_message_program_sms_path, method: :post, id: 'sms-form' do |f|
       f.input :authenticity_token, type: :hidden, name: :authenticity_token, value: form_authenticity_token
       f.input :parent_id, type: :hidden, name: :parent_id, id: :parent_id, value: params[:parent_id]
-      f.input :supporter_id, type: :hidden, name: :supporter_id, id: :supporter_id, value: (current_admin_user.caller? || current_admin_user.animator?) ? current_admin_user.id : nil
       f.input :provider, type: :hidden, name: :provider, id: :provider,
         value: current_admin_user.aircall_number_id && params[:parent_id].present? ? 'aircall' : 'spothit'
       f.input :calendly_url, type: :hidden, name: :calendly_url, id: :calendly_url, value: calendly_url_for_relance
@@ -64,7 +63,22 @@ ActiveAdmin.register_page 'Message' do
 
       div do
         label 'Accompagnante'
-        select name: 'supporter', id: 'supporter'
+        if current_admin_user.caller_or_animator?
+          # l'envoi est de toute façon limité à ses enfants (cf. program_sms) : on l'affiche, grisé
+          select name: 'supporter', id: 'supporter', disabled: true, 'data-select2': { width: '100%' }.to_json do
+            option current_admin_user.name, value: current_admin_user.id, selected: true
+          end
+        else
+          select name: 'supporter', id: 'supporter',
+                 'data-select2': {
+                   width: '100%',
+                   allowClear: true,
+                   placeholder: "Limitez l'envoi du message aux enfants sous sa responsabilité dans la cohorte choisie"
+                 }.to_json do
+            option '', value: ''
+            supporter_select_collection.each { |name, id| option name, value: id }
+          end
+        end
       end
 
       if params[:parent_id].present?
@@ -209,14 +223,6 @@ ActiveAdmin.register_page 'Message' do
   #   }
   # end
 
-  page_action :supporter do
-    if params[:supporter_id]
-      render json: { results: current_supporter ? get_supporter(params[:term], current_supporter.decorate) : [] }
-    else
-      render json: { results: get_supporter(params[:term]) }
-    end
-  end
-
   page_action :group_status do
     render json: {
       results: Child::GROUP_STATUS.map do |v|
@@ -232,10 +238,6 @@ ActiveAdmin.register_page 'Message' do
   controller do
     def parent
       Parent.find_by(id: params[:parent_id])
-    end
-
-    def current_supporter
-      AdminUser.find_by(id: params[:supporter_id])
     end
 
     def child_support

@@ -9,6 +9,7 @@
     <%= f.input :title %>
     <%= f.input :description, input_html: { rows: 5 } %>
     <%= f.input :assignee,
+                collection: admin_user_select_collection(@task.assignee_id),
                 label: "Assigné à :&nbsp;&nbsp;",
                 input_html: { style: 'width: 300px', data: { select2: {} } } %>
 

@@ -1,9 +1,5 @@
 module ActiveAdmin::ChildSupportsHelper
 
-  def child_support_supporter_select_collection
-    AdminUser.order(:name).map(&:decorate)
-  end
-
   ### shared
 
   def child_support_call_language_awareness_select_collection
