@@ -18,7 +18,12 @@ ActiveAdmin.register ScheduledCall do
   filter :scheduled_at
   filter :status, as: :select, collection: ScheduledCall::STATUSES
   filter :call_session, as: :select, collection: (0..3).map { |i| ["Appel #{i}", i] }
-  filter :admin_user, if: proc { !current_admin_user.caller? && !current_admin_user.animator? }
+  filter :admin_user_id_in,
+         as: :select,
+         collection: proc { supporter_select_collection },
+         input_html: { multiple: true, data: { select2: { closeOnSelect: false } } },
+         label: 'Accompagnante',
+         if: proc { !current_admin_user.caller_or_animator? }
   filter :child_support_id
   filter :invitee_email
   filter :created_at

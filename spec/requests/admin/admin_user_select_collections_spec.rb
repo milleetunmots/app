@@ -17,12 +17,35 @@ RSpec.describe 'Admin — listes de sélection des admin users', type: :request 
       '/admin/children' => 'q[supporter_id_in][]',
       '/admin/child_supports' => 'q[supporter_id_in][]',
       '/admin/events_text_messages' => 'q[parent_current_child_supporter_id_in][]',
-      '/admin/sent_by_app_text_messages' => 'q[parent_current_child_supporter_id_in][]'
+      '/admin/sent_by_app_text_messages' => 'q[parent_current_child_supporter_id_in][]',
+      '/admin/scheduled_calls' => 'q[admin_user_id_in][]'
     }.each do |path, filter_name|
       it "ne propose que les accompagnantes actives, triées par nom, sur #{path}" do
         get path
 
         expect(options_of(%(select[name="#{filter_name}"]))).to eq(['Awa Animatrice', 'Zoé Caller'])
+      end
+    end
+  end
+
+  describe 'filtre « Accompagnante » des RDV Calendly' do
+    let!(:caller_call) { FactoryBot.create(:scheduled_call, :with_child_support, :with_parent, admin_user: caller_user) }
+    let!(:animator_call) { FactoryBot.create(:scheduled_call, :with_child_support, :with_parent, admin_user: animator_user) }
+
+    it "ne retourne que les RDV de l'accompagnante choisie" do
+      get '/admin/scheduled_calls', params: { q: { admin_user_id_in: [caller_user.id] } }
+
+      expect(response.body).to include("/admin/scheduled_calls/#{caller_call.id}")
+      expect(response.body).not_to include("/admin/scheduled_calls/#{animator_call.id}")
+    end
+
+    %w[caller animator].each do |role|
+      it "n'est pas affiché pour un #{role}" do
+        sign_in(role == 'caller' ? caller_user : animator_user)
+
+        get '/admin/scheduled_calls'
+
+        expect(response.body).not_to include('q[admin_user_id_in][]')
       end
     end
   end
