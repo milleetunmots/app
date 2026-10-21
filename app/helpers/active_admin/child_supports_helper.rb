@@ -1,9 +1,5 @@
 module ActiveAdmin::ChildSupportsHelper
 
-  def child_support_supporter_select_collection
-    AdminUser.order(:name).map(&:decorate)
-  end
-
   ### shared
 
   def child_support_call_language_awareness_select_collection
@@ -101,6 +97,14 @@ module ActiveAdmin::ChildSupportsHelper
         v
       ]
     end
+  end
+
+  def supporter_form_collection(child_support)
+    AdminUser.assignable_as_supporter.or(AdminUser.where(id: child_support.supporter_id)).order(:name)
+  end
+
+  def ok_for_solicitation_filter_collection
+    [%w[Oui yes], %w[Non no], %w[Vide empty]]
   end
 
   def instagram_information_collection

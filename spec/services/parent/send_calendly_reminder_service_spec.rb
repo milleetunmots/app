@@ -10,12 +10,12 @@ RSpec.describe Parent::SendCalendlyReminderService do
   let(:call1_end) { group_started_at + 41.days } # 2026-03-22
   let(:today) { Date.new(2026, 3, 16) } # en cours de session
   let(:initial_message_date) { today - 2.days } # 1er SMS envoyé à J-2
-  let(:beta_test_email) { 'beta@example.com' }
+  let(:supporter_email) { 'awa@example.com' }
 
   let(:supporter) do
     FactoryBot.create(:admin_user,
                       user_role: 'caller',
-                      email: beta_test_email,
+                      email: supporter_email,
                       can_send_automatic_sms: true,
                       aircall_number_id: 12_345,
                       aircall_phone_number: '+33123456789',
@@ -48,7 +48,6 @@ RSpec.describe Parent::SendCalendlyReminderService do
 
   before do
     ActiveJob::Base.queue_adapter = :test
-    stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => beta_test_email))
     child_support # trigger setup
   end
 
@@ -59,13 +58,36 @@ RSpec.describe Parent::SendCalendlyReminderService do
   end
 
   describe '#call' do
-    context 'when BETA_TEST_CALLERS_EMAIL is not set' do
-      before { stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => '')) }
+    context "quand BETA_TEST_CALLERS_EMAIL n'est pas défini" do
+      before { stub_const('ENV', ENV.to_h.except('BETA_TEST_CALLERS_EMAIL')) }
 
-      it 'returns an error and does not send' do
-        result = subject.call
-        expect(result.errors).not_to be_empty
-        expect(result.errors.first[:error]).to include('BETA_TEST_CALLERS_EMAIL')
+      it 'planifie la relance sans erreur' do
+        expect { subject.call }.to have_enqueued_job(Aircall::SendCalendlyReminderJob)
+        expect(subject.errors).to be_empty
+      end
+    end
+
+    context "quand BETA_TEST_CALLERS_EMAIL ne contient que d'autres e-mails" do
+      before { stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => 'other@example.com')) }
+
+      it "planifie quand même la relance de l'accompagnante" do
+        expect { subject.call }.to have_enqueued_job(Aircall::SendCalendlyReminderJob)
+      end
+    end
+
+    context "quand l'envoi automatique est désactivé" do
+      before { supporter.update!(can_send_automatic_sms: false) }
+
+      it 'ne planifie aucune relance' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
+      end
+    end
+
+    context "quand l'accompagnante n'a pas de compte Calendly" do
+      before { supporter.update!(calendly_user_uri: nil) }
+
+      it 'ne planifie aucune relance' do
+        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
       end
     end
 
@@ -143,14 +165,6 @@ RSpec.describe Parent::SendCalendlyReminderService do
                           start_date: call1_start,
                           end_date: today - 3.days)
       end
-
-      it 'does not schedule the reminder job' do
-        expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
-      end
-    end
-
-    context 'when the supporter is not in BETA_TEST_CALLERS_EMAIL' do
-      before { stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => 'other@example.com')) }
 
       it 'does not schedule the reminder job' do
         expect { subject.call }.not_to have_enqueued_job(Aircall::SendCalendlyReminderJob)
@@ -267,7 +281,6 @@ RSpec.describe Parent::SendCalendlyReminderService do
       end
 
       before do
-        stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => "#{beta_test_email} #{second_supporter_email}"))
         second_child.child_support.update!(supporter: second_supporter, call1_status: nil)
       end
 

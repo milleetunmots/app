@@ -6,11 +6,11 @@ RSpec.describe Child::CreateService do
     {
       letterbox_name: Faker::Name.name,
       address: Faker::Address.street_address,
-      postal_code: Faker::Address.postcode,
+      postal_code: '75020', # fixe : un code postal 97xxx (outre-mer) est refusé par le service, ce qui rendait le test aléatoire
       city_name: Faker::Address.city,
       first_name: Faker::Name.first_name,
       last_name: Faker::Name.last_name,
-      phone_number: "066802#{Faker::Number.number(digits: 4)}",
+      phone_number: "066#{Faker::Number.number(digits: 7)}",
       gender: 'f'
     }
   }
@@ -102,7 +102,7 @@ RSpec.describe Child::CreateService do
         {
           first_name: Faker::Name.first_name,
           last_name: Faker::Name.last_name,
-          phone_number: "066802#{Faker::Number.number(digits: 4)}",
+          phone_number: "066#{Faker::Number.number(digits: 7)}",
           gender: 'm'
         }
       }
@@ -117,7 +117,7 @@ RSpec.describe Child::CreateService do
         {
           first_name: Faker::Name.first_name,
           last_name: Faker::Name.last_name,
-          phone_number: "066802#{Faker::Number.number(digits: 4)}",
+          phone_number: "066#{Faker::Number.number(digits: 7)}",
           gender: 'm'
         }
       }
@@ -138,7 +138,7 @@ RSpec.describe Child::CreateService do
         {
           first_name: Faker::Name.first_name,
           last_name: Faker::Name.last_name,
-          phone_number: "066802#{Faker::Number.number(digits: 4)}",
+          phone_number: "066#{Faker::Number.number(digits: 7)}",
           gender: 'm'
         }
       }

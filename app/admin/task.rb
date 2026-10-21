@@ -60,10 +60,14 @@ ActiveAdmin.register Task do
 
   filter :title
   filter :assignee,
+         collection: proc { admin_user_select_collection },
          input_html: { data: { select2: {} } }
   filter :reporter,
+         collection: proc { admin_user_select_collection },
          input_html: { data: { select2: {} } }
-  filter :treated_by, input_html: { data: { select2: {} } }
+  filter :treated_by,
+         collection: proc { admin_user_select_collection },
+         input_html: { data: { select2: {} } }
   filter :description
   filter :due_date
   filter :done_at
@@ -111,8 +115,8 @@ ActiveAdmin.register Task do
       div style: "#{"display: none;" if f.object.new_related_to_child_support?}" do
         f.input :due_date, as: :datepicker
         f.input :status, collection: task_status_collection, input_html: { data: { select2: {} }, disabled: !f.object.new_record? && AdminUser.any_caller_or_animator_with_id?(current_admin_user.id) }
-        f.input :reporter, input_html: { data: { select2: {} } }
-        f.input :assignee, input_html: { data: { select2: {} }, disabled: !f.object.new_record? && AdminUser.any_caller_or_animator_with_id?(current_admin_user.id) }
+        f.input :reporter, collection: admin_user_select_collection(f.object.reporter_id), input_html: { data: { select2: {} } }
+        f.input :assignee, collection: admin_user_select_collection(f.object.assignee_id), input_html: { data: { select2: {} }, disabled: !f.object.new_record? && AdminUser.any_caller_or_animator_with_id?(current_admin_user.id) }
       end
     end
     f.actions

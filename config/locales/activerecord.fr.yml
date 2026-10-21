@@ -121,7 +121,9 @@ fr:
         title: Titre
         book_support_modules: Modules
         file: Couverture
+        interior_photos: Photos intérieures
       child:
+        ok_for_solicitation: OK pour sollicitation ?
         << : *SHARED
         address: Adresse
         address_supplement: Complément d'adresse
@@ -360,6 +362,8 @@ fr:
         groups: Cohortes
         child_support_groups: Cohortes
         important_information: Infos importantes
+        sensitive_information: Infos sensibles
+        ok_for_solicitation: OK pour sollicitation ?
         is_bilingual: Bilinguisme
         instagram_follower: Nous suit sur Instagram
         instagram_user: Utilise régulièrement Instagram
@@ -629,6 +633,7 @@ fr:
       media/text_messages_bundle_draft:
         << : *TEXT_MESSAGES_BUNDLE
       parent:
+        ok_for_solicitation: OK pour sollicitation ?
         << : *SHARED
         address: Adresse
         address_supplement: Complément d'adresse

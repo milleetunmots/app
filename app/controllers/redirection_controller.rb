@@ -15,18 +15,19 @@ class RedirectionController < ApplicationController
       @redirection_url.redirection_url_visits.create!(occurred_at: Time.zone.now)
     end
 
-    uri = URI.parse(URI::DEFAULT_PARSER.escape(@redirection_url.redirection_target.medium_url))
-    if uri.host == '1001mots-app1.bubbleapps.io'
-      new_query_ar = URI.decode_www_form(String(uri.query)) << ['child_support_id', @redirection_url.child&.child_support_id]
-      uri.query = URI.encode_www_form(new_query_ar)
-    end
+    # N'encode que les caractères hors ASCII imprimable (accents, espaces) : les « % » et « # »
+    # de l'url enregistrée sont conservés tels quels, sans double encodage.
+    uri = URI.parse(URI::DEFAULT_PARSER.escape(@redirection_url.redirection_target.medium_url, /[^!-~]/))
+    child_support_id = @redirection_url.child&.child_support_id
 
-    uri_string = uri.to_s
+    if uri.host == '1001mots-app1.bubbleapps.io'
+      uri.query = [uri.query.presence, URI.encode_www_form(child_support_id: child_support_id)].compact.join('&')
+    end
 
     if uri.host == 'wr1q9w7z4ro.typeform.com'
-      uri_string << "#child_support_id=#{@redirection_url.child&.child_support_id}&parent_id=#{@redirection_url.parent_id}"
+      uri.fragment = [uri.fragment.presence, "child_support_id=#{child_support_id}&parent_id=#{@redirection_url.parent_id}"].compact.join('&')
     end
 
-    redirect_to uri_string
+    redirect_to uri.to_s
   end
 end

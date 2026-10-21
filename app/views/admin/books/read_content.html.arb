@@ -1,0 +1,22 @@
+panel 'Pages du livre' do
+  div(class: 'book-gallery') do
+    resource.pages.each do |page|
+      # Le lien vers l'image originale sert de repli si le JS de la vue agrandie ne charge pas.
+      card = safe_join([
+        image_tag_with_max_size(source: page[:source], alt: page[:label], loading: 'lazy'),
+        content_tag(:span, page[:label], class: 'book-gallery-card-label')
+      ])
+      text_node link_to(card, page[:source], class: 'book-gallery-card')
+    end
+  end
+
+  para 'Aucune photo intérieure pour ce livre.' unless resource.model.interior_photos.attached?
+
+  div(class: 'book-lightbox', hidden: true, role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Page agrandie') do
+    button('×', type: 'button', class: 'book-lightbox-close', 'aria-label': 'Fermer')
+    button('‹', type: 'button', class: 'book-lightbox-prev', 'aria-label': 'Page précédente')
+    img(class: 'book-lightbox-image', alt: '')
+    button('›', type: 'button', class: 'book-lightbox-next', 'aria-label': 'Page suivante')
+    div(class: 'book-lightbox-counter')
+  end
+end

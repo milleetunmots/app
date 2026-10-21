@@ -97,10 +97,11 @@ ActiveAdmin.register ChildSupport do
          as: :string
   filter :supporter_id_in,
          as: :select,
-         collection: proc { child_supporter_select_collection },
+         collection: proc { supporter_select_collection },
          input_html: { multiple: true, data: { select2: { closeOnSelect: false } } },
          label: 'Accompagnante'
   filter :address_suspected_invalid_at
+  filter :ok_for_solicitation_is, as: :select, collection: proc { ok_for_solicitation_filter_collection }, label: 'OK pour sollicitation ?'
   filter :months,
          label: 'Au moins un enfant âgé de (en mois)',
          as: :numeric,
@@ -146,15 +147,21 @@ ActiveAdmin.register ChildSupport do
 
   batch_action :assign_supporter, form: -> {
     {
-      I18n.t('activerecord.attributes.child_support.supporter') => AdminUser.pluck(:name, :id)
+      I18n.t('activerecord.attributes.child_support.supporter') => AdminUser.assignable_as_supporter.order(:name).pluck(:name, :id)
     }
-  }, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids, inputs|
-    batch_action_collection.find(ids).each do |child_support|
-      supporter_id = inputs[I18n.t('activerecord.attributes.child_support.supporter')]
-      child_support.supporter_id = supporter_id
-      child_support.save!
+  }, if: proc { authorized?(:assign_supporter, ChildSupport) } do |ids, inputs|
+    # le `if:` ne fait qu'afficher l'action : le droit est aussi vérifié côté serveur
+    authorize!(:assign_supporter, ChildSupport)
+    supporter_id = inputs[I18n.t('activerecord.attributes.child_support.supporter')]
+    if AdminUser.assignable_as_supporter.exists?(id: supporter_id)
+      batch_action_collection.find(ids).each do |child_support|
+        child_support.supporter_id = supporter_id
+        child_support.save!
+      end
+      redirect_to request.referer, notice: 'Accompagnante mis à jour'
+    else
+      redirect_to request.referer, alert: 'Cette personne ne peut pas être désignée comme accompagnante'
     end
-    redirect_to request.referer, notice: 'Accompagnante mis à jour'
   end
 
   batch_action :check_call_2_4, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
@@ -273,7 +280,8 @@ ActiveAdmin.register ChildSupport do
       columns do
         column do
           f.input :supporter,
-                  input_html: { data: { select2: {} } }
+                  collection: supporter_form_collection(f.object),
+                  input_html: { data: { select2: {} }, disabled: !authorized?(:assign_supporter, f.object) }
           # parents & children
           columns do
             # parents
@@ -323,6 +331,32 @@ ActiveAdmin.register ChildSupport do
                   class: 'input-full-width-spaced',
                   value: important_information_with_typeform_link(f.object.important_information, current_admin_user.id)
                 }
+            end
+          end
+
+          if authorized?(:update_sensitive_information, f.object)
+            columns do
+              column do
+                f.label :sensitive_information
+                # text_area_tag plutôt que f.input : Formtastic relit l'attribut, ce qui échoue si la valeur est illisible
+                text_node text_area_tag('child_support[sensitive_information]',
+                                        f.object.decorate.sensitive_information,
+                                        id: 'child_support_sensitive_information',
+                                        rows: 7,
+                                        class: 'input-full-width-spaced')
+              end
+            end
+          end
+
+          if authorized?(:update_ok_for_solicitation, f.object)
+            columns do
+              column do
+                f.input :ok_for_solicitation,
+                        as: :select,
+                        collection: [['Oui', true], ['Non', false]],
+                        include_blank: true,
+                        wrapper_html: { class: ['ok-for-solicitation', ('sensitive-information-alert' if f.object.solicitation_alert?)].compact.join(' ') }
+              end
             end
           end
         end
@@ -456,7 +490,7 @@ ActiveAdmin.register ChildSupport do
                   child.children_support_modules.with_books.order(:module_index).each do |support_module|
                     div class: 'card book-card' do
                       div class: 'card-img-top' do
-                        support_module.book.decorate.cover_link_tag(max_width: '100px')
+                        support_module.book.decorate.cover_content_link_tag(max_width: '100px')
                       end
                       div class: 'card-body' do
                         div class: 'card-text' do
@@ -978,7 +1012,6 @@ ActiveAdmin.register ChildSupport do
 
   base_attributes = %i[
     important_information
-    supporter_id
     is_bilingual
     second_language
     books_quantity
@@ -997,6 +1030,17 @@ ActiveAdmin.register ChildSupport do
   permit_params do
     permitted = base_attributes + ChildSupport.call_attributes + children_support_modules_attributes - %w[call0_goals_sms call1_goals_sms call2_goals_sms call3_goals_sms tag_list] + parents_available_support_module_list_attributes
     permitted += tags_params_attributes unless current_admin_user.caller_or_animator?
+    if params[:id].present?
+      child_support = ChildSupport.find(params[:id])
+      permitted += %i[sensitive_information] if current_ability.can?(:update_sensitive_information, child_support)
+      permitted += %i[ok_for_solicitation] if current_ability.can?(:update_ok_for_solicitation, child_support)
+      if current_ability.can?(:assign_supporter, child_support)
+        new_supporter_id = params.dig(:child_support, :supporter_id)
+        eligible = new_supporter_id.blank? || new_supporter_id.to_s == child_support.supporter_id.to_s ||
+                   AdminUser.assignable_as_supporter.exists?(id: new_supporter_id)
+        permitted += %i[supporter_id] if eligible
+      end
+    end
     permitted
   end
 
@@ -1026,7 +1070,16 @@ ActiveAdmin.register ChildSupport do
             end
           end
           row :children
+          # Sans bloc, ActiveAdmin affiche « Non » pour un menu vide, ce qui serait une fausse contre-indication
+          row(:ok_for_solicitation) do |decorated|
+            if decorated.ok_for_solicitation.nil?
+              span I18n.t('active_admin.empty'), class: 'empty'
+            else
+              status_tag decorated.ok_for_solicitation
+            end
+          end
           row :important_information
+          row :sensitive_information if authorized?(:read_sensitive_information, resource)
           row :availability
           row :call_infos
           row :display_is_bilingual
@@ -1368,12 +1421,6 @@ ActiveAdmin.register ChildSupport do
       return
     end
 
-    unless cs.supporter.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split)
-      redirect_back fallback_location: edit_admin_child_support_path(cs),
-                    alert: "La prise des rdv n'est pas activée"
-      return
-    end
-
     unless active_idx
       redirect_back fallback_location: edit_admin_child_support_path(cs), alert: "Aucune session d'appel en cours"
       return
@@ -1420,7 +1467,7 @@ ActiveAdmin.register ChildSupport do
       return
     end
 
-    if cs.supporter.can_send_automatic_sms != true || !cs.supporter.email.in?(ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split)
+    if cs.supporter.can_send_automatic_sms != true
       redirect_back fallback_location: edit_admin_child_support_path(cs),
                     alert: "La prise des rdv n'est pas activée"
       return

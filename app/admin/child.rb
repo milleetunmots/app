@@ -107,7 +107,7 @@ ActiveAdmin.register Child do
          label: 'Réinscription'
   filter :supporter_id_in,
           as: :select,
-          collection: proc { child_supporter_select_collection },
+          collection: proc { supporter_select_collection },
           input_html: { multiple: true, data: { select2: { closeOnSelect: false } } },
           label: 'Accompagnante'
   filter :group_id_in,
@@ -131,6 +131,7 @@ ActiveAdmin.register Child do
          label: "Fin de l'accompagnement"
   filter :child_support_instagram_user, as: :check_boxes, label: 'Utilise régulièrement Instagram', collection: proc { instagram_information_collection }
   filter :child_support_instagram_follower, as: :check_boxes, label: 'Nous suit sur Instagram', collection: proc { instagram_information_collection }
+  filter :ok_for_solicitation_is, as: :select, collection: proc { ok_for_solicitation_filter_collection }, label: 'OK pour sollicitation ?'
   filter :security_token
   filter :src_url
   filter :created_at
@@ -466,7 +467,8 @@ ActiveAdmin.register Child do
             as: :select,
             collection: source_select_collection,
             input_html: { data: { select2: {} } }
-          children_source_f.input :details
+          children_source_f.object.details = ChildrenSource::ADMIN_CREATION_DETAILS if f.object.new_record? && children_source_f.object.details.blank? && current_admin_user.caller_or_animator?
+          children_source_f.input :details, input_html: { disabled: current_admin_user.caller_or_animator? }
           children_source_f.input :re_enrollment, as: :hidden
         end
       end
@@ -499,9 +501,14 @@ ActiveAdmin.register Child do
   permit_params do
     base = %i[parent1_id parent2_id should_contact_parent1 should_contact_parent2 gender first_name last_name birthdate available_for_workshops]
     group_attrs = %i[group_id group_status]
-    children_source_attributes = [{ children_source_attributes: %i[id source_id details re_enrollment] }]
+    # Le détail est imposé aux accompagnantes : un champ grisé n'est pas une protection serveur.
+    source_attrs = %i[id source_id re_enrollment]
+    source_attrs << :details unless current_admin_user&.caller_or_animator?
+    children_source_attributes = [{ children_source_attributes: source_attrs }]
 
     permitted = base + children_source_attributes
+    # Un parent n'est accepté que si l'utilisateur a le droit de lui rattacher un enfant (cf. Ability#link_child)
+    permitted -= %i[parent1_id parent2_id].reject { |attribute| parent_linkable?(params.dig(:child, attribute)) }
     unless current_admin_user&.user_role.in?(%w[caller animator reader])
       permitted += group_attrs
     end
@@ -517,6 +524,7 @@ ActiveAdmin.register Child do
     tabs do
       tab 'Infos' do
         attributes_table do
+          row :ok_for_solicitation
           row :parent1
           row :should_contact_parent1
           row :parent2
@@ -748,6 +756,20 @@ ActiveAdmin.register Child do
   end
 
   controller do
+    # Accepte un parent vide, inchangé ou inexistant (la validation s'en charge), ou un parent auquel
+    # l'utilisateur peut rattacher un enfant : un identifiant forgé vers la famille d'un autre est refusé.
+    def parent_linkable?(parent_id)
+      return true if parent_id.blank?
+
+      parent = Parent.find_by(id: parent_id)
+      return true if parent.nil?
+
+      child = Child.find_by(id: params[:id]) if params[:id].present?
+      return true if child && [child.parent1_id, child.parent2_id].compact.include?(parent.id)
+
+      current_ability.can?(:link_child, parent)
+    end
+
     # retour vers la fiche de suivi d'où vient le lien d'édition
     def update
       child_support_id = params[:back_to_child_support_id].presence
@@ -755,6 +777,12 @@ ActiveAdmin.register Child do
       update! do |success, _failure|
         success.html { redirect_to edit_admin_child_support_path(child_support_id) } if child_support_id
       end
+    end
+
+    # Le champ grisé n'étant ni envoyé ni permis pour les accompagnantes, la valeur est posée ici.
+    before_create do |child|
+      source = child.children_source
+      source.details = ChildrenSource::ADMIN_CREATION_DETAILS if source && current_admin_user.caller_or_animator?
     end
 
     after_save do |child|

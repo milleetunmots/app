@@ -7,12 +7,12 @@ RSpec.describe Parent::SendBeforeCallsMessageDailyService do
   let(:call1_start) { group_started_at + 28.days } # 2026-03-02
   let(:call1_end) { group_started_at + 41.days } # 2026-03-15
   let(:today) { call1_start - 3.days } # 2026-02-27, J-3 du début de session
-  let(:beta_test_email) { 'beta@example.com' }
+  let(:supporter_email) { 'awa@example.com' }
 
   let(:supporter) do
     FactoryBot.create(:admin_user,
                       user_role: 'caller',
-                      email: beta_test_email,
+                      email: supporter_email,
                       can_send_automatic_sms: true,
                       aircall_number_id: 12_345,
                       aircall_phone_number: '+33123456789',
@@ -43,7 +43,6 @@ RSpec.describe Parent::SendBeforeCallsMessageDailyService do
   subject { described_class.new(date: today) }
 
   before do
-    stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => beta_test_email))
     allow(Parent::SendBeforeCallsMessageService).to receive(:new).and_return(calls_message_service)
     allow(calls_message_service).to receive(:handle_group_message)
     allow(Parent::SendBeforeFirstCallMessageService).to receive(:new).and_return(first_call_message_service)
@@ -52,14 +51,63 @@ RSpec.describe Parent::SendBeforeCallsMessageDailyService do
   end
 
   describe '#call' do
-    context 'when BETA_TEST_CALLERS_EMAIL is not set' do
-      before { stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => '')) }
+    context "quand BETA_TEST_CALLERS_EMAIL n'est pas défini" do
+      before { stub_const('ENV', ENV.to_h.except('BETA_TEST_CALLERS_EMAIL')) }
 
-      it 'returns an error and does not dispatch' do
+      it 'envoie le SMS de prise de RDV sans erreur' do
         result = subject.call
-        expect(result.errors).not_to be_empty
-        expect(result.errors.first[:error]).to include('BETA_TEST_CALLERS_EMAIL')
+        expect(result.errors).to be_empty
+        expect(calls_message_service).to have_received(:handle_group_message).with(group, 1, [child_support.id])
+      end
+    end
+
+    context "quand BETA_TEST_CALLERS_EMAIL ne contient que d'autres e-mails" do
+      before { stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => 'other@example.com')) }
+
+      it "envoie quand même le SMS de prise de RDV à l'accompagnante" do
+        subject.call
+        expect(calls_message_service).to have_received(:handle_group_message).with(group, 1, [child_support.id])
+      end
+    end
+
+    context "quand l'envoi automatique est désactivé" do
+      before { supporter.update!(can_send_automatic_sms: false) }
+
+      it "n'envoie aucun SMS" do
+        subject.call
         expect(calls_message_service).not_to have_received(:handle_group_message)
+        expect(first_call_message_service).not_to have_received(:handle_group_message)
+      end
+    end
+
+    context "quand l'accompagnante n'a pas de compte Calendly" do
+      before { supporter.update!(calendly_user_uri: nil) }
+
+      it "n'envoie aucun SMS" do
+        subject.call
+        expect(calls_message_service).not_to have_received(:handle_group_message)
+      end
+    end
+
+    context "quand l'accompagnante n'a pas de numéro Aircall" do
+      before { supporter.update!(aircall_number_id: nil) }
+
+      it "n'envoie aucun SMS" do
+        subject.call
+        expect(calls_message_service).not_to have_received(:handle_group_message)
+      end
+    end
+
+    [2, 3].each do |call_session|
+      context "pour la session d'appel #{call_session}" do
+        let(:today) { group.public_send("call#{call_session}_start_date") - 3.days }
+
+        before { child_support.update!("call#{call_session}_status" => nil) }
+
+        it 'envoie le SMS de prise de RDV via Parent::SendBeforeCallsMessageService' do
+          subject.call
+          expect(calls_message_service).to have_received(:handle_group_message).with(group, call_session, [child_support.id])
+        end
       end
     end
 
@@ -223,15 +271,6 @@ RSpec.describe Parent::SendBeforeCallsMessageDailyService do
                           end_date: call1_start + 4.days)
       end
       let(:today) { call1_start + 5.days }
-
-      it 'does not dispatch' do
-        subject.call
-        expect(calls_message_service).not_to have_received(:handle_group_message)
-      end
-    end
-
-    context 'when the supporter is not in BETA_TEST_CALLERS_EMAIL' do
-      before { stub_const('ENV', ENV.to_h.merge('BETA_TEST_CALLERS_EMAIL' => 'other@example.com')) }
 
       it 'does not dispatch' do
         subject.call

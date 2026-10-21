@@ -292,6 +292,29 @@ RSpec.describe ProgramMessageService do
       expect(service.errors).to eq(['Aucun parent à contacter.'])
     end
   end
+
+  context "quand l'accompagnante est une chaîne vide (formulaire sans accompagnante choisie)" do
+    it "ne filtre pas les parents par accompagnante" do
+      service = ProgramMessageService.new(
+        Time.zone.today, Time.zone.now.strftime('%H:%M'), ["parent.#{parent_2.id}"], message,
+        nil, nil, false, nil, '', ['active']
+      ).call
+
+      expect(service.errors).to be_empty
+    end
+  end
+
+  context "quand une accompagnante est renseignée" do
+    it "écarte les parents dont l'enfant n'est pas suivi par elle" do
+      service = ProgramMessageService.new(
+        Time.zone.today, Time.zone.now.strftime('%H:%M'), ["parent.#{parent_2.id}"], message,
+        nil, nil, false, nil, '0', ['active']
+      ).call
+
+      expect(service.errors).to eq(['Aucun parent à contacter.'])
+    end
+  end
+
   context 'when the targeted parent has been discarded' do
     let!(:discarded_parent) { FactoryBot.create(:parent, first_name: 'Supprime') }
     let!(:discarded_parent_child) do

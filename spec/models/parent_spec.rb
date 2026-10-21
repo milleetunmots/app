@@ -241,4 +241,42 @@ RSpec.describe Parent, type: :model do
     end
 
   end
+
+  describe ".ok_for_solicitation_is" do
+    let(:parent_oui) { FactoryBot.create(:parent) }
+    let(:parent_non) { FactoryBot.create(:parent) }
+    let(:parent_vide) { FactoryBot.create(:parent) }
+    let(:second_parent_non) { FactoryBot.create(:parent) }
+
+    before do
+      FactoryBot.create(:child, parent1: parent_oui).child_support.update!(ok_for_solicitation: true)
+      FactoryBot.create(:child, parent1: parent_non, parent2: second_parent_non).child_support.update!(ok_for_solicitation: false)
+      FactoryBot.create(:child, parent1: parent_vide)
+    end
+
+    it "retourne les parents dont la fiche est à Oui" do
+      expect(Parent.ok_for_solicitation_is("yes")).to contain_exactly(parent_oui)
+    end
+
+    it "retourne le parent 1 et le parent 2 dont la fiche est à Non" do
+      expect(Parent.ok_for_solicitation_is("no")).to contain_exactly(parent_non, second_parent_non)
+    end
+
+    it "retourne les parents dont la fiche est vide" do
+      resultat = Parent.ok_for_solicitation_is("empty")
+
+      expect(resultat).to include(parent_vide)
+      expect(resultat).not_to include(parent_oui, parent_non)
+    end
+
+    it "ne retourne chaque parent qu'une fois" do
+      FactoryBot.create(:child, parent1: parent_non).child_support.update!(ok_for_solicitation: false)
+
+      expect(Parent.ok_for_solicitation_is("no").to_a.count(parent_non)).to eq(1)
+    end
+
+    it "ne retourne aucun parent pour une valeur inconnue" do
+      expect(Parent.ok_for_solicitation_is("peut-être")).to be_empty
+    end
+  end
 end

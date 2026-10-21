@@ -489,4 +489,29 @@ RSpec.describe Child, type: :model do
       end
     end
   end
+
+  describe ".ok_for_solicitation_is" do
+    let!(:enfant_oui) { FactoryBot.create(:child).tap { |child| child.child_support.update!(ok_for_solicitation: true) } }
+    let!(:enfant_non) { FactoryBot.create(:child).tap { |child| child.child_support.update!(ok_for_solicitation: false) } }
+    let!(:enfant_vide) { FactoryBot.create(:child) }
+
+    it "retourne les enfants dont la fiche est à Oui" do
+      expect(Child.ok_for_solicitation_is("yes")).to contain_exactly(enfant_oui)
+    end
+
+    it "retourne les enfants dont la fiche est à Non" do
+      expect(Child.ok_for_solicitation_is("no")).to contain_exactly(enfant_non)
+    end
+
+    it "retourne les enfants dont la fiche est vide" do
+      resultat = Child.ok_for_solicitation_is("empty")
+
+      expect(resultat).to include(enfant_vide)
+      expect(resultat).not_to include(enfant_oui, enfant_non)
+    end
+
+    it "ne retourne aucun enfant pour une valeur inconnue" do
+      expect(Child.ok_for_solicitation_is("peut-être")).to be_empty
+    end
+  end
 end

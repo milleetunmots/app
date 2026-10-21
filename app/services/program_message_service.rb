@@ -36,7 +36,7 @@ class ProgramMessageService
     @workshop_id = workshop_id
     @event_params = {}
     @invalid_parent_ids = []
-    @supporter_id = supporter.nil? ? nil : supporter.to_i
+    @supporter_id = supporter.presence&.to_i
     @group_status = group_status
     @provider = provider
     @aircall_number_id = aircall_number_id

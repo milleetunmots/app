@@ -31,6 +31,15 @@ if ENV['SENTRY_DSN']
         return nil if patterns.any? { |pattern| exception.message.match?(pattern) }
       end
 
+      # send_default_pii envoie le corps de la requête tel quel (Rack::Request#POST) : on le filtre comme les logs,
+      # sans quoi une exception pendant l'enregistrement d'une fiche enverrait le texte sensible en clair.
+      # :sensitive_information est ajouté explicitement : l'entrée automatique « child_support.sensitive_information »
+      # n'existe qu'une fois le modèle chargé.
+      if event.request&.data.is_a?(Hash)
+        filter = ActiveSupport::ParameterFilter.new(Rails.application.config.filter_parameters + [:sensitive_information])
+        event.request.data = filter.filter(event.request.data)
+      end
+
       event
     end
   end

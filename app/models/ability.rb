@@ -12,9 +12,23 @@ class Ability
     case user.user_role
     when 'super_admin'
       can :manage, :all
+      cannot :read_sensitive_information, ChildSupport
+      cannot :update_sensitive_information, ChildSupport
+      cannot :update_ok_for_solicitation, ChildSupport
+      can :read_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_ok_for_solicitation, ChildSupport, supporter_id: user.id
     when 'contributor'
       can :manage,
           [Parent, Child, ChildSupport, Workshop, Task, SupportModule, MediaFolder, Medium, Tag, Event, Group, Book, ChildrenSupportModule, Source, RegistrationLimit, ScheduledCall]
+      cannot :read_sensitive_information, ChildSupport
+      cannot :update_sensitive_information, ChildSupport
+      cannot :update_ok_for_solicitation, ChildSupport
+      can :read_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_ok_for_solicitation, ChildSupport, supporter_id: user.id
+      cannot :assign_supporter, ChildSupport
+      can :assign_supporter, ChildSupport if ENV['SUPPORTER_ASSIGNMENT_EMAILS'].to_s.downcase.split.include?(user.email.to_s.downcase)
       can :read, [AdminUser, LogisticExport]
       can :download, LogisticExport
       can :upsert_shipment_date, Book
@@ -32,8 +46,13 @@ class Ability
       can %i[read update destroy], Task, reporter_id: user.id
       can :manage, [Parent, Child, ChildSupport]
       cannot %i[new create destroy discard select_module_for_parent1 select_module_for_parent2 add_child add_parent quit_group create_scheduled_call], [Parent, Child, ChildSupport]
+      cannot :read_sensitive_information, ChildSupport
+      cannot :update_sensitive_information, ChildSupport
+      cannot :update_ok_for_solicitation, ChildSupport
+      cannot :assign_supporter, ChildSupport
       cannot :upload_undelivered_books, Parent
       can :read, [Workshop, SupportModule, Group, Book, ChildrenSupportModule, AdminUser, Source, ScheduledCall]
+      can :read_content, Book
       can :read, Event, type: 'Events::WorkshopParticipation'
       can %i[create read update], Tag
       can :manage, ActiveAdmin::Page, name: 'Message'
@@ -51,12 +70,22 @@ class Ability
       can %i[read update], Parent, parent1_children: { child_support: { supporter_id: user.id } }
       can %i[read update], Parent, parent2_children: { child_support: { supporter_id: user.id } }
       cannot :upload_undelivered_books, Parent
+      # Rattacher un enfant à un parent peut réaffecter la fiche de ce parent au supporter de l'enfant
+      # (Child#handle_support_changes) : seulement les parents sans fiche suivie, ou dont les fiches sont les siennes
+      can :link_child, Parent do |parent|
+        parent.children.kept.joins(:child_support).where('child_supports.supporter_id IS DISTINCT FROM ?', user.id).none?
+      end
       can :create, Child
       can %i[read update add_parent add_child], Child, child_support: { supporter_id: user.id }
       can %i[create read update add_parent add_child], ChildSupport, supporter_id: user.id
+      can :read_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_ok_for_solicitation, ChildSupport, supporter_id: user.id
       can :create, ChildrenSupportModule
       can %i[read update], ChildrenSupportModule, child: { child_support: { supporter_id: user.id } }
       can :read, SupportModule
+      # Pages du livre (couverture + photos intérieures) ouvertes depuis la fiche de suivi, sans accès à la fiche technique.
+      can :read_content, Book
       can :read, Event, type: 'Events::TextMessage', related_type: 'Parent', related_id: Parent.joins(parent1_children: :child_support).where(child_supports: { supporter_id: user.id }).pluck(:id)
       can :read, Event, type: 'Events::TextMessage', related_type: 'Parent', related_id: Parent.joins(parent2_children: :child_support).where(child_supports: { supporter_id: user.id }).pluck(:id)
       can :read, Event, type: 'Events::WorkshopParticipation', related_type: 'Parent', related_id: Parent.joins(parent1_children: :child_support).where(child_supports: { supporter_id: user.id }).pluck(:id)
@@ -74,7 +103,7 @@ class Ability
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
       can :scheduled_call_reminder, ChildSupport, supporter_id: user.id
       can :create_scheduled_call, ChildSupport, supporter_id: user.id
-      can :read, ScheduledCall, admin_user_id: user.id, admin_user: { email: ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split }
+      can :read, ScheduledCall, admin_user_id: user.id
     when 'animator'
       can :read, AdminUser, id: user.id
       can :autocomplete, [Group, Tag]
@@ -82,11 +111,25 @@ class Ability
       can %i[read update destroy], Task, reporter_id: user.id
       can :manage, [Parent, Child, ChildSupport, ChildrenSupportModule]
       cannot %i[destroy discard], [Parent, Child, ChildSupport, ChildrenSupportModule]
+      cannot :read_sensitive_information, ChildSupport
+      cannot :update_sensitive_information, ChildSupport
+      cannot :update_ok_for_solicitation, ChildSupport
+      can :read_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_sensitive_information, ChildSupport, supporter_id: user.id
+      can :update_ok_for_solicitation, ChildSupport, supporter_id: user.id
+      cannot :assign_supporter, ChildSupport
       cannot :upload_undelivered_books, Parent
+      # Rattacher un enfant à un parent peut réaffecter la fiche de ce parent au supporter de l'enfant
+      # (Child#handle_support_changes) : seulement les parents sans fiche suivie, ou dont les fiches sont les siennes
+      cannot :link_child, Parent
+      can :link_child, Parent do |parent|
+        parent.children.kept.joins(:child_support).where('child_supports.supporter_id IS DISTINCT FROM ?', user.id).none?
+      end
       can :manage, Workshop
       can :manage, Event, type: %w[Events::TextMessage Events::WorkshopParticipation]
       cannot :read, [Events::OtherEvent, Events::SurveyResponse]
       can :read, SupportModule
+      can :read_content, Book
       can :read, ActiveAdmin::Page, name: 'Dashboard'
       can :manage, ActiveAdmin::Page, name: 'Stop Support Form'
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
@@ -100,7 +143,7 @@ class Ability
       can :send_message_to_parent2, ChildSupport, supporter_id: user.id
       can :scheduled_call_reminder, ChildSupport, supporter_id: user.id
       can :create_scheduled_call, ChildSupport, supporter_id: user.id
-      can :read, ScheduledCall, admin_user_id: user.id, admin_user: { email: ENV['BETA_TEST_CALLERS_EMAIL'].to_s.split }
+      can :read, ScheduledCall, admin_user_id: user.id
     end
   end
 

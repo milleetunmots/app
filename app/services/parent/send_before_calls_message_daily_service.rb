@@ -11,11 +11,6 @@ class Parent::SendBeforeCallsMessageDailyService
   end
 
   def call
-    if ENV['BETA_TEST_CALLERS_EMAIL'].blank?
-      @errors << { service: 'Parent::SendBeforeCallsMessageDailyService', error: 'BETA_TEST_CALLERS_EMAIL is not set' }
-      return self
-    end
-
     CALL_SESSIONS.each do |call_session|
       recipients = recipients_for_call(call_session)
       next if recipients.empty?
@@ -59,15 +54,14 @@ class Parent::SendBeforeCallsMessageDailyService
     end
   end
 
-  # Familles accompagnées par une beta-testeuse dont la fenêtre de session de
-  # cohorte peut contenir une plage effective éligible. Un override reste
-  # forcément dans la fenêtre de session de sa cohorte, donc ce filtre SQL est
-  # un sur-ensemble des plages effectives affinées en Ruby ci-dessus.
+  # Familles dont la fenêtre de session de cohorte peut contenir une plage
+  # effective éligible. Un override reste forcément dans la fenêtre de session
+  # de sa cohorte, donc ce filtre SQL est un sur-ensemble des plages effectives
+  # affinées en Ruby ci-dessus.
   def candidate_child_supports(call_index)
     ChildSupport
       .kept
       .with_valid_supporter_for_calendly
-      .where(supporter: { email: ENV['BETA_TEST_CALLERS_EMAIL'].split })
       .where("groups.call#{call_index}_start_date <= ?", target_start_date)
       .where("groups.call#{call_index}_end_date >= ?", @date)
       .where("child_supports.call#{call_index}_status IS NULL OR child_supports.call#{call_index}_status = ''")
