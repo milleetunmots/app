@@ -25,6 +25,11 @@ RSpec.describe Child::ExportBooksV2Service do
       FactoryBot.create(:children_support_module, child: child3, parent: child3.parent1, support_module: support_module2)
     end
 
+    # sans choix de module, l'enfant inactif n'atteindrait jamais le filtre de l'export
+    let_it_be(:inactive_children_support_module) do
+      FactoryBot.create(:children_support_module, child: inactive_child, parent: inactive_child.parent1, support_module: support_module1)
+    end
+
     context 'when group_ids are provided' do
       let(:service) { Child::ExportBooksV2Service.new(group_ids: [group.id]) }
 
@@ -45,6 +50,16 @@ RSpec.describe Child::ExportBooksV2Service do
 
         all_children = children_list.values.flatten
         expect(all_children).not_to include(inactive_child)
+      end
+
+      it 'excludes active children whose address is suspected invalid' do
+        suspected_child = FactoryBot.create(:child, group: group, group_status: 'active')
+        FactoryBot.create(:children_support_module, child: suspected_child, parent: suspected_child.parent1, support_module: support_module1)
+        suspected_child.child_support.update_column(:address_suspected_invalid_at, Time.zone.now)
+
+        children_list = service.send(:find_children_lists)
+
+        expect(children_list.values.flatten).not_to include(suspected_child)
       end
     end
 
