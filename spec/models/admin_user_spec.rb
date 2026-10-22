@@ -424,4 +424,19 @@ RSpec.describe AdminUser, type: :model do
       expect(AdminUser.assignable_as_supporter).to contain_exactly(caller_actif, animator_actif)
     end
   end
+
+  describe "classement des colonnes pour la fiche" do
+    let(:classees) do
+      AdminUser::PROFILE_ATTRIBUTES + AdminUser::ADMIN_EXTRA_ATTRIBUTES + AdminUser::HIDDEN_ATTRIBUTES
+    end
+
+    # Une colonne ajoutée à admin_users sans décision (affichée ou masquée) fait échouer ce test.
+    it "classe chaque colonne de la table, une seule fois" do
+      expect(classees).to match_array(AdminUser.column_names)
+    end
+
+    it "ne masque aucune colonne du profil ni des colonnes réservées au super_admin" do
+      expect(AdminUser::HIDDEN_ATTRIBUTES & (AdminUser::PROFILE_ATTRIBUTES + AdminUser::ADMIN_EXTRA_ATTRIBUTES)).to be_empty
+    end
+  end
 end

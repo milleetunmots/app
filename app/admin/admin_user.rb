@@ -38,6 +38,24 @@ ActiveAdmin.register AdminUser do
   scope :supporters_who_cannot_send_automatic_sms
 
   # ---------------------------------------------------------------------------
+  # SHOW
+  # ---------------------------------------------------------------------------
+
+  show do |admin_user|
+    visible_attributes = AdminUser::PROFILE_ATTRIBUTES
+    if current_admin_user.admin?
+      visible_attributes = AdminUser.column_names & (AdminUser::PROFILE_ATTRIBUTES + AdminUser::ADMIN_EXTRA_ATTRIBUTES)
+    end
+
+    # Le téléphone de la double authentification n'est visible que sur sa propre fiche (cf. filter_attributes).
+    visible_attributes -= %w[phone_number] unless admin_user.id == current_admin_user.id
+
+    attributes_table do
+      visible_attributes.each { |attribute| row attribute }
+    end
+  end
+
+  # ---------------------------------------------------------------------------
   # FORM
   # ---------------------------------------------------------------------------
 
