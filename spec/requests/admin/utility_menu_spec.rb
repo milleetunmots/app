@@ -36,20 +36,13 @@ RSpec.describe 'Admin — menu de l’avatar et menu de gauche', type: :request 
         expect(header.at_css('a')).to be_nil
       end
 
-      it 'propose trois entrées, dans cet ordre' do
+      it 'propose trois liens, dans cet ordre' do
         expect(menu_entries.map { |entry| entry.text.strip }).to eq(
           ['Paramètres des rdv', "Mes statistiques d'appel", 'Mes informations personnelles']
         )
         expect(menu_entries.map { |entry| entry.at_css('a')&.[]('href') }).to eq(
-          ['/admin/reglages_de_rdv', nil, "/admin/admin_users/#{admin_user.id}"]
+          ['/admin/reglages_de_rdv', '/admin/mes_statistiques_d_appel', "/admin/admin_users/#{admin_user.id}"]
         )
-      end
-
-      it 'laisse l’entrée statistiques sans lien pour l’instant' do
-        statistics = parsed_body.at_css('#utility_nav #current_user > ul > li#call_statistics')
-
-        expect(statistics.at_css('a')).to be_nil
-        expect(statistics.at_css('span').text.strip).to eq("Mes statistiques d'appel")
       end
 
       it 'retire « Utilisateur » du menu de gauche' do

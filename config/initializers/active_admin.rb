@@ -261,10 +261,8 @@ ActiveAdmin.setup do |config|
         user_menu.add id: 'rdv_settings', label: 'Paramètres des rdv', priority: 1,
                       url: -> { admin_reglages_de_rdv_path },
                       if: -> { current_admin_user.caller_or_animator? }
-        # Sans lien tant que la page de statistiques n'existe pas (rendu en span).
-        user_menu.add id: 'call_statistics', label: "Mes statistiques d'appel", priority: 2, url: -> { nil },
-                      # label: -> { content_tag(:strong, current_admin_user.name) + content_tag(:small, current_admin_user.email) },
-                      # html_options: { 'aria-disabled': 'true' },
+        user_menu.add id: 'call_statistics', label: "Mes statistiques d'appel", priority: 2,
+                      url: -> { admin_mes_statistiques_d_appel_path },
                       if: -> { current_admin_user.caller_or_animator? }
         user_menu.add id: 'personal_information', label: 'Mes informations personnelles', priority: 3,
                       url: -> { admin_admin_user_path(current_admin_user) },

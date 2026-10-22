@@ -158,6 +158,9 @@ gem 'rack-attack'
 # Airtable
 gem 'airrecord'
 
+# Signature des URLs d'iframe Metabase (déjà présent en dépendance transitive de googleauth)
+gem 'jwt'
+
 # to avoid compatibility issues, may not be necessary down the line
 gem 'concurrent-ruby', '1.3.4'
 

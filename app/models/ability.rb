@@ -12,6 +12,8 @@ class Ability
     case user.user_role
     when 'super_admin'
       can :manage, :all
+      # Réservée aux accompagnantes : le can :manage, :all ouvrirait sinon la page au super_admin
+      cannot :manage, ActiveAdmin::Page, name: "Mes statistiques d'appel"
       cannot :read_sensitive_information, ChildSupport
       cannot :update_sensitive_information, ChildSupport
       cannot :update_ok_for_solicitation, ChildSupport
@@ -96,6 +98,7 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
       can :manage, ActiveAdmin::Page, name: 'Réglages de RDV'
+      can :manage, ActiveAdmin::Page, name: "Mes statistiques d'appel"
       can :manage, CallSessionDateOverride, admin_user_id: user.id
       can :select_module_for_parent1, ChildSupport, supporter_id: user.id
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
@@ -136,6 +139,7 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
       can :manage, ActiveAdmin::Page, name: 'Réglages de RDV'
+      can :manage, ActiveAdmin::Page, name: "Mes statistiques d'appel"
       can :manage, CallSessionDateOverride, admin_user_id: user.id
       can :select_module_for_parent1, ChildSupport, supporter_id: user.id
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id

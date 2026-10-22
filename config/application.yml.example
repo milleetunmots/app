@@ -30,3 +30,9 @@ SUPPORTER_ASSIGNMENT_EMAILS: xxx
 #URL_FILTER_BLOCKING_ENABLED: true
 #KEYWORD_FILTER_BLOCKING_ENABLED: true
 #PHONE_NUMBER_FILTER_BLOCKING_ENABLED: true
+
+# Statistiques d'appel : dashboard Metabase embarqué (page « Mes statistiques d'appel »).
+# Optionnelles : sans elles, la page affiche un message d'indisponibilité. METABASE_URL en https.
+#METABASE_URL: https://metabase.example.org
+#METABASE_SECRET_KEY: xxx
+#METABASE_DASHBOARD_ID: xxx
