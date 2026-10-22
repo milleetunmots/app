@@ -1,0 +1,95 @@
+// Déroulant de l'avatar des accompagnantes. Le thème stylise tout `a` de #current_user en icône
+// (texte transparent, pictogramme en :before) : les entrées du sous-menu doivent annuler ce style.
+// Pictogrammes Font Awesome « regular » (au trait), comme les icônes de l'encart des rendez-vous.
+=user-menu-icon($glyph)
+  > a:before, > span:before
+    content: $glyph
+
+#header ul#utility_nav
+  li#current_user.has_nested
+    position: relative
+
+    > ul.menu
+      display: none
+      position: absolute
+      top: calc(100% + 4px)
+      right: 0
+      z-index: 4
+      width: 300px
+      max-width: calc(100vw - 16px)
+      margin: 0
+      padding: 0
+      list-style: none
+      text-align: left
+      overflow: hidden
+      // Comme les cartes de la page (#title_bar, panels) : fond blanc, ombre douce, rayon du thème, pas de bordure
+      background-color: #fff
+      border-radius: $border-radius
+      box-shadow: $box-shadow
+
+      > li
+        display: block
+
+        &#user_header
+          padding: 16px 20px 12px
+          border-bottom: 1px solid $header-border-color
+          cursor: default
+
+          &:hover, &:active
+            background-color: transparent
+
+          // L'en-tête est un span : il ne reçoit ni la mise en page ni la pastille des entrées
+          > span
+            display: block
+            padding: 0
+
+            &:before
+              content: none
+              display: none
+
+          strong
+            display: block
+            font-size: 15px
+            line-height: 1.3
+            color: $text-color
+
+          small
+            display: block
+            margin-top: 2px
+            font-size: 12px
+            color: #777
+
+        a, span
+          display: flex
+          align-items: center
+          width: auto
+          height: auto
+          padding: 10px 20px
+          color: $text-color
+          font-size: 15px
+          line-height: 1.3
+
+          &:before
+            content: ''
+            display: flex
+            align-items: center
+            justify-content: center
+            flex: 0 0 24px
+            position: static
+            width: 24px
+            height: 24px
+            margin-right: 14px
+            padding: 0
+            color: #555
+            font: normal 400 18px/1 $font-icon
+            visibility: visible
+
+        &#rdv_settings
+          +user-menu-icon("\f274")
+        &#call_statistics
+          +user-menu-icon("\f080")
+        &#personal_information
+          +user-menu-icon("\f2c2")
+
+    &.open > ul.menu
+      display: block

@@ -29,7 +29,7 @@ RSpec.describe 'Admin - accès à la prise de RDV sans liste bêta', type: :requ
         expect(response.body).to include('RDV Calendly')
       end
 
-      it 'fait pointer son avatar vers la page Réglages de RDV' do
+      it 'propose la page Réglages de RDV dans le menu de son avatar' do
         expect(utility_nav_links).to include('/admin/reglages_de_rdv')
       end
     end
@@ -38,7 +38,7 @@ RSpec.describe 'Admin - accès à la prise de RDV sans liste bêta', type: :requ
   context "quand l'envoi automatique est désactivé" do
     before { sign_in bintou }
 
-    it "affiche quand même l'encart, le menu et le lien de l'avatar" do
+    it "affiche quand même l'encart, le menu et le lien des réglages dans l'avatar" do
       get '/admin/dashboard'
 
       expect(response.body).to include('Paramètres des rendez-vous')

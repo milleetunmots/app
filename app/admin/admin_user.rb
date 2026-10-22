@@ -1,5 +1,8 @@
 ActiveAdmin.register AdminUser do
 
+  # Masquage d'affichage seulement : l'accès reste régi par Ability.
+  menu if: proc { !current_admin_user.caller_or_animator? }
+
   decorate_with AdminUserDecorator
 
   has_better_csv
