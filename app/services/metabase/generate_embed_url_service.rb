@@ -3,12 +3,15 @@ module Metabase
   # Reçoit des valeurs, sans accès à la base : le choix de l'utilisateur et de ses paramètres revient à l'appelant.
   class GenerateEmbedUrlService
 
+    # Seule la clef de signature est secrète : l'adresse du site et le dashboard sont des constantes.
+    SITE_URL = 'https://metabase.1001mots.org'.freeze
+    DASHBOARD_ID = 112
     TOKEN_VALIDITY = 10.minutes
     IFRAME_OPTIONS = 'bordered=true&titled=true'.freeze
 
     attr_reader :errors, :url
 
-    def initialize(site_url:, secret_key:, dashboard_id:, params:, expires_in: TOKEN_VALIDITY)
+    def initialize(secret_key:, params:, site_url: SITE_URL, dashboard_id: DASHBOARD_ID, expires_in: TOKEN_VALIDITY)
       @site_url = site_url
       @secret_key = secret_key
       @dashboard_id = dashboard_id

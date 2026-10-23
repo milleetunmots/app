@@ -3,9 +3,9 @@ require 'rails_helper'
 RSpec.describe 'Admin — Mes statistiques d’appel', type: :request do
   let(:path) { '/admin/mes_statistiques_d_appel' }
   let(:secret_key) { 'clef-de-test' }
-  let(:configuration) do
-    { 'METABASE_URL' => 'https://metabase.example.org', 'METABASE_SECRET_KEY' => secret_key, 'METABASE_DASHBOARD_ID' => '112' }
-  end
+  let(:configuration) { { 'METABASE_SECRET_KEY' => secret_key } }
+  let(:site_url) { Metabase::GenerateEmbedUrlService::SITE_URL }
+  let(:dashboard) { { 'dashboard' => Metabase::GenerateEmbedUrlService::DASHBOARD_ID } }
   let(:unavailable_message) { 'Les statistiques ne sont pas disponibles pour le moment.' }
 
   def stub_metabase_configuration(values)
@@ -24,10 +24,8 @@ RSpec.describe 'Admin — Mes statistiques d’appel', type: :request do
   before { stub_metabase_configuration(configuration) }
 
   configurations_incompletes = {
-    'entièrement absente' => %w[METABASE_URL METABASE_SECRET_KEY METABASE_DASHBOARD_ID],
-    'sans la clef de signature' => %w[METABASE_SECRET_KEY],
-    'sans l’id du dashboard' => %w[METABASE_DASHBOARD_ID],
-    'sans l’adresse du site Metabase' => %w[METABASE_URL]
+    'absente' => {},
+    'vide' => { 'METABASE_SECRET_KEY' => '' }
   }
 
   %w[caller animator].each do |role|
@@ -36,7 +34,7 @@ RSpec.describe 'Admin — Mes statistiques d’appel', type: :request do
 
       before { sign_in admin_user }
 
-      context 'avec la configuration Metabase' do
+      context 'avec la clef de signature configurée' do
         before { get path }
 
         it 'affiche la page avec son titre' do
@@ -45,14 +43,14 @@ RSpec.describe 'Admin — Mes statistiques d’appel', type: :request do
         end
 
         it 'affiche l’iframe du dashboard' do
-          expect(iframe['src']).to start_with('https://metabase.example.org/embed/dashboard/')
+          expect(iframe['src']).to start_with("#{site_url}/embed/dashboard/")
           expect(iframe['src']).to end_with('#bordered=true&titled=true')
         end
 
-        it 'signe un jeton avec la clef, pour le dashboard 112 et sans paramètre' do
+        it 'signe un jeton avec la clef, pour le dashboard du service et sans paramètre' do
           payload = decoded_payload
 
-          expect(payload['resource']).to eq('dashboard' => 112)
+          expect(payload['resource']).to eq(dashboard)
           expect(payload['params']).to eq({})
         end
 
@@ -65,11 +63,11 @@ RSpec.describe 'Admin — Mes statistiques d’appel', type: :request do
         end
       end
 
-      it 'fait expirer le jeton 10 minutes après l’ouverture de la page' do
+      it 'fait expirer le jeton à l’échéance du service après l’ouverture de la page' do
         freeze_time do
           get path
 
-          expect(decoded_payload['exp']).to eq(10.minutes.from_now.to_i)
+          expect(decoded_payload['exp']).to eq(Metabase::GenerateEmbedUrlService::TOKEN_VALIDITY.from_now.to_i)
         end
       end
 
@@ -77,14 +75,14 @@ RSpec.describe 'Admin — Mes statistiques d’appel', type: :request do
         get path, params: { dashboard: 999, dashboard_id: 999, params: { id: 1 } }
 
         payload = decoded_payload
-        expect(payload['resource']).to eq('dashboard' => 112)
+        expect(payload['resource']).to eq(dashboard)
         expect(payload['params']).to eq({})
       end
 
-      configurations_incompletes.each do |etat, absentes|
-        context "quand la configuration est #{etat}" do
+      configurations_incompletes.each do |etat, valeurs|
+        context "quand la clef de signature est #{etat}" do
           before do
-            stub_metabase_configuration(configuration.except(*absentes))
+            stub_metabase_configuration(valeurs)
             allow(JWT).to receive(:encode).and_call_original
             get path
           end
@@ -115,7 +113,7 @@ RSpec.describe 'Admin — Mes statistiques d’appel', type: :request do
       decoded_payload
     end
 
-    expect(payloads.pluck('resource')).to all(eq('dashboard' => 112))
+    expect(payloads.pluck('resource')).to all(eq(dashboard))
     expect(payloads.pluck('params')).to all(eq({}))
   end
 

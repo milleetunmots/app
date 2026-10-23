@@ -32,7 +32,6 @@ SUPPORTER_ASSIGNMENT_EMAILS: xxx
 #PHONE_NUMBER_FILTER_BLOCKING_ENABLED: true
 
 # Statistiques d'appel : dashboard Metabase embarqué (page « Mes statistiques d'appel »).
-# Optionnelles : sans elles, la page affiche un message d'indisponibilité. METABASE_URL en https.
-#METABASE_URL: https://metabase.example.org
+# L'adresse du site et l'id du dashboard sont des constantes de Metabase::GenerateEmbedUrlService.
+# Optionnelle : sans la clef, la page affiche un message d'indisponibilité.
 #METABASE_SECRET_KEY: xxx
-#METABASE_DASHBOARD_ID: xxx

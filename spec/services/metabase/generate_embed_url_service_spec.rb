@@ -15,6 +15,20 @@ RSpec.describe Metabase::GenerateEmbedUrlService do
   end
 
   describe '#call' do
+    context 'avec les valeurs définies dans le service' do
+      it 'utilise l’adresse et le dashboard du service' do
+        url = described_class.new(secret_key: secret_key, params: {}).call.url
+
+        expect(url).to start_with("#{described_class::SITE_URL}/embed/dashboard/")
+        expect(decoded_payload(url)['resource']).to eq('dashboard' => described_class::DASHBOARD_ID)
+      end
+
+      it 'définit une adresse en https et un id de dashboard entier positif' do
+        expect(described_class::SITE_URL).to start_with('https://')
+        expect(described_class::DASHBOARD_ID).to be_a(Integer).and be_positive
+      end
+    end
+
     context 'avec une configuration complète' do
       it 'retourne le service lui-même' do
         service = described_class.new(**arguments)
@@ -52,11 +66,11 @@ RSpec.describe Metabase::GenerateEmbedUrlService do
         expect(payload['resource']).to eq('dashboard' => 112)
       end
 
-      it 'fait expirer le jeton 10 minutes après l’appel' do
+      it 'fait expirer le jeton à l’échéance par défaut après l’appel' do
         freeze_time do
           payload = decoded_payload(described_class.new(**arguments).call.url)
 
-          expect(payload['exp']).to eq(10.minutes.from_now.to_i)
+          expect(payload['exp']).to eq(described_class::TOKEN_VALIDITY.from_now.to_i)
         end
       end
 
@@ -81,7 +95,7 @@ RSpec.describe Metabase::GenerateEmbedUrlService do
       it 'produit un jeton rejeté une fois expiré' do
         url = described_class.new(**arguments).call.url
 
-        travel_to(11.minutes.from_now) do
+        travel_to((described_class::TOKEN_VALIDITY + 1.minute).from_now) do
           expect { decoded_payload(url) }.to raise_error(JWT::ExpiredSignature)
         end
       end
