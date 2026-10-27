@@ -275,4 +275,41 @@ RSpec.describe Ability, type: :model do
       end
     end
   end
+
+  describe "droits sur la tâche de suivi d'un envoi bloqué" do
+    actions_interdites = %i[update destroy discard]
+
+    let(:attempt) { FactoryBot.build_stubbed(:blocked_send_attempt) }
+
+    %w[contributor reader caller animator].each do |role|
+      context "pour un utilisateur #{role}, auteur de l'envoi" do
+        let(:auteur) { FactoryBot.create(:admin_user, user_role: role) }
+        let(:ability) { Ability.new(auteur) }
+        let(:tache) { FactoryBot.build_stubbed(:task, reporter: auteur, related: attempt) }
+
+        it 'peut la lire' do
+          expect(ability.can?(:read, tache)).to be(true)
+        end
+
+        actions_interdites.each do |action|
+          it "ne peut pas #{action}" do
+            expect(ability.can?(action, tache)).to be(false)
+          end
+        end
+
+        it 'garde la main sur ses autres tâches' do
+          autre_tache = FactoryBot.build_stubbed(:task, reporter: auteur, related: FactoryBot.build_stubbed(:parent))
+
+          expect(ability.can?(:update, autre_tache)).to be(true)
+        end
+      end
+    end
+
+    it 'peut être modifiée par un super_admin' do
+      super_admin = FactoryBot.create(:admin_user, user_role: 'super_admin')
+      tache = FactoryBot.build_stubbed(:task, related: attempt)
+
+      expect(Ability.new(super_admin).can?(:update, tache)).to be(true)
+    end
+  end
 end

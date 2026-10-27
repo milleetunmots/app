@@ -77,6 +77,38 @@ RSpec.describe 'Tâche de suivi d’un envoi bloqué', type: :request do
     expect(response.body).not_to include("/admin/blocked_send_attempts/#{BlockedSendAttempt.last.id}")
   end
 
+  describe 'tâche en lecture seule pour son auteur' do
+    let(:task) { Task.last }
+
+    before { program_sms }
+
+    it 'refuse la modification de la tâche par Awa, même en forçant la requête' do
+      put "/admin/tasks/#{task.id}", params: { task: { title: 'Tâche réécrite', description: 'Plus rien à voir' } }
+
+      expect(task.reload).to have_attributes(title: 'Envoi bloqué à vérifier', done_at: nil)
+    end
+
+    it 'refuse la mise à la corbeille de la tâche par Awa' do
+      put "/admin/tasks/#{task.id}/discard", headers: { 'HTTP_REFERER' => '/admin/tasks' }
+
+      expect(task.reload).not_to be_discarded
+    end
+  end
+
+  # Un assigné sans droit de lecture sur les envois bloqués (variable mal
+  # renseignée) ne doit pas recevoir de lien vers un accès refusé.
+  it "affiche la tentative liée sans lien dans le tableau de bord d'un assigné qui ne peut pas la lire" do
+    contributor = FactoryBot.create(:admin_user, user_role: 'contributor')
+    program_sms
+    Task.last.update!(assignee: contributor)
+    sign_in contributor
+
+    get '/admin/dashboard'
+
+    expect(response.body).to include("Envoi bloqué n°#{BlockedSendAttempt.last.id}")
+    expect(response.body).not_to include("/admin/blocked_send_attempts/#{BlockedSendAttempt.last.id}")
+  end
+
   it 'affiche la tâche dans le tableau de bord du compte assigné' do
     program_sms
     sign_in assignee
@@ -85,5 +117,6 @@ RSpec.describe 'Tâche de suivi d’un envoi bloqué', type: :request do
 
     expect(response).to have_http_status(:ok)
     expect(response.body).to include('Envoi bloqué à vérifier')
+    expect(response.body).to include("/admin/blocked_send_attempts/#{BlockedSendAttempt.last.id}")
   end
 end

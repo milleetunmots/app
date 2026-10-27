@@ -3,7 +3,8 @@
     <span class="fa-li"><i class="far fa-square"></i></span>
     <% if (!defined?(show_related) || show_related) && task.related %>
       <span class="aat-related">
-        <%= task.related.decorate.admin_link %>
+        <%# Sans droit de lecture (l'auteur d'un envoi bloqué), le lien mènerait à un accès refusé. %>
+        <%= authorized?(:read, task.related) ? task.related.decorate.admin_link : display_name(task.related.decorate) %>
       </span>
     <% end %>
     <span class="aat-title">
