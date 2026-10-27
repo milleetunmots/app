@@ -1,9 +1,13 @@
 require 'rails_helper'
 
-# Parcours réel d'un livre « Non envoyé » : arrêt pour numéro erroné, attribution du livre
-# du module suivant, reprise de l'accompagnement, puis import du renvoi SAV.
-RSpec.describe 'Livre « Non envoyé » : numéro erroné → attribution → reprise → renvoi SAV' do
-  let!(:group) { FactoryBot.create(:group, started_at: 8.weeks.ago.prev_occurring(:monday), ended_at: 8.weeks.from_now) }
+# Parcours réel d'un livre « Non envoyé » : arrêt pour numéro erroné, enregistrement du livre
+# du module suivant à l'export logistique, reprise de l'accompagnement, puis import du renvoi SAV.
+RSpec.describe 'Livre « Non envoyé » : numéro erroné → export logistique → reprise → renvoi SAV' do
+  # deux modules déjà programmés : l'export enregistre les livres à partir du module d'index 3
+  let!(:group) do
+    FactoryBot.create(:group, started_at: 8.weeks.ago.prev_occurring(:monday), ended_at: 8.weeks.from_now)
+              .tap { |group| group.update_column(:support_module_programmed, 2) }
+  end
   let!(:child) { FactoryBot.create(:child, group: group, group_status: 'active') }
   let!(:child_support) { child.child_support }
   let!(:book) { FactoryBot.create(:book) }
@@ -28,8 +32,8 @@ RSpec.describe 'Livre « Non envoyé » : numéro erroné → attribution → re
     Child::StopUnassignedNumberService.new.call
   end
 
-  def attribute_books
-    ChildrenSupportModule::SaveBookFromSupportModuleService.new(group_ids: [group.id]).call
+  def export_books
+    Child::ExportBooksV2Service.new(group_ids: [group.id], freeze_books: true).call
   end
 
   def restart_for_unreachable_number
@@ -47,7 +51,7 @@ RSpec.describe 'Livre « Non envoyé » : numéro erroné → attribution → re
     stop_for_unassigned_number
     expect(child.reload.group_status).to eq('stopped')
 
-    attribute_books
+    export_books
     children_support_module.reload
     expect(children_support_module.book_id).to eq(book.id)
     expect(children_support_module.book_condition).to eq('not_sent')
@@ -67,7 +71,7 @@ RSpec.describe 'Livre « Non envoyé » : numéro erroné → attribution → re
 
   it "n'annonce pas de renvoi après la reprise quand le « Non envoyé » date d'avant le dernier envoi SAV" do
     stop_for_unassigned_number
-    attribute_books
+    export_books
     children_support_module.reload.update_column(:book_condition_changed_at, last_shipment_date - 1.day)
 
     restart_for_unreachable_number
