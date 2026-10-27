@@ -94,4 +94,139 @@ RSpec.describe Child::ExportBooksV2Service do
       end
     end
   end
+
+  describe '#call avec figement des livres' do
+    subject(:service) { described_class.new(group_ids: [group.id], freeze_books: true) }
+
+    let!(:group) { FactoryBot.create(:group).tap { |g| g.update_column(:support_module_programmed, 2) } }
+    let!(:book) { FactoryBot.create(:book, title: 'Rouge et Bleu', ean: '9782000000011') }
+    let!(:support_module) { FactoryBot.create(:support_module, book: book) }
+    let!(:shippable_module) { create_module }
+    let!(:unshippable_module) { create_module(address_suspected: true) }
+    let(:filename) { "9782000000011 Rouge et Bleu #{Time.zone.now.strftime('%d-%m-%Y')}" }
+
+    def create_module(address_suspected: false)
+      child = FactoryBot.create(:child, group: group, group_status: 'active')
+      child.child_support.update_column(:address_suspected_invalid_at, Time.zone.now) if address_suspected
+      FactoryBot.create(:children_support_module, child: child, parent: child.parent1, support_module: support_module)
+    end
+
+    it 'enregistre le LogisticExport avec son archive' do
+      expect { service.call }.to change(LogisticExport, :count).by(1)
+
+      expect(service.errors).to be_empty
+      expect(LogisticExport.last.archive).to be_attached
+    end
+
+    it 'fige le livre, « Non envoyé » pour le module non expédiable' do
+      service.call
+
+      expect(shippable_module.reload[:book_id]).to eq(book.id)
+      expect(shippable_module.book_condition).to be_nil
+      expect(unshippable_module.reload[:book_id]).to eq(book.id)
+      expect(unshippable_module.book_condition).to eq('not_sent')
+    end
+
+    it "n'inclut dans le fichier que l'enfant expédiable" do
+      expect(service.send(:find_children_lists)[filename]).to contain_exactly(shippable_module.child)
+    end
+
+    context "quand l'enregistrement du LogisticExport échoue" do
+      before do
+        allow_any_instance_of(LogisticExport).to receive(:save!).and_raise(ActiveRecord::ActiveRecordError, 'stockage indisponible')
+      end
+
+      it "ne fige aucun livre et remonte l'erreur" do
+        expect { service.call }.not_to change(LogisticExport, :count)
+
+        expect(service.errors).to include('Export logistique en échec : stockage indisponible')
+        expect(shippable_module.reload[:book_id]).to be_nil
+        expect(unshippable_module.reload.book_condition).to be_nil
+      end
+
+      it "supprime l'archive déjà envoyée" do
+        expect { service.call }.not_to change(ActiveStorage::Blob, :count)
+      end
+    end
+
+    context 'quand le figement échoue' do
+      before do
+        allow(ChildrenSupportModule::SaveBookFromSupportModuleService).to receive(:new).and_raise(ActiveRecord::ActiveRecordError, 'verrou')
+      end
+
+      it "n'enregistre pas le LogisticExport" do
+        expect { service.call }.not_to change(LogisticExport, :count)
+
+        expect(service.errors).to include('Export logistique en échec : verrou')
+      end
+    end
+
+    context 'sans cohorte' do
+      subject(:service) { described_class.new(freeze_books: true) }
+
+      it 'refuse de figer les livres de toutes les cohortes' do
+        expect { service.call }.not_to change(LogisticExport, :count)
+
+        expect(service.errors).to include('Aucune cohorte à exporter')
+        expect(shippable_module.reload[:book_id]).to be_nil
+      end
+    end
+
+    [0, 1].each do |support_module_programmed|
+      context "pour une cohorte dont #{support_module_programmed} module a été programmé" do
+        before { group.update_column(:support_module_programmed, support_module_programmed) }
+
+        it "génère l'export sans figer les livres" do
+          expect { service.call }.to change(LogisticExport, :count).by(1)
+
+          expect(shippable_module.reload[:book_id]).to be_nil
+          expect(unshippable_module.reload.book_condition).to be_nil
+        end
+      end
+    end
+
+    context 'quand le livre est déjà « Non envoyé » et l’adresse validée depuis' do
+      let!(:changed_at) { 1.week.ago.change(usec: 0) }
+
+      before do
+        unshippable_module.update_columns(book_id: book.id, book_condition: 'not_sent', book_condition_changed_at: changed_at)
+        unshippable_module.child.child_support.update_column(:address_suspected_invalid_at, nil)
+      end
+
+      it "n'inclut pas l'enfant dans le fichier" do
+        expect(service.send(:find_children_lists)[filename]).not_to include(unshippable_module.child)
+      end
+
+      it 'ne modifie ni le statut ni sa date' do
+        service.call
+
+        expect(unshippable_module.reload.book_condition).to eq('not_sent')
+        expect(unshippable_module.book_condition_changed_at).to eq(changed_at)
+      end
+    end
+
+    # garde-fou : le livre d'un module n'est pas censé changer pendant la semaine
+    context 'quand le livre du module a changé après le figement' do
+      let!(:other_book) { FactoryBot.create(:book, title: 'Vert Prairie', ean: '9782000000028') }
+      let(:other_filename) { "9782000000028 Vert Prairie #{Time.zone.now.strftime('%d-%m-%Y')}" }
+
+      before do
+        shippable_module.update_column(:book_id, book.id)
+        support_module.update!(book: other_book)
+      end
+
+      it "range l'enfant dans le fichier du livre figé" do
+        lists = service.send(:find_children_lists)
+
+        expect(lists[filename]).to contain_exactly(shippable_module.child)
+        expect(lists.fetch(other_filename, [])).not_to include(shippable_module.child)
+      end
+
+      it "fait de même lors d'un export manuel" do
+        lists = described_class.new(group_ids: [group.id]).send(:find_children_lists)
+
+        expect(lists[filename]).to contain_exactly(shippable_module.child)
+      end
+    end
+  end
 end

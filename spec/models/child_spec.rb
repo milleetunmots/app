@@ -404,6 +404,29 @@ RSpec.describe Child, type: :model do
     end
   end
 
+  describe "#book_to_distribute_title" do
+    let(:child) { FactoryBot.create(:child) }
+    let(:support_module) { FactoryBot.create(:support_module, book: FactoryBot.create(:book, title: 'Vert Prairie')) }
+    let!(:children_support_module) do
+      FactoryBot.create(:children_support_module, child: child, parent: child.parent1, support_module: support_module)
+    end
+
+    context "quand aucun livre n'est encore enregistré" do
+      it "renvoie le titre du livre du module choisi" do
+        expect(child.book_to_distribute_title).to eq('Vert Prairie')
+      end
+    end
+
+    # garde-fou : le livre d'un module n'est pas censé changer pendant la semaine
+    context "quand le livre enregistré diffère du livre actuel du module" do
+      before { children_support_module.update_column(:book_id, FactoryBot.create(:book, title: 'Rouge et Bleu').id) }
+
+      it "renvoie le titre du livre enregistré" do
+        expect(child.book_to_distribute_title).to eq('Rouge et Bleu')
+      end
+    end
+  end
+
   describe '#utm_source' do
     it 'lit la valeur du tag utm_source' do
       expect(Child.new(tag_list: ['utm_source=chatgpt.com']).utm_source).to eq 'chatgpt.com'

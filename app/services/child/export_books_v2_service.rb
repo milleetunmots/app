@@ -8,12 +8,20 @@ class Child
 
     SUMMARY_COLUMNS = ['Nom du module', 'Âges', 'Effectif', 'EAN', 'Livre', 'Cohorte', 'Module'].freeze
 
-    def initialize(group_ids: nil)
+    # freeze_books : seul le job logistique du lundi fige les livres, les exports manuels de l'admin ne figent rien
+    def initialize(group_ids: nil, freeze_books: false)
       @errors = []
       @group_ids = group_ids
+      @freeze_books = freeze_books
     end
 
     def call
+      # sans cohorte, chosen_modules_for_group renvoie toutes les cohortes : on ne les fige pas toutes
+      if @freeze_books && @group_ids.blank?
+        @errors << 'Aucune cohorte à exporter'
+        return self
+      end
+
       children_lists = find_children_lists
 
       excel_files = children_lists.map do |filename, children|
@@ -27,7 +35,7 @@ class Child
       if @errors.empty?
         excel_files << { filename: 'choix-modules.xlsx', file: generate_modules_summary }
         create_zip_file(excel_files)
-        generate_logistic_export
+        @freeze_books ? generate_logistic_export_and_freeze_books : generate_logistic_export
       end
 
       self
@@ -78,10 +86,10 @@ class Child
 
     def find_children_lists
       children_list_sorted_by_module = {}
-      chosen_modules = ChildrenSupportModule.chosen_modules_for_group(@group_ids)
-      chosen_modules = chosen_modules.uniq { |csm| [csm.child_id, csm.parent_id] }
-      chosen_modules.group_by(&:support_module_book_id).each do |support_module_book_id, children_support_modules|
-        book = Book.find(support_module_book_id) if support_module_book_id
+      # livre enregistré s'il existe (garde-fou : le livre d'un module n'est pas censé changer pendant la semaine).
+      # csm[:book_id] : book_id est délégué au livre
+      chosen_modules.group_by { |csm| csm[:book_id] || csm.support_module_book_id }.each do |book_id, children_support_modules|
+        book = Book.find(book_id) if book_id
 
         children = Child.where(id: children_support_modules.select(&:shippable?).map(&:child_id).uniq)
 
@@ -90,6 +98,13 @@ class Child
       end
 
       children_list_sorted_by_module
+    end
+
+    # Avec le figement, les modules non expédiables sont lus aussi pour être figés « Non envoyé » :
+    # fichiers et figement partent de la même liste, une adresse marquée entre les deux ne crée pas d'écart
+    def chosen_modules
+      @chosen_modules ||= ChildrenSupportModule.chosen_modules_for_group(@group_ids, include_unshippable: @freeze_books)
+                                               .uniq { |csm| [csm.child_id, csm.parent_id] }
     end
 
     def create_zip_file(excel_files)
@@ -116,21 +131,57 @@ class Child
     end
 
     def generate_logistic_export
-      groups = Group.where(id: @group_ids)
-      group_modules = groups.map do |group|
-        { group_id: group.id, module_number: group.support_module_programmed }
-      end
-
-      group_label = groups.map { |g| g.name.parameterize }.join("-")
-      export = LogisticExport.new(group_modules: group_modules)
+      export = LogisticExport.new(group_modules: logistic_export_group_modules)
       export.archive.attach(
         io: File.open(@zip_file.path),
-        filename: "yls-export-#{group_label}-#{Time.zone.today.strftime('%d-%m-%Y')}.zip",
+        filename: logistic_export_filename,
         content_type: 'application/zip'
       )
       export.save!
     rescue => e
       Rollbar.error(message: 'LogisticExport generation in ExportBooksV2Service', group_ids: @group_ids, error: e)
+    end
+
+    # ActiveStorage n'envoie un fichier qu'après le commit : l'archive est envoyée avant la transaction,
+    # pour qu'un échec n'importe où laisse ni LogisticExport ni livre figé
+    def generate_logistic_export_and_freeze_books
+      blob = File.open(@zip_file.path) do |file|
+        ActiveStorage::Blob.create_and_upload!(io: file, filename: logistic_export_filename, content_type: 'application/zip')
+      end
+
+      ActiveRecord::Base.transaction do
+        export = LogisticExport.new(group_modules: logistic_export_group_modules)
+        export.archive.attach(blob)
+        export.save!
+        freeze_books
+      end
+    rescue StandardError => e
+      blob&.purge
+      @errors << "Export logistique en échec : #{e.message}"
+    end
+
+    # modules 2 et suivants : le Module 1 n'est jamais retenu par le job logistique, l'attribution le fige
+    def freeze_books
+      group_ids = groups.select { |group| group.support_module_programmed >= 2 }.map(&:id)
+      return if group_ids.empty?
+
+      ChildrenSupportModule::SaveBookFromSupportModuleService.new(
+        group_ids: group_ids,
+        children_support_modules: chosen_modules.select { |csm| csm.child.group_id.in?(group_ids) }
+      ).call
+    end
+
+    def groups
+      @groups ||= Group.where(id: @group_ids).to_a
+    end
+
+    def logistic_export_group_modules
+      groups.map { |group| { group_id: group.id, module_number: group.support_module_programmed } }
+    end
+
+    def logistic_export_filename
+      group_label = groups.map { |g| g.name.parameterize }.join("-")
+      "yls-export-#{group_label}-#{Time.zone.today.strftime('%d-%m-%Y')}.zip"
     end
   end
 end
