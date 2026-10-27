@@ -243,6 +243,21 @@ ActiveAdmin.setup do |config|
   # To change the default utility navigation to show a link to your website & a logout btn
   #
   config.namespace :admin do |admin|
+    # Parent des écrans d'envoi, déclaré ici pour porter la pastille des envois
+    # bloqués à traiter. Les ressources s'y rattachent par `menu parent: 'Gestion
+    # des envois'`, qu'ActiveAdmin ramène à cet id. Le compteur n'est calculé que
+    # pour qui peut lire les envois bloqués (super_admin).
+    admin.build_menu :default do |menu|
+      menu.add id: 'gestion_des_envois',
+               label: -> {
+                 pending_count = authorized?(:read, BlockedSendAttempt) ? BlockedSendAttempt.pending.count : 0
+                 next 'Gestion des envois' if pending_count.zero?
+
+                 badge = content_tag(:span, pending_count, class: 'menu-badge', title: "Envois bloqués à traiter : #{pending_count}")
+                 safe_join(['Gestion des envois', badge], ' ')
+               }
+    end
+
     admin.build_menu :utility_navigation do |menu|
       menu.add id: 'current_user',
                label: -> { display_name current_admin_user },
