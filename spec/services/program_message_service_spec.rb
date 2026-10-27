@@ -60,7 +60,8 @@ RSpec.describe ProgramMessageService do
           workshop_id: nil,
           event_params: {},
           replay_params: an_instance_of(Hash),
-          blocked_send_attempt_id: nil
+          blocked_send_attempt_id: nil,
+          admin_user_id: nil
         ).
         and_call_original
       )
@@ -102,7 +103,8 @@ RSpec.describe ProgramMessageService do
           workshop_id: nil,
           event_params: {},
           replay_params: an_instance_of(Hash),
-          blocked_send_attempt_id: nil
+          blocked_send_attempt_id: nil,
+          admin_user_id: nil
         ).
         and_call_original
       )
@@ -127,7 +129,8 @@ RSpec.describe ProgramMessageService do
           workshop_id: nil,
           event_params: {},
           replay_params: an_instance_of(Hash),
-          blocked_send_attempt_id: nil
+          blocked_send_attempt_id: nil,
+          admin_user_id: nil
         ).
         and_call_original
       )
@@ -153,7 +156,8 @@ RSpec.describe ProgramMessageService do
           workshop_id: nil,
           event_params: {},
           replay_params: an_instance_of(Hash),
-          blocked_send_attempt_id: nil
+          blocked_send_attempt_id: nil,
+          admin_user_id: nil
         ).
         and_call_original
       )
@@ -179,7 +183,8 @@ RSpec.describe ProgramMessageService do
           workshop_id: nil,
           event_params: {},
           replay_params: an_instance_of(Hash),
-          blocked_send_attempt_id: nil
+          blocked_send_attempt_id: nil,
+          admin_user_id: nil
         ).
         and_call_original
       )
@@ -216,7 +221,8 @@ RSpec.describe ProgramMessageService do
           workshop_id: nil,
           event_params: {},
           replay_params: an_instance_of(Hash),
-          blocked_send_attempt_id: nil
+          blocked_send_attempt_id: nil,
+          admin_user_id: nil
         ).
         and_call_original
       )
@@ -244,7 +250,8 @@ RSpec.describe ProgramMessageService do
           workshop_id: nil,
           event_params: {},
           replay_params: an_instance_of(Hash),
-          blocked_send_attempt_id: nil
+          blocked_send_attempt_id: nil,
+          admin_user_id: nil
         ).
         and_call_original
       )
@@ -399,6 +406,72 @@ RSpec.describe ProgramMessageService do
         expect(BlockedSendAttempt.last.status).to eq('pending')
         expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
       end
+
+      context 'auteur de la tentative' do
+        let(:author) { FactoryBot.create(:admin_user, user_role: 'caller') }
+
+        def program_blocked(provider: 'spothit', acting_admin_user: author)
+          described_class.new(
+            Time.zone.today,
+            Time.zone.now.strftime('%H:%M'),
+            ["parent.#{parent_2.id}"],
+            blocked_message,
+            nil, nil, false, nil, nil, ['active'],
+            provider,
+            (42 if provider == 'aircall'),
+            acting_admin_user: acting_admin_user
+          ).call
+        end
+
+        it "rattache la tentative Spot-Hit au compte à l'origine de l'envoi" do
+          program_blocked
+
+          expect(BlockedSendAttempt.last.admin_user).to eq(author)
+        end
+
+        it "rattache la tentative Aircall au compte à l'origine de l'envoi" do
+          program_blocked(provider: 'aircall')
+
+          expect(BlockedSendAttempt.last).to have_attributes(provider: 'aircall', admin_user_id: author.id)
+        end
+
+        it 'laisse la tentative sans auteur pour un envoi automatique' do
+          program_blocked(acting_admin_user: nil)
+
+          expect(BlockedSendAttempt.last.admin_user).to be_nil
+        end
+
+        # La relance est une action super_admin : la tentative garde son auteur
+        # d'origine et le replay n'en trace pas de nouvelle.
+        it "ne crée pas de nouvelle tentative et garde l'auteur d'origine à la relance" do
+          program_blocked
+          attempt = BlockedSendAttempt.last
+
+          expect { attempt.relaunch! }.not_to change(BlockedSendAttempt, :count)
+          expect(attempt.reload.admin_user).to eq(author)
+        end
+      end
+    end
+
+    # En surveillance, le job Aircall rejoue le guard : il doit connaître
+    # l'auteur pour le cas où le provider révèle une cause nouvelle.
+    it "transmet l'auteur au job d'envoi Aircall" do
+      ActiveJob::Base.queue_adapter = :test
+      author = FactoryBot.create(:admin_user, user_role: 'caller')
+      service = described_class.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent_2.id}"],
+        'Bonjour',
+        nil, nil, false, nil, nil, ['active'],
+        'aircall',
+        42,
+        acting_admin_user: author
+      )
+
+      expect { service.call }
+        .to have_enqueued_job(Aircall::SendMessageJob)
+        .with(42, parent_2.phone_number, 'Bonjour', an_instance_of(Integer), an_instance_of(Hash), nil, author.id)
     end
   end
 

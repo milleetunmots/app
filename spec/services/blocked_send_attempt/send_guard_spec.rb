@@ -41,6 +41,28 @@ RSpec.describe BlockedSendAttempt::SendGuard do
     expect(BlockedSendAttempt.order(:id).last(2).map(&:kind)).to contain_exactly('url', 'keyword')
   end
 
+  it "rattache chaque tentative tracée à l'auteur de l'envoi" do
+    author = FactoryBot.create(:admin_user, user_role: 'caller')
+    FactoryBot.create(:blocked_pattern, value: 'virement')
+    guard = described_class.new('virement ici : https://non-whitelisted.example.com/page', provider: 'spothit', admin_user_id: author.id)
+
+    attempts = guard.register!
+
+    expect(attempts.map(&:admin_user_id)).to eq([author.id, author.id])
+  end
+
+  it "laisse la tentative sans auteur quand l'envoi est automatique" do
+    guard = described_class.new('Voir https://non-whitelisted.example.com/page', provider: 'spothit')
+
+    expect(guard.register!.map(&:admin_user_id)).to eq([nil])
+  end
+
+  it 'expose le nombre de destinataires de l\'envoi' do
+    guard = described_class.new('Voir https://non-whitelisted.example.com/page', provider: 'spothit', recipients_count: 40)
+
+    expect(guard.recipients_count).to eq(40)
+  end
+
   it "expose un message d'erreur générique qui ne révèle ni la cause ni les valeurs" do
     guard = described_class.new('peu importe', provider: 'spothit')
 

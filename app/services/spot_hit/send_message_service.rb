@@ -14,7 +14,7 @@ class SpotHit::SendMessageService
     @sent
   end
 
-  def initialize(recipients, planned_timestamp, message, file: nil, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil)
+  def initialize(recipients, planned_timestamp, message, file: nil, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil, admin_user_id: nil)
     @planned_timestamp = planned_timestamp
     @sent = false
     @recipients = recipients
@@ -25,6 +25,7 @@ class SpotHit::SendMessageService
     @workshop = Workshop.find_by(id: workshop_id)
     @replay_params = replay_params
     @blocked_send_attempt_id = blocked_send_attempt_id
+    @admin_user_id = admin_user_id
   end
 
   protected
@@ -36,7 +37,9 @@ class SpotHit::SendMessageService
         provider: 'spothit',
         extra_texts: recipient_variable_values,
         replay_params: @replay_params,
-        blocked_send_attempt_id: @blocked_send_attempt_id
+        blocked_send_attempt_id: @blocked_send_attempt_id,
+        admin_user_id: @admin_user_id,
+        recipients_count: recipient_variables.size
       )
       if guard.blocked?
         guard.register!

@@ -85,7 +85,14 @@ class ProgramMessageService
         @errors << 'Votre message dépasse la limite de 1600 caractères autorisée par Aircall. Veuillez le raccourcir avant de le renvoyer.'
         return self
       end
-      guard = BlockedSendAttempt::SendGuard.new(@message, provider: 'aircall', replay_params: @replay_params, blocked_send_attempt_id: @blocked_send_attempt_id)
+      guard = BlockedSendAttempt::SendGuard.new(
+        @message,
+        provider: 'aircall',
+        replay_params: @replay_params,
+        blocked_send_attempt_id: @blocked_send_attempt_id,
+        admin_user_id: @acting_admin_user&.id,
+        recipients_count: 1
+      )
       if guard.blocked?
         attempts = guard.register!
         # En surveillance, le job réexécute le guard côté service : on lui
@@ -108,7 +115,7 @@ class ProgramMessageService
           message_provider: 'aircall'
         }
       )
-      Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(@aircall_number_id, parent&.phone_number, @message, event.id, @replay_params, @blocked_send_attempt_id)
+      Aircall::SendMessageJob.set(wait_until: @planned_timestamp).perform_later(@aircall_number_id, parent&.phone_number, @message, event.id, @replay_params, @blocked_send_attempt_id, @acting_admin_user&.id)
       @errors << "Erreur lors de la création de l'event d'envoi de message pour #{parent.phone_number}." if event.errors.any?
     when 'spothit'
       # Garde anti-fraude : le quota est réservé avant tout appel au provider, sur
@@ -134,7 +141,8 @@ class ProgramMessageService
             workshop_id: @workshop_id,
             event_params: @event_params,
             replay_params: @replay_params,
-            blocked_send_attempt_id: @blocked_send_attempt_id
+            blocked_send_attempt_id: @blocked_send_attempt_id,
+            admin_user_id: @acting_admin_user&.id
           ).call
         elsif basic_rcs?
           SpotHit::SendRcsService.new(
@@ -145,7 +153,8 @@ class ProgramMessageService
             workshop_id: @workshop_id,
             event_params: @event_params,
             replay_params: @replay_params,
-            blocked_send_attempt_id: @blocked_send_attempt_id
+            blocked_send_attempt_id: @blocked_send_attempt_id,
+            admin_user_id: @acting_admin_user&.id
           ).call
         else
           SpotHit::SendSmsService.new(
@@ -155,7 +164,8 @@ class ProgramMessageService
             workshop_id: @workshop_id,
             event_params: @event_params,
             replay_params: @replay_params,
-            blocked_send_attempt_id: @blocked_send_attempt_id
+            blocked_send_attempt_id: @blocked_send_attempt_id,
+            admin_user_id: @acting_admin_user&.id
           ).call
         end
       # Même critère que le quota : les liens de redirection sont partis avec la

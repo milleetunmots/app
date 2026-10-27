@@ -10,7 +10,15 @@ class BlockedSendAttempt::SendGuard
 
   GUARD_CLASSES = [BlockedSendAttempt::UrlSendGuard, BlockedSendAttempt::KeywordSendGuard, BlockedSendAttempt::PhoneNumberSendGuard].freeze
 
-  def initialize(text, provider:, extra_texts: [], replay_params: {}, blocked_send_attempt_id: nil)
+  # Nombre de destinataires de l'envoi, pour l'alerte de l'équipe tech : il
+  # n'est pas stocké sur la tentative, replay_params ne portant que des tags,
+  # groupes ou enfants. nil quand il n'y a pas de destinataire (modèle RCS).
+  attr_reader :recipients_count
+
+  # admin_user_id : auteur d'un envoi manuel, nil pour un envoi automatique.
+  def initialize(text, provider:, extra_texts: [], replay_params: {}, blocked_send_attempt_id: nil, admin_user_id: nil, recipients_count: nil)
+    @recipients_count = recipients_count
+
     # Garde explicite : sur le chemin nominal (pas de relance), l'id est nil
     # et cette requête serait exécutée en pure perte à chaque envoi.
     replayed_attempt = BlockedSendAttempt.find_by(id: blocked_send_attempt_id) if blocked_send_attempt_id.present?
@@ -32,7 +40,8 @@ class BlockedSendAttempt::SendGuard
         provider: provider,
         extra_texts: extra_texts,
         replay_params: replay_params,
-        blocked_send_attempt_id: (blocked_send_attempt_id if guard_class.kind == replayed_kind)
+        blocked_send_attempt_id: (blocked_send_attempt_id if guard_class.kind == replayed_kind),
+        admin_user_id: admin_user_id
       )
     end
   end

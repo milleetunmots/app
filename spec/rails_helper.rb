@@ -42,6 +42,9 @@ ENV['AIRCALL_WEBHOOK_MESSAGE_TOKEN'] ||= "valid token"
 ENV['AIRCALL_WEBHOOK_CALL_TOKEN'] ||= "valid token"
 ENV['SPOT_HIT_API_KEY'] ||= "test_spot_hit_api_key"
 ENV['SPOT_HIT_SAFEGUARD'] = ''
+# Forcé et non ||= : défini dans un application.yml local, il ferait partir en SMS
+# les messages courts que les specs attendent en RCS basic.
+ENV['SPOT_HIT_DISABLE_RCS_BASIC'] = ''
 ENV['LESS_THAN_ELEVEN_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'] = 'Jouer avec mon bébé 🧩'
 ENV['MORE_THAN_TWELVE_SPECIFIC_DEFAULT_SUPPORT_MODULE_NAME'] = 'Jouer avec mon enfant 🧩'
 ENV['OPERATION_PROJECT_MANAGER_EMAIL'] ||= 'operation_manager@test.com'

@@ -67,6 +67,14 @@ RSpec.describe Aircall::SendMessageService do
             ).call
           }.not_to change(BlockedSendAttempt, :count)
         end
+
+        it "rattache la tentative à l'auteur transmis par le job" do
+          author = FactoryBot.create(:admin_user, user_role: 'caller')
+
+          described_class.new(number_id: '123', to: parent.phone_number, body: body, event_id: event.id, admin_user_id: author.id).call
+
+          expect(BlockedSendAttempt.last.admin_user).to eq(author)
+        end
       end
     end
 

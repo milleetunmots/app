@@ -7,7 +7,7 @@ class SpotHit::SendRcsService
 
   attr_reader :errors
 
-  def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil, basic: false, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil)
+  def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil, basic: false, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil, admin_user_id: nil)
     @recipients = recipients
     @sent = false
     @planned_timestamp = planned_timestamp
@@ -24,6 +24,7 @@ class SpotHit::SendRcsService
     @workshop = Workshop.find_by(id: workshop_id)
     @replay_params = replay_params
     @blocked_send_attempt_id = blocked_send_attempt_id
+    @admin_user_id = admin_user_id
   end
 
   def call
@@ -50,7 +51,9 @@ class SpotHit::SendRcsService
       provider: 'spothit',
       extra_texts: recipient_variable_values,
       replay_params: @replay_params,
-      blocked_send_attempt_id: @blocked_send_attempt_id
+      blocked_send_attempt_id: @blocked_send_attempt_id,
+      admin_user_id: @admin_user_id,
+      recipients_count: recipient_variables.size
     )
     if guard.blocked?
       guard.register!
