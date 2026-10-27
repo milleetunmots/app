@@ -25,3 +25,23 @@ module ActiveAdminBeforeIndexPartial
 end
 
 ActiveAdmin::Views::Pages::Index.prepend(ActiveAdminBeforeIndexPartial)
+
+# Simulation de connexion (« Se connecter en tant que ») : bandeau permanent et classe
+# `impersonating` sur le body, qui fait passer les formulaires en lecture seule (impersonation.js).
+module ActiveAdminImpersonationBanner
+  private
+
+  def body_classes
+    classes = super
+    classes << 'impersonating' if Current.impersonating?
+    classes
+  end
+
+  # Seul point d'extension d'ActiveAdmin en tête de #wrapper, avant le header
+  def build_unsupported_browser
+    super
+    text_node helpers.render(partial: 'admin/impersonations/banner') if Current.impersonating?
+  end
+end
+
+ActiveAdmin::Views::Pages::Base.prepend(ActiveAdminImpersonationBanner)

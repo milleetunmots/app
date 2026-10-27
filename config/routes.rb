@@ -11,6 +11,9 @@ Rails.application.routes.draw do
     get  'two_factor',        to: 'two_factor#show',   as: :two_factor
     post 'two_factor/verify', to: 'two_factor#verify', as: :verify_two_factor
     post 'two_factor/resend', to: 'two_factor#resend', as: :resend_two_factor
+
+    post   'impersonation/:admin_user_id', to: 'impersonations#create',  as: :impersonation
+    delete 'impersonation',                to: 'impersonations#destroy', as: :stop_impersonation
   end
 
   ActiveAdmin.routes(self)
