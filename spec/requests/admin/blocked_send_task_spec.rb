@@ -47,6 +47,17 @@ RSpec.describe 'Tâche de suivi d’un envoi bloqué', type: :request do
     expect(response.body).to include(%(<a href="#{task_url}">#{task_url}</a>))
   end
 
+  it "alerte l'équipe tech dans le canal des envois bloqués" do
+    program_sms
+
+    expect(WebMock).to(have_requested(:post, 'https://slack.com/api/chat.postMessage').with do |request|
+      form = URI.decode_www_form(request.body).to_h
+      form['channel'] == "##{ENV.fetch('SLACK_BLOCKED_SEND_ALERT_CHANNEL')}" &&
+        form['text'].include?('*Destinataires* : 1 famille') &&
+        form['text'].include?("/admin/tasks/#{Task.last.id}|")
+    end)
+  end
+
   it "liste la tâche dans les tâches d'Awa" do
     program_sms
 

@@ -161,6 +161,66 @@ RSpec.describe BlockedSendAttempt::SendGuard do
       expect(Rollbar).to have_received(:error).with('BlockedSendAttempt::CreateTaskService', errors: array_including(hash_including(message: "La tâche de l'envoi bloqué n'a pas pu être créée")))
     end
 
+    describe 'alerte Slack' do
+      let(:slack) { instance_double(BlockedSendAttempt::NotifySlackService, errors: []) }
+
+      before do
+        allow(slack).to receive(:call).and_return(slack)
+        allow(BlockedSendAttempt::NotifySlackService).to receive(:new).and_return(slack)
+      end
+
+      it "alerte une fois pour l'envoi, avec la tâche et le nombre de destinataires" do
+        FactoryBot.create(:blocked_pattern, value: 'virement')
+        guard = described_class.new("virement ici : #{blocked_text}", provider: 'spothit', admin_user_id: author.id, recipients_count: 40)
+
+        attempts = guard.register!
+
+        expect(BlockedSendAttempt::NotifySlackService)
+          .to have_received(:new).once.with(attempts: match_array(attempts), recipients_count: 40, task: Task.last)
+      end
+
+      it 'alerte aussi pour un envoi automatique, sans tâche' do
+        register(admin_user_id: nil)
+
+        expect(BlockedSendAttempt::NotifySlackService).to have_received(:new).with(hash_including(task: nil))
+      end
+
+      it "n'alerte pas de nouveau quand l'auteur renvoie le même message" do
+        register
+        register
+
+        expect(BlockedSendAttempt::NotifySlackService).to have_received(:new).once
+      end
+
+      it "n'alerte pas en mode surveillance" do
+        ENV['URL_FILTER_BLOCKING_ENABLED'] = ''
+
+        register
+
+        expect(BlockedSendAttempt::NotifySlackService).not_to have_received(:new)
+      end
+
+      it "n'alerte pas lors d'une relance forcée" do
+        attempt = FactoryBot.create(:blocked_send_attempt, force_send: true)
+
+        described_class.new(blocked_text, provider: 'spothit', blocked_send_attempt_id: attempt.id).register!
+
+        expect(BlockedSendAttempt::NotifySlackService).not_to have_received(:new)
+      end
+
+      it "bloque quand même et rapporte l'échec de l'alerte" do
+        errors = [{ message: "L'alerte Slack de l'envoi bloqué n'a pas pu être postée", context: {} }]
+        allow(slack).to receive(:errors).and_return(errors)
+        allow(Rollbar).to receive(:error)
+
+        guard = register
+
+        expect(guard.block_send?).to be(true)
+        expect(guard.error_message).to end_with("/admin/tasks/#{Task.last.id}")
+        expect(Rollbar).to have_received(:error).with('BlockedSendAttempt::NotifySlackService', errors: errors)
+      end
+    end
+
     it 'garde le blocage et retire le lien quand l\'URL de la tâche ne peut être construite' do
       allow(Rails.application.routes.url_helpers).to receive(:admin_task_url).and_raise(ArgumentError, 'Missing host')
       allow(Rollbar).to receive(:error)

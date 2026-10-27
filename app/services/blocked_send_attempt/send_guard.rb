@@ -62,7 +62,11 @@ class BlockedSendAttempt::SendGuard
     return [] if @bypass
 
     attempts = @guards.select(&:blocked?).filter_map(&:register!)
-    @task = task_for(attempts.select { |attempt| attempt.persisted? && attempt.status == 'pending' })
+    blocked_attempts = attempts.select { |attempt| attempt.persisted? && attempt.status == 'pending' }
+    @task = task_for(blocked_attempts)
+    # Une seule alerte par envoi, et seulement à sa première tentative : un
+    # renvoi à l'identique ou un retry Sidekiq retrouve les tentatives existantes.
+    notify_slack(blocked_attempts) if blocked_attempts.any?(&:previously_new_record?)
     attempts
   end
 
@@ -89,6 +93,11 @@ class BlockedSendAttempt::SendGuard
     service = BlockedSendAttempt::CreateTaskService.new(attempt: attempts.first).call
     Rollbar.error('BlockedSendAttempt::CreateTaskService', errors: service.errors) if service.errors.any?
     service.task
+  end
+
+  def notify_slack(attempts)
+    service = BlockedSendAttempt::NotifySlackService.new(attempts: attempts, recipients_count: @recipients_count, task: @task).call
+    Rollbar.error('BlockedSendAttempt::NotifySlackService', errors: service.errors) if service.errors.any?
   end
 
   # Le lien ne doit jamais empêcher le blocage : sans DEFAULT_HOSTNAME, les
