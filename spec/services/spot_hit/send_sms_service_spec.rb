@@ -139,7 +139,7 @@ RSpec.describe SpotHit::SendSmsService do
           service = described_class.new([parent.id], planned_timestamp, 'Faites un virement immédiat').call
         }.to change(BlockedSendAttempt, :count).by(1)
 
-        expect(service.errors).to eq(['Ce message ne peut pas être envoyé, veuillez contacter le pôle tech.'])
+        expect(service.errors).to eq([BlockedSendAttempt::SendGuard::BLOCKED_MESSAGE])
         expect(BlockedSendAttempt.last).to have_attributes(kind: 'keyword', status: 'pending')
         expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
       end
