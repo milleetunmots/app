@@ -100,6 +100,7 @@ fr:
         keyword: Mot-clé
       blocked_send_attempt:
         << : *SHARED
+        admin_user: Auteur
         detected_values: Valeurs détectées
         kind: Type
         message_body: Message
@@ -115,6 +116,7 @@ fr:
         pending: À traiter
         relaunched: Relancé
         not_blocked: Non bloqué (surveillance)
+        archived: Archivé
       book:
         << : *SHARED
         ean: EAN

@@ -13,10 +13,16 @@
 #  status          :string           default("pending"), not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  admin_user_id   :bigint
 #
 # Indexes
 #
-#  index_blocked_send_attempts_on_status  (status)
+#  index_blocked_send_attempts_on_admin_user_id  (admin_user_id)
+#  index_blocked_send_attempts_on_status         (status)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (admin_user_id => admin_users.id)
 #
 require 'rails_helper'
 
@@ -63,6 +69,67 @@ RSpec.describe BlockedSendAttempt do
       %w[spothit aircall].each do |provider|
         expect(FactoryBot.build(:blocked_send_attempt, provider: provider)).to be_valid
       end
+    end
+
+    it 'accepte le statut archived' do
+      expect(FactoryBot.build(:blocked_send_attempt, status: 'archived')).to be_valid
+    end
+
+    it 'refuse un statut inconnu' do
+      attempt = FactoryBot.build(:blocked_send_attempt, status: 'supprime')
+
+      expect(attempt).not_to be_valid
+      expect(attempt.errors[:status]).to be_present
+    end
+  end
+
+  describe 'auteur' do
+    it "est facultatif : un envoi automatique n'en a pas" do
+      expect(FactoryBot.build(:blocked_send_attempt, admin_user: nil)).to be_valid
+    end
+
+    it 'est rattaché au compte qui a envoyé le message' do
+      caller_user = FactoryBot.create(:admin_user, user_role: 'caller')
+      attempt = FactoryBot.create(:blocked_send_attempt, admin_user: caller_user)
+
+      expect(caller_user.blocked_send_attempts).to eq([attempt])
+    end
+
+    it 'est retiré, sans supprimer la tentative, quand le compte est supprimé' do
+      caller_user = FactoryBot.create(:admin_user, user_role: 'caller')
+      attempt = FactoryBot.create(:blocked_send_attempt, admin_user: caller_user)
+
+      caller_user.destroy!
+
+      expect(attempt.reload.admin_user_id).to be_nil
+    end
+  end
+
+  describe '.same_message_as' do
+    let(:attempt) { FactoryBot.create(:blocked_send_attempt, kind: 'url') }
+
+    it 'retourne les tentatives du même envoi, sans la tentative elle-même' do
+      sibling = FactoryBot.create(:blocked_send_attempt, kind: 'keyword', detected_values: ['carte cadeau'])
+
+      expect(described_class.same_message_as(attempt)).to eq([sibling])
+    end
+
+    it "écarte une tentative d'un autre provider" do
+      FactoryBot.create(:blocked_send_attempt, kind: 'keyword', detected_values: ['carte cadeau'], provider: 'aircall')
+
+      expect(described_class.same_message_as(attempt)).to be_empty
+    end
+
+    it 'écarte une tentative au message différent' do
+      FactoryBot.create(:blocked_send_attempt, kind: 'keyword', detected_values: ['carte cadeau'], message_body: 'Autre message')
+
+      expect(described_class.same_message_as(attempt)).to be_empty
+    end
+
+    it 'écarte une tentative aux paramètres de relance différents' do
+      FactoryBot.create(:blocked_send_attempt, kind: 'keyword', detected_values: ['carte cadeau'], replay_params: {})
+
+      expect(described_class.same_message_as(attempt)).to be_empty
     end
   end
 

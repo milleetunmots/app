@@ -6,7 +6,10 @@ ActiveAdmin.register BlockedSendAttempt do
   scope :pending, default: true, label: 'À traiter'
   scope :relaunched, label: 'Relancés'
   scope :not_blocked, label: 'Surveillance'
+  scope :archived, label: 'Archivés'
   scope :all, label: 'Tous'
+
+  includes :admin_user
 
   filter :status, as: :select, collection: -> { BlockedSendAttempt::STATUSES.map { |s| [BlockedSendAttempt.human_attribute_name("status.#{s}"), s] } }
   filter :provider, as: :select, collection: BlockedSendAttempt::PROVIDERS
@@ -16,6 +19,7 @@ ActiveAdmin.register BlockedSendAttempt do
   index do
     id_column
     column :created_at
+    column :admin_user
     column :provider
     column :kind do |attempt|
       BlockedSendAttempt.human_attribute_name("kind.#{attempt.kind}")
@@ -37,6 +41,7 @@ ActiveAdmin.register BlockedSendAttempt do
   show do
     attributes_table do
       row :created_at
+      row :admin_user
       row :provider
       row :kind do |attempt|
         BlockedSendAttempt.human_attribute_name("kind.#{attempt.kind}")

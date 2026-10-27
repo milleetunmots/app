@@ -102,6 +102,27 @@ RSpec.describe 'Admin blocked send attempts', type: :request do
       follow_redirect!
       expect(response.body).to include('envoi automatique')
     end
+
+    it "affiche l'auteur de l'envoi dans la liste et le détail" do
+      author = FactoryBot.create(:admin_user, user_role: 'caller', name: 'Awa Diallo')
+      attempt = FactoryBot.create(:blocked_send_attempt, admin_user: author)
+
+      get '/admin/blocked_send_attempts'
+      expect(response.body).to include('Awa Diallo')
+
+      get "/admin/blocked_send_attempts/#{attempt.id}"
+      expect(response.body).to include('Awa Diallo')
+    end
+
+    it 'liste les tentatives archivées dans leur propre onglet, hors de « À traiter »' do
+      FactoryBot.create(:blocked_send_attempt, status: 'archived', detected_values: ['https://archivee.example.com'])
+
+      get '/admin/blocked_send_attempts', params: { scope: 'archived' }
+      expect(response.body).to include('archivee.example.com')
+
+      get '/admin/blocked_send_attempts'
+      expect(response.body).not_to include('archivee.example.com')
+    end
   end
 
   %w[contributor reader caller animator].each do |role|

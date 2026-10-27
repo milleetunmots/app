@@ -13,10 +13,16 @@
 #  status          :string           default("pending"), not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  admin_user_id   :bigint
 #
 # Indexes
 #
-#  index_blocked_send_attempts_on_status  (status)
+#  index_blocked_send_attempts_on_admin_user_id  (admin_user_id)
+#  index_blocked_send_attempts_on_status         (status)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (admin_user_id => admin_users.id)
 #
 class BlockedSendAttempt < ApplicationRecord
 
@@ -24,7 +30,12 @@ class BlockedSendAttempt < ApplicationRecord
   PROVIDERS = %w[spothit aircall].freeze
   # not_blocked : détecté en mode surveillance (URL_FILTER_BLOCKING_ENABLED absent), le message a quand même
   # été transmis au provider — ne devrait pas être relancé puisqu'il n'a jamais été réellement bloqué.
-  STATUSES = %w[pending relaunched not_blocked].freeze
+  # archived : clos par un super_admin sans relance, le message n'est jamais parti.
+  STATUSES = %w[pending relaunched not_blocked archived].freeze
+
+  # Auteur de l'envoi manuel ; nil pour un envoi automatique ou une tentative
+  # antérieure à la colonne.
+  belongs_to :admin_user, optional: true
 
   validates :provider, inclusion: { in: PROVIDERS }
   validates :kind, inclusion: { in: KINDS }
@@ -35,6 +46,13 @@ class BlockedSendAttempt < ApplicationRecord
   scope :pending, -> { where(status: 'pending') }
   scope :relaunched, -> { where(status: 'relaunched') }
   scope :not_blocked, -> { where(status: 'not_blocked') }
+  scope :archived, -> { where(status: 'archived') }
+  # Un même envoi est tracé une fois par kind détecté (URL et mot-clé…) : ces
+  # tentatives sœurs partagent provider, message et paramètres de relance.
+  scope :same_message_as, ->(attempt) {
+    where(provider: attempt.provider, message_body: attempt.message_body, replay_params: attempt.replay_params)
+      .where.not(id: attempt.id)
+  }
 
   # Valeurs ajoutées à la whitelist par la dernière relance, pour en rendre compte
   # à l'admin : vide tant que relaunch! n'a pas abouti, et pour un mot-clé.
@@ -80,10 +98,7 @@ class BlockedSendAttempt < ApplicationRecord
   # whitelistées avec celles de la tentative relancée, sans quoi le numéro d'un
   # message autorisé pour son URL serait rebloqué au prochain envoi.
   def resolve_other_attempts_for_same_message!
-    siblings = self.class.pending
-                   .where(provider: provider, message_body: message_body, replay_params: replay_params)
-                   .where.not(id: id)
-                   .to_a
+    siblings = self.class.pending.same_message_as(self).to_a
     # `update` et non `update!` : le message est déjà parti, l'échec d'une trace
     # ne doit pas le faire remonter en erreur. Seules les sœurs réellement
     # résolues sont renvoyées : whitelister les valeurs d'une tentative restée
