@@ -29,7 +29,7 @@ RSpec.describe 'Livre « Non envoyé » : numéro erroné → attribution → re
   end
 
   def attribute_books
-    ChildrenSupportModule::SaveBookFromSupportModuleService.new(group_id: group.id).call
+    ChildrenSupportModule::SaveBookFromSupportModuleService.new(group_ids: [group.id]).call
   end
 
   def restart_for_unreachable_number
