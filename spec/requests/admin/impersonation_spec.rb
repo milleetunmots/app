@@ -140,6 +140,9 @@ RSpec.describe 'Admin - se connecter en tant que', type: :request do
     end
 
     it 'laisse consulter la cohorte' do
+      # L'onglet des envois programmés lit Sidekiq : pas de Redis en CI
+      allow(Sidekiq::ScheduledSet).to receive(:new).and_return([])
+
       get "/admin/groups/#{group.id}"
 
       expect(response).to have_http_status(:ok)
