@@ -1,9 +1,10 @@
 // Déroulant de l'avatar des accompagnantes. Le thème stylise tout `a` de #current_user en icône
 // (texte transparent, pictogramme en :before) : les entrées du sous-menu doivent annuler ce style.
 // Pictogrammes Font Awesome « regular » (au trait), comme les icônes de l'encart des rendez-vous.
-=user-menu-icon($glyph)
+=user-menu-icon($glyph, $weight: 400)
   > a:before, > span:before
     content: $glyph
+    font-weight: $weight
 
 #header ul#utility_nav
   li#current_user.has_nested
@@ -87,7 +88,8 @@
         &#rdv_settings
           +user-menu-icon("\f274")
         &#call_statistics
-          +user-menu-icon("\f080")
+          // chart-column n'existe qu'en « solid » dans Font Awesome Free
+          +user-menu-icon("\e0e3", 900)
         &#personal_information
           +user-menu-icon("\f2c2")
 
