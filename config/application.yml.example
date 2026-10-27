@@ -30,3 +30,8 @@ SUPPORTER_ASSIGNMENT_EMAILS: xxx
 #URL_FILTER_BLOCKING_ENABLED: true
 #KEYWORD_FILTER_BLOCKING_ENABLED: true
 #PHONE_NUMBER_FILTER_BLOCKING_ENABLED: true
+
+# Statistiques d'appel : dashboard Metabase embarqué (page « Mes statistiques d'appel »).
+# L'adresse du site et l'id du dashboard sont des constantes de Metabase::GenerateEmbedUrlService.
+# Optionnelle : sans la clef, la page affiche un message d'indisponibilité.
+#METABASE_SECRET_KEY: xxx

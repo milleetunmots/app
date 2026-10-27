@@ -1,0 +1,11 @@
+<div class="panel">
+  <h3>Mes statistiques d'appel</h3>
+  <div class="panel_contents">
+    <% if iframe_url.present? %>
+      <iframe src="<%= iframe_url %>" title="Mes statistiques d'appel" frameborder="0" allowtransparency
+              style="display: block; width: 100%; height: 80vh; border: 0;"></iframe>
+    <% else %>
+      <p>Les statistiques ne sont pas disponibles pour le moment.</p>
+    <% end %>
+  </div>
+</div>

@@ -709,6 +709,7 @@ DEPENDENCIES
   http
   image_processing
   jbuilder (~> 2.5)
+  jwt
   listen (~> 3.8)
   openssl
   paper_trail
