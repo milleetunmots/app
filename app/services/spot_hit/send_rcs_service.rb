@@ -5,9 +5,11 @@ class SpotHit::SendRcsService
 
   URL = URI('https://www.spot-hit.fr/api/envoyer/rcs')
 
-  attr_reader :errors
+  # blocked_send_guard : guard qui a bloqué l'envoi, nil sinon.
+  attr_reader :errors, :blocked_send_guard
 
-  def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil, basic: false, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil, admin_user_id: nil)
+  # defer_block_report : cf. BlockedSendAttempt::SendGuard (création d'atelier).
+  def initialize(recipients:, planned_timestamp: Time.zone.now, media_id: nil, fallback_message: nil, basic: false, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil, admin_user_id: nil, defer_block_report: false)
     @recipients = recipients
     @sent = false
     @planned_timestamp = planned_timestamp
@@ -25,6 +27,7 @@ class SpotHit::SendRcsService
     @replay_params = replay_params
     @blocked_send_attempt_id = blocked_send_attempt_id
     @admin_user_id = admin_user_id
+    @defer_block_report = defer_block_report
   end
 
   def call
@@ -53,11 +56,13 @@ class SpotHit::SendRcsService
       replay_params: @replay_params,
       blocked_send_attempt_id: @blocked_send_attempt_id,
       admin_user_id: @admin_user_id,
-      recipients_count: recipient_variables.size
+      recipients_count: recipient_variables.size,
+      defer_report: @defer_block_report
     )
     if guard.blocked?
       guard.register!
       if guard.block_send?
+        @blocked_send_guard = guard
         @errors << guard.error_message
         return
       end

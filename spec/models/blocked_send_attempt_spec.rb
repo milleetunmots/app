@@ -418,24 +418,43 @@ RSpec.describe BlockedSendAttempt do
     end
   end
 
-  describe "un admin technique relance une invitation d'atelier bloquée" do
+  # Depuis que l'atelier n'est plus créé quand son invitation est bloquée, seules
+  # les tentatives tracées avant ce changement portent un workshop_id rejouable.
+  describe "un admin technique relance une invitation d'atelier bloquée avant l'annulation des ateliers" do
     let_it_be(:animator) { FactoryBot.create(:admin_user, user_role: 'animator') }
-    let(:workshop) do
-      FactoryBot.create(
-        :workshop,
-        animator: animator,
-        parents: [parent],
-        invitation_message: "Atelier parents bébés mardi à la PMI : lecture d'histoires, comptines et jeux. Pour toute information, contactez l'animatrice au 0612345678."
-      )
+    let(:invitation) do
+      "Atelier parents bébés mardi à la PMI : lecture d'histoires, comptines et jeux. Pour toute information, contactez l'animatrice au 0612345678. " \
+        'Pour vous inscrire ou dire que vous ne venez pas, cliquez sur ce lien: {RESPONSE_LINK}'
     end
-
-    before do
-      allow(BlockedSendAttempt::PhoneNumberSendGuard).to receive(:blocking_enabled?).and_return(true)
+    let(:workshop) do
+      allow_any_instance_of(Workshop).to receive(:send_message)
+      FactoryBot.create(:workshop, animator: animator, parents: [parent])
+    end
+    let(:attempt) do
+      FactoryBot.create(
+        :blocked_send_attempt,
+        kind: 'phone_number',
+        detected_values: ['0612345678'],
+        message_body: invitation,
+        replay_params: {
+          planned_date: Time.zone.today.to_s,
+          planned_hour: Time.zone.now.strftime('%H:%M'),
+          recipients: ["parent.#{parent.id}"],
+          message: invitation,
+          rcs_media_id: nil,
+          redirection_target_id: nil,
+          quit_message: nil,
+          workshop_id: workshop.id,
+          supporter: nil,
+          group_status: %w[waiting active paused stopped disengaged],
+          provider: 'spothit',
+          aircall_number_id: nil
+        }
+      )
     end
 
     it "transmet l'invitation avec le lien de réponse et met à jour les participants de l'atelier" do
       expect(workshop.workshop_participations).to be_empty
-      attempt = BlockedSendAttempt.find_by!(kind: 'phone_number')
 
       service = attempt.relaunch!
 

@@ -3,7 +3,7 @@ class ProgramMessageService
   TYPEFORM_URL_REGEX = %r{https://form.typeform.com/[^\s]*#st=[^\s]+}.freeze
   VIDEOASK_URL_REGEX = %r{https://www\.videoask\.com/[^\s]*#st=[^\s]+}.freeze
 
-  attr_reader :errors, :quota_guard
+  attr_reader :errors, :quota_guard, :blocked_send_guard
 
   def initialize(planned_date, planned_hour, recipients, message, rcs_media_id = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil, blocked_send_attempt: nil, acting_admin_user: nil, defer_quota_block_report: false)
     @replay_params = {
@@ -142,7 +142,8 @@ class ProgramMessageService
             event_params: @event_params,
             replay_params: @replay_params,
             blocked_send_attempt_id: @blocked_send_attempt_id,
-            admin_user_id: @acting_admin_user&.id
+            admin_user_id: @acting_admin_user&.id,
+            defer_block_report: @defer_quota_block_report
           ).call
         elsif basic_rcs?
           SpotHit::SendRcsService.new(
@@ -154,7 +155,8 @@ class ProgramMessageService
             event_params: @event_params,
             replay_params: @replay_params,
             blocked_send_attempt_id: @blocked_send_attempt_id,
-            admin_user_id: @acting_admin_user&.id
+            admin_user_id: @acting_admin_user&.id,
+            defer_block_report: @defer_quota_block_report
           ).call
         else
           SpotHit::SendSmsService.new(
@@ -165,7 +167,8 @@ class ProgramMessageService
             event_params: @event_params,
             replay_params: @replay_params,
             blocked_send_attempt_id: @blocked_send_attempt_id,
-            admin_user_id: @acting_admin_user&.id
+            admin_user_id: @acting_admin_user&.id,
+            defer_block_report: @defer_quota_block_report
           ).call
         end
       # Même critère que le quota : les liens de redirection sont partis avec la
@@ -178,6 +181,7 @@ class ProgramMessageService
       # invalide, parent non résolu) : les messages sont bel et bien partis et
       # doivent rester décomptés, sans quoi ils échapperaient au plafond.
       @quota_guard.mark_blocked! unless service.sent?
+      @blocked_send_guard = service.blocked_send_guard
       # `dup` : `report_invalid_parents!` complète ensuite `@errors`, et sans copie
       # ce sont les erreurs du service qu'on modifierait.
       @errors = service.errors.dup if service.errors.any?
@@ -197,6 +201,13 @@ class ProgramMessageService
   # être non vide alors que le message est bien parti.
   def quota_exceeded?
     @quota_exceeded
+  end
+
+  # Même usage pour un message bloqué par le contrôle de contenu : avec
+  # defer_quota_block_report, tâche et alerte ne sont pas émises et l'appelant
+  # signale lui-même l'envoi après son rollback (cf. Workshop).
+  def blocked_send?
+    @blocked_send_guard.present?
   end
 
   protected

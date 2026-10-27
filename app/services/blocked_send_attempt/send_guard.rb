@@ -15,9 +15,17 @@ class BlockedSendAttempt::SendGuard
   # groupes ou enfants. nil quand il n'y a pas de destinataire (modèle RCS).
   attr_reader :recipients_count
 
+  # Tentatives « à traiter » tracées par register! : un appelant qui diffère le
+  # signalement les signale lui-même après son rollback.
+  attr_reader :blocked_attempts
+
   # admin_user_id : auteur d'un envoi manuel, nil pour un envoi automatique.
-  def initialize(text, provider:, extra_texts: [], replay_params: {}, blocked_send_attempt_id: nil, admin_user_id: nil, recipients_count: nil)
+  # defer_report : l'envoi a lieu dans une transaction que l'appelant peut
+  # annuler (création d'atelier) ; tâche et alerte Slack n'y sont pas émises.
+  def initialize(text, provider:, extra_texts: [], replay_params: {}, blocked_send_attempt_id: nil, admin_user_id: nil, recipients_count: nil, defer_report: false)
     @recipients_count = recipients_count
+    @defer_report = defer_report
+    @blocked_attempts = []
 
     # Garde explicite : sur le chemin nominal (pas de relance), l'id est nil
     # et cette requête serait exécutée en pure perte à chaque envoi.
@@ -62,11 +70,8 @@ class BlockedSendAttempt::SendGuard
     return [] if @bypass
 
     attempts = @guards.select(&:blocked?).filter_map(&:register!)
-    blocked_attempts = attempts.select { |attempt| attempt.persisted? && attempt.status == 'pending' }
-    @task = task_for(blocked_attempts)
-    # Une seule alerte par envoi, et seulement à sa première tentative : un
-    # renvoi à l'identique ou un retry Sidekiq retrouve les tentatives existantes.
-    notify_slack(blocked_attempts) if blocked_attempts.any?(&:previously_new_record?)
+    @blocked_attempts = attempts.select { |attempt| attempt.persisted? && attempt.status == 'pending' }
+    report unless @defer_report
     attempts
   end
 
@@ -78,26 +83,10 @@ class BlockedSendAttempt::SendGuard
 
   private
 
-  # Une seule tâche par envoi, quel que soit le nombre de kinds détectés. Un
-  # renvoi à l'identique retrouve ses tentatives par déduplication : on
-  # rattache l'auteur à la tâche déjà ouverte au lieu d'en créer une.
-  def task_for(attempts)
-    return if attempts.empty?
-
-    existing = Task.kept.todo.find_by(related: attempts)
-    return existing if existing
-    return unless attempts.any?(&:previously_new_record?)
-    # Pas d'auteur (envoi automatique) : personne à prévenir.
-    return if attempts.first.admin_user_id.nil?
-
-    service = BlockedSendAttempt::CreateTaskService.new(attempt: attempts.first).call
-    Rollbar.error('BlockedSendAttempt::CreateTaskService', errors: service.errors) if service.errors.any?
-    service.task
-  end
-
-  def notify_slack(attempts)
-    service = BlockedSendAttempt::NotifySlackService.new(attempts: attempts, recipients_count: @recipients_count, task: @task).call
-    Rollbar.error('BlockedSendAttempt::NotifySlackService', errors: service.errors) if service.errors.any?
+  def report
+    service = BlockedSendAttempt::ReportService.new(attempts: @blocked_attempts, recipients_count: @recipients_count).call
+    Rollbar.error('BlockedSendAttempt::ReportService', errors: service.errors) if service.errors.any?
+    @task = service.task
   end
 
   # Le lien ne doit jamais empêcher le blocage : sans DEFAULT_HOSTNAME, les

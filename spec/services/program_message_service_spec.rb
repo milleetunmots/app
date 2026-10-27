@@ -61,7 +61,8 @@ RSpec.describe ProgramMessageService do
           event_params: {},
           replay_params: an_instance_of(Hash),
           blocked_send_attempt_id: nil,
-          admin_user_id: nil
+          admin_user_id: nil,
+          defer_block_report: false
         ).
         and_call_original
       )
@@ -104,7 +105,8 @@ RSpec.describe ProgramMessageService do
           event_params: {},
           replay_params: an_instance_of(Hash),
           blocked_send_attempt_id: nil,
-          admin_user_id: nil
+          admin_user_id: nil,
+          defer_block_report: false
         ).
         and_call_original
       )
@@ -130,7 +132,8 @@ RSpec.describe ProgramMessageService do
           event_params: {},
           replay_params: an_instance_of(Hash),
           blocked_send_attempt_id: nil,
-          admin_user_id: nil
+          admin_user_id: nil,
+          defer_block_report: false
         ).
         and_call_original
       )
@@ -157,7 +160,8 @@ RSpec.describe ProgramMessageService do
           event_params: {},
           replay_params: an_instance_of(Hash),
           blocked_send_attempt_id: nil,
-          admin_user_id: nil
+          admin_user_id: nil,
+          defer_block_report: false
         ).
         and_call_original
       )
@@ -184,7 +188,8 @@ RSpec.describe ProgramMessageService do
           event_params: {},
           replay_params: an_instance_of(Hash),
           blocked_send_attempt_id: nil,
-          admin_user_id: nil
+          admin_user_id: nil,
+          defer_block_report: false
         ).
         and_call_original
       )
@@ -222,7 +227,8 @@ RSpec.describe ProgramMessageService do
           event_params: {},
           replay_params: an_instance_of(Hash),
           blocked_send_attempt_id: nil,
-          admin_user_id: nil
+          admin_user_id: nil,
+          defer_block_report: false
         ).
         and_call_original
       )
@@ -251,7 +257,8 @@ RSpec.describe ProgramMessageService do
           event_params: {},
           replay_params: an_instance_of(Hash),
           blocked_send_attempt_id: nil,
-          admin_user_id: nil
+          admin_user_id: nil,
+          defer_block_report: false
         ).
         and_call_original
       )
@@ -512,7 +519,7 @@ RSpec.describe ProgramMessageService do
     # Même famille que le quota : la campagne est partie, les liens de redirection
     # avec elle, seule l'historisation a échoué.
     it "est incrémenté quand la campagne est partie malgré une erreur d'historisation" do
-      service = instance_double(SpotHit::SendRcsService, errors: ["Impossible d'enregistrer le message dans l'historique : Parent non trouvé"], sent?: true)
+      service = instance_double(SpotHit::SendRcsService, errors: ["Impossible d'enregistrer le message dans l'historique : Parent non trouvé"], sent?: true, blocked_send_guard: nil)
       allow(service).to receive(:call).and_return(service)
       allow(SpotHit::SendRcsService).to receive(:new).and_return(service)
 
@@ -748,7 +755,8 @@ RSpec.describe ProgramMessageService do
         service = instance_double(
           SpotHit::SendRcsService,
           errors: ['Impossible d\'enregistrer le message dans l\'historique : Parent non trouvé pour le numéro de téléphone 0600000000'],
-          sent?: true
+          sent?: true,
+          blocked_send_guard: nil
         )
         allow(service).to receive(:call).and_return(service)
         allow(SpotHit::SendRcsService).to receive(:new).and_return(service)

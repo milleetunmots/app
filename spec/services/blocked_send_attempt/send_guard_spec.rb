@@ -158,7 +158,7 @@ RSpec.describe BlockedSendAttempt::SendGuard do
       expect(guard.block_send?).to be(true)
       expect(BlockedSendAttempt.last.status).to eq('pending')
       expect(guard.error_message).to eq(described_class::BLOCKED_MESSAGE)
-      expect(Rollbar).to have_received(:error).with('BlockedSendAttempt::CreateTaskService', errors: array_including(hash_including(message: "La tâche de l'envoi bloqué n'a pas pu être créée")))
+      expect(Rollbar).to have_received(:error).with('BlockedSendAttempt::ReportService', errors: array_including(hash_including(message: "La tâche de l'envoi bloqué n'a pas pu être créée")))
     end
 
     describe 'alerte Slack' do
@@ -217,8 +217,22 @@ RSpec.describe BlockedSendAttempt::SendGuard do
 
         expect(guard.block_send?).to be(true)
         expect(guard.error_message).to end_with("/admin/tasks/#{Task.last.id}")
-        expect(Rollbar).to have_received(:error).with('BlockedSendAttempt::NotifySlackService', errors: errors)
+        expect(Rollbar).to have_received(:error).with('BlockedSendAttempt::ReportService', errors: errors)
       end
+    end
+
+    # Création d'atelier : l'envoi a lieu dans une transaction que l'appelant
+    # annule, il signale lui-même l'envoi bloqué après son rollback.
+    it 'ne crée ni tâche ni alerte quand le signalement est différé, mais expose les tentatives' do
+      allow(BlockedSendAttempt::NotifySlackService).to receive(:new).and_call_original
+      guard = described_class.new(blocked_text, provider: 'spothit', admin_user_id: author.id, defer_report: true)
+
+      attempts = nil
+      expect { attempts = guard.register! }.not_to change(Task, :count)
+
+      expect(guard.blocked_attempts).to eq(attempts)
+      expect(guard.error_message).to eq(described_class::BLOCKED_MESSAGE)
+      expect(BlockedSendAttempt::NotifySlackService).not_to have_received(:new)
     end
 
     it 'garde le blocage et retire le lien quand l\'URL de la tâche ne peut être construite' do
