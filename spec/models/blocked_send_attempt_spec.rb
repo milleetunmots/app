@@ -260,34 +260,161 @@ RSpec.describe BlockedSendAttempt do
     end
   end
 
-  describe 'un BlockedSendAttempt déjà relancé peut être relancé une seconde fois (aucune garde)' do
-    it 'retransmet le message une seconde fois au destinataire d\'origine sans garde anti-doublon' do
-      FactoryBot.create(:allowed_pattern, kind: 'url', match_type: 'exact', value: blocked_url)
-      attempt = FactoryBot.create(
-        :blocked_send_attempt,
-        provider: 'spothit',
-        status: 'relaunched',
-        resolved_at: Time.zone.now,
-        replay_params: {
-          planned_date: Time.zone.today.to_s,
-          planned_hour: Time.zone.now.strftime('%H:%M'),
-          recipients: ["parent.#{parent.id}"],
-          message: message,
-          rcs_media_id: nil,
-          redirection_target_id: nil,
-          quit_message: false,
-          workshop_id: nil,
-          supporter: nil,
-          group_status: ['active'],
-          provider: 'spothit',
-          aircall_number_id: nil
-        }
-      )
+  # La relance et l'archivage sont les deux issues d'une tentative à traiter :
+  # une tentative déjà traitée ne repart jamais, même relancée depuis la console.
+  describe 'une tentative déjà traitée' do
+    %w[relaunched archived not_blocked].each do |status|
+      it "refuse la relance d'une tentative #{status} sans rien retransmettre" do
+        attempt = FactoryBot.create(:blocked_send_attempt, status: status, replay_params: { recipients: ["parent.#{parent.id}"], message: message })
+
+        attempt.relaunch!
+
+        expect(attempt.errors.full_messages).to eq([described_class::RELAUNCH_REFUSED_MESSAGE])
+        expect(attempt.reload).to have_attributes(status: status, force_send: false)
+        expect(WebMock).not_to have_requested(:post, %r{https://www\.spot-hit\.fr})
+      end
+    end
+  end
+
+  describe '#archive!' do
+    let_it_be(:super_admin) { FactoryBot.create(:admin_user, user_role: 'super_admin') }
+
+    it "clôt l'envoi sans rien transmettre au provider" do
+      send_program_message!
+      attempt = described_class.last
+
+      attempt.archive!(admin_user: super_admin)
+
+      expect(attempt.errors).to be_empty
+      expect(attempt.reload.status).to eq('archived')
+      expect(attempt.resolved_at).to be_present
+      expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+    end
+
+    it 'archive un envoi automatique, qui ne peut pas être relancé' do
+      attempt = FactoryBot.create(:blocked_send_attempt, replay_params: {})
+
+      attempt.archive!
+
+      expect(attempt.reload.status).to eq('archived')
+    end
+
+    it "n'ajoute rien à la whitelist" do
+      attempt = FactoryBot.create(:blocked_send_attempt)
+
+      expect { attempt.archive! }.not_to change(AllowedPattern, :count)
+    end
+
+    it 'archive avec lui les tentatives sœurs du même envoi' do
+      attempt = FactoryBot.create(:blocked_send_attempt, kind: 'url')
+      sibling = FactoryBot.create(:blocked_send_attempt, kind: 'keyword', detected_values: ['carte cadeau'])
+      other = FactoryBot.create(:blocked_send_attempt, message_body: 'Autre message')
+
+      attempt.archive!
+
+      expect(sibling.reload.status).to eq('archived')
+      expect(other.reload.status).to eq('pending')
+    end
+
+    %w[relaunched archived not_blocked].each do |status|
+      it "refuse d'archiver une tentative #{status}" do
+        attempt = FactoryBot.create(:blocked_send_attempt, status: status)
+
+        attempt.archive!
+
+        expect(attempt.errors.full_messages).to eq([described_class::ARCHIVE_REFUSED_MESSAGE])
+        expect(attempt.reload.status).to eq(status)
+      end
+    end
+
+    # Relance et archivage simultanés : la relance a réservé la tentative, le
+    # message est peut-être déjà parti.
+    it "refuse d'archiver une tentative réservée par une relance en cours" do
+      attempt = FactoryBot.create(:blocked_send_attempt, force_send: true)
+
+      attempt.archive!
+
+      expect(attempt.errors.full_messages).to eq([described_class::ARCHIVE_REFUSED_MESSAGE])
+      expect(attempt.reload.status).to eq('pending')
+    end
+  end
+
+  describe 'relance et archivage simultanés' do
+    it "refuse la relance d'une tentative archivée entre-temps" do
+      send_program_message!
+      attempt = described_class.last
+      described_class.find(attempt.id).archive!
 
       attempt.relaunch!
 
+      expect(attempt.errors.full_messages).to eq([described_class::RELAUNCH_REFUSED_MESSAGE])
+      expect(attempt.reload.status).to eq('archived')
+      expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+    end
+
+    it "lève la réservation quand la relance échoue : l'envoi reste archivable" do
+      send_program_message!
+      attempt = described_class.last
+      failing = instance_double(ProgramMessageService, errors: ['Aucun parent à contacter.'])
+      allow(ProgramMessageService).to receive(:new).and_return(failing)
+      allow(failing).to receive(:call).and_return(failing)
+
+      attempt.relaunch!
+
+      expect(attempt.reload).to have_attributes(status: 'pending', force_send: false)
+      expect(attempt.archive!.errors).to be_empty
+    end
+  end
+
+  describe 'clôture de la tâche de suivi' do
+    let_it_be(:super_admin) { FactoryBot.create(:admin_user, user_role: 'super_admin') }
+    let(:author) { FactoryBot.create(:admin_user, user_role: 'caller') }
+    let(:attempt) { FactoryBot.create(:blocked_send_attempt, admin_user: author, replay_params: { recipients: ["parent.#{parent.id}"], message: message, provider: 'spothit', group_status: ['active'] }, message_body: message) }
+    let!(:task) { BlockedSendAttempt::CreateTaskService.new(attempt: attempt).call.task }
+
+    it 'clôt la tâche quand la relance aboutit, au nom du super_admin' do
+      attempt.relaunch!(admin_user: super_admin)
+
+      expect(task.reload).to have_attributes(status: 'done', treated_by: super_admin)
+      expect(task.description).to include('Relancé le')
+    end
+
+    it 'laisse la tâche ouverte quand la relance échoue' do
+      failing = instance_double(ProgramMessageService, errors: ['Aucun parent à contacter.'])
+      allow(ProgramMessageService).to receive(:new).and_return(failing)
+      allow(failing).to receive(:call).and_return(failing)
+
+      attempt.relaunch!(admin_user: super_admin)
+
+      expect(task.reload.done_at).to be_nil
+    end
+
+    it "clôt la tâche avec la mention « non relancé » à l'archivage" do
+      attempt.archive!(admin_user: super_admin)
+
+      expect(task.reload).to have_attributes(status: 'done', treated_by: super_admin)
+      expect(task.description).to include("Non relancé : le message n'a pas été envoyé")
+    end
+
+    it "rapporte l'échec de la clôture sans annuler la relance" do
+      errors = [{ message: "La tâche de l'envoi bloqué n'a pas pu être close", context: {} }]
+      resolver = instance_double(BlockedSendAttempt::ResolveTaskService, errors: errors)
+      allow(resolver).to receive(:call).and_return(resolver)
+      allow(BlockedSendAttempt::ResolveTaskService).to receive(:new).and_return(resolver)
+      allow(Rollbar).to receive(:error)
+
+      attempt.relaunch!(admin_user: super_admin)
+
       expect(attempt.reload.status).to eq('relaunched')
-      expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').once
+      expect(Rollbar).to have_received(:error).with('BlockedSendAttempt::ResolveTaskService', errors: errors)
+    end
+
+    it 'relance quand même un envoi dont la tâche a été supprimée par un admin' do
+      task.discard
+
+      attempt.relaunch!(admin_user: super_admin)
+
+      expect(attempt.reload.status).to eq('relaunched')
     end
   end
 

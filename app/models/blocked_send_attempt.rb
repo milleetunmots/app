@@ -33,6 +33,9 @@ class BlockedSendAttempt < ApplicationRecord
   # archived : clos par un super_admin sans relance, le message n'est jamais parti.
   STATUSES = %w[pending relaunched not_blocked archived].freeze
 
+  RELAUNCH_REFUSED_MESSAGE = 'Seules les tentatives à traiter peuvent être relancées.'.freeze
+  ARCHIVE_REFUSED_MESSAGE = 'Seules les tentatives à traiter peuvent être archivées.'.freeze
+
   # Auteur de l'envoi manuel ; nil pour un envoi automatique ou une tentative
   # antérieure à la colonne.
   belongs_to :admin_user, optional: true
@@ -67,28 +70,77 @@ class BlockedSendAttempt < ApplicationRecord
     replay_params.present?
   end
 
-  def relaunch!
+  # admin_user : super_admin qui relance, renseigné comme ayant traité la tâche.
+  def relaunch!(admin_user: nil)
     unless replayable?
       errors.add(:base, "Impossible de relancer : cette tentative provient d'un envoi automatique sans paramètres de relance.")
       return self
     end
-
-    # Doit être persisté avant le replay : le blocage réel a lieu plus tard, dans
-    # le job d'envoi, qui relit la tentative depuis la base via son id.
-    update!(force_send: true)
+    return self unless reserve_for_relaunch!
 
     service = SendAttemptReplayer.new(self).call
-    return service if service.errors.any? # échec pour une autre raison : statut inchangé
+    if service.errors.any? # échec pour une autre raison : statut inchangé
+      # La réservation est levée pour que l'envoi reste relançable ou archivable.
+      update!(force_send: false)
+      return service
+    end
 
     update!(status: 'relaunched', resolved_at: Time.zone.now)
     siblings = resolve_other_attempts_for_same_message!
     # Après le replay seulement : si l'envoi avait échoué, la tentative reste à
     # traiter et la whitelist ne doit pas en garder la trace.
     @whitelisted_values = DetectedValuesWhitelister.new([self] + siblings).call
+    resolve_task!(:relaunched, admin_user)
     service
   end
 
+  # Clôt l'envoi sans le relancer : le message ne part jamais. Les tentatives
+  # sœurs du même envoi sont archivées avec lui.
+  def archive!(admin_user: nil)
+    archived = with_lock do
+      # force_send : une relance a réservé la tentative et le message est peut-être déjà parti.
+      if status == 'pending' && !force_send
+        update!(status: 'archived', resolved_at: Time.zone.now)
+      else
+        errors.add(:base, ARCHIVE_REFUSED_MESSAGE)
+        false
+      end
+    end
+    return self unless archived
+
+    # `update` et non `update!`, comme pour la relance : la trace d'une sœur ne
+    # doit pas faire échouer l'archivage déjà acté.
+    self.class.pending.same_message_as(self).where(force_send: false).find_each do |sibling|
+      sibling.update(status: 'archived', resolved_at: Time.zone.now)
+    end
+    resolve_task!(:archived, admin_user)
+    self
+  end
+
   private
+
+  # Relance et archivage sont les deux issues d'une tentative « à traiter » : la
+  # relance réserve la tentative sous verrou, l'archivage refuse ensuite une
+  # tentative réservée. force_send doit de toute façon être persisté avant le
+  # replay : le blocage réel a lieu plus tard, dans le job d'envoi, qui relit la
+  # tentative depuis la base via son id.
+  def reserve_for_relaunch!
+    with_lock do
+      if status == 'pending'
+        update!(force_send: true)
+      else
+        errors.add(:base, RELAUNCH_REFUSED_MESSAGE)
+        false
+      end
+    end
+  end
+
+  # Prévient l'auteur. Le sort de l'envoi est déjà acté : un échec de la tâche
+  # est rapporté, jamais remonté.
+  def resolve_task!(outcome, admin_user)
+    service = ResolveTaskService.new(attempt: self, outcome: outcome, admin_user: admin_user).call
+    Rollbar.error('BlockedSendAttempt::ResolveTaskService', errors: service.errors) if service.errors.any?
+  end
 
   # Un même message peut être tracé deux fois (une URL ET un mot-clé détectés) :
   # la relance l'a envoyé une bonne fois pour toutes, l'autre tentative ne doit

@@ -15,6 +15,11 @@ module ActiveAdmin::BlockedSendAttemptsHelper
     end
   end
 
+  # L'archivage est définitif et prévient l'auteur : il est confirmé avant d'être appliqué.
+  def blocked_send_attempt_archive_confirm
+    "Archiver cet envoi ? Le message ne sera jamais envoyé et l'auteur en sera informé dans sa tâche."
+  end
+
   def blocked_send_attempt_relaunch_notice(whitelisted_values)
     return "L'envoi a été relancé." if whitelisted_values.empty?
 

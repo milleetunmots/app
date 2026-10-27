@@ -2,7 +2,9 @@ require 'rails_helper'
 
 RSpec.describe 'Admin blocked send attempts', type: :request do
   describe 'en tant que super_admin' do
-    before { sign_in FactoryBot.create(:admin_user, user_role: 'super_admin') }
+    let(:super_admin) { FactoryBot.create(:admin_user, user_role: 'super_admin') }
+
+    before { sign_in super_admin }
 
     it 'liste les tentatives à traiter et affiche le détail' do
       attempt = FactoryBot.create(:blocked_send_attempt)
@@ -123,6 +125,64 @@ RSpec.describe 'Admin blocked send attempts', type: :request do
       get '/admin/blocked_send_attempts'
       expect(response.body).not_to include('archivee.example.com')
     end
+
+    describe 'archivage' do
+      it 'propose « Archiver » pour une tentative à traiter, même non relançable' do
+        attempt = FactoryBot.create(:blocked_send_attempt, replay_params: {})
+
+        get '/admin/blocked_send_attempts'
+        expect(response.body).to include("/admin/blocked_send_attempts/#{attempt.id}/archive")
+
+        get "/admin/blocked_send_attempts/#{attempt.id}"
+        expect(response.body).to include('Archiver sans envoyer')
+        expect(response.body).not_to include('Relancer cet envoi')
+      end
+
+      it "ne propose pas d'archiver une tentative déjà traitée" do
+        attempt = FactoryBot.create(:blocked_send_attempt, status: 'relaunched')
+
+        get "/admin/blocked_send_attempts/#{attempt.id}"
+
+        expect(response.body).not_to include('Archiver sans envoyer')
+      end
+
+      it "archive l'envoi, n'envoie rien et clôt la tâche de l'auteur" do
+        author = FactoryBot.create(:admin_user, user_role: 'caller')
+        attempt = FactoryBot.create(:blocked_send_attempt, admin_user: author)
+        task = BlockedSendAttempt::CreateTaskService.new(attempt: attempt).call.task
+        expect(ProgramMessageService).not_to receive(:new)
+
+        put "/admin/blocked_send_attempts/#{attempt.id}/archive"
+
+        expect(attempt.reload.status).to eq('archived')
+        expect(task.reload).to have_attributes(status: 'done', treated_by: super_admin)
+        expect(flash[:notice]).to eq("L'envoi a été archivé : le message ne sera pas envoyé.")
+      end
+
+      %w[relaunched archived not_blocked].each do |status|
+        it "refuse d'archiver une tentative #{status}" do
+          attempt = FactoryBot.create(:blocked_send_attempt, status: status)
+
+          put "/admin/blocked_send_attempts/#{attempt.id}/archive"
+
+          expect(attempt.reload.status).to eq(status)
+          expect(flash[:alert]).to eq(BlockedSendAttempt::ARCHIVE_REFUSED_MESSAGE)
+        end
+      end
+    end
+
+    it "clôt la tâche de l'auteur au nom du super_admin quand la relance aboutit" do
+      author = FactoryBot.create(:admin_user, user_role: 'caller')
+      attempt = FactoryBot.create(:blocked_send_attempt, admin_user: author)
+      task = BlockedSendAttempt::CreateTaskService.new(attempt: attempt).call.task
+      service = instance_double(ProgramMessageService, errors: [])
+      allow(ProgramMessageService).to receive(:new).and_return(service)
+      allow(service).to receive(:call).and_return(service)
+
+      put "/admin/blocked_send_attempts/#{attempt.id}/relaunch"
+
+      expect(task.reload).to have_attributes(status: 'done', treated_by: super_admin)
+    end
   end
 
   %w[contributor reader caller animator].each do |role|
@@ -138,6 +198,14 @@ RSpec.describe 'Admin blocked send attempts', type: :request do
         attempt = FactoryBot.create(:blocked_send_attempt)
 
         put "/admin/blocked_send_attempts/#{attempt.id}/relaunch"
+
+        expect(attempt.reload.status).to eq('pending')
+      end
+
+      it 'ne peut pas archiver un envoi bloqué' do
+        attempt = FactoryBot.create(:blocked_send_attempt)
+
+        put "/admin/blocked_send_attempts/#{attempt.id}/archive"
 
         expect(attempt.reload.status).to eq('pending')
       end
