@@ -95,9 +95,12 @@ class ChildrenSupportModule < ApplicationRecord
   end
 
   # Le livre de ce module partira-t-il chez la famille ? Règle unique partagée par l'export
-  # logistique (pour exclure) et l'attribution des livres (pour marquer « Non envoyé »)
+  # logistique (pour exclure) et l'attribution des livres (pour marquer « Non envoyé »).
+  # Un livre déjà « Non envoyé » ne repart que par le SAV, même une fois l'adresse validée.
   def shippable?
-    child.group_status == 'active' && child.child_support&.address_suspected_invalid_at.nil?
+    book_condition != NOT_SENT &&
+      child.group_status == 'active' &&
+      child.child_support&.address_suspected_invalid_at.nil?
   end
 
   def available_support_modules

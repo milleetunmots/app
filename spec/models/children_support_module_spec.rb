@@ -71,6 +71,13 @@ RSpec.describe ChildrenSupportModule, type: :model do
       end
     end
 
+    # un livre déjà « Non envoyé » ne repart que par le SAV, même une fois l'adresse validée
+    it 'est faux quand le livre est déjà « Non envoyé »' do
+      children_support_module.book_condition = 'not_sent'
+
+      expect(children_support_module).not_to be_shippable
+    end
+
     # comme le LEFT JOIN de chosen_modules_for_group : sans fiche, pas d'adresse suspecte
     it 'est vrai pour un enfant actif sans fiche de suivi' do
       child.update_column(:child_support_id, nil)
