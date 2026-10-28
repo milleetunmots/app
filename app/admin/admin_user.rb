@@ -111,6 +111,12 @@ ActiveAdmin.register AdminUser do
     parameters
   end
 
+  action_item :impersonate, only: :show do
+    if Ability.new(true_admin_user, read_only: false).can?(:impersonate, resource)
+      link_to('Se connecter en tant que', admin_impersonation_path(resource), method: :post)
+    end
+  end
+
   action_item :disable, only: :show do
     unless resource.is_disabled? || current_admin_user.eql?(resource) || !authorized?(:disable, resource)
       link_to('Désactiver le compte', disable_admin_admin_user_path(resource), method: :put)

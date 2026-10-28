@@ -3,7 +3,22 @@
 class Ability
   include CanCan::Ability
 
-  def initialize(user)
+  # Droits conservés pendant une simulation de connexion (« Se connecter en tant que »).
+  # :edit, :update et :update_sensitive_information n'y sont que pour afficher les formulaires
+  # d'édition, que les accompagnantes utilisent comme fiche : l'enregistrement est refusé
+  # par ApplicationController#enforce_read_only_impersonation. Les pages ActiveAdmin
+  # (ActiveAdmin::Page) gardent leurs droits : leurs actions à effet de bord sont toutes
+  # en POST ou DELETE, donc refusées au même endroit.
+  IMPERSONATION_ACTIONS = %i[
+    read edit update autocomplete read_content
+    read_sensitive_information update_sensitive_information
+    send_message_to_parent1 send_message_to_parent2
+  ].freeze
+
+  # Par défaut, l'Ability suit le contexte de la requête : ActiveAdmin l'instancie lui-même
+  # avec le seul utilisateur courant.
+  def initialize(user, read_only: Current.impersonating?)
+    @read_only = read_only
     return if user.blank? || user.is_disabled?
 
     can :read, ActiveAdmin::Page, name: 'Search'
@@ -14,6 +29,9 @@ class Ability
       can :manage, :all
       # Réservée aux accompagnantes : le can :manage, :all ouvrirait sinon la page au super_admin
       cannot :manage, ActiveAdmin::Page, name: "Mes statistiques d'appel"
+      # Ni un autre super admin (ses droits seraient les mêmes, sa vision aussi), ni un compte désactivé
+      cannot :impersonate, AdminUser, user_role: 'super_admin'
+      cannot :impersonate, AdminUser, is_disabled: true
       cannot :read_sensitive_information, ChildSupport
       cannot :update_sensitive_information, ChildSupport
       cannot :update_ok_for_solicitation, ChildSupport
@@ -155,6 +173,14 @@ class Ability
     while subject.is_a?(Draper::Decorator)
       subject = subject.model
     end
+    return false if @read_only && !impersonation_permits?(action, subject)
+
     super(action, subject, *extra_args)
+  end
+
+  private
+
+  def impersonation_permits?(action, subject)
+    subject.is_a?(ActiveAdmin::Page) || action.to_sym.in?(IMPERSONATION_ACTIONS)
   end
 end

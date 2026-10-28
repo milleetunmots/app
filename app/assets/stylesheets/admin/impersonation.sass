@@ -1,0 +1,22 @@
+@import variables
+
+// Bandeau de la simulation de connexion : toujours visible, pour qu'on ne
+// confonde jamais la vue simulée avec la sienne.
+.impersonation-banner
+  position: sticky
+  top: 0
+  z-index: 1000
+  display: flex
+  align-items: center
+  justify-content: space-between
+  padding: 12px 20px
+  background-color: $violet
+  color: white
+
+  .impersonation-banner__exit
+    flex-shrink: 0
+    margin-left: 20px
+    color: white
+    font-weight: bold
+    text-decoration: underline
+    white-space: nowrap

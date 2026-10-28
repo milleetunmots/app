@@ -86,6 +86,7 @@ gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem "activeadmin", "~> 2.14.0"
 gem "devise", "~> 4.9.0"
 gem "cancancan"
+gem "pretender"
 gem "draper"
 gem "arctic_admin"
 
@@ -173,3 +174,4 @@ group :production do
   # for assets compilation
   gem "activerecord-nulldb-adapter"
 end
+

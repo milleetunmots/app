@@ -1,0 +1,6 @@
+<div class="impersonation-banner" data-exit-path="<%= admin_stop_impersonation_path %>">
+  <span>
+    Vous consultez la base famille en tant que <strong><%= current_admin_user.name %></strong>, en lecture seule.
+  </span>
+  <%= link_to 'Quitter la simulation', admin_stop_impersonation_path, method: :delete, class: 'impersonation-banner__exit' %>
+</div>

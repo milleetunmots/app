@@ -235,4 +235,44 @@ RSpec.describe Ability, type: :model do
       end
     end
   end
+
+  describe "simulation de connexion (impersonate)" do
+    let(:accompagnante) { FactoryBot.create(:admin_user, user_role: 'caller') }
+
+    it 'est réservée aux super admins' do
+      expect(Ability.new(FactoryBot.create(:admin_user, user_role: 'super_admin')).can?(:impersonate, accompagnante)).to be(true)
+
+      (AdminUser::ROLES - %w[super_admin]).each do |role|
+        expect(Ability.new(FactoryBot.create(:admin_user, user_role: role)).can?(:impersonate, accompagnante)).to be(false)
+      end
+    end
+
+    it "ne vise ni un super admin ni un compte désactivé" do
+      ability = Ability.new(FactoryBot.create(:admin_user, user_role: 'super_admin'))
+
+      expect(ability.can?(:impersonate, FactoryBot.build_stubbed(:admin_user, user_role: 'super_admin'))).to be(false)
+      expect(ability.can?(:impersonate, FactoryBot.build_stubbed(:admin_user, user_role: 'caller', is_disabled: true))).to be(false)
+    end
+
+    describe 'en lecture seule' do
+      let(:contributrice) { FactoryBot.create(:admin_user, user_role: 'contributor') }
+      let(:ability) { Ability.new(contributrice, read_only: true) }
+      let(:group) { FactoryBot.build_stubbed(:group) }
+
+      it 'garde la consultation et l’affichage des formulaires' do
+        expect(ability.can?(:read, group)).to be(true)
+        expect(ability.can?(:edit, group)).to be(true)
+      end
+
+      it 'retire les actions custom et les suppressions' do
+        expect(ability.can?(:program, group)).to be(false)
+        expect(ability.can?(:destroy, group)).to be(false)
+        expect(ability.can?(:create, Group)).to be(false)
+      end
+
+      it "ne donne rien que le compte simulé n'a pas" do
+        expect(Ability.new(accompagnante, read_only: true).can?(:read, group)).to be(false)
+      end
+    end
+  end
 end
