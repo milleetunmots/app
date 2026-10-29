@@ -314,13 +314,17 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
     end
 
     def received_event(campaign_id:, user_id:, text: 'Bonjour')
+      content_event(campaign_id: campaign_id, user_id: user_id, content: { 'text' => text })
+    end
+
+    def content_event(campaign_id:, user_id:, content:)
       {
         'on' => '2026-10-29T10:00:00Z',
         'userMessageReceived' => {
           'channelId' => 'rcs',
           'userId' => user_id,
           'context' => { 'campaign_id' => campaign_id },
-          'content' => { 'text' => text }
+          'content' => content
         }
       }
     end
@@ -502,6 +506,78 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
         expect do
           subject.perform_now(payload(received_event(campaign_id: '45878', user_id: unknown_phone_number)))
         end.not_to change(Events::TextMessage, :count)
+      end
+    end
+
+    context 'quand le parent répond autrement que par un message écrit' do
+      {
+        'postback' => { 'postback' => { 'buttonType' => 'openUrl', 'text' => 'Je vote pour 1001mots', 'payload' => 'c1_a1' } },
+        'media' => { 'media' => { 'type' => 'image/png', 'source' => 'https://exemple.fr/photo.png' } },
+        'location' => { 'location' => { 'latitude' => 48.82, 'longitude' => 2.23 } },
+        'typing' => { 'typing' => {} },
+        'optin' => { 'optin' => { 'text' => 'Get Started' } }
+      }.each do |type, content|
+        it "ignore le contenu #{type} sans alerte Rollbar" do
+          expect(Rollbar).not_to receive(:error)
+          expect do
+            subject.perform_now(payload(content_event(campaign_id: '45878', user_id: ines.phone_number, content: content)))
+          end.not_to change(Events::TextMessage, :count)
+        end
+      end
+
+      it 'lève une alerte dédiée pour une désinscription RCS, sans toucher au parent' do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: RCS opt-out non traité', hash_including(:event_content))
+          .once
+        expect do
+          subject.perform_now(
+            payload(content_event(campaign_id: '45878', user_id: ines.phone_number, content: { 'optout' => { 'text' => 'STOP' } }))
+          )
+        end.not_to change(Events::TextMessage, :count)
+        expect(ines.reload.updated_at).to eq(ines.updated_at)
+      end
+
+      it 'lève une alerte pour un type de contenu que l\'app ne connaît pas' do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: message received unsupported content', hash_including(:event_content))
+          .once
+        expect do
+          subject.perform_now(
+            payload(content_event(campaign_id: '45878', user_id: ines.phone_number, content: { 'sticker' => { 'id' => '42' } }))
+          )
+        end.not_to change(Events::TextMessage, :count)
+      end
+
+      it 'crée la réaction emoji comme une réponse texte, sans alerte Rollbar' do
+        expect(Rollbar).not_to receive(:error)
+        expect do
+          subject.perform_now(
+            payload(
+              content_event(campaign_id: '45878', user_id: ines.phone_number, content: { 'text' => '👍', 'isReaction' => true })
+            )
+          )
+        end.to change { Events::TextMessage.where(related: ines, originated_by_app: false, body: '👍').count }.by(1)
+      end
+    end
+
+    context 'quand un lot mêle bruit et anomalie' do
+      it "traite chaque événement et ne lève que l'alerte de l'anomalie" do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: parent not found', hash_including(:event_content))
+          .once
+        subject.perform_now(
+          payload(
+            status_event(campaign_id: '82177', user_id: ines.phone_number, status: 'READ'),
+            content_event(
+              campaign_id: '45878',
+              user_id: ines.phone_number,
+              content: { 'postback' => { 'buttonType' => 'openUrl', 'text' => 'Je vote pour 1001mots', 'payload' => 'c1_a1' } }
+            ),
+            status_event(campaign_id: '45878', user_id: unknown_phone_number),
+            status_event(campaign_id: '45878', user_id: ines.phone_number)
+          )
+        )
+        expect(ines_text_message.reload.spot_hit_status).to eq(1) # Livré
       end
     end
   end

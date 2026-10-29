@@ -43,6 +43,10 @@ class Events::TextMessage
       INTERNAL_OTHER_ISSUE
     ].freeze
 
+    # Contenus entrants sans texte qui ne sont pas des réponses écrites (clic sur
+    # un bouton, saisie en cours…) : on ne les historise pas.
+    SILENT_CONTENT_TYPES = %w[postback media location typing optin].freeze
+
     def perform(payload)
       Array.wrap(payload['events']).each do |event|
         event_content = event['messageStatusChanged'] || event['userMessageReceived']
@@ -197,7 +201,7 @@ class Events::TextMessage
 
       text = event_content.dig('content', 'text')
       unless text
-        Rollbar.error('spot_hit_rcs_data: message received text not found', event_content: event_content)
+        report_content_without_text(event_content)
         return
       end
 
@@ -212,6 +216,19 @@ class Events::TextMessage
         }
       )
       Rollbar.error('spot_hit_rcs_data: message received text_message not created', event_content: event_content, errors: text_message.errors) unless text_message.save
+    end
+
+    # Les modèles RCS de l'app désactivent le STOP : une désinscription RCS vient
+    # d'une campagne manuelle et n'arrête pas le parent, d'où une alerte dédiée.
+    def report_content_without_text(event_content)
+      content_types = event_content['content'].keys
+      return if content_types.intersect?(SILENT_CONTENT_TYPES)
+
+      if content_types.include?('optout')
+        Rollbar.error('spot_hit_rcs_data: RCS opt-out non traité', event_content: event_content)
+      else
+        Rollbar.error('spot_hit_rcs_data: message received unsupported content', event_content: event_content)
+      end
     end
   end
 end
