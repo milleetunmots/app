@@ -65,8 +65,9 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
     context 'when a retrograde status arrives on the rcs channel' do
       let(:initial_status) { 1 } # Livré
 
-      it 'reports to Rollbar and keeps the current status' do
-        expect(Rollbar).to receive(:error).with('spot_hit_rcs_data: retrograde rcs status', anything)
+      # SpotHit ne garantit pas l'ordre des événements : c'est un cas normal.
+      it 'garde le statut courant sans alerte Rollbar' do
+        expect(Rollbar).not_to receive(:error)
         subject.perform_now(payload(status: 'SENT', channel_id: 'rcs'))
         expect(text_message.reload.spot_hit_status).to eq(1)
       end
@@ -87,8 +88,8 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
     context 'when a retrograde status arrives on the fallback channel and the message is not failed' do
       let(:initial_status) { 1 } # Livré
 
-      it 'reports to Rollbar and keeps the current status' do
-        expect(Rollbar).to receive(:error).with('spot_hit_rcs_data: retrograde rcs status', anything)
+      it 'garde le statut courant sans alerte Rollbar' do
+        expect(Rollbar).not_to receive(:error)
         subject.perform_now(payload(status: 'SENT', channel_id: 'fallback'))
         expect(text_message.reload.spot_hit_status).to eq(1)
       end

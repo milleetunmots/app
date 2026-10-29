@@ -175,13 +175,9 @@ class Events::TextMessage
       event_status = Event::SPOT_HIT_STATUS[spot_hit_status]
       retrograde = Event::SPOT_HIT_STATUS_ORDERED.index(text_message_status) > Event::SPOT_HIT_STATUS_ORDERED.index(event_status)
       fallback_after_failure = event_content['channelId'] == 'fallback' && text_message_status == 'Échec'
-      if retrograde && !fallback_after_failure
-        Rollbar.error('spot_hit_rcs_data: retrograde rcs status',
-                      event_content: event_content,
-                      text_message_spot_hit_status: text_message.spot_hit_status,
-                      event_status: spot_hit_status)
-        return
-      end
+      # SpotHit ne garantit pas l'ordre chronologique des événements : un statut
+      # moins avancé que le statut courant est attendu, on le laisse de côté.
+      return if retrograde && !fallback_after_failure
 
       attributes = { spot_hit_status: spot_hit_status }
       attributes[:is_fallback] = true if event_content['channelId'] == 'fallback'
