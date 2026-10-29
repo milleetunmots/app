@@ -286,4 +286,113 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
       end
     end
   end
+
+  describe 'alertes Rollbar sur les campagnes' do
+    let!(:ines) { FactoryBot.create(:parent, phone_number: '+33612345678') }
+    let!(:marc) { FactoryBot.create(:parent, phone_number: '+33698765432') }
+    let!(:ines_text_message) do
+      FactoryBot.create(
+        :text_message,
+        related: ines,
+        message_provider: 'spot_hit',
+        spot_hit_rcs_id: '45878',
+        spot_hit_status: 2 # Envoyé
+      )
+    end
+    let(:unknown_phone_number) { '+33700000000' }
+
+    def status_event(campaign_id:, user_id:, status: 'DELIVERED')
+      {
+        'messageStatusChanged' => {
+          'status' => status,
+          'channelId' => 'rcs',
+          'userId' => user_id,
+          'context' => { 'campaign_id' => campaign_id }
+        }
+      }
+    end
+
+    def received_event(campaign_id:, user_id:, text: 'Bonjour')
+      {
+        'on' => '2026-10-29T10:00:00Z',
+        'userMessageReceived' => {
+          'channelId' => 'rcs',
+          'userId' => user_id,
+          'context' => { 'campaign_id' => campaign_id },
+          'content' => { 'text' => text }
+        }
+      }
+    end
+
+    def payload(*events)
+      { 'events' => events }
+    end
+
+    context "quand la campagne n'a pas été envoyée par l'app" do
+      [
+        ['READ', '+33612345678'],
+        ['DELIVERED', '+33700000000'],
+        ['DELIVERY_FAILED', '+33612345678']
+      ].each do |status, phone_number|
+        it "ignore le statut #{status} pour #{phone_number} sans alerte Rollbar" do
+          expect(Rollbar).not_to receive(:error)
+          subject.perform_now(payload(status_event(campaign_id: '82177', user_id: phone_number, status: status)))
+          expect(ines_text_message.reload.spot_hit_status).to eq(2)
+        end
+      end
+
+      it "crée la réponse texte d'un parent connu sans alerte Rollbar" do
+        expect(Rollbar).not_to receive(:error)
+        expect do
+          subject.perform_now(payload(received_event(campaign_id: '82177', user_id: ines.phone_number)))
+        end.to change { Events::TextMessage.where(related: ines, originated_by_app: false, body: 'Bonjour').count }.by(1)
+      end
+
+      it "ignore la réponse d'un numéro hors base sans alerte Rollbar" do
+        expect(Rollbar).not_to receive(:error)
+        expect do
+          subject.perform_now(payload(received_event(campaign_id: '82177', user_id: unknown_phone_number)))
+        end.not_to change(Events::TextMessage, :count)
+      end
+
+      it 'ignore le statut même si une réponse entrante porte déjà la campagne' do
+        Events::TextMessage.create!(
+          related: ines,
+          body: 'Réponse précédente',
+          spot_hit_rcs_id: '82177',
+          spot_hit_status: 1,
+          occurred_at: 1.day.ago,
+          originated_by_app: false
+        )
+
+        expect(Rollbar).not_to receive(:error)
+        subject.perform_now(payload(status_event(campaign_id: '82177', user_id: ines.phone_number, status: 'READ')))
+      end
+    end
+
+    context "quand la campagne a été envoyée par l'app" do
+      it "lève une seule alerte si aucun event n'existe pour ce parent" do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: text_message not found for known campaign', hash_including(:event_content))
+          .once
+        subject.perform_now(payload(status_event(campaign_id: '45878', user_id: marc.phone_number)))
+      end
+
+      it "lève une seule alerte « parent not found » pour un statut d'un numéro hors base" do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: parent not found', hash_including(:event_content))
+          .once
+        subject.perform_now(payload(status_event(campaign_id: '45878', user_id: unknown_phone_number)))
+      end
+
+      it "lève une seule alerte « parent not found » pour une réponse d'un numéro hors base" do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: parent not found', hash_including(:event_content))
+          .once
+        expect do
+          subject.perform_now(payload(received_event(campaign_id: '45878', user_id: unknown_phone_number)))
+        end.not_to change(Events::TextMessage, :count)
+      end
+    end
+  end
 end

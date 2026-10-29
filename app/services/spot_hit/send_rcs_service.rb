@@ -101,12 +101,12 @@ class SpotHit::SendRcsService
       create_events(body['campaign_id'])
     else
       report_api_failure(
-        'SpotHit::SendRcsService — campagne refusée',
+        'SpotHit::SendRcsService : campagne refusée',
         response,
         recipients_count: recipient_variables.size,
         rcs_type: @form['rcs_type']
       )
-      @errors << "Erreur lors de la programmation de la campagne : #{json_error_message(response, body)}"
+      @errors << "Erreur lors de la programmation de la campagne RCS : #{json_error_message(response, body)}"
     end
   end
 

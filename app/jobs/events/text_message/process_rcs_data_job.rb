@@ -92,7 +92,7 @@ class Events::TextMessage
       # bloqué en attente.
       parent_ids = Parent.where(phone_number: phone).ids
       if parent_ids.empty?
-        Rollbar.error('spot_hit_rcs_data: parent not found', event_content: event_content)
+        Rollbar.error('spot_hit_rcs_data: parent not found', event_content: event_content) if known_campaign?(campaign_id)
         return {}
       end
 
@@ -123,10 +123,25 @@ class Events::TextMessage
         Parent.where(id: parent_ids).order(:created_at).last
     end
 
+    # Les campagnes envoyées hors de l'app (à la main depuis SpotHit, ou depuis
+    # staging et local, qui partagent l'agent de la prod) déclenchent aussi ce
+    # webhook : seule une campagne portée par un event sortant de l'app est
+    # anormale quand on n'y retrouve pas le destinataire. Les events entrants ne
+    # comptent pas, une réponse à une campagne inconnue en crée un.
+    def known_campaign?(campaign_id)
+      @known_campaigns ||= {}
+      return @known_campaigns[campaign_id] if @known_campaigns.key?(campaign_id)
+
+      @known_campaigns[campaign_id] = Events::TextMessage.exists?(spot_hit_rcs_id: campaign_id, originated_by_app: true)
+    end
+
     def apply_rcs_status_change(event_content, text_message_datas, spot_hit_status)
+      # Sans données, l'anomalie (campaign_id, userId, parent) a déjà été traitée.
+      return if text_message_datas.blank?
+
       text_messages = text_message_datas[:text_messages]
       if text_messages.blank?
-        Rollbar.error('spot_hit_rcs_data: text_message not found', event_content: event_content)
+        Rollbar.error('spot_hit_rcs_data: text_message not found for known campaign', event_content: event_content) if known_campaign?(text_message_datas[:campaign_id])
         return
       end
 

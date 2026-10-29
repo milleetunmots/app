@@ -98,7 +98,7 @@ RSpec.describe 'SpotHit avec une réponse non-JSON' do
       service
 
       expect(Rollbar).to have_received(:error).with(
-        'SpotHit::SendRcsService — campagne refusée',
+        'SpotHit::SendRcsService : campagne refusée',
         hash_including(status: 403)
       )
     end
