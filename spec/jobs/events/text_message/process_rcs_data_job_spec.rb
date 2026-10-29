@@ -301,15 +301,15 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
     end
     let(:unknown_phone_number) { '+33700000000' }
 
-    def status_event(campaign_id:, user_id:, status: 'DELIVERED')
-      {
-        'messageStatusChanged' => {
-          'status' => status,
-          'channelId' => 'rcs',
-          'userId' => user_id,
-          'context' => { 'campaign_id' => campaign_id }
-        }
+    def status_event(campaign_id:, user_id:, status: 'DELIVERED', channel_id: 'rcs', error_code: nil)
+      content = {
+        'status' => status,
+        'channelId' => channel_id,
+        'userId' => user_id,
+        'context' => { 'campaign_id' => campaign_id }
       }
+      content['error'] = { 'code' => error_code } if error_code
+      { 'messageStatusChanged' => content }
     end
 
     def received_event(campaign_id:, user_id:, text: 'Bonjour')
@@ -383,6 +383,115 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
           .with('spot_hit_rcs_data: parent not found', hash_including(:event_content))
           .once
         subject.perform_now(payload(status_event(campaign_id: '45878', user_id: unknown_phone_number)))
+      end
+
+      [
+        %w[fallback USER_UNAVAILABLE],
+        %w[rcs USER_UKNOWN],
+        %w[rcs USER_BLOCKED],
+        %w[rcs CHANNEL_REJECTED],
+        %w[rcs CHANNEL_UNAVAILABLE],
+        %w[rcs CHANNEL_INTERNAL_ISSUE],
+        %w[rcs CHANNEL_OTHER_ISSUE],
+        %w[rcs CLIENT_MESSAGE_EXPIRED]
+      ].each do |channel_id, error_code|
+        it "enregistre l'échec #{error_code} sur le canal #{channel_id} sans alerte Rollbar" do
+          expect(Rollbar).not_to receive(:error)
+          subject.perform_now(
+            payload(
+              status_event(
+                campaign_id: '45878',
+                user_id: ines.phone_number,
+                status: 'DELIVERY_FAILED',
+                channel_id: channel_id,
+                error_code: error_code
+              )
+            )
+          )
+          ines_text_message.reload
+          expect(ines_text_message.spot_hit_status).to eq(4)
+          expect(ines_text_message.rcs_error_code).to eq(error_code)
+        end
+      end
+
+      # Depuis « Envoyé », DELIVERY_RETRIED (« En cours ») est rétrograde et ignoré :
+      # on part d'un event encore en attente pour que l'essai s'applique.
+      it "enregistre l'erreur d'un nouvel essai de livraison sans alerte Rollbar" do
+        ines_text_message.update!(spot_hit_status: 0) # En attente
+        expect(Rollbar).not_to receive(:error)
+        subject.perform_now(
+          payload(
+            status_event(
+              campaign_id: '45878',
+              user_id: ines.phone_number,
+              status: 'DELIVERY_RETRIED',
+              error_code: 'CLIENT_QUOTA_EXCEEDED'
+            )
+          )
+        )
+        expect(ines_text_message.reload.rcs_error_code).to eq('CLIENT_QUOTA_EXCEEDED')
+      end
+
+      %w[
+        CLIENT_MESSAGE_INVALID
+        CLIENT_CONFIGURATION_INVALID
+        CLIENT_QUOTA_EXCEEDED
+        CLIENT_MESSAGE_FORBIDDEN
+        INTERNAL_NOT_IMPLEMENTED
+        INTERNAL_OTHER_ISSUE
+      ].each do |error_code|
+        it "enregistre l'échec #{error_code} et lève une alerte Rollbar" do
+          expect(Rollbar).to receive(:error)
+            .with('spot_hit_rcs_data: RCS delivery error', hash_including(:event_content))
+            .once
+          subject.perform_now(
+            payload(
+              status_event(
+                campaign_id: '45878',
+                user_id: ines.phone_number,
+                status: 'DELIVERY_FAILED',
+                error_code: error_code
+              )
+            )
+          )
+          ines_text_message.reload
+          expect(ines_text_message.spot_hit_status).to eq(4)
+          expect(ines_text_message.rcs_error_code).to eq(error_code)
+        end
+      end
+
+      context "quand deux parents partagent le numéro et que l'erreur vient de 1001mots" do
+        let!(:sami) { FactoryBot.create(:parent, phone_number: ines.phone_number, first_name: 'Sami') }
+        let!(:sami_text_message) do
+          FactoryBot.create(
+            :text_message,
+            related: sami,
+            message_provider: 'spot_hit',
+            spot_hit_rcs_id: '45878',
+            spot_hit_status: 2 # Envoyé
+          )
+        end
+
+        it 'met à jour les deux events et ne lève qu\'une seule alerte Rollbar' do
+          expect(Rollbar).to receive(:error)
+            .with('spot_hit_rcs_data: RCS delivery error', hash_including(:event_content))
+            .once
+          subject.perform_now(
+            payload(
+              status_event(
+                campaign_id: '45878',
+                user_id: ines.phone_number,
+                status: 'DELIVERY_FAILED',
+                error_code: 'CLIENT_QUOTA_EXCEEDED'
+              )
+            )
+          )
+          [ines_text_message, sami_text_message].each do |text_message|
+            text_message.reload
+            expect(text_message.spot_hit_status).to eq(4)
+            expect(text_message.rcs_error_code).to eq('CLIENT_QUOTA_EXCEEDED')
+          end
+        end
       end
 
       it "lève une seule alerte « parent not found » pour une réponse d'un numéro hors base" do

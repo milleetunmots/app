@@ -30,6 +30,19 @@ class Events::TextMessage
       'INTERNAL_OTHER_ISSUE' => 4
       }.freeze
 
+    # Erreurs de livraison qui révèlent un problème chez 1001mots ou SpotHit.
+    # Les autres (destinataire injoignable, canal indisponible…) font partie de
+    # la vie normale d'une campagne : elles ne sont qu'enregistrées dans
+    # rcs_error_code.
+    ALERTING_RCS_ERROR_CODES = %w[
+      CLIENT_MESSAGE_INVALID
+      CLIENT_CONFIGURATION_INVALID
+      CLIENT_QUOTA_EXCEEDED
+      CLIENT_MESSAGE_FORBIDDEN
+      INTERNAL_NOT_IMPLEMENTED
+      INTERNAL_OTHER_ISSUE
+    ].freeze
+
     def perform(payload)
       Array.wrap(payload['events']).each do |event|
         event_content = event['messageStatusChanged'] || event['userMessageReceived']
@@ -146,6 +159,15 @@ class Events::TextMessage
       end
 
       text_messages.each { |text_message| apply_status_to_text_message(event_content, text_message, spot_hit_status) }
+      # Une alerte par événement, même si plusieurs parents partagent le numéro.
+      report_delivery_error(event_content)
+    end
+
+    def report_delivery_error(event_content)
+      return unless event_content['status'] == 'DELIVERY_FAILED'
+      return unless ALERTING_RCS_ERROR_CODES.include?(event_content.dig('error', 'code'))
+
+      Rollbar.error('spot_hit_rcs_data: RCS delivery error', event_content: event_content)
     end
 
     def apply_status_to_text_message(event_content, text_message, spot_hit_status)
@@ -163,10 +185,7 @@ class Events::TextMessage
 
       attributes = { spot_hit_status: spot_hit_status }
       attributes[:is_fallback] = true if event_content['channelId'] == 'fallback'
-      if event_content['error']
-        Rollbar.error('spot_hit_rcs_data: RCS delivery error', event_content: event_content)
-        attributes[:rcs_error_code] = event_content.dig('error', 'code')
-      end
+      attributes[:rcs_error_code] = event_content.dig('error', 'code') if event_content['error']
       Rollbar.error('spot_hit_rcs_data: text_message not updated', event_content: event_content, text_message: text_message) unless text_message.update(attributes)
     end
 
