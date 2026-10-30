@@ -523,6 +523,29 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
             subject.perform_now(payload(content_event(campaign_id: '45878', user_id: ines.phone_number, content: content)))
           end.not_to change(Events::TextMessage, :count)
         end
+
+        it "ignore le contenu #{type} hors campagne sans alerte Rollbar" do
+          expect(Rollbar).not_to receive(:error)
+          subject.perform_now(payload(content_event(campaign_id: nil, user_id: ines.phone_number, content: content)))
+        end
+
+        it "ignore le contenu #{type} d'un numéro hors base sans alerte Rollbar" do
+          expect(Rollbar).not_to receive(:error)
+          subject.perform_now(payload(content_event(campaign_id: '45878', user_id: unknown_phone_number, content: content)))
+        end
+
+        it "ignore le contenu #{type} sans date sans alerte Rollbar" do
+          expect(Rollbar).not_to receive(:error)
+          event = content_event(campaign_id: '45878', user_id: ines.phone_number, content: content).except('on')
+          subject.perform_now(payload(event))
+        end
+      end
+
+      it "alerte toujours sur une réponse écrite hors campagne" do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: campaign_id not found', hash_including(:event_content))
+          .once
+        subject.perform_now(payload(received_event(campaign_id: nil, user_id: ines.phone_number)))
       end
 
       it 'lève une alerte dédiée pour une désinscription RCS, sans toucher au parent' do

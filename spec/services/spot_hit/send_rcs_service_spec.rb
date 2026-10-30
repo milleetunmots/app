@@ -380,16 +380,20 @@ RSpec.describe SpotHit::SendRcsService do
     subject(:service) { described_class.new(recipients: [parent1.id], planned_timestamp: planned_timestamp, fallback_message: fallback_message).call }
 
     before do
-      @previous_agent_id = ENV['SPOT_HIT_AGENT_ID']
-      ENV.delete('SPOT_HIT_AGENT_ID')
+      stub_const('ENV', ENV.to_h.except('SPOT_HIT_AGENT_ID'))
+      allow(Rollbar).to receive(:error)
     end
-
-    after { ENV['SPOT_HIT_AGENT_ID'] = @previous_agent_id }
 
     it "n'appelle pas l'API et nomme la variable manquante" do
       expect(service.errors.first).to include('SPOT_HIT_AGENT_ID')
       expect(service).not_to be_sent
       expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+    end
+
+    it 'alerte Rollbar' do
+      service
+
+      expect(Rollbar).to have_received(:error).with('SpotHit::SendRcsService : SPOT_HIT_AGENT_ID non configuré')
     end
 
     it 'ne crée aucun event' do

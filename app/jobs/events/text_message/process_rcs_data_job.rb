@@ -72,6 +72,10 @@ class Events::TextMessage
           text_message_datas = retrieve_text_message_datas(event_content)
           apply_rcs_status_change(event_content, text_message_datas, spot_hit_status)
         elsif event['userMessageReceived']
+          # En premier : ces contenus n'ont pas forcément de campagne ni de numéro
+          # connu, et les contrôles suivants alerteraient pour rien.
+          next if silent_content?(event_content)
+
           unless event['on']
             Rollbar.error('spot_hit_rcs_data: event without date', event: event)
             next
@@ -87,6 +91,11 @@ class Events::TextMessage
     end
 
     private
+
+    def silent_content?(event_content)
+      content = event_content['content']
+      content.is_a?(Hash) && !content['text'] && content.keys.intersect?(SILENT_CONTENT_TYPES)
+    end
 
     def retrieve_text_message_datas(event_content)
       campaign_id = event_content.dig('context', 'campaign_id')
@@ -221,10 +230,7 @@ class Events::TextMessage
     # Les modèles RCS de l'app désactivent le STOP : une désinscription RCS vient
     # d'une campagne manuelle et n'arrête pas le parent, d'où une alerte dédiée.
     def report_content_without_text(event_content)
-      content_types = event_content['content'].keys
-      return if content_types.intersect?(SILENT_CONTENT_TYPES)
-
-      if content_types.include?('optout')
+      if event_content['content'].key?('optout')
         Rollbar.error('spot_hit_rcs_data: RCS opt-out non traité', event_content: event_content)
       else
         Rollbar.error('spot_hit_rcs_data: message received unsupported content', event_content: event_content)

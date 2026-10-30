@@ -49,6 +49,7 @@ class SpotHit::SendRcsService
     # transmis : on le détecte avant tout appel, et avant le SendGuard pour ne
     # pas tracer une tentative bloquée sur un simple défaut de configuration.
     if ENV['SPOT_HIT_AGENT_ID'].blank?
+      Rollbar.error('SpotHit::SendRcsService : SPOT_HIT_AGENT_ID non configuré')
       @errors << "Envoi RCS impossible : SPOT_HIT_AGENT_ID n'est pas configuré."
       return
     end
