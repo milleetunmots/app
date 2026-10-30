@@ -364,6 +364,36 @@ RSpec.describe BlockedSendAttempt do
       expect(attempt.reload).to have_attributes(status: 'pending', force_send: false)
       expect(attempt.archive!.errors).to be_empty
     end
+
+    it "lève la réservation quand la relance plante : l'envoi reste relançable" do
+      send_program_message!
+      attempt = described_class.last
+      allow(ProgramMessageService).to receive(:new).and_raise(ArgumentError, 'date invalide')
+
+      expect { attempt.relaunch! }.to raise_error(ArgumentError)
+
+      expect(attempt.reload).to have_attributes(status: 'pending', force_send: false)
+    end
+  end
+
+  describe 'double relance' do
+    it "n'envoie le message qu'une fois quand une relance est déjà en cours" do
+      send_program_message!
+      attempt = described_class.last
+      second_click = described_class.find(attempt.id)
+      replayer = BlockedSendAttempt::SendAttemptReplayer.new(attempt)
+      allow(BlockedSendAttempt::SendAttemptReplayer).to receive(:new).and_return(replayer)
+      allow(replayer).to receive(:call).and_wrap_original do |original|
+        second_click.relaunch!
+        original.call
+      end
+
+      attempt.relaunch!
+
+      expect(replayer).to have_received(:call).once
+      expect(second_click.errors.full_messages).to eq([described_class::RELAUNCH_IN_PROGRESS_MESSAGE])
+      expect(attempt.reload.status).to eq('relaunched')
+    end
   end
 
   describe 'clôture de la tâche de suivi' do

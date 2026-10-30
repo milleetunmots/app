@@ -1,17 +1,17 @@
 class TaskDecorator < BaseDecorator
 
   def title_with_done_icon
-    (
-      (
-        if model.status == 'done'
-          h.content_tag :i, '', class: 'fas fa-check-circle txt-green'
-        elsif model.status == 'in_progress'
-          h.content_tag :i, '', class: 'fas fa-sync-alt txt-yellow'
-        else
-          h.content_tag :i, '', class: 'fas fa-clock txt-grey'
-        end
-      ) + ' ' + model.title
-    ).html_safe
+    (h.content_tag(:i, '', class: status_icon_class) + ' ' + model.title).html_safe
+  end
+
+  def status_icon_class
+    if model.status == 'done' || model.is_done?
+      'fas fa-check-circle txt-green'
+    elsif model.status == 'in_progress'
+      'fas fa-sync-alt txt-yellow'
+    else
+      'fas fa-clock txt-grey'
+    end
   end
 
   def due_date

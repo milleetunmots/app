@@ -34,6 +34,7 @@ class BlockedSendAttempt < ApplicationRecord
   STATUSES = %w[pending relaunched not_blocked archived].freeze
 
   RELAUNCH_REFUSED_MESSAGE = 'Seules les tentatives à traiter peuvent être relancées.'.freeze
+  RELAUNCH_IN_PROGRESS_MESSAGE = 'Une relance de cet envoi est déjà en cours.'.freeze
   ARCHIVE_REFUSED_MESSAGE = 'Seules les tentatives à traiter peuvent être archivées.'.freeze
 
   # Auteur de l'envoi manuel ; nil pour un envoi automatique ou une tentative
@@ -78,7 +79,7 @@ class BlockedSendAttempt < ApplicationRecord
     end
     return self unless reserve_for_relaunch!
 
-    service = SendAttemptReplayer.new(self).call
+    service = replay_reserved_attempt
     if service.errors.any? # échec pour une autre raison : statut inchangé
       # La réservation est levée pour que l'envoi reste relançable ou archivable.
       update!(force_send: false)
@@ -120,19 +121,31 @@ class BlockedSendAttempt < ApplicationRecord
   private
 
   # Relance et archivage sont les deux issues d'une tentative « à traiter » : la
-  # relance réserve la tentative sous verrou, l'archivage refuse ensuite une
-  # tentative réservée. force_send doit de toute façon être persisté avant le
-  # replay : le blocage réel a lieu plus tard, dans le job d'envoi, qui relit la
-  # tentative depuis la base via son id.
+  # relance réserve la tentative sous verrou, une seconde relance (double-clic)
+  # et l'archivage refusent ensuite une tentative réservée. force_send doit de
+  # toute façon être persisté avant le replay : le blocage réel a lieu plus tard,
+  # dans le job d'envoi, qui relit la tentative depuis la base via son id.
   def reserve_for_relaunch!
     with_lock do
-      if status == 'pending'
-        update!(force_send: true)
-      else
+      if status != 'pending'
         errors.add(:base, RELAUNCH_REFUSED_MESSAGE)
         false
+      elsif force_send
+        errors.add(:base, RELAUNCH_IN_PROGRESS_MESSAGE)
+        false
+      else
+        update!(force_send: true)
       end
     end
+  end
+
+  # Une exception ne doit pas laisser la tentative réservée : elle ne serait plus
+  # ni relançable ni archivable.
+  def replay_reserved_attempt
+    SendAttemptReplayer.new(self).call
+  rescue StandardError
+    update!(force_send: false)
+    raise
   end
 
   # Prévient l'auteur. Le sort de l'envoi est déjà acté : un échec de la tâche

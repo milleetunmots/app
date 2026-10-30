@@ -1,6 +1,8 @@
-<li class="aat-task <%= 'aat-past' if task.due_date && task.due_date <= Time.zone.today %>">
+<%# show_progress : suivi d'une tâche par la personne qui l'a ajoutée (icône de statut, traitement, résolution). %>
+<% show_progress = defined?(show_progress) && show_progress %>
+<li class="aat-task <%= 'aat-past' if task.due_date && task.due_date <= Time.zone.today && !task.is_done? %>">
   <div class="aat-related-title">
-    <span class="fa-li"><i class="far fa-square"></i></span>
+    <span class="fa-li"><i class="<%= show_progress ? task.decorate.status_icon_class : 'far fa-square' %>"></i></span>
     <% if (!defined?(show_related) || show_related) && task.related %>
       <span class="aat-related">
         <%# Sans droit de lecture (l'auteur d'un envoi bloqué), le lien mènerait à un accès refusé. %>
@@ -11,7 +13,7 @@
       <%= link_to task.title, [:admin, task] %>
     </span>
   </div>
-  <% if task.due_date || task.assignee %>
+  <% if task.due_date || task.assignee || show_progress %>
     <div class="aat-due-date-assignee">
       <% if task.due_date %>
         <span class="aat-due-date">
@@ -23,6 +25,17 @@
         <span class="aat-assignee">
           <i class="fas fa-user-circle fa-fw"></i>
           <%= auto_link task.assignee %>
+        </span>
+      <% end %>
+      <% if show_progress && task.is_done? %>
+        <span class="aat-assignee">
+          <i class="fas fa-check fa-fw"></i>
+          <%= t('active_admin.tasks.dashboard.done_at') %> <%= l task.done_at, format: :default %>
+        </span>
+      <% elsif show_progress && task.treated_by %>
+        <span class="aat-assignee">
+          <i class="fas fa-sync-alt fa-fw"></i>
+          <%= t('active_admin.tasks.dashboard.treated_by') %> <%= auto_link task.treated_by %>
         </span>
       <% end %>
     </div>

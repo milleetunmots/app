@@ -48,7 +48,83 @@ RSpec.describe DbSanitizer::Anonymizer do
       )
     end
 
+    let!(:task) do
+      FactoryBot.create(:task, title: 'Envoi bloqué à vérifier — Cécile DUPONT', description: 'Bonjour Cécile', done_at: Date.new(2026, 10, 12))
+    end
+
+    let!(:blocked_send_attempt) do
+      FactoryBot.create(:blocked_send_attempt,
+        message_body: 'Bonjour Cécile, appelez le 0612345678',
+        detected_values: ['0612345678'],
+        replay_params: { recipients: ["parent.#{parent.id}"], message: 'Bonjour Cécile' },
+        status: 'pending'
+      )
+    end
+    let!(:other_blocked_send_attempt) { FactoryBot.create(:blocked_send_attempt, message_body: 'Bonjour Cécile, appelez le 0612345678') }
+
     before { anonymizer.call }
+
+    context 'BlockedSendAttempt' do
+      subject { blocked_send_attempt.reload }
+
+      it 'remplace le message' do
+        expect(subject.message_body).to eq("Message anonymisé n°#{blocked_send_attempt.id}")
+      end
+
+      it 'remplace les valeurs détectées' do
+        expect(subject.detected_values).to eq(['valeur anonymisée'])
+      end
+
+      it "retire les paramètres de relance : l'envoi n'est plus relançable" do
+        expect(subject.replay_params).to eq({})
+        expect(subject).not_to be_replayable
+      end
+
+      it 'garde le statut' do
+        expect(subject.status).to eq('pending')
+      end
+
+      it "ne fait pas de deux tentatives distinctes les sœurs d'un même envoi" do
+        expect(BlockedSendAttempt.same_message_as(subject)).not_to include(other_blocked_send_attempt)
+      end
+    end
+
+    context 'Task' do
+      subject { task.reload }
+
+      it "remplace l'intitulé sans garder le nom du parent" do
+        expect(subject.title).to eq("Tâche n°#{task.id}")
+      end
+
+      it 'vide la description' do
+        expect(subject.description).to be_nil
+      end
+
+      it 'garde les données utiles aux tests' do
+        expect(subject.done_at).to eq(Date.new(2026, 10, 12))
+      end
+    end
+
+    context 'recherche globale' do
+      def search_content(record)
+        PgSearch::Document.where(searchable: record).pick(:content)
+      end
+
+      it "ne garde aucune donnée d'origine du parent" do
+        content = search_content(parent.reload)
+
+        expect(content).to include(parent.first_name, parent.last_name)
+        expect(content).not_to match(/Cécile|Dupont|cecile\.dupont|realtoken|0612345678/i)
+      end
+
+      it "ne garde pas le nom d'origine de l'enfant" do
+        expect(search_content(child.reload)).not_to match(/Emma|Dupont/i)
+      end
+
+      it "ne garde pas l'intitulé d'origine de la tâche" do
+        expect(search_content(task).strip).to eq("Tâche n°#{task.id}")
+      end
+    end
 
     context 'Parent' do
       subject { parent.reload }

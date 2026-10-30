@@ -43,6 +43,7 @@ class SpotHit::SendMessageService
         blocked_send_attempt_id: @blocked_send_attempt_id,
         admin_user_id: @admin_user_id,
         recipients_count: recipient_variables.size,
+        recipient_parent_id: sole_recipient_parent_id,
         defer_report: @defer_block_report
       )
       if guard.blocked?

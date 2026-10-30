@@ -8,8 +8,11 @@ class BlockedSendAttempt::CreateTaskService
 
   attr_reader :errors, :task
 
-  def initialize(attempt:)
+  # recipients_count, recipient_parent_id : cf. BlockedSendAttempt::SendGuard.
+  def initialize(attempt:, recipients_count: nil, recipient_parent_id: nil)
     @attempt = attempt
+    @recipients_count = recipients_count
+    @recipient_parent_id = recipient_parent_id
     @errors = []
   end
 
@@ -18,7 +21,7 @@ class BlockedSendAttempt::CreateTaskService
   def call
     assignee = find_assignee
     @task = Task.create(
-      title: TITLE,
+      title: title,
       description: description,
       due_date: Time.zone.today,
       reporter_id: @attempt.admin_user_id,
@@ -36,6 +39,21 @@ class BlockedSendAttempt::CreateTaskService
   end
 
   private
+
+  # L'intitulé aide l'auteur à reconnaître son envoi parmi ses tâches : le parent
+  # s'il n'y en a qu'un, sinon le nombre de destinataires. Il ne dit rien du
+  # contrôle déclenché.
+  def title
+    [TITLE, recipients_hint].compact.join(' — ')
+  end
+
+  def recipients_hint
+    parent = Parent.find_by(id: @recipient_parent_id) if @recipient_parent_id
+    return parent.decorate.name if parent
+    return unless @recipients_count&.positive?
+
+    "#{@recipients_count} #{'destinataire'.pluralize(@recipients_count)}"
+  end
 
   def find_assignee
     email = ENV.fetch('BLOCKED_SEND_ASSIGNEE_EMAIL', nil)

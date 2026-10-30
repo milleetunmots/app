@@ -1,9 +1,11 @@
 module ActiveAdmin
   # Le message d'un envoi bloqué renvoie vers la tâche de suivi. Un flash
   # traverse le cookie de session et revient en String simple, qu'ActiveAdmin
-  # échappe : on rend cliquables les seules URLs de tâches de l'application, le
-  # reste du message restant échappé.
+  # échappe : on remplace les seules URLs de tâches de l'application par un lien
+  # « Voir la tâche », le reste du message restant échappé.
   module FlashTaskLinks
+    LINK_LABEL = 'Voir la tâche'.freeze
+
     def self.render(message)
       return message if message.html_safe?
 
@@ -12,7 +14,7 @@ module ActiveAdmin
 
       helpers = ActionController::Base.helpers
       parts = message.to_s.split(/(#{pattern})/).map do |part|
-        part.match?(/\A#{pattern}\z/) ? helpers.link_to(part, part) : part
+        part.match?(/\A#{pattern}\z/) ? helpers.link_to(LINK_LABEL, part, class: 'flash-task-link') : part
       end
       helpers.safe_join(parts)
     end

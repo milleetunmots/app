@@ -1,5 +1,20 @@
 module ActiveAdmin::BlockedSendAttemptsHelper
 
+  # Classes de app/assets/stylesheets/admin/status_tag.sass.
+  KIND_TAG_COLORS = {
+    'url' => 'blue',
+    'keyword' => 'rose',
+    'phone_number' => 'yellow'
+  }.freeze
+
+  def blocked_send_attempt_kind_tag(attempt)
+    content_tag(
+      :span,
+      BlockedSendAttempt.human_attribute_name("kind.#{attempt.kind}"),
+      class: "status_tag #{KIND_TAG_COLORS[attempt.kind]}"
+    )
+  end
+
   # La session est stockée en cookie (4 Ko) : un envoi de masse peut whitelister
   # des dizaines de valeurs, et les lister toutes dans le flash ferait échouer la
   # redirection sur un CookieOverflow — après que le message est parti.

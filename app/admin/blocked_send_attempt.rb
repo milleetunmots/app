@@ -3,11 +3,11 @@ ActiveAdmin.register BlockedSendAttempt do
 
   actions :index, :show # trace d'audit : ni création, ni édition, ni suppression
 
-  scope :pending, default: true, label: 'À traiter'
-  scope :relaunched, label: 'Relancés'
-  scope :not_blocked, label: 'Surveillance'
-  scope :archived, label: 'Archivés'
-  scope :all, label: 'Tous'
+  scope :pending, default: true
+  scope :relaunched
+  scope :not_blocked
+  scope :archived
+  scope :all
 
   includes :admin_user
 
@@ -22,7 +22,7 @@ ActiveAdmin.register BlockedSendAttempt do
     column :admin_user
     column :provider
     column :kind do |attempt|
-      BlockedSendAttempt.human_attribute_name("kind.#{attempt.kind}")
+      blocked_send_attempt_kind_tag(attempt)
     end
     column :detected_values do |attempt|
       attempt.detected_values.join(', ')
@@ -39,7 +39,7 @@ ActiveAdmin.register BlockedSendAttempt do
       links = []
       links << link_to('Relancer', relaunch_admin_blocked_send_attempt_path(attempt), method: :put) if attempt.replayable?
       links << link_to('Archiver', archive_admin_blocked_send_attempt_path(attempt), method: :put, data: { confirm: blocked_send_attempt_archive_confirm })
-      safe_join(links, ' ')
+      content_tag(:span, safe_join(links), class: 'blocked-send-actions')
     end
   end
 
@@ -49,7 +49,7 @@ ActiveAdmin.register BlockedSendAttempt do
       row :admin_user
       row :provider
       row :kind do |attempt|
-        BlockedSendAttempt.human_attribute_name("kind.#{attempt.kind}")
+        blocked_send_attempt_kind_tag(attempt)
       end
       row :status do |attempt|
         BlockedSendAttempt.human_attribute_name("status.#{attempt.status}")

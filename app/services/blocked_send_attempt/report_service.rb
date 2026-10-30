@@ -6,9 +6,10 @@ class BlockedSendAttempt::ReportService
   attr_reader :errors, :task
 
   # attempts : tentatives « à traiter » d'un même envoi, une par kind détecté.
-  def initialize(attempts:, recipients_count: nil)
+  def initialize(attempts:, recipients_count: nil, recipient_parent_id: nil)
     @attempts = attempts
     @recipients_count = recipients_count
+    @recipient_parent_id = recipient_parent_id
     @errors = []
   end
 
@@ -35,7 +36,7 @@ class BlockedSendAttempt::ReportService
     return unless @attempts.any?(&:previously_new_record?)
     return if @attempts.first.admin_user_id.nil?
 
-    service = BlockedSendAttempt::CreateTaskService.new(attempt: @attempts.first).call
+    service = BlockedSendAttempt::CreateTaskService.new(attempt: @attempts.first, recipients_count: @recipients_count, recipient_parent_id: @recipient_parent_id).call
     @errors.concat(service.errors)
     service.task
   end

@@ -91,7 +91,8 @@ class ProgramMessageService
         replay_params: @replay_params,
         blocked_send_attempt_id: @blocked_send_attempt_id,
         admin_user_id: @acting_admin_user&.id,
-        recipients_count: 1
+        recipients_count: 1,
+        recipient_parent_id: parent.id
       )
       if guard.blocked?
         attempts = guard.register!

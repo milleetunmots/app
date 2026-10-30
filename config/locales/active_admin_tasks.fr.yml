@@ -2,9 +2,18 @@ fr:
   active_admin:
     tasks:
       dashboard:
-        title: À faire
-        mine: Par moi
-        others: Par d'autres
+        title: Tâches
+        mine: À faire par moi
+        others: À faire par d'autres
+        reported: Ajoutées par moi
+        in_progress: En cours
+        done: Résolues
+        no_in_progress: Aucune tâche en cours.
+        no_done: Aucune tâche résolue.
+        see_all: Voir toutes mes tâches
+        see_all_others: Voir toutes les tâches
+        treated_by: En cours de traitement par
+        done_at: Résolue le
       quick:
         link: Ajout rapide d'une tâche
         error: Impossible d'ajouter la tâche

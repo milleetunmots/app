@@ -15,6 +15,10 @@ class BlockedSendAttempt::SendGuard
   # groupes ou enfants. nil quand il n'y a pas de destinataire (modèle RCS).
   attr_reader :recipients_count
 
+  # Parent destinataire quand l'envoi n'en vise qu'un, nil sinon : il nomme
+  # l'envoi dans l'intitulé de la tâche de son auteur.
+  attr_reader :recipient_parent_id
+
   # Tentatives « à traiter » tracées par register! : un appelant qui diffère le
   # signalement les signale lui-même après son rollback.
   attr_reader :blocked_attempts
@@ -22,8 +26,9 @@ class BlockedSendAttempt::SendGuard
   # admin_user_id : auteur d'un envoi manuel, nil pour un envoi automatique.
   # defer_report : l'envoi a lieu dans une transaction que l'appelant peut
   # annuler (création d'atelier) ; tâche et alerte Slack n'y sont pas émises.
-  def initialize(text, provider:, extra_texts: [], replay_params: {}, blocked_send_attempt_id: nil, admin_user_id: nil, recipients_count: nil, defer_report: false)
+  def initialize(text, provider:, extra_texts: [], replay_params: {}, blocked_send_attempt_id: nil, admin_user_id: nil, recipients_count: nil, recipient_parent_id: nil, defer_report: false)
     @recipients_count = recipients_count
+    @recipient_parent_id = recipient_parent_id
     @defer_report = defer_report
     @blocked_attempts = []
 
@@ -84,7 +89,7 @@ class BlockedSendAttempt::SendGuard
   private
 
   def report
-    service = BlockedSendAttempt::ReportService.new(attempts: @blocked_attempts, recipients_count: @recipients_count).call
+    service = BlockedSendAttempt::ReportService.new(attempts: @blocked_attempts, recipients_count: @recipients_count, recipient_parent_id: @recipient_parent_id).call
     Rollbar.error('BlockedSendAttempt::ReportService', errors: service.errors) if service.errors.any?
     @task = service.task
   end

@@ -26,6 +26,32 @@ RSpec.describe BlockedSendAttempt::CreateTaskService do
       )
     end
 
+    describe "l'intitulé" do
+      it "nomme le parent quand l'envoi n'en vise qu'un" do
+        parent = FactoryBot.create(:parent, first_name: 'Marie', last_name: "L'Hermite")
+
+        task = described_class.new(attempt: attempt, recipients_count: 1, recipient_parent_id: parent.id).call.task
+
+        expect(task.title).to eq("Envoi bloqué à vérifier — Marie L'HERMITE")
+      end
+
+      it 'indique le nombre de destinataires quand il y en a plusieurs' do
+        task = described_class.new(attempt: attempt, recipients_count: 42).call.task
+
+        expect(task.title).to eq('Envoi bloqué à vérifier — 42 destinataires')
+      end
+
+      it 'accorde au singulier un destinataire dont le parent est inconnu' do
+        task = described_class.new(attempt: attempt, recipients_count: 1).call.task
+
+        expect(task.title).to eq('Envoi bloqué à vérifier — 1 destinataire')
+      end
+
+      it "reste générique quand on ne sait rien des destinataires" do
+        expect(described_class.new(attempt: attempt, recipients_count: 0).call.task.title).to eq('Envoi bloqué à vérifier')
+      end
+    end
+
     it 'reprend le texte du message sans nommer le contrôle déclenché' do
       task = described_class.new(attempt: attempt).call.task
 

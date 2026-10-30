@@ -132,7 +132,8 @@ class Workshop < ApplicationRecord
     if service.blocked_send?
       @deferred_blocked_send = {
         attempts: service.blocked_send_guard.blocked_attempts.map { |attempt| attempt.attributes.slice('provider', 'kind', 'detected_values', 'message_body', 'admin_user_id') },
-        recipients_count: service.blocked_send_guard.recipients_count
+        recipients_count: service.blocked_send_guard.recipients_count,
+        recipient_parent_id: service.blocked_send_guard.recipient_parent_id
       }
       errors.add(:base, service.errors.first)
       raise ActiveRecord::Rollback
@@ -157,7 +158,7 @@ class Workshop < ApplicationRecord
     persisted, failed = attempts.partition(&:persisted?)
     Rollbar.error('BlockedSendAttempt non tracé', errors: failed.flat_map { |attempt| attempt.errors.full_messages }) if failed.any?
 
-    service = BlockedSendAttempt::ReportService.new(attempts: persisted, recipients_count: @deferred_blocked_send[:recipients_count]).call
+    service = BlockedSendAttempt::ReportService.new(attempts: persisted, **@deferred_blocked_send.slice(:recipients_count, :recipient_parent_id)).call
     Rollbar.error('BlockedSendAttempt::ReportService', errors: service.errors) if service.errors.any?
     @deferred_blocked_send = nil
   end

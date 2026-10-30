@@ -116,6 +116,30 @@ RSpec.describe 'Admin blocked send attempts', type: :request do
       expect(response.body).to include('Awa Diallo')
     end
 
+    {
+      'url' => %w[blue URL],
+      'keyword' => %w[rose Mot-clé],
+      'phone_number' => ['yellow', 'Numéro de téléphone']
+    }.each do |kind, (color, label)|
+      it "affiche le type #{kind} avec son libellé et sa couleur, en liste et en détail" do
+        attempt = FactoryBot.create(:blocked_send_attempt, kind: kind)
+        tag = %(<span class="status_tag #{color}">#{label}</span>)
+
+        get '/admin/blocked_send_attempts'
+        expect(response.body).to include(tag)
+
+        get "/admin/blocked_send_attempts/#{attempt.id}"
+        expect(response.body).to include(tag)
+      end
+    end
+
+    it 'affiche les onglets en français' do
+      get '/admin/blocked_send_attempts'
+
+      tabs = Nokogiri::HTML(response.body).css('.scopes .scope a').map { |tab| tab.children.first.text.strip }
+      expect(tabs).to eq(['À traiter', 'Relancés', 'Surveillance', 'Archivés', 'Tous'])
+    end
+
     it 'liste les tentatives archivées dans leur propre onglet, hors de « À traiter »' do
       FactoryBot.create(:blocked_send_attempt, status: 'archived', detected_values: ['https://archivee.example.com'])
 

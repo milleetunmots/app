@@ -44,7 +44,14 @@ RSpec.describe 'Tâche de suivi d’un envoi bloqué', type: :request do
     follow_redirect!
     task_url = "http://localhost:3000/admin/tasks/#{task.id}"
     expect(response.body).to include(ERB::Util.html_escape(BlockedSendAttempt::SendGuard::BLOCKED_MESSAGE))
-    expect(response.body).to include(%(<a href="#{task_url}">#{task_url}</a>))
+    expect(response.body).to include(%(<a class="flash-task-link" href="#{task_url}">Voir la tâche</a>))
+    expect(response.body).not_to include(">#{task_url}<")
+  end
+
+  it "nomme le parent destinataire dans l'intitulé de la tâche" do
+    program_sms
+
+    expect(Task.last.title).to eq("Envoi bloqué à vérifier — #{parent.decorate.name}")
   end
 
   it "alerte l'équipe tech dans le canal des envois bloqués" do
@@ -85,7 +92,8 @@ RSpec.describe 'Tâche de suivi d’un envoi bloqué', type: :request do
     it 'refuse la modification de la tâche par Awa, même en forçant la requête' do
       put "/admin/tasks/#{task.id}", params: { task: { title: 'Tâche réécrite', description: 'Plus rien à voir' } }
 
-      expect(task.reload).to have_attributes(title: 'Envoi bloqué à vérifier', done_at: nil)
+      expect(task.reload.title).to start_with('Envoi bloqué à vérifier')
+      expect(task.done_at).to be_nil
     end
 
     it 'refuse la mise à la corbeille de la tâche par Awa' do
