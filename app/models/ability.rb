@@ -60,10 +60,12 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
       can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :read, ActiveAdmin::Page, name: 'Dashboard'
+      cannot_change_blocked_send_tasks
     when 'reader'
       can :autocomplete, [Group, Tag]
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
+      cannot_change_blocked_send_tasks
       can :manage, [Parent, Child, ChildSupport]
       cannot %i[new create destroy discard select_module_for_parent1 select_module_for_parent2 add_child add_parent quit_group create_scheduled_call], [Parent, Child, ChildSupport]
       cannot :read_sensitive_information, ChildSupport
@@ -86,6 +88,7 @@ class Ability
       can :read, AdminUser, id: user.id
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
+      cannot_change_blocked_send_tasks
       can :create, Parent
       can %i[read update], Parent, parent1_children: { child_support: { supporter_id: user.id } }
       can %i[read update], Parent, parent2_children: { child_support: { supporter_id: user.id } }
@@ -130,6 +133,7 @@ class Ability
       can :autocomplete, [Group, Tag]
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
+      cannot_change_blocked_send_tasks
       can :manage, [Parent, Child, ChildSupport, ChildrenSupportModule]
       cannot %i[destroy discard], [Parent, Child, ChildSupport, ChildrenSupportModule]
       cannot :read_sensitive_information, ChildSupport
@@ -179,6 +183,13 @@ class Ability
   end
 
   private
+
+  # La tâche d'un envoi bloqué ne se clôt que par la relance ou l'archivage de
+  # l'envoi (super_admin) : son auteur la lit, sans pouvoir la modifier ni la
+  # supprimer. À appeler après les `can` du rôle, pour l'emporter sur eux.
+  def cannot_change_blocked_send_tasks
+    cannot %i[update destroy discard], Task, related_type: 'BlockedSendAttempt'
+  end
 
   def impersonation_permits?(action, subject)
     subject.is_a?(ActiveAdmin::Page) || action.to_sym.in?(IMPERSONATION_ACTIONS)

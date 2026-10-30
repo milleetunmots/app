@@ -1,0 +1,130 @@
+require 'rails_helper'
+
+RSpec.describe 'Tâche de suivi d’un envoi bloqué', type: :request do
+  let!(:assignee) { FactoryBot.create(:admin_user, user_role: 'super_admin', email: ENV.fetch('BLOCKED_SEND_ASSIGNEE_EMAIL')) }
+  let!(:awa) { FactoryBot.create(:admin_user, user_role: 'caller', name: 'Awa') }
+  let!(:parent) { FactoryBot.create(:parent) }
+  let!(:child) do
+    FactoryBot.create(:child, parent1: parent, should_contact_parent1: true, group: FactoryBot.create(:group), group_status: 'active')
+  end
+  let(:blocked_message) { 'Rejoignez-nous sur https://exemple-non-autorise.fr' }
+
+  around do |example|
+    previous = ENV.fetch('URL_FILTER_BLOCKING_ENABLED', nil)
+    ENV['URL_FILTER_BLOCKING_ENABLED'] = 'true'
+    example.run
+    ENV['URL_FILTER_BLOCKING_ENABLED'] = previous
+  end
+
+  before do
+    child.child_support.update!(supporter: awa)
+    sign_in awa
+  end
+
+  def program_sms
+    post '/admin/message/program_sms',
+         params: {
+           planned_date: Time.zone.today.to_s,
+           planned_hour: Time.zone.now.strftime('%H:%M'),
+           recipients: ["parent.#{parent.id}"],
+           group_status: ['active'],
+           message: blocked_message
+         },
+         headers: { 'HTTP_REFERER' => '/admin/tasks' }
+  end
+
+  it "n'envoie rien, crée la tâche d'Awa et lui affiche le lien vers cette tâche" do
+    expect { program_sms }.to change(Task, :count).by(1)
+
+    task = Task.last
+    expect(task).to have_attributes(reporter: awa, assignee: assignee, related: BlockedSendAttempt.last)
+    expect(BlockedSendAttempt.last).to have_attributes(status: 'pending', admin_user: awa)
+    expect(WebMock).not_to have_requested(:post, %r{https://www\.spot-hit\.fr})
+
+    follow_redirect!
+    task_url = "http://localhost:3000/admin/tasks/#{task.id}"
+    expect(response.body).to include(ERB::Util.html_escape(BlockedSendAttempt::SendGuard::BLOCKED_MESSAGE))
+    expect(response.body).to include(%(<a class="flash-task-link" href="#{task_url}">Voir la tâche</a>))
+    expect(response.body).not_to include(">#{task_url}<")
+  end
+
+  it "nomme le parent destinataire dans l'intitulé de la tâche" do
+    program_sms
+
+    expect(Task.last.title).to eq("Envoi bloqué à vérifier — #{parent.decorate.name}")
+  end
+
+  it "alerte l'équipe tech dans le canal des envois bloqués" do
+    program_sms
+
+    expect(WebMock).to(have_requested(:post, 'https://slack.com/api/chat.postMessage').with do |request|
+      form = URI.decode_www_form(request.body).to_h
+      form['channel'] == "##{ENV.fetch('SLACK_BLOCKED_SEND_ALERT_CHANNEL')}" &&
+        form['text'].include?('*Destinataires* : 1 famille') &&
+        form['text'].include?("/admin/tasks/#{Task.last.id}|")
+    end)
+  end
+
+  it "liste la tâche dans les tâches d'Awa" do
+    program_sms
+
+    get '/admin/tasks'
+
+    expect(response.body).to include('Envoi bloqué à vérifier')
+  end
+
+  it "ouvre la tâche pour Awa avec son message, sans lien vers la tentative qu'elle ne peut pas lire" do
+    program_sms
+
+    get "/admin/tasks/#{Task.last.id}"
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include(blocked_message)
+    expect(response.body).to include("Envoi bloqué n°#{BlockedSendAttempt.last.id}")
+    expect(response.body).not_to include("/admin/blocked_send_attempts/#{BlockedSendAttempt.last.id}")
+  end
+
+  describe 'tâche en lecture seule pour son auteur' do
+    let(:task) { Task.last }
+
+    before { program_sms }
+
+    it 'refuse la modification de la tâche par Awa, même en forçant la requête' do
+      put "/admin/tasks/#{task.id}", params: { task: { title: 'Tâche réécrite', description: 'Plus rien à voir' } }
+
+      expect(task.reload.title).to start_with('Envoi bloqué à vérifier')
+      expect(task.done_at).to be_nil
+    end
+
+    it 'refuse la mise à la corbeille de la tâche par Awa' do
+      put "/admin/tasks/#{task.id}/discard", headers: { 'HTTP_REFERER' => '/admin/tasks' }
+
+      expect(task.reload).not_to be_discarded
+    end
+  end
+
+  # Un assigné sans droit de lecture sur les envois bloqués (variable mal
+  # renseignée) ne doit pas recevoir de lien vers un accès refusé.
+  it "affiche la tentative liée sans lien dans le tableau de bord d'un assigné qui ne peut pas la lire" do
+    contributor = FactoryBot.create(:admin_user, user_role: 'contributor')
+    program_sms
+    Task.last.update!(assignee: contributor)
+    sign_in contributor
+
+    get '/admin/dashboard'
+
+    expect(response.body).to include("Envoi bloqué n°#{BlockedSendAttempt.last.id}")
+    expect(response.body).not_to include("/admin/blocked_send_attempts/#{BlockedSendAttempt.last.id}")
+  end
+
+  it 'affiche la tâche dans le tableau de bord du compte assigné' do
+    program_sms
+    sign_in assignee
+
+    get '/admin/dashboard'
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include('Envoi bloqué à vérifier')
+    expect(response.body).to include("/admin/blocked_send_attempts/#{BlockedSendAttempt.last.id}")
+  end
+end

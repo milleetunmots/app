@@ -12,6 +12,8 @@ INITIAL_TYPEFORM_ENROLLMENT_REASONS_CHILD: xxx
 INITIAL_TYPEFORM_SECOND_LANGUAGE: xxx
 SLACK_BOT_USER_OAUTH_TOKEN: xxx
 SLACK_QUOTA_ALERT_CHANNEL: xxx
+# Canal (sans #) des alertes d'envois bloqués ; le bot Slack doit y être invité.
+SLACK_BLOCKED_SEND_ALERT_CHANNEL: xxx
 AIRTABLE_TOKEN: xxx
 AIRTABLE_APPLICATION_BASE_KEY: xxx
 AIRTABLE_MODULE_TABLE_NAME: xxx
@@ -31,6 +33,9 @@ SUPPORTER_ASSIGNMENT_EMAILS: xxx
 #URL_FILTER_BLOCKING_ENABLED: true
 #KEYWORD_FILTER_BLOCKING_ENABLED: true
 #PHONE_NUMBER_FILTER_BLOCKING_ENABLED: true
+
+# Compte assigné aux tâches de suivi des envois bloqués (e-mail d'un AdminUser).
+BLOCKED_SEND_ASSIGNEE_EMAIL: xxx
 
 # Statistiques d'appel : dashboard Metabase embarqué (page « Mes statistiques d'appel »).
 # L'adresse du site et l'id du dashboard sont des constantes de Metabase::GenerateEmbedUrlService.

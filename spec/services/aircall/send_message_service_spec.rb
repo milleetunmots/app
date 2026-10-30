@@ -67,6 +67,26 @@ RSpec.describe Aircall::SendMessageService do
             ).call
           }.not_to change(BlockedSendAttempt, :count)
         end
+
+        # Aircall::SendMessageJob rejoue le service jusqu'à 10 fois après un
+        # échec API : la tentative est retrouvée, l'équipe n'est pas ré-alertée.
+        it "n'alerte pas de nouveau l'équipe quand le job est rejoué" do
+          allow(BlockedSendAttempt::NotifySlackService).to receive(:new).and_call_original
+          send_message = -> { described_class.new(number_id: '123', to: parent.phone_number, body: body, event_id: event.id).call }
+
+          send_message.call
+          expect { send_message.call }.not_to change(BlockedSendAttempt, :count)
+
+          expect(BlockedSendAttempt::NotifySlackService).to have_received(:new).once
+        end
+
+        it "rattache la tentative à l'auteur transmis par le job" do
+          author = FactoryBot.create(:admin_user, user_role: 'caller')
+
+          described_class.new(number_id: '123', to: parent.phone_number, body: body, event_id: event.id, admin_user_id: author.id).call
+
+          expect(BlockedSendAttempt.last.admin_user).to eq(author)
+        end
       end
     end
 

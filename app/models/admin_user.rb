@@ -75,6 +75,7 @@ class AdminUser < ApplicationRecord
   has_many :child_supports, foreign_key: 'supporter_id', inverse_of: :supporter, dependent: :nullify
   has_many :children, through: :child_supports
   has_many :scheduled_calls, dependent: :nullify
+  has_many :blocked_send_attempts, dependent: :nullify
   # dependent: :destroy et non :nullify comme ses voisins : admin_user_id
   # est null: false sur sms_send_records.
   has_many :sms_send_records, dependent: :destroy

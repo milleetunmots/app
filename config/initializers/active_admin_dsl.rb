@@ -1,5 +1,6 @@
 require 'active_admin/better_csv/dsl'
 require 'active_admin/discard/dsl'
+require 'active_admin/flash_task_links'
 require 'active_admin/media/dsl'
 require 'active_admin/paper_trail/dsl'
 require 'active_admin/tags/dsl'
@@ -25,6 +26,7 @@ module ActiveAdminBeforeIndexPartial
 end
 
 ActiveAdmin::Views::Pages::Index.prepend(ActiveAdminBeforeIndexPartial)
+ActiveAdmin::Views::Pages::Base.prepend(ActiveAdmin::FlashTaskLinks)
 
 # Simulation de connexion (« Se connecter en tant que ») : bandeau permanent et classe
 # `impersonating` sur le body, qui fait passer les formulaires en lecture seule (impersonation.js).

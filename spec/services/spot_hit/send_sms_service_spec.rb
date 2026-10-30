@@ -66,6 +66,26 @@ RSpec.describe SpotHit::SendSmsService do
             ).call
           }.not_to change(BlockedSendAttempt, :count)
         end
+
+        it "rattache la tentative à l'auteur de l'envoi" do
+          author = FactoryBot.create(:admin_user, user_role: 'caller')
+
+          described_class.new([parent.id], planned_timestamp, message, admin_user_id: author.id).call
+
+          expect(BlockedSendAttempt.last.admin_user).to eq(author)
+        end
+
+        # Un numéro partagé ne reçoit qu'un message : on compte des numéros, pas
+        # des fiches parent.
+        it 'transmet au guard le nombre de destinataires distincts' do
+          other_parent = FactoryBot.create(:parent, phone_number: '+33612121212')
+          same_number_parent = FactoryBot.create(:parent, phone_number: other_parent.phone_number)
+          allow(BlockedSendAttempt::SendGuard).to receive(:new).and_call_original
+
+          described_class.new([parent.id, other_parent.id, same_number_parent.id], planned_timestamp, message).call
+
+          expect(BlockedSendAttempt::SendGuard).to have_received(:new).with(message, hash_including(recipients_count: 2))
+        end
       end
     end
 
@@ -119,7 +139,7 @@ RSpec.describe SpotHit::SendSmsService do
           service = described_class.new([parent.id], planned_timestamp, 'Faites un virement immédiat').call
         }.to change(BlockedSendAttempt, :count).by(1)
 
-        expect(service.errors).to eq(['Ce message ne peut pas être envoyé, veuillez contacter le pôle tech.'])
+        expect(service.errors).to eq([BlockedSendAttempt::SendGuard::BLOCKED_MESSAGE])
         expect(BlockedSendAttempt.last).to have_attributes(kind: 'keyword', status: 'pending')
         expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
       end

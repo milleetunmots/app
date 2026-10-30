@@ -3,7 +3,8 @@ class SpotHit::SendMessageService
   include JsonResponseConcern
   include SpotHit::Recipients
 
-  attr_reader :errors
+  # blocked_send_guard : guard qui a bloqué l'envoi, nil sinon.
+  attr_reader :errors, :blocked_send_guard
 
   # Vrai dès que Spot-Hit a accepté la campagne. Les erreurs qui suivent (event
   # invalide, parent non résolu, atelier non sauvegardé) n'empêchent pas les
@@ -14,7 +15,8 @@ class SpotHit::SendMessageService
     @sent
   end
 
-  def initialize(recipients, planned_timestamp, message, file: nil, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil)
+  # defer_block_report : cf. BlockedSendAttempt::SendGuard (création d'atelier).
+  def initialize(recipients, planned_timestamp, message, file: nil, workshop_id: nil, event_params: {}, replay_params: {}, blocked_send_attempt_id: nil, admin_user_id: nil, defer_block_report: false)
     @planned_timestamp = planned_timestamp
     @sent = false
     @recipients = recipients
@@ -25,6 +27,8 @@ class SpotHit::SendMessageService
     @workshop = Workshop.find_by(id: workshop_id)
     @replay_params = replay_params
     @blocked_send_attempt_id = blocked_send_attempt_id
+    @admin_user_id = admin_user_id
+    @defer_block_report = defer_block_report
   end
 
   protected
@@ -36,11 +40,16 @@ class SpotHit::SendMessageService
         provider: 'spothit',
         extra_texts: recipient_variable_values,
         replay_params: @replay_params,
-        blocked_send_attempt_id: @blocked_send_attempt_id
+        blocked_send_attempt_id: @blocked_send_attempt_id,
+        admin_user_id: @admin_user_id,
+        recipients_count: recipient_variables.size,
+        recipient_parent_id: sole_recipient_parent_id,
+        defer_report: @defer_block_report
       )
       if guard.blocked?
         guard.register!
         if guard.block_send?
+          @blocked_send_guard = guard
           @errors << guard.error_message
           return
         end

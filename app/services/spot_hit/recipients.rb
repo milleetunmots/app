@@ -23,6 +23,11 @@ module SpotHit::Recipients
     end
   end
 
+  # Parent destinataire quand l'envoi n'en vise qu'un, nil sinon.
+  def sole_recipient_parent_id
+    recipient_variables.keys.first if recipient_variables.one?
+  end
+
   # {parent_id => phone_number}
   def phone_numbers_by_parent_id
     @phone_numbers_by_parent_id ||= Parent.where(id: recipient_variables.keys).pluck(:id, :phone_number).to_h
