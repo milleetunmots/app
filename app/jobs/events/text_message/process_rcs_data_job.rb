@@ -30,6 +30,23 @@ class Events::TextMessage
       'INTERNAL_OTHER_ISSUE' => 4
       }.freeze
 
+    # Erreurs de livraison qui révèlent un problème chez 1001mots ou SpotHit.
+    # Les autres (destinataire injoignable, canal indisponible…) font partie de
+    # la vie normale d'une campagne : elles ne sont qu'enregistrées dans
+    # rcs_error_code.
+    ALERTING_RCS_ERROR_CODES = %w[
+      CLIENT_MESSAGE_INVALID
+      CLIENT_CONFIGURATION_INVALID
+      CLIENT_QUOTA_EXCEEDED
+      CLIENT_MESSAGE_FORBIDDEN
+      INTERNAL_NOT_IMPLEMENTED
+      INTERNAL_OTHER_ISSUE
+    ].freeze
+
+    # Contenus entrants sans texte qui ne sont pas des réponses écrites (clic sur
+    # un bouton, saisie en cours…) : on ne les historise pas.
+    SILENT_CONTENT_TYPES = %w[postback media location typing optin].freeze
+
     def perform(payload)
       Array.wrap(payload['events']).each do |event|
         event_content = event['messageStatusChanged'] || event['userMessageReceived']
@@ -55,6 +72,10 @@ class Events::TextMessage
           text_message_datas = retrieve_text_message_datas(event_content)
           apply_rcs_status_change(event_content, text_message_datas, spot_hit_status)
         elsif event['userMessageReceived']
+          # En premier : ces contenus n'ont pas forcément de campagne ni de numéro
+          # connu, et les contrôles suivants alerteraient pour rien.
+          next if silent_content?(event_content)
+
           unless event['on']
             Rollbar.error('spot_hit_rcs_data: event without date', event: event)
             next
@@ -70,6 +91,11 @@ class Events::TextMessage
     end
 
     private
+
+    def silent_content?(event_content)
+      content = event_content['content']
+      content.is_a?(Hash) && !content['text'] && content.keys.intersect?(SILENT_CONTENT_TYPES)
+    end
 
     def retrieve_text_message_datas(event_content)
       campaign_id = event_content.dig('context', 'campaign_id')
@@ -92,7 +118,7 @@ class Events::TextMessage
       # bloqué en attente.
       parent_ids = Parent.where(phone_number: phone).ids
       if parent_ids.empty?
-        Rollbar.error('spot_hit_rcs_data: parent not found', event_content: event_content)
+        Rollbar.error('spot_hit_rcs_data: parent not found', event_content: event_content) if known_campaign?(campaign_id)
         return {}
       end
 
@@ -123,14 +149,38 @@ class Events::TextMessage
         Parent.where(id: parent_ids).order(:created_at).last
     end
 
+    # Les campagnes envoyées hors de l'app (à la main depuis SpotHit, ou depuis
+    # staging et local, qui partagent l'agent de la prod) déclenchent aussi ce
+    # webhook : seule une campagne portée par un event sortant de l'app est
+    # anormale quand on n'y retrouve pas le destinataire. Les events entrants ne
+    # comptent pas, une réponse à une campagne inconnue en crée un.
+    def known_campaign?(campaign_id)
+      @known_campaigns ||= {}
+      return @known_campaigns[campaign_id] if @known_campaigns.key?(campaign_id)
+
+      @known_campaigns[campaign_id] = Events::TextMessage.exists?(spot_hit_rcs_id: campaign_id, originated_by_app: true)
+    end
+
     def apply_rcs_status_change(event_content, text_message_datas, spot_hit_status)
+      # Sans données, l'anomalie (campaign_id, userId, parent) a déjà été traitée.
+      return if text_message_datas.blank?
+
       text_messages = text_message_datas[:text_messages]
       if text_messages.blank?
-        Rollbar.error('spot_hit_rcs_data: text_message not found', event_content: event_content)
+        Rollbar.error('spot_hit_rcs_data: text_message not found for known campaign', event_content: event_content) if known_campaign?(text_message_datas[:campaign_id])
         return
       end
 
       text_messages.each { |text_message| apply_status_to_text_message(event_content, text_message, spot_hit_status) }
+      # Une alerte par événement, même si plusieurs parents partagent le numéro.
+      report_delivery_error(event_content)
+    end
+
+    def report_delivery_error(event_content)
+      return unless event_content['status'] == 'DELIVERY_FAILED'
+      return unless ALERTING_RCS_ERROR_CODES.include?(event_content.dig('error', 'code'))
+
+      Rollbar.error('spot_hit_rcs_data: RCS delivery error', event_content: event_content)
     end
 
     def apply_status_to_text_message(event_content, text_message, spot_hit_status)
@@ -138,20 +188,13 @@ class Events::TextMessage
       event_status = Event::SPOT_HIT_STATUS[spot_hit_status]
       retrograde = Event::SPOT_HIT_STATUS_ORDERED.index(text_message_status) > Event::SPOT_HIT_STATUS_ORDERED.index(event_status)
       fallback_after_failure = event_content['channelId'] == 'fallback' && text_message_status == 'Échec'
-      if retrograde && !fallback_after_failure
-        Rollbar.error('spot_hit_rcs_data: retrograde rcs status',
-                      event_content: event_content,
-                      text_message_spot_hit_status: text_message.spot_hit_status,
-                      event_status: spot_hit_status)
-        return
-      end
+      # SpotHit ne garantit pas l'ordre chronologique des événements : un statut
+      # moins avancé que le statut courant est attendu, on le laisse de côté.
+      return if retrograde && !fallback_after_failure
 
       attributes = { spot_hit_status: spot_hit_status }
       attributes[:is_fallback] = true if event_content['channelId'] == 'fallback'
-      if event_content['error']
-        Rollbar.error('spot_hit_rcs_data: RCS delivery error', event_content: event_content)
-        attributes[:rcs_error_code] = event_content.dig('error', 'code')
-      end
+      attributes[:rcs_error_code] = event_content.dig('error', 'code') if event_content['error']
       Rollbar.error('spot_hit_rcs_data: text_message not updated', event_content: event_content, text_message: text_message) unless text_message.update(attributes)
     end
 
@@ -167,7 +210,7 @@ class Events::TextMessage
 
       text = event_content.dig('content', 'text')
       unless text
-        Rollbar.error('spot_hit_rcs_data: message received text not found', event_content: event_content)
+        report_content_without_text(event_content)
         return
       end
 
@@ -182,6 +225,16 @@ class Events::TextMessage
         }
       )
       Rollbar.error('spot_hit_rcs_data: message received text_message not created', event_content: event_content, errors: text_message.errors) unless text_message.save
+    end
+
+    # Les modèles RCS de l'app désactivent le STOP : une désinscription RCS vient
+    # d'une campagne manuelle et n'arrête pas le parent, d'où une alerte dédiée.
+    def report_content_without_text(event_content)
+      if event_content['content'].key?('optout')
+        Rollbar.error('spot_hit_rcs_data: RCS opt-out non traité', event_content: event_content)
+      else
+        Rollbar.error('spot_hit_rcs_data: message received unsupported content', event_content: event_content)
+      end
     end
   end
 end

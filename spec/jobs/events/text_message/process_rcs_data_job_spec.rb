@@ -65,8 +65,9 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
     context 'when a retrograde status arrives on the rcs channel' do
       let(:initial_status) { 1 } # Livré
 
-      it 'reports to Rollbar and keeps the current status' do
-        expect(Rollbar).to receive(:error).with('spot_hit_rcs_data: retrograde rcs status', anything)
+      # SpotHit ne garantit pas l'ordre des événements : c'est un cas normal.
+      it 'garde le statut courant sans alerte Rollbar' do
+        expect(Rollbar).not_to receive(:error)
         subject.perform_now(payload(status: 'SENT', channel_id: 'rcs'))
         expect(text_message.reload.spot_hit_status).to eq(1)
       end
@@ -87,8 +88,8 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
     context 'when a retrograde status arrives on the fallback channel and the message is not failed' do
       let(:initial_status) { 1 } # Livré
 
-      it 'reports to Rollbar and keeps the current status' do
-        expect(Rollbar).to receive(:error).with('spot_hit_rcs_data: retrograde rcs status', anything)
+      it 'garde le statut courant sans alerte Rollbar' do
+        expect(Rollbar).not_to receive(:error)
         subject.perform_now(payload(status: 'SENT', channel_id: 'fallback'))
         expect(text_message.reload.spot_hit_status).to eq(1)
       end
@@ -283,6 +284,323 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
         expect {
           subject.perform_now(received_payload(user_id: ''))
         }.not_to change(Events::TextMessage, :count)
+      end
+    end
+  end
+
+  describe 'alertes Rollbar sur les campagnes' do
+    let!(:ines) { FactoryBot.create(:parent, phone_number: '+33612345678') }
+    let!(:marc) { FactoryBot.create(:parent, phone_number: '+33698765432') }
+    let!(:ines_text_message) do
+      FactoryBot.create(
+        :text_message,
+        related: ines,
+        message_provider: 'spot_hit',
+        spot_hit_rcs_id: '45878',
+        spot_hit_status: 2 # Envoyé
+      )
+    end
+    let(:unknown_phone_number) { '+33700000000' }
+
+    def status_event(campaign_id:, user_id:, status: 'DELIVERED', channel_id: 'rcs', error_code: nil)
+      content = {
+        'status' => status,
+        'channelId' => channel_id,
+        'userId' => user_id,
+        'context' => { 'campaign_id' => campaign_id }
+      }
+      content['error'] = { 'code' => error_code } if error_code
+      { 'messageStatusChanged' => content }
+    end
+
+    def received_event(campaign_id:, user_id:, text: 'Bonjour')
+      content_event(campaign_id: campaign_id, user_id: user_id, content: { 'text' => text })
+    end
+
+    def content_event(campaign_id:, user_id:, content:)
+      {
+        'on' => '2026-10-29T10:00:00Z',
+        'userMessageReceived' => {
+          'channelId' => 'rcs',
+          'userId' => user_id,
+          'context' => { 'campaign_id' => campaign_id },
+          'content' => content
+        }
+      }
+    end
+
+    def payload(*events)
+      { 'events' => events }
+    end
+
+    context "quand la campagne n'a pas été envoyée par l'app" do
+      [
+        ['READ', '+33612345678'],
+        ['DELIVERED', '+33700000000'],
+        ['DELIVERY_FAILED', '+33612345678']
+      ].each do |status, phone_number|
+        it "ignore le statut #{status} pour #{phone_number} sans alerte Rollbar" do
+          expect(Rollbar).not_to receive(:error)
+          subject.perform_now(payload(status_event(campaign_id: '82177', user_id: phone_number, status: status)))
+          expect(ines_text_message.reload.spot_hit_status).to eq(2)
+        end
+      end
+
+      it "crée la réponse texte d'un parent connu sans alerte Rollbar" do
+        expect(Rollbar).not_to receive(:error)
+        expect do
+          subject.perform_now(payload(received_event(campaign_id: '82177', user_id: ines.phone_number)))
+        end.to change { Events::TextMessage.where(related: ines, originated_by_app: false, body: 'Bonjour').count }.by(1)
+      end
+
+      it "ignore la réponse d'un numéro hors base sans alerte Rollbar" do
+        expect(Rollbar).not_to receive(:error)
+        expect do
+          subject.perform_now(payload(received_event(campaign_id: '82177', user_id: unknown_phone_number)))
+        end.not_to change(Events::TextMessage, :count)
+      end
+
+      it 'ignore le statut même si une réponse entrante porte déjà la campagne' do
+        Events::TextMessage.create!(
+          related: ines,
+          body: 'Réponse précédente',
+          spot_hit_rcs_id: '82177',
+          spot_hit_status: 1,
+          occurred_at: 1.day.ago,
+          originated_by_app: false
+        )
+
+        expect(Rollbar).not_to receive(:error)
+        subject.perform_now(payload(status_event(campaign_id: '82177', user_id: ines.phone_number, status: 'READ')))
+      end
+    end
+
+    context "quand la campagne a été envoyée par l'app" do
+      it "lève une seule alerte si aucun event n'existe pour ce parent" do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: text_message not found for known campaign', hash_including(:event_content))
+          .once
+        subject.perform_now(payload(status_event(campaign_id: '45878', user_id: marc.phone_number)))
+      end
+
+      it "lève une seule alerte « parent not found » pour un statut d'un numéro hors base" do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: parent not found', hash_including(:event_content))
+          .once
+        subject.perform_now(payload(status_event(campaign_id: '45878', user_id: unknown_phone_number)))
+      end
+
+      [
+        %w[fallback USER_UNAVAILABLE],
+        %w[rcs USER_UKNOWN],
+        %w[rcs USER_BLOCKED],
+        %w[rcs CHANNEL_REJECTED],
+        %w[rcs CHANNEL_UNAVAILABLE],
+        %w[rcs CHANNEL_INTERNAL_ISSUE],
+        %w[rcs CHANNEL_OTHER_ISSUE],
+        %w[rcs CLIENT_MESSAGE_EXPIRED]
+      ].each do |channel_id, error_code|
+        it "enregistre l'échec #{error_code} sur le canal #{channel_id} sans alerte Rollbar" do
+          expect(Rollbar).not_to receive(:error)
+          subject.perform_now(
+            payload(
+              status_event(
+                campaign_id: '45878',
+                user_id: ines.phone_number,
+                status: 'DELIVERY_FAILED',
+                channel_id: channel_id,
+                error_code: error_code
+              )
+            )
+          )
+          ines_text_message.reload
+          expect(ines_text_message.spot_hit_status).to eq(4)
+          expect(ines_text_message.rcs_error_code).to eq(error_code)
+        end
+      end
+
+      # Depuis « Envoyé », DELIVERY_RETRIED (« En cours ») est rétrograde et ignoré :
+      # on part d'un event encore en attente pour que l'essai s'applique.
+      it "enregistre l'erreur d'un nouvel essai de livraison sans alerte Rollbar" do
+        ines_text_message.update!(spot_hit_status: 0) # En attente
+        expect(Rollbar).not_to receive(:error)
+        subject.perform_now(
+          payload(
+            status_event(
+              campaign_id: '45878',
+              user_id: ines.phone_number,
+              status: 'DELIVERY_RETRIED',
+              error_code: 'CLIENT_QUOTA_EXCEEDED'
+            )
+          )
+        )
+        expect(ines_text_message.reload.rcs_error_code).to eq('CLIENT_QUOTA_EXCEEDED')
+      end
+
+      %w[
+        CLIENT_MESSAGE_INVALID
+        CLIENT_CONFIGURATION_INVALID
+        CLIENT_QUOTA_EXCEEDED
+        CLIENT_MESSAGE_FORBIDDEN
+        INTERNAL_NOT_IMPLEMENTED
+        INTERNAL_OTHER_ISSUE
+      ].each do |error_code|
+        it "enregistre l'échec #{error_code} et lève une alerte Rollbar" do
+          expect(Rollbar).to receive(:error)
+            .with('spot_hit_rcs_data: RCS delivery error', hash_including(:event_content))
+            .once
+          subject.perform_now(
+            payload(
+              status_event(
+                campaign_id: '45878',
+                user_id: ines.phone_number,
+                status: 'DELIVERY_FAILED',
+                error_code: error_code
+              )
+            )
+          )
+          ines_text_message.reload
+          expect(ines_text_message.spot_hit_status).to eq(4)
+          expect(ines_text_message.rcs_error_code).to eq(error_code)
+        end
+      end
+
+      context "quand deux parents partagent le numéro et que l'erreur vient de 1001mots" do
+        let!(:sami) { FactoryBot.create(:parent, phone_number: ines.phone_number, first_name: 'Sami') }
+        let!(:sami_text_message) do
+          FactoryBot.create(
+            :text_message,
+            related: sami,
+            message_provider: 'spot_hit',
+            spot_hit_rcs_id: '45878',
+            spot_hit_status: 2 # Envoyé
+          )
+        end
+
+        it 'met à jour les deux events et ne lève qu\'une seule alerte Rollbar' do
+          expect(Rollbar).to receive(:error)
+            .with('spot_hit_rcs_data: RCS delivery error', hash_including(:event_content))
+            .once
+          subject.perform_now(
+            payload(
+              status_event(
+                campaign_id: '45878',
+                user_id: ines.phone_number,
+                status: 'DELIVERY_FAILED',
+                error_code: 'CLIENT_QUOTA_EXCEEDED'
+              )
+            )
+          )
+          [ines_text_message, sami_text_message].each do |text_message|
+            text_message.reload
+            expect(text_message.spot_hit_status).to eq(4)
+            expect(text_message.rcs_error_code).to eq('CLIENT_QUOTA_EXCEEDED')
+          end
+        end
+      end
+
+      it "lève une seule alerte « parent not found » pour une réponse d'un numéro hors base" do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: parent not found', hash_including(:event_content))
+          .once
+        expect do
+          subject.perform_now(payload(received_event(campaign_id: '45878', user_id: unknown_phone_number)))
+        end.not_to change(Events::TextMessage, :count)
+      end
+    end
+
+    context 'quand le parent répond autrement que par un message écrit' do
+      {
+        'postback' => { 'postback' => { 'buttonType' => 'openUrl', 'text' => 'Je vote pour 1001mots', 'payload' => 'c1_a1' } },
+        'media' => { 'media' => { 'type' => 'image/png', 'source' => 'https://exemple.fr/photo.png' } },
+        'location' => { 'location' => { 'latitude' => 48.82, 'longitude' => 2.23 } },
+        'typing' => { 'typing' => {} },
+        'optin' => { 'optin' => { 'text' => 'Get Started' } }
+      }.each do |type, content|
+        it "ignore le contenu #{type} sans alerte Rollbar" do
+          expect(Rollbar).not_to receive(:error)
+          expect do
+            subject.perform_now(payload(content_event(campaign_id: '45878', user_id: ines.phone_number, content: content)))
+          end.not_to change(Events::TextMessage, :count)
+        end
+
+        it "ignore le contenu #{type} hors campagne sans alerte Rollbar" do
+          expect(Rollbar).not_to receive(:error)
+          subject.perform_now(payload(content_event(campaign_id: nil, user_id: ines.phone_number, content: content)))
+        end
+
+        it "ignore le contenu #{type} d'un numéro hors base sans alerte Rollbar" do
+          expect(Rollbar).not_to receive(:error)
+          subject.perform_now(payload(content_event(campaign_id: '45878', user_id: unknown_phone_number, content: content)))
+        end
+
+        it "ignore le contenu #{type} sans date sans alerte Rollbar" do
+          expect(Rollbar).not_to receive(:error)
+          event = content_event(campaign_id: '45878', user_id: ines.phone_number, content: content).except('on')
+          subject.perform_now(payload(event))
+        end
+      end
+
+      it "alerte toujours sur une réponse écrite hors campagne" do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: campaign_id not found', hash_including(:event_content))
+          .once
+        subject.perform_now(payload(received_event(campaign_id: nil, user_id: ines.phone_number)))
+      end
+
+      it 'lève une alerte dédiée pour une désinscription RCS, sans toucher au parent' do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: RCS opt-out non traité', hash_including(:event_content))
+          .once
+        expect do
+          subject.perform_now(
+            payload(content_event(campaign_id: '45878', user_id: ines.phone_number, content: { 'optout' => { 'text' => 'STOP' } }))
+          )
+        end.not_to change(Events::TextMessage, :count)
+        expect(ines.reload.updated_at).to eq(ines.updated_at)
+      end
+
+      it 'lève une alerte pour un type de contenu que l\'app ne connaît pas' do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: message received unsupported content', hash_including(:event_content))
+          .once
+        expect do
+          subject.perform_now(
+            payload(content_event(campaign_id: '45878', user_id: ines.phone_number, content: { 'sticker' => { 'id' => '42' } }))
+          )
+        end.not_to change(Events::TextMessage, :count)
+      end
+
+      it 'crée la réaction emoji comme une réponse texte, sans alerte Rollbar' do
+        expect(Rollbar).not_to receive(:error)
+        expect do
+          subject.perform_now(
+            payload(
+              content_event(campaign_id: '45878', user_id: ines.phone_number, content: { 'text' => '👍', 'isReaction' => true })
+            )
+          )
+        end.to change { Events::TextMessage.where(related: ines, originated_by_app: false, body: '👍').count }.by(1)
+      end
+    end
+
+    context 'quand un lot mêle bruit et anomalie' do
+      it "traite chaque événement et ne lève que l'alerte de l'anomalie" do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: parent not found', hash_including(:event_content))
+          .once
+        subject.perform_now(
+          payload(
+            status_event(campaign_id: '82177', user_id: ines.phone_number, status: 'READ'),
+            content_event(
+              campaign_id: '45878',
+              user_id: ines.phone_number,
+              content: { 'postback' => { 'buttonType' => 'openUrl', 'text' => 'Je vote pour 1001mots', 'payload' => 'c1_a1' } }
+            ),
+            status_event(campaign_id: '45878', user_id: unknown_phone_number),
+            status_event(campaign_id: '45878', user_id: ines.phone_number)
+          )
+        )
+        expect(ines_text_message.reload.spot_hit_status).to eq(1) # Livré
       end
     end
   end

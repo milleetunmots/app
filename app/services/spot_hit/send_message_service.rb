@@ -63,7 +63,12 @@ class SpotHit::SendMessageService
     response = HTTP.post(uri, form: form)
     body = parse_json_response(response)
     if !body.is_a?(Hash) || body.key?('erreurs')
-      @errors << "Erreur lors de la programmation de la campagne. [Réponse SPOT_HIT API #{json_error_message(response, body)}]"
+      report_api_failure(
+        'SpotHit::SendMessageService : campagne refusée',
+        response,
+        recipients_count: recipient_variables.size
+      )
+      @errors << "Erreur lors de la programmation de la campagne SMS. [Réponse SPOT_HIT API #{json_error_message(response, body)}]"
     else
       @sent = true
       create_events(body['id'])

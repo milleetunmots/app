@@ -111,13 +111,23 @@ RSpec.describe 'EventsController#spot_hit_rcs_data', type: :request do
       expect(text_message.spot_hit_status).to eq(4) # DELIVERY_FAILED -> Échec
     end
 
-    it 'logs when no text_message matches the campaign' do
+    it "n'alerte pas quand la campagne n'a pas été envoyée par l'app" do
       text_message.update!(spot_hit_rcs_id: 'other-campaign')
 
       post_rcs(status_payload)
 
       expect(response).to have_http_status(:ok)
-      expect(Rollbar).to have_received(:error).with('spot_hit_rcs_data: text_message not found', anything)
+      expect(Rollbar).not_to have_received(:error)
+    end
+
+    it "alerte quand la campagne de l'app n'a pas d'event pour ce parent" do
+      text_message.update!(related: FactoryBot.create(:parent, phone_number: '0755802003'))
+
+      post_rcs(status_payload)
+
+      expect(response).to have_http_status(:ok)
+      expect(Rollbar).to have_received(:error)
+        .with('spot_hit_rcs_data: text_message not found for known campaign', anything).once
     end
   end
 
@@ -158,7 +168,18 @@ RSpec.describe 'EventsController#spot_hit_rcs_data', type: :request do
       end.not_to change(Events::TextMessage, :count)
 
       expect(response).to have_http_status(:ok)
-      expect(Rollbar).to have_received(:error).with('spot_hit_rcs_data: parent not found', anything)
+      expect(Rollbar).not_to have_received(:error)
+    end
+
+    it "alerte quand un numéro hors base répond à une campagne de l'app" do
+      FactoryBot.create(:text_message, related: parent, spot_hit_rcs_id: campaign_id, originated_by_app: true)
+
+      expect do
+        post_rcs(received_payload('userId' => '0668029999'))
+      end.not_to change(Events::TextMessage, :count)
+
+      expect(response).to have_http_status(:ok)
+      expect(Rollbar).to have_received(:error).with('spot_hit_rcs_data: parent not found', anything).once
     end
 
     it 'does not create a message when the text content is missing' do
