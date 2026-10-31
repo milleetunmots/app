@@ -8,8 +8,10 @@ class ChildrenSupportModule
       @errors = {}
       @group = Group.find(group_id)
       children_support_module_ids = ChildrenSupportModule.not_programmed.where(child_id: current_children).ids
-      # save books we will send in children support modules for modules 2+
-      ChildrenSupportModule::SaveBookFromSupportModuleService.new(group_id: group_id).call if group.support_module_programmed >= 1
+      # le Module 1 est lancé tout de suite (perform_later) : le job d'export logistique ne le voit jamais,
+      # on enregistre ses livres ici. À partir du module d'index 3, c'est l'export qui les enregistre.
+      ChildrenSupportModule::SaveBookFromSupportModuleService.new(group_ids: [group_id]).call if group.support_module_programmed == 1
+      report_unsaved_books if group.support_module_programmed >= 2
       program_chosen_modules(children_support_module_ids, first_message_date)
       update_children_support_module(not_current_children)
       update_group(group)
@@ -55,6 +57,14 @@ class ChildrenSupportModule
         title: "la programmation des sms de la cohorte \"#{group.name}\" a été annulé car il n'y a pas assez de crédits",
         description: check_service.errors.join('<br>')
       )
+    end
+
+    # avant la programmation des SMS, qui marque les modules programmés ; n'interrompt pas la programmation
+    def report_unsaved_books
+      service = ChildrenSupportModule::CheckBooksSavedService.new(group_ids: [group.id]).call
+      return if service.errors.empty?
+
+      Rollbar.error('ChildrenSupportModule::ProgramSupportModuleSmsJob', errors: service.errors)
     end
 
     def program_chosen_modules(child_ids, first_message_date)
