@@ -172,15 +172,29 @@ ActiveAdmin.register Group do
     link_to I18n.t('group.export_link'), [:export, :admin, resource]
   end
 
-  member_action :export do
-    service = Child::ExportBooksV2Service.new(group_ids: [resource.id]).call
+  # GET affiche la question « Enregistrer les choix de livres ? », POST exporte
+  member_action :export, method: %i[get post] do
+    @page_title = I18n.t('group.export_link')
+    next unless request.post?
 
-    if service.errors.empty?
+    freeze_books = FreezeBooksChoice.parse(params[:freeze_books])
+    errors = if freeze_books.nil?
+               [FreezeBooksChoice::MISSING_ANSWER]
+             elsif freeze_books
+               Group::CheckChosenModulesService.new(groups: [resource.object]).call.errors.pluck(:message)
+             else
+               []
+             end
+    if errors.empty?
+      service = Child::ExportBooksV2Service.new(group_ids: [resource.id], freeze_books: freeze_books).call
+      errors = service.errors
+    end
+
+    if errors.empty?
       send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
                                        disposition: 'attachment', filename: "#{Time.zone.today.strftime('%d-%m-%Y')}.zip"
     else
-      flash[:alert] = service.errors
-      redirect_back(fallback_location: root_path)
+      redirect_to export_admin_group_path(resource), alert: errors.join(' - ')
     end
   end
 

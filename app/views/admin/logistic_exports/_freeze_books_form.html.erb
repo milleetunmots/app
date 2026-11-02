@@ -1,0 +1,21 @@
+<%= form_with(url: url, method: :post, local: true) do |f| %>
+  <fieldset style='margin-bottom: 20px;'>
+    <ol>
+      <li class='input'>
+        <span class='label' style="font-weight: bold; text-align: left; padding-bottom: 0; height: 25px; width: 25%; float: left; padding-right: 20px;"><%= FreezeBooksChoice::QUESTION %></span>
+        <%= f.radio_button :freeze_books, 'true', required: true %>
+        <%= f.label :freeze_books_true, 'Oui', style: 'margin-right: 20px;' %>
+        <%= f.radio_button :freeze_books, 'false', required: true %>
+        <%= f.label :freeze_books_false, 'Non' %>
+      </li>
+    </ol>
+
+    <fieldset style='padding-left: 25%'>
+      <ol>
+        <li style="display: inline-block; margin-right: 10px;">
+          <%= f.submit 'Télécharger', style: "line-height: 43px;" %>
+        </li>
+      </ol>
+    </fieldset>
+  </fieldset>
+<% end %>
