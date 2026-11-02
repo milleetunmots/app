@@ -177,7 +177,7 @@ ActiveAdmin.setup do |config|
 
   # == Setting a Favicon
   #
-  config.favicon = 'favicon.ico'
+  config.favicon = Rails.application.config.x.favicon
 
   # == Meta Tags
   #

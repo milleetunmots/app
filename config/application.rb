@@ -23,5 +23,9 @@ module Mots
     config.active_record.partial_inserts = true
     config.active_support.disable_to_s_conversion = true
     config.session_store :cookie_store, key: '_mots_session'
+
+    # Favicon des pages (admin et publiques) : logo entier, sauf en développement
+    # (cf. config/environments/development.rb). public/favicon.ico est le même logo entier.
+    config.x.favicon = 'favicon.ico'
   end
 end
