@@ -272,14 +272,21 @@ ActiveAdmin.register Group do
     )
   end
 
-  batch_action :support_modules_chosen_excel_export, if: proc { current_admin_user.can_export_data? } do |ids|
+  # l'option vide, sélectionnée à l'ouverture de la fenêtre, oblige à répondre
+  batch_action :support_modules_chosen_excel_export, form: -> {
+    { FreezeBooksChoice::QUESTION => [['', ''], %w[Oui true], %w[Non false]] }
+  }, if: proc { current_admin_user.can_export_data? } do |ids, inputs|
+    freeze_books = FreezeBooksChoice.parse(inputs[FreezeBooksChoice::QUESTION])
     check_service = Group::CheckChosenModulesService.new(groups: Group.where(id: ids)).call
 
-    if check_service.errors.any?
-      flash[:alert] = check_service.errors.map { |error| error[:message] }.join(' - ')
+    if freeze_books.nil?
+      flash[:alert] = FreezeBooksChoice::MISSING_ANSWER
+      redirect_back(fallback_location: root_path)
+    elsif check_service.errors.any?
+      flash[:alert] = check_service.errors.pluck(:message).join(' - ')
       redirect_back(fallback_location: root_path)
     else
-      service = Child::ExportBooksV2Service.new(group_ids: ids).call
+      service = Child::ExportBooksV2Service.new(group_ids: ids, freeze_books: freeze_books).call
       if service.errors.empty?
         send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
                                          disposition: 'attachment', filename: "#{Time.zone.today.strftime('%d-%m-%Y')}.zip"

@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Export logistique depuis la fiche cohorte', type: :request do
-  let!(:group) { FactoryBot.create(:group).tap { |group| group.update_column(:support_module_programmed, 2) } }
+  # nom fixe : un nom aléatoire peut contenir une apostrophe, échappée dans la page
+  let!(:group) { FactoryBot.create(:group, name: 'Printemps 2026').tap { |group| group.update_column(:support_module_programmed, 2) } }
   let!(:book) { FactoryBot.create(:book) }
   let!(:support_module) { FactoryBot.create(:support_module, book: book) }
   let!(:child) { FactoryBot.create(:child, group: group, group_status: 'active') }
