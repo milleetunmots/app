@@ -94,9 +94,17 @@ class ParentDecorator < BaseDecorator
     [42, 7, 'address-content--tiny']
   ].freeze
 
-  def address_lines
-    attention_to = model.attention_to&.upcase&.sub(/\APOUR\b/, "A l'attention de")
-    lines = [delivery_name.to_s.upcase]
+  # upcase: false garde la casse saisie (étiquettes) ; la fiche de suivi et la
+  # variable SMS {PARENT_ADDRESS} restent en majuscules.
+  def address_lines(upcase: true)
+    name = delivery_name.to_s
+    attention_to = model.attention_to
+    if upcase
+      name = name.upcase
+      attention_to = attention_to&.upcase
+    end
+    attention_to = attention_to&.sub(/\Apour\b/i, "A l'attention de")
+    lines = [name]
     lines << attention_to unless model.book_delivery_location == 'home'
     lines << address
     lines << address_supplement if address_supplement.present?
@@ -109,7 +117,7 @@ class ParentDecorator < BaseDecorator
   end
 
   def label_address_lines
-    address_lines.map { |line| line.squish.truncate(LABEL_LINE_MAX_LENGTH) }
+    address_lines(upcase: false).map { |line| line.squish.truncate(LABEL_LINE_MAX_LENGTH) }
   end
 
   # 1re ligne de l'étiquette, mise en avant : nom sur la boîte aux lettres ou raison

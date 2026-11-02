@@ -59,10 +59,10 @@ RSpec.describe 'Admin génération des étiquettes depuis la page Enfants', type
           expect(cases[8].last).to be_empty
         end
 
-        it "met le nom sur la boîte aux lettres en titre de l'étiquette d'adresse" do
+        it "met le nom sur la boîte aux lettres en titre de l'étiquette d'adresse, tel qu'il a été saisi" do
           titres = planche.css('.address-heading').map { |titre| titre.text.squish }
 
-          expect(titres).to eq(['CLÉMENCE YOBOUET', 'SARAH MARTIN', 'KARIM BENALI', 'AWA DIALLO'])
+          expect(titres).to eq(['Clémence Yobouet', 'Sarah Martin', 'Karim Benali', 'Awa Diallo'])
         end
 
         it "met la rue puis le code postal et la ville dans le corps de l'étiquette, une ligne chacun" do
