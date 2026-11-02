@@ -96,15 +96,9 @@ class ParentDecorator < BaseDecorator
 
   def address_lines
     attention_to = model.attention_to&.upcase&.sub(/\APOUR\b/, "A l'attention de")
-    lines =
-      case model.book_delivery_location
-      when 'home'
-        [letterbox_name.to_s.upcase, address]
-      when 'relative_home'
-        [letterbox_name.to_s.upcase, attention_to, address]
-      else
-        [book_delivery_organisation_name.to_s.upcase, attention_to, address]
-      end
+    lines = [delivery_name.to_s.upcase]
+    lines << attention_to unless model.book_delivery_location == 'home'
+    lines << address
     lines << address_supplement if address_supplement.present?
     lines << [postal_code, city_name].join(' ')
     lines.compact_blank
@@ -116,6 +110,17 @@ class ParentDecorator < BaseDecorator
 
   def label_address_lines
     address_lines.map { |line| line.squish.truncate(LABEL_LINE_MAX_LENGTH) }
+  end
+
+  # 1re ligne de l'étiquette, mise en avant : nom sur la boîte aux lettres ou raison
+  # sociale. nil quand ce nom manque (donnée ancienne) : address_lines l'a alors
+  # retiré, et aucune ligne d'adresse ne doit prendre sa place en titre.
+  def label_heading_line
+    label_address_lines.first if delivery_name.present?
+  end
+
+  def label_body_lines
+    label_heading_line ? label_address_lines.drop(1) : label_address_lines
   end
 
   # Réduit la police quand l'adresse ne tient pas dans l'étiquette, pour que la
@@ -225,5 +230,11 @@ class ParentDecorator < BaseDecorator
 
   def child(child)
     h.link_to child.decorate.name, [:admin, child], class: ChildDecorator::GENDER_COLORS[child.gender.to_sym]
+  end
+
+  # Nom en tête de l'adresse : la boîte aux lettres pour un domicile (le sien ou
+  # celui d'un proche), la raison sociale pour une structure
+  def delivery_name
+    model.book_delivery_location.in?(%w[home relative_home]) ? letterbox_name : book_delivery_organisation_name
   end
 end

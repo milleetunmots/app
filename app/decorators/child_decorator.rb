@@ -232,6 +232,14 @@ class ChildDecorator < BaseDecorator
     model.parent1.decorate.label_address_lines
   end
 
+  def label_heading_line
+    model.parent1.decorate.label_heading_line
+  end
+
+  def label_body_lines
+    model.parent1.decorate.label_body_lines
+  end
+
   def label_size_class
     model.parent1.decorate.label_size_class
   end

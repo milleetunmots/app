@@ -59,12 +59,16 @@ RSpec.describe 'Admin génération des étiquettes depuis la page Enfants', type
           expect(cases[8].last).to be_empty
         end
 
-        it "affiche l'adresse de chaque enfant, nom sur la boîte aux lettres en majuscules" do
-          adresse_julian = cases.first.last
+        it "met le nom sur la boîte aux lettres en titre de l'étiquette d'adresse" do
+          titres = planche.css('.address-heading').map { |titre| titre.text.squish }
 
-          expect(adresse_julian).to include('CLÉMENCE YOBOUET')
-          expect(adresse_julian).to include('75 rue Danielle Casanova')
-          expect(adresse_julian).to include('93200 Saint-Denis')
+          expect(titres).to eq(['CLÉMENCE YOBOUET', 'SARAH MARTIN', 'KARIM BENALI', 'AWA DIALLO'])
+        end
+
+        it "met la rue puis le code postal et la ville dans le corps de l'étiquette, une ligne chacun" do
+          lignes_julian = planche.at_css('.address-body').inner_html.split(%r{<br\s*/?>}).map(&:squish)
+
+          expect(lignes_julian).to eq(['75 rue Danielle Casanova', '93200 Saint-Denis'])
         end
 
         it 'affiche « Un cadeau pour » suivi du prénom de chaque enfant' do

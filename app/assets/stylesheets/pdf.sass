@@ -1,3 +1,6 @@
+// Couleurs de la charte graphique
+$navy: #0B4374
+
 // WebKit applique 8px de marge au body par défaut. Sur une grille large de
 // 210 mm — exactement une A4 — ces 2.1 mm décalent tout vers la droite et font
 // déborder la troisième colonne hors de la page.
@@ -60,11 +63,19 @@ body
     // que le nombre de lignes annoncé par LABEL_FONT_TIERS tienne dans les 30 mm
     // utiles : 4 × 18pt = 25.4 mm, 6 × 14pt = 29.6 mm, 7 × 11pt = 27.2 mm.
     .address-content
-      font-family: 'Nunito', sans-serif
-      font-weight: 800
+      font-family: 'Poppins', sans-serif
+      font-weight: 400
       font-size: 13pt
       line-height: 18pt
-      color: #431F78
+      color: $navy
+
+    // Nom sur la boîte aux lettres ou raison sociale. Taille en em : elle suit le
+    // palier de l'étiquette, dans le rapport 80 / 55 de la maquette.
+    .address-heading
+      font-family: 'Fredoka', sans-serif
+      font-weight: 700
+      font-size: 1.45em
+      line-height: 1.2
 
     .address-content--small
       font-size: 10pt
