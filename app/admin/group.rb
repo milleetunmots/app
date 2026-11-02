@@ -259,19 +259,10 @@ ActiveAdmin.register Group do
   end
 
   batch_action :support_modules_chosen_excel_export, if: proc { current_admin_user.can_export_data? } do |ids|
-    ids.each do |group_id|
-      group = Group.find(group_id)
-      if ChildrenSupportModule.where(child_id: group.active_children_ids, is_programmed: false).where.not(support_module_id: nil).count.zero?
-        flash[:alert] = "Les modules de la cohorte #{group.name} ont déjà été programmés"
-        break
-      end
-      if ChildrenSupportModule.exists?(child_id: group.active_children_ids, is_programmed: false, support_module_id: nil)
-        flash[:alert] = "Dans la cohorte #{group.name}, il y a des enfants sans choix de module."
-        break
-      end
-    end
+    check_service = Group::CheckChosenModulesService.new(groups: Group.where(id: ids)).call
 
-    if flash[:alert]
+    if check_service.errors.any?
+      flash[:alert] = check_service.errors.map { |error| error[:message] }.join(' - ')
       redirect_back(fallback_location: root_path)
     else
       service = Child::ExportBooksV2Service.new(group_ids: ids).call

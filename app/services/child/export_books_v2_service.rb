@@ -16,9 +16,8 @@ class Child
     end
 
     def call
-      # sans cohorte, chosen_modules_for_group renvoie toutes les cohortes : on ne les fige pas toutes
-      if @freeze_books && @group_ids.blank?
-        @errors << 'Aucune cohorte à exporter'
+      if @freeze_books && groups.empty?
+        @errors << 'Aucune cohorte en cours à exporter'
         return self
       end
 
@@ -171,8 +170,13 @@ class Child
       ).call
     end
 
+    # sans cohorte, le fichier couvre toutes les cohortes mais seules les cohortes en cours sont figées
     def groups
-      @groups ||= Group.where(id: @group_ids).to_a
+      @groups ||= if @freeze_books && @group_ids.blank?
+                    Group.kept.not_ended.where(id: chosen_modules.map { |csm| csm.child.group_id }.uniq).to_a
+                  else
+                    Group.where(id: @group_ids).to_a
+                  end
     end
 
     def logistic_export_group_modules

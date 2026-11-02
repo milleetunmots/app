@@ -105,7 +105,7 @@ RSpec.describe Child::ExportBooksV2Service do
     let!(:unshippable_module) { create_module(address_suspected: true) }
     let(:filename) { "9782000000011 Rouge et Bleu #{Time.zone.now.strftime('%d-%m-%Y')}" }
 
-    def create_module(address_suspected: false)
+    def create_module(address_suspected: false, group: self.group)
       child = FactoryBot.create(:child, group: group, group_status: 'active')
       child.child_support.update_column(:address_suspected_invalid_at, Time.zone.now) if address_suspected
       FactoryBot.create(:children_support_module, child: child, parent: child.parent1, support_module: support_module)
@@ -164,11 +164,73 @@ RSpec.describe Child::ExportBooksV2Service do
     context 'sans cohorte' do
       subject(:service) { described_class.new(freeze_books: true) }
 
-      it 'refuse de figer les livres de toutes les cohortes' do
-        expect { service.call }.not_to change(LogisticExport, :count)
+      let!(:ended_group) { create_group(ended_at: Time.zone.today - 1.day) }
+      let!(:discarded_group) { create_group(discarded_at: Time.current) }
+      let!(:ended_group_module) { create_module(group: ended_group) }
+      let!(:discarded_group_module) { create_module(group: discarded_group) }
 
-        expect(service.errors).to include('Aucune cohorte à exporter')
-        expect(shippable_module.reload[:book_id]).to be_nil
+      def create_group(**columns)
+        FactoryBot.create(:group).tap { |group| group.update_columns(support_module_programmed: 2, **columns) }
+      end
+
+      it 'fige les livres des cohortes en cours' do
+        service.call
+
+        expect(service.errors).to be_empty
+        expect(shippable_module.reload[:book_id]).to eq(book.id)
+        expect(unshippable_module.reload.book_condition).to eq('not_sent')
+      end
+
+      it 'ne fige pas les livres des cohortes terminées ou archivées' do
+        service.call
+
+        expect(ended_group_module.reload[:book_id]).to be_nil
+        expect(discarded_group_module.reload[:book_id]).to be_nil
+      end
+
+      it 'enregistre le LogisticExport des seules cohortes en cours' do
+        expect { service.call }.to change(LogisticExport, :count).by(1)
+
+        expect(LogisticExport.last.group_modules).to eq([{ 'group_id' => group.id, 'module_number' => 2 }])
+      end
+
+      context 'quand un enfant de la cohorte n’a pas choisi de module' do
+        before do
+          child = FactoryBot.create(:child, group: group, group_status: 'active')
+          FactoryBot.create(:children_support_module, child: child, parent: child.parent1, support_module: nil)
+        end
+
+        it 'fige quand même les livres de la cohorte' do
+          service.call
+
+          expect(service.errors).to be_empty
+          expect(shippable_module.reload[:book_id]).to eq(book.id)
+        end
+      end
+
+      context "quand aucune cohorte n'est en cours" do
+        before { group.update_column(:ended_at, Time.zone.today - 1.day) }
+
+        it "refuse l'export sans rien figer" do
+          expect { service.call }.not_to change(LogisticExport, :count)
+
+          expect(service.errors).to eq(['Aucune cohorte en cours à exporter'])
+          expect(shippable_module.reload[:book_id]).to be_nil
+          expect(service.zip_file).to be_nil
+        end
+      end
+
+      context 'sans figement' do
+        subject(:service) { described_class.new }
+
+        before { allow(Rollbar).to receive(:error) }
+
+        it "génère le fichier sans LogisticExport ni livre figé, comme aujourd'hui" do
+          expect { service.call }.not_to change(LogisticExport, :count)
+
+          expect(service.zip_file).to be_present
+          expect(shippable_module.reload[:book_id]).to be_nil
+        end
       end
     end
 
