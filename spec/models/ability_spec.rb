@@ -236,6 +236,20 @@ RSpec.describe Ability, type: :model do
     end
   end
 
+  describe "droit d'imprimer les étiquettes d'adresse (print_address_labels)" do
+    %w[super_admin contributor reader].each do |role|
+      it "est accordé à un #{role}" do
+        expect(Ability.new(FactoryBot.create(:admin_user, user_role: role)).can?(:print_address_labels, Child)).to be(true)
+      end
+    end
+
+    %w[caller animator].each do |role|
+      it "est refusé à un #{role}" do
+        expect(Ability.new(FactoryBot.create(:admin_user, user_role: role)).can?(:print_address_labels, Child)).to be(false)
+      end
+    end
+  end
+
   describe "simulation de connexion (impersonate)" do
     let(:accompagnante) { FactoryBot.create(:admin_user, user_role: 'caller') }
 
