@@ -663,15 +663,24 @@ ActiveAdmin.register Child do
     end
   end
 
-  collection_action :download_book_files_v2 do
-    service = Child::ExportBooksV2Service.new.call
+  # GET affiche la question « Enregistrer les choix de livres ? », POST exporte toutes les cohortes
+  collection_action :download_book_files_v2, method: %i[get post] do
+    @page_title = "Télécharger les listes d'enfants par module au format Excel V2"
+    next unless request.post?
+
+    freeze_books = FreezeBooksChoice.parse(params[:freeze_books])
+    if freeze_books.nil?
+      redirect_to download_book_files_v2_admin_children_path, alert: FreezeBooksChoice::MISSING_ANSWER
+      next
+    end
+
+    service = Child::ExportBooksV2Service.new(freeze_books: freeze_books).call
 
     if service.errors.empty?
       send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
                                        disposition: 'attachment', filename: "#{Time.zone.today.strftime('%d-%m-%Y')}.zip"
     else
-      flash[:alert] = service.errors
-      redirect_back(fallback_location: root_path)
+      redirect_to download_book_files_v2_admin_children_path, alert: service.errors.join(' - ')
     end
   end
 
