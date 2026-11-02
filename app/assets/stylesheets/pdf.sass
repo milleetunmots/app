@@ -143,9 +143,21 @@ body
       color: $navy
       text-align: left
 
+    // Paliers du prénom repris dans ChildDecorator::GIFT_NAME_FONT_TIERS : toute
+    // modification ici doit y être reportée. L'interligne reste fixe pour que le
+    // cartouche garde sa mise en page quelle que soit la taille du prénom.
     .gift-card-name
       font-size: 13pt
       line-height: 15pt
       color: $blue
       text-align: right
       white-space: nowrap
+
+    .gift-card-name--small
+      font-size: 11pt
+
+    .gift-card-name--tiny
+      font-size: 9pt
+
+    .gift-card-name--micro
+      font-size: 7.5pt

@@ -79,6 +79,12 @@ RSpec.describe 'Admin génération des étiquettes depuis la page Enfants', type
           expect(cadeaux).to eq([['Un livre pour', 'Julian'], ['Un livre pour', 'Léa'], ['Un livre pour', 'Noah'], ['Un livre pour', 'Inès']])
         end
 
+        it 'applique au prénom le palier de police calculé pour sa longueur' do
+          prenoms = planche.css('.gift-card-name').pluck('class')
+
+          expect(prenoms).to all(eq('gift-card-name'))
+        end
+
         it "n'affiche plus l'ancien texte « Un cadeau pour … ! »" do
           textes = planche.css('.gift-card').map { |carte| carte.text.squish }
 

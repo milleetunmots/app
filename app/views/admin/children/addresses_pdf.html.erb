@@ -27,7 +27,7 @@
         <div class="gift-card-shadow"></div>
         <div class="gift-card-label">
           <div class="gift-card-intro">Un livre pour</div>
-          <div class="gift-card-name"><%= child.first_name %></div>
+          <div class="<%= ['gift-card-name', child.gift_name_size_class].compact.join(' ') %>"><%= child.first_name %></div>
         </div>
       </div>
 
