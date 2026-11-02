@@ -1,8 +1,8 @@
 @import variables
 
-$rcs-color: #3b7ddd
-$sms-color: #4f9d5d
-$incoming-bg: #e9ebef
+$rcs-color: $blue
+$sms-color: $green
+$incoming-bg: $line
 $bubble-text: #ffffff
 
 .chat-history
@@ -16,8 +16,8 @@ $bubble-text: #ffffff
   // légende RCS / SMS
   // -------------------------------------------------------------------------
   .chat-legend
-    background-color: #f7f8fa
-    border: 1px solid #e3e6ea
+    background-color: $surface
+    border: 1px solid $line
     border-radius: 12px
     padding: 14px 18px
     margin-bottom: 28px
@@ -25,7 +25,7 @@ $bubble-text: #ffffff
     p
       margin: 4px 0
       font-size: 14px
-      color: #495057
+      color: $dark-grey
 
     .dot
       display: inline-block
@@ -80,11 +80,11 @@ $bubble-text: #ffffff
     &.scheduled,
     &.incoming
       background-color: $incoming-bg
-      color: #2b2f33
+      color: $black
 
     &.neutral
-      background-color: #7c7c7c
-      color: #f1f1f1
+      background-color: $muted
+      color: $cream
 
       .system-title
         font-weight: bold
@@ -96,7 +96,7 @@ $bubble-text: #ffffff
   .meta
     margin-top: 6px
     font-size: 13px
-    color: #6c757d
+    color: $muted
     display: flex
     align-items: center
     gap: 5px
@@ -109,19 +109,19 @@ $bubble-text: #ffffff
       margin-bottom: 0
 
     .sep
-      color: #adb5bd
+      color: $grey
 
     .admin-link
-      color: #6c757d
+      color: $muted
       text-decoration: underline
 
     // couleurs des icônes / libellés par statut
     &.scheduled
       .label, i
-        color: #f0a500
+        color: $warning
     &.sent
       .label, i
-        color: #6c757d
+        color: $muted
     &.delivered
       .label, i
         color: $sms-color
@@ -130,10 +130,10 @@ $bubble-text: #ffffff
         color: #ff8800
     &.failed
       .label, i
-        color: #dc3545
+        color: $error
     &.read
       .label, i
         color: $rcs-color
     &.expired
       .label, i
-        color: #6c757d
+        color: $muted

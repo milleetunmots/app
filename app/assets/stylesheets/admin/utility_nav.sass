@@ -1,3 +1,5 @@
+@import variables
+
 // Déroulant de l'avatar des accompagnantes. Le thème stylise tout `a` de #current_user en icône
 // (texte transparent, pictogramme en :before) : les entrées du sous-menu doivent annuler ce style.
 // Pictogrammes Font Awesome « regular » (au trait), comme les icônes de l'encart des rendez-vous.
@@ -58,7 +60,7 @@
             display: block
             margin-top: 2px
             font-size: 12px
-            color: #777
+            color: $muted
 
         a, span
           display: flex
@@ -81,7 +83,7 @@
             height: 24px
             margin-right: 14px
             padding: 0
-            color: #555
+            color: $dark-grey
             font: normal 400 18px/1 $font-icon
             visibility: visible
 

@@ -1,15 +1,50 @@
-$black: #36393D
-$blue: #2081C3
-$green: #138A36
-$grey: #CACACA
-$dark-grey: #5E6469
-$red: #B02B2C
-$rose: #DA4167
-$yellow: #E6AF2E
-// Marine de la charte graphique (remplace le violet #431F78 de l'ancienne charte)
+// Palette de la charte graphique (cf. docs/features/new_brand_identity/source.md)
 $navy: #0B4374
+$brand-blue: #3596FF
+$pink: #FFABCC
+$lime: #DEE450
+$cream: #FEFDF8
+$brand-black: #2B2B2B
 
+// Couleurs de l'admin, tirées de la charte. Le rose, le vert-jaune et le bleu de la
+// charte sont trop clairs pour du texte (contraste < 4,5:1 sur blanc) : ils servent de
+// fonds sous un texte marine ($*-bg), et leurs versions foncées servent au texte.
+$black: $brand-black
+$blue: #1F6FCC
+$blue-bg: #CFE4FF
+$rose: #D6336C
+$rose-bg: $pink
+$yellow: #6B7012
+$yellow-bg: $lime
+
+// Neutres accordés au crème, du plus foncé au plus clair
+$dark-grey: #4F5D6E
+$muted: #6E6C63
+$grey: #D9D7CC
+$line: #E8E6DA
+$surface: #F5F4EC
+
+// Sens universels (actif / oui, arrêté / non, erreur, alerte) : hors charte, gardés
+$green: #138A36
+$red: #B02B2C
 $error: #dc4747
 $warning: #f2a654
 $success: #46be8a
-$info: #57c7d4
+$info: $brand-blue
+
+// Thème arctic_admin : ses variables sont en !default et ce fichier est importé avant
+// lui (cf. active_admin.sass), ces valeurs remplacent donc les siennes
+$font-family-body: 'Poppins', Arial, sans-serif
+$primary-color: $navy
+$body-background: $cream
+$text-color: $brand-black
+$text-color-important: $navy
+$border-color: $line
+$header-border-color: $line
+$sidebar-background: $cream
+$sidebar-border-color: $line
+$sidebar-item-hover-background: #F4F5DA
+$sidebar-nested-item-hover-background: #F4F5DA
+$header-nav-action-hover-background: #F4F5DA
+$header-nav-action-active-background: #EEF0C4
+$status-tag-background-color: $grey

@@ -1,3 +1,5 @@
+@import variables
+
 body.logged_in
   &.new, &.edit, &.create, &.update
     ul.errors
@@ -76,7 +78,7 @@ body.logged_in
 
     .inputs.has_many_fields
       & > ol
-        border: 1px solid #ccc
+        border: 1px solid $grey
         border-radius: 5px
         padding-top: 20px
         position: relative
@@ -145,7 +147,7 @@ body.logged_in
 
     // Un texte sensible existe et le menu est vide : le menu s'encadre en rouge
     .ok-for-solicitation.sensitive-information-alert
-      border-color: #d32f2f
+      border-color: $error
 
       label::before
         content: "⚠️ "
@@ -170,7 +172,7 @@ body.logged_in
       width: 140px !important
 
     input
-      border-color: #aaa
+      border-color: $muted
 
     #child_support_books_quantity_input
       .choices-group

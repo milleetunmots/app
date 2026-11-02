@@ -1,3 +1,5 @@
+@import variables
+
 #title_bar #titlebar_right .action_item
   @import active_admin/components/dropdown_menu
 
@@ -11,12 +13,12 @@
       box-shadow: none
       border: 0
       border-radius: 3px
-      background: #5E6469
+      background: $dark-grey
       padding: 5px 8px
       color: white
 
       &:not(.disabled):hover
-        background: #767e84
+        background: $muted
 
       &:before
         border-width: 5px 5px 0
@@ -35,7 +37,7 @@
             font-weight: normal
             text-align: left
             background-color: white
-            color: #323537
+            color: $black
 
 table.index_table .col-actions
   @import active_admin/components/dropdown_menu
@@ -46,8 +48,8 @@ table.index_table .col-actions
         li
           a
             &.blue
-              background-color: $blue
-              color: $black
+              background-color: $blue-bg
+              color: $navy
             &.green
               background-color: $green
               color: white
@@ -55,5 +57,5 @@ table.index_table .col-actions
               background-color: $error
               color: white
             &.yellow
-              background-color: $yellow
-              color: $black
+              background-color: $yellow-bg
+              color: $navy
