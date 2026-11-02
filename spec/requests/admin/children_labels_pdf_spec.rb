@@ -71,10 +71,26 @@ RSpec.describe 'Admin génération des étiquettes depuis la page Enfants', type
           expect(lignes_julian).to eq(['75 rue Danielle Casanova', '93200 Saint-Denis'])
         end
 
-        it 'affiche « Un cadeau pour » suivi du prénom de chaque enfant' do
-          cadeaux = planche.css('.gift-card-text').map { |texte| texte.text.squish }
+        it "affiche « Un livre pour » puis le prénom de l'enfant sur la ligne suivante" do
+          cadeaux = planche.css('.gift-card').map do |carte|
+            [carte.at_css('.gift-card-intro').text.squish, carte.at_css('.gift-card-name').text.squish]
+          end
 
-          expect(cadeaux).to eq(['Un cadeau pour Julian !', 'Un cadeau pour Léa !', 'Un cadeau pour Noah !', 'Un cadeau pour Inès !'])
+          expect(cadeaux).to eq([['Un livre pour', 'Julian'], ['Un livre pour', 'Léa'], ['Un livre pour', 'Noah'], ['Un livre pour', 'Inès']])
+        end
+
+        it "n'affiche plus l'ancien texte « Un cadeau pour … ! »" do
+          textes = planche.css('.gift-card').map { |carte| carte.text.squish }
+
+          expect(textes).to all(satisfy { |texte| texte.exclude?('Un cadeau pour') && texte.exclude?('!') })
+        end
+
+        it "affiche l'icône cadeau de la nouvelle charte, sous le cartouche" do
+          carte = planche.at_css('.gift-card')
+
+          expect(carte.at_css('img.gift-card-icon')['src']).to include('gift-1001mots')
+          # ordre d'empilement : l'icône, puis l'ombre, puis le cartouche par-dessus
+          expect(carte.element_children.pluck('class')).to eq(%w[gift-card-icon gift-card-shadow gift-card-label])
         end
       end
 
