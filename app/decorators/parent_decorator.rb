@@ -81,17 +81,29 @@ class ParentDecorator < BaseDecorator
   # (code postal + ville) hors de l'étiquette de 44 mm.
   LABEL_LINE_MAX_LENGTH = 44
 
-  # [caractères par ligne rendue, lignes tenant dans l'étiquette, classe CSS]
-  #
-  # Calibré sur les étiquettes Agipa 119006 de 70 × 35 mm, soit 64 mm de large et
-  # 30 mm de haut une fois la marge intérieure retirée (cf. pdf.sass). Le nombre de
-  # lignes vient de l'interligne du palier — 4 × 18pt = 25.4 mm, 6 × 14pt = 29.6 mm,
-  # 7 × 11pt = 27.2 mm — et le nombre de caractères de la largeur utile.
-  # À reprendre si la taille des étiquettes ou les paddings de pdf.sass changent.
+  # Zone utile des étiquettes Agipa 119006 de 70 × 35 mm, marge intérieure retirée
+  # (cf. pdf.sass) : 64 × 30 mm, en points (1 pt = 1/72 pouce).
+  LABEL_USABLE_WIDTH_PT = 64 / 25.4 * 72 # 181.4
+  LABEL_USABLE_HEIGHT_PT = 30 / 25.4 * 72 # 85.0
+
+  # Largeur moyenne d'un caractère, en em : 9e décile mesuré sur des adresses réelles,
+  # à partir des largeurs d'avance des TTF de app/assets/fonts (le même calcul sur
+  # Nunito redonne les 26 caractères de l'ancien calibrage).
+  LABEL_BODY_EM_PER_CHAR = 0.544 # Poppins Regular
+  LABEL_HEADING_EM_PER_CHAR = 0.592 # Fredoka Bold
+
+  # Titre : 1.45em de la taille du corps, interligne 1.2 (cf. .address-heading de pdf.sass)
+  LABEL_HEADING_SCALE = 1.45
+  LABEL_HEADING_LINE_HEIGHT = 1.2
+
+  # [taille du corps en pt, interligne du corps en pt, classe CSS], du plus grand au
+  # plus petit, comme dans pdf.sass. Capacité qui en découle : 1 titre + 3 lignes de
+  # corps au palier maximal, 1 + 4 au palier réduit, 1 + 6 au plus petit.
+  # À reprendre si la taille des étiquettes, les paddings ou les polices changent.
   LABEL_FONT_TIERS = [
-    [26, 4, nil],
-    [34, 6, 'address-content--small'],
-    [42, 7, 'address-content--tiny']
+    [13, 18, nil],
+    [10, 14, 'address-content--small'],
+    [8, 11, 'address-content--tiny']
   ].freeze
 
   # upcase: false garde la casse saisie (étiquettes) ; la fiche de suivi et la
@@ -134,10 +146,7 @@ class ParentDecorator < BaseDecorator
   # Réduit la police quand l'adresse ne tient pas dans l'étiquette, pour que la
   # dernière ligne (code postal + ville) reste toujours visible.
   def label_size_class
-    lines = label_address_lines
-    tier = LABEL_FONT_TIERS.find do |chars_per_line, max_rows, _css_class|
-      lines.sum { |line| [(line.length.to_f / chars_per_line).ceil, 1].max } <= max_rows
-    end
+    tier = LABEL_FONT_TIERS.find { |size, line_height, _css_class| label_height_pt(size, line_height) <= LABEL_USABLE_HEIGHT_PT }
     (tier || LABEL_FONT_TIERS.last).last
   end
 
@@ -238,6 +247,20 @@ class ParentDecorator < BaseDecorator
 
   def child(child)
     h.link_to child.decorate.name, [:admin, child], class: ChildDecorator::GENDER_COLORS[child.gender.to_sym]
+  end
+
+  # Hauteur de l'étiquette rendue au palier donné : chaque ligne occupe autant de
+  # lignes rendues que sa longueur l'impose, le titre avec sa taille et son interligne
+  def label_height_pt(size, line_height)
+    heading_size = size * LABEL_HEADING_SCALE
+    body_rows = label_body_lines.sum { |line| label_rows(line, size * LABEL_BODY_EM_PER_CHAR) }
+    heading_rows = label_heading_line ? label_rows(label_heading_line, heading_size * LABEL_HEADING_EM_PER_CHAR) : 0
+
+    (heading_rows * heading_size * LABEL_HEADING_LINE_HEIGHT) + (body_rows * line_height)
+  end
+
+  def label_rows(line, char_width_pt)
+    [(line.length / (LABEL_USABLE_WIDTH_PT / char_width_pt)).ceil, 1].max
   end
 
   # Nom en tête de l'adresse : la boîte aux lettres pour un domicile (le sien ou

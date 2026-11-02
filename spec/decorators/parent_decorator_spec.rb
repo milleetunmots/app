@@ -108,6 +108,13 @@ RSpec.describe ParentDecorator do
       expect(etiquette.label_size_class).to be_nil
     end
 
+    # Le titre, plus grand et en Fredoka, passe à la ligne bien avant le corps (16 caractères au lieu de 25)
+    it 'passe au palier réduit quand le titre tient sur 2 lignes et le corps sur 3' do
+      etiquette = parent(book_delivery_location: 'home', letterbox_name: 'Marie-Charlotte Lefebvre', address_supplement: 'Bât. B')
+
+      expect(etiquette.label_size_class).to eq('address-content--small')
+    end
+
     it "passe au palier réduit quand l'attention s'ajoute au corps" do
       etiquette = parent(book_delivery_location: 'relative_home', letterbox_name: 'Famille Durand')
 
@@ -132,7 +139,7 @@ RSpec.describe ParentDecorator do
       expect(etiquette.label_size_class).to eq('address-content--tiny')
     end
 
-    it "compte le corps seul quand le titre manque (donnée ancienne)" do
+    it 'compte le corps seul quand le titre manque (donnée ancienne)' do
       etiquette = parent(book_delivery_location: 'home', letterbox_name: nil, address_supplement: 'Bât. B')
 
       expect(etiquette.label_size_class).to be_nil

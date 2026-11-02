@@ -59,9 +59,10 @@ body
       word-break: break-word
       overflow-wrap: break-word
 
-    // Paliers de police, du plus grand au plus petit. Interlignes choisis pour
-    // que le nombre de lignes annoncé par LABEL_FONT_TIERS tienne dans les 30 mm
-    // utiles : 4 × 18pt = 25.4 mm, 6 × 14pt = 29.6 mm, 7 × 11pt = 27.2 mm.
+    // Paliers de police, du plus grand au plus petit : tailles et interlignes du
+    // corps repris dans ParentDecorator::LABEL_FONT_TIERS, qui choisit le palier
+    // dont la hauteur (titre + corps) tient dans les 30 mm utiles. Toute
+    // modification ici doit y être reportée.
     .address-content
       font-family: 'Poppins', sans-serif
       font-weight: 400
@@ -70,7 +71,8 @@ body
       color: $navy
 
     // Nom sur la boîte aux lettres ou raison sociale. Taille en em : elle suit le
-    // palier de l'étiquette, dans le rapport 80 / 55 de la maquette.
+    // palier de l'étiquette, dans le rapport 80 / 55 de la maquette. Taille et
+    // interligne repris dans ParentDecorator (LABEL_HEADING_SCALE, LABEL_HEADING_LINE_HEIGHT).
     .address-heading
       font-family: 'Fredoka', sans-serif
       font-weight: 700
