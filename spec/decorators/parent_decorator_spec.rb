@@ -203,4 +203,15 @@ RSpec.describe ParentDecorator do
       )
     end
   end
+
+  # Crayon « modifier » de la fiche de suivi : une icône seule, sans texte
+  describe '#admin_link' do
+    it 'nomme le lien de modification pour les lecteurs d’écran' do
+      parent = FactoryBot.create(:parent, first_name: 'Sarah', last_name: 'Benali').decorate
+
+      html = Capybara.string(parent.admin_link(child_support_id: 1))
+
+      expect(html).to have_css("a.js-save-before-leave[aria-label='Modifier #{parent.name}'] i[aria-hidden='true']")
+    end
+  end
 end

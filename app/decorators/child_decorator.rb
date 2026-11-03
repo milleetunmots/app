@@ -55,13 +55,16 @@ class ChildDecorator < BaseDecorator
     ].compact.join(' ')
     return h.link_to(txt, [:admin, model], options) if child_support_id.blank?
 
-    icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil')
+    icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil', aria: { hidden: true })
     h.content_tag(:span, class: 'name-with-edit') do
       h.link_to(txt, [:admin, model], options) +
         h.link_to(
           icon,
           h.edit_admin_child_path(model, back_to_child_support_id: child_support_id),
-          class: 'js-save-before-leave'
+          class: 'js-save-before-leave',
+          # Icône seule : le lien est nommé pour les lecteurs d'écran
+          title: 'Modifier',
+          aria: { label: "Modifier #{name}" }
         )
     end
   end

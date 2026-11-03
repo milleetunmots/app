@@ -10,15 +10,18 @@ $brand-black: #2B2B2B
 // Peu de couleurs, chacune avec un seul rôle : les neutres portent l'essentiel de
 // l'écran, la marque signale l'action et la position, les statuts portent un sens.
 
-// Neutres, accordés au crème
-$canvas: $cream
-$surface: #FFFFFF
-$sunken: #F5F4EC
-$line: #E8E6DA
-$line-strong: #D9D7CC
-$field-border: #ADAA9C
+// Neutres, accordés au crème et atténués : pas de blanc pur, qui éblouit à la longue.
+// Le fond de page reste plus sombre que les cartes pour qu'elles s'en détachent ;
+// $ink-soft garde au moins 5,6:1 sur chacun de ces fonds et $field-border 3:1, le
+// minimum pour délimiter un champ (WCAG 1.4.11).
+$canvas: #F3F1E8
+$surface: #F8F6EF
+$sunken: #EFEDE4
+$line: #E2DFD2
+$line-strong: #D2CFC2
+$field-border: #8C897A
 $ink: $brand-black
-$ink-soft: #6E6C63
+$ink-soft: #5F5D55
 
 // Marque : action (marine), position « ici » (citron), focus clavier (bleu),
 // fille / garçon (rose et bleu clairs, texte marine)
@@ -59,7 +62,8 @@ $dark-grey: $ink-soft
 $grey: $line-strong
 $blue: $info
 $blue-bg: $info-bg
-$rose: #D6336C
+// Prénoms de fille : foncé pour garder 4,5:1 sur les fonds atténués (cartes, creux, survol)
+$rose: #C42A60
 $rose-bg: $girl-bg
 $yellow: $warning
 $yellow-bg: $warning-bg
@@ -74,6 +78,7 @@ $border-radius: $radius
 $box-shadow: $shadow-float
 $primary-color: $action
 $body-background: $canvas
+$header-background: $surface
 $text-color: $ink
 $text-color-important: $navy
 $border-color: $line

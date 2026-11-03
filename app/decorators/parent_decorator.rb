@@ -18,13 +18,16 @@ class ParentDecorator < BaseDecorator
     # Le nom est isolé dans un span sécable : lui seul peut se couper en bout de
     # ligne, les icônes restent solidaires du dernier fragment (cf. cards.sass).
     name_link = super(link_options.merge(label: h.content_tag(:span, name, class: 'name-text')))
-    icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil')
+    icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil', aria: { hidden: true })
     h.content_tag(:span, class: 'name-with-edit') do
       name_link +
         h.link_to(
           icon,
           h.edit_admin_parent_path(model, back_to_child_support_id: child_support_id),
-          class: 'js-save-before-leave'
+          class: 'js-save-before-leave',
+          # Icône seule : le lien est nommé pour les lecteurs d'écran
+          title: 'Modifier',
+          aria: { label: "Modifier #{name}" }
         )
     end
   end

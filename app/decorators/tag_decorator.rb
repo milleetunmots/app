@@ -1,7 +1,7 @@
 class TagDecorator < BaseDecorator
 
   # Fond d'un tag sans couleur ($ink-soft de admin/_variables.sass)
-  DEFAULT_BACKGROUND = '#6E6C63'.freeze
+  DEFAULT_BACKGROUND = '#5F5D55'.freeze
   # Texte d'une pastille de tag : blanc, ou encre de la charte ($ink) sur un fond clair
   LIGHT_TEXT = '#FFFFFF'.freeze
   DARK_TEXT = '#2B2B2B'.freeze

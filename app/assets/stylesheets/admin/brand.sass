@@ -29,14 +29,20 @@ a, button, .button, input, select, textarea, .select2-selection
     outline: 2px solid $focus !important
     outline-offset: 2px
 
-// Champs : bord lisible sur blanc ; arctic_admin code le texte des select en dur (#5a5a5a)
+// Champs : bord lisible sur la surface ; arctic_admin code le fond en blanc et le texte
+// des select (#5a5a5a) en dur
 input[type="text"], input[type="email"], input[type="password"],
 input[type="tel"], input[type="date"], input[type="datetime-local"],
 input[type="month"], input[type="search"], input[type="time"],
 input[type="url"], input[type="week"], input[type="number"],
 textarea, select, input[type="checkbox"]
   border-color: $field-border
+  background-color: $surface
   color: $ink
+
+  // Le remplissage automatique du navigateur repeint le fond en blanc (cf. arctic_admin)
+  &:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus
+    -webkit-box-shadow: 0 0 0 1000px $surface inset
 
   &:hover
     border-color: $ink-soft
@@ -48,6 +54,25 @@ textarea, select, input[type="checkbox"]
   .select2-selection--single, .select2-selection--multiple
     border-color: $field-border
     border-radius: $radius
+    background-color: $surface
+
+  // Même hauteur que les champs texte et les menus natifs (36px)
+  .select2-selection--single
+    display: flex
+    align-items: center
+    height: 36px
+
+    .select2-selection__arrow
+      height: 34px
+
+  .select2-selection--multiple
+    min-height: 36px
+
+  // Texte indicatif (« Recherche globale », « N'importe lequel »…) : select2 le met en
+  // #999, à 2,6:1 sur la surface
+  .select2-selection--single .select2-selection__placeholder,
+  .select2-selection--multiple .select2-search__field::placeholder
+    color: $ink-soft
 
   .select2-selection--multiple .select2-selection__choice
     border: none
@@ -55,9 +80,18 @@ textarea, select, input[type="checkbox"]
     background-color: $sunken
     color: $ink
 
+  // Option déjà choisie : texte marine, sans le fond gris froid (#ddd) de select2
+  .select2-results__option[aria-selected="true"]
+    background-color: transparent
+    color: $navy
+    font-weight: 500
+
+  // Option survolée : en creux, comme le survol des tableaux et des filtres. Les options
+  // sont des choix, pas des actions : pas de teinte bleue. Un fond marine rendait en
+  // outre illisibles les noms bleus ou roses de la recherche globale.
   .select2-results__option--highlighted[aria-selected]
-    background-color: $action
-    color: $surface
+    background-color: $sunken
+    color: $ink
 
 // Les navigateurs donnent leur propre police aux champs : ils reprennent celle du texte
 input, select, textarea, button
@@ -70,13 +104,10 @@ input[type="checkbox"]
 ::placeholder
   color: $ink-soft
 
-// Tableaux : en-tête discret en creux, texte secondaire, filets clairs
+// Listes : liens de tri de l'en-tête en texte secondaire (fond et survol des tableaux dans
+// tables.sass)
 table.index_table
   thead th
-    background-color: $sunken
-    color: $ink-soft
-    font-weight: 500
-
     a, a:link, a:visited
       color: $ink-soft
 
@@ -109,7 +140,8 @@ table.index_table
     color: $info
 
 // Filtres rapides (scopes) : pastilles au contour discret ; le filtre courant prend le
-// citron de la position « ici », comme l'entrée active du menu
+// citron de la position « ici », comme l'entrée active du menu. Le survol reste neutre :
+// le citron est la seule couleur des filtres, le bleu est réservé aux actions.
 body.index .scopes .scope
   a, &:first-child a, &:last-child a
     border: 1px solid $line-strong
@@ -119,8 +151,8 @@ body.index .scopes .scope
 
   &:hover a
     border-color: $field-border
-    background-color: $action-soft
-    color: $action
+    background-color: $sunken
+    color: $ink
 
   &.selected a, &:active a, &:focus a
     border-color: $highlight
@@ -137,3 +169,16 @@ body.index .table_tools .dropdown_menu_button
   &:hover
     background-color: $action-soft
     color: $action
+
+// Surfaces : arctic_admin, select2 et jQuery UI codent le blanc en dur ; elles prennent
+// $surface, comme les composants de l'admin
+#main_content, #title_bar, #sidebar, .ui-dialog, #ui-datepicker-div, .select2-dropdown
+  background-color: $surface
+
+body.index
+  #sidebar:before
+    background-color: $surface
+
+  .table_tools
+    .dropdown_menu_list, .indexes.table_tools_segmented_control a
+      background-color: $surface

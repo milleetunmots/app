@@ -33,4 +33,15 @@ RSpec.describe ChildDecorator do
       expect(taille('Marie-Charlotte-Amandine-Lou')).to eq('gift-card-name--micro')
     end
   end
+
+  # Crayon « modifier » de la fiche de suivi : une icône seule, sans texte
+  describe '#child_link' do
+    it 'nomme le lien de modification pour les lecteurs d’écran' do
+      child = FactoryBot.create(:child, first_name: 'Lazare', last_name: 'Caron').decorate
+
+      html = Capybara.string(child.child_link(child_support_id: 1))
+
+      expect(html).to have_css('a.js-save-before-leave[aria-label="Modifier Lazare CARON"] i[aria-hidden="true"]')
+    end
+  end
 end

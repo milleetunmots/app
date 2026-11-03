@@ -435,8 +435,7 @@ $resources-links-gap: 24px
 .bilingual-columns
   margin-top: 50px
 
-// Bilinguisme, langue parlée et tags : une seule ligne visuelle, le menu à la hauteur
-// du champ texte voisin
+// Bilinguisme, langue parlée et tags : une seule ligne visuelle
 #child_support_is_bilingual_input,
 #child_support_second_language_input,
 #child_support_tag_list_input
@@ -444,14 +443,6 @@ $resources-links-gap: 24px
 
   > .label
     white-space: nowrap
-
-  .select2-selection--single
-    display: flex
-    align-items: center
-    height: 36px
-
-    .select2-selection__arrow
-      height: 34px
 
 // Carte "Disponibilités et RDV"
 .scheduled-call-info
@@ -568,6 +559,18 @@ $resources-links-gap: 24px
   .call-tab-side
     width: 50%
     margin-top: 35px
+
+// Encart du statut de l'appel : colonnes étroites, les étiquettes passent souvent sur deux
+// lignes. arctic_admin leur fixe 25px de haut (body.logged_in.edit .input .label) : le
+// texte débordait alors sur le champ suivant. li et legend pour l'emporter.
+body.logged_in .call-tab-main
+  li.input > .label,
+  li.input fieldset > legend.label
+    height: auto
+
+  // Le titre d'un groupe de boutons radio flotte : les choix démarrent sous lui
+  li.input fieldset > ol.choices-group
+    clear: both
 
 .resources-columns
   margin-bottom: 50px
