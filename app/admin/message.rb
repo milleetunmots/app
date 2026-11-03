@@ -145,13 +145,6 @@ ActiveAdmin.register_page 'Message' do
   end
 
   page_action :program_sms, method: :post do
-    call_goal =
-      if params[:call_goals_sms].in? %w[call3_goals_speaking call3_goals_observing]
-        'call3_goals'
-      else
-        params[:call_goals_sms]
-      end
-
     message = params[:message].gsub('{CHAMP_MESSAGE_COMPLEMENTAIRE}', '')
     message.gsub!('{CHAMP_PETITE_MISSION}', '')
 
@@ -181,9 +174,14 @@ ActiveAdmin.register_page 'Message' do
       redirect_back(fallback_location: root_path, alert: service.errors.join("\n"))
     else
       notice = "Message(s) programmé(s) via #{provider.capitalize}"
-      if params[:call_goals_sms] && !params[:call_goals_sms].in?(%w[Aucun scheduled_call_reminder])
-        child_support&.paper_trail&.update_column("#{call_goal}_sms".to_sym, message)
-        notice += '. Et petite mission définie'
+      if ChildSupport::SaveCallGoalsService.template?(params[:call_goals_sms])
+        call_goals_service = ChildSupport::SaveCallGoalsService.new(
+          child_support: child_support,
+          template: params[:call_goals_sms],
+          message: message,
+          call_goal: params[:call_goal]
+        ).call
+        notice += '. Et petite mission définie' if call_goals_service.errors.empty?
       end
       if params[:call_goals_sms] == 'scheduled_call_reminder'
         parent = Parent.find_by(id: params['recipients'].first.gsub('parent.', '').to_i)
@@ -194,7 +192,6 @@ ActiveAdmin.register_page 'Message' do
           parent.save!
         end
       end
-      child_support&.paper_trail&.update_column(:call0_goal_sent, params[:call_goal]) if params[:call_goals_sms] == 'call0_goals'
       redirect_back(fallback_location: root_path, notice: notice)
     end
   end
