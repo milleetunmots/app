@@ -8,7 +8,7 @@ fr:
       book: Livre
       child: Enfant
       child_support: Suivi
-      children_support_module: Modules choisis par les parents
+      children_support_module: Modules choisis
       events_other_event: Autre
       events_survey_response: Questionnaire
       events_text_message: SMS

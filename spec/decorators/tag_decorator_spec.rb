@@ -17,9 +17,9 @@ RSpec.describe TagDecorator do
       expect(described_class.text_color_for('#FFF')).to eq(TagDecorator::DARK_TEXT)
     end
 
-    it 'garde le texte blanc du fond par défaut quand la couleur manque ou est illisible' do
-      expect(described_class.text_color_for(nil)).to eq(TagDecorator::LIGHT_TEXT)
-      expect(described_class.text_color_for('rouge')).to eq(TagDecorator::LIGHT_TEXT)
+    it 'écrit en foncé sur le fond clair par défaut quand la couleur manque ou est illisible' do
+      expect(described_class.text_color_for(nil)).to eq(TagDecorator::DARK_TEXT)
+      expect(described_class.text_color_for('rouge')).to eq(TagDecorator::DARK_TEXT)
     end
   end
 
@@ -29,8 +29,8 @@ RSpec.describe TagDecorator do
     end
 
     it 'remplace une couleur absente ou invalide par le fond par défaut' do
-      expect(described_class.pill_style(nil)).to eq("background-color: #{TagDecorator::DEFAULT_BACKGROUND}; color: #{TagDecorator::LIGHT_TEXT}")
-      expect(described_class.pill_style('red; position: fixed')).to eq("background-color: #{TagDecorator::DEFAULT_BACKGROUND}; color: #{TagDecorator::LIGHT_TEXT}")
+      expect(described_class.pill_style(nil)).to eq("background-color: #{TagDecorator::DEFAULT_BACKGROUND}; color: #{TagDecorator::DARK_TEXT}")
+      expect(described_class.pill_style('red; position: fixed')).to eq("background-color: #{TagDecorator::DEFAULT_BACKGROUND}; color: #{TagDecorator::DARK_TEXT}")
     end
   end
 
