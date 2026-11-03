@@ -51,6 +51,51 @@ RSpec.describe 'Petite mission enregistrée par le formulaire Message', type: :r
     end
   end
 
+  context 'quand le blocage de contenu bloque l’envoi' do
+    let(:blocked_message) { 'Voici votre petite mission https://exemple-non-autorise.fr' }
+
+    around do |example|
+      previous = ENV.fetch('URL_FILTER_BLOCKING_ENABLED', nil)
+      ENV['URL_FILTER_BLOCKING_ENABLED'] = 'true'
+      example.run
+      ENV['URL_FILTER_BLOCKING_ENABLED'] = previous
+    end
+
+    it 'n’écrit pas la petite mission et affiche l’alerte de blocage' do
+      program_sms(template: 'call1_goals', message: blocked_message)
+
+      expect(child_support.reload.call1_goals_sms).to be_blank
+      expect(BlockedSendAttempt.last).to have_attributes(status: 'pending')
+      expect(flash[:alert]).to include(BlockedSendAttempt::SendGuard::BLOCKED_MESSAGE)
+    end
+
+    it 'mémorise dans la tentative la fiche et le modèle de la petite mission' do
+      program_sms(template: 'call3_goals_observing', message: blocked_message, call_goal: 'Observer le bain')
+
+      expect(BlockedSendAttempt.last.replay_params['call_goals']).to eq(
+        'child_support_id' => child_support.id,
+        'template' => 'call3_goals_observing'
+      )
+    end
+
+    it "mémorise aussi la mission pour l'appel 0" do
+      program_sms(template: 'call0_goals', message: blocked_message, call_goal: 'Chanter une comptine au bain')
+
+      expect(BlockedSendAttempt.last.replay_params['call_goals']).to eq(
+        'child_support_id' => child_support.id,
+        'template' => 'call0_goals',
+        'call_goal' => 'Chanter une comptine au bain'
+      )
+      expect(child_support.reload.call0_goal_sent).to be_blank
+    end
+
+    it 'ne mémorise rien avec le modèle « Aucun »' do
+      program_sms(template: 'Aucun', message: blocked_message)
+
+      expect(BlockedSendAttempt.last.replay_params).not_to have_key('call_goals')
+    end
+  end
+
   context 'en mode surveillance' do
     around do |example|
       previous = ENV.fetch('URL_FILTER_BLOCKING_ENABLED', nil)

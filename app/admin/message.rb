@@ -154,6 +154,15 @@ ActiveAdmin.register_page 'Message' do
       else
         'spothit'
       end
+
+    # Mémorisé dans la tentative si l'envoi est bloqué, pour écrire la PM à la relance.
+    call_goals =
+      if ChildSupport::SaveCallGoalsService.template?(params[:call_goals_sms]) && child_support
+        { child_support_id: child_support.id, template: params[:call_goals_sms] }.tap do |goals|
+          goals[:call_goal] = params[:call_goal] if params[:call_goals_sms] == 'call0_goals'
+        end
+      end
+
     service = ProgramMessageService.new(
       params[:planned_date],
       params[:planned_hour],
@@ -167,7 +176,8 @@ ActiveAdmin.register_page 'Message' do
       params[:group_status],
       provider,
       current_admin_user.aircall_number_id,
-      acting_admin_user: current_admin_user
+      acting_admin_user: current_admin_user,
+      call_goals: call_goals
     ).call
 
     if service.errors.any?
