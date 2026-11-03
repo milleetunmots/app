@@ -1,5 +1,31 @@
 @import variables
 
+// Étiquette et champ sur une ligne, centrés l'un sur l'autre ; le champ prend la place
+// restante. À appliquer par id : arctic_admin pose largeur, hauteur, flottant et marges
+// des étiquettes sous body.logged_in.edit .input .label.
+=inline-field($label-width: auto)
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  column-gap: 12px
+
+  > .label
+    flex-shrink: 0
+    float: none
+    width: $label-width
+    height: auto
+    margin: 0
+    padding: 0
+
+  > input, > .select2-container
+    flex: 1
+    min-width: 0
+    // select2 pose sa largeur en style en ligne
+    width: auto !important
+
+  .inline-errors, .inline-hints
+    flex-basis: 100%
+
 .recommended_script
   color: $info
   font-size: 80%
@@ -30,6 +56,13 @@
   overflow: hidden
   margin-bottom: 15px
 
+  // Étiquettes de même largeur, sur plusieurs lignes si besoin, pour que les champs
+  // s'alignent entre eux sans que le texte ne déborde sur la ligne suivante
+  #child_support_availability_input,
+  #child_support_call_infos_input
+    +inline-field(30%)
+    margin-bottom: 10px
+
   .availability-card-header
     background-color: $sunken
     color: $ink
@@ -39,6 +72,14 @@
 
   .availability-card-body
     padding: 15px
+
+// Statut des RDV : une phrase, pas une étiquette de champ (body.logged_in pour l'emporter
+// sur le sélecteur d'arctic_admin)
+body.logged_in .availability-card .scheduled-call-info.input > .label
+  float: none
+  width: auto
+  height: auto
+  padding: 0
 
 // Les 3 premiers modules sont ceux proposés au parent (cf. .support-module-block--recommended)
 #child_support_parent1_available_support_module_list + .select2-container--default .select2-selection__choice,
@@ -62,23 +103,45 @@
       margin-left: 0
 
 
-.previous_goals_follow_up
-  border: 1px solid $line
-  border-radius: $radius-lg
-  padding-left: 30px
+// Ligne « petite mission précédente » des onglets Appel : trois champs côte à côte. Les
+// étiquettes gardent l'écart des autres champs et les trois cadres partagent la même
+// hauteur, celle d'une zone de texte de 8 lignes.
+$goals-field-height: 188px
 
 #child_support_call1_previous_call_goals_input,
 #child_support_call2_previous_call_goals_input,
 #child_support_call3_previous_call_goals_input,
 #child_support_call1_goals_tracking_input,
 #child_support_call2_goals_tracking_input,
-#child_support_call3_goals_tracking_input,
-  label
-    margin-bottom: 20px !important
+#child_support_call3_goals_tracking_input
+  textarea
+    height: $goals-field-height
 
-#child_support_is_bilingual_input
-  .label
-    margin-right: 40px
+// Seuls les choix sont encadrés : l'étiquette reste alignée sur ses voisines
+.previous_goals_follow_up
+  .choices
+    .label
+      margin-bottom: 5px
+
+    ol.choices-group
+      display: flex
+      flex-direction: column
+      justify-content: center
+      gap: 6px
+      box-sizing: border-box
+      height: $goals-field-height
+      padding: 12px 16px
+      border: 1px solid $line
+      border-radius: $radius-lg
+      background-color: $surface
+
+// arctic_admin décale chaque choix de 25 % (body.logged_in.edit .input li.choice) ;
+// texte à 80 %, comme les autres boutons radio des onglets Appel (cf. form.sass)
+body.logged_in .previous_goals_follow_up ol.choices-group > li.choice
+  margin-left: 0
+
+  label
+    font-size: 80%
 
 #child_support_call0_parent_progress_input,
 #child_support_call1_parent_progress_input,
@@ -371,6 +434,24 @@ $resources-links-gap: 24px
 
 .bilingual-columns
   margin-top: 50px
+
+// Bilinguisme, langue parlée et tags : une seule ligne visuelle, le menu à la hauteur
+// du champ texte voisin
+#child_support_is_bilingual_input,
+#child_support_second_language_input,
+#child_support_tag_list_input
+  +inline-field
+
+  > .label
+    white-space: nowrap
+
+  .select2-selection--single
+    display: flex
+    align-items: center
+    height: 36px
+
+    .select2-selection__arrow
+      height: 34px
 
 // Carte "Disponibilités et RDV"
 .scheduled-call-info

@@ -146,6 +146,42 @@ RSpec.describe ParentDecorator do
     end
   end
 
+  # Le corps est ce que lit le facteur : quand l'étiquette déborde, le titre se resserre
+  # avant que le corps ne perde un palier
+  describe '#label_heading_class' do
+    def parent(**attributs)
+      FactoryBot.build(:parent, first_name: 'Sarah', last_name: 'BENALI', address: '75 rue Danielle Casanova',
+                                address_supplement: nil, postal_code: '93200', city_name: 'Saint-Denis', **attributs).decorate
+    end
+
+    it 'garde le titre à sa taille quand tout tient' do
+      expect(parent(book_delivery_location: 'home', letterbox_name: 'Clémence Yobouet').label_heading_class).to be_nil
+    end
+
+    it 'resserre le titre plutôt que de réduire le corps quand cela suffit' do
+      etiquette = parent(book_delivery_location: 'home', letterbox_name: 'Clémence Lefebvre', address_supplement: 'Bât. B')
+
+      expect(etiquette.label_size_class).to be_nil
+      expect(etiquette.label_heading_class).to eq('address-heading--compact')
+    end
+
+    it 'évite le plus petit palier à un nom long en resserrant le titre' do
+      etiquette = parent(book_delivery_location: 'home', letterbox_name: 'Aissatou Kadiatou Diallo',
+                         address: "14 Av. de l'Europe", address_supplement: 'Appartement, 2 ème étage 007 à gauche',
+                         postal_code: '57600', city_name: 'Forbach')
+
+      expect(etiquette.label_size_class).to eq('address-content--small')
+      expect(etiquette.label_heading_class).to eq('address-heading--compact')
+    end
+
+    it 'préfère un titre à sa taille quand le corps réduit suffit' do
+      etiquette = parent(book_delivery_location: 'home', letterbox_name: 'Marie-Charlotte Lefebvre', address_supplement: 'Bât. B')
+
+      expect(etiquette.label_size_class).to eq('address-content--small')
+      expect(etiquette.label_heading_class).to be_nil
+    end
+  end
+
   # Fiche de suivi et variable SMS {PARENT_ADDRESS} : l'adresse reste en majuscules,
   # seule l'étiquette garde la casse saisie.
   describe '#full_address' do

@@ -30,20 +30,15 @@
             <% families_count = ChildSupport.in_group(group.id).all_supported_by(current_admin_user.id).distinct.count %>
             <% deadline = session_start ? session_start - 4.days : nil %>
             <% alert = deadline && (deadline - Date.current).to_i < 8 %>
-            <% color = if override.persisted?
-                                '#1E7A3C'
-                                else
-                                  alert ? '#B02B2C' : nil
+            <%# État de la ligne en classes, mises à jour par call_session_date_overrides.js
+                (couleurs dans admin/call_session_date_overrides.sass) %>
+            <% border_state = if override.persisted?
+                                'call-session-override-border--persisted'
+                              elsif alert
+                                'call-session-override-border--alert'
                               end %>
-          <% deadline_color = if override.persisted?
-                               ''
-                             elsif alert
-                               '#B02B2C'
-                             else
-                               ''
-                             end %>
             <tr>
-              <td class="call-session-override-border" data-alert="<%= alert %>" style="<%= "border-left: 4px solid #{color};" if color %>">Appel <%= override.call_session %> - <%= group.name %></td>
+              <td class="<%= ['call-session-override-border', border_state].compact.join(' ') %>" data-alert="<%= alert %>">Appel <%= override.call_session %> - <%= group.name %></td>
               <td>
                 <% if families_count.positive? %>
                   <%= link_to families_count, admin_child_supports_path(scope: 'mine', q: { group_id_in: [group.id] }), target: '_blank', style: 'font-weight: bold; text-decoration: underline;' %>
@@ -68,16 +63,16 @@
                   <span>&rarr;</span>
                   <input type="date" class="call-session-override-end" value="<%= override.end_date&.iso8601 %>" min="<%= override.start_date&.iso8601 || session_start&.iso8601 %>" max="<%= session_end&.iso8601 %>">
                   <a href="#"
-                     class="reset-call-session-override"
+                     class="<%= ['reset-call-session-override', ('reset-call-session-override--persisted' if override.persisted?)].compact.join(' ') %>"
                      title="Réinitialiser la plage de RDV"
-                     style="color: <%= override.persisted? ? '#1E7A3C' : '#6E6C63' %>; text-decoration: none; <%= 'display: none;' unless override_differs && session_start && session_end %>">
+                     style="<%= 'display: none;' unless override_differs && session_start && session_end %>">
                     <i class="fas fa-undo"></i>
                   </a>
-                  <span class="call-session-override-status" style="font-size: 12px; color: #6E6C63;"></span>
+                  <span class="call-session-override-status"></span>
                 </span>
               </td>
               <td>
-                <strong class="call-session-override-modification-deadline" style="color: <%= deadline_color %>;"><%= deadline&.strftime('%d/%m/%Y') %></strong>
+                <strong class="<%= ['call-session-override-modification-deadline', ('call-session-override-modification-deadline--alert' if alert && !override.persisted?)].compact.join(' ') %>"><%= deadline&.strftime('%d/%m/%Y') %></strong>
               </td>
               <td>
                 <% if override.start_date %>

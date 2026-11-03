@@ -92,9 +92,16 @@ class ParentDecorator < BaseDecorator
   LABEL_BODY_EM_PER_CHAR = 0.544 # Poppins Regular
   LABEL_HEADING_EM_PER_CHAR = 0.592 # Fredoka Bold
 
-  # Titre : 1.45em de la taille du corps, interligne 1.2 (cf. .address-heading de pdf.sass)
-  LABEL_HEADING_SCALE = 1.45
+  # Titre : interligne 1.2 (cf. .address-heading de pdf.sass)
   LABEL_HEADING_LINE_HEIGHT = 1.2
+
+  # [taille du titre en em du corps, classe CSS], du plus grand au plus petit, comme
+  # dans pdf.sass. 1.45 reprend le rapport 80 / 55 de la maquette ; resserré, le titre
+  # reste plus grand que le corps.
+  LABEL_HEADING_TIERS = [
+    [1.45, nil],
+    [1.2, 'address-heading--compact']
+  ].freeze
 
   # [taille du corps en pt, interligne du corps en pt, classe CSS], du plus grand au
   # plus petit, comme dans pdf.sass. Capacité qui en découle : 1 titre + 3 lignes de
@@ -146,8 +153,11 @@ class ParentDecorator < BaseDecorator
   # Réduit la police quand l'adresse ne tient pas dans l'étiquette, pour que la
   # dernière ligne (code postal + ville) reste toujours visible.
   def label_size_class
-    tier = LABEL_FONT_TIERS.find { |size, line_height, _css_class| label_height_pt(size, line_height) <= LABEL_USABLE_HEIGHT_PT }
-    (tier || LABEL_FONT_TIERS.last).last
+    label_tiers.first.last
+  end
+
+  def label_heading_class
+    label_tiers.last.last
   end
 
   def icon_class
@@ -249,10 +259,18 @@ class ParentDecorator < BaseDecorator
     h.link_to child.decorate.name, [:admin, child], class: ChildDecorator::GENDER_COLORS[child.gender.to_sym]
   end
 
+  # [palier du corps, palier du titre] : le plus grand corps qui tienne, en resserrant
+  # d'abord le titre, car le corps est ce que lit le facteur
+  def label_tiers
+    LABEL_FONT_TIERS.product(LABEL_HEADING_TIERS).find do |(size, line_height, _), (heading_scale, _)|
+      label_height_pt(size, line_height, heading_scale) <= LABEL_USABLE_HEIGHT_PT
+    end || [LABEL_FONT_TIERS.last, LABEL_HEADING_TIERS.last]
+  end
+
   # Hauteur de l'étiquette rendue au palier donné : chaque ligne occupe autant de
   # lignes rendues que sa longueur l'impose, le titre avec sa taille et son interligne
-  def label_height_pt(size, line_height)
-    heading_size = size * LABEL_HEADING_SCALE
+  def label_height_pt(size, line_height, heading_scale)
+    heading_size = size * heading_scale
     body_rows = label_body_lines.sum { |line| label_rows(line, size * LABEL_BODY_EM_PER_CHAR) }
     heading_rows = label_heading_line ? label_rows(label_heading_line, heading_size * LABEL_HEADING_EM_PER_CHAR) : 0
 

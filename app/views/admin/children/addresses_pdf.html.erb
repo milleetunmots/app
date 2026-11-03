@@ -7,7 +7,7 @@
       <div class="address">
         <div class="address-content <%= child.label_size_class %>">
           <% if child.label_heading_line %>
-            <div class="address-heading"><%= child.label_heading_line %></div>
+            <div class="<%= ['address-heading', child.label_heading_class].compact.join(' ') %>"><%= child.label_heading_line %></div>
           <% end %>
           <div class="address-body"><%= safe_join(child.label_body_lines, tag.br) %></div>
         </div>

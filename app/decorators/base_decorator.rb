@@ -41,7 +41,7 @@ class BaseDecorator < Draper::Decorator
         a tag.name,
           href: config.route_collection_path(nil, q: {tagged_with_all: [tag.name]}),
           class: 'tag_display',
-          style: "background-color: #{tag.color || '#6E6C63'}"
+          style: TagDecorator.pill_style(tag.color)
         text_node "&nbsp;".html_safe
       end
     end

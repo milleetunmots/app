@@ -1,0 +1,26 @@
+@import variables
+
+// Plages de RDV par session d'appel (Réglages de RDV) : état de chaque ligne posé par
+// la vue puis par call_session_date_overrides.js
+.call-session-date-overrides-panel
+  .call-session-override-border--persisted
+    border-left: 4px solid $success
+  .call-session-override-border--alert
+    border-left: 4px solid $danger
+
+  .call-session-override-modification-deadline--alert
+    color: $danger
+
+  .reset-call-session-override
+    color: $ink-soft
+    text-decoration: none
+
+    &--persisted
+      color: $success
+
+  .call-session-override-status
+    font-size: 12px
+    color: $ink-soft
+
+    &--error
+      color: $danger

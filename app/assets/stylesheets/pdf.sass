@@ -74,13 +74,17 @@ body
       color: $navy
 
     // Nom sur la boîte aux lettres ou raison sociale. Taille en em : elle suit le
-    // palier de l'étiquette, dans le rapport 80 / 55 de la maquette. Taille et
-    // interligne repris dans ParentDecorator (LABEL_HEADING_SCALE, LABEL_HEADING_LINE_HEIGHT).
+    // palier de l'étiquette, dans le rapport 80 / 55 de la maquette, et se resserre
+    // avant que le corps ne réduise. Tailles et interligne repris dans ParentDecorator
+    // (LABEL_HEADING_TIERS, LABEL_HEADING_LINE_HEIGHT).
     .address-heading
       font-family: 'Fredoka', sans-serif
       font-weight: 700
       font-size: 1.45em
       line-height: 1.2
+
+    .address-heading--compact
+      font-size: 1.2em
 
     .address-content--small
       font-size: 10pt
@@ -131,7 +135,8 @@ body
       border: 0.5mm solid $navy
       font-family: 'Fredoka', sans-serif
       font-weight: 700
-      // nom tronqué plutôt que débordant (prénoms longs : paliers à venir en T6)
+      // filet de sécurité : un prénom trop long même au plus petit palier est coupé
+      // plutôt que de déborder (cf. ChildDecorator::GIFT_NAME_FONT_TIERS)
       overflow: hidden
 
     // Rapport 55 / 65 de la maquette entre « Un livre pour » et le prénom

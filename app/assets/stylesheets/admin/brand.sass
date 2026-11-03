@@ -1,7 +1,6 @@
 @import variables
 
 // Charte graphique : ce que les variables du thème (cf. _variables.sass) ne couvrent pas.
-// Système de couleurs : docs/features/new_brand_identity/design_system.md
 
 // Titres en Fredoka, en marine
 h1, h2, h3, h4, #page_title
@@ -20,11 +19,15 @@ h1, h2, h3, h4, #page_title
 a, button, .button, input, select, textarea, table.index_table tbody tr
   transition: color $transition, background-color $transition, border-color $transition, box-shadow $transition
 
-// Focus clavier : un seul anneau, dans le bleu de la charte
+// Focus clavier : un seul anneau plein, détaché de l'élément pour contraster avec le
+// fond de la page plutôt qu'avec l'élément lui-même (bouton marine, pastille citron).
+// outline et non box-shadow : il survit au mode contraste élevé de Windows.
+// !important : arctic_admin retire l'outline au focus avec des sélecteurs plus précis
+// (ex. body.index .table_tools .dropdown_menu_button:focus).
 a, button, .button, input, select, textarea, .select2-selection
   &:focus-visible
-    outline: none
-    box-shadow: 0 0 0 3px rgba($focus, 0.35)
+    outline: 2px solid $focus !important
+    outline-offset: 2px
 
 // Champs : bord lisible sur blanc ; arctic_admin code le texte des select en dur (#5a5a5a)
 input[type="text"], input[type="email"], input[type="password"],

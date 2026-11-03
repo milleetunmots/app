@@ -263,6 +263,10 @@ class ChildDecorator < BaseDecorator
     model.parent1.decorate.label_size_class
   end
 
+  def label_heading_class
+    model.parent1.decorate.label_heading_class
+  end
+
   # Réduit le prénom de l'étiquette cadeau pour qu'il tienne sur une ligne
   def gift_name_size_class
     length = model.first_name.to_s.length
