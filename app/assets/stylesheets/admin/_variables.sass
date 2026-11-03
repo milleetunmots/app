@@ -6,45 +6,83 @@ $lime: #DEE450
 $cream: #FEFDF8
 $brand-black: #2B2B2B
 
-// Couleurs de l'admin, tirées de la charte. Le rose, le vert-jaune et le bleu de la
-// charte sont trop clairs pour du texte (contraste < 4,5:1 sur blanc) : ils servent de
-// fonds sous un texte marine ($*-bg), et leurs versions foncées servent au texte.
-$black: $brand-black
-$blue: #1F6FCC
-$blue-bg: #CFE4FF
-$rose: #D6336C
-$rose-bg: $pink
-$yellow: #6B7012
-$yellow-bg: $lime
+// Système de couleurs de l'admin (cf. docs/features/new_brand_identity/design_system.md).
+// Peu de couleurs, chacune avec un seul rôle : les neutres portent l'essentiel de
+// l'écran, la marque signale l'action et la position, les statuts portent un sens.
 
-// Neutres accordés au crème, du plus foncé au plus clair
-$dark-grey: #4F5D6E
-$muted: #6E6C63
-$grey: #D9D7CC
+// Neutres, accordés au crème
+$canvas: $cream
+$surface: #FFFFFF
+$sunken: #F5F4EC
 $line: #E8E6DA
-$surface: #F5F4EC
+$line-strong: #D9D7CC
+$field-border: #ADAA9C
+$ink: $brand-black
+$ink-soft: #6E6C63
 
-// Sens universels (actif / oui, arrêté / non, erreur, alerte) : hors charte, gardés
-$green: #138A36
-$red: #B02B2C
-$error: #dc4747
-$warning: #f2a654
-$success: #46be8a
-$info: $brand-blue
+// Marque : action (marine), position « ici » (citron), focus clavier (bleu),
+// fille / garçon (rose et bleu clairs, texte marine)
+$action: $navy
+$action-hover: #08355D
+$action-soft: #EEF2F7
+$highlight: $lime
+$highlight-soft: #F7F8E4
+$focus: $brand-blue
+$girl-bg: #FFE1EC
+$boy-bg: #DCEBFF
+
+// Statuts : fond pâle et texte foncé de la même famille (contraste ≥ 4,5:1)
+$success: #1E7A3C
+$success-bg: #E5F3E8
+$warning: #8A5300
+$warning-bg: #FCEFD6
+$danger: #B02B2C
+$danger-bg: #FBE9E9
+$info: #1A62B8
+$info-bg: #E6F0FF
+
+// Formes et mouvement
+$radius: 8px
+$radius-lg: 10px
+$radius-pill: 999px
+$shadow-float: 0 8px 24px rgba(11, 67, 116, 0.1)
+$transition: 150ms ease-out
+
+// Noms historiques, portés par les classes de couleur (.txt-*, a.blue, .status_tag.green…)
+// et les styles existants. arctic_admin définit $red, $green, $blue, $black et $grey sans
+// !default : chaque fichier admin/* réimporte donc ce fichier pour retrouver ces valeurs.
+$black: $ink
+$muted: $ink-soft
+$dark-grey: $ink-soft
+$grey: $line-strong
+$blue: $info
+$blue-bg: $info-bg
+$rose: #D6336C
+$rose-bg: $girl-bg
+$yellow: $warning
+$yellow-bg: $warning-bg
+$green: $success
+$red: $danger
+$error: $danger
 
 // Thème arctic_admin : ses variables sont en !default et ce fichier est importé avant
 // lui (cf. active_admin.sass), ces valeurs remplacent donc les siennes
 $font-family-body: 'Poppins', Arial, sans-serif
-$primary-color: $navy
-$body-background: $cream
-$text-color: $brand-black
+$border-radius: $radius
+$box-shadow: $shadow-float
+$primary-color: $action
+$body-background: $canvas
+$text-color: $ink
 $text-color-important: $navy
 $border-color: $line
 $header-border-color: $line
-$sidebar-background: $cream
+$sidebar-background: $canvas
 $sidebar-border-color: $line
-$sidebar-item-hover-background: #F4F5DA
-$sidebar-nested-item-hover-background: #F4F5DA
-$header-nav-action-hover-background: #F4F5DA
-$header-nav-action-active-background: #EEF0C4
-$status-tag-background-color: $grey
+$sidebar-item-hover-background: $highlight-soft
+$sidebar-nested-item-hover-background: $highlight-soft
+$header-nav-action-hover-background: $highlight-soft
+$header-nav-action-active-background: $highlight-soft
+$status-tag-background-color: $sunken
+$status-tag-text-color: $ink-soft
+$status-tag-background-valid-color: $success-bg
+$status-tag-background-error-color: $danger-bg

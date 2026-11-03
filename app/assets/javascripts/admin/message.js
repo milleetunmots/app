@@ -96,7 +96,7 @@ $(document).ready(function() {
                     messageContent = `${messageContent}\n1001mots`
                 },
                 complete: function() {
-                    message.css({'height': '250px', 'background-color': '#DDDDDD'})
+                    message.css({'height': '250px', 'background-color': '#F5F4EC'})
                     specificCallMessage(selectedValue)
                     messageContentRefreshed = messageContentWithLink.replace('{INTRODUCTION}', message_intro.val())
                                                                     .replace('{QUESTIONNAIRE_DE_PARTAGE}', feedback_form.val())
@@ -134,7 +134,7 @@ $(document).ready(function() {
                     messageContent = `${messageContent}\n1001mots`
                 },
                 complete: function() {
-                    message.css({'height': '250px', 'background-color': '#DDDDDD'})
+                    message.css({'height': '250px', 'background-color': '#F5F4EC'})
                     messageContentWithLink = messageContent
                     messageContentRefreshed = messageContentWithLink.replace('{INTRODUCTION}', message_intro.val())
                                                                     .replace('{CONCLUSION}', conclusion.val())

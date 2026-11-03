@@ -243,15 +243,15 @@ class ChildSupportDecorator < BaseDecorator
 
   def canceled_badge
     h.safe_join([
-                  h.content_tag(:i, '', class: 'far fa-times-circle', style: 'margin-right: 5px; color: #E6AF2E'),
-                  h.content_tag(:span, 'rdv annulé', style: 'color: #E6AF2E')
+                  h.content_tag(:i, '', class: 'far fa-times-circle txt-warning', style: 'margin-right: 5px;'),
+                  h.content_tag(:span, 'rdv annulé', class: 'txt-warning')
                 ])
   end
 
   def missed_appointment_badge
     h.safe_join([
-                  h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
-                  h.content_tag(:span, 'rdv non honoré', style: 'color: #B02B2C')
+                  h.content_tag(:i, '', class: 'fa fa-exclamation-circle txt-error', style: 'margin-right: 5px;'),
+                  h.content_tag(:span, 'rdv non honoré', class: 'txt-error')
                 ])
   end
 
@@ -268,9 +268,9 @@ class ChildSupportDecorator < BaseDecorator
 
   def multiple_appointments_badge(calls)
     h.safe_join([
-                  h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
-                  h.content_tag(:span, "#{calls.count} rdv : ", style: 'color: #B02B2C'),
-                  h.content_tag(:span, format_multiple_dates(calls), style: 'color: #B02B2C')
+                  h.content_tag(:i, '', class: 'fa fa-exclamation-circle txt-error', style: 'margin-right: 5px;'),
+                  h.content_tag(:span, "#{calls.count} rdv : ", class: 'txt-error'),
+                  h.content_tag(:span, format_multiple_dates(calls), class: 'txt-error')
                 ])
   end
 
@@ -400,9 +400,9 @@ class ChildSupportDecorator < BaseDecorator
     date_text = I18n.l(last_call.scheduled_at, format: '%a %d/%m (%Hh%M)')
 
     first_line = h.content_tag(:div, h.safe_join([
-      h.content_tag(:i, '', class: 'far fa-times-circle', style: 'margin-right: 5px; color: #E6AF2E'),
-      h.content_tag(:span, 'RDV annulé', style: 'color: #E6AF2E'),
-      h.content_tag(:span, " — #{date_text}", style: 'color: #999;')
+      h.content_tag(:i, '', class: 'far fa-times-circle txt-warning', style: 'margin-right: 5px;'),
+      h.content_tag(:span, 'RDV annulé', class: 'txt-warning'),
+      h.content_tag(:span, " — #{date_text}", class: 'txt-grey')
     ]))
     elements = [first_line, last_booking_date_subtitle(call_index)]
 
@@ -414,9 +414,9 @@ class ChildSupportDecorator < BaseDecorator
     date_text = I18n.l(last_call.scheduled_at, format: '%a %d/%m (%Hh%M)')
 
     first_line = h.content_tag(:div, h.safe_join([
-      h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
-      h.content_tag(:span, 'RDV non honoré', style: 'color: #B02B2C'),
-      h.content_tag(:span, " — #{date_text}", style: 'color: #999;')
+      h.content_tag(:i, '', class: 'fa fa-exclamation-circle txt-error', style: 'margin-right: 5px;'),
+      h.content_tag(:span, 'RDV non honoré', class: 'txt-error'),
+      h.content_tag(:span, " — #{date_text}", class: 'txt-grey')
     ]))
     elements = [first_line, last_booking_date_subtitle(call_index)]
 
@@ -425,8 +425,8 @@ class ChildSupportDecorator < BaseDecorator
 
   def show_multiple_appointments_info(upcoming_calls)
     title = h.safe_join([
-      h.content_tag(:i, '', class: 'fa fa-exclamation-circle', style: 'margin-right: 5px; color: #B02B2C'),
-      h.content_tag(:span, "#{upcoming_calls.count} RDV programmés", style: 'color: #B02B2C; font-weight: bold;')
+      h.content_tag(:i, '', class: 'fa fa-exclamation-circle txt-error', style: 'margin-right: 5px;'),
+      h.content_tag(:span, "#{upcoming_calls.count} RDV programmés", class: 'txt-error txt-bold')
     ])
 
     date_lines = upcoming_calls.map do |call|
@@ -449,7 +449,7 @@ class ChildSupportDecorator < BaseDecorator
 
     last_date = Date.parse(last_date_str)
     subtitle = "Dernier envoi d'un lien de RDV : #{I18n.l(last_date, format: '%a %d/%m')}"
-    h.content_tag(:span, subtitle, style: 'font-style: italic; font-size: 0.85em; color: #999;')
+    h.content_tag(:span, subtitle, class: 'txt-grey', style: 'font-style: italic; font-size: 0.85em;')
   end
 
   def scheduled_call_info_next_session(call_index)
@@ -458,7 +458,7 @@ class ChildSupportDecorator < BaseDecorator
 
     start_date = group.send("call#{call_index}_start_date")
     label = scheduled_call_info_label("Prochaine session (Appel #{call_index})")
-    info = h.content_tag(:span, "À partir du #{I18n.l(start_date, format: '%d/%m')}", style: 'color: #999;')
+    info = h.content_tag(:span, "À partir du #{I18n.l(start_date, format: '%d/%m')}", class: 'txt-grey')
 
     h.safe_join([label, info])
   end

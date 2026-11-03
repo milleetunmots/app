@@ -1,15 +1,136 @@
 @import variables
 
-// Charte graphique : ce que les variables du thème (cf. _variables.sass) ne couvrent pas
+// Charte graphique : ce que les variables du thème (cf. _variables.sass) ne couvrent pas.
+// Système de couleurs : docs/features/new_brand_identity/design_system.md
 
 // Titres en Fredoka, en marine
 h1, h2, h3, h4, #page_title
   font-family: 'Fredoka', 'Poppins', Arial, sans-serif
   font-weight: 600
   color: $navy
+  letter-spacing: -0.01em
 
-// Entrée active du menu latéral : fond vert-jaune, texte marine
+// Entrée active du menu : pastille citron, texte marine (le citron ne sert qu'à « ici »)
 .header #tabs li.current > a
-  background-color: $lime
+  background-color: $highlight
   color: $navy
   font-weight: 500
+
+// Mouvement : les changements d'état se fondent au lieu de sauter
+a, button, .button, input, select, textarea, table.index_table tbody tr
+  transition: color $transition, background-color $transition, border-color $transition, box-shadow $transition
+
+// Focus clavier : un seul anneau, dans le bleu de la charte
+a, button, .button, input, select, textarea, .select2-selection
+  &:focus-visible
+    outline: none
+    box-shadow: 0 0 0 3px rgba($focus, 0.35)
+
+// Champs : bord lisible sur blanc ; arctic_admin code le texte des select en dur (#5a5a5a)
+input[type="text"], input[type="email"], input[type="password"],
+input[type="tel"], input[type="date"], input[type="datetime-local"],
+input[type="month"], input[type="search"], input[type="time"],
+input[type="url"], input[type="week"], input[type="number"],
+textarea, select, input[type="checkbox"]
+  border-color: $field-border
+  color: $ink
+
+  &:hover
+    border-color: $ink-soft
+
+  &:focus
+    border-color: $action
+
+.select2-container--default
+  .select2-selection--single, .select2-selection--multiple
+    border-color: $field-border
+    border-radius: $radius
+
+  .select2-selection--multiple .select2-selection__choice
+    border: none
+    border-radius: $radius-pill
+    background-color: $sunken
+    color: $ink
+
+  .select2-results__option--highlighted[aria-selected]
+    background-color: $action
+    color: $surface
+
+// Les navigateurs donnent leur propre police aux champs : ils reprennent celle du texte
+input, select, textarea, button
+  font-family: inherit
+
+// Case à cocher carrée : l'arrondi du thème (8px) la rendrait ronde, comme un bouton radio
+input[type="checkbox"]
+  border-radius: 4px
+
+::placeholder
+  color: $ink-soft
+
+// Tableaux : en-tête discret en creux, texte secondaire, filets clairs
+table.index_table
+  thead th
+    background-color: $sunken
+    color: $ink-soft
+    font-weight: 500
+
+    a, a:link, a:visited
+      color: $ink-soft
+
+    &.sorted-asc, &.sorted-desc
+      color: $action
+
+      a
+        color: $action
+
+  tbody tr.selected
+    background-color: $highlight-soft
+
+// Messages flash : fond pâle et texte foncé de la même famille, comme les pastilles
+.flashes .flash
+  border-radius: $radius
+  background-color: $sunken
+  color: $ink
+
+  &.flash_notice
+    background-color: $success-bg
+    color: $success
+  &.flash_alert, &.flash_error
+    background-color: $danger-bg
+    color: $danger
+  &.flash_warning
+    background-color: $warning-bg
+    color: $warning
+  &.flash_info
+    background-color: $info-bg
+    color: $info
+
+// Filtres rapides (scopes) : pastilles au contour discret ; le filtre courant prend le
+// citron de la position « ici », comme l'entrée active du menu
+body.index .scopes .scope
+  a, &:first-child a, &:last-child a
+    border: 1px solid $line-strong
+    border-radius: $radius-pill
+    background-color: $surface
+    color: $ink
+
+  &:hover a
+    border-color: $field-border
+    background-color: $action-soft
+    color: $action
+
+  &.selected a, &:active a, &:focus a
+    border-color: $highlight
+    background-color: $highlight
+    color: $navy
+    font-weight: 500
+
+// Menu des actions groupées : bouton secondaire, comme les menus du titre
+body.index .table_tools .dropdown_menu_button
+  border-color: $field-border
+  background-color: $surface
+  color: $action
+
+  &:hover
+    background-color: $action-soft
+    color: $action

@@ -10,26 +10,27 @@
   display: flex
   flex-direction: column
   border: 1px solid $line
-  border-radius: 6px
+  border-radius: $radius-lg
   overflow: hidden
-  background: white
+  background: $surface
   text-decoration: none
-  transition: box-shadow 0.2s ease
+  transition: box-shadow $transition, border-color $transition
 
   &:hover, &:focus
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15)
+    border-color: $line-strong
+    box-shadow: $shadow-float
 
   img
     display: block
     width: 100%
     height: 220px
     object-fit: contain
-    background: $surface
+    background: $sunken
 
   .book-gallery-card-label
     padding: 8px
     text-align: center
-    color: $black
+    color: $ink
 
 body.book-lightbox-open
   overflow: hidden

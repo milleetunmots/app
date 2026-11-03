@@ -11,22 +11,22 @@
       text-shadow: none
       line-height: normal
       box-shadow: none
-      border: 0
-      border-radius: 3px
-      background: $dark-grey
-      padding: 5px 8px
-      color: white
+      border: 1px solid $field-border
+      border-radius: $radius
+      background: $surface
+      padding: 5px 10px
+      color: $action
 
       &:not(.disabled):hover
-        background: $muted
+        background: $action-soft
 
       &:before
         border-width: 5px 5px 0
         right: 8px
 
       &:after
-        border-top-color: white
-        border-bottom-color: white
+        border-top-color: $action
+        border-bottom-color: $action
 
     .dropdown_menu_list_wrapper
       .dropdown_menu_list
@@ -36,8 +36,11 @@
             border-radius: 0
             font-weight: normal
             text-align: left
-            background-color: white
-            color: $black
+            background-color: $surface
+            color: $ink
+
+            &:hover
+              background-color: $sunken
 
 table.index_table .col-actions
   @import active_admin/components/dropdown_menu
@@ -47,15 +50,16 @@ table.index_table .col-actions
       .dropdown_menu_list
         li
           a
+            // Teinte pâle et texte foncé de la même famille, comme les boutons
             &.blue
-              background-color: $blue-bg
-              color: $navy
+              background-color: $info-bg
+              color: $info
             &.green
-              background-color: $green
-              color: white
+              background-color: $success-bg
+              color: $success
             &.red
-              background-color: $error
-              color: white
+              background-color: $danger-bg
+              color: $danger
             &.yellow
-              background-color: $yellow-bg
-              color: $navy
+              background-color: $warning-bg
+              color: $warning

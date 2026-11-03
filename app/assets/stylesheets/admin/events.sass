@@ -3,7 +3,7 @@
 $rcs-color: $blue
 $sms-color: $green
 $incoming-bg: $line
-$bubble-text: #ffffff
+$bubble-text: $surface
 
 .chat-history
   display: flex
@@ -18,7 +18,7 @@ $bubble-text: #ffffff
   .chat-legend
     background-color: $surface
     border: 1px solid $line
-    border-radius: 12px
+    border-radius: $radius-lg
     padding: 14px 18px
     margin-bottom: 28px
 
@@ -83,8 +83,8 @@ $bubble-text: #ffffff
       color: $black
 
     &.neutral
-      background-color: $muted
-      color: $cream
+      background-color: $sunken
+      color: $ink
 
       .system-title
         font-weight: bold
@@ -127,10 +127,10 @@ $bubble-text: #ffffff
         color: $sms-color
     &.in-progress
       .label, i
-        color: #ff8800
+        color: $warning
     &.failed
       .label, i
-        color: $error
+        color: $danger
     &.read
       .label, i
         color: $rcs-color

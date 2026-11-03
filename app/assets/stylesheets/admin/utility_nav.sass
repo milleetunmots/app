@@ -25,10 +25,11 @@
       list-style: none
       text-align: left
       overflow: hidden
-      // Comme les cartes de la page (#title_bar, panels) : fond blanc, ombre douce, rayon du thème, pas de bordure
-      background-color: #fff
-      border-radius: $border-radius
-      box-shadow: $box-shadow
+      // Élément flottant : fond blanc, filet, la seule ombre de l'admin
+      background-color: $surface
+      border: 1px solid $line
+      border-radius: $radius-lg
+      box-shadow: $shadow-float
 
       > li
         display: block
@@ -83,7 +84,7 @@
             height: 24px
             margin-right: 14px
             padding: 0
-            color: $dark-grey
+            color: $ink-soft
             font: normal 400 18px/1 $font-icon
             visibility: visible
 

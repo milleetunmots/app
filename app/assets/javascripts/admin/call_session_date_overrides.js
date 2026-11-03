@@ -1,8 +1,9 @@
 (function($) {
 
-  var DEFAULT_COLOR = '#5E6469';
-  var PERSISTED_COLOR = '#46be8a';
-  var ALERT_COLOR = '#dc4747';
+  // Couleurs du système de l'admin (cf. app/assets/stylesheets/admin/_variables.sass)
+  var DEFAULT_COLOR = '#6E6C63';
+  var PERSISTED_COLOR = '#1E7A3C';
+  var ALERT_COLOR = '#B02B2C';
   var PERSISTED_BORDER = `4px solid ${PERSISTED_COLOR}`;
   var ALERT_BORDER = `4px solid ${ALERT_COLOR}`;
 
@@ -97,7 +98,7 @@
       toastr.success('Enregistré');
     }).fail(function(xhr) {
       var errors = (xhr.responseJSON && xhr.responseJSON.errors) || ['Erreur'];
-      setStatus($container, errors.join(', '), ERROR_COLOR);
+      setStatus($container, errors.join(', '), ALERT_COLOR);
       toastr.error(errors.join(', '));
     });
   };
