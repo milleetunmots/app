@@ -50,6 +50,20 @@ RSpec.describe BlockedSendAttempt::SendAttemptReplayer do
     expect(result).to eq(fake_service)
   end
 
+  it 'expose le message transmis au service rejoué' do
+    fake_service = instance_double(ProgramMessageService, errors: [])
+    allow(fake_service).to receive(:call).and_return(fake_service)
+    allow(ProgramMessageService).to receive(:new) do |*args, **|
+      args[3].gsub!('Cliquez', 'Touchez')
+      fake_service
+    end
+
+    replayer = described_class.new(attempt)
+    replayer.call
+
+    expect(replayer.message).to eq('Touchez ici : https://non-whitelisted.example.com/page')
+  end
+
   # Seul le service d'invitation sait remplir {RESPONSE_LINK} : rejouée par
   # ProgramMessageService, une invitation partait sans aucune variable et
   # Spot-Hit la rejetait faute de destinataire (erreur 4).
