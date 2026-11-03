@@ -12,22 +12,27 @@
       text-shadow: none
       line-height: normal
       box-shadow: none
-      border: 1px solid $field-border
+      // Contour marine, et non gris comme les champs : le bouton se lit comme une action
+      border: 1px solid $action
       border-radius: $radius
       background: $surface
       padding: 5px 10px
       color: $action
+      font-weight: 500
 
       &:not(.disabled):hover
         background: $action-soft
 
+      // Flèche : un seul triangle marine ; le composant superpose un triangle blanc (:before)
+      // qui laissait une tache claire à côté
       &:before
-        border-width: 5px 5px 0
-        right: 8px
+        display: none
 
       &:after
-        border-top-color: $action
-        border-bottom-color: $action
+        border-width: 5px 4px 0
+        border-color: $action transparent
+        right: 9px
+        top: calc(50% - 2px)
 
     // Carte flottante comme le menu des actions groupées (cf. scopes.sass), à la place du
     // cadre marine dégradé du composant, de sa flèche et de ses filets entre les choix

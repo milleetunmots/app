@@ -160,15 +160,22 @@ body.index .scopes .scope
     color: $navy
     font-weight: 500
 
-// Menu des actions groupées : bouton secondaire, comme les menus du titre
+// Menu des actions groupées : bouton secondaire, comme les menus du titre ; grisé tant
+// qu'aucune ligne n'est cochée
 body.index .table_tools .dropdown_menu_button
-  border-color: $field-border
+  border-color: $action
   background-color: $surface
   color: $action
+  font-weight: 500
 
   &:hover
     background-color: $action-soft
     color: $action
+
+  &.disabled, &.disabled:hover
+    border-color: $line-strong
+    background-color: $surface
+    color: $ink-soft
 
 // Surfaces : arctic_admin, select2 et jQuery UI codent le blanc en dur ; elles prennent
 // $surface, comme les composants de l'admin
