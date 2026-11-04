@@ -312,4 +312,38 @@ RSpec.describe Ability, type: :model do
       expect(Ability.new(super_admin).can?(:update, tache)).to be(true)
     end
   end
+
+  describe "outils des accompagnantes (réglages de RDV, statistiques d'appel)" do
+    pages = ['Réglages de RDV', "Mes statistiques d'appel"]
+
+    let(:animatrice) { FactoryBot.create(:admin_user, user_role: 'animator') }
+    let(:ability) { Ability.new(animatrice) }
+    let(:son_override) { CallSessionDateOverride.new(admin_user: animatrice) }
+
+    context 'pour une animatrice qui suit une famille' do
+      before { FactoryBot.create(:child).child_support.update!(supporter: animatrice) }
+
+      pages.each do |page|
+        it "peut ouvrir la page « #{page} »" do
+          expect(ability.can?(:manage, ActiveAdmin::Page.new(:admin, page, {}))).to be(true)
+        end
+      end
+
+      it 'peut gérer ses propres plages de RDV' do
+        expect(ability.can?(:manage, son_override)).to be(true)
+      end
+    end
+
+    context 'pour une animatrice qui ne suit aucune famille' do
+      pages.each do |page|
+        it "ne peut pas ouvrir la page « #{page} »" do
+          expect(ability.can?(:manage, ActiveAdmin::Page.new(:admin, page, {}))).to be(false)
+        end
+      end
+
+      it 'ne peut pas gérer de plages de RDV' do
+        expect(ability.can?(:manage, son_override)).to be(false)
+      end
+    end
+  end
 end

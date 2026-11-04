@@ -137,6 +137,12 @@ class AdminUser < ApplicationRecord
     caller? || animator?
   end
 
+  # Outils des accompagnantes (réglages de RDV, statistiques d'appel, menu de l'avatar) :
+  # toutes les callers, mais seulement les animatrices qui suivent des familles.
+  def supporter_tools?
+    caller? || (animator? && supporter?)
+  end
+
   def supporter?
     child_supports.any?
   end

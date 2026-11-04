@@ -29,10 +29,13 @@ RSpec.describe 'Admin — Mes statistiques d’appel', type: :request do
   }
 
   %w[caller animator].each do |role|
-    describe "pour un #{role}" do
+    describe "pour un #{role} qui suit des familles" do
       let(:admin_user) { FactoryBot.create(:admin_user, user_role: role) }
 
-      before { sign_in admin_user }
+      before do
+        FactoryBot.create(:child).child_support.update!(supporter: admin_user)
+        sign_in admin_user
+      end
 
       context 'avec la clef de signature configurée' do
         before { get path }
@@ -105,6 +108,7 @@ RSpec.describe 'Admin — Mes statistiques d’appel', type: :request do
   it 'donne le même dashboard à deux accompagnantes, sans paramètre' do
     awa = FactoryBot.create(:admin_user, user_role: 'caller')
     bintou = FactoryBot.create(:admin_user, user_role: 'animator')
+    FactoryBot.create(:child).child_support.update!(supporter: bintou)
 
     payloads = [awa, bintou].map do |user|
       sign_in user
@@ -117,8 +121,13 @@ RSpec.describe 'Admin — Mes statistiques d’appel', type: :request do
     expect(payloads.pluck('params')).to all(eq({}))
   end
 
-  %w[super_admin contributor reader].each do |role|
-    describe "pour un #{role}" do
+  {
+    'un super_admin' => 'super_admin',
+    'un contributor' => 'contributor',
+    'un reader' => 'reader',
+    'une animatrice qui ne suit aucune famille' => 'animator'
+  }.each do |qui, role|
+    describe "pour #{qui}" do
       before do
         allow(JWT).to receive(:encode).and_call_original
         sign_in FactoryBot.create(:admin_user, user_role: role)

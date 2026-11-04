@@ -187,6 +187,35 @@ RSpec.describe AdminUser, type: :model do
     end
   end
 
+  describe '#supporter_tools?' do
+    def suivant_une_famille(admin_user)
+      FactoryBot.create(:child).child_support.update!(supporter: admin_user)
+      admin_user
+    end
+
+    it 'est vrai pour une caller sans famille suivie' do
+      expect(FactoryBot.create(:admin_user, user_role: 'caller').supporter_tools?).to be(true)
+    end
+
+    it 'est vrai pour une caller qui suit une famille' do
+      expect(suivant_une_famille(FactoryBot.create(:admin_user, user_role: 'caller')).supporter_tools?).to be(true)
+    end
+
+    it 'est vrai pour une animatrice qui suit une famille' do
+      expect(suivant_une_famille(FactoryBot.create(:admin_user, user_role: 'animator')).supporter_tools?).to be(true)
+    end
+
+    it 'est faux pour une animatrice qui ne suit aucune famille' do
+      expect(FactoryBot.create(:admin_user, user_role: 'animator').supporter_tools?).to be(false)
+    end
+
+    %w[super_admin contributor reader].each do |role|
+      it "est faux pour un #{role}, même s'il suit une famille" do
+        expect(suivant_une_famille(FactoryBot.create(:admin_user, user_role: role)).supporter_tools?).to be(false)
+      end
+    end
+  end
+
   describe '.supporters_who_cannot_send_automatic_sms' do
     def supporter_with_child_support(can_send_automatic_sms:)
       admin_user = FactoryBot.create(:admin_user, can_send_automatic_sms: can_send_automatic_sms)

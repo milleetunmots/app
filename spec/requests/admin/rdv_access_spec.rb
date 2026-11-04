@@ -16,6 +16,7 @@ RSpec.describe 'Admin - accès à la prise de RDV sans liste bêta', type: :requ
       let(:admin_user) { FactoryBot.create(:admin_user, user_role: role, can_send_automatic_sms: true) }
 
       before do
+        FactoryBot.create(:child).child_support.update!(supporter: admin_user)
         sign_in admin_user
         get '/admin/dashboard'
       end
@@ -32,6 +33,32 @@ RSpec.describe 'Admin - accès à la prise de RDV sans liste bêta', type: :requ
       it 'propose la page Réglages de RDV dans le menu de son avatar' do
         expect(utility_nav_links).to include('/admin/reglages_de_rdv')
       end
+    end
+  end
+
+  context 'quand une animatrice qui ne suit aucune famille se connecte' do
+    let(:animatrice) { FactoryBot.create(:admin_user, user_role: 'animator', can_send_automatic_sms: true) }
+
+    before { sign_in animatrice }
+
+    it "n'affiche ni l'encart ni le lien des réglages dans l'avatar" do
+      get '/admin/dashboard'
+
+      expect(response.body).not_to include('Paramètres des rendez-vous')
+      expect(utility_nav_links).not_to include('/admin/reglages_de_rdv')
+    end
+
+    it "refuse l'accès à la page Réglages de RDV" do
+      get '/admin/reglages_de_rdv'
+
+      expect(response).to redirect_to(admin_children_url)
+      expect(flash[:alert]).to be_present
+    end
+
+    it "refuse de modifier l'envoi automatique" do
+      post '/admin/reglages_de_rdv/toggle_automatic_sms'
+
+      expect(animatrice.reload.can_send_automatic_sms).to be(true)
     end
   end
 

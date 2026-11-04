@@ -14,10 +14,11 @@ RSpec.describe 'Admin — menu de l’avatar et menu de gauche', type: :request 
   end
 
   %w[caller animator].each do |role|
-    describe "pour un #{role}" do
+    describe "pour un #{role} qui suit des familles" do
       let(:admin_user) { FactoryBot.create(:admin_user, user_role: role, name: 'Awa Traoré') }
 
       before do
+        FactoryBot.create(:child).child_support.update!(supporter: admin_user)
         sign_in admin_user
         get '/admin/dashboard'
       end
@@ -58,6 +59,32 @@ RSpec.describe 'Admin — menu de l’avatar et menu de gauche', type: :request 
 
         expect(response).to have_http_status(:ok)
       end
+    end
+  end
+
+  describe 'pour une animatrice qui ne suit aucune famille' do
+    let(:admin_user) { FactoryBot.create(:admin_user, user_role: 'animator') }
+
+    before do
+      sign_in admin_user
+      get '/admin/dashboard'
+    end
+
+    it 'a un avatar qui mène directement à son profil, sans menu déroulant' do
+      avatar = parsed_body.at_css('#utility_nav #current_user > a')
+
+      expect(avatar['href']).to eq(admin_admin_user_path(admin_user))
+      expect(parsed_body.css('#utility_nav #current_user ul li')).to be_empty
+    end
+
+    it 'peut ouvrir son profil' do
+      get admin_admin_user_path(admin_user)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'ne voit pas l’encart des paramètres de rendez-vous' do
+      expect(response.body).not_to include('Paramètres des rendez-vous')
     end
   end
 

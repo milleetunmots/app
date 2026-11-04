@@ -160,9 +160,12 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
       can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
-      can :manage, ActiveAdmin::Page, name: 'Réglages de RDV'
-      can :manage, ActiveAdmin::Page, name: "Mes statistiques d'appel"
-      can :manage, CallSessionDateOverride, admin_user_id: user.id
+      # Toutes les animatrices ne sont pas accompagnantes : ces outils sont réservés à celles qui suivent des familles
+      if user.supporter?
+        can :manage, ActiveAdmin::Page, name: 'Réglages de RDV'
+        can :manage, ActiveAdmin::Page, name: "Mes statistiques d'appel"
+        can :manage, CallSessionDateOverride, admin_user_id: user.id
+      end
       can :select_module_for_parent1, ChildSupport, supporter_id: user.id
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
