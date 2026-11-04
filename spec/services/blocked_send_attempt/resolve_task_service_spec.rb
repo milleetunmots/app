@@ -17,6 +17,21 @@ RSpec.describe BlockedSendAttempt::ResolveTaskService do
       expect(task.description).to start_with(ERB::Util.html_escape(attempt.message_body))
     end
 
+    it "ajoute l'avertissement quand la petite mission n'a pas remplacé celle de la fiche de suivi" do
+      described_class.new(attempt: attempt, outcome: :relaunched, admin_user: super_admin, call_goals_not_saved: true).call
+
+      expect(task.reload.description).to end_with(
+        "<br><br>Relancé le #{today} : le message a été envoyé.<br><br>" \
+        "La petite mission n'a pas été enregistrée dans la fiche de suivi : une autre petite mission y figurait déjà."
+      )
+    end
+
+    it "n'ajoute pas d'avertissement par défaut" do
+      described_class.new(attempt: attempt, outcome: :relaunched, admin_user: super_admin).call
+
+      expect(task.reload.description).not_to include(described_class::CALL_GOALS_NOT_SAVED_LINE)
+    end
+
     it "clôt la tâche d'un envoi archivé en disant que le message n'est pas parti" do
       described_class.new(attempt: attempt, outcome: :archived, admin_user: super_admin).call
 
