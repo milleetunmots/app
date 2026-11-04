@@ -1,20 +1,22 @@
 class Task::CreateAutomaticTaskService
 
-  def initialize(title:, description:, due_date: Time.zone.today)
+  # assignee_email : e-mail de l'AdminUser assigné, chef(fe) de projet opération par défaut.
+  def initialize(title:, description:, due_date: Time.zone.today, assignee_email: ENV.fetch('OPERATION_PROJECT_MANAGER_EMAIL', nil))
     @title = title
     @description = description
-    @operation_project_manager = AdminUser.find_by(email: ENV['OPERATION_PROJECT_MANAGER_EMAIL'])
+    @assignee_email = assignee_email
+    @assignee = AdminUser.find_by(email: assignee_email) if assignee_email.present?
     @due_date = due_date
   end
 
   def call
-    unless @operation_project_manager
-      Rollbar.error("L'utilisateur 'chef(fe) de projet opération' est introuvable")
+    unless @assignee
+      Rollbar.error("L'utilisateur assigné à la tâche automatique est introuvable", email: @assignee_email, title: @title)
       return self
     end
 
     @task = Task.create(
-      assignee_id: @operation_project_manager.id,
+      assignee_id: @assignee.id,
       title: @title,
       description: @description,
       due_date: @due_date

@@ -61,7 +61,7 @@ RSpec.describe SpotHit::UpdateRcsModelService do
         result = nil
         expect { result = service }.to change(BlockedSendAttempt, :count).by(1)
 
-        expect(result.errors).to include('Ce message ne peut pas être envoyé, veuillez contacter le pôle tech.')
+        expect(result.errors).to include(BlockedSendAttempt::SendGuard::BLOCKED_MESSAGE)
         expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/modify')
       end
     end

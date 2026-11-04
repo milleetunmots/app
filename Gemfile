@@ -86,6 +86,7 @@ gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem "activeadmin", "~> 2.14.0"
 gem "devise", "~> 4.9.0"
 gem "cancancan"
+gem "pretender"
 gem "draper"
 gem "arctic_admin"
 
@@ -158,6 +159,9 @@ gem 'rack-attack'
 # Airtable
 gem 'airrecord'
 
+# Signature des URLs d'iframe Metabase (déjà présent en dépendance transitive de googleauth)
+gem 'jwt'
+
 # to avoid compatibility issues, may not be necessary down the line
 gem 'concurrent-ruby', '1.3.4'
 
@@ -170,3 +174,4 @@ group :production do
   # for assets compilation
   gem "activerecord-nulldb-adapter"
 end
+

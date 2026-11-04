@@ -6,12 +6,13 @@ class BlockedSendAttempt::BaseSendGuard
 
   # extra_texts : contenus scannés en plus du message mais non stockés comme
   # message_body — typiquement les valeurs des variables destinataires SpotHit.
-  def initialize(text, provider:, extra_texts: [], replay_params: {}, blocked_send_attempt_id: nil)
+  def initialize(text, provider:, extra_texts: [], replay_params: {}, blocked_send_attempt_id: nil, admin_user_id: nil)
     @text = text
     @extra_texts = extra_texts
     @provider = provider
     @replay_params = replay_params
     @blocked_send_attempt_id = blocked_send_attempt_id
+    @admin_user_id = admin_user_id
   end
 
   delegate :kind, to: :class
@@ -45,7 +46,8 @@ class BlockedSendAttempt::BaseSendGuard
       detected_values: detected_values,
       message_body: @text,
       replay_params: @replay_params,
-      status: block_send? ? 'pending' : 'not_blocked'
+      status: block_send? ? 'pending' : 'not_blocked',
+      admin_user_id: @admin_user_id
     )
     Rollbar.error('BlockedSendAttempt non tracé', errors: attempt.errors.full_messages, provider: @provider, kind: kind) unless attempt.persisted?
 

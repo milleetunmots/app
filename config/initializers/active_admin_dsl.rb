@@ -1,5 +1,6 @@
 require 'active_admin/better_csv/dsl'
 require 'active_admin/discard/dsl'
+require 'active_admin/flash_task_links'
 require 'active_admin/media/dsl'
 require 'active_admin/paper_trail/dsl'
 require 'active_admin/tags/dsl'
@@ -25,3 +26,24 @@ module ActiveAdminBeforeIndexPartial
 end
 
 ActiveAdmin::Views::Pages::Index.prepend(ActiveAdminBeforeIndexPartial)
+ActiveAdmin::Views::Pages::Base.prepend(ActiveAdmin::FlashTaskLinks)
+
+# Simulation de connexion (« Se connecter en tant que ») : bandeau permanent et classe
+# `impersonating` sur le body, qui fait passer les formulaires en lecture seule (impersonation.js).
+module ActiveAdminImpersonationBanner
+  private
+
+  def body_classes
+    classes = super
+    classes << 'impersonating' if Current.impersonating?
+    classes
+  end
+
+  # Seul point d'extension d'ActiveAdmin en tête de #wrapper, avant le header
+  def build_unsupported_browser
+    super
+    text_node helpers.render(partial: 'admin/impersonations/banner') if Current.impersonating?
+  end
+end
+
+ActiveAdmin::Views::Pages::Base.prepend(ActiveAdminImpersonationBanner)

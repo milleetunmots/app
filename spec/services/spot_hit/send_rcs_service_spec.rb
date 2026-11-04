@@ -135,6 +135,22 @@ RSpec.describe SpotHit::SendRcsService do
           expect { service }.not_to change(Event, :count)
         end
 
+        it "rattache la tentative à l'auteur et transmet au guard le nombre de destinataires" do
+          author = FactoryBot.create(:admin_user, user_role: 'caller')
+          allow(BlockedSendAttempt::SendGuard).to receive(:new).and_call_original
+
+          described_class.new(
+            recipients: recipients,
+            planned_timestamp: planned_timestamp,
+            media_id: media_id,
+            fallback_message: fallback_message,
+            admin_user_id: author.id
+          ).call
+
+          expect(BlockedSendAttempt.last.admin_user).to eq(author)
+          expect(BlockedSendAttempt::SendGuard).to have_received(:new).with(fallback_message, hash_including(recipients_count: 2))
+        end
+
         it 'does not create a second BlockedSendAttempt when blocked_send_attempt_id is given' do
           existing = FactoryBot.create(:blocked_send_attempt)
           service = described_class.new(

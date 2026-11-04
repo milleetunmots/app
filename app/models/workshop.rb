@@ -54,6 +54,7 @@ class Workshop < ApplicationRecord
   after_create :send_message
   after_save :update_workshop_participation
   after_rollback :report_deferred_quota_block, on: :create
+  after_rollback :report_deferred_blocked_send, on: :create
 
   validates :topic, inclusion: { in: TOPICS, allow_blank: true }
   validates :animator, presence: true
@@ -125,11 +126,41 @@ class Workshop < ApplicationRecord
       raise ActiveRecord::Rollback
     end
 
+    # Invitation bloquée par le contrôle de contenu : même logique, aucun parent
+    # n'est invité. Les tentatives vont disparaître avec la transaction : on en
+    # garde les données pour les recréer après le rollback.
+    if service.blocked_send?
+      @deferred_blocked_send = {
+        attempts: service.blocked_send_guard.blocked_attempts.map { |attempt| attempt.attributes.slice('provider', 'kind', 'detected_values', 'message_body', 'admin_user_id') },
+        recipients_count: service.blocked_send_guard.recipients_count,
+        recipient_parent_id: service.blocked_send_guard.recipient_parent_id
+      }
+      errors.add(:base, service.errors.first)
+      raise ActiveRecord::Rollback
+    end
+
     Rollbar.error(service.errors) if service.errors.any?
   end
 
   def report_deferred_quota_block
     @deferred_quota_guard&.report_deferred_block!
+  end
+
+  # L'atelier n'existe pas : la tentative n'est pas relançable (replay_params
+  # vide) et ne peut qu'être archivée, l'auteur recréant l'atelier une fois le
+  # message vérifié.
+  def report_deferred_blocked_send
+    return unless @deferred_blocked_send
+
+    attempts = @deferred_blocked_send[:attempts].map do |attributes|
+      BlockedSendAttempt.create(attributes.merge('replay_params' => {}, 'status' => 'pending'))
+    end
+    persisted, failed = attempts.partition(&:persisted?)
+    Rollbar.error('BlockedSendAttempt non tracé', errors: failed.flat_map { |attempt| attempt.errors.full_messages }) if failed.any?
+
+    service = BlockedSendAttempt::ReportService.new(attempts: persisted, **@deferred_blocked_send.slice(:recipients_count, :recipient_parent_id)).call
+    Rollbar.error('BlockedSendAttempt::ReportService', errors: service.errors) if service.errors.any?
+    @deferred_blocked_send = nil
   end
 
   def update_workshop_participation

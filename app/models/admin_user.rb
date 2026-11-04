@@ -46,6 +46,20 @@ class AdminUser < ApplicationRecord
   ROLES = %w[super_admin contributor reader caller animator].freeze
   COMMON_PASSWORDS = %w[1001 mots password azerty 1234 motdepasse qwerty 12345 000 bonjour soleil abc 111].freeze
 
+  # Colonnes de la fiche admin : chaque colonne de la table est classée ici, une seule fois
+  # (une spec échoue si une colonne apparaît sans décision).
+  PROFILE_ATTRIBUTES = %w[name email user_role aircall_phone_number phone_number two_factor_enabled].freeze
+  ADMIN_EXTRA_ATTRIBUTES = %w[
+    id aircall_number_id automatic_sms_activated_at calendly_event_type_uris calendly_user_uri
+    can_export_data can_send_automatic_sms can_treat_task created_at current_sign_in_at
+    group_subscriptions is_disabled last_sign_in_at remember_created_at sign_in_count
+    sms_daily_recipients_limit sms_hourly_recipients_limit updated_at
+  ].freeze
+  HIDDEN_ATTRIBUTES = %w[
+    encrypted_password reset_password_token reset_password_sent_at otp_code_digest otp_sent_at
+    otp_attempts current_sign_in_ip last_sign_in_ip
+  ].freeze
+
   OTP_LENGTH = 6
   OTP_VALIDITY = 10.minutes
   OTP_MAX_ATTEMPTS = 5
@@ -61,6 +75,7 @@ class AdminUser < ApplicationRecord
   has_many :child_supports, foreign_key: 'supporter_id', inverse_of: :supporter, dependent: :nullify
   has_many :children, through: :child_supports
   has_many :scheduled_calls, dependent: :nullify
+  has_many :blocked_send_attempts, dependent: :nullify
   # dependent: :destroy et non :nullify comme ses voisins : admin_user_id
   # est null: false sur sms_send_records.
   has_many :sms_send_records, dependent: :destroy
@@ -120,6 +135,12 @@ class AdminUser < ApplicationRecord
 
   def caller_or_animator?
     caller? || animator?
+  end
+
+  # Outils des accompagnantes (réglages de RDV, statistiques d'appel, menu de l'avatar) :
+  # toutes les callers, mais seulement les animatrices qui suivent des familles.
+  def supporter_tools?
+    caller? || (animator? && supporter?)
   end
 
   def supporter?

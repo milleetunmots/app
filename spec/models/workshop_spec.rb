@@ -227,6 +227,94 @@ RSpec.describe Workshop, type: :model do
       end
     end
 
+    context "quand le message d'invitation est bloqué par le contrôle de contenu" do
+      let!(:assignee) { FactoryBot.create(:admin_user, user_role: 'super_admin', email: ENV.fetch('BLOCKED_SEND_ASSIGNEE_EMAIL')) }
+      let(:slack_alerts) { [] }
+
+      # DEFAULT_HOSTNAME, comme en production : les liens de réponse à l'atelier
+      # (domaine de l'app) sont autorisés et seul le lien saisi est détecté.
+      around do |example|
+        previous = ENV.to_h.slice('URL_FILTER_BLOCKING_ENABLED', 'DEFAULT_HOSTNAME')
+        ENV['URL_FILTER_BLOCKING_ENABLED'] = 'true'
+        ENV['DEFAULT_HOSTNAME'] = 'localhost'
+        example.run
+        %w[URL_FILTER_BLOCKING_ENABLED DEFAULT_HOSTNAME].each { |key| previous.key?(key) ? ENV[key] = previous[key] : ENV.delete(key) }
+      end
+
+      before do
+        slack = instance_double(Slack::PostMessageService, errors: [])
+        allow(slack).to receive(:call).and_return(slack)
+        allow(Slack::PostMessageService).to receive(:new) do |payload|
+          slack_alerts << payload
+          slack
+        end
+      end
+
+      def build_blocked_workshop
+        FactoryBot.build(
+          :workshop,
+          acting_admin_user: acting_admin_user,
+          workshop_land: 'Paris 20 eme',
+          invitation_message: 'Inscrivez-vous : https://exemple-non-autorise.fr'
+        )
+      end
+
+      it "ne crée pas l'atelier et n'invite personne" do
+        workshop = build_blocked_workshop
+
+        expect(workshop.save).to be_falsey
+        expect(Workshop.count).to eq(0)
+        expect(Events::WorkshopParticipation.count).to eq(0)
+        expect(WebMock).not_to have_requested(:post, %r{https://www\.spot-hit\.fr})
+      end
+
+      it 'affiche le message de blocage, sans lien, et garde les données saisies' do
+        workshop = build_blocked_workshop
+        workshop.save
+
+        expect(workshop.errors[:base]).to eq([BlockedSendAttempt::SendGuard::BLOCKED_MESSAGE])
+        expect(workshop.invitation_message).to eq('Inscrivez-vous : https://exemple-non-autorise.fr')
+      end
+
+      it "trace après l'annulation une tentative non relançable, rattachée à la créatrice" do
+        expect { build_blocked_workshop.save }.to change(BlockedSendAttempt, :count).by(1)
+
+        attempt = BlockedSendAttempt.last
+        expect(attempt).to have_attributes(status: 'pending', kind: 'url', admin_user: acting_admin_user, replay_params: {})
+        expect(attempt.detected_values).to eq(['https://exemple-non-autorise.fr'])
+        expect(attempt).not_to be_replayable
+      end
+
+      it "crée la tâche de la créatrice et alerte l'équipe une seule fois, après l'annulation" do
+        expect { build_blocked_workshop.save }.to change(Task, :count).by(1)
+
+        expect(Task.last).to have_attributes(reporter: acting_admin_user, assignee: assignee, related: BlockedSendAttempt.last)
+        blocked_alerts = slack_alerts.select { |alert| alert[:channel] == "##{ENV.fetch('SLACK_BLOCKED_SEND_ALERT_CHANNEL')}" }
+        expect(blocked_alerts.size).to eq(1)
+        expect(blocked_alerts.first[:text]).to include('*Destinataires* : 2 familles', "/admin/tasks/#{Task.last.id}|")
+      end
+
+      it "ne consomme pas de quota d'envoi" do
+        expect { build_blocked_workshop.save }.not_to change(SmsSendRecord.not_blocked, :count)
+      end
+
+      context 'en mode surveillance' do
+        around do |example|
+          ENV['URL_FILTER_BLOCKING_ENABLED'] = ''
+          example.run
+        end
+
+        it "crée l'atelier et transmet les invitations, comme aujourd'hui" do
+          workshop = build_blocked_workshop
+
+          expect(workshop.save).to be_truthy
+          expect(workshop.workshop_participations.count).to eq(2)
+          expect(BlockedSendAttempt.last.status).to eq('not_blocked')
+          expect(Task.count).to eq(0)
+        end
+      end
+    end
+
     context 'quand la créatrice est super_admin' do
       it "n'applique pas le plafond" do
         super_admin = FactoryBot.create(:admin_user, user_role: 'super_admin')

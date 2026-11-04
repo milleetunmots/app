@@ -1,5 +1,20 @@
 module ActiveAdmin::BlockedSendAttemptsHelper
 
+  # Classes de app/assets/stylesheets/admin/status_tag.sass.
+  KIND_TAG_COLORS = {
+    'url' => 'blue',
+    'keyword' => 'rose',
+    'phone_number' => 'yellow'
+  }.freeze
+
+  def blocked_send_attempt_kind_tag(attempt)
+    content_tag(
+      :span,
+      BlockedSendAttempt.human_attribute_name("kind.#{attempt.kind}"),
+      class: "status_tag #{KIND_TAG_COLORS[attempt.kind]}"
+    )
+  end
+
   # La session est stockée en cookie (4 Ko) : un envoi de masse peut whitelister
   # des dizaines de valeurs, et les lister toutes dans le flash ferait échouer la
   # redirection sur un CookieOverflow — après que le message est parti.
@@ -13,6 +28,11 @@ module ActiveAdmin::BlockedSendAttemptsHelper
     else
       'La relance ne concerne que cet envoi : le terme détecté restera interdit pour les prochains.'
     end
+  end
+
+  # L'archivage est définitif et prévient l'auteur : il est confirmé avant d'être appliqué.
+  def blocked_send_attempt_archive_confirm
+    "Archiver cet envoi ? Le message ne sera jamais envoyé et l'auteur en sera informé dans sa tâche."
   end
 
   def blocked_send_attempt_relaunch_notice(whitelisted_values)

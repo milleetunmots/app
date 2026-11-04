@@ -342,6 +342,8 @@ ActiveAdmin.register ChildSupport do
                 text_node text_area_tag('child_support[sensitive_information]',
                                         f.object.decorate.sensitive_information,
                                         id: 'child_support_sensitive_information',
+                                        # Le masque de la simulation de connexion ne doit jamais repartir comme valeur
+                                        disabled: Current.impersonating?,
                                         rows: 7,
                                         class: 'input-full-width-spaced')
               end

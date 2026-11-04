@@ -1,14 +1,50 @@
-default_scope = Task.todo.order(:due_date).includes(:related).limit(20)
+default_scope = Task.kept.todo.order(:due_date).includes(:related).limit(10)
+reported_scope = Task.kept.accessible_by(current_ability).caller_task(current_admin_user).includes(:related, :assignee, :treated_by)
+
+reported_section = lambda do |title, tasks, count, empty_key|
+  h4 "#{title} (#{count})", class: 'aat-section-title'
+  ul class: 'fa-ul aat-ul' do
+    li I18n.t(empty_key), class: 'aat-empty' if tasks.empty?
+    tasks.each do |task|
+      render 'active_admin/tasks/task_li', task: task, show_progress: true
+    end
+  end
+end
+
+reported_tab = lambda do
+  tab I18n.t('active_admin.tasks.dashboard.reported') do
+    reported_section.call(
+      I18n.t('active_admin.tasks.dashboard.in_progress'),
+      reported_scope.todo.order(:due_date).limit(7),
+      reported_scope.todo.count,
+      'active_admin.tasks.dashboard.no_in_progress'
+    )
+    reported_section.call(
+      I18n.t('active_admin.tasks.dashboard.done'),
+      reported_scope.done.order(done_at: :desc).limit(3),
+      reported_scope.done.count,
+      'active_admin.tasks.dashboard.no_done'
+    )
+    para link_to(I18n.t('active_admin.tasks.dashboard.see_all'), admin_tasks_path(scope: 'caller_task')), class: 'aat-see-all'
+  end
+end
+
+# Une accompagnante ou une animatrice se voit rarement assigner une tâche : le
+# suivi de celles qu'elle a ajoutées passe en premier onglet.
+reported_first = current_admin_user.caller? || current_admin_user.animator?
 
 panel I18n.t('active_admin.tasks.dashboard.title'), id: 'active_admin-tasks-dashboard' do
   tabs do
+    reported_tab.call if reported_first
     tab I18n.t('active_admin.tasks.dashboard.mine') do
       ul class: 'fa-ul aat-ul' do
         default_scope.accessible_by(current_ability).assigned_to(current_admin_user).each do |task|
           render 'active_admin/tasks/task_li', task: task, show_assignee: false
         end
       end
+      para link_to(I18n.t('active_admin.tasks.dashboard.see_all'), admin_tasks_path(scope: reported_first ? 'caller_task' : 'mine')), class: 'aat-see-all'
     end
+    reported_tab.call unless reported_first
     if(current_admin_user.user_role == 'super_admin')
       tab I18n.t('active_admin.tasks.dashboard.others') do
         ul class: 'fa-ul aat-ul' do
@@ -16,6 +52,7 @@ panel I18n.t('active_admin.tasks.dashboard.title'), id: 'active_admin-tasks-dash
             render 'active_admin/tasks/task_li', task: task
           end
         end
+        para link_to(I18n.t('active_admin.tasks.dashboard.see_all_others'), admin_tasks_path(scope: 'all')), class: 'aat-see-all'
       end
     end
 

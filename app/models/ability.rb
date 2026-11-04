@@ -3,7 +3,22 @@
 class Ability
   include CanCan::Ability
 
-  def initialize(user)
+  # Droits conservés pendant une simulation de connexion (« Se connecter en tant que »).
+  # :edit, :update et :update_sensitive_information n'y sont que pour afficher les formulaires
+  # d'édition, que les accompagnantes utilisent comme fiche : l'enregistrement est refusé
+  # par ApplicationController#enforce_read_only_impersonation. Les pages ActiveAdmin
+  # (ActiveAdmin::Page) gardent leurs droits : leurs actions à effet de bord sont toutes
+  # en POST ou DELETE, donc refusées au même endroit.
+  IMPERSONATION_ACTIONS = %i[
+    read edit update autocomplete read_content
+    read_sensitive_information update_sensitive_information
+    send_message_to_parent1 send_message_to_parent2
+  ].freeze
+
+  # Par défaut, l'Ability suit le contexte de la requête : ActiveAdmin l'instancie lui-même
+  # avec le seul utilisateur courant.
+  def initialize(user, read_only: Current.impersonating?)
+    @read_only = read_only
     return if user.blank? || user.is_disabled?
 
     can :read, ActiveAdmin::Page, name: 'Search'
@@ -12,6 +27,11 @@ class Ability
     case user.user_role
     when 'super_admin'
       can :manage, :all
+      # Réservée aux accompagnantes : le can :manage, :all ouvrirait sinon la page au super_admin
+      cannot :manage, ActiveAdmin::Page, name: "Mes statistiques d'appel"
+      # Ni un autre super admin (ses droits seraient les mêmes, sa vision aussi), ni un compte désactivé
+      cannot :impersonate, AdminUser, user_role: 'super_admin'
+      cannot :impersonate, AdminUser, is_disabled: true
       cannot :read_sensitive_information, ChildSupport
       cannot :update_sensitive_information, ChildSupport
       cannot :update_ok_for_solicitation, ChildSupport
@@ -40,10 +60,12 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
       can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :read, ActiveAdmin::Page, name: 'Dashboard'
+      cannot_change_blocked_send_tasks
     when 'reader'
       can :autocomplete, [Group, Tag]
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
+      cannot_change_blocked_send_tasks
       can :manage, [Parent, Child, ChildSupport]
       cannot %i[new create destroy discard select_module_for_parent1 select_module_for_parent2 add_child add_parent quit_group create_scheduled_call], [Parent, Child, ChildSupport]
       cannot :read_sensitive_information, ChildSupport
@@ -66,6 +88,7 @@ class Ability
       can :read, AdminUser, id: user.id
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
+      cannot_change_blocked_send_tasks
       can :create, Parent
       can %i[read update], Parent, parent1_children: { child_support: { supporter_id: user.id } }
       can %i[read update], Parent, parent2_children: { child_support: { supporter_id: user.id } }
@@ -96,6 +119,7 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
       can :manage, ActiveAdmin::Page, name: 'Réglages de RDV'
+      can :manage, ActiveAdmin::Page, name: "Mes statistiques d'appel"
       can :manage, CallSessionDateOverride, admin_user_id: user.id
       can :select_module_for_parent1, ChildSupport, supporter_id: user.id
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
@@ -109,6 +133,7 @@ class Ability
       can :autocomplete, [Group, Tag]
       can :create, Task
       can %i[read update destroy], Task, reporter_id: user.id
+      cannot_change_blocked_send_tasks
       can :manage, [Parent, Child, ChildSupport, ChildrenSupportModule]
       cannot %i[destroy discard], [Parent, Child, ChildSupport, ChildrenSupportModule]
       cannot :read_sensitive_information, ChildSupport
@@ -135,8 +160,12 @@ class Ability
       can :manage, ActiveAdmin::Page, name: 'Restart Support Form'
       can :manage, ActiveAdmin::Page, name: 'Avoid Disengagement Form'
       can :manage, ActiveAdmin::Page, name: 'Message'
-      can :manage, ActiveAdmin::Page, name: 'Réglages de RDV'
-      can :manage, CallSessionDateOverride, admin_user_id: user.id
+      # Toutes les animatrices ne sont pas accompagnantes : ces outils sont réservés à celles qui suivent des familles
+      if user.supporter?
+        can :manage, ActiveAdmin::Page, name: 'Réglages de RDV'
+        can :manage, ActiveAdmin::Page, name: "Mes statistiques d'appel"
+        can :manage, CallSessionDateOverride, admin_user_id: user.id
+      end
       can :select_module_for_parent1, ChildSupport, supporter_id: user.id
       can :select_module_for_parent2, ChildSupport, supporter_id: user.id
       can :send_message_to_parent1, ChildSupport, supporter_id: user.id
@@ -151,6 +180,21 @@ class Ability
     while subject.is_a?(Draper::Decorator)
       subject = subject.model
     end
+    return false if @read_only && !impersonation_permits?(action, subject)
+
     super(action, subject, *extra_args)
+  end
+
+  private
+
+  # La tâche d'un envoi bloqué ne se clôt que par la relance ou l'archivage de
+  # l'envoi (super_admin) : son auteur la lit, sans pouvoir la modifier ni la
+  # supprimer. À appeler après les `can` du rôle, pour l'emporter sur eux.
+  def cannot_change_blocked_send_tasks
+    cannot %i[update destroy discard], Task, related_type: 'BlockedSendAttempt'
+  end
+
+  def impersonation_permits?(action, subject)
+    subject.is_a?(ActiveAdmin::Page) || action.to_sym.in?(IMPERSONATION_ACTIONS)
   end
 end

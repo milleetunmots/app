@@ -2,7 +2,7 @@ module Aircall
   class SendMessageService < Aircall::ApiBase
     attr_reader :errors, :event_id
 
-    def initialize(number_id:, to:, body:, event_id:, replay_params: {}, blocked_send_attempt_id: nil)
+    def initialize(number_id:, to:, body:, event_id:, replay_params: {}, blocked_send_attempt_id: nil, admin_user_id: nil)
       @errors = []
       @number_id = number_id
       @to = to
@@ -10,6 +10,7 @@ module Aircall
       @event_id = event_id
       @replay_params = replay_params
       @blocked_send_attempt_id = blocked_send_attempt_id
+      @admin_user_id = admin_user_id
     end
 
     def call
@@ -30,7 +31,14 @@ module Aircall
         end
       end
 
-      guard = BlockedSendAttempt::SendGuard.new(@body, provider: 'aircall', replay_params: @replay_params, blocked_send_attempt_id: @blocked_send_attempt_id)
+      guard = BlockedSendAttempt::SendGuard.new(
+        @body,
+        provider: 'aircall',
+        replay_params: @replay_params,
+        blocked_send_attempt_id: @blocked_send_attempt_id,
+        admin_user_id: @admin_user_id,
+        recipients_count: 1
+      )
       if guard.blocked?
         guard.register!
         if guard.block_send?

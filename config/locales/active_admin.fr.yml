@@ -51,6 +51,7 @@ fr:
     scopes:
       all: Tous
       active_group: Dans une cohorte active
+      archived: Archivés
       available_for_the_workshops: N'ayant pas encore l'âge d'aller à l'école
       by_pmi: PMI
       by_caf: CAF
@@ -63,9 +64,12 @@ fr:
       months_between_0_and_12: 0-1 an
       months_between_12_and_24: 1-2 ans
       months_more_than_24: 2+ ans
+      not_blocked: Surveillance
       not_ended: En cours
       not_programmed: Pas encore programmé
+      pending: À traiter
       programmed: Programmé
+      relaunched: Relancés
       scheduled: RDV pris
       canceled: RDV annulés
       upcoming: RDV à venir

@@ -243,11 +243,46 @@ ActiveAdmin.setup do |config|
   # To change the default utility navigation to show a link to your website & a logout btn
   #
   config.namespace :admin do |admin|
+    # Parent des écrans d'envoi, déclaré ici pour porter la pastille des envois
+    # bloqués à traiter. Les ressources s'y rattachent par `menu parent: 'Gestion
+    # des envois'`, qu'ActiveAdmin ramène à cet id. Le compteur n'est calculé que
+    # pour qui peut lire les envois bloqués (super_admin).
+    admin.build_menu :default do |menu|
+      menu.add id: 'gestion_des_envois',
+               label: -> {
+                 pending_count = authorized?(:read, BlockedSendAttempt) ? BlockedSendAttempt.pending.count : 0
+                 next 'Gestion des envois' if pending_count.zero?
+
+                 badge = content_tag(:span, pending_count, class: 'menu-badge', title: "Envois bloqués à traiter : #{pending_count}")
+                 safe_join(['Gestion des envois', badge], ' ')
+               }
+    end
+
     admin.build_menu :utility_navigation do |menu|
       menu.add id: 'current_user',
                label: -> { display_name current_admin_user },
-               url: -> { current_admin_user.user_role.in?(%w[caller animator]) ? admin_reglages_de_rdv_path : admin_reglages_de_rdv_path(current_admin_user) },
-               if: :current_active_admin_user?
+               url: lambda {
+                 if current_admin_user.supporter_tools?
+                   '#' # le clic ouvre le menu déroulant (utility_menu.js)
+                 else
+                   admin_admin_user_path(current_admin_user)
+                 end
+               },
+               if: :current_active_admin_user? do |user_menu|
+        # Les autres utilisateurs ont un lien direct vers leur profil : leur déroulant reste vide et n'est jamais ouvert.
+        user_menu.add id: 'user_header', priority: 0, url: -> { nil }, # lambda : `url: nil` retombe sur '#', qui masque l'item
+                      label: -> { content_tag(:strong, current_admin_user.name) + content_tag(:small, current_admin_user.email) },
+                      if: -> { current_admin_user.supporter_tools? }
+        user_menu.add id: 'rdv_settings', label: 'Paramètres des rdv', priority: 1,
+                      url: -> { admin_reglages_de_rdv_path },
+                      if: -> { current_admin_user.supporter_tools? }
+        user_menu.add id: 'call_statistics', label: "Mes statistiques d'appel", priority: 2,
+                      url: -> { admin_mes_statistiques_d_appel_path },
+                      if: -> { current_admin_user.supporter_tools? }
+        user_menu.add id: 'personal_information', label: 'Mes informations personnelles', priority: 3,
+                      url: -> { admin_admin_user_path(current_admin_user) },
+                      if: -> { current_admin_user.supporter_tools? }
+      end
       admin.add_logout_button_to_menu menu
     end
   end

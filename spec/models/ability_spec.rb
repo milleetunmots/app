@@ -235,4 +235,115 @@ RSpec.describe Ability, type: :model do
       end
     end
   end
+
+  describe "simulation de connexion (impersonate)" do
+    let(:accompagnante) { FactoryBot.create(:admin_user, user_role: 'caller') }
+
+    it 'est réservée aux super admins' do
+      expect(Ability.new(FactoryBot.create(:admin_user, user_role: 'super_admin')).can?(:impersonate, accompagnante)).to be(true)
+
+      (AdminUser::ROLES - %w[super_admin]).each do |role|
+        expect(Ability.new(FactoryBot.create(:admin_user, user_role: role)).can?(:impersonate, accompagnante)).to be(false)
+      end
+    end
+
+    it "ne vise ni un super admin ni un compte désactivé" do
+      ability = Ability.new(FactoryBot.create(:admin_user, user_role: 'super_admin'))
+
+      expect(ability.can?(:impersonate, FactoryBot.build_stubbed(:admin_user, user_role: 'super_admin'))).to be(false)
+      expect(ability.can?(:impersonate, FactoryBot.build_stubbed(:admin_user, user_role: 'caller', is_disabled: true))).to be(false)
+    end
+
+    describe 'en lecture seule' do
+      let(:contributrice) { FactoryBot.create(:admin_user, user_role: 'contributor') }
+      let(:ability) { Ability.new(contributrice, read_only: true) }
+      let(:group) { FactoryBot.build_stubbed(:group) }
+
+      it 'garde la consultation et l’affichage des formulaires' do
+        expect(ability.can?(:read, group)).to be(true)
+        expect(ability.can?(:edit, group)).to be(true)
+      end
+
+      it 'retire les actions custom et les suppressions' do
+        expect(ability.can?(:program, group)).to be(false)
+        expect(ability.can?(:destroy, group)).to be(false)
+        expect(ability.can?(:create, Group)).to be(false)
+      end
+
+      it "ne donne rien que le compte simulé n'a pas" do
+        expect(Ability.new(accompagnante, read_only: true).can?(:read, group)).to be(false)
+      end
+    end
+  end
+
+  describe "droits sur la tâche de suivi d'un envoi bloqué" do
+    actions_interdites = %i[update destroy discard]
+
+    let(:attempt) { FactoryBot.build_stubbed(:blocked_send_attempt) }
+
+    %w[contributor reader caller animator].each do |role|
+      context "pour un utilisateur #{role}, auteur de l'envoi" do
+        let(:auteur) { FactoryBot.create(:admin_user, user_role: role) }
+        let(:ability) { Ability.new(auteur) }
+        let(:tache) { FactoryBot.build_stubbed(:task, reporter: auteur, related: attempt) }
+
+        it 'peut la lire' do
+          expect(ability.can?(:read, tache)).to be(true)
+        end
+
+        actions_interdites.each do |action|
+          it "ne peut pas #{action}" do
+            expect(ability.can?(action, tache)).to be(false)
+          end
+        end
+
+        it 'garde la main sur ses autres tâches' do
+          autre_tache = FactoryBot.build_stubbed(:task, reporter: auteur, related: FactoryBot.build_stubbed(:parent))
+
+          expect(ability.can?(:update, autre_tache)).to be(true)
+        end
+      end
+    end
+
+    it 'peut être modifiée par un super_admin' do
+      super_admin = FactoryBot.create(:admin_user, user_role: 'super_admin')
+      tache = FactoryBot.build_stubbed(:task, related: attempt)
+
+      expect(Ability.new(super_admin).can?(:update, tache)).to be(true)
+    end
+  end
+
+  describe "outils des accompagnantes (réglages de RDV, statistiques d'appel)" do
+    pages = ['Réglages de RDV', "Mes statistiques d'appel"]
+
+    let(:animatrice) { FactoryBot.create(:admin_user, user_role: 'animator') }
+    let(:ability) { Ability.new(animatrice) }
+    let(:son_override) { CallSessionDateOverride.new(admin_user: animatrice) }
+
+    context 'pour une animatrice qui suit une famille' do
+      before { FactoryBot.create(:child).child_support.update!(supporter: animatrice) }
+
+      pages.each do |page|
+        it "peut ouvrir la page « #{page} »" do
+          expect(ability.can?(:manage, ActiveAdmin::Page.new(:admin, page, {}))).to be(true)
+        end
+      end
+
+      it 'peut gérer ses propres plages de RDV' do
+        expect(ability.can?(:manage, son_override)).to be(true)
+      end
+    end
+
+    context 'pour une animatrice qui ne suit aucune famille' do
+      pages.each do |page|
+        it "ne peut pas ouvrir la page « #{page} »" do
+          expect(ability.can?(:manage, ActiveAdmin::Page.new(:admin, page, {}))).to be(false)
+        end
+      end
+
+      it 'ne peut pas gérer de plages de RDV' do
+        expect(ability.can?(:manage, son_override)).to be(false)
+      end
+    end
+  end
 end

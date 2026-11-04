@@ -11,6 +11,9 @@ module DbSanitizer
       anonymize_child_support_call_archives
       anonymize_parents_registrations
       anonymize_scheduled_calls
+      anonymize_tasks
+      anonymize_blocked_send_attempts
+      rebuild_search_documents
     end
 
     private
@@ -140,6 +143,28 @@ module DbSanitizer
         cancellation_reason: nil
       )
       ScheduledCall.update_all("raw_payload = '{}'")
+    end
+
+    # Intitulés et descriptions sont libres ou générés à partir des données des
+    # familles (nom du parent destinataire d'un envoi bloqué, texte du message).
+    def anonymize_tasks
+      Task.update_all("title = 'Tâche n°' || id, description = NULL")
+    end
+
+    # Messages, valeurs détectées (numéros, liens personnalisés) et destinataires
+    # à rejouer. Sans paramètres de relance, plus rien ne peut être relancé depuis
+    # le staging. Le message reste propre à chaque tentative : un texte commun
+    # ferait d'elles les tentatives sœurs d'un même envoi (cf. same_message_as).
+    def anonymize_blocked_send_attempts
+      BlockedSendAttempt.update_all(
+        "message_body = 'Message anonymisé n°' || id, detected_values = ARRAY['valeur anonymisée'], replay_params = '{}'"
+      )
+    end
+
+    # update_all et update_columns ne passent pas par les callbacks de pg_search :
+    # la recherche globale garderait sinon les noms, numéros, e-mails et jetons d'origine.
+    def rebuild_search_documents
+      [Parent, Child, Task].each { |model| PgSearch::Multisearch.rebuild(model) }
     end
   end
 end

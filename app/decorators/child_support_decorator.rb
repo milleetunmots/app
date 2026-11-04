@@ -7,6 +7,8 @@ class ChildSupportDecorator < BaseDecorator
     4 => :blue
   }
 
+  SENSITIVE_INFORMATION_MASK = '🔒 Contenu masqué pendant la simulation de connexion'
+
   def admin_link
     h.auto_link model
   end
@@ -86,8 +88,11 @@ class ChildSupportDecorator < BaseDecorator
     super
   end
 
-  # Une valeur chiffrée avec une autre clé ne doit pas empêcher d'ouvrir la fiche
+  # Une valeur chiffrée avec une autre clé ne doit pas empêcher d'ouvrir la fiche.
+  # Pendant une simulation de connexion, le texte n'est pas déchiffré : seule sa présence est signalée.
   def sensitive_information
+    return (SENSITIVE_INFORMATION_MASK if model.sensitive_information_present?) if Current.impersonating?
+
     model.sensitive_information
   rescue ActiveRecord::Encryption::Errors::Decryption => e
     Rollbar.error('ChildSupportDecorator#sensitive_information', child_support_id: model.id, error: e.message)

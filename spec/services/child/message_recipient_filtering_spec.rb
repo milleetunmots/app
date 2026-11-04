@@ -15,7 +15,7 @@ RSpec.describe 'Child message recipient filtering' do
       should_contact_parent2: false
     )
   end
-  let(:sender) { instance_double(SpotHit::SendRcsService, errors: [], sent?: true) }
+  let(:sender) { instance_double(SpotHit::SendRcsService, errors: [], sent?: true, blocked_send_guard: nil) }
   let(:recipients) { ["child.#{child.id}"] }
   let(:planned_date) { Time.zone.today }
   let(:planned_hour) { '12:30' }

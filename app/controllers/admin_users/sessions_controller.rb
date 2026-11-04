@@ -3,6 +3,8 @@ module AdminUsers
 
     skip_before_action :authenticate_admin_user!
     skip_before_action :set_paper_trail_whodunnit
+    # Se déconnecter pendant une simulation de connexion doit rester possible
+    skip_before_action :enforce_read_only_impersonation, only: :destroy
 
     def create
       # Le premier facteur est validé sans persister de session Warden. On
