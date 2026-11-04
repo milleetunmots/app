@@ -11,7 +11,8 @@ class Medium::AuditUrlsJob < ApplicationJob
 
     Task::CreateAutomaticTaskService.new(
       title: "Médias dont l'url serait refusée par le filtre - prévenir admins",
-      description: description_for(refused)
+      description: description_for(refused),
+      assignee_email: ENV.fetch('MEDIA_URL_AUDIT_ASSIGNEE_EMAIL', nil)
     ).call
   end
 
