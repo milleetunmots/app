@@ -262,26 +262,26 @@ ActiveAdmin.setup do |config|
       menu.add id: 'current_user',
                label: -> { display_name current_admin_user },
                url: lambda {
-                 if current_admin_user.caller_or_animator?
+                 if current_admin_user.supporter_tools?
                    '#' # le clic ouvre le menu déroulant (utility_menu.js)
                  else
                    admin_admin_user_path(current_admin_user)
                  end
                },
                if: :current_active_admin_user? do |user_menu|
-        # Les autres rôles ont un lien direct vers leur profil : leur déroulant reste vide et n'est jamais ouvert.
+        # Les autres utilisateurs ont un lien direct vers leur profil : leur déroulant reste vide et n'est jamais ouvert.
         user_menu.add id: 'user_header', priority: 0, url: -> { nil }, # lambda : `url: nil` retombe sur '#', qui masque l'item
                       label: -> { content_tag(:strong, current_admin_user.name) + content_tag(:small, current_admin_user.email) },
-                      if: -> { current_admin_user.caller_or_animator? }
+                      if: -> { current_admin_user.supporter_tools? }
         user_menu.add id: 'rdv_settings', label: 'Paramètres des rdv', priority: 1,
                       url: -> { admin_reglages_de_rdv_path },
-                      if: -> { current_admin_user.caller_or_animator? }
+                      if: -> { current_admin_user.supporter_tools? }
         user_menu.add id: 'call_statistics', label: "Mes statistiques d'appel", priority: 2,
                       url: -> { admin_mes_statistiques_d_appel_path },
-                      if: -> { current_admin_user.caller_or_animator? }
+                      if: -> { current_admin_user.supporter_tools? }
         user_menu.add id: 'personal_information', label: 'Mes informations personnelles', priority: 3,
                       url: -> { admin_admin_user_path(current_admin_user) },
-                      if: -> { current_admin_user.caller_or_animator? }
+                      if: -> { current_admin_user.supporter_tools? }
       end
       admin.add_logout_button_to_menu menu
     end
