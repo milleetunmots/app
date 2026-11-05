@@ -38,6 +38,15 @@ class ApplicationController < ActionController::Base
     @current_ability ||= Ability.new(current_admin_user)
   end
 
+  # Arbre (vues ActiveAdmin) cherche `current_admin_user` dans les variables d'instance du
+  # controller avant les helpers : il y trouverait le @current_admin_user mémoïsé par Devise,
+  # c'est-à-dire le super admin, au lieu du compte simulé (menu de l'avatar, tâches du tableau de bord…).
+  def view_assigns
+    return super unless Current.impersonating?
+
+    super.merge('current_admin_user' => current_admin_user)
+  end
+
 
   protected
 
