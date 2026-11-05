@@ -69,7 +69,6 @@ class Parent::IdentifyCalendlyInviteeService
   # chaque lien est un type d'événement one-off propre à un parent et à une session,
   # retrouvable même quand les paramètres utm ont été retirés du lien
   def identify_by_event_type
-    byebug
     event_type_uri = scheduled_event['event_type']
     return if event_type_uri.blank?
 
