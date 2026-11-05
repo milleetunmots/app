@@ -25,7 +25,8 @@ class Group
       end
 
       if chosen_modules_groups.any?
-        export_service = Child::ExportBooksV2Service.new(group_ids: chosen_modules_groups.map(&:id)).call
+        # seul cet export, celui que reçoit la logistique, fige les livres
+        export_service = Child::ExportBooksV2Service.new(group_ids: chosen_modules_groups.map(&:id), freeze_books: true).call
         @errors.concat(export_service.errors) if export_service.errors.any?
       end
 

@@ -679,8 +679,12 @@ class Child < ApplicationRecord
     popi_parents.fathers.count
   end
 
+  def parent1_children_support_module
+    ChildrenSupportModule.with_support_module.not_programmed.find_by(child_id: self.id,  parent_id: self.parent1_id)
+  end
+
   def parent1_support_module
-    ChildrenSupportModule.with_support_module.not_programmed.find_by(child_id: self.id,  parent_id: self.parent1_id)&.support_module
+    parent1_children_support_module&.support_module
   end
 
   def support_module_not_programmed_name
@@ -697,11 +701,12 @@ class Child < ApplicationRecord
     support_module.decorate.display_age_ranges.gsub('/', '_')
   end
 
+  # livre enregistré s'il existe (garde-fou : le livre d'un module n'est pas censé changer pendant la semaine)
   def book_to_distribute_title
-    support_module = parent1_support_module
-    return unless support_module
+    children_support_module = parent1_children_support_module
+    return unless children_support_module
 
-    support_module.book_title
+    children_support_module.book_title.presence || children_support_module.support_module_book_title
   end
 
   # ---------------------------------------------------------------------------

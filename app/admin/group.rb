@@ -172,15 +172,29 @@ ActiveAdmin.register Group do
     link_to I18n.t('group.export_link'), [:export, :admin, resource]
   end
 
-  member_action :export do
-    service = Child::ExportBooksV2Service.new(group_ids: [resource.id]).call
+  # GET affiche la question « Enregistrer les choix de livres ? », POST exporte
+  member_action :export, method: %i[get post] do
+    @page_title = I18n.t('group.export_link')
+    next unless request.post?
 
-    if service.errors.empty?
+    freeze_books = FreezeBooksChoice.parse(params[:freeze_books])
+    errors = if freeze_books.nil?
+               [FreezeBooksChoice::MISSING_ANSWER]
+             elsif freeze_books
+               Group::CheckChosenModulesService.new(groups: [resource.object]).call.errors.pluck(:message)
+             else
+               []
+             end
+    if errors.empty?
+      service = Child::ExportBooksV2Service.new(group_ids: [resource.id], freeze_books: freeze_books).call
+      errors = service.errors
+    end
+
+    if errors.empty?
       send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
                                        disposition: 'attachment', filename: "#{Time.zone.today.strftime('%d-%m-%Y')}.zip"
     else
-      flash[:alert] = service.errors
-      redirect_back(fallback_location: root_path)
+      redirect_to export_admin_group_path(resource), alert: errors.join(' - ')
     end
   end
 
@@ -258,23 +272,21 @@ ActiveAdmin.register Group do
     )
   end
 
-  batch_action :support_modules_chosen_excel_export, if: proc { current_admin_user.can_export_data? } do |ids|
-    ids.each do |group_id|
-      group = Group.find(group_id)
-      if ChildrenSupportModule.where(child_id: group.active_children_ids, is_programmed: false).where.not(support_module_id: nil).count.zero?
-        flash[:alert] = "Les modules de la cohorte #{group.name} ont déjà été programmés"
-        break
-      end
-      if ChildrenSupportModule.exists?(child_id: group.active_children_ids, is_programmed: false, support_module_id: nil)
-        flash[:alert] = "Dans la cohorte #{group.name}, il y a des enfants sans choix de module."
-        break
-      end
-    end
+  # l'option vide, sélectionnée à l'ouverture de la fenêtre, oblige à répondre
+  batch_action :support_modules_chosen_excel_export, form: -> {
+    { FreezeBooksChoice::QUESTION => [['', ''], %w[Oui true], %w[Non false]] }
+  }, if: proc { current_admin_user.can_export_data? } do |ids, inputs|
+    freeze_books = FreezeBooksChoice.parse(inputs[FreezeBooksChoice::QUESTION])
+    check_service = Group::CheckChosenModulesService.new(groups: Group.where(id: ids)).call
 
-    if flash[:alert]
+    if freeze_books.nil?
+      flash[:alert] = FreezeBooksChoice::MISSING_ANSWER
+      redirect_back(fallback_location: root_path)
+    elsif check_service.errors.any?
+      flash[:alert] = check_service.errors.pluck(:message).join(' - ')
       redirect_back(fallback_location: root_path)
     else
-      service = Child::ExportBooksV2Service.new(group_ids: ids).call
+      service = Child::ExportBooksV2Service.new(group_ids: ids, freeze_books: freeze_books).call
       if service.errors.empty?
         send_file service.zip_file.path, type: 'application/zip', x_sendfile: true,
                                          disposition: 'attachment', filename: "#{Time.zone.today.strftime('%d-%m-%Y')}.zip"

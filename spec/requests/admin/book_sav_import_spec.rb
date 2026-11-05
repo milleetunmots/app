@@ -62,5 +62,49 @@ RSpec.describe 'Admin book SAV import', type: :request do
 
       expect(response.body).to include('Renvoyé le 05/08/2026')
     end
+
+    it "reste affichée quand l'accompagnement de l'enfant est arrêté" do
+      post '/admin/books/perform_sav_import', params: { csv_file: csv_upload_with("05/08/2026,#{support_module.id},not_received\n") }
+      child.update_column(:group_status, 'stopped')
+
+      get "/admin/child_supports/#{child.child_support.id}/edit?r=true"
+
+      expect(response.body).to include('Renvoyé le 05/08/2026')
+    end
+
+    context 'pour un livre « Non envoyé »' do
+      let!(:not_sent_module) do
+        # un seul module non programmé par enfant et par parent
+        support_module.update_column(:is_programmed, true)
+        FactoryBot.create(:children_support_module, child: child, parent: child.parent1, book: FactoryBot.create(:book),
+                                                    book_condition: 'not_sent')
+      end
+
+      before do
+        BookShipmentDate.create!(date: Date.current + 10.days)
+        # la pose de « Non envoyé » marque l'adresse suspecte : on la considère validée
+        # pour que l'alerte de renvoi s'affiche avant l'import
+        child.child_support.update_column(:address_suspected_invalid_at, nil)
+        # seul le livre « Non envoyé » doit porter l'alerte de renvoi
+        support_module.update!(book_condition: nil)
+      end
+
+      def book_card_of(module_record, html)
+        html.css('.book-card').find { |card| card.at_css("input[type=hidden][value='#{module_record.id}']") }
+      end
+
+      it "affiche « Renvoyé le » sous le livre, garde le statut et retire l'alerte de renvoi" do
+        get "/admin/child_supports/#{child.child_support.id}/edit?r=true"
+        expect(response.body).to include('non envoyés seront renvoyés le')
+
+        post '/admin/books/perform_sav_import', params: { csv_file: csv_upload_with("05/08/2026,#{not_sent_module.id},not_sent\n") }
+        get "/admin/child_supports/#{child.child_support.id}/edit?r=true"
+
+        card = book_card_of(not_sent_module, Nokogiri::HTML(response.body))
+        expect(card.text).to include('Renvoyé le 05/08/2026')
+        expect(card.at_css('select.book-select option[selected]')['value']).to eq('not_sent')
+        expect(response.body).not_to include('seront renvoyés le')
+      end
+    end
   end
 end
