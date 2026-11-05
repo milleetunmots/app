@@ -1,0 +1,20 @@
+// Polices de la charte, servies par l'application plutôt que par Google Fonts : chaque
+// page de l'admin transmettait sinon l'adresse IP de l'accompagnante à Google.
+// Les mêmes TTF sont installés dans l'image pour wkhtmltopdf (cf. Dockerfile.release),
+// où pdf.sass les résout nativement, sans @font-face.
+
+=brand-font($family, $file, $weight, $style: normal)
+  @font-face
+    font-family: $family
+    src: font-url($file) format('truetype')
+    font-weight: $weight
+    font-style: $style
+    font-display: swap
+
++brand-font('Poppins', 'poppins-regular.ttf', 400)
++brand-font('Poppins', 'poppins-italic.ttf', 400, italic)
++brand-font('Poppins', 'poppins-medium.ttf', 500)
++brand-font('Poppins', 'poppins-semibold.ttf', 600)
++brand-font('Poppins', 'poppins-bold.ttf', 700)
++brand-font('Fredoka', 'fredoka-semibold.ttf', 600)
++brand-font('Fredoka', 'fredoka-bold.ttf', 700)

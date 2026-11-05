@@ -12,3 +12,16 @@
   .choices label
     display: block
     margin-bottom: 5px
+
+// « Filtrer » et « Supprimer les filtres » : le lien ne se coupe plus en deux lignes ;
+// faute de place, il passe en entier sous le bouton
+#sidebar .sidebar_section .buttons
+  flex-wrap: wrap
+  justify-content: flex-start
+  gap: 8px 16px
+
+  input[type="submit"]
+    margin-right: 0
+
+  .clear_filters_btn
+    white-space: nowrap

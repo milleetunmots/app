@@ -35,17 +35,18 @@ $cell-width: 300px
 
   .media-folder, .medium
     &:hover
-      background-color: transparentize($blue, 0.8)
-      border-color: $blue
-      color: $blue
+      background-color: $action-soft
+      border-color: $action
+      color: $action
 
 
 
 
   .media-folder
     display: flex
-    border: 1px solid $grey
-    border-radius: 6px
+    border: 1px solid $line
+    border-radius: $radius
+    transition: background-color $transition, border-color $transition, color $transition
 
     &--icon
       flex: 0 0 auto
@@ -78,9 +79,10 @@ $cell-width: 300px
   .medium
     display: flex
     flex-wrap: wrap
-    border: 1px solid $grey
-    border-radius: 6px
+    border: 1px solid $line
+    border-radius: $radius-lg
     overflow: hidden
+    transition: background-color $transition, border-color $transition, color $transition
 
     &--preview
       // flex-grow: 0
@@ -126,7 +128,7 @@ $cell-width: 300px
 
     &.text-messages-bundle
       .medium--preview
-        background: #F2F2F2
+        background: $sunken
         padding: 10px
 
         .body-image
@@ -145,7 +147,7 @@ $cell-width: 300px
             width: calc(100% - 100px)
             font-family: monospace
             white-space: pre-wrap
-            color: $dark-grey
+            color: $ink-soft
 
           .image
             flex: 0 0 auto
@@ -167,5 +169,5 @@ $cell-width: 300px
             display: block
             width: 50%
             margin-left: 25%
-            border-top: 1px solid $grey
+            border-top: 1px solid $line
             margin-bottom: 10px

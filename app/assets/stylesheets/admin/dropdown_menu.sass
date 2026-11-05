@@ -1,6 +1,9 @@
-#title_bar #titlebar_right .action_item
-  @import active_admin/components/dropdown_menu
+@import variables
 
+// Menus déroulants du composant ActiveAdmin (barre de titre, actions de chaque ligne) :
+// bouton secondaire au contour, liste sur la surface de l'admin. À inclure après
+// l'import du composant (un @import n'est pas permis dans un mixin).
+=brand-dropdown-menu
   .dropdown_menu
     .dropdown_menu_button
       font-weight: inherit
@@ -9,51 +12,110 @@
       text-shadow: none
       line-height: normal
       box-shadow: none
-      border: 0
-      border-radius: 3px
-      background: #5E6469
-      padding: 5px 8px
-      color: white
+      // Contour marine, et non gris comme les champs : le bouton se lit comme une action
+      border: 1px solid $action
+      border-radius: $radius
+      background: $surface
+      padding: 5px 10px
+      color: $action
+      font-weight: 500
 
       &:not(.disabled):hover
-        background: #767e84
+        background: $action-soft
 
+      // Flèche : un seul triangle marine ; le composant superpose un triangle blanc (:before)
+      // qui laissait une tache claire à côté
       &:before
-        border-width: 5px 5px 0
-        right: 8px
+        display: none
 
       &:after
-        border-top-color: white
-        border-bottom-color: white
+        border-width: 5px 4px 0
+        border-color: $action transparent
+        right: 9px
+        top: calc(50% - 2px)
 
+    // Carte flottante comme le menu des actions groupées (cf. scopes.sass), à la place du
+    // cadre marine dégradé du composant, de sa flèche et de ses filets entre les choix
     .dropdown_menu_list_wrapper
+      // Masquée d'emblée (cf. règle générale plus bas), la règle du composant l'affichait
+      display: none
+      padding: 6px
+      border: 1px solid $line
+      border-radius: $radius-lg
+      background: $surface
+      box-shadow: $shadow-float
+
+      .dropdown_menu_nipple
+        display: none
+
       .dropdown_menu_list
+        border: none
+        border-radius: 0
+        box-shadow: none
+        background-color: $surface
+
+        li, li:last-child
+          border: none
+
+        li a, li:first-child a, li:last-child a
+          border-radius: $radius - 2px
+
         li
           a
             display: block
-            border-radius: 0
+            padding: 9px 12px
             font-weight: normal
             text-align: left
-            background-color: white
-            color: #323537
+            background-color: $surface
+            color: $ink
+
+            // Même survol que le menu des actions groupées (cf. scopes.sass), sans le
+            // dégradé ni l'ombre portée du texte (qui le faisait baver) du composant
+            // ActiveAdmin, au survol comme au clic
+            &:hover, &:focus-visible, &:active
+              background-color: $action-soft
+              background-image: none
+              text-shadow: none
+              color: $action
+
+// ActiveAdmin affiche la liste en CSS et ne la masque qu'une fois son JavaScript chargé :
+// elle apparaissait un instant à chaque chargement de page. Masquée ici d'emblée, elle
+// est affichée à l'ouverture par le JavaScript (style en ligne, qui prime).
+.dropdown_menu .dropdown_menu_list_wrapper
+  display: none
+
+#title_bar #titlebar_right .action_item
+  @import active_admin/components/dropdown_menu
+  +brand-dropdown-menu
 
 table.index_table .col-actions
   @import active_admin/components/dropdown_menu
+  +brand-dropdown-menu
 
   .dropdown_menu
     .dropdown_menu_list_wrapper
       .dropdown_menu_list
         li
           a
+            // Teinte pâle et texte foncé de la même famille, comme les boutons ; le
+            // fond se fonce au survol
             &.blue
-              background-color: $blue
-              color: $black
+              background-color: $info-bg
+              color: $info
+              &:hover, &:focus-visible
+                background-color: darken($info-bg, 6%)
             &.green
-              background-color: $green
-              color: white
+              background-color: $success-bg
+              color: $success
+              &:hover, &:focus-visible
+                background-color: darken($success-bg, 6%)
             &.red
-              background-color: $error
-              color: white
+              background-color: $danger-bg
+              color: $danger
+              &:hover, &:focus-visible
+                background-color: darken($danger-bg, 6%)
             &.yellow
-              background-color: $yellow
-              color: $black
+              background-color: $warning-bg
+              color: $warning
+              &:hover, &:focus-visible
+                background-color: darken($warning-bg, 6%)

@@ -16,7 +16,9 @@ ActiveAdmin.setup do |config|
   #
   # Note: Aim for an image that's 21px high so it fits in the header.
   #
-  config.site_title_image = "mots-logo.png"
+  # Logo de la nouvelle charte ; mots-logo.png reste celui des pages publiques.
+  # Affiché à la hauteur du bandeau (arctic_admin) : 150 px de haut pour rester net.
+  config.site_title_image = "logo-1001mots.png"
 
   # == Default Namespace
   #
@@ -175,7 +177,7 @@ ActiveAdmin.setup do |config|
 
   # == Setting a Favicon
   #
-  config.favicon = 'favicon.ico'
+  config.favicon = Rails.application.config.x.favicon
 
   # == Meta Tags
   #

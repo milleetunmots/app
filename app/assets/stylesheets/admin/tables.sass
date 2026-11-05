@@ -1,5 +1,32 @@
+@import variables
+
+// Tous les tableaux de l'admin (listes, tableau de bord, panneaux des fiches) : en-tête en
+// creux, survol neutre. Le citron reste réservé aux lignes cochées (cf. brand.sass).
+thead tr
+  border-color: $line
+  background-color: $sunken
+
+// arctic_admin met les tableaux en 12px : 13px, plus lisible sans élargir les colonnes
+thead th, tbody tr td
+  font-size: 13px
+
+thead th
+  color: $ink-soft
+  font-weight: 500
+
 tbody
-	tr
-		border: 1px solid #e4eaec
-	tr:hover
-		background-color: rgba(228, 234, 236, 0.3)
+  tr
+    border: 1px solid $line
+
+  tr:hover
+    background-color: $sunken
+
+// arctic_admin pose son propre survol, gris-bleu, avec des sélecteurs plus précis : sur les
+// listes et dans la colonne de droite des fiches
+.index_as_table tbody tr:hover,
+body.logged_in #active_admin_content.with_sidebar #sidebar tbody tr:hover
+  background-color: $sunken
+
+// Numéros de téléphone (« Téléphone », « Numéro du parent 1 »…) : jamais coupés en deux
+td[class*="phone_number"]
+  white-space: nowrap

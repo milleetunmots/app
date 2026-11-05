@@ -1,19 +1,26 @@
 @import variables
 
+// Boutons de couleur : fond pâle et texte foncé de la même famille ; le fond se
+// fonce au survol. Le bouton par défaut (marine plein) reste l'action principale.
+=tinted-button($background, $color)
+  background-color: $background
+  color: $color
+
+  &:hover, &:focus
+    background-color: darken($background, 6%)
+    color: $color
+
 .button,
 #title_bar #titlebar_right .action_item a,
 body.index .table_actions a.member_link
   &.blue
-    background-color: $blue
-    color: $black
+    +tinted-button($info-bg, $info)
   &.green
-    background-color: $green
-    // color: $black
+    +tinted-button($success-bg, $success)
   &.red
-    background-color: $error
+    +tinted-button($danger-bg, $danger)
   &.yellow
-    background-color: $yellow
-    color: $black
+    +tinted-button($warning-bg, $warning)
 
 #title_bar #titlebar_right .action_item a[data-method="delete"][data-confirm]
-  background-color: $error
+  +tinted-button($danger-bg, $danger)

@@ -1,14 +1,95 @@
-$black: #36393D
-$blue: #2081C3
-$green: #138A36
-$grey: #CACACA
-$dark-grey: #5E6469
-$red: #B02B2C
-$rose: #DA4167
-$yellow: #E6AF2E
-$violet: #431F78
+// Palette de la charte graphique
+$navy: #0B4374
+$brand-blue: #3596FF
+$pink: #FFABCC
+$lime: #DEE450
+$cream: #FEFDF8
+$brand-black: #2B2B2B
 
-$error: #dc4747
-$warning: #f2a654
-$success: #46be8a
-$info: #57c7d4
+// Système de couleurs de l'admin.
+// Peu de couleurs, chacune avec un seul rôle : les neutres portent l'essentiel de
+// l'écran, la marque signale l'action et la position, les statuts portent un sens.
+
+// Neutres, accordés au crème et atténués : pas de blanc pur, qui éblouit à la longue.
+// Le fond de page reste plus sombre que les cartes pour qu'elles s'en détachent ;
+// $ink-soft garde au moins 5,6:1 sur chacun de ces fonds et $field-border 3:1, le
+// minimum pour délimiter un champ (WCAG 1.4.11).
+$canvas: #F3F1E8
+$surface: #F8F6EF
+$sunken: #EFEDE4
+$line: #E2DFD2
+$line-strong: #D2CFC2
+$field-border: #8C897A
+$ink: $brand-black
+$ink-soft: #5F5D55
+
+// Marque : action (marine), position « ici » (citron), focus clavier (bleu),
+// fille / garçon (rose et bleu clairs, texte marine)
+$action: $navy
+$action-hover: #08355D
+$action-soft: #EEF2F7
+$highlight: $lime
+$highlight-soft: #F7F8E4
+// Bleu de la charte foncé : #3596FF fait 2,96:1 sur le crème, sous les 3:1 exigés
+// d'un indicateur de focus (WCAG 1.4.11) ; celui-ci fait 5,9:1
+$focus: #1A62B8
+$girl-bg: #FFE1EC
+$boy-bg: #DCEBFF
+
+// Statuts : fond pâle et texte foncé de la même famille (contraste ≥ 4,5:1)
+$success: #1E7A3C
+$success-bg: #E5F3E8
+$warning: #8A5300
+$warning-bg: #FCEFD6
+$danger: #B02B2C
+$danger-bg: #FBE9E9
+$info: #1A62B8
+$info-bg: #E6F0FF
+
+// Formes et mouvement
+$radius: 8px
+$radius-lg: 10px
+$radius-pill: 999px
+$shadow-float: 0 8px 24px rgba(11, 67, 116, 0.1)
+$transition: 150ms ease-out
+
+// Noms historiques, portés par les classes de couleur (.txt-*, a.blue, .status_tag.green…)
+// et les styles existants. arctic_admin définit $red, $green, $blue, $black et $grey sans
+// !default : chaque fichier admin/* réimporte donc ce fichier pour retrouver ces valeurs.
+$black: $ink
+$muted: $ink-soft
+$dark-grey: $ink-soft
+$grey: $line-strong
+$blue: $info
+$blue-bg: $info-bg
+// Prénoms de fille : foncé pour garder 4,5:1 sur les fonds atténués (cartes, creux, survol)
+$rose: #C42A60
+$rose-bg: $girl-bg
+$yellow: $warning
+$yellow-bg: $warning-bg
+$green: $success
+$red: $danger
+$error: $danger
+
+// Thème arctic_admin : ses variables sont en !default et ce fichier est importé avant
+// lui (cf. active_admin.sass), ces valeurs remplacent donc les siennes
+$font-family-body: 'Poppins', Arial, sans-serif
+$border-radius: $radius
+$box-shadow: $shadow-float
+$primary-color: $action
+$body-background: $canvas
+$header-background: $surface
+$text-color: $ink
+$text-color-important: $navy
+$border-color: $line
+$header-border-color: $line
+$sidebar-background: $canvas
+$sidebar-border-color: $line
+$sidebar-item-hover-background: $highlight-soft
+$sidebar-nested-item-hover-background: $highlight-soft
+$header-nav-action-hover-background: $highlight-soft
+$header-nav-action-active-background: $highlight-soft
+$status-tag-background-color: $sunken
+$status-tag-text-color: $ink-soft
+$status-tag-background-valid-color: $success-bg
+$status-tag-background-error-color: $danger-bg

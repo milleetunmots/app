@@ -5,14 +5,20 @@ body.index
     .batch_actions_selector
       margin-bottom: 10px
 
+      // Marge de la liste reportée dans les liens : le fond de survol couvre toute la
+      // ligne, le texte garde sa place (6 + 9 = 15px du bord)
       ul.dropdown_menu_list
+        padding: 6px
+
         li
           a
             display: block
-            padding: 10px 0
+            padding: 10px 9px
+            border-radius: $radius - 2px
 
-            &:hover
-              color: $blue
+            &:hover, &:focus-visible
+              background-color: $action-soft
+              color: $action
 
     .scopes
       ul.table_tools_segmented_control:not(:first-child)

@@ -150,8 +150,6 @@ ActiveAdmin.register ChildSupport do
       I18n.t('activerecord.attributes.child_support.supporter') => AdminUser.assignable_as_supporter.order(:name).pluck(:name, :id)
     }
   }, if: proc { authorized?(:assign_supporter, ChildSupport) } do |ids, inputs|
-    # le `if:` ne fait qu'afficher l'action : le droit est aussi vérifié côté serveur
-    authorize!(:assign_supporter, ChildSupport)
     supporter_id = inputs[I18n.t('activerecord.attributes.child_support.supporter')]
     if AdminUser.assignable_as_supporter.exists?(id: supporter_id)
       batch_action_collection.find(ids).each do |child_support|
@@ -205,7 +203,9 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
+  # Ces deux actions prolongent l'action groupée du même nom : mêmes droits
   collection_action :select_available_support_module do
+    authorize_batch_action!(:select_available_support_module)
     @ids = session.delete(:select_available_support_module_ids) || []
     @form_action = url_for(action: :perform_selecting_available_support_modules)
     @back_url = request.referer
@@ -213,11 +213,13 @@ ActiveAdmin.register ChildSupport do
   end
 
   collection_action :perform_selecting_available_support_modules, method: :post do
+    authorize_batch_action!(:select_available_support_module)
     ids = params[:ids]
     modules = params[:available_support_module_list]
     back_url = params[:back_url]
 
-    ChildSupport.where(id: ids).each do |object|
+    child_supports = active_admin_authorization.scope_collection(ChildSupport.where(id: ids), ActiveAdmin::Auth::READ)
+    child_supports.each do |object|
       object.parent1_available_support_module_list = []
       object.parent2_available_support_module_list = []
 

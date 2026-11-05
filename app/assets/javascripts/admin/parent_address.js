@@ -153,7 +153,7 @@ $(document).ready(function() {
     if (parentBookDeliveryLocation.val() === 'pmi' && currentChildSourceChannel.val() === 'pmi') {
       parentBookDeliveryOrganisationName
         .val(parentBookDeliveryOrganisationNameValue)
-        .css({'background-color': '#A7ACB2'});
+        .addClass('readonly-grey-input');
     } else if (parentBookDeliveryLocation.val() === 'pmi' && currentChildSourceChannel.val() !== 'pmi' ) {
       parentBookDeliveryOrganisationName
           .attr('placeholder', 'Ex: PMI Henri Barbusse')

@@ -230,7 +230,7 @@ ActiveAdmin.register Child do
     end
   end
 
-  batch_action :addresses_pdf, if: proc { !current_admin_user.caller? && !current_admin_user.animator? } do |ids|
+  batch_action :addresses_pdf, if: proc { authorized?(:print_address_labels, Child) } do |ids|
     @children = batch_action_collection.where(id: ids).decorate
     @debug = params.key?('debug')
     # Calage sur la planche Agipa 119006 (24 étiquettes de 70 × 35 mm par A4,
@@ -263,7 +263,7 @@ ActiveAdmin.register Child do
 
   batch_action :mecenat_addresses_pdf,
                confirm: 'Cette action va taguer tous les éléments afin de les exclure des prochaines collectes. N’utilisez pas cette fonctionnalité à des fins de test. Continuer ?',
-               if: proc { current_admin_user.user_role.in?(%w[reader contributor super_admin]) } do |ids|
+               if: proc { authorized?(:print_address_labels, Child) } do |ids|
     children = batch_action_collection.where(id: ids)
     @children = children.decorate
     @debug = params.key?('debug')

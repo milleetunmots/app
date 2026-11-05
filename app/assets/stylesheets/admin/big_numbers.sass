@@ -2,16 +2,21 @@
   display: flex
   justify-content: space-evenly
 
+@import variables
+
 .big-number
   text-align: center
   margin: 10px 0 30px 0
-  border: 1px solid rgba(0, 0, 0, 0.6)
-  padding: 10px 20px
-  border-radius: 10px
+  border: 1px solid $line
+  padding: 14px 24px
+  border-radius: $radius-lg
+  background-color: $surface
 
   &--value
+    font-family: 'Fredoka', 'Poppins', Arial, sans-serif
     font-size: 32px
-    font-weight: bold
+    font-weight: 600
 
   &--title
-    font-size: 24px
+    font-size: 16px
+    color: $ink-soft

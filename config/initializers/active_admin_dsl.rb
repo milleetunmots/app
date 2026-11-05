@@ -1,3 +1,4 @@
+require 'active_admin/batch_action_guard'
 require 'active_admin/better_csv/dsl'
 require 'active_admin/discard/dsl'
 require 'active_admin/flash_task_links'
@@ -23,6 +24,11 @@ module ActiveAdminBeforeIndexPartial
     end
     super
   end
+end
+
+# Après l'initialisation : charger ResourceController ici le ferait avant InheritedResources
+Rails.application.config.after_initialize do
+  ActiveAdmin::ResourceController.prepend(ActiveAdmin::BatchActionGuard)
 end
 
 ActiveAdmin::Views::Pages::Index.prepend(ActiveAdminBeforeIndexPartial)

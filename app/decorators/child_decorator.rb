@@ -4,6 +4,25 @@ class ChildDecorator < BaseDecorator
 
   GENDER_CLASSES = { m: :male, f: :female, x: :unknown }.freeze
 
+  # Largeur utile du prénom sur l'étiquette cadeau : cartouche de 49 mm, moins
+  # 2 × 3 mm de padding et 2 × 0.5 mm de bordure (cf. pdf.sass), en points
+  GIFT_NAME_WIDTH_PT = 42 / 25.4 * 72 # 119.1
+
+  # Largeur moyenne d'un caractère de prénom en Fredoka Bold, en em : la plus forte
+  # mesurée sur des prénoms réels (« Mamadou »), à partir du TTF de app/assets/fonts.
+  # Pas le 9e décile comme pour les adresses : un prénom est court, une lettre
+  # coupée se verrait tout de suite.
+  GIFT_NAME_EM_PER_CHAR = 0.628
+
+  # [taille du prénom en pt, classe CSS], du plus grand au plus petit, comme dans
+  # pdf.sass. Capacité : 14, 17, 21 puis 25 caractères.
+  GIFT_NAME_FONT_TIERS = [
+    [13, nil],
+    [11, 'gift-card-name--small'],
+    [9, 'gift-card-name--tiny'],
+    [7.5, 'gift-card-name--micro']
+  ].freeze
+
   def admin_link(options = {})
     super(options.merge(class: GENDER_COLORS[safe_gender.to_sym]))
   end
@@ -36,13 +55,16 @@ class ChildDecorator < BaseDecorator
     ].compact.join(' ')
     return h.link_to(txt, [:admin, model], options) if child_support_id.blank?
 
-    icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil')
+    icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil', aria: { hidden: true })
     h.content_tag(:span, class: 'name-with-edit') do
       h.link_to(txt, [:admin, model], options) +
         h.link_to(
           icon,
           h.edit_admin_child_path(model, back_to_child_support_id: child_support_id),
-          class: 'js-save-before-leave'
+          class: 'js-save-before-leave',
+          # Icône seule : le lien est nommé pour les lecteurs d'écran
+          title: 'Modifier',
+          aria: { label: "Modifier #{name}" }
         )
     end
   end
@@ -232,8 +254,27 @@ class ChildDecorator < BaseDecorator
     model.parent1.decorate.label_address_lines
   end
 
+  def label_heading_line
+    model.parent1.decorate.label_heading_line
+  end
+
+  def label_body_lines
+    model.parent1.decorate.label_body_lines
+  end
+
   def label_size_class
     model.parent1.decorate.label_size_class
+  end
+
+  def label_heading_class
+    model.parent1.decorate.label_heading_class
+  end
+
+  # Réduit le prénom de l'étiquette cadeau pour qu'il tienne sur une ligne
+  def gift_name_size_class
+    length = model.first_name.to_s.length
+    tier = GIFT_NAME_FONT_TIERS.find { |size, _css_class| length <= GIFT_NAME_WIDTH_PT / (size * GIFT_NAME_EM_PER_CHAR) }
+    (tier || GIFT_NAME_FONT_TIERS.last).last
   end
 
   def address_with_letterbox_name

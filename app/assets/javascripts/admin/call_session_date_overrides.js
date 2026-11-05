@@ -1,10 +1,7 @@
 (function($) {
 
-  var DEFAULT_COLOR = '#5E6469';
-  var PERSISTED_COLOR = '#46be8a';
-  var ALERT_COLOR = '#dc4747';
-  var PERSISTED_BORDER = `4px solid ${PERSISTED_COLOR}`;
-  var ALERT_BORDER = `4px solid ${ALERT_COLOR}`;
+  // L'état de chaque ligne passe par des classes : les couleurs restent dans
+  // app/assets/stylesheets/admin/call_session_date_overrides.sass
 
   var csrfToken = function() {
     var meta = document.querySelector('meta[name="csrf-token"]');
@@ -16,13 +13,8 @@
     var $cell = $row.find('.call-session-override-border');
     if (!$cell.length) return;
 
-    if (persisted ) {
-      $cell.css('border-left', PERSISTED_BORDER);
-    }else if ($cell.data('alert') === true) {
-      $cell.css('border-left', ALERT_BORDER);
-    }else {
-      $cell.css('border-left', '');
-    }
+    $cell.toggleClass('call-session-override-border--persisted', persisted);
+    $cell.toggleClass('call-session-override-border--alert', !persisted && $cell.data('alert') === true);
   };
 
   var setDeadlineDateColor = function($container, persisted) {
@@ -33,19 +25,17 @@
     var $cell = $row.find('.call-session-override-border');
     if (!$cell.length) return;
 
-    if (persisted) {
-      $deadline.css('color', '');
-    } else if ($cell.data('alert') === true) {
-      $deadline.css('color', ALERT_COLOR);
-    } else {
-      $deadline.css('color', '');
-    }
+    $deadline.toggleClass('call-session-override-modification-deadline--alert', !persisted && $cell.data('alert') === true);
   };
 
-  var setStatus = function($container, text, color) {
+  var setError = function($container, text) {
     var $status = $container.find('.call-session-override-status');
     if (!$status.length) return;
-    $status.text(text).css('color', color);
+    $status.text(text).addClass('call-session-override-status--error');
+  };
+
+  var setResetPersisted = function($container, persisted) {
+    $container.find('.reset-call-session-override').toggleClass('reset-call-session-override--persisted', persisted);
   };
 
   var updateResetVisibility = function($container) {
@@ -91,13 +81,13 @@
         end_date: $end.val()
       }
     }).done(function() {
-      $container.find('.reset-call-session-override').css('color', PERSISTED_COLOR);
+      setResetPersisted($container, true);
       setBorder($container, true);
       setDeadlineDateColor($container, true);
       toastr.success('Enregistré');
     }).fail(function(xhr) {
       var errors = (xhr.responseJSON && xhr.responseJSON.errors) || ['Erreur'];
-      setStatus($container, errors.join(', '), ERROR_COLOR);
+      setError($container, errors.join(', '));
       toastr.error(errors.join(', '));
     });
   };
@@ -123,11 +113,11 @@
       }
     }).done(function() {
       toastr.success('Réinitialisé');
-      $container.find('.reset-call-session-override').css('color', DEFAULT_COLOR);
+      setResetPersisted($container, false);
       setBorder($container, false);
       setDeadlineDateColor($container, false);
     }).fail(function() {
-      setStatus($container, 'Erreur', ALERT_COLOR);
+      setError($container, 'Erreur');
     });
   };
 

@@ -1,3 +1,5 @@
+@import variables
+
 .card
   position: relative
   margin-bottom: 10px
@@ -33,15 +35,15 @@
       font-size: 0.8em
 
   &.card-text-messages-bundle
-    border: 1px solid #ccc
-    border-radius: 5px
+    border: 1px solid $line
+    border-radius: $radius-lg
 
     div, .body
       display: block
       padding: 10px
 
       &:not(:last-child)
-        border-bottom: 1px solid #ccc
+        border-bottom: 1px solid $line
 
     .body
       font-family: monospace
@@ -64,7 +66,7 @@
         position: absolute
         top: -15px
         right: -15px
-        background: white
+        background: $surface
         border: 1px solid $green
         border-radius: 100%
         color: $green

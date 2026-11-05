@@ -96,7 +96,7 @@ $(document).ready(function() {
                     messageContent = `${messageContent}\n1001mots`
                 },
                 complete: function() {
-                    message.css({'height': '250px', 'background-color': '#DDDDDD'})
+                    message.css('height', '250px')
                     specificCallMessage(selectedValue)
                     messageContentRefreshed = messageContentWithLink.replace('{INTRODUCTION}', message_intro.val())
                                                                     .replace('{QUESTIONNAIRE_DE_PARTAGE}', feedback_form.val())
@@ -134,7 +134,7 @@ $(document).ready(function() {
                     messageContent = `${messageContent}\n1001mots`
                 },
                 complete: function() {
-                    message.css({'height': '250px', 'background-color': '#DDDDDD'})
+                    message.css('height', '250px')
                     messageContentWithLink = messageContent
                     messageContentRefreshed = messageContentWithLink.replace('{INTRODUCTION}', message_intro.val())
                                                                     .replace('{CONCLUSION}', conclusion.val())
@@ -161,12 +161,12 @@ $(document).ready(function() {
             var relanceMessage = "Bonjour, c'est {PRENOM_ACCOMPAGNANTE} de 1001mots. J'aimerais discuter avec vous de {PRENOM_ENFANT} par téléphone. Prenez RDV ici : " + (calendlyUrl || '') + " A bientôt !"
             message.val(relanceMessage)
             message.prop('readonly', false)
-            message.css({'height': '250px', 'background-color': 'white'})
+            message.css('height', '250px')
             $("input[type='submit']").prop('disabled', false)
         }
         else {
             $("input[type='submit']").prop('disabled', false)
-            message.css({'height': 'auto', 'background-color': 'white'})
+            message.css('height', 'auto')
             normalMessage()
             hideNewFields()
         }

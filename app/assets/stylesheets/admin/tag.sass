@@ -1,4 +1,14 @@
+@import variables
+
+// Fond et texte posés par TagDecorator.pill_style : le texte suit la couleur du tag.
+// Étiquette fine aux coins arrondis plutôt qu'une pastille : un tag long passe sur deux
+// lignes sans devenir une grosse gélule.
 .tag_display
-  color: #fff
-  padding: 3px 5px 2px 5px
-  border-radius: 3px
+  display: inline-block
+  margin: 1px 0
+  padding: 2px 7px
+  border-radius: $radius - 2px
+  font-size: 12px
+  font-weight: 500
+  line-height: 1.35
+  vertical-align: middle
