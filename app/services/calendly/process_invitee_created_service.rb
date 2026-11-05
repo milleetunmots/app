@@ -21,10 +21,7 @@ module Calendly
     end
 
     def call
-      extract_tracking_info
-      return self if @errors.any?
-
-      find_parent
+      identify_parent
       return self if @errors.any?
 
       find_child_support
@@ -47,36 +44,11 @@ module Calendly
 
     private
 
-    def extract_tracking_info
-      tracking = @invitee_payload['tracking'] || {}
-      @security_token = tracking['utm_content']&.gsub(/[^[:alnum:]]/, '')
-      @utm_campaign = tracking['utm_campaign']
-      @call_session = extract_call_session(@utm_campaign)
-
-      return if @security_token.present?
-
-      @errors << {
-        message: 'Le security_token (utm_content) est manquant dans le payload',
-        tracking: tracking
-      }
-    end
-
-    def extract_call_session(utm_campaign)
-      return nil if utm_campaign.blank?
-
-      match = utm_campaign.match(/call(\d+)/)
-      match[1].to_i if match
-    end
-
-    def find_parent
-      @parent = Parent.find_by(security_token: @security_token)
-
-      return if @parent
-
-      @errors << {
-        message: 'Aucun parent trouvé avec le security_token',
-        security_token: @security_token
-      }
+    def identify_parent
+      service = Parent::IdentifyCalendlyInviteeService.new(invitee_payload: @invitee_payload).call
+      @errors.concat(service.errors)
+      @parent = service.parent
+      @call_session = service.call_session
     end
 
     def find_child_support
