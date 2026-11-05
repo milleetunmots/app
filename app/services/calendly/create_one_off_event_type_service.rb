@@ -47,6 +47,7 @@ module Calendly
         @booking_url = extract_booking_url(body)
         @booking_url = add_utm_params(@booking_url, parent) if @booking_url
         parent.calendly_booking_urls["call#{@call_session}"] = @booking_url
+        record_event_type_uri(parent, body)
         parent.save!
       else
         @errors << {
@@ -58,6 +59,14 @@ module Calendly
           error: body || response.body.to_s.truncate(500)
         }
       end
+    end
+
+    # les uri précédentes sont conservées : un parent peut réserver sur un lien déjà remplacé
+    def record_event_type_uri(parent, body)
+      event_type_uri = body.dig('resource', 'uri')
+      return if event_type_uri.blank?
+
+      parent.calendly_one_off_event_type_uris[event_type_uri] = @call_session
     end
 
     def handle_errors
