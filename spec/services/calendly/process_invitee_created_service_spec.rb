@@ -113,9 +113,9 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
         payload['payload']['tracking']['utm_content'] = nil
       end
 
-      it 'returns an error' do
+      it "renvoie une erreur quand aucun autre moyen n'identifie le parent" do
         result = subject.call
-        expect(result.errors).to include(hash_including(message: "Le security_token (utm_content) est manquant dans le payload"))
+        expect(result.errors).to include(hash_including(message: 'Aucun parent identifié pour ce RDV'))
       end
 
       it 'does not create a ScheduledCall' do
@@ -125,12 +125,24 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
 
     context 'when parent is not found' do
       before do
-        payload['payload']['tracking']['utm_content'] = 'invalid_token'
+        payload['payload']['tracking']['utm_content'] = 'ffffffffffffffffffffffffffffffff'
       end
 
       it 'returns an error' do
         result = subject.call
         expect(result.errors).to include(hash_including(message: "Aucun parent trouvé avec le security_token"))
+      end
+    end
+
+    context 'avec un jeton tronqué' do
+      it 'enregistre le RDV pour le seul parent dont le jeton commence par ce morceau' do
+        payload['payload']['tracking']['utm_content'] = parent.security_token.first(6)
+
+        result = subject.call
+
+        expect(result.errors).to be_empty
+        expect(result.scheduled_call.parent).to eq(parent)
+        expect(result.scheduled_call.call_session).to eq(0)
       end
     end
 
