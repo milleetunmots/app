@@ -31,7 +31,16 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
         },
         'questions_and_answers' => [
           { 'question' => 'Commentaire', 'answer' => 'Test comment' }
-        ]
+        ],
+        # structure relevée sur un webhook de production (05/11/2026), valeurs anonymisées
+        'scheduled_event' => {
+          'uri' => event_uri,
+          'event_type' => calendly_event_type_uri,
+          'event_memberships' => [{ 'user' => 'https://api.calendly.com/users/AWA' }],
+          'location' => { 'location' => '+33700000000', 'type' => 'inbound_call' },
+          'start_time' => '2026-01-15T10:00:00.000000Z',
+          'end_time' => '2026-01-15T10:30:00.000000Z'
+        }
       }
     }
   end
@@ -105,6 +114,54 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
       it 'stores raw payload' do
         result = subject.call
         expect(result.scheduled_call.raw_payload).to eq(payload)
+      end
+
+      it "enregistre le type d'événement réservé" do
+        result = subject.call
+        expect(result.scheduled_call.event_type_uri).to eq(calendly_event_type_uri)
+      end
+    end
+
+    context "avec un lien sans paramètres de suivi, identifié par son type d'événement" do
+      it 'enregistre le RDV pour le parent et la session du lien, et envoie la confirmation' do
+        parent.update!(calendly_one_off_event_type_uris: { calendly_event_type_uri => 1 })
+        payload['payload']['tracking'] = { 'utm_campaign' => nil, 'utm_content' => nil }
+
+        result = subject.call
+
+        expect(result.errors).to be_empty
+        expect(result.scheduled_call).to have_attributes(
+          parent: parent, child_support: child_support, admin_user: admin_user,
+          call_session: 1, event_type_uri: calendly_event_type_uri, status: 'scheduled'
+        )
+        expect(ProgramMessageService).to have_received(:new).with(anything, anything, ["parent.#{parent.id}"], anything)
+      end
+
+      it 'remplace le RDV actif de la même session' do
+        parent.update!(calendly_one_off_event_type_uris: { calendly_event_type_uri => 0 })
+        payload['payload']['tracking'] = {}
+        replaced_call = ScheduledCall.create!(
+          calendly_event_uri: 'https://api.calendly.com/scheduled_events/ANCIEN-RDV', status: 'scheduled',
+          call_session: 0, child_support: child_support, parent: parent, scheduled_at: 2.days.from_now
+        )
+        stub_request(:post, 'https://api.calendly.com/scheduled_events/ANCIEN-RDV/cancellation')
+          .to_return(status: 201, body: {}.to_json, headers: { 'Content-Type' => 'application/json' })
+
+        subject.call
+
+        expect(WebMock).to have_requested(:post, 'https://api.calendly.com/scheduled_events/ANCIEN-RDV/cancellation')
+        expect(replaced_call.reload.status).to eq('canceled')
+      end
+
+      it "n'utilise pas le type d'événement quand le jeton complet est inconnu" do
+        parent.update!(calendly_one_off_event_type_uris: { calendly_event_type_uri => 1 })
+        payload['payload']['tracking']['utm_content'] = 'ffffffffffffffffffffffffffffffff'
+
+        result = subject.call
+
+        expect(result.errors).to include(hash_including(message: 'Aucun parent trouvé avec le security_token'))
+        expect(result.scheduled_call).to be_nil
+        expect(ProgramMessageService).not_to have_received(:new)
       end
     end
 

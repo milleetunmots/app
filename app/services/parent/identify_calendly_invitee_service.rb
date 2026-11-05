@@ -15,6 +15,9 @@ class Parent::IdentifyCalendlyInviteeService
     identify_by_token
     return self if @parent || @errors.any?
 
+    identify_by_event_type
+    return self if @parent
+
     report_unidentified_parent
     self
   end
@@ -64,8 +67,28 @@ class Parent::IdentifyCalendlyInviteeService
     @parent = candidates.first if candidates.one?
   end
 
+  # chaque lien est un type d'événement one-off propre à un parent et à une session,
+  # retrouvable même quand les paramètres utm ont été retirés du lien
+  def identify_by_event_type
+    byebug
+    event_type_uri = scheduled_event['event_type']
+    return if event_type_uri.blank?
+
+    candidates = Parent.kept
+                       .where('jsonb_exists(calendly_one_off_event_type_uris, ?)', event_type_uri)
+                       .limit(2)
+                       .to_a
+    return unless candidates.one?
+
+    @parent = candidates.first
+    @call_session = @parent.calendly_one_off_event_type_uris[event_type_uri]
+  end
+
+  def scheduled_event
+    @invitee_payload['scheduled_event'] || {}
+  end
+
   def report_unidentified_parent
-    scheduled_event = @invitee_payload['scheduled_event'] || {}
     @errors << {
       message: 'Aucun parent identifié pour ce RDV',
       context: {
