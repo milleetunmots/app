@@ -16,9 +16,8 @@ class Parent::IdentifyCalendlyInviteeService
     return self if @parent || @errors.any?
 
     identify_by_event_type
-    return self if @parent
-
-    report_unidentified_parent
+    identify_by_contact unless @parent
+    report_unidentified_parent unless @parent || @errors.any?
     self
   end
 
@@ -84,8 +83,36 @@ class Parent::IdentifyCalendlyInviteeService
     @call_session = @parent.calendly_one_off_event_type_uris[event_type_uri]
   end
 
+  def identify_by_contact
+    return unless host_uris.one?
+
+    match = Parent::MatchCalendlyInviteeContactService.new(
+      host_calendly_user_uri: host_uris.first,
+      email: @invitee_payload['email'],
+      name: @invitee_payload['name']
+    ).call
+    @errors.concat(match.errors)
+    assign_current_call_session(match.parent) if match.parent
+  end
+
+  # le lien ne dit rien de la session : on retient celle en cours, SMS de RDV envoyé à J-3
+  def assign_current_call_session(parent)
+    call_session = parent.current_child&.child_support&.active_call_index(days_before: 3)
+    if call_session.nil?
+      @errors << { message: "Aucune session d'appel en cours pour ce parent", context: { parent_id: parent.id } }
+      return
+    end
+
+    @parent = parent
+    @call_session = call_session
+  end
+
   def scheduled_event
     @invitee_payload['scheduled_event'] || {}
+  end
+
+  def host_uris
+    (scheduled_event['event_memberships'] || []).pluck('user')
   end
 
   def report_unidentified_parent
@@ -94,7 +121,7 @@ class Parent::IdentifyCalendlyInviteeService
       context: {
         event_uri: @invitee_payload['event'],
         event_type_uri: scheduled_event['event_type'],
-        host_uris: (scheduled_event['event_memberships'] || []).pluck('user'),
+        host_uris: host_uris,
         security_token: @security_token
       }
     }

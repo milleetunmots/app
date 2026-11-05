@@ -30,6 +30,7 @@ RSpec.describe Parent::IdentifyCalendlyInviteeService do
 
     context 'sans jeton' do
       it "renvoie une erreur avec le contexte du RDV quand aucun parent n'est identifié" do
+        FactoryBot.create(:admin_user, calendly_user_uri: 'https://api.calendly.com/users/AWA')
         payload = invitee_payload('utm_campaign' => nil, 'utm_content' => nil).merge(
           'scheduled_event' => {
             'event_type' => 'https://api.calendly.com/event_types/INCONNU',
