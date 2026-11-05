@@ -2,10 +2,15 @@
 
 // Bandeau de la simulation de connexion : toujours visible, pour qu'on ne
 // confonde jamais la vue simulée avec la sienne.
+// Collé sous l'en-tête fixe du thème (50px, puis 60px dès $sm-width) et placé sous lui
+// dans l'empilement : #utility_nav (fixed, z-index 3) forme un contexte d'empilement, le
+// déroulant de l'avatar ne passe donc au-dessus du bandeau que si le bandeau reste en dessous de 3.
 .impersonation-banner
   position: sticky
-  top: 0
-  z-index: 1000
+  top: 50px
+  z-index: 2
+  @media screen and (min-width: $sm-width)
+    top: 60px
   display: flex
   align-items: center
   justify-content: space-between

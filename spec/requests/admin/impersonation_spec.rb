@@ -149,6 +149,35 @@ RSpec.describe 'Admin - se connecter en tant que', type: :request do
     end
   end
 
+  describe 'affichage du tableau de bord' do
+    let(:parsed_body) { Nokogiri::HTML(response.body) }
+
+    before do
+      FactoryBot.create(:task, title: 'Tâche ajoutée par la référente', reporter: referente)
+      sign_in super_admin
+      start_impersonating(referente)
+      get '/admin/dashboard'
+    end
+
+    it "affiche l'avatar et le menu déroulant du compte simulé" do
+      avatar = parsed_body.at_css('#utility_nav #current_user > a')
+
+      expect(avatar['href']).to eq('#')
+      expect(avatar.text).to include(referente.name)
+      expect(parsed_body.at_css('#utility_nav #user_header').text).to include(referente.email)
+      expect(parsed_body.css('#utility_nav #current_user > ul > li:not(#user_header)').map { |entry| entry.text.strip }).to eq(
+        ['Paramètres des rdv', "Mes statistiques d'appel", 'Mes informations personnelles']
+      )
+    end
+
+    it 'affiche les tâches du compte simulé, comme il les voit' do
+      tasks_panel = parsed_body.at_css('#active_admin-tasks-dashboard')
+
+      expect(tasks_panel.text).to include('Tâche ajoutée par la référente')
+      expect(tasks_panel.text).not_to include("À faire par d'autres")
+    end
+  end
+
   describe 'infos sensibles' do
     before do
       sign_in super_admin
