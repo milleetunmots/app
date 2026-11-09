@@ -22,6 +22,7 @@
 #  support_module_programmed  :integer          default(0)
 #  support_module_sent_dates  :jsonb
 #  support_modules_count      :integer          default(0), not null
+#  supporters_assigned_at     :datetime
 #  type_of_support            :string           default("with_calls")
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
@@ -92,6 +93,10 @@ class Group < ApplicationRecord
 
   def started?
     started_at.past?
+  end
+
+  def supporters_assigned?
+    supporters_assigned_at.present?
   end
 
   def is_ended?
