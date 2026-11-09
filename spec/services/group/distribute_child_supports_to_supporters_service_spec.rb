@@ -31,5 +31,58 @@ RSpec.describe Group::DistributeChildSupportsToSupportersService do
         end
       end
     end
+
+    context "quand l'attribution se termine sans erreur" do
+      it "enregistre la date d'attribution sur la cohorte" do
+        travel_to Time.zone.local(2026, 3, 6, 10) do
+          group = FactoryBot.create(:group)
+          FactoryBot.create_list(:child, 3, group: group, group_status: 'active')
+          supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+          counts = [{ admin_user_id: supporter.id, child_supports_count: 3, age_range: nil, assigned_child_supports_count: 0 }]
+
+          Group::DistributeChildSupportsToSupportersService.new(group, counts).call
+
+          expect(group.reload.supporters_assigned_at).to eq(Time.zone.local(2026, 3, 6, 10))
+        end
+      end
+    end
+
+    context "quand la cohorte a déjà été attribuée" do
+      it "conserve la première date d'attribution" do
+        travel_to Time.zone.local(2026, 3, 7, 10) do
+          group = FactoryBot.create(:group, supporters_assigned_at: Time.zone.local(2026, 3, 6, 10))
+          FactoryBot.create_list(:child, 3, group: group, group_status: 'active')
+          supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+          counts = [{ admin_user_id: supporter.id, child_supports_count: 3, age_range: nil, assigned_child_supports_count: 0 }]
+
+          Group::DistributeChildSupportsToSupportersService.new(group, counts).call
+
+          expect(group.reload.supporters_assigned_at).to eq(Time.zone.local(2026, 3, 6, 10))
+        end
+      end
+    end
+
+    context "quand l'attribution échoue" do
+      it "n'attribue aucune fiche et ne marque pas la cohorte" do
+        group = FactoryBot.create(:group)
+        FactoryBot.create_list(:child, 3, group: group, group_status: 'active')
+        counts = [{ admin_user_id: AdminUser.maximum(:id).to_i + 1, child_supports_count: 3, age_range: nil, assigned_child_supports_count: 0 }]
+
+        expect { Group::DistributeChildSupportsToSupportersService.new(group, counts).call }.to raise_error(ActiveRecord::InvalidForeignKey)
+
+        expect(ChildSupport.in_group(group.id).where.not(supporter_id: nil)).to be_empty
+        expect(group.reload.supporters_assigned_at).to be_nil
+      end
+
+      it "laisse attribuée une cohorte qui l'était déjà" do
+        group = FactoryBot.create(:group, supporters_assigned_at: Time.zone.local(2026, 3, 6, 10))
+        FactoryBot.create_list(:child, 3, group: group, group_status: 'active')
+        counts = [{ admin_user_id: AdminUser.maximum(:id).to_i + 1, child_supports_count: 3, age_range: nil, assigned_child_supports_count: 0 }]
+
+        expect { Group::DistributeChildSupportsToSupportersService.new(group, counts).call }.to raise_error(ActiveRecord::InvalidForeignKey)
+
+        expect(group.reload.supporters_assigned_at).to eq(Time.zone.local(2026, 3, 6, 10))
+      end
+    end
   end
 end
