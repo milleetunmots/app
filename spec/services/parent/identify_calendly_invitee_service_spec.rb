@@ -30,7 +30,6 @@ RSpec.describe Parent::IdentifyCalendlyInviteeService do
 
     context 'sans jeton' do
       it "renvoie une erreur avec le contexte du RDV quand aucun parent n'est identifié" do
-        FactoryBot.create(:admin_user, calendly_user_uri: 'https://api.calendly.com/users/AWA')
         payload = invitee_payload('utm_campaign' => nil, 'utm_content' => nil).merge(
           'scheduled_event' => {
             'event_type' => 'https://api.calendly.com/event_types/INCONNU',
@@ -185,6 +184,78 @@ RSpec.describe Parent::IdentifyCalendlyInviteeService do
         service = described_class.new(invitee_payload: payload_with_event_type('https://api.calendly.com/event_types/M1')).call
 
         expect(service.parent).to be_nil
+      end
+    end
+
+    context "avec le type d'événement du lien et les informations saisies par le parent" do
+      def payload_with_contact(email:, name:)
+        invitee_payload({}).merge(
+          'email' => email,
+          'name' => name,
+          'scheduled_event' => { 'event_type' => 'https://api.calendly.com/event_types/M1' }
+        )
+      end
+
+      def parent_of_link
+        FactoryBot.create(:parent, first_name: 'Mariam', last_name: 'Diallo', email: 'mariam.diallo@example.com',
+                                   calendly_one_off_event_type_uris: { 'https://api.calendly.com/event_types/M1' => 1 })
+      end
+
+      it "confirme le parent par l'e-mail, sans tenir compte de la casse ni des espaces" do
+        parent = parent_of_link
+
+        service = described_class.new(invitee_payload: payload_with_contact(email: ' Mariam.Diallo@Example.com ', name: 'M. D.')).call
+
+        expect(service.errors).to be_empty
+        expect(service.parent).to eq(parent)
+      end
+
+      [['Diallo', true], ['MARIAM', true], ['Mariâm Traoré', true], ['Diallo-Sow', true], ['Jean Martin', false], ['M. D.', false]]
+        .each do |name, confirmed|
+          it "#{confirmed ? 'confirme' : 'ne confirme pas'} le parent avec le nom saisi #{name.inspect}" do
+            parent = parent_of_link
+
+            service = described_class.new(invitee_payload: payload_with_contact(email: 'autre@example.com', name: name)).call
+
+            expect(service.parent).to eq(confirmed ? parent : nil)
+          end
+        end
+
+      it "garde le lien seul quand l'e-mail est prérempli et le nom vide" do
+        parent = parent_of_link
+
+        service = described_class.new(invitee_payload: payload_with_contact(email: 'rdv@1001mots.org', name: '')).call
+
+        expect(service.errors).to be_empty
+        expect(service.parent).to eq(parent)
+      end
+
+      it "renvoie une erreur, sans e-mail ni nom dans le contexte, quand rien ne correspond" do
+        parent = parent_of_link
+
+        service = described_class.new(invitee_payload: payload_with_contact(email: 'jean.martin@example.com', name: 'Jean Martin')).call
+
+        expect(service.parent).to be_nil
+        expect(service.errors).to eq(
+          [{
+            message: 'Les informations saisies ne correspondent pas au parent du lien',
+            context: {
+              parent_id: parent.id,
+              event_type_uri: 'https://api.calendly.com/event_types/M1',
+              event_uri: 'https://api.calendly.com/scheduled_events/RDV-1'
+            }
+          }]
+        )
+      end
+
+      it 'ne vérifie pas les informations saisies quand le jeton tronqué identifie le parent' do
+        parent = FactoryBot.create(:parent, first_name: 'Mariam', last_name: 'Diallo', security_token: '3f9a1c0b7d2e4f6a8b9c0d1e2f3a4b5c')
+        payload = invitee_payload('utm_campaign' => 'call1', 'utm_content' => '3f9a').merge('email' => 'jean.martin@example.com', 'name' => 'Jean Martin')
+
+        service = described_class.new(invitee_payload: payload).call
+
+        expect(service.errors).to be_empty
+        expect(service.parent).to eq(parent)
       end
     end
 

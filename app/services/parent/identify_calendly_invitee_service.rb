@@ -3,6 +3,9 @@ class Parent::IdentifyCalendlyInviteeService
   # longueur d'un security_token (SecureRandom.hex(16)) : en dessous, le lien a été tronqué
   FULL_TOKEN_LENGTH = 32
 
+  # prérempli par « Créer un rdv » quand le parent n'a pas d'e-mail
+  PLACEHOLDER_EMAIL = 'rdv@1001mots.org'.freeze
+
   attr_reader :errors, :parent, :call_session
 
   def initialize(invitee_payload:)
@@ -16,7 +19,6 @@ class Parent::IdentifyCalendlyInviteeService
     return self if @parent || @errors.any?
 
     identify_by_event_type
-    identify_by_contact unless @parent
     report_unidentified_parent unless @parent || @errors.any?
     self
   end
@@ -66,44 +68,57 @@ class Parent::IdentifyCalendlyInviteeService
     @parent = candidates.first if candidates.one?
   end
 
-  # chaque lien est un type d'événement one-off propre à un parent et à une session,
-  # retrouvable même quand les paramètres utm ont été retirés du lien
+  # chaque lien est un type d'événement one-off propre à un parent et à une session
   def identify_by_event_type
     event_type_uri = scheduled_event['event_type']
     return if event_type_uri.blank?
 
+    candidate = unique_parent_with_event_type(event_type_uri)
+    return unless candidate
+
+    unless invitee_confirms?(candidate)
+      report_unconfirmed_parent(candidate, event_type_uri)
+      return
+    end
+
+    @parent = candidate
+    @call_session = candidate.calendly_one_off_event_type_uris[event_type_uri]
+  end
+
+  def unique_parent_with_event_type(event_type_uri)
     candidates = Parent.kept
                        .where('jsonb_exists(calendly_one_off_event_type_uris, ?)', event_type_uri)
                        .limit(2)
                        .to_a
-    return unless candidates.one?
-
-    @parent = candidates.first
-    @call_session = @parent.calendly_one_off_event_type_uris[event_type_uri]
+    candidates.first if candidates.one?
   end
 
-  def identify_by_contact
-    return unless host_uris.one?
+  # sans e-mail ni nom saisis, le lien suffit
+  def invitee_confirms?(parent)
+    return true if invitee_email.blank? && invitee_name_words.empty?
 
-    match = Parent::MatchCalendlyInviteeContactService.new(
-      host_calendly_user_uri: host_uris.first,
-      email: @invitee_payload['email'],
-      name: @invitee_payload['name']
-    ).call
-    @errors.concat(match.errors)
-    assign_current_call_session(match.parent) if match.parent
+    email_matches?(parent) || name_word_matches?(parent)
   end
 
-  # le lien ne dit rien de la session : on retient celle en cours, SMS de RDV envoyé à J-3
-  def assign_current_call_session(parent)
-    call_session = parent.current_child&.child_support&.active_call_index(days_before: 3)
-    if call_session.nil?
-      @errors << { message: "Aucune session d'appel en cours pour ce parent", context: { parent_id: parent.id } }
-      return
-    end
+  def invitee_email
+    email = @invitee_payload['email'].to_s.strip.downcase
+    email unless email == PLACEHOLDER_EMAIL
+  end
 
-    @parent = parent
-    @call_session = call_session
+  def email_matches?(parent)
+    invitee_email.present? && parent.email.to_s.strip.downcase == invitee_email
+  end
+
+  def name_word_matches?(parent)
+    invitee_name_words.intersect?(name_words("#{parent.first_name} #{parent.last_name}"))
+  end
+
+  def invitee_name_words
+    name_words(@invitee_payload['name'])
+  end
+
+  def name_words(name)
+    I18n.transliterate(name.to_s).downcase.scan(/[a-z]+/)
   end
 
   def scheduled_event
@@ -112,6 +127,14 @@ class Parent::IdentifyCalendlyInviteeService
 
   def host_uris
     (scheduled_event['event_memberships'] || []).pluck('user')
+  end
+
+  # ni l'e-mail ni le nom saisis ne sont logués : données personnelles
+  def report_unconfirmed_parent(parent, event_type_uri)
+    @errors << {
+      message: 'Les informations saisies ne correspondent pas au parent du lien',
+      context: { parent_id: parent.id, event_type_uri: event_type_uri, event_uri: @invitee_payload['event'] }
+    }
   end
 
   def report_unidentified_parent

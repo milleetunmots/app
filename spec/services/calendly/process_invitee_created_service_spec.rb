@@ -123,9 +123,14 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
     end
 
     context "avec un lien sans paramètres de suivi, identifié par son type d'événement" do
-      it 'enregistre le RDV pour le parent et la session du lien, et envoie la confirmation' do
-        parent.update!(calendly_one_off_event_type_uris: { calendly_event_type_uri => 1 })
+      def booking_without_tracking(call_session:)
+        parent.update!(calendly_one_off_event_type_uris: { calendly_event_type_uri => call_session })
         payload['payload']['tracking'] = { 'utm_campaign' => nil, 'utm_content' => nil }
+        payload['payload']['name'] = "#{parent.first_name} #{parent.last_name}"
+      end
+
+      it 'enregistre le RDV pour le parent et la session du lien, et envoie la confirmation' do
+        booking_without_tracking(call_session: 1)
 
         result = subject.call
 
@@ -138,8 +143,7 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
       end
 
       it 'remplace le RDV actif de la même session' do
-        parent.update!(calendly_one_off_event_type_uris: { calendly_event_type_uri => 0 })
-        payload['payload']['tracking'] = {}
+        booking_without_tracking(call_session: 0)
         replaced_call = ScheduledCall.create!(
           calendly_event_uri: 'https://api.calendly.com/scheduled_events/ANCIEN-RDV', status: 'scheduled',
           call_session: 0, child_support: child_support, parent: parent, scheduled_at: 2.days.from_now
@@ -153,8 +157,51 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
         expect(replaced_call.reload.status).to eq('canceled')
       end
 
+      it "n'enregistre rien quand l'e-mail et le nom saisis ne correspondent pas au parent du lien" do
+        booking_without_tracking(call_session: 1)
+        payload['payload']['email'] = 'jean.martin@example.com'
+        payload['payload']['name'] = 'Jean Martin'
+
+        result = subject.call
+
+        expect(result.errors).to include(hash_including(message: 'Les informations saisies ne correspondent pas au parent du lien'))
+        expect(ScheduledCall.count).to eq(0)
+        expect(ProgramMessageService).not_to have_received(:new)
+      end
+
+      it "n'enregistre rien quand le type d'événement est inconnu" do
+        booking_without_tracking(call_session: 1)
+        payload['payload']['scheduled_event']['event_type'] = 'https://api.calendly.com/event_types/LIEN-ANTERIEUR'
+
+        result = subject.call
+
+        expect(result.errors).to include(hash_including(message: 'Aucun parent identifié pour ce RDV'))
+        expect(ScheduledCall.count).to eq(0)
+        expect(ProgramMessageService).not_to have_received(:new)
+      end
+
+      it "n'enregistre rien quand le webhook ne contient pas scheduled_event" do
+        booking_without_tracking(call_session: 1)
+        payload['payload'].delete('scheduled_event')
+
+        result = subject.call
+
+        expect(result.errors).to include(hash_including(message: 'Aucun parent identifié pour ce RDV'))
+        expect(ScheduledCall.count).to eq(0)
+      end
+
+      it "n'envoie qu'une confirmation quand le webhook est rejoué" do
+        booking_without_tracking(call_session: 1)
+
+        described_class.new(payload: payload).call
+        described_class.new(payload: payload).call
+
+        expect(ScheduledCall.where(calendly_event_uri: event_uri).count).to eq(1)
+        expect(ProgramMessageService).to have_received(:new).once
+      end
+
       it "n'utilise pas le type d'événement quand le jeton complet est inconnu" do
-        parent.update!(calendly_one_off_event_type_uris: { calendly_event_type_uri => 1 })
+        booking_without_tracking(call_session: 1)
         payload['payload']['tracking']['utm_content'] = 'ffffffffffffffffffffffffffffffff'
 
         result = subject.call
@@ -167,7 +214,6 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
 
     context 'when security_token is missing' do
       before do
-        admin_user.update!(calendly_user_uri: 'https://api.calendly.com/users/AWA')
         payload['payload']['tracking']['utm_content'] = nil
       end
 
@@ -178,101 +224,6 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
 
       it 'does not create a ScheduledCall' do
         expect { subject.call }.not_to change(ScheduledCall, :count)
-      end
-    end
-
-    context "sans jeton ni type d'événement connu : recherche par e-mail puis par nom" do
-      # session 1 du 10/11 au 23/11/2026 : le SMS de prise de RDV part à J-3
-      def prepare_family_in_session
-        admin_user.update!(calendly_user_uri: 'https://api.calendly.com/users/AWA')
-        group = FactoryBot.create(:group, started_at: Date.new(2026, 10, 12))
-        group.update_columns(
-          call0_start_date: Date.new(2026, 10, 13), call0_end_date: Date.new(2026, 10, 26),
-          call1_start_date: Date.new(2026, 11, 10), call1_end_date: Date.new(2026, 11, 23),
-          call2_start_date: Date.new(2027, 1, 4), call2_end_date: Date.new(2027, 1, 17),
-          call3_start_date: Date.new(2027, 3, 1), call3_end_date: Date.new(2027, 3, 14)
-        )
-        child.update!(group: group, group_status: 'active')
-        parent.update!(email: 'mariam.diallo@example.com')
-        payload['payload']['tracking'] = {}
-        payload['payload']['email'] = 'mariam.diallo@example.com'
-        payload['payload']['scheduled_event']['event_type'] = 'https://api.calendly.com/event_types/LIEN-ANTERIEUR'
-      end
-
-      it 'enregistre le RDV pour la session en cours et envoie la confirmation' do
-        prepare_family_in_session
-
-        result = travel_to(Time.zone.local(2026, 11, 8, 10)) { subject.call }
-
-        expect(result.errors).to be_empty
-        expect(result.scheduled_call).to have_attributes(
-          parent: parent, child_support: child_support, admin_user: admin_user, call_session: 1
-        )
-        expect(ProgramMessageService).to have_received(:new).with(anything, anything, ["parent.#{parent.id}"], anything)
-      end
-
-      [
-        [Date.new(2026, 11, 6), nil],
-        [Date.new(2026, 11, 7), 1],
-        [Date.new(2026, 11, 23), 1],
-        [Date.new(2026, 11, 24), nil]
-      ].each do |received_on, expected_session|
-        it "#{expected_session ? 'rattache' : 'rejette'} un RDV reçu le #{received_on.strftime('%d/%m/%Y')}" do
-          prepare_family_in_session
-
-          result = travel_to(received_on.in_time_zone.change(hour: 10)) { subject.call }
-
-          if expected_session
-            expect(result.scheduled_call.call_session).to eq(expected_session)
-          else
-            expect(result.errors).to include(hash_including(message: "Aucune session d'appel en cours pour ce parent"))
-            expect(ScheduledCall.count).to eq(0)
-          end
-        end
-      end
-
-      it "n'enregistre rien quand aucun parent ne correspond" do
-        prepare_family_in_session
-        payload['payload']['email'] = 'jean.martin@example.com'
-        payload['payload']['name'] = 'Jean Martin'
-
-        result = travel_to(Time.zone.local(2026, 11, 8, 10)) { subject.call }
-
-        expect(result.errors).to include(hash_including(message: 'Aucun parent identifié pour ce RDV'))
-        expect(ScheduledCall.count).to eq(0)
-        expect(ProgramMessageService).not_to have_received(:new)
-      end
-
-      it "n'enregistre rien quand le compte Calendly hôte est inconnu" do
-        prepare_family_in_session
-        payload['payload']['scheduled_event']['event_memberships'] = [{ 'user' => 'https://api.calendly.com/users/INCONNU' }]
-
-        result = travel_to(Time.zone.local(2026, 11, 8, 10)) { subject.call }
-
-        expect(result.errors).to include(hash_including(message: "Aucune accompagnante n'a ce compte Calendly"))
-        expect(ScheduledCall.count).to eq(0)
-      end
-
-      it "n'enregistre rien quand le webhook ne contient pas scheduled_event" do
-        prepare_family_in_session
-        payload['payload'].delete('scheduled_event')
-
-        result = travel_to(Time.zone.local(2026, 11, 8, 10)) { subject.call }
-
-        expect(result.errors).to include(hash_including(message: 'Aucun parent identifié pour ce RDV'))
-        expect(ScheduledCall.count).to eq(0)
-      end
-
-      it "n'envoie qu'une confirmation quand le webhook est rejoué" do
-        prepare_family_in_session
-
-        travel_to(Time.zone.local(2026, 11, 8, 10)) do
-          described_class.new(payload: payload).call
-          described_class.new(payload: payload).call
-        end
-
-        expect(ScheduledCall.where(calendly_event_uri: event_uri).count).to eq(1)
-        expect(ProgramMessageService).to have_received(:new).once
       end
     end
 
