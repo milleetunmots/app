@@ -6,15 +6,8 @@ class Child
     # Discard les fratries (si nécessaire) avant de changer la fiche de suivi ou les parents de l'enfant à conserver !
     # Sinon le traitement dans le callback de Child risque d'être mauvais
 
-    def initialize
-      @duplicated_parents_by_phone_number = Parent.kept.potential_duplicates.group_by(&:phone_number)
-      duplicated_children_name_and_birthdate = Child.kept.potential_duplicates.group_by(&:name_and_birthdate)
-      @duplicated_children_with_parent2, @duplicated_children_without_parent2 = duplicated_children_name_and_birthdate.partition do |_, children|
-        children.any? { |child| child.parent2.present? }
-      end
-    end
-
     def call
+      load_duplicates
       handle_duplicated_parents_by_phone_number
       handle_duplicated_children_without_parent2
       handle_duplicated_children_with_parent2
@@ -22,6 +15,14 @@ class Child
     end
 
     private
+
+    def load_duplicates
+      @duplicated_parents_by_phone_number = Parent.kept.potential_duplicates.group_by(&:phone_number)
+      duplicated_children_name_and_birthdate = Child.kept.potential_duplicates.group_by(&:name_and_birthdate)
+      @duplicated_children_with_parent2, @duplicated_children_without_parent2 = duplicated_children_name_and_birthdate.partition do |_, children|
+        children.any? { |child| child.parent2.present? }
+      end
+    end
 
     def handle_case_three
       @groups = children_groups
