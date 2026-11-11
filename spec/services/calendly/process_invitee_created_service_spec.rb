@@ -164,7 +164,7 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
 
         result = subject.call
 
-        expect(result.errors).to include(hash_including(message: 'Les informations saisies ne correspondent pas au parent du lien'))
+        expect(result.errors).to include(hash_including(message: 'Les informations saisies ne correspondent à aucun parent de la fiche de suivi du lien'))
         expect(ScheduledCall.count).to eq(0)
         expect(ProgramMessageService).not_to have_received(:new)
       end
@@ -200,15 +200,28 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
         expect(ProgramMessageService).to have_received(:new).once
       end
 
-      it "n'utilise pas le type d'événement quand le jeton complet est inconnu" do
+      it "se rabat sur le type d'événement quand le jeton est inconnu ou tronqué" do
         booking_without_tracking(call_session: 1)
-        payload['payload']['tracking']['utm_content'] = 'ffffffffffffffffffffffffffffffff'
+        payload['payload']['tracking']['utm_content'] = parent.security_token.first(10)
 
         result = subject.call
 
-        expect(result.errors).to include(hash_including(message: 'Aucun parent trouvé avec le security_token'))
-        expect(result.scheduled_call).to be_nil
-        expect(ProgramMessageService).not_to have_received(:new)
+        expect(result.errors).to be_empty
+        expect(result.scheduled_call).to have_attributes(parent: parent, call_session: 1)
+      end
+
+      it "enregistre le RDV pour l'autre parent de la fiche quand c'est lui qui réserve" do
+        booking_without_tracking(call_session: 1)
+        other_parent = FactoryBot.create(:parent, first_name: 'Paul', last_name: 'Martin')
+        child.update!(parent2: other_parent)
+        payload['payload']['email'] = 'paul@example.com'
+        payload['payload']['name'] = 'Paul Martin'
+
+        result = subject.call
+
+        expect(result.errors).to be_empty
+        expect(result.scheduled_call).to have_attributes(parent: other_parent, child_support: child_support, call_session: 1)
+        expect(ProgramMessageService).to have_received(:new).with(anything, anything, ["parent.#{other_parent.id}"], anything)
       end
     end
 
@@ -234,19 +247,18 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
 
       it 'returns an error' do
         result = subject.call
-        expect(result.errors).to include(hash_including(message: "Aucun parent trouvé avec le security_token"))
+        expect(result.errors).to include(hash_including(message: 'Aucun parent identifié pour ce RDV'))
       end
     end
 
-    context 'avec un jeton tronqué' do
-      it 'enregistre le RDV pour le seul parent dont le jeton commence par ce morceau' do
+    context 'avec un jeton tronqué et un lien non enregistré' do
+      it "n'identifie personne : le début du jeton ne suffit pas" do
         payload['payload']['tracking']['utm_content'] = parent.security_token.first(6)
 
         result = subject.call
 
-        expect(result.errors).to be_empty
-        expect(result.scheduled_call.parent).to eq(parent)
-        expect(result.scheduled_call.call_session).to eq(0)
+        expect(result.errors).to include(hash_including(message: 'Aucun parent identifié pour ce RDV'))
+        expect(result.scheduled_call).to be_nil
       end
     end
 

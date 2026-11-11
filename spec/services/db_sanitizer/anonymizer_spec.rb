@@ -13,7 +13,8 @@ RSpec.describe DbSanitizer::Anonymizer do
         email: 'cecile.dupont@gmail.com', address: '12 rue des Lilas',
         address_supplement: 'Chez Mme Martin, bât. B',
         city_name: 'Lyon', job: 'Infirmière', aircall_id: 'AC123',
-        security_token: 'realtoken', security_code: 'ab'
+        security_token: 'realtoken', security_code: 'ab',
+        calendly_one_off_event_type_uris: { 'https://api.calendly.com/event_types/REEL' => 1 }
       )
     end
 
@@ -188,6 +189,10 @@ RSpec.describe DbSanitizer::Anonymizer do
 
       it 'replaces security_token' do
         expect(subject.security_token).not_to eq('realtoken')
+      end
+
+      it 'clears calendly_one_off_event_type_uris' do
+        expect(subject.calendly_one_off_event_type_uris).to eq({})
       end
     end
 
