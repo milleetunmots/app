@@ -82,9 +82,9 @@ class Child
         not_waiting_children = Child.where(id: @children.map(&:id)).where.not(group_status: %w[stopped disengaged not_supported]).not_pending_support.sort_by(&:id)
         next if waiting_children.empty?
 
-        @first_parent = Parent.find_by(phone_number: phone_numbers.first)
-        @second_parent = Parent.find_by(phone_number: phone_numbers.second)
         @child = supported_child || (not_waiting_children.empty? ? waiting_children.first : not_waiting_children.first)
+        @first_parent = @child.parent1
+        @second_parent = Parent.find_by(phone_number: (phone_numbers - [@first_parent.phone_number]).first)
         keeping_supporters_child_supports { link_families }
       end
     end
