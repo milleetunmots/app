@@ -11,6 +11,7 @@
 #  calendly_booking_urls               :jsonb
 #  calendly_initial_booking_dates      :jsonb
 #  calendly_last_booking_dates         :jsonb
+#  calendly_one_off_event_type_uris    :jsonb
 #  city_name                           :string           not null
 #  degree                              :string
 #  degree_country_at_registration      :string

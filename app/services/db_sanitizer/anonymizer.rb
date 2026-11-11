@@ -29,7 +29,7 @@ module DbSanitizer
         mid_term_speech: nil,
         is_ambassador_detail: nil
       )
-      Parent.update_all("aircall_datas = '{}', calendly_booking_urls = '{}', calendly_last_booking_dates = '{}'")
+      Parent.update_all("aircall_datas = '{}', calendly_booking_urls = '{}', calendly_last_booking_dates = '{}', calendly_one_off_event_type_uris = '{}'")
 
       # Unique values per record via SQL
       Parent.where.not(email: nil).update_all("email = 'parent_' || id || '@example.com'")

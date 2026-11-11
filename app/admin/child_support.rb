@@ -1541,7 +1541,7 @@ ActiveAdmin.register ChildSupport do
       params['name'] ||= "#{parent.first_name} #{parent.last_name}"
       params['first_name'] ||= parent.first_name
       params['last_name'] ||= parent.last_name
-      params['email'] = params['email'].blank? && parent.email.present? ? parent.email : 'rdv@1001mots.org'
+      params['email'] = params['email'].presence || parent.email.presence || 'rdv@1001mots.org'
       uri.query = URI.encode_www_form(params).gsub('+', '%20')
       uri.to_s
     end

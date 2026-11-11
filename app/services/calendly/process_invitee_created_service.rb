@@ -21,14 +21,12 @@ module Calendly
     end
 
     def call
-      extract_tracking_info
-      return self if @errors.any?
-
-      find_parent
+      identify_parent
       return self if @errors.any?
 
       find_child_support
       fetch_event_details
+      extract_event_type_uri
 
       find_admin_user
       extract_invitee_comment
@@ -47,36 +45,11 @@ module Calendly
 
     private
 
-    def extract_tracking_info
-      tracking = @invitee_payload['tracking'] || {}
-      @security_token = tracking['utm_content']&.gsub(/[^[:alnum:]]/, '')
-      @utm_campaign = tracking['utm_campaign']
-      @call_session = extract_call_session(@utm_campaign)
-
-      return if @security_token.present?
-
-      @errors << {
-        message: 'Le security_token (utm_content) est manquant dans le payload',
-        tracking: tracking
-      }
-    end
-
-    def extract_call_session(utm_campaign)
-      return nil if utm_campaign.blank?
-
-      match = utm_campaign.match(/call(\d+)/)
-      match[1].to_i if match
-    end
-
-    def find_parent
-      @parent = Parent.find_by(security_token: @security_token)
-
-      return if @parent
-
-      @errors << {
-        message: 'Aucun parent trouvé avec le security_token',
-        security_token: @security_token
-      }
+    def identify_parent
+      service = Parent::IdentifyCalendlyInviteeService.new(invitee_payload: @invitee_payload).call
+      @errors.concat(service.errors)
+      @parent = service.parent
+      @call_session = service.call_session
     end
 
     def find_child_support
@@ -93,24 +66,12 @@ module Calendly
     end
 
     def find_admin_user
-      # @event_type_uri = @event_data&.dig(:event_type_uri)
-
-      # if @event_type_uri
-      #   @admin_user = AdminUser.find_by(
-      #     'calendly_event_type_uris @> ?',
-      #     { "call#{@call_session}" => @event_type_uri }.to_json
-      #   )
-      #   @admin_user ||= find_admin_user_by_event_type_uri(@event_type_uri)
-      # end
-
       @admin_user = @child_support&.supporter
     end
 
-    # def find_admin_user_by_event_type_uri"(event_type_uri)
-    #   AdminUser.where.not(calendly_event_type_uris: nil).find do |admin_user|
-    #     admin_user.calendly_event_type_uris&.value?(event_type_uri)
-    #   end
-    # end
+    def extract_event_type_uri
+      @event_type_uri = @invitee_payload.dig('scheduled_event', 'event_type') || @event_data&.dig(:event_type_uri)
+    end
 
     def fetch_event_details
       event_uri = @invitee_payload['event']
