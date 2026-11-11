@@ -79,7 +79,8 @@ class BlockedSendAttempt < ApplicationRecord
     end
     return self unless reserve_for_relaunch!
 
-    service = replay_reserved_attempt
+    replayer = SendAttemptReplayer.new(self)
+    service = replay_reserved_attempt(replayer)
     if service.errors.any? # échec pour une autre raison : statut inchangé
       # La réservation est levée pour que l'envoi reste relançable ou archivable.
       update!(force_send: false)
@@ -91,7 +92,8 @@ class BlockedSendAttempt < ApplicationRecord
     # Après le replay seulement : si l'envoi avait échoué, la tentative reste à
     # traiter et la whitelist ne doit pas en garder la trace.
     @whitelisted_values = DetectedValuesWhitelister.new([self] + siblings).call
-    resolve_task!(:relaunched, admin_user)
+    call_goals_service = save_call_goals!(replayer.message)
+    resolve_task!(:relaunched, admin_user, call_goals_not_saved: call_goals_service&.skipped?)
     service
   end
 
@@ -141,8 +143,8 @@ class BlockedSendAttempt < ApplicationRecord
 
   # Une exception ne doit pas laisser la tentative réservée : elle ne serait plus
   # ni relançable ni archivable.
-  def replay_reserved_attempt
-    SendAttemptReplayer.new(self).call
+  def replay_reserved_attempt(replayer)
+    replayer.call
   rescue StandardError
     update!(force_send: false)
     raise
@@ -150,9 +152,27 @@ class BlockedSendAttempt < ApplicationRecord
 
   # Prévient l'auteur. Le sort de l'envoi est déjà acté : un échec de la tâche
   # est rapporté, jamais remonté.
-  def resolve_task!(outcome, admin_user)
-    service = ResolveTaskService.new(attempt: self, outcome: outcome, admin_user: admin_user).call
+  def resolve_task!(outcome, admin_user, call_goals_not_saved: false)
+    service = ResolveTaskService.new(attempt: self, outcome: outcome, admin_user: admin_user, call_goals_not_saved: call_goals_not_saved).call
     Rollbar.error('BlockedSendAttempt::ResolveTaskService', errors: service.errors) if service.errors.any?
+  end
+
+  # Une PM bloquée n'a pas été écrite dans la fiche de suivi : on l'écrit une fois
+  # partie, sans écraser celle enregistrée entre-temps. Un échec est rapporté,
+  # jamais remonté. nil hors petite mission.
+  def save_call_goals!(message)
+    call_goals = replay_params['call_goals']
+    return if call_goals.blank?
+
+    service = ChildSupport::SaveCallGoalsService.new(
+      child_support: ChildSupport.find_by(id: call_goals['child_support_id']),
+      template: call_goals['template'],
+      message: message,
+      call_goal: call_goals['call_goal'],
+      overwrite: false
+    ).call
+    Rollbar.error('ChildSupport::SaveCallGoalsService', errors: service.errors, blocked_send_attempt_id: id) if service.errors.any?
+    service
   end
 
   # Un même message peut être tracé deux fois (une URL ET un mot-clé détectés) :
