@@ -128,6 +128,38 @@ RSpec.describe Child::CreateService do
       end
     end
 
+    context "quand seul le sexe du parent 2 est renseigné" do
+      let(:parent2_attributes) { { first_name: "", last_name: "", phone_number: "", gender: "m" } }
+
+      it "inscrit l'enfant avec un seul parent" do
+        child = subject.call.child
+
+        expect(child.errors).to be_empty
+        expect(child).to be_persisted
+        expect(child.parent2).to be_nil
+        expect(child.should_contact_parent2).to be false
+      end
+    end
+
+    context "quand le parent 2 est commencé sans sexe" do
+      let(:parent2_attributes) { { first_name: "Karim", last_name: "Benali", phone_number: "" } }
+
+      it "ne reprend pas le sexe du parent 1" do
+        child = subject.call.child
+
+        expect(child).not_to be_persisted
+        expect(child.parent1.gender).to eq("f")
+        expect(child.parent2.gender).to be_blank
+      end
+
+      it "reprend l'adresse du parent 1" do
+        child = subject.call.child
+
+        expect(child.parent2.postal_code).to eq("75020")
+        expect(child.parent2.address).to eq(parent1_attributes[:address])
+      end
+    end
+
     context "when there are siblings" do
       let(:first_sibling_birthdate) { Faker::Date.between(from: Child.min_birthdate.tomorrow, to: Child.max_birthdate.yesterday) }
       let(:second_sibling_birthdate) { Faker::Date.between(from: Child.min_birthdate.tomorrow, to: Child.max_birthdate.yesterday) }

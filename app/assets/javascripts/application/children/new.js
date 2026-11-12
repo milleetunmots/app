@@ -446,6 +446,7 @@
             abbr.remove();
           }
         });
+        $('input[name="child[parent2_attributes][gender]"]').prop('checked', false);
       }
     });
 

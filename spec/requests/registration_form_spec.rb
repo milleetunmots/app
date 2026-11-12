@@ -34,6 +34,21 @@ RSpec.describe "Formulaire d'inscription", type: :request do
     allow_any_instance_of(SpotHit::SendSmsService).to receive(:call).and_return(SpotHit::SendSmsService.new(nil, nil, nil))
   end
 
+  describe "parent 2" do
+    it "ignore un parent 2 dont seul le sexe est coché" do
+      travel_to Date.new(2026, 11, 12)
+      source = FactoryBot.create(:source, channel: "pmi", department: 93)
+      params = registration_params(source: source, birthdate: Date.new(2026, 2, 3))
+      params[:child][:parent2_attributes] = { gender: "m", first_name: "", last_name: "", phone_number: "" }
+
+      post "/inscription3", params: params
+
+      child = Child.find_by(first_name: "Lina")
+      expect(child).to be_present
+      expect(child.parent2).to be_nil
+    end
+  end
+
   describe "bornes de la date de naissance" do
     context "sur le formulaire PMI" do
       [
