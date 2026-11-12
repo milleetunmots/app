@@ -35,9 +35,7 @@ class ChildrenController < ApplicationController
     @child = service.child
 
     if @child.errors.any?
-      flash.now[:error] = "L'inscription de l'enfant a échoué"
       build_child_for_form
-      @child.build_children_source(source_id: children_source_params&.dig(:source_id), details: children_source_params&.dig(:details), registration_department: children_source_params&.dig(:registration_department), professional_email: children_source_params&.dig(:professional_email))
       render action: :new
     elsif current_registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].present? && ENV['CAF_SUBSCRIPTION'] == 'true'
       redirect_to created_child_path(caf_subscripted_child_id: @child.id)

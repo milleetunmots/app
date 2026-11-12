@@ -163,7 +163,8 @@ class Child < ApplicationRecord
   validates :birthdate, presence: true
   validates :birthdate, date: {
     after: proc { min_birthdate },
-    before: proc { max_birthdate }
+    before: proc { max_birthdate },
+    allow_nil: true
   }, on: :create
   validates :security_code, presence: true
   validates :group_status, inclusion: { in: GROUP_STATUS }

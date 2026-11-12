@@ -36,6 +36,19 @@
           </div>
         </div>
 
+        <% if f.object.errors.any? %>
+          <div class="row justify-content-sm-center accepted-fields">
+            <div class="col-12">
+              <div class="alert alert-danger" id="form-errors" role="alert">
+                <p class="mb-0">Le formulaire contient des erreurs, elles sont indiquées en rouge.</p>
+                <% f.object.errors[:base].each do |message| %>
+                  <p class="mb-0 mt-2"><%= message %></p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
         <%= f.simple_fields_for :children_source do |children_source_form| %>
           <div class="row justify-content-sm-center accepted-fields">
             <% if @source_collection == :caf %>
@@ -101,14 +114,6 @@
             </div>
           <% end %>
         <% end %>
-
-        <% if f.object.errors[:base].any? %>
-          <div class="row justify-content-sm-center accepted-fields">
-            <div class="col-sm-8">
-              <%= f.error_notification message: f.object.errors[:base].join('<br/>') %>
-            </div>
-          </div>
-        <% end  %>
 
         <div class="row accepted-fields">
           <div class="col-sm-4">
@@ -216,8 +221,12 @@
                     <%= label_tag :registration_confirmation_email, class: "label" do %>
                       <%= @registration_confirmation_email_label.html_safe %><abbr title="required"> *</abbr>
                     <% end %>
-                    <%= email_field_tag :registration_confirmation_email, @registration_confirmation_email_value, class: 'form-control', placeholder: t('registration_confirmation_email.email_placeholder'), required: true %>
+                    <% email_errors = @child.children_source&.errors&.[](:professional_email) || [] %>
+                    <%= email_field_tag :registration_confirmation_email, @registration_confirmation_email_value, class: ['form-control', ('is-invalid' if email_errors.any?)], placeholder: t('registration_confirmation_email.email_placeholder'), required: true %>
                     <small id="registration_confirmation_email_warning" class="form-text text-muted" style="display:none;" data-blank-message="<%= t('registration_confirmation_email.email_blank_warning') %>" data-invalid-message="<%= t('registration_confirmation_email.email_format_warning') %>"></small>
+                    <% email_errors.each do |message| %>
+                      <div class="invalid-feedback"><%= message %></div>
+                    <% end %>
                   </div>
                 </div>
               </div>
