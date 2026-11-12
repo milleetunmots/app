@@ -1,0 +1,132 @@
+@import variables
+
+=charter-title($size)
+  font-family: $charter-title-font, $text-font, sans-serif
+  font-weight: 700
+  font-size: $size
+  line-height: 1.15
+
+// Même charte que le formulaire : en-tête beige, zone marine jusqu'en bas de l'écran.
+.registration-confirmation
+  display: flex
+  flex-direction: column
+  min-height: 100vh
+  background: $beige
+  color: $navy
+  font-family: $text-font
+  overflow-x: hidden
+  text-align: center
+
+  .registration-confirmation-header
+    padding-top: 24px
+
+  .registration-confirmation-top
+    display: flex
+    justify-content: space-between
+    align-items: center
+
+    #mots-logo
+      width: 140px
+      height: auto
+
+    .back-btn
+      font-weight: 700
+      color: $navy
+      &:hover
+        text-decoration: none
+        color: $charter-blue
+
+  h1
+    font-family: $text-font
+    font-weight: 700
+    font-size: 40px
+    line-height: 1.15
+    color: $navy
+    margin: 32px auto 0
+    max-width: 760px
+
+  .registration-confirmation-body
+    position: relative
+    flex: 1
+    margin-top: 90px
+    padding: 30px 0 80px
+    background: $navy
+
+    &::before
+      content: ''
+      position: absolute
+      left: 0
+      right: 0
+      top: -60px
+      height: 120px
+      background: $navy
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0
+
+    > *
+      position: relative
+
+  .registration-confirmation-card
+    max-width: 760px
+    margin: 0 auto
+    padding: 32px
+    background: $beige
+    border-radius: 16px
+    font-size: 18px
+    line-height: 1.5
+
+    p
+      margin-bottom: 0
+
+    a
+      color: $charter-blue
+      font-weight: 700
+
+  .registration-confirmation-again
+    +charter-title(21px)
+    display: inline-block
+    margin-top: 24px
+    padding: 12px 40px
+    background: $charter-yellow
+    border: none
+    border-radius: 999px
+    color: $navy !important
+    &:hover, &:focus
+      background: $navy
+      color: $beige !important
+
+  #helloasso-widget
+    display: block
+    width: 100%
+    max-width: 760px
+    height: 70vh
+    margin: 32px auto 0
+    border: none
+    border-radius: 16px
+    background: $beige
+
+  @media (max-width: 575px)
+    #mots-logo
+      width: 110px
+
+    h1
+      font-size: 28px
+      margin-top: 24px
+
+    .registration-confirmation-body
+      margin-top: 50px
+      padding-top: 20px
+
+      &::before
+        top: -30px
+        height: 60px
+
+    .registration-confirmation-card
+      padding: 20px
+      font-size: 16px
+
+body:has(.registration-confirmation) footer
+  background: $navy
+  padding: 0 16px 12px
+
+  a
+    color: $beige !important

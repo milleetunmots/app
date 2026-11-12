@@ -1,5 +1,4 @@
-<div id="update-success">
-  <div class="text-center" id="update-success-content">
+<%= render layout: 'children_support_modules/confirmation_page' do %>
     <%= render 'children_support_modules/success',
       max_remaining_module_count: @max_remaining_module_count,
       remaining_module_count: @remaining_module_count, 
@@ -12,8 +11,8 @@
       <% else %>
         <div class="row d-flex align-items-center justify-content-center" id="if-third-choice">
           <div class="col-md-7 col-12">
-            <div id="mid-term-card" class="card border-primary text-left">
-              <div class="card-header bg-primary text-white">
+            <div id="mid-term-card" class="card module-confirmation-survey text-left">
+              <div class="card-header">
                 <h5> Vous avez aimé ce qu’on vous envoie ?</h5>
                 <h5> Dites-le nous en répondant à ces trois questions :</h5>
               </div>
@@ -82,5 +81,4 @@
         </div>
       <% end %>
     <% end %>
-  </div>
-</div>
+<% end %>

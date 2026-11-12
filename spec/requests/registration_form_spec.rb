@@ -103,6 +103,31 @@ RSpec.describe "Formulaire d'inscription", type: :request do
     end
   end
 
+  describe "page de confirmation" do
+    it "affiche le logo, le titre, le message dans la zone marine et le bouton pour inscrire un autre enfant" do
+      get "/inscription3"
+
+      get "/inscrit"
+      page = Capybara.string(response.body)
+
+      expect(page.find(".registration-confirmation #mots-logo")[:src]).to include("registration/logo-1001mots")
+      expect(page.find(".registration-confirmation h1")).to have_text("Inscription effectuée avec succès")
+      expect(page.find(".registration-confirmation-body .registration-confirmation-card")).to have_text(I18n.t("inscription_success.pro"))
+      expect(page.find(".registration-confirmation-body")).to have_link("Inscrire un autre enfant", href: "/inscription3")
+      expect(page).to have_link("Retour", href: "/inscription3")
+    end
+
+    it "garde le widget de don dans la zone marine pour le formulaire parent" do
+      get "/inscription1"
+
+      get "/inscrit"
+      page = Capybara.string(response.body)
+
+      expect(page).to have_css(".registration-confirmation-body iframe#helloasso-widget")
+      expect(page).not_to have_link("Inscrire un autre enfant")
+    end
+  end
+
   describe "visuels du bandeau" do
     {
       "/inscriptioncaf" => ["eymen", "Eymen, 10 mois, promo 2025", "caf-logo"],

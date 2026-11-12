@@ -1,72 +1,53 @@
-<div id="update">
-
+<div id="update" class="module-selection">
   <div class="container" id="update-content">
+    <div id="logos">
+      <%= image_tag("registration/logo-1001mots.png", id: "mots-logo", alt: "1001mots") %>
+    </div>
 
     <%= simple_form_for @children_support_module, url: @action_path do |f| %>
+      <%= f.error_notification message: "Une erreur est survenue, veuillez transmettre votre choix à votre accompagnante, nous sommes désolé pour la gêne occasionnée." %>
 
-    <div class="row justify-content-sm-center accepted-fields">
-      <div class="col-sm-8">
-        <%= f.error_notification message: "Une erreur est survenue, veuillez transmettre votre choix à votre accompagnante, nous sommes désolé pour la gêne occasionnée." %>
-      </div>
-    </div>
-
-    <% if @children_support_module.support_module_id%>
-    <div style="text-align: center">
-      <h4>Mauvaise nouvelle : il est trop tard pour choisir un thème mais…</h4>
-      <h4>Bonne nouvelle : on en a choisi un pour vous !</h4>
-      <div style="display: flex; flex-flow: row wrap; justify-content: center; align-items: stretch; align-content: stretch; gap: 2rem ">
-        <div class="card" style="width: 15rem; height: 20rem">
-          <div style="height: 75%">
-            <% if @support_module_selected.picture.attached? %>
-              <%= @support_module_selected.decorate.picture_tag(class: "card-img-top", style: 'width:100%;height:100%;') %>
-            <% else %>
-              <%= image_tag("child-picture.jpg", class: "card-img-top", style: 'width:100%;height:100%;') %>
-            <% end %>
-            </div>
-            <div class="card-body" style="height: 25%; display: flex; flex-flow: row nowrap; justify-content: flex-start; align-items: center; align-content: center; gap: 10px">
-              <%= @support_module_selected.name %>
-            </div>
+      <% if @children_support_module.support_module_id %>
+        <h1>Mauvaise nouvelle : il est trop tard pour choisir un thème mais…</h1>
+        <p class="module-selection-lead">Bonne nouvelle : on en a choisi un pour vous !</p>
+        <div class="module-selection-body">
+        <div class="module-grid module-grid--single">
+          <div class="module-card module-card--chosen">
+            <%= render 'module_picture', support_module: @support_module_selected.decorate %>
+            <span class="module-card-choice">
+              <span class="module-card-name"><%= @support_module_selected.name %></span>
+            </span>
           </div>
         </div>
-        <br>
-      <h4>Vous recevrez le livre et les SMS de ce thème d’ici 2 ou 3 semaines. A bientôt !</h4>
-    </div>
-    <%else%>
-      <h1>Sur quel thème voulez-vous recevoir des conseils (et un livre) ?</h1>
-      <div style="display: flex; flex-flow: row wrap; justify-content: center; align-items: stretch; align-content: stretch; gap: 2rem ">
-        <% @support_modules.each do |support_module| %>
-          <div class="card" style="width: 15rem; height: 20rem">
-            <div style="height: 75%">
-              <% if support_module.picture.attached? %>
-                <%= support_module.picture_tag(class: "card-img-top", style: 'width:100%;height:100%;') %>
-              <% else %>
-                <%= image_tag("child-picture.jpg", class: "card-img-top", style: 'width:100%;height:100%;') %>
-              <% end %>
-            </div>
-            <div class="card-body" style="height: 25%; display: flex; flex-flow: row nowrap; justify-content: flex-start; align-items: center; align-content: center; gap: 10px">
-              <input type="radio" id=<%= support_module.id %> name="children_support_module[support_module_id]" value=<%= support_module.id %>>
-              <label style="margin: 0px" for=<%= support_module.id %>><%= support_module.name %></label><br>
-            </div>
-          </div>
-        <% end %>
-        <div class="card" style="width: 15rem; height: 20rem">
-          <div style="height: 75%">
-            <%= image_tag("child-picture.jpg", class:"card-img-top", style: 'width:100%;height:100%;')%>
-          </div>
-          <div class="card-body" style="height: 25%; display: flex; flex-flow: row nowrap; justify-content: flex-start; align-items: center; align-content: center; gap: 10px">
-            <input type="radio" id="1001mots_choice" name="children_support_module[support_module_id]" value="">
-            <label for="1001mots_choice">Je laisse 1001mots choisir pour moi</label><br>
-          </div>
+        <p class="module-selection-lead">Vous recevrez le livre et les SMS de ce thème d’ici 2 ou 3 semaines. A bientôt !</p>
         </div>
-      </div>
+      <% else %>
+        <h1>Sur quel thème voulez-vous recevoir des conseils (et un livre) ?</h1>
+        <div class="module-selection-body">
+        <div class="module-grid">
+          <% @support_modules.each do |support_module| %>
+            <label class="module-card">
+              <%= render 'module_picture', support_module: support_module %>
+              <span class="module-card-choice">
+                <input type="radio" name="children_support_module[support_module_id]" value="<%= support_module.id %>" required>
+                <span class="module-card-name"><%= support_module.name %></span>
+              </span>
+            </label>
+          <% end %>
+          <label class="module-card">
+            <%= render 'module_picture', support_module: nil %>
+            <span class="module-card-choice">
+              <input type="radio" name="children_support_module[support_module_id]" value="" required>
+              <span class="module-card-name">Je laisse 1001mots choisir pour moi</span>
+            </span>
+          </label>
+        </div>
 
-      <div style="display: flex; justify-content: center; margin-top: 2rem" >
-        <button type="submit" class="btn-primary btn-lg" id="parent-form-submit" >
-          Choisir
-        </button>
-      </div>
-    </div>
+        <div class="module-selection-submit">
+          <button type="submit" class="btn btn-lg" id="parent-form-submit">Choisir</button>
+        </div>
+        </div>
+      <% end %>
     <% end %>
-  <% end %>
   </div>
 </div>

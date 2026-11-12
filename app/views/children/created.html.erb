@@ -7,32 +7,32 @@
       <div data-tf-live="01JRD829S4W2DG2HP78JKWF431"
         data-tf-hidden="child_id=<%= @child_id %>,ccn=<%= @ccn %>,ccm=<%= @ccm %>,pfn=<%= @pfn %>,pln=<%= @pln %>"></div><script src="//embed.typeform.com/next/embed.js"></script>
     <% else %>
-      <div id="inscription-success-content-top">
-        <% if @with_parent_no_target %>
-          <h1>Votre demande va être traitée</h1>
-        <% else %>
-          <h1>Inscription effectuée avec succès</h1>
-        <% end %>
-        <% unless @with_parent_no_target %>
-          <%= link_to @new_link, class: 'back-btn' do %>
-            <i>←</i>Retour
-          <% end %>
-        <% end %>
-        <p>
-          <%== @message %>
-        </p>
-        <% if @again %>
-          <br/>
-          <%= link_to @new_link, class: 'btn btn-primary' do %>
-            Inscrire un autre enfant
-          <% end %>
-        <% end %>
-      </div>
-      <% if @widget %>
-        <div id="inscription-success-content-bottom">
-          <iframe id="helloasso-widget" allowtransparency="true" src="https://www.helloasso.com/associations/1001mots/formulaires/2/widget"></iframe>
+      <div class="registration-confirmation">
+        <div class="container registration-confirmation-header">
+          <div class="registration-confirmation-top">
+            <%= image_tag("registration/logo-1001mots.png", id: "mots-logo", alt: "1001mots") %>
+            <% unless @with_parent_no_target %>
+              <%= link_to @new_link, class: 'back-btn' do %>
+                <span aria-hidden="true">←</span> Retour
+              <% end %>
+            <% end %>
+          </div>
+          <h1><%= @with_parent_no_target ? 'Votre demande va être traitée' : 'Inscription effectuée avec succès' %></h1>
         </div>
-      <% end %>
+        <div class="registration-confirmation-body">
+          <div class="container">
+            <div class="registration-confirmation-card">
+              <p><%== @message %></p>
+              <% if @again %>
+                <%= link_to 'Inscrire un autre enfant', @new_link, class: 'btn registration-confirmation-again' %>
+              <% end %>
+            </div>
+            <% if @widget %>
+              <iframe id="helloasso-widget" allowtransparency="true" src="https://www.helloasso.com/associations/1001mots/formulaires/2/widget"></iframe>
+            <% end %>
+          </div>
+        </div>
+      </div>
     <% end %>
   </div>
 </div>

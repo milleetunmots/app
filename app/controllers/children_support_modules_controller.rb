@@ -34,7 +34,7 @@ class ChildrenSupportModulesController < ApplicationController
         )
       end
     else
-      @support_modules = @children_support_module.available_support_modules
+      @support_modules = @children_support_module.available_support_modules.map(&:decorate)
       @action_path = children_support_module_path(@children_support_module, sc: @children_support_module.parent.security_code)
       render action: :edit
     end
