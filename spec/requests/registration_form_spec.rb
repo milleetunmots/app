@@ -103,6 +103,94 @@ RSpec.describe "Formulaire d'inscription", type: :request do
     end
   end
 
+  describe "wording" do
+    parent_title = "Inscrivez-vous pour recevoir des conseils et des livres gratuits pour votre bébé"
+    pro_title = "Inscrivez des familles à l'accompagnement à distance 1001mots"
+
+    {
+      "/inscriptioncaf" => [parent_title, "Inscription réservée aux parents ayant reçu un email ou SMS de leur CAF."],
+      "/inscriptionmsa" => [parent_title, "Inscription réservée aux parents ayant reçu un email ou SMS de leur MSA."],
+      "/inscription4" => [parent_title, nil],
+      "/inscription3" => [pro_title, nil],
+      "/inscriptionpartenaires" => [pro_title, nil]
+    }.each do |path, (title, reserved_line)|
+      it "affiche le titre et la mention d'inscription réservée attendus sur #{path}" do
+        get path
+        page = Capybara.string(response.body)
+
+        expect(page.find("h1").text).to start_with(title)
+        if reserved_line
+          expect(page.find("#description")).to have_text(reserved_line)
+        else
+          expect(page.find("#description")).not_to have_text("Inscription réservée")
+        end
+      end
+    end
+
+    ["/inscriptioncaf", "/inscription4", "/inscriptionmsa"].each do |path|
+      it "affiche le nouveau bandeau parent sur #{path}" do
+        get path
+        description = Capybara.string(response.body).find("#description")
+
+        expect(description).to have_text("Pendant 1 an, vous allez recevoir gratuitement un programme adapté à l'âge de votre bébé (entre 0 et 30 mois)")
+        expect(description).to have_text("4 appels de spécialistes de la petite enfance, pour discuter et poser vos questions")
+        expect(description).to have_text("chaque semaine, des idées d'activités et des conseils par SMS")
+        expect(description).to have_text("6 livres pour votre enfant, envoyés dans votre boîte aux lettres")
+      end
+    end
+
+    ["/inscription3", "/inscriptionpartenaires"].each do |path|
+      it "affiche le bandeau PMI sur #{path}" do
+        get path
+        description = Capybara.string(response.body).find("#description")
+
+        expect(description).to have_text("Programme d'un an, adapté à l'âge de l'enfant (entre 0 et 30 mois). Gratuit et sans engagement pour les familles.")
+        expect(description).to have_text("Conseils par SMS 3 fois par semaine.")
+        expect(description).to have_text("6 livres adaptés à l'âge de l'enfant et aux thèmes choisis par les parents.")
+        expect(description).to have_text("4 appels avec une accompagnante")
+        expect(description).not_to have_text("conseillé pour des enfants entre 0 et 3 ans")
+      end
+    end
+
+    {
+      "/inscription3" => true,
+      "/inscriptionpartenaires" => true,
+      "/inscriptioncaf" => false,
+      "/inscription4" => false,
+      "/inscriptionmsa" => false
+    }.each do |path, with_contact|
+      it "#{with_contact ? 'affiche' : "n'affiche pas"} la phrase de contact sur #{path}" do
+        get path
+        page = Capybara.string(response.body)
+
+        contact = "Si vous rencontrez des difficultés pour remplir le formulaire, vous pouvez nous écrire à pmi@1001mots.org"
+        if with_contact
+          expect(page).to have_text(contact)
+          expect(page).to have_link("pmi@1001mots.org", href: "mailto:pmi@1001mots.org")
+        else
+          expect(page).not_to have_text(contact)
+        end
+      end
+    end
+
+    it "nomme les téléphones « Téléphone portable » sans toucher le libellé de l'admin" do
+      get "/inscription3"
+      page = Capybara.string(response.body)
+
+      expect(page.find("label[for='child_parent1_attributes_phone_number']").text).to start_with("Téléphone portable")
+      expect(page.find("label[for='child_parent2_attributes_phone_number']").text).to start_with("Téléphone portable")
+      expect(Parent.human_attribute_name(:phone_number)).to eq("Téléphone")
+    end
+
+    it "garde les titres « Enfant(s) » et « Parent 2 (optionnel) »" do
+      get "/inscriptioncaf"
+      page = Capybara.string(response.body)
+
+      expect(page).to have_css("h2", text: "Enfant(s)")
+      expect(page).to have_css("h3", text: "Parent 2 (optionnel)")
+    end
+  end
+
   describe "email professionnel" do
     def post_pmi_with_email(want:, email:)
       source = FactoryBot.create(:source, channel: "pmi", department: 93)

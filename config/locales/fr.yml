@@ -45,11 +45,11 @@ fr:
   form_received_from: "J'ai reçu ce formulaire par&nbsp;:"
   inscription_title:
     form1: "Découvrez nos idées pour éveiller votre enfant"
-    form2: "Recevez des conseils et des livres gratuits pour votre bébé"
+    form2: "Inscrivez-vous pour recevoir des conseils et des livres gratuits pour votre bébé&nbsp;!"
     form3: "Inscrivez des familles à l'accompagnement à distance 1001mots&nbsp;!"
-    form4: "Recevez des conseils et des livres pour votre bébé"
+    form4: "Inscrivez-vous pour recevoir des conseils et des livres gratuits pour votre bébé&nbsp;!"
     form5: "Inscrivez des familles à l'accompagnement à distance 1001mots&nbsp;!"
-    form6: "Recevez des conseils et des livres gratuits pour votre bébé"
+    form6: "Inscrivez-vous pour recevoir des conseils et des livres gratuits pour votre bébé&nbsp;!"
   inscription_banner:
     form1: "En raison d'un afflux de demandes, seuls les parents recommandés par nos partenaires ou par des parents déjà accompagnés par 1001mots peuvent bénéficier d'un accompagnement renforcé. Si c'est votre cas, vous pouvez utiliser le lien URL reçu.<br>
     <br>Si vous n’êtes pas concerné(e) par la situation ci-dessus et souhaitez découvrir 1001mots, vous pouvez :<br>
@@ -58,35 +58,39 @@ fr:
       <li>- nous faire un don <a href='https://www.helloasso.com/associations/1001mots/formulaires/1'>ici</a></li>
       <li>- vous inscrire à <a href='https://www.facebook.com/pg/1001mots.org/posts/' target='_blank'>notre page Facebook</a>, où nos spécialistes proposent régulièrement du contenu pour les parents</li>
     </ul>"
-    form2:
-      <ul style="list-style-type:none; padding:0; line-height:1.5;">
-        <li style="margin-bottom:8px;">🗓️ Programme d'<b>un an</b>, adapté à l’âge de votre bébé (entre 0 et 30 mois)</li>
-        <li style="margin-bottom:8px;">🎁 <b>Gratuit</b> et sans engagement</li>
-        <li style="margin-bottom:8px;">✨ Inscription réservée aux parents ayant reçu un email ou SMS de leur <b>CAF</b></li>
+    form2: |
+      <p>Pendant 1 an, vous allez recevoir <b>gratuitement</b> un programme adapté à l'âge de votre bébé (entre 0 et 30 mois)&nbsp;:</p>
+      <ul>
+        <li>4 appels de spécialistes de la petite enfance, pour discuter et poser vos questions</li>
+        <li>chaque semaine, des idées d'activités et des conseils par SMS</li>
+        <li>6 livres pour votre enfant, envoyés dans votre boîte aux lettres</li>
       </ul>
-    form3:
-      <ul style="list-style-type:none; padding:0; line-height:1.5;">
-        <li style="margin-bottom:8px;">🗓️ Programme d'<b>un an</b>, adapté à l'âge de l'enfant (entre 0 et 30 mois)</li>
-        <li style="margin-bottom:8px;">🎁 <b>Gratuit</b> et sans engagement pour les familles</li>
-        <li style="margin-bottom:8px;">💡 Des <b>idées d'activités</b> et des <b>conseils</b> par <b>SMS</b> 3 fois par semaine</li>
-        <li style="margin-bottom:8px;">📚 <b>6 livres</b> adaptés à l'âge de l'enfant et aux thèmes choisis par les parents</li>
-        <li style="margin-bottom:8px;">📞 <b>4 appels</b> avec une accompagnante (spécialiste de la petite enfance) pour écouter les parents et leur donner de nouvelles idées pour parler toujours plus avec leur bébé</li>
+      <p>Inscription réservée aux parents ayant reçu un email ou SMS de leur <b>CAF</b>.</p>
+    form3: &pro_banner |
+      <p>Programme d'un an, adapté à l'âge de l'enfant (entre 0 et 30 mois). Gratuit et sans engagement pour les familles.</p>
+      <ul>
+        <li><b>Conseils par SMS</b> 3 fois par semaine.</li>
+        <li><b>6 livres</b> adaptés à l'âge de l'enfant et aux thèmes choisis par les parents.</li>
+        <li><b>4 appels</b> avec une accompagnante (spécialiste de la petite enfance) pour écouter les parents et leur donner de nouvelles idées pour parler toujours plus avec leur bébé.</li>
       </ul>
-    form4:
-      <ul style="list-style-type:none; padding:0; line-height:1.5;">
-        <li style="margin-bottom:8px;">🗓️ Programme d'<b>un an</b>, adapté à l'âge de votre bébé (entre 0 et 30 mois)</li>
-        <li style="margin-bottom:8px;">🎁 <b>Gratuit</b> et sans engagement</li>
-        <li style="margin-bottom:8px;">💡 Des <b>idées de jeux</b> et des conseils par SMS, 3 fois par semaine</li>
-        <li style="margin-bottom:8px;">📞 Des <b>appels</b> d'une <b>spécialiste de la petite enfance</b>, pour discuter et poser vos questions</li>
-        <li style="margin-bottom:8px;">📚 <b>6 livres</b> pour votre enfant, envoyés dans votre boîte aux lettres.</li>
+    form4: |
+      <p>Pendant 1 an, vous allez recevoir <b>gratuitement</b> un programme adapté à l'âge de votre bébé (entre 0 et 30 mois)&nbsp;:</p>
+      <ul>
+        <li>4 appels de spécialistes de la petite enfance, pour discuter et poser vos questions</li>
+        <li>chaque semaine, des idées d'activités et des conseils par SMS</li>
+        <li>6 livres pour votre enfant, envoyés dans votre boîte aux lettres</li>
       </ul>
-    form6:
-      <ul style="list-style-type:none; padding:0; line-height:1.5;">
-      <li style="margin-bottom:8px;">🗓️ Programme d'<b>un an</b>, adapté à l’âge de votre bébé (entre 0 et 30 mois)</li>
-      <li style="margin-bottom:8px;">🎁 <b>Gratuit</b> et sans engagement</li>
-      <li style="margin-bottom:8px;">✨ Inscription réservée aux parents ayant reçu un email ou SMS de leur <b>MSA</b></li>
+    form5: *pro_banner
+    form6: |
+      <p>Pendant 1 an, vous allez recevoir <b>gratuitement</b> un programme adapté à l'âge de votre bébé (entre 0 et 30 mois)&nbsp;:</p>
+      <ul>
+        <li>4 appels de spécialistes de la petite enfance, pour discuter et poser vos questions</li>
+        <li>chaque semaine, des idées d'activités et des conseils par SMS</li>
+        <li>6 livres pour votre enfant, envoyés dans votre boîte aux lettres</li>
       </ul>
-    form5: "<b>L’accompagnement 1001mots est conseillé pour des enfants entre 0 et 3 ans.</b> Pour faciliter l’accompagnement, nous avons besoin des coordonnées d’au moins un parent.<br/><br/>La famille recevra gratuitement&nbsp;:<ul><li>3 SMS par semaine avec des idées de jeux et des conseils pour éveiller le langage de l'enfant</li><li>des livres adaptés à l’âge de l’enfant</li><li>des appels par des spécialistes de l'éveil langagier pour prendre de ses nouvelles et répondre à vos questions</li></ul><b>L'accompagnement 1001mots est gratuit et sans engagement&nbsp;:&nbsp;</b>la famille peut choisir d'arrêter à n'importe quel moment."
+      <p>Inscription réservée aux parents ayant reçu un email ou SMS de leur <b>MSA</b>.</p>
+  inscription_phone_label: "Téléphone portable"
+  inscription_contact_html: "Si vous rencontrez des difficultés pour remplir le formulaire, vous pouvez nous écrire à %{email}"
   registration_confirmation_email:
     checkbox_label: "Je souhaite recevoir une confirmation de l'inscription par email"
     email_label: "Mon email professionnel&nbsp;"

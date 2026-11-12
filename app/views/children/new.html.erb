@@ -152,7 +152,7 @@
                       <%= parent1_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: true %>
                       <%= parent1_f.input :first_name, required: true %>
                       <%= parent1_f.input :last_name, required: true %>
-                      <%= parent1_f.input :phone_number, required: true %>
+                      <%= parent1_f.input :phone_number, label: t('inscription_phone_label'), required: true %>
                       <% if @form_path == caf_registration_path && ENV['CAF_SUBSCRIPTION'].present? %>
                         <%= parent1_f.input :email, required: true %>
                       <% end %>
@@ -173,7 +173,7 @@
                         <%= parent2_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: false %>
                         <%= parent2_f.input :first_name, required: false, input_html: { autocomplete: "off" } %>
                         <%= parent2_f.input :last_name, required: false, input_html: { autocomplete: "off" } %>
-                        <%= parent2_f.input :phone_number, required: false, input_html: { autocomplete: "off" } %>
+                        <%= parent2_f.input :phone_number, label: t('inscription_phone_label'), required: false, input_html: { autocomplete: "off" } %>
                       <% end %>
                     </div>
                   </div>
@@ -242,6 +242,9 @@
             </div>
           </div>
         </div>
+        <% if @form_path.in?([pmi_registration_path, local_partner_registration_path]) %>
+          <p id="registration-contact"><%= t('inscription_contact_html', email: mail_to('pmi@1001mots.org')) %></p>
+        <% end %>
       <% end %>
     </div>
   <% end %>
