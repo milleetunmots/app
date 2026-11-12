@@ -1,0 +1,318 @@
+@import variables
+
+=charter-title($size)
+  font-family: $charter-title-font, $text-font, sans-serif
+  font-weight: 700
+  font-size: $size
+  line-height: 1.15
+
+#inscription
+  background: $beige
+  color: $navy
+  overflow-x: hidden
+
+  #inscription-content
+    padding-top: 24px
+
+  #logos
+    display: flex
+    justify-content: space-between
+    align-items: flex-start
+
+    #mots-logo
+      width: 160px
+      height: auto
+
+    #partner-logo
+      width: 110px
+      height: auto
+
+  #form-header
+    align-items: center
+    margin-top: 16px
+
+  #registration-photo
+    position: relative
+    margin: 0 auto
+    max-width: 560px
+
+    img
+      display: block
+      width: 78%
+      height: auto
+      margin-left: auto
+
+    figcaption
+      +charter-title(20px)
+      position: absolute
+      left: 0
+      top: 18%
+      color: $navy
+      text-align: center
+
+      span
+        display: block
+
+  #form-header-text
+    padding-top: 16px
+
+    h1
+      font-family: $text-font
+      font-weight: 700
+      font-size: 44px
+      line-height: 1.1
+      color: $navy
+      margin: 16px 0 24px
+
+    #description
+      font-size: 18px
+      line-height: 1.4
+
+      p
+        margin-bottom: 10px
+
+      ul
+        padding-left: 1.2em
+        margin-bottom: 12px
+
+        li::marker
+          color: $navy
+
+      b
+        color: $charter-blue
+
+  .registration-pills
+    display: flex
+    flex-wrap: wrap
+    gap: 12px
+
+  .registration-pill
+    +charter-title(21px)
+    background: $charter-yellow
+    color: $navy
+    border-radius: 999px
+    padding: 4px 18px
+
+  // Zone du formulaire : pleine largeur, fond marine, haut arrondi.
+  #form-body
+    position: relative
+    background: $navy
+    margin: 90px calc(50% - 50vw) 0
+    padding: 30px calc(50vw - 50%) 80px
+
+    &::before
+      content: ''
+      position: absolute
+      left: 0
+      right: 0
+      top: -60px
+      height: 120px
+      background: $navy
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0
+
+    > *
+      position: relative
+
+    > .accepted-fields, > .row
+      margin-left: 0
+      margin-right: 0
+
+    #source-fields > div
+      margin-bottom: 16px
+
+    #source-fields label, #registration_department_select label
+      color: $beige
+      font-weight: 700
+
+    h2
+      +charter-title(26px)
+      color: $beige
+      margin: 30px 0 20px
+
+    .form-control, .select2-container.form-control
+      background: $beige
+      border: 1.5px solid $navy
+      border-radius: 10px
+      color: $navy
+      min-height: 44px
+
+    #source-fields .form-control, #source-fields .select2-container.form-control
+      border-color: $beige
+
+    .select2-container.is-invalid, .form-control.is-invalid
+      border-color: #dc3545 !important
+
+    // select2 fige une largeur en pixels au chargement : elle déborde si la fenêtre change.
+    .select2-container.form-control
+      display: block
+      width: 100% !important
+
+    .form-group > label
+      display: block
+
+  .card
+    border: none
+    border-radius: 14px
+    margin-bottom: 20px
+
+    .card-body
+      padding: 24px
+
+    .card-title
+      +charter-title(22px)
+      color: $navy
+      margin-bottom: 16px
+
+  .registration-card--child
+    background: $charter-yellow
+
+  .registration-card--parent
+    background: $charter-pink
+
+  .registration-card--plain
+    background: $beige
+
+  .registration-card--child, .registration-card--parent
+    .form-group
+      background: $beige
+      border-radius: 12px
+      padding: 14px 18px
+      margin-bottom: 12px
+
+      &.hidden
+        display: none
+
+    // Une legend de fieldset se place sur la bordure : on la remet dans la case.
+    legend
+      float: left
+      width: 100%
+      padding: 0
+      margin-bottom: 6px
+
+      + *
+        clear: both
+
+    .date select.form-control
+      padding: 0 6px
+      font-size: 14px
+      min-width: 0
+      flex: 1 1 0
+
+  .form-group > label, .form-group legend, .form-group .col-form-label
+    font-weight: 700
+    color: $navy
+    font-size: 16px
+
+  .form-check-label
+    color: $navy
+
+  .radio_buttons .form-check
+    display: inline-block
+    margin-right: 24px
+
+  .invalid-feedback
+    color: #c8102e
+    font-weight: 600
+
+  .child_parent1_postal_code small, #registration_confirmation_email_warning
+    color: #c8102e !important
+
+  .btn
+    +charter-title(18px)
+    border-radius: 999px
+    padding: 10px 24px
+
+  .btn-primary
+    background: $beige
+    border: 3px solid $navy
+    color: $navy
+    &:hover, &:focus
+      background: $navy
+      border-color: $navy
+      color: $beige
+
+  .btn-danger
+    background: transparent
+    border: 2px solid $navy
+    color: $navy
+    &:hover
+      background: $navy
+      color: $beige
+
+  .end-buttons
+    margin-top: 30px
+
+  #child-registration-submit
+    +charter-title(21px)
+    background: $charter-yellow
+    border: none
+    color: $navy
+    padding: 12px 40px
+    &:hover, &:focus
+      background: $beige
+      color: $navy
+
+  #registration-confirmation-email-card
+    #registration_confirmation_email
+      border: 2px solid $charter-yellow
+
+      &.is-invalid
+        border-color: #dc3545
+
+  #form-errors
+    border-radius: 12px
+    font-weight: 600
+
+  a, a[target='_blank']
+    color: $charter-blue
+
+  #registration-contact
+    color: $beige
+    text-align: center
+    margin-top: 40px
+    margin-bottom: 0
+
+    a
+      color: $charter-yellow
+      font-weight: 700
+
+  @media (max-width: 991px)
+    #registration-photo
+      max-width: 420px
+
+    #form-header-text h1
+      font-size: 32px
+
+  @media (max-width: 575px)
+    #mots-logo
+      width: 120px
+
+    #partner-logo
+      width: 80px
+
+    #registration-photo figcaption
+      font-size: 16px
+
+    #form-header-text
+      h1
+        font-size: 28px
+
+      #description
+        font-size: 16px
+
+    .registration-pill
+      font-size: 18px
+
+    .card .card-body
+      padding: 14px
+
+    .registration-card--child, .registration-card--parent
+      .form-group
+        padding: 12px
+
+    #form-body
+      margin-top: 60px
+
+      &::before
+        top: -30px
+        height: 60px

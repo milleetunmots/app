@@ -10,6 +10,8 @@ class ChildrenController < ApplicationController
   before_action :build_variables, only: %i[new create]
   before_action :build_child_action_path, only: %i[edit update]
 
+  helper_method :current_registration_origin
+
   def new
     check_registration_limits
     puts "FORM ORIGIN: #{current_registration_origin}"

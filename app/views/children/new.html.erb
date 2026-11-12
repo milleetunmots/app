@@ -11,30 +11,38 @@
       <p>Les inscriptions sont limitées et le formulaire est malheureusement temporairement fermé.</p>
     </div>
   <% else %>
+    <% visual = registration_visual(current_registration_origin) %>
     <div class="container" id="inscription-content">
       <div id="logos">
-        <%= image_tag("mots-logo.png", id:"mots-logo") %>
-        <% if @form_path == '/inscriptioncaf' %>
-          <%= image_tag("caf-logo.jpg", id:"caf-logo") %>
-        <% elsif @form_path == '/inscriptionmsa'%>
-          <%= image_tag("msa-logo.svg") %>
+        <%= image_tag("registration/logo-1001mots.png", id: "mots-logo", alt: "1001mots") %>
+        <% if visual[:partner_logo] %>
+          <%= image_tag(visual[:partner_logo], id: "partner-logo", alt: "") %>
         <% end %>
       </div>
       <%= simple_form_for @child, url: @form_path_url || children_path do |f| %>
 
         <div class="row" id="form-header">
-          <div class="col-12 col-lg-4" id="form-header-image">
-            <%= image_tag("famille.png", id:"img-family")  %>
+          <div class="col-12 col-lg-6" id="form-header-image">
+            <figure id="registration-photo">
+              <figcaption>
+                <% visual[:caption].each do |line| %>
+                  <span><%= line %></span>
+                <% end %>
+              </figcaption>
+              <%= image_tag(visual[:photo], alt: "") %>
+            </figure>
           </div>
           <div class="col-12 col-lg-6" id="form-header-text">
-            <h1><%= @title.html_safe %></h1>
-            <div>
-              <div>
-                <div id="description"><%= @banner.html_safe %></div>
-              </div>
+            <div class="registration-pills">
+              <span class="registration-pill">Gratuit</span>
+              <span class="registration-pill">Personnalisé</span>
             </div>
+            <h1><%= @title.html_safe %></h1>
+            <div id="description"><%= @banner.html_safe %></div>
           </div>
         </div>
+
+        <div id="form-body">
 
         <% if f.object.errors.any? %>
           <div class="row justify-content-sm-center accepted-fields">
@@ -50,7 +58,7 @@
         <% end %>
 
         <%= f.simple_fields_for :children_source do |children_source_form| %>
-          <div class="row justify-content-sm-center accepted-fields">
+          <div class="row justify-content-sm-center accepted-fields" id="source-fields">
             <% if @source_collection == :caf %>
               <div class="col-sm-6">
                 <label class="select required" for="form_received_from"><%= @form_received_from.html_safe %></label>
@@ -118,7 +126,7 @@
         <div class="row accepted-fields">
           <div class="col-sm-4">
             <h2>Enfant(s)</h2>
-            <div class="card">
+            <div class="card registration-card--child">
               <div class="card-body">
                 <div class="child-fields">
                   <%= render 'child_form', f: f, with_support: true, form_without_comments: @form_path == caf_registration_path || @form_path == bao_registration_path, with_placeholder: @form_path == pmi_registration_path %>
@@ -145,7 +153,7 @@
             <h2>Parents qui recevront les SMS<%= ' et les appels' if @form_path == pmi_registration_path %></h2>
             <div class="row">
               <div class="col-sm-6">
-                <div class="card">
+                <div class="card registration-card--parent">
                   <div class="card-body">
                     <h3 class="card-title">Parent 1</h3>
                     <%= f.simple_fields_for :parent1 do |parent1_f| %>
@@ -165,7 +173,7 @@
                 </div>
               </div>
               <div class="col-sm-6">
-                <div class="card">
+                <div class="card registration-card--parent">
                   <div class="card-body">
                     <h3 class="card-title">Parent 2 (optionnel)</h3>
                     <div id="parent2-fields">
@@ -181,7 +189,7 @@
               </div>
             </div>
 
-            <div class="card">
+            <div class="card registration-card--parent">
               <div class="card-body">
                 <h3 class="card-title">Adresse pour recevoir les livres</h3>
                 <% with_delivery_choice = @form_path.in?([pmi_registration_path, local_partner_registration_path]) %>
@@ -202,7 +210,7 @@
                 </div>
               </div>
             </div>
-            <div class="card">
+            <div class="card registration-card--plain">
               <div class="card-body">
                 <%= f.simple_fields_for :parent1 do |parent1_f| %>
                 <% if @form_path == caf_registration_path || @form_path == bao_registration_path %>
@@ -213,7 +221,7 @@
               </div>
             </div>
             <% if @registration_confirmation_email_block_enabled %>
-              <div class="card" id="registration-confirmation-email-card">
+              <div class="card registration-card--plain" id="registration-confirmation-email-card">
                 <div class="card-body">
                   <div class="form-check">
                     <%= check_box_tag :want_registration_confirmation_email, '1', @registration_confirmation_email_wanted, id: 'want_registration_confirmation_email', class: 'form-check-input' %>
@@ -245,6 +253,7 @@
         <% if @form_path.in?([pmi_registration_path, local_partner_registration_path]) %>
           <p id="registration-contact"><%= t('inscription_contact_html', email: mail_to('pmi@1001mots.org')) %></p>
         <% end %>
+        </div>
       <% end %>
     </div>
   <% end %>

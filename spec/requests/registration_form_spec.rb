@@ -103,6 +103,31 @@ RSpec.describe "Formulaire d'inscription", type: :request do
     end
   end
 
+  describe "visuels du bandeau" do
+    {
+      "/inscriptioncaf" => ["eymen", "Eymen, 10 mois, promo 2025", "caf-logo"],
+      "/inscriptionmsa" => ["eymen", "Eymen, 10 mois, promo 2025", "msa-logo"],
+      "/inscription4" => ["eymen", "Eymen, 10 mois, promo 2025", nil],
+      "/inscription3" => ["richie", "Richie, 19 mois, promo 2025", nil],
+      "/inscriptionpartenaires" => ["richie", "Richie, 19 mois, promo 2025", nil]
+    }.each do |path, (photo, caption, partner_logo)|
+      it "affiche la photo, la légende, les pilules et le bon logo partenaire sur #{path}" do
+        get path
+        page = Capybara.string(response.body)
+
+        expect(page.find("#mots-logo")[:src]).to include("registration/logo-1001mots")
+        expect(page.find("#registration-photo img")[:src]).to include("registration/#{photo}")
+        expect(page.find("#registration-photo figcaption")).to have_text(caption, normalize_ws: true)
+        expect(page.all(".registration-pill").map(&:text)).to eq(["Gratuit", "Personnalisé"])
+        if partner_logo
+          expect(page.find("#partner-logo")[:src]).to include(partner_logo)
+        else
+          expect(page).not_to have_css("#partner-logo")
+        end
+      end
+    end
+  end
+
   describe "wording" do
     parent_title = "Inscrivez-vous pour recevoir des conseils et des livres gratuits pour votre bébé"
     pro_title = "Inscrivez des familles à l'accompagnement à distance 1001mots"
