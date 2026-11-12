@@ -14,7 +14,6 @@ RSpec.describe Child::CreateService do
       gender: 'f'
     }
   }
-  let(:child_min_birthdate) { Child.min_birthdate }
 
   let(:registration_origin) { nil }
   let(:parent2_attributes) { {} }
@@ -48,8 +47,7 @@ RSpec.describe Child::CreateService do
       parent1_attributes,
       parent2_attributes,
       registration_origin,
-      source_attributes,
-      child_min_birthdate,
+      source_attributes
     )
   }
 

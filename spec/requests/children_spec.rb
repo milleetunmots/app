@@ -12,7 +12,7 @@ RSpec.describe ChildrenController, type: :request do
       before { get "/inscription1" }
 
       it "renders specific wording" do
-        expect(assigns(:child_min_birthdate)).to eq Child.min_birthdate_alt
+        expect(assigns(:child_min_birthdate)).to eq Child.min_birthdate
 
         expect(response.body).to include I18n.t('inscription_terms_accepted_at_label.parent')
         expect(response.body).to include I18n.t('source_label.parent')

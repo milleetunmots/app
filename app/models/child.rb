@@ -467,10 +467,6 @@ class Child < ApplicationRecord
     Time.zone.today - 30.months
   end
 
-  def self.min_birthdate_alt
-    Time.zone.today - 2.years
-  end
-
   def self.max_birthdate
     Time.zone.today
   end

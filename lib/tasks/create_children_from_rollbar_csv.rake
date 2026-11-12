@@ -55,16 +55,13 @@ namespace :children do
         source_id: row['request.POST.child.children_source_attributes.source_id'],
         details: row['request.POST.child.children_source_attributes.details']
       }
-      child_min_birthdate = Child.min_birthdate
-
       service = Child::CreateService.new(
         attributes,
         siblings_attributes,
         parent1_attributes,
         parent2_attributes,
         registration_origin,
-        children_source_attributes,
-        child_min_birthdate
+        children_source_attributes
       ).call
 
       child = service.child
