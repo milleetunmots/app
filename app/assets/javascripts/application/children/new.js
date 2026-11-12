@@ -10,7 +10,6 @@
   var consentCheckbox = $('#child_child_support_attributes_has_important_information_parental_consent');
   var $addressPostalCodeInput = $('#address-postal_code');
   var $postalCodeWarning = $('.child_parent1_postal_code small');
-  var $submitButton = $('#child-registration-submit');
 
   sourceDetailsInput.on('input', function() {
     const value = $(this).val().toLowerCase();
@@ -157,12 +156,6 @@
 
   var REGISTRATION_CONFIRMATION_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  var registrationConfirmationEmailIsValid = function() {
-    var $checkbox = $('#want_registration_confirmation_email');
-    if (!$checkbox.length || !$checkbox.is(':checked')) { return true; }
-    return REGISTRATION_CONFIRMATION_EMAIL_REGEX.test($('#registration_confirmation_email').val());
-  };
-
   var initRegistrationConfirmationEmail = function() {
     var $checkbox = $('#want_registration_confirmation_email');
     if (!$checkbox.length) { return; }
@@ -202,10 +195,24 @@
     toggle();
   };
 
+  // select2 masque le vrai select : le navigateur ne peut pas y afficher son infobulle.
+  var initSelect2RequiredHighlight = function() {
+    var form = document.getElementById('new_child');
+    if (!form) { return; }
+
+    form.addEventListener('invalid', function(event) {
+      $(event.target).filter('.select2-hidden-accessible').next('.select2-container').addClass('is-invalid');
+    }, true);
+
+    $(document).on('change', 'select.select2-hidden-accessible', function() {
+      if ($(this).val()) { $(this).next('.select2-container').removeClass('is-invalid'); }
+    });
+  };
+
   var init = function() {
     $postalCodeWarning.hide();
-    $submitButton.prop('disabled', true);
     initRegistrationConfirmationEmail();
+    initSelect2RequiredHighlight();
 
     $addressPostalCodeInput.on('input', function() {
       $postalCodeWarning.hide();
@@ -214,41 +221,6 @@
       } else {
         $postalCodeWarning.show();
       }
-    });
-
-    $('#new_child').on('input change', 'input[required], textarea[required], select[required], #want_registration_confirmation_email', function() {
-      let allFilled = true;
-
-      $('#new_child input[required]:not([type="radio"]):not([type="checkbox"]), #new_child textarea[required], #new_child select[required]').each(function() {
-        const val = $(this).val();
-        if (val === undefined || val.trim() === '') {
-          allFilled = false;
-          return false;
-        }
-      });
-
-      let checkedRadioNames = [];
-      $('#new_child input[required][type="radio"]').each(function() {
-        const name = $(this).attr('name');
-        if (checkedRadioNames.indexOf(name) === -1) {
-          checkedRadioNames.push(name);
-        }
-      });
-      for (let i = 0; i < checkedRadioNames.length; i++) {
-        if ($('#new_child input[name="' + checkedRadioNames[i] + '"]:checked').length === 0) {
-          allFilled = false;
-          break;
-        }
-      }
-
-      $('#new_child input[required][type="checkbox"]').each(function() {
-        if (!$(this).is(':checked')) {
-          allFilled = false;
-          return false;
-        }
-      });
-
-      $submitButton.prop('disabled', !allFilled || $addressPostalCodeInput.val().length !== 5 || !registrationConfirmationEmailIsValid());
     });
 
     if (bookDeliveryLocationSelect.length > 0) {
