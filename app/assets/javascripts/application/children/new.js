@@ -109,7 +109,7 @@
     })
   };
 
-  var createRequirementAbbr = function(label, input) {
+  var createRequirementAbbr = function(label, input, keepValue) {
     if (label.find('abbr').length !== 0 ) {
       return;
     }
@@ -117,19 +117,19 @@
     label.removeClass('optional').addClass('required');
     input.removeClass('optional').addClass('required');
     input.attr('required', true);
-    input.val('');
+    if (!keepValue) { input.val(''); }
     var abbrElement = document.createElement('abbr');
     abbrElement.setAttribute('title', 'required');
     abbrElement.innerHTML = ' *'
     label.append(abbrElement);
   }
 
-  var removeRequirementAbbr = function(label, input) {
+  var removeRequirementAbbr = function(label, input, keepValue) {
     label.removeClass('required').addClass('optional');
     input.removeClass('required').addClass('optional');
     input.removeAttr('required');
     var abbr = label.find('abbr');
-    input.val('');
+    if (!keepValue) { input.val(''); }
     if (abbr.length === 0) {
       return;
     }
@@ -238,7 +238,7 @@
       bookDeliveryOrganisationNameDiv.hide();
       attentionToDiv.hide();
 
-      bookDeliveryLocationSelect.on('change', function () {
+      bookDeliveryLocationSelect.on('change', function (event, isInitialDisplay) {
         var selectedValue = $(this).val();
         var parent1FirstName = $('#child_parent1_attributes_first_name').val();
         var parent1LastName = $('#child_parent1_attributes_last_name').val();
@@ -248,13 +248,13 @@
 
         var showLetterboxDiv = function(text) {
           letterboxLabel.text(text);
-          createRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'));
+          createRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'), isInitialDisplay);
           letterboxDiv.prependTo('#address_form_div');
           letterboxDiv.show();
         }
         var hideLetterboxDiv = function() {
           letterboxLabel.text(letterboxLabelText);
-          removeRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'));
+          removeRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'), isInitialDisplay);
           letterboxDiv.hide();
         }
         var showBookDeliveryLocationWarning = function(text) {
@@ -267,11 +267,11 @@
         }
         var showBookDeliveryOrganisationNameDiv = function(text) {
           bookDeliveryOrganisationNameLabel.text(text);
-          createRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput);
+          createRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput, isInitialDisplay);
           bookDeliveryOrganisationNameDiv.show();
         }
         var hideBookDeliveryOrganisationNameDiv = function() {
-          removeRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput);
+          removeRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput, isInitialDisplay);
           bookDeliveryOrganisationNameDiv.hide();
         }
         var showAttentionToDiv = function(text) {
@@ -342,6 +342,10 @@
             break;
         }
       });
+
+      if (bookDeliveryLocationSelect.val()) {
+        bookDeliveryLocationSelect.trigger('change', [true]);
+      }
     }
 
     childrenSourceSelect.select2();

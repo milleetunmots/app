@@ -74,7 +74,7 @@ RSpec.describe "Formulaire d'inscription", type: :request do
         params[:child][:parent1_attributes].merge!(book_delivery_location: "pmi", book_delivery_organisation_name: "", letterbox_name: "")
       end
 
-      expect(page).to have_css("#book_delivery_organisation_name_div .invalid-feedback", text: "doit être rempli", visible: :all)
+      expect(page).to have_css("#book_delivery_organisation_name_div .invalid-feedback", text: "doit être rempli")
     end
 
     it "affiche l'erreur sous la case de consentement des commentaires" do
@@ -100,6 +100,50 @@ RSpec.describe "Formulaire d'inscription", type: :request do
 
       expect(Child.count).to eq(0)
       expect(page).to have_css("#registration_confirmation_email_field .invalid-feedback")
+    end
+  end
+
+  describe "valeurs conservées après une erreur" do
+    it "réaffiche toutes les valeurs saisies, même erronées" do
+      travel_to Date.new(2026, 11, 12)
+      source = FactoryBot.create(:source, channel: "local_partner", department: 93)
+      params = registration_params(source: source, birthdate: Date.new(2026, 2, 3))
+      params[:child][:child_support_attributes] = { important_information: "Famille bilingue arabe-français", has_important_information_parental_consent: "1" }
+      params[:child][:parent1_attributes].merge!(
+        phone_number: "0145678910", book_delivery_location: "pmi", book_delivery_organisation_name: "PMI Croix de Chavaux",
+        letterbox_name: "", terms_accepted_at: "1"
+      )
+      params[:child][:parent2_attributes] = { gender: "m", first_name: "Karim", last_name: "", phone_number: "" }
+      params[:want_registration_confirmation_email] = "1"
+      params[:registration_confirmation_email] = "s.dupont@cd93.fr"
+
+      post "/inscriptionpartenaires", params: params
+      page = Capybara.string(response.body)
+
+      expect(Child.count).to eq(0)
+      expect(page.find("#child_first_name").value).to eq("Lina")
+      expect(page.find("#child_birthdate_3i").value).to eq("3")
+      expect(page.find("#child_birthdate_2i").value).to eq("2")
+      expect(page.find("#child_birthdate_1i").value).to eq("2026")
+      expect(page.find("#child_child_support_attributes_important_information").value).to include("Famille bilingue arabe-français")
+      expect(page.find("#child_child_support_attributes_has_important_information_parental_consent")).to be_checked
+      expect(page.find("#child_parent1_attributes_phone_number").value).to eq("0145678910")
+      expect(page.find("#child_parent2_attributes_gender_m")).to be_checked
+      expect(page.find("#child_parent2_attributes_first_name").value).to eq("Karim")
+      expect(page.find("#child_parent1_attributes_book_delivery_location").value).to eq("pmi")
+      expect(page).to have_css("#address_form_div")
+      expect(page.find("#child_parent1_attributes_book_delivery_organisation_name").value).to eq("PMI Croix de Chavaux")
+      expect(page.find("#child_parent1_attributes_terms_accepted_at")).to be_checked
+      expect(page.find("#want_registration_confirmation_email")).to be_checked
+      expect(page.find("#registration_confirmation_email").value).to eq("s.dupont@cd93.fr")
+    end
+
+    it "ne présélectionne pas de lieu de livraison à l'ouverture" do
+      get "/inscriptionpartenaires"
+      page = Capybara.string(response.body)
+
+      expect(page.find("#child_parent1_attributes_book_delivery_location", visible: :all).value).to eq("")
+      expect(page).not_to have_css("#address_form_div")
     end
   end
 
