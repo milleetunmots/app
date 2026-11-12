@@ -154,7 +154,8 @@
     toggleParentalConsent();
   }
 
-  var REGISTRATION_CONFIRMATION_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Même règle que ChildrenSource::PROFESSIONAL_EMAIL_FORMAT.
+  var REGISTRATION_CONFIRMATION_EMAIL_REGEX = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 
   var initRegistrationConfirmationEmail = function() {
     var $checkbox = $('#want_registration_confirmation_email');
@@ -165,12 +166,8 @@
     var $warning = $('#registration_confirmation_email_warning');
 
     var checkEmailFormat = function() {
-      var val = $input.val();
-      if (!$checkbox.is(':checked')) {
-        $warning.hide();
-      } else if (val.trim() === '') {
-        $warning.text($warning.data('blank-message')).show();
-      } else if (REGISTRATION_CONFIRMATION_EMAIL_REGEX.test(val)) {
+      var val = $input.val().trim();
+      if (val === '' || REGISTRATION_CONFIRMATION_EMAIL_REGEX.test(val)) {
         $warning.hide();
       } else {
         $warning.text($warning.data('invalid-message')).show();
@@ -180,14 +177,11 @@
     var toggle = function() {
       if ($checkbox.is(':checked')) {
         $field.show();
-        $input.prop('required', true);
       } else {
         $field.hide();
-        $input.prop('required', false);
         $input.val('');
         $warning.hide();
       }
-      checkEmailFormat();
     };
 
     $checkbox.on('change', toggle);

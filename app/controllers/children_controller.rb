@@ -185,7 +185,7 @@ class ChildrenController < ApplicationController
     permitted = params.require(:child).permit(children_source_attributes: %i[source_id details registration_department])[:children_source_attributes]
     return permitted unless permitted
 
-    permitted[:professional_email] = params[:registration_confirmation_email].to_s.strip.presence
+    permitted[:professional_email] = params[:registration_confirmation_email].to_s.strip.presence if params[:want_registration_confirmation_email] == '1'
     permitted
   end
 

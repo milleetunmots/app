@@ -103,6 +103,60 @@ RSpec.describe "Formulaire d'inscription", type: :request do
     end
   end
 
+  describe "email professionnel" do
+    def post_pmi_with_email(want:, email:)
+      source = FactoryBot.create(:source, channel: "pmi", department: 93)
+      params = registration_params(source: source, birthdate: Date.new(2026, 2, 3))
+      params[:want_registration_confirmation_email] = want
+      params[:registration_confirmation_email] = email
+      post "/inscription3", params: params
+    end
+
+    it "inscrit sans envoyer de mail quand la case est cochée et l'email vide" do
+      travel_to Date.new(2026, 11, 12)
+
+      expect { post_pmi_with_email(want: "1", email: "") }.not_to have_enqueued_mail(RegistrationConfirmationMailer, :confirmation)
+
+      child = Child.find_by(first_name: "Lina")
+      expect(child).to be_present
+      expect(child.children_source_professional_email).to be_nil
+    end
+
+    it "n'enregistre ni n'utilise l'email quand la case est décochée" do
+      travel_to Date.new(2026, 11, 12)
+
+      expect { post_pmi_with_email(want: "0", email: "s.dupont@cd93.fr") }.not_to have_enqueued_mail(RegistrationConfirmationMailer, :confirmation)
+
+      child = Child.find_by(first_name: "Lina")
+      expect(child).to be_present
+      expect(child.children_source_professional_email).to be_nil
+    end
+
+    it "accepte un email accentué et envoie la confirmation" do
+      travel_to Date.new(2026, 11, 12)
+
+      expect { post_pmi_with_email(want: "1", email: "hélène.durand@ville-paris.fr") }.to have_enqueued_mail(RegistrationConfirmationMailer, :confirmation)
+
+      expect(Child.find_by(first_name: "Lina").children_source_professional_email).to eq("hélène.durand@ville-paris.fr")
+    end
+
+    it "retire les espaces autour de l'email" do
+      travel_to Date.new(2026, 11, 12)
+
+      post_pmi_with_email(want: "1", email: "  s.dupont@cd93.fr  ")
+
+      expect(Child.find_by(first_name: "Lina").children_source_professional_email).to eq("s.dupont@cd93.fr")
+    end
+
+    it "n'affiche pas le champ comme obligatoire" do
+      get "/inscription3"
+      page = Capybara.string(response.body)
+
+      expect(page.find("#registration_confirmation_email")[:required]).to be_nil
+      expect(page.find("#registration_confirmation_email")[:type]).not_to eq("email")
+    end
+  end
+
   describe "valeurs conservées après une erreur" do
     it "réaffiche toutes les valeurs saisies, même erronées" do
       travel_to Date.new(2026, 11, 12)

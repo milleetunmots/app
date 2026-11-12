@@ -221,11 +221,11 @@
                   </div>
                   <div id="registration_confirmation_email_field" class="form-group" style="<%= 'display:none;' unless @registration_confirmation_email_wanted %>">
                     <%= label_tag :registration_confirmation_email, class: "label" do %>
-                      <%= @registration_confirmation_email_label.html_safe %><abbr title="required"> *</abbr>
+                      <%= @registration_confirmation_email_label.html_safe %>
                     <% end %>
                     <% email_errors = @child.children_source&.errors&.[](:professional_email) || [] %>
-                    <%= email_field_tag :registration_confirmation_email, @registration_confirmation_email_value, class: ['form-control', ('is-invalid' if email_errors.any?)], placeholder: t('registration_confirmation_email.email_placeholder'), required: true %>
-                    <small id="registration_confirmation_email_warning" class="form-text text-muted" style="display:none;" data-blank-message="<%= t('registration_confirmation_email.email_blank_warning') %>" data-invalid-message="<%= t('registration_confirmation_email.email_format_warning') %>"></small>
+                    <%= text_field_tag :registration_confirmation_email, @registration_confirmation_email_value, class: ['form-control', ('is-invalid' if email_errors.any?)], placeholder: t('registration_confirmation_email.email_placeholder'), inputmode: 'email', autocomplete: 'email' %>
+                    <small id="registration_confirmation_email_warning" class="form-text text-muted" style="display:none;" data-invalid-message="<%= t('registration_confirmation_email.email_format_warning') %>"></small>
                     <% email_errors.each do |message| %>
                       <div class="invalid-feedback"><%= message %></div>
                     <% end %>
