@@ -1,0 +1,170 @@
+@import variables
+@import mixins
+
+// Même charte que la page de choix du thème : en-tête beige, zone marine jusqu'en bas.
+#update-success.module-confirmation
+  display: flex
+  flex-direction: column
+  min-height: 100vh
+  background: $beige
+  color: $navy
+  font-family: $text-font
+  overflow-x: hidden
+  text-align: center
+
+  .module-confirmation-header
+    padding-top: 24px
+
+    #mots-logo
+      display: block
+      width: 140px
+      height: auto
+
+  #thanks
+    h1, h5
+      font-family: $text-font
+      font-weight: 900
+      font-size: 36px
+      line-height: 1.15
+      color: $navy
+      margin: 32px auto 0
+      max-width: 760px
+
+  .module-confirmation-body
+    position: relative
+    flex: 1
+    margin-top: 90px
+    padding: 30px 0 80px
+    background: $navy
+
+    &::before
+      content: ''
+      position: absolute
+      left: 0
+      right: 0
+      top: -60px
+      height: 120px
+      background: $navy
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0
+
+    > *
+      position: relative
+
+  .module-confirmation-card
+    +card-shadow
+    max-width: 760px
+    margin: 0 auto 32px
+    padding: 28px 32px
+    background: $beige
+    border-radius: 16px
+    font-size: 18px
+    line-height: 1.5
+
+    p:last-child
+      margin-bottom: 0
+
+  .module-confirmation-instagram
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: 12px
+
+    .module-confirmation-instagram-icon img
+      width: 64px
+      height: auto
+
+    .module-confirmation-instagram-name
+      font-weight: 700
+      color: $blue
+
+  // Questionnaire de mi-parcours (3e choix) : mêmes cartes, boutons de la charte.
+  .module-confirmation-survey
+    +card-shadow
+    border: none
+    border-radius: 16px
+    background: $beige
+    overflow: hidden
+
+    .card-header
+      background: $yellow
+      border: none
+      color: $navy
+
+      h5
+        font-weight: 700
+        margin-bottom: 4px
+
+    .card-footer
+      background: transparent
+      border: none
+
+    .btn
+      +button-shape
+      font-weight: 700
+
+    .btn-outline-primary
+      border: 2px solid $navy
+      color: $navy
+      background: transparent
+      &:hover
+        background: rgba($navy, 0.08)
+
+    .btn-primary
+      border: 2px solid $yellow
+      background: $yellow
+      color: $navy
+
+    // Notes 1 à 10 : pastilles séparées, pas un btn-group collé.
+    // La vue pose d-flex (display: flex !important) sur ce groupe.
+    .btn-group
+      display: grid !important
+      grid-template-columns: repeat(10, 34px)
+      justify-content: center
+      gap: 4px
+
+      > .btn.rate
+        margin: 0 !important
+        width: 34px
+        height: 34px
+        padding: 0
+        border-radius: 50% !important
+
+    .reaction
+      width: 100%
+
+  @media (max-width: 575px)
+    .module-confirmation-survey .btn-group
+      grid-template-columns: repeat(5, 40px)
+      gap: 8px
+
+      > .btn.rate
+        width: 40px
+        height: 40px
+
+
+    #mots-logo
+      width: 110px
+
+    #thanks
+      h1, h5
+        font-size: 26px
+        margin-top: 24px
+
+    .module-confirmation-body
+      margin-top: 50px
+      padding-top: 20px
+
+      &::before
+        top: -30px
+        height: 60px
+
+    .module-confirmation-card
+      padding: 20px
+      font-size: 16px
+
+body:has(#update-success.module-confirmation) footer
+  background: $navy
+  padding: 0 16px 12px
+
+  a
+    color: $beige !important

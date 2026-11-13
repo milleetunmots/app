@@ -1,7 +1,7 @@
 <%= f.input :gender, as: :radio_buttons, collection: child_gender_select_collection, wrapper: :vertical_collection_inline, required: true %>
 <%= f.input :first_name %>
 <%= f.input :last_name %>
-<%= f.input :birthdate, start_year: @child_min_birthdate.year, end_year: Child.max_birthdate.year %>
+<%= f.input :birthdate, start_year: @child_min_birthdate.year, end_year: Child.max_birthdate.year, prompt: { day: 'Jour', month: 'Mois', year: 'Année' } %>
 <%= f.input :tag_list, as: :hidden %>
 
 <% if defined?(form_without_comments) && !form_without_comments %>

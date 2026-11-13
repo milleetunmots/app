@@ -1,0 +1,55 @@
+@import variables
+
+=charter-title($size)
+  font-family: $title-font, $text-font, sans-serif
+  font-weight: 700
+  font-size: $size
+  line-height: 1.15
+
+// Apparence de base : le survol dépend du fond (marine ou beige), chaque page le définit.
+// Boutons du site 1001mots.org : rectangle arrondi, capitales en Fredoka.
+=button-shape
+  border-radius: 10px
+  text-transform: uppercase
+  letter-spacing: 0.016em
+
+=brand-button($size: 21px)
+  +charter-title($size)
+  +button-shape
+  display: inline-block
+  padding: 12px 40px
+  background: $yellow
+  border: none
+  color: $navy !important
+
+// Cartes du site : ombre pleine décalée, sans flou.
+=card-shadow($color: $pink)
+  box-shadow: 8px 8px 0 $color
+
+=brand-button-outline
+  background: transparent
+  border: 2px solid $navy
+
+// Boutons Bootstrap des anciennes pages (primaire / danger) : contour plein, remplissage au survol.
+=brand-outline-actions
+  .btn
+    +button-shape
+    font-weight: 700
+
+  .btn-primary
+    background: $beige
+    border: 3px solid $navy
+    color: $navy
+    &:hover, &:focus
+      border-color: $navy
+      background: $navy
+      color: $beige
+
+  .btn-danger
+    background: $beige
+    border: 3px solid $danger
+    color: $danger
+    &:hover, &:focus
+      border-color: $danger
+      background: $danger
+      color: $beige

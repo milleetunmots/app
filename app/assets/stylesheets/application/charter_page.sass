@@ -1,0 +1,138 @@
+@import variables
+@import mixins
+
+// Page simple de la charte (shared/_charter_page) : en-tête beige, zone marine jusqu'en bas.
+.charter-page
+  display: flex
+  flex-direction: column
+  min-height: 100vh
+  background: $beige
+  color: $navy
+  font-family: $text-font
+  overflow-x: hidden
+  text-align: center
+
+  .charter-page-header
+    padding-top: 24px
+
+  .charter-page-top
+    display: flex
+    justify-content: space-between
+    align-items: center
+
+    #mots-logo
+      width: 140px
+      height: auto
+
+    .back-btn
+      font-weight: 700
+      color: $navy
+      &:hover
+        text-decoration: none
+        color: $blue
+
+  h1
+    font-family: $text-font
+    font-weight: 900
+    font-size: 40px
+    line-height: 1.15
+    color: $navy
+    margin: 32px auto 0
+    max-width: 760px
+
+  .charter-page-body
+    position: relative
+    flex: 1
+    margin-top: 90px
+    padding: 30px 0 80px
+    background: $navy
+
+    &::before
+      content: ''
+      position: absolute
+      left: 0
+      right: 0
+      top: -60px
+      height: 120px
+      background: $navy
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0
+
+    > *
+      position: relative
+
+  .charter-page-card
+    +card-shadow
+    max-width: 760px
+    margin: 0 auto
+    padding: 32px
+    background: $beige
+    border-radius: 16px
+    font-size: 18px
+    line-height: 1.5
+
+    p
+      margin-bottom: 0
+
+    a
+      color: $blue
+      font-weight: 700
+
+  .charter-page-button
+    +brand-button
+    margin-top: 24px
+    &:hover, &:focus
+      background: $navy
+      color: $beige !important
+
+  .charter-page-actions
+    display: flex
+    flex-wrap: wrap
+    justify-content: center
+    gap: 12px
+    margin-top: 8px
+
+    .charter-page-button
+      margin-top: 0
+
+  .charter-page-button--secondary
+    +brand-button-outline
+    &:hover, &:focus
+      background: $navy
+      color: $beige !important
+
+  #helloasso-widget
+    display: block
+    width: 100%
+    max-width: 760px
+    height: 70vh
+    margin: 32px auto 0
+    border: none
+    border-radius: 16px
+    background: $beige
+
+  @media (max-width: 575px)
+    #mots-logo
+      width: 110px
+
+    h1
+      font-size: 28px
+      margin-top: 24px
+
+    .charter-page-body
+      margin-top: 50px
+      padding-top: 20px
+
+      &::before
+        top: -30px
+        height: 60px
+
+    .charter-page-card
+      padding: 20px
+      font-size: 16px
+
+body:has(.charter-page) footer
+  background: $navy
+  padding: 0 16px 12px
+
+  a
+    color: $beige !important

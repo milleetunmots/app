@@ -10,6 +10,8 @@ class ChildrenController < ApplicationController
   before_action :build_variables, only: %i[new create]
   before_action :build_child_action_path, only: %i[edit update]
 
+  helper_method :current_registration_origin
+
   def new
     check_registration_limits
     puts "FORM ORIGIN: #{current_registration_origin}"
@@ -29,16 +31,13 @@ class ChildrenController < ApplicationController
       parent1_params,
       parent2_params,
       current_registration_origin,
-      children_source_params,
-      @child_min_birthdate
+      children_source_params
     ).call
 
     @child = service.child
 
     if @child.errors.any?
-      flash.now[:error] = "L'inscription de l'enfant a échoué"
       build_child_for_form
-      @child.build_children_source(source_id: children_source_params&.dig(:source_id), details: children_source_params&.dig(:details), registration_department: children_source_params&.dig(:registration_department), professional_email: children_source_params&.dig(:professional_email))
       render action: :new
     elsif current_registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].present? && ENV['CAF_SUBSCRIPTION'] == 'true'
       redirect_to created_child_path(caf_subscripted_child_id: @child.id)
@@ -188,7 +187,7 @@ class ChildrenController < ApplicationController
     permitted = params.require(:child).permit(children_source_attributes: %i[source_id details registration_department])[:children_source_attributes]
     return permitted unless permitted
 
-    permitted[:professional_email] = params[:registration_confirmation_email].to_s.strip.presence
+    permitted[:professional_email] = params[:registration_confirmation_email].to_s.strip.presence if params[:want_registration_confirmation_email] == '1'
     permitted
   end
 
@@ -265,10 +264,11 @@ class ChildrenController < ApplicationController
     @banner = I18n.t("inscription_banner.form#{current_registration_origin}")
     @registration_confirmation_email_block_enabled = current_registration_origin.in?([3, 5])
     if @registration_confirmation_email_block_enabled
-      @registration_confirmation_email_wanted = request.get? || params[:want_registration_confirmation_email] == '1'
+      @registration_confirmation_email_wanted = params[:want_registration_confirmation_email] == '1'
       @registration_confirmation_email_label = I18n.t('registration_confirmation_email.email_label')
       @registration_confirmation_email_value = params[:registration_confirmation_email].to_s
     end
+    @child_min_birthdate = Child.min_birthdate
     case current_registration_origin
     when 6
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
@@ -276,9 +276,7 @@ class ChildrenController < ApplicationController
       @form_received_from = I18n.t('form_received_from')
       @registration_caf_detail = I18n.t('inscription_caf.details')
       @source_details_label = I18n.t('source_details_label.parent')
-      @child_min_birthdate = Child.min_birthdate
       @source_label = I18n.t('source_label.msa')
-      @child_min_birthdate = Child.min_birthdate
       @utm_msa = utm_msa_params
     when 5
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.pro')
@@ -286,13 +284,11 @@ class ChildrenController < ApplicationController
       @source_label = I18n.t('source_label.local_partner')
       @source_details_label = I18n.t('source_details_label.pro')
       @source_registration_department_label = I18n.t('source_department_label')
-      @child_min_birthdate = Time.zone.today - 30.months
     when 4
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
       @source_collection = :bao
       @source_label = I18n.t('source_label.parent')
       @source_details_label = I18n.t('source_details_label.referral')
-      @child_min_birthdate = Child.min_birthdate
       @degree_level_label = "Dernier diplôme obtenu (ou équivalence)"
       @degree_obtained_in_label = "Dans quel pays ce diplôme a-t-il été obtenu ?"
     when 3
@@ -301,7 +297,6 @@ class ChildrenController < ApplicationController
       @pmi_dpt = pmi_dpt_params
       @source_label = I18n.t('source_label.pmi')
       @source_details_label = I18n.t('source_details_label.pro')
-      @child_min_birthdate = Time.zone.today - 30.months
     when 2
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
       @source_collection = :caf
@@ -310,13 +305,11 @@ class ChildrenController < ApplicationController
       @utm_caf = utm_caf_params
       @registration_caf_detail = I18n.t('inscription_caf.details')
       @source_details_label = I18n.t('source_details_label.parent')
-      @child_min_birthdate = Child.min_birthdate
     else
       @terms_accepted_at_label = I18n.t('inscription_terms_accepted_at_label.parent')
       @source_label = I18n.t('source_label.parent')
       @source_collection = :parent
       @source_details_label = I18n.t('source_details_label.parent')
-      @child_min_birthdate = Child.min_birthdate_alt
     end
   end
 

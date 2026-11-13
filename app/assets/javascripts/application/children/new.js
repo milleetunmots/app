@@ -10,7 +10,6 @@
   var consentCheckbox = $('#child_child_support_attributes_has_important_information_parental_consent');
   var $addressPostalCodeInput = $('#address-postal_code');
   var $postalCodeWarning = $('.child_parent1_postal_code small');
-  var $submitButton = $('#child-registration-submit');
 
   sourceDetailsInput.on('input', function() {
     const value = $(this).val().toLowerCase();
@@ -110,7 +109,7 @@
     })
   };
 
-  var createRequirementAbbr = function(label, input) {
+  var createRequirementAbbr = function(label, input, keepValue) {
     if (label.find('abbr').length !== 0 ) {
       return;
     }
@@ -118,19 +117,19 @@
     label.removeClass('optional').addClass('required');
     input.removeClass('optional').addClass('required');
     input.attr('required', true);
-    input.val('');
+    if (!keepValue) { input.val(''); }
     var abbrElement = document.createElement('abbr');
     abbrElement.setAttribute('title', 'required');
     abbrElement.innerHTML = ' *'
     label.append(abbrElement);
   }
 
-  var removeRequirementAbbr = function(label, input) {
+  var removeRequirementAbbr = function(label, input, keepValue) {
     label.removeClass('required').addClass('optional');
     input.removeClass('required').addClass('optional');
     input.removeAttr('required');
     var abbr = label.find('abbr');
-    input.val('');
+    if (!keepValue) { input.val(''); }
     if (abbr.length === 0) {
       return;
     }
@@ -155,13 +154,8 @@
     toggleParentalConsent();
   }
 
-  var REGISTRATION_CONFIRMATION_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  var registrationConfirmationEmailIsValid = function() {
-    var $checkbox = $('#want_registration_confirmation_email');
-    if (!$checkbox.length || !$checkbox.is(':checked')) { return true; }
-    return REGISTRATION_CONFIRMATION_EMAIL_REGEX.test($('#registration_confirmation_email').val());
-  };
+  // Même règle que ChildrenSource::PROFESSIONAL_EMAIL_FORMAT.
+  var REGISTRATION_CONFIRMATION_EMAIL_REGEX = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 
   var initRegistrationConfirmationEmail = function() {
     var $checkbox = $('#want_registration_confirmation_email');
@@ -172,12 +166,8 @@
     var $warning = $('#registration_confirmation_email_warning');
 
     var checkEmailFormat = function() {
-      var val = $input.val();
-      if (!$checkbox.is(':checked')) {
-        $warning.hide();
-      } else if (val.trim() === '') {
-        $warning.text($warning.data('blank-message')).show();
-      } else if (REGISTRATION_CONFIRMATION_EMAIL_REGEX.test(val)) {
+      var val = $input.val().trim();
+      if (val === '' || REGISTRATION_CONFIRMATION_EMAIL_REGEX.test(val)) {
         $warning.hide();
       } else {
         $warning.text($warning.data('invalid-message')).show();
@@ -187,14 +177,11 @@
     var toggle = function() {
       if ($checkbox.is(':checked')) {
         $field.show();
-        $input.prop('required', true);
       } else {
         $field.hide();
-        $input.prop('required', false);
         $input.val('');
         $warning.hide();
       }
-      checkEmailFormat();
     };
 
     $checkbox.on('change', toggle);
@@ -202,10 +189,24 @@
     toggle();
   };
 
+  // select2 masque le vrai select : le navigateur ne peut pas y afficher son infobulle.
+  var initSelect2RequiredHighlight = function() {
+    var form = document.getElementById('new_child');
+    if (!form) { return; }
+
+    form.addEventListener('invalid', function(event) {
+      $(event.target).filter('.select2-hidden-accessible').next('.select2-container').addClass('is-invalid');
+    }, true);
+
+    $(document).on('change', 'select.select2-hidden-accessible', function() {
+      if ($(this).val()) { $(this).next('.select2-container').removeClass('is-invalid'); }
+    });
+  };
+
   var init = function() {
     $postalCodeWarning.hide();
-    $submitButton.prop('disabled', true);
     initRegistrationConfirmationEmail();
+    initSelect2RequiredHighlight();
 
     $addressPostalCodeInput.on('input', function() {
       $postalCodeWarning.hide();
@@ -214,41 +215,6 @@
       } else {
         $postalCodeWarning.show();
       }
-    });
-
-    $('#new_child').on('input change', 'input[required], textarea[required], select[required], #want_registration_confirmation_email', function() {
-      let allFilled = true;
-
-      $('#new_child input[required]:not([type="radio"]):not([type="checkbox"]), #new_child textarea[required], #new_child select[required]').each(function() {
-        const val = $(this).val();
-        if (val === undefined || val.trim() === '') {
-          allFilled = false;
-          return false;
-        }
-      });
-
-      let checkedRadioNames = [];
-      $('#new_child input[required][type="radio"]').each(function() {
-        const name = $(this).attr('name');
-        if (checkedRadioNames.indexOf(name) === -1) {
-          checkedRadioNames.push(name);
-        }
-      });
-      for (let i = 0; i < checkedRadioNames.length; i++) {
-        if ($('#new_child input[name="' + checkedRadioNames[i] + '"]:checked').length === 0) {
-          allFilled = false;
-          break;
-        }
-      }
-
-      $('#new_child input[required][type="checkbox"]').each(function() {
-        if (!$(this).is(':checked')) {
-          allFilled = false;
-          return false;
-        }
-      });
-
-      $submitButton.prop('disabled', !allFilled || $addressPostalCodeInput.val().length !== 5 || !registrationConfirmationEmailIsValid());
     });
 
     if (bookDeliveryLocationSelect.length > 0) {
@@ -266,7 +232,7 @@
       bookDeliveryOrganisationNameDiv.hide();
       attentionToDiv.hide();
 
-      bookDeliveryLocationSelect.on('change', function () {
+      bookDeliveryLocationSelect.on('change', function (event, isInitialDisplay) {
         var selectedValue = $(this).val();
         var parent1FirstName = $('#child_parent1_attributes_first_name').val();
         var parent1LastName = $('#child_parent1_attributes_last_name').val();
@@ -276,13 +242,13 @@
 
         var showLetterboxDiv = function(text) {
           letterboxLabel.text(text);
-          createRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'));
+          createRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'), isInitialDisplay);
           letterboxDiv.prependTo('#address_form_div');
           letterboxDiv.show();
         }
         var hideLetterboxDiv = function() {
           letterboxLabel.text(letterboxLabelText);
-          removeRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'));
+          removeRequirementAbbr(letterboxLabel, $('#child_parent1_attributes_letterbox_name'), isInitialDisplay);
           letterboxDiv.hide();
         }
         var showBookDeliveryLocationWarning = function(text) {
@@ -295,11 +261,11 @@
         }
         var showBookDeliveryOrganisationNameDiv = function(text) {
           bookDeliveryOrganisationNameLabel.text(text);
-          createRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput);
+          createRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput, isInitialDisplay);
           bookDeliveryOrganisationNameDiv.show();
         }
         var hideBookDeliveryOrganisationNameDiv = function() {
-          removeRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput);
+          removeRequirementAbbr(bookDeliveryOrganisationNameLabel, bookDeliveryOrganisationNameInput, isInitialDisplay);
           bookDeliveryOrganisationNameDiv.hide();
         }
         var showAttentionToDiv = function(text) {
@@ -370,6 +336,10 @@
             break;
         }
       });
+
+      if (bookDeliveryLocationSelect.val()) {
+        bookDeliveryLocationSelect.trigger('change', [true]);
+      }
     }
 
     childrenSourceSelect.select2();
@@ -446,6 +416,7 @@
             abbr.remove();
           }
         });
+        $('input[name="child[parent2_attributes][gender]"]').prop('checked', false);
       }
     });
 
