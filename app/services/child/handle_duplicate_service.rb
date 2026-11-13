@@ -6,15 +6,8 @@ class Child
     # Discard les fratries (si nécessaire) avant de changer la fiche de suivi ou les parents de l'enfant à conserver !
     # Sinon le traitement dans le callback de Child risque d'être mauvais
 
-    def initialize
-      @duplicated_parents_by_phone_number = Parent.kept.potential_duplicates.group_by(&:phone_number)
-      duplicated_children_name_and_birthdate = Child.kept.potential_duplicates.group_by(&:name_and_birthdate)
-      @duplicated_children_with_parent2, @duplicated_children_without_parent2 = duplicated_children_name_and_birthdate.partition do |_, children|
-        children.any? { |child| child.parent2.present? }
-      end
-    end
-
     def call
+      load_duplicates
       handle_duplicated_parents_by_phone_number
       handle_duplicated_children_without_parent2
       handle_duplicated_children_with_parent2
@@ -23,12 +16,20 @@ class Child
 
     private
 
+    def load_duplicates
+      @duplicated_parents_by_phone_number = Parent.kept.potential_duplicates.group_by(&:phone_number)
+      duplicated_children_name_and_birthdate = Child.kept.potential_duplicates.group_by(&:name_and_birthdate)
+      @duplicated_children_with_parent2, @duplicated_children_without_parent2 = duplicated_children_name_and_birthdate.partition do |_, children|
+        children.any? { |child| child.parent2.present? }
+      end
+    end
+
     def handle_case_three
       @groups = children_groups
       # If at least one group has not started
       return unless @groups.empty? || @waiting_children.any?
 
-      first_child = @children.sort_by(&:created_at).first
+      first_child = supported_child || @children.sort_by(&:created_at).first
       @children.pending_support.where.not(id: first_child.id).each do |child|
         child.parent1.discard
         child.parent2.discard
@@ -46,16 +47,20 @@ class Child
         @parents = parents.sort_by(&:id)
         @phone_number = phone_number
         @children = Child.kept.left_outer_joins(:parent1, :parent2).where(parents: { phone_number: @phone_number.to_s })
+        next if many_supported_child_supports?(children_of_duplicated_parents)
+
         @waiting_children = @children.pending_support.sort_by(&:id)
         @not_waiting_children = @children.where.not(group_status: %w[stopped disengaged not_supported]).not_pending_support.sort_by(&:id)
 
-        case
-        when any_child_with_parent2?
-          handle_case_three if case_three?
-        when only_duplicated_children?
-          keep_only_one_family
-        else
-          move_children_to_a_single_child_support
+        keeping_supporters_child_supports do
+          case
+          when any_child_with_parent2?
+            handle_case_three if case_three?
+          when only_duplicated_children?
+            keep_only_one_family
+          else
+            move_children_to_a_single_child_support
+          end
         end
       end
     end
@@ -63,6 +68,7 @@ class Child
     def handle_duplicated_children_without_parent2
       @duplicated_children_without_parent2.each do |_, children|
         @children = children
+        next if many_supported_child_supports?(@children)
         next if any_child_with_parent2?
 
         next if more_than_one_children_supported?
@@ -76,10 +82,10 @@ class Child
         not_waiting_children = Child.where(id: @children.map(&:id)).where.not(group_status: %w[stopped disengaged not_supported]).not_pending_support.sort_by(&:id)
         next if waiting_children.empty?
 
-        @first_parent = Parent.find_by(phone_number: phone_numbers.first)
-        @second_parent = Parent.find_by(phone_number: phone_numbers.second)
-        @child = not_waiting_children.empty? ? waiting_children.first : not_waiting_children.first
-        link_families
+        @child = supported_child || (not_waiting_children.empty? ? waiting_children.first : not_waiting_children.first)
+        @first_parent = @child.parent1
+        @second_parent = Parent.find_by(phone_number: (phone_numbers - [@first_parent.phone_number]).first)
+        keeping_supporters_child_supports { link_families }
       end
     end
 
@@ -119,7 +125,10 @@ class Child
     end
 
     def keep_supported_children_and_add_parent2_if_needed
-      started_group_children = @children.select { |child| child.group_id.to_i == @started_groups.first.id }
+      keep_children_and_add_parent2_if_needed(@children.select { |child| child.group_id.to_i == @started_groups.first.id })
+    end
+
+    def keep_children_and_add_parent2_if_needed(started_group_children)
       not_supported_children = @children - started_group_children
       parent2 = @children.select { |child| child.parent2.present? }.first&.parent2
 
@@ -177,16 +186,65 @@ class Child
         next if more_than_one_children_supported?
 
         @children = children
+        next if many_supported_child_supports?(@children)
+
         # Recupérer les cohortes
         @groups = children_groups
         @started_groups = @groups.select { |group| group.started_at.present? && (group.started_at <= Time.zone.today) && group.support_module_programmed.positive? }
-        case
-        when case_one?
-          handle_case_one
-        when case_two?
-          handle_case_two
-        end
+        keeping_supporters_child_supports { handle_children_with_parent2 }
       end
+    end
+
+    def handle_children_with_parent2
+      case
+      when supported_child
+        keep_children_and_add_parent2_if_needed([supported_child]) if case_one? || case_two?
+      when case_one?
+        handle_case_one
+      when case_two?
+        handle_case_two
+      end
+    end
+
+    # Ajouter un enfant ou un parent à une famille suivie est permis, pas lui retirer ni lui créer une fiche
+    def keeping_supporters_child_supports
+      ActiveRecord::Base.transaction(requires_new: true) do
+        child_supports_before = supporters_child_supports
+        yield
+        next if supporters_child_supports == child_supports_before
+
+        Rollbar.warning('Child::HandleDuplicateService : traitement annulé, il modifiait une fiche suivie', child_ids: @children.map(&:id))
+        raise ActiveRecord::Rollback
+      end
+    end
+
+    def supporters_child_supports
+      ChildSupport.kept.where.not(supporter_id: nil).order(:id).pluck(:id, :supporter_id)
+    end
+
+    def supported?(child)
+      child.child_support&.supporter_id.present?
+    end
+
+    def supported_child
+      @children.to_a.find { |child| supported?(child) }
+    end
+
+    def many_supported_child_supports?(children)
+      children.to_a.select { |child| supported?(child) }.map(&:child_support_id).uniq.size > 1
+    end
+
+    def children_of_duplicated_parents
+      parent_ids = @parents.map(&:id)
+      Child.kept.where(parent1_id: parent_ids).or(Child.kept.where(parent2_id: parent_ids))
+    end
+
+    def supported_parent
+      @parents.find { |parent| children_of_parent(parent).any? { |child| supported?(child) } }
+    end
+
+    def children_of_parent(parent)
+      Child.kept.where(parent1_id: parent.id).or(Child.kept.where(parent2_id: parent.id))
     end
 
     def any_child_with_parent2?
@@ -206,7 +264,7 @@ class Child
     def keep_only_one_family
       return if many_parents_with_supported_children?
 
-      parent_to_keep = @not_waiting_children.empty? ? @parents.first : @not_waiting_children.first.parent1
+      parent_to_keep = supported_parent || (@not_waiting_children.empty? ? @parents.first : @not_waiting_children.first.parent1)
       @parents.each do |parent|
         next if parent.id == parent_to_keep.id
 
@@ -244,6 +302,11 @@ class Child
 
     def single_child_support
       return nil if @waiting_children.empty?
+
+      if supported_child
+        @waiting_children.delete(supported_child)
+        return supported_child.child_support
+      end
 
       first_child = @not_waiting_children.empty? ? @waiting_children.shift : @not_waiting_children.first
       first_child.child_support

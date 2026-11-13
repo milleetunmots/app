@@ -185,4 +185,233 @@ RSpec.describe Child::HandleDuplicateService do
       expect(duplicated_first_child.reload.parent2_id).to eq(first_parent2.id)
     end
   end
+
+  context "quand un nouvel enfant est inscrit avec le numéro d'un parent dont la fiche est suivie par une accompagnante" do
+    it "rattache le nouvel enfant à la fiche suivie sans changer le nombre de fiches de l'accompagnante" do
+      supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      group = FactoryBot.create(:group, expected_children_number: 0)
+      sister = FactoryBot.create(:child, first_name: 'Inès', last_name: 'Martin', group: group, group_status: 'active',
+                                         parent1: FactoryBot.create(:parent, phone_number: '0611111111'))
+      sister.child_support.update!(supporter: supporter)
+      new_child = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin',
+                                            parent1: FactoryBot.create(:parent, phone_number: '0611111111'))
+
+      Child::HandleDuplicateService.new.call
+
+      expect(new_child.reload.child_support).to eq(sister.child_support)
+      expect(ChildSupport.kept.where(supporter: supporter)).to contain_exactly(sister.child_support)
+    end
+  end
+
+  context "quand le traitement d'un groupe de doublons retire une fiche suivie" do
+    it 'annule le traitement du groupe et le signale à Rollbar' do
+      allow(Rollbar).to receive(:warning)
+      supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      group = FactoryBot.create(:group, expected_children_number: 0)
+      sister = FactoryBot.create(:child, first_name: 'Inès', last_name: 'Martin', group: group, group_status: 'active',
+                                         parent1: FactoryBot.create(:parent, phone_number: '0611111111'))
+      sister.child_support.update!(supporter: supporter)
+      new_child = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin',
+                                            parent1: FactoryBot.create(:parent, phone_number: '0611111111'))
+      service = Child::HandleDuplicateService.new
+      allow(service).to receive(:move_children_to_a_single_child_support) { sister.child_support.discard }
+
+      service.call
+
+      expect(sister.child_support.reload).to be_kept
+      expect(Rollbar).to have_received(:warning).with(a_string_including('fiche suivie'), child_ids: contain_exactly(sister.id, new_child.id))
+    end
+  end
+
+  context "quand un enfant suivi a un nouveau doublon dont la fiche n'a pas d'accompagnante" do
+    it "archive le nouveau doublon et garde l'enfant suivi avec sa fiche" do
+      supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      birthdate = Time.zone.today - 10.months
+      group = FactoryBot.create(:group, expected_children_number: 0)
+      supported_child = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', birthdate: birthdate, group: group, group_status: 'active',
+                                                  parent1: FactoryBot.create(:parent, phone_number: '0611111111'),
+                                                  parent2: FactoryBot.create(:parent, phone_number: '0622222222'))
+      supported_child.child_support.update!(supporter: supporter)
+      duplicate = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', birthdate: birthdate,
+                                            parent1: FactoryBot.create(:parent, phone_number: '0611111111'),
+                                            parent2: FactoryBot.create(:parent, phone_number: '0622222222'))
+
+      Child::HandleDuplicateService.new.call
+
+      expect(duplicate.reload).to be_discarded
+      expect(supported_child.reload).to be_kept
+      expect(supported_child.child_support).to be_kept
+      expect(supported_child.child_support.supporter).to eq(supporter)
+    end
+  end
+
+  context "quand les fiches des deux doublons sont suivies par une accompagnante" do
+    it "n'archive aucun des deux enfants" do
+      first_supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      second_supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      birthdate = Time.zone.today - 10.months
+      group = FactoryBot.create(:group, expected_children_number: 0)
+      first_child = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', birthdate: birthdate, group: group, group_status: 'active', created_at: 1.month.ago,
+                                              parent1: FactoryBot.create(:parent, phone_number: '0611111111'),
+                                              parent2: FactoryBot.create(:parent, phone_number: '0622222222'))
+      first_child.child_support.update!(supporter: first_supporter)
+      second_child = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', birthdate: birthdate, group: group, group_status: 'active', created_at: 2.weeks.ago,
+                                               parent1: FactoryBot.create(:parent, phone_number: '0611111111'),
+                                               parent2: FactoryBot.create(:parent, phone_number: '0622222222'))
+      second_child.child_support.update!(supporter: second_supporter)
+
+      Child::HandleDuplicateService.new.call
+
+      expect(first_child.reload).to be_kept
+      expect(second_child.reload).to be_kept
+      expect(first_child.child_support).to be_kept
+      expect(second_child.child_support).to be_kept
+    end
+  end
+
+  context "quand un ancien enfant suivi est réinscrit par son autre parent" do
+    it "garde l'ancien enfant et sa fiche, lui ajoute l'autre parent et archive la réinscription" do
+      supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      birthdate = Time.zone.today - 22.months
+      group = FactoryBot.create(:group, expected_children_number: 0, started_at: Date.new(2025, 1, 6), ended_at: Date.new(2025, 6, 30))
+      old_child = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', birthdate: birthdate, group: group, group_status: 'stopped',
+                                            parent1: FactoryBot.create(:parent, phone_number: '0611111111'))
+      old_child.child_support.update!(supporter: supporter)
+      father = FactoryBot.create(:parent, phone_number: '0622222222')
+      reenrollment = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', birthdate: birthdate, parent1: father)
+
+      Child::HandleDuplicateService.new.call
+
+      expect(old_child.reload).to be_kept
+      expect(old_child.group_status).to eq('stopped')
+      expect(old_child.group).to eq(group)
+      expect(old_child.parent2).to eq(father)
+      expect(old_child.child_support).to be_kept
+      expect(reenrollment.reload).to be_discarded
+    end
+  end
+
+  context "quand un nouvel enfant inscrit avant sa sœur suivie partage le numéro de leur mère" do
+    it "rattache le nouvel enfant à la fiche suivie plutôt que l'inverse" do
+      supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      group = FactoryBot.create(:group, expected_children_number: 0)
+      new_child = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin',
+                                            parent1: FactoryBot.create(:parent, phone_number: '0611111111'))
+      sister = FactoryBot.create(:child, first_name: 'Inès', last_name: 'Martin', group: group, group_status: 'active',
+                                         parent1: FactoryBot.create(:parent, phone_number: '0611111111'))
+      sister.child_support.update!(supporter: supporter)
+
+      Child::HandleDuplicateService.new.call
+
+      expect(new_child.reload.child_support).to eq(sister.child_support)
+      expect(sister.reload.child_support).to be_kept
+      expect(sister.child_support.supporter).to eq(supporter)
+    end
+  end
+
+  context "quand deux fiches de parents au même numéro portent le même enfant et que la plus récente est suivie" do
+    it "garde la famille suivie et archive l'autre" do
+      supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      birthdate = Time.zone.today - 10.months
+      group = FactoryBot.create(:group, expected_children_number: 0)
+      duplicate = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', birthdate: birthdate,
+                                            parent1: FactoryBot.create(:parent, phone_number: '0611111111'))
+      supported_parent = FactoryBot.create(:parent, phone_number: '0611111111')
+      supported_child = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', birthdate: birthdate, group: group, group_status: 'active', parent1: supported_parent)
+      supported_child.child_support.update!(supporter: supporter)
+
+      Child::HandleDuplicateService.new.call
+
+      expect(duplicate.reload).to be_discarded
+      expect(supported_child.reload).to be_kept
+      expect(supported_child.parent1).to eq(supported_parent)
+      expect(supported_parent.reload).to be_kept
+      expect(supported_child.child_support).to be_kept
+    end
+  end
+
+  context "quand deux enfants différents ont les mêmes parents et que le plus récent est suivi" do
+    it "rattache l'autre enfant à la fiche suivie" do
+      supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      group = FactoryBot.create(:group, expected_children_number: 0)
+      sister = FactoryBot.create(:child, first_name: 'Inès', last_name: 'Martin', created_at: 1.month.ago,
+                                         parent1: FactoryBot.create(:parent, phone_number: '0611111111'),
+                                         parent2: FactoryBot.create(:parent, phone_number: '0622222222'))
+      supported_child = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', group: group, group_status: 'active', created_at: 2.weeks.ago,
+                                                  parent1: FactoryBot.create(:parent, phone_number: '0611111111'),
+                                                  parent2: FactoryBot.create(:parent, phone_number: '0622222222'))
+      supported_child.child_support.update!(supporter: supporter)
+
+      Child::HandleDuplicateService.new.call
+
+      expect(sister.reload.child_support).to eq(supported_child.child_support)
+      expect(supported_child.reload.child_support).to be_kept
+      expect(supported_child.child_support.supporter).to eq(supporter)
+    end
+  end
+
+  context "quand deux doublons ont les mêmes parents et que le plus récent est suivi" do
+    it "garde l'enfant suivi et archive le plus ancien" do
+      supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      birthdate = Time.zone.today - 10.months
+      group = FactoryBot.create(:group, expected_children_number: 0)
+      older_child = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', birthdate: birthdate, created_at: 1.month.ago,
+                                              parent1: FactoryBot.create(:parent, phone_number: '0611111111'),
+                                              parent2: FactoryBot.create(:parent, phone_number: '0622222222'))
+      supported_child = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', birthdate: birthdate, group: group, group_status: 'active', created_at: 2.weeks.ago,
+                                                  parent1: FactoryBot.create(:parent, phone_number: '0611111111'),
+                                                  parent2: FactoryBot.create(:parent, phone_number: '0622222222'))
+      supported_child.child_support.update!(supporter: supporter)
+
+      Child::HandleDuplicateService.new.call
+
+      expect(older_child.reload).to be_discarded
+      expect(supported_child.reload).to be_kept
+      expect(supported_child.child_support).to be_kept
+    end
+  end
+
+  context "quand l'enfant suivi n'a pas de parent 2 et que son doublon en a un" do
+    it "garde l'enfant suivi, lui ajoute le parent 2 et archive le doublon" do
+      supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      birthdate = Time.zone.today - 10.months
+      group = FactoryBot.create(:group, expected_children_number: 0)
+      supported_child = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', birthdate: birthdate, group: group, group_status: 'active',
+                                                  parent1: FactoryBot.create(:parent, phone_number: '0611111111'))
+      supported_child.child_support.update!(supporter: supporter)
+      father = FactoryBot.create(:parent, phone_number: '0622222222')
+      duplicate = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', birthdate: birthdate,
+                                            parent1: FactoryBot.create(:parent, phone_number: '0611111111'), parent2: father)
+
+      Child::HandleDuplicateService.new.call
+
+      expect(duplicate.reload).to be_discarded
+      expect(supported_child.reload).to be_kept
+      expect(supported_child.parent2).to eq(father)
+      expect(supported_child.child_support).to be_kept
+    end
+  end
+
+  context "le jour du démarrage d'une cohorte dont aucun module n'est programmé" do
+    it "ajoute le second parent à l'enfant suivi et archive le doublon" do
+      supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      start_day = Time.zone.today.next_occurring(:monday)
+      travel_to start_day do
+        birthdate = Time.zone.today - 10.months
+        group = FactoryBot.create(:group, expected_children_number: 0, started_at: start_day, support_module_programmed: 0)
+        supported_child = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', birthdate: birthdate, group: group, group_status: 'active',
+                                                    parent1: FactoryBot.create(:parent, phone_number: '0611111111'))
+        supported_child.child_support.update!(supporter: supporter)
+        father = FactoryBot.create(:parent, phone_number: '0622222222')
+        duplicate = FactoryBot.create(:child, first_name: 'Léo', last_name: 'Martin', birthdate: birthdate, parent1: father)
+
+        Child::HandleDuplicateService.new.call
+
+        expect(supported_child.reload).to be_kept
+        expect(supported_child.parent2).to eq(father)
+        expect(supported_child.child_support.supporter).to eq(supporter)
+        expect(duplicate.reload).to be_discarded
+      end
+    end
+  end
 end

@@ -53,6 +53,7 @@ class Group
         associate_child_supports_with_siblings_to_supporters
         associate_child_supports_without_siblings_to_supporters
         check_all_child_supports_are_associated
+        mark_group_as_supporters_assigned
       end
       # @count_by_supporter.each do |count|
       #   count[:child_supports_months] = ChildSupport.in_group(@group.id).where(supporter_id: count[:admin_user_id]).map { |cs| cs.children.map(&:months) }.flatten
@@ -253,6 +254,12 @@ class Group
       ).call
     end
 
+
+    def mark_group_as_supporters_assigned
+      return if @group.supporters_assigned?
+
+      @group.update!(supporters_assigned_at: Time.zone.now)
+    end
 
     def assign_child_supports_with_siblings_left_over
       distribute_left_over(@child_supports_with_siblings)
