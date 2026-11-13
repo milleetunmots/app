@@ -4,6 +4,7 @@ class RegistrationConfirmationMailer < ApplicationMailer
   def confirmation(child_id, recipient_email)
     @child = Child.find(child_id)
     @parent = @child.parent1
+    attachments.inline['logo-1001mots.png'] = Rails.root.join('app/assets/images/registration/logo-1001mots.png').binread
     mail(to: recipient_email, subject: I18n.t('registration_confirmation_email.email_subject', first_name: @child.first_name))
   rescue StandardError => e
     Rollbar.error(e, 'RegistrationConfirmationMailer#confirmation', child_id: child_id, recipient_email: recipient_email)

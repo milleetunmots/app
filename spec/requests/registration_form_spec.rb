@@ -103,6 +103,33 @@ RSpec.describe "Formulaire d'inscription", type: :request do
     end
   end
 
+  describe "formulaire fermé" do
+    it "affiche le message de fermeture avec la nouvelle charte" do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("BLOCKED_REGISTRATION_PATHS").and_return("/inscription5")
+
+      get "/inscription5"
+      page = Capybara.string(response.body)
+
+      expect(page.find(".charter-page #mots-logo")[:src]).to include("registration/logo-1001mots")
+      expect(page.find(".charter-page h1")).to have_text("Les inscriptions sont fermées")
+      expect(page.find(".charter-page-body .charter-page-card")).to have_text("contactez-nous à pmi@1001mots.org")
+      expect(page).to have_link("pmi@1001mots.org", href: "mailto:pmi@1001mots.org")
+      expect(page).not_to have_css("form#new_child")
+    end
+
+    it "affiche le message de limite atteinte avec la nouvelle charte" do
+      allow_any_instance_of(ChildrenController).to receive(:check_registration_limits) { |controller| controller.instance_variable_set(:@limit_reached, true) }
+
+      get "/inscription3"
+      page = Capybara.string(response.body)
+
+      expect(page.find(".charter-page h1")).to have_text("Les inscriptions sont temporairement fermées")
+      expect(page.find(".charter-page-body .charter-page-card")).to have_text("Les inscriptions sont limitées")
+      expect(page).not_to have_css("form#new_child")
+    end
+  end
+
   describe "page de confirmation" do
     it "affiche le logo, le titre, le message dans la zone marine et le bouton pour inscrire un autre enfant" do
       get "/inscription3"
@@ -110,10 +137,10 @@ RSpec.describe "Formulaire d'inscription", type: :request do
       get "/inscrit"
       page = Capybara.string(response.body)
 
-      expect(page.find(".registration-confirmation #mots-logo")[:src]).to include("registration/logo-1001mots")
-      expect(page.find(".registration-confirmation h1")).to have_text("Inscription effectuée avec succès")
-      expect(page.find(".registration-confirmation-body .registration-confirmation-card")).to have_text(I18n.t("inscription_success.pro"))
-      expect(page.find(".registration-confirmation-body")).to have_link("Inscrire un autre enfant", href: "/inscription3")
+      expect(page.find(".charter-page #mots-logo")[:src]).to include("registration/logo-1001mots")
+      expect(page.find(".charter-page h1")).to have_text("Inscription effectuée avec succès")
+      expect(page.find(".charter-page-body .charter-page-card")).to have_text(I18n.t("inscription_success.pro"))
+      expect(page.find(".charter-page-body")).to have_link("Inscrire un autre enfant", href: "/inscription3")
       expect(page).to have_link("Retour", href: "/inscription3")
     end
 
@@ -123,7 +150,7 @@ RSpec.describe "Formulaire d'inscription", type: :request do
       get "/inscrit"
       page = Capybara.string(response.body)
 
-      expect(page).to have_css(".registration-confirmation-body iframe#helloasso-widget")
+      expect(page).to have_css(".charter-page-body iframe#helloasso-widget")
       expect(page).not_to have_link("Inscrire un autre enfant")
     end
   end

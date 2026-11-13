@@ -7,32 +7,18 @@
       <div data-tf-live="01JRD829S4W2DG2HP78JKWF431"
         data-tf-hidden="child_id=<%= @child_id %>,ccn=<%= @ccn %>,ccm=<%= @ccm %>,pfn=<%= @pfn %>,pln=<%= @pln %>"></div><script src="//embed.typeform.com/next/embed.js"></script>
     <% else %>
-      <div class="registration-confirmation">
-        <div class="container registration-confirmation-header">
-          <div class="registration-confirmation-top">
-            <%= image_tag("registration/logo-1001mots.png", id: "mots-logo", alt: "1001mots") %>
-            <% unless @with_parent_no_target %>
-              <%= link_to @new_link, class: 'back-btn' do %>
-                <span aria-hidden="true">←</span> Retour
-              <% end %>
-            <% end %>
-          </div>
-          <h1><%= @with_parent_no_target ? 'Votre demande va être traitée' : 'Inscription effectuée avec succès' %></h1>
+      <% back_link = link_to(@new_link, class: 'back-btn') { tag.span('←', aria: { hidden: true }) + ' Retour' } unless @with_parent_no_target %>
+      <%= render layout: 'shared/charter_page', locals: { title: @with_parent_no_target ? 'Votre demande va être traitée' : 'Inscription effectuée avec succès', top_link: back_link } do %>
+        <div class="charter-page-card">
+          <p><%== @message %></p>
+          <% if @again %>
+            <%= link_to 'Inscrire un autre enfant', @new_link, class: 'btn charter-page-button' %>
+          <% end %>
         </div>
-        <div class="registration-confirmation-body">
-          <div class="container">
-            <div class="registration-confirmation-card">
-              <p><%== @message %></p>
-              <% if @again %>
-                <%= link_to 'Inscrire un autre enfant', @new_link, class: 'btn registration-confirmation-again' %>
-              <% end %>
-            </div>
-            <% if @widget %>
-              <iframe id="helloasso-widget" allowtransparency="true" src="https://www.helloasso.com/associations/1001mots/formulaires/2/widget"></iframe>
-            <% end %>
-          </div>
-        </div>
-      </div>
+        <% if @widget %>
+          <iframe id="helloasso-widget" allowtransparency="true" src="https://www.helloasso.com/associations/1001mots/formulaires/2/widget"></iframe>
+        <% end %>
+      <% end %>
     <% end %>
   </div>
 </div>

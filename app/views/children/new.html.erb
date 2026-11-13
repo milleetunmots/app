@@ -1,15 +1,19 @@
 <div id="inscription">
   <% if @form_path.in?(ENV['BLOCKED_REGISTRATION_PATHS'].split(',')) %>
-    <div id="registration-closed">
-      <p>Les inscriptions sont fermées. Si vous êtes une structure partenaire de 1001mots, contactez-nous à pmi@1001mots.org</p>
-    </div>
+    <%= render layout: 'shared/charter_page', locals: { title: 'Les inscriptions sont fermées' } do %>
+      <div class="charter-page-card">
+        <p>Si vous êtes une structure partenaire de 1001mots, contactez-nous à <%= mail_to 'pmi@1001mots.org' %></p>
+      </div>
+    <% end %>
   <% elsif @limit_reached && @form_path_url.include?('utm_source=') && @form_path_url.include?('utm_caf=') %>
     <div data-tf-live="01KNP1JC3T8SSBC28ECGPPRGWH"
          data-tf-hidden="utm_source=<%= params['utm_source'] %>,utm_medium=<%= params['utm_medium'] %>,utm_caf=<%= params['utm_caf'] %>"></div><script src="//embed.typeform.com/next/embed.js"></script>
   <% elsif @limit_reached %>
-    <div id="registration-closed">
-      <p>Les inscriptions sont limitées et le formulaire est malheureusement temporairement fermé.</p>
-    </div>
+    <%= render layout: 'shared/charter_page', locals: { title: 'Les inscriptions sont temporairement fermées' } do %>
+      <div class="charter-page-card">
+        <p>Les inscriptions sont limitées et le formulaire est malheureusement temporairement fermé.</p>
+      </div>
+    <% end %>
   <% else %>
     <% visual = registration_visual(current_registration_origin) %>
     <div class="container" id="inscription-content">

@@ -6,8 +6,8 @@
   font-size: $size
   line-height: 1.15
 
-// Même charte que le formulaire : en-tête beige, zone marine jusqu'en bas de l'écran.
-.registration-confirmation
+// Page simple de la charte (shared/_charter_page) : en-tête beige, zone marine jusqu'en bas.
+.charter-page
   display: flex
   flex-direction: column
   min-height: 100vh
@@ -17,10 +17,10 @@
   overflow-x: hidden
   text-align: center
 
-  .registration-confirmation-header
+  .charter-page-header
     padding-top: 24px
 
-  .registration-confirmation-top
+  .charter-page-top
     display: flex
     justify-content: space-between
     align-items: center
@@ -45,7 +45,7 @@
     margin: 32px auto 0
     max-width: 760px
 
-  .registration-confirmation-body
+  .charter-page-body
     position: relative
     flex: 1
     margin-top: 90px
@@ -65,7 +65,7 @@
     > *
       position: relative
 
-  .registration-confirmation-card
+  .charter-page-card
     max-width: 760px
     margin: 0 auto
     padding: 32px
@@ -81,7 +81,7 @@
       color: $charter-blue
       font-weight: 700
 
-  .registration-confirmation-again
+  .charter-page-button
     +charter-title(21px)
     display: inline-block
     margin-top: 24px
@@ -90,6 +90,23 @@
     border: none
     border-radius: 999px
     color: $navy !important
+    &:hover, &:focus
+      background: $navy
+      color: $beige !important
+
+  .charter-page-actions
+    display: flex
+    flex-wrap: wrap
+    justify-content: center
+    gap: 12px
+    margin-top: 8px
+
+    .charter-page-button
+      margin-top: 0
+
+  .charter-page-button--secondary
+    background: transparent
+    border: 2px solid $navy
     &:hover, &:focus
       background: $navy
       color: $beige !important
@@ -112,7 +129,7 @@
       font-size: 28px
       margin-top: 24px
 
-    .registration-confirmation-body
+    .charter-page-body
       margin-top: 50px
       padding-top: 20px
 
@@ -120,11 +137,11 @@
         top: -30px
         height: 60px
 
-    .registration-confirmation-card
+    .charter-page-card
       padding: 20px
       font-size: 16px
 
-body:has(.registration-confirmation) footer
+body:has(.charter-page) footer
   background: $navy
   padding: 0 16px 12px
 
