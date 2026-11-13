@@ -317,8 +317,8 @@ RSpec.describe "Formulaire d'inscription", type: :request do
       get "/inscription3"
       page = Capybara.string(response.body)
 
-      expect(page.find("#registration_confirmation_email")[:required]).to be_nil
-      expect(page.find("#registration_confirmation_email")[:type]).not_to eq("email")
+      expect(page.find("#registration_confirmation_email", visible: :all)[:required]).to be_nil
+      expect(page.find("#registration_confirmation_email", visible: :all)[:type]).not_to eq("email")
     end
   end
 
