@@ -41,9 +41,9 @@ class SpotHit::CreateRcsModelService
       return
     end
 
-    if image.blank?
-      @errors << "image#{@message_index} is blank, cannot create RCS template"
-    end
+    # if image.blank?
+    #   @errors << "image#{@message_index} is blank, cannot create RCS template"
+    # end
   end
 
   # Le contenu riche du template (body, titre, libellé du CTA) part tel quel à
