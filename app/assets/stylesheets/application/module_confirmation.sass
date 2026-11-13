@@ -1,4 +1,5 @@
 @import variables
+@import mixins
 
 // Même charte que la page de choix du thème : en-tête beige, zone marine jusqu'en bas.
 #update-success.module-confirmation
@@ -22,7 +23,7 @@
   #thanks
     h1, h5
       font-family: $text-font
-      font-weight: 700
+      font-weight: 900
       font-size: 36px
       line-height: 1.15
       color: $navy
@@ -50,8 +51,9 @@
       position: relative
 
   .module-confirmation-card
+    +card-shadow
     max-width: 760px
-    margin: 0 auto 24px
+    margin: 0 auto 32px
     padding: 28px 32px
     background: $beige
     border-radius: 16px
@@ -73,17 +75,18 @@
 
     .module-confirmation-instagram-name
       font-weight: 700
-      color: $charter-blue
+      color: $blue
 
   // Questionnaire de mi-parcours (3e choix) : mêmes cartes, boutons de la charte.
   .module-confirmation-survey
+    +card-shadow
     border: none
     border-radius: 16px
     background: $beige
     overflow: hidden
 
     .card-header
-      background: $charter-yellow
+      background: $yellow
       border: none
       color: $navy
 
@@ -96,7 +99,7 @@
       border: none
 
     .btn
-      border-radius: 999px
+      +button-shape
       font-weight: 700
 
     .btn-outline-primary
@@ -107,8 +110,8 @@
         background: rgba($navy, 0.08)
 
     .btn-primary
-      border: 2px solid $charter-yellow
-      background: $charter-yellow
+      border: 2px solid $yellow
+      background: $yellow
       color: $navy
 
     // Notes 1 à 10 : pastilles séparées, pas un btn-group collé.

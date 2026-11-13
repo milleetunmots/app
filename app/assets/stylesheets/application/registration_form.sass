@@ -1,10 +1,5 @@
 @import variables
-
-=charter-title($size)
-  font-family: $charter-title-font, $text-font, sans-serif
-  font-weight: 700
-  font-size: $size
-  line-height: 1.15
+@import mixins
 
 #inscription
   background: $beige
@@ -58,7 +53,7 @@
 
     h1
       font-family: $text-font
-      font-weight: 700
+      font-weight: 900
       font-size: 44px
       line-height: 1.1
       color: $navy
@@ -79,7 +74,7 @@
           color: $navy
 
       b
-        color: $charter-blue
+        color: $blue
 
   .registration-pills
     display: flex
@@ -88,7 +83,7 @@
 
   .registration-pill
     +charter-title(21px)
-    background: $charter-yellow
+    background: $yellow
     color: $navy
     border-radius: 999px
     padding: 4px 18px
@@ -164,10 +159,10 @@
       margin-bottom: 16px
 
   .registration-card--child
-    background: $charter-yellow
+    background: $yellow
 
   .registration-card--parent
-    background: $charter-pink
+    background: $pink
 
   .registration-card--plain
     background: $beige
@@ -211,15 +206,15 @@
     margin-right: 24px
 
   .invalid-feedback
-    color: #c8102e
+    color: $danger
     font-weight: 600
 
   .child_parent1_postal_code small, #registration_confirmation_email_warning
-    color: #c8102e !important
+    color: $danger !important
 
   .btn
     +charter-title(18px)
-    border-radius: 999px
+    +button-shape
     padding: 10px 24px
 
   .btn-primary
@@ -243,18 +238,15 @@
     margin-top: 30px
 
   #child-registration-submit
-    +charter-title(21px)
-    background: $charter-yellow
-    border: none
+    +brand-button
     color: $navy
-    padding: 12px 40px
     &:hover, &:focus
       background: $beige
       color: $navy
 
   #registration-confirmation-email-card
     #registration_confirmation_email
-      border: 2px solid $charter-yellow
+      border: 2px solid $yellow
 
       &.is-invalid
         border-color: #dc3545
@@ -264,7 +256,7 @@
     font-weight: 600
 
   a, a[target='_blank']
-    color: $charter-blue
+    color: $blue
 
   #registration-contact
     color: $beige
@@ -273,7 +265,7 @@
     margin-bottom: 0
 
     a
-      color: $charter-yellow
+      color: $yellow
       font-weight: 700
 
   @media (max-width: 991px)
