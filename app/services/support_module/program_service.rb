@@ -88,7 +88,7 @@ class SupportModule::ProgramService
   end
 
   def create_rcs_template(text_messages_bundle, index)
-    return if text_messages_bundle.send("rcs_media#{index}_id").present? == text_messages_bundle.send("image#{index}_id").present?
+    return if text_messages_bundle.send("rcs_media#{index}_id").present? || text_messages_bundle.send("image#{index}_id").blank?
 
     create_rcs_template_service = SpotHit::CreateRcsModelService.new(
       text_messages_bundle: text_messages_bundle,
