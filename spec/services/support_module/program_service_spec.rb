@@ -111,6 +111,24 @@ RSpec.describe SupportModule::ProgramService do
       end
     end
 
+    context 'quand un message long sans image part en RCS single texte' do
+      it 'transmet en secours le texte complet et la valeur de chaque variable' do
+        campaigns = []
+        stub_spot_hit_campaigns(campaigns)
+        body = "1001mots : cette semaine, chantez une comptine avec {PRENOM_ENFANT} pendant le bain.\n" \
+               "Pour qu'elle s'en souvienne, reprenez-la chaque soir au coucher, en douceur, avec ses gestes préférés."
+        bundle = FactoryBot.create(:media_text_messages_bundle, body1: body, body2: nil, body3: nil)
+        bundle.update_column(:rcs_media1_id, 4521)
+
+        with_rcs_single_text('true') { program_module_with(bundle) }
+
+        campaign = campaign_for(campaigns, '1001mots : cette semaine')
+        expect(channel_of(campaign)).to eq('RCS single 4521')
+        expect(campaign['fallback_message']).to eq(body)
+        expect(campaign['custom_list_with_data'].values.first['PRENOM_ENFANT']).to eq('Léa')
+      end
+    end
+
     context "quand un message long sans image n'a pas de modèle et que RCS_SINGLE_TEXT_ENABLED est actif" do
       it 'envoie le message en SMS et signale le trio sans modèle à Rollbar' do
         campaigns = []
