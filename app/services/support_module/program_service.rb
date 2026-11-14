@@ -74,7 +74,8 @@ class SupportModule::ProgramService
   def program_support_module_week(support_module_week_medium, index)
     return if support_module_week_medium.send("body#{index}").blank?
 
-    rcs_media_id = support_module_week_medium.send("rcs_media#{index}_id")
+    rcs_media_id = support_module_week_medium.rcs_media_id_to_send(index)
+    report_missing_rcs_text_template(support_module_week_medium, index)
     redirection_target = RedirectionTarget.find_or_create_by(medium_id: support_module_week_medium.send("link#{index}_id"))
     create_rcs_template(support_module_week_medium, index)
     program_message(
@@ -84,6 +85,18 @@ class SupportModule::ProgramService
       support_module_week_medium.send("body#{index}"),
       rcs_media_id,
       redirection_target&.id
+    )
+  end
+
+  # Pas dans @errors : ChildSupport::ProgramChosenModulesService lèverait, alors que le message part en SMS.
+  def report_missing_rcs_text_template(text_messages_bundle, index)
+    return unless text_messages_bundle.rcs_text_template_missing?(index)
+
+    Rollbar.error(
+      'SupportModule::ProgramService',
+      error: 'Modèle RCS texte manquant : le message part en SMS',
+      text_messages_bundle_id: text_messages_bundle.id,
+      message_index: index
     )
   end
 

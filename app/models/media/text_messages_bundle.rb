@@ -83,6 +83,21 @@ class Media::TextMessagesBundle < Medium
     'sms'
   end
 
+  def self.rcs_single_text_enabled?
+    ENV['RCS_SINGLE_TEXT_ENABLED'].present?
+  end
+
+  def rcs_media_id_to_send(index)
+    return public_send("rcs_media#{index}_id") if public_send("image#{index}_id").present?
+    return unless self.class.rcs_single_text_enabled? && long_message?(index)
+
+    public_send("rcs_media#{index}_id")
+  end
+
+  def rcs_text_template_missing?(index)
+    rcs_media_id_to_send(index).nil? && self.class.rcs_single_text_enabled? && long_message?(index)
+  end
+
   def self.single_message
     where.not(
       body1: [nil, '']
@@ -117,6 +132,13 @@ class Media::TextMessagesBundle < Medium
   end
 
   private
+
+  # ProgramMessageService ajoute ' {URL}' au message avant de mesurer sa taille.
+  def long_message?(index)
+    body = public_send("body#{index}").to_s
+    body += ' {URL}' if public_send("link#{index}_id").present? && body.exclude?('{URL}')
+    body.bytesize > MESSAGE_TYPE_MAX_BYTESIZE
+  end
 
   def update_rcs_model1
     service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: 1).call
