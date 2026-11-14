@@ -72,15 +72,38 @@ class Media::TextMessagesBundle < Medium
 
   # Type d'envoi SpotHit du message d'index donné (1..3) :
   # - 'single' : une image est présente (RCS avec média) ;
-  # - 'basic'  : pas d'image et corps ≤ 160 octets (RCS basic) ;
-  # - 'sms'    : sinon (texte long sans image).
+  # - 'basic'  : pas d'image et message envoyé ≤ 160 octets (RCS basic) ;
+  # - 'single texte' ou 'sms' : texte long sans image, selon RCS_SINGLE_TEXT_ENABLED.
   def message_type(index)
     return 'single' if public_send("image#{index}_id").present?
+    return 'basic' unless long_message?(index)
 
-    body = public_send("body#{index}")
-    return 'basic' if body.present? && body.bytesize <= MESSAGE_TYPE_MAX_BYTESIZE
+    self.class.rcs_single_text_enabled? ? 'single texte' : 'sms'
+  end
 
-    'sms'
+  def self.rcs_single_text_enabled?
+    ENV['RCS_SINGLE_TEXT_ENABLED'].present?
+  end
+
+  # Un modèle qui n'appartient à aucun trio (messages « Amont », lus dans l'ENV) est rejoué tel quel.
+  def self.rcs_media_id_for_replay(rcs_media_id)
+    return rcs_media_id if rcs_media_id.blank?
+
+    bundle = where(rcs_media1_id: rcs_media_id).or(where(rcs_media2_id: rcs_media_id)).or(where(rcs_media3_id: rcs_media_id)).first
+    return rcs_media_id unless bundle
+
+    bundle.rcs_media_id_to_send((1..3).find { |index| bundle.public_send("rcs_media#{index}_id").to_s == rcs_media_id.to_s })
+  end
+
+  def rcs_media_id_to_send(index)
+    return public_send("rcs_media#{index}_id") if public_send("image#{index}_id").present?
+    return unless self.class.rcs_single_text_enabled? && long_message?(index)
+
+    public_send("rcs_media#{index}_id")
+  end
+
+  def rcs_text_template_missing?(index)
+    rcs_media_id_to_send(index).nil? && self.class.rcs_single_text_enabled? && long_message?(index)
   end
 
   def self.single_message
@@ -117,6 +140,13 @@ class Media::TextMessagesBundle < Medium
   end
 
   private
+
+  # ProgramMessageService ajoute ' {URL}' au message avant de mesurer sa taille.
+  def long_message?(index)
+    body = public_send("body#{index}").to_s
+    body += ' {URL}' if public_send("link#{index}_id").present? && body.exclude?('{URL}')
+    body.bytesize > MESSAGE_TYPE_MAX_BYTESIZE
+  end
 
   def update_rcs_model1
     service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: 1).call
