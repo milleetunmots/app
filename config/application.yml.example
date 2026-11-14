@@ -34,6 +34,9 @@ SUPPORTER_ASSIGNMENT_EMAILS: xxx
 #KEYWORD_FILTER_BLOCKING_ENABLED: true
 #PHONE_NUMBER_FILTER_BLOCKING_ENABLED: true
 
+# Envoie en RCS single, avec leur modèle texte, les messages de trio sans image de plus de 160 octets (sinon SMS).
+#RCS_SINGLE_TEXT_ENABLED: true
+
 # Compte assigné aux tâches de suivi des envois bloqués (e-mail d'un AdminUser).
 BLOCKED_SEND_ASSIGNEE_EMAIL: xxx
 
