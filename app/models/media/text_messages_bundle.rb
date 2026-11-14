@@ -87,6 +87,16 @@ class Media::TextMessagesBundle < Medium
     ENV['RCS_SINGLE_TEXT_ENABLED'].present?
   end
 
+  # Un modèle qui n'appartient à aucun trio (messages « Amont », lus dans l'ENV) est rejoué tel quel.
+  def self.rcs_media_id_for_replay(rcs_media_id)
+    return rcs_media_id if rcs_media_id.blank?
+
+    bundle = where(rcs_media1_id: rcs_media_id).or(where(rcs_media2_id: rcs_media_id)).or(where(rcs_media3_id: rcs_media_id)).first
+    return rcs_media_id unless bundle
+
+    bundle.rcs_media_id_to_send((1..3).find { |index| bundle.public_send("rcs_media#{index}_id").to_s == rcs_media_id.to_s })
+  end
+
   def rcs_media_id_to_send(index)
     return public_send("rcs_media#{index}_id") if public_send("image#{index}_id").present?
     return unless self.class.rcs_single_text_enabled? && long_message?(index)

@@ -17,7 +17,7 @@ class BlockedSendAttempt::SendAttemptReplayer
       params[:planned_hour],
       params[:recipients],
       @message,
-      params[:rcs_media_id],
+      Media::TextMessagesBundle.rcs_media_id_for_replay(params[:rcs_media_id]),
       params[:redirection_target_id],
       params[:quit_message],
       params[:workshop_id],
