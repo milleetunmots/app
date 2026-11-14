@@ -852,4 +852,36 @@ RSpec.describe ProgramMessageService do
       end
     end
   end
+
+  describe 'canal selon RCS_SINGLE_TEXT_ENABLED' do
+    def with_rcs_single_text(value)
+      previous = ENV.fetch('RCS_SINGLE_TEXT_ENABLED', nil)
+      value.nil? ? ENV.delete('RCS_SINGLE_TEXT_ENABLED') : ENV['RCS_SINGLE_TEXT_ENABLED'] = value
+      yield
+    ensure
+      previous.nil? ? ENV.delete('RCS_SINGLE_TEXT_ENABLED') : ENV['RCS_SINGLE_TEXT_ENABLED'] = previous
+    end
+
+    it "envoie en SMS un texte libre de plus de 160 octets sans image, même quand l'interrupteur est actif" do
+      planned_date = Time.zone.tomorrow.strftime('%d-%m-%Y')
+
+      with_rcs_single_text('true') do
+        ProgramMessageService.new(planned_date, '12:30', ["parent.#{parent_2.id}"], 'a' * 300).call
+      end
+
+      expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
+      expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+    end
+
+    it "envoie en RCS single, avec le modèle transmis, un message sans trio quand l'interrupteur est absent" do
+      planned_date = Time.zone.tomorrow.strftime('%d-%m-%Y')
+
+      with_rcs_single_text(nil) do
+        ProgramMessageService.new(planned_date, '12:30', ["parent.#{parent_2.id}"], 'Votre accompagnante va vous appeler.', '777').call
+      end
+
+      single_with_template = ->(request) { Rack::Utils.parse_nested_query(request.body).values_at('rcs_type', 'media_id') == %w[single 777] }
+      expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').with(&single_with_template)
+    end
+  end
 end
