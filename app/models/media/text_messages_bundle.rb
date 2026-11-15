@@ -105,6 +105,13 @@ class Media::TextMessagesBundle < Medium
     public_send("rcs_media#{index}_id")
   end
 
+  # Texte inchangé ou message avec image : celui du trio et son modèle. Texte modifié : le texte reçu, sans modèle.
+  def message_to_program(index, submitted_body)
+    return { body: submitted_body, rcs_media_id: nil } if public_send("image#{index}_id").blank? && !same_text?(public_send("body#{index}"), submitted_body)
+
+    { body: public_send("body#{index}"), rcs_media_id: rcs_media_id_to_send(index) }
+  end
+
   def rcs_text_template_missing?(index)
     rcs_media_id_to_send(index).nil? && self.class.rcs_single_text_enabled? && long_message?(index)
   end
@@ -143,6 +150,11 @@ class Media::TextMessagesBundle < Medium
   end
 
   private
+
+  # Le navigateur renvoie le texte d'un textarea avec des fins de ligne \r\n.
+  def same_text?(text, other_text)
+    text.to_s.gsub("\r\n", "\n").strip == other_text.to_s.gsub("\r\n", "\n").strip
+  end
 
   # ProgramMessageService ajoute ' {URL}' au message avant de mesurer sa taille.
   def long_message?(index)

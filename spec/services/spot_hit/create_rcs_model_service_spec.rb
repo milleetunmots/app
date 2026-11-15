@@ -33,6 +33,25 @@ RSpec.describe SpotHit::CreateRcsModelService do
       ).call
     end
 
+    context 'en développement' do
+      before { allow(Rails.env).to receive(:development?).and_return(true) }
+
+      it "crée le modèle chez Spot-Hit quand SPOT_HIT_SAFEGUARD est absent" do
+        expect(service.rcs_media_id).to eq(12345)
+        expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
+      end
+
+      it "n'appelle pas Spot-Hit quand SPOT_HIT_SAFEGUARD est actif" do
+        previous = ENV.fetch('SPOT_HIT_SAFEGUARD', nil)
+        ENV['SPOT_HIT_SAFEGUARD'] = 'true'
+
+        expect(service.rcs_media_id).to be_nil
+        expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
+      ensure
+        ENV['SPOT_HIT_SAFEGUARD'] = previous
+      end
+    end
+
     context 'with valid params' do
       it 'creates an RCS template successfully' do
         expect(service.errors).to be_empty
