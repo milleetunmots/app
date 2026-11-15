@@ -2,35 +2,38 @@
 #
 # Table name: media
 #
-#  id             :bigint           not null, primary key
-#  body1          :text
-#  body2          :text
-#  body3          :text
-#  discarded_at   :datetime
-#  name           :string
-#  rcs_cta_title1 :string
-#  rcs_cta_title2 :string
-#  rcs_cta_title3 :string
-#  rcs_title1     :string(200)
-#  rcs_title2     :string(200)
-#  rcs_title3     :string(200)
-#  theme          :string
-#  type           :string
-#  url            :string
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
-#  airtable_id    :string
-#  folder_id      :bigint
-#  image1_id      :bigint
-#  image2_id      :bigint
-#  image3_id      :bigint
-#  link1_id       :bigint
-#  link2_id       :bigint
-#  link3_id       :bigint
-#  rcs_media1_id  :integer
-#  rcs_media2_id  :integer
-#  rcs_media3_id  :integer
-#  spot_hit_id    :string
+#  id                 :bigint           not null, primary key
+#  body1              :text
+#  body2              :text
+#  body3              :text
+#  discarded_at       :datetime
+#  name               :string
+#  rcs_cta_title1     :string
+#  rcs_cta_title2     :string
+#  rcs_cta_title3     :string
+#  rcs_text_template1 :boolean          default(FALSE), not null
+#  rcs_text_template2 :boolean          default(FALSE), not null
+#  rcs_text_template3 :boolean          default(FALSE), not null
+#  rcs_title1         :string(200)
+#  rcs_title2         :string(200)
+#  rcs_title3         :string(200)
+#  theme              :string
+#  type               :string
+#  url                :string
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  airtable_id        :string
+#  folder_id          :bigint
+#  image1_id          :bigint
+#  image2_id          :bigint
+#  image3_id          :bigint
+#  link1_id           :bigint
+#  link2_id           :bigint
+#  link3_id           :bigint
+#  rcs_media1_id      :integer
+#  rcs_media2_id      :integer
+#  rcs_media3_id      :integer
+#  spot_hit_id        :string
 #
 # Indexes
 #
@@ -93,6 +96,14 @@ RSpec.describe Media::TextMessagesBundle, type: :model do
       @text_messages_bundle.body3 = nil
       @text_messages_bundle.image3 = image
       expect(@text_messages_bundle).to_not be_valid
+    end
+  end
+
+  context 'sans type de modèle précisé' do
+    it 'considère les trois modèles enregistrés comme des modèles carte' do
+      bundle = Media::TextMessagesBundle.new
+
+      expect([bundle.rcs_text_template1, bundle.rcs_text_template2, bundle.rcs_text_template3]).to eq([false, false, false])
     end
   end
 
