@@ -45,6 +45,11 @@ class SpotHit::UpdateRcsModelService < SpotHit::CreateRcsModelService
     remove_tmp_file(@tmp_file) if @tmp_file && File.exist?(@tmp_file)
   end
 
+  # Spot-Hit refuse de changer le type d'un modèle : on reprend celui qui est enregistré.
+  def text_template?
+    @text_messages_bundle.send("rcs_text_template#{@message_index}")
+  end
+
   def form_data
     form = super
     form['id'] = @rcs_media_id
