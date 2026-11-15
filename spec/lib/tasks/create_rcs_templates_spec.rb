@@ -65,6 +65,22 @@ RSpec.describe 'rcs:create_templates' do
     end
   end
 
+  context "quand Spot-Hit refuse le modèle d'un trio" do
+    it 'continue avec les trios suivants et affiche un bilan avec le message de Spot-Hit' do
+      refused = existing_bundle(body1: 'Premier trio, refusé par Spot-Hit.')
+      accepted = existing_bundle(body1: 'Second trio, accepté par Spot-Hit.')
+      stub_request(:post, SpotHit::CreateRcsModelService::URL).to_return(status: 200, body: { success: true, id: 4521 }.to_json)
+      stub_request(:post, SpotHit::CreateRcsModelService::URL)
+        .with { |request| CGI.unescape(request.body).include?('Premier trio') }
+        .to_return(status: 200, body: { success: false, error: 'Modèle refusé' }.to_json)
+
+      expect { task.invoke }.to output(/ERROR - .*Modèle refusé.*Templates created: 1.*Errors: 1/m).to_stdout
+
+      expect(refused.reload.rcs_media1_id).to be_nil
+      expect(accepted.reload.rcs_media1_id).to eq(4521)
+    end
+  end
+
   context 'quand SPOT_HIT_SAFEGUARD est actif' do
     around do |example|
       previous = ENV.fetch('SPOT_HIT_SAFEGUARD', nil)
