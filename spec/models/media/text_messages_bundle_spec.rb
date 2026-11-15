@@ -208,6 +208,62 @@ RSpec.describe Media::TextMessagesBundle, type: :model do
     end
   end
 
+  describe "remplacement du modèle quand une image est ajoutée ou retirée" do
+    include ActiveJob::TestHelper
+
+    def bundle_with_template(rcs_media_id, image: nil)
+      bundle = FactoryBot.create(:media_text_messages_bundle, body1: 'Chantez une comptine ce soir.', body2: nil, body3: nil)
+      bundle.update_columns(image1_id: image&.id, rcs_media1_id: rcs_media_id, rcs_text_template1: image.nil?)
+      WebMock::RequestRegistry.instance.reset!
+      bundle.reload
+    end
+
+    def created_model_type
+      signature = WebMock::RequestRegistry.instance.requested_signatures.hash.keys.find { |s| s.uri.path == '/api/rcs/model/create' }
+      body = signature.body.b
+      body = CGI.unescape(body).b unless body.include?('Content-Disposition')
+      body[/\{"type":"(\w+)"/n, 1]
+    end
+
+    it "crée un modèle carte quand une image est ajoutée et programme la suppression de l'ancien modèle texte" do
+      stub_request(:post, SpotHit::CreateRcsModelService::URL).to_return(status: 200, body: { success: true, id: 7000 }.to_json)
+      bundle = bundle_with_template(4521)
+
+      expect { bundle.update!(image1_id: FactoryBot.create(:media_image).id) }
+        .to have_enqueued_job(SpotHit::DeleteRcsModelJob).with(4521).at(a_value_within(1.minute).of(2.months.from_now))
+
+      expect(created_model_type).to eq('card')
+      expect(bundle.reload).to have_attributes(rcs_media1_id: 7000, rcs_text_template1: false)
+    end
+
+    it 'garde le modèle texte et alerte Rollbar quand Spot-Hit refuse le modèle carte' do
+      bundle = bundle_with_template(4521)
+      image = FactoryBot.create(:media_image)
+      stub_request(:post, SpotHit::CreateRcsModelService::URL)
+        .to_return(status: 200, body: { success: false, error: 'Image refusée' }.to_json)
+      allow(Rollbar).to receive(:error)
+
+      expect { bundle.update!(image1_id: image.id) }.not_to have_enqueued_job(SpotHit::DeleteRcsModelJob)
+
+      expect(bundle.reload).to have_attributes(image1_id: image.id, rcs_media1_id: 4521, rcs_text_template1: true)
+      expect(Rollbar).to have_received(:error).with(
+        'SpotHit::CreateRcsModelService',
+        hash_including(text_messages_bundle_id: bundle.id, errors: [a_string_including('Erreur lors de la création du modèle RCS')])
+      )
+    end
+
+    it "crée un modèle texte quand l'image est retirée et programme la suppression de l'ancien modèle carte" do
+      stub_request(:post, SpotHit::CreateRcsModelService::URL).to_return(status: 200, body: { success: true, id: 8000 }.to_json)
+      bundle = bundle_with_template(3310, image: FactoryBot.create(:media_image))
+
+      expect { bundle.update!(image1_id: nil) }
+        .to have_enqueued_job(SpotHit::DeleteRcsModelJob).with(3310).at(a_value_within(1.minute).of(2.months.from_now))
+
+      expect(created_model_type).to eq('text')
+      expect(bundle.reload).to have_attributes(rcs_media1_id: 8000, rcs_text_template1: true)
+    end
+  end
+
   describe '#sync_rcs_models' do
     let(:image) { FactoryBot.create(:media_image) }
     let!(:bundle) do
@@ -223,10 +279,10 @@ RSpec.describe Media::TextMessagesBundle, type: :model do
         bundle.update!(image1_id: nil)
       end
 
-      it 'sets rcs_media1_id to nil in the database' do
+      it 'remplace le modèle carte par le modèle texte créé' do
         allow(SpotHit::DeleteRcsModelJob).to receive(:set).and_return(SpotHit::DeleteRcsModelJob)
         bundle.update!(image1_id: nil)
-        expect(bundle.reload.rcs_media1_id).to be_nil
+        expect(bundle.reload).to have_attributes(rcs_media1_id: 1, rcs_text_template1: true)
       end
     end
 
