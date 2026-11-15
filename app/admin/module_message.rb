@@ -20,7 +20,7 @@ ActiveAdmin.register_page "Messages" do
                 div do
                   label "Message #{message_index + 1}"
                   unless message[1][:body].blank?
-                    textarea name: "body_#{support_module_week[0]}_#{message[0]}" do
+                    textarea name: "body_#{support_module_week[0]}_#{message[0]}", readonly: message[1][:file].present? do
                       message[1][:body]
                     end
                   end
@@ -51,10 +51,6 @@ ActiveAdmin.register_page "Messages" do
                         target: "_blank"
                       )
                     end
-                    f.input message[1][:rcs_media],
-                            type: :hidden,
-                            name: "rcs_media_#{support_module_week[0]}_#{message[0]}",
-                            value: message[1][:rcs_media]
                     div class: "message-variable" do
                       link_to("Modèle rcs: #{message[1][:rcs_media]}", '#')
                     end
