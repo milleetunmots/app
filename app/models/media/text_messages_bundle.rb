@@ -72,15 +72,13 @@ class Media::TextMessagesBundle < Medium
 
   # Type d'envoi SpotHit du message d'index donné (1..3) :
   # - 'single' : une image est présente (RCS avec média) ;
-  # - 'basic'  : pas d'image et corps ≤ 160 octets (RCS basic) ;
-  # - 'sms'    : sinon (texte long sans image).
+  # - 'basic'  : pas d'image et message envoyé ≤ 160 octets (RCS basic) ;
+  # - 'single texte' ou 'sms' : texte long sans image, selon RCS_SINGLE_TEXT_ENABLED.
   def message_type(index)
     return 'single' if public_send("image#{index}_id").present?
+    return 'basic' unless long_message?(index)
 
-    body = public_send("body#{index}")
-    return 'basic' if body.present? && body.bytesize <= MESSAGE_TYPE_MAX_BYTESIZE
-
-    'sms'
+    self.class.rcs_single_text_enabled? ? 'single texte' : 'sms'
   end
 
   def self.rcs_single_text_enabled?
