@@ -176,9 +176,16 @@ class Media::TextMessagesBundle < Medium
     SpotHit::DeleteRcsModelJob.set(wait_until: 2.months.from_now).perform_later(previous_rcs_media_id)
   end
 
+  def forget_rcs_model(index)
+    return if send("rcs_media#{index}_id").blank?
+
+    SpotHit::DeleteRcsModelJob.set(wait_until: 2.months.from_now).perform_later(send("rcs_media#{index}_id"))
+    update_columns("rcs_media#{index}_id" => nil, "rcs_text_template#{index}" => false)
+  end
+
   # Synchronise les modèles RCS SpotHit (messages 1 à 3) après chaque sauvegarde.
   #
-  # Pour chaque message dont le contenu (body) est renseigné, trois cas sont gérés :
+  # Un message vidé perd son modèle, supprimé dans 2 mois. Pour chaque message renseigné, trois cas :
   # - Le modèle RCS existe mais n'a plus le bon type (image ajoutée ou retirée) → crée
   #   un modèle du bon type et, s'il est accepté, programme la suppression de l'ancien dans 2 mois.
   # - Le modèle RCS existe et le contenu a changé (body, image ou titre) → met à
@@ -189,7 +196,7 @@ class Media::TextMessagesBundle < Medium
   # Les erreurs éventuelles sont remontées à Rollbar.
   def sync_rcs_models
     (1..3).each do |index|
-      next if send("body#{index}").blank?
+      next forget_rcs_model(index) if send("body#{index}").blank?
 
       if send("rcs_media#{index}_id").present? && rcs_template_type_outdated?(index)
         replace_rcs_model(index)
