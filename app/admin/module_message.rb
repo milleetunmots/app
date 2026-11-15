@@ -94,7 +94,6 @@ ActiveAdmin.register_page "Messages" do
 
     messages = {}
     links = {}
-    rcs_media_ids = {}
     planned_dates = {}
     planned_hours = {}
 
@@ -103,14 +102,14 @@ ActiveAdmin.register_page "Messages" do
         messages[key.sub("body_", "")] = value
       elsif key.match?("^link_support_module_week_[0-9]_message_[0-9]$")
         links[key.sub("link_", "")] = value
-      elsif key.match?("^rcs_media_support_module_week_[0-9]_message_[0-9]$")
-        rcs_media_ids[key.sub("rcs_media_", "")] = value
       elsif key.match?("^planned_date_")
         planned_dates[key.sub("planned_date_", "")] = value
       elsif key.match?("^planned_hour_")
         planned_hours[key.sub("planned_hour_", "")] = value
       end
     end
+
+    support_module_weeks = SupportModule.find(params[:module_to_send]).support_module_weeks
 
     begin
       alert = ""
@@ -121,12 +120,14 @@ ActiveAdmin.register_page "Messages" do
           alert = "Une date antérieure a été choisie"
           raise StandardError, alert
         else
+          week_number, message_number = key.scan(/\d+/).map(&:to_i)
+          message = support_module_weeks[week_number - 1].message_to_program(message_number, value)
           service = ProgramMessageService.new(
             planned_dates[key],
             planned_hours[key],
             recipients,
-            value,
-            rcs_media_ids[key],
+            message[:body],
+            message[:rcs_media_id],
             links[key]
           ).call
           if service.errors.any?
