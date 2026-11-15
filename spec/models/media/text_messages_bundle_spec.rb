@@ -264,6 +264,54 @@ RSpec.describe Media::TextMessagesBundle, type: :model do
     end
   end
 
+  describe "cas où l'enregistrement ne crée ni ne modifie de modèle" do
+    include ActiveJob::TestHelper
+
+    def with_env(key, value)
+      previous = ENV.fetch(key, nil)
+      ENV[key] = value
+      yield
+    ensure
+      previous.nil? ? ENV.delete(key) : ENV[key] = previous
+    end
+
+    it "programme la suppression du modèle d'un message effacé et l'oublie" do
+      bundle = FactoryBot.create(:media_text_messages_bundle, body1: 'Bonjour !', body2: 'À demain !', body3: 'Chantez une comptine ce soir.')
+      bundle.update_columns(rcs_media3_id: 4521, rcs_text_template3: true)
+
+      expect { bundle.reload.update!(body3: '') }
+        .to have_enqueued_job(SpotHit::DeleteRcsModelJob).with(4521).at(a_value_within(1.minute).of(2.months.from_now))
+
+      expect(bundle.reload).to have_attributes(rcs_media3_id: nil, rcs_text_template3: false)
+    end
+
+    it "n'envoie pas à Spot-Hit un modèle texte dont le contenu est bloqué et alerte Rollbar" do
+      allow(Rollbar).to receive(:error)
+
+      bundle = with_env('URL_FILTER_BLOCKING_ENABLED', 'true') do
+        FactoryBot.create(:media_text_messages_bundle, body1: 'Regardez : https://non-whitelisted.example.com/page', body2: nil, body3: nil)
+      end
+
+      expect(bundle).to be_persisted
+      expect(WebMock).not_to have_requested(:post, SpotHit::CreateRcsModelService::URL)
+      expect(Rollbar).to have_received(:error).with(
+        'SpotHit::CreateRcsModelService',
+        hash_including(text_messages_bundle_id: bundle.id, errors: [BlockedSendAttempt::SendGuard::BLOCKED_MESSAGE])
+      )
+    end
+
+    it "n'appelle pas Spot-Hit depuis staging quand le texte d'un modèle texte change" do
+      bundle = FactoryBot.create(:media_text_messages_bundle, body1: 'Chantez une comptine ce soir.', body2: nil, body3: nil)
+      bundle.update_columns(rcs_media1_id: 4521, rcs_text_template1: true)
+      WebMock::RequestRegistry.instance.reset!
+
+      with_env('SPOT_HIT_SAFEGUARD', 'true') { bundle.reload.update!(body1: 'Lisez une histoire ce soir.') }
+
+      expect(bundle.reload.body1).to eq('Lisez une histoire ce soir.')
+      expect(WebMock).not_to have_requested(:any, /spot-hit\.fr/)
+    end
+  end
+
   describe '#sync_rcs_models' do
     let(:image) { FactoryBot.create(:media_image) }
     let!(:bundle) do
