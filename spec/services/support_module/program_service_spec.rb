@@ -52,6 +52,7 @@ RSpec.describe SupportModule::ProgramService do
         stub_spot_hit_campaigns([])
         bundle = FactoryBot.create(:media_text_messages_bundle, body1: 'Bonjour !', body2: 'Chantez une comptine ce soir.', body3: nil)
         bundle.update_column(:rcs_media2_id, 4521)
+        WebMock::RequestRegistry.instance.reset!
 
         service = program_module_with(bundle)
 
@@ -129,12 +130,26 @@ RSpec.describe SupportModule::ProgramService do
       end
     end
 
+    context "quand une image a été ajoutée mais que Spot-Hit a refusé le modèle carte" do
+      it 'programme le message en RCS single avec le modèle texte conservé' do
+        campaigns = []
+        stub_spot_hit_campaigns(campaigns)
+        bundle = FactoryBot.create(:media_text_messages_bundle, body1: 'a' * 300, body2: nil, body3: nil)
+        bundle.update_columns(image1_id: FactoryBot.create(:media_image).id, rcs_media1_id: 4521, rcs_text_template1: true)
+
+        with_rcs_single_text('true') { program_module_with(bundle) }
+
+        expect(channel_of(campaign_for(campaigns, 'a' * 300))).to eq('RCS single 4521')
+      end
+    end
+
     context "quand un message long sans image n'a pas de modèle et que RCS_SINGLE_TEXT_ENABLED est actif" do
       it 'envoie le message en SMS et signale le trio sans modèle à Rollbar' do
         campaigns = []
         stub_spot_hit_campaigns(campaigns)
         allow(Rollbar).to receive(:error)
         bundle = FactoryBot.create(:media_text_messages_bundle, body1: 'a' * 220, body2: nil, body3: nil)
+        bundle.update_column(:rcs_media1_id, nil)
 
         service = with_rcs_single_text('true') { program_module_with(bundle) }
 

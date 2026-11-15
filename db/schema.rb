@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_11_09_100000) do
+ActiveRecord::Schema[7.0].define(version: 2026_11_15_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -667,6 +667,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_09_100000) do
     t.string "rcs_cta_title1"
     t.string "rcs_cta_title2"
     t.string "rcs_cta_title3"
+    t.boolean "rcs_text_template1", default: false, null: false
+    t.boolean "rcs_text_template2", default: false, null: false
+    t.boolean "rcs_text_template3", default: false, null: false
     t.index ["airtable_id"], name: "index_media_on_airtable_id", unique: true
     t.index ["discarded_at"], name: "index_media_on_discarded_at"
     t.index ["folder_id"], name: "index_media_on_folder_id"

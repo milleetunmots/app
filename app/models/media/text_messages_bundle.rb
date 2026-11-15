@@ -2,35 +2,38 @@
 #
 # Table name: media
 #
-#  id             :bigint           not null, primary key
-#  body1          :text
-#  body2          :text
-#  body3          :text
-#  discarded_at   :datetime
-#  name           :string
-#  rcs_cta_title1 :string
-#  rcs_cta_title2 :string
-#  rcs_cta_title3 :string
-#  rcs_title1     :string(200)
-#  rcs_title2     :string(200)
-#  rcs_title3     :string(200)
-#  theme          :string
-#  type           :string
-#  url            :string
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
-#  airtable_id    :string
-#  folder_id      :bigint
-#  image1_id      :bigint
-#  image2_id      :bigint
-#  image3_id      :bigint
-#  link1_id       :bigint
-#  link2_id       :bigint
-#  link3_id       :bigint
-#  rcs_media1_id  :integer
-#  rcs_media2_id  :integer
-#  rcs_media3_id  :integer
-#  spot_hit_id    :string
+#  id                 :bigint           not null, primary key
+#  body1              :text
+#  body2              :text
+#  body3              :text
+#  discarded_at       :datetime
+#  name               :string
+#  rcs_cta_title1     :string
+#  rcs_cta_title2     :string
+#  rcs_cta_title3     :string
+#  rcs_text_template1 :boolean          default(FALSE), not null
+#  rcs_text_template2 :boolean          default(FALSE), not null
+#  rcs_text_template3 :boolean          default(FALSE), not null
+#  rcs_title1         :string(200)
+#  rcs_title2         :string(200)
+#  rcs_title3         :string(200)
+#  theme              :string
+#  type               :string
+#  url                :string
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  airtable_id        :string
+#  folder_id          :bigint
+#  image1_id          :bigint
+#  image2_id          :bigint
+#  image3_id          :bigint
+#  link1_id           :bigint
+#  link2_id           :bigint
+#  link3_id           :bigint
+#  rcs_media1_id      :integer
+#  rcs_media2_id      :integer
+#  rcs_media3_id      :integer
+#  spot_hit_id        :string
 #
 # Indexes
 #
@@ -158,28 +161,49 @@ class Media::TextMessagesBundle < Medium
     Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
   end
 
+  # Modèle texte avec une image, ou modèle carte sans image : Spot-Hit ne change pas le type d'un modèle.
+  def rcs_template_type_outdated?(index)
+    send("image#{index}_id").present? == send("rcs_text_template#{index}")
+  end
+
+  # L'ancien modèle n'est supprimé que si le nouveau est accepté ; sinon il continue de servir.
+  def replace_rcs_model(index)
+    previous_rcs_media_id = send("rcs_media#{index}_id")
+    service = SpotHit::CreateRcsModelService.new(text_messages_bundle: self, message_index: index).call
+    return Rollbar.error('SpotHit::CreateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
+    return if service.rcs_media_id.blank?
+
+    SpotHit::DeleteRcsModelJob.set(wait_until: 2.months.from_now).perform_later(previous_rcs_media_id)
+  end
+
+  def forget_rcs_model(index)
+    return if send("rcs_media#{index}_id").blank?
+
+    SpotHit::DeleteRcsModelJob.set(wait_until: 2.months.from_now).perform_later(send("rcs_media#{index}_id"))
+    update_columns("rcs_media#{index}_id" => nil, "rcs_text_template#{index}" => false)
+  end
+
   # Synchronise les modèles RCS SpotHit (messages 1 à 3) après chaque sauvegarde.
   #
-  # Pour chaque message dont le contenu (body) est renseigné, trois cas sont gérés :
-  # - Le modèle RCS existe mais l'image a été supprimée → planifie la suppression
-  #   côté SpotHit dans 2 mois et réinitialise le rcs_media_id.
+  # Un message vidé perd son modèle, supprimé dans 2 mois. Pour chaque message renseigné, trois cas :
+  # - Le modèle RCS existe mais n'a plus le bon type (image ajoutée ou retirée) → crée
+  #   un modèle du bon type et, s'il est accepté, programme la suppression de l'ancien dans 2 mois.
   # - Le modèle RCS existe et le contenu a changé (body, image ou titre) → met à
   #   jour le modèle via SpotHit::UpdateRcsModelService.
-  # - Aucun modèle RCS n'existe encore mais une image est présente → crée le
-  #   modèle via SpotHit::CreateRcsModelService.
+  # - Aucun modèle RCS n'existe encore → crée le modèle (texte ou carte) via
+  #   SpotHit::CreateRcsModelService.
   #
   # Les erreurs éventuelles sont remontées à Rollbar.
   def sync_rcs_models
     (1..3).each do |index|
-      next if send("body#{index}").blank?
+      next forget_rcs_model(index) if send("body#{index}").blank?
 
-      if send("rcs_media#{index}_id").present? && send("image#{index}_id").nil?
-        SpotHit::DeleteRcsModelJob.set(wait_until: 2.months.from_now).perform_later(send("rcs_media#{index}_id"))
-        update_column("rcs_media#{index}_id", nil)
+      if send("rcs_media#{index}_id").present? && rcs_template_type_outdated?(index)
+        replace_rcs_model(index)
       elsif send("rcs_media#{index}_id").present? && (send("saved_change_to_body#{index}?") || send("saved_change_to_image#{index}_id?") || send("saved_change_to_rcs_title#{index}?") || send("saved_change_to_link#{index}_id?") || send("saved_change_to_rcs_cta_title#{index}?"))
         service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: index).call
         Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
-      elsif send("rcs_media#{index}_id").nil? && send("image#{index}_id").present?
+      elsif send("rcs_media#{index}_id").nil?
         service = SpotHit::CreateRcsModelService.new(text_messages_bundle: self, message_index: index).call
         Rollbar.error('SpotHit::CreateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
       end
