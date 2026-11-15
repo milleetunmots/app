@@ -7,6 +7,7 @@
 #  body2              :text
 #  body3              :text
 #  discarded_at       :datetime
+#  key                :string
 #  name               :string
 #  rcs_cta_title1     :string
 #  rcs_cta_title2     :string
@@ -43,6 +44,7 @@
 #  index_media_on_image1_id     (image1_id)
 #  index_media_on_image2_id     (image2_id)
 #  index_media_on_image3_id     (image3_id)
+#  index_media_on_key           (key) UNIQUE WHERE (key IS NOT NULL)
 #  index_media_on_link1_id      (link1_id)
 #  index_media_on_link2_id      (link2_id)
 #  index_media_on_link3_id      (link3_id)
@@ -82,6 +84,14 @@ class Media::TextMessagesBundle < Medium
     return 'basic' unless long_message?(index)
 
     self.class.rcs_single_text_enabled? ? 'single texte' : 'sms'
+  end
+
+  # Un seul trio publié du nom : lui. Plusieurs ou aucun : celui de la clé.
+  def self.find_automatic(name:, key:)
+    named = kept.where(name: name).to_a
+    return named.first if named.one?
+
+    kept.find_by(key: key)
   end
 
   def self.rcs_single_text_enabled?

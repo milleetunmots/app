@@ -45,7 +45,7 @@ RSpec.describe 'rcs:create_templates' do
       with_card = existing_bundle(body1: 'Avec image', rcs_media1_id: 3310, image1_id: image.id)
       with_text = existing_bundle(body1: 'Sans image', rcs_media1_id: 4521, rcs_text_template1: true)
 
-      expect { task.invoke }.to output(/already exists with ID 3310.*already exists with ID 4521/m).to_stdout
+      expect { task.invoke }.to output(a_string_including('already exists with ID 3310', 'already exists with ID 4521')).to_stdout
 
       expect(WebMock).not_to have_requested(:post, SpotHit::CreateRcsModelService::URL)
       expect(with_card.reload.rcs_media1_id).to eq(3310)
