@@ -176,7 +176,7 @@ class Media::TextMessagesBundle < Medium
     (1..3).each do |index|
       next if send("body#{index}").blank?
 
-      if send("rcs_media#{index}_id").present? && send("image#{index}_id").nil?
+      if send("rcs_media#{index}_id").present? && send("image#{index}_id").nil? && !send("rcs_text_template#{index}")
         SpotHit::DeleteRcsModelJob.set(wait_until: 2.months.from_now).perform_later(send("rcs_media#{index}_id"))
         update_column("rcs_media#{index}_id", nil)
       elsif send("rcs_media#{index}_id").present? && (send("saved_change_to_body#{index}?") || send("saved_change_to_image#{index}_id?") || send("saved_change_to_rcs_title#{index}?") || send("saved_change_to_link#{index}_id?") || send("saved_change_to_rcs_cta_title#{index}?"))

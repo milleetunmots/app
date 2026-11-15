@@ -153,11 +153,66 @@ RSpec.describe Media::TextMessagesBundle, type: :model do
     end
   end
 
+  describe "mise à jour d'un modèle texte à l'enregistrement" do
+    include ActiveJob::TestHelper
+
+    def bundle_with_text_template(body)
+      bundle = FactoryBot.create(:media_text_messages_bundle, body1: body, body2: nil, body3: nil)
+      bundle.update_columns(rcs_media1_id: 4521, rcs_text_template1: true)
+      WebMock::RequestRegistry.instance.reset!
+      bundle.reload
+    end
+
+    def modify_request_for(rcs_media_id)
+      WebMock::RequestRegistry.instance.requested_signatures.hash.keys
+        .select { |signature| signature.uri.path == '/api/rcs/model/modify' }
+        .map { |signature| Rack::Utils.parse_nested_query(signature.body) }
+        .find { |form| form['id'] == rcs_media_id.to_s }
+    end
+
+    it 'met à jour le modèle texte avec le nouveau texte, sans en créer un autre' do
+      stub_request(:post, SpotHit::UpdateRcsModelService::URL).to_return(status: 200, body: { success: true, id: 4521 }.to_json)
+      bundle = bundle_with_text_template('Chantez une comptine ce soir.')
+
+      bundle.update!(body1: 'Lisez une histoire ce soir.')
+
+      model = JSON.parse(modify_request_for(4521)['model'])
+      expect(model).to include('type' => 'text')
+      expect(model.dig('content', 'text', 'text')).to eq('Lisez une histoire ce soir.')
+      expect(WebMock).not_to have_requested(:post, SpotHit::CreateRcsModelService::URL)
+    end
+
+    it 'met à jour le modèle texte sans programmer de suppression quand le texte dépasse 160 octets' do
+      stub_request(:post, SpotHit::UpdateRcsModelService::URL).to_return(status: 200, body: { success: true, id: 4521 }.to_json)
+      bundle = bundle_with_text_template('a' * 150)
+
+      expect { bundle.update!(body1: 'a' * 210) }.not_to have_enqueued_job(SpotHit::DeleteRcsModelJob)
+
+      expect(modify_request_for(4521)).to be_present
+      expect(bundle.reload).to have_attributes(rcs_media1_id: 4521, rcs_text_template1: true)
+    end
+
+    it 'enregistre le nouveau texte et alerte Rollbar quand Spot-Hit refuse la mise à jour' do
+      stub_request(:post, SpotHit::UpdateRcsModelService::URL)
+        .to_return(status: 200, body: { success: false, error: 'Modèle introuvable' }.to_json)
+      allow(Rollbar).to receive(:error)
+      bundle = bundle_with_text_template('Chantez une comptine ce soir.')
+
+      bundle.update!(body1: 'Lisez une histoire ce soir.')
+
+      expect(bundle.reload.body1).to eq('Lisez une histoire ce soir.')
+      expect(Rollbar).to have_received(:error).with(
+        'SpotHit::UpdateRcsModelService',
+        hash_including(text_messages_bundle_id: bundle.id, errors: [a_string_including('Erreur lors de la modification du modèle RCS')])
+      )
+    end
+  end
+
   describe '#sync_rcs_models' do
     let(:image) { FactoryBot.create(:media_image) }
     let!(:bundle) do
       text_messages = FactoryBot.create(:media_text_messages_bundle, body2: nil, body3: nil)
-      text_messages.update_columns(rcs_media1_id: 123, image1_id: image.id)
+      text_messages.update_columns(rcs_media1_id: 123, image1_id: image.id, rcs_text_template1: false)
       text_messages.reload
     end
 
@@ -178,7 +233,7 @@ RSpec.describe Media::TextMessagesBundle, type: :model do
     context 'when rcs_media_id is present and image changed' do
       let(:bundle) do
         text_messages = FactoryBot.create(:media_text_messages_bundle, body2: nil, body3: nil)
-        text_messages.update_columns(rcs_media1_id: 456, image1_id: image.id)
+        text_messages.update_columns(rcs_media1_id: 456, image1_id: image.id, rcs_text_template1: false)
         text_messages.reload
       end
 
