@@ -107,6 +107,52 @@ RSpec.describe Media::TextMessagesBundle, type: :model do
     end
   end
 
+  describe 'création du modèle Spot-Hit à l\'enregistrement' do
+    def created_models
+      WebMock::RequestRegistry.instance.requested_signatures.hash.keys
+        .select { |signature| signature.uri.path == '/api/rcs/model/create' }
+        .map { |signature| JSON.parse(Rack::Utils.parse_nested_query(signature.body)['model']) }
+    end
+
+    [120, 300].each do |bytesize|
+      it "crée un modèle texte pour un nouveau message sans image de #{bytesize} octets et l'enregistre" do
+        stub_request(:post, SpotHit::CreateRcsModelService::URL)
+          .to_return(status: 200, body: { success: true, id: 4521 }.to_json)
+        bundle = FactoryBot.create(:media_text_messages_bundle, body1: 'Bonjour !', body2: nil, body3: nil)
+        body2 = "Chantez une comptine. #{'a' * (bytesize - 22)}"
+
+        bundle.update!(body2: body2)
+
+        model = created_models.find { |m| m.dig('content', 'text', 'text')&.start_with?('Chantez une comptine') }
+        expect(model['type']).to eq('text')
+        expect(bundle.reload).to have_attributes(rcs_media2_id: 4521, rcs_text_template2: true)
+      end
+    end
+
+    it 'retire le préfixe « 1001mots : » du texte du modèle sans toucher au texte du trio' do
+      body = "1001mots : cette semaine, chantez une comptine avec {PRENOM_ENFANT} pendant le bain. #{'a' * 120}"
+
+      bundle = FactoryBot.create(:media_text_messages_bundle, body1: body, body2: nil, body3: nil)
+
+      expect(created_models.last.dig('content', 'text', 'text')).to start_with('Cette semaine, chantez une comptine')
+      expect(bundle.reload.body1).to eq(body)
+    end
+
+    it 'garde le lien dans le texte du modèle texte, sans bouton' do
+      video = FactoryBot.create(:media_video, name: 'Comptine du bain')
+
+      FactoryBot.create(:media_text_messages_bundle, body1: "Découvrez\nla comptine de la semaine.", link1: video, body2: nil, body3: nil)
+
+      expect(created_models.last).to eq(
+        'type' => 'text',
+        'content' => {
+          'text' => { 'text' => 'Découvrez<br>la comptine de la semaine. {URL}', 'suggestions' => [] },
+          'property' => { 'stop' => false }
+        }
+      )
+    end
+  end
+
   describe '#sync_rcs_models' do
     let(:image) { FactoryBot.create(:media_image) }
     let!(:bundle) do
@@ -171,7 +217,11 @@ RSpec.describe Media::TextMessagesBundle, type: :model do
     end
 
     context 'when rcs_media_id is nil and image_id is present' do
-      let(:bundle) { FactoryBot.create(:media_text_messages_bundle, body2: nil, body3: nil) }
+      let(:bundle) do
+        text_messages = FactoryBot.create(:media_text_messages_bundle, body2: nil, body3: nil)
+        text_messages.update_columns(rcs_media1_id: nil)
+        text_messages.reload
+      end
 
       it 'calls CreateRcsModelService when image is added' do
         service_result = double('service_result', errors: [])

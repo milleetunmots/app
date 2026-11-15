@@ -182,7 +182,7 @@ class Media::TextMessagesBundle < Medium
       elsif send("rcs_media#{index}_id").present? && (send("saved_change_to_body#{index}?") || send("saved_change_to_image#{index}_id?") || send("saved_change_to_rcs_title#{index}?") || send("saved_change_to_link#{index}_id?") || send("saved_change_to_rcs_cta_title#{index}?"))
         service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: index).call
         Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
-      elsif send("rcs_media#{index}_id").nil? && send("image#{index}_id").present?
+      elsif send("rcs_media#{index}_id").nil?
         service = SpotHit::CreateRcsModelService.new(text_messages_bundle: self, message_index: index).call
         Rollbar.error('SpotHit::CreateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
       end

@@ -52,6 +52,7 @@ RSpec.describe SupportModule::ProgramService do
         stub_spot_hit_campaigns([])
         bundle = FactoryBot.create(:media_text_messages_bundle, body1: 'Bonjour !', body2: 'Chantez une comptine ce soir.', body3: nil)
         bundle.update_column(:rcs_media2_id, 4521)
+        WebMock::RequestRegistry.instance.reset!
 
         service = program_module_with(bundle)
 
@@ -135,6 +136,7 @@ RSpec.describe SupportModule::ProgramService do
         stub_spot_hit_campaigns(campaigns)
         allow(Rollbar).to receive(:error)
         bundle = FactoryBot.create(:media_text_messages_bundle, body1: 'a' * 220, body2: nil, body3: nil)
+        bundle.update_column(:rcs_media1_id, nil)
 
         service = with_rcs_single_text('true') { program_module_with(bundle) }
 
