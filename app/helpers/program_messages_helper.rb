@@ -175,8 +175,8 @@ module ProgramMessagesHelper
       result["support_module_week_#{index + 1}"][:message_4] = {}
       result["support_module_week_#{index + 1}"][:message_4][:body] = additional_medium.body1
       result["support_module_week_#{index + 1}"][:message_4][:link] = RedirectionTarget.where(medium_id: additional_medium.link1_id).first&.id
-      result["support_module_week_#{index + 1}"][:message_4][:file] = Medium.where("type = ? and id = ?", "Media::Image", text_message_bundle.image1_id).first
-      result["support_module_week_#{index + 1}"][:message_4][:rcs_media] = text_message_bundle.rcs_media4_id
+      result["support_module_week_#{index + 1}"][:message_4][:file] = Medium.where("type = ? and id = ?", "Media::Image", additional_medium.image1_id).first
+      result["support_module_week_#{index + 1}"][:message_4][:rcs_media] = additional_medium.rcs_media1_id
     end
     result
   end
