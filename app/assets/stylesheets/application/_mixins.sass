@@ -13,9 +13,26 @@
   text-transform: uppercase
   letter-spacing: 0.016em
 
+// Relief au survol, repris des boutons du site : le bouton grossit de 10 % et une ombre
+// marine pleine apparaît dessous, en 160 ms ; pas de mouvement en mouvement réduit.
+=lifted-button
+  transition: transform 0.16s ease-in-out, box-shadow 0.16s ease-in-out, background 0.16s ease-in-out, color 0.16s ease-in-out, border-color 0.16s ease-in-out
+
+  &:hover, &:focus-visible
+    transform: scale(1.1)
+    box-shadow: 0 5px 0 -1px $navy
+
+  @media (prefers-reduced-motion: reduce)
+    transition: none
+
+    &:hover, &:focus-visible
+      transform: none
+
+// Bouton principal du site : citron, texte marine, qui reste citron au survol et se soulève
 =brand-button($size: 21px)
   +charter-title($size)
   +button-shape
+  +lifted-button
   display: inline-block
   padding: 12px 40px
   background: $yellow
@@ -27,6 +44,7 @@
   box-shadow: 8px 8px 0 $color
 
 =brand-button-outline
+  +lifted-button
   background: transparent
   border: 2px solid $navy
 
@@ -37,6 +55,7 @@
     font-weight: 700
 
   .btn-primary
+    +lifted-button
     background: $beige
     border: 3px solid $navy
     color: $navy
@@ -46,6 +65,7 @@
       color: $beige
 
   .btn-danger
+    +lifted-button
     background: $beige
     border: 3px solid $danger
     color: $danger

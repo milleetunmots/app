@@ -218,6 +218,7 @@
     padding: 10px 24px
 
   .btn-primary
+    +lifted-button
     background: $beige
     border: 3px solid $navy
     color: $navy
@@ -227,6 +228,7 @@
       color: $beige
 
   .btn-danger
+    +lifted-button
     background: transparent
     border: 2px solid $navy
     color: $navy
@@ -240,9 +242,6 @@
   #child-registration-submit
     +brand-button
     color: $navy
-    &:hover, &:focus
-      background: $beige
-      color: $navy
 
   #registration-confirmation-email-card
     #registration_confirmation_email
