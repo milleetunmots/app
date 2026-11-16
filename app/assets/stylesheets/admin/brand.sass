@@ -133,10 +133,13 @@ input[type="checkbox"]
 
 // Listes : liens de tri de l'en-tête dans la couleur du texte, la colonne triée en marine
 // (fond et survol des tableaux dans tables.sass)
+// arctic_admin remet le lien de tri en graisse normale : même graisse que l'en-tête,
+// qu'une colonne soit triable ou non
 table.index_table
   thead th
     a, a:link, a:visited
       color: $ink
+      font-weight: inherit
 
     &.sorted-asc, &.sorted-desc
       color: $action
