@@ -105,4 +105,31 @@ RSpec.describe Group, type: :model do
       end
     end
   end
+
+  describe '.supporters_assigned' do
+    it "ne retourne que les cohortes qui ont une date d'attribution" do
+      assigned_group = FactoryBot.create(:group, supporters_assigned_at: Time.zone.now)
+      FactoryBot.create(:group, supporters_assigned_at: nil)
+
+      expect(Group.supporters_assigned).to contain_exactly(assigned_group)
+    end
+  end
+
+  describe '#supporters_assigned?' do
+    context "quand la cohorte a une date d'attribution" do
+      it 'retourne vrai' do
+        group = FactoryBot.build(:group, supporters_assigned_at: Time.zone.now)
+
+        expect(group.supporters_assigned?).to be(true)
+      end
+    end
+
+    context "quand la cohorte n'a pas de date d'attribution" do
+      it 'retourne faux' do
+        group = FactoryBot.build(:group, supporters_assigned_at: nil)
+
+        expect(group.supporters_assigned?).to be(false)
+      end
+    end
+  end
 end

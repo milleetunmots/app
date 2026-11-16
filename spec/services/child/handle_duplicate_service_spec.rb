@@ -115,12 +115,12 @@ RSpec.describe Child::HandleDuplicateService do
       end
     end
 
-    context "if a child without parent2 is active" do
+    context "if a child without parent2 is active in an attributed group" do
       let!(:duplicated_parent1) { FactoryBot.create(:parent, phone_number: '0755800000') }
       let!(:duplicated_parent2) { FactoryBot.create(:parent, phone_number: '0755800001') }
       let!(:duplicated_child_with_parent2) { FactoryBot.create(:child, first_name: ' Prenom ', last_name: ' Nom', birthdate: child_with_parent2.birthdate, parent1: duplicated_parent1, parent2: duplicated_parent2) }
       it "add it parent2 and delete children without group" do
-        group.update(started_at: Time.zone.now.prev_occurring(:monday), support_module_programmed: 1)
+        group.update(supporters_assigned_at: Time.zone.now)
         child_without_parent2.update(group: group, group_status: 'active')
 
 
@@ -150,10 +150,10 @@ RSpec.describe Child::HandleDuplicateService do
       end
     end
 
-    context "if at least one child is in started group" do
+    context "if at least one child is in an attributed group" do
       let!(:group) { FactoryBot.create(:group, expected_children_number: 0) }
-      it "keep children in a started group and delete others" do
-        group.update(started_at: Time.zone.now.prev_occurring(:monday), support_module_programmed: 1)
+      it "keep children in an attributed group and delete others" do
+        group.update(supporters_assigned_at: Time.zone.now)
         first_child.update(group: group, group_status: 'active')
 
         subject.call
@@ -183,6 +183,84 @@ RSpec.describe Child::HandleDuplicateService do
       expect(duplicated_first_parent2.reload.discarded?).to eq(true)
       expect(duplicated_first_child.reload.parent1_id).to eq(first_parent1.id)
       expect(duplicated_first_child.reload.parent2_id).to eq(first_parent2.id)
+    end
+  end
+
+  context "quand des doublons par nom et naissance ont un parent 2 et que l'un d'eux est dans une cohorte" do
+    def create_child_and_duplicate_without_common_parent2
+      parent1 = FactoryBot.create(:parent, phone_number: '0755810000')
+      child = FactoryBot.create(:child, first_name: 'Léa', last_name: 'Martin', birthdate: Date.new(2027, 1, 10), parent1: parent1)
+      duplicate_parent1 = FactoryBot.create(:parent, phone_number: '0755810000')
+      duplicate_parent2 = FactoryBot.create(:parent, phone_number: '0755810001')
+      duplicate = FactoryBot.create(:child, first_name: 'Léa', last_name: 'Martin', birthdate: Date.new(2027, 1, 10), parent1: duplicate_parent1, parent2: duplicate_parent2)
+      [child, duplicate]
+    end
+
+    def create_child_with_both_parents(created_at:, first_parent_phone:, second_parent_phone:)
+      travel_to(created_at) do
+        parent1 = FactoryBot.create(:parent, phone_number: first_parent_phone)
+        parent2 = FactoryBot.create(:parent, phone_number: second_parent_phone)
+        FactoryBot.create(:child, first_name: 'Hugo', last_name: 'Petit', birthdate: Date.new(2026, 9, 5), parent1: parent1, parent2: parent2)
+      end
+    end
+
+    [
+      ['avant la date de fin de la cohorte', Date.new(2027, 11, 30), Time.zone.local(2027, 11, 28, 6)],
+      ['après la date de fin de la cohorte', Date.new(2027, 11, 30), Time.zone.local(2027, 12, 5, 6)],
+      ['longtemps après la date de fin de la cohorte', Date.new(2027, 11, 30), Time.zone.local(2029, 6, 3, 6)],
+      ['dans une cohorte sans date de fin', nil, Time.zone.local(2028, 12, 3, 6)]
+    ].each do |moment, ended_at, run_at|
+      context "quand la cohorte est attribuée et que l'algorithme tourne #{moment}" do
+        it "archive le doublon et ajoute le parent 2 à l'enfant de la cohorte" do
+          child, duplicate = travel_to(Time.zone.local(2027, 5, 20, 10)) do
+            child, duplicate = create_child_and_duplicate_without_common_parent2
+            group = FactoryBot.create(:group, started_at: Date.new(2027, 5, 31), ended_at: ended_at, supporters_assigned_at: Time.zone.now)
+            child.update!(group: group, group_status: 'active')
+            [child, duplicate]
+          end
+
+          travel_to(run_at) { Child::HandleDuplicateService.new.call }
+
+          expect(duplicate.reload).to be_discarded
+          expect(child.reload).not_to be_discarded
+          expect(child.parent2).to eq(duplicate.parent2)
+        end
+      end
+    end
+
+    context "quand la cohorte de l'enfant sans parent 2 n'est pas attribuée" do
+      it "archive l'enfant de la cohorte et sa fiche, et garde le doublon avec sa propre fiche" do
+        child, duplicate = travel_to(Time.zone.local(2027, 5, 20, 10)) do
+          child, duplicate = create_child_and_duplicate_without_common_parent2
+          group = FactoryBot.create(:group, started_at: Date.new(2027, 5, 31), ended_at: Date.new(2027, 11, 30))
+          child.update!(group: group, group_status: 'active')
+          [child, duplicate]
+        end
+
+        travel_to(Time.zone.local(2027, 5, 23, 6)) { Child::HandleDuplicateService.new.call }
+
+        expect(child.reload).to be_discarded
+        expect(child.child_support.reload).to be_discarded
+        expect(duplicate.reload).not_to be_discarded
+        expect(duplicate.child_support.reload).not_to be_discarded
+      end
+    end
+
+    context "quand la cohorte a démarré sans date d'attribution" do
+      it 'garde le plus ancien des doublons et archive le plus récent' do
+        child = create_child_with_both_parents(created_at: Time.zone.local(2027, 1, 10, 10), first_parent_phone: '0755830000', second_parent_phone: '0755830001')
+        duplicate = create_child_with_both_parents(created_at: Time.zone.local(2027, 1, 15, 10), first_parent_phone: '0755830000', second_parent_phone: '0755830001')
+        travel_to(Time.zone.local(2027, 2, 19, 10)) do
+          group = FactoryBot.create(:group, started_at: Date.new(2027, 3, 1))
+          group.update!(support_module_programmed: 1)
+          child.update!(group: group, group_status: 'active')
+        end
+
+        travel_to(Time.zone.local(2027, 3, 7, 6)) { Child::HandleDuplicateService.new.call }
+
+        expect(duplicate.reload).to be_discarded
+        expect(child.reload).not_to be_discarded
+      end
     end
   end
 end
