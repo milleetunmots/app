@@ -84,24 +84,24 @@ class Child
     end
 
     def handle_case_one
-      # S'il n'y a pas de cohorte ou si celles qui existent n'ont pas encore démarré
-      if @groups.empty? || ( @groups.all? { |group| group.started_at.present? && (group.started_at >= Time.zone.today) && group.support_module_programmed.zero? })
+      # S'il n'y a pas de cohorte ou si aucune n'est attribuée aux accompagnantes
+      if @supporters_assigned_groups.empty?
         delete_children_without_parent2
         keep_recent_child
-      # Si une seule cohorte a démarré
-      elsif @started_groups.length == 1
+      # Si une seule cohorte est attribuée
+      elsif @supporters_assigned_groups.length == 1
         keep_supported_children_and_add_parent2_if_needed
       end
     end
 
     def handle_case_two
-      if @groups.empty? || (@groups.all? { |group| group.started_at.present? && (group.started_at >= Time.zone.today) && group.support_module_programmed.zero? })
-        # Si il n'existe pas de cohortes actives, supprimer les doublons les plus récents
+      if @supporters_assigned_groups.empty?
+        # Si aucune cohorte n'est attribuée, supprimer les doublons les plus récents
         @children.sort_by(&:created_at).drop(1).each do |child|
           discard_child(child)
         end
-      elsif @started_groups.length == 1
-        @children.select { |child| child.group_id != @started_groups.first.id }.each do |child|
+      elsif @supporters_assigned_groups.length == 1
+        @children.select { |child| child.group_id != @supporters_assigned_groups.first.id }.each do |child|
           discard_child(child)
         end
       end
@@ -119,8 +119,8 @@ class Child
     end
 
     def keep_supported_children_and_add_parent2_if_needed
-      started_group_children = @children.select { |child| child.group_id.to_i == @started_groups.first.id }
-      not_supported_children = @children - started_group_children
+      supporters_assigned_group_children = @children.select { |child| child.group_id.to_i == @supporters_assigned_groups.first.id }
+      not_supported_children = @children - supporters_assigned_group_children
       parent2 = @children.select { |child| child.parent2.present? }.first&.parent2
 
       # Discard non supported children then add parent2 to the supported child if missing
@@ -135,7 +135,7 @@ class Child
 
         child.child_support.discard if child.child_support.children.kept.empty?
       end
-      started_group_children.select { |child| child.parent2.nil? }.each do |child|
+      supporters_assigned_group_children.select { |child| child.parent2.nil? }.each do |child|
         # Il n'y a qu'un seul enfant suivi normalement
         child.parent2 = parent2
         child.save
@@ -179,7 +179,7 @@ class Child
         @children = children
         # Recupérer les cohortes
         @groups = children_groups
-        @started_groups = @groups.select { |group| group.started_at.present? && (group.started_at <= Time.zone.today) && group.support_module_programmed.positive? }
+        @supporters_assigned_groups = @groups.select(&:supporters_assigned?)
         case
         when case_one?
           handle_case_one
