@@ -18,14 +18,22 @@ class BaseDecorator < Draper::Decorator
     with_icon = options.delete(:with_icon)
 
     txt = options.delete(:label) || name
-    if with_icon
-      txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + txt
-    end
+    txt = gender_icon + "&nbsp;".html_safe + txt if with_icon
     options[:class] = [
       options[:class],
       model.respond_to?(:discarded?) && (model.discarded? ? 'discarded' : 'kept')
     ].compact.join(' ')
     h.link_to txt, [:admin, model], options
+  end
+
+  # Icône devant le nom. La couleur de genre est portée par l'icône (modificateur
+  # gender-icon--boy / --girl), jamais par le lien (cf. docs/brand_identity.md).
+  def gender_icon
+    h.content_tag(:i, '', class: ['fas', "fa-#{icon_class}", 'gender-icon', gender_icon_modifier].compact.join(' '))
+  end
+
+  def gender_icon_modifier
+    nil
   end
 
   def tags(options = {})

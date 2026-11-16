@@ -1,6 +1,10 @@
 class ChildDecorator < BaseDecorator
 
-  GENDER_COLORS = { m: :blue, f: :rose, x: :grey }.freeze
+  # Pastille de genre (status_tag) : fond rose ou bleu clair
+  GENDER_TAG_COLORS = { m: :blue, f: :rose, x: :grey }.freeze
+
+  # Icône devant le prénom : seule porteuse de la couleur de genre
+  GENDER_ICON_CLASSES = { m: 'gender-icon--boy', f: 'gender-icon--girl', x: nil }.freeze
 
   GENDER_CLASSES = { m: :male, f: :female, x: :unknown }.freeze
 
@@ -23,8 +27,13 @@ class ChildDecorator < BaseDecorator
     [7.5, 'gift-card-name--micro']
   ].freeze
 
+  # Prénom en texte (name-link), lien révélé au survol
   def admin_link(options = {})
-    super(options.merge(class: GENDER_COLORS[safe_gender.to_sym]))
+    super(options.merge(class: [options[:class], 'name-link'].compact.join(' ')))
+  end
+
+  def gender_icon_modifier
+    GENDER_ICON_CLASSES[safe_gender.to_sym]
   end
 
   def ok_for_solicitation
@@ -35,8 +44,7 @@ class ChildDecorator < BaseDecorator
     options = { with_icon: true, target: '_blank' }
     # Le nom est isolé dans un span sécable : lui seul peut se couper en bout de
     # ligne, les icônes restent solidaires du dernier fragment (cf. cards.sass).
-    txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + '&nbsp;'.html_safe +
-          h.content_tag(:span, name, class: 'name-text')
+    txt = gender_icon + '&nbsp;'.html_safe + h.content_tag(:span, name, class: 'name-text')
     is_current_child = model.current_child?
     txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-sms') if is_current_child
     txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-book') if model.group_status == 'active'
@@ -48,10 +56,9 @@ class ChildDecorator < BaseDecorator
                         'Je reçois les livres'
                       end
     options[:class] = [
+      'name-link',
       options[:class],
-      model.respond_to?(:discarded?) && (model.discarded? ? 'discarded' : 'kept'),
-      options[:class],
-      GENDER_COLORS[safe_gender.to_sym]
+      model.respond_to?(:discarded?) && (model.discarded? ? 'discarded' : 'kept')
     ].compact.join(' ')
     return h.link_to(txt, [:admin, model], options) if child_support_id.blank?
 
@@ -102,7 +109,7 @@ class ChildDecorator < BaseDecorator
 
   def gender_status
     arbre do
-      status_tag gender, class: GENDER_COLORS[safe_gender.to_sym]
+      status_tag gender, class: GENDER_TAG_COLORS[safe_gender.to_sym]
     end
   end
 
@@ -119,10 +126,9 @@ class ChildDecorator < BaseDecorator
   def gendered_name_with_age(options = {})
     with_icon = options.delete(:with_icon)
     txt = options.delete(:label) || name
-    txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + '&nbsp;'.html_safe + txt if with_icon
+    txt = gender_icon + '&nbsp;'.html_safe + txt if with_icon
     h.content_tag :span do
-      h.content_tag(:span, txt, { class: "txt-#{GENDER_COLORS[safe_gender.to_sym]}" }.merge(options))
-      + ' (' + age + ')'
+      h.content_tag(:span, txt, options) + ' (' + age + ')'
     end
   end
 

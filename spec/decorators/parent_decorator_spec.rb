@@ -213,5 +213,14 @@ RSpec.describe ParentDecorator do
 
       expect(html).to have_css("a.js-save-before-leave[aria-label='Modifier #{parent.name}'] i[aria-hidden='true']")
     end
+
+    # Le lien est en texte, le genre est porté par l'icône (cf. docs/brand_identity.md)
+    it 'porte le genre sur l’icône, pas sur le lien' do
+      parent = FactoryBot.create(:parent, gender: 'f').decorate
+
+      html = Capybara.string(parent.admin_link(with_icon: true))
+
+      expect(html).to have_css('a.name-link:not(.rose) i.fas.fa-female.gender-icon.gender-icon--girl')
+    end
   end
 end

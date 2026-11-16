@@ -43,5 +43,44 @@ RSpec.describe ChildDecorator do
 
       expect(html).to have_css('a.js-save-before-leave[aria-label="Modifier Lazare CARON"] i[aria-hidden="true"]')
     end
+
+    it 'porte le genre sur l’icône du lien de la fiche de suivi' do
+      child = FactoryBot.create(:child, gender: 'f').decorate
+
+      html = Capybara.string(child.child_link(child_support_id: 1))
+
+      expect(html).to have_css('a.name-link:not(.rose) i.gender-icon--girl')
+    end
+  end
+
+  # Prénoms : le lien est en texte, le genre est porté par l'icône (cf. docs/brand_identity.md)
+  describe '#admin_link' do
+    it 'porte le genre sur l’icône, pas sur le lien' do
+      child = FactoryBot.create(:child, gender: 'm', first_name: 'Lazare', last_name: 'Caron').decorate
+
+      html = Capybara.string(child.admin_link(with_icon: true))
+
+      expect(html).to have_css('a.name-link.kept:not(.blue):not(.rose) i.fas.fa-baby.gender-icon.gender-icon--boy')
+    end
+
+    it 'ne met pas de classe de genre quand le genre est inconnu' do
+      child = FactoryBot.create(:child, gender: nil).decorate
+
+      html = Capybara.string(child.admin_link(with_icon: true))
+
+      expect(html).to have_css('a.name-link i.gender-icon')
+      expect(html).not_to have_css('i.gender-icon--boy, i.gender-icon--girl')
+    end
+  end
+
+  describe '#gendered_name_with_age' do
+    it 'ne colore plus le prénom' do
+      child = FactoryBot.create(:child, gender: 'm').decorate
+
+      html = Capybara.string(child.gendered_name_with_age(with_icon: true))
+
+      expect(html).not_to have_css('.txt-blue, .txt-rose')
+      expect(html).to have_css('i.gender-icon--boy')
+    end
   end
 end

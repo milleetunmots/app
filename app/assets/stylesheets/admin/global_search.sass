@@ -23,12 +23,11 @@
       .name
         font-weight: 600
 
-      .male
-        .name
-          color: $blue
-      .female
-        .name
-          color: $rose
+      // Le genre est sur l'icône (sœur du bloc .male / .female rendu par le décorateur)
+      &:has(> .male) > .search-result-icon
+        color: $boy
+      &:has(> .female) > .search-result-icon
+        color: $girl
 
       &.search-result-parent
         .phone-number

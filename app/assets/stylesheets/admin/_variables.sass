@@ -23,16 +23,19 @@ $field-border: #8C897A
 $ink: $brand-black
 $ink-soft: #5F5D55
 
-// Marque : action (marine), position « ici » (citron), focus clavier (bleu),
-// fille / garçon (rose et bleu clairs, texte marine)
+// Marque, un rôle par couleur : action (marine), lien (bleu), position « ici » (citron),
+// genre (icônes bleue et rose), fonds fille / garçon (rose et bleu clairs, texte marine)
 $action: $navy
 $action-hover: #08355D
 $action-soft: #EEF2F7
 $highlight: $lime
 $highlight-soft: #F7F8E4
-// Bleu de la charte foncé : #3596FF fait 2,96:1 sur le crème, sous les 3:1 exigés
-// d'un indicateur de focus (WCAG 1.4.11) ; celui-ci fait 5,9:1
-$focus: #1A62B8
+// Bleu de la charte foncé : #3596FF fait 2,79:1 sur le crème, sous les 3:1 exigés
+// d'un indicateur de focus (WCAG 1.4.11) et les 4,5:1 d'un texte ; celui-ci fait 5,9:1
+$link: #1A62B8
+$focus: $link
+$boy: $link
+$girl: #C42A60
 $girl-bg: #FFE1EC
 $boy-bg: #DCEBFF
 
@@ -84,10 +87,9 @@ $black: $ink
 $muted: $ink-soft
 $dark-grey: $ink-soft
 $grey: $line-strong
-$blue: $info
+$blue: $link
 $blue-bg: $info-bg
-// Prénoms de fille : foncé pour garder 4,5:1 sur les fonds atténués (cartes, creux, survol)
-$rose: #C42A60
+$rose: $girl
 $rose-bg: $girl-bg
 $yellow: $warning
 $yellow-bg: $warning-bg
@@ -99,7 +101,10 @@ $error: $danger
 // lui (cf. active_admin.sass), ces valeurs remplacent donc les siennes
 $border-radius: $radius
 $box-shadow: $shadow-float
+// Liens en bleu, boutons en marine ; $primary-color reste marine (liseré de #login, onglets)
 $primary-color: $action
+$link-primary-color: $link
+$button-primary-color: $action
 $body-background: $canvas
 $header-background: $surface
 $text-color: $ink

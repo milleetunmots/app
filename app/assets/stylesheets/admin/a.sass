@@ -1,21 +1,33 @@
 @import variables
 
+// Liens en bleu (cf. $link-primary-color) ; un rôle par couleur, cf. docs/brand_identity.md
 a
-  &.blue
-    color: $blue
-  &.rose
-    color: $rose
-
   &.discarded
     text-decoration: line-through
 
+  // Cohortes : terminée en gris barré, en pause en orange ; le rouge reste aux erreurs
   &.group-admin-link
     color: $green
 
     &.stop
-      color: $red
+      color: $ink-soft
       text-decoration: line-through
     &.pause
-      color: $red
+      color: $warning
     &.wait
       color: $muted
+
+// Prénoms des enfants et des parents : texte, lien révélé au survol ; le genre est
+// porté par l'icône (classes posées par les décorateurs)
+a.name-link
+  color: $ink
+  font-weight: 500
+
+  &:hover, &:focus-visible
+    color: $link
+    text-decoration: underline
+
+.gender-icon--boy
+  color: $boy
+.gender-icon--girl
+  color: $girl

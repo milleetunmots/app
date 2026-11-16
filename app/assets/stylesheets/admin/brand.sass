@@ -26,6 +26,11 @@ h4
   font-family: $font-family-body
   font-size: $text-lg
 
+// Liens : bleu (cf. $link-primary-color), soulignés au survol ; arctic_admin retire le
+// soulignement. Les boutons, bleus ou marine, ne se soulignent pas.
+a:hover:not(.button):not(.menu_item):not(.scope a):not(#tabs a)
+  text-decoration: underline
+
 // Mouvement : les changements d'état se fondent au lieu de sauter
 a, button, .button, input, select, textarea, table.index_table tbody tr
   transition: color $transition, background-color $transition, border-color $transition, box-shadow $transition
@@ -148,7 +153,7 @@ table.index_table
     color: $warning
   &.flash_info
     background-color: $info-bg
-    color: $info
+    color: $navy
 
 // Filtres rapides (scopes) : pastilles au contour discret ; le filtre courant prend le
 // citron de la position « ici », comme l'entrée active du menu. Le survol reste neutre :
