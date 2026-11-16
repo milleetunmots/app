@@ -24,32 +24,3 @@ body.index .table_actions a.member_link
 
 #title_bar #titlebar_right .action_item a[data-method="delete"][data-confirm]
   +tinted-button($danger-bg, $danger)
-
-// Relief au survol, repris des boutons du site : le bouton grossit un peu et une ombre
-// marine pleine apparaît dessous, en 160 ms. Plus discret que le site (1,05 au lieu
-// de 1,1) : dans l'admin les boutons sont serrés entre d'autres éléments. Les petits
-// boutons (listes, « Modifier », has_many) et les flèches du calendrier n'en ont pas.
-=lifted-button
-  transition: transform 160ms ease-in-out, box-shadow 160ms ease-in-out, background-color $transition, color $transition, border-color $transition
-
-  &:hover, &:focus-visible
-    transform: scale(1.05)
-    box-shadow: 0 4px 0 -1px $navy
-
-  &:active
-    transform: scale(1.02)
-    box-shadow: 0 2px 0 -1px $navy
-
-.button:not(.small):not(.has_many_add):not(.has_many_remove),
-#title_bar #titlebar_right .action_item a,
-input[type="submit"],
-.ui-dialog .ui-button,
-.buttons-line .button-primary, .buttons-line .button-outline,
-.scheduled-call-button
-  +lifted-button
-
-@media (prefers-reduced-motion: reduce)
-  .button, #title_bar #titlebar_right .action_item a, input[type="submit"], .ui-dialog .ui-button,
-  .buttons-line .button-primary, .buttons-line .button-outline, .scheduled-call-button
-    &:hover, &:focus-visible, &:active
-      transform: none
