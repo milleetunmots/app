@@ -35,7 +35,7 @@ h4
     text-decoration: underline
 
 // Mouvement : les changements d'état se fondent au lieu de sauter
-a, button, .button, input, select, textarea, table.index_table tbody tr
+a, button, .button, input, select, textarea, table.index_table tbody tr > td
   transition: color $transition, background-color $transition, border-color $transition, box-shadow $transition
 
 // Focus clavier : un seul anneau plein, détaché de l'élément pour contraster avec le
@@ -144,7 +144,7 @@ table.index_table
       a
         color: $action
 
-  tbody tr.selected
+  tbody tr.selected > td
     background-color: $highlight-soft
 
 // Messages flash : fond pâle et texte foncé de la même famille, comme les pastilles

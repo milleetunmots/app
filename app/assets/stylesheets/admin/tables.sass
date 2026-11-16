@@ -1,9 +1,40 @@
 @import variables
 
-// Tous les tableaux de l'admin (listes, tableau de bord, panneaux des fiches) : en-tête en
-// creux, survol neutre. Le citron reste réservé aux lignes cochées (cf. brand.sass).
-thead tr
-  border-color: $line
+// Tous les tableaux de l'admin (listes, fiches, tableau de bord, colonne de droite) : cadre
+// arrondi porté par le tableau, pas par les lignes. En bordures fusionnées (arctic_admin),
+// les bordures des lignes ne suivent pas l'arrondi. Les fonds (en-tête, survol, ligne
+// cochée) sont posés sur les cellules, arrondies aux quatre angles : un fond posé sur la
+// ligne déborderait de l'arrondi.
+table
+  border-collapse: separate
+  border-spacing: 0
+  border: 1px solid $line
+  border-radius: $radius
+
+  > thead > tr, > tbody > tr, > tfoot > tr
+    border: none
+    background-color: transparent
+
+    > th, > td
+      border-bottom: 1px solid $line
+
+  > :last-child > tr:last-child > th, > :last-child > tr:last-child > td
+    border-bottom: none
+
+  > :first-child > tr:first-child
+    > :first-child
+      border-top-left-radius: $radius
+    > :last-child
+      border-top-right-radius: $radius
+
+  > :last-child > tr:last-child
+    > :first-child
+      border-bottom-left-radius: $radius
+    > :last-child
+      border-bottom-right-radius: $radius
+
+// En-tête en creux, survol neutre. Le citron reste réservé aux lignes cochées (cf. brand.sass).
+thead th
   background-color: $sunken
 
 // arctic_admin met les tableaux en 12px : 13px, plus lisible sans élargir les colonnes
@@ -26,18 +57,14 @@ tbody tr td
   color: $ink-soft
   font-size: $text-md
 
-tbody
-  tr
-    border: 1px solid $line
+tbody tr:hover > td, tbody tr:hover > th
+  background-color: $sunken
 
-  tr:hover
-    background-color: $sunken
-
-// arctic_admin pose son propre survol, gris-bleu, avec des sélecteurs plus précis : sur les
-// listes et dans la colonne de droite des fiches
+// arctic_admin pose son propre survol, gris-bleu, sur la ligne avec des sélecteurs plus
+// précis : sur les listes et dans la colonne de droite des fiches
 .index_as_table tbody tr:hover,
 body.logged_in #active_admin_content.with_sidebar #sidebar tbody tr:hover
-  background-color: $sunken
+  background-color: transparent
 
 // Numéros de téléphone (« Téléphone », « Numéro du parent 1 »…) : jamais coupés en deux
 td[class*="phone_number"]

@@ -1,35 +1,5 @@
 @import variables
 
-// Tableaux d'attributs des fiches : le cadre est porté par le tableau, arrondi, et non par
-// les lignes (tables.sass) ; en bordures fusionnées (arctic_admin), les bordures des
-// lignes ne suivent pas l'arrondi du tableau
-.attributes_table > table
-  border-collapse: separate
-  border-spacing: 0
-  border: 1px solid $line
-  border-radius: $radius
-
-  > tbody > tr
-    border: none
-
-    > th, > td
-      border-bottom: 1px solid $line
-
-    &:last-child > th, &:last-child > td
-      border-bottom: none
-
-    &:first-child > th
-      border-top-left-radius: $radius
-
-    &:first-child > td:last-child
-      border-top-right-radius: $radius
-
-    &:last-child > th
-      border-bottom-left-radius: $radius
-
-    &:last-child > td:last-child
-      border-bottom-right-radius: $radius
-
 .attributes_table
   .row-pre
     td
