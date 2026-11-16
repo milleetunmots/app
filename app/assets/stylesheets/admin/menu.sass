@@ -1,0 +1,31 @@
+@import variables
+
+// Menu latéral marine : la charte structure l'écran ; le citron reste le seul repère
+// « ici » (entrée active), avec le filtre courant et les lignes cochées des listes.
+// Fond, bordure et survols viennent des variables $sidebar-* (cf. _variables.sass) ;
+// arctic_admin pose les couleurs de texte en dur sur les entrées et le chevron.
+.header #tabs
+  > li > a
+    color: $menu-text
+    font-size: $text-md
+    font-weight: 500
+
+  // Chevron : couleur seulement, la graisse 900 est celle de Font Awesome « solid » ;
+  // :nth-child(1) pour la même précision que le sélecteur d'arctic_admin
+  li.has_nested > a:nth-child(1):after
+    color: $menu-text
+
+  li.has_nested > ul
+    border-color: $menu-bg-nested
+    background-color: $menu-bg-nested
+
+    a
+      color: rgba(254, 253, 248, 0.85)
+      font-size: $text-sm
+      font-weight: 400
+
+  // Entrée active : pastille citron, texte marine, y compris dans un sous-menu
+  li.current > a, li.has_nested ul li.current > a
+    background-color: $highlight
+    color: $navy
+    font-weight: 500
