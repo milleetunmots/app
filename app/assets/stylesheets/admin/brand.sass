@@ -217,6 +217,15 @@ body.index .table_tools .dropdown_menu_button
   border-radius: $radius-lg
   overflow: hidden
 
+// Marge intérieure des panneaux : arctic_admin n'en met aucune, le titre et les tableaux
+// touchaient le filet
+.panel
+  > h3
+    padding: 14px 16px 0
+
+  > .panel_contents
+    padding: 0 16px 16px
+
 #login
   border-radius: $radius-lg
 
