@@ -29,8 +29,14 @@
     outline-color: $highlight !important
     outline-offset: -2px
 
-  // Entrée active : pastille citron, texte marine, y compris dans un sous-menu
-  li.current > a, li.has_nested ul li.current > a
+  // Entrée active : pastille citron, texte marine. Une seule par menu : quand un
+  // sous-menu est ouvert, seule l'entrée du sous-menu est en citron, sa catégorie
+  // prend la teinte du survol (deux pastilles citron superposées en faisaient trop)
+  li.current:not(.has_nested) > a, li.has_nested ul li.current > a
     background-color: $highlight
     color: $navy
     font-weight: 500
+
+  li.has_nested.current > a:nth-child(1)
+    background-color: $menu-hover
+    color: $menu-text
