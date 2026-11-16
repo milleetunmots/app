@@ -73,6 +73,18 @@ RSpec.describe ChildDecorator do
     end
   end
 
+  # Le soulignement est réservé au survol des liens : un parent « à contacter » n'est plus souligné
+  describe '#parent1' do
+    it 'ne souligne pas le parent à contacter' do
+      child = FactoryBot.create(:child, should_contact_parent1: true).decorate
+
+      html = Capybara.string(child.parent1)
+
+      expect(html).to have_css('a.name-link')
+      expect(html).not_to have_css('a.txt-underline')
+    end
+  end
+
   describe '#gendered_name_with_age' do
     it 'ne colore plus le prénom' do
       child = FactoryBot.create(:child, gender: 'm').decorate
