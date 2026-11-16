@@ -24,6 +24,11 @@
       font-size: $text-sm
       font-weight: 400
 
+  // Focus clavier : le bleu de brand.sass ne fait que 1,68:1 sur le marine, le citron 7,4:1
+  a:focus-visible
+    outline-color: $highlight !important
+    outline-offset: -2px
+
   // Entrée active : pastille citron, texte marine, y compris dans un sous-menu
   li.current > a, li.has_nested ul li.current > a
     background-color: $highlight
