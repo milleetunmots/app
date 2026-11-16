@@ -3,8 +3,8 @@ class ParentDecorator < BaseDecorator
   # Pastille de genre (status_tag) : fond rose ou bleu clair
   GENDER_TAG_COLORS = { m: :blue, f: :rose }.freeze
 
-  # Icône devant le nom : seule porteuse de la couleur de genre
-  GENDER_ICON_CLASSES = { m: 'gender-icon--boy', f: 'gender-icon--girl' }.freeze
+  # Teinte de genre du nom et de son icône (cf. BaseDecorator#name_link_classes)
+  GENDER_MODIFIERS = { m: 'boy', f: 'girl' }.freeze
 
   # La fiche de l'enfant courant, comme pour le reste de la fiche parent
   def ok_for_solicitation
@@ -13,8 +13,8 @@ class ParentDecorator < BaseDecorator
 
   def admin_link(options = {})
     child_support_id = options.delete(:child_support_id)
-    # Nom en texte (name-link), lien révélé au survol
-    link_options = options.merge(class: [options[:class], 'name-link'].compact.join(' '))
+    # Nom teinté selon le genre (name-link--boy / --girl)
+    link_options = options.merge(class: [options[:class], *name_link_classes].compact.join(' '))
     return super(link_options) if child_support_id.blank?
 
     # Le nom est isolé dans un span sécable : lui seul peut se couper en bout de
@@ -58,8 +58,8 @@ class ParentDecorator < BaseDecorator
     end
   end
 
-  def gender_icon_modifier
-    GENDER_ICON_CLASSES[model.gender.to_sym]
+  def gender_modifier
+    GENDER_MODIFIERS[model.gender.to_sym]
   end
 
   def gender

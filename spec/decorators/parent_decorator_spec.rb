@@ -220,7 +220,7 @@ RSpec.describe ParentDecorator do
 
       html = Capybara.string(parent.admin_link(with_icon: true))
 
-      expect(html).to have_css('a.name-link:not(.rose) i.fas.fa-female.gender-icon.gender-icon--girl')
+      expect(html).to have_css('a.name-link.name-link--girl:not(.rose) i.fas.fa-female.gender-icon.gender-icon--girl')
     end
   end
 end

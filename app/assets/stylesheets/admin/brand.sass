@@ -211,6 +211,12 @@ body.index .table_tools .dropdown_menu_button
 .panel .panel, #sidebar .panel, #main_content .panel
   box-shadow: none
 
+// Angles arrondis : arctic_admin laisse les panneaux, les onglets et la colonne de droite
+// à angles vifs ; overflow hidden pour que le contenu (en-tête, tableau) suive l'arrondi
+.panel, .tabs.ui-tabs, #sidebar
+  border-radius: $radius-lg
+  overflow: hidden
+
 #login
   border-radius: $radius-lg
 

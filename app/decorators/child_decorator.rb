@@ -3,8 +3,8 @@ class ChildDecorator < BaseDecorator
   # Pastille de genre (status_tag) : fond rose ou bleu clair
   GENDER_TAG_COLORS = { m: :blue, f: :rose, x: :grey }.freeze
 
-  # Icône devant le prénom : seule porteuse de la couleur de genre
-  GENDER_ICON_CLASSES = { m: 'gender-icon--boy', f: 'gender-icon--girl', x: nil }.freeze
+  # Teinte de genre du prénom et de son icône (cf. BaseDecorator#name_link_classes)
+  GENDER_MODIFIERS = { m: 'boy', f: 'girl', x: nil }.freeze
 
   GENDER_CLASSES = { m: :male, f: :female, x: :unknown }.freeze
 
@@ -27,13 +27,13 @@ class ChildDecorator < BaseDecorator
     [7.5, 'gift-card-name--micro']
   ].freeze
 
-  # Prénom en texte (name-link), lien révélé au survol
+  # Prénom teinté selon le genre (name-link--boy / --girl)
   def admin_link(options = {})
-    super(options.merge(class: [options[:class], 'name-link'].compact.join(' ')))
+    super(options.merge(class: [options[:class], *name_link_classes].compact.join(' ')))
   end
 
-  def gender_icon_modifier
-    GENDER_ICON_CLASSES[safe_gender.to_sym]
+  def gender_modifier
+    GENDER_MODIFIERS[safe_gender.to_sym]
   end
 
   def ok_for_solicitation
@@ -56,7 +56,7 @@ class ChildDecorator < BaseDecorator
                         'Je reçois les livres'
                       end
     options[:class] = [
-      'name-link',
+      *name_link_classes,
       options[:class],
       model.respond_to?(:discarded?) && (model.discarded? ? 'discarded' : 'kept')
     ].compact.join(' ')

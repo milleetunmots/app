@@ -17,17 +17,16 @@ a
     &.wait
       color: $muted
 
-// Prénoms des enfants et des parents : texte, lien révélé au survol ; le genre est
-// porté par l'icône (classes posées par les décorateurs)
+// Prénoms des enfants et des parents : teinte de genre, distincte du bleu des liens
+// (classes posées par les décorateurs) ; genre inconnu en texte
 a.name-link
   color: $ink
   font-weight: 500
 
   &:hover, &:focus-visible
-    color: $link
     text-decoration: underline
 
-.gender-icon--boy
+a.name-link--boy, .gender-icon--boy
   color: $boy
-.gender-icon--girl
+a.name-link--girl, .gender-icon--girl
   color: $girl
