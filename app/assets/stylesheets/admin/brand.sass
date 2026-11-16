@@ -196,8 +196,21 @@ body.index .table_tools .dropdown_menu_button
 
 // Surfaces : arctic_admin, select2 et jQuery UI codent le blanc en dur ; elles prennent
 // $surface, comme les composants de l'admin
-#main_content, #title_bar, #sidebar, .ui-dialog, #ui-datepicker-div, .select2-dropdown
+#main_content, #title_bar, #sidebar, #login, .ui-dialog, #ui-datepicker-div, .select2-dropdown
   background-color: $surface
+
+// Cartes et panneaux : filet et ombre douce pour se détacher du fond
+#main_content, #title_bar, #sidebar, #login, .panel, .big-number, .availability-card,
+.card-text-messages-bundle
+  border: 1px solid $line
+  box-shadow: $shadow-card
+
+// Pas d'ombre empilée dans les cartes imbriquées
+.panel .panel, #sidebar .panel, #main_content .panel
+  box-shadow: none
+
+#login
+  border-radius: $radius-lg
 
 body.index
   #sidebar:before

@@ -10,15 +10,15 @@ $brand-black: #2B2B2B
 // Peu de couleurs, chacune avec un seul rôle : les neutres portent l'essentiel de
 // l'écran, la marque signale l'action et la position, les statuts portent un sens.
 
-// Neutres, accordés au crème et atténués : pas de blanc pur, qui éblouit à la longue.
-// Le fond de page reste plus sombre que les cartes pour qu'elles s'en détachent ;
-// $ink-soft garde au moins 5,6:1 sur chacun de ces fonds et $field-border 3:1, le
-// minimum pour délimiter un champ (WCAG 1.4.11).
-$canvas: #F3F1E8
-$surface: #F8F6EF
-$sunken: #EFEDE4
-$line: #E2DFD2
-$line-strong: #D2CFC2
+// Neutres, accordés au crème : pas de blanc pur, qui éblouit à la longue. Les cartes
+// sont dans le crème de la charte, sur un fond de page nettement plus sombre pour
+// qu'elles s'en détachent ; $ink-soft garde au moins 5,38:1 sur chacun de ces fonds
+// et $field-border 3,11:1 sur les surfaces qui portent des champs (WCAG 1.4.11).
+$canvas: #ECE8DC
+$surface: $cream
+$sunken: #F4F1E8
+$line: #DBD6C6
+$line-strong: #C9C3B0
 $field-border: #8C897A
 $ink: $brand-black
 $ink-soft: #5F5D55
@@ -50,6 +50,8 @@ $info-bg: #E6F0FF
 $radius: 8px
 $radius-lg: 10px
 $radius-pill: 999px
+// Cartes et panneaux posés sur le fond ; les éléments flottants (menus, modales) ont $shadow-float
+$shadow-card: 0 1px 2px rgba(11, 67, 116, 0.06), 0 2px 8px rgba(11, 67, 116, 0.04)
 $shadow-float: 0 8px 24px rgba(11, 67, 116, 0.1)
 $transition: 150ms ease-out
 
