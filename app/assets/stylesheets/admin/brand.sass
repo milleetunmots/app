@@ -212,9 +212,13 @@ body.index .table_tools .dropdown_menu_button
   box-shadow: none
 
 // Angles arrondis : arctic_admin laisse les panneaux, les onglets et la colonne de droite
-// à angles vifs ; overflow hidden pour que le contenu (en-tête, tableau) suive l'arrondi
+// à angles vifs ; overflow hidden pour que le contenu (en-tête, tableau) suive l'arrondi.
+// Pas sur #sidebar : sur les listes, le bouton qui ouvre les filtres est son :before,
+// posé 40px à sa gauche, et un overflow hidden le découpe.
 .panel, .tabs.ui-tabs, #sidebar
   border-radius: $radius-lg
+
+.panel, .tabs.ui-tabs
   overflow: hidden
 
 // Marge intérieure des panneaux : arctic_admin n'en met aucune, le titre et les tableaux
