@@ -112,6 +112,14 @@ textarea, select, input[type="checkbox"]
     background-color: $sunken
     color: $ink
 
+// select2 masque le select d'origine (1px, position absolue, clip), mais arctic_admin lui
+// impose min-width: 50 % dans les formulaires et child_support_input.sass width: 100 %
+// !important : le select caché dépassait du bord droit et faisait défiler la page
+body .input select.select2-hidden-accessible, select.select2-hidden-accessible
+  width: 1px !important
+  min-width: 0 !important
+  max-width: 1px !important
+
 // Les navigateurs donnent leur propre police aux champs : ils reprennent celle du texte
 input, select, textarea, button
   font-family: inherit
