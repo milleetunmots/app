@@ -26,10 +26,13 @@ h4
   font-family: $font-family-body
   font-size: $text-lg
 
-// Liens : bleu (cf. $link-primary-color), soulignés au survol ; arctic_admin retire le
-// soulignement. Les boutons, bleus ou marine, ne se soulignent pas.
-a:hover:not(.button):not(.menu_item):not(.scope a):not(#tabs a)
-  text-decoration: underline
+// Liens du contenu : bleu (cf. $link-primary-color), soulignés au survol ; arctic_admin
+// retire le soulignement. Sélection positive (contenu, colonne de droite, fil d'Ariane,
+// messages) : les boutons-liens d'arctic_admin (.member_link « Modifier » des listes,
+// actions du titre, menus déroulants, onglets) ne se soulignent pas.
+#main_content, #sidebar, #title_bar .breadcrumb, .flashes
+  a:hover:not(.button):not(.member_link):not(.dropdown_menu_button):not(.ui-tabs-anchor)
+    text-decoration: underline
 
 // Mouvement : les changements d'état se fondent au lieu de sauter
 a, button, .button, input, select, textarea, table.index_table tbody tr
