@@ -2,12 +2,29 @@
 
 // Charte graphique : ce que les variables du thème (cf. _variables.sass) ne couvrent pas.
 
-// Titres en Fredoka, en marine
+// Corps : arctic_admin pose la police et la taille (cf. _variables.sass), l'interligne est fixé ici
+body
+  font-family: $font-family-body
+  font-size: $text-md
+  line-height: $line-height-body
+
+// Titres en Fredoka, en marine ; h4 reste dans la police du texte (sous-titre d'encart)
 h1, h2, h3, h4, #page_title
-  font-family: 'Fredoka', 'Poppins', Arial, sans-serif
+  font-family: $font-family-title
   font-weight: 600
   color: $navy
   letter-spacing: -0.01em
+
+h1, h2, #page_title
+  font-size: $title-md
+
+h3
+  margin-bottom: 12px
+  font-size: $title-sm
+
+h4
+  font-family: $font-family-body
+  font-size: $text-lg
 
 // Entrée active du menu : pastille citron, texte marine (le citron ne sert qu'à « ici »)
 .header #tabs li.current > a

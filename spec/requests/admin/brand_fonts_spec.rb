@@ -1,0 +1,36 @@
+require 'rails_helper'
+
+# Polices de l'admin : Inter pour le texte, Fredoka pour les titres, servies par
+# l'application (cf. docs/brand_identity.md). Poppins reste sur les pages publiques.
+RSpec.describe "Polices de l'admin", type: :request do
+  let(:css) { Rails.application.assets.find_asset('active_admin.css').to_s }
+
+  it 'déclare Inter en 400, 500 et 600, servie par l’application' do
+    graisses = css.scan(/@font-face\s*{[^}]*font-family:\s*['"]?Inter['"]?;[^}]*font-weight:\s*(\d{3})/).flatten
+    expect(graisses).to contain_exactly('400', '500', '600')
+    expect(css).not_to include('fonts.googleapis.com')
+  end
+
+  it 'met le corps de l’admin en Inter' do
+    expect(css).to match(/body\s*{[^}]*font-family:\s*['"]?Inter['"]?/)
+  end
+
+  it 'met les titres en Fredoka' do
+    expect(css).to match(/#page_title[^{]*{[^}]*font-family:\s*['"]?Fredoka['"]?/)
+  end
+
+  it 'ne référence plus Poppins hors @font-face' do
+    sans_font_face = css.gsub(/@font-face\s*{[^}]*}/, '')
+    expect(sans_font_face).not_to include('Poppins')
+  end
+
+  %w[inter-regular inter-medium inter-semibold].each do |fichier|
+    it "fournit #{fichier}.ttf" do
+      expect(Rails.root.join("app/assets/fonts/#{fichier}.ttf")).to exist
+    end
+  end
+
+  it 'fournit la licence OFL d’Inter' do
+    expect(Rails.root.join('app/assets/fonts/OFL-inter.txt').read).to include('SIL Open Font License')
+  end
+end
