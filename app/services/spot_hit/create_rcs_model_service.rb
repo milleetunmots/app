@@ -15,7 +15,7 @@ class SpotHit::CreateRcsModelService
   end
 
   def call
-    return self if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
+    return self if ENV['SPOT_HIT_SAFEGUARD'].present?
 
     validate_params
     return self if @errors.any?

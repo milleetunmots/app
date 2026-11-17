@@ -81,6 +81,18 @@ RSpec.describe 'rcs:create_templates' do
     end
   end
 
+  context 'en développement, quand SPOT_HIT_SAFEGUARD est absent' do
+    it 'crée les modèles comme ailleurs' do
+      allow(Rails.env).to receive(:development?).and_return(true)
+      stub_request(:post, SpotHit::CreateRcsModelService::URL).to_return(status: 200, body: { success: true, id: 4521 }.to_json)
+      bundle = existing_bundle(body1: 'Chantez une comptine ce soir.')
+
+      expect { task.invoke }.not_to raise_error
+
+      expect(bundle.reload.rcs_media1_id).to eq(4521)
+    end
+  end
+
   context 'quand SPOT_HIT_SAFEGUARD est actif' do
     around do |example|
       previous = ENV.fetch('SPOT_HIT_SAFEGUARD', nil)

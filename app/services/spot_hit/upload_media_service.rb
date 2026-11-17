@@ -11,7 +11,7 @@ class SpotHit::UploadMediaService
   end
 
   def call
-    return self if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
+    return self if ENV['SPOT_HIT_SAFEGUARD'].present?
 
     tmp_file_path =
       if @media.attachment_changes['file'].present?

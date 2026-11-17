@@ -1,8 +1,8 @@
 namespace :rcs do
   desc "Create RCS templates (text without image, card with image) for TextMessagesBundle messages that have none"
   task create_templates: :environment do
-    if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
-      puts 'Aborted: SPOT_HIT_SAFEGUARD active (or Rails.env=development). Refusing to sync RCS templates to SpotHit.'
+    if ENV['SPOT_HIT_SAFEGUARD'].present?
+      puts 'Aborted: SPOT_HIT_SAFEGUARD active. Refusing to sync RCS templates to SpotHit.'
       exit 0
     end
 
@@ -65,8 +65,8 @@ namespace :rcs do
 
   desc "Create RCS template for a specific TextMessagesBundle and message index"
   task :create_template, [:bundle_id, :message_index] => :environment do |t, args|
-    if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
-      puts 'Aborted: SPOT_HIT_SAFEGUARD active (or Rails.env=development). Refusing to sync RCS template to SpotHit.'
+    if ENV['SPOT_HIT_SAFEGUARD'].present?
+      puts 'Aborted: SPOT_HIT_SAFEGUARD active. Refusing to sync RCS template to SpotHit.'
       exit 0
     end
 
