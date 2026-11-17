@@ -230,6 +230,32 @@ body.index .table_tools .dropdown_menu_button
 .tabs.ui-tabs .panel
   border: none
 
+// Barre d'onglets qui dépasse la largeur (fiche de suivi : sept onglets dans un panneau
+// étroit) : elle se répartit sur deux rangées. arctic_admin ne met son filet que sous la
+// barre entière et le trait de l'onglet actif (2px) sous son seul onglet : la rangée du
+// haut n'avait pas de filet et l'actif pouvait se trouver au milieu. Les rangées font
+// 50px chacune : le filet est dessiné par la barre sous chaque rangée (jusqu'au bout,
+// même quand la dernière rangée n'a qu'un onglet) et le trait de l'actif le recouvre,
+// en ombre interne pour ne pas changer la hauteur de l'onglet.
+.tabs.ui-tabs > .nav
+  display: flex
+  flex-wrap: wrap
+  border-bottom: none
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 49px, $line 49px, $line 50px)
+
+  > li
+    height: 50px
+    border-bottom: none
+
+    > a
+      display: flex
+      align-items: center
+      height: 100%
+      box-sizing: border-box
+
+    &.ui-tabs-active
+      box-shadow: inset 0 -2px 0 $link
+
 // Angles arrondis : arctic_admin laisse les panneaux, les onglets et la colonne de droite
 // à angles vifs ; overflow hidden pour que le contenu (en-tête, tableau) suive l'arrondi.
 // Pas sur #sidebar : sur les listes, le bouton qui ouvre les filtres est son :before,
