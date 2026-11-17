@@ -36,9 +36,10 @@ module Calendly
     def create_one_off_event_type_for_parent(parent)
       return if parent.nil?
 
+      request_body = build_request_body
       response = http_client_with_auth.post(
         build_url(ONE_OFF_EVENT_TYPES_ENDPOINT),
-        json: build_request_body
+        json: request_body
       )
       sleep(0.25)
       body = parse_json_body(response)
@@ -50,15 +51,35 @@ module Calendly
         record_event_type_uri(parent, body)
         parent.save!
       else
-        @errors << {
-          message: "La création d'un event type one-off a échoué",
-          child_support_id: @child_support.id,
-          parent_id: parent.id,
-          supporter_id: @supporter.id,
-          call_session: @call_session,
-          error: body || response.body.to_s.truncate(500)
-        }
+        @errors << api_failure(parent, request_body, response, body)
       end
+    end
+
+    def api_failure(parent, request_body, response, body)
+      {
+        message: "La création d'un event type one-off a échoué",
+        child_support_id: @child_support.id,
+        parent_id: parent.id,
+        supporter_id: @supporter.id,
+        call_session: @call_session,
+        # diagnostic sans données personnelles (le nom de l'event contient le
+        # prénom de l'enfant) : de quoi distinguer une panne Calendly, un
+        # paramètre refusé ou une plage de dates déjà passée
+        status: response.status.to_i,
+        calendly_error: calendly_error_summary(response, body),
+        host: request_body[:host],
+        date_setting: request_body[:date_setting],
+        date_override_id: date_override&.id,
+        error: body || response.body.to_s.truncate(500)
+      }
+    end
+
+    # Calendly renvoie { title, message, details: [{ parameter, message }] } ;
+    # hors JSON (502/503 derrière un proxy), on garde le début du corps brut
+    def calendly_error_summary(response, body)
+      return body.slice('title', 'message', 'details') if body.is_a?(Hash)
+
+      response.body.to_s.truncate(300)
     end
 
     # les uri précédentes sont conservées : un parent peut réserver sur un lien déjà remplacé

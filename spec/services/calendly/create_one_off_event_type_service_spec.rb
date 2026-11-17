@@ -213,6 +213,30 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
         ))
       end
 
+      it 'expose le statut, l’erreur Calendly et la plage de dates envoyée' do
+        error = subject.call.errors.first
+        expect(error).to include(
+          status: 400,
+          calendly_error: { 'message' => 'Invalid request', 'details' => 'Host not found' },
+          host: calendly_user_uri,
+          date_setting: hash_including(type: 'date_range', start_date: group.call0_start_date.to_s,
+                                       end_date: group.call0_end_date.to_s),
+          date_override_id: nil
+        )
+      end
+
+      context 'quand Calendly ne renvoie pas de JSON' do
+        before do
+          stub_request(:post, 'https://api.calendly.com/one_off_event_types')
+            .to_return(status: 502, body: '<html>Bad Gateway</html>')
+        end
+
+        it 'garde le début du corps brut' do
+          error = subject.call.errors.first
+          expect(error).to include(status: 502, calendly_error: '<html>Bad Gateway</html>')
+        end
+      end
+
       it 'does not set booking_url' do
         subject.call
         parent.reload

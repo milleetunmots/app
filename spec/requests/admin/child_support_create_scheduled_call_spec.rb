@@ -281,6 +281,17 @@ RSpec.describe 'Admin child support - création de RDV par l’accompagnante', t
       get action_path
     end
 
+    it 'transmet à Rollbar le statut et l’erreur Calendly pour le diagnostic' do
+      expect(Rollbar).to receive(:error) do |_message, details|
+        expect(details[:errors].first).to include(
+          status: 400,
+          calendly_error: { 'message' => 'Invalid request' },
+          date_setting: hash_including(:start_date, :end_date)
+        )
+      end
+      get action_path
+    end
+
     it 'affiche un message d’erreur générique' do
       get action_path
       expect(flash[:alert]).to eq('La génération du lien de RDV a échoué, veuillez réessayer plus tard')
