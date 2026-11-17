@@ -17,10 +17,16 @@ ActiveAdmin.register Group do
     column :children
     column :started_at
     column :ended_at
-    column :support_modules_count
-    column :is_programmed
-    column :support_module_programmed
-    column :expected_children_number
+    # En-têtes courts, libellé complet au survol : « Nombre de modules prévu (en comptant les
+    # modules 0 et 1) » tenait sur dix lignes. Même clé de tri et même classe de colonne.
+    short_header = ->(attribute, short_label) { helpers.content_tag(:span, short_label, title: Group.human_attribute_name(attribute)) }
+    column short_header.call(:support_modules_count, 'Modules prévus'), :support_modules_count,
+           class: 'col-support_modules_count'
+    column short_header.call(:is_programmed, 'Programmée'), :is_programmed, class: 'col-is_programmed'
+    column short_header.call(:support_module_programmed, 'Modules programmés'), :support_module_programmed,
+           class: 'col-support_module_programmed'
+    column short_header.call(:expected_children_number, 'Enfants prévus'), :expected_children_number,
+           class: 'col-expected_children_number'
     column :created_at do |model|
       l model.created_at.to_date, format: :default
     end

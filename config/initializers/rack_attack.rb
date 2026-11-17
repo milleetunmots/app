@@ -45,14 +45,10 @@ Rack::Attack.throttle('two_factor/ip', limit: 10, period: 60) do |request|
   request.ip if request.post? && request.path.start_with?('/admin/two_factor')
 end
 
-# Réponse renvoyée quand une limite est atteinte.
+# Réponse renvoyée quand une limite est atteinte : la page d'erreur commune (429).
 Rack::Attack.throttled_responder = ->(request) do
   retry_after = (request.env['rack.attack.match_data'] || {})[:period]
-  [
-    429,
-    { 'Content-Type' => 'text/plain; charset=utf-8', 'Retry-After' => retry_after.to_s },
-    ["Trop de tentatives. Réessayez dans #{retry_after} secondes.\n"]
-  ]
+  ErrorPage.response(429, 'Retry-After' => retry_after.to_s)
 end
 
 # 3 requêtes / seconde / IP (abaissé de 5 à 3 en mai 2023, cf. d62ecfe3)

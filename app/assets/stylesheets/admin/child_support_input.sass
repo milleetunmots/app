@@ -27,12 +27,12 @@
     flex-basis: 100%
 
 .recommended_script
-  color: $info
-  font-size: 80%
+  color: $ink-soft
+  font-size: $text-sm
 
 .ressource-label
-  font-size: 14px
-  font-weight: bold
+  font-size: $text-md
+  font-weight: 600
 
 #child_support_call0_reading_frequency_input
   .choices
@@ -67,8 +67,8 @@
     background-color: $sunken
     color: $ink
     padding: 8px 15px
-    font-weight: bold
-    font-size: 14px
+    font-weight: 600
+    font-size: $text-md
 
   .availability-card-body
     padding: 15px
@@ -85,8 +85,11 @@ body.logged_in .availability-card .scheduled-call-info.input > .label
 #child_support_parent1_available_support_module_list + .select2-container--default .select2-selection__choice,
 #child_support_parent2_available_support_module_list + .select2-container--default .select2-selection__choice
   &:nth-of-type(-n+3)
-    background-color: $success-bg
-    color: $success
+    background-color: darken($success-bg, 8%)
+    color: darken($success, 12%)
+
+    .select2-selection__choice__remove
+      color: darken($success, 12%)
 
 #child_support_tabs_form
   .input
@@ -141,7 +144,7 @@ body.logged_in .previous_goals_follow_up ol.choices-group > li.choice
   margin-left: 0
 
   label
-    font-size: 80%
+    font-size: $text-xs
 
 #child_support_call0_parent_progress_input,
 #child_support_call1_parent_progress_input,
@@ -152,7 +155,7 @@ body.logged_in .previous_goals_follow_up ol.choices-group > li.choice
       margin-left: 0
       display: block
       label
-        font-size: 80%
+        font-size: $text-xs
 
 #address-validation
   h3
@@ -235,7 +238,7 @@ body.logged_in .previous_goals_follow_up ol.choices-group > li.choice
         flex-grow: 1
         .card-text
           display: inline-block
-          font-size: 80%
+          font-size: $text-xs
       .card-footer
         position: relative
         display: flex
@@ -243,12 +246,12 @@ body.logged_in .previous_goals_follow_up ol.choices-group > li.choice
         .select
           margin: 0
         .book-issue-confirmation-message
-          font-size: 80%
+          font-size: $text-xs
           color: $success
           margin-top: -1rem
           display: none
         .book-resent-alert
-          font-size: 80%
+          font-size: $text-xs
           margin-top: 5px
       .select2-container
           width: 70% !important
@@ -256,7 +259,7 @@ body.logged_in .previous_goals_follow_up ol.choices-group > li.choice
 .ui-tabs-active
   a
     color: $action !important
-    font-weight: bold
+    font-weight: 600
 
 // grille partagée par .resource-links et .resources-selects-row : les colonnes
 // des deux rangées sont alignées verticalement (lien n° 2 au-dessus du select
@@ -275,7 +278,6 @@ $resources-links-gap: 24px
   align-items: start
   width: 100%
   gap: $resources-grid-gap
-  overflow-x: auto
 
   // le composant Columns d'ActiveAdmin pose width/margin en style inline, ce qui
   // s'applique aussi aux items de grille : on les neutralise pour que chaque
@@ -299,9 +301,13 @@ $resources-links-gap: 24px
       gap: 5px
 
     // colonnes pouvant porter plusieurs liens sur une même ligne
+    // Quand la colonne est trop étroite (155px à 1024px), « Briefing » passe sous le
+    // lien précédent au lieu de déborder de la rangée ; chaque lien garde son texte sur
+    // une ligne (white-space: nowrap plus haut)
     &.script-column,
     &.video-and-briefing
-      gap: $resources-links-gap
+      flex-wrap: wrap
+      gap: 5px $resources-links-gap
 
     // colonne portant la vidéo recommandée et le briefing : « Briefing » est
     // collé à droite de la rangée pour aligner le reste. Quand il n'y a pas de
@@ -353,7 +359,7 @@ $resources-links-gap: 24px
 .avoid-disengagement-btn
   background-color: $action
   color: $surface
-  font-size: 14px
+  font-size: $text-md
   padding: 8px 16px
   border: none
   border-radius: $radius
@@ -368,7 +374,7 @@ $resources-links-gap: 24px
     color: inherit
 
 .avoid-disengagement-text
-  font-size: 14px
+  font-size: $text-md
   margin-bottom: 20px
 
 #enabled_call_style,
@@ -445,6 +451,14 @@ $resources-links-gap: 24px
   > .label
     white-space: nowrap
 
+// « Accompagnante » : arctic_admin fixe l'étiquette à 25 % de la ligne (88px), moins que
+// le mot, que le select recouvrait. Elle prend la largeur de son texte (au moins 25 %) et
+// le select se place juste après, à sa largeur habituelle.
+#child_support_supporter_input > .label
+  width: auto
+  min-width: 25%
+  white-space: nowrap
+
 // Carte "Disponibilités et RDV"
 .scheduled-call-info
   border-bottom: 1px solid $line
@@ -460,7 +474,7 @@ $resources-links-gap: 24px
   border: 1px solid $action
   border-radius: $radius
   text-decoration: none
-  font-weight: bold
+  font-weight: 600
   white-space: nowrap
   cursor: pointer
   display: inline-block
@@ -479,7 +493,7 @@ $resources-links-gap: 24px
       color: $action
 
   .dropdown-caret
-    font-size: 0.7em
+    font-size: $text-xs
 
 .scheduled-call-reminder-dropdown
   position: relative
@@ -538,7 +552,7 @@ $resources-links-gap: 24px
     margin: 0 6px 6px 0
     background: $sunken
     border-radius: $radius-pill
-    font-size: 0.9em
+    font-size: $text-sm
     color: $ink-soft
 
 // Onglets "Appel N"
@@ -598,7 +612,7 @@ body.logged_in .call-tab-main
 
   .support-module-edit-toggle
     flex-shrink: 0
-    font-size: 12px
+    font-size: $text-xs
     color: $ink-soft
     text-decoration: underline
     cursor: pointer
@@ -611,7 +625,7 @@ body.logged_in .call-tab-main
 
 .support-module-blocks-empty
   color: $ink-soft
-  font-size: 13px
+  font-size: $text-sm
   font-style: italic
 
 .support-module-block
@@ -623,7 +637,7 @@ body.logged_in .call-tab-main
   border-radius: $radius
   background-color: $surface
   color: $ink
-  font-size: 13px
+  font-size: $text-sm
   text-decoration: none
   transition: border-color $transition, background-color $transition
 
@@ -635,7 +649,7 @@ body.logged_in .call-tab-main
     border-color: $success-bg
 
     .support-module-block__name
-      font-weight: bold
+      font-weight: 600
 
   // module pas encore relié à un enregistrement Airtable : non cliquable
   &--unlinked
@@ -662,7 +676,7 @@ body.logged_in .call-tab-main
   &__icon
     flex-shrink: 0
     color: $ink-soft
-    font-size: 11px
+    font-size: $text-xs
 
 .support-module-legend
   display: flex
@@ -670,7 +684,7 @@ body.logged_in .call-tab-main
   gap: 16px
   margin-top: 6px
   color: $ink-soft
-  font-size: 11px
+  font-size: $text-xs
 
   .support-module-block__star
     color: $green

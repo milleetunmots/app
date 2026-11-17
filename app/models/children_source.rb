@@ -21,6 +21,8 @@ class ChildrenSource < ApplicationRecord
   # Détail posé sur les enfants créés depuis l'admin. Comparé tel quel par le filtre
   # source_details_matches_any (sensible à la casse) : ne pas le dupliquer en dur.
   ADMIN_CREATION_DETAILS = 'Ajouté par accompagnante'.freeze
+  # Même règle que REGISTRATION_CONFIRMATION_EMAIL_REGEX dans children/new.js.
+  PROFESSIONAL_EMAIL_FORMAT = /\A[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+\z/
 
   belongs_to :source
   belongs_to :child
@@ -28,6 +30,6 @@ class ChildrenSource < ApplicationRecord
   delegate :name, to: :source, prefix: false, allow_nil: true
 
   validates :professional_email,
-            format: { with: REGEX_VALID_EMAIL, allow_blank: true, message: "doit être au format adresse email (xxxx@xx.com)." }
+            format: { with: PROFESSIONAL_EMAIL_FORMAT, allow_blank: true, message: "doit être au format adresse email (xxxx@xx.com)." }
 
 end

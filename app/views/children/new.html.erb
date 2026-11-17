@@ -1,43 +1,68 @@
 <div id="inscription">
   <% if @form_path.in?(ENV['BLOCKED_REGISTRATION_PATHS'].split(',')) %>
-    <div id="registration-closed">
-      <p>Les inscriptions sont fermées. Si vous êtes une structure partenaire de 1001mots, contactez-nous à pmi@1001mots.org</p>
-    </div>
+    <%= render layout: 'shared/charter_page', locals: { title: 'Les inscriptions sont fermées' } do %>
+      <div class="charter-page-card">
+        <p>Si vous êtes une structure partenaire de 1001mots, contactez-nous à <%= mail_to 'pmi@1001mots.org' %></p>
+      </div>
+    <% end %>
   <% elsif @limit_reached && @form_path_url.include?('utm_source=') && @form_path_url.include?('utm_caf=') %>
     <div data-tf-live="01KNP1JC3T8SSBC28ECGPPRGWH"
          data-tf-hidden="utm_source=<%= params['utm_source'] %>,utm_medium=<%= params['utm_medium'] %>,utm_caf=<%= params['utm_caf'] %>"></div><script src="//embed.typeform.com/next/embed.js"></script>
   <% elsif @limit_reached %>
-    <div id="registration-closed">
-      <p>Les inscriptions sont limitées et le formulaire est malheureusement temporairement fermé.</p>
-    </div>
+    <%= render layout: 'shared/charter_page', locals: { title: 'Les inscriptions sont temporairement fermées' } do %>
+      <div class="charter-page-card">
+        <p>Les inscriptions sont limitées et le formulaire est malheureusement temporairement fermé.</p>
+      </div>
+    <% end %>
   <% else %>
+    <% visual = registration_visual(current_registration_origin) %>
     <div class="container" id="inscription-content">
       <div id="logos">
-        <%= image_tag("mots-logo.png", id:"mots-logo") %>
-        <% if @form_path == '/inscriptioncaf' %>
-          <%= image_tag("caf-logo.jpg", id:"caf-logo") %>
-        <% elsif @form_path == '/inscriptionmsa'%>
-          <%= image_tag("msa-logo.svg") %>
+        <%= image_tag("registration/logo-1001mots.png", id: "mots-logo", alt: "1001mots") %>
+        <% if visual[:partner_logo] %>
+          <%= image_tag(visual[:partner_logo], id: "partner-logo", alt: "") %>
         <% end %>
       </div>
       <%= simple_form_for @child, url: @form_path_url || children_path do |f| %>
 
         <div class="row" id="form-header">
-          <div class="col-12 col-lg-4" id="form-header-image">
-            <%= image_tag("famille.png", id:"img-family")  %>
+          <div class="col-12 col-lg-6" id="form-header-image">
+            <figure id="registration-photo">
+              <figcaption>
+                <% visual[:caption].each do |line| %>
+                  <span><%= line %></span>
+                <% end %>
+              </figcaption>
+              <%= image_tag(visual[:photo], alt: "") %>
+            </figure>
           </div>
           <div class="col-12 col-lg-6" id="form-header-text">
-            <h1><%= @title.html_safe %></h1>
-            <div>
-              <div>
-                <div id="description"><%= @banner.html_safe %></div>
-              </div>
+            <div class="registration-pills">
+              <span class="registration-pill">Gratuit</span>
+              <span class="registration-pill">Personnalisé</span>
             </div>
+            <h1><%= @title.html_safe %></h1>
+            <div id="description"><%= @banner.html_safe %></div>
           </div>
         </div>
 
-        <%= f.simple_fields_for :children_source do |children_source_form| %>
+        <div id="form-body">
+
+        <% if f.object.errors.any? %>
           <div class="row justify-content-sm-center accepted-fields">
+            <div class="col-12">
+              <div class="alert alert-danger" id="form-errors" role="alert">
+                <p class="mb-0">Le formulaire contient des erreurs, elles sont indiquées en rouge.</p>
+                <% f.object.errors[:base].each do |message| %>
+                  <p class="mb-0 mt-2"><%= message %></p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <%= f.simple_fields_for :children_source do |children_source_form| %>
+          <div class="row justify-content-sm-center accepted-fields" id="source-fields">
             <% if @source_collection == :caf %>
               <div class="col-sm-6">
                 <label class="select required" for="form_received_from"><%= @form_received_from.html_safe %></label>
@@ -102,18 +127,10 @@
           <% end %>
         <% end %>
 
-        <% if f.object.errors[:base].any? %>
-          <div class="row justify-content-sm-center accepted-fields">
-            <div class="col-sm-8">
-              <%= f.error_notification message: f.object.errors[:base].join('<br/>') %>
-            </div>
-          </div>
-        <% end  %>
-
         <div class="row accepted-fields">
           <div class="col-sm-4">
             <h2>Enfant(s)</h2>
-            <div class="card">
+            <div class="card registration-card--child">
               <div class="card-body">
                 <div class="child-fields">
                   <%= render 'child_form', f: f, with_support: true, form_without_comments: @form_path == caf_registration_path || @form_path == bao_registration_path, with_placeholder: @form_path == pmi_registration_path %>
@@ -140,14 +157,14 @@
             <h2>Parents qui recevront les SMS<%= ' et les appels' if @form_path == pmi_registration_path %></h2>
             <div class="row">
               <div class="col-sm-6">
-                <div class="card">
+                <div class="card registration-card--parent">
                   <div class="card-body">
                     <h3 class="card-title">Parent 1</h3>
                     <%= f.simple_fields_for :parent1 do |parent1_f| %>
                       <%= parent1_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: true %>
                       <%= parent1_f.input :first_name, required: true %>
                       <%= parent1_f.input :last_name, required: true %>
-                      <%= parent1_f.input :phone_number, required: true %>
+                      <%= parent1_f.input :phone_number, label: t('inscription_phone_label'), required: true %>
                       <% if @form_path == caf_registration_path && ENV['CAF_SUBSCRIPTION'].present? %>
                         <%= parent1_f.input :email, required: true %>
                       <% end %>
@@ -160,7 +177,7 @@
                 </div>
               </div>
               <div class="col-sm-6">
-                <div class="card">
+                <div class="card registration-card--parent">
                   <div class="card-body">
                     <h3 class="card-title">Parent 2 (optionnel)</h3>
                     <div id="parent2-fields">
@@ -168,7 +185,7 @@
                         <%= parent2_f.input :gender, as: :radio_buttons, collection: parent_gender_select_collection, required: false %>
                         <%= parent2_f.input :first_name, required: false, input_html: { autocomplete: "off" } %>
                         <%= parent2_f.input :last_name, required: false, input_html: { autocomplete: "off" } %>
-                        <%= parent2_f.input :phone_number, required: false, input_html: { autocomplete: "off" } %>
+                        <%= parent2_f.input :phone_number, label: t('inscription_phone_label'), required: false, input_html: { autocomplete: "off" } %>
                       <% end %>
                     </div>
                   </div>
@@ -176,37 +193,39 @@
               </div>
             </div>
 
-            <div class="card">
+            <div class="card registration-card--parent">
               <div class="card-body">
                 <h3 class="card-title">Adresse pour recevoir les livres</h3>
-                <% if @form_path == pmi_registration_path || @form_path == local_partner_registration_path %>
+                <% with_delivery_choice = @form_path.in?([pmi_registration_path, local_partner_registration_path]) %>
+                <% delivery_choice = @child.parent1&.book_delivery_location if request.post? %>
+                <% if with_delivery_choice %>
                   <%= f.simple_fields_for :parent1 do |parent1_f| %>
                     <%= parent1_f.input :book_delivery_location,
                         label: "La famille souhaite recevoir les livres :",
                         required: true,
-                        collection: parent_book_delivery_location_select_collection, include_blank: true, selected: nil %>
+                        collection: parent_book_delivery_location_select_collection, include_blank: true, selected: delivery_choice %>
                   <% end %>
                   <div style="margin-top: 8px; display: none;" id="book_delivery_location_warning" class="invalid-feedback">
                     <p></p>
                   </div>
                 <% end %>
-                <div style="display: <%= (@form_path == pmi_registration_path || @form_path == local_partner_registration_path) ? 'none' : 'block' %>" id="address_form_div">
-                  <%= render 'address_form', f: f, form_with_book_delivery_organisation_name: (@form_path == pmi_registration_path || @form_path == local_partner_registration_path) %>
+                <div style="display: <%= with_delivery_choice && delivery_choice.blank? ? 'none' : 'block' %>" id="address_form_div">
+                  <%= render 'address_form', f: f, form_with_book_delivery_organisation_name: with_delivery_choice %>
                 </div>
               </div>
             </div>
-            <div class="card">
-              <div class="card-body"
+            <div class="card registration-card--plain">
+              <div class="card-body">
                 <%= f.simple_fields_for :parent1 do |parent1_f| %>
                 <% if @form_path == caf_registration_path || @form_path == bao_registration_path %>
                   <p>1001mots collecte vos données personnelles pour vous permettre de bénéficier du programme d’accompagnement à l'éveil au langage. <a href="https://1001mots.org/politique-de-confidentialite/" target="_blank">En savoir plus.</a></p>
                 <% end %>
-                  <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label.html_safe, checked_value: Time.zone.now %>
+                  <%= parent1_f.input :terms_accepted_at, as: :boolean, label: @terms_accepted_at_label.html_safe, checked_value: '1', input_html: { checked: params.dig(:child, :parent1_attributes, :terms_accepted_at) == '1' } %>
                 <% end %>
               </div>
             </div>
             <% if @registration_confirmation_email_block_enabled %>
-              <div class="card" id="registration-confirmation-email-card">
+              <div class="card registration-card--plain" id="registration-confirmation-email-card">
                 <div class="card-body">
                   <div class="form-check">
                     <%= check_box_tag :want_registration_confirmation_email, '1', @registration_confirmation_email_wanted, id: 'want_registration_confirmation_email', class: 'form-check-input' %>
@@ -214,10 +233,14 @@
                   </div>
                   <div id="registration_confirmation_email_field" class="form-group" style="<%= 'display:none;' unless @registration_confirmation_email_wanted %>">
                     <%= label_tag :registration_confirmation_email, class: "label" do %>
-                      <%= @registration_confirmation_email_label.html_safe %><abbr title="required"> *</abbr>
+                      <%= @registration_confirmation_email_label.html_safe %>
                     <% end %>
-                    <%= email_field_tag :registration_confirmation_email, @registration_confirmation_email_value, class: 'form-control', placeholder: t('registration_confirmation_email.email_placeholder'), required: true %>
-                    <small id="registration_confirmation_email_warning" class="form-text text-muted" style="display:none;" data-blank-message="<%= t('registration_confirmation_email.email_blank_warning') %>" data-invalid-message="<%= t('registration_confirmation_email.email_format_warning') %>"></small>
+                    <% email_errors = @child.children_source&.errors&.[](:professional_email) || [] %>
+                    <%= text_field_tag :registration_confirmation_email, @registration_confirmation_email_value, class: ['form-control', ('is-invalid' if email_errors.any?)], placeholder: t('registration_confirmation_email.email_placeholder'), inputmode: 'email', autocomplete: 'email' %>
+                    <small id="registration_confirmation_email_warning" class="form-text text-muted" style="display:none;" data-invalid-message="<%= t('registration_confirmation_email.email_format_warning') %>"></small>
+                    <% email_errors.each do |message| %>
+                      <div class="invalid-feedback"><%= message %></div>
+                    <% end %>
                   </div>
                 </div>
               </div>
@@ -230,6 +253,10 @@
               <%= f.button :submit, @form_path == caf_registration_path && ENV['CAF_SUBSCRIPTION'].present? ? 'Enregistrer et continuer' : 'Valider', class: 'btn-primary btn-lg', id: 'child-registration-submit' %>
             </div>
           </div>
+        </div>
+        <% if @form_path.in?([pmi_registration_path, local_partner_registration_path]) %>
+          <p id="registration-contact"><%= t('inscription_contact_html', email: mail_to('pmi@1001mots.org')) %></p>
+        <% end %>
         </div>
       <% end %>
     </div>

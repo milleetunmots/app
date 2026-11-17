@@ -20,8 +20,21 @@ body.index
               background-color: $action-soft
               color: $action
 
+    // Filtres rapides : une grille souple à espacement constant, quel que soit le nombre
+    // de groupes. arctic_admin les fait flotter à gauche groupe par groupe, avec des
+    // marges inégales : les lignes se décalaient d'un groupe à l'autre.
     .scopes
-      ul.table_tools_segmented_control:not(:first-child)
-        li.scope:first-child
-          a
-            margin-left: 10px
+      display: flex
+      flex-wrap: wrap
+      align-items: center
+      gap: 8px
+
+      ul.table_tools_segmented_control
+        display: contents
+
+      li.scope
+        display: block
+
+        a, &:first-child a, &:last-child a
+          float: none
+          margin: 0

@@ -12,7 +12,7 @@ RSpec.describe ChildrenController, type: :request do
       before { get "/inscription1" }
 
       it "renders specific wording" do
-        expect(assigns(:child_min_birthdate)).to eq Child.min_birthdate_alt
+        expect(assigns(:child_min_birthdate)).to eq Child.min_birthdate
 
         expect(response.body).to include I18n.t('inscription_terms_accepted_at_label.parent')
         expect(response.body).to include I18n.t('source_label.parent')
@@ -55,10 +55,12 @@ RSpec.describe ChildrenController, type: :request do
         expect(session[:registration_origin]).to eq 3
       end
 
-      it "renders the registration confirmation email block, pre-checked" do
-        expect(response.body).to include 'id="want_registration_confirmation_email"'
+      it "affiche le bloc de confirmation par email, case décochée et champ masqué" do
+        page = Capybara.string(response.body)
+
         expect(response.body).to include I18n.t('registration_confirmation_email.email_label')
-        expect(response.body).to match(/id="want_registration_confirmation_email"[^>]*checked/)
+        expect(page.find("#want_registration_confirmation_email")).not_to be_checked
+        expect(page.find("#registration_confirmation_email_field", visible: :all)[:style]).to include("display:none")
       end
     end
 

@@ -27,5 +27,8 @@ module Mots
     # Favicon des pages (admin et publiques) : logo entier, sauf en développement
     # (cf. config/environments/development.rb). public/favicon.ico est le même logo entier.
     config.x.favicon = 'favicon.ico'
+
+    # Une seule page d'erreur pour tous les codes (cf. app/errors/error_page.rb)
+    config.exceptions_app = ->(env) { ErrorPage.call(env) }
   end
 end

@@ -1,5 +1,6 @@
 @import variables
 
+// Étiquettes de champ en 500 : le 600 est réservé aux titres (cf. docs/brand_identity.md)
 body.logged_in
   &.new, &.edit, &.create, &.update
     ul.errors
@@ -11,7 +12,7 @@ body.logged_in
 
     .input
       .label
-        font-weight: bold
+        font-weight: 500
         text-align: left
 
       &#child_support_call1_reading_frequency_input,
@@ -37,7 +38,7 @@ body.logged_in
           .choice
             margin-left: 0
             label
-              font-size: 80%
+              font-size: $text-xs
 
     ol.choices-group
       li.choice
@@ -55,7 +56,7 @@ body.logged_in
         .unselect-btn
           display: none
           vertical-align: 1px
-          font-size: 10px
+          font-size: $text-xs
           margin-left: 10px
           cursor: pointer
 
@@ -101,12 +102,12 @@ body.logged_in
     #child_support_will_stay_in_group_input
       margin-left: 0
       label
-        font-weight: bold
+        font-weight: 500
       input
         margin-right: 10px
 
     label[for=child_support_important_information], label[for=child_support_sensitive_information], label[for=child_support_parent_needs]
-      font-weight: bold
+      font-weight: 500
 
     // Même écart étiquette / champ que les labels Formtastic d'arctic_admin (.label)
     label[for=child_support_sensitive_information]
@@ -132,7 +133,7 @@ body.logged_in
         height: auto !important
         margin: 0 0 5px !important
         padding-bottom: 5px !important
-        font-weight: bold
+        font-weight: 500
 
       select
         display: block
@@ -186,7 +187,7 @@ body.logged_in
 .no-margin-checkbox
   margin-left: 0 !important
   padding-top: 8px
-  font-weight: bold
+  font-weight: 500
 
 #child_support_call0_talk_needed_input
-  font-weight: bold
+  font-weight: 500

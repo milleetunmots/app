@@ -16,7 +16,7 @@ ActiveAdmin.setup do |config|
   #
   # Note: Aim for an image that's 21px high so it fits in the header.
   #
-  # Logo de la nouvelle charte ; mots-logo.png reste celui des pages publiques.
+  # Logo de la nouvelle charte.
   # Affiché à la hauteur du bandeau (arctic_admin) : 150 px de haut pour rester net.
   config.site_title_image = "logo-1001mots.png"
 

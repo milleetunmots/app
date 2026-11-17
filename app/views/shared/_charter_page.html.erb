@@ -1,0 +1,14 @@
+<div class="charter-page">
+  <div class="container charter-page-header">
+    <div class="charter-page-top">
+      <%= image_tag("registration/logo-1001mots.png", id: "mots-logo", alt: "1001mots") %>
+      <%= local_assigns[:top_link] %>
+    </div>
+    <h1><%= title %></h1>
+  </div>
+  <div class="charter-page-body">
+    <div class="container">
+      <%= yield %>
+    </div>
+  </div>
+</div>

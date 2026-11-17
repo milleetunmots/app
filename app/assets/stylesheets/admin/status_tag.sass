@@ -9,7 +9,7 @@
   background-color: $sunken
   color: $ink-soft
   // Taille fixe : en em, la pastille descendait à 11px dans les tableaux (13px)
-  font-size: 12px
+  font-size: $text-xs
   font-weight: 500
   letter-spacing: 0
   text-transform: none
@@ -23,9 +23,10 @@
   &.red, &.cancel
     background-color: $danger-bg
     color: $danger
+  // Texte marine, pas bleu lien : une pastille n'est pas un lien
   &.blue
     background-color: $info-bg
-    color: $info
+    color: $navy
   // Rose et bleu clairs : fille / garçon, ou catégorie sans notion de statut
   &.rose
     background-color: $girl-bg

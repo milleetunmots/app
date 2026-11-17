@@ -2,21 +2,50 @@
 
 // Charte graphique : ce que les variables du thème (cf. _variables.sass) ne couvrent pas.
 
-// Titres en Fredoka, en marine
+// Corps : arctic_admin pose la police et la taille (cf. _variables.sass), l'interligne est fixé ici
+body
+  font-family: $font-family-body
+  font-size: $text-md
+  line-height: $line-height-body
+
+// Titres en Fredoka, en marine ; h4 reste dans la police du texte (sous-titre d'encart)
 h1, h2, h3, h4, #page_title
-  font-family: 'Fredoka', 'Poppins', Arial, sans-serif
+  font-family: $font-family-title
   font-weight: 600
   color: $navy
   letter-spacing: -0.01em
 
-// Entrée active du menu : pastille citron, texte marine (le citron ne sert qu'à « ici »)
-.header #tabs li.current > a
-  background-color: $highlight
-  color: $navy
-  font-weight: 500
+h1, h2, #page_title
+  font-size: $title-md
+
+// Titre de la barre de titre : c'est le dernier maillon du fil d'Ariane (« Admin / Suivi /
+// Modifier »). arctic_admin le fixe à 16px et en graisse normale ; il prend la police et la
+// taille du fil, au lieu de Fredoka qui jurait à côté des liens, et se distingue par le
+// gras et le marine.
+#title_bar #titlebar_left h2
+  font-family: $font-family-body
+  font-size: $text-md
+  font-weight: 600
+  letter-spacing: 0
+
+h3
+  margin-bottom: 12px
+  font-size: $title-sm
+
+h4
+  font-family: $font-family-body
+  font-size: $text-lg
+
+// Liens du contenu : bleu (cf. $link-primary-color), soulignés au survol ; arctic_admin
+// retire le soulignement. Sélection positive (contenu, colonne de droite, fil d'Ariane,
+// messages) : les boutons-liens d'arctic_admin (.member_link « Modifier » des listes,
+// actions du titre, menus déroulants, onglets) ne se soulignent pas.
+#main_content, #sidebar, #title_bar .breadcrumb, .flashes
+  a:hover:not(.button):not(.member_link):not(.dropdown_menu_button):not(.ui-tabs-anchor)
+    text-decoration: underline
 
 // Mouvement : les changements d'état se fondent au lieu de sauter
-a, button, .button, input, select, textarea, table.index_table tbody tr
+a, button, .button, input, select, textarea, table.index_table tbody tr > td
   transition: color $transition, background-color $transition, border-color $transition, box-shadow $transition
 
 // Focus clavier : un seul anneau plein, détaché de l'élément pour contraster avec le
@@ -68,30 +97,66 @@ textarea, select, input[type="checkbox"]
   .select2-selection--multiple
     min-height: 36px
 
+  // Valeur choisie : select2 la met en #444, hors palette
+  .select2-selection--single .select2-selection__rendered
+    color: $ink
+
   // Texte indicatif (« Recherche globale », « N'importe lequel »…) : select2 le met en
   // #999, à 2,6:1 sur la surface
   .select2-selection--single .select2-selection__placeholder,
   .select2-selection--multiple .select2-search__field::placeholder
     color: $ink-soft
 
+  // Choix (tags, modules) : rose de la charte et texte marine (5,77:1). Le gris $sunken,
+  // presque celui de la carte, les rendait difficiles à lire.
   .select2-selection--multiple .select2-selection__choice
     border: none
     border-radius: $radius-pill
-    background-color: $sunken
-    color: $ink
-
-  // Option déjà choisie : texte marine, sans le fond gris froid (#ddd) de select2
-  .select2-results__option[aria-selected="true"]
-    background-color: transparent
+    background-color: $pink
     color: $navy
-    font-weight: 500
+    font-weight: 600
 
-  // Option survolée : en creux, comme le survol des tableaux et des filtres. Les options
-  // sont des choix, pas des actions : pas de teinte bleue. Un fond marine rendait en
-  // outre illisibles les noms bleus ou roses de la recherche globale.
+    .select2-selection__choice__remove
+      color: $navy
+
+  // Option déjà choisie : comme sa pastille dans le champ, rose et marine en gras, sans le
+  // fond gris froid (#ddd) de select2
+  .select2-results__option[aria-selected="true"]
+    background-color: $pink
+    color: $navy
+    font-weight: 600
+
+  // Option survolée : rose pâle ($pink-soft), la couleur des choix, et non du gris à peine
+  // visible sur la carte. Les options sont des choix, pas des actions : pas de teinte
+  // bleue. Un fond marine rendait en outre illisibles les noms bleus ou roses de la
+  // recherche globale. Une option choisie et survolée fonce son rose.
   .select2-results__option--highlighted[aria-selected]
-    background-color: $sunken
+    background-color: $pink-soft
     color: $ink
+
+  .select2-results__option--highlighted[aria-selected="true"]
+    background-color: darken($pink, 6%)
+    color: $navy
+
+// Focus d'un menu select2 : l'anneau de focus général (ci-dessus) s'accrochait au champ de
+// saisie caché dans le menu et dessinait un encart bleu autour du curseur. Il est retiré de
+// ce champ et porté par le menu entier, bord et liseré de la couleur du focus.
+.select2-container .select2-search__field:focus-visible
+  outline: none !important
+
+.select2-container--default
+  &.select2-container--focus, &.select2-container--open
+    .select2-selection--multiple, .select2-selection--single
+      border-color: $focus
+      box-shadow: 0 0 0 1px $focus
+
+// select2 masque le select d'origine (1px, position absolue, clip), mais arctic_admin lui
+// impose min-width: 50 % dans les formulaires et child_support_input.sass width: 100 %
+// !important : le select caché dépassait du bord droit et faisait défiler la page
+body .input select.select2-hidden-accessible, select.select2-hidden-accessible
+  width: 1px !important
+  min-width: 0 !important
+  max-width: 1px !important
 
 // Les navigateurs donnent leur propre police aux champs : ils reprennent celle du texte
 input, select, textarea, button
@@ -104,12 +169,15 @@ input[type="checkbox"]
 ::placeholder
   color: $ink-soft
 
-// Listes : liens de tri de l'en-tête en texte secondaire (fond et survol des tableaux dans
-// tables.sass)
+// Listes : liens de tri de l'en-tête dans la couleur du texte, la colonne triée en marine
+// (fond et survol des tableaux dans tables.sass)
+// arctic_admin remet le lien de tri en graisse normale : même graisse que l'en-tête,
+// qu'une colonne soit triable ou non
 table.index_table
   thead th
     a, a:link, a:visited
-      color: $ink-soft
+      color: $ink
+      font-weight: inherit
 
     &.sorted-asc, &.sorted-desc
       color: $action
@@ -117,7 +185,7 @@ table.index_table
       a
         color: $action
 
-  tbody tr.selected
+  tbody tr.selected > td
     background-color: $highlight-soft
 
 // Messages flash : fond pâle et texte foncé de la même famille, comme les pastilles
@@ -137,20 +205,20 @@ table.index_table
     color: $warning
   &.flash_info
     background-color: $info-bg
-    color: $info
+    color: $navy
 
-// Filtres rapides (scopes) : pastilles au contour discret ; le filtre courant prend le
+// Filtres rapides (scopes) : pastilles au contour net ; le filtre courant prend le
 // citron de la position « ici », comme l'entrée active du menu. Le survol reste neutre :
 // le citron est la seule couleur des filtres, le bleu est réservé aux actions.
 body.index .scopes .scope
   a, &:first-child a, &:last-child a
-    border: 1px solid $line-strong
+    border: 1px solid $field-border
     border-radius: $radius-pill
     background-color: $surface
     color: $ink
 
   &:hover a
-    border-color: $field-border
+    border-color: $ink-soft
     background-color: $sunken
     color: $ink
 
@@ -179,13 +247,102 @@ body.index .table_tools .dropdown_menu_button
 
 // Surfaces : arctic_admin, select2 et jQuery UI codent le blanc en dur ; elles prennent
 // $surface, comme les composants de l'admin
-#main_content, #title_bar, #sidebar, .ui-dialog, #ui-datepicker-div, .select2-dropdown
+#main_content, #title_bar, #sidebar, #login, .ui-dialog, #ui-datepicker-div, .select2-dropdown
   background-color: $surface
 
+// Cartes et panneaux : filet et ombre douce pour se détacher du fond
+#main_content, #title_bar, #sidebar, #login, .panel, .big-number, .availability-card,
+.card-text-messages-bundle
+  border: 1px solid $line
+  box-shadow: $shadow-card
+
+// Liseré rose sous la barre de titre (fil d'Ariane et actions)
+#title_bar
+  border-bottom: 3px solid $pink
+
+// Pas d'ombre empilée dans les cartes imbriquées
+.panel .panel, #sidebar .panel, #main_content .panel
+  box-shadow: none
+
+// Dans un bloc à onglets, le panneau n'a pas de filet : le cadre des onglets suffit
+.tabs.ui-tabs .panel
+  border: none
+
+// Barre d'onglets qui dépasse la largeur (fiche de suivi : sept onglets dans un panneau
+// étroit) : elle se répartit sur deux rangées. arctic_admin ne met son filet que sous la
+// barre entière et le trait de l'onglet actif (2px) sous son seul onglet : la rangée du
+// haut n'avait pas de filet et l'actif pouvait se trouver au milieu. Les rangées font
+// 50px chacune : le filet est dessiné par la barre sous chaque rangée (jusqu'au bout,
+// même quand la dernière rangée n'a qu'un onglet) et le trait de l'actif le recouvre,
+// en ombre interne pour ne pas changer la hauteur de l'onglet.
+.tabs.ui-tabs > .nav
+  display: flex
+  flex-wrap: wrap
+  border-bottom: none
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 49px, $line 49px, $line 50px)
+
+  > li
+    height: 50px
+    border-bottom: none
+
+    > a
+      display: flex
+      align-items: center
+      height: 100%
+      box-sizing: border-box
+
+    &.ui-tabs-active
+      box-shadow: inset 0 -2px 0 $link
+
+// Angles arrondis : arctic_admin laisse les panneaux, les onglets et la colonne de droite
+// à angles vifs ; overflow hidden pour que le contenu (en-tête, tableau) suive l'arrondi.
+// Pas sur #sidebar : sur les listes, le bouton qui ouvre les filtres est son :before,
+// posé 40px à sa gauche, et un overflow hidden le découpe.
+.panel, .tabs.ui-tabs, #sidebar
+  border-radius: $radius-lg
+
+.panel, .tabs.ui-tabs
+  overflow: hidden
+
+// Marge intérieure des panneaux : arctic_admin n'en met aucune, le titre et les tableaux
+// touchaient le filet
+.panel
+  > h3
+    padding: 14px 16px 0
+
+  > .panel_contents
+    padding: 0 16px 16px
+
+// Page de connexion : fond rose de la charte, comme le logo, avec deux ronds citron et
+// bleu comme les pastilles du logo ; la carte crème s'y détache
+body.logged_out
+  background-color: $pink
+  background-image: radial-gradient(circle at 14% 22%, $lime 0 70px, transparent 71px), radial-gradient(circle at 87% 80%, $brand-blue 0 95px, transparent 96px)
+  background-attachment: fixed
+
+#login
+  border-radius: $radius-lg
+
+  // Étiquettes des champs en 500 comme dans les formulaires de l'admin (cf. form.sass)
+  .label
+    font-weight: 500
+
+  // « Garder ma session ouverte » : arctic_admin le met en 15px, hors de l'échelle
+  .input.boolean label
+    font-size: $text-md
+
 body.index
+  // Bouton qui ouvre les filtres : rose de la charte, icône marine
   #sidebar:before
-    background-color: $surface
+    background-color: $pink
+    color: $navy
 
   .table_tools
     .dropdown_menu_list, .indexes.table_tools_segmented_control a
       background-color: $surface
+
+// Pied de page : la mention « Propulsé par Active Admin » est retirée (traduction
+// active_admin.powered_by vidée, cf. active_admin.fr.yml). Le bloc #footer qui reste,
+// vide, ajoutait un espace sous le contenu des pages courtes.
+#footer
+  display: none

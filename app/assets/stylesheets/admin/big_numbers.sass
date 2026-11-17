@@ -1,22 +1,30 @@
 .big-numbers
   display: flex
+  flex-wrap: wrap
   justify-content: space-evenly
+  gap: 12px
+  margin: 10px 0 30px 0
 
 @import variables
 
 .big-number
   text-align: center
-  margin: 10px 0 30px 0
   border: 1px solid $line
   padding: 14px 24px
   border-radius: $radius-lg
   background-color: $surface
 
+  // Petit écran : les cartes se partagent la largeur et passent à la ligne (trois cartes
+  // de leur largeur naturelle sortaient de l'écran à 375px). Sur grand écran elles gardent
+  // leur largeur naturelle.
+  @media screen and (max-width: $md-width)
+    flex: 1 1 140px
+
   &--value
-    font-family: 'Fredoka', 'Poppins', Arial, sans-serif
-    font-size: 32px
+    font-family: $font-family-title
+    font-size: $title-lg
     font-weight: 600
 
   &--title
-    font-size: 16px
+    font-size: $text-md
     color: $ink-soft

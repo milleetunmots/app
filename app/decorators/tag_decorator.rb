@@ -1,11 +1,12 @@
 class TagDecorator < BaseDecorator
 
-  # Fond d'un tag sans couleur : gris clair ($line-strong de admin/_variables.sass), visible
-  # aussi sur une ligne survolée, plutôt qu'un aplat foncé
-  DEFAULT_BACKGROUND = '#D2CFC2'.freeze
-  # Texte d'une pastille de tag : blanc, ou encre de la charte ($ink) sur un fond clair
+  # Fond d'un tag sans couleur : rose de la charte ($pink de admin/_variables.sass), visible
+  # aussi sur une ligne survolée, plutôt qu'un aplat foncé ; texte marine
+  DEFAULT_BACKGROUND = '#FFABCC'.freeze
+  # Texte d'une pastille de tag : blanc, ou marine de la charte ($navy) sur un fond clair
+  # (5,77:1 sur le rose par défaut, plus lisible et plus dans la charte que le noir)
   LIGHT_TEXT = '#FFFFFF'.freeze
-  DARK_TEXT = '#2B2B2B'.freeze
+  DARK_TEXT = '#0B4374'.freeze
 
   HEX_COLOR = /\A#(\h{3}|\h{6})\z/
 

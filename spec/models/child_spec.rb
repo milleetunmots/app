@@ -131,14 +131,6 @@ RSpec.describe Child, type: :model do
     end
   end
 
-  describe "#min_birthdate_alt" do
-    context "returns" do
-      it "the date 2 years ago" do
-        expect(Child.min_birthdate_alt).to eq Time.zone.today - 2.years
-      end
-    end
-  end
-
   describe "#max_birthdate" do
     context "returns" do
       it "today date" do

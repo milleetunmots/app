@@ -1,9 +1,10 @@
 class ParentDecorator < BaseDecorator
 
-  GENDER_COLORS = {
-    m: :blue,
-    f: :rose
-  }
+  # Pastille de genre (status_tag) : fond rose ou bleu clair
+  GENDER_TAG_COLORS = { m: :blue, f: :rose }.freeze
+
+  # Teinte de genre du nom et de son icône (cf. BaseDecorator#name_link_classes)
+  GENDER_MODIFIERS = { m: 'boy', f: 'girl' }.freeze
 
   # La fiche de l'enfant courant, comme pour le reste de la fiche parent
   def ok_for_solicitation
@@ -12,7 +13,8 @@ class ParentDecorator < BaseDecorator
 
   def admin_link(options = {})
     child_support_id = options.delete(:child_support_id)
-    link_options = options.merge(class: GENDER_COLORS[model.gender.to_sym])
+    # Nom teinté selon le genre (name-link--boy / --girl)
+    link_options = options.merge(class: [options[:class], *name_link_classes].compact.join(' '))
     return super(link_options) if child_support_id.blank?
 
     # Le nom est isolé dans un span sécable : lui seul peut se couper en bout de
@@ -52,8 +54,12 @@ class ParentDecorator < BaseDecorator
 
   def gender_status
     arbre do
-      status_tag gender, class: GENDER_COLORS[model.gender.to_sym]
+      status_tag gender, class: GENDER_TAG_COLORS[model.gender.to_sym]
     end
+  end
+
+  def gender_modifier
+    GENDER_MODIFIERS[model.gender.to_sym]
   end
 
   def gender
@@ -259,7 +265,7 @@ class ParentDecorator < BaseDecorator
   private
 
   def child(child)
-    h.link_to child.decorate.name, [:admin, child], class: ChildDecorator::GENDER_COLORS[child.gender.to_sym]
+    child.decorate.admin_link
   end
 
   # [palier du corps, palier du titre] : le plus grand corps qui tienne, en resserrant

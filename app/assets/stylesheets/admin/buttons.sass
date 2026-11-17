@@ -1,5 +1,51 @@
 @import variables
 
+// Une seule taille, une seule graisse et une seule hauteur (36px, comme les champs de
+// brand.sass) pour tous les boutons : arctic_admin leur donne 14 à 16px, 400 ou 500 et
+// 29 à 56px de haut selon le composant. Le filet transparent complète la hauteur des
+// boutons sans bordure (20px de ligne + 2 x 7px + 2 x 1px). Les menus déroulants du titre
+// (composant ActiveAdmin, plus précis) sont alignés dans dropdown_menu.sass ; ceux des
+// listes gardent la place de leur flèche à droite.
+// Hors de ce bloc : les « Modifier » des listes (.member_link), volontairement petits.
+.button,
+#title_bar #titlebar_right .action_item a,
+input[type="submit"],
+.ui-dialog .ui-button,
+body.index .table_tools .dropdown_menu_button
+  box-sizing: border-box
+  font-size: $text-md
+  font-weight: 500
+  line-height: 20px
+  padding: 7px 12px
+
+.button,
+#title_bar #titlebar_right .action_item a,
+input[type="submit"],
+.ui-dialog .ui-button
+  border: 1px solid transparent
+
+body.index .table_tools .dropdown_menu_button
+  padding-right: 25px
+
+// « Valider » des formulaires : arctic_admin lui donne 43px de ligne (sélecteur à
+// identifiant) et brand.sass un bord gris de champ (body.logged_in.edit input)
+// et 31px à « Filtrer » de la colonne de droite (layouts/_filter.scss)
+#active_admin_content .actions .action input[type="submit"],
+#sidebar .sidebar_section input[type="submit"]
+  line-height: 20px
+
+body.logged_in
+  &.new, &.edit, &.create, &.update
+    input[type="submit"]
+      border-color: transparent
+
+// Boutons pleins (fond marine) : texte sur la surface, pas en blanc pur
+.button,
+#title_bar #titlebar_right .action_item a,
+input[type="submit"],
+.ui-dialog .ui-button
+  color: $surface
+
 // Boutons de couleur : fond pâle et texte foncé de la même famille ; le fond se
 // fonce au survol. Le bouton par défaut (marine plein) reste l'action principale.
 =tinted-button($background, $color)

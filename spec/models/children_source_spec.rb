@@ -39,5 +39,31 @@ RSpec.describe ChildrenSource, type: :model do
       children_source.valid?
       expect(children_source.errors[:professional_email]).not_to be_empty
     end
+
+    [
+      "s.dupont@cd93.fr",
+      "hélène.durand@ville-paris.fr",
+      "prenom.nom@sous.domaine2.fr",
+      "PMI.Montreuil@Seine-Saint-Denis.FR",
+      "s.dupont+pmi@cd93.fr"
+    ].each do |email|
+      it "accepte #{email}" do
+        children_source = ChildrenSource.new(professional_email: email)
+
+        children_source.valid?
+
+        expect(children_source.errors[:professional_email]).to be_empty
+      end
+    end
+
+    ["s.dupont@cd93", "s dupont@cd93.fr", "s.dupont@@cd93.fr", "s.dupont.cd93.fr"].each do |email|
+      it "refuse #{email}" do
+        children_source = ChildrenSource.new(professional_email: email)
+
+        children_source.valid?
+
+        expect(children_source.errors[:professional_email]).not_to be_empty
+      end
+    end
   end
 end

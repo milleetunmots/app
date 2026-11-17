@@ -57,10 +57,10 @@ RSpec.describe 'Logo de la nouvelle charte graphique', type: :request do
     expect(Rails.public_path.join('favicon.ico').binread).to eq(Rails.root.join('app/assets/images/favicon.ico').binread)
   end
 
-  # Les pages publiques restent sur l'ancienne charte (hors périmètre)
-  it "garde l'ancien logo sur le formulaire d'inscription public" do
+  # Le formulaire d'inscription public a rejoint la nouvelle charte (docs/features/registration_form)
+  it "affiche le nouveau logo sur le formulaire d'inscription public" do
     get '/inscription'
 
-    expect(Nokogiri::HTML(response.body).at_css('#mots-logo')['src']).to include('mots-logo')
+    expect(Nokogiri::HTML(response.body).at_css('#mots-logo')['src']).to include('registration/logo-1001mots')
   end
 end

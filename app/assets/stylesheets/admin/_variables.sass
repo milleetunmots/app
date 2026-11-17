@@ -10,31 +10,47 @@ $brand-black: #2B2B2B
 // Peu de couleurs, chacune avec un seul rôle : les neutres portent l'essentiel de
 // l'écran, la marque signale l'action et la position, les statuts portent un sens.
 
-// Neutres, accordés au crème et atténués : pas de blanc pur, qui éblouit à la longue.
-// Le fond de page reste plus sombre que les cartes pour qu'elles s'en détachent ;
-// $ink-soft garde au moins 5,6:1 sur chacun de ces fonds et $field-border 3:1, le
-// minimum pour délimiter un champ (WCAG 1.4.11).
-$canvas: #F3F1E8
-$surface: #F8F6EF
-$sunken: #EFEDE4
-$line: #E2DFD2
-$line-strong: #D2CFC2
-$field-border: #8C897A
+// Neutres, accordés au crème : pas de blanc pur, qui éblouit à la longue. Les cartes
+// sont dans le crème de la charte, sur un fond de page nettement plus sombre pour
+// qu'elles s'en détachent ; $ink-soft garde au moins 5,38:1 sur chacun de ces fonds
+// et $field-border 4,6:1 sur les surfaces qui portent des champs (WCAG 1.4.11 demande 3:1 ;
+// plus marqué, les champs et les menus des filtres se repèrent d'un coup d'œil).
+$canvas: #ECE8DC
+$surface: $cream
+$sunken: #F4F1E8
+$line: #DBD6C6
+$line-strong: #C9C3B0
+$field-border: #706D60
 $ink: $brand-black
 $ink-soft: #5F5D55
 
-// Marque : action (marine), position « ici » (citron), focus clavier (bleu),
-// fille / garçon (rose et bleu clairs, texte marine)
+// Marque, un rôle par couleur : action (marine), lien (bleu), position « ici » (citron),
+// genre (icônes bleue et rose), fonds fille / garçon (rose et bleu clairs, texte marine)
 $action: $navy
 $action-hover: #08355D
 $action-soft: #EEF2F7
 $highlight: $lime
 $highlight-soft: #F7F8E4
-// Bleu de la charte foncé : #3596FF fait 2,96:1 sur le crème, sous les 3:1 exigés
-// d'un indicateur de focus (WCAG 1.4.11) ; celui-ci fait 5,9:1
-$focus: #1A62B8
+// Deux bleus : le bleu de la charte pour les garçons, choisi pour se distinguer nettement
+// des liens (2,96:1 sur les cartes : sous le seuil AA de 4,5:1, le genre est aussi porté
+// par l'icône), le foncé pour les liens et le focus (7,78:1)
+$link: #14509B
+$focus: $link
+$boy: #3596FF
+$girl: #C42A60
 $girl-bg: #FFE1EC
+$pink-soft: #FFF1F6
 $boy-bg: #DCEBFF
+
+// Rose de la charte ($pink) : rôle « choix et accueil ». Fond des étiquettes de choix (tags,
+// modules choisis dans un menu) et de la page de connexion, avec du texte $ink (8,06:1).
+// Jamais en texte : 1,73:1 sur les surfaces. $pink-soft : fond des états vides. Le genre garde ses rose et bleu propres.
+
+// Menu latéral : marine, texte crème (9,96:1), sous-menus en marine foncé
+$menu-bg: $navy
+$menu-bg-nested: $action-hover
+$menu-text: $surface
+$menu-hover: rgba(255, 255, 255, 0.08)
 
 // Statuts : fond pâle et texte foncé de la même famille (contraste ≥ 4,5:1)
 $success: #1E7A3C
@@ -50,8 +66,26 @@ $info-bg: #E6F0FF
 $radius: 8px
 $radius-lg: 10px
 $radius-pill: 999px
+// Cartes et panneaux posés sur le fond ; les éléments flottants (menus, modales) ont $shadow-float
+$shadow-card: 0 1px 2px rgba(11, 67, 116, 0.06), 0 2px 8px rgba(11, 67, 116, 0.04)
 $shadow-float: 0 8px 24px rgba(11, 67, 116, 0.1)
 $transition: 150ms ease-out
+
+// Polices : Inter pour le texte (police d'interface, lisible à 13px dans les listes),
+// Fredoka pour les titres. Poppins reste sur les pages publiques et les PDF.
+$font-family-body: 'Inter', system-ui, Arial, sans-serif
+$font-family-title: 'Fredoka', 'Inter', system-ui, sans-serif
+
+// Échelle typographique : aucune taille hors de ces sept valeurs dans admin/*,
+// graisses 400 (texte), 500 (étiquettes, mises en avant) et 600 (titres) seulement
+$text-xs: 11px
+$text-sm: 12px
+$text-md: 13px
+$text-lg: 15px
+$title-sm: 17px
+$title-md: 20px
+$title-lg: 28px
+$line-height-body: 1.45
 
 // Noms historiques, portés par les classes de couleur (.txt-*, a.blue, .status_tag.green…)
 // et les styles existants. arctic_admin définit $red, $green, $blue, $black et $grey sans
@@ -60,10 +94,9 @@ $black: $ink
 $muted: $ink-soft
 $dark-grey: $ink-soft
 $grey: $line-strong
-$blue: $info
+$blue: $link
 $blue-bg: $info-bg
-// Prénoms de fille : foncé pour garder 4,5:1 sur les fonds atténués (cartes, creux, survol)
-$rose: #C42A60
+$rose: $girl
 $rose-bg: $girl-bg
 $yellow: $warning
 $yellow-bg: $warning-bg
@@ -73,20 +106,24 @@ $error: $danger
 
 // Thème arctic_admin : ses variables sont en !default et ce fichier est importé avant
 // lui (cf. active_admin.sass), ces valeurs remplacent donc les siennes
-$font-family-body: 'Poppins', Arial, sans-serif
 $border-radius: $radius
+// Taille de texte d'arctic_admin (14px par défaut) : celle du corps de l'admin
+$font-size: $text-md
 $box-shadow: $shadow-float
+// Liens en bleu, boutons en marine ; $primary-color reste marine (liseré de #login, onglets)
 $primary-color: $action
+$link-primary-color: $link
+$button-primary-color: $action
 $body-background: $canvas
 $header-background: $surface
 $text-color: $ink
 $text-color-important: $navy
 $border-color: $line
 $header-border-color: $line
-$sidebar-background: $canvas
-$sidebar-border-color: $line
-$sidebar-item-hover-background: $highlight-soft
-$sidebar-nested-item-hover-background: $highlight-soft
+$sidebar-background: #0B4374
+$sidebar-border-color: #0B4374
+$sidebar-item-hover-background: $menu-hover
+$sidebar-nested-item-hover-background: $menu-hover
 $header-nav-action-hover-background: $highlight-soft
 $header-nav-action-active-background: $highlight-soft
 $status-tag-background-color: $sunken
