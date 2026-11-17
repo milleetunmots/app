@@ -25,3 +25,22 @@
 
   .clear_filters_btn
     white-space: nowrap
+
+// Petit écran : sur les fiches et les formulaires, la colonne de droite (« Historique »)
+// passe sous le contenu au lieu de rester à côté, où arctic_admin laisse 230px de large
+// au panneau et écrase le contenu sur le reste (145px à 375px). Pas sur les listes
+// (body.index), où la colonne est un volet coulissant.
+@media screen and (max-width: $sm-width - 1px)
+  body.show, body.edit
+    #active_admin_content.with_sidebar
+      // flottant chez arctic_admin : la colonne remonterait dessous
+      #main_content_wrapper
+        float: none
+        width: 100%
+        padding-right: 0
+
+      #sidebar
+        display: block
+        position: static
+        width: 100%
+        margin-top: 16px
