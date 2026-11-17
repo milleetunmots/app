@@ -259,3 +259,9 @@ body.index
   .table_tools
     .dropdown_menu_list, .indexes.table_tools_segmented_control a
       background-color: $surface
+
+// Pied de page : la mention « Propulsé par Active Admin » est retirée (traduction
+// active_admin.powered_by vidée, cf. active_admin.fr.yml). Le bloc #footer qui reste,
+// vide, ajoutait un espace sous le contenu des pages courtes.
+#footer
+  display: none

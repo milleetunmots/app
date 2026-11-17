@@ -1,5 +1,7 @@
 fr:
   active_admin:
+    # Mention retirée partout : le pied de page vide retombe sinon sur cette traduction
+    powered_by: ""
     distribute_child_supports: Attribuer les familles aux accompagnantes
     upload_undelivered_books_csv: Gestion des plis non distribués
     new_sav_import: Gestion du SAV
