@@ -4,6 +4,19 @@
   ul#utility_nav
     li.menu_item#global_search
       text-align: left
+      // select2 fixe 400px en style en ligne (global_search.js) : sur un petit écran la
+      // barre du haut débordait à gauche. Le champ garde 400px quand il y a la place et
+      // se rétrécit sinon, les deux icônes gardant la leur.
+      flex: 0 1 400px
+      min-width: 0
+
+      .select2-container
+        width: 100% !important
+
+      // Là où le menu se replie, son bouton (#utility_nav:before, 40px) occupe le coin
+      // gauche de la barre : le champ ne doit pas le recouvrir
+      @media screen and (max-width: $lg-width - 1px)
+        margin-left: 40px
 
       select
 
