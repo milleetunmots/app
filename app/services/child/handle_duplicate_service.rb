@@ -36,8 +36,11 @@ class Child
         child.update(
           parent1: first_child.parent1,
           parent2: first_child.parent2,
-          child_support: first_child.child_support
+          child_support: first_child.child_support,
+          group: nil,
+          group_status: 'waiting'
         )
+        join_siblings_group(child)
       end
     end
 
@@ -239,6 +242,7 @@ class Child
         retrieve_old_associations
         change_parents_and_child_support
         discard_old_associations
+        join_siblings_group(@child)
       end
     end
 
@@ -262,7 +266,14 @@ class Child
       @child.parent1_id = @child_support.parent1.id
       @child.parent2_id = @child_support.parent2.id if @child_support.parent2
       @child.child_support_id = @child_support.id
+      # En attente avant le changement de fiche : le callback ne remplace l'accompagnante que pour un enfant actif
+      @child.group = nil
+      @child.group_status = 'waiting'
       @child.save(validate: false)
+    end
+
+    def join_siblings_group(child)
+      Child::AddToGroupService.new(child.id).call
     end
 
     def discard_old_associations

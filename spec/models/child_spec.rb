@@ -506,4 +506,22 @@ RSpec.describe Child, type: :model do
       expect(Child.ok_for_solicitation_is("peut-être")).to be_empty
     end
   end
+
+  describe 'changement manuel du parent 1 d\'un enfant de cohorte attribuée' do
+    it "rattache l'enfant à la fiche de sa fratrie et archive son ancienne fiche" do
+      supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      group = FactoryBot.create(:group, supporters_assigned_at: Time.zone.now)
+      child = FactoryBot.create(:child, first_name: 'Hugo', last_name: 'Petit')
+      child.update!(group: group, group_status: 'active')
+      child.child_support.update!(supporter: supporter)
+      sibling = FactoryBot.create(:child, first_name: 'Lou', last_name: 'Petit')
+      sibling.child_support.update!(supporter: supporter)
+      old_child_support = child.child_support
+
+      child.update!(parent1: sibling.parent1)
+
+      expect(child.reload).to have_attributes(parent1_id: sibling.parent1_id, child_support_id: sibling.child_support_id)
+      expect(old_child_support.reload).to be_discarded
+    end
+  end
 end
