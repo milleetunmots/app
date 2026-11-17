@@ -5,6 +5,8 @@ TYPEFORM_CLIENT_SECRET: xxx
 TYPEFORM_CLIENT_ID: xxx
 WELCOME_TYPEFORM_ID: xxx
 TYPEFORM_TOKEN: xxx
+# Seul garde-fou des appels Spot-Hit : limite les envois à SAFE_PHONE_NUMBERS et bloque la synchro des modèles. À laisser actif hors production.
+SPOT_HIT_SAFEGUARD: "true"
 SAFE_PHONE_NUMBERS: xxx
 MODULE_ZERO_FEATURE_START : xxx
 INITIAL_TYPEFORM_ENROLLMENT_REASONS_BABY: xxx
