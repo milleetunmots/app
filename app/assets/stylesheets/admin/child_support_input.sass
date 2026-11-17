@@ -445,6 +445,14 @@ $resources-links-gap: 24px
   > .label
     white-space: nowrap
 
+// « Accompagnante » : arctic_admin fixe l'étiquette à 25 % de la ligne (88px), moins que
+// le mot, que le select recouvrait. Elle prend la largeur de son texte (au moins 25 %) et
+// le select se place juste après, à sa largeur habituelle.
+#child_support_supporter_input > .label
+  width: auto
+  min-width: 25%
+  white-space: nowrap
+
 // Carte "Disponibilités et RDV"
 .scheduled-call-info
   border-bottom: 1px solid $line
