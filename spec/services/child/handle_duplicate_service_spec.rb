@@ -29,9 +29,8 @@ RSpec.describe Child::HandleDuplicateService do
       expect(second_parent.reload.discarded?).to eq(true)
     end
 
-    it "if a child is in active group, add the others children to his siblings" do
-      group.started_at = 2.months.ago.beginning_of_week
-      group.save!
+    it "if a child is in an attributed group, add the others children to his siblings" do
+      group.update!(supporters_assigned_at: Time.zone.now)
       second_child.group_id = group.id
       second_child.group_status = 'active'
       second_child.save!
@@ -175,7 +174,7 @@ RSpec.describe Child::HandleDuplicateService do
     let!(:group) { FactoryBot.create(:group, expected_children_number: 0) }
 
     it "if at least one child is not active delete the recent parents and put all children in the same siblings group" do
-      group.update(started_at: Time.zone.now.prev_occurring(:monday), support_module_programmed: 1)
+      group.update(supporters_assigned_at: Time.zone.now)
       first_child.update(group: group, group_status: 'active')
 
       subject.call
@@ -246,6 +245,28 @@ RSpec.describe Child::HandleDuplicateService do
       end
     end
 
+    context "quand la cohorte est attribuée mais n'a pas encore démarré" do
+      it "archive le doublon plus ancien et garde l'enfant de la cohorte avec son accompagnante" do
+        supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+        duplicate = create_child_with_both_parents(created_at: Time.zone.local(2027, 1, 10, 10), first_parent_phone: '0755820000', second_parent_phone: '0755820001')
+        child = create_child_with_both_parents(created_at: Time.zone.local(2027, 1, 15, 10), first_parent_phone: '0755820000', second_parent_phone: '0755820001')
+        group = travel_to(Time.zone.local(2027, 2, 19, 10)) do
+          group = FactoryBot.create(:group, started_at: Date.new(2027, 3, 1), supporters_assigned_at: Time.zone.now)
+          child.update!(group: group, group_status: 'active')
+          child.child_support.update!(supporter: supporter)
+          group
+        end
+        child_support_id = child.child_support_id
+
+        travel_to(Time.zone.local(2027, 2, 21, 6)) { Child::HandleDuplicateService.new.call }
+
+        expect(duplicate.reload).to be_discarded
+        expect(child.reload).not_to be_discarded
+        expect(child).to have_attributes(group_id: group.id, group_status: 'active', child_support_id: child_support_id)
+        expect(child.child_support.supporter).to eq(supporter)
+      end
+    end
+
     context "quand la cohorte a démarré sans date d'attribution" do
       it 'garde le plus ancien des doublons et archive le plus récent' do
         child = create_child_with_both_parents(created_at: Time.zone.local(2027, 1, 10, 10), first_parent_phone: '0755830000', second_parent_phone: '0755830001')
@@ -261,6 +282,53 @@ RSpec.describe Child::HandleDuplicateService do
         expect(duplicate.reload).to be_discarded
         expect(child.reload).not_to be_discarded
       end
+    end
+  end
+
+  context 'quand deux doublons sans parent 2 sont chacun dans une cohorte attribuée différente' do
+    it 'ne touche à aucun des deux et les laisse parmi les doublons potentiels' do
+      child, duplicate = travel_to(Time.zone.local(2027, 2, 15, 10)) do
+        child = FactoryBot.create(:child, first_name: 'Nina', last_name: 'Roux', birthdate: Date.new(2026, 9, 1), parent1: FactoryBot.create(:parent, phone_number: '0755840000'))
+        duplicate = FactoryBot.create(:child, first_name: 'Nina', last_name: 'Roux', birthdate: Date.new(2026, 9, 1), parent1: FactoryBot.create(:parent, phone_number: '0755840001'))
+        march_group = FactoryBot.create(:group, started_at: Date.new(2027, 3, 1), supporters_assigned_at: Time.zone.now)
+        april_group = FactoryBot.create(:group, started_at: Date.new(2027, 4, 5), supporters_assigned_at: Time.zone.now)
+        child.update!(group: march_group, group_status: 'active')
+        duplicate.update!(group: april_group, group_status: 'active')
+        [child, duplicate]
+      end
+      child_attributes = child.attributes.slice('group_id', 'group_status', 'child_support_id', 'parent1_id', 'parent2_id')
+      duplicate_attributes = duplicate.attributes.slice('group_id', 'group_status', 'child_support_id', 'parent1_id', 'parent2_id')
+
+      travel_to(Time.zone.local(2027, 2, 21, 6)) { Child::HandleDuplicateService.new.call }
+
+      expect(child.reload).not_to be_discarded
+      expect(duplicate.reload).not_to be_discarded
+      expect(child).to have_attributes(child_attributes)
+      expect(duplicate).to have_attributes(duplicate_attributes)
+      expect(Child.potential_duplicates).to include(child, duplicate)
+    end
+  end
+
+  context "quand le parent d'un enfant d'une cohorte attribuée partage son téléphone avec le parent d'un autre enfant" do
+    it "ne rattache pas l'enfant de la cohorte attribuée à une autre fiche" do
+      supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      protected_child, june_group = travel_to(Time.zone.local(2027, 4, 10, 10)) do
+        other_child = FactoryBot.create(:child, first_name: 'Sara', last_name: 'Diallo', birthdate: Date.new(2026, 10, 1), parent1: FactoryBot.create(:parent, phone_number: '0755850000'))
+        protected_child = FactoryBot.create(:child, first_name: 'Noé', last_name: 'Diallo', birthdate: Date.new(2026, 8, 1), parent1: FactoryBot.create(:parent, phone_number: '0755850000'))
+        may_group = FactoryBot.create(:group, started_at: Date.new(2027, 5, 3))
+        june_group = FactoryBot.create(:group, started_at: Date.new(2027, 6, 7), supporters_assigned_at: Time.zone.now)
+        other_child.update!(group: may_group, group_status: 'active')
+        protected_child.update!(group: june_group, group_status: 'active')
+        protected_child.child_support.update!(supporter: supporter)
+        [protected_child, june_group]
+      end
+      protected_child_attributes = protected_child.attributes.slice('child_support_id', 'parent1_id')
+
+      travel_to(Time.zone.local(2027, 4, 18, 6)) { Child::HandleDuplicateService.new.call }
+
+      expect(protected_child.reload).not_to be_discarded
+      expect(protected_child).to have_attributes(protected_child_attributes.merge('group_id' => june_group.id, 'group_status' => 'active'))
+      expect(protected_child.child_support.supporter).to eq(supporter)
     end
   end
 end

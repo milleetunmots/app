@@ -29,7 +29,7 @@ class Child
       return unless @groups.empty? || @waiting_children.any?
 
       first_child = @children.sort_by(&:created_at).first
-      @children.pending_support.where.not(id: first_child.id).each do |child|
+      movable_children(@children).where.not(id: first_child.id).each do |child|
         child.parent1.discard
         child.parent2.discard
         child.child_support&.discard
@@ -45,9 +45,9 @@ class Child
       @duplicated_parents_by_phone_number.each do |phone_number, parents|
         @parents = parents.sort_by(&:id)
         @phone_number = phone_number
-        @children = Child.kept.left_outer_joins(:parent1, :parent2).where(parents: { phone_number: @phone_number.to_s })
-        @waiting_children = @children.pending_support.sort_by(&:id)
-        @not_waiting_children = @children.where.not(group_status: %w[stopped disengaged not_supported]).not_pending_support.sort_by(&:id)
+        @children = children_of_parents_with_phone_number
+        @waiting_children = movable_children(@children).sort_by(&:id)
+        @not_waiting_children = not_movable_children(@children).where.not(group_status: %w[stopped disengaged not_supported]).sort_by(&:id)
 
         case
         when any_child_with_parent2?
@@ -72,8 +72,8 @@ class Child
         phone_numbers = all_parents_phone_numbers
         next if phone_numbers.count != 2
 
-        waiting_children = Child.where(id: @children.map(&:id)).pending_support.sort_by(&:id)
-        not_waiting_children = Child.where(id: @children.map(&:id)).where.not(group_status: %w[stopped disengaged not_supported]).not_pending_support.sort_by(&:id)
+        waiting_children = movable_children(Child.where(id: @children.map(&:id))).sort_by(&:id)
+        not_waiting_children = not_movable_children(Child.where(id: @children.map(&:id))).where.not(group_status: %w[stopped disengaged not_supported]).sort_by(&:id)
         next if waiting_children.empty?
 
         @first_parent = Parent.find_by(phone_number: phone_numbers.first)
@@ -274,7 +274,7 @@ class Child
     end
 
     def more_than_one_children_supported?
-      @children.count { |child| child.group_status == 'active' && child.group&.started_at.present? && child.group.started_at <= Time.zone.today && child.group.support_module_programmed.to_i.positive? } > 1
+      @children.count { |child| child.group_status == 'active' && child.group&.supporters_assigned? } > 1
     end
 
     def any_parent_have_others_children?
@@ -352,6 +352,19 @@ class Child
 
     def child_with_parent2_parents_phone_numbers
       @children.select { |child| child.parent2.present? }.map { |child| [child.parent1.phone_number, child.parent2.phone_number] }.first
+    end
+
+    def children_of_parents_with_phone_number
+      parent_ids = Parent.where(phone_number: @phone_number.to_s).select(:id)
+      Child.kept.where(parent1_id: parent_ids).or(Child.kept.where(parent2_id: parent_ids))
+    end
+
+    def movable_children(children)
+      children.where(group_status: 'waiting').or(children.where(group_id: Group.where(supporters_assigned_at: nil).select(:id)))
+    end
+
+    def not_movable_children(children)
+      children.where.not(group_id: nil).where.not(id: movable_children(children).select(:id))
     end
 
     def children_groups
