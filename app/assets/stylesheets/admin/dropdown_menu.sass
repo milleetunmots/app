@@ -88,6 +88,16 @@
   @import active_admin/components/dropdown_menu
   +brand-dropdown-menu
 
+  // Même taille, graisse et hauteur (36px) que les autres boutons de la barre de titre
+  // (cf. buttons.sass) ; ne concerne pas les petits « Actions » des lignes de liste
+  .dropdown_menu .dropdown_menu_button
+    box-sizing: border-box
+    font-size: $text-md
+    line-height: 20px
+    padding-top: 7px
+    padding-bottom: 7px
+    padding-left: 12px
+
 table.index_table .col-actions
   @import active_admin/components/dropdown_menu
   +brand-dropdown-menu
