@@ -19,6 +19,21 @@ RSpec.describe SpotHit::SendRcsService do
   # `errors` ne dit pas si l'envoi a eu lieu : une campagne acceptée peut ensuite
   # échouer à s'historiser. C'est `sent?` qui tranche, et ProgramMessageService
   # s'en sert pour décider de rendre ou non le quota réservé.
+  context 'en développement, sans SPOT_HIT_SAFEGUARD' do
+    it "envoie à tous les destinataires, sans les limiter à SAFE_PHONE_NUMBERS" do
+      allow(Rails.env).to receive(:development?).and_return(true)
+      previous_safe_numbers = ENV.fetch('SAFE_PHONE_NUMBERS', nil)
+      ENV['SAFE_PHONE_NUMBERS'] = '+33600000099'
+
+      described_class.new(recipients: [parent1.id, parent2.id], planned_timestamp: planned_timestamp, media_id: media_id).call
+
+      expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+        .with { |request| Rack::Utils.parse_nested_query(request.body)['custom_list'].size == 2 })
+    ensure
+      previous_safe_numbers.nil? ? ENV.delete('SAFE_PHONE_NUMBERS') : ENV['SAFE_PHONE_NUMBERS'] = previous_safe_numbers
+    end
+  end
+
   describe '#sent?' do
     subject(:service) { described_class.new(recipients: recipients, planned_timestamp: planned_timestamp, fallback_message: fallback_message).call }
 

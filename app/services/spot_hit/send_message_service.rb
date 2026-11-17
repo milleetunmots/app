@@ -58,7 +58,7 @@ class SpotHit::SendMessageService
 
     return unless recipients_available?
 
-    if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
+    if ENV['SPOT_HIT_SAFEGUARD'].present?
       restrict_recipients_to_safe_numbers!
       return if recipient_variables.empty?
 
