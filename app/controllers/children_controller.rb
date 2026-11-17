@@ -222,7 +222,7 @@ class ChildrenController < ApplicationController
         ).first
       end
 
-    head :not_found and return if @child.nil?
+    not_found and return if @child.nil?
   end
 
   def build_variables

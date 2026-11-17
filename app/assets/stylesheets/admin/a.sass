@@ -18,9 +18,10 @@ a
       color: $muted
 
 // Prénoms des enfants et des parents : teinte de genre, distincte du bleu des liens
-// (classes posées par les décorateurs) ; genre inconnu en texte
+// (classes posées par les décorateurs) ; genre inconnu en gris de texte secondaire
+// ($ink-soft, 6,48:1 sur les cartes), pour ne pas dominer les noms teintés
 a.name-link
-  color: $ink
+  color: $ink-soft
   font-weight: 500
 
   &:hover, &:focus-visible

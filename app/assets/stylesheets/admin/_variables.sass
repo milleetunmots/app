@@ -13,13 +13,14 @@ $brand-black: #2B2B2B
 // Neutres, accordés au crème : pas de blanc pur, qui éblouit à la longue. Les cartes
 // sont dans le crème de la charte, sur un fond de page nettement plus sombre pour
 // qu'elles s'en détachent ; $ink-soft garde au moins 5,38:1 sur chacun de ces fonds
-// et $field-border 3,11:1 sur les surfaces qui portent des champs (WCAG 1.4.11).
+// et $field-border 4,6:1 sur les surfaces qui portent des champs (WCAG 1.4.11 demande 3:1 ;
+// plus marqué, les champs et les menus des filtres se repèrent d'un coup d'œil).
 $canvas: #ECE8DC
 $surface: $cream
 $sunken: #F4F1E8
 $line: #DBD6C6
 $line-strong: #C9C3B0
-$field-border: #8C897A
+$field-border: #706D60
 $ink: $brand-black
 $ink-soft: #5F5D55
 
@@ -38,7 +39,12 @@ $focus: $link
 $boy: #3596FF
 $girl: #C42A60
 $girl-bg: #FFE1EC
+$pink-soft: #FFF1F6
 $boy-bg: #DCEBFF
+
+// Rose de la charte ($pink) : rôle « choix et accueil ». Fond des étiquettes de choix (tags,
+// modules choisis dans un menu) et de la page de connexion, avec du texte $ink (8,06:1).
+// Jamais en texte : 1,73:1 sur les surfaces. $pink-soft : fond des états vides. Le genre garde ses rose et bleu propres.
 
 // Menu latéral : marine, texte crème (9,96:1), sous-menus en marine foncé
 $menu-bg: $navy
@@ -72,13 +78,13 @@ $font-family-title: 'Fredoka', 'Inter', system-ui, sans-serif
 
 // Échelle typographique : aucune taille hors de ces sept valeurs dans admin/*,
 // graisses 400 (texte), 500 (étiquettes, mises en avant) et 600 (titres) seulement
-$text-xs: 12px
-$text-sm: 13px
-$text-md: 14px
-$text-lg: 16px
-$title-sm: 18px
-$title-md: 22px
-$title-lg: 32px
+$text-xs: 11px
+$text-sm: 12px
+$text-md: 13px
+$text-lg: 15px
+$title-sm: 17px
+$title-md: 20px
+$title-lg: 28px
 $line-height-body: 1.45
 
 // Noms historiques, portés par les classes de couleur (.txt-*, a.blue, .status_tag.green…)
@@ -101,6 +107,8 @@ $error: $danger
 // Thème arctic_admin : ses variables sont en !default et ce fichier est importé avant
 // lui (cf. active_admin.sass), ces valeurs remplacent donc les siennes
 $border-radius: $radius
+// Taille de texte d'arctic_admin (14px par défaut) : celle du corps de l'admin
+$font-size: $text-md
 $box-shadow: $shadow-float
 // Liens en bleu, boutons en marine ; $primary-color reste marine (liseré de #login, onglets)
 $primary-color: $action

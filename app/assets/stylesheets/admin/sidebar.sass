@@ -3,6 +3,35 @@
 #sidebar
   .sidebar_section
     .filter_form
+      // Un peu d'air entre les filtres et un filet discret qui les sépare, pour voir quels
+      // champs vont ensemble ; étiquettes en 500 comme dans les formulaires
+      .input
+        margin-bottom: 14px
+        padding-bottom: 14px
+        border-bottom: 1px solid $line
+
+      .label
+        margin-bottom: 6px
+        font-weight: 500
+
+      // « Contient | texte » et « De | À » : deux colonnes séparées par un espace, au lieu de
+      // deux champs collés (arctic_admin les met à 50 %, l'un flottant à droite)
+      .select_and_search, .filter_date_range
+        display: grid
+        // deux colonnes tant que chacune garde 110px, sinon l'une sous l'autre (« Contient »
+        // se coupait en « Conti » dans un panneau étroit)
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr))
+        gap: 6px 8px
+
+        > .label, > .inline-errors, > .inline-hints
+          grid-column: 1 / -1
+
+        > select, > input
+          float: none
+          width: 100%
+          min-width: 0
+          margin: 0
+
       .check_boxes
         label
           input[type="checkbox"]

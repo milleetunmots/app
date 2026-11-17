@@ -1,10 +1,16 @@
 @import variables
 
+// Modules choisis (fiche de suivi, fiche enfant) : rose de la charte et texte marine, comme
+// les choix des menus (cf. brand.sass) ; le gris sur crème se lisait mal
 .available_support_module
-  color: $ink-soft
+  color: $navy
+  font-weight: 600
   padding: 2px 10px
   border-radius: $radius-pill
-  background-color: $sunken
+  background-color: $pink
+
+  &:hover
+    background-color: darken($pink, 6%)
 
 // lien vers le contenu du module sur Airtable
 .support-module-airtable-link

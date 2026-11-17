@@ -55,8 +55,13 @@ tbody tr td
 .blank_slate_container
   padding: 24px 0
   text-align: center
-  color: $ink-soft
+  color: $ink
   font-size: $text-md
+  font-weight: 500
+  // Fond rose pâle : un état vide se remarque et accueille ; texte $ink en 500 (12,9:1)
+  // plutôt que le gris $ink-soft (6,02:1), trop effacé sur le rose
+  background-color: $pink-soft
+  border-radius: $radius-lg
 
 tbody tr:hover > td, tbody tr:hover > th
   background-color: $sunken
