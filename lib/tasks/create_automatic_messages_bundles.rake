@@ -26,7 +26,11 @@ namespace :text_messages_bundles do
       "Demande de vérification d'adresse (PND)" =>
         "#{Parent::CheckAddressService::MESSAGE} https://form.typeform.com/to/#{ENV['UPDATING_ADDRESS_TYPEFORM_ID']}#st=xxxxx",
       'Démarrage tardif' => Child::AddToGroupService::LATE_SUPPORT_WARNING_MESSAGE,
-      "Fin d'accompagnement, étude eval" => Child::SendEvalMessageService::EVAL_MESSAGE.gsub('{typeform_link}', '{LIEN_ETUDE_EVAL}'),
+      # Recopié : charger Child::SendEvalMessageService exige les identifiants Google (GOOGLE_CREADENTIALS_JSON).
+      "Fin d'accompagnement, étude eval" =>
+        "1001mots : L'accompagnement de {PRENOM_ENFANT} est maintenant terminé. Vous avez AIMÉ les livres et les conseils ? Alors vous " \
+        'pouvez nous AIDER à votre tour : PARTICIPEZ à notre grande ETUDE sur le langage des bébés ! Cliquez ici pour en savoir plus : ' \
+        '{LIEN_ETUDE_EVAL}',
       'Fin du programme' => Group::StopSupportService::END_OF_SUPPORT_SMS,
       "Fin du programme (l'enfant a 3 ans)" => Group::StopSupportService::MORE_THAN_THIRTY_SIX_SMS,
       'Garder le lien sur Instagram' => Group::StopSupportService::INSTAGRAM_SMS,
