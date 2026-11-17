@@ -331,4 +331,79 @@ RSpec.describe Child::HandleDuplicateService do
       expect(protected_child.child_support.supporter).to eq(supporter)
     end
   end
+
+  context "quand un enfant en attente partage le téléphone d'un parent avec un enfant d'une cohorte attribuée" do
+    it 'le rattache à la fiche de cet enfant, toujours en attente, sans changer son accompagnante' do
+      supporter = FactoryBot.create(:admin_user, user_role: 'caller')
+      sibling, group = travel_to(Time.zone.local(2027, 2, 15, 10)) do
+        sibling = FactoryBot.create(:child, first_name: 'Inès', last_name: 'Leroy', birthdate: Date.new(2026, 10, 1), parent1: FactoryBot.create(:parent, phone_number: '0755860000'))
+        group = FactoryBot.create(:group, started_at: Date.new(2027, 3, 1), supporters_assigned_at: Time.zone.local(2027, 2, 19, 10))
+        sibling.update!(group: group, group_status: 'active')
+        sibling.child_support.update!(supporter: supporter)
+        [sibling, group]
+      end
+      waiting_child = travel_to(Time.zone.local(2027, 4, 10, 10)) do
+        FactoryBot.create(:child, first_name: 'Sami', last_name: 'Leroy', birthdate: Date.new(2027, 1, 15), parent1: FactoryBot.create(:parent, phone_number: '0755860000'))
+      end
+      waiting_child_old_child_support = waiting_child.child_support
+
+      travel_to(Time.zone.local(2027, 4, 18, 6)) { Child::HandleDuplicateService.new.call }
+
+      expect(waiting_child.reload).to have_attributes(child_support_id: sibling.child_support_id, group_id: nil, group_status: 'waiting')
+      expect(sibling.reload).to have_attributes(group_id: group.id, group_status: 'active')
+      expect(sibling.child_support.supporter).to eq(supporter)
+      expect(waiting_child_old_child_support.reload).to be_discarded
+    end
+  end
+
+  context "quand un enfant d'une cohorte non attribuée est rattaché à la fiche de sa fratrie" do
+    def create_siblings_and_link(sibling_group_attributes:, linked_child_birthdate:)
+      sibling, linked_child = travel_to(Time.zone.local(2027, 4, 10, 10)) do
+        sibling = FactoryBot.create(:child, first_name: 'Sara', last_name: 'Diallo', birthdate: Date.new(2025, 12, 1), parent1: FactoryBot.create(:parent, phone_number: '0755870000'))
+        linked_child = FactoryBot.create(:child, first_name: 'Noé', last_name: 'Diallo', birthdate: linked_child_birthdate, parent1: FactoryBot.create(:parent, phone_number: '0755870000'))
+        sibling_group = FactoryBot.create(:group, sibling_group_attributes)
+        june_group = FactoryBot.create(:group, started_at: Date.new(2027, 6, 7))
+        sibling.update!(group: sibling_group, group_status: 'active')
+        linked_child.update!(group: june_group, group_status: 'active')
+        [sibling, linked_child]
+      end
+
+      travel_to(Time.zone.local(2027, 4, 18, 6)) { Child::HandleDuplicateService.new.call }
+
+      [sibling.reload, linked_child.reload]
+    end
+
+    [
+      ['non attribuée, qui commence dans 15 jours', { started_at: Date.new(2027, 5, 3) }],
+      ['attribuée, qui commence dans 15 jours', { started_at: Date.new(2027, 5, 3), supporters_assigned_at: Time.zone.local(2027, 4, 15, 10) }]
+    ].each do |description, sibling_group_attributes|
+      context "quand la cohorte de la fratrie est #{description}" do
+        it 'fait rejoindre cette cohorte à un enfant qui aura 4 mois à son début' do
+          sibling, linked_child = create_siblings_and_link(sibling_group_attributes: sibling_group_attributes, linked_child_birthdate: Date.new(2027, 1, 3))
+
+          expect(linked_child).to have_attributes(child_support_id: sibling.child_support_id, group_id: sibling.group_id, group_status: 'active')
+        end
+
+        it "laisse en attente, sans cohorte, un enfant qui n'aura pas 4 mois à son début" do
+          sibling, linked_child = create_siblings_and_link(sibling_group_attributes: sibling_group_attributes, linked_child_birthdate: Date.new(2027, 1, 4))
+
+          expect(linked_child).to have_attributes(child_support_id: sibling.child_support_id, group_id: nil, group_status: 'waiting')
+        end
+      end
+    end
+
+    [
+      ['non attribuée, qui a commencé', { started_at: Date.new(2027, 4, 5) }],
+      ['attribuée, qui a commencé', { started_at: Date.new(2027, 4, 5), supporters_assigned_at: Time.zone.local(2027, 3, 20, 10) }],
+      ['attribuée et terminée', { started_at: Date.new(2026, 4, 6), ended_at: Date.new(2027, 3, 1), supporters_assigned_at: Time.zone.local(2026, 3, 20, 10) }]
+    ].each do |description, sibling_group_attributes|
+      context "quand la cohorte de la fratrie est #{description}" do
+        it "laisse l'enfant en attente, sans cohorte" do
+          sibling, linked_child = create_siblings_and_link(sibling_group_attributes: sibling_group_attributes, linked_child_birthdate: Date.new(2026, 10, 1))
+
+          expect(linked_child).to have_attributes(child_support_id: sibling.child_support_id, group_id: nil, group_status: 'waiting')
+        end
+      end
+    end
+  end
 end
