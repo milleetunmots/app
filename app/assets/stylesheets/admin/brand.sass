@@ -87,6 +87,10 @@ textarea, select, input[type="checkbox"]
   .select2-selection--multiple
     min-height: 36px
 
+  // Valeur choisie : select2 la met en #444, hors palette
+  .select2-selection--single .select2-selection__rendered
+    color: $ink
+
   // Texte indicatif (« Recherche globale », « N'importe lequel »…) : select2 le met en
   // #999, à 2,6:1 sur la surface
   .select2-selection--single .select2-selection__placeholder,
