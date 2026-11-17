@@ -275,7 +275,6 @@ $resources-links-gap: 24px
   align-items: start
   width: 100%
   gap: $resources-grid-gap
-  overflow-x: auto
 
   // le composant Columns d'ActiveAdmin pose width/margin en style inline, ce qui
   // s'applique aussi aux items de grille : on les neutralise pour que chaque
@@ -299,9 +298,13 @@ $resources-links-gap: 24px
       gap: 5px
 
     // colonnes pouvant porter plusieurs liens sur une même ligne
+    // Quand la colonne est trop étroite (155px à 1024px), « Briefing » passe sous le
+    // lien précédent au lieu de déborder de la rangée ; chaque lien garde son texte sur
+    // une ligne (white-space: nowrap plus haut)
     &.script-column,
     &.video-and-briefing
-      gap: $resources-links-gap
+      flex-wrap: wrap
+      gap: 5px $resources-links-gap
 
     // colonne portant la vidéo recommandée et le briefing : « Briefing » est
     // collé à droite de la rangée pour aligner le reste. Quand il n'y a pas de
