@@ -31,7 +31,7 @@ class EventsController < ApplicationController
   def spot_hit_stop
     service = Parent::HandleStopService.new(
       phone_number: Phonelib.parse(params[:numero]).e164,
-      occurred_at: Time.zone.at(params[:date].to_i),
+      occurred_at: params[:date].present? ? Time.zone.at(params[:date].to_i) : Time.zone.now,
       spot_hit_message_id: params[:id]
     ).call
 

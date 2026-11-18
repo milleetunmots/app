@@ -65,6 +65,18 @@ RSpec.describe 'EventsController#spot_hit_stop', type: :request do
     expect(disengaged_child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped', group_end: Date.new(2026, 11, 18))
   end
 
+  it "applique le STOP reçu sans date et le date de sa réception par l'app" do
+    travel_to Time.zone.local(2026, 11, 18, 10, 5)
+    parent = FactoryBot.create(:parent, phone_number: '0612345678')
+    child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+
+    get path, params: { numero: '0612345678', id: 'sms-42' }
+
+    expect(response).to have_http_status(:ok)
+    expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped', group_end: Date.new(2026, 11, 18))
+    expect(Events::TextMessage.find_by(related: parent, body: 'STOP').occurred_at).to eq(Time.zone.local(2026, 11, 18, 10, 5))
+  end
+
   it 'ne crée rien pour un numéro absent de la base et répond 200' do
     expect do
       get path, params: stop_params(numero: '0700000000')
