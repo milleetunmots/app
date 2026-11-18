@@ -4,10 +4,11 @@ class Parent
 
     attr_reader :errors
 
-    def initialize(phone_number:, occurred_at:, spot_hit_message_id:)
+    def initialize(phone_number:, occurred_at:, spot_hit_message_id: nil, spot_hit_rcs_id: nil)
       @phone_number = phone_number
       @occurred_at = occurred_at
       @spot_hit_message_id = spot_hit_message_id
+      @spot_hit_rcs_id = spot_hit_rcs_id
       @errors = []
     end
 
@@ -26,6 +27,7 @@ class Parent
         related: parent,
         body: 'STOP',
         spot_hit_message_id: @spot_hit_message_id,
+        spot_hit_rcs_id: @spot_hit_rcs_id,
         spot_hit_status: 1,
         occurred_at: @occurred_at,
         originated_by_app: false

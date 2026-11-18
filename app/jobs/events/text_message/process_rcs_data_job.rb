@@ -104,7 +104,7 @@ class Events::TextMessage
         return {}
       end
 
-      phone = Phonelib.parse(event_content['userId'].to_s.strip).e164
+      phone = parsed_phone_number(event_content)
       if phone.blank?
         Rollbar.error('spot_hit_rcs_data: unparsable userId', event_content: event_content)
         return {}
@@ -210,6 +210,7 @@ class Events::TextMessage
 
       text = event_content.dig('content', 'text')
       unless text
+        apply_stop(date, event_content, campaign_id) if event_content.dig('content', 'optout', 'text') == 'STOP'
         report_content_without_text(event_content)
         return
       end
@@ -225,6 +226,19 @@ class Events::TextMessage
         }
       )
       Rollbar.error('spot_hit_rcs_data: message received text_message not created', event_content: event_content, errors: text_message.errors) unless text_message.save
+    end
+
+    def parsed_phone_number(event_content)
+      Phonelib.parse(event_content['userId'].to_s.strip).e164
+    end
+
+    def apply_stop(date, event_content, campaign_id)
+      service = Parent::HandleStopService.new(
+        phone_number: parsed_phone_number(event_content),
+        occurred_at: date,
+        spot_hit_rcs_id: campaign_id
+      ).call
+      Rollbar.error('Parent::HandleStopService', errors: service.errors) if service.errors.any?
     end
 
     # Les modèles RCS de l'app désactivent le STOP : une désinscription RCS vient

@@ -548,7 +548,7 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
         subject.perform_now(payload(received_event(campaign_id: nil, user_id: ines.phone_number)))
       end
 
-      it 'lève une alerte dédiée pour une désinscription RCS, sans toucher au parent' do
+      it 'lève une alerte dédiée pour une désinscription RCS et enregistre le STOP' do
         expect(Rollbar).to receive(:error)
           .with('spot_hit_rcs_data: RCS opt-out non traité', hash_including(:event_content))
           .once
@@ -556,8 +556,7 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
           subject.perform_now(
             payload(content_event(campaign_id: '45878', user_id: ines.phone_number, content: { 'optout' => { 'text' => 'STOP' } }))
           )
-        end.not_to change(Events::TextMessage, :count)
-        expect(ines.reload.updated_at).to eq(ines.updated_at)
+        end.to change { Events::TextMessage.where(related: ines, body: 'STOP').count }.by(1)
       end
 
       it 'lève une alerte pour un type de contenu que l\'app ne connaît pas' do
@@ -602,6 +601,78 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
         )
         expect(ines_text_message.reload.spot_hit_status).to eq(1) # Livré
       end
+    end
+  end
+
+  describe 'désinscription RCS' do
+    def stop_payload(phone_number:, campaign_id: '45878', optout_text: 'STOP')
+      {
+        'events' => [
+          {
+            'on' => '2026-11-18T09:00:00Z',
+            'userMessageReceived' => {
+              'channelId' => 'rcs',
+              'userId' => phone_number,
+              'context' => { 'campaign_id' => campaign_id },
+              'content' => { 'optout' => { 'text' => optout_text } }
+            }
+          }
+        ]
+      }
+    end
+
+    it "n'applique pas le STOP quand la désinscription ne contient pas le texte STOP" do
+      parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+      child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+
+      subject.perform_now(stop_payload(phone_number: '+33612345678', optout_text: 'ARRET'))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: true, group_status: 'active')
+      expect(Events::TextMessage.where(related: parent, body: 'STOP')).to be_empty
+    end
+
+    it "décoche le parent seul, arrête l'enfant et historise le STOP" do
+      travel_to Time.zone.local(2026, 11, 18, 10)
+      parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+      child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+
+      subject.perform_now(stop_payload(phone_number: '+33612345678'))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped', group_end: Date.new(2026, 11, 18))
+      expect(Events::TextMessage.find_by(related: parent, body: 'STOP')).to have_attributes(
+        spot_hit_rcs_id: '45878',
+        occurred_at: Time.zone.parse('2026-11-18T09:00:00Z'),
+        originated_by_app: false
+      )
+    end
+
+    it "décoche le parent 2 sans arrêter l'enfant quand le parent 1 reste à contacter" do
+      parent1 = FactoryBot.create(:parent, phone_number: '+33611111111')
+      parent2 = FactoryBot.create(:parent, phone_number: '+33622222222')
+      child = FactoryBot.create(
+        :child,
+        parent1: parent1, parent2: parent2, should_contact_parent2: true,
+        group: FactoryBot.create(:group), group_status: 'active'
+      )
+
+      subject.perform_now(stop_payload(phone_number: '+33622222222'))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: true, should_contact_parent2: false, group_status: 'active')
+      expect(Events::TextMessage.where(related: parent2, body: 'STOP').count).to eq(1)
+    end
+
+    it "arrête l'enfant quand le parent 1 répond STOP et que le parent 2 n'était plus à contacter" do
+      parent1 = FactoryBot.create(:parent, phone_number: '+33611111111')
+      parent2 = FactoryBot.create(:parent, phone_number: '+33622222222')
+      child = FactoryBot.create(
+        :child,
+        parent1: parent1, parent2: parent2, should_contact_parent2: false,
+        group: FactoryBot.create(:group), group_status: 'active'
+      )
+
+      subject.perform_now(stop_payload(phone_number: '+33611111111'))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped')
     end
   end
 end

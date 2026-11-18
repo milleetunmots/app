@@ -59,6 +59,17 @@ RSpec.describe Parent::HandleStopService do
       expect(child.reload).to have_attributes(should_contact_parent1: false, should_contact_parent2: false, group_status: 'stopped')
     end
 
+    it 'rattache le message STOP à la campagne RCS' do
+      parent = FactoryBot.create(:parent, phone_number: '0612345678')
+
+      service = described_class.new(
+        phone_number: parent.reload.phone_number, occurred_at: Time.zone.local(2026, 11, 18, 10), spot_hit_rcs_id: '45878'
+      ).call
+
+      expect(service.errors).to be_empty
+      expect(Events::TextMessage.find_by(related: parent, body: 'STOP')).to have_attributes(spot_hit_rcs_id: '45878', spot_hit_message_id: nil)
+    end
+
     it "remonte une erreur et ne décoche personne si le message STOP n'a pas pu être créé" do
       parent = FactoryBot.create(:parent, phone_number: '0612345678')
       child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
