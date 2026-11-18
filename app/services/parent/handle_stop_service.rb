@@ -47,9 +47,12 @@ class Parent
 
     def stop_contacting(parent)
       parent.children.find_each do |child|
-        child.parent1_id == parent.id ? child.should_contact_parent1 = false : child.should_contact_parent2 = false
-        end_support(child) unless parent_to_contact?(child)
-        child.save(validate: false)
+        # Recharge l'enfant sous verrou : un STOP simultané de l'autre parent a pu décocher sa case.
+        child.with_lock do
+          child.parent1_id == parent.id ? child.should_contact_parent1 = false : child.should_contact_parent2 = false
+          end_support(child) unless parent_to_contact?(child)
+          child.save(validate: false)
+        end
       end
     end
 

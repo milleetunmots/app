@@ -127,6 +127,38 @@ RSpec.describe Parent::HandleStopService do
       expect(waiting_child.reload).to have_attributes(should_contact_parent1: false, group_status: 'not_supported')
     end
 
+    describe 'STOP simultanés des deux parents', js: true do
+      # Sans transaction de test, chaque thread a sa propre connexion et le verrou est réellement posé.
+      self.use_transactional_tests = false
+
+      it "arrête l'enfant quand les deux parents répondent STOP au même instant par deux canaux" do
+        parent1 = FactoryBot.create(:parent, phone_number: '0611111111')
+        parent2 = FactoryBot.create(:parent, phone_number: '0622222222')
+        child = FactoryBot.create(
+          :child,
+          parent1: parent1, parent2: parent2, should_contact_parent2: true,
+          group: FactoryBot.create(:group), group_status: 'active'
+        )
+        rcs_stop = described_class.new(phone_number: parent1.reload.phone_number, occurred_at: Time.zone.now, spot_hit_rcs_id: '45878')
+        sms_stop = described_class.new(phone_number: parent2.reload.phone_number, occurred_at: Time.zone.now, spot_hit_message_id: 'sms-42')
+        both_read_child = Concurrent::CountDownLatch.new(2)
+        [rcs_stop, sms_stop].each do |service|
+          allow(service).to receive(:parent_to_contact?).and_wrap_original do |original, read_child|
+            both_read_child.count_down
+            both_read_child.wait(1)
+            original.call(read_child)
+          end
+        end
+
+        threads = [rcs_stop, sms_stop].map do |service|
+          Thread.new { ActiveRecord::Base.connection_pool.with_connection { service.call } }
+        end
+
+        expect(threads.map(&:value).flat_map(&:errors)).to be_empty
+        expect(child.reload).to have_attributes(should_contact_parent1: false, should_contact_parent2: false, group_status: 'stopped')
+      end
+    end
+
     it 'rattache le message STOP à la campagne RCS' do
       parent = FactoryBot.create(:parent, phone_number: '0612345678')
 
