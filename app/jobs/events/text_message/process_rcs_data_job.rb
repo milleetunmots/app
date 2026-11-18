@@ -79,7 +79,6 @@ class Events::TextMessage
           # Un STOP ne dépend ni de la date ni de la campagne : il passe avant leurs contrôles.
           if stop?(event_content)
             apply_stop(event, event_content)
-            report_content_without_text(event_content)
             next
           end
 
@@ -252,8 +251,7 @@ class Events::TextMessage
       Rollbar.error('Parent::HandleStopService', errors: service.errors) if service.errors.any?
     end
 
-    # Les modèles RCS de l'app désactivent le STOP : une désinscription RCS vient
-    # d'une campagne manuelle et n'arrête pas le parent, d'où une alerte dédiée.
+    # Une désinscription arrivée ici n'est pas un STOP : le parent n'est pas arrêté, d'où une alerte dédiée.
     def report_content_without_text(event_content)
       if event_content['content'].key?('optout')
         Rollbar.error('spot_hit_rcs_data: RCS opt-out non traité', event_content: event_content)

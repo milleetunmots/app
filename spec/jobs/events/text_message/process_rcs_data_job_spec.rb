@@ -548,15 +548,24 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
         subject.perform_now(payload(received_event(campaign_id: nil, user_id: ines.phone_number)))
       end
 
-      it 'lève une alerte dédiée pour une désinscription RCS et enregistre le STOP' do
-        expect(Rollbar).to receive(:error)
-          .with('spot_hit_rcs_data: RCS opt-out non traité', hash_including(:event_content))
-          .once
+      it 'enregistre une désinscription RCS STOP sans alerte Rollbar' do
+        expect(Rollbar).not_to receive(:error)
         expect do
           subject.perform_now(
             payload(content_event(campaign_id: '45878', user_id: ines.phone_number, content: { 'optout' => { 'text' => 'STOP' } }))
           )
         end.to change { Events::TextMessage.where(related: ines, body: 'STOP').count }.by(1)
+      end
+
+      it "lève une alerte dédiée pour une désinscription RCS qui n'est pas un STOP" do
+        expect(Rollbar).to receive(:error)
+          .with('spot_hit_rcs_data: RCS opt-out non traité', hash_including(:event_content))
+          .once
+        expect do
+          subject.perform_now(
+            payload(content_event(campaign_id: '45878', user_id: ines.phone_number, content: { 'optout' => { 'text' => 'ARRET' } }))
+          )
+        end.not_to change(Events::TextMessage, :count)
       end
 
       it 'lève une alerte pour un type de contenu que l\'app ne connaît pas' do
@@ -714,6 +723,37 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
 
       expect(Events::TextMessage.where(related: parent, body: 'STOP').count).to eq(2)
       expect(child.reload).to have_attributes(group_status: 'stopped', group_end: Date.new(2026, 11, 18))
+    end
+
+    it "ignore sans alerte un STOP venant d'un numéro absent de la base" do
+      expect(Rollbar).not_to receive(:error)
+
+      expect do
+        subject.perform_now(stop_payload(phone_number: '+33700000000'))
+      end.not_to change(Events::TextMessage, :count)
+    end
+
+    it 'historise une réponse écrite contenant « stop » sans décocher le parent' do
+      parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+      child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+      response = {
+        'events' => [
+          {
+            'on' => '2026-11-18T09:00:00Z',
+            'userMessageReceived' => {
+              'channelId' => 'rcs',
+              'userId' => '+33612345678',
+              'context' => { 'campaign_id' => '45878' },
+              'content' => { 'text' => 'stop merci' }
+            }
+          }
+        ]
+      }
+
+      subject.perform_now(response)
+
+      expect(child.reload).to have_attributes(should_contact_parent1: true, group_status: 'active')
+      expect(Events::TextMessage.where(related: parent, body: 'stop merci', originated_by_app: false).count).to eq(1)
     end
   end
 end
