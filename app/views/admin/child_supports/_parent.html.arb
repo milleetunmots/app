@@ -15,13 +15,9 @@ div class: 'card card-parent' do
     parent.tags({context: :tags})
   end
   ) + (
-  div do
-    span do
-      "Modules choisis : "
-    end +
-    span do
-      parent.selected_support_module
-    end
+  div class: 'chosen-modules' do
+    div(class: 'chosen-modules__label') { 'Modules choisis' } +
+      div(class: 'chosen-modules__list') { parent.selected_support_module }
   end
   )
 end

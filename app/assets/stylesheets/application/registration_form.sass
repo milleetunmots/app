@@ -1,9 +1,12 @@
 @import variables
 @import mixins
 
+// Tailles resserrées (retours de l'équipe, 2026-11-18) : le formulaire se parcourt avec
+// moins de défilement, sans rien perdre en lisibilité (texte à 15px au minimum).
 #inscription
   background: $beige
   color: $navy
+  font-size: 15px
   overflow-x: hidden
 
   #inscription-content
@@ -15,7 +18,7 @@
     align-items: flex-start
 
     #mots-logo
-      width: 160px
+      width: 140px
       height: auto
 
     #partner-logo
@@ -38,7 +41,7 @@
       margin-left: auto
 
     figcaption
-      +charter-title(20px)
+      +charter-title(18px)
       position: absolute
       left: 0
       top: 18%
@@ -54,13 +57,13 @@
     h1
       font-family: $text-font
       font-weight: 900
-      font-size: 44px
+      font-size: 36px
       line-height: 1.1
       color: $navy
-      margin: 16px 0 24px
+      margin: 14px 0 20px
 
     #description
-      font-size: 18px
+      font-size: 16px
       line-height: 1.4
 
       p
@@ -82,7 +85,7 @@
     gap: 12px
 
   .registration-pill
-    +charter-title(21px)
+    +charter-title(18px)
     background: $yellow
     color: $navy
     border-radius: 999px
@@ -92,8 +95,8 @@
   #form-body
     position: relative
     background: $navy
-    margin: 90px calc(50% - 50vw) 0
-    padding: 30px calc(50vw - 50%) 80px
+    margin: 70px calc(50% - 50vw) 0
+    padding: 24px calc(50vw - 50%) 64px
 
     &::before
       +navy-dome
@@ -113,16 +116,16 @@
       font-weight: 700
 
     h2
-      +charter-title(26px)
+      +charter-title(22px)
       color: $beige
-      margin: 30px 0 20px
+      margin: 24px 0 16px
 
     .form-control, .select2-container.form-control
       background: $beige
       border: 1.5px solid $navy
       border-radius: 10px
       color: $navy
-      min-height: 44px
+      min-height: 40px
 
     #source-fields .form-control, #source-fields .select2-container.form-control
       border-color: $beige
@@ -144,12 +147,12 @@
     margin-bottom: 20px
 
     .card-body
-      padding: 24px
+      padding: 20px
 
     .card-title
-      +charter-title(22px)
+      +charter-title(19px)
       color: $navy
-      margin-bottom: 16px
+      margin-bottom: 14px
 
   .registration-card--child
     background: $yellow
@@ -164,8 +167,8 @@
     .form-group
       background: $beige
       border-radius: 12px
-      padding: 14px 18px
-      margin-bottom: 12px
+      padding: 12px 16px
+      margin-bottom: 10px
 
       &.hidden
         display: none
@@ -180,6 +183,15 @@
       + *
         clear: both
 
+    // « Commentaires » : l'exemple est un long paragraphe dans une colonne étroite, il
+    // prenait toute la case à la taille des champs (16px)
+    textarea.form-control
+      font-size: 14px
+
+      &::placeholder
+        font-size: 13px
+        line-height: 1.35
+
     .date select.form-control
       padding: 0 6px
       font-size: 14px
@@ -189,7 +201,7 @@
   .form-group > label, .form-group legend, .form-group .col-form-label
     font-weight: 700
     color: $navy
-    font-size: 16px
+    font-size: 15px
 
   .form-check-label
     color: $navy
@@ -206,9 +218,16 @@
     color: $danger !important
 
   .btn
-    +charter-title(18px)
+    +charter-title(16px)
     +button-shape
-    padding: 10px 24px
+    padding: 9px 22px
+
+  // « - Annuler » d'un enfant ajouté : sur sa propre ligne, à droite, séparé des champs
+  // (il flottait contre la case « Sexe »)
+  .rm-child-btn
+    display: block
+    width: fit-content
+    margin: 0 0 12px auto
 
   .btn-primary
     +lifted-button
@@ -229,8 +248,9 @@
       background: $navy
       color: $beige
 
+  // « Valider » sous la dernière carte de la colonne des parents (marge de la carte : 20px)
   .end-buttons
-    margin-top: 30px
+    margin-top: 10px
 
   #child-registration-submit
     +brand-button
@@ -265,7 +285,7 @@
       max-width: 420px
 
     #form-header-text h1
-      font-size: 32px
+      font-size: 30px
 
   @media (max-width: 575px)
     #mots-logo
@@ -279,13 +299,13 @@
 
     #form-header-text
       h1
-        font-size: 28px
+        font-size: 26px
 
       #description
-        font-size: 16px
+        font-size: 15px
 
     .registration-pill
-      font-size: 18px
+      font-size: 16px
 
     .card .card-body
       padding: 14px
@@ -295,11 +315,26 @@
         padding: 12px
 
     #form-body
-      margin-top: 60px
+      margin-top: 50px
 
       &::before
         top: -30px
         height: 60px
+
+// Menus déroulants select2 (CAF, PMI, structure, livraison…) : option survolée sur un
+// bleu pâle de la charte, avec un filet du bleu de la charte à gauche ; texte marine
+// (10:1). Sur le bleu plein, ni le marine ni le blanc ne se lisaient bien (moins de
+// 4,5:1). La liste est ajoutée à la fin du body, hors de #inscription. L'option vide
+// (« include_blank ») n'est pas proposée : elle formait une bande vide en tête de liste.
+body:has(#inscription-content)
+  .select2-container--default .select2-results__option--highlighted[aria-selected],
+  .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable
+    background-color: mix($blue, #FFFFFF, 22%)
+    box-shadow: inset 4px 0 0 $blue
+    color: $navy
+
+  .select2-results__option:empty
+    display: none
 
 body:has(#inscription-content) footer
   background: $navy

@@ -8,9 +8,9 @@ body
   font-size: $text-md
   line-height: $line-height-body
 
-// Titres en Fredoka, en marine ; h4 reste dans la police du texte (sous-titre d'encart)
+// Titres dans la police du texte, en marine : une seule police dans l'admin
 h1, h2, h3, h4, #page_title
-  font-family: $font-family-title
+  font-family: $font-family-body
   font-weight: 600
   color: $navy
   letter-spacing: -0.01em
@@ -19,11 +19,9 @@ h1, h2, #page_title
   font-size: $title-md
 
 // Titre de la barre de titre : c'est le dernier maillon du fil d'Ariane (« Admin / Suivi /
-// Modifier »). arctic_admin le fixe à 16px et en graisse normale ; il prend la police et la
-// taille du fil, au lieu de Fredoka qui jurait à côté des liens, et se distingue par le
-// gras et le marine.
+// Modifier »). arctic_admin le fixe à 16px et en graisse normale ; il prend la taille du
+// fil et se distingue par le gras et le marine.
 #title_bar #titlebar_left h2
-  font-family: $font-family-body
   font-size: $text-md
   font-weight: 600
   letter-spacing: 0
@@ -33,15 +31,20 @@ h3
   font-size: $title-sm
 
 h4
-  font-family: $font-family-body
   font-size: $text-lg
 
-// Liens du contenu : bleu (cf. $link-primary-color), soulignés au survol ; arctic_admin
-// retire le soulignement. Sélection positive (contenu, colonne de droite, fil d'Ariane,
+// Liens du contenu : dans l'encre du texte (cf. $link-primary-color) et en gras, ce qui
+// les distingue du texte courant sans ajouter de couleur ; soulignés au survol (arctic_admin
+// retire le soulignement). Sélection positive (contenu, colonne de droite, fil d'Ariane,
 // messages) : les boutons-liens d'arctic_admin (.member_link « Modifier » des listes,
-// actions du titre, menus déroulants, onglets) ne se soulignent pas.
+// actions du titre, menus déroulants, onglets) gardent leur style.
+$content-link: ':not(.button):not(.member_link):not(.dropdown_menu_button):not(.ui-tabs-anchor):not(.tag_display):not(.available_support_module)'
+
 #main_content, #sidebar, #title_bar .breadcrumb, .flashes
-  a:hover:not(.button):not(.member_link):not(.dropdown_menu_button):not(.ui-tabs-anchor)
+  a#{$content-link}
+    font-weight: 600
+
+  a#{$content-link}:hover
     text-decoration: underline
 
 // Mouvement : les changements d'état se fondent au lieu de sauter
@@ -107,36 +110,40 @@ textarea, select, input[type="checkbox"]
   .select2-selection--multiple .select2-search__field::placeholder
     color: $ink-soft
 
-  // Choix (tags, modules) : rose de la charte et texte marine (5,77:1). Le gris $sunken,
-  // presque celui de la carte, les rendait difficiles à lire.
-  .select2-selection--multiple .select2-selection__choice
-    border: none
-    border-radius: $radius-pill
-    background-color: $pink
-    color: $navy
-    font-weight: 600
+  // Choix (tags, modules) : étiquettes neutres, filet et texte d'encre, espacées pour
+  // qu'une longue liste de modules reste lisible
+  .select2-selection--multiple
+    .select2-selection__rendered
+      padding: 4px 6px
 
-    .select2-selection__choice__remove
-      color: $navy
+    .select2-selection__choice
+      margin: 3px 6px 3px 0
+      padding: 3px 8px
+      border: 1px solid $line-strong
+      border-radius: $radius - 2px
+      background-color: $sunken
+      color: $ink
+      font-weight: 500
 
-  // Option déjà choisie : comme sa pastille dans le champ, rose et marine en gras, sans le
-  // fond gris froid (#ddd) de select2
+      .select2-selection__choice__remove
+        margin-right: 4px
+        color: $ink-soft
+
+        &:hover
+          color: $danger
+
+  // Option déjà choisie : fond neutre et gras, sans le gris froid (#ddd) de select2
   .select2-results__option[aria-selected="true"]
-    background-color: $pink
-    color: $navy
+    background-color: $sunken
+    color: $ink
     font-weight: 600
 
-  // Option survolée : rose pâle ($pink-soft), la couleur des choix, et non du gris à peine
-  // visible sur la carte. Les options sont des choix, pas des actions : pas de teinte
-  // bleue. Un fond marine rendait en outre illisibles les noms bleus ou roses de la
-  // recherche globale. Une option choisie et survolée fonce son rose.
-  .select2-results__option--highlighted[aria-selected]
-    background-color: $pink-soft
-    color: $ink
-
+  // Option survolée : bleu pâle, comme le survol des menus natifs, dans tous les menus de
+  // l'admin ; le texte reste lisible (noms bleus ou roses de la recherche globale compris)
+  .select2-results__option--highlighted[aria-selected],
   .select2-results__option--highlighted[aria-selected="true"]
-    background-color: darken($pink, 6%)
-    color: $navy
+    background-color: $info-bg
+    color: $ink
 
 // Focus d'un menu select2 : l'anneau de focus général (ci-dessus) s'accrochait au champ de
 // saisie caché dans le menu et dessinait un encart bleu autour du curseur. Il est retiré de
@@ -228,17 +235,20 @@ body.index .scopes .scope
     color: $navy
     font-weight: 500
 
-// Menu des actions groupées : bouton secondaire, comme les menus du titre ; grisé tant
+// Menu des actions groupées : bouton marine plein, comme les menus du titre ; grisé tant
 // qu'aucune ligne n'est cochée
 body.index .table_tools .dropdown_menu_button
   border-color: $action
-  background-color: $surface
-  color: $action
+  background-color: $action
+  color: $surface
   font-weight: 500
 
   &:hover
-    background-color: $action-soft
-    color: $action
+    background-color: $action-hover
+    color: $surface
+
+  &:before
+    border-color: $surface transparent
 
   &.disabled, &.disabled:hover
     border-color: $line-strong
@@ -292,7 +302,7 @@ body.index .table_tools .dropdown_menu_button
       box-sizing: border-box
 
     &.ui-tabs-active
-      box-shadow: inset 0 -2px 0 $link
+      box-shadow: inset 0 -2px 0 $action
 
 // Angles arrondis : arctic_admin laisse les panneaux, les onglets et la colonne de droite
 // à angles vifs ; overflow hidden pour que le contenu (en-tête, tableau) suive l'arrondi.
@@ -313,15 +323,55 @@ body.index .table_tools .dropdown_menu_button
   > .panel_contents
     padding: 0 16px 16px
 
-// Page de connexion : fond rose de la charte, comme le logo, avec deux ronds citron et
-// bleu comme les pastilles du logo ; la carte crème s'y détache
+// Page de connexion : fond clair de l'admin, avec les formes du logo, des carrés aux
+// coins adoucis légèrement inclinés qui se chevauchent : citron et rose en haut à
+// gauche, un rectangle bleu allongé en bas à droite. Couleurs pâles, derrière la carte.
+=login-shape($color, $width, $height, $rotation)
+  content: ''
+  position: fixed
+  z-index: 0
+  width: $width
+  height: $height
+  border-radius: 22%
+  background-color: $color
+  transform: rotate($rotation)
+  pointer-events: none
+
 body.logged_out
-  background-color: $pink
-  background-image: radial-gradient(circle at 14% 22%, $lime 0 70px, transparent 71px), radial-gradient(circle at 87% 80%, $brand-blue 0 95px, transparent 96px)
-  background-attachment: fixed
+  background-color: $canvas
+
+  &:before
+    +login-shape(rgba($lime, 0.55), clamp(180px, 27vw, 360px), clamp(180px, 27vw, 360px), -7deg)
+    top: 7%
+    left: 5%
+
+  &:after
+    +login-shape(rgba($pink, 0.5), clamp(135px, 20vw, 255px), clamp(135px, 20vw, 255px), 6deg)
+    top: calc(7% + clamp(120px, 18vw, 240px))
+    left: calc(5% + clamp(120px, 18vw, 240px))
+
+  // Le rectangle bleu est porté par #wrapper, body n'ayant que deux pseudo-éléments
+  #wrapper:before
+    +login-shape(rgba($brand-blue, 0.22), clamp(270px, 39vw, 540px), clamp(120px, 17vw, 225px), -5deg)
+    right: 4%
+    bottom: 9%
+
+  // La carte passe devant les formes
+  #wrapper
+    position: relative
+    z-index: 1
 
 #login
   border-radius: $radius-lg
+
+  // Logo de 1001mots au-dessus du titre (connexion et mot de passe oublié)
+  &:before
+    content: ''
+    display: block
+    width: 111px
+    height: 75px
+    margin: 0 auto 12px
+    background: image-url('logo-1001mots.png') center / contain no-repeat
 
   // Étiquettes des champs en 500 comme dans les formulaires de l'admin (cf. form.sass)
   .label

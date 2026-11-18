@@ -13,6 +13,12 @@ RSpec.describe TagDecorator do
       expect(described_class.text_color_for('#d3d624')).to eq(TagDecorator::DARK_TEXT)
     end
 
+    it "n'écrit qu'en noir ou en blanc, quel que soit le fond" do
+      colors = %w[#000000 #7b219f #f0f0f0 #20d92d #d3d624 #3596ff #ffabcc #0b4374 #e6af2e]
+
+      expect(colors.map { |color| described_class.text_color_for(color) }.uniq - %w[#FFFFFF #000000]).to be_empty
+    end
+
     it 'accepte la notation courte et les majuscules' do
       expect(described_class.text_color_for('#FFF')).to eq(TagDecorator::DARK_TEXT)
     end
@@ -28,9 +34,13 @@ RSpec.describe TagDecorator do
       expect(described_class.pill_style('#f0f0f0')).to eq("background-color: #f0f0f0; color: #{TagDecorator::DARK_TEXT}")
     end
 
-    it 'remplace une couleur absente ou invalide par le fond par défaut' do
-      expect(described_class.pill_style(nil)).to eq("background-color: #{TagDecorator::DEFAULT_BACKGROUND}; color: #{TagDecorator::DARK_TEXT}")
-      expect(described_class.pill_style('red; position: fixed')).to eq("background-color: #{TagDecorator::DEFAULT_BACKGROUND}; color: #{TagDecorator::DARK_TEXT}")
+    # Même rendu que les tags du champ d'édition (cf. brand.sass) : fond $sunken, filet $line-strong
+    it 'affiche un tag sans couleur comme dans le champ d’édition' do
+      expect(described_class.pill_style(nil)).to eq('background-color: #F4F1E8; border-color: #C9C3B0; color: #000000')
+    end
+
+    it 'traite une couleur invalide comme une couleur absente' do
+      expect(described_class.pill_style('red; position: fixed')).to eq(described_class.pill_style(nil))
     end
   end
 

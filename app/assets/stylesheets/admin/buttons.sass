@@ -46,8 +46,9 @@ input[type="submit"],
 .ui-dialog .ui-button
   color: $surface
 
-// Boutons de couleur : fond pâle et texte foncé de la même famille ; le fond se
-// fonce au survol. Le bouton par défaut (marine plein) reste l'action principale.
+// Un seul bouton, marine plein. Les anciennes couleurs (.blue, .green, .yellow) le
+// rejoignent ; seules les actions destructrices (.red, suppression) gardent leur rouge,
+// fond pâle et texte foncé, plus foncé au survol.
 =tinted-button($background, $color)
   background-color: $background
   color: $color
@@ -59,14 +60,10 @@ input[type="submit"],
 .button,
 #title_bar #titlebar_right .action_item a,
 body.index .table_actions a.member_link
-  &.blue
-    +tinted-button($info-bg, $info)
-  &.green
-    +tinted-button($success-bg, $success)
+  &.blue, &.green, &.yellow
+    +tinted-button($action, $surface)
   &.red
     +tinted-button($danger-bg, $danger)
-  &.yellow
-    +tinted-button($warning-bg, $warning)
 
 #title_bar #titlebar_right .action_item a[data-method="delete"][data-confirm]
   +tinted-button($danger-bg, $danger)

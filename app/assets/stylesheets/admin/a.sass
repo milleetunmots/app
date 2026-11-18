@@ -1,21 +1,22 @@
 @import variables
 
-// Liens en bleu (cf. $link-primary-color) ; un rôle par couleur, cf. docs/brand_identity.md
+// Liens dans l'encre du texte et en gras (cf. brand.sass) ; exceptions ci-dessous
 a
   &.discarded
     text-decoration: line-through
 
-  // Cohortes : terminée en gris barré, en pause en orange ; le rouge reste aux erreurs
+  // Cohortes : exactement les couleurs de la production. En cours en vert, terminée en
+  // rouge barré, en pause en rouge, en attente en gris clair.
   &.group-admin-link
-    color: $green
+    color: #138A36
 
     &.stop
-      color: $ink-soft
+      color: #B02B2C
       text-decoration: line-through
     &.pause
-      color: $warning
+      color: #B02B2C
     &.wait
-      color: $muted
+      color: #CACACA
 
 // Prénoms des enfants et des parents : teinte de genre, distincte du bleu des liens
 // (classes posées par les décorateurs) ; genre inconnu en gris de texte secondaire

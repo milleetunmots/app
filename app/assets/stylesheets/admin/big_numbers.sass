@@ -1,33 +1,34 @@
-// Chiffres en tête de la liste des enfants : compacts, sur une ligne chacun (chiffre
-// puis libellé), alignés à gauche, pour ne pas prendre le pas sur la liste.
+@import variables
+
+// Chiffres en tête de la liste des enfants, comme en production : trois cartes réparties
+// sur la largeur, le chiffre au-dessus de son libellé. Une seule couleur (marine) : une
+// couleur par chiffre n'avait pas de sens dans l'admin.
 .big-numbers
   display: flex
   flex-wrap: wrap
+  justify-content: space-evenly
   gap: 12px
-  margin: 4px 0 16px 0
-
-@import variables
+  margin: 8px 0 20px 0
 
 .big-number
-  display: flex
-  align-items: baseline
-  justify-content: center
-  gap: 8px
-  border: 1px solid $line
-  padding: 8px 16px
+  text-align: center
+  // Bordure citron, comme le filtre rapide (scope) sélectionné ; 2px, le citron étant
+  // clair sur la carte
+  border: 2px solid $highlight !important
+  padding: 10px 24px
   border-radius: $radius-lg
   background-color: $surface
+  color: $navy
 
   // Petit écran : les cartes se partagent la largeur et passent à la ligne
   @media screen and (max-width: $md-width)
     flex: 1 1 140px
 
   &--value
-    font-family: $font-family-title
-    font-size: $title-md
+    font-size: $title-lg
     font-weight: 600
     line-height: 1.2
 
   &--title
-    font-size: $text-md
-    color: $ink-soft
+    font-size: $title-sm
+    line-height: 1.3

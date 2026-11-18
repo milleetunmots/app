@@ -85,43 +85,41 @@ RSpec.describe ParentDecorator do
   end
 
   # Palier de police de l'étiquette : le plus grand dont la hauteur (titre en Fredoka
-  # + corps en Poppins) tient dans les 30 mm utiles
+  # + corps en Poppins, lignes coupées aux espaces) tient dans les 29 mm utiles
   describe '#label_size_class' do
     def parent(**attributs)
       FactoryBot.build(:parent, first_name: 'Sarah', last_name: 'BENALI', address: '75 rue Danielle Casanova',
                                 address_supplement: nil, postal_code: '93200', city_name: 'Saint-Denis', **attributs).decorate
     end
 
-    it 'garde le palier maximal pour une adresse à domicile de 3 lignes' do
+    it 'garde le palier de la maquette pour une adresse à domicile de 3 lignes' do
       expect(parent(book_delivery_location: 'home', letterbox_name: 'Clémence Yobouet').label_size_class).to be_nil
     end
 
-    it 'garde le palier maximal pour un titre sur 2 lignes suivi de 2 lignes de corps' do
-      etiquette = parent(book_delivery_location: 'home', letterbox_name: 'Marie-Charlotte Lefebvre-Dupont')
-
-      expect(etiquette.label_size_class).to be_nil
-    end
-
-    it 'garde le palier maximal pour un titre et 3 lignes de corps' do
-      etiquette = parent(book_delivery_location: 'home', letterbox_name: 'Awa Diallo', address_supplement: 'Bât. B')
-
-      expect(etiquette.label_size_class).to be_nil
-    end
-
-    # Le titre, plus grand et en Fredoka, passe à la ligne bien avant le corps (16 caractères au lieu de 25)
-    it 'passe au palier réduit quand le titre tient sur 2 lignes et le corps sur 3' do
-      etiquette = parent(book_delivery_location: 'home', letterbox_name: 'Marie-Charlotte Lefebvre', address_supplement: 'Bât. B')
-
-      expect(etiquette.label_size_class).to eq('address-content--small')
-    end
-
-    it "passe au palier réduit quand l'attention s'ajoute au corps" do
+    it "garde le palier de la maquette quand l'attention s'ajoute au corps" do
       etiquette = parent(book_delivery_location: 'relative_home', letterbox_name: 'Famille Durand')
 
+      expect(etiquette.label_size_class).to be_nil
+    end
+
+    it 'garde le palier de la maquette pour un titre composé et 3 lignes de corps' do
+      etiquette = parent(book_delivery_location: 'home', letterbox_name: 'Marie-Charlotte Lefebvre', address_supplement: 'Bât. B')
+
+      expect(etiquette.label_size_class).to be_nil
+    end
+
+    # Débordait à l'impression : compté en caractères, le titre tenait sur deux lignes ;
+    # coupé aux espaces, il en prend une de plus
+    it 'compte les lignes coupées aux espaces pour un nom de plusieurs mots' do
+      etiquette = parent(book_delivery_location: 'home', letterbox_name: 'Houdhoulai ALI MCHANGAMA - Achim SAID',
+                         address: '13 rue Victor Hugo Bâtiment B escalier 4',
+                         address_supplement: 'Résidence des Lilas appartement 112',
+                         postal_code: '45120', city_name: 'CHALETTE SUR LOING')
+
       expect(etiquette.label_size_class).to eq('address-content--small')
     end
 
-    it 'passe au plus petit palier pour une structure au nom long avec complément' do
+    it 'passe à un palier plus petit pour une structure au nom long avec complément' do
       etiquette = parent(book_delivery_location: 'association', letterbox_name: nil,
                          book_delivery_organisation_name: 'Association Les Lucioles du Quartier Nord',
                          address: '12 avenue du Président Salvador Allende', address_supplement: 'Bâtiment C, 3e étage, porte gauche')
@@ -131,12 +129,10 @@ RSpec.describe ParentDecorator do
 
     it 'reste au plus petit palier quand même celui-ci ne suffit pas' do
       etiquette = parent(book_delivery_location: 'association', letterbox_name: nil,
-                         book_delivery_organisation_name: 'Association pour la Promotion de la Lecture en Famille',
-                         first_name: 'Marie-Charlotte-Amandine', last_name: 'LEFEBVRE-DUPONT-SAINT-ANDRÉ',
-                         address: '12 avenue du Président Salvador Allende prolongée',
-                         address_supplement: 'Résidence Les Tilleuls, bâtiment C, 3e étage, porte gauche')
+                         book_delivery_organisation_name: 'W' * 44, address: 'W' * 44,
+                         address_supplement: 'W' * 44, postal_code: '93200', city_name: 'W' * 30)
 
-      expect(etiquette.label_size_class).to eq('address-content--tiny')
+      expect(etiquette.label_size_class).to eq('address-content--micro')
     end
 
     it 'compte le corps seul quand le titre manque (donnée ancienne)' do
@@ -159,25 +155,20 @@ RSpec.describe ParentDecorator do
     end
 
     it 'resserre le titre plutôt que de réduire le corps quand cela suffit' do
-      etiquette = parent(book_delivery_location: 'home', letterbox_name: 'Clémence Lefebvre', address_supplement: 'Bât. B')
+      etiquette = parent(book_delivery_location: 'home', letterbox_name: 'Aissatou Kadiatou Diallo',
+                         address: "14 Av. de l'Europe", address_supplement: 'Appartement, 2 ème étage 007 à gauche',
+                         postal_code: '57600', city_name: 'Forbach')
 
       expect(etiquette.label_size_class).to be_nil
       expect(etiquette.label_heading_class).to eq('address-heading--compact')
     end
 
-    it 'évite le plus petit palier à un nom long en resserrant le titre' do
-      etiquette = parent(book_delivery_location: 'home', letterbox_name: 'Aissatou Kadiatou Diallo',
-                         address: "14 Av. de l'Europe", address_supplement: 'Appartement, 2 ème étage 007 à gauche',
-                         postal_code: '57600', city_name: 'Forbach')
-
-      expect(etiquette.label_size_class).to eq('address-content--small')
-      expect(etiquette.label_heading_class).to eq('address-heading--compact')
-    end
-
     it 'préfère un titre à sa taille quand le corps réduit suffit' do
-      etiquette = parent(book_delivery_location: 'home', letterbox_name: 'Marie-Charlotte Lefebvre', address_supplement: 'Bât. B')
+      etiquette = parent(book_delivery_location: 'association', letterbox_name: nil,
+                         book_delivery_organisation_name: 'Association Les Lucioles du Quartier Nord',
+                         address: '12 avenue du Président Salvador Allende', address_supplement: 'Bâtiment C, 3e étage, porte gauche')
 
-      expect(etiquette.label_size_class).to eq('address-content--small')
+      expect(etiquette.label_size_class).to eq('address-content--tiny')
       expect(etiquette.label_heading_class).to be_nil
     end
   end

@@ -90,19 +90,19 @@ class ParentDecorator < BaseDecorator
   # (code postal + ville) hors de l'étiquette de 44 mm.
   LABEL_LINE_MAX_LENGTH = 44
 
-  # Zone utile des étiquettes Agipa 119006 de 70 × 35 mm, marge intérieure retirée
-  # (cf. pdf.sass) : 64 × 30 mm, en points (1 pt = 1/72 pouce).
-  LABEL_USABLE_WIDTH_PT = 64 / 25.4 * 72 # 181.4
-  LABEL_USABLE_HEIGHT_PT = 30 / 25.4 * 72 # 85.0
+  # Zone utile des étiquettes de 70 × 35 mm, marge intérieure retirée (cf. pdf.sass) :
+  # 60 × 29 mm, en points (1 pt = 1/72 pouce). La marge (5 mm sur les côtés, 3 mm en
+  # haut et en bas) absorbe le décalage de l'imprimante, qui envoyait sinon le texte
+  # sur l'étiquette voisine.
+  LABEL_USABLE_WIDTH_PT = 60 / 25.4 * 72 # 170.1
+  LABEL_USABLE_HEIGHT_PT = 29 / 25.4 * 72 # 82.2
 
-  # Largeur moyenne d'un caractère, en em : 9e décile mesuré sur des adresses réelles,
-  # à partir des largeurs d'avance des TTF de app/assets/fonts (le même calcul sur
-  # Nunito redonne les 26 caractères de l'ancien calibrage).
-  LABEL_BODY_EM_PER_CHAR = 0.544 # Poppins Regular
-  LABEL_HEADING_EM_PER_CHAR = 0.592 # Fredoka Bold
+  # Polices des étiquettes, cf. LabelTextLayout
+  LABEL_BODY_FONT = 'poppins-regular'.freeze
+  LABEL_HEADING_FONT = 'fredoka-bold'.freeze
 
-  # Titre : interligne 1.2 (cf. .address-heading de pdf.sass)
-  LABEL_HEADING_LINE_HEIGHT = 1.2
+  # Titre : interligne 1.1 (cf. .address-heading de pdf.sass)
+  LABEL_HEADING_LINE_HEIGHT = 1.1
 
   # [taille du titre en em du corps, classe CSS], du plus grand au plus petit, comme
   # dans pdf.sass. 1.45 reprend le rapport 80 / 55 de la maquette ; resserré, le titre
@@ -113,13 +113,14 @@ class ParentDecorator < BaseDecorator
   ].freeze
 
   # [taille du corps en pt, interligne du corps en pt, classe CSS], du plus grand au
-  # plus petit, comme dans pdf.sass. Capacité qui en découle : 1 titre + 3 lignes de
-  # corps au palier maximal, 1 + 4 au palier réduit, 1 + 6 au plus petit.
+  # plus petit, comme dans pdf.sass. Le premier palier est celui de la maquette (corps
+  # de 11 pt, lignes serrées) : 1 titre + 5 lignes de corps y tiennent.
   # À reprendre si la taille des étiquettes, les paddings ou les polices changent.
   LABEL_FONT_TIERS = [
-    [13, 18, nil],
-    [10, 14, 'address-content--small'],
-    [8, 11, 'address-content--tiny']
+    [11, 12.5, nil],
+    [9.5, 11, 'address-content--small'],
+    [8, 9.5, 'address-content--tiny'],
+    [7, 8, 'address-content--micro']
   ].freeze
 
   # upcase: false garde la casse saisie (étiquettes) ; la fiche de suivi et la
@@ -230,17 +231,16 @@ class ParentDecorator < BaseDecorator
   def selected_support_module
     arbre do
       model.children_support_modules.includes(:support_module).decorate.group_by(&:child_id).each do |_, children_support_modules|
-        div(style: 'margin-bottom: 10px;') do
+        div(class: 'chosen-modules__group') do
           children_support_modules.each do |children_support_module|
             display_selected_module = "#{children_support_module.name} - #{children_support_module.created_at.strftime("%d/%m/%Y")}"
             display_selected_module = "#{display_selected_module} - #{children_support_module.child.first_name}" if children_support_module.child.have_siblings_on_same_group?
             airtable_url = children_support_module.support_module&.decorate&.airtable_folder_url
-            div do
+            div class: 'chosen-modules__item' do
               a display_selected_module,
                 href: admin_children_support_module_path(children_support_module),
                 class: 'available_support_module',
                 target: '_blank'
-              text_node "&nbsp;".html_safe
               # accès direct au contenu du module sur Airtable
               if airtable_url
                 a href: airtable_url,
@@ -277,17 +277,17 @@ class ParentDecorator < BaseDecorator
   end
 
   # Hauteur de l'étiquette rendue au palier donné : chaque ligne occupe autant de
-  # lignes rendues que sa longueur l'impose, le titre avec sa taille et son interligne
+  # lignes rendues que sa coupure l'impose, le titre avec sa taille et son interligne
   def label_height_pt(size, line_height, heading_scale)
     heading_size = size * heading_scale
-    body_rows = label_body_lines.sum { |line| label_rows(line, size * LABEL_BODY_EM_PER_CHAR) }
-    heading_rows = label_heading_line ? label_rows(label_heading_line, heading_size * LABEL_HEADING_EM_PER_CHAR) : 0
+    body_rows = label_body_lines.sum { |line| label_rows(line, LABEL_BODY_FONT, size) }
+    heading_rows = label_heading_line ? label_rows(label_heading_line, LABEL_HEADING_FONT, heading_size) : 0
 
     (heading_rows * heading_size * LABEL_HEADING_LINE_HEIGHT) + (body_rows * line_height)
   end
 
-  def label_rows(line, char_width_pt)
-    [(line.length / (LABEL_USABLE_WIDTH_PT / char_width_pt)).ceil, 1].max
+  def label_rows(line, font, size)
+    LabelTextLayout.rows(line, font: font, size_pt: size, width_pt: LABEL_USABLE_WIDTH_PT)
   end
 
   # Nom en tête de l'adresse : la boîte aux lettres pour un domicile (le sien ou

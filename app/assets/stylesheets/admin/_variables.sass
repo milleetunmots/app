@@ -24,20 +24,20 @@ $field-border: #706D60
 $ink: $brand-black
 $ink-soft: #5F5D55
 
-// Marque, un rôle par couleur : action (marine), lien (bleu), position « ici » (citron),
-// genre (icônes bleue et rose), fonds fille / garçon (rose et bleu clairs, texte marine)
+// Marque, un rôle par couleur : action (marine), position « ici » (citron), genre
+// (prénoms, icônes et pastilles bleus et roses). Les liens restent dans l'encre du texte,
+// en gras (cf. brand.sass) : trop de bleu foncé partout brouillait l'écran.
 $action: $navy
 $action-hover: #08355D
 $action-soft: #EEF2F7
 $highlight: $lime
 $highlight-soft: #F7F8E4
-// Deux bleus : le bleu de la charte pour les garçons, choisi pour se distinguer nettement
-// des liens (2,96:1 sur les cartes : sous le seuil AA de 4,5:1, le genre est aussi porté
-// par l'icône), le foncé pour les liens et le focus (7,78:1)
-$link: #14509B
-$focus: $link
-$boy: #3596FF
-$girl: #C42A60
+$link: $ink
+// Anneau de focus clavier : bleu foncé (7,78:1 sur les cartes), seul bleu hors du genre
+$focus: #14509B
+// Genre : les teintes de la production (bleu plus foncé, rose plus clair que la charte)
+$boy: #2081C3
+$girl: #DA4167
 $girl-bg: #FFE1EC
 $pink-soft: #FFF1F6
 $boy-bg: #DCEBFF
@@ -72,10 +72,9 @@ $shadow-card: 0 1px 2px rgba(11, 67, 116, 0.06), 0 2px 8px rgba(11, 67, 116, 0.0
 $shadow-float: 0 8px 24px rgba(11, 67, 116, 0.1)
 $transition: 150ms ease-out
 
-// Polices : Inter pour le texte (police d'interface, lisible à 13px dans les listes),
-// Fredoka pour les titres. Poppins reste sur les pages publiques et les PDF.
+// Police : Inter partout dans l'admin (police d'interface, lisible à 13px dans les
+// listes), titres compris. Fredoka et Poppins restent sur les pages publiques et les PDF.
 $font-family-body: 'Inter', system-ui, Arial, sans-serif
-$font-family-title: 'Fredoka', 'Inter', system-ui, sans-serif
 
 // Échelle typographique : aucune taille hors de ces sept valeurs dans admin/*,
 // graisses 400 (texte), 500 (étiquettes, mises en avant) et 600 (titres) seulement
@@ -95,7 +94,7 @@ $black: $ink
 $muted: $ink-soft
 $dark-grey: $ink-soft
 $grey: $line-strong
-$blue: $link
+$blue: $boy
 $blue-bg: $info-bg
 $rose: $girl
 $rose-bg: $girl-bg
@@ -111,7 +110,7 @@ $border-radius: $radius
 // Taille de texte d'arctic_admin (14px par défaut) : celle du corps de l'admin
 $font-size: $text-md
 $box-shadow: $shadow-float
-// Liens en bleu, boutons en marine ; $primary-color reste marine (liseré de #login, onglets)
+// Liens dans l'encre du texte, boutons en marine ; $primary-color reste marine (liseré de #login, onglets)
 $primary-color: $action
 $link-primary-color: $link
 $button-primary-color: $action

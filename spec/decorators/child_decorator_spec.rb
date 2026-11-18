@@ -8,24 +8,25 @@ RSpec.describe ChildDecorator do
       FactoryBot.build(:child, first_name: prenom).decorate.gift_name_size_class
     end
 
-    it 'garde le palier maximal pour un prénom court' do
+    it 'garde le palier de la maquette pour un prénom court' do
       expect(taille('Léa')).to be_nil
     end
 
-    it "garde le palier maximal jusqu'à 14 caractères" do
-      expect(taille('Mohammed-Amine')).to be_nil
+    it 'garde le palier de la maquette pour un prénom de 12 lettres' do
+      expect(taille('Abdourahmane')).to be_nil
     end
 
-    # calibré sur les lettres les plus larges : 15 caractères ne tiennent pas toujours à 13 pt
-    it 'passe au palier réduit au-delà de 14 caractères' do
-      expect(taille('Mamadou-Mohamed')).to eq('gift-card-name--small')
+    # Mesuré sur les glyphes : à longueur égale, les lettres larges passent plus tôt au palier réduit
+    it 'tient compte de la largeur des lettres, pas seulement de leur nombre' do
+      expect(taille('Marie-Charlotte')).to be_nil
+      expect(taille('Mamadou-Mohamed')).to eq('gift-card-name--tiny')
     end
 
-    it 'passe au palier suivant au-delà de 17 caractères' do
-      expect(taille('Marie-Charlotte-Anne')).to eq('gift-card-name--tiny')
+    it 'passe au palier réduit pour un prénom composé un peu trop large' do
+      expect(taille('Mohammed-Amine')).to eq('gift-card-name--small')
     end
 
-    it 'passe au plus petit palier au-delà de 21 caractères' do
+    it 'passe au plus petit palier pour un prénom très long' do
       expect(taille('Marie-Charlotte-Amandine')).to eq('gift-card-name--micro')
     end
 

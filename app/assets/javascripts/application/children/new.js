@@ -161,7 +161,6 @@
     var $checkbox = $('#want_registration_confirmation_email');
     if (!$checkbox.length) { return; }
 
-    var $field = $('#registration_confirmation_email_field');
     var $input = $('#registration_confirmation_email');
     var $warning = $('#registration_confirmation_email_warning');
 
@@ -174,19 +173,19 @@
       }
     };
 
-    var toggle = function() {
-      if ($checkbox.is(':checked')) {
-        $field.show();
-      } else {
-        $field.hide();
+    // Le champ est toujours affiché, la case n'est pas cochée d'avance. Le serveur
+    // n'utilise l'email que si la case est cochée : saisir une adresse la coche,
+    // décocher la case vide le champ.
+    $checkbox.on('change', function() {
+      if (!$checkbox.is(':checked')) {
         $input.val('');
         $warning.hide();
       }
-    };
-
-    $checkbox.on('change', toggle);
-    $input.on('input', checkEmailFormat);
-    toggle();
+    });
+    $input.on('input', function() {
+      if ($input.val().trim() !== '') { $checkbox.prop('checked', true); }
+      checkEmailFormat();
+    });
   };
 
   // select2 masque le vrai select : le navigateur ne peut pas y afficher son infobulle.

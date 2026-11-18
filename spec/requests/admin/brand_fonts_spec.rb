@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-# Polices de l'admin : Inter pour le texte, Fredoka pour les titres, servies par
-# l'application (cf. docs/brand_identity.md). Poppins reste sur les pages publiques.
+# Polices de l'admin : Inter partout, titres compris, servie par l'application
+# (cf. docs/brand_identity.md). Fredoka et Poppins restent sur les pages publiques et les PDF.
 RSpec.describe "Polices de l'admin", type: :request do
   let(:css) { Rails.application.assets.find_asset('active_admin.css').to_s }
 
@@ -15,13 +15,14 @@ RSpec.describe "Polices de l'admin", type: :request do
     expect(css).to match(/body\s*{[^}]*font-family:\s*['"]?Inter['"]?/)
   end
 
-  it 'met les titres en Fredoka' do
-    expect(css).to match(/#page_title[^{]*{[^}]*font-family:\s*['"]?Fredoka['"]?/)
+  it 'met aussi les titres en Inter' do
+    expect(css).to match(/#page_title[^{]*{[^}]*font-family:\s*['"]?Inter['"]?/)
   end
 
-  it 'ne référence plus Poppins hors @font-face' do
+  it 'ne référence ni Fredoka ni Poppins hors @font-face' do
     sans_font_face = css.gsub(/@font-face\s*{[^}]*}/, '')
     expect(sans_font_face).not_to include('Poppins')
+    expect(sans_font_face).not_to include('Fredoka')
   end
 
   %w[inter-regular inter-medium inter-semibold].each do |fichier|

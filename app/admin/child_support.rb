@@ -23,7 +23,7 @@ ActiveAdmin.register ChildSupport do
       column "Appel #{call_idx}" do |decorated|
         if decorated.send("call#{call_idx}_status").present?
           [
-            decorated.send("call#{call_idx}_status_in_index"),
+            content_tag(:span, decorated.send("call#{call_idx}_status_in_index"), class: 'call-status-label'),
             decorated.send("call#{call_idx}_parent_progress_index")
           ].join(' ').html_safe
         else

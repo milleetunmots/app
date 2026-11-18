@@ -1,12 +1,13 @@
 class TagDecorator < BaseDecorator
 
-  # Fond d'un tag sans couleur : rose de la charte ($pink de admin/_variables.sass), visible
-  # aussi sur une ligne survolée, plutôt qu'un aplat foncé ; texte marine
-  DEFAULT_BACKGROUND = '#FFABCC'.freeze
-  # Texte d'une pastille de tag : blanc, ou marine de la charte ($navy) sur un fond clair
-  # (5,77:1 sur le rose par défaut, plus lisible et plus dans la charte que le noir)
+  # Tag sans couleur : comme dans le champ d'édition (cf. brand.sass), fond $sunken et
+  # filet $line-strong de admin/_variables.sass
+  DEFAULT_BACKGROUND = '#F4F1E8'.freeze
+  DEFAULT_BORDER = '#C9C3B0'.freeze
+  # Texte d'une pastille de tag : noir ou blanc seulement, quel que soit le fond ; une
+  # troisième encre (marine) rendait la liste des tags trop bariolée
   LIGHT_TEXT = '#FFFFFF'.freeze
-  DARK_TEXT = '#0B4374'.freeze
+  DARK_TEXT = '#000000'.freeze
 
   HEX_COLOR = /\A#(\h{3}|\h{6})\z/
 
@@ -22,15 +23,20 @@ class TagDecorator < BaseDecorator
     end
 
     def pill_style(background)
-      background = valid_background(background)
-      "background-color: #{background}; color: #{text_color_for(background)}"
+      return "background-color: #{DEFAULT_BACKGROUND}; border-color: #{DEFAULT_BORDER}; color: #{DARK_TEXT}" unless valid?(background)
+
+      "background-color: #{background.strip}; color: #{text_color_for(background)}"
     end
 
     private
 
     # La couleur finit dans un attribut style : seule une couleur hexadécimale passe
     def valid_background(color)
-      color.to_s.strip.match?(HEX_COLOR) ? color.to_s.strip : DEFAULT_BACKGROUND
+      valid?(color) ? color.to_s.strip : DEFAULT_BACKGROUND
+    end
+
+    def valid?(color)
+      color.to_s.strip.match?(HEX_COLOR)
     end
 
     def relative_luminance(hex)

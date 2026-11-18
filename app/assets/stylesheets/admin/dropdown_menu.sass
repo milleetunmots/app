@@ -1,7 +1,7 @@
 @import variables
 
 // Menus déroulants du composant ActiveAdmin (barre de titre, actions de chaque ligne) :
-// bouton secondaire au contour, liste sur la surface de l'admin. À inclure après
+// bouton marine plein comme tous les boutons de l'admin, liste sur la surface de l'admin. À inclure après
 // l'import du composant (un @import n'est pas permis dans un mixin).
 =brand-dropdown-menu
   .dropdown_menu
@@ -12,25 +12,24 @@
       text-shadow: none
       line-height: normal
       box-shadow: none
-      // Contour marine, et non gris comme les champs : le bouton se lit comme une action
       border: 1px solid $action
       border-radius: $radius
-      background: $surface
+      background: $action
       padding: 5px 10px
-      color: $action
+      color: $surface
       font-weight: 500
 
       &:not(.disabled):hover
-        background: $action-soft
+        background: $action-hover
 
-      // Flèche : un seul triangle marine ; le composant superpose un triangle blanc (:before)
-      // qui laissait une tache claire à côté
+      // Flèche : un seul triangle crème ; le composant superpose un second triangle (:before)
+      // qui laissait une tache à côté
       &:before
         display: none
 
       &:after
         border-width: 5px 4px 0
-        border-color: $action transparent
+        border-color: $surface transparent
         right: 9px
         top: calc(50% - 2px)
 
@@ -109,25 +108,10 @@ table.index_table .col-actions
       .dropdown_menu_list
         li
           a
-            // Teinte pâle et texte foncé de la même famille, comme les boutons ; le
-            // fond se fonce au survol
-            &.blue
-              background-color: $info-bg
-              color: $info
-              &:hover, &:focus-visible
-                background-color: darken($info-bg, 6%)
-            &.green
-              background-color: $success-bg
-              color: $success
-              &:hover, &:focus-visible
-                background-color: darken($success-bg, 6%)
+            // Seules les actions destructrices gardent une couleur (rouge) ; les autres
+            // couleurs historiques (bleu, vert, jaune) restent neutres
             &.red
               background-color: $danger-bg
               color: $danger
               &:hover, &:focus-visible
                 background-color: darken($danger-bg, 6%)
-            &.yellow
-              background-color: $warning-bg
-              color: $warning
-              &:hover, &:focus-visible
-                background-color: darken($warning-bg, 6%)

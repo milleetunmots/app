@@ -22,12 +22,13 @@ body
     $w: 70mm
     $h: 35mm
 
-    // Marge intérieure de l'étiquette. La hauteur utile qui en découle
-    // (35 − 2 × 2.5 = 30 mm) et la largeur utile (70 − 2 × 3 = 64 mm)
-    // conditionnent les paliers LABEL_FONT_TIERS de ParentDecorator :
-    // toute modification ici impose de les recalculer.
-    $pad-v: 2.5mm
-    $pad-h: 3mm
+    // Marge intérieure de l'étiquette : elle absorbe le décalage de l'imprimante, qui
+    // envoyait sinon le texte sur l'étiquette voisine. La hauteur utile qui en découle
+    // (35 − 2 × 3 = 29 mm) et la largeur utile (70 − 2 × 5 = 60 mm) conditionnent les
+    // paliers LABEL_FONT_TIERS de ParentDecorator : toute modification ici impose de
+    // les recalculer.
+    $pad-v: 3mm
+    $pad-h: 5mm
 
     // Largeur figée à 3 colonnes. Sans elle la grille se replierait sur la largeur
     // disponible, ce qui ne se voit pas dans le PDF (une A4 fait justement 210 mm)
@@ -64,13 +65,14 @@ body
 
     // Paliers de police, du plus grand au plus petit : tailles et interlignes du
     // corps repris dans ParentDecorator::LABEL_FONT_TIERS, qui choisit le palier
-    // dont la hauteur (titre + corps) tient dans les 30 mm utiles. Toute
-    // modification ici doit y être reportée.
+    // dont la hauteur (titre + corps) tient dans les 29 mm utiles. Toute
+    // modification ici doit y être reportée. Le premier est celui de la maquette
+    // (etiquette_adresse.png) : corps de 11 pt, lignes serrées.
     .address-content
       font-family: 'Poppins', sans-serif
       font-weight: 400
-      font-size: 13pt
-      line-height: 18pt
+      font-size: 11pt
+      line-height: 12.5pt
       color: $navy
 
     // Nom sur la boîte aux lettres ou raison sociale. Taille en em : elle suit le
@@ -81,39 +83,49 @@ body
       font-family: 'Fredoka', sans-serif
       font-weight: 700
       font-size: 1.45em
-      line-height: 1.2
+      line-height: 1.1
 
     .address-heading--compact
       font-size: 1.2em
 
     .address-content--small
-      font-size: 10pt
-      line-height: 14pt
+      font-size: 9.5pt
+      line-height: 11pt
 
     .address-content--tiny
       font-size: 8pt
-      line-height: 11pt
+      line-height: 9.5pt
+
+    .address-content--micro
+      font-size: 7pt
+      line-height: 8pt
 
     // Étiquette cadeau (maquette etiquette_cadeau.png) : l'icône à gauche, puis un
-    // cartouche qui en chevauche le bas, posé sur une ombre pleine décalée. Tout est
-    // positionné en absolu dans la case : le WebKit de wkhtmltopdf ne gère ni flexbox
-    // ni grid, et rend mal box-shadow, d'où l'ombre en bloc séparé. L'ordre du HTML
-    // (icône, ombre, cartouche) suffit à empiler le cartouche par-dessus.
-    $label-left: 15mm
-    $label-top: 16mm
-    $label-width: 49mm
-    $label-height: 14mm
-    $shadow-offset: 1.2mm
-    $label-radius: 4mm
+    // cartouche qui en chevauche le bas, posé sur une ombre pleine décalée vers la
+    // droite et le bas. Proportions reprises de la maquette, mise à l'échelle pour que
+    // l'ensemble (50 × 31 mm) tienne centré dans la case. Tout est positionné en absolu
+    // dans la case : le WebKit de wkhtmltopdf ne gère ni flexbox ni grid, et rend mal
+    // box-shadow, d'où l'ombre en bloc séparé. L'ordre du HTML (icône, ombre,
+    // cartouche) suffit à empiler le cartouche par-dessus.
+    $art-left: 9.8mm
+    $art-top: 2mm
+    $label-left: $art-left + 7.4mm
+    $label-top: $art-top + 19.1mm
+    $label-width: 41.6mm
+    $label-height: 10.9mm
+    $label-border: 0.3mm
+    $shadow-offset-x: 1.4mm
+    $shadow-offset-y: 1mm
+    $label-radius: 2.7mm
 
     .gift-card
       position: relative
 
     .gift-card-icon
       position: absolute
-      left: 4mm
-      top: 2.5mm
-      height: 24mm
+      left: $art-left
+      top: $art-top
+      height: 22.9mm
 
     .gift-card-shadow, .gift-card-label
       position: absolute
@@ -122,29 +134,31 @@ body
       border-radius: $label-radius
 
     .gift-card-shadow
-      left: $label-left + $shadow-offset
-      top: $label-top + $shadow-offset
+      left: $label-left + $shadow-offset-x
+      top: $label-top + $shadow-offset-y
       background: $lime
 
+    // Largeur utile du prénom : 41,6 − 2 − 3,8 − 2 × 0,3 = 35,2 mm, reprise dans
+    // ChildDecorator::GIFT_NAME_WIDTH_PT
     .gift-card-label
       left: $label-left
       top: $label-top
       box-sizing: border-box
-      padding: 1.5mm 3mm
+      padding: 1mm 3.8mm 0.8mm 2mm
       background: $cream
-      border: 0.5mm solid $navy
+      border: $label-border solid $navy
       font-family: 'Fredoka', sans-serif
       font-weight: 700
       // filet de sécurité : un prénom trop long même au plus petit palier est coupé
       // plutôt que de déborder (cf. ChildDecorator::GIFT_NAME_FONT_TIERS)
       overflow: hidden
 
-    // Rapport 55 / 65 de la maquette entre « Un livre pour » et le prénom
-    // Hauteur du texte : 12pt + 15pt = 9.5 mm, dans les 10 mm intérieurs du
-    // cartouche (14 mm − 2 × 1.5 mm de padding − 2 × 0.5 mm de bordure)
+    // Tailles de la maquette : 10,5 pt pour « Un livre pour », 12,5 pt pour le prénom.
+    // Hauteur du texte : 11pt + 13pt = 8.5 mm, dans les 8.5 mm intérieurs du
+    // cartouche (10.9 mm − 1 − 0.8 mm de padding − 2 × 0.3 mm de bordure)
     .gift-card-intro
-      font-size: 11pt
-      line-height: 12pt
+      font-size: 10.5pt
+      line-height: 11pt
       color: $navy
       text-align: left
 
@@ -152,8 +166,8 @@ body
     // modification ici doit y être reportée. L'interligne reste fixe pour que le
     // cartouche garde sa mise en page quelle que soit la taille du prénom.
     .gift-card-name
-      font-size: 13pt
-      line-height: 15pt
+      font-size: 12.5pt
+      line-height: 13pt
       color: $blue
       text-align: right
       white-space: nowrap

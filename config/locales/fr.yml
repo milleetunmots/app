@@ -61,9 +61,9 @@ fr:
     form2: |
       <p>Pendant 1 an, vous allez recevoir <b>gratuitement</b> un programme adapté à l'âge de votre bébé (entre 0 et 30 mois)&nbsp;:</p>
       <ul>
-        <li>4 appels de spécialistes de la petite enfance, pour discuter et poser vos questions</li>
-        <li>chaque semaine, des idées d'activités et des conseils par SMS</li>
-        <li>6 livres pour votre enfant, envoyés dans votre boîte aux lettres</li>
+        <li><b>4 appels</b> de spécialistes de la petite enfance, pour discuter et poser vos questions</li>
+        <li>chaque semaine, des <b>idées d'activités et des conseils par SMS</b></li>
+        <li><b>6 livres</b> pour votre enfant, envoyés dans votre boîte aux lettres</li>
       </ul>
       <p>Inscription réservée aux parents ayant reçu un email ou SMS de leur <b>CAF</b>.</p>
     form3: &pro_banner |
@@ -76,30 +76,30 @@ fr:
     form4: |
       <p>Pendant 1 an, vous allez recevoir <b>gratuitement</b> un programme adapté à l'âge de votre bébé (entre 0 et 30 mois)&nbsp;:</p>
       <ul>
-        <li>4 appels de spécialistes de la petite enfance, pour discuter et poser vos questions</li>
-        <li>chaque semaine, des idées d'activités et des conseils par SMS</li>
-        <li>6 livres pour votre enfant, envoyés dans votre boîte aux lettres</li>
+        <li><b>4 appels</b> de spécialistes de la petite enfance, pour discuter et poser vos questions</li>
+        <li>chaque semaine, des <b>idées d'activités et des conseils par SMS</b></li>
+        <li><b>6 livres</b> pour votre enfant, envoyés dans votre boîte aux lettres</li>
       </ul>
     form5: *pro_banner
     form6: |
       <p>Pendant 1 an, vous allez recevoir <b>gratuitement</b> un programme adapté à l'âge de votre bébé (entre 0 et 30 mois)&nbsp;:</p>
       <ul>
-        <li>4 appels de spécialistes de la petite enfance, pour discuter et poser vos questions</li>
-        <li>chaque semaine, des idées d'activités et des conseils par SMS</li>
-        <li>6 livres pour votre enfant, envoyés dans votre boîte aux lettres</li>
+        <li><b>4 appels</b> de spécialistes de la petite enfance, pour discuter et poser vos questions</li>
+        <li>chaque semaine, des <b>idées d'activités et des conseils par SMS</b></li>
+        <li><b>6 livres</b> pour votre enfant, envoyés dans votre boîte aux lettres</li>
       </ul>
       <p>Inscription réservée aux parents ayant reçu un email ou SMS de leur <b>MSA</b>.</p>
   inscription_phone_label: "Téléphone portable"
   inscription_contact_html: "Si vous rencontrez des difficultés pour remplir le formulaire, vous pouvez nous écrire à %{email}"
   registration_confirmation_email:
-    checkbox_label: "Je souhaite recevoir une confirmation de l'inscription par email"
+    checkbox_label: "Je souhaite recevoir une confirmation de l'inscription par email."
     email_label: "Mon email professionnel&nbsp;"
     email_placeholder: "prenom.nom@exemple.fr"
     email_format_warning: "Veuillez renseigner une adresse email valide."
     email_subject: "Inscription confirmée pour %{first_name}"
   inscription_terms_accepted_at_label:
-    parent: "Dans le cadre des échanges avec votre accompagnante 1001mots, vous êtes susceptible de partager des informations sensibles (exemple : état de santé de votre enfant). En cochant cette case, vous confirmez votre accord pour que 1001mots collecte ces informations de façon à vous accompagner au mieux et à mesurer l’impact de l’association. <a href='https://1001mots.org/politique-de-confidentialite/' target='_blank'>En savoir plus</a>."
-    pro: "Je confirme avoir informé les parents que leurs données seront collectées par 1001mots pour qu’ils puissent bénéficier de l’accompagnement. Je confirme que les parents ont donné leur accord. <a href='https://1001mots.org/politique-de-confidentialite/' target='_blank'>En savoir plus</a>."
+    parent: "Dans le cadre des échanges avec votre accompagnante 1001mots, vous êtes susceptible de partager des informations sensibles (exemple : état de santé de votre enfant). En cochant cette case, vous confirmez votre accord pour que 1001mots collecte ces informations de façon à vous accompagner au mieux et à mesurer l’impact de l’association. <a href='https://1001mots.org/politique-de-confidentialite/' target='_blank'>En savoir plus.</a>"
+    pro: "Je confirme avoir informé les parents que leurs données seront collectées par 1001mots pour qu’ils puissent bénéficier de l’accompagnement. Je confirme que les parents ont donné leur accord. <a href='https://1001mots.org/politique-de-confidentialite/' target='_blank'>En savoir plus.</a>"
   source_label:
     pmi: "Sélectionnez votre PMI&nbsp;"
     caf: "Précisez votre CAF&nbsp;:"

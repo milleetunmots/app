@@ -438,4 +438,59 @@ RSpec.describe "Formulaire d'inscription", type: :request do
       end
     end
   end
+
+  # Retours de l'équipe sur les formulaires d'inscription (2026-11-18)
+  describe "retours de l'équipe" do
+    all_forms = ["/inscriptioncaf", "/inscriptionmsa", "/inscription4", "/inscription3", "/inscriptionpartenaires"]
+
+    def page_of(path)
+      get path
+      Capybara.string(response.body)
+    end
+
+    all_forms.each do |path|
+      it "titre les parents « Parent(s) qui recevront les SMS et les appels » sur #{path}" do
+        expect(page_of(path)).to have_css("h2", exact_text: "Parent(s) qui recevront les SMS et les appels")
+      end
+
+      it "met le point de « En savoir plus. » dans le lien sur #{path}" do
+        page = page_of(path)
+        consent = page.find("label[for='child_parent1_attributes_terms_accepted_at']")
+
+        expect(consent).to have_link("En savoir plus.", exact: true)
+        expect(consent.text).not_to include("plus..")
+      end
+    end
+
+    ["/inscriptioncaf", "/inscriptionmsa", "/inscription4"].each do |path|
+      it "met en évidence les appels, les livres et les SMS sur #{path}" do
+        highlighted = page_of(path).all("#description b").map(&:text)
+
+        expect(highlighted).to include("4 appels", "6 livres", "idées d'activités et des conseils par SMS")
+      end
+    end
+
+    ["/inscription3", "/inscriptionpartenaires"].each do |path|
+      it "retire les deux-points de « La famille souhaite recevoir les livres » sur #{path}" do
+        label = page_of(path).find("label[for='child_parent1_attributes_book_delivery_location']")
+
+        expect(label.text).to start_with("La famille souhaite recevoir les livres")
+        expect(label.text).not_to include(":")
+      end
+
+      it "affiche le champ email sans cocher la case sur #{path}" do
+        page = page_of(path)
+
+        expect(page.find("#registration_confirmation_email_field")[:style].to_s).not_to include("display:none")
+        expect(page.find("#want_registration_confirmation_email")).not_to be_checked
+        expect(page.find("label[for='want_registration_confirmation_email']").text).to eq("Je souhaite recevoir une confirmation de l'inscription par email.")
+      end
+
+      it "donne un exemple de commentaire sur #{path}" do
+        placeholder = page_of(path).find("#child_child_support_attributes_important_information")[:placeholder]
+
+        expect(placeholder).to start_with("Précisez ici les informations utiles pour l'accompagnante")
+      end
+    end
+  end
 end

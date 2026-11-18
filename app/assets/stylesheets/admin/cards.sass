@@ -4,6 +4,11 @@
   position: relative
   margin-bottom: 10px
 
+  // Infos du parent sur la fiche de suivi : à peine plus grandes que le texte courant
+  // (13px) ; hors de l'échelle, $text-lg (15px) se lisait comme un titre
+  &.card-parent
+    font-size: 14px
+
   // Les icônes (genre, SMS, livre, crayon) doivent rester sur la ligne du nom :
   // le nowrap du conteneur supprime toute coupure, y compris entre les deux
   // liens. Seul le texte du nom réautorise le retour à la ligne, avec coupure

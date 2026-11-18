@@ -627,17 +627,6 @@ ActiveAdmin.register Child do
     end
   end
 
-  action_item :quit_group,
-              only: :show,
-              if: proc { resource.group && %w(paused active).include?(resource.model.group_status) } do
-    link_to 'Quitter la cohorte', [:quit_group, :admin, resource]
-  end
-  member_action :quit_group do
-    resource.update_attribute :group_status, 'stopped'
-    resource.update_attribute :group_end, resource.model.group.ended_at&.past? ? resource.model.group.ended_at : Time.zone.now
-    redirect_to [:admin, resource]
-  end
-
   # ---------------------------------------------------------------------------
   # TOOLS
   # ---------------------------------------------------------------------------
