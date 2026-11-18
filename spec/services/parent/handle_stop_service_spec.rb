@@ -59,6 +59,74 @@ RSpec.describe Parent::HandleStopService do
       expect(child.reload).to have_attributes(should_contact_parent1: false, should_contact_parent2: false, group_status: 'stopped')
     end
 
+    describe "statut de l'enfant dont plus aucun parent n'est à contacter" do
+      %w[active paused disengaged].each do |group_status|
+        it "arrête l'enfant en cohorte au statut #{group_status} et date la fin de cohorte" do
+          travel_to Time.zone.local(2026, 11, 18, 10)
+          parent = FactoryBot.create(:parent, phone_number: '0612345678')
+          child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: group_status)
+
+          call_service('0612345678')
+
+          expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped', group_end: Date.new(2026, 11, 18))
+        end
+      end
+
+      it "passe en non accompagné l'enfant sur liste d'attente, sans fin de cohorte" do
+        parent = FactoryBot.create(:parent, phone_number: '0612345678')
+        child = FactoryBot.create(:child, parent1: parent, group: nil, group_status: 'waiting')
+
+        call_service('0612345678')
+
+        expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'not_supported', group_end: nil)
+      end
+
+      it "laisse arrêté l'enfant déjà arrêté, avec sa fin de cohorte" do
+        parent = FactoryBot.create(:parent, phone_number: '0612345678')
+        child = FactoryBot.create(
+          :child,
+          parent1: parent, group: FactoryBot.create(:group), group_status: 'stopped', group_end: Date.new(2026, 9, 2)
+        )
+
+        call_service('0612345678')
+
+        expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped', group_end: Date.new(2026, 9, 2))
+      end
+
+      it "laisse non accompagné l'enfant sans cohorte" do
+        parent = FactoryBot.create(:parent, phone_number: '0612345678')
+        child = FactoryBot.create(:child, parent1: parent, group: nil, group_status: 'not_supported')
+
+        call_service('0612345678')
+
+        expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'not_supported', group_end: nil)
+      end
+    end
+
+    it "arrête l'enfant sans parent 2 même si « contacter parent 2 » est coché" do
+      parent = FactoryBot.create(:parent, phone_number: '0612345678')
+      child = FactoryBot.create(
+        :child,
+        parent1: parent, parent2: nil, should_contact_parent2: true,
+        group: FactoryBot.create(:group), group_status: 'active'
+      )
+
+      call_service('0612345678')
+
+      expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped')
+    end
+
+    it 'décoche le parent sur tous ses enfants' do
+      parent = FactoryBot.create(:parent, phone_number: '0612345678')
+      waiting_child = FactoryBot.create(:child, parent1: parent, group: nil, group_status: 'waiting')
+      paused_child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'paused')
+
+      call_service('0612345678')
+
+      expect(paused_child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped')
+      expect(waiting_child.reload).to have_attributes(should_contact_parent1: false, group_status: 'not_supported')
+    end
+
     it 'rattache le message STOP à la campagne RCS' do
       parent = FactoryBot.create(:parent, phone_number: '0612345678')
 

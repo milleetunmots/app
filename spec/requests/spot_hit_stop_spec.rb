@@ -53,15 +53,16 @@ RSpec.describe 'EventsController#spot_hit_stop', type: :request do
     expect(child.group_status).to eq('active')
   end
 
-  it "ne touche pas un enfant sur liste d'attente ni un enfant désengagé" do
+  it "arrête l'enfant désengagé et passe en non accompagné l'enfant sur liste d'attente" do
+    travel_to Time.zone.local(2026, 11, 18, 10)
     parent = FactoryBot.create(:parent, phone_number: '0612345678')
     waiting_child = FactoryBot.create(:child, parent1: parent, group: nil, group_status: 'waiting')
     disengaged_child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'disengaged')
 
     get path, params: stop_params(numero: '0612345678')
 
-    expect(waiting_child.reload).to have_attributes(should_contact_parent1: true, group_status: 'waiting')
-    expect(disengaged_child.reload).to have_attributes(should_contact_parent1: true, group_status: 'disengaged')
+    expect(waiting_child.reload).to have_attributes(should_contact_parent1: false, group_status: 'not_supported', group_end: nil)
+    expect(disengaged_child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped', group_end: Date.new(2026, 11, 18))
   end
 
   it 'ne crée rien pour un numéro absent de la base et répond 200' do

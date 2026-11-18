@@ -2,6 +2,13 @@ class Parent
 
   class HandleStopService
 
+    GROUP_STATUS_WITHOUT_CONTACT = {
+      'active' => 'stopped',
+      'paused' => 'stopped',
+      'disengaged' => 'stopped',
+      'waiting' => 'not_supported'
+    }.freeze
+
     attr_reader :errors
 
     def initialize(phone_number:, occurred_at:, spot_hit_message_id: nil, spot_hit_rcs_id: nil)
@@ -39,16 +46,23 @@ class Parent
     end
 
     def stop_contacting(parent)
-      parent.children.where.not(group_id: nil).where(group_status: %w[active paused]).find_each do |child|
+      parent.children.find_each do |child|
         child.parent1_id == parent.id ? child.should_contact_parent1 = false : child.should_contact_parent2 = false
-        stop_support(child) unless child.should_contact_parent1 || child.should_contact_parent2
+        end_support(child) unless parent_to_contact?(child)
         child.save(validate: false)
       end
     end
 
-    def stop_support(child)
-      child.group_status = 'stopped'
-      child.group_end = Time.zone.now
+    def parent_to_contact?(child)
+      child.should_contact_parent1 || (child.should_contact_parent2 && child.parent2_id.present?)
+    end
+
+    def end_support(child)
+      group_status = GROUP_STATUS_WITHOUT_CONTACT[child.group_status]
+      return unless group_status
+
+      child.group_status = group_status
+      child.group_end = Time.zone.now if group_status == 'stopped'
     end
   end
 end

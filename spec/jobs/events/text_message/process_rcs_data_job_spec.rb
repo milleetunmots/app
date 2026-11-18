@@ -652,6 +652,16 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
       )
     end
 
+    it "arrête l'enfant désengagé du parent" do
+      travel_to Time.zone.local(2026, 11, 18, 10)
+      parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+      child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'disengaged')
+
+      subject.perform_now(stop_payload(phone_number: '+33612345678'))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped', group_end: Date.new(2026, 11, 18))
+    end
+
     it "décoche le parent 2 sans arrêter l'enfant quand le parent 1 reste à contacter" do
       parent1 = FactoryBot.create(:parent, phone_number: '+33611111111')
       parent2 = FactoryBot.create(:parent, phone_number: '+33622222222')
