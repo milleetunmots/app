@@ -76,6 +76,13 @@ class Events::TextMessage
           # connu, et les contrôles suivants alerteraient pour rien.
           next if silent_content?(event_content)
 
+          # Un STOP ne dépend ni de la date ni de la campagne : il passe avant leurs contrôles.
+          if stop?(event_content)
+            apply_stop(event, event_content)
+            report_content_without_text(event_content)
+            next
+          end
+
           unless event['on']
             Rollbar.error('spot_hit_rcs_data: event without date', event: event)
             next
@@ -210,7 +217,6 @@ class Events::TextMessage
 
       text = event_content.dig('content', 'text')
       unless text
-        apply_stop(date, event_content, campaign_id) if event_content.dig('content', 'optout', 'text') == 'STOP'
         report_content_without_text(event_content)
         return
       end
@@ -232,11 +238,16 @@ class Events::TextMessage
       Phonelib.parse(event_content['userId'].to_s.strip).e164
     end
 
-    def apply_stop(date, event_content, campaign_id)
+    def stop?(event_content)
+      content = event_content['content']
+      content.is_a?(Hash) && content.dig('optout', 'text') == 'STOP'
+    end
+
+    def apply_stop(event, event_content)
       service = Parent::HandleStopService.new(
         phone_number: parsed_phone_number(event_content),
-        occurred_at: date,
-        spot_hit_rcs_id: campaign_id
+        occurred_at: event['on'] ? Time.zone.parse(event['on']) : Time.zone.now,
+        spot_hit_rcs_id: event_content.dig('context', 'campaign_id')
       ).call
       Rollbar.error('Parent::HandleStopService', errors: service.errors) if service.errors.any?
     end
