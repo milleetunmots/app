@@ -4,9 +4,10 @@
   position: relative
   margin-bottom: 10px
 
-  // Infos du parent sur la fiche de suivi : à peine plus grandes que le texte courant
-  // (13px) ; hors de l'échelle, $text-lg (15px) se lisait comme un titre
-  &.card-parent
+  // Infos des parents et des enfants sur la fiche de suivi : à peine plus grandes que le
+  // texte courant (13px), à la même taille pour les deux ; hors de l'échelle, $text-lg
+  // (15px) se lisait comme un titre
+  &.card-parent, &.card-child
     font-size: 14px
 
   // Les icônes (genre, SMS, livre, crayon) doivent rester sur la ligne du nom :

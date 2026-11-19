@@ -176,7 +176,7 @@ input[type="checkbox"]
 ::placeholder
   color: $ink-soft
 
-// Listes : liens de tri de l'en-tête dans la couleur du texte, la colonne triée en marine
+// Listes : liens de tri de l'en-tête dans la couleur du texte, colonne triée comprise
 // (fond et survol des tableaux dans tables.sass)
 // arctic_admin remet le lien de tri en graisse normale : même graisse que l'en-tête,
 // qu'une colonne soit triable ou non
@@ -186,11 +186,12 @@ table.index_table
       color: $ink
       font-weight: inherit
 
+    // Colonne triée : même encre que les autres en-têtes, la flèche suffit à la repérer
     &.sorted-asc, &.sorted-desc
-      color: $action
+      color: $ink
 
       a
-        color: $action
+        color: $ink
 
   tbody tr.selected > td
     background-color: $highlight-soft

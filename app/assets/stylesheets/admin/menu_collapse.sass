@@ -48,6 +48,11 @@ $menu-peek: 10px
       outline: 2px solid $focus
       outline-offset: 0
 
+  // Le menu glisse en même temps que le contenu se décale (0,2 s), au masquage comme à
+  // l'affichage : un seul mouvement
+  .header #tabs
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out
+
   html.menu-collapsed
     body.active_admin.logged_in
       padding-left: $menu-peek
@@ -59,10 +64,16 @@ $menu-peek: 10px
     .header #tabs
       z-index: 4
       transform: translateX(calc(-100% + #{$menu-peek}))
-      // Se replie 0,3 s après que le curseur est sorti, pour pardonner un écart
-      transition: transform 0.2s ease-in-out 0.3s, box-shadow 0.2s ease-in-out 0.3s
+      // Survol de la bande : se replie 0,3 s après que le curseur est sorti, pour
+      // pardonner un écart
+      transition-delay: 0.3s
 
       &:hover, &:focus-within
         transform: none
         box-shadow: $shadow-float
         transition-delay: 0.08s
+
+  // Pendant le clic sur le bouton (cf. menu_collapse.js), pas de délai : le menu part avec
+  // le contenu au lieu de le suivre 0,3 s plus tard
+  html.menu-toggling .header #tabs
+    transition-delay: 0s !important

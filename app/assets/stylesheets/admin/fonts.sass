@@ -3,10 +3,10 @@
 // Les mêmes TTF sont installés dans l'image pour wkhtmltopdf (cf. Dockerfile.release),
 // où pdf.sass les résout nativement, sans @font-face.
 
-=brand-font($family, $file, $weight, $style: normal)
+=brand-font($family, $file, $weight, $style: normal, $format: 'truetype')
   @font-face
     font-family: $family
-    src: font-url($file) format('truetype')
+    src: font-url($file) format($format)
     font-weight: $weight
     font-style: $style
     font-display: swap
@@ -19,7 +19,10 @@
 +brand-font('Poppins', 'poppins-black.ttf', 900)
 +brand-font('Fredoka', 'fredoka-semibold.ttf', 600)
 +brand-font('Fredoka', 'fredoka-bold.ttf', 700)
-// Police d'interface de l'admin (texte) : Poppins reste sur les pages publiques et les PDF
-+brand-font('Inter', 'inter-regular.ttf', 400)
-+brand-font('Inter', 'inter-medium.ttf', 500)
-+brand-font('Inter', 'inter-semibold.ttf', 600)
+// Police d'interface de l'admin (texte) : Poppins reste sur les pages publiques et les PDF.
+// Fichiers web officiels d'Inter 4 (dossier web/ de la publication rsms/inter), en woff2 et
+// sans hinting : les TTF « bureau », hintés, faisaient caler les lettres sur la grille de
+// pixels par Windows, étirées et serrées sur un écran à 100 %. Inter ne sert pas aux PDF.
++brand-font('Inter', 'inter-regular.woff2', 400, $format: 'woff2')
++brand-font('Inter', 'inter-medium.woff2', 500, $format: 'woff2')
++brand-font('Inter', 'inter-semibold.woff2', 600, $format: 'woff2')

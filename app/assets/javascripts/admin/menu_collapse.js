@@ -46,7 +46,13 @@
     siteTitle.appendChild(button);
     renderButton(button);
 
+    var togglingTimer;
     button.addEventListener('click', function() {
+      // Sans délai de repli le temps de l'animation (cf. html.menu-toggling)
+      root.classList.add('menu-toggling');
+      clearTimeout(togglingTimer);
+      togglingTimer = setTimeout(function() { root.classList.remove('menu-toggling'); }, 250);
+
       var collapsed = root.classList.toggle(COLLAPSED_CLASS);
       storeCollapsed(collapsed);
       renderButton(button);

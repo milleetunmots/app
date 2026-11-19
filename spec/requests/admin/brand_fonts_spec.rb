@@ -25,10 +25,20 @@ RSpec.describe "Polices de l'admin", type: :request do
     expect(sans_font_face).not_to include('Fredoka')
   end
 
+  # Fichiers web officiels d'Inter 4 (dossier web/ de la publication), sans hinting :
+  # les TTF « bureau » sont hintés, et Windows calait alors les lettres sur la grille de
+  # pixels, ce qui les rendait étirées et serrées sur un écran à 100 %.
   %w[inter-regular inter-medium inter-semibold].each do |fichier|
-    it "fournit #{fichier}.ttf" do
-      expect(Rails.root.join("app/assets/fonts/#{fichier}.ttf")).to exist
+    it "sert #{fichier} en woff2, à la place du TTF" do
+      expect(Rails.root.join("app/assets/fonts/#{fichier}.woff2")).to exist
+      expect(Rails.root.join("app/assets/fonts/#{fichier}.ttf")).not_to exist
     end
+  end
+
+  it 'déclare Inter en woff2 dans les @font-face' do
+    sources = css.scan(/@font-face\s*{[^}]*font-family:\s*['"]?Inter['"]?;[^}]*}/).map { |rule| rule[/src:[^;]*/] }
+    expect(sources.size).to eq(3)
+    expect(sources).to all(match(/inter-[a-z]+(-[0-9a-f]+)?\.woff2.*format\(['"]woff2['"]\)/))
   end
 
   it 'fournit la licence OFL d’Inter' do

@@ -22,10 +22,11 @@ ActiveAdmin.register ChildSupport do
     (0..3).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         if decorated.send("call#{call_idx}_status").present?
-          [
-            content_tag(:span, decorated.send("call#{call_idx}_status_in_index"), class: 'call-status-label'),
-            decorated.send("call#{call_idx}_parent_progress_index")
-          ].join(' ').html_safe
+          # Statut et pastille de pratique parentale sur une ligne, la pastille à droite
+          content_tag(:span, class: 'call-status-cell') do
+            content_tag(:span, decorated.send("call#{call_idx}_status_in_index"), class: 'call-status-label') +
+              decorated.send("call#{call_idx}_parent_progress_index").to_s.html_safe
+          end
         else
           decorated.send("call#{call_idx}_scheduled_session")
         end

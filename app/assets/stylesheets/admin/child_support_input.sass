@@ -215,10 +215,19 @@ body.logged_in .previous_goals_follow_up ol.choices-group > li.choice
   #child-books-sent
     display: flex
     flex-wrap: wrap
+    gap: 12px 16px
     .book-card
       width: 180px
       display: flex
       flex-direction: column
+
+      // Nom du module sous la couverture : il passe à la ligne dans sa carte au lieu de
+      // déborder sur le texte de la carte voisine
+      .support-module-airtable-link
+        display: inline
+        margin-left: 0
+        white-space: normal
+        overflow-wrap: anywhere
       .card-img-top
         display: flex
         align-items: center
@@ -680,6 +689,20 @@ body.logged_in .call-tab-main
   font-size: 14px
   font-weight: 600
   color: $ink
+
+// Liste des suivis : statut puis pastille de pratique parentale, toujours côte à côte et
+// centrés l'un sur l'autre (la pastille passait sous le statut selon la largeur). Un
+// statut long (« Numéro erroné ») se coupe dans son propre bloc, la pastille reste à droite.
+.call-status-cell
+  display: inline-flex
+  align-items: center
+  gap: 6px
+
+  .call-status-label
+    min-width: 0
+
+  .status_tag
+    flex-shrink: 0
 
 .select2-call-status + .select2-container .select2-selection__rendered
   font-size: 14px
