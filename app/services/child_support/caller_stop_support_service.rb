@@ -1,29 +1,20 @@
 class ChildSupport::CallerStopSupportService
 
-  PROGRAM_TERMINATION_MESSAGE = <<~MESSAGE.freeze
-    Bonjour, Votre accompagnement 1001mots s'arrête. Pour des raisons techniques, vous allez recevoir encore quelques SMS, répondez STOP si vous voulez les arrêter.
-    Si vous avez quelques minutes pour nous faire un retour sur 1001mots, ce serait très utile : https://form.typeform.com/to/oy3wjinA#st=xxxxx
-  MESSAGE
-  PARTNER_REFERRAL_REQUIRED_MESSAGE = <<~MESSAGE.freeze
-    1001mots: Merci de l'intérêt que vous portez à l'association ! Le programme est réservé aux familles adressées par nos partenaires, nous devons donc mettre fin à l’accompagnement.
-    Si vous êtes un.e professionnel de PMI, écrivez-nous à l’adresse pmi@1001mots.org.
-  MESSAGE
-  LANGUAGE_BARRIER_TERMINATION_MESSAGE = <<~MESSAGE.freeze
-    1001mots : Bonjour, votre accompagnement s’arrête. Nous sommes désolés de ne pas pouvoir vous accompagner dans votre langue...
-    Voici une playlist Youtube de vidéos dans plein de langues, il y aura peut-être la vôtre : https://www.youtube.com/@papotoparentalitepourtous7726/playlists
-  MESSAGE
+  FAMILY_BUNDLE = ['Arrêt · Famille pose problème / Inscrite sans accord / Ne veut pas du programme / Pratiques très avancées', 'arret_accompagnement'].freeze
+  HEALTH_PROFESSIONAL_BUNDLE = ['Arrêt · Professionnel·le de santé qui teste', 'arret_professionnel_sante'].freeze
+  LANGUAGE_BARRIER_BUNDLE = ['Arrêt · Pas assez francophone', 'arret_barriere_langue'].freeze
 
   STOP_SUPPORT_INFORMATIONS = {
-    program: { tag: 'arrêt accompagnante - programme', sms: PROGRAM_TERMINATION_MESSAGE, motive: 'la famille ne veut pas du programme complet' },
-    very_advanced_practices: { tag: 'arrêt accompagnante - pratiques parentales avancées', sms: PROGRAM_TERMINATION_MESSAGE, motive: 'la famille a des pratiques très avancées' },
-    problematic_case: { tag: 'arrêt accompagnante - problèmes', sms: PROGRAM_TERMINATION_MESSAGE, motive: 'la famille me pose problème (insulte, propos gênants, raccroche au nez, etc)' },
-    professional: { tag: 'arrêt accompagnante - pro de santé', sms: PARTNER_REFERRAL_REQUIRED_MESSAGE, motive: "La famille est un.e professionnel.le de santé qui souhaite tester l'accompagnement" },
-    registered_by_partner_without_consent: { tag: 'arrêt accompagnante - inscription sans accord', sms: PROGRAM_TERMINATION_MESSAGE, motive: 'la famille a été inscrite par un partenaire sans son accord' },
-    family_limited_french_for_support: { tag: 'arrêt accompagnante - non francophone', sms: LANGUAGE_BARRIER_TERMINATION_MESSAGE, motive: "la famille n'est pas assez francophone pour tirer profit de l’accompagnement" },
-    family_unresponsive_after_adaptation: { tag: 'arrêt accompagnante - non francophone adaptation KO', sms: LANGUAGE_BARRIER_TERMINATION_MESSAGE, motive: "je vois que la famille ne me répond plus / j'ai des doutes sur l'impact du programme" }
+    program: { tag: 'arrêt accompagnante - programme', bundle: FAMILY_BUNDLE, motive: 'la famille ne veut pas du programme complet' },
+    very_advanced_practices: { tag: 'arrêt accompagnante - pratiques parentales avancées', bundle: FAMILY_BUNDLE, motive: 'la famille a des pratiques très avancées' },
+    problematic_case: { tag: 'arrêt accompagnante - problèmes', bundle: FAMILY_BUNDLE, motive: 'la famille me pose problème (insulte, propos gênants, raccroche au nez, etc)' },
+    professional: { tag: 'arrêt accompagnante - pro de santé', bundle: HEALTH_PROFESSIONAL_BUNDLE, motive: "La famille est un.e professionnel.le de santé qui souhaite tester l'accompagnement" },
+    registered_by_partner_without_consent: { tag: 'arrêt accompagnante - inscription sans accord', bundle: FAMILY_BUNDLE, motive: 'la famille a été inscrite par un partenaire sans son accord' },
+    family_limited_french_for_support: { tag: 'arrêt accompagnante - non francophone', bundle: LANGUAGE_BARRIER_BUNDLE, motive: "la famille n'est pas assez francophone pour tirer profit de l’accompagnement" },
+    family_unresponsive_after_adaptation: { tag: 'arrêt accompagnante - non francophone adaptation KO', bundle: LANGUAGE_BARRIER_BUNDLE, motive: "je vois que la famille ne me répond plus / j'ai des doutes sur l'impact du programme" }
   }.freeze
 
-  attr_reader :error
+  attr_reader :error, :notice
 
   def initialize(supporter_id, child_support_id, reason, details)
     @supporter = AdminUser.find(supporter_id)
@@ -31,6 +22,7 @@ class ChildSupport::CallerStopSupportService
     @reason = reason
     @details = details
     @error = nil
+    @notice = 'Accompagnement arrêté et message de désistement envoyé aux parents'
   end
 
   def call
@@ -78,28 +70,30 @@ class ChildSupport::CallerStopSupportService
   end
 
   def send_message
-    @message = STOP_SUPPORT_INFORMATIONS[@reason.to_sym][:sms].dup
-    errors_count = 0
-    now = Time.zone.now
-    recipients.each do |recipient|
+    return @notice = 'Accompagnement arrêté, aucun parent à contacter : aucun message envoyé' if recipients.empty?
+
+    bundle = find_bundle
+    return @notice = 'Accompagnement arrêté, message non envoyé' unless bundle
+
+    program_messages(bundle) == recipients.size ? raise(ActiveRecord::Rollback) : @error = nil
+  end
+
+  def find_bundle
+    name, key = STOP_SUPPORT_INFORMATIONS[@reason.to_sym][:bundle]
+    bundle = Media::TextMessagesBundle.find_automatic(name: name, key: key)
+    Rollbar.error("Trio introuvable : « #{name} » (clé #{key}), message non envoyé") unless bundle
+    bundle
+  end
+
+  def program_messages(bundle)
+    link_id = RedirectionTarget.find_or_create_by(medium_id: bundle.link1_id).id if bundle.link1_id
+    recipients.count do |recipient|
       program_message_service = ProgramMessageService.new(
-        now.strftime('%Y-%m-%d'),
-        now.strftime('%H:%M'),
-        [recipient],
-        @message,
-        nil,
-        nil,
-        nil,
-        nil,
-        nil,
-        Child::GROUP_STATUS
+        DateTime.now.strftime('%Y-%m-%d'), DateTime.now.strftime('%H:%M'), [recipient], bundle.body1, bundle.rcs_media_id_to_send(1), link_id, nil, nil, nil, Child::GROUP_STATUS
       ).call
-      if program_message_service.errors.any?
-        errors_count += 1
-        @error = program_message_service.errors.join("\n")
-      end
+      @error = program_message_service.errors.join("\n") if program_message_service.errors.any?
+      program_message_service.errors.any?
     end
-    errors_count == recipients.size ? raise(ActiveRecord::Rollback) : @error = nil
   end
 
   def recipients

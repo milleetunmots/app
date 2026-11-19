@@ -306,23 +306,7 @@ ActiveAdmin.register Child do
   batch_action :send_address_verification_message,
                confirm: 'Des messages vont être envoyés aux parents pour confirmer leur adresse. Continuer ?',
                if: proc { current_admin_user.user_role.in?(%w[reader contributor super_admin]) } do |ids|
-    parent_ids = Child.where(id: ids).map { |child| "parent.#{child.parent1_id}" }.uniq
-    message = <<~MESSAGE
-      1001mots : Bonjour,
-      Votre accompagnement avec 1001mots est fini ou sera bientôt fini. Mais un de nos partenaires tient à vous offrir un dernier livre, récolté auprès de parents d'enfants plus grands, qui ont eu envie de partager les livres qu'ils ont aimés à l'âge de {PRENOM_ENFANT}.
-      Nous allons l'envoyer à l'adresse suivante :
-      {PARENT_ADDRESS}
-      Si l'adresse postale ou le nom sur la boîte aux lettres ne sont pas bons, merci de les modifier ici : https://form.typeform.com/to/IDpRjIqI#st=xxxxx
-    MESSAGE
-    service = ProgramMessageService.new(
-      Time.zone.today,
-      Time.zone.now.strftime('%H:%M'),
-      parent_ids,
-      message,
-      nil, nil, false, nil, nil,
-      Child::GROUP_STATUS,
-      acting_admin_user: current_admin_user
-    ).call
+    service = Parent::SendPartnerBookAddressVerificationService.new(child_ids: ids, admin_user: current_admin_user).call
     if service.errors.any?
       flash[:alert] = service.errors
       redirect_back(fallback_location: root_path)

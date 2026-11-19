@@ -71,7 +71,11 @@ RSpec.describe 'Plafonnement des envois Spot-Hit', type: :request do
   describe "batch action de vérification d'adresse" do
     let(:admin_user) { FactoryBot.create(:admin_user, user_role: 'contributor') }
 
-    before { sign_in admin_user }
+    before do
+      sign_in admin_user
+      FactoryBot.create(:media_text_messages_bundle, name: "Vérification de l'adresse pour le livre offert par un partenaire",
+                                                     body1: 'Livre à : {PARENT_ADDRESS}', body2: nil, body3: nil)
+    end
 
     def send_address_verification
       post '/admin/children/batch_action', params: {
