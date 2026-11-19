@@ -9,7 +9,7 @@ class ChildDecorator < BaseDecorator
   GENDER_CLASSES = { m: :male, f: :female, x: :unknown }.freeze
 
   # Largeur utile du prénom sur l'étiquette cadeau : cartouche de 41,6 mm, moins
-  # 2 + 3,8 mm de padding et 2 × 0,3 mm de bordure (cf. pdf.sass), en points
+  # 1,75 + 3,55 mm de padding et 2 × 0,53 mm de bordure (cf. pdf.sass), en points
   GIFT_NAME_WIDTH_PT = 35.2 / 25.4 * 72 # 99.8
 
   # [taille du prénom en pt, classe CSS], du plus grand au plus petit, comme dans

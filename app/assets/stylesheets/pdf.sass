@@ -113,7 +113,10 @@ body
     $label-top: $art-top + 19.1mm
     $label-width: 41.6mm
     $label-height: 10.9mm
-    $label-border: 0.3mm
+    // 2 px tout rond (96 dpi) : WebKit arrondit les bordures au pixel inférieur, les
+    // 0,3 mm de la maquette sortaient à 1 px (0,26 mm) et l'imprimante perdait le trait
+    // en haut et à gauche du cartouche
+    $label-border: 0.53mm
     $shadow-offset-x: 1.4mm
     $shadow-offset-y: 1mm
     $label-radius: 2.7mm
@@ -138,13 +141,14 @@ body
       top: $label-top + $shadow-offset-y
       background: $lime
 
-    // Largeur utile du prénom : 41,6 − 2 − 3,8 − 2 × 0,3 = 35,2 mm, reprise dans
-    // ChildDecorator::GIFT_NAME_WIDTH_PT
+    // Largeur utile du prénom : 41,6 − 1,75 − 3,55 − 2 × 0,53 = 35,2 mm, reprise dans
+    // ChildDecorator::GIFT_NAME_WIDTH_PT. Le padding a cédé ce que la bordure a pris :
+    // le texte reste à sa place.
     .gift-card-label
       left: $label-left
       top: $label-top
       box-sizing: border-box
-      padding: 1mm 3.8mm 0.8mm 2mm
+      padding: 0.75mm 3.55mm 0.6mm 1.75mm
       background: $cream
       border: $label-border solid $navy
       font-family: 'Fredoka', sans-serif
@@ -155,7 +159,7 @@ body
 
     // Tailles de la maquette : 10,5 pt pour « Un livre pour », 12,5 pt pour le prénom.
     // Hauteur du texte : 11pt + 13pt = 8.5 mm, dans les 8.5 mm intérieurs du
-    // cartouche (10.9 mm − 1 − 0.8 mm de padding − 2 × 0.3 mm de bordure)
+    // cartouche (10.9 mm − 0.75 − 0.6 mm de padding − 2 × 0.53 mm de bordure)
     .gift-card-intro
       font-size: 10.5pt
       line-height: 11pt
