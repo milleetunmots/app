@@ -86,6 +86,14 @@ class Media::TextMessagesBundle < Medium
     self.class.rcs_single_text_enabled? ? 'single texte' : 'sms'
   end
 
+  # Un seul trio publié du nom : lui. Plusieurs ou aucun : celui de la clé.
+  def self.find_automatic(name:, key:)
+    named = kept.where(name: name).to_a
+    return named.first if named.one?
+
+    kept.find_by(key: key)
+  end
+
   def self.rcs_single_text_enabled?
     ENV['RCS_SINGLE_TEXT_ENABLED'].present?
   end
