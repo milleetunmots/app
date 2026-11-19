@@ -122,6 +122,28 @@ RSpec.describe 'Admin child support - création de RDV par l’accompagnante', t
       expect(params['first_name']).to eq(parent.first_name)
       expect(params['last_name']).to eq(parent.last_name)
     end
+
+    it 'préremplit l’e-mail du parent quand il en a un' do
+      parent.update!(email: 'parent@example.com')
+      get action_path
+      params = URI.decode_www_form(URI.parse(response.headers['Location']).query).to_h
+      expect(params['email']).to eq('parent@example.com')
+    end
+
+    it 'préremplit l’e-mail générique quand le parent n’en a pas' do
+      parent.update!(email: nil)
+      get action_path
+      params = URI.decode_www_form(URI.parse(response.headers['Location']).query).to_h
+      expect(params['email']).to eq('rdv@1001mots.org')
+    end
+
+    it 'conserve l’e-mail déjà présent dans le lien en cache' do
+      parent.update!(email: 'parent@example.com',
+                     calendly_booking_urls: { 'call0' => "#{cached_url}&email=deja%40example.com" })
+      get action_path
+      params = URI.decode_www_form(URI.parse(response.headers['Location']).query).to_h
+      expect(params['email']).to eq('deja@example.com')
+    end
   end
 
   context 'quand aucun lien n’est en cache' do
@@ -255,6 +277,17 @@ RSpec.describe 'Admin child support - création de RDV par l’accompagnante', t
       expect(Rollbar).to receive(:error) do |_message, details|
         expect(details[:child_support_id]).to eq(child_support.id)
         expect(details[:errors]).to all(satisfy { |e| !e.is_a?(Hash) || !e.key?(:error) })
+      end
+      get action_path
+    end
+
+    it 'transmet à Rollbar le statut et l’erreur Calendly pour le diagnostic' do
+      expect(Rollbar).to receive(:error) do |_message, details|
+        expect(details[:errors].first).to include(
+          status: 400,
+          calendly_error: { 'message' => 'Invalid request' },
+          date_setting: hash_including(:start_date, :end_date)
+        )
       end
       get action_path
     end

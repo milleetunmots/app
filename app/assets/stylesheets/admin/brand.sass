@@ -1,0 +1,399 @@
+@import variables
+
+// Charte graphique : ce que les variables du thème (cf. _variables.sass) ne couvrent pas.
+
+// Corps : arctic_admin pose la police et la taille (cf. _variables.sass), l'interligne est fixé ici
+body
+  font-family: $font-family-body
+  font-size: $text-md
+  line-height: $line-height-body
+
+// Titres dans la police du texte, en marine : une seule police dans l'admin
+h1, h2, h3, h4, #page_title
+  font-family: $font-family-body
+  font-weight: 600
+  color: $navy
+  letter-spacing: -0.01em
+
+h1, h2, #page_title
+  font-size: $title-md
+
+// Titre de la barre de titre : c'est le dernier maillon du fil d'Ariane (« Admin / Suivi /
+// Modifier »). arctic_admin le fixe à 16px et en graisse normale ; il prend la taille du
+// fil et se distingue par le gras et le marine.
+#title_bar #titlebar_left h2
+  font-size: $text-md
+  font-weight: 600
+  letter-spacing: 0
+
+h3
+  margin-bottom: 12px
+  font-size: $title-sm
+
+h4
+  font-size: $text-lg
+
+// Liens du contenu : dans l'encre du texte (cf. $link-primary-color) et en gras, ce qui
+// les distingue du texte courant sans ajouter de couleur ; soulignés au survol (arctic_admin
+// retire le soulignement). Sélection positive (contenu, colonne de droite, fil d'Ariane,
+// messages) : les boutons-liens d'arctic_admin (.member_link « Modifier » des listes,
+// actions du titre, menus déroulants, onglets) gardent leur style.
+$content-link: ':not(.button):not(.member_link):not(.dropdown_menu_button):not(.ui-tabs-anchor):not(.tag_display):not(.available_support_module)'
+
+#main_content, #sidebar, #title_bar .breadcrumb, .flashes
+  a#{$content-link}
+    font-weight: 600
+
+  a#{$content-link}:hover
+    text-decoration: underline
+
+// Mouvement : les changements d'état se fondent au lieu de sauter
+a, button, .button, input, select, textarea, table.index_table tbody tr > td
+  transition: color $transition, background-color $transition, border-color $transition, box-shadow $transition
+
+// Focus clavier : un seul anneau plein, détaché de l'élément pour contraster avec le
+// fond de la page plutôt qu'avec l'élément lui-même (bouton marine, pastille citron).
+// outline et non box-shadow : il survit au mode contraste élevé de Windows.
+// !important : arctic_admin retire l'outline au focus avec des sélecteurs plus précis
+// (ex. body.index .table_tools .dropdown_menu_button:focus).
+a, button, .button, input, select, textarea, .select2-selection
+  &:focus-visible
+    outline: 2px solid $focus !important
+    outline-offset: 2px
+
+// Champs : bord lisible sur la surface ; arctic_admin code le fond en blanc et le texte
+// des select (#5a5a5a) en dur
+input[type="text"], input[type="email"], input[type="password"],
+input[type="tel"], input[type="date"], input[type="datetime-local"],
+input[type="month"], input[type="search"], input[type="time"],
+input[type="url"], input[type="week"], input[type="number"],
+textarea, select, input[type="checkbox"]
+  border-color: $field-border
+  background-color: $surface
+  color: $ink
+
+  // Le remplissage automatique du navigateur repeint le fond en blanc (cf. arctic_admin)
+  &:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus
+    -webkit-box-shadow: 0 0 0 1000px $surface inset
+
+  &:hover
+    border-color: $ink-soft
+
+  &:focus
+    border-color: $action
+
+.select2-container--default
+  .select2-selection--single, .select2-selection--multiple
+    border-color: $field-border
+    border-radius: $radius
+    background-color: $surface
+
+  // Même hauteur que les champs texte et les menus natifs (36px)
+  .select2-selection--single
+    display: flex
+    align-items: center
+    height: 36px
+
+    .select2-selection__arrow
+      height: 34px
+
+  .select2-selection--multiple
+    min-height: 36px
+
+  // Valeur choisie : select2 la met en #444, hors palette
+  .select2-selection--single .select2-selection__rendered
+    color: $ink
+
+  // Texte indicatif (« Recherche globale », « N'importe lequel »…) : select2 le met en
+  // #999, à 2,6:1 sur la surface
+  .select2-selection--single .select2-selection__placeholder,
+  .select2-selection--multiple .select2-search__field::placeholder
+    color: $ink-soft
+
+  // Choix (tags, modules) : étiquettes neutres, filet et texte d'encre, espacées pour
+  // qu'une longue liste de modules reste lisible
+  .select2-selection--multiple
+    .select2-selection__rendered
+      padding: 4px 6px
+
+    .select2-selection__choice
+      margin: 3px 6px 3px 0
+      padding: 3px 8px
+      border: 1px solid $line-strong
+      border-radius: $radius - 2px
+      background-color: $sunken
+      color: $ink
+      font-weight: 500
+
+      .select2-selection__choice__remove
+        margin-right: 4px
+        color: $ink-soft
+
+        &:hover
+          color: $danger
+
+  // Option déjà choisie : fond neutre et gras, sans le gris froid (#ddd) de select2
+  .select2-results__option[aria-selected="true"]
+    background-color: $sunken
+    color: $ink
+    font-weight: 600
+
+  // Option survolée : bleu pâle, comme le survol des menus natifs, dans tous les menus de
+  // l'admin ; le texte reste lisible (noms bleus ou roses de la recherche globale compris)
+  .select2-results__option--highlighted[aria-selected],
+  .select2-results__option--highlighted[aria-selected="true"]
+    background-color: $info-bg
+    color: $ink
+
+// Focus d'un menu select2 : l'anneau de focus général (ci-dessus) s'accrochait au champ de
+// saisie caché dans le menu et dessinait un encart bleu autour du curseur. Il est retiré de
+// ce champ et porté par le menu entier, bord et liseré de la couleur du focus.
+.select2-container .select2-search__field:focus-visible
+  outline: none !important
+
+.select2-container--default
+  &.select2-container--focus, &.select2-container--open
+    .select2-selection--multiple, .select2-selection--single
+      border-color: $focus
+      box-shadow: 0 0 0 1px $focus
+
+// select2 masque le select d'origine (1px, position absolue, clip), mais arctic_admin lui
+// impose min-width: 50 % dans les formulaires et child_support_input.sass width: 100 %
+// !important : le select caché dépassait du bord droit et faisait défiler la page
+body .input select.select2-hidden-accessible, select.select2-hidden-accessible
+  width: 1px !important
+  min-width: 0 !important
+  max-width: 1px !important
+
+// Les navigateurs donnent leur propre police aux champs : ils reprennent celle du texte
+input, select, textarea, button
+  font-family: inherit
+
+// Case à cocher carrée : l'arrondi du thème (8px) la rendrait ronde, comme un bouton radio
+input[type="checkbox"]
+  border-radius: 4px
+
+::placeholder
+  color: $ink-soft
+
+// Listes : liens de tri de l'en-tête dans la couleur du texte, colonne triée comprise
+// (fond et survol des tableaux dans tables.sass)
+// arctic_admin remet le lien de tri en graisse normale : même graisse que l'en-tête,
+// qu'une colonne soit triable ou non
+table.index_table
+  thead th
+    a, a:link, a:visited
+      color: $ink
+      font-weight: inherit
+
+    // Colonne triée : même encre que les autres en-têtes, la flèche suffit à la repérer
+    &.sorted-asc, &.sorted-desc
+      color: $ink
+
+      a
+        color: $ink
+
+  tbody tr.selected > td
+    background-color: $highlight-soft
+
+// Messages flash : fond pâle et texte foncé de la même famille, comme les pastilles
+.flashes .flash
+  border-radius: $radius
+  background-color: $sunken
+  color: $ink
+
+  &.flash_notice
+    background-color: $success-bg
+    color: $success
+  &.flash_alert, &.flash_error
+    background-color: $danger-bg
+    color: $danger
+  &.flash_warning
+    background-color: $warning-bg
+    color: $warning
+  &.flash_info
+    background-color: $info-bg
+    color: $navy
+
+// Filtres rapides (scopes) : pastilles au contour net ; le filtre courant prend le
+// citron de la position « ici », comme l'entrée active du menu. Le survol reste neutre :
+// le citron est la seule couleur des filtres, le bleu est réservé aux actions.
+body.index .scopes .scope
+  a, &:first-child a, &:last-child a
+    border: 1px solid $field-border
+    border-radius: $radius-pill
+    background-color: $surface
+    color: $ink
+
+  &:hover a
+    border-color: $ink-soft
+    background-color: $sunken
+    color: $ink
+
+  &.selected a, &:active a, &:focus a
+    border-color: $highlight
+    background-color: $highlight
+    color: $navy
+    font-weight: 500
+
+// Menu des actions groupées : bouton marine plein, comme les menus du titre ; grisé tant
+// qu'aucune ligne n'est cochée
+body.index .table_tools .dropdown_menu_button
+  border-color: $action
+  background-color: $action
+  color: $surface
+  font-weight: 500
+
+  &:hover
+    background-color: $action-hover
+    color: $surface
+
+  &:before
+    border-color: $surface transparent
+
+  &.disabled, &.disabled:hover
+    border-color: $line-strong
+    background-color: $surface
+    color: $ink-soft
+
+// Surfaces : arctic_admin, select2 et jQuery UI codent le blanc en dur ; elles prennent
+// $surface, comme les composants de l'admin
+#main_content, #title_bar, #sidebar, #login, .ui-dialog, #ui-datepicker-div, .select2-dropdown
+  background-color: $surface
+
+// Cartes et panneaux : filet et ombre douce pour se détacher du fond
+#main_content, #title_bar, #sidebar, #login, .panel, .big-number, .availability-card,
+.card-text-messages-bundle
+  border: 1px solid $line
+  box-shadow: $shadow-card
+
+// Liseré rose sous la barre de titre (fil d'Ariane et actions)
+#title_bar
+  border-bottom: 3px solid $pink
+
+// Pas d'ombre empilée dans les cartes imbriquées
+.panel .panel, #sidebar .panel, #main_content .panel
+  box-shadow: none
+
+// Dans un bloc à onglets, le panneau n'a pas de filet : le cadre des onglets suffit
+.tabs.ui-tabs .panel
+  border: none
+
+// Barre d'onglets qui dépasse la largeur (fiche de suivi : sept onglets dans un panneau
+// étroit) : elle se répartit sur deux rangées. arctic_admin ne met son filet que sous la
+// barre entière et le trait de l'onglet actif (2px) sous son seul onglet : la rangée du
+// haut n'avait pas de filet et l'actif pouvait se trouver au milieu. Les rangées font
+// 50px chacune : le filet est dessiné par la barre sous chaque rangée (jusqu'au bout,
+// même quand la dernière rangée n'a qu'un onglet) et le trait de l'actif le recouvre,
+// en ombre interne pour ne pas changer la hauteur de l'onglet.
+.tabs.ui-tabs > .nav
+  display: flex
+  flex-wrap: wrap
+  border-bottom: none
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 49px, $line 49px, $line 50px)
+
+  > li
+    height: 50px
+    border-bottom: none
+
+    > a
+      display: flex
+      align-items: center
+      height: 100%
+      box-sizing: border-box
+
+    &.ui-tabs-active
+      box-shadow: inset 0 -2px 0 $action
+
+// Angles arrondis : arctic_admin laisse les panneaux, les onglets et la colonne de droite
+// à angles vifs ; overflow hidden pour que le contenu (en-tête, tableau) suive l'arrondi.
+// Pas sur #sidebar : sur les listes, le bouton qui ouvre les filtres est son :before,
+// posé 40px à sa gauche, et un overflow hidden le découpe.
+.panel, .tabs.ui-tabs, #sidebar
+  border-radius: $radius-lg
+
+.panel, .tabs.ui-tabs
+  overflow: hidden
+
+// Marge intérieure des panneaux : arctic_admin n'en met aucune, le titre et les tableaux
+// touchaient le filet
+.panel
+  > h3
+    padding: 14px 16px 0
+
+  > .panel_contents
+    padding: 0 16px 16px
+
+// Page de connexion : fond clair de l'admin, avec les formes du logo, des carrés aux
+// coins adoucis légèrement inclinés qui se chevauchent : citron et rose en haut à
+// gauche, un rectangle bleu allongé en bas à droite. Couleurs pâles, derrière la carte.
+=login-shape($color, $width, $height, $rotation)
+  content: ''
+  position: fixed
+  z-index: 0
+  width: $width
+  height: $height
+  border-radius: 22%
+  background-color: $color
+  transform: rotate($rotation)
+  pointer-events: none
+
+body.logged_out
+  background-color: $canvas
+
+  &:before
+    +login-shape(rgba($lime, 0.55), clamp(180px, 27vw, 360px), clamp(180px, 27vw, 360px), -7deg)
+    top: 7%
+    left: 5%
+
+  &:after
+    +login-shape(rgba($pink, 0.5), clamp(135px, 20vw, 255px), clamp(135px, 20vw, 255px), 6deg)
+    top: calc(7% + clamp(120px, 18vw, 240px))
+    left: calc(5% + clamp(120px, 18vw, 240px))
+
+  // Le rectangle bleu est porté par #wrapper, body n'ayant que deux pseudo-éléments
+  #wrapper:before
+    +login-shape(rgba($brand-blue, 0.22), clamp(270px, 39vw, 540px), clamp(120px, 17vw, 225px), -5deg)
+    right: 4%
+    bottom: 9%
+
+  // La carte passe devant les formes
+  #wrapper
+    position: relative
+    z-index: 1
+
+#login
+  border-radius: $radius-lg
+
+  // Logo de 1001mots au-dessus du titre (connexion et mot de passe oublié)
+  &:before
+    content: ''
+    display: block
+    width: 111px
+    height: 75px
+    margin: 0 auto 12px
+    background: image-url('logo-1001mots.png') center / contain no-repeat
+
+  // Étiquettes des champs en 500 comme dans les formulaires de l'admin (cf. form.sass)
+  .label
+    font-weight: 500
+
+  // « Garder ma session ouverte » : arctic_admin le met en 15px, hors de l'échelle
+  .input.boolean label
+    font-size: $text-md
+
+body.index
+  // Bouton qui ouvre les filtres : rose de la charte, icône marine
+  #sidebar:before
+    background-color: $pink
+    color: $navy
+
+  .table_tools
+    .dropdown_menu_list, .indexes.table_tools_segmented_control a
+      background-color: $surface
+
+// Pied de page : la mention « Propulsé par Active Admin » est retirée (traduction
+// active_admin.powered_by vidée, cf. active_admin.fr.yml). Le bloc #footer qui reste,
+// vide, ajoutait un espace sous le contenu des pages courtes.
+#footer
+  display: none

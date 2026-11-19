@@ -499,4 +499,182 @@ RSpec.describe BlockedSendAttempt do
       end)
     end
   end
+
+  describe "relance d'une petite mission bloquée" do
+    let!(:assignee) { FactoryBot.create(:admin_user, user_role: 'super_admin', email: ENV.fetch('BLOCKED_SEND_ASSIGNEE_EMAIL')) }
+    let(:camille) { FactoryBot.create(:admin_user, user_role: 'caller', name: 'Camille') }
+    let(:child_support) { child.child_support }
+    let(:not_saved_line) { BlockedSendAttempt::ResolveTaskService::CALL_GOALS_NOT_SAVED_LINE }
+
+    def send_call_goals!(template, text: message, call_goal: nil, target: child_support)
+      ProgramMessageService.new(
+        Time.zone.today,
+        Time.zone.now.strftime('%H:%M'),
+        ["parent.#{parent.id}"],
+        text,
+        acting_admin_user: camille,
+        call_goals: { child_support_id: target.id, template: template, call_goal: call_goal }.compact
+      ).call
+    end
+
+    def goals_sms
+      child_support.reload.attributes.values_at('call0_goals_sms', 'call1_goals_sms', 'call2_goals_sms', 'call3_goals_sms')
+    end
+
+    {
+      'call0_goals' => 'call0_goals_sms',
+      'call1_goals' => 'call1_goals_sms',
+      'call2_goals' => 'call2_goals_sms',
+      'call3_goals' => 'call3_goals_sms',
+      'call3_goals_observing' => 'call3_goals_sms',
+      'call3_goals_speaking' => 'call3_goals_sms'
+    }.each do |template, column|
+      context "avec le modèle #{template}" do
+        it "écrit le message dans #{column}, et seulement là" do
+          send_call_goals!(template)
+          attempt = described_class.last
+          expect(goals_sms).to all(be_blank)
+
+          attempt.relaunch!
+
+          expect(attempt.reload.status).to eq('relaunched')
+          expect(child_support.reload.send(column)).to eq(message)
+          expect(goals_sms.compact_blank).to eq([message])
+        end
+      end
+    end
+
+    it "clôt la tâche de l'autrice sans avertissement quand la case était vide" do
+      send_call_goals!('call1_goals')
+
+      described_class.last.relaunch!
+
+      task = Task.last
+      expect(task.status).to eq('done')
+      expect(task.description).to include('le message a été envoyé.')
+      expect(task.description).not_to include(not_saved_line)
+    end
+
+    it "retient la mission de l'appel 0 pour le rappel" do
+      send_call_goals!('call0_goals', call_goal: 'Chanter une comptine au bain')
+
+      described_class.last.relaunch!
+
+      expect(child_support.reload.call0_goal_sent).to eq('Chanter une comptine au bain')
+    end
+
+    it 'écrit le lien Typeform comme un envoi direct, avec le jeton du parent en variable' do
+      text = "#{message} https://form.typeform.com/to/abc#st=xyz"
+      send_call_goals!('call1_goals', text: text)
+
+      described_class.last.relaunch!
+
+      expect(child_support.reload.call1_goals_sms).to eq("#{message} https://form.typeform.com/to/abc#st={PARENT_SECURITY_TOKEN}")
+    end
+
+    it "écrit dans la case de l'appel choisi à l'envoi même si cet appel est passé" do
+      send_call_goals!('call1_goals')
+      child_support.update_columns(call1_status: 'OK', call2_status: 'OK')
+
+      described_class.last.relaunch!
+
+      expect(child_support.reload.call1_goals_sms).to eq(message)
+      expect(child_support.call2_goals_sms).to be_blank
+    end
+
+    it "écrit sur la fiche visée à l'envoi même si l'enfant courant du parent a changé" do
+      send_call_goals!('call1_goals')
+      other_child_support = FactoryBot.create(:child).child_support
+      allow_any_instance_of(Parent).to receive(:current_child).and_return(other_child_support.current_child)
+
+      described_class.last.relaunch!
+
+      expect(child_support.reload.call1_goals_sms).to eq(message)
+      expect(other_child_support.reload.call1_goals_sms).to be_blank
+    end
+
+    context 'quand le message a été bloqué sur deux motifs' do
+      around do |example|
+        previous = ENV.fetch('PHONE_NUMBER_FILTER_BLOCKING_ENABLED', nil)
+        ENV['PHONE_NUMBER_FILTER_BLOCKING_ENABLED'] = 'true'
+        example.run
+        ENV['PHONE_NUMBER_FILTER_BLOCKING_ENABLED'] = previous
+      end
+
+      let(:message) { "Cliquez ici : #{blocked_url} ou appelez le 0810 12 34 56" }
+
+      it 'écrit la petite mission une seule fois, sans avertissement' do
+        expect { send_call_goals!('call1_goals') }.to change(described_class, :count).by(2)
+
+        described_class.find_by(kind: 'url').relaunch!
+
+        expect(described_class.pluck(:status)).to all(eq('relaunched'))
+        expect(child_support.reload.call1_goals_sms).to eq(message)
+        expect(Task.last.description).not_to include(not_saved_line)
+      end
+    end
+
+    it "n'écrit pas la petite mission quand la relance échoue" do
+      send_call_goals!('call1_goals')
+      stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').
+        to_return(status: 200, body: { success: false, erreurs: 'campagne refusée' }.to_json)
+
+      described_class.last.relaunch!
+
+      expect(described_class.last.status).to eq('pending')
+      expect(child_support.reload.call1_goals_sms).to be_blank
+      expect(Task.last.status).not_to eq('done')
+    end
+
+    it "n'écrit pas la petite mission d'un envoi archivé" do
+      send_call_goals!('call1_goals')
+
+      described_class.last.archive!
+
+      expect(child_support.reload.call1_goals_sms).to be_blank
+    end
+
+    it "n'écrit rien pour un envoi bloqué sans petite mission" do
+      send_program_message!
+
+      described_class.last.relaunch!
+
+      expect(goals_sms).to all(be_blank)
+    end
+
+    context 'quand la case contient déjà une petite mission' do
+      it "la laisse en place et prévient l'autrice dans sa tâche" do
+        send_call_goals!('call1_goals')
+        child_support.update_column(:call1_goals_sms, 'PM reformulée')
+
+        described_class.last.relaunch!
+
+        expect(child_support.reload.call1_goals_sms).to eq('PM reformulée')
+        expect(Task.last.description).to end_with("le message a été envoyé.<br><br>#{not_saved_line}")
+      end
+
+      it "la laisse en place et prévient l'autrice même quand elle est identique" do
+        send_call_goals!('call1_goals')
+        child_support.update_column(:call1_goals_sms, message)
+
+        described_class.last.relaunch!
+
+        expect(child_support.reload.call1_goals_sms).to eq(message)
+        expect(Task.last.description).to end_with(not_saved_line)
+      end
+    end
+
+    it "rapporte sans faire échouer la relance quand la fiche n'existe plus" do
+      send_call_goals!('call1_goals')
+      attempt = described_class.last
+      attempt.update!(replay_params: attempt.replay_params.merge('call_goals' => { 'child_support_id' => 0, 'template' => 'call1_goals' }))
+      allow(Rollbar).to receive(:error)
+
+      service = attempt.relaunch!
+
+      expect(service.errors).to be_empty
+      expect(attempt.reload.status).to eq('relaunched')
+      expect(Rollbar).to have_received(:error).with('ChildSupport::SaveCallGoalsService', hash_including(blocked_send_attempt_id: attempt.id))
+    end
+  end
 end

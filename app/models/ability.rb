@@ -136,6 +136,7 @@ class Ability
       cannot_change_blocked_send_tasks
       can :manage, [Parent, Child, ChildSupport, ChildrenSupportModule]
       cannot %i[destroy discard], [Parent, Child, ChildSupport, ChildrenSupportModule]
+      cannot :print_address_labels, Child
       cannot :read_sensitive_information, ChildSupport
       cannot :update_sensitive_information, ChildSupport
       cannot :update_ok_for_solicitation, ChildSupport

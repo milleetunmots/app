@@ -6,7 +6,10 @@
 
       <div class="address">
         <div class="address-content <%= child.label_size_class %>">
-          <%= safe_join(child.label_address_lines, tag.br) %>
+          <% if child.label_heading_line %>
+            <div class="<%= ['address-heading', child.label_heading_class].compact.join(' ') %>"><%= child.label_heading_line %></div>
+          <% end %>
+          <div class="address-body"><%= safe_join(child.label_body_lines, tag.br) %></div>
         </div>
       </div>
 
@@ -18,18 +21,13 @@
 
     <% children_slice.each do |child| %>
 
+      <%# Ordre d'empilement voulu : l'icône, l'ombre, puis le cartouche qui les recouvre %>
       <div class="gift-card">
-        <div class="gift-card-content">
-          <table>
-            <tr>
-              <td class="gift-card-icon">
-                <%= @debug ? image_tag('gift.png') : wicked_pdf_image_tag('gift.png') %>
-              </td>
-              <td class="gift-card-text">
-                Un cadeau pour <%= child.first_name %>&nbsp;!
-              </td>
-            </tr>
-          </table>
+        <%= @debug ? image_tag('gift-1001mots.png', class: 'gift-card-icon') : wicked_pdf_image_tag('gift-1001mots.png', class: 'gift-card-icon') %>
+        <div class="gift-card-shadow"></div>
+        <div class="gift-card-label">
+          <div class="gift-card-intro">Un livre pour</div>
+          <div class="<%= ['gift-card-name', child.gift_name_size_class].compact.join(' ') %>"><%= child.first_name %></div>
         </div>
       </div>
 

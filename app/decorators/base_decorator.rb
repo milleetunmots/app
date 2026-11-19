@@ -18,15 +18,36 @@ class BaseDecorator < Draper::Decorator
     with_icon = options.delete(:with_icon)
 
     txt = options.delete(:label) || name
-    if with_icon
-      txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + "&nbsp;".html_safe + txt
-    end
+    txt = gender_icon + "&nbsp;".html_safe + txt if with_icon
     options[:class] = [
       options[:class],
       model.respond_to?(:discarded?) && (model.discarded? ? 'discarded' : 'kept')
     ].compact.join(' ')
     h.link_to txt, [:admin, model], options
   end
+
+  # Icône devant le nom, teintée selon le genre (gender-icon--boy / --girl), comme le
+  # lien du nom (name-link--boy / --girl) : cf. docs/brand_identity.md
+  def gender_icon
+    h.content_tag(:i, '', class: ['fas', "fa-#{icon_class}", 'gender-icon', gender_class('gender-icon')].compact.join(' '))
+  end
+
+  def name_link_classes
+    ['name-link', gender_class('name-link')].compact
+  end
+
+  # 'boy', 'girl' ou nil : défini par les décorateurs des enfants et des parents
+  def gender_modifier
+    nil
+  end
+
+  private
+
+  def gender_class(prefix)
+    "#{prefix}--#{gender_modifier}" if gender_modifier
+  end
+
+  public
 
   def tags(options = {})
     return unless options[:context]
@@ -41,7 +62,7 @@ class BaseDecorator < Draper::Decorator
         a tag.name,
           href: config.route_collection_path(nil, q: {tagged_with_all: [tag.name]}),
           class: 'tag_display',
-          style: "background-color: #{tag.color || '#CACACA'}"
+          style: TagDecorator.pill_style(tag.color)
         text_node "&nbsp;".html_safe
       end
     end

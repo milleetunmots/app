@@ -1,9 +1,11 @@
+@import variables
+
 #messages-form
   padding: 0 5%
   div
     margin-bottom: 20px
   label
-    font-weight: bold
+    font-weight: 600
   .datetime-container
     display: flex
   input.select2-search__field
@@ -14,16 +16,19 @@
 
 .message-variable
     padding: 0 16px
-    font-size: 14px
+    font-size: $text-md
     line-height: 27px
-    background-color: #f8f9fa
-    color: #3c4043
-    border: 1px solid #f8f9fa
-    border-radius: 4px
+    background-color: $sunken
+    color: $ink-soft
+    border: 1px solid $sunken
+    border-radius: $radius-pill
     margin: 1px
 
 .message-variable:hover
-    border-color: #dadce0
-    color: #202124
-    box-shadow: rgba(0, 0, 0, .1) 0 1px 1px
+    border-color: $field-border
+    color: $ink
 
+
+// Message composé à partir d'un modèle (cf. message.js) : en lecture seule, il passe en creux
+textarea[name="message"][readonly]
+  background-color: $sunken

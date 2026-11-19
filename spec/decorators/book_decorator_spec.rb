@@ -18,6 +18,24 @@ RSpec.describe BookDecorator do
       expect(link[:target]).to eq('_blank')
       expect(link).to have_css('img[style*="max-width: 100px;"]')
     end
+
+    it 'décrit la couverture pour les lecteurs d’écran, le lien n’ayant pas d’autre texte' do
+      book = FactoryBot.create(:book, title: 'Coucou voiture', media: FactoryBot.create(:media_image))
+
+      html = Capybara.string(book.decorate.cover_content_link_tag)
+
+      expect(html).to have_css('a img[alt="Couverture de « Coucou voiture »"]')
+    end
+  end
+
+  describe '#cover_link_tag' do
+    it 'décrit la couverture pour les lecteurs d’écran' do
+      book = FactoryBot.create(:book, title: 'Coucou voiture', media: FactoryBot.create(:media_image))
+
+      html = Capybara.string(book.decorate.cover_link_tag(max_height: '50px'))
+
+      expect(html).to have_css('a img[alt="Couverture de « Coucou voiture »"]')
+    end
   end
 
   describe '#pages' do

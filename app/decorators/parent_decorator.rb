@@ -1,9 +1,10 @@
 class ParentDecorator < BaseDecorator
 
-  GENDER_COLORS = {
-    m: :blue,
-    f: :rose
-  }
+  # Pastille de genre (status_tag) : fond rose ou bleu clair
+  GENDER_TAG_COLORS = { m: :blue, f: :rose }.freeze
+
+  # Teinte de genre du nom et de son icône (cf. BaseDecorator#name_link_classes)
+  GENDER_MODIFIERS = { m: 'boy', f: 'girl' }.freeze
 
   # La fiche de l'enfant courant, comme pour le reste de la fiche parent
   def ok_for_solicitation
@@ -12,19 +13,23 @@ class ParentDecorator < BaseDecorator
 
   def admin_link(options = {})
     child_support_id = options.delete(:child_support_id)
-    link_options = options.merge(class: GENDER_COLORS[model.gender.to_sym])
+    # Nom teinté selon le genre (name-link--boy / --girl)
+    link_options = options.merge(class: [options[:class], *name_link_classes].compact.join(' '))
     return super(link_options) if child_support_id.blank?
 
     # Le nom est isolé dans un span sécable : lui seul peut se couper en bout de
     # ligne, les icônes restent solidaires du dernier fragment (cf. cards.sass).
     name_link = super(link_options.merge(label: h.content_tag(:span, name, class: 'name-text')))
-    icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil')
+    icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil', aria: { hidden: true })
     h.content_tag(:span, class: 'name-with-edit') do
       name_link +
         h.link_to(
           icon,
           h.edit_admin_parent_path(model, back_to_child_support_id: child_support_id),
-          class: 'js-save-before-leave'
+          class: 'js-save-before-leave',
+          # Icône seule : le lien est nommé pour les lecteurs d'écran
+          title: 'Modifier',
+          aria: { label: "Modifier #{name}" }
         )
     end
   end
@@ -49,8 +54,12 @@ class ParentDecorator < BaseDecorator
 
   def gender_status
     arbre do
-      status_tag gender, class: GENDER_COLORS[model.gender.to_sym]
+      status_tag gender, class: GENDER_TAG_COLORS[model.gender.to_sym]
     end
+  end
+
+  def gender_modifier
+    GENDER_MODIFIERS[model.gender.to_sym]
   end
 
   def gender
@@ -81,30 +90,52 @@ class ParentDecorator < BaseDecorator
   # (code postal + ville) hors de l'étiquette de 44 mm.
   LABEL_LINE_MAX_LENGTH = 44
 
-  # [caractères par ligne rendue, lignes tenant dans l'étiquette, classe CSS]
-  #
-  # Calibré sur les étiquettes Agipa 119006 de 70 × 35 mm, soit 64 mm de large et
-  # 30 mm de haut une fois la marge intérieure retirée (cf. pdf.sass). Le nombre de
-  # lignes vient de l'interligne du palier — 4 × 18pt = 25.4 mm, 6 × 14pt = 29.6 mm,
-  # 7 × 11pt = 27.2 mm — et le nombre de caractères de la largeur utile.
-  # À reprendre si la taille des étiquettes ou les paddings de pdf.sass changent.
-  LABEL_FONT_TIERS = [
-    [26, 4, nil],
-    [34, 6, 'address-content--small'],
-    [42, 7, 'address-content--tiny']
+  # Zone utile des étiquettes de 70 × 35 mm, marge intérieure retirée (cf. pdf.sass) :
+  # 60 × 29 mm, en points (1 pt = 1/72 pouce). La marge (5 mm sur les côtés, 3 mm en
+  # haut et en bas) absorbe le décalage de l'imprimante, qui envoyait sinon le texte
+  # sur l'étiquette voisine.
+  LABEL_USABLE_WIDTH_PT = 60 / 25.4 * 72 # 170.1
+  LABEL_USABLE_HEIGHT_PT = 29 / 25.4 * 72 # 82.2
+
+  # Polices des étiquettes, cf. LabelTextLayout
+  LABEL_BODY_FONT = 'poppins-regular'.freeze
+  LABEL_HEADING_FONT = 'fredoka-bold'.freeze
+
+  # Titre : interligne 1.1 (cf. .address-heading de pdf.sass)
+  LABEL_HEADING_LINE_HEIGHT = 1.1
+
+  # [taille du titre en em du corps, classe CSS], du plus grand au plus petit, comme
+  # dans pdf.sass. 1.45 reprend le rapport 80 / 55 de la maquette ; resserré, le titre
+  # reste plus grand que le corps.
+  LABEL_HEADING_TIERS = [
+    [1.45, nil],
+    [1.2, 'address-heading--compact']
   ].freeze
 
-  def address_lines
-    attention_to = model.attention_to&.upcase&.sub(/\APOUR\b/, "A l'attention de")
-    lines =
-      case model.book_delivery_location
-      when 'home'
-        [letterbox_name.to_s.upcase, address]
-      when 'relative_home'
-        [letterbox_name.to_s.upcase, attention_to, address]
-      else
-        [book_delivery_organisation_name.to_s.upcase, attention_to, address]
-      end
+  # [taille du corps en pt, interligne du corps en pt, classe CSS], du plus grand au
+  # plus petit, comme dans pdf.sass. Le premier palier est celui de la maquette (corps
+  # de 11 pt, lignes serrées) : 1 titre + 5 lignes de corps y tiennent.
+  # À reprendre si la taille des étiquettes, les paddings ou les polices changent.
+  LABEL_FONT_TIERS = [
+    [11, 12.5, nil],
+    [9.5, 11, 'address-content--small'],
+    [8, 9.5, 'address-content--tiny'],
+    [7, 8, 'address-content--micro']
+  ].freeze
+
+  # upcase: false garde la casse saisie (étiquettes) ; la fiche de suivi et la
+  # variable SMS {PARENT_ADDRESS} restent en majuscules.
+  def address_lines(upcase: true)
+    name = delivery_name.to_s
+    attention_to = model.attention_to
+    if upcase
+      name = name.upcase
+      attention_to = attention_to&.upcase
+    end
+    attention_to = attention_to&.sub(/\Apour\b/i, "A l'attention de")
+    lines = [name]
+    lines << attention_to unless model.book_delivery_location == 'home'
+    lines << address
     lines << address_supplement if address_supplement.present?
     lines << [postal_code, city_name].join(' ')
     lines.compact_blank
@@ -115,17 +146,28 @@ class ParentDecorator < BaseDecorator
   end
 
   def label_address_lines
-    address_lines.map { |line| line.squish.truncate(LABEL_LINE_MAX_LENGTH) }
+    address_lines(upcase: false).map { |line| line.squish.truncate(LABEL_LINE_MAX_LENGTH) }
+  end
+
+  # 1re ligne de l'étiquette, mise en avant : nom sur la boîte aux lettres ou raison
+  # sociale. nil quand ce nom manque (donnée ancienne) : address_lines l'a alors
+  # retiré, et aucune ligne d'adresse ne doit prendre sa place en titre.
+  def label_heading_line
+    label_address_lines.first if delivery_name.present?
+  end
+
+  def label_body_lines
+    label_heading_line ? label_address_lines.drop(1) : label_address_lines
   end
 
   # Réduit la police quand l'adresse ne tient pas dans l'étiquette, pour que la
   # dernière ligne (code postal + ville) reste toujours visible.
   def label_size_class
-    lines = label_address_lines
-    tier = LABEL_FONT_TIERS.find do |chars_per_line, max_rows, _css_class|
-      lines.sum { |line| [(line.length.to_f / chars_per_line).ceil, 1].max } <= max_rows
-    end
-    (tier || LABEL_FONT_TIERS.last).last
+    label_tiers.first.last
+  end
+
+  def label_heading_class
+    label_tiers.last.last
   end
 
   def icon_class
@@ -189,17 +231,16 @@ class ParentDecorator < BaseDecorator
   def selected_support_module
     arbre do
       model.children_support_modules.includes(:support_module).decorate.group_by(&:child_id).each do |_, children_support_modules|
-        div(style: 'margin-bottom: 10px;') do
+        div(class: 'chosen-modules__group') do
           children_support_modules.each do |children_support_module|
             display_selected_module = "#{children_support_module.name} - #{children_support_module.created_at.strftime("%d/%m/%Y")}"
             display_selected_module = "#{display_selected_module} - #{children_support_module.child.first_name}" if children_support_module.child.have_siblings_on_same_group?
             airtable_url = children_support_module.support_module&.decorate&.airtable_folder_url
-            div do
+            div class: 'chosen-modules__item' do
               a display_selected_module,
                 href: admin_children_support_module_path(children_support_module),
                 class: 'available_support_module',
                 target: '_blank'
-              text_node "&nbsp;".html_safe
               # accès direct au contenu du module sur Airtable
               if airtable_url
                 a href: airtable_url,
@@ -224,6 +265,34 @@ class ParentDecorator < BaseDecorator
   private
 
   def child(child)
-    h.link_to child.decorate.name, [:admin, child], class: ChildDecorator::GENDER_COLORS[child.gender.to_sym]
+    child.decorate.admin_link
+  end
+
+  # [palier du corps, palier du titre] : le plus grand corps qui tienne, en resserrant
+  # d'abord le titre, car le corps est ce que lit le facteur
+  def label_tiers
+    LABEL_FONT_TIERS.product(LABEL_HEADING_TIERS).find do |(size, line_height, _), (heading_scale, _)|
+      label_height_pt(size, line_height, heading_scale) <= LABEL_USABLE_HEIGHT_PT
+    end || [LABEL_FONT_TIERS.last, LABEL_HEADING_TIERS.last]
+  end
+
+  # Hauteur de l'étiquette rendue au palier donné : chaque ligne occupe autant de
+  # lignes rendues que sa coupure l'impose, le titre avec sa taille et son interligne
+  def label_height_pt(size, line_height, heading_scale)
+    heading_size = size * heading_scale
+    body_rows = label_body_lines.sum { |line| label_rows(line, LABEL_BODY_FONT, size) }
+    heading_rows = label_heading_line ? label_rows(label_heading_line, LABEL_HEADING_FONT, heading_size) : 0
+
+    (heading_rows * heading_size * LABEL_HEADING_LINE_HEIGHT) + (body_rows * line_height)
+  end
+
+  def label_rows(line, font, size)
+    LabelTextLayout.rows(line, font: font, size_pt: size, width_pt: LABEL_USABLE_WIDTH_PT)
+  end
+
+  # Nom en tête de l'adresse : la boîte aux lettres pour un domicile (le sien ou
+  # celui d'un proche), la raison sociale pour une structure
+  def delivery_name
+    model.book_delivery_location.in?(%w[home relative_home]) ? letterbox_name : book_delivery_organisation_name
   end
 end

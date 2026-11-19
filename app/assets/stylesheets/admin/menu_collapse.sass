@@ -1,0 +1,79 @@
+@import variables
+
+// Menu latéral masquable, sur grand écran seulement (en dessous, arctic_admin le replie
+// déjà derrière son bouton). Masqué, il ne laisse qu'une bande marine contre le bord
+// gauche ; au survol de cette bande, ou quand un lien du menu a le focus clavier, il
+// glisse par-dessus le contenu sans le pousser. html.menu-collapsed est posée dès le
+// <head> par menu_collapse.js, avant le premier affichage : la page ne clignote pas.
+// Le bouton est dans le bloc du logo, à sa gauche, juste au-dessus du menu qu'il
+// commande (comme le bouton de menu des webmails) ; pas dans le menu, qui ne doit pas
+// grandir : sur un écran de 800px de haut, il défilerait et ses libellés passeraient à
+// la ligne.
+$menu-peek: 10px
+
+.header .site_title .menu-collapse-toggle
+  display: none
+
+@media screen and (min-width: $lg-width)
+  body.active_admin.logged_in
+    transition: padding-left 0.2s ease-in-out
+
+  .header .site_title .menu-collapse-toggle
+    display: flex
+    align-items: center
+    justify-content: center
+    position: absolute
+    top: 50%
+    left: 10px
+    width: 36px
+    height: 36px
+    padding: 0
+    transform: translateY(-50%)
+    border: none
+    border-radius: $radius
+    background: none
+    color: $ink-soft
+    cursor: pointer
+
+    // « Masquer » : double chevron vers le menu ; « Garder ouvert » : icône de menu
+    &:before
+      +icon("\f100")
+      font-size: 16px
+
+    &:hover
+      color: $ink
+      background-color: $sunken
+
+    &:focus-visible
+      outline: 2px solid $focus
+      outline-offset: 0
+
+  // Le menu glisse en même temps que le contenu se décale (0,2 s), au masquage comme à
+  // l'affichage : un seul mouvement
+  .header #tabs
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out
+
+  html.menu-collapsed
+    body.active_admin.logged_in
+      padding-left: $menu-peek
+
+    .header .site_title .menu-collapse-toggle:before
+      +icon("\f0c9")
+      font-size: 16px
+
+    .header #tabs
+      z-index: 4
+      transform: translateX(calc(-100% + #{$menu-peek}))
+      // Survol de la bande : se replie 0,3 s après que le curseur est sorti, pour
+      // pardonner un écart
+      transition-delay: 0.3s
+
+      &:hover, &:focus-within
+        transform: none
+        box-shadow: $shadow-float
+        transition-delay: 0.08s
+
+  // Pendant le clic sur le bouton (cf. menu_collapse.js), pas de délai : le menu part avec
+  // le contenu au lieu de le suivre 0,3 s plus tard
+  html.menu-toggling .header #tabs
+    transition-delay: 0s !important

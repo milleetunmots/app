@@ -1,2 +1,5 @@
-.archived-row
-  background-color: #f8d7da
+@import variables
+
+// Fond sur les cellules, pas sur la ligne : il suit l'arrondi du tableau (cf. tables.sass)
+.archived-row > td
+  background-color: $danger-bg

@@ -1,9 +1,13 @@
+@import variables
+
 .book-shipment-dates-banner
   .buttons-line
     justify-content: flex-start
     align-items: center
     gap: 15px
-    margin: 5px 0
+    // Même retrait que le titre du panneau (16px, cf. brand.sass) : « 1ère date » collait
+    // au bord
+    margin: 5px 16px 14px
     .book-shipment-date-field
       display: flex
       align-items: center
@@ -19,4 +23,4 @@
       width: auto
       flex-shrink: 0
       padding: 4px 10px
-      font-size: 90%
+      font-size: $text-xs

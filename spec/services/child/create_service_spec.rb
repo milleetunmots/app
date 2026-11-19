@@ -14,7 +14,6 @@ RSpec.describe Child::CreateService do
       gender: 'f'
     }
   }
-  let(:child_min_birthdate) { Child.min_birthdate }
 
   let(:registration_origin) { nil }
   let(:parent2_attributes) { {} }
@@ -48,8 +47,7 @@ RSpec.describe Child::CreateService do
       parent1_attributes,
       parent2_attributes,
       registration_origin,
-      source_attributes,
-      child_min_birthdate,
+      source_attributes
     )
   }
 
@@ -127,6 +125,38 @@ RSpec.describe Child::CreateService do
         expect(subject.call.child.parent1.first_name).to eq NameFormatConcern.format_first_name(parent2_attributes[:first_name])
         expect(subject.call.child.parent1.last_name).to eq NameFormatConcern.format_last_name(parent2_attributes[:last_name])
         expect(subject.call.child.parent2).to be nil
+      end
+    end
+
+    context "quand seul le sexe du parent 2 est renseigné" do
+      let(:parent2_attributes) { { first_name: "", last_name: "", phone_number: "", gender: "m" } }
+
+      it "inscrit l'enfant avec un seul parent" do
+        child = subject.call.child
+
+        expect(child.errors).to be_empty
+        expect(child).to be_persisted
+        expect(child.parent2).to be_nil
+        expect(child.should_contact_parent2).to be false
+      end
+    end
+
+    context "quand le parent 2 est commencé sans sexe" do
+      let(:parent2_attributes) { { first_name: "Karim", last_name: "Benali", phone_number: "" } }
+
+      it "ne reprend pas le sexe du parent 1" do
+        child = subject.call.child
+
+        expect(child).not_to be_persisted
+        expect(child.parent1.gender).to eq("f")
+        expect(child.parent2.gender).to be_blank
+      end
+
+      it "reprend l'adresse du parent 1" do
+        child = subject.call.child
+
+        expect(child.parent2.postal_code).to eq("75020")
+        expect(child.parent2.address).to eq(parent1_attributes[:address])
       end
     end
 

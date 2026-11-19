@@ -1,6 +1,14 @@
+@import variables
+
 .card
   position: relative
   margin-bottom: 10px
+
+  // Infos des parents et des enfants sur la fiche de suivi : à peine plus grandes que le
+  // texte courant (13px), à la même taille pour les deux ; hors de l'échelle, $text-lg
+  // (15px) se lisait comme un titre
+  &.card-parent, &.card-child
+    font-size: 14px
 
   // Les icônes (genre, SMS, livre, crayon) doivent rester sur la ligne du nom :
   // le nowrap du conteneur supprime toute coupure, y compris entre les deux
@@ -19,29 +27,29 @@
       margin-top: 5px
 
       .status_tag
-        font-size: 0.7em
+        font-size: $text-xs
 
     .tags
       display: inline-block
       margin-top: 5px
-      font-size: 0.8em
+      font-size: $text-xs
 
   &.card-child
     .tags
       display: inline-block
       margin-top: 5px
-      font-size: 0.8em
+      font-size: $text-xs
 
   &.card-text-messages-bundle
-    border: 1px solid #ccc
-    border-radius: 5px
+    border: 1px solid $line
+    border-radius: $radius-lg
 
     div, .body
       display: block
       padding: 10px
 
       &:not(:last-child)
-        border-bottom: 1px solid #ccc
+        border-bottom: 1px solid $line
 
     .body
       font-family: monospace
@@ -64,7 +72,7 @@
         position: absolute
         top: -15px
         right: -15px
-        background: white
+        background: $surface
         border: 1px solid $green
         border-radius: 100%
         color: $green

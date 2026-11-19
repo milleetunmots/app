@@ -1,0 +1,47 @@
+@import variables
+
+// Menu latéral marine, version sobre : le menu ne doit pas attirer l'œil plus que le
+// contenu. Texte en graisse normale ; l'entrée active n'a plus de pastille citron,
+// seulement une teinte claire et un trait citron à gauche.
+// Fond, bordure et survols viennent des variables $sidebar-* (cf. _variables.sass) ;
+// arctic_admin pose les couleurs de texte en dur sur les entrées et le chevron.
+.header #tabs
+  > li > a
+    color: $menu-text
+    font-size: $text-md
+    font-weight: 400
+
+  // Chevron : couleur seulement, la graisse 900 est celle de Font Awesome « solid » ;
+  // :nth-child(1) pour la même précision que le sélecteur d'arctic_admin. À 12px du bord
+  // (20px chez arctic_admin) : avec le menu à 200px, le compteur de « Gestion des
+  // envois » chevauchait le chevron
+  li.has_nested > a:nth-child(1):after
+    color: $menu-text
+    right: 12px
+
+  li.has_nested > ul
+    border-color: $menu-bg-nested
+    background-color: $menu-bg-nested
+
+    a
+      color: rgba(254, 253, 248, 0.85)
+      font-size: $text-sm
+      font-weight: 400
+
+  // Focus clavier : le bleu de brand.sass ne fait que 1,68:1 sur le marine, le citron 7,4:1
+  a:focus-visible
+    outline-color: $highlight !important
+    outline-offset: -2px
+
+  // Entrée active : teinte claire, trait citron de 3px à gauche, texte crème en 500.
+  // Une seule par menu : quand un sous-menu est ouvert, seule l'entrée du sous-menu
+  // porte le trait, sa catégorie prend la teinte du survol
+  li.current:not(.has_nested) > a, li.has_nested ul li.current > a
+    background-color: $menu-active
+    box-shadow: inset 3px 0 0 $highlight
+    color: $menu-text
+    font-weight: 500
+
+  li.has_nested.current > a:nth-child(1)
+    background-color: $menu-hover
+    color: $menu-text

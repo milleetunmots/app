@@ -7,7 +7,7 @@ class RedirectionController < ApplicationController
       security_code: params[:security_code]
     ).first
 
-    head 404 and return if @redirection_url.nil?
+    not_found and return if @redirection_url.nil?
 
     if admin_user_signed_in?
       puts "Not tracking visit since an admin is connected"

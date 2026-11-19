@@ -213,6 +213,30 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
         ))
       end
 
+      it 'expose le statut, l’erreur Calendly et la plage de dates envoyée' do
+        error = subject.call.errors.first
+        expect(error).to include(
+          status: 400,
+          calendly_error: { 'message' => 'Invalid request', 'details' => 'Host not found' },
+          host: calendly_user_uri,
+          date_setting: hash_including(type: 'date_range', start_date: group.call0_start_date.to_s,
+                                       end_date: group.call0_end_date.to_s),
+          date_override_id: nil
+        )
+      end
+
+      context 'quand Calendly ne renvoie pas de JSON' do
+        before do
+          stub_request(:post, 'https://api.calendly.com/one_off_event_types')
+            .to_return(status: 502, body: '<html>Bad Gateway</html>')
+        end
+
+        it 'garde le début du corps brut' do
+          error = subject.call.errors.first
+          expect(error).to include(status: 502, calendly_error: '<html>Bad Gateway</html>')
+        end
+      end
+
       it 'does not set booking_url' do
         subject.call
         parent.reload
@@ -415,6 +439,54 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
         subject.call
         expect(parent.reload.calendly_booking_urls["call#{call_session}"]).to include(booking_url)
         expect(parent2.reload.calendly_booking_urls["call#{call_session}"]).to include(booking_url)
+      end
+    end
+
+    context "historique des types d'événements one-off" do
+      it "enregistre l'uri du type d'événement de chaque parent avec sa session" do
+        parent2 = FactoryBot.create(:parent)
+        child.update!(parent2: parent2)
+        stub_request(:post, 'https://api.calendly.com/one_off_event_types').to_return(
+          { status: 201, body: { 'resource' => { 'booking_url' => booking_url, 'uri' => 'https://api.calendly.com/event_types/P1' } }.to_json },
+          { status: 201, body: { 'resource' => { 'booking_url' => booking_url, 'uri' => 'https://api.calendly.com/event_types/P2' } }.to_json }
+        )
+
+        service = described_class.new(child_support: child_support, call_session: 2).call
+
+        expect(service.errors).to be_empty
+        expect(parent.reload.calendly_one_off_event_type_uris).to eq('https://api.calendly.com/event_types/P1' => 2)
+        expect(parent2.reload.calendly_one_off_event_type_uris).to eq('https://api.calendly.com/event_types/P2' => 2)
+      end
+
+      it "conserve les uri des liens précédents quand un nouveau lien est généré" do
+        parent.update!(calendly_one_off_event_type_uris: { 'https://api.calendly.com/event_types/ANCIEN' => 1 })
+
+        described_class.new(child_support: child_support, call_session: 1, parent: parent).call
+
+        expect(parent.reload.calendly_one_off_event_type_uris).to eq(
+          'https://api.calendly.com/event_types/ANCIEN' => 1,
+          'https://api.calendly.com/one_off_event_types/xyz789' => 1
+        )
+      end
+
+      it "enregistre le lien sans uri quand la réponse de Calendly n'en contient pas" do
+        stub_request(:post, 'https://api.calendly.com/one_off_event_types')
+          .to_return(status: 201, body: { 'resource' => { 'booking_url' => booking_url } }.to_json)
+
+        service = described_class.new(child_support: child_support, call_session: 0, parent: parent).call
+
+        expect(service.errors).to be_empty
+        expect(parent.reload.calendly_booking_urls['call0']).to include(booking_url)
+        expect(parent.calendly_one_off_event_type_uris).to eq({})
+      end
+
+      it "n'enregistre aucune uri quand Calendly refuse la création" do
+        stub_request(:post, 'https://api.calendly.com/one_off_event_types')
+          .to_return(status: 400, body: { 'message' => 'Invalid request' }.to_json)
+
+        described_class.new(child_support: child_support, call_session: 0, parent: parent).call
+
+        expect(parent.reload.calendly_one_off_event_type_uris).to eq({})
       end
     end
   end

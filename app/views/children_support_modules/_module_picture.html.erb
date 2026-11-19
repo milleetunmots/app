@@ -1,0 +1,7 @@
+<span class="module-card-picture">
+  <% if support_module&.picture&.attached? %>
+    <%= support_module.picture_tag(alt: "") %>
+  <% else %>
+    <%= image_tag("child-picture.jpg", alt: "") %>
+  <% end %>
+</span>

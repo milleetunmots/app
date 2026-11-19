@@ -1,14 +1,132 @@
-$black: #36393D
-$blue: #2081C3
-$green: #138A36
-$grey: #CACACA
-$dark-grey: #5E6469
-$red: #B02B2C
-$rose: #DA4167
-$yellow: #E6AF2E
-$violet: #431F78
+// Palette de la charte graphique
+$navy: #0B4374
+$brand-blue: #3596FF
+$pink: #FFABCC
+$lime: #DEE450
+$cream: #FEFDF8
+$brand-black: #2B2B2B
 
-$error: #dc4747
-$warning: #f2a654
-$success: #46be8a
-$info: #57c7d4
+// Système de couleurs de l'admin.
+// Peu de couleurs, chacune avec un seul rôle : les neutres portent l'essentiel de
+// l'écran, la marque signale l'action et la position, les statuts portent un sens.
+
+// Neutres, accordés au crème : pas de blanc pur, qui éblouit à la longue. Les cartes
+// sont dans le crème de la charte, sur un fond de page nettement plus sombre pour
+// qu'elles s'en détachent ; $ink-soft garde au moins 5,38:1 sur chacun de ces fonds
+// et $field-border 4,6:1 sur les surfaces qui portent des champs (WCAG 1.4.11 demande 3:1 ;
+// plus marqué, les champs et les menus des filtres se repèrent d'un coup d'œil).
+$canvas: #ECE8DC
+$surface: $cream
+$sunken: #F4F1E8
+$line: #DBD6C6
+$line-strong: #C9C3B0
+$field-border: #706D60
+$ink: $brand-black
+$ink-soft: #5F5D55
+
+// Marque, un rôle par couleur : action (marine), position « ici » (citron), genre
+// (prénoms, icônes et pastilles bleus et roses). Les liens restent dans l'encre du texte,
+// en gras (cf. brand.sass) : trop de bleu foncé partout brouillait l'écran.
+$action: $navy
+$action-hover: #08355D
+$action-soft: #EEF2F7
+$highlight: $lime
+$highlight-soft: #F7F8E4
+$link: $ink
+// Anneau de focus clavier : bleu foncé (7,78:1 sur les cartes), seul bleu hors du genre
+$focus: #14509B
+// Genre : les teintes de la production (bleu plus foncé, rose plus clair que la charte)
+$boy: #2081C3
+$girl: #DA4167
+$girl-bg: #FFE1EC
+$pink-soft: #FFF1F6
+$boy-bg: #DCEBFF
+
+// Rose de la charte ($pink) : rôle « choix et accueil ». Fond des étiquettes de choix (tags,
+// modules choisis dans un menu) et de la page de connexion, avec du texte $ink (8,06:1).
+// Jamais en texte : 1,73:1 sur les surfaces. $pink-soft : fond des états vides. Le genre garde ses rose et bleu propres.
+
+// Menu latéral : marine, texte crème (9,96:1), sous-menus en marine foncé
+$menu-bg: $navy
+$menu-bg-nested: $action-hover
+$menu-text: $surface
+$menu-hover: rgba(255, 255, 255, 0.08)
+$menu-active: rgba(255, 255, 255, 0.14)
+
+// Statuts : fond pâle et texte foncé de la même famille (contraste ≥ 4,5:1)
+$success: #1E7A3C
+$success-bg: #E5F3E8
+$warning: #8A5300
+$warning-bg: #FCEFD6
+$danger: #B02B2C
+$danger-bg: #FBE9E9
+$info: #1A62B8
+$info-bg: #E6F0FF
+
+// Formes et mouvement
+$radius: 8px
+$radius-lg: 10px
+$radius-pill: 999px
+// Cartes et panneaux posés sur le fond ; les éléments flottants (menus, modales) ont $shadow-float
+$shadow-card: 0 1px 2px rgba(11, 67, 116, 0.06), 0 2px 8px rgba(11, 67, 116, 0.04)
+$shadow-float: 0 8px 24px rgba(11, 67, 116, 0.1)
+$transition: 150ms ease-out
+
+// Police : Inter partout dans l'admin (police d'interface, lisible à 13px dans les
+// listes), titres compris. Fredoka et Poppins restent sur les pages publiques et les PDF.
+$font-family-body: 'Inter', system-ui, Arial, sans-serif
+
+// Échelle typographique : aucune taille hors de ces sept valeurs dans admin/*,
+// graisses 400 (texte), 500 (étiquettes, mises en avant) et 600 (titres) seulement
+$text-xs: 11px
+$text-sm: 12px
+$text-md: 13px
+$text-lg: 15px
+$title-sm: 17px
+$title-md: 20px
+$title-lg: 28px
+$line-height-body: 1.45
+
+// Noms historiques, portés par les classes de couleur (.txt-*, a.blue, .status_tag.green…)
+// et les styles existants. arctic_admin définit $red, $green, $blue, $black et $grey sans
+// !default : chaque fichier admin/* réimporte donc ce fichier pour retrouver ces valeurs.
+$black: $ink
+$muted: $ink-soft
+$dark-grey: $ink-soft
+$grey: $line-strong
+$blue: $boy
+$blue-bg: $info-bg
+$rose: $girl
+$rose-bg: $girl-bg
+$yellow: $warning
+$yellow-bg: $warning-bg
+$green: $success
+$red: $danger
+$error: $danger
+
+// Thème arctic_admin : ses variables sont en !default et ce fichier est importé avant
+// lui (cf. active_admin.sass), ces valeurs remplacent donc les siennes
+$border-radius: $radius
+// Taille de texte d'arctic_admin (14px par défaut) : celle du corps de l'admin
+$font-size: $text-md
+$box-shadow: $shadow-float
+// Liens dans l'encre du texte, boutons en marine ; $primary-color reste marine (liseré de #login, onglets)
+$primary-color: $action
+$link-primary-color: $link
+$button-primary-color: $action
+$body-background: $canvas
+$header-background: $surface
+$text-color: $ink
+$text-color-important: $navy
+$border-color: $line
+$header-border-color: $line
+$sidebar-background: #0B4374
+$sidebar-border-color: #0B4374
+$sidebar-item-hover-background: $menu-hover
+$sidebar-nested-item-hover-background: $menu-hover
+$header-nav-action-hover-background: $highlight-soft
+$header-nav-action-active-background: $highlight-soft
+$status-tag-background-color: $sunken
+$status-tag-text-color: $ink-soft
+$status-tag-background-valid-color: $success-bg
+$status-tag-background-error-color: $danger-bg

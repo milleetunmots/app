@@ -11,6 +11,7 @@
 #  calendly_booking_urls               :jsonb
 #  calendly_initial_booking_dates      :jsonb
 #  calendly_last_booking_dates         :jsonb
+#  calendly_one_off_event_type_uris    :jsonb
 #  city_name                           :string           not null
 #  degree                              :string
 #  degree_country_at_registration      :string
@@ -123,7 +124,7 @@ class Parent < ApplicationRecord
   after_commit :create_aircall_contact, if: -> { created_by_us.present? }, on: :create
   after_validation :geocode, if: -> { address.present? && (address_changed? || city_name_changed? || postal_code_changed?) }
 
-  validates :gender, presence: true, inclusion: { in: GENDERS }
+  validates :gender, presence: true, inclusion: { in: GENDERS, allow_blank: true }
   validates :first_name, presence: true
   validates :book_delivery_location, presence: true
   validates :letterbox_name, presence: true, if: -> { book_delivery_location.in? %w[home relative_home] }
@@ -431,17 +432,7 @@ class Parent < ApplicationRecord
     return if book_delivery_organisation_name.present?
     return unless book_delivery_location.in?(%w[pmi temporary_shelter association police_or_military_station])
 
-    label = case book_delivery_location
-                when 'pmi'
-                  'Nom de la PMI'
-                when 'temporary_shelter'
-                  "Nom complet de la structure d'accueil"
-                when 'association'
-                  "Nom complet de l'association"
-                when 'police_or_military_station'
-                  'Nom complet de la caserne ou du commissariat'
-                end
-    errors.add(label.to_sym, "doit être rempli")
+    errors.add(:book_delivery_organisation_name, "doit être rempli")
   end
 
 

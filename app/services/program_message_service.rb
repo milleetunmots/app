@@ -5,7 +5,7 @@ class ProgramMessageService
 
   attr_reader :errors, :quota_guard, :blocked_send_guard
 
-  def initialize(planned_date, planned_hour, recipients, message, rcs_media_id = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil, blocked_send_attempt: nil, acting_admin_user: nil, defer_quota_block_report: false)
+  def initialize(planned_date, planned_hour, recipients, message, rcs_media_id = nil, redirection_target_id = nil, quit_message = false, workshop_id = nil, supporter = nil, group_status = ['active'], provider = 'spothit', aircall_number_id = nil, blocked_send_attempt: nil, acting_admin_user: nil, defer_quota_block_report: false, call_goals: nil)
     @replay_params = {
       planned_date: planned_date,
       planned_hour: planned_hour,
@@ -20,6 +20,10 @@ class ProgramMessageService
       provider: provider,
       aircall_number_id: aircall_number_id
     }
+    # Fiche et modèle de la petite mission : lus par la relance pour remplir la
+    # case PM, ignorés par le replayer. Absents hors PM pour ne pas changer la
+    # déduplication des tentatives (comparée sur replay_params).
+    @replay_params[:call_goals] = call_goals if call_goals.present?
     @blocked_send_attempt_id = blocked_send_attempt&.id
     @planned_timestamp = ActiveSupport::TimeZone['Europe/Paris'].parse("#{planned_date} #{planned_hour}").to_i
     @recipients = recipients || []

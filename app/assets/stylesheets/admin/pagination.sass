@@ -1,0 +1,22 @@
+@import variables
+
+// Pagination : la page courante prend le rose et le marine de la charte (5,77:1), en gras,
+// à la place du plein bleu et du texte blanc d'arctic_admin ; au survol, une autre page
+// passe en rose pâle.
+.pagination
+  // inline-block : en inline, l'espace qui suit le numéro dans le HTML restait dans le fond
+  // et décalait le chiffre vers la gauche
+  .page.current
+    display: inline-block
+    background-color: $pink
+    color: $navy
+    font-weight: 600
+    border-radius: $radius
+
+  .page a, .next a, .last a, .first a, .prev a
+    border-radius: $radius
+
+    &:hover, &:focus-visible
+      background-color: $pink-soft
+      color: $navy
+      text-decoration: none

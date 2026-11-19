@@ -1,5 +1,77 @@
-tbody
-	tr
-		border: 1px solid #e4eaec
-	tr:hover
-		background-color: rgba(228, 234, 236, 0.3)
+@import variables
+
+// Tous les tableaux de l'admin (listes, fiches, tableau de bord, colonne de droite) : cadre
+// arrondi porté par le tableau, pas par les lignes. En bordures fusionnées (arctic_admin),
+// les bordures des lignes ne suivent pas l'arrondi. Les fonds (en-tête, survol, ligne
+// cochée) sont posés sur les cellules, arrondies aux quatre angles : un fond posé sur la
+// ligne déborderait de l'arrondi.
+table
+  border-collapse: separate
+  border-spacing: 0
+  border: 1px solid $line
+  border-radius: $radius
+
+  > thead > tr, > tbody > tr, > tfoot > tr
+    border: none
+    background-color: transparent
+
+    > th, > td
+      border-bottom: 1px solid $line
+
+  > :last-child > tr:last-child > th, > :last-child > tr:last-child > td
+    border-bottom: none
+
+  > :first-child > tr:first-child
+    > :first-child
+      border-top-left-radius: $radius
+    > :last-child
+      border-top-right-radius: $radius
+
+  > :last-child > tr:last-child
+    > :first-child
+      border-bottom-left-radius: $radius
+    > :last-child
+      border-bottom-right-radius: $radius
+
+// En-tête en creux, survol neutre. Le citron reste réservé aux lignes cochées (cf. brand.sass).
+thead th
+  background-color: $sunken
+
+// arctic_admin met les tableaux en 12px : 13px, plus lisible sans élargir les colonnes
+thead th, tbody tr td
+  font-size: $text-sm
+
+// En-tête : texte plein (12,4:1 sur le creux), le secondaire manquait de contraste
+thead th
+  color: $ink
+  font-weight: 500
+
+// Lignes aérées : 40px au minimum, sans ajouter de colonne
+tbody tr td
+  height: 40px
+  padding: 10px 8px
+
+// État vide des listes (« Il n'y a pas encore de Suivi ») : discret et centré
+.blank_slate_container
+  padding: 24px 0
+  text-align: center
+  color: $ink
+  font-size: $text-md
+  font-weight: 500
+  // Fond rose pâle : un état vide se remarque et accueille ; texte $ink en 500 (12,9:1)
+  // plutôt que le gris $ink-soft (6,02:1), trop effacé sur le rose
+  background-color: $pink-soft
+  border-radius: $radius-lg
+
+tbody tr:hover > td, tbody tr:hover > th
+  background-color: $sunken
+
+// arctic_admin pose son propre survol, gris-bleu, sur la ligne avec des sélecteurs plus
+// précis : sur les listes et dans la colonne de droite des fiches
+.index_as_table tbody tr:hover,
+body.logged_in #active_admin_content.with_sidebar #sidebar tbody tr:hover
+  background-color: transparent
+
+// Numéros de téléphone (« Téléphone », « Numéro du parent 1 »…) : jamais coupés en deux
+td[class*="phone_number"]
+  white-space: nowrap

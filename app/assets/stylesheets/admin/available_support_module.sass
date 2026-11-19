@@ -1,12 +1,40 @@
+@import variables
+
+// Modules choisis (fiche de suivi, fiche enfant) : liens dans l'encre du texte, sans fond
 .available_support_module
-  color: #767E84
-  padding: 3px 5px 2px 5px
-  border-radius: 3px
-  background-color: #CACACA
+  color: $ink
+  font-weight: 500
+  line-height: 1.4
+
+  &:hover
+    text-decoration: underline
+
+// Fiche de suivi, carte du parent : « Modules choisis » en étiquette, comme les autres
+// champs de la fiche, puis la liste des modules sous un filet vertical qui les en distingue
+.chosen-modules
+  margin-top: 12px
+
+  &__label
+    margin-bottom: 4px
+    font-size: $text-md
+    font-weight: 600
+    color: $ink
+
+  &__list
+    padding-left: 10px
+    border-left: 2px solid $line-strong
+
+  // Un groupe par enfant ; un peu plus d'air entre les groupes qu'entre les modules
+  &__group + &__group
+    margin-top: 8px
+
+  &__item + &__item
+    margin-top: 4px
 
 // lien vers le contenu du module sur Airtable
 .support-module-airtable-link
-  font-size: 11px
+  margin-left: 4px
+  font-size: $text-xs
   color: $dark-grey
   text-decoration: none
   white-space: nowrap

@@ -78,4 +78,7 @@ Rails.application.configure do
   # Use an evented file watcher to asynchronously detect changes in source code,
   # routes, locales, etc. This feature depends on the listen gem.
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
+
+  # Tuile « 0 » du logo, pour distinguer les onglets locaux de ceux du staging et de la prod
+  config.x.favicon = 'favicon-dev.ico'
 end

@@ -1,11 +1,34 @@
 class ChildDecorator < BaseDecorator
 
-  GENDER_COLORS = { m: :blue, f: :rose, x: :grey }.freeze
+  # Pastille de genre (status_tag) : fond rose ou bleu clair
+  GENDER_TAG_COLORS = { m: :blue, f: :rose, x: :grey }.freeze
+
+  # Teinte de genre du prénom et de son icône (cf. BaseDecorator#name_link_classes)
+  GENDER_MODIFIERS = { m: 'boy', f: 'girl', x: nil }.freeze
 
   GENDER_CLASSES = { m: :male, f: :female, x: :unknown }.freeze
 
+  # Largeur utile du prénom sur l'étiquette cadeau : cartouche de 41,6 mm, moins
+  # 1,75 + 3,55 mm de padding et 2 × 0,53 mm de bordure (cf. pdf.sass), en points
+  GIFT_NAME_WIDTH_PT = 35.2 / 25.4 * 72 # 99.8
+
+  # [taille du prénom en pt, classe CSS], du plus grand au plus petit, comme dans
+  # pdf.sass ; 12,5 pt est la taille de la maquette. Le prénom prend le plus grand
+  # palier où il tient sur une ligne, mesuré sur les glyphes de Fredoka Bold.
+  GIFT_NAME_FONT_TIERS = [
+    [12.5, nil],
+    [11, 'gift-card-name--small'],
+    [9, 'gift-card-name--tiny'],
+    [7.5, 'gift-card-name--micro']
+  ].freeze
+
+  # Prénom teinté selon le genre (name-link--boy / --girl)
   def admin_link(options = {})
-    super(options.merge(class: GENDER_COLORS[safe_gender.to_sym]))
+    super(options.merge(class: [options[:class], *name_link_classes].compact.join(' ')))
+  end
+
+  def gender_modifier
+    GENDER_MODIFIERS[safe_gender.to_sym]
   end
 
   def ok_for_solicitation
@@ -16,8 +39,7 @@ class ChildDecorator < BaseDecorator
     options = { with_icon: true, target: '_blank' }
     # Le nom est isolé dans un span sécable : lui seul peut se couper en bout de
     # ligne, les icônes restent solidaires du dernier fragment (cf. cards.sass).
-    txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + '&nbsp;'.html_safe +
-          h.content_tag(:span, name, class: 'name-text')
+    txt = gender_icon + '&nbsp;'.html_safe + h.content_tag(:span, name, class: 'name-text')
     is_current_child = model.current_child?
     txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-sms') if is_current_child
     txt = txt + '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fas fa-book') if model.group_status == 'active'
@@ -29,20 +51,22 @@ class ChildDecorator < BaseDecorator
                         'Je reçois les livres'
                       end
     options[:class] = [
+      *name_link_classes,
       options[:class],
-      model.respond_to?(:discarded?) && (model.discarded? ? 'discarded' : 'kept'),
-      options[:class],
-      GENDER_COLORS[safe_gender.to_sym]
+      model.respond_to?(:discarded?) && (model.discarded? ? 'discarded' : 'kept')
     ].compact.join(' ')
     return h.link_to(txt, [:admin, model], options) if child_support_id.blank?
 
-    icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil')
+    icon = '&nbsp;'.html_safe + h.content_tag(:i, '', class: 'fa-solid fa-pencil', aria: { hidden: true })
     h.content_tag(:span, class: 'name-with-edit') do
       h.link_to(txt, [:admin, model], options) +
         h.link_to(
           icon,
           h.edit_admin_child_path(model, back_to_child_support_id: child_support_id),
-          class: 'js-save-before-leave'
+          class: 'js-save-before-leave',
+          # Icône seule : le lien est nommé pour les lecteurs d'écran
+          title: 'Modifier',
+          aria: { label: "Modifier #{name}" }
         )
     end
   end
@@ -80,7 +104,7 @@ class ChildDecorator < BaseDecorator
 
   def gender_status
     arbre do
-      status_tag gender, class: GENDER_COLORS[safe_gender.to_sym]
+      status_tag gender, class: GENDER_TAG_COLORS[safe_gender.to_sym]
     end
   end
 
@@ -97,10 +121,9 @@ class ChildDecorator < BaseDecorator
   def gendered_name_with_age(options = {})
     with_icon = options.delete(:with_icon)
     txt = options.delete(:label) || name
-    txt = h.content_tag(:i, '', class: "fas fa-#{icon_class}") + '&nbsp;'.html_safe + txt if with_icon
+    txt = gender_icon + '&nbsp;'.html_safe + txt if with_icon
     h.content_tag :span do
-      h.content_tag(:span, txt, { class: "txt-#{GENDER_COLORS[safe_gender.to_sym]}" }.merge(options))
-      + ' (' + age + ')'
+      h.content_tag(:span, txt, options) + ' (' + age + ')'
     end
   end
 
@@ -109,11 +132,11 @@ class ChildDecorator < BaseDecorator
   end
 
   def parent1
-    parent decorated_parent1, model.should_contact_parent1?
+    decorated_parent1&.admin_link
   end
 
   def parent2
-    parent decorated_parent2, model.should_contact_parent2?
+    decorated_parent2&.admin_link
   end
 
   def parent1_gender
@@ -232,8 +255,27 @@ class ChildDecorator < BaseDecorator
     model.parent1.decorate.label_address_lines
   end
 
+  def label_heading_line
+    model.parent1.decorate.label_heading_line
+  end
+
+  def label_body_lines
+    model.parent1.decorate.label_body_lines
+  end
+
   def label_size_class
     model.parent1.decorate.label_size_class
+  end
+
+  def label_heading_class
+    model.parent1.decorate.label_heading_class
+  end
+
+  # Réduit le prénom de l'étiquette cadeau pour qu'il tienne sur une ligne
+  def gift_name_size_class
+    width_em = LabelTextLayout.width_em(model.first_name, 'fredoka-bold')
+    tier = GIFT_NAME_FONT_TIERS.find { |size, _css_class| width_em * size <= GIFT_NAME_WIDTH_PT }
+    (tier || GIFT_NAME_FONT_TIERS.last).last
   end
 
   def address_with_letterbox_name
@@ -278,14 +320,6 @@ class ChildDecorator < BaseDecorator
 
   def decorated_parent2
     @decorated_parent2 ||= model.parent2&.decorate
-  end
-
-  def parent(decorated_parent, should_contact_parent)
-    return nil unless decorated_parent
-
-    options = {}
-    options[:class] = 'txt-underline' if should_contact_parent
-    decorated_parent.admin_link(options)
   end
 
   def parent_attribute(decorated_parent, key)

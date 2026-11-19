@@ -1,14 +1,131 @@
 @import variables
 
+// Filtres des listes : compacts, pour enchaîner plusieurs filtres sans faire défiler la
+// colonne. Étiquette petite collée à son champ, champs de 30px, pas de filet entre les
+// filtres, « Contient | texte » et « De | À » toujours sur une ligne, cases à cocher sur
+// deux colonnes.
+$filter-field-height: 30px
+
 #sidebar
   .sidebar_section
     .filter_form
+      .input
+        margin-bottom: 8px
+        padding-bottom: 0
+        border-bottom: none
+
+      .label
+        margin-bottom: 2px
+        font-size: $text-sm
+        font-weight: 500
+        line-height: 1.3
+
+      input[type="text"], input[type="number"], input[type="date"], input[type="search"], select
+        height: $filter-field-height
+        padding-top: 3px
+        padding-bottom: 3px
+        font-size: $text-sm
+
+      .select2-container--default .select2-selection--single
+        height: $filter-field-height
+
+        .select2-selection__rendered
+          font-size: $text-sm
+
+        .select2-selection__arrow
+          height: $filter-field-height - 2px
+
+      .select2-container--default .select2-selection--multiple
+        min-height: $filter-field-height
+
+        .select2-selection__rendered
+          padding: 2px 6px
+
+        .select2-selection__choice
+          margin: 2px 4px 2px 0
+          padding: 1px 6px
+          font-size: $text-sm
+
+        // Champ de saisie interne de select2 : pas la hauteur des champs ci-dessus
+        .select2-search__field
+          height: 22px
+          margin-top: 2px
+          padding: 0
+
+      // « Contient | texte » et « De | À » : deux colonnes séparées par un espace, au lieu de
+      // deux champs collés (arctic_admin les met à 50 %, l'un flottant à droite)
+      .select_and_search, .filter_date_range
+        display: grid
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)
+        gap: 2px 6px
+
+        > .label, > .inline-errors, > .inline-hints
+          grid-column: 1 / -1
+
+        > select, > input
+          float: none
+          width: 100%
+          min-width: 0
+          margin: 0
+
       .check_boxes
+        .choices-group
+          columns: 2
+          column-gap: 8px
+
+        .choice
+          break-inside: avoid
+
         label
+          font-size: $text-sm
+          line-height: 1.3
+
           input[type="checkbox"]
-            height: 15px
+            height: 13px
+            margin: 0 4px 0 0
+
+      .boolean label
+        font-size: $text-sm
 
 .filter_check_boxes
   .choices label
     display: block
-    margin-bottom: 5px
+    margin-bottom: 2px
+
+// « Filtrer » et « Supprimer les filtres » : le lien ne se coupe plus en deux lignes ;
+// faute de place, il passe en entier sous le bouton
+#sidebar .sidebar_section .buttons
+  flex-wrap: wrap
+  justify-content: flex-start
+  gap: 8px 16px
+
+  input[type="submit"]
+    margin-right: 0
+
+  .clear_filters_btn
+    white-space: nowrap
+
+// Petit écran : sur les fiches et les formulaires, la colonne de droite (« Historique »)
+// passe sous le contenu au lieu de rester à côté, où arctic_admin laisse 230px de large
+// au panneau et écrase le contenu sur le reste (145px à 375px). Pas sur les listes
+// (body.index), où la colonne est un volet coulissant.
+@media screen and (max-width: $sm-width - 1px)
+  body.show, body.edit
+    #active_admin_content.with_sidebar
+      // flottant chez arctic_admin : la colonne remonterait dessous
+      #main_content_wrapper
+        float: none
+        width: 100%
+        padding-right: 0
+
+      #sidebar
+        display: block
+        position: static
+        width: 100%
+        margin-top: 16px
+
+// Copie des boutons en haut des filtres (cf. filters_top_buttons.js), séparée des champs
+#sidebar .sidebar_section .filter_form .buttons--top
+  margin: 0 0 12px
+  padding-bottom: 12px
+  border-bottom: 1px solid $line

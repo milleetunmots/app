@@ -13,8 +13,7 @@ class BookDecorator < BaseDecorator
   def cover_link_tag(**options)
     return nil unless model.media&.file&.attached?
 
-    options.merge!(source: model.media.file)
-    image_link_tag(**options)
+    image_link_tag(**options, source: model.media.file, alt: cover_alt)
   end
 
   # Couverture cliquable qui ouvre les pages du livre (couverture + photos intérieures)
@@ -22,7 +21,7 @@ class BookDecorator < BaseDecorator
   def cover_content_link_tag(**options)
     return nil unless model.media&.file&.attached?
 
-    cover = h.image_tag_with_max_size(**options, source: model.media.file)
+    cover = h.image_tag_with_max_size(**options, source: model.media.file, alt: cover_alt)
     h.link_to cover, h.read_content_admin_book_path(model), target: '_blank', rel: 'noopener'
   end
 
@@ -45,6 +44,11 @@ class BookDecorator < BaseDecorator
   end
 
   private
+
+  # Seul contenu des liens de couverture : il les nomme pour les lecteurs d'écran
+  def cover_alt
+    "Couverture de « #{model.title} »"
+  end
 
   # Sans tri explicite, l'ordre des pièces jointes n'est pas garanti : on suit l'ordre d'import.
   def ordered_interior_photos

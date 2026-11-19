@@ -1,7 +1,5 @@
-<div id="update-success-content-top" class="p-5">
-  <p>En attendant le prochain thème, suivez-nous ici pour plus d'idées et de conseils : </p>
-  <br>
-  <%= link_to(image_tag("instagram_icon.png", class: "card-img-top", style: 'width: 5rem;'), ENV['INSTAGRAM_LINK'], target: '_blank') %>
-  <br>
-  <%= link_to("1OO1mots", ENV['INSTAGRAM_LINK'], target: '_blank', style: 'font-weight: bold;') %>
+<div class="module-confirmation-card module-confirmation-instagram">
+  <p>En attendant le prochain thème, suivez-nous ici pour plus d'idées et de conseils :</p>
+  <%= link_to(image_tag("instagram_icon.png", alt: "Instagram"), ENV['INSTAGRAM_LINK'], target: '_blank', class: 'module-confirmation-instagram-icon') %>
+  <%= link_to("1OO1mots", ENV['INSTAGRAM_LINK'], target: '_blank', class: 'module-confirmation-instagram-name') %>
 </div>

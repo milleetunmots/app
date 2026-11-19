@@ -7,14 +7,14 @@ ul.aat-ul
     &.aat-task
       .aat-related-title
         .aat-related
-          font-weight: bold
+          font-weight: 600
 
         .aat-related + .aat-title
           &:before
             content: ' - '
 
       .aat-due-date-assignee
-        font-size: 80%
+        font-size: $text-xs
 
         .aat-due-date
           margin-right: 10px
@@ -24,7 +24,7 @@ ul.aat-ul
 
       &.aat-past
         .aat-due-date
-          color: $error
+          color: $danger
 
   .aat-empty
     list-style: none
@@ -42,7 +42,7 @@ ul.aat-ul
 .flash .flash-task-link
   margin-left: 12px
   color: inherit
-  font-weight: bold
+  font-weight: 600
   text-decoration: underline
   white-space: nowrap
 

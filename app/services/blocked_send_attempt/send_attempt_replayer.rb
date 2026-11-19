@@ -1,16 +1,22 @@
 class BlockedSendAttempt::SendAttemptReplayer
 
+  # Message transmis au service rejoué, après la normalisation qu'il y applique
+  # en place (jeton Typeform, variables Aircall) : le même texte qu'un envoi
+  # direct aurait enregistré dans la case PM.
+  attr_reader :message
+
   def initialize(blocked_send_attempt)
     @attempt = blocked_send_attempt
   end
 
   def call
     params = @attempt.replay_params.symbolize_keys
+    @message = params[:message]
     service_class(params).new(
       params[:planned_date],
       params[:planned_hour],
       params[:recipients],
-      params[:message],
+      @message,
       params[:rcs_media_id],
       params[:redirection_target_id],
       params[:quit_message],

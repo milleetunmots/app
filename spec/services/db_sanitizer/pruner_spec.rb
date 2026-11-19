@@ -52,6 +52,26 @@ RSpec.describe DbSanitizer::Pruner do
       end
     end
 
+    context "quand un enfant d'une fratrie conservée a un parent2 absent des groupes récents" do
+      let(:recent_group) { FactoryBot.create(:group, created_at: 6.months.ago) }
+      let(:old_group)    { FactoryBot.create(:group, created_at: 2.years.ago) }
+      let!(:recent_child) { FactoryBot.create(:child, group: recent_group, group_status: 'active') }
+      let(:other_parent) { FactoryBot.create(:parent) }
+      let!(:sibling) do
+        FactoryBot.create(:child, parent1: recent_child.parent1, parent2: other_parent, group: old_group, group_status: 'active')
+      end
+      let!(:old_child) { FactoryBot.create(:child, group: old_group, group_status: 'active') }
+
+      it 'ne lève pas d’erreur de clé étrangère' do
+        expect { pruner.call }.not_to raise_error
+      end
+
+      it 'conserve le parent2 de l’enfant de la fratrie' do
+        pruner.call
+        expect(Parent.find_by(id: other_parent.id)).to be_present
+      end
+    end
+
     context 'when there are no groups in the last N months' do
       let!(:old_child) { FactoryBot.create(:child, group: FactoryBot.create(:group, created_at: 2.years.ago), group_status: 'active') }
 

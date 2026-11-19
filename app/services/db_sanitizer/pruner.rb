@@ -23,7 +23,7 @@ module DbSanitizer
       Child.where(id: children_to_delete_ids).delete_all
 
       delete_orphaned_child_supports
-      delete_orphaned_parents(kept_parent_ids)
+      delete_orphaned_parents
     end
 
     private
@@ -52,8 +52,13 @@ module DbSanitizer
       ChildSupport.where(id: orphaned_ids).delete_all
     end
 
-    def delete_orphaned_parents(kept_parent_ids)
-      orphaned_parent_ids = Parent.where.not(id: kept_parent_ids).ids
+    def find_orphaned_parent_ids
+      parent2_ids = Child.where.not(parent2_id: nil).select(:parent2_id)
+      Parent.where.not(id: Child.select(:parent1_id)).where.not(id: parent2_ids).ids
+    end
+
+    def delete_orphaned_parents
+      orphaned_parent_ids = find_orphaned_parent_ids
       return if orphaned_parent_ids.empty?
 
       ActsAsTaggableOn::Tagging

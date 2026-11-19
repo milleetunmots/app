@@ -1,16 +1,40 @@
 @import variables
 
-.status_tag
-  &.blue
-    background-color: $blue
-  &.green
-    background-color: $green
-  &.rose
-    background-color: $rose
-  &.yellow
-    background-color: $yellow
+// Pastilles : aplats vifs pour se repérer d'un coup d'œil (booléens, genre, niveaux de
+// pratiques parentales…), texte blanc, ou encre sur le jaune. Sans pastille de couleur,
+// une étiquette reste neutre.
+$tag-yellow: #E6AF2E
+$tag-grey: #77746A
 
-  &.no
-    background-color: $grey
-  &.yes
-    background-color: $green
+.status_tag
+  display: inline-block
+  padding: 2px 10px
+  border-radius: $radius-pill
+  background-color: $sunken
+  color: $ink-soft
+  // Taille fixe : en em, la pastille descendait à 11px dans les tableaux (13px)
+  font-size: $text-xs
+  font-weight: 600
+  letter-spacing: 0
+  text-transform: none
+
+  &.green, &.yes, &.ok, &.published, &.complete, &.completed
+    background-color: $success
+    color: #FFFFFF
+  &.yellow
+    background-color: $tag-yellow
+    color: $ink
+  &.red, &.cancel, &.error
+    background-color: $danger
+    color: #FFFFFF
+  // Bleu et rose du genre (garçon / fille), ou catégorie sans notion de statut
+  &.blue
+    background-color: $boy
+    color: #FFFFFF
+  &.rose
+    background-color: $girl
+    color: #FFFFFF
+
+  &.no, &.grey
+    background-color: $tag-grey
+    color: #FFFFFF

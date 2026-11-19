@@ -1,21 +1,34 @@
 @import variables
 
+// Liens dans l'encre du texte et en gras (cf. brand.sass) ; exceptions ci-dessous
 a
-  &.blue
-    color: $blue
-  &.rose
-    color: $rose
-
   &.discarded
     text-decoration: line-through
 
+  // Cohortes : exactement les couleurs de la production. En cours en vert, terminée en
+  // rouge barré, en pause en rouge, en attente en gris clair.
   &.group-admin-link
-    color: $green
+    color: #138A36
 
     &.stop
-      color: $red
+      color: #B02B2C
       text-decoration: line-through
     &.pause
-      color: $red
+      color: #B02B2C
     &.wait
-      color: $grey
+      color: #CACACA
+
+// Prénoms des enfants et des parents : teinte de genre, distincte du bleu des liens
+// (classes posées par les décorateurs) ; genre inconnu en gris de texte secondaire
+// ($ink-soft, 6,48:1 sur les cartes), pour ne pas dominer les noms teintés
+a.name-link
+  color: $ink-soft
+  font-weight: 500
+
+  &:hover, &:focus-visible
+    text-decoration: underline
+
+a.name-link--boy, .gender-icon--boy
+  color: $boy
+a.name-link--girl, .gender-icon--girl
+  color: $girl

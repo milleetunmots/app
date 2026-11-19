@@ -1,37 +1,19 @@
-<div id="update">
-
-  <div class="container" id="update-content">
-
-    <%= simple_form_for @workshop_participation, url: @workshop_participation_action_path do %>
-
-      <% if @workshop_time_slots.size == 1 %>
-        <h1>
-          Allez-vous participer à l'atelier?
-        </h1>
-
-        <div class="text-center end-buttons horizontal">
-          <button name="workshop_participation[workshop_time_slot]" value="1" type="submit" class="btn-primary btn-lg">
-            Oui
-          </button>
-          <button name="workshop_participation[workshop_time_slot]" value="0" type="submit" class="btn-danger btn-lg">
-            Non
-          </button>
-        </div>
-      <% else %>
-        <h1>
-          A quel créneau de l'atelier du <%= @workshop_date.strftime("%d/%m/%Y") %> souhaitez-vous participer ?
-        </h1>
-        <div class="text-center end-buttons">
-          <% @workshop_time_slots.each_with_index do |workshop_time_slot, index|  %>
-            <button name="workshop_participation[workshop_time_slot]" value=<%= index + 1 %> type="submit" class="btn-primary btn-lg">
-              <%= workshop_time_slot.strftime("%Hh%M") %>
-            </button>
+<% single_slot = @workshop_time_slots.size == 1 %>
+<% title = single_slot ? "Allez-vous participer à l'atelier ?" : "A quel créneau de l'atelier du #{@workshop_date.strftime('%d/%m/%Y')} souhaitez-vous participer ?" %>
+<%= render layout: 'shared/charter_page', locals: { title: title } do %>
+  <%= simple_form_for @workshop_participation, url: @workshop_participation_action_path do %>
+    <div class="charter-page-card">
+      <div class="charter-page-actions">
+        <% if single_slot %>
+          <button name="workshop_participation[workshop_time_slot]" value="1" type="submit" class="btn charter-page-button">Oui</button>
+          <button name="workshop_participation[workshop_time_slot]" value="0" type="submit" class="btn charter-page-button charter-page-button--secondary">Non</button>
+        <% else %>
+          <% @workshop_time_slots.each_with_index do |workshop_time_slot, index| %>
+            <button name="workshop_participation[workshop_time_slot]" value="<%= index + 1 %>" type="submit" class="btn charter-page-button"><%= workshop_time_slot.strftime("%Hh%M") %></button>
           <% end %>
-          <button name="workshop_participation[workshop_time_slot]" value="0" type="submit" class="btn-danger btn-lg">
-            Refuser l'atelier
-          </button>
-        </div>
-      <% end %>
-    <% end %>
-  </div>
-</div>
+          <button name="workshop_participation[workshop_time_slot]" value="0" type="submit" class="btn charter-page-button charter-page-button--secondary">Refuser l'atelier</button>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

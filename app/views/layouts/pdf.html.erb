@@ -3,8 +3,10 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <%# Aucune webfont dans le rendu PDF : qu'elle vienne de Google Fonts ou d'un
         @font-face en base64, wkhtmltopdf rend une planche d'étiquettes partielle
-        sur ~15 % des générations (mesuré sur 20 rendus). Nunito est installée dans
-        l'image (cf. Dockerfile.release) et résolue nativement. %>
+        sur ~15 % des générations (mesuré sur 20 rendus). Fredoka et Poppins
+        (app/assets/fonts) sont installées dans l'image (cf. Dockerfile.release) et
+        résolues nativement. En local sur macOS, wkhtmltopdf ignore toute police :
+        le PDF sort en Helvetica, seule la mise en page y est vérifiable. %>
     <%= @debug ? stylesheet_link_tag('pdf') : wicked_pdf_stylesheet_link_tag('pdf') %>
   </head>
   <body>

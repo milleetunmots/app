@@ -5,7 +5,8 @@ Rails.application.routes.draw do
   # deep_merge et non merge : un merge simple écraserait toute la table
   # `controllers` d'ActiveAdmin (passwords, registrations, ...).
   devise_for :admin_users,
-             ActiveAdmin::Devise.config.deep_merge(controllers: { sessions: 'admin_users/sessions' })
+             ActiveAdmin::Devise.config.deep_merge(controllers: { sessions: 'admin_users/sessions',
+                                                                  passwords: 'admin_users/passwords' })
 
   scope path: 'admin', as: 'admin' do
     get  'two_factor',        to: 'two_factor#show',   as: :two_factor

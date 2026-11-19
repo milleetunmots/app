@@ -22,10 +22,11 @@ ActiveAdmin.register ChildSupport do
     (0..3).each do |call_idx|
       column "Appel #{call_idx}" do |decorated|
         if decorated.send("call#{call_idx}_status").present?
-          [
-            decorated.send("call#{call_idx}_status_in_index"),
-            decorated.send("call#{call_idx}_parent_progress_index")
-          ].join(' ').html_safe
+          # Statut et pastille de pratique parentale sur une ligne, la pastille à droite
+          content_tag(:span, class: 'call-status-cell') do
+            content_tag(:span, decorated.send("call#{call_idx}_status_in_index"), class: 'call-status-label') +
+              decorated.send("call#{call_idx}_parent_progress_index").to_s.html_safe
+          end
         else
           decorated.send("call#{call_idx}_scheduled_session")
         end
@@ -150,8 +151,6 @@ ActiveAdmin.register ChildSupport do
       I18n.t('activerecord.attributes.child_support.supporter') => AdminUser.assignable_as_supporter.order(:name).pluck(:name, :id)
     }
   }, if: proc { authorized?(:assign_supporter, ChildSupport) } do |ids, inputs|
-    # le `if:` ne fait qu'afficher l'action : le droit est aussi vérifié côté serveur
-    authorize!(:assign_supporter, ChildSupport)
     supporter_id = inputs[I18n.t('activerecord.attributes.child_support.supporter')]
     if AdminUser.assignable_as_supporter.exists?(id: supporter_id)
       batch_action_collection.find(ids).each do |child_support|
@@ -205,7 +204,9 @@ ActiveAdmin.register ChildSupport do
     end
   end
 
+  # Ces deux actions prolongent l'action groupée du même nom : mêmes droits
   collection_action :select_available_support_module do
+    authorize_batch_action!(:select_available_support_module)
     @ids = session.delete(:select_available_support_module_ids) || []
     @form_action = url_for(action: :perform_selecting_available_support_modules)
     @back_url = request.referer
@@ -213,11 +214,13 @@ ActiveAdmin.register ChildSupport do
   end
 
   collection_action :perform_selecting_available_support_modules, method: :post do
+    authorize_batch_action!(:select_available_support_module)
     ids = params[:ids]
     modules = params[:available_support_module_list]
     back_url = params[:back_url]
 
-    ChildSupport.where(id: ids).each do |object|
+    child_supports = active_admin_authorization.scope_collection(ChildSupport.where(id: ids), ActiveAdmin::Auth::READ)
+    child_supports.each do |object|
       object.parent1_available_support_module_list = []
       object.parent2_available_support_module_list = []
 
@@ -1539,7 +1542,7 @@ ActiveAdmin.register ChildSupport do
       params['name'] ||= "#{parent.first_name} #{parent.last_name}"
       params['first_name'] ||= parent.first_name
       params['last_name'] ||= parent.last_name
-      params['email'] = params['email'].blank? && parent.email.present? ? parent.email : 'rdv@1001mots.org'
+      params['email'] = params['email'].presence || parent.email.presence || 'rdv@1001mots.org'
       uri.query = URI.encode_www_form(params).gsub('+', '%20')
       uri.to_s
     end
