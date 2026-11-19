@@ -5,16 +5,39 @@ namespace :text_messages_bundles do
     instagram_invitation = 'etrouvez sur Instagram nos idées d’activités et nos conseils pour occuper {PRENOM_ENFANT}, abonnez-vous ! ' \
                            "#{ENV['INSTAGRAM_LINK']}"
 
+    disengagement = "Bonjour,\n{PRENOM_ACCOMPAGNANTE} a essayé de vous appeler plusieurs fois mais n'a pas réussi à discuter avec vous. " \
+                    "Avec 1001mots, quand on n'arrive pas à échanger, l'accompagnement se termine pour que d'autres familles en profitent. " \
+                    "Les livres et SMS vont donc s'arrêter bientôt.\nMerci d'avoir participé à ce programme. On vous souhaite de beaux " \
+                    "moments avec {PRENOM_ENFANT} !\nEt si vous avez encore 1 minute, dites-nous ici ce que vous avez pensé de 1001mots : " \
+                    "https://form.typeform.com/to/fysdS3Sd#st=xxxxx\nL'équipe 1001mots"
+    later_calls_warning = "Bonjour,\n{PRENOM_ACCOMPAGNANTE}, de l'association 1001mots, a essayé de vous appeler plusieurs fois, mais vous n'étiez " \
+                          "pas disponible. C'est dommage, parce que c'est super important pour adapter nos astuces à votre famille. Elle vous " \
+                          "rappellera dans %<delay>s.\nSi elle n'arrive pas à vous parler au téléphone, l'accompagnement s'arrêtera " \
+                          "automatiquement et vous n'allez plus recevoir de livres ni de SMS :(\nA bientôt !\n%<signature>s"
+
     texts = {
-      "Annonce d'arrêt (2 KO)" => ChildSupport::ChildrenDisengagementService::MESSAGE,
-      "Annonce d'arrêt (2 KO) — fratrie" => ChildSupport::ChildrenDisengagementService::MESSAGE.gsub('{PRENOM_ENFANT}', 'vos enfants'),
-      'Après 1er KO · Appel 0' => Parent::SendDisengagementWarningAfterCallsService::MESSAGE[0],
-      'Après 1er KO · Appel 1' => Parent::SendDisengagementWarningAfterCallsService::MESSAGE[1],
-      'Après 1er KO · Appel 2' => Parent::SendDisengagementWarningAfterCallsService::MESSAGE[2],
+      "Annonce d'arrêt (2 KO)" => disengagement,
+      "Annonce d'arrêt (2 KO) — fratrie" => disengagement.sub('{PRENOM_ENFANT}', 'vos enfants'),
+      'Après 1er KO · Appel 0' =>
+        "Bonjour,\n{PRENOM_ACCOMPAGNANTE}, de l'association 1001mots, a essayé de vous appeler plusieurs fois. C’est dommage que vous " \
+        "n'ayez pas pu discuter avec elle, parce que c’est super important pour adapter nos astuces à votre famille. Dans 2 semaines, " \
+        'vous allez recevoir le 1er livre pour {PRENOM_ENFANT}. {PRENOM_ACCOMPAGNANTE} vous appellera ensuite pour en parler avec ' \
+        "vous.\nSi elle n'arrive pas à vous parler au téléphone, l'accompagnement s'arrêtera automatiquement et vous n'allez plus " \
+        "recevoir de livres ni de SMS :( Pensez à enregistrer son numéro {NUMERO_AIRCALL_ACCOMPAGNANTE}\nA bientôt !\nL’équipe 1001mots",
+      'Après 1er KO · Appel 1' => format(later_calls_warning, delay: 'quelques semaines', signature: "L'équipe 1001mots"),
+      'Après 1er KO · Appel 2' => format(later_calls_warning, delay: '3 mois', signature: 'L’équipe 1001mots'),
       'Arrêt · Famille pose problème / Inscrite sans accord / Ne veut pas du programme / Pratiques très avancées' =>
-        ChildSupport::CallerStopSupportService::PROGRAM_TERMINATION_MESSAGE,
-      'Arrêt · Pas assez francophone' => ChildSupport::CallerStopSupportService::LANGUAGE_BARRIER_TERMINATION_MESSAGE,
-      'Arrêt · Professionnel·le de santé qui teste' => ChildSupport::CallerStopSupportService::PARTNER_REFERRAL_REQUIRED_MESSAGE,
+        "Bonjour, Votre accompagnement 1001mots s'arrête. Pour des raisons techniques, vous allez recevoir encore quelques SMS, " \
+        "répondez STOP si vous voulez les arrêter.\nSi vous avez quelques minutes pour nous faire un retour sur 1001mots, ce serait " \
+        'très utile : https://form.typeform.com/to/oy3wjinA#st=xxxxx',
+      'Arrêt · Pas assez francophone' =>
+        '1001mots : Bonjour, votre accompagnement s’arrête. Nous sommes désolés de ne pas pouvoir vous accompagner dans votre ' \
+        "langue...\nVoici une playlist Youtube de vidéos dans plein de langues, il y aura peut-être la vôtre : " \
+        'https://www.youtube.com/@papotoparentalitepourtous7726/playlists',
+      'Arrêt · Professionnel·le de santé qui teste' =>
+        "1001mots: Merci de l'intérêt que vous portez à l'association ! Le programme est réservé aux familles adressées par nos " \
+        "partenaires, nous devons donc mettre fin à l’accompagnement.\nSi vous êtes un.e professionnel de PMI, écrivez-nous à " \
+        'l’adresse pmi@1001mots.org.',
       "Bienvenue (hors période d'été)" =>
         "Bonjour, merci pour votre inscription à l'accompagnement de l'association 1001mots. Bienvenue, ça va bientôt démarrer !\nL'équipe 1001mots",
       "Bienvenue (période d'été)" =>

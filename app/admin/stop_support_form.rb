@@ -74,7 +74,7 @@ ActiveAdmin.register_page 'Stop Support Form' do
     ).call
 
     if stop_support_service.error.nil?
-      redirect_to admin_child_support_path(params[:child_support_id]), notice: 'Accompagnement arrêté et message de désistement envoyé aux parents'
+      redirect_to admin_child_support_path(params[:child_support_id]), notice: stop_support_service.notice
     else
       redirect_to admin_child_support_path(params[:child_support_id]), alert: stop_support_service.error
     end
