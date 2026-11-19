@@ -7,6 +7,7 @@
 #  body2              :text
 #  body3              :text
 #  discarded_at       :datetime
+#  key                :string
 #  name               :string
 #  rcs_cta_title1     :string
 #  rcs_cta_title2     :string
@@ -43,6 +44,7 @@
 #  index_media_on_image1_id     (image1_id)
 #  index_media_on_image2_id     (image2_id)
 #  index_media_on_image3_id     (image3_id)
+#  index_media_on_key           (key) UNIQUE WHERE (key IS NOT NULL)
 #  index_media_on_link1_id      (link1_id)
 #  index_media_on_link2_id      (link2_id)
 #  index_media_on_link3_id      (link3_id)
