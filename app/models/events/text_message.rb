@@ -4,6 +4,7 @@
 #
 #  id                        :bigint           not null, primary key
 #  acceptation_date          :date
+#  automatic_message_key     :string
 #  body                      :text
 #  discarded_at              :datetime
 #  is_fallback               :boolean          default(FALSE), not null
@@ -48,6 +49,10 @@
 class Events::TextMessage < Event
 
   PROVIDERS = %w[aircall spot_hit].freeze
+
+  def self.automatic_message_sent?(parent:, key:, since:)
+    where(related: parent, originated_by_app: true, automatic_message_key: key).exists?(occurred_at: since..)
+  end
 
   # ---------------------------------------------------------------------------
   # validations

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_11_19_100000) do
+ActiveRecord::Schema[7.0].define(version: 2026_11_20_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -577,6 +577,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_19_100000) do
     t.string "spot_hit_rcs_id"
     t.boolean "is_fallback", default: false, null: false
     t.string "rcs_error_code"
+    t.string "automatic_message_key"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["id"], name: "index_events_on_unprogrammed", where: "(((type)::text = 'Events::TextMessage'::text) AND originated_by_app AND (spot_hit_status = 0))"
     t.index ["quit_group_child_id"], name: "index_events_on_quit_group_child_id"

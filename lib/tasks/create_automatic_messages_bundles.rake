@@ -51,7 +51,8 @@ namespace :text_messages_bundles do
             .gsub('{SCHEDULED_AT_HOUR}', '{RDV_CALENDLY_SCHEDULED_AT_HOUR}')
             .gsub('{CANCEL_URL}', '{RDV_CALENDLY_CANCEL_URL}'),
       "Demande de vérification d'adresse (PND)" =>
-        "#{Parent::CheckAddressService::MESSAGE} https://form.typeform.com/to/#{ENV['UPDATING_ADDRESS_TYPEFORM_ID']}#st=xxxxx",
+        "1001mots : Vous n'avez pas reçu votre dernier livre ? Vérifiez votre adresse sur ce lien : " \
+        "https://form.typeform.com/to/#{ENV['UPDATING_ADDRESS_TYPEFORM_ID']}#st=xxxxx",
       'Démarrage tardif' => Child::AddToGroupService::LATE_SUPPORT_WARNING_MESSAGE,
       # Recopié : charger Child::SendEvalMessageService exige les identifiants Google (GOOGLE_CREADENTIALS_JSON).
       "Fin d'accompagnement, étude eval" =>
@@ -94,7 +95,8 @@ namespace :text_messages_bundles do
         'grands-parents sont, vos valeurs, en parlant vos langues maternelles, pour savoir d\'où l\'on vient et pour pouvoir avancer au ' \
         'mieux dans le futur." Et chez vous, quelle langue parlez-vous avec votre enfant ?',
       'Numéro qui ne reçoit pas de SMS' =>
-        "#{Event::SendMessageToParentResponseService::MESSAGE} {PRENOM_ACCOMPAGNANTE} au {NUMERO_AIRCALL_ACCOMPAGNANTE}. Merci!",
+        "1001mots: Ce numéro ne peut pas recevoir de SMS. Pour nous contacter, merci d'envoyer vos messages directement à " \
+        '{PRENOM_ACCOMPAGNANTE} au {NUMERO_AIRCALL_ACCOMPAGNANTE}. Merci!',
       "Rappel d'inscription CAF (v1)" => Parent::ProgramCafSubscriptionReminderService::MESSAGE_V1,
       "Rappel d'inscription CAF (v2)" => Parent::ProgramCafSubscriptionReminderService::MESSAGE_V2,
       'Rappel de petite mission — appel 0' => ChildSupport::SendCall0GoalsReminderMessagesService::CALL_GOALS_REMINDER_MESSAGE

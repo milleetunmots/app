@@ -363,10 +363,6 @@ class Parent < ApplicationRecord
     children_name_and_birthdate.eql? parent.children_name_and_birthdate
   end
 
-  def message_already_sent?(period, message_start)
-    events.text_messages.where('originated_by_app = ? AND occurred_at > ? AND body ILIKE ?', true, period, "#{message_start}%").limit(1).any?
-  end
-
   def attention_to
     return nil if book_delivery_location.in? [nil, 'home']
 

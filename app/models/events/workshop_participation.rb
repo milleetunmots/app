@@ -4,6 +4,7 @@
 #
 #  id                        :bigint           not null, primary key
 #  acceptation_date          :date
+#  automatic_message_key     :string
 #  body                      :text
 #  discarded_at              :datetime
 #  is_fallback               :boolean          default(FALSE), not null

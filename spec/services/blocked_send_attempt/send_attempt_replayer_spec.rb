@@ -80,6 +80,20 @@ RSpec.describe BlockedSendAttempt::SendAttemptReplayer do
     expect(result).to eq(fake_service)
   end
 
+  it "rejoue un message automatique avec sa clé, pour qu'il compte dans l'anti-doublon" do
+    attempt.update!(replay_params: attempt.replay_params.merge('automatic_message_key' => 'numero_sans_sms'))
+    fake_service = instance_double(ProgramAutomaticMessageService, errors: [])
+    allow(fake_service).to receive(:call).and_return(fake_service)
+    allow(ProgramAutomaticMessageService).to receive(:new).and_return(fake_service)
+
+    result = described_class.new(attempt).call
+
+    expect(ProgramAutomaticMessageService).to have_received(:new)
+      .with(anything, anything, anything, anything, nil, nil, false, nil, nil, ['active'], 'spothit', nil,
+            blocked_send_attempt: attempt, automatic_message_key: 'numero_sans_sms')
+    expect(result).to eq(fake_service)
+  end
+
   context "quand l'envoi rejoué portait le modèle texte d'un trio et que RCS_SINGLE_TEXT_ENABLED a été coupé depuis" do
     it 'rejoue le message en SMS sans transmettre le modèle texte' do
       stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms').to_return(status: 200, body: {}.to_json)

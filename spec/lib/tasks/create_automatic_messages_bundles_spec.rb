@@ -106,6 +106,21 @@ RSpec.describe 'text_messages_bundles:create_automatic_messages' do
     expect(Media::TextMessagesBundle.where(key: expected_texts.keys).pluck(:key, :body1).to_h).to eq(expected_texts)
   end
 
+  it "crée les trios de la demande de vérification d'adresse (PND) et du numéro sans SMS avec le texte actuel de leur message" do
+    expected_texts = {
+      'verification_adresse_pnd' =>
+        "1001mots : Vous n'avez pas reçu votre dernier livre ? Vérifiez votre adresse sur ce lien : " \
+        "https://form.typeform.com/to/#{ENV.fetch('UPDATING_ADDRESS_TYPEFORM_ID', nil)}#st=xxxxx",
+      'numero_sans_sms' =>
+        "1001mots: Ce numéro ne peut pas recevoir de SMS. Pour nous contacter, merci d'envoyer vos messages directement à " \
+        '{PRENOM_ACCOMPAGNANTE} au {NUMERO_AIRCALL_ACCOMPAGNANTE}. Merci!'
+    }
+
+    task.invoke
+
+    expect(Media::TextMessagesBundle.where(key: expected_texts.keys).pluck(:key, :body1).to_h).to eq(expected_texts)
+  end
+
   it 'crée les trios des rappels de RDV avec le texte actuel de leur rappel' do
     reminder = "1001mots : Rappel de RDV\nBonjour,\nVous avez RDV %<day>s avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante. Elle vous " \
                'appellera vers {RDV_CALENDLY_SCHEDULED_AT_HOUR} sur votre numéro.%<delay>s Pensez à enregistrer son numéro pour ne pas ' \
