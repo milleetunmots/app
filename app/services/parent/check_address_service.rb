@@ -2,7 +2,6 @@ require 'csv'
 
 class Parent::CheckAddressService
 
-  MESSAGE = "1001mots : Vous n'avez pas reçu votre dernier livre ? Vérifiez votre adresse sur ce lien :".freeze
   NAME = "Demande de vérification d'adresse (PND)".freeze
   KEY = 'verification_adresse_pnd'.freeze
 
