@@ -20,21 +20,29 @@ class Event::SendMessageToParentResponseService
       return self
     end
 
-    return self if Events::TextMessage.automatic_message_sent?(parent: @parent, key: KEY, since: 1.day.ago)
-
-    supporter = @parent.current_child&.child_support&.supporter
-    return self unless supporter
-
-    unless supporter.aircall_phone_number
-      @errors << 'Child supporter has no aircall_phone_number'
-      return self
+    # Ligne du parent verrouillée jusqu'à l'enregistrement de la réponse : deux SMS simultanés ne passent pas tous deux le contrôle.
+    Parent.transaction do
+      Parent.lock.find(@parent.id)
+      reply_unless_already_sent
     end
-
-    send_reply
     self
   end
 
   private
+
+  def reply_unless_already_sent
+    return if Events::TextMessage.automatic_message_sent?(parent: @parent, key: KEY, since: 1.day.ago)
+
+    supporter = @parent.current_child&.child_support&.supporter
+    return unless supporter
+
+    unless supporter.aircall_phone_number
+      @errors << 'Child supporter has no aircall_phone_number'
+      return
+    end
+
+    send_reply
+  end
 
   def send_reply
     bundle = Media::TextMessagesBundle.find_automatic(name: NAME, key: KEY)
