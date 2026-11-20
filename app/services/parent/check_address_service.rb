@@ -31,7 +31,7 @@ class Parent::CheckAddressService
 
       child_support = parent.current_child&.child_support
       unless child_support
-        @errors << "Aucune fiche de suivi n'est lié à #{parent.first_name} #{parent.last_name}"
+        @errors << "Aucune fiche de suivi n'est liée au parent #{parent.id}"
         next
       end
 
@@ -58,7 +58,7 @@ class Parent::CheckAddressService
       bundle.redirection_target_id(1),
       automatic_message_key: KEY
     ).call
-    @errors << "Address Verification message not sent to #{parent.first_name} #{parent.last_name} : #{service.errors.join(' - ')}" if service.errors.any?
+    @errors << "Address Verification message not sent to parent #{parent.id} : #{service.errors.join(' - ')}" if service.errors.any?
   end
 
   # Cherché au premier parent à prévenir, une seule fois : un fichier sans parent retrouvé ne cherche aucun trio.

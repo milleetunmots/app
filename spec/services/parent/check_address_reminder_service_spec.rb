@@ -55,6 +55,18 @@ RSpec.describe Parent::CheckAddressReminderService do
     expect(campaigns).to be_empty
   end
 
+  it "signale l'échec de la relance avec l'identifiant de Sophie, sans son nom" do
+    pnd_bundle
+    sophie = sophie_with_suspected_address('Emma')
+    address_request_sent(sophie, at: '2027-03-02 10:00')
+    allow_any_instance_of(ProgramMessageService).to receive(:call).and_return(double(errors: ['SMS failed']))
+
+    service = described_class.new.call
+
+    expect(service.errors).to eq(["Address Verification message reminder not sent to parent #{sophie.id} : SMS failed"])
+    expect(service.errors.join).not_to include(sophie.last_name)
+  end
+
   it "n'envoie aucune relance et signale le nom et la clé quand le trio est introuvable" do
     sophie = sophie_with_suspected_address('Emma')
     address_request_sent(sophie, at: '2027-03-02 10:00')

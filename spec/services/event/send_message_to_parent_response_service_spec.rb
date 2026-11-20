@@ -130,6 +130,16 @@ RSpec.describe Event::SendMessageToParentResponseService do
     expect(Events::TextMessage.where(related: paul, automatic_message_key: 'numero_sans_sms').count).to eq(1)
   end
 
+  it "signale l'échec de la réponse avec l'identifiant de Paul, sans son nom" do
+    reply_bundle
+    allow_any_instance_of(ProgramMessageService).to receive(:call).and_return(double(errors: ['SMS failed']))
+
+    service = paul_sends_sms('2027-03-02 10:00')
+
+    expect(service.errors).to eq(["Response message not sent to parent #{paul.id} : SMS failed"])
+    expect(service.errors.join).not_to include(paul.last_name)
+  end
+
   it "ne répond pas et n'alerte pas quand l'enfant n'a pas d'accompagnante" do
     paul(with_supporter: false)
 

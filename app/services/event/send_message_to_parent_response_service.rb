@@ -57,7 +57,7 @@ class Event::SendMessageToParentResponseService
       bundle.redirection_target_id(1),
       automatic_message_key: KEY
     ).call
-    @errors << "Response message not sent to #{@parent.first_name} #{@parent.last_name} : #{service.errors.join(' - ')}" if service.errors.any?
+    @errors << "Response message not sent to parent #{@parent.id} : #{service.errors.join(' - ')}" if service.errors.any?
   end
 
   def report_missing_bundle

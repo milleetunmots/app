@@ -34,7 +34,7 @@ class Parent::CheckAddressReminderService
       bundle.redirection_target_id(1),
       automatic_message_key: Parent::CheckAddressService::KEY
     ).call
-    @errors << "Address Verification message reminder not sent to #{parent.first_name} #{parent.last_name} : #{service.errors.join(' - ')}" if service.errors.any?
+    @errors << "Address Verification message reminder not sent to parent #{parent.id} : #{service.errors.join(' - ')}" if service.errors.any?
   end
 
   # Cherché au premier parent à relancer, une seule fois.
