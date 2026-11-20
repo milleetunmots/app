@@ -1,7 +1,10 @@
 class ChildSupport::ChildrenDisengagementService
 
   DISENGAGEMENT_STATUSES = ['KO', 'Ne pas appeler', 'Numéro erroné'].freeze
-  MESSAGE = "Bonjour,\n{PRENOM_ACCOMPAGNANTE} a essayé de vous appeler plusieurs fois mais n'a pas réussi à discuter avec vous. Avec 1001mots, quand on n'arrive pas à échanger, l'accompagnement se termine pour que d'autres familles en profitent. Les livres et SMS vont donc s'arrêter bientôt.\nMerci d'avoir participé à ce programme. On vous souhaite de beaux moments avec {PRENOM_ENFANT} !\nEt si vous avez encore 1 minute, dites-nous ici ce que vous avez pensé de 1001mots : https://form.typeform.com/to/fysdS3Sd#st=xxxxx\nL'équipe 1001mots".freeze
+  BUNDLES = {
+    single: ["Annonce d'arrêt (2 KO)", 'annonce_arret_deux_ko'],
+    siblings: ["Annonce d'arrêt (2 KO) — fratrie", 'annonce_arret_deux_ko_fratrie']
+  }.freeze
 
   attr_reader :errors, :parent_ids
 
@@ -9,7 +12,6 @@ class ChildSupport::ChildrenDisengagementService
     @group_id = group_id
     @call_index = call_index
     @errors = []
-    @message = MESSAGE.dup
     @parents_with_multiple_children = []
     @parents_with_single_child = []
     @parent_ids = []
@@ -24,10 +26,10 @@ class ChildSupport::ChildrenDisengagementService
       parent = contactable_parent
       next unless parent
 
-      disengage_active_children_in_group
+      disengaged_in_group_count = disengage_active_children_in_group
       child_support.tag_list += ['desengage-2appelsKO']
       child_support.save!
-      add_parent_to_recipients(parent)
+      add_parent_to_recipients(parent, disengaged_in_group_count > 1)
     end
 
     send_disengagement_messages
@@ -79,15 +81,16 @@ class ChildSupport::ChildrenDisengagementService
   end
 
   def disengage_active_children_in_group
-    @child_support.children
-      .where.not(group_status: %w[stopped disengaged not_supported])
-      .update(group_status: 'disengaged', group_end: Time.zone.today)
+    children = @child_support.children.where.not(group_status: %w[stopped disengaged not_supported])
+    disengaged_in_group_count = children.where(group_id: @group.id).count
+    children.update(group_status: 'disengaged', group_end: Time.zone.today)
+    disengaged_in_group_count
   end
 
-  def add_parent_to_recipients(parent)
+  def add_parent_to_recipients(parent, siblings)
     parent_identifier = "parent.#{parent.id}"
 
-    if has_multiple_active_children_in_group?
+    if siblings
       @parents_with_multiple_children << parent_identifier
     else
       @parents_with_single_child << parent_identifier
@@ -96,38 +99,20 @@ class ChildSupport::ChildrenDisengagementService
     @parent_ids << parent_identifier
   end
 
-  def has_multiple_active_children_in_group?
-    @child_support.children.count do |child|
-      child.group_id == @group.id && !child.group_status.in?(%w[disengaged stopped not_supported])
-    end > 1
-  end
-
   def send_disengagement_messages
-    send_message_to_parents(
-      @parents_with_multiple_children,
-      @message.gsub('{PRENOM_ENFANT}', 'vos enfants')
-    )
-
-    send_message_to_parents(
-      @parents_with_single_child,
-      @message
-    )
+    send_message_to_parents(@parents_with_multiple_children, *BUNDLES[:siblings])
+    send_message_to_parents(@parents_with_single_child, *BUNDLES[:single])
   end
 
-  def send_message_to_parents(parent_ids, message)
+  def send_message_to_parents(parent_ids, name, key)
     return if parent_ids.empty?
 
+    bundle = Media::TextMessagesBundle.find_automatic(name: name, key: key)
+    return @errors << Media::TextMessagesBundle.missing_message(name: name, key: key) unless bundle
+
+    link_id = bundle.redirection_target_id(1)
     service = ProgramMessageService.new(
-      Time.zone.today,
-      '13:00',
-      parent_ids,
-      message,
-      nil,
-      nil,
-      false,
-      nil,
-      nil,
-      ['disengaged']
+      Time.zone.today, '13:00', parent_ids, bundle.body1, bundle.rcs_media_id_to_send(1), link_id, false, nil, nil, ['disengaged']
     ).call
 
     @errors << "Erreur lors de la programmation du message de désengagement : #{service.errors.join(' - ')}" if service.errors.any?

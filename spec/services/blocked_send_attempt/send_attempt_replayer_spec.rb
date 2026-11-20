@@ -79,4 +79,54 @@ RSpec.describe BlockedSendAttempt::SendAttemptReplayer do
       .with(anything, anything, anything, anything, nil, nil, false, 7, nil, ['active'], 'spothit', nil, blocked_send_attempt: attempt)
     expect(result).to eq(fake_service)
   end
+
+  it "rejoue un message automatique avec sa clé, pour qu'il compte dans l'anti-doublon" do
+    attempt.update!(replay_params: attempt.replay_params.merge('automatic_message_key' => 'numero_sans_sms'))
+    fake_service = instance_double(ProgramAutomaticMessageService, errors: [])
+    allow(fake_service).to receive(:call).and_return(fake_service)
+    allow(ProgramAutomaticMessageService).to receive(:new).and_return(fake_service)
+
+    result = described_class.new(attempt).call
+
+    expect(ProgramAutomaticMessageService).to have_received(:new)
+      .with(anything, anything, anything, anything, nil, nil, false, nil, nil, ['active'], 'spothit', nil,
+            blocked_send_attempt: attempt, automatic_message_key: 'numero_sans_sms')
+    expect(result).to eq(fake_service)
+  end
+
+  context "quand l'envoi rejoué portait le modèle texte d'un trio et que RCS_SINGLE_TEXT_ENABLED a été coupé depuis" do
+    it 'rejoue le message en SMS sans transmettre le modèle texte' do
+      stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/sms').to_return(status: 200, body: {}.to_json)
+      stub_request(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+        .to_return(status: 200, body: { success: true, campaign_id: '123' }.to_json)
+      child = FactoryBot.create(:child, first_name: 'Léa', group: FactoryBot.create(:group), group_status: 'active')
+      bundle = FactoryBot.create(:media_text_messages_bundle, body1: 'Bonjour !', body2: 'a' * 300, body3: nil)
+      bundle.update_column(:rcs_media2_id, 4521)
+      blocked = FactoryBot.create(
+        :blocked_send_attempt,
+        replay_params: {
+          planned_date: Time.zone.tomorrow.strftime('%d-%m-%Y'),
+          planned_hour: '12:30',
+          recipients: ["parent.#{child.parent1_id}"],
+          message: 'a' * 300,
+          rcs_media_id: 4521,
+          redirection_target_id: nil,
+          quit_message: false,
+          workshop_id: nil,
+          supporter: nil,
+          group_status: ['active'],
+          provider: 'spothit',
+          aircall_number_id: nil
+        }
+      )
+      previous = ENV.delete('RCS_SINGLE_TEXT_ENABLED')
+
+      described_class.new(blocked).call
+
+      expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
+      expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs')
+    ensure
+      ENV['RCS_SINGLE_TEXT_ENABLED'] = previous if previous
+    end
+  end
 end

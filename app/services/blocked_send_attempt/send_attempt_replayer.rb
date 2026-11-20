@@ -17,7 +17,7 @@ class BlockedSendAttempt::SendAttemptReplayer
       params[:planned_hour],
       params[:recipients],
       @message,
-      params[:rcs_media_id],
+      Media::TextMessagesBundle.rcs_media_id_for_replay(params[:rcs_media_id]),
       params[:redirection_target_id],
       params[:quit_message],
       params[:workshop_id],
@@ -25,7 +25,8 @@ class BlockedSendAttempt::SendAttemptReplayer
       params[:group_status],
       params[:provider],
       params[:aircall_number_id],
-      blocked_send_attempt: @attempt
+      blocked_send_attempt: @attempt,
+      **params.slice(:automatic_message_key)
     ).call
   end
 
@@ -36,6 +37,8 @@ class BlockedSendAttempt::SendAttemptReplayer
   # Rejouée par ProgramMessageService, elle partait sans aucune variable et
   # Spot-Hit la rejetait faute de destinataire.
   def service_class(params)
-    params[:workshop_id].present? ? Workshop::ProgramWorkshopInvitationService : ProgramMessageService
+    return Workshop::ProgramWorkshopInvitationService if params[:workshop_id].present?
+
+    params[:automatic_message_key].present? ? ProgramAutomaticMessageService : ProgramMessageService
   end
 end

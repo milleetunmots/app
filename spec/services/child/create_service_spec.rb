@@ -310,6 +310,35 @@ RSpec.describe Child::CreateService do
     end
   end
 
+  describe 'inscription refusée par le filtre diplôme' do
+    let(:registration_origin) { 4 }
+    let(:parent1_attributes) { super().merge(degree_level_at_registration: 'bac+5', degree_country_at_registration: 'france') }
+
+    def campaigns
+      WebMock::RequestRegistry.instance.requested_signatures.hash.keys.select { |signature| signature.uri.path.start_with?('/api/envoyer/') }
+    end
+
+    it "passe l'enfant en « Non accompagné » et programme le message du trio de non-accompagnement" do
+      video = FactoryBot.create(:media_video, name: 'Conseils langage')
+      FactoryBot.create(:media_text_messages_bundle, name: 'Message de non-accompagnement', body1: 'Voici nos conseils : {URL}', body2: nil, body3: nil, link1: video)
+                .update_column(:key, 'non_accompagnement')
+
+      subject.call
+
+      expect(subject.child.group_status).to eq 'not_supported'
+      expect(campaigns.size).to eq(1)
+    end
+
+    it "passe l'enfant en « Non accompagné » sans rien programmer et signale le trio introuvable" do
+      expect(Rollbar).to receive(:error).with(a_string_including('Message de non-accompagnement', 'non_accompagnement'), anything)
+
+      subject.call
+
+      expect(subject.child.group_status).to eq 'not_supported'
+      expect(campaigns).to be_empty
+    end
+  end
+
   # Les inscriptions arrivant via une URL proposée par une IA générative ne sont
   # ni financées ni ciblées : elles doivent être écartées dès l'inscription.
   describe "inscription issue d'une IA générative" do

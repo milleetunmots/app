@@ -1,27 +1,9 @@
 class Parent::SendDisengagementWarningAfterCallsService
 
-  MESSAGE = [
-    <<~MSG1,
-      Bonjour,
-      {PRENOM_ACCOMPAGNANTE}, de l'association 1001mots, a essayé de vous appeler plusieurs fois. C’est dommage que vous n'ayez pas pu discuter avec elle, parce que c’est super important pour adapter nos astuces à votre famille. Dans 2 semaines, vous allez recevoir le 1er livre pour {PRENOM_ENFANT}. {PRENOM_ACCOMPAGNANTE} vous appellera ensuite pour en parler avec vous.
-      Si elle n'arrive pas à vous parler au téléphone, l'accompagnement s'arrêtera automatiquement et vous n'allez plus recevoir de livres ni de SMS :( Pensez à enregistrer son numéro {NUMERO_AIRCALL_ACCOMPAGNANTE}
-      A bientôt !
-      L’équipe 1001mots
-    MSG1
-    <<~MSG2,
-      Bonjour,
-      {PRENOM_ACCOMPAGNANTE}, de l'association 1001mots, a essayé de vous appeler plusieurs fois, mais vous n'étiez pas disponible. C'est dommage, parce que c'est super important pour adapter nos astuces à votre famille. Elle vous rappellera dans quelques semaines.
-      Si elle n'arrive pas à vous parler au téléphone, l'accompagnement s'arrêtera automatiquement et vous n'allez plus recevoir de livres ni de SMS :(
-      A bientôt !
-      L'équipe 1001mots"
-    MSG2
-    <<~MSG3
-      Bonjour,
-      {PRENOM_ACCOMPAGNANTE}, de l'association 1001mots, a essayé de vous appeler plusieurs fois, mais vous n'étiez pas disponible. C'est dommage, parce que c'est super important pour adapter nos astuces à votre famille. Elle vous rappellera dans 3 mois.
-      Si elle n'arrive pas à vous parler au téléphone, l'accompagnement s'arrêtera automatiquement et vous n'allez plus recevoir de livres ni de SMS :(
-      A bientôt !
-      L’équipe 1001mots
-    MSG3
+  BUNDLES = [
+    ['Après 1er KO · Appel 0', 'apres_premier_ko_appel0'],
+    ['Après 1er KO · Appel 1', 'apres_premier_ko_appel1'],
+    ['Après 1er KO · Appel 2', 'apres_premier_ko_appel2']
   ].freeze
   ENGAGEMENT_STATUSES = [ChildSupport.human_attribute_name('call_status.1_ok'), ChildSupport.human_attribute_name('call_status.5_unfinished')].freeze
 
@@ -36,19 +18,29 @@ class Parent::SendDisengagementWarningAfterCallsService
   end
 
   def call
+    bundle = find_bundle
+    return self unless bundle
+
     @child_supports = child_supports
     @parent_ids = @child_supports.map { |child_support| "parent.#{child_support.parent1.id}" }.uniq
-    service = ProgramMessageService.new(
-      @date.strftime('%d-%m-%Y'),
-      '19:00',
-      @parent_ids,
-      MESSAGE[@call_index]
-    ).call
-    @errors << "Parent::SendDisengagementWarningAfterCallsService (group: #{@group.name}) : #{service.errors.uniq}" if service.errors.any?
+    program_message(bundle)
     self
   end
 
   private
+
+  def find_bundle
+    name, key = BUNDLES.fetch(@call_index)
+    bundle = Media::TextMessagesBundle.find_automatic(name: name, key: key)
+    @errors << Media::TextMessagesBundle.missing_message(name: name, key: key) unless bundle
+    bundle
+  end
+
+  def program_message(bundle)
+    link_id = bundle.redirection_target_id(1)
+    service = ProgramMessageService.new(@date.strftime('%d-%m-%Y'), '19:00', @parent_ids, bundle.body1, bundle.rcs_media_id_to_send(1), link_id).call
+    @errors << "Parent::SendDisengagementWarningAfterCallsService (group: #{@group.name}) : #{service.errors.uniq}" if service.errors.any?
+  end
 
   def child_supports
     case @call_index

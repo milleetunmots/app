@@ -73,7 +73,7 @@ class EventsController < ApplicationController
     if event.save
       response_service = Event::SendMessageToParentResponseService.new(parsed_phone.e164).call
       if response_service.errors.any?
-        Rollbar.error('Events::SendMessageToParentResponseService', parent_phone_number: parsed_phone.e164, errors: response_service.errors)
+        Rollbar.error('Events::SendMessageToParentResponseService', errors: response_service.errors)
       end
       head :ok
     else

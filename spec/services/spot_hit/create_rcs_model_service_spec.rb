@@ -7,8 +7,12 @@ RSpec.describe SpotHit::CreateRcsModelService do
     messages = FactoryBot.create(:media_text_messages_bundle)
     messages.update_columns(
       body1: "Ceci est un message de test\nAvec plusieurs lignes",
-      image1_id: image.id
+      image1_id: image.id,
+      rcs_media1_id: nil,
+      rcs_media2_id: nil,
+      rcs_media3_id: nil
     )
+    WebMock::RequestRegistry.instance.reset!
     messages.reload
   end
 
@@ -27,6 +31,25 @@ RSpec.describe SpotHit::CreateRcsModelService do
         text_messages_bundle: text_messages_bundle,
         message_index: message_index
       ).call
+    end
+
+    context 'en développement' do
+      before { allow(Rails.env).to receive(:development?).and_return(true) }
+
+      it "crée le modèle chez Spot-Hit quand SPOT_HIT_SAFEGUARD est absent" do
+        expect(service.rcs_media_id).to eq(12345)
+        expect(WebMock).to have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
+      end
+
+      it "n'appelle pas Spot-Hit quand SPOT_HIT_SAFEGUARD est actif" do
+        previous = ENV.fetch('SPOT_HIT_SAFEGUARD', nil)
+        ENV['SPOT_HIT_SAFEGUARD'] = 'true'
+
+        expect(service.rcs_media_id).to be_nil
+        expect(WebMock).not_to have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
+      ensure
+        ENV['SPOT_HIT_SAFEGUARD'] = previous
+      end
     end
 
     context 'with valid params' do
@@ -155,14 +178,17 @@ RSpec.describe SpotHit::CreateRcsModelService do
       end
     end
 
-    context 'when image is missing' do
+    context 'quand le message n\'a pas d\'image' do
       before do
         text_messages_bundle.update_columns(image1_id: nil)
         text_messages_bundle.reload
       end
 
-      it 'adds a warning but still processes' do
-        expect(service.errors).to include("image1 is blank, cannot create RCS template")
+      it 'crée un modèle texte et enregistre son type' do
+        expect(service.errors).to be_empty
+        expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
+          .with { |req| JSON.parse(Rack::Utils.parse_nested_query(req.body)['model'])['type'] == 'text' })
+        expect(text_messages_bundle.reload).to have_attributes(rcs_media1_id: 12345, rcs_text_template1: true)
       end
     end
 

@@ -8,7 +8,8 @@ RSpec.describe SpotHit::UpdateRcsModelService do
     messages.update_columns(
       body1: "Ceci est un message de test\nAvec plusieurs lignes",
       image1_id: image.id,
-      rcs_media1_id: 12345
+      rcs_media1_id: 12345,
+      rcs_text_template1: false
     )
     messages.reload
   end

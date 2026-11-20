@@ -10,7 +10,7 @@ class SpotHit::UpdateRcsModelService < SpotHit::CreateRcsModelService
   end
 
   def call
-    return self if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
+    return self if ENV['SPOT_HIT_SAFEGUARD'].present?
 
     validate_params
     return self if @errors.any?
@@ -43,6 +43,11 @@ class SpotHit::UpdateRcsModelService < SpotHit::CreateRcsModelService
     @errors << "Exception lors de la modification du modèle RCS: #{e.message}"
   ensure
     remove_tmp_file(@tmp_file) if @tmp_file && File.exist?(@tmp_file)
+  end
+
+  # Spot-Hit refuse de changer le type d'un modèle : on reprend celui qui est enregistré.
+  def text_template?
+    @text_messages_bundle.send("rcs_text_template#{@message_index}")
   end
 
   def form_data

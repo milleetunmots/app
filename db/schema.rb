@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_11_05_100000) do
+ActiveRecord::Schema[7.0].define(version: 2026_11_20_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -577,6 +577,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_05_100000) do
     t.string "spot_hit_rcs_id"
     t.boolean "is_fallback", default: false, null: false
     t.string "rcs_error_code"
+    t.string "automatic_message_key"
     t.index ["discarded_at"], name: "index_events_on_discarded_at"
     t.index ["id"], name: "index_events_on_unprogrammed", where: "(((type)::text = 'Events::TextMessage'::text) AND originated_by_app AND (spot_hit_status = 0))"
     t.index ["quit_group_child_id"], name: "index_events_on_quit_group_child_id"
@@ -666,12 +667,17 @@ ActiveRecord::Schema[7.0].define(version: 2026_11_05_100000) do
     t.string "rcs_cta_title1"
     t.string "rcs_cta_title2"
     t.string "rcs_cta_title3"
+    t.boolean "rcs_text_template1", default: false, null: false
+    t.boolean "rcs_text_template2", default: false, null: false
+    t.boolean "rcs_text_template3", default: false, null: false
+    t.string "key"
     t.index ["airtable_id"], name: "index_media_on_airtable_id", unique: true
     t.index ["discarded_at"], name: "index_media_on_discarded_at"
     t.index ["folder_id"], name: "index_media_on_folder_id"
     t.index ["image1_id"], name: "index_media_on_image1_id"
     t.index ["image2_id"], name: "index_media_on_image2_id"
     t.index ["image3_id"], name: "index_media_on_image3_id"
+    t.index ["key"], name: "index_media_on_key", unique: true, where: "(key IS NOT NULL)"
     t.index ["link1_id"], name: "index_media_on_link1_id"
     t.index ["link2_id"], name: "index_media_on_link2_id"
     t.index ["link3_id"], name: "index_media_on_link3_id"
