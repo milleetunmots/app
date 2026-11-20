@@ -4,6 +4,7 @@
 #
 #  id                        :bigint           not null, primary key
 #  acceptation_date          :date
+#  automatic_message_key     :string
 #  body                      :text
 #  discarded_at              :datetime
 #  is_fallback               :boolean          default(FALSE), not null
@@ -67,6 +68,49 @@ RSpec.describe Events::TextMessage, type: :model do
       it "if the text message is originated by app and doesn't have a provider" do
         expect(FactoryBot.build_stubbed(:text_message, originated_by_app: true)).not_to be_valid
       end
+    end
+  end
+
+  describe '.automatic_message_sent?' do
+    let(:parent) { FactoryBot.create(:parent) }
+    let(:since) { Time.zone.parse('2027-03-01 10:00') }
+
+    def message(attributes)
+      FactoryBot.create(:text_message, { related: parent, originated_by_app: true, message_provider: 'spot_hit', automatic_message_key: 'numero_sans_sms' }.merge(attributes))
+    end
+
+    def sent?
+      described_class.automatic_message_sent?(parent: parent, key: 'numero_sans_sms', since: since)
+    end
+
+    it 'vrai pour un message de cette clé envoyé au parent pile au début de la fenêtre' do
+      message(occurred_at: since)
+
+      expect(sent?).to be(true)
+    end
+
+    it 'faux pour un message de cette clé envoyé avant la fenêtre' do
+      message(occurred_at: since - 1.minute)
+
+      expect(sent?).to be(false)
+    end
+
+    it 'faux pour un message sans clé, même au même texte' do
+      message(occurred_at: since + 1.hour, automatic_message_key: nil)
+
+      expect(sent?).to be(false)
+    end
+
+    it "faux pour un message d'une autre clé" do
+      message(occurred_at: since + 1.hour, automatic_message_key: 'verification_adresse_pnd')
+
+      expect(sent?).to be(false)
+    end
+
+    it 'faux pour un message de cette clé envoyé à un autre parent' do
+      message(occurred_at: since + 1.hour, related: FactoryBot.create(:parent))
+
+      expect(sent?).to be(false)
     end
   end
 end
