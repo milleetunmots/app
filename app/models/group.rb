@@ -22,6 +22,7 @@
 #  support_module_programmed  :integer          default(0)
 #  support_module_sent_dates  :jsonb
 #  support_modules_count      :integer          default(0), not null
+#  supporters_assigned_at     :datetime
 #  type_of_support            :string           default("with_calls")
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
@@ -72,6 +73,7 @@ class Group < ApplicationRecord
   scope :ended_between, ->(start_date, end_date) { where(ended_at: start_date..end_date) }
   scope :not_started, -> { where('started_at >= ? AND support_module_programmed = ?', Time.zone.today, 0) }
   scope :started, -> { where('started_at < ? OR support_module_programmed > ?', Time.zone.today, 0) }
+  scope :supporters_assigned, -> { where.not(supporters_assigned_at: nil) }
   scope :excluded_from_analytics, -> { where(is_excluded_from_analytics: true) }
   scope :not_excluded_from_analytics, -> { where(is_excluded_from_analytics: false) }
   scope :with_calls, -> { where(type_of_support: 'with_calls') }
@@ -92,6 +94,10 @@ class Group < ApplicationRecord
 
   def started?
     started_at.past?
+  end
+
+  def supporters_assigned?
+    supporters_assigned_at.present?
   end
 
   def is_ended?

@@ -22,6 +22,7 @@
 #  support_module_programmed  :integer          default(0)
 #  support_module_sent_dates  :jsonb
 #  support_modules_count      :integer          default(0), not null
+#  supporters_assigned_at     :datetime
 #  type_of_support            :string           default("with_calls")
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
@@ -101,6 +102,33 @@ RSpec.describe Group, type: :model do
       it "if the group is ended" do
         expect(@group_not_ended1.is_not_ended?).to be_truthy
         expect(@group_not_ended2.is_not_ended?).to be_truthy
+      end
+    end
+  end
+
+  describe '.supporters_assigned' do
+    it "ne retourne que les cohortes qui ont une date d'attribution" do
+      assigned_group = FactoryBot.create(:group, supporters_assigned_at: Time.zone.now)
+      FactoryBot.create(:group, supporters_assigned_at: nil)
+
+      expect(Group.supporters_assigned).to contain_exactly(assigned_group)
+    end
+  end
+
+  describe '#supporters_assigned?' do
+    context "quand la cohorte a une date d'attribution" do
+      it 'retourne vrai' do
+        group = FactoryBot.build(:group, supporters_assigned_at: Time.zone.now)
+
+        expect(group.supporters_assigned?).to be(true)
+      end
+    end
+
+    context "quand la cohorte n'a pas de date d'attribution" do
+      it 'retourne faux' do
+        group = FactoryBot.build(:group, supporters_assigned_at: nil)
+
+        expect(group.supporters_assigned?).to be(false)
       end
     end
   end
