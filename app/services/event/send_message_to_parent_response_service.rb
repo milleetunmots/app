@@ -5,6 +5,7 @@ class Event::SendMessageToParentResponseService
   attr_reader :errors
 
   MESSAGE = "1001mots: Ce numéro ne peut pas recevoir de SMS. Pour nous contacter, merci d'envoyer vos messages directement à".freeze
+  KEY = 'numero_sans_sms'.freeze
 
   def initialize(parsed_phone)
     @parsed_phone = parsed_phone
@@ -20,7 +21,7 @@ class Event::SendMessageToParentResponseService
       return self
     end
 
-    return self if @parent.message_already_sent?(1.day.ago, MESSAGE)
+    return self if Events::TextMessage.automatic_message_sent?(parent: @parent, key: KEY, since: 1.day.ago)
 
     supporter = @parent.current_child&.child_support&.supporter
     return self unless supporter
@@ -30,11 +31,12 @@ class Event::SendMessageToParentResponseService
       return self
     end
 
-    service = ProgramMessageService.new(
+    service = ProgramAutomaticMessageService.new(
       @date.strftime('%d-%m-%Y'),
       @date.strftime('%H:%M'),
       ["parent.#{@parent.id}"],
-      @message
+      @message,
+      automatic_message_key: KEY
     ).call
     @errors << "Response message not sent to #{@parent.first_name} #{@parent.last_name} : #{service.errors.join(' - ')}" if service.errors.any?
     self
