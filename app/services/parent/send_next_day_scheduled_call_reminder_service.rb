@@ -22,7 +22,7 @@ class Parent::SendNextDayScheduledCallReminderService
       @recipients,
       bundle.body1,
       bundle.rcs_media_id_to_send(1),
-      link_id(bundle)
+      bundle.redirection_target_id(1)
     ).call
     @errors << { service: 'SendScheduledCallReminderDayBeforeService', message: 'La programmation du message a échoué', errors: service.errors } if service.errors.any?
     self
@@ -30,14 +30,10 @@ class Parent::SendNextDayScheduledCallReminderService
 
   private
 
-  def link_id(bundle)
-    RedirectionTarget.find_or_create_by(medium_id: bundle.link1_id).id if bundle.link1_id
-  end
-
   def find_bundle
     name, key = BUNDLE
     bundle = Media::TextMessagesBundle.find_automatic(name: name, key: key)
-    @errors << "Trio introuvable : « #{name} » (clé #{key}), message non envoyé" unless bundle
+    @errors << Media::TextMessagesBundle.missing_message(name: name, key: key) unless bundle
     bundle
   end
 end

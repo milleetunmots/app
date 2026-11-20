@@ -17,6 +17,15 @@ RSpec.describe 'Admin import des plis non distribués', type: :request do
     post '/admin/parents/process_csv', params: { csv_file: Rack::Test::UploadedFile.new(csv_path, 'text/csv') }
   end
 
+  it "renvoie vers le formulaire d'import avec une alerte quand aucun fichier n'est sélectionné" do
+    sign_in FactoryBot.create(:admin_user, user_role: 'contributor', name: 'Claire')
+
+    post '/admin/parents/process_csv'
+
+    expect(response).to redirect_to('/admin/parents/upload_undelivered_books_csv')
+    expect(flash[:alert]).to eq('Erreur lors de la sélection du fichier csv des plis non livrés.')
+  end
+
   it 'affiche « Fichier traité avec succès! » quand le trio de la demande existe' do
     FactoryBot.create(:media_text_messages_bundle, name: "Demande de vérification d'adresse (PND)",
                                                    body1: 'Vérifiez votre adresse : https://form.typeform.com/to/AbCd#st=xxxxx', body2: nil, body3: nil)

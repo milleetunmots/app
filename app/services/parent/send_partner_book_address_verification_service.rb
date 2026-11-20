@@ -15,7 +15,7 @@ class Parent::SendPartnerBookAddressVerificationService
     bundle = Media::TextMessagesBundle.find_automatic(name: NAME, key: KEY)
     return report_missing_bundle unless bundle
 
-    link_id = RedirectionTarget.find_or_create_by(medium_id: bundle.link1_id).id if bundle.link1_id
+    link_id = bundle.redirection_target_id(1)
     service = ProgramMessageService.new(
       Time.zone.today, Time.zone.now.strftime('%H:%M'), @parent_ids, bundle.body1, bundle.rcs_media_id_to_send(1), link_id,
       false, nil, nil, Child::GROUP_STATUS, acting_admin_user: @admin_user
@@ -35,7 +35,7 @@ class Parent::SendPartnerBookAddressVerificationService
     end
 
     quota_guard.mark_blocked!
-    message = "Trio introuvable : « #{NAME} » (clé #{KEY}), message non envoyé"
+    message = Media::TextMessagesBundle.missing_message(name: NAME, key: KEY)
     Rollbar.error(message)
     @errors << message
     self

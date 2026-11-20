@@ -32,4 +32,16 @@ RSpec.describe Parent::ProgramSmsToVerifyAddressService do
 
     expect(service.errors).to include("Trio introuvable : « Vérification de l'adresse » (clé verification_adresse), message non envoyé")
   end
+
+  it "signale l'échec d'envoi avec l'identifiant du parent, sans son numéro" do
+    FactoryBot.create(:media_text_messages_bundle, name: "Vérification de l'adresse", body1: 'Adresse : {PARENT_ADDRESS}', body2: nil, body3: nil)
+              .update_column(:key, 'verification_adresse')
+    lea
+    allow_any_instance_of(ProgramAutomaticMessageService).to receive(:call).and_return(double(errors: ['SMS failed']))
+
+    service = described_class.new(group.id, date).call
+
+    expect(service.errors).to eq([{ service: 'ProgramMessageService', parent_id: lea.parent1_id, errors: ['SMS failed'] }])
+    expect(service.errors.to_s).not_to include(lea.parent1.phone_number)
+  end
 end

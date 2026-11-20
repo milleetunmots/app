@@ -18,7 +18,7 @@ class Parent::ProgramSmsToVerifyAddressService
       service = program_message(child)
       next unless service
 
-      @errors << { service: 'ProgramMessageService', parent_id: @parent.id, parent_phone_number: @parent.phone_number, errors: service.errors } if service.errors.any?
+      @errors << { service: 'ProgramMessageService', parent_id: @parent.id, errors: service.errors } if service.errors.any?
     end
     self
   end

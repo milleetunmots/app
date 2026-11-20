@@ -108,6 +108,38 @@ RSpec.describe Event::SendMessageToParentResponseService do
     expect(service.errors).to eq(['Trio introuvable : « Numéro qui ne reçoit pas de SMS » (clé numero_sans_sms), message non envoyé'])
   end
 
+  it 'ne répond qu’une fois à deux SMS de Paul reçus au même moment', js: true do
+    reply_bundle
+    phone_number = paul.phone_number
+    ready = Queue.new
+    start = Queue.new
+
+    threads = Array.new(2) do
+      Thread.new do
+        ActiveRecord::Base.connection_pool.with_connection do
+          ready << true
+          start.pop
+          described_class.new(phone_number).call
+        end
+      end
+    end
+    2.times { ready.pop }
+    2.times { start << true }
+    threads.each(&:join)
+
+    expect(Events::TextMessage.where(related: paul, automatic_message_key: 'numero_sans_sms').count).to eq(1)
+  end
+
+  it "signale l'échec de la réponse avec l'identifiant de Paul, sans son nom" do
+    reply_bundle
+    allow_any_instance_of(ProgramMessageService).to receive(:call).and_return(double(errors: ['SMS failed']))
+
+    service = paul_sends_sms('2027-03-02 10:00')
+
+    expect(service.errors).to eq(["Response message not sent to parent #{paul.id} : SMS failed"])
+    expect(service.errors.join).not_to include(paul.last_name)
+  end
+
   it "ne répond pas et n'alerte pas quand l'enfant n'a pas d'accompagnante" do
     paul(with_supporter: false)
 

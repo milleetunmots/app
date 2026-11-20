@@ -60,6 +60,36 @@ RSpec.describe ChildSupport::SendCallGoalsMessagesService do
     end
   end
 
+  describe "trios envoyés après l'appel 3" do
+    def call3_family
+      group = FactoryBot.create(:group, started_at: Date.new(2027, 1, 4))
+      child = FactoryBot.create(:child, first_name: 'Léa', group: group, group_status: 'active')
+      child.child_support.update_columns(call3_goals_sms: 'Lire une histoire chaque soir')
+      group
+    end
+
+    it 'programme les trios trouvés à leur semaine et signale une seule fois le trio introuvable' do
+      FactoryBot.create(:media_text_messages_bundle, name: 'Après appel 3 — semaine 2', body1: 'Semaine 2', body2: nil, body3: nil)
+      group = call3_family
+      FactoryBot.create(:child, first_name: 'Hugo', group: group, group_status: 'active').child_support.update_columns(call3_goals_sms: 'Chanter')
+      campaigns = []
+      stub_spot_hit_campaigns(campaigns)
+
+      service = with_env('CALL3_TEXT_MESSAGES_BUNDLES' => 'Après appel 3 — absent, Après appel 3 — semaine 2') { described_class.new(group.id, 3).call }
+
+      expect(campaigns.pluck('message', 'fallback_message').flatten.compact).to eq(['Semaine 2', 'Semaine 2'])
+      expect(service.errors.flatten).to eq(["Trio introuvable : « Après appel 3 — absent », message d'après l'appel 3 non envoyé"])
+    end
+
+    it "ne plante pas et n'envoie rien quand la liste des trios n'est pas configurée" do
+      group = call3_family
+
+      service = with_env('CALL3_TEXT_MESSAGES_BUNDLES' => nil) { described_class.new(group.id, 3).call }
+
+      expect(service.errors.flatten).to be_empty
+    end
+  end
+
   describe 'rappel de petite mission lu dans son trio' do
     def goals_sms(link)
       "Bonjour, Voici votre petite mission :\r\nLire une histoire chaque soir\r\nQuand vous aurez essayé, dites-le-moi : #{link}"

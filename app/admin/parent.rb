@@ -237,7 +237,7 @@ ActiveAdmin.register Parent do
         redirect_to admin_parents_path, notice: 'Fichier traité avec succès!'
       end
     else
-      redirect_to upload_csv_admin_your_models_path, alert: 'Erreur lors de la sélection du fichier csv des plis non livrés.'
+      redirect_to upload_undelivered_books_csv_admin_parents_path, alert: 'Erreur lors de la sélection du fichier csv des plis non livrés.'
     end
   end
 

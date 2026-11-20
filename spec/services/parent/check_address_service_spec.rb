@@ -149,7 +149,8 @@ RSpec.describe Parent::CheckAddressService do
         it 'adds error message' do
           child.update_column(:child_support_id, nil)
           service.call
-          expect(service.errors).to include("Aucune fiche de suivi n'est lié à #{parent.first_name} #{parent.last_name}")
+          expect(service.errors).to include("Aucune fiche de suivi n'est liée au parent #{parent.id}")
+          expect(service.errors.join).not_to include(parent.last_name)
         end
       end
 
@@ -158,7 +159,8 @@ RSpec.describe Parent::CheckAddressService do
           pnd_bundle
           allow_any_instance_of(ProgramMessageService).to receive(:call).and_return(double(errors: ['SMS failed']))
           service.call
-          expect(service.errors).to include("Address Verification message not sent to #{parent.first_name} #{parent.last_name} : SMS failed")
+          expect(service.errors).to include("Address Verification message not sent to parent #{parent.id} : SMS failed")
+          expect(service.errors.join).not_to include(parent.last_name)
         end
       end
     end

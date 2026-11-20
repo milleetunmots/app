@@ -28,6 +28,7 @@ ActiveAdmin.register Media::TextMessagesBundleDraft do
 
   member_action :undraft, method: :put do
     if resource.undraft
+      Media::SyncRcsModelsJob.perform_later(resource.id, [1, 2, 3])
       redirect_to admin_media_text_messages_bundle_path(resource),
                   notice: 'Sorti des brouillons'
     else

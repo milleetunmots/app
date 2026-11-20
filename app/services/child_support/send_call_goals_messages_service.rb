@@ -94,15 +94,26 @@ class ChildSupport::SendCallGoalsMessagesService
   end
 
   def send_text_messages_bundle
+    report_missing_call3_bundles
     @group.child_supports.where.not(call3_goals_sms: [nil, '']).find_each do |child_support|
       @child_support = child_support
       @date = @group.started_at + 25.weeks
-      ENV['CALL3_TEXT_MESSAGES_BUNDLES'].split(',').each do |text_messages_bundle_name|
-        @text_message_bundle = Media::TextMessagesBundle.kept.find_by(name: text_messages_bundle_name.strip)
-        program_text_message_bundles
+      call3_bundles.each_value do |bundle|
+        @text_message_bundle = bundle
+        program_text_message_bundles if bundle
         @date += 1.week
       end
     end
+  end
+
+  # Un trio par semaine, dans l'ordre de la liste : un trio introuvable laisse sa semaine vide.
+  def call3_bundles
+    @call3_bundles ||= ENV.fetch('CALL3_TEXT_MESSAGES_BUNDLES', '').dup.force_encoding(Encoding::UTF_8).split(',').map(&:strip).compact_blank
+                          .index_with { |name| Media::TextMessagesBundle.kept.find_by(name: name) }
+  end
+
+  def report_missing_call3_bundles
+    call3_bundles.each { |name, bundle| @errors << "Trio introuvable : « #{name} », message d'après l'appel 3 non envoyé" unless bundle }
   end
 
   def program_text_message_bundles

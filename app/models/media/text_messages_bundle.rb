@@ -69,8 +69,6 @@ class Media::TextMessagesBundle < Medium
   # d'où le seuil exprimé en bytesize.
   MESSAGE_TYPE_MAX_BYTESIZE = 160
 
-  after_save :sync_rcs_models
-
   def draft
     update_attribute :type, 'Media::TextMessagesBundleDraft'
   end
@@ -84,6 +82,10 @@ class Media::TextMessagesBundle < Medium
     return 'basic' unless long_message?(index)
 
     self.class.rcs_single_text_enabled? ? 'single texte' : 'sms'
+  end
+
+  def self.missing_message(name:, key:)
+    "Trio introuvable : « #{name} » (clé #{key}), message non envoyé"
   end
 
   # Un seul trio publié du nom : lui. Plusieurs ou aucun : celui de la clé.
@@ -106,6 +108,11 @@ class Media::TextMessagesBundle < Medium
     return rcs_media_id unless bundle
 
     bundle.rcs_media_id_to_send((1..3).find { |index| bundle.public_send("rcs_media#{index}_id").to_s == rcs_media_id.to_s })
+  end
+
+  def redirection_target_id(index)
+    link_id = public_send("link#{index}_id")
+    RedirectionTarget.find_or_create_by(medium_id: link_id).id if link_id
   end
 
   def rcs_media_id_to_send(index)
@@ -159,6 +166,11 @@ class Media::TextMessagesBundle < Medium
     )
   end
 
+  # Messages dont le contenu envoyé à Spot-Hit vient de changer : leur modèle est à mettre à jour.
+  def changed_rcs_message_indexes
+    (1..3).select { |index| %W[body#{index} image#{index}_id rcs_title#{index} link#{index}_id rcs_cta_title#{index}].any? { |attribute| saved_change_to_attribute?(attribute) } }
+  end
+
   private
 
   # Le navigateur renvoie le texte d'un textarea avec des fins de ligne \r\n.
@@ -171,64 +183,5 @@ class Media::TextMessagesBundle < Medium
     body = public_send("body#{index}").to_s
     body += ' {URL}' if public_send("link#{index}_id").present? && body.exclude?('{URL}')
     body.bytesize > MESSAGE_TYPE_MAX_BYTESIZE
-  end
-
-  def update_rcs_model1
-    service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: 1).call
-    Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
-  end
-
-  def update_rcs_model2
-    service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: 2).call
-    Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
-  end
-
-  # Modèle texte avec une image, ou modèle carte sans image : Spot-Hit ne change pas le type d'un modèle.
-  def rcs_template_type_outdated?(index)
-    send("image#{index}_id").present? == send("rcs_text_template#{index}")
-  end
-
-  # L'ancien modèle n'est supprimé que si le nouveau est accepté ; sinon il continue de servir.
-  def replace_rcs_model(index)
-    previous_rcs_media_id = send("rcs_media#{index}_id")
-    service = SpotHit::CreateRcsModelService.new(text_messages_bundle: self, message_index: index).call
-    return Rollbar.error('SpotHit::CreateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
-    return if service.rcs_media_id.blank?
-
-    SpotHit::DeleteRcsModelJob.set(wait_until: 2.months.from_now).perform_later(previous_rcs_media_id)
-  end
-
-  def forget_rcs_model(index)
-    return if send("rcs_media#{index}_id").blank?
-
-    SpotHit::DeleteRcsModelJob.set(wait_until: 2.months.from_now).perform_later(send("rcs_media#{index}_id"))
-    update_columns("rcs_media#{index}_id" => nil, "rcs_text_template#{index}" => false)
-  end
-
-  # Synchronise les modèles RCS SpotHit (messages 1 à 3) après chaque sauvegarde.
-  #
-  # Un message vidé perd son modèle, supprimé dans 2 mois. Pour chaque message renseigné, trois cas :
-  # - Le modèle RCS existe mais n'a plus le bon type (image ajoutée ou retirée) → crée
-  #   un modèle du bon type et, s'il est accepté, programme la suppression de l'ancien dans 2 mois.
-  # - Le modèle RCS existe et le contenu a changé (body, image ou titre) → met à
-  #   jour le modèle via SpotHit::UpdateRcsModelService.
-  # - Aucun modèle RCS n'existe encore → crée le modèle (texte ou carte) via
-  #   SpotHit::CreateRcsModelService.
-  #
-  # Les erreurs éventuelles sont remontées à Rollbar.
-  def sync_rcs_models
-    (1..3).each do |index|
-      next forget_rcs_model(index) if send("body#{index}").blank?
-
-      if send("rcs_media#{index}_id").present? && rcs_template_type_outdated?(index)
-        replace_rcs_model(index)
-      elsif send("rcs_media#{index}_id").present? && (send("saved_change_to_body#{index}?") || send("saved_change_to_image#{index}_id?") || send("saved_change_to_rcs_title#{index}?") || send("saved_change_to_link#{index}_id?") || send("saved_change_to_rcs_cta_title#{index}?"))
-        service = SpotHit::UpdateRcsModelService.new(text_messages_bundle: self, message_index: index).call
-        Rollbar.error('SpotHit::UpdateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
-      elsif send("rcs_media#{index}_id").nil?
-        service = SpotHit::CreateRcsModelService.new(text_messages_bundle: self, message_index: index).call
-        Rollbar.error('SpotHit::CreateRcsModelService', errors: service.errors, text_messages_bundle_id: id) if service.errors.any?
-      end
-    end
   end
 end

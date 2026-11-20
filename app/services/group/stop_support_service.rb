@@ -26,17 +26,13 @@ class Group
       bundle = find_bundle(name: name, key: key)
       return unless bundle
 
-      program_message(@children, bundle.body1, link_id: bundle_redirection_target_id(bundle), rcs_media_id: bundle.rcs_media_id_to_send(1))
+      program_message(@children, bundle.body1, link_id: bundle.redirection_target_id(1), rcs_media_id: bundle.rcs_media_id_to_send(1))
     end
 
     def find_bundle(name:, key:)
       bundle = Media::TextMessagesBundle.find_automatic(name: name, key: key)
-      @errors << "Trio introuvable : « #{name} » (clé #{key}), message non envoyé" unless bundle
+      @errors << Media::TextMessagesBundle.missing_message(name: name, key: key) unless bundle
       bundle
-    end
-
-    def bundle_redirection_target_id(bundle)
-      RedirectionTarget.find_or_create_by(medium_id: bundle.link1_id).id if bundle.link1_id
     end
 
     def program_instagram_message

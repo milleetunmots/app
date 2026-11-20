@@ -34,7 +34,7 @@ class Group
     def program_message(bundle, date:)
       return if @children.empty?
 
-      link_id = RedirectionTarget.find_or_create_by(medium_id: bundle.link1_id).id if bundle.link1_id
+      link_id = bundle.redirection_target_id(1)
       service = ProgramMessageService.new(date, '12:31', @children, bundle.body1, bundle.rcs_media_id_to_send(1), link_id).call
       raise service.errors.join("\n") if service.errors.any?
     end

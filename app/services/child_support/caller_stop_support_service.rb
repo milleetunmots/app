@@ -81,15 +81,16 @@ class ChildSupport::CallerStopSupportService
   def find_bundle
     name, key = STOP_SUPPORT_INFORMATIONS[@reason.to_sym][:bundle]
     bundle = Media::TextMessagesBundle.find_automatic(name: name, key: key)
-    Rollbar.error("Trio introuvable : « #{name} » (clé #{key}), message non envoyé") unless bundle
+    Rollbar.error(Media::TextMessagesBundle.missing_message(name: name, key: key)) unless bundle
     bundle
   end
 
   def program_messages(bundle)
-    link_id = RedirectionTarget.find_or_create_by(medium_id: bundle.link1_id).id if bundle.link1_id
+    link_id = bundle.redirection_target_id(1)
+    now = Time.zone.now
     recipients.count do |recipient|
       program_message_service = ProgramMessageService.new(
-        DateTime.now.strftime('%Y-%m-%d'), DateTime.now.strftime('%H:%M'), [recipient], bundle.body1, bundle.rcs_media_id_to_send(1), link_id, nil, nil, nil, Child::GROUP_STATUS
+        now.strftime('%Y-%m-%d'), now.strftime('%H:%M'), [recipient], bundle.body1, bundle.rcs_media_id_to_send(1), link_id, nil, nil, nil, Child::GROUP_STATUS
       ).call
       @error = program_message_service.errors.join("\n") if program_message_service.errors.any?
       program_message_service.errors.any?

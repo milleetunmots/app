@@ -27,7 +27,7 @@ class Child::ProgramNotSupportedMessageService
   end
 
   def program_message(bundle)
-    link_id = RedirectionTarget.find_or_create_by(medium_id: bundle.link1_id).id
+    link_id = bundle.redirection_target_id(1)
     service = ProgramMessageService.new(
       Time.zone.now.next_day(3).strftime('%d-%m-%Y'), '12:30', ["child.#{@child.id}"], bundle.body1,
       bundle.rcs_media_id_to_send(1), link_id, false, nil, nil, ['not_supported']

@@ -38,6 +38,17 @@ RSpec.describe ChildSupport::CallerStopSupportService do
   # Entre minuit et 1h à Paris, un serveur en UTC est encore la veille.
   # travel_to sur un instant UTC fige aussi DateTime.now et Time.now en UTC, comme sur un tel serveur.
   context "quand l'accompagnement est arrêté à 00h30, heure de Paris, sur un serveur en UTC" do
+    let(:child) { FactoryBot.create(:child, group: FactoryBot.create(:group), group_status: 'active', should_contact_parent1: true) }
+    let(:child_support) { child.child_support }
+    let(:supporter) { FactoryBot.create(:admin_user) }
+    let(:details) { 'Détails factuels' }
+
+    before do
+      FactoryBot.create(:media_text_messages_bundle, name: 'Arrêt · Famille pose problème / Inscrite sans accord / Ne veut pas du programme / Pratiques très avancées',
+                        body1: 'Votre accompagnement s’arrête.', body2: nil, body3: nil)
+                .update_column(:key, 'arret_accompagnement')
+    end
+
     subject do
       travel_to(Time.utc(2027, 1, 11, 23, 30)) do
         ChildSupport::CallerStopSupportService.new(supporter.id, child_support.id, 'program', details).call
