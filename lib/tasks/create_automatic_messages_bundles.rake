@@ -10,6 +10,10 @@ namespace :text_messages_bundles do
                     "Les livres et SMS vont donc s'arrêter bientôt.\nMerci d'avoir participé à ce programme. On vous souhaite de beaux " \
                     "moments avec {PRENOM_ENFANT} !\nEt si vous avez encore 1 minute, dites-nous ici ce que vous avez pensé de 1001mots : " \
                     "https://form.typeform.com/to/fysdS3Sd#st=xxxxx\nL'équipe 1001mots"
+    scheduled_call_reminder = "1001mots : Rappel de RDV\nBonjour,\nVous avez RDV %<day>s avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante. " \
+                              'Elle vous appellera vers {RDV_CALENDLY_SCHEDULED_AT_HOUR} sur votre numéro.%<delay>s Pensez à enregistrer ' \
+                              "son numéro pour ne pas manquer l’appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.\nSi vous n'êtes plus disponible, " \
+                              "annulez le rdv ici : {RDV_CALENDLY_CANCEL_URL}\nA bientôt !"
     later_calls_warning = "Bonjour,\n{PRENOM_ACCOMPAGNANTE}, de l'association 1001mots, a essayé de vous appeler plusieurs fois, mais vous n'étiez " \
                           "pas disponible. C'est dommage, parce que c'est super important pour adapter nos astuces à votre famille. Elle vous " \
                           "rappellera dans %<delay>s.\nSi elle n'arrive pas à vous parler au téléphone, l'accompagnement s'arrêtera " \
@@ -97,8 +101,9 @@ namespace :text_messages_bundles do
             .gsub('{call_goals}', '{PETITE_MISSION}').gsub('{typeform_link}', '{LIEN_SUIVI_PETITE_MISSION}'),
       'Rappel de petite mission — appel 3' => ChildSupport::SendCallGoalsMessagesService::CALL_GOALS_REMINDER_MESSAGE
             .gsub('À bientôt', 'Bonne journée').gsub('{call_goals}', '{PETITE_MISSION}').gsub('{typeform_link}', '{LIEN_SUIVI_PETITE_MISSION}'),
-      'Rappel de RDV — jour J (~2h avant)' => Parent::SendSameDayScheduledCallReminderService::SCHEDULED_CALL_REMINDER_SAME_DAY,
-      'Rappel de RDV — la veille (J-1)' => Parent::SendNextDayScheduledCallReminderService::SCHEDULED_CALL_REMINDER_DAY_BEFORE,
+      'Rappel de RDV — jour J (~2h avant)' =>
+        format(scheduled_call_reminder, day: 'aujourd’hui', delay: ' Elle aura peut-être quelques minutes d’avance ou de retard.'),
+      'Rappel de RDV — la veille (J-1)' => format(scheduled_call_reminder, day: 'demain', delay: ''),
       'Relance de dernière chance' =>
         '1001mots : dernière chance pour choisir votre prochain thème pour que {PRENOM_ENFANT} reçoive son prochain livre ! {LIEN_CHOIX_THEME}',
       'Relance du choix de thème' =>
@@ -164,6 +169,7 @@ namespace :text_messages_bundles do
     links = {
       'Fin du programme' => end_of_support_page,
       "Fin du programme (l'enfant a 3 ans)" => end_of_support_page,
+      'Message de non-accompagnement' => Media::Form.find_by(name: 'Lien - non accompagnement'),
       'Messages aux familles bilingues (J+7)' => Medium.find_by(name: 'URLrecFSkjakLY8MWEvG')
     }
 

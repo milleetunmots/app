@@ -106,6 +106,35 @@ RSpec.describe 'text_messages_bundles:create_automatic_messages' do
     expect(Media::TextMessagesBundle.where(key: expected_texts.keys).pluck(:key, :body1).to_h).to eq(expected_texts)
   end
 
+  it 'crée les trios des rappels de RDV avec le texte actuel de leur rappel' do
+    reminder = "1001mots : Rappel de RDV\nBonjour,\nVous avez RDV %<day>s avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante. Elle vous " \
+               'appellera vers {RDV_CALENDLY_SCHEDULED_AT_HOUR} sur votre numéro.%<delay>s Pensez à enregistrer son numéro pour ne pas ' \
+               "manquer l’appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.\nSi vous n'êtes plus disponible, annulez le rdv ici : " \
+               "{RDV_CALENDLY_CANCEL_URL}\nA bientôt !"
+    expected_texts = {
+      'rappel_rdv_veille' => format(reminder, day: 'demain', delay: ''),
+      'rappel_rdv_jour_j' => format(reminder, day: 'aujourd’hui', delay: ' Elle aura peut-être quelques minutes d’avance ou de retard.')
+    }
+
+    task.invoke
+
+    expect(Media::TextMessagesBundle.where(key: expected_texts.keys).pluck(:key, :body1).to_h).to eq(expected_texts)
+  end
+
+  it 'pose le lien des conseils sur le trio de non-accompagnement' do
+    advice = FactoryBot.create(:media_form, name: 'Lien - non accompagnement', url: 'https://example.org/conseils')
+
+    task.invoke
+
+    expect(Media::TextMessagesBundle.find_by(key: 'non_accompagnement').link1_id).to eq(advice.id)
+  end
+
+  it 'crée le trio de non-accompagnement sans lien et le signale quand le média des conseils est introuvable' do
+    expect { task.invoke }.to output(/Lien introuvable pour « Message de non-accompagnement »/).to_stdout
+
+    expect(Media::TextMessagesBundle.find_by(key: 'non_accompagnement').link1_id).to be_nil
+  end
+
   it "pose la clé sur un trio du même nom qui n'en a pas, sans changer son texte" do
     existing = FactoryBot.create(:media_text_messages_bundle, name: 'Fin du programme', body1: "Texte modifié par l'équipe", body2: nil, body3: nil)
 

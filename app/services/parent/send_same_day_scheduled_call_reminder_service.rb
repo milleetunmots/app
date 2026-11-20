@@ -1,12 +1,6 @@
 class Parent::SendSameDayScheduledCallReminderService
 
-  SCHEDULED_CALL_REMINDER_SAME_DAY = <<~MESSAGE.freeze
-    1001mots : Rappel de RDV
-    Bonjour,
-    Vous avez RDV aujourd’hui avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante. Elle vous appellera vers {RDV_CALENDLY_SCHEDULED_AT_HOUR} sur votre numéro. Elle aura peut-être quelques minutes d’avance ou de retard. Pensez à enregistrer son numéro pour ne pas manquer l’appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.
-    Si vous n'êtes plus disponible, annulez le rdv ici : {RDV_CALENDLY_CANCEL_URL}
-    A bientôt !
-  MESSAGE
+  BUNDLE = ['Rappel de RDV — jour J (~2h avant)', 'rappel_rdv_jour_j'].freeze
 
   attr_reader :errors
 
@@ -14,19 +8,36 @@ class Parent::SendSameDayScheduledCallReminderService
     @errors = []
     @scheduled_calls = ScheduledCall.scheduled.where(scheduled_at: 2.hours.from_now...3.hours.from_now)
     @recipients = @scheduled_calls.map { |scheduled_call| "parent.#{scheduled_call.parent_id}" }
-    @message = SCHEDULED_CALL_REMINDER_SAME_DAY.dup
   end
 
   def call
     return self if @scheduled_calls.empty?
 
+    bundle = find_bundle
+    return self unless bundle
+
     service = ProgramMessageService.new(
       Time.zone.now.strftime('%d-%m-%Y'),
       Time.zone.now.hour < 8 ? '08:00' : Time.zone.now.strftime('%H:%M'),
       @recipients,
-      @message
+      bundle.body1,
+      bundle.rcs_media_id_to_send(1),
+      link_id(bundle)
     ).call
     @errors << { service: 'SendSameDayScheduledCallReminderService', message: 'La programmation du message a échoué', errors: service.errors } if service.errors.any?
     self
+  end
+
+  private
+
+  def link_id(bundle)
+    RedirectionTarget.find_or_create_by(medium_id: bundle.link1_id).id if bundle.link1_id
+  end
+
+  def find_bundle
+    name, key = BUNDLE
+    bundle = Media::TextMessagesBundle.find_automatic(name: name, key: key)
+    @errors << "Trio introuvable : « #{name} » (clé #{key}), message non envoyé" unless bundle
+    bundle
   end
 end
