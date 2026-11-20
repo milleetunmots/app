@@ -108,9 +108,9 @@ class ChildSupport::ChildrenDisengagementService
     return if parent_ids.empty?
 
     bundle = Media::TextMessagesBundle.find_automatic(name: name, key: key)
-    return @errors << "Trio introuvable : « #{name} » (clé #{key}), message non envoyé" unless bundle
+    return @errors << Media::TextMessagesBundle.missing_message(name: name, key: key) unless bundle
 
-    link_id = RedirectionTarget.find_or_create_by(medium_id: bundle.link1_id).id if bundle.link1_id
+    link_id = bundle.redirection_target_id(1)
     service = ProgramMessageService.new(
       Time.zone.today, '13:00', parent_ids, bundle.body1, bundle.rcs_media_id_to_send(1), link_id, false, nil, nil, ['disengaged']
     ).call

@@ -402,4 +402,27 @@ RSpec.describe Media::TextMessagesBundle, type: :model do
       end
     end
   end
+
+  describe '.missing_message' do
+    it 'nomme le trio et sa clé' do
+      expect(described_class.missing_message(name: 'Fin du programme', key: 'fin_programme'))
+        .to eq('Trio introuvable : « Fin du programme » (clé fin_programme), message non envoyé')
+    end
+  end
+
+  describe '#redirection_target_id' do
+    it 'renvoie la cible de redirection du lien du message, la même à chaque appel' do
+      video = FactoryBot.create(:media_video)
+      bundle = FactoryBot.create(:media_text_messages_bundle, link2: video)
+
+      expect(bundle.redirection_target_id(2)).to eq(RedirectionTarget.find_by(medium_id: video.id).id)
+      expect(bundle.redirection_target_id(2)).to eq(bundle.redirection_target_id(2))
+    end
+
+    it "ne renvoie rien quand le message n'a pas de lien" do
+      bundle = FactoryBot.create(:media_text_messages_bundle, link1: nil)
+
+      expect(bundle.redirection_target_id(1)).to be_nil
+    end
+  end
 end

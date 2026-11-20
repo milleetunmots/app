@@ -86,6 +86,10 @@ class Media::TextMessagesBundle < Medium
     self.class.rcs_single_text_enabled? ? 'single texte' : 'sms'
   end
 
+  def self.missing_message(name:, key:)
+    "Trio introuvable : « #{name} » (clé #{key}), message non envoyé"
+  end
+
   # Un seul trio publié du nom : lui. Plusieurs ou aucun : celui de la clé.
   def self.find_automatic(name:, key:)
     named = kept.where(name: name).to_a
@@ -106,6 +110,11 @@ class Media::TextMessagesBundle < Medium
     return rcs_media_id unless bundle
 
     bundle.rcs_media_id_to_send((1..3).find { |index| bundle.public_send("rcs_media#{index}_id").to_s == rcs_media_id.to_s })
+  end
+
+  def redirection_target_id(index)
+    link_id = public_send("link#{index}_id")
+    RedirectionTarget.find_or_create_by(medium_id: link_id).id if link_id
   end
 
   def rcs_media_id_to_send(index)

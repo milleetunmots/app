@@ -46,17 +46,13 @@ class Event::SendMessageToParentResponseService
       ["parent.#{@parent.id}"],
       bundle.body1,
       bundle.rcs_media_id_to_send(1),
-      link_id(bundle),
+      bundle.redirection_target_id(1),
       automatic_message_key: KEY
     ).call
     @errors << "Response message not sent to #{@parent.first_name} #{@parent.last_name} : #{service.errors.join(' - ')}" if service.errors.any?
   end
 
   def report_missing_bundle
-    @errors << "Trio introuvable : « #{NAME} » (clé #{KEY}), message non envoyé"
-  end
-
-  def link_id(bundle)
-    RedirectionTarget.find_or_create_by(medium_id: bundle.link1_id).id if bundle.link1_id
+    @errors << Media::TextMessagesBundle.missing_message(name: NAME, key: KEY)
   end
 end

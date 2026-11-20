@@ -55,7 +55,7 @@ class Parent::CheckAddressService
       ["parent.#{parent.id}"],
       bundle.body1.dup,
       bundle.rcs_media_id_to_send(1),
-      link_id,
+      bundle.redirection_target_id(1),
       automatic_message_key: KEY
     ).call
     @errors << "Address Verification message not sent to #{parent.first_name} #{parent.last_name} : #{service.errors.join(' - ')}" if service.errors.any?
@@ -68,14 +68,10 @@ class Parent::CheckAddressService
     @bundle = Media::TextMessagesBundle.find_automatic(name: NAME, key: KEY)
   end
 
-  def link_id
-    RedirectionTarget.find_or_create_by(medium_id: bundle.link1_id).id if bundle.link1_id
-  end
-
   def report_missing_bundle
     return if @missing_bundle_error
 
-    @missing_bundle_error = "Trio introuvable : « #{NAME} » (clé #{KEY}), message non envoyé"
+    @missing_bundle_error = Media::TextMessagesBundle.missing_message(name: NAME, key: KEY)
     @errors << @missing_bundle_error
   end
 end

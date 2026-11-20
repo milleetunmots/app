@@ -32,12 +32,12 @@ class Parent::SendDisengagementWarningAfterCallsService
   def find_bundle
     name, key = BUNDLES.fetch(@call_index)
     bundle = Media::TextMessagesBundle.find_automatic(name: name, key: key)
-    @errors << "Trio introuvable : « #{name} » (clé #{key}), message non envoyé" unless bundle
+    @errors << Media::TextMessagesBundle.missing_message(name: name, key: key) unless bundle
     bundle
   end
 
   def program_message(bundle)
-    link_id = RedirectionTarget.find_or_create_by(medium_id: bundle.link1_id).id if bundle.link1_id
+    link_id = bundle.redirection_target_id(1)
     service = ProgramMessageService.new(@date.strftime('%d-%m-%Y'), '19:00', @parent_ids, bundle.body1, bundle.rcs_media_id_to_send(1), link_id).call
     @errors << "Parent::SendDisengagementWarningAfterCallsService (group: #{@group.name}) : #{service.errors.uniq}" if service.errors.any?
   end
