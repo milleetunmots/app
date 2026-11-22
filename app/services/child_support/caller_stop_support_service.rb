@@ -48,7 +48,7 @@ class ChildSupport::CallerStopSupportService
   def add_stop_support_informations
     @child_support.stop_support_caller_id = @supporter.id
     @child_support.stop_support_reason = STOP_SUPPORT_INFORMATIONS[@reason.to_sym][:motive]
-    @child_support.stop_support_date = DateTime.now
+    @child_support.stop_support_date = Time.zone.now
     @child_support.stop_support_details = @details
     @error = "Les informations n'ont pas pu être ajoutée à la fiche de suivie" unless @child_support.save
     raise ActiveRecord::Rollback unless @error.nil?
@@ -66,7 +66,7 @@ class ChildSupport::CallerStopSupportService
       raise ActiveRecord::Rollback unless @error.nil?
     end
     @child_support.important_information =
-      "#{@child_support.important_information}\nAccompagnement arrêté le #{DateTime.now.strftime('%d/%m/%Y')} pour le motif \"#{STOP_SUPPORT_INFORMATIONS[@reason.to_sym][:motive]}\" à la demande de #{@supporter.name}"
+      "#{@child_support.important_information}\nAccompagnement arrêté le #{Time.zone.now.strftime('%d/%m/%Y')} pour le motif \"#{STOP_SUPPORT_INFORMATIONS[@reason.to_sym][:motive]}\" à la demande de #{@supporter.name}"
     @child_support.save
   end
 
@@ -80,10 +80,11 @@ class ChildSupport::CallerStopSupportService
   def send_message
     @message = STOP_SUPPORT_INFORMATIONS[@reason.to_sym][:sms].dup
     errors_count = 0
+    now = Time.zone.now
     recipients.each do |recipient|
       program_message_service = ProgramMessageService.new(
-        DateTime.now.strftime('%Y-%m-%d'),
-        DateTime.now.strftime('%H:%M'),
+        now.strftime('%Y-%m-%d'),
+        now.strftime('%H:%M'),
         [recipient],
         @message,
         nil,

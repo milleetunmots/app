@@ -59,7 +59,7 @@ RSpec.describe ChildSupport::ChildrenDisengagementService do
     context 'when a family has multiple active children' do
       it "uses the plural version of the message ('vos enfants')" do
         expect(ProgramMessageService).to receive(:new).with(
-          Date.today,
+          Time.zone.today,
           '13:00',
           contain_exactly("parent.#{disengaged_child.parent1_id}", "parent.#{first_disengaged_child_in_siblings.parent1_id}"),
           "Bonjour,\n{PRENOM_ACCOMPAGNANTE} a essayé de vous appeler plusieurs fois mais n'a pas réussi à discuter avec vous. Avec 1001mots, quand on n'arrive pas à échanger, l'accompagnement se termine pour que d'autres familles en profitent. Les livres et SMS vont donc s'arrêter bientôt.\nMerci d'avoir participé à ce programme. On vous souhaite de beaux moments avec {PRENOM_ENFANT} !\nEt si vous avez encore 1 minute, dites-nous ici ce que vous avez pensé de 1001mots : https://form.typeform.com/to/fysdS3Sd#st=xxxxx\nL'équipe 1001mots",
