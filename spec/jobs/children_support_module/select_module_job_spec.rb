@@ -143,7 +143,7 @@ RSpec.describe ChildrenSupportModule::SelectModuleJob, type: :job do
 
     it 'add disengagement tag to children whose parents have not chosen module 3 and have not responded to call 3' do
       allow_any_instance_of(ChildSupport::SelectModuleService).to receive(:call)
-      .and_return(ChildSupport::SelectModuleService.new(child_support_with_call3_status_ok, Date.today, '12:30', 5))
+      .and_return(ChildSupport::SelectModuleService.new(child_support_with_call3_status_ok, Time.zone.today, '12:30', 5))
 
       child_support_with_call3_status_ok.update(call3_status: I18n.t('activerecord.attributes.child_support/call_status.1_ok'))
       child_support_without_module_zero_with_call3_status_ok.update(call3_status: I18n.t('activerecord.attributes.child_support/call_status.1_ok'))

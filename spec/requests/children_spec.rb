@@ -44,7 +44,7 @@ RSpec.describe ChildrenController, type: :request do
       before { get "/inscription3" }
 
       it "renders specific wording" do
-        expect(assigns(:child_min_birthdate)).to eq Date.today - 30.months
+        expect(assigns(:child_min_birthdate)).to eq Time.zone.today - 30.months
 
         expect(response.body).to include I18n.t('inscription_terms_accepted_at_label.pro')
         expect(response.body).to include I18n.t('source_label.pmi')
