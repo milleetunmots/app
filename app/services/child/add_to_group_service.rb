@@ -11,8 +11,10 @@ class Child
 
     attr_reader :group
 
-    def initialize(child_id, at_sign_up: false)
+    # without_supporters_assigned : ne place pas dans une cohorte dont les familles sont déjà réparties entre les accompagnantes
+    def initialize(child_id, at_sign_up: false, without_supporters_assigned: false)
       @child_id = child_id
+      @without_supporters_assigned = without_supporters_assigned
       @child = Child.find_by(id: @child_id)
       @group = nil
       @siblings = @child&.siblings
@@ -67,19 +69,14 @@ class Child
     end
 
     def retrieve_next_available_group(child)
-      @group = child.months >= 4 ? Group.next_available_at(Time.zone.today) : Group.next_available_at(child.birthdate + 4.months)
+      @group = next_available_group(child.months >= 4 ? Time.zone.today : child.birthdate + 4.months)
     end
 
     def no_sibling_is_active
       @waiting_siblings = @siblings.where(group_status: 'waiting')
       # get oldest child less than 30 months old
       @oldest_child = @waiting_siblings.order(birthdate: :asc).first
-      @group =
-        if @oldest_child.months >= 4
-          Group.next_available_at(Time.zone.today)
-        else
-          Group.next_available_at(@oldest_child.birthdate + 4.months)
-        end
+      @group = next_available_group(@oldest_child.months >= 4 ? Time.zone.today : @oldest_child.birthdate + 4.months)
       return unless @group
 
       @waiting_siblings.each do |child|
@@ -87,6 +84,10 @@ class Child
 
         child.update(group: @group, group_status: 'active')
       end
+    end
+
+    def next_available_group(date)
+      Group.next_available_at(date, without_supporters_assigned: @without_supporters_assigned)
     end
 
     def join_active_sibling_group

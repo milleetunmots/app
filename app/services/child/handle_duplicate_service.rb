@@ -30,16 +30,17 @@ class Child
 
       first_child = @children.sort_by(&:created_at).first
       movable_children(@children).where.not(id: first_child.id).each do |child|
-        child.parent1.discard
-        child.parent2.discard
-        child.child_support&.discard
-        child.update(
-          parent1: first_child.parent1,
-          parent2: first_child.parent2,
-          child_support: first_child.child_support,
-          group: nil,
-          group_status: 'waiting'
-        )
+        old_parents = [child.parent1, child.parent2]
+        old_child_support = child.child_support
+        attributes = { parent1: first_child.parent1, parent2: first_child.parent2 }
+        if old_child_support != first_child.child_support
+          # En attente avant le changement de fiche : le callback ne remplace l'accompagnante que pour un enfant actif
+          attributes.merge!(child_support: first_child.child_support, group: nil, group_status: 'waiting')
+        end
+        child.update(attributes)
+        # Les parents et la fiche peuvent être partagés avec un enfant protégé : on ne les archive que s'ils ne servent plus
+        old_parents.uniq.each { |parent| parent.discard if parent.children.kept.empty? }
+        old_child_support.discard if old_child_support && old_child_support.children.kept.empty?
         join_siblings_group(child)
       end
     end
@@ -87,24 +88,24 @@ class Child
     end
 
     def handle_case_one
-      # S'il n'y a pas de cohorte ou si aucune n'est attribuée aux accompagnantes
-      if @supporters_assigned_groups.empty?
+      # S'il n'y a pas de cohorte ou si aucune n'est protégée (attribuée ou démarrée)
+      if @protected_groups.empty?
         delete_children_without_parent2
         keep_recent_child
-      # Si une seule cohorte est attribuée
-      elsif @supporters_assigned_groups.length == 1
+      # Si une seule cohorte est protégée
+      elsif @protected_groups.length == 1
         keep_supported_children_and_add_parent2_if_needed
       end
     end
 
     def handle_case_two
-      if @supporters_assigned_groups.empty?
-        # Si aucune cohorte n'est attribuée, supprimer les doublons les plus récents
+      if @protected_groups.empty?
+        # Si aucune cohorte n'est protégée (attribuée ou démarrée), supprimer les doublons les plus récents
         @children.sort_by(&:created_at).drop(1).each do |child|
           discard_child(child)
         end
-      elsif @supporters_assigned_groups.length == 1
-        @children.select { |child| child.group_id != @supporters_assigned_groups.first.id }.each do |child|
+      elsif @protected_groups.length == 1
+        @children.select { |child| child.group_id != @protected_groups.first.id }.each do |child|
           discard_child(child)
         end
       end
@@ -122,8 +123,8 @@ class Child
     end
 
     def keep_supported_children_and_add_parent2_if_needed
-      supporters_assigned_group_children = @children.select { |child| child.group_id.to_i == @supporters_assigned_groups.first.id }
-      not_supported_children = @children - supporters_assigned_group_children
+      protected_group_children = @children.select { |child| child.group_id.to_i == @protected_groups.first.id }
+      not_supported_children = @children - protected_group_children
       parent2 = @children.select { |child| child.parent2.present? }.first&.parent2
 
       # Discard non supported children then add parent2 to the supported child if missing
@@ -138,7 +139,7 @@ class Child
 
         child.child_support.discard if child.child_support.children.kept.empty?
       end
-      supporters_assigned_group_children.select { |child| child.parent2.nil? }.each do |child|
+      protected_group_children.select { |child| child.parent2.nil? }.each do |child|
         # Il n'y a qu'un seul enfant suivi normalement
         child.parent2 = parent2
         child.save
@@ -182,7 +183,7 @@ class Child
         @children = children
         # Recupérer les cohortes
         @groups = children_groups
-        @supporters_assigned_groups = @groups.select(&:supporters_assigned?)
+        @protected_groups = @groups.select { |group| protected_group?(group) }
         case
         when case_one?
           handle_case_one
@@ -260,20 +261,24 @@ class Child
     end
 
     def change_parents_and_child_support
-      @child_support.copy_fields(@child.child_support)
-      @child_support.save
+      # Un enfant déjà sur la fiche cible garde sa cohorte : seuls ses parents sont remplacés
+      if @child.child_support_id != @child_support.id
+        @child_support.copy_fields(@child.child_support)
+        @child_support.save
+        # En attente avant le changement de fiche : le callback ne remplace l'accompagnante que pour un enfant actif
+        @child.group = nil
+        @child.group_status = 'waiting'
+      end
 
       @child.parent1_id = @child_support.parent1.id
       @child.parent2_id = @child_support.parent2.id if @child_support.parent2
       @child.child_support_id = @child_support.id
-      # En attente avant le changement de fiche : le callback ne remplace l'accompagnante que pour un enfant actif
-      @child.group = nil
-      @child.group_status = 'waiting'
       @child.save(validate: false)
     end
 
     def join_siblings_group(child)
-      Child::AddToGroupService.new(child.id).call
+      # Rejoindre la cohorte de sa fratrie ne crée pas de famille : seule une nouvelle cohorte doit être encore non attribuée
+      Child::AddToGroupService.new(child.id, without_supporters_assigned: true).call
     end
 
     def discard_old_associations
@@ -285,7 +290,7 @@ class Child
     end
 
     def more_than_one_children_supported?
-      @children.count { |child| child.group_status == 'active' && child.group&.supporters_assigned? } > 1
+      @children.count { |child| child.group_status == 'active' && child.group && protected_group?(child.group) } > 1
     end
 
     def any_parent_have_others_children?
@@ -370,8 +375,20 @@ class Child
       Child.kept.where(parent1_id: parent_ids).or(Child.kept.where(parent2_id: parent_ids))
     end
 
+    # Une cohorte est protégée dès que les accompagnantes y sont attribuées ou qu'elle a démarré :
+    # ses familles ne sont plus ni fusionnées ni archivées, pour ne pas changer le nombre de familles suivies
+    def protected_group?(group)
+      group.supporters_assigned? ||
+        (group.started_at.present? && group.started_at < Time.zone.today) ||
+        group.support_module_programmed.to_i.positive?
+    end
+
+    def protected_groups
+      Group.supporters_assigned.or(Group.started)
+    end
+
     def movable_children(children)
-      children.where(group_status: 'waiting').or(children.where(group_id: Group.where(supporters_assigned_at: nil).select(:id)))
+      children.where(group_status: 'waiting').or(children.where(group_id: Group.where.not(id: protected_groups.select(:id)).select(:id)))
     end
 
     def not_movable_children(children)

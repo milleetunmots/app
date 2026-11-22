@@ -128,8 +128,9 @@ class Group < ApplicationRecord
     where('unaccent(name) ILIKE unaccent(?)', '%popi%')
   end
 
-  def self.next_available_at(date)
+  def self.next_available_at(date, without_supporters_assigned: false)
     next_available_groups = where(is_programmed: false).where('started_at > ?', date).order(:started_at)
+    next_available_groups = next_available_groups.where(supporters_assigned_at: nil) if without_supporters_assigned
 
     next_available_groups.each do |next_available_group|
       return next_available_group if next_available_group.children.count < next_available_group.expected_children_number.to_i

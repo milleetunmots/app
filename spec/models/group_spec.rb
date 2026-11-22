@@ -132,4 +132,17 @@ RSpec.describe Group, type: :model do
       end
     end
   end
+
+  describe '.next_available_at' do
+    let!(:assigned_group) { FactoryBot.create(:group, started_at: Date.new(2027, 3, 1), supporters_assigned_at: Time.zone.local(2027, 2, 15, 10)) }
+    let!(:unassigned_group) { FactoryBot.create(:group, started_at: Date.new(2027, 4, 5)) }
+
+    it 'retourne la prochaine cohorte, attribuée ou non, par défaut' do
+      expect(Group.next_available_at(Date.new(2027, 2, 20))).to eq(assigned_group)
+    end
+
+    it "saute les cohortes attribuées avec without_supporters_assigned" do
+      expect(Group.next_available_at(Date.new(2027, 2, 20), without_supporters_assigned: true)).to eq(unassigned_group)
+    end
+  end
 end

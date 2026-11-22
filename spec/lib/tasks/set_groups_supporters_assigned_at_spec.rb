@@ -45,6 +45,29 @@ RSpec.describe 'groups:set_supporters_assigned_at' do
     end
   end
 
+  context "quand une cohorte pas encore démarrée a déjà été répartie" do
+    it "lui pose la date d'attribution du jour d'exécution" do
+      group = FactoryBot.create(:group, started_at: Date.new(2026, 12, 7))
+      child = FactoryBot.create(:child, group: group, group_status: 'active')
+      child.child_support.update!(supporter: FactoryBot.create(:admin_user, user_role: 'caller'))
+
+      run_task
+
+      expect(group.reload.supporters_assigned_at.to_date).to eq(Date.new(2026, 11, 30))
+    end
+  end
+
+  context "quand une cohorte pas encore démarrée n'a que des familles sans accompagnante" do
+    it "ne lui pose pas de date d'attribution" do
+      group = FactoryBot.create(:group, started_at: Date.new(2026, 12, 7))
+      FactoryBot.create(:child, group: group, group_status: 'active')
+
+      run_task
+
+      expect(group.reload.supporters_assigned_at).to be_nil
+    end
+  end
+
   context "quand une cohorte n'a pas de date de début" do
     it "ne lui pose pas de date d'attribution" do
       group = FactoryBot.create(:group)
