@@ -29,10 +29,9 @@ class Child
       build_siblings
       detect_errors
       if @child.errors.empty? && @child.save
-        send_form_by_sms
-        send_not_supported_sms
+        @sms_url_form = initial_form_url
+        Child::SendSignUpMessagesService.new(@child, @registration_origin).call
         create_parent_registration
-        send_instagram_message
         add_caf_subscription_tag
         @children_under_four_months = @child.siblings.all? { |child| child.months < 4 }
         younguest_child_over_four_months = @child.siblings.where('birthdate <= ?', 4.months.ago).order('birthdate desc').first
@@ -98,13 +97,6 @@ class Child
       @attributes[:group_status] = 'not_supported'
     end
 
-    # Inscription refusée, quel qu'en soit le motif : ni le SMS de bienvenue ni
-    # le lien vers le questionnaire ne doivent partir. `SendInitialFormSmsJob` ne
-    # consulte pas `group_status`, c'est donc ici que la garde doit vivre.
-    def registration_rejected?
-      'filtre-diplome-KO'.in?(@child.tag_list) || @child.group_status == 'not_supported'
-    end
-
     # Inscriptions arrivées via une URL proposée par une IA générative : ni
     # financées, ni ciblées. Contrairement au filtre diplôme ci-dessus, la règle
     # s'applique quelle que soit l'origine de l'inscription. Appelée avant
@@ -145,45 +137,10 @@ class Child
     end
 
     def detect_errors
-      @child.valid?
-      if any_parent?
-        parent1_validation if parent1_present?
-        parent2_validation if parent2_present?
-      end
-      source_validation
-      overseas_child_validation
-    end
-
-    def send_form_by_sms
-      @sms_url_form = Rails.application.routes.url_helpers.initial_typeform_url(st: @child.parent1.security_token)
-      return if registration_rejected?
-      return if @child.child_support.enrollment_reasons.any?
-
-      message =
-        <<~MESSAGE
-          Bonjour,
-          Merci pour votre inscription à l’accompagnement de l’association 1001mots !
-          Pour que les livres et les conseils soient adaptés à #{@child.siblings.map(&:first_name).to_sentence(words_connector: ', ', two_words_connector: ' et ', last_word_connector: ' et ')}, vous pouvez remplir ce rapide questionnaire ? (3 minutes) Merci beaucoup ! #{@sms_url_form}
-          L’équipe 1001mots
-        MESSAGE
-      eval25_message = "1001mots : Bonjour, votre inscription au programme 1001mots est confirmée. L'accompagnement va bientôt démarrer. A bientôt !"
-
-      if ENV['EVAL25'].present? && @child.source.name == ENV['CAF93']
-        report_message_errors(SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.to_i, eval25_message).call, 'SMS eval25')
-      else
-        Child::SendInitialFormSmsJob.set(wait: 2.hours).perform_later(@child.parent1_id, message) if @registration_origin == 4 || (@registration_origin == 2 && ENV['CAF_SUBSCRIPTION'].nil?)
-      end
-
-      report_message_errors(SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.change({ hour: 18 }).to_i, message).call, 'SMS formulaire initial') if @registration_origin.in?([3, 5])
-    end
-
-    # Ces envois sont en « fire and forget » : sans cette remontée, une panne du
-    # fournisseur (réponse non-JSON) se solde par un SMS perdu en silence, alors
-    # qu'elle faisait auparavant échouer bruyamment l'appelant.
-    def report_message_errors(service, context)
-      return if service.errors.blank?
-
-      Rollbar.error("Child::CreateService — #{context} non envoyé : #{service.errors}", child_id: @child.id, parent_id: @child.parent1_id)
+      present_parents = { 1 => @parent1_attributes, 2 => @parent2_attributes }.select { |index, _| index == 1 ? parent1_present? : parent2_present? }
+      Child::ValidateRegistrationService.new(
+        @child, present_parents: present_parents, parent1_postal_code: @parent1_attributes[:postal_code], source_id: @children_source_attributes[:source_id]
+      ).call
     end
 
     def parent1_present?
@@ -194,51 +151,8 @@ class Child
       @parent2_attributes[:first_name].present? || @parent2_attributes[:last_name].present? || @parent2_attributes[:phone_number].present?
     end
 
-    def any_parent?
-      if !parent1_present? && !parent2_present?
-        @child.errors.add(:base, :invalid_parents, message: 'Au moins un parent est obligatoire.')
-        return false
-      end
-      true
-    end
-
-    def parent1_validation
-      @child.errors.add('parent1_first_name', :blank) unless @parent1_attributes[:first_name].present?
-      @child.errors.add('parent1_last_name', :blank) unless @parent1_attributes[:last_name].present?
-      @child.errors.add('parent1_phone_number_national', :blank) unless @parent1_attributes[:phone_number].present?
-      @child.errors.add('parent1_gender', :invalid) unless @parent1_attributes[:gender].present? && @parent1_attributes[:gender].in?(Parent::GENDERS)
-    end
-
-    def parent2_validation
-      @child.errors.add('parent2_first_name', :blank) unless @parent2_attributes[:first_name].present?
-      @child.errors.add('parent2_last_name', :blank) unless @parent2_attributes[:last_name].present?
-      @child.errors.add('parent2_phone_number_national', :blank) unless @parent2_attributes[:phone_number].present?
-      @child.errors.add('parent2_gender', :invalid) unless @parent2_attributes[:gender].present? && @parent2_attributes[:gender].in?(Parent::GENDERS)
-    end
-
-    def source_validation
-      @child.errors.add(:source, :invalid) unless Source.active.exists?(@children_source_attributes[:source_id])
-    end
-
-    def overseas_child_validation
-      return unless @parent1_attributes[:postal_code].to_i / 1000 == 97
-
-      @child.errors.add(:base,
-                        :invalid,
-                        message: "L'accompagnement 1001mots n'est pas encore disponible dans votre région. N'hésitez pas à suivre nos actualités sur notre site et notre page facebook !")
-    end
-
-    def send_not_supported_sms
-      return unless @registration_origin == 4 && 'filtre-diplome-KO'.in?(@child.tag_list)
-
-      report_message_errors(Child::ProgramNotSupportedMessageService.new(@child).call, 'SMS non accompagnement')
-    end
-
-    def send_instagram_message
-      return unless @child.group_status.in? %w[active waiting]
-
-      message = "1001mots : #{ENV['CAF_SUBSCRIPTION'].present? ? 'R' : 'En attendant que votre accompagnement 1001mots commence, r'}etrouvez sur Instagram nos idées d’activités et nos conseils pour occuper #{@child.first_name}, abonnez-vous ! #{ENV['INSTAGRAM_LINK']}"
-      report_message_errors(SpotHit::SendSmsService.new([@child.parent1_id], Time.zone.now.advance(days: 3).change({ hour: 18 }).to_i, message).call, 'SMS Instagram')
+    def initial_form_url
+      Rails.application.routes.url_helpers.initial_typeform_url(st: @child.parent1.security_token)
     end
 
     def create_parent_registration

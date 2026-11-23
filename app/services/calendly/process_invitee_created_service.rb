@@ -1,14 +1,7 @@
 module Calendly
   class ProcessInviteeCreatedService
 
-    SCHEDULED_CALL_CONFIRMATION_MESSAGE = <<~MESSAGE.freeze
-      1001mots : Confirmation de RDV
-      Bonjour,
-      Vous avez RDV le {SCHEDULED_AT_DATE} avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante 1001mots. Elle vous appellera vers {SCHEDULED_AT_HOUR} sur votre numéro.
-      L'appel durera environ 20 minutes. Pensez à enregistrer son numéro pour ne pas manquer l'appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}.
-      Si vous n’êtes plus disponible, annulez le rdv ici : {CANCEL_URL}
-      A bientôt !
-    MESSAGE
+    CONFIRMATION_BUNDLE = ['Confirmation de RDV', 'confirmation_rdv'].freeze
 
     REPLACED_CANCELLATION_REASON = 'Remplacé par un nouveau RDV'.freeze
 
@@ -159,22 +152,27 @@ module Calendly
     end
 
     def send_scheduled_call_confirmation
-      service = ProgramMessageService.new(
-        Time.zone.now.strftime('%d-%m-%Y'),
-        Time.zone.now.strftime('%H:%M'),
-        ["parent.#{@parent.id}"],
-        interpolate_placeholders(SCHEDULED_CALL_CONFIRMATION_MESSAGE)
+      name, key = CONFIRMATION_BUNDLE
+      bundle = Media::TextMessagesBundle.find_automatic(name: name, key: key)
+      return @errors << { message: Media::TextMessagesBundle.missing_message(name: name, key: key) } unless bundle
+
+      service = ProgramAutomaticMessageService.new(
+        Time.zone.now.strftime('%d-%m-%Y'), Time.zone.now.strftime('%H:%M'), ["parent.#{@parent.id}"],
+        bundle.body1, bundle.rcs_media_id_to_send(1), bundle.redirection_target_id(1),
+        automatic_message_key: key, recipient_variables: { @parent.id => scheduled_call_variables }
       ).call
       return if service.errors.empty?
 
       @errors << { message: "Échec de l'envoi du message de confirmation de RDV", errors: service.errors }
     end
 
-    def interpolate_placeholders(message)
-      message.gsub('{SCHEDULED_AT_DATE}', @scheduled_call.scheduled_at.strftime('%d/%m'))
-             .gsub('{SCHEDULED_AT_HOUR}', @scheduled_call.scheduled_at.strftime('%H:%M'))
-             .gsub('{NUMERO_PARENT}', Phonelib.parse(@parent.phone_number).national)
-             .gsub('{CANCEL_URL}', @scheduled_call.cancel_url.to_s)
+    # Le RDV qui vient d'être pris, pas le dernier RDV à venir que retiendrait ProgramMessageService.
+    def scheduled_call_variables
+      {
+        'SCHEDULED_AT_DATE' => @scheduled_call.scheduled_at.strftime('%d/%m'),
+        'RDV_CALENDLY_SCHEDULED_AT_HOUR' => @scheduled_call.scheduled_at.strftime('%H:%M'),
+        'RDV_CALENDLY_CANCEL_URL' => @scheduled_call.cancel_url.to_s
+      }
     end
   end
 end

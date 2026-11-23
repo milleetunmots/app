@@ -59,4 +59,43 @@ RSpec.describe ChildSupport::SendCallGoalsMessagesService do
       end
     end
   end
+
+  describe 'rappel de petite mission lu dans son trio' do
+    def goals_sms(link)
+      "Bonjour, Voici votre petite mission :\r\nLire une histoire chaque soir\r\nQuand vous aurez essayé, dites-le-moi : #{link}"
+    end
+
+    def child_support_with_mission(call_index, link)
+      group = FactoryBot.create(:group, started_at: Date.new(2027, 1, 4))
+      child = FactoryBot.create(:child, first_name: 'Léa', group: group, group_status: 'active')
+      child.child_support.update_columns("call#{call_index}_goals_sms" => goals_sms(link), call1_previous_goals_follow_up: '3_no_tried')
+      child.child_support
+    end
+
+    [
+      [0, 'Rappel de petite mission — 2 semaines', 'rappel_mission_deux_semaines', '18-01-2027', 'https://form.1001mots.org/c0?st=abc'],
+      [3, 'Rappel de petite mission — appel 3', 'rappel_mission_appel3', '28-06-2027', 'https://form.1001mots.org/c3?st=abc']
+    ].each do |call_index, name, key, date, link|
+      it "envoie le texte du trio « #{name} », avec la petite mission et le lien de suivi" do
+        FactoryBot.create(:media_text_messages_bundle, name: name, body1: "Texte du trio #{name}", body2: nil, body3: nil).update_column(:key, key)
+        child_support = child_support_with_mission(call_index, link)
+        expect(ProgramAutomaticMessageService).to receive(:new).with(
+          date, '12:30', ["parent.#{child_support.parent1.id}"], "Texte du trio #{name}", nil, nil,
+          automatic_message_key: key,
+          recipient_variables: { child_support.parent1.id => { 'PETITE_MISSION' => 'Lire une histoire chaque soir', 'LIEN_SUIVI_PETITE_MISSION' => link } }
+        ).and_call_original
+
+        with_env('CALL3_TEXT_MESSAGES_BUNDLES' => '') { described_class.new(child_support.current_child.group_id, call_index).call }
+      end
+
+      it "n'envoie rien et signale le trio « #{name} » introuvable" do
+        child_support = child_support_with_mission(call_index, link)
+        expect(ProgramAutomaticMessageService).not_to receive(:new)
+
+        service = with_env('CALL3_TEXT_MESSAGES_BUNDLES' => '') { described_class.new(child_support.current_child.group_id, call_index).call }
+
+        expect(service.errors).to include(Media::TextMessagesBundle.missing_message(name: name, key: key))
+      end
+    end
+  end
 end

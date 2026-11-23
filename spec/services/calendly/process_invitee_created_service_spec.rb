@@ -66,8 +66,10 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
     stub_request(:get, event_uri)
       .to_return(status: 200, body: scheduled_event_response.to_json, headers: { 'Content-Type' => 'application/json' })
 
-    program_message_service = instance_double(ProgramMessageService, call: nil, errors: [])
-    allow(ProgramMessageService).to receive(:new).and_return(program_message_service)
+    FactoryBot.create(:media_text_messages_bundle, name: 'Confirmation de RDV', body1: 'Texte du trio de confirmation', body2: nil, body3: nil)
+              .update_column(:key, 'confirmation_rdv')
+    program_message_service = instance_double(ProgramAutomaticMessageService, call: nil, errors: [])
+    allow(ProgramAutomaticMessageService).to receive(:new).and_return(program_message_service)
     allow(program_message_service).to receive(:call).and_return(program_message_service)
   end
 
@@ -116,6 +118,31 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
         expect(result.scheduled_call.raw_payload).to eq(payload)
       end
 
+      it "envoie la confirmation d'après son trio, avec la date, l'heure et le lien d'annulation du RDV pris" do
+        subject.call
+
+        expect(ProgramAutomaticMessageService).to have_received(:new).with(
+          anything, anything, ["parent.#{parent.id}"], 'Texte du trio de confirmation', nil, nil,
+          automatic_message_key: 'confirmation_rdv',
+          recipient_variables: {
+            parent.id => {
+              'SCHEDULED_AT_DATE' => '15/01', 'RDV_CALENDLY_SCHEDULED_AT_HOUR' => '11:00',
+              'RDV_CALENDLY_CANCEL_URL' => 'https://calendly.com/cancellations/abc123'
+            }
+          }
+        )
+      end
+
+      it 'enregistre le RDV sans confirmation et signale le trio introuvable' do
+        Media::TextMessagesBundle.where(key: 'confirmation_rdv').delete_all
+
+        result = subject.call
+
+        expect(result.scheduled_call).to be_persisted
+        expect(ProgramAutomaticMessageService).not_to have_received(:new)
+        expect(result.errors).to include(hash_including(message: 'Trio introuvable : « Confirmation de RDV » (clé confirmation_rdv), message non envoyé'))
+      end
+
       it "enregistre le type d'événement réservé" do
         result = subject.call
         expect(result.scheduled_call.event_type_uri).to eq(calendly_event_type_uri)
@@ -139,7 +166,7 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
           parent: parent, child_support: child_support, admin_user: admin_user,
           call_session: 1, event_type_uri: calendly_event_type_uri, status: 'scheduled'
         )
-        expect(ProgramMessageService).to have_received(:new).with(anything, anything, ["parent.#{parent.id}"], anything)
+        expect(ProgramAutomaticMessageService).to have_received(:new).with(anything, anything, ["parent.#{parent.id}"], any_args)
       end
 
       it 'remplace le RDV actif de la même session' do
@@ -166,7 +193,7 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
 
         expect(result.errors).to include(hash_including(message: 'Les informations saisies ne correspondent à aucun parent de la fiche de suivi du lien'))
         expect(ScheduledCall.count).to eq(0)
-        expect(ProgramMessageService).not_to have_received(:new)
+        expect(ProgramAutomaticMessageService).not_to have_received(:new)
       end
 
       it "n'enregistre rien quand le type d'événement est inconnu" do
@@ -177,7 +204,7 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
 
         expect(result.errors).to include(hash_including(message: 'Aucun parent identifié pour ce RDV'))
         expect(ScheduledCall.count).to eq(0)
-        expect(ProgramMessageService).not_to have_received(:new)
+        expect(ProgramAutomaticMessageService).not_to have_received(:new)
       end
 
       it "n'enregistre rien quand le webhook ne contient pas scheduled_event" do
@@ -197,7 +224,7 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
         described_class.new(payload: payload).call
 
         expect(ScheduledCall.where(calendly_event_uri: event_uri).count).to eq(1)
-        expect(ProgramMessageService).to have_received(:new).once
+        expect(ProgramAutomaticMessageService).to have_received(:new).once
       end
 
       it "se rabat sur le type d'événement quand le jeton est inconnu ou tronqué" do
@@ -221,7 +248,7 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
 
         expect(result.errors).to be_empty
         expect(result.scheduled_call).to have_attributes(parent: other_parent, child_support: child_support, call_session: 1)
-        expect(ProgramMessageService).to have_received(:new).with(anything, anything, ["parent.#{other_parent.id}"], anything)
+        expect(ProgramAutomaticMessageService).to have_received(:new).with(anything, anything, ["parent.#{other_parent.id}"], any_args)
       end
     end
 
@@ -326,7 +353,7 @@ RSpec.describe Calendly::ProcessInviteeCreatedService do
 
         it 'does not resend the confirmation message' do
           subject.call
-          expect(ProgramMessageService).not_to have_received(:new)
+          expect(ProgramAutomaticMessageService).not_to have_received(:new)
         end
       end
     end

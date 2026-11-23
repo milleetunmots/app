@@ -19,6 +19,9 @@ namespace :text_messages_bundles do
                           "rappellera dans %<delay>s.\nSi elle n'arrive pas à vous parler au téléphone, l'accompagnement s'arrêtera " \
                           "automatiquement et vous n'allez plus recevoir de livres ni de SMS :(\nA bientôt !\n%<signature>s"
 
+    call_goals_reminder = "Bonjour\nVoici un rappel de votre petite mission 1001mots :\n{PETITE_MISSION}\nEt pour me raconter comment ça c'est passé, " \
+                          "c'est ici :\n{LIEN_SUIVI_PETITE_MISSION}\n%<closing>s"
+
     texts = {
       "Annonce d'arrêt (2 KO)" => disengagement,
       "Annonce d'arrêt (2 KO) — fratrie" => disengagement.sub('{PRENOM_ENFANT}', 'vos enfants'),
@@ -47,13 +50,17 @@ namespace :text_messages_bundles do
       "Bienvenue (période d'été)" =>
         "Bonjour, merci pour votre inscription à l'accompagnement de l'association 1001mots ! Pendant l'été, nous faisons une petite pause dans " \
         "les accompagnements. Vous allez recevoir les premiers livres et conseils à la rentrée. A bientôt !\nL'équipe 1001mots",
-      'Confirmation de RDV' => Calendly::ProcessInviteeCreatedService::SCHEDULED_CALL_CONFIRMATION_MESSAGE
-            .gsub('{SCHEDULED_AT_HOUR}', '{RDV_CALENDLY_SCHEDULED_AT_HOUR}')
-            .gsub('{CANCEL_URL}', '{RDV_CALENDLY_CANCEL_URL}'),
+      'Confirmation de RDV' =>
+        "1001mots : Confirmation de RDV\nBonjour,\nVous avez RDV le {SCHEDULED_AT_DATE} avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante " \
+        '1001mots. Elle vous appellera vers {RDV_CALENDLY_SCHEDULED_AT_HOUR} sur votre numéro.' \
+        "\nL'appel durera environ 20 minutes. Pensez à enregistrer son numéro pour ne pas manquer l'appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}." \
+        "\nSi vous n’êtes plus disponible, annulez le rdv ici : {RDV_CALENDLY_CANCEL_URL}\nA bientôt !",
       "Demande de vérification d'adresse (PND)" =>
         "1001mots : Vous n'avez pas reçu votre dernier livre ? Vérifiez votre adresse sur ce lien : " \
         "https://form.typeform.com/to/#{ENV['UPDATING_ADDRESS_TYPEFORM_ID']}#st=xxxxx",
-      'Démarrage tardif' => Child::AddToGroupService::LATE_SUPPORT_WARNING_MESSAGE,
+      'Démarrage tardif' =>
+        '1001mots : En raison d’un grand nombre de demandes, vous recevrez nos livres et conseils dans environ 2 mois. Pas d’inquiétude, ' \
+        "c'est normal si vous avez moins de nouvelles de nous d'ici là. A bientôt!",
       # Recopié : charger Child::SendEvalMessageService exige les identifiants Google (GOOGLE_CREADENTIALS_JSON).
       "Fin d'accompagnement, étude eval" =>
         "1001mots : L'accompagnement de {PRENOM_ENFANT} est maintenant terminé. Vous avez AIMÉ les livres et les conseils ? Alors vous " \
@@ -99,10 +106,11 @@ namespace :text_messages_bundles do
         '{PRENOM_ACCOMPAGNANTE} au {NUMERO_AIRCALL_ACCOMPAGNANTE}. Merci!',
       "Rappel d'inscription CAF (v1)" => Parent::ProgramCafSubscriptionReminderService::MESSAGE_V1,
       "Rappel d'inscription CAF (v2)" => Parent::ProgramCafSubscriptionReminderService::MESSAGE_V2,
-      'Rappel de petite mission — appel 0' => ChildSupport::SendCall0GoalsReminderMessagesService::CALL_GOALS_REMINDER_MESSAGE
-            .gsub('{call_goals}', '{PETITE_MISSION}').gsub('{typeform_link}', '{LIEN_SUIVI_PETITE_MISSION}'),
-      'Rappel de petite mission — appel 3' => ChildSupport::SendCallGoalsMessagesService::CALL_GOALS_REMINDER_MESSAGE
-            .gsub('À bientôt', 'Bonne journée').gsub('{call_goals}', '{PETITE_MISSION}').gsub('{typeform_link}', '{LIEN_SUIVI_PETITE_MISSION}'),
+      'Rappel de petite mission — 2 semaines' => format(call_goals_reminder, closing: 'À bientôt :)'),
+      'Rappel de petite mission — appel 0' =>
+        "1001mots: Je n'ai pas réussi à vous joindre cette fois-ci, tant pis! Voici un rappel de votre petite mission de la dernière " \
+        "fois:\n{PETITE_MISSION}\nVous pouvez me dire si vous avez essayé en cliquant sur ce lien:\n{LIEN_SUIVI_PETITE_MISSION}\nÀ bientôt!",
+      'Rappel de petite mission — appel 3' => format(call_goals_reminder, closing: 'Bonne journée :)'),
       'Rappel de RDV — jour J (~2h avant)' =>
         format(scheduled_call_reminder, day: 'aujourd’hui', delay: ' Elle aura peut-être quelques minutes d’avance ou de retard.'),
       'Rappel de RDV — la veille (J-1)' => format(scheduled_call_reminder, day: 'demain', delay: ''),
@@ -111,10 +119,13 @@ namespace :text_messages_bundles do
       'Relance du choix de thème' =>
         '1001mots : pour recevoir le prochain livre de 1001mots pour {PRENOM_ENFANT}, n\'oubliez pas de choisir votre thème en cliquant sur ' \
         'ce lien avant minuit : {LIEN_CHOIX_THEME}',
-      'Repêchage après annulation de RDV' => Calendly::ProcessInviteeCanceledService::REBOOKING_MESSAGE,
+      'Repêchage après annulation de RDV' =>
+        "1001mots : Bonjour, vous venez d’annuler votre RDV avec {PRENOM_ACCOMPAGNANTE}.\nVous pouvez choisir un autre créneau pour lui " \
+        "parler ici : {CALENDLY_LINK}\nA bientôt !",
       "Suggestion d'un lieu d'accueil enfants-parents" => Place::SendMessageToParentsNearLaepService::MESSAGE,
       "Vérification de l'adresse" =>
-        "#{Parent::ProgramSmsToVerifyAddressService::MESSAGE.gsub('{ADDRESS}', "\n{PARENT_ADDRESS}\n")} " \
+        "1001mots : Bonjour, nous allons bientôt envoyer un livre pour {PRENOM_ENFANT}. Nous allons l'envoyer à l'adresse suivante : " \
+        "\n{PARENT_ADDRESS}\nSi l'adresse postale ou le nom sur la boîte aux lettres ne sont pas bons, merci de les modifier ici : " \
         "https://form.typeform.com/to/#{ENV['UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID']}#st=xxxxx",
       "Vérification de l'adresse pour le livre offert par un partenaire" =>
         "1001mots : Bonjour,\nVotre accompagnement avec 1001mots est fini ou sera bientôt fini. Mais un de nos partenaires tient à vous offrir " \
@@ -153,6 +164,7 @@ namespace :text_messages_bundles do
       'Numéro qui ne reçoit pas de SMS' => 'numero_sans_sms',
       "Rappel d'inscription CAF (v1)" => 'rappel_inscription_caf_v1',
       "Rappel d'inscription CAF (v2)" => 'rappel_inscription_caf_v2',
+      'Rappel de petite mission — 2 semaines' => 'rappel_mission_deux_semaines',
       'Rappel de petite mission — appel 0' => 'rappel_mission_appel0',
       'Rappel de petite mission — appel 3' => 'rappel_mission_appel3',
       'Rappel de RDV — jour J (~2h avant)' => 'rappel_rdv_jour_j',

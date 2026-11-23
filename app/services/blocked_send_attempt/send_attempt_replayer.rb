@@ -26,7 +26,7 @@ class BlockedSendAttempt::SendAttemptReplayer
       params[:provider],
       params[:aircall_number_id],
       blocked_send_attempt: @attempt,
-      **params.slice(:automatic_message_key)
+      **params.slice(:automatic_message_key, :recipient_variables, :all_recipients)
     ).call
   end
 

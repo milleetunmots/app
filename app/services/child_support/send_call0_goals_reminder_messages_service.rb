@@ -1,6 +1,6 @@
 class ChildSupport::SendCall0GoalsReminderMessagesService
 
-  CALL_GOALS_REMINDER_MESSAGE = "1001mots: Je n'ai pas réussi à vous joindre cette fois-ci, tant pis! Voici un rappel de votre petite mission de la dernière fois:\n{call_goals}\nVous pouvez me dire si vous avez essayé en cliquant sur ce lien:\n{typeform_link}\nÀ bientôt!".freeze
+  BUNDLE = ['Rappel de petite mission — appel 0', 'rappel_mission_appel0'].freeze
   CALL_GOALS_REGEX = /Voici votre petite mission :\r\n([\s\S]*?)\r\nQuand vous aurez essayé/.freeze
   TYPEFORM_URL_REGEX = /https?:\/\/[^\/]+\/c[03](\/\S*)?(\?\S+)?/.freeze
 
@@ -18,8 +18,7 @@ class ChildSupport::SendCall0GoalsReminderMessagesService
       message_informations
       next unless @call_goal.present? && @typeform_link.present?
 
-      service = ProgramMessageService.new(@date.strftime('%d-%m-%Y'), '12:30', @recipient, @reminder_message).call
-      @errors << service.errors if service.errors
+      program_reminder
     end
     self
   end
@@ -29,7 +28,31 @@ class ChildSupport::SendCall0GoalsReminderMessagesService
   def message_informations
     @call_goal = @child_support.call0_goal_sent.presence || @child_support.call0_goals_sms.match(CALL_GOALS_REGEX)&.[](1)&.strip
     @typeform_link = @child_support.call0_goals_sms.match(TYPEFORM_URL_REGEX)&.[](0)
-    @reminder_message = CALL_GOALS_REMINDER_MESSAGE.gsub('{call_goals}', @call_goal).gsub('{typeform_link}', @typeform_link)
     @recipient = ["parent.#{@child_support.parent1.id}"]
+  end
+
+  def program_reminder
+    return report_missing_bundle unless bundle
+
+    service = ProgramAutomaticMessageService.new(
+      @date.strftime('%d-%m-%Y'), '12:30', @recipient,
+      bundle.body1, bundle.rcs_media_id_to_send(1), bundle.redirection_target_id(1),
+      automatic_message_key: BUNDLE.last,
+      recipient_variables: { @child_support.parent1.id => { 'PETITE_MISSION' => @call_goal, 'LIEN_SUIVI_PETITE_MISSION' => @typeform_link } }
+    ).call
+    @errors << service.errors if service.errors
+  end
+
+  def bundle
+    return @bundle if defined?(@bundle)
+
+    @bundle = Media::TextMessagesBundle.find_automatic(name: BUNDLE.first, key: BUNDLE.last)
+  end
+
+  def report_missing_bundle
+    return if @missing_bundle_reported
+
+    @missing_bundle_reported = true
+    @errors << Media::TextMessagesBundle.missing_message(name: BUNDLE.first, key: BUNDLE.last)
   end
 end

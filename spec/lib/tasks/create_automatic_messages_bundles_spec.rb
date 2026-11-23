@@ -26,14 +26,13 @@ RSpec.describe 'text_messages_bundles:create_automatic_messages' do
     end_of_support_page
     bilingual_video
 
-    expect { task.invoke }.to output(/39 trio\(s\) créé\(s\)/).to_stdout
+    expect { task.invoke }.to output(/40 trio\(s\) créé\(s\)/).to_stdout
 
     bundles = Media::TextMessagesBundle.tagged_with('message automatique')
-    expect(bundles.count).to eq(39)
+    expect(bundles.count).to eq(40)
     expect(bundles.pluck(:key)).to all(be_present)
-    expect(bundles.pluck(:key).uniq.size).to eq(39)
+    expect(bundles.pluck(:key).uniq.size).to eq(40)
     expect(Media::TextMessagesBundle.find_by(name: 'Message de continuation')).to be_nil
-    expect(Media::TextMessagesBundle.find_by(key: 'demarrage_tardif').body1).to eq(Child::AddToGroupService::LATE_SUPPORT_WARNING_MESSAGE)
   end
 
   it 'pose le lien des trios de fin du programme et du message bilingue de J+7' do
@@ -119,6 +118,38 @@ RSpec.describe 'text_messages_bundles:create_automatic_messages' do
     task.invoke
 
     expect(Media::TextMessagesBundle.where(key: expected_texts.keys).pluck(:key, :body1).to_h).to eq(expected_texts)
+  end
+
+  it 'crée les trios des messages à valeurs de famille avec le texte actuel de leur message, et le trio du rappel de la 2e semaine' do
+    call_goals_reminder = "Bonjour\nVoici un rappel de votre petite mission 1001mots :\n{PETITE_MISSION}\nEt pour me raconter comment ça c'est passé, " \
+                          "c'est ici :\n{LIEN_SUIVI_PETITE_MISSION}\n%<closing>s"
+    expected_texts = {
+      'confirmation_rdv' =>
+        "1001mots : Confirmation de RDV\nBonjour,\nVous avez RDV le {SCHEDULED_AT_DATE} avec {PRENOM_ACCOMPAGNANTE}, votre accompagnante " \
+        '1001mots. Elle vous appellera vers {RDV_CALENDLY_SCHEDULED_AT_HOUR} sur votre numéro.' \
+        "\nL'appel durera environ 20 minutes. Pensez à enregistrer son numéro pour ne pas manquer l'appel : {NUMERO_AIRCALL_ACCOMPAGNANTE}." \
+        "\nSi vous n’êtes plus disponible, annulez le rdv ici : {RDV_CALENDLY_CANCEL_URL}\nA bientôt !",
+      'repechage_annulation_rdv' =>
+        "1001mots : Bonjour, vous venez d’annuler votre RDV avec {PRENOM_ACCOMPAGNANTE}.\nVous pouvez choisir un autre créneau pour lui " \
+        "parler ici : {CALENDLY_LINK}\nA bientôt !",
+      'demarrage_tardif' =>
+        '1001mots : En raison d’un grand nombre de demandes, vous recevrez nos livres et conseils dans environ 2 mois. Pas d’inquiétude, ' \
+        "c'est normal si vous avez moins de nouvelles de nous d'ici là. A bientôt!",
+      'rappel_mission_appel0' =>
+        "1001mots: Je n'ai pas réussi à vous joindre cette fois-ci, tant pis! Voici un rappel de votre petite mission de la dernière " \
+        "fois:\n{PETITE_MISSION}\nVous pouvez me dire si vous avez essayé en cliquant sur ce lien:\n{LIEN_SUIVI_PETITE_MISSION}\nÀ bientôt!",
+      'rappel_mission_appel3' => format(call_goals_reminder, closing: 'Bonne journée :)'),
+      'rappel_mission_deux_semaines' => format(call_goals_reminder, closing: 'À bientôt :)'),
+      'verification_adresse' =>
+        "1001mots : Bonjour, nous allons bientôt envoyer un livre pour {PRENOM_ENFANT}. Nous allons l'envoyer à l'adresse suivante : " \
+        "\n{PARENT_ADDRESS}\nSi l'adresse postale ou le nom sur la boîte aux lettres ne sont pas bons, merci de les modifier ici : " \
+        "https://form.typeform.com/to/#{ENV.fetch('UPSTREAM_ADDRESS_UPDATING_TYPEFORM_ID', nil)}#st=xxxxx"
+    }
+
+    task.invoke
+
+    expect(Media::TextMessagesBundle.where(key: expected_texts.keys).pluck(:key, :body1).to_h).to eq(expected_texts)
+    expect(Media::TextMessagesBundle.find_by(key: 'rappel_mission_deux_semaines').name).to eq('Rappel de petite mission — 2 semaines')
   end
 
   it 'crée les trios des rappels de RDV avec le texte actuel de leur rappel' do
