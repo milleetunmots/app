@@ -53,16 +53,19 @@ RSpec.describe 'EventsController#spot_hit_stop', type: :request do
     expect(child.group_status).to eq('active')
   end
 
-  it "arrête l'enfant désengagé et passe en non accompagné l'enfant sur liste d'attente" do
+  it "laisse désengagé l'enfant désengagé et passe en non accompagné l'enfant sur liste d'attente" do
     travel_to Time.zone.local(2026, 11, 18, 10)
     parent = FactoryBot.create(:parent, phone_number: '0612345678')
     waiting_child = FactoryBot.create(:child, parent1: parent, group: nil, group_status: 'waiting')
-    disengaged_child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'disengaged')
+    disengaged_child = FactoryBot.create(
+      :child,
+      parent1: parent, group: FactoryBot.create(:group), group_status: 'disengaged', group_end: Date.new(2026, 10, 1)
+    )
 
     get path, params: stop_params(numero: '0612345678')
 
     expect(waiting_child.reload).to have_attributes(should_contact_parent1: false, group_status: 'not_supported', group_end: nil)
-    expect(disengaged_child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped', group_end: Date.new(2026, 11, 18))
+    expect(disengaged_child.reload).to have_attributes(should_contact_parent1: false, group_status: 'disengaged', group_end: Date.new(2026, 10, 1))
   end
 
   it "applique le STOP reçu sans date et le date de sa réception par l'app" do

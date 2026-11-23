@@ -2,10 +2,10 @@ class Parent
 
   class HandleStopService
 
+    # Un enfant désengagé garde son statut et sa fin de cohorte : on ne perd pas l'information du désengagement.
     GROUP_STATUS_WITHOUT_CONTACT = {
       'active' => 'stopped',
       'paused' => 'stopped',
-      'disengaged' => 'stopped',
       'waiting' => 'not_supported'
     }.freeze
 
@@ -21,9 +21,12 @@ class Parent
 
     def call
       parents = Parent.where(phone_number: @phone_number).to_a
-      return self unless parents.all? { |parent| stop_message_created?(parent) }
+      # Tout ou rien : un STOP à moitié enregistré serait dupliqué au rejeu du webhook.
+      ActiveRecord::Base.transaction do
+        raise ActiveRecord::Rollback unless parents.all? { |parent| stop_message_created?(parent) }
 
-      parents.each { |parent| stop_contacting(parent) }
+        parents.each { |parent| stop_contacting(parent) }
+      end
       self
     end
 
@@ -63,6 +66,8 @@ class Parent
     def end_support(child)
       group_status = GROUP_STATUS_WITHOUT_CONTACT[child.group_status]
       return unless group_status
+      # Un enfant arrêté doit être dans une cohorte (Child#valid_group_status), contrôle que save(validate: false) ne fait pas.
+      return if group_status == 'stopped' && child.group_id.nil?
 
       child.group_status = group_status
       child.group_end = Time.zone.now if group_status == 'stopped'

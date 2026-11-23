@@ -47,6 +47,9 @@ class Events::TextMessage
     # un bouton, saisie en cours…) : on ne les historise pas.
     SILENT_CONTENT_TYPES = %w[postback media location typing optin].freeze
 
+    # Texte d'une désinscription valant STOP, quelle que soit la casse, espaces et ponctuation finale tolérés.
+    STOP_TEXT = /\A\s*stop\s*[.!]*\s*\z/i
+
     def perform(payload)
       Array.wrap(payload['events']).each do |event|
         event_content = event['messageStatusChanged'] || event['userMessageReceived']
@@ -239,7 +242,10 @@ class Events::TextMessage
 
     def stop?(event_content)
       content = event_content['content']
-      content.is_a?(Hash) && content.dig('optout', 'text') == 'STOP'
+      return false unless content.is_a?(Hash) && content['optout'].is_a?(Hash)
+
+      # Le texte est celui tapé par le parent : « Stop », « stop. »… valent STOP.
+      STOP_TEXT.match?(content.dig('optout', 'text').to_s)
     end
 
     def apply_stop(event, event_content)
@@ -248,7 +254,7 @@ class Events::TextMessage
         occurred_at: event['on'] ? Time.zone.parse(event['on']) : Time.zone.now,
         spot_hit_rcs_id: event_content.dig('context', 'campaign_id')
       ).call
-      Rollbar.error('Parent::HandleStopService', errors: service.errors) if service.errors.any?
+      Rollbar.error('spot_hit_rcs_data: RCS STOP not applied', event_content: event_content, errors: service.errors) if service.errors.any?
     end
 
     # Une désinscription arrivée ici n'est pas un STOP : le parent n'est pas arrêté, d'où une alerte dédiée.

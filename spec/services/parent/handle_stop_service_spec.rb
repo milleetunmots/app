@@ -60,7 +60,7 @@ RSpec.describe Parent::HandleStopService do
     end
 
     describe "statut de l'enfant dont plus aucun parent n'est à contacter" do
-      %w[active paused disengaged].each do |group_status|
+      %w[active paused].each do |group_status|
         it "arrête l'enfant en cohorte au statut #{group_status} et date la fin de cohorte" do
           travel_to Time.zone.local(2026, 11, 18, 10)
           parent = FactoryBot.create(:parent, phone_number: '0612345678')
@@ -70,6 +70,29 @@ RSpec.describe Parent::HandleStopService do
 
           expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped', group_end: Date.new(2026, 11, 18))
         end
+      end
+
+      it "laisse désengagé l'enfant désengagé, avec sa fin de cohorte" do
+        parent = FactoryBot.create(:parent, phone_number: '0612345678')
+        child = FactoryBot.create(
+          :child,
+          parent1: parent, group: FactoryBot.create(:group), group_status: 'disengaged', group_end: Date.new(2026, 10, 1)
+        )
+
+        call_service('0612345678')
+
+        expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'disengaged', group_end: Date.new(2026, 10, 1))
+      end
+
+      it "n'arrête pas l'enfant actif sorti de sa cohorte, un enfant arrêté devant en avoir une" do
+        parent = FactoryBot.create(:parent, phone_number: '0612345678')
+        child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+        child.group_id = nil
+        child.save(validate: false)
+
+        call_service('0612345678')
+
+        expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'active', group_end: nil)
       end
 
       it "passe en non accompagné l'enfant sur liste d'attente, sans fin de cohorte" do
@@ -179,6 +202,22 @@ RSpec.describe Parent::HandleStopService do
       expect(service.errors).to contain_exactly(
         { message: "Le STOP n'a pas pu être enregistré", context: { parent_id: parent.id, errors: ['Date doit être rempli(e)'] } }
       )
+      expect(child.reload).to have_attributes(should_contact_parent1: true, group_status: 'active')
+    end
+
+    it "n'enregistre aucun STOP ni ne décoche personne si le STOP d'un des parents du numéro échoue" do
+      group = FactoryBot.create(:group)
+      parent = FactoryBot.create(:parent, phone_number: '0612345678')
+      failing_parent = FactoryBot.create(:parent, phone_number: '0612345678')
+      child = FactoryBot.create(:child, parent1: parent, group: group, group_status: 'active')
+      service = described_class.new(phone_number: parent.reload.phone_number, occurred_at: Time.zone.now, spot_hit_message_id: 'sms-42')
+      allow(service).to receive(:stop_message_created?).and_wrap_original do |original, stopping_parent|
+        stopping_parent == failing_parent ? false : original.call(stopping_parent)
+      end
+
+      service.call
+
+      expect(Events::TextMessage.where(body: 'STOP')).to be_empty
       expect(child.reload).to have_attributes(should_contact_parent1: true, group_status: 'active')
     end
   end

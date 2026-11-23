@@ -652,14 +652,37 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
       )
     end
 
-    it "arrête l'enfant désengagé du parent" do
-      travel_to Time.zone.local(2026, 11, 18, 10)
+    it "décoche le parent de l'enfant désengagé sans changer son statut ni sa fin de cohorte" do
       parent = FactoryBot.create(:parent, phone_number: '+33612345678')
-      child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'disengaged')
+      child = FactoryBot.create(
+        :child,
+        parent1: parent, group: FactoryBot.create(:group), group_status: 'disengaged', group_end: Date.new(2026, 10, 1)
+      )
 
       subject.perform_now(stop_payload(phone_number: '+33612345678'))
 
-      expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped', group_end: Date.new(2026, 11, 18))
+      expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'disengaged', group_end: Date.new(2026, 10, 1))
+    end
+
+    ['Stop', 'stop', ' STOP ', 'Stop.', 'stop !'].each do |optout_text|
+      it "applique le STOP quand la désinscription contient « #{optout_text} »" do
+        parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+        child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+
+        subject.perform_now(stop_payload(phone_number: '+33612345678', optout_text: optout_text))
+
+        expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped')
+        expect(Events::TextMessage.where(related: parent, body: 'STOP').count).to eq(1)
+      end
+    end
+
+    it "n'applique pas le STOP quand la désinscription contient plus que STOP" do
+      parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+      child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+
+      subject.perform_now(stop_payload(phone_number: '+33612345678', optout_text: 'stop merci'))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: true, group_status: 'active')
     end
 
     it "décoche le parent 2 sans arrêter l'enfant quand le parent 1 reste à contacter" do
