@@ -47,6 +47,9 @@ class Events::TextMessage
     # un bouton, saisie en cours…) : on ne les historise pas.
     SILENT_CONTENT_TYPES = %w[postback media location typing optin].freeze
 
+    # Texte d'une désinscription valant STOP, quelle que soit la casse, espaces et ponctuation finale tolérés.
+    STOP_TEXT = /\A\s*stop\s*[.!]*\s*\z/i
+
     def perform(payload)
       Array.wrap(payload['events']).each do |event|
         event_content = event['messageStatusChanged'] || event['userMessageReceived']
@@ -76,6 +79,12 @@ class Events::TextMessage
           # connu, et les contrôles suivants alerteraient pour rien.
           next if silent_content?(event_content)
 
+          # Un STOP ne dépend ni de la date ni de la campagne : il passe avant leurs contrôles.
+          if stop?(event_content)
+            apply_stop(event, event_content)
+            next
+          end
+
           unless event['on']
             Rollbar.error('spot_hit_rcs_data: event without date', event: event)
             next
@@ -104,7 +113,7 @@ class Events::TextMessage
         return {}
       end
 
-      phone = Phonelib.parse(event_content['userId'].to_s.strip).e164
+      phone = parsed_phone_number(event_content)
       if phone.blank?
         Rollbar.error('spot_hit_rcs_data: unparsable userId', event_content: event_content)
         return {}
@@ -227,8 +236,28 @@ class Events::TextMessage
       Rollbar.error('spot_hit_rcs_data: message received text_message not created', event_content: event_content, errors: text_message.errors) unless text_message.save
     end
 
-    # Les modèles RCS de l'app désactivent le STOP : une désinscription RCS vient
-    # d'une campagne manuelle et n'arrête pas le parent, d'où une alerte dédiée.
+    def parsed_phone_number(event_content)
+      Phonelib.parse(event_content['userId'].to_s.strip).e164
+    end
+
+    def stop?(event_content)
+      content = event_content['content']
+      return false unless content.is_a?(Hash) && content['optout'].is_a?(Hash)
+
+      # Le texte est celui tapé par le parent : « Stop », « stop. »… valent STOP.
+      STOP_TEXT.match?(content.dig('optout', 'text').to_s)
+    end
+
+    def apply_stop(event, event_content)
+      service = Parent::HandleStopService.new(
+        phone_number: parsed_phone_number(event_content),
+        occurred_at: event['on'] ? Time.zone.parse(event['on']) : Time.zone.now,
+        spot_hit_rcs_id: event_content.dig('context', 'campaign_id')
+      ).call
+      Rollbar.error('spot_hit_rcs_data: RCS STOP not applied', event_content: event_content, errors: service.errors) if service.errors.any?
+    end
+
+    # Une désinscription arrivée ici n'est pas un STOP : le parent n'est pas arrêté, d'où une alerte dédiée.
     def report_content_without_text(event_content)
       if event_content['content'].key?('optout')
         Rollbar.error('spot_hit_rcs_data: RCS opt-out non traité', event_content: event_content)

@@ -548,16 +548,24 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
         subject.perform_now(payload(received_event(campaign_id: nil, user_id: ines.phone_number)))
       end
 
-      it 'lève une alerte dédiée pour une désinscription RCS, sans toucher au parent' do
+      it 'enregistre une désinscription RCS STOP sans alerte Rollbar' do
+        expect(Rollbar).not_to receive(:error)
+        expect do
+          subject.perform_now(
+            payload(content_event(campaign_id: '45878', user_id: ines.phone_number, content: { 'optout' => { 'text' => 'STOP' } }))
+          )
+        end.to change { Events::TextMessage.where(related: ines, body: 'STOP').count }.by(1)
+      end
+
+      it "lève une alerte dédiée pour une désinscription RCS qui n'est pas un STOP" do
         expect(Rollbar).to receive(:error)
           .with('spot_hit_rcs_data: RCS opt-out non traité', hash_including(:event_content))
           .once
         expect do
           subject.perform_now(
-            payload(content_event(campaign_id: '45878', user_id: ines.phone_number, content: { 'optout' => { 'text' => 'STOP' } }))
+            payload(content_event(campaign_id: '45878', user_id: ines.phone_number, content: { 'optout' => { 'text' => 'ARRET' } }))
           )
         end.not_to change(Events::TextMessage, :count)
-        expect(ines.reload.updated_at).to eq(ines.updated_at)
       end
 
       it 'lève une alerte pour un type de contenu que l\'app ne connaît pas' do
@@ -602,6 +610,183 @@ RSpec.describe Events::TextMessage::ProcessRcsDataJob, type: :job do
         )
         expect(ines_text_message.reload.spot_hit_status).to eq(1) # Livré
       end
+    end
+  end
+
+  describe 'désinscription RCS' do
+    def stop_payload(phone_number:, campaign_id: '45878', optout_text: 'STOP', on: '2026-11-18T09:00:00Z')
+      event = {
+        'userMessageReceived' => {
+          'channelId' => 'rcs',
+          'userId' => phone_number,
+          'context' => { 'campaign_id' => campaign_id },
+          'content' => { 'optout' => { 'text' => optout_text } }
+        }
+      }
+      event['on'] = on if on
+      { 'events' => [event] }
+    end
+
+    it "n'applique pas le STOP quand la désinscription ne contient pas le texte STOP" do
+      parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+      child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+
+      subject.perform_now(stop_payload(phone_number: '+33612345678', optout_text: 'ARRET'))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: true, group_status: 'active')
+      expect(Events::TextMessage.where(related: parent, body: 'STOP')).to be_empty
+    end
+
+    it "décoche le parent seul, arrête l'enfant et historise le STOP" do
+      travel_to Time.zone.local(2026, 11, 18, 10)
+      parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+      child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+
+      subject.perform_now(stop_payload(phone_number: '+33612345678'))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped', group_end: Date.new(2026, 11, 18))
+      expect(Events::TextMessage.find_by(related: parent, body: 'STOP')).to have_attributes(
+        spot_hit_rcs_id: '45878',
+        occurred_at: Time.zone.parse('2026-11-18T09:00:00Z'),
+        originated_by_app: false
+      )
+    end
+
+    it "décoche le parent de l'enfant désengagé sans changer son statut ni sa fin de cohorte" do
+      parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+      child = FactoryBot.create(
+        :child,
+        parent1: parent, group: FactoryBot.create(:group), group_status: 'disengaged', group_end: Date.new(2026, 10, 1)
+      )
+
+      subject.perform_now(stop_payload(phone_number: '+33612345678'))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'disengaged', group_end: Date.new(2026, 10, 1))
+    end
+
+    ['Stop', 'stop', ' STOP ', 'Stop.', 'stop !'].each do |optout_text|
+      it "applique le STOP quand la désinscription contient « #{optout_text} »" do
+        parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+        child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+
+        subject.perform_now(stop_payload(phone_number: '+33612345678', optout_text: optout_text))
+
+        expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped')
+        expect(Events::TextMessage.where(related: parent, body: 'STOP').count).to eq(1)
+      end
+    end
+
+    it "n'applique pas le STOP quand la désinscription contient plus que STOP" do
+      parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+      child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+
+      subject.perform_now(stop_payload(phone_number: '+33612345678', optout_text: 'stop merci'))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: true, group_status: 'active')
+    end
+
+    it "décoche le parent 2 sans arrêter l'enfant quand le parent 1 reste à contacter" do
+      parent1 = FactoryBot.create(:parent, phone_number: '+33611111111')
+      parent2 = FactoryBot.create(:parent, phone_number: '+33622222222')
+      child = FactoryBot.create(
+        :child,
+        parent1: parent1, parent2: parent2, should_contact_parent2: true,
+        group: FactoryBot.create(:group), group_status: 'active'
+      )
+
+      subject.perform_now(stop_payload(phone_number: '+33622222222'))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: true, should_contact_parent2: false, group_status: 'active')
+      expect(Events::TextMessage.where(related: parent2, body: 'STOP').count).to eq(1)
+    end
+
+    it "arrête l'enfant quand le parent 1 répond STOP et que le parent 2 n'était plus à contacter" do
+      parent1 = FactoryBot.create(:parent, phone_number: '+33611111111')
+      parent2 = FactoryBot.create(:parent, phone_number: '+33622222222')
+      child = FactoryBot.create(
+        :child,
+        parent1: parent1, parent2: parent2, should_contact_parent2: false,
+        group: FactoryBot.create(:group), group_status: 'active'
+      )
+
+      subject.perform_now(stop_payload(phone_number: '+33611111111'))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped')
+    end
+
+    it 'applique le STOP en réponse à une campagne envoyée à la main depuis Spot-Hit' do
+      parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+      child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+
+      subject.perform_now(stop_payload(phone_number: '+33612345678', campaign_id: '99999'))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped')
+      expect(Events::TextMessage.where(related: parent, body: 'STOP').count).to eq(1)
+    end
+
+    it 'applique le STOP reçu sans campagne' do
+      parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+      child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+
+      subject.perform_now(stop_payload(phone_number: '+33612345678', campaign_id: nil))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped')
+      expect(Events::TextMessage.where(related: parent, body: 'STOP').count).to eq(1)
+    end
+
+    it "applique le STOP reçu sans date et le date de son traitement par l'app" do
+      travel_to Time.zone.local(2026, 11, 18, 10, 5)
+      parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+      child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+
+      subject.perform_now(stop_payload(phone_number: '+33612345678', on: nil))
+
+      expect(child.reload).to have_attributes(should_contact_parent1: false, group_status: 'stopped', group_end: Date.new(2026, 11, 18))
+      expect(Events::TextMessage.find_by(related: parent, body: 'STOP').occurred_at).to eq(Time.zone.local(2026, 11, 18, 10, 5))
+    end
+
+    it "historise un STOP rejoué sans changer le statut ni la fin de cohorte de l'enfant" do
+      travel_to Time.zone.local(2026, 11, 18, 10)
+      parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+      child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+      subject.perform_now(stop_payload(phone_number: '+33612345678'))
+      travel_to Time.zone.local(2026, 11, 19, 10)
+
+      subject.perform_now(stop_payload(phone_number: '+33612345678', on: '2026-11-19T09:00:00Z'))
+
+      expect(Events::TextMessage.where(related: parent, body: 'STOP').count).to eq(2)
+      expect(child.reload).to have_attributes(group_status: 'stopped', group_end: Date.new(2026, 11, 18))
+    end
+
+    it "ignore sans alerte un STOP venant d'un numéro absent de la base" do
+      expect(Rollbar).not_to receive(:error)
+
+      expect do
+        subject.perform_now(stop_payload(phone_number: '+33700000000'))
+      end.not_to change(Events::TextMessage, :count)
+    end
+
+    it 'historise une réponse écrite contenant « stop » sans décocher le parent' do
+      parent = FactoryBot.create(:parent, phone_number: '+33612345678')
+      child = FactoryBot.create(:child, parent1: parent, group: FactoryBot.create(:group), group_status: 'active')
+      response = {
+        'events' => [
+          {
+            'on' => '2026-11-18T09:00:00Z',
+            'userMessageReceived' => {
+              'channelId' => 'rcs',
+              'userId' => '+33612345678',
+              'context' => { 'campaign_id' => '45878' },
+              'content' => { 'text' => 'stop merci' }
+            }
+          }
+        ]
+      }
+
+      subject.perform_now(response)
+
+      expect(child.reload).to have_attributes(should_contact_parent1: true, group_status: 'active')
+      expect(Events::TextMessage.where(related: parent, body: 'stop merci', originated_by_app: false).count).to eq(1)
     end
   end
 end
