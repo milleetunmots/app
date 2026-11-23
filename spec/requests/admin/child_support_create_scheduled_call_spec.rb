@@ -64,6 +64,41 @@ RSpec.describe 'Admin child support - création de RDV par l’accompagnante', t
       end
     end
 
+    context 'après un RDV non honoré' do
+      let(:group) { FactoryBot.create(:group, started_at: 1.week.ago.to_date.beginning_of_week(:monday)) }
+
+      before do
+        FactoryBot.create(:scheduled_call,
+          status: 'scheduled',
+          call_session: 0,
+          child_support: child_support,
+          parent: parent,
+          scheduled_at: 1.day.ago)
+      end
+
+      it 'propose Relancer et Créer un rdv quand le statut de l’appel est vide' do
+        get edit_path
+        expect(response.body).to include('RDV non honoré')
+        expect(response.body).to include('Relancer')
+        expect(response.body).to include('Créer un rdv')
+      end
+
+      it 'propose Relancer et Créer un rdv quand le statut de l’appel est incomplet' do
+        child_support.update_column(:call0_status, ChildSupport.human_attribute_name('call_status.5_unfinished'))
+        get edit_path
+        expect(response.body).to include('RDV non honoré')
+        expect(response.body).to include('Relancer')
+        expect(response.body).to include('Créer un rdv')
+      end
+
+      it 'ne propose plus de relance une fois l’appel réussi' do
+        child_support.update_column(:call0_status, ChildSupport.human_attribute_name('call_status.1_ok'))
+        get edit_path
+        expect(response.body).not_to include('RDV non honoré')
+        expect(response.body).not_to include('Relancer')
+      end
+    end
+
     context 'quand la cohorte n’a plus de session en cours ni à venir' do
       # les dates call0..call3 sont dérivées de started_at, toutes dans le passé ici
       before { group.update!(started_at: 1.year.ago.to_date.beginning_of_week(:monday)) }
@@ -232,6 +267,59 @@ RSpec.describe 'Admin child support - création de RDV par l’accompagnante', t
       get reminder_path
       expect(response.location).to include('template=scheduled_call_reminder')
       expect(response.location).to include("parent_id=#{parent.id}")
+    end
+
+    context 'quand un lien est en cache et qu’aucun RDV n’a été pris' do
+      before { parent.update!(calendly_booking_urls: { 'call0' => 'https://calendly.com/d/cached-link' }) }
+
+      it 'réutilise le lien sans appel à l’API Calendly' do
+        get reminder_path
+        expect(response.location).to include('template=scheduled_call_reminder')
+        expect(WebMock).not_to have_requested(:post, 'https://api.calendly.com/one_off_event_types')
+      end
+    end
+
+    # les liens one-off Calendly ne servent qu'une fois : celui du RDV non
+    # honoré est consommé, le renvoyer mène la famille à une page expirée
+    context 'après un RDV non honoré' do
+      let(:group) { FactoryBot.create(:group, started_at: 1.week.ago.to_date.beginning_of_week(:monday)) }
+      let!(:missed_call) do
+        FactoryBot.create(:scheduled_call,
+          status: 'scheduled',
+          call_session: 0,
+          child_support: child_support,
+          parent: parent,
+          scheduled_at: 1.day.ago)
+      end
+
+      before { parent.update!(calendly_booking_urls: { 'call0' => 'https://calendly.com/d/used-link' }) }
+
+      it 'génère un nouveau lien pour ce parent avant d’ouvrir le message de relance' do
+        get reminder_path
+        expect(WebMock).to have_requested(:post, 'https://api.calendly.com/one_off_event_types').once
+        expect(parent.reload.calendly_booking_urls['call0']).to start_with(booking_url)
+        expect(response.location).to include('template=scheduled_call_reminder')
+      end
+
+      it 'propose le message de relance avec le nouveau lien' do
+        get reminder_path
+        follow_redirect!
+        expect(response.body).to include(booking_url)
+        expect(response.body).not_to include('used-link')
+      end
+
+      context 'quand Calendly refuse la génération' do
+        before do
+          stub_request(:post, 'https://api.calendly.com/one_off_event_types')
+            .to_return(status: 400, body: { 'message' => 'Invalid request' }.to_json, headers: { 'Content-Type' => 'application/json' })
+        end
+
+        it 'n’ouvre pas le message avec le lien déjà utilisé' do
+          get reminder_path
+          expect(response).to redirect_to(edit_admin_child_support_path(child_support))
+          expect(flash[:alert]).to be_present
+        end
+      end
     end
 
     context 'quand le supporter a can_send_automatic_sms = false' do

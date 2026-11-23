@@ -10,7 +10,7 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
     )
   end
   let(:parent) { FactoryBot.create(:parent, first_name: 'Chicot', last_name: 'Le') }
-  let(:group) { FactoryBot.create(:group, started_at: Date.current.beginning_of_week(:monday)) }
+  let(:group) { FactoryBot.create(:group, started_at: Date.current.next_occurring(:monday)) } # session à venir : plage de dates envoyée telle quelle
   let(:child) { FactoryBot.create(:child, parent1: parent, group: group, group_status: 'active') }
   let(:child_support) { child.child_support.tap { |cs| cs.update!(supporter: supporter) } }
   let(:call_session) { 0 }
@@ -190,6 +190,24 @@ RSpec.describe Calendly::CreateOneOffEventTypeService do
             },
             'locale' => 'fr'
           ))
+      end
+
+      # lien régénéré en cours de session (RDV non honoré, annulation,
+      # remplacement) : les jours déjà écoulés ne sont plus réservables
+      context 'quand la session d’appel a déjà commencé' do
+        let(:group) { FactoryBot.create(:group, started_at: 1.week.ago.to_date.beginning_of_week(:monday)) }
+
+        it 'fait démarrer la plage de dates aujourd’hui' do
+          subject.call
+          expect(WebMock).to have_requested(:post, 'https://api.calendly.com/one_off_event_types')
+            .with(body: hash_including(
+              'date_setting' => {
+                'type' => 'date_range',
+                'start_date' => Time.zone.today.to_s,
+                'end_date' => group.call0_end_date.to_s
+              }
+            ))
+        end
       end
     end
 

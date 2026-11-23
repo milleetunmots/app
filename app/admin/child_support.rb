@@ -1442,10 +1442,18 @@ ActiveAdmin.register ChildSupport do
       return
     end
 
+    # après un RDV non honoré, le lien en cache a déjà servi : on en génère un neuf
     errors = []
-    if parent_obj.calendly_booking_urls&.dig("call#{active_idx}").blank?
-      service = Calendly::CreateOneOffEventTypeService.new(child_support: cs, call_session: active_idx).call
+    if parent_obj.calendly_booking_urls&.dig("call#{active_idx}").blank? || cs.booking_link_consumed?(active_idx)
+      service = Calendly::CreateOneOffEventTypeService.new(child_support: cs, call_session: active_idx, parent: parent_obj).call
       if service.errors.any?
+        Rollbar.error(
+          'Échec de la génération du lien de relance Calendly par l’accompagnante',
+          child_support_id: cs.id,
+          parent_id: parent_obj.id,
+          call_session: active_idx,
+          errors: service.errors.map { |e| e.is_a?(Hash) ? e.except(:error) : e }
+        )
         errors.concat(service.errors.map { |e| e.is_a?(Hash) ? e[:message] : e.to_s })
       end
     end
@@ -1496,12 +1504,12 @@ ActiveAdmin.register ChildSupport do
       return
     end
 
-    # un RDV actif sur la session impose un nouveau lien isolé pour ce parent :
-    # la réservation sur ce lien remplacera le RDV existant (via le webhook)
-    active_scheduled_call = cs.scheduled_call_sessions(call_idx).scheduled.exists?
+    # un RDV pris sur la session (à venir ou non honoré) a consommé le lien en
+    # cache : on en génère un neuf pour ce parent ; une réservation sur ce lien
+    # remplacera le RDV à venir éventuel (via le webhook)
     booking_url = parent_obj.calendly_booking_urls&.dig("call#{call_idx}")
 
-    if active_scheduled_call || booking_url.blank?
+    if cs.booking_link_consumed?(call_idx) || booking_url.blank?
       service = Calendly::CreateOneOffEventTypeService.new(
         child_support: cs,
         call_session: call_idx,

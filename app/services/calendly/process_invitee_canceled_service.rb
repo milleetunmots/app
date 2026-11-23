@@ -82,7 +82,8 @@ module Calendly
     def replacement_scheduled_call_exists?
       return false unless @scheduled_call.child_support_id && @scheduled_call.call_session
 
-      ScheduledCall.scheduled
+      # un RDV non honoré reste « scheduled » mais ne couvre plus la session
+      ScheduledCall.upcoming
                    .where(
                      child_support_id: @scheduled_call.child_support_id,
                      call_session: @scheduled_call.call_session

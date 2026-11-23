@@ -575,6 +575,18 @@ class ChildSupport < ApplicationRecord
     scheduled_calls.where(call_session: index.to_i)
   end
 
+  # Un appel vide ou incomplet n'a pas abouti : la famille peut encore reprendre RDV
+  def call_open_for_booking?(index)
+    status = send("call#{index}_status")
+    status.blank? || status.in?(['5_unfinished', ChildSupport.human_attribute_name('call_status.5_unfinished')])
+  end
+
+  # Un lien one-off Calendly ne sert qu'une fois : dès qu'un RDV a été pris sur
+  # la session (à venir ou non honoré), le lien en cache est consommé
+  def booking_link_consumed?(index)
+    scheduled_call_sessions(index).scheduled.exists?
+  end
+
   def stopped_for_unassigned_number?
     support_stopped_for_unassigned_number_at.present?
   end

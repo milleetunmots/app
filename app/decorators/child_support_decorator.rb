@@ -306,13 +306,22 @@ class ChildSupportDecorator < BaseDecorator
   def should_show_reminder_button?
     active_call_index = model.active_call_index(days_before: 2)
     return false unless active_call_index
-    return false if model.send("call#{active_call_index}_status").present?
+    # un appel incomplet ne se relance qu'après un RDV non honoré
+    return missed_appointment?(active_call_index) if model.send("call#{active_call_index}_status").present?
 
     scheduled_calls = model.scheduled_call_sessions(active_call_index)
     return true if scheduled_calls.empty?
 
     upcoming_calls = scheduled_calls.scheduled.select { |call| call.scheduled_at > 2.hours.ago }
     scheduled_calls.all?(&:canceled?) || upcoming_calls.empty?
+  end
+
+  # RDV non honoré : la date du RDV est passée et l'appel est resté vide ou incomplet
+  def missed_appointment?(call_index)
+    return false unless model.call_open_for_booking?(call_index)
+
+    scheduled_calls = model.scheduled_call_sessions(call_index).scheduled.to_a
+    scheduled_calls.any? && scheduled_calls.none? { |call| call.scheduled_at > 2.hours.ago }
   end
 
   def scheduled_call_creation_enabled?
@@ -376,7 +385,7 @@ class ChildSupportDecorator < BaseDecorator
       if all_canceled
         info = show_canceled_appointment_info(call_index, scheduled_calls)
       elsif upcoming_calls.empty?
-        return if model.send("call#{call_index}_status").present?
+        return unless model.call_open_for_booking?(call_index)
 
         info = show_missed_appointment_info(call_index, scheduled_calls)
       elsif upcoming_calls.one?

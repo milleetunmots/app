@@ -149,6 +149,17 @@ RSpec.describe Calendly::ProcessInviteeCanceledService do
         end
       end
 
+      # un RDV non honoré reste « scheduled » : il ne couvre plus la session
+      context 'when the replacement is a past missed appointment' do
+        before { replacement_scheduled_call.update!(scheduled_at: 2.days.ago) }
+
+        it 'recreates a one-off event type and sends the rebooking message' do
+          subject.call
+          expect(Calendly::CreateOneOffEventTypeService).to have_received(:new)
+          expect(ProgramMessageService).to have_received(:new)
+        end
+      end
+
       context 'when the replacement is itself canceled' do
         before { replacement_scheduled_call.update!(status: 'canceled') }
 
