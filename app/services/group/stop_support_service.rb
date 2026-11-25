@@ -2,17 +2,10 @@ class Group
 
   class StopSupportService
 
-    END_OF_SUPPORT_SMS = "C'est maintenant la fin des SMS et des livres 1001mots pour {PRENOM_ENFANT}. Nous espérons que ça vous a apporté des idées et de la confiance en vous en tant que parent ! Pour retrouver plein d’autres conseils RDV sur cette page {URL}. Je vous souhaite une bonne continuation et plein de beaux moments avec votre enfant !".freeze
-    MORE_THAN_THIRTY_SIX_SMS = "C'est la fin des SMS et des livres 1001mots pour votre enfant de 3 ans. Nous espérons que ça vous a apporté des idées et de la confiance en vous en tant que parent ! Pour retrouver plein d’autres conseils RDV sur cette page {URL}. Je vous souhaite une bonne continuation et plein de beaux moments avec votre enfant !".freeze
-    END_SUPPORT_LINK = 'https://magical-bull-428.notion.site/C-est-la-fin-des-SMS-et-des-livres-1001mots-2826d144b6b04e658f4ea090529fb708?pvs=4'.freeze
-    INSTAGRAM_SMS = "1001mots vous manque ? Suivez-nous sur Instagram pour plus d’idées d’activités et de conseils : #{ENV['INSTAGRAM_LINK']}".freeze
-
     def initialize(group_id, end_of_support: true)
       @end_of_support = end_of_support
       @group = Group.find(group_id)
       @children = @end_of_support ? @group.children.where(group_status: 'active') : @group.children.more_than_thirty_five
-      @message = @end_of_support ? END_OF_SUPPORT_SMS : MORE_THAN_THIRTY_SIX_SMS
-      @link_id = RedirectionTarget.joins(:medium).where(media: { url: END_SUPPORT_LINK }).first&.id
       @errors = []
     end
 
@@ -27,18 +20,31 @@ class Group
     private
 
     def send_end_of_support_message
-      return if @children.count.zero?
+      return if @children.none?
 
-      program_message(@children, @message)
+      name, key = @end_of_support ? ['Fin du programme', 'fin_programme'] : ["Fin du programme (l'enfant a 3 ans)", 'fin_programme_trois_ans']
+      bundle = find_bundle(name: name, key: key)
+      return unless bundle
+
+      program_message(@children, bundle.body1, link_id: bundle.redirection_target_id(1), rcs_media_id: bundle.rcs_media_id_to_send(1))
+    end
+
+    def find_bundle(name:, key:)
+      bundle = Media::TextMessagesBundle.find_automatic(name: name, key: key)
+      @errors << Media::TextMessagesBundle.missing_message(name: name, key: key) unless bundle
+      bundle
     end
 
     def program_instagram_message
       return unless @end_of_support
 
+      bundle = find_bundle(name: 'Garder le lien sur Instagram', key: 'instagram_fin_programme')
+      return unless bundle
+
       child_ids = @children.months_lt(35).map { |child| "child.#{child.id}" }
       service = ProgramMessageService.new(
         Time.zone.today.advance(months: 1).strftime('%d-%m-%Y'),
-        '12:30', child_ids, INSTAGRAM_SMS, nil, nil, false, nil, nil, %w[active waiting]
+        '12:30', child_ids, bundle.body1, bundle.rcs_media_id_to_send(1), nil, false, nil, nil, %w[active waiting]
       ).call
       @errors += service.errors if service.errors.any?
     end
@@ -54,8 +60,10 @@ class Group
       sms_to_send_count
     end
 
-    def program_message(children, message, date: Time.zone.today, link_id: @link_id, hour: '12:30')
-      service = Child::StopSupportMessageService.new(date, hour, children.map { |child| "child.#{child.id}" }, message, nil, link_id).call
+    def program_message(children, message, link_id:, rcs_media_id:)
+      service = Child::StopSupportMessageService.new(
+        Time.zone.today, '12:30', children.map { |child| "child.#{child.id}" }, message, rcs_media_id, link_id
+      ).call
       @errors += service.errors if service.errors.any?
     end
   end

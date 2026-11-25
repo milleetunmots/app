@@ -5,7 +5,6 @@ class Parent::CheckAddressReminderService
   attr_reader :errors
 
   def initialize
-    @message = "#{Parent::CheckAddressService::MESSAGE} https://form.typeform.com/to/#{ENV['UPDATING_ADDRESS_TYPEFORM_ID']}#st=xxxxx"
     @errors = []
     @date = Time.zone.now
   end
@@ -14,7 +13,7 @@ class Parent::CheckAddressReminderService
     ChildSupport.joins(:children).where.not(address_suspected_invalid_at: nil).where(children: { group_status: 'active' }).find_each do |child_support|
       parent = child_support.parent1
       next if parent.book_delivery_location_different_from_home?
-      next if parent.message_already_sent?(6.days.ago, Parent::CheckAddressService::MESSAGE)
+      next if Events::TextMessage.automatic_message_sent?(parent: parent, key: Parent::CheckAddressService::KEY, since: 6.days.ago)
 
       send_verification_message(parent)
     end
@@ -24,13 +23,31 @@ class Parent::CheckAddressReminderService
   private
 
   def send_verification_message(parent)
-    message = @message.gsub('st=xxxxx', "st=#{parent.security_token}")
-    service = ProgramMessageService.new(
+    return report_missing_bundle unless bundle
+
+    service = ProgramAutomaticMessageService.new(
       @date.strftime('%d-%m-%Y'),
       @date.strftime('%H:%M'),
       ["parent.#{parent.id}"],
-      message
+      bundle.body1.dup,
+      bundle.rcs_media_id_to_send(1),
+      bundle.redirection_target_id(1),
+      automatic_message_key: Parent::CheckAddressService::KEY
     ).call
-    @errors << "Address Verification message reminder not sent to #{parent.first_name} #{parent.last_name} : #{service.errors.join(' - ')}" if service.errors.any?
+    @errors << "Address Verification message reminder not sent to parent #{parent.id} : #{service.errors.join(' - ')}" if service.errors.any?
+  end
+
+  # Cherché au premier parent à relancer, une seule fois.
+  def bundle
+    return @bundle if defined?(@bundle)
+
+    @bundle = Media::TextMessagesBundle.find_automatic(name: Parent::CheckAddressService::NAME, key: Parent::CheckAddressService::KEY)
+  end
+
+  def report_missing_bundle
+    return if @missing_bundle_reported
+
+    @missing_bundle_reported = true
+    @errors << Media::TextMessagesBundle.missing_message(name: Parent::CheckAddressService::NAME, key: Parent::CheckAddressService::KEY)
   end
 end

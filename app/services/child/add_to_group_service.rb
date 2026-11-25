@@ -4,8 +4,6 @@ class Child
 
     include ApplicationHelper
 
-    LATE_SUPPORT_WARNING_MESSAGE = "1001mots : En raison d’un grand nombre de demandes, vous recevrez nos livres et conseils dans environ 2 mois. Pas d’inquiétude, c'est normal si vous avez moins de nouvelles de nous d'ici là. A bientôt!".freeze
-
     # Assign a child and its siblings to the right group for them
     # Depends on whether the child has siblings or not, their age and their group status
 
@@ -131,7 +129,8 @@ class Child
     end
 
     def send_message
-      message_service = SpotHit::SendSmsService.new([@siblings.find_by(id: @child_id).parent1_id], Time.zone.now.change(hour: 12, min: 30).next_day.to_i, LATE_SUPPORT_WARNING_MESSAGE).call
+      message_service = Child::ProgramRegistrationMessagesService.new(@siblings.find_by(id: @child_id).parent1)
+                                                                 .call(:late_support, at: Time.zone.now.change(hour: 12, min: 30).next_day)
       Rollbar.error("Late support warning error : #{message_service.errors}") if message_service.errors.any?
     end
   end

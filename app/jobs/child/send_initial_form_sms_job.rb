@@ -1,10 +1,12 @@
 class Child::SendInitialFormSmsJob < ApplicationJob
-  def perform(parent1_id, message)
-    child_support = Parent.find(parent1_id).current_child&.child_support
+  # Second argument : texte des jobs programmés avant le passage aux trios, ignoré (valeurs recalculées à l'envoi).
+  def perform(parent1_id, _legacy_message = nil)
+    parent = Parent.find(parent1_id)
+    child_support = parent.current_child&.child_support
     return if child_support.nil?
     return if child_support.enrollment_reasons.any?
 
-    service = SpotHit::SendSmsService.new([parent1_id], Time.zone.now.to_i, message).call
+    service = Child::ProgramRegistrationMessagesService.new(parent).send_questionnaire(at: Time.zone.now)
     return if service.errors.blank?
 
     # sans cette remontée, une panne du fournisseur (réponse non-JSON) se solde

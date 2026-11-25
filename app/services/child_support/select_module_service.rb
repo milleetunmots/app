@@ -1,5 +1,7 @@
 class ChildSupport::SelectModuleService
 
+  BUNDLE = ['Invitation à choisir le prochain thème', 'invitation_choix_theme'].freeze
+
   attr_reader :errors, :children_support_module_ids
 
   def initialize(child, planned_date, planned_hour, module_index)
@@ -41,25 +43,26 @@ class ChildSupport::SelectModuleService
   end
 
   def send_message_to_parent(parent)
-    selection_link = Rails.application.routes.url_helpers.children_support_module_link_url(
-      @children_support_module.id,
-      sc: parent.security_code
-    )
+    name, key = BUNDLE
+    bundle = Media::TextMessagesBundle.find_automatic(name: name, key: key)
+    return @errors << Media::TextMessagesBundle.missing_message(name: name, key: key) unless bundle
 
-    # module_index starts with 1
-    # so if module_index == 3 it means this is "Module 2" (that comes after "Module 0" and "Module 1")
-    date = @module_index.eql?(3) && @child.group.with_module_zero? ? 'deux jours' : 'quelques jours'
-
-    message = "1001mots : Cliquez sur le lien pour choisir votre prochain thème pour #{@child.first_name} et recevoir un nouveau livre. Attention dans #{date}, nous choisirons à votre place ! #{selection_link}"
-
-    sms_service = ProgramMessageService.new(
-      @planned_date,
-      @planned_hour,
-      ["parent.#{parent.id}"],
-      message
+    sms_service = ProgramAutomaticMessageService.new(
+      @planned_date, @planned_hour, ["parent.#{parent.id}"],
+      bundle.body1, bundle.rcs_media_id_to_send(1), bundle.redirection_target_id(1),
+      automatic_message_key: key, recipient_variables: { parent.id => message_variables(parent) }
     ).call
 
     @errors += sms_service.errors if sms_service.errors.any?
+  end
+
+  def message_variables(parent)
+    {
+      # module_index starts with 1 : module_index == 3 is "Module 2" (after "Module 0" and "Module 1")
+      'DELAI_CHOIX_THEME' => @module_index.eql?(3) && @child.group.with_module_zero? ? 'deux jours' : 'quelques jours',
+      'LIEN_CHOIX_THEME' => Rails.application.routes.url_helpers.children_support_module_link_url(@children_support_module.id, sc: parent.security_code),
+      'PRENOM_ENFANT' => @child.first_name
+    }
   end
 
   def chose_support_module

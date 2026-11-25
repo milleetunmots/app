@@ -49,4 +49,10 @@ class SupportModuleWeek < ApplicationRecord
     order(:position)
   end
 
+  # Le 4ᵉ message d'une semaine est le premier message de son trio supplémentaire.
+  def message_to_program(message_number, submitted_body)
+    bundle, index = message_number == 4 ? [additional_medium, 1] : [medium, message_number]
+    bundle.message_to_program(index, submitted_body)
+  end
+
 end

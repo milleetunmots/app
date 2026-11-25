@@ -1,11 +1,7 @@
 module Calendly
   class ProcessInviteeCanceledService
 
-    REBOOKING_MESSAGE = <<~MESSAGE.freeze
-      1001mots : Bonjour, vous venez d’annuler votre RDV avec {PRENOM_ACCOMPAGNANTE}.
-      Vous pouvez choisir un autre créneau pour lui parler ici : {CALENDLY_LINK}
-      A bientôt !
-    MESSAGE
+    REBOOKING_BUNDLE = ['Repêchage après annulation de RDV', 'repechage_annulation_rdv'].freeze
 
     attr_reader :errors, :scheduled_call
 
@@ -142,12 +138,8 @@ module Calendly
         return
       end
 
-      service = ProgramMessageService.new(
-        Time.zone.today.strftime('%d-%m-%Y'),
-        Time.zone.now.strftime('%H:%M'),
-        ["parent.#{@parent.id}"],
-        REBOOKING_MESSAGE.dup.gsub('{CALENDLY_LINK}', calendly_url)
-      ).call
+      service = program_rebooking_message(calendly_url)
+      return unless service
 
       if service.errors.empty?
         @parent.calendly_last_booking_dates ||= {}
@@ -159,6 +151,21 @@ module Calendly
           errors: service.errors
         }
       end
+    end
+
+    def program_rebooking_message(calendly_url)
+      name, key = REBOOKING_BUNDLE
+      bundle = Media::TextMessagesBundle.find_automatic(name: name, key: key)
+      unless bundle
+        @errors << { message: Media::TextMessagesBundle.missing_message(name: name, key: key) }
+        return
+      end
+
+      ProgramAutomaticMessageService.new(
+        Time.zone.today.strftime('%d-%m-%Y'), Time.zone.now.strftime('%H:%M'), ["parent.#{@parent.id}"],
+        bundle.body1, bundle.rcs_media_id_to_send(1), bundle.redirection_target_id(1),
+        automatic_message_key: key, recipient_variables: { @parent.id => { 'CALENDLY_LINK' => calendly_url } }
+      ).call
     end
   end
 end

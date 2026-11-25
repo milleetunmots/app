@@ -38,7 +38,7 @@ RSpec.describe Calendly::ProcessInviteeCanceledService do
   end
 
   let(:one_off_service) { instance_double(Calendly::CreateOneOffEventTypeService, errors: []) }
-  let(:program_message_service) { instance_double(ProgramMessageService, errors: []) }
+  let(:program_message_service) { instance_double(ProgramAutomaticMessageService, errors: []) }
 
   subject { described_class.new(payload: payload) }
 
@@ -46,7 +46,9 @@ RSpec.describe Calendly::ProcessInviteeCanceledService do
     parent.update!(calendly_booking_urls: { 'call1' => 'https://calendly.com/rebooking-url' })
     allow(Calendly::CreateOneOffEventTypeService).to receive(:new).and_return(one_off_service)
     allow(one_off_service).to receive(:call).and_return(one_off_service)
-    allow(ProgramMessageService).to receive(:new).and_return(program_message_service)
+    FactoryBot.create(:media_text_messages_bundle, name: 'Repêchage après annulation de RDV', body1: 'Texte du trio de repêchage', body2: nil, body3: nil)
+              .update_column(:key, 'repechage_annulation_rdv')
+    allow(ProgramAutomaticMessageService).to receive(:new).and_return(program_message_service)
     allow(program_message_service).to receive(:call).and_return(program_message_service)
   end
 
@@ -90,14 +92,32 @@ RSpec.describe Calendly::ProcessInviteeCanceledService do
         subject.call
       end
 
-      it 'sends the rebooking message via ProgramMessageService' do
-        expect(ProgramMessageService).to receive(:new).with(
-          anything,
-          anything,
-          ["parent.#{parent.id}"],
-          include('https://calendly.com/rebooking-url')
+      it "envoie le repêchage d'après son trio, avec le lien de prise de RDV de la session" do
+        expect(ProgramAutomaticMessageService).to receive(:new).with(
+          anything, anything, ["parent.#{parent.id}"], 'Texte du trio de repêchage', nil, nil,
+          automatic_message_key: 'repechage_annulation_rdv',
+          recipient_variables: { parent.id => { 'CALENDLY_LINK' => 'https://calendly.com/rebooking-url' } }
         )
         subject.call
+      end
+
+      it "envoie le repêchage quand c'est l'accompagnante qui annule" do
+        payload['payload']['cancellation'] = { 'canceled_at' => '2026-01-10T10:00:00Z', 'canceler_type' => 'host' }
+
+        subject.call
+
+        expect(ProgramAutomaticMessageService).to have_received(:new).with(anything, anything, ["parent.#{parent.id}"], 'Texte du trio de repêchage', any_args)
+      end
+
+      it "enregistre l'annulation sans repêchage, garde la date du dernier lien et signale le trio introuvable" do
+        Media::TextMessagesBundle.where(key: 'repechage_annulation_rdv').delete_all
+
+        result = subject.call
+
+        expect(scheduled_call.reload.status).to eq('canceled')
+        expect(ProgramAutomaticMessageService).not_to have_received(:new)
+        expect(parent.reload.calendly_last_booking_dates).to eq({})
+        expect(result.errors).to include(hash_including(message: 'Trio introuvable : « Repêchage après annulation de RDV » (clé repechage_annulation_rdv), message non envoyé'))
       end
 
       it 'updates calendly_last_booking_dates on the parent' do
@@ -131,7 +151,7 @@ RSpec.describe Calendly::ProcessInviteeCanceledService do
 
       it 'does not send a rebooking message to the parent' do
         subject.call
-        expect(ProgramMessageService).not_to have_received(:new)
+        expect(ProgramAutomaticMessageService).not_to have_received(:new)
       end
 
       it 'returns self with no errors' do
@@ -145,7 +165,7 @@ RSpec.describe Calendly::ProcessInviteeCanceledService do
         it 'recreates a one-off event type and sends the rebooking message' do
           subject.call
           expect(Calendly::CreateOneOffEventTypeService).to have_received(:new)
-          expect(ProgramMessageService).to have_received(:new)
+          expect(ProgramAutomaticMessageService).to have_received(:new)
         end
       end
 
@@ -155,7 +175,7 @@ RSpec.describe Calendly::ProcessInviteeCanceledService do
         it 'recreates a one-off event type and sends the rebooking message' do
           subject.call
           expect(Calendly::CreateOneOffEventTypeService).to have_received(:new)
-          expect(ProgramMessageService).to have_received(:new)
+          expect(ProgramAutomaticMessageService).to have_received(:new)
         end
       end
     end
@@ -279,7 +299,7 @@ RSpec.describe Calendly::ProcessInviteeCanceledService do
       end
 
       it 'does not send a rebooking message' do
-        expect(ProgramMessageService).not_to receive(:new)
+        expect(ProgramAutomaticMessageService).not_to receive(:new)
         subject.call
       end
     end
@@ -293,7 +313,7 @@ RSpec.describe Calendly::ProcessInviteeCanceledService do
       end
 
       it 'does not send a rebooking message' do
-        expect(ProgramMessageService).not_to receive(:new)
+        expect(ProgramAutomaticMessageService).not_to receive(:new)
         subject.call
       end
     end
@@ -309,8 +329,16 @@ RSpec.describe Calendly::ProcessInviteeCanceledService do
       end
 
       it 'does not send a rebooking message' do
-        expect(ProgramMessageService).not_to receive(:new)
+        expect(ProgramAutomaticMessageService).not_to receive(:new)
         subject.call
+      end
+
+      it 'ne signale que le lien manquant quand le trio est lui aussi introuvable' do
+        Media::TextMessagesBundle.where(key: 'repechage_annulation_rdv').delete_all
+
+        result = subject.call
+
+        expect(result.errors).to contain_exactly(hash_including(message: "Le lien calendly d'une nouvelle prise de rdv n'a pas pu être récupéré"))
       end
     end
 

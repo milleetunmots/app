@@ -16,6 +16,11 @@ RSpec.describe ChildSupport::SelectModuleService do
 
   subject { ChildSupport::SelectModuleService.new(child, planned_date, planned_hour, 1).call }
 
+  before do
+    FactoryBot.create(:media_text_messages_bundle, name: 'Invitation à choisir le prochain thème', body1: 'Choisissez : {LIEN_CHOIX_THEME}', body2: nil, body3: nil)
+              .update_column(:key, 'invitation_choix_theme')
+  end
+
   context 'when no parent should be contacted' do
     it 'gets an error message' do
       child.should_contact_parent1 = false
@@ -55,6 +60,34 @@ RSpec.describe ChildSupport::SelectModuleService do
     end
     it 'does not create a new ChldrenSupportModule' do
       expect { subject }.to change { ChildrenSupportModule.count }.by(0)
+    end
+  end
+
+  describe 'invitation lue dans son trio' do
+    it "envoie au parent le texte du trio, avec le délai, son lien de choix et le prénom de l'enfant concerné" do
+      expect(ProgramAutomaticMessageService).to receive(:new).with(
+        planned_date, planned_hour, ["parent.#{child.parent1_id}"], 'Choisissez : {LIEN_CHOIX_THEME}', nil, nil,
+        automatic_message_key: 'invitation_choix_theme',
+        recipient_variables: {
+          child.parent1_id => {
+            'DELAI_CHOIX_THEME' => 'quelques jours',
+            'LIEN_CHOIX_THEME' => a_string_including('/s/', "sc=#{child.parent1.security_code}"),
+            'PRENOM_ENFANT' => child.first_name
+          }
+        }
+      ).and_call_original
+
+      expect(subject.errors).to be_empty
+    end
+
+    it 'crée le module à choisir sans envoyer de message et signale le trio introuvable' do
+      Media::TextMessagesBundle.where(key: 'invitation_choix_theme').delete_all
+      expect(ProgramAutomaticMessageService).not_to receive(:new)
+
+      service = subject
+
+      expect(ChildrenSupportModule.where(child: child, parent: child.parent1, is_programmed: false)).to exist
+      expect(service.errors).to include('Trio introuvable : « Invitation à choisir le prochain thème » (clé invitation_choix_theme), message non envoyé')
     end
   end
 end

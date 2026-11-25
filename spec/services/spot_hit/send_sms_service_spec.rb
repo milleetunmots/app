@@ -10,6 +10,21 @@ RSpec.describe SpotHit::SendSmsService do
   end
 
   describe '#call' do
+    context 'en développement, sans SPOT_HIT_SAFEGUARD' do
+      it "envoie à tous les destinataires, sans les limiter à SAFE_PHONE_NUMBERS" do
+        allow(Rails.env).to receive(:development?).and_return(true)
+        previous_safe_numbers = ENV.fetch('SAFE_PHONE_NUMBERS', nil)
+        ENV['SAFE_PHONE_NUMBERS'] = '+33600000099'
+
+        described_class.new([parent.id], planned_timestamp, 'Bonjour').call
+
+        expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/sms')
+          .with { |request| Rack::Utils.parse_nested_query(request.body)['destinataires'].present? })
+      ensure
+        previous_safe_numbers.nil? ? ENV.delete('SAFE_PHONE_NUMBERS') : ENV['SAFE_PHONE_NUMBERS'] = previous_safe_numbers
+      end
+    end
+
     context 'when the message contains a non-whitelisted URL' do
       let(:message) { 'Cliquez ici : https://non-whitelisted.example.com/page' }
 

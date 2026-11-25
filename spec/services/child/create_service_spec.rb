@@ -310,6 +310,35 @@ RSpec.describe Child::CreateService do
     end
   end
 
+  describe 'inscription refusée par le filtre diplôme' do
+    let(:registration_origin) { 4 }
+    let(:parent1_attributes) { super().merge(degree_level_at_registration: 'bac+5', degree_country_at_registration: 'france') }
+
+    def campaigns
+      WebMock::RequestRegistry.instance.requested_signatures.hash.keys.select { |signature| signature.uri.path.start_with?('/api/envoyer/') }
+    end
+
+    it "passe l'enfant en « Non accompagné » et programme le message du trio de non-accompagnement" do
+      video = FactoryBot.create(:media_video, name: 'Conseils langage')
+      FactoryBot.create(:media_text_messages_bundle, name: 'Message de non-accompagnement', body1: 'Voici nos conseils : {URL}', body2: nil, body3: nil, link1: video)
+                .update_column(:key, 'non_accompagnement')
+
+      subject.call
+
+      expect(subject.child.group_status).to eq 'not_supported'
+      expect(campaigns.size).to eq(1)
+    end
+
+    it "passe l'enfant en « Non accompagné » sans rien programmer et signale le trio introuvable" do
+      expect(Rollbar).to receive(:error).with(a_string_including('Message de non-accompagnement', 'non_accompagnement'), anything)
+
+      subject.call
+
+      expect(subject.child.group_status).to eq 'not_supported'
+      expect(campaigns).to be_empty
+    end
+  end
+
   # Les inscriptions arrivant via une URL proposée par une IA générative ne sont
   # ni financées ni ciblées : elles doivent être écartées dès l'inscription.
   describe "inscription issue d'une IA générative" do
@@ -408,6 +437,62 @@ RSpec.describe Child::CreateService do
           expect(subject.child.siblings.pluck(:group_status)).not_to include 'not_supported'
         end
       end
+    end
+  end
+
+  describe "messages d'inscription lus dans leur trio" do
+    around { |example| travel_to(Time.zone.parse('2027-03-02 10:00')) { example.run } }
+
+    let(:registration_messages) { instance_double(Child::ProgramRegistrationMessagesService, errors: []) }
+
+    before do
+      allow(Child::ProgramRegistrationMessagesService).to receive(:new).and_return(registration_messages)
+      allow(registration_messages).to receive(:call).and_return(registration_messages)
+      allow(registration_messages).to receive(:send_questionnaire).and_return(registration_messages)
+    end
+
+    context "par le formulaire d'origine 4" do
+      let(:registration_origin) { 4 }
+      let(:parent1_attributes) { super().merge(degree_level_at_registration: 'bac', degree_country_at_registration: 'france') }
+
+      it "programme l'invitation au questionnaire 2 h après, pour le parent 1 seulement" do
+        job = double(perform_later: true)
+        expect(Child::SendInitialFormSmsJob).to receive(:set).with(wait: 2.hours).and_return(job)
+
+        subject.call
+
+        expect(job).to have_received(:perform_later).with(subject.child.parent1_id)
+      end
+    end
+
+    context "par le formulaire d'origine 3" do
+      let(:registration_origin) { 3 }
+
+      it "programme l'invitation au questionnaire à 18 h le jour même" do
+        subject.call
+
+        expect(registration_messages).to have_received(:send_questionnaire).with(at: Time.zone.parse('2027-03-02 18:00'))
+      end
+    end
+
+    it "programme l'invitation Instagram 3 jours plus tard à 18 h, avec le prénom de l'enfant inscrit" do
+      subject.call
+
+      expect(registration_messages).to have_received(:call)
+        .with(:instagram, at: Time.zone.parse('2027-03-05 18:00'), variables: { 'PRENOM_ENFANT' => subject.child.first_name })
+    end
+
+    it "envoie la confirmation eval25 à la place du questionnaire pour la source CAF93 pendant l'eval25" do
+      previous = ENV.to_h.slice('EVAL25', 'CAF93')
+      source.update!(name: 'CAF 93')
+      ENV['EVAL25'] = 'true'
+      ENV['CAF93'] = 'CAF 93'
+
+      subject.call
+
+      expect(registration_messages).to have_received(:call).with(:eval25)
+    ensure
+      %w[EVAL25 CAF93].each { |key| previous.key?(key) ? ENV[key] = previous[key] : ENV.delete(key) }
     end
   end
 end

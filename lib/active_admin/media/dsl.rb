@@ -60,6 +60,7 @@ module ActiveAdmin
               decorated.folder_link
             end
             send (with_comments ? :row_with_comments : :row), :name
+            row('Clé', &:key) if resource.key.present?
             # send (with_comments ? :row_with_comments : :row), :theme
             send (with_comments ? :row_with_comments : :row), :tag_list do |decorated|
               decorated.tags

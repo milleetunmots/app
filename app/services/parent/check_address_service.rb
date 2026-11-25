@@ -2,12 +2,12 @@ require 'csv'
 
 class Parent::CheckAddressService
 
-  MESSAGE = "1001mots : Vous n'avez pas reçu votre dernier livre ? Vérifiez votre adresse sur ce lien :".freeze
+  NAME = "Demande de vérification d'adresse (PND)".freeze
+  KEY = 'verification_adresse_pnd'.freeze
 
-  attr_reader :errors
+  attr_reader :errors, :missing_bundle_error
 
   def initialize(csv_file)
-    @message = "#{MESSAGE} https://form.typeform.com/to/#{ENV['UPDATING_ADDRESS_TYPEFORM_ID']}#st=xxxxx"
     @lines = CSV.read(csv_file)
     @errors = []
     @date = Time.zone.now
@@ -31,7 +31,7 @@ class Parent::CheckAddressService
 
       child_support = parent.current_child&.child_support
       unless child_support
-        @errors << "Aucune fiche de suivi n'est lié à #{parent.first_name} #{parent.last_name}"
+        @errors << "Aucune fiche de suivi n'est liée au parent #{parent.id}"
         next
       end
 
@@ -47,13 +47,31 @@ class Parent::CheckAddressService
   private
 
   def send_verification_message(parent)
-    message = @message.gsub('st=xxxxx', "st=#{parent.security_token}")
-    service = ProgramMessageService.new(
+    return report_missing_bundle unless bundle
+
+    service = ProgramAutomaticMessageService.new(
       @date.strftime('%d-%m-%Y'),
       @date.strftime('%H:%M'),
       ["parent.#{parent.id}"],
-      message
+      bundle.body1.dup,
+      bundle.rcs_media_id_to_send(1),
+      bundle.redirection_target_id(1),
+      automatic_message_key: KEY
     ).call
-    @errors << "Address Verification message not sent to #{parent.first_name} #{parent.last_name} : #{service.errors.join(' - ')}" if service.errors.any?
+    @errors << "Address Verification message not sent to parent #{parent.id} : #{service.errors.join(' - ')}" if service.errors.any?
+  end
+
+  # Cherché au premier parent à prévenir, une seule fois : un fichier sans parent retrouvé ne cherche aucun trio.
+  def bundle
+    return @bundle if defined?(@bundle)
+
+    @bundle = Media::TextMessagesBundle.find_automatic(name: NAME, key: KEY)
+  end
+
+  def report_missing_bundle
+    return if @missing_bundle_error
+
+    @missing_bundle_error = Media::TextMessagesBundle.missing_message(name: NAME, key: KEY)
+    @errors << @missing_bundle_error
   end
 end

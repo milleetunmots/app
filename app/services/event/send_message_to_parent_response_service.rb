@@ -4,12 +4,12 @@ class Event::SendMessageToParentResponseService
 
   attr_reader :errors
 
-  MESSAGE = "1001mots: Ce numéro ne peut pas recevoir de SMS. Pour nous contacter, merci d'envoyer vos messages directement à".freeze
+  NAME = 'Numéro qui ne reçoit pas de SMS'.freeze
+  KEY = 'numero_sans_sms'.freeze
 
   def initialize(parsed_phone)
     @parsed_phone = parsed_phone
     @errors = []
-    @message = "#{MESSAGE} {PRENOM_ACCOMPAGNANTE} au {NUMERO_AIRCALL_ACCOMPAGNANTE}. Merci!"
     @date = Time.zone.now
     @parent = Parent.find_by(phone_number: parsed_phone)
   end
@@ -20,23 +20,47 @@ class Event::SendMessageToParentResponseService
       return self
     end
 
-    return self if @parent.message_already_sent?(1.day.ago, MESSAGE)
+    # Ligne du parent verrouillée jusqu'à l'enregistrement de la réponse : deux SMS simultanés ne passent pas tous deux le contrôle.
+    Parent.transaction do
+      Parent.lock.find(@parent.id)
+      reply_unless_already_sent
+    end
+    self
+  end
+
+  private
+
+  def reply_unless_already_sent
+    return if Events::TextMessage.automatic_message_sent?(parent: @parent, key: KEY, since: 1.day.ago)
 
     supporter = @parent.current_child&.child_support&.supporter
-    return self unless supporter
+    return unless supporter
 
     unless supporter.aircall_phone_number
       @errors << 'Child supporter has no aircall_phone_number'
-      return self
+      return
     end
 
-    service = ProgramMessageService.new(
+    send_reply
+  end
+
+  def send_reply
+    bundle = Media::TextMessagesBundle.find_automatic(name: NAME, key: KEY)
+    return report_missing_bundle unless bundle
+
+    service = ProgramAutomaticMessageService.new(
       @date.strftime('%d-%m-%Y'),
       @date.strftime('%H:%M'),
       ["parent.#{@parent.id}"],
-      @message
+      bundle.body1,
+      bundle.rcs_media_id_to_send(1),
+      bundle.redirection_target_id(1),
+      automatic_message_key: KEY
     ).call
-    @errors << "Response message not sent to #{@parent.first_name} #{@parent.last_name} : #{service.errors.join(' - ')}" if service.errors.any?
-    self
+    @errors << "Response message not sent to parent #{@parent.id} : #{service.errors.join(' - ')}" if service.errors.any?
+  end
+
+  def report_missing_bundle
+    @errors << Media::TextMessagesBundle.missing_message(name: NAME, key: KEY)
   end
 end

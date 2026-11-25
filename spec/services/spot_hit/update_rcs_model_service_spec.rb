@@ -8,7 +8,8 @@ RSpec.describe SpotHit::UpdateRcsModelService do
     messages.update_columns(
       body1: "Ceci est un message de test\nAvec plusieurs lignes",
       image1_id: image.id,
-      rcs_media1_id: 12345
+      rcs_media1_id: 12345,
+      rcs_text_template1: false
     )
     messages.reload
   end
@@ -35,6 +36,18 @@ RSpec.describe SpotHit::UpdateRcsModelService do
         expect(service.errors).to be_empty
 
         expect(WebMock).to have_requested(:post, "https://www.spot-hit.fr/api/rcs/model/modify")
+      end
+
+      it 'renvoie le nom du modèle, que Spot-Hit remplace avec le reste du JSON' do
+        bundle = FactoryBot.create(
+          :media_text_messages_bundle,
+          name: 'Fin du programme', tag_list: ['message automatique'], rcs_media1_id: 4521, rcs_text_template1: true
+        )
+
+        described_class.new(text_messages_bundle: bundle, message_index: 1).call
+
+        expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/modify')
+          .with { |req| JSON.parse(Rack::Utils.parse_nested_query(req.body)['model'])['name'] == "[message automatique] Fin du programme M1 ##{bundle.id}" })
       end
     end
 

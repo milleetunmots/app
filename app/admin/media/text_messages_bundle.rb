@@ -31,9 +31,12 @@ ActiveAdmin.register Media::TextMessagesBundle do
     link_to 'Dupliquer', [:duplicate, :admin, resource], class: 'green'
   end
 
+  after_save { |bundle| Media::SyncRcsModelsJob.perform_later(bundle.id, bundle.changed_rcs_message_indexes) if bundle.errors.empty? }
+
   member_action :duplicate do
     new_resource = resource.duplicate
     new_resource.save!
+    Media::SyncRcsModelsJob.perform_later(new_resource.id, [1, 2, 3])
     redirect_to [:admin, new_resource]
   end
 

@@ -15,7 +15,7 @@ class SpotHit::CreateRcsModelService
   end
 
   def call
-    return self if Rails.env.development? || ENV['SPOT_HIT_SAFEGUARD'].present?
+    return self if ENV['SPOT_HIT_SAFEGUARD'].present?
 
     validate_params
     return self if @errors.any?
@@ -36,14 +36,9 @@ class SpotHit::CreateRcsModelService
       return
     end
 
-    if body.blank?
-      @errors << "body#{@message_index} is blank, cannot create RCS template"
-      return
-    end
+    return if body.present?
 
-    if image.blank?
-      @errors << "image#{@message_index} is blank, cannot create RCS template"
-    end
+    @errors << "body#{@message_index} is blank, cannot create RCS template"
   end
 
   # Le contenu riche du template (body, titre, libellé du CTA) part tel quel à
@@ -63,7 +58,7 @@ class SpotHit::CreateRcsModelService
   def body
     @body ||= begin
       raw_body = @text_messages_bundle.send("body#{@message_index}")
-      cleaned = clean_body(raw_body)
+      cleaned = with_parent_token(clean_body(raw_body))
       link.present? ? strip_url_placeholder(cleaned) : cleaned
     end
   end
@@ -109,8 +104,38 @@ class SpotHit::CreateRcsModelService
     remove_tmp_file(@tmp_file) if @tmp_file && File.exist?(@tmp_file)
   end
 
+  def text_template?
+    image.blank?
+  end
+
   def model_json
+    (text_template? ? text_model_json : card_model_json).merge('name' => model_name)
+  end
+
+  def model_name
+    Media::RcsModelName.new(text_messages_bundle: @text_messages_bundle, message_index: @message_index).to_s
+  end
+
+  # Un modèle texte n'a pas de bouton : le lien reste dans le texte, comme dans le SMS de secours.
+  def text_model_json
     {
+      'type' => 'text',
+      'content' => {
+        'text' => { 'text' => text_model_body, 'suggestions' => [] },
+        'property' => { 'stop' => false }
+      }
+    }
+  end
+
+  def text_model_body
+    text = with_parent_token(clean_body(@text_messages_bundle.send("body#{@message_index}")))
+    text += ' {URL}' if link.present? && text.exclude?('{URL}')
+    text.gsub(/\r?\n/, '<br>')
+  end
+
+  def card_model_json
+    {
+      'type' => 'card',
       'content' => {
         'card' => {
           'title' => rcs_title,
@@ -139,8 +164,15 @@ class SpotHit::CreateRcsModelService
 
   def save_rcs_media_id
     column_name = "rcs_media#{@message_index}_id"
-    @text_messages_bundle.update_column(column_name, @rcs_media_id)
+    @text_messages_bundle.update_columns(column_name => @rcs_media_id, "rcs_text_template#{@message_index}" => text_template?)
     Rails.logger.info "Saved RCS media ID #{@rcs_media_id} to #{column_name} for TextMessagesBundle ##{@text_messages_bundle.id}"
+  end
+
+  # Comme ProgramMessageService#find_form_url : Spot-Hit remplit le jeton de chaque parent à l'envoi.
+  def with_parent_token(text)
+    return text unless [ProgramMessageService::TYPEFORM_URL_REGEX, ProgramMessageService::VIDEOASK_URL_REGEX].any? { |regex| text.to_s.match?(regex) }
+
+    text.gsub(/#st=[^\s]+/, '#st={PARENT_SECURITY_TOKEN}')
   end
 
   def strip_url_placeholder(text)

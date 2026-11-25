@@ -1,6 +1,9 @@
 class ChildSupport::SendCallGoalsMessagesService
 
-  CALL_GOALS_REMINDER_MESSAGE = "Bonjour\nVoici un rappel de votre petite mission 1001mots :\n{call_goals}\nEt pour me raconter comment ça c'est passé, c'est ici :\n{typeform_link}\nÀ bientôt :)".freeze
+  REMINDER_BUNDLES = {
+    0 => ['Rappel de petite mission — 2 semaines', 'rappel_mission_deux_semaines'],
+    3 => ['Rappel de petite mission — appel 3', 'rappel_mission_appel3']
+  }.freeze
   CALL_GOALS_REGEX = /Voici votre petite mission :\r\n([\s\S]*?)\r\nQuand vous aurez essayé/.freeze
   TYPEFORM_URL_REGEX = /https?:\/\/[^\/]+\/c[03](\/\S*)?(\?\S+)?/.freeze
 
@@ -35,9 +38,35 @@ class ChildSupport::SendCallGoalsMessagesService
       message_informations
       next unless @goals_match.present? && @typeform_link_match.present?
 
-      service = ProgramMessageService.new(@date.strftime('%d-%m-%Y'), '12:30', recipient, reminder_message).call
-      @errors << service.errors if service.errors
+      program_reminder
     end
+  end
+
+  def program_reminder
+    return report_missing_reminder_bundle unless reminder_bundle
+
+    service = ProgramAutomaticMessageService.new(
+      @date.strftime('%d-%m-%Y'), '12:30', recipient,
+      reminder_bundle.body1, reminder_bundle.rcs_media_id_to_send(1), reminder_bundle.redirection_target_id(1),
+      automatic_message_key: REMINDER_BUNDLES[@call_index].last,
+      recipient_variables: { @child_support.parent1.id => reminder_variables }
+    ).call
+    @errors << service.errors if service.errors
+  end
+
+  def reminder_bundle
+    return @reminder_bundle if defined?(@reminder_bundle)
+
+    name, key = REMINDER_BUNDLES[@call_index]
+    @reminder_bundle = Media::TextMessagesBundle.find_automatic(name: name, key: key)
+  end
+
+  def report_missing_reminder_bundle
+    return if @missing_reminder_bundle_reported
+
+    @missing_reminder_bundle_reported = true
+    name, key = REMINDER_BUNDLES[@call_index]
+    @errors << Media::TextMessagesBundle.missing_message(name: name, key: key)
   end
 
   def call_informations
@@ -60,24 +89,30 @@ class ChildSupport::SendCallGoalsMessagesService
     ["parent.#{@child_support.parent1.id}"]
   end
 
-  def reminder_message
-    call_goals = @goals_match[1]&.strip
-    typeform_link = @typeform_link_match[0]
-    message = CALL_GOALS_REMINDER_MESSAGE
-    message = message.gsub('À bientôt', 'Bonne journée') if @call_index == 3
-    message.gsub('{call_goals}', call_goals).gsub('{typeform_link}', typeform_link)
+  def reminder_variables
+    { 'PETITE_MISSION' => @goals_match[1]&.strip, 'LIEN_SUIVI_PETITE_MISSION' => @typeform_link_match[0] }
   end
 
   def send_text_messages_bundle
+    report_missing_call3_bundles
     @group.child_supports.where.not(call3_goals_sms: [nil, '']).find_each do |child_support|
       @child_support = child_support
       @date = @group.started_at + 25.weeks
-      ENV['CALL3_TEXT_MESSAGES_BUNDLES'].split(',').each do |text_messages_bundle_name|
-        @text_message_bundle = Media::TextMessagesBundle.kept.find_by(name: text_messages_bundle_name.strip)
-        program_text_message_bundles
+      call3_bundles.each_value do |bundle|
+        @text_message_bundle = bundle
+        program_text_message_bundles if bundle
         @date += 1.week
       end
     end
+  end
+
+  # Un trio par semaine, dans l'ordre de la liste : un trio introuvable laisse sa semaine vide.
+  def call3_bundles
+    @call3_bundles ||= Media::TextMessagesBundle.call3_names.index_with { |name| Media::TextMessagesBundle.kept.find_by(name: name) }
+  end
+
+  def report_missing_call3_bundles
+    call3_bundles.each { |name, bundle| @errors << "Trio introuvable : « #{name} », message d'après l'appel 3 non envoyé" unless bundle }
   end
 
   def program_text_message_bundles
@@ -89,21 +124,21 @@ class ChildSupport::SendCallGoalsMessagesService
   def program_text_message_bundle_body1
     return unless @text_message_bundle.body1
 
-    service = ProgramMessageService.new(@date.next_occurring(:tuesday).strftime('%d-%m-%Y'), '12:30', recipient, @text_message_bundle.body1, @text_message_bundle.rcs_media1_id, @text_message_bundle.link1_id).call
+    service = ProgramMessageService.new(@date.next_occurring(:tuesday).strftime('%d-%m-%Y'), '12:30', recipient, @text_message_bundle.body1, @text_message_bundle.rcs_media_id_to_send(1), @text_message_bundle.link1_id).call
     @errors << service.errors if service.errors
   end
 
   def program_text_message_bundle_body2
     return unless @text_message_bundle.body2
 
-    service = ProgramMessageService.new(@date.next_occurring(:thursday).strftime('%d-%m-%Y'), '12:30', recipient, @text_message_bundle.body2, @text_message_bundle.rcs_media2_id, @text_message_bundle.link2_id).call
+    service = ProgramMessageService.new(@date.next_occurring(:thursday).strftime('%d-%m-%Y'), '12:30', recipient, @text_message_bundle.body2, @text_message_bundle.rcs_media_id_to_send(2), @text_message_bundle.link2_id).call
     @errors << service.errors if service.errors
   end
 
   def program_text_message_bundle_body3
     return unless @text_message_bundle.body3
 
-    service = ProgramMessageService.new(@date.next_occurring(:saturday).strftime('%d-%m-%Y'), '12:30', recipient, @text_message_bundle.body3, @text_message_bundle.rcs_media3_id, @text_message_bundle.link3_id).call
+    service = ProgramMessageService.new(@date.next_occurring(:saturday).strftime('%d-%m-%Y'), '12:30', recipient, @text_message_bundle.body3, @text_message_bundle.rcs_media_id_to_send(3), @text_message_bundle.link3_id).call
     @errors << service.errors if service.errors
   end
 end
