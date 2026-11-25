@@ -17,7 +17,7 @@ class ImpersonationsController < ApplicationController
 
     impersonate_admin_user(admin_user)
     Rails.logger.info("[impersonation] start impersonator_id=#{true_admin_user.id} impersonated_id=#{admin_user.id}")
-    redirect_to admin_root_path, notice: "Vous consultez la base famille en tant que #{admin_user.name}, en lecture seule."
+    redirect_to admin_root_path
   end
 
   def destroy

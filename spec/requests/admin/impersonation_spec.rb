@@ -28,6 +28,7 @@ RSpec.describe 'Admin - se connecter en tant que', type: :request do
       start_impersonating(referente)
 
       expect(response).to redirect_to(admin_root_path)
+      expect(flash[:notice]).to be_nil
       get '/admin/child_supports', params: { scope: 'all' }
       expect(response.body).to include('impersonation-banner')
       expect(response.body).to include(%(id="child_support_#{fiche.id}"))
