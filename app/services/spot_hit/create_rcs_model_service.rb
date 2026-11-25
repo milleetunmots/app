@@ -109,7 +109,11 @@ class SpotHit::CreateRcsModelService
   end
 
   def model_json
-    text_template? ? text_model_json : card_model_json
+    (text_template? ? text_model_json : card_model_json).merge('name' => model_name)
+  end
+
+  def model_name
+    Media::RcsModelName.new(text_messages_bundle: @text_messages_bundle, message_index: @message_index).to_s
   end
 
   # Un modèle texte n'a pas de bouton : le lien reste dans le texte, comme dans le SMS de secours.

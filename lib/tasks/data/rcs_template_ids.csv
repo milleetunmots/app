@@ -1,0 +1,602 @@
+bundle_id,key,bundle_name,message_index,rcs_media_id
+555,,ModuleLectureinteractive-semaine1,1,1239519
+555,,ModuleLectureinteractive-semaine1,3,1239520
+556,,ModuleLectureinteractive-semaine2,1,1240087
+556,,ModuleLectureinteractive-semaine2,3,1240088
+557,,ModuleLectureinteractive-semaine3,2,1240109
+557,,ModuleLectureinteractive-semaine3,3,1240110
+558,,ModuleLectureinteractive-semaine4,1,1239517
+558,,ModuleLectureinteractive-semaine4,2,1239518
+559,,ModuleLectureinteractive-semaine5,1,1239663
+559,,ModuleLectureinteractive-semaine5,2,1239664
+559,,ModuleLectureinteractive-semaine5,3,1239665
+560,,ModuleLectureinteractive-semaine1,1,1239741
+560,,ModuleLectureinteractive-semaine1,3,1239742
+561,,ModuleLectureinteractive-semaine2,1,1239898
+561,,ModuleLectureinteractive-semaine2,3,1239899
+562,,ModuleLectureinteractive-semaine3,2,1239900
+562,,ModuleLectureinteractive-semaine3,3,1239901
+563,,ModuleLectureinteractive-semaine4,1,1239514
+563,,ModuleLectureinteractive-semaine4,2,1239515
+563,,ModuleLectureinteractive-semaine4,3,1239516
+564,,ModuleLectureinteractive-semaine5,1,1239904
+564,,ModuleLectureinteractive-semaine5,2,1239905
+564,,ModuleLectureinteractive-semaine5,3,1239906
+589,,ModuleMieuxGérerLesEcrans-semaine1,1,1239592
+589,,ModuleMieuxGérerLesEcrans-semaine1,3,1239593
+596,,ModuleMieuxGérerLesEcrans-semaine2,1,1239523
+596,,ModuleMieuxGérerLesEcrans-semaine2,3,1239524
+597,,ModuleMieuxGérerLesEcrans-semaine3,2,1239870
+597,,ModuleMieuxGérerLesEcrans-semaine3,3,1239871
+598,,ModuleMieuxGérerLesEcrans-semaine4,1,1239594
+598,,ModuleMieuxGérerLesEcrans-semaine4,2,1239595
+599,,ModuleMieuxGérerLesEcrans-semaine5,1,1240027
+599,,ModuleMieuxGérerLesEcrans-semaine5,2,1240028
+599,,ModuleMieuxGérerLesEcrans-semaine5,3,1240029
+645,,ModuleComprendreSaColère-semaine1,1,1239666
+645,,ModuleComprendreSaColère-semaine1,3,1239667
+646,,ModuleComprendreSaColère-semaine2,2,1239668
+646,,ModuleComprendreSaColère-semaine2,3,1239669
+647,,ModuleComprendreSaColère-semaine3,2,1239868
+647,,ModuleComprendreSaColère-semaine3,3,1239869
+649,,ModuleComprendreSaColère-semaine4,2,1240022
+649,,ModuleComprendreSaColère-semaine4,3,1240024
+650,,ModuleComprendreSaColère-semaine5,1,1239701
+650,,ModuleComprendreSaColère-semaine5,2,1239702
+650,,ModuleComprendreSaColère-semaine5,3,1239703
+651,,ModuleSorties-semaine1 12-17,1,1239712
+652,,ModuleSorties-semaine2 12-17,1,1239988
+652,,ModuleSorties-semaine2 12-17,3,1239989
+653,,ModuleSorties-semaine3 12-17,2,1239966
+653,,ModuleSorties-semaine3 12-17,3,1239967
+654,,ModuleSorties-semaine4 12-17,1,1239916
+654,,ModuleSorties-semaine4 12-17,3,1239917
+655,,ModuleSorties-semaine5 12-17,1,1239511
+655,,ModuleSorties-semaine5 12-17,2,1239512
+655,,ModuleSorties-semaine5 12-17,3,1239513
+659,,ModuleJeuxvsEcrans-semaine1,1,1239829
+659,,ModuleJeuxvsEcrans-semaine1,3,1239830
+663,,ModuleJeuxvsEcrans-semaine2,1,1239854
+664,,ModuleJeuxvsEcrans-semaine3,2,1240118
+664,,ModuleJeuxvsEcrans-semaine3,3,1240119
+665,,ModuleJeuxvsEcrans-semaine4,3,1240030
+666,,ModuleJeuxvsEcrans-semaine5,2,1239541
+670,,ModuleLectureinteractive1-semaine1,1,1239770
+672,,ModuleLectureinteractive1-semaine2,3,1239780
+674,,ModuleLectureinteractive1-semaine3,1,1239892
+674,,ModuleLectureinteractive1-semaine3,2,1239893
+674,,ModuleLectureinteractive1-semaine3,3,1239894
+675,,ModuleLectureinteractive1-semaine4,1,1239674
+675,,ModuleLectureinteractive1-semaine4,2,1239675
+675,,ModuleLectureinteractive1-semaine4,3,1239676
+676,,ModuleLectureinteractive1-semaine5,1,1239660
+676,,ModuleLectureinteractive1-semaine5,2,1239661
+676,,ModuleLectureinteractive1-semaine5,3,1239662
+677,,ModuleLectureinteractive-semaine2-SMS4,1,1239779
+729,,ModuleChanson1semaine1,1,1239588
+729,,ModuleChanson1semaine1,3,1239589
+730,,ModuleChanson1semaine2,2,1239590
+730,,ModuleChanson1semaine2,3,1239591
+731,,ModuleChanson1semaine3,1,1239627
+731,,ModuleChanson1semaine3,2,1239628
+732,,ModuleChanson1semaine4,1,1239563
+732,,ModuleChanson1semaine4,2,1239564
+732,,ModuleChanson1semaine4,3,1239565
+733,,ModuleChanson1semaine5,1,1239566
+733,,ModuleChanson1semaine5,2,1239567
+733,,ModuleChanson1semaine5,3,1239568
+734,,ModuleJeu1-semaine1,1,1239735
+734,,ModuleJeu1-semaine1,3,1239736
+735,,ModuleJeu1-semaine2,1,1239558
+735,,ModuleJeu1-semaine2,2,1239559
+736,,ModuleJeu1-semaine3,2,1240035
+736,,ModuleJeu1-semaine3,3,1240037
+737,,ModuleJeu1-semaine4,2,1239606
+738,,ModuleJeu1-semaine5,3,1239907
+739,,ModuleConversation1-semaine1,1,1239556
+739,,ModuleConversation1-semaine1,3,1239557
+740,,ModuleConversation1-semaine2,1,1240113
+740,,ModuleConversation1-semaine2,3,1240114
+741,,ModuleConversation1-semaine3,2,1239939
+741,,ModuleConversation1-semaine3,3,1239940
+742,,ModuleConversation1-semaine4,1,1239560
+742,,ModuleConversation1-semaine4,2,1239561
+742,,ModuleConversation1-semaine4,3,1239562
+743,,ModuleConversation1-semaine5,1,1240038
+743,,ModuleConversation1-semaine5,2,1240039
+743,,ModuleConversation1-semaine5,3,1240040
+761,,ModuleBilinguisme-semaine1,2,1239945
+761,,ModuleBilinguisme-semaine1,3,1239946
+763,,ModuleBilinguisme-semaine2,2,1239771
+763,,ModuleBilinguisme-semaine2,3,1239772
+764,,ModuleBilinguisme-semaine3,2,1239937
+764,,ModuleBilinguisme-semaine3,3,1239938
+765,,ModuleBilinguisme-semaine4,1,1239575
+765,,ModuleBilinguisme-semaine4,2,1239576
+766,,ModuleBilinguisme-semaine5,1,1240044
+766,,ModuleBilinguisme-semaine5,3,1240045
+767,,ModuleChanson2-semaine1,1,1239596
+767,,ModuleChanson2-semaine1,3,1239597
+768,,ModuleChanson2-semaine2,1,1239577
+768,,ModuleChanson2-semaine2,3,1239578
+769,,ModuleChanson2-semaine3,2,1239582
+769,,ModuleChanson2-semaine3,3,1239583
+770,,ModuleChanson2-semaine4,1,1239579
+770,,ModuleChanson2-semaine4,2,1239580
+770,,ModuleChanson2-semaine4,3,1239581
+771,,ModuleChanson2-semaine5,1,1239602
+771,,ModuleChanson2-semaine5,2,1239603
+771,,ModuleChanson2-semaine5,3,1239604
+820,,ModuleOccuperSansEcrans-semaine 1-6-11,1,1239551
+820,,ModuleOccuperSansEcrans-semaine 1-6-11,3,1239552
+821,,ModuleOccuperSansEcrans-semaine 2-6-11,1,1239546
+822,,ModuleOccuperSansEcrans-semaine 3-6-11,2,1239933
+822,,ModuleOccuperSansEcrans-semaine 3-6-11,3,1239934
+823,,ModuleOccuperSansEcrans-semaine 4-6-11,1,1239548
+823,,ModuleOccuperSansEcrans-semaine 4-6-11,2,1239549
+823,,ModuleOccuperSansEcrans-semaine 4-6-11,3,1239550
+824,,ModuleOccuperSansEcrans-semaine 5-6-11,1,1239781
+824,,ModuleOccuperSansEcrans-semaine 5-6-11,3,1239782
+825,,ModuleGarderIntérêtLivre-semaine 1,1,1239814
+825,,ModuleGarderIntérêtLivre-semaine 1,3,1239815
+826,,ModuleGarderIntérêtLivre-semaine 2,1,1239525
+826,,ModuleGarderIntérêtLivre-semaine 2,3,1239526
+827,,ModuleGarderIntérêtLivre-semaine 3,2,1239935
+827,,ModuleGarderIntérêtLivre-semaine 3,3,1239936
+828,,ModuleGarderIntérêtLivre-semaine 4,1,1239527
+828,,ModuleGarderIntérêtLivre-semaine 4,2,1239528
+829,,ModuleGarderIntérêtLivre-semaine 5,1,1239930
+829,,ModuleGarderIntérêtLivre-semaine 5,2,1239931
+829,,ModuleGarderIntérêtLivre-semaine 5,3,1239932
+889,,ModuleGarderInteretLivre-semaine1,1,1239533
+889,,ModuleGarderInteretLivre-semaine1,3,1239534
+892,,ModuleGarderInteretLivre-semaine2,1,1239532
+893,,ModuleGarderInteretLivre-semaine3,1,1239535
+893,,ModuleGarderInteretLivre-semaine3,2,1239536
+893,,ModuleGarderInteretLivre-semaine3,3,1239537
+894,,ModuleGarderInteretLivre-semaine4,1,1239529
+894,,ModuleGarderInteretLivre-semaine4,2,1239530
+894,,ModuleGarderInteretLivre-semaine4,3,1239531
+896,,ModuleGarderInteretLivre-semaine5,1,1239538
+896,,ModuleGarderInteretLivre-semaine5,2,1239539
+896,,ModuleGarderInteretLivre-semaine5,3,1239540
+970,,BT8-OnboardingConversation1/4,1,1239896
+970,,BT8-OnboardingConversation1/4,2,1239897
+971,,BT8-OnboardingConversation2/4,3,1240041
+972,,BT8-OnboardingConversation3/4,1,1240021
+973,,BT8-OnboardingConversation4/4,1,1239890
+973,,BT8-OnboardingConversation4/4,2,1239891
+995,,ModuleLecture-niveau1-semaine1/5,1,1240111
+995,,ModuleLecture-niveau1-semaine1/5,3,1240112
+1002,,ModuleLecture-niveau1-semaine2/5,1,1239598
+1002,,ModuleLecture-niveau1-semaine2/5,3,1239599
+1003,,ModuleLecture-niveau1-semaine3/5,1,1240048
+1003,,ModuleLecture-niveau1-semaine3/5,2,1240049
+1004,,ModuleLecture-niveau1-semaine4/5,1,1239920
+1004,,ModuleLecture-niveau1-semaine4/5,3,1239921
+1005,,ModuleLecture-niveau1-semaine5/5,1,1240054
+1005,,ModuleLecture-niveau1-semaine5/5,3,1240055
+1012,,ModuleLecture-niveau2-semaine1/5,1,1240092
+1012,,ModuleLecture-niveau2-semaine1/5,3,1240093
+1017,,ModuleLecture-niveau2-semaine2/5,1,1240031
+1017,,ModuleLecture-niveau2-semaine2/5,3,1240032
+1018,,ModuleLecture-niveau2-semaine3/5,1,1239843
+1018,,ModuleLecture-niveau2-semaine3/5,2,1239844
+1019,,ModuleLecture-niveau2-semaine4/5,2,1239710
+1019,,ModuleLecture-niveau2-semaine4/5,3,1239711
+1020,,ModuleLecture-niveau2-semaine5/5,1,1240096
+1020,,ModuleLecture-niveau2-semaine5/5,2,1240097
+1020,,ModuleLecture-niveau2-semaine5/5,3,1240098
+1025,,ModuleBilinguisme-semaine1/5,2,1239611
+1025,,ModuleBilinguisme-semaine1/5,3,1239612
+1026,,ModuleBilinguisme-semaine2/5,2,1239620
+1026,,ModuleBilinguisme-semaine2/5,3,1239621
+1027,,ModuleBilinguisme-semaine3/5,2,1239789
+1027,,ModuleBilinguisme-semaine3/5,3,1239790
+1028,,ModuleBilinguisme-semaine4/5,1,1239624
+1028,,ModuleBilinguisme-semaine4/5,2,1239625
+1028,,ModuleBilinguisme-semaine4/5,3,1239626
+1029,,ModuleBilinguisme-semaine5/5,1,1239622
+1029,,ModuleBilinguisme-semaine5/5,3,1239623
+1030,,ModuleBilinguisme-semaine2/5,2,1239613
+1030,,ModuleBilinguisme-semaine2/5,3,1239614
+1032,,ModuleBilinguisme-semaine4/5,1,1240050
+1032,,ModuleBilinguisme-semaine4/5,2,1240051
+1032,,ModuleBilinguisme-semaine4/5,3,1240053
+1036,,ModuleChanson2-semaine1/5,1,1239629
+1036,,ModuleChanson2-semaine1/5,3,1239630
+1037,,ModuleChanson2-semaine2/5,1,1239633
+1037,,ModuleChanson2-semaine2/5,2,1239634
+1038,,ModuleChanson2-semaine3/5,1,1239962
+1038,,ModuleChanson2-semaine3/5,2,1239963
+1039,,ModuleChanson2-semaine4/5,1,1239635
+1039,,ModuleChanson2-semaine4/5,2,1239636
+1039,,ModuleChanson2-semaine4/5,3,1239637
+1040,,ModuleChanson2-semaine5/5,1,1240056
+1040,,ModuleChanson2-semaine5/5,2,1240057
+1040,,ModuleChanson2-semaine5/5,3,1240058
+1044,,ModuleChanson2-semaine1/5,1,1239650
+1044,,ModuleChanson2-semaine1/5,3,1239651
+1045,,ModuleChanson2-semaine2/5,1,1239654
+1045,,ModuleChanson2-semaine2/5,3,1239655
+1046,,ModuleChanson2-semaine3/5,1,1240060
+1046,,ModuleChanson2-semaine3/5,2,1240061
+1047,,ModuleChanson2-semaine4/5,1,1239717
+1047,,ModuleChanson2-semaine4/5,2,1239718
+1047,,ModuleChanson2-semaine4/5,3,1239719
+1048,,ModuleChanson2-semaine5/5,1,1239647
+1048,,ModuleChanson2-semaine5/5,2,1239648
+1048,,ModuleChanson2-semaine5/5,3,1239649
+1055,,ModuleChanson1-semaine1/5,1,1240042
+1055,,ModuleChanson1-semaine1/5,3,1240043
+1056,,ModuleChanson1-semaine2/5,2,1239652
+1056,,ModuleChanson1-semaine2/5,3,1239653
+1057,,ModuleChanson1-semaine3/5,2,1240062
+1057,,ModuleChanson1-semaine3/5,3,1240063
+1058,,ModuleChanson1-semaine4/5,1,1239642
+1058,,ModuleChanson1-semaine4/5,2,1239643
+1058,,ModuleChanson1-semaine4/5,3,1239644
+1059,,ModuleChanson1-semaine5/5,1,1239639
+1059,,ModuleChanson1-semaine5/5,2,1239640
+1059,,ModuleChanson1-semaine5/5,3,1239641
+1060,,ModuleChanson1-semaine1/5,1,1239645
+1060,,ModuleChanson1-semaine1/5,3,1239646
+1061,,ModuleChanson1-semaine2/5,2,1239638
+1062,,ModuleChanson1-semaine3/5,2,1239670
+1062,,ModuleChanson1-semaine3/5,3,1239671
+1063,,ModuleChanson1-semaine4/5,2,1239656
+1063,,ModuleChanson1-semaine4/5,3,1239657
+1064,,ModuleChanson1-semaine5/5,1,1240064
+1064,,ModuleChanson1-semaine5/5,2,1240065
+1064,,ModuleChanson1-semaine5/5,3,1240066
+1079,,ModuleConversation2-semaine1/5,1,1239773
+1079,,ModuleConversation2-semaine1/5,3,1239774
+1080,,ModuleConversation2-semaine3/5,1,1239704
+1080,,ModuleConversation2-semaine3/5,2,1239705
+1081,,ModuleConversation2-semaine2/5,2,1239521
+1081,,ModuleConversation2-semaine2/5,3,1239522
+1082,,ModuleConversation2-semaine4/5,1,1240069
+1082,,ModuleConversation2-semaine4/5,3,1240070
+1083,,ModuleConversation2-semaine5/5,2,1239699
+1083,,ModuleConversation2-semaine5/5,3,1239700
+1084,,ModuleConversation3-semaine1/5,1,1239697
+1084,,ModuleConversation3-semaine1/5,3,1239698
+1085,,ModuleConversation3-semaine2/5,2,1239584
+1085,,ModuleConversation3-semaine2/5,3,1239585
+1086,,ModuleConversation3-semaine3/5,2,1239960
+1086,,ModuleConversation3-semaine3/5,3,1239961
+1087,,ModuleConversation3-semaine4/5,1,1240128
+1087,,ModuleConversation3-semaine4/5,2,1240129
+1088,,ModuleConversation3-semaine5/5,1,1239694
+1088,,ModuleConversation3-semaine5/5,2,1239695
+1088,,ModuleConversation3-semaine5/5,3,1239696
+1089,,ModuleConversation3-semaine1/5,1,1239690
+1089,,ModuleConversation3-semaine1/5,3,1239691
+1090,,ModuleConversation3-semaine2/5,2,1239692
+1090,,ModuleConversation3-semaine2/5,3,1239693
+1091,,ModuleConversation3-semaine3/5,2,1239958
+1091,,ModuleConversation3-semaine3/5,3,1239959
+1092,,ModuleConversation3-semaine4/5,1,1239706
+1092,,ModuleConversation3-semaine4/5,2,1239707
+1093,,ModuleConversation3-semaine5/5,1,1239708
+1093,,ModuleConversation3-semaine5/5,3,1239709
+1208,,ModuleOnboardingConversationsemaine1/4,1,1240075
+1208,,ModuleOnboardingConversationsemaine1/4,2,1240076
+1209,,ModuleOnboardingConversationsemaine2/4,2,1239715
+1209,,ModuleOnboardingConversationsemaine2/4,3,1239716
+1210,,ModuleOnboardingConversationsemaine3/4,1,1239713
+1210,,ModuleOnboardingConversationsemaine3/4,3,1239714
+1211,,ModuleOnboardingConversationsemaine4/4,1,1239544
+1211,,ModuleOnboardingConversationsemaine4/4,3,1239545
+1212,,ModuleOnboardingConversationsemaine1/4,1,1239726
+1212,,ModuleOnboardingConversationsemaine1/4,2,1239727
+1213,,ModuleOnboardingConversationsemaine2/4,2,1240077
+1213,,ModuleOnboardingConversationsemaine2/4,3,1240078
+1214,,ModuleOnboardingConversationsemaine3/4,1,1239721
+1215,,ModuleOnboardingConversationsemaine4/4,2,1240122
+1215,,ModuleOnboardingConversationsemaine4/4,3,1240123
+1216,,ModuleOnboardingConversationsemaine1/4,1,1240130
+1216,,ModuleOnboardingConversationsemaine1/4,2,1240131
+1217,,ModuleOnboardingConversationsemaine2/4,2,1239722
+1217,,ModuleOnboardingConversationsemaine2/4,3,1239723
+1218,,ModuleOnboardingConversationsemaine3/4,3,1239720
+1219,,ModuleOnboardingConversationsemaine4/4,1,1239924
+1264,,ModuleJeu1-semaine1/5,2,1239658
+1264,,ModuleJeu1-semaine1/5,3,1239659
+1265,,ModuleJeu1-semaine2/5,1,1239909
+1265,,ModuleJeu1-semaine2/5,3,1239910
+1266,,ModuleJeu1-semaine3/5,1,1239902
+1266,,ModuleJeu1-semaine3/5,2,1239903
+1267,,ModuleJeu1-semaine4/5,2,1240046
+1267,,ModuleJeu1-semaine4/5,3,1240047
+1270,,ModuleJeu1-semaine5/5,1,1239609
+1270,,ModuleJeu1-semaine5/5,3,1239610
+1271,,ModuleChanson3-semaine1/5,1,1239631
+1271,,ModuleChanson3-semaine1/5,3,1239632
+1272,,ModuleChanson3-semaine2/5,1,1239928
+1272,,ModuleChanson3-semaine2/5,3,1239929
+1273,,ModuleChanson3-semaine3/5,2,1239956
+1273,,ModuleChanson3-semaine3/5,3,1239957
+1274,,ModuleChanson3-semaine4/5,1,1239685
+1274,,ModuleChanson3-semaine4/5,2,1239686
+1274,,ModuleChanson3-semaine4/5,3,1239687
+1275,,ModuleChanson3-semaine5/5,1,1239677
+1275,,ModuleChanson3-semaine5/5,2,1239678
+1275,,ModuleChanson3-semaine5/5,3,1239679
+1276,,ModuleJeu1-semaine1/5,1,1240067
+1276,,ModuleJeu1-semaine1/5,3,1240068
+1277,,ModuleJeu1-semaine2/5,1,1240071
+1277,,ModuleJeu1-semaine2/5,3,1240074
+1278,,ModuleJeu1-semaine3/5,2,1239731
+1278,,ModuleJeu1-semaine3/5,3,1239732
+1279,,ModuleJeu1-semaine4/5,2,1240082
+1279,,ModuleJeu1-semaine4/5,3,1240083
+1280,,ModuleJeu1-semaine5/5,1,1239733
+1280,,ModuleJeu1-semaine5/5,3,1239734
+1281,,ModuleJeu1-semaine1/5,1,1239745
+1281,,ModuleJeu1-semaine1/5,3,1239747
+1282,,ModuleJeu1-semaine2/5,1,1239748
+1282,,ModuleJeu1-semaine2/5,2,1239749
+1283,,ModuleJeu1-semaine3/5,1,1239754
+1283,,ModuleJeu1-semaine3/5,2,1239755
+1283,,ModuleJeu1-semaine3/5,3,1239756
+1284,,ModuleJeu1-semaine4/5,2,1239728
+1284,,ModuleJeu1-semaine4/5,3,1239729
+1285,,ModuleJeu1-semaine5/5,1,1240079
+1285,,ModuleJeu1-semaine5/5,3,1240080
+1286,,ModuleJeu1-semaine1/5,1,1239737
+1286,,ModuleJeu1-semaine1/5,3,1239738
+1287,,ModuleJeu1-semaine2/5,2,1239739
+1287,,ModuleJeu1-semaine2/5,3,1239740
+1288,,ModuleJeu1-semaine3/5,2,1239752
+1288,,ModuleJeu1-semaine3/5,3,1239753
+1289,,ModuleJeu1-semaine4/5,2,1239777
+1289,,ModuleJeu1-semaine4/5,3,1239778
+1290,,ModuleJeu1-semaine5/5,3,1239911
+1291,,ModuleSorties1-semaine 1/5,1,1239743
+1291,,ModuleSorties1-semaine 1/5,3,1239744
+1292,,ModuleSorties1-semaine 2/5,2,1240084
+1293,,ModuleSorties1-semaine 3/5,2,1239750
+1293,,ModuleSorties1-semaine 3/5,3,1239751
+1294,,ModuleSorties1-semaine 4/5,2,1240085
+1294,,ModuleSorties1-semaine 4/5,3,1240086
+1295,,ModuleSorties1-semaine 5/5,1,1239791
+1295,,ModuleSorties1-semaine 5/5,2,1239792
+1295,,ModuleSorties1-semaine 5/5,3,1239793
+1296,,ModuleSorties1-semaine 1/5,1,1239914
+1296,,ModuleSorties1-semaine 1/5,3,1239915
+1297,,ModuleSorties1-semaine 2/5,3,1239757
+1298,,ModuleSorties1-semaine 3/5,1,1239925
+1298,,ModuleSorties1-semaine 3/5,2,1239926
+1298,,ModuleSorties1-semaine 3/5,3,1239927
+1299,,ModuleSorties1-semaine 4/5,1,1239783
+1299,,ModuleSorties1-semaine 4/5,2,1239785
+1299,,ModuleSorties1-semaine 4/5,3,1239786
+1300,,ModuleSorties1-semaine 5/5,1,1240089
+1300,,ModuleSorties1-semaine 5/5,2,1240090
+1300,,ModuleSorties1-semaine 5/5,3,1240091
+1301,,ModuleSorties1-semaine 1/5,1,1239761
+1301,,ModuleSorties1-semaine 1/5,3,1239763
+1302,,ModuleSorties1-semaine 2/5,3,1239769
+1303,,ModuleSorties1-semaine 3/5,1,1240115
+1303,,ModuleSorties1-semaine 3/5,2,1240116
+1303,,ModuleSorties1-semaine 3/5,3,1240117
+1304,,ModuleSorties1-semaine 4/5,1,1239758
+1304,,ModuleSorties1-semaine 4/5,2,1239759
+1304,,ModuleSorties1-semaine 4/5,3,1239760
+1305,,ModuleSorties1-semaine 5/5,1,1239764
+1305,,ModuleSorties1-semaine 5/5,2,1239765
+1305,,ModuleSorties1-semaine 5/5,3,1239766
+1306,,ModuleOccuperSansEcrans-semaine1/5,1,1239607
+1306,,ModuleOccuperSansEcrans-semaine1/5,3,1239608
+1307,,ModuleOccuperSansEcrans-semaine2/5,1,1239922
+1307,,ModuleOccuperSansEcrans-semaine2/5,3,1239923
+1308,,ModuleOccuperSansEcrans-semaine3/5,2,1239954
+1308,,ModuleOccuperSansEcrans-semaine3/5,3,1239955
+1309,,ModuleOccuperSansEcrans-semaine4/5,2,1240094
+1309,,ModuleOccuperSansEcrans-semaine4/5,3,1240095
+1310,,ModuleOccuperSansEcrans-semaine5/5,3,1239798
+1311,,ModuleOccuperSansEcrans-semaine1/5,1,1239775
+1311,,ModuleOccuperSansEcrans-semaine1/5,3,1239776
+1312,,ModuleOccuperSansEcrans-semaine2/5,1,1239794
+1312,,ModuleOccuperSansEcrans-semaine2/5,3,1239795
+1313,,ModuleOccuperSansEcrans-semaine3/5,2,1239618
+1313,,ModuleOccuperSansEcrans-semaine3/5,3,1239619
+1314,,ModuleOccuperSansEcrans-semaine4/5,2,1239796
+1314,,ModuleOccuperSansEcrans-semaine4/5,3,1239797
+1315,,ModuleOccuperSansEcrans-semaine5/5,3,1239801
+1425,,ParcoursPostAppel3_S27,1,1239574
+1426,,ParcoursPostAppel3_S28,1,1239553
+1426,,ParcoursPostAppel3_S28,3,1239554
+1431,,ModuleChanson1-semaine1/5,1,1239672
+1431,,ModuleChanson1-semaine1/5,3,1239673
+1432,,ModuleChanson1-semaine2/5,2,1239730
+1433,,ModuleChanson1-semaine3/5,2,1239688
+1433,,ModuleChanson1-semaine3/5,3,1239689
+1434,,ModuleChanson1-semaine4/5,2,1239586
+1434,,ModuleChanson1-semaine4/5,3,1239587
+1435,,ModuleChanson1-semaine5/5,1,1239680
+1435,,ModuleChanson1-semaine5/5,2,1239681
+1435,,ModuleChanson1-semaine5/5,3,1239682
+1437,,ModuleChanson2-semaine1/5,1,1239767
+1437,,ModuleChanson2-semaine1/5,3,1239768
+1438,,ModuleChanson2-semaine2/5,1,1239683
+1438,,ModuleChanson2-semaine2/5,3,1239684
+1439,,ModuleChanson2-semaine3/5,1,1239952
+1439,,ModuleChanson2-semaine3/5,2,1239953
+1440,,ModuleChanson2-semaine4/5,1,1239802
+1440,,ModuleChanson2-semaine4/5,2,1239803
+1440,,ModuleChanson2-semaine4/5,3,1239804
+1441,,ModuleChanson2-semaine5/5,1,1239806
+1441,,ModuleChanson2-semaine5/5,2,1239807
+1441,,ModuleChanson2-semaine5/5,3,1239808
+1442,,ModuleChanson2-semaine1/5,1,1239822
+1442,,ModuleChanson2-semaine1/5,3,1239823
+1443,,ModuleChanson2-semaine2/5,1,1239812
+1443,,ModuleChanson2-semaine2/5,3,1239813
+1444,,ModuleChanson2-semaine3/5,1,1239950
+1444,,ModuleChanson2-semaine3/5,2,1239951
+1445,,ModuleChanson2-semaine4/5,1,1239809
+1445,,ModuleChanson2-semaine4/5,2,1239810
+1445,,ModuleChanson2-semaine4/5,3,1239811
+1453,,ModuleChanson2-semaine5/5,1,1239826
+1453,,ModuleChanson2-semaine5/5,2,1239827
+1453,,ModuleChanson2-semaine5/5,3,1239828
+1454,,ModuleBilinguisme-semaine1/5,2,1239838
+1454,,ModuleBilinguisme-semaine1/5,3,1239839
+1455,,ModuleBilinguisme-semaine2/5,2,1239943
+1455,,ModuleBilinguisme-semaine2/5,3,1239944
+1456,,ModuleBilinguisme-semaine3/5,2,1239833
+1456,,ModuleBilinguisme-semaine3/5,3,1239834
+1457,,ModuleBilinguisme-semaine4/5,1,1239569
+1457,,ModuleBilinguisme-semaine4/5,2,1239570
+1457,,ModuleBilinguisme-semaine4/5,3,1239571
+1458,,ModuleBilinguisme-semaine5/5,1,1239941
+1458,,ModuleBilinguisme-semaine5/5,3,1239942
+1459,,ModuleBilinguisme-semaine1/5,2,1240099
+1459,,ModuleBilinguisme-semaine1/5,3,1240100
+1460,,ModuleBilinguisme-semaine3/5,2,1239948
+1460,,ModuleBilinguisme-semaine3/5,3,1239949
+1461,,ModuleBilinguisme-semaine5/5,1,1239849
+1461,,ModuleBilinguisme-semaine5/5,3,1239850
+1462,,ModuleBilinguisme-semaine1/5,2,1239847
+1462,,ModuleBilinguisme-semaine1/5,3,1239848
+1467,,ModuleBilinguisme-semaine2/5,2,1239845
+1467,,ModuleBilinguisme-semaine2/5,3,1239846
+1468,,ModuleBilinguisme-semaine3/5,2,1239986
+1468,,ModuleBilinguisme-semaine3/5,3,1239987
+1469,,ModuleBilinguisme-semaine4/5,1,1239851
+1469,,ModuleBilinguisme-semaine4/5,2,1239852
+1469,,ModuleBilinguisme-semaine4/5,3,1239853
+1470,,ModuleBilinguisme-semaine5/5,1,1239508
+1470,,ModuleBilinguisme-semaine5/5,3,1239509
+1471,,ModuleConversation2-semaine1/5,1,1240120
+1471,,ModuleConversation2-semaine1/5,3,1240121
+1472,,ModuleConversation2-semaine2/5,2,1240025
+1472,,ModuleConversation2-semaine2/5,3,1240026
+1473,,ModuleConversation2-semaine3/5,1,1239984
+1473,,ModuleConversation2-semaine3/5,2,1239985
+1474,,ModuleConversation2-semaine4/5,1,1239542
+1474,,ModuleConversation2-semaine4/5,3,1239543
+1475,,ModuleConversation2-semaine5/5,2,1240033
+1475,,ModuleConversation2-semaine5/5,3,1240034
+1476,,ModuleConversation3-semaine1/5,1,1239572
+1476,,ModuleConversation3-semaine1/5,3,1239573
+1477,,ModuleConversation3-semaine2/5,2,1239600
+1477,,ModuleConversation3-semaine2/5,3,1239601
+1478,,ModuleConversation3-semaine3/5,2,1239981
+1478,,ModuleConversation3-semaine3/5,3,1239983
+1479,,ModuleConversation3-semaine4/5,1,1239918
+1479,,ModuleConversation3-semaine4/5,2,1239919
+1480,,ModuleConversation3-semaine5/5,1,1239615
+1480,,ModuleConversation3-semaine5/5,2,1239616
+1480,,ModuleConversation3-semaine5/5,3,1239617
+1481,,ModuleConversation3-semaine1/5,1,1239912
+1481,,ModuleConversation3-semaine1/5,3,1239913
+1486,,ModuleConversation3-semaine2/5,2,1239724
+1486,,ModuleConversation3-semaine2/5,3,1239725
+1487,,ModuleConversation3-semaine3/5,2,1239979
+1487,,ModuleConversation3-semaine3/5,3,1239980
+1488,,ModuleConversation3-semaine4/5,1,1239787
+1488,,ModuleConversation3-semaine4/5,2,1239788
+1489,,ModuleConversation3-semaine5/5,1,1239799
+1489,,ModuleConversation3-semaine5/5,3,1239800
+1490,,ModuleGarderIntérêtLivre-semaine 1,1,1239816
+1490,,ModuleGarderIntérêtLivre-semaine 1,3,1239817
+1496,,ModuleGarderIntérêtLivre-semaine 2,1,1239840
+1496,,ModuleGarderIntérêtLivre-semaine 2,3,1239842
+1497,,ModuleGarderIntérêtLivre-semaine 3,2,1239977
+1497,,ModuleGarderIntérêtLivre-semaine 3,3,1239978
+1498,,ModuleGarderIntérêtLivre-semaine 4,1,1239818
+1498,,ModuleGarderIntérêtLivre-semaine 4,2,1239819
+1499,,ModuleGarderIntérêtLivre-semaine 5,1,1240101
+1499,,ModuleGarderIntérêtLivre-semaine 5,2,1240102
+1499,,ModuleGarderIntérêtLivre-semaine 5,3,1240104
+1504,,ModuleLecture-niveau2-semaine1/5,1,1239824
+1504,,ModuleLecture-niveau2-semaine1/5,3,1239825
+1505,,ModuleLecture-niveau2-semaine2/5,1,1239831
+1505,,ModuleLecture-niveau2-semaine2/5,3,1239832
+1506,,ModuleLecture-niveau2-semaine3/5,1,1239975
+1506,,ModuleLecture-niveau2-semaine3/5,2,1239976
+1507,,ModuleLecture-niveau2-semaine4/5,2,1239820
+1507,,ModuleLecture-niveau2-semaine4/5,3,1239821
+1508,,ModuleLecture-niveau2-semaine5/5,1,1239835
+1508,,ModuleLecture-niveau2-semaine5/5,2,1239836
+1508,,ModuleLecture-niveau2-semaine5/5,3,1239837
+1509,,ModuleJeuxvsEcrans-semaine1,1,1239855
+1509,,ModuleJeuxvsEcrans-semaine1,3,1239856
+1510,,ModuleJeuxvsEcrans-semaine2,1,1239860
+1511,,ModuleJeuxvsEcrans-semaine3,2,1239973
+1511,,ModuleJeuxvsEcrans-semaine3,3,1239974
+1512,,ModuleJeuxvsEcrans-semaine4,3,1240105
+1513,,ModuleJeuxvsEcrans-semaine5,2,1239857
+1514,,ModuleMieuxGérerLesEcrans-semaine1,1,1239861
+1514,,ModuleMieuxGérerLesEcrans-semaine1,3,1239863
+1523,,ModuleMieuxGérerLesEcrans-semaine2,1,1239875
+1523,,ModuleMieuxGérerLesEcrans-semaine2,3,1239876
+1524,,ModuleMieuxGérerLesEcrans-semaine3,2,1239970
+1524,,ModuleMieuxGérerLesEcrans-semaine3,3,1239971
+1525,,ModuleMieuxGérerLesEcrans-semaine4,1,1239885
+1525,,ModuleMieuxGérerLesEcrans-semaine4,2,1239886
+1526,,ModuleMieuxGérerLesEcrans-semaine5,1,1239872
+1526,,ModuleMieuxGérerLesEcrans-semaine5,2,1239873
+1526,,ModuleMieuxGérerLesEcrans-semaine5,3,1239874
+1527,,ModuleMieuxGérerLesEcrans-semaine1,1,1240106
+1527,,ModuleMieuxGérerLesEcrans-semaine1,3,1240108
+1528,,ModuleMieuxGérerLesEcrans-semaine2,1,1239883
+1528,,ModuleMieuxGérerLesEcrans-semaine2,3,1239884
+1529,,ModuleMieuxGérerLesEcrans-semaine3,2,1239968
+1529,,ModuleMieuxGérerLesEcrans-semaine3,3,1239969
+1530,,ModuleMieuxGérerLesEcrans-semaine4,1,1239881
+1530,,ModuleMieuxGérerLesEcrans-semaine4,2,1239882
+1531,,ModuleMieuxGérerLesEcrans-semaine5,1,1239877
+1531,,ModuleMieuxGérerLesEcrans-semaine5,2,1239878
+1531,,ModuleMieuxGérerLesEcrans-semaine5,3,1239879
+1536,,ModuleComprendreSaColère-semaine1,1,1239864
+1536,,ModuleComprendreSaColère-semaine1,3,1239865
+1537,,ModuleComprendreSaColère-semaine2,2,1239858
+1537,,ModuleComprendreSaColère-semaine2,3,1239859
+1538,,ModuleComprendreSaColère-semaine3,2,1239964
+1538,,ModuleComprendreSaColère-semaine3,3,1239965
+1539,,ModuleComprendreSaColère-semaine4,2,1239866
+1539,,ModuleComprendreSaColère-semaine4,3,1239867
+1540,,ModuleComprendreSaColère-semaine5,1,1239887
+1540,,ModuleComprendreSaColère-semaine5,2,1239888
+1540,,ModuleComprendreSaColère-semaine5,3,1239889
+1685,annonce_arret_deux_ko,Annonce d'arrêt (2 KO),1,1240125
+1686,annonce_arret_deux_ko_fratrie,Annonce d'arrêt (2 KO) — fratrie,1,1239993
+1687,apres_premier_ko_appel0,Après 1er KO · Appel 0,1,1239994
+1688,apres_premier_ko_appel1,Après 1er KO · Appel 1,1,1240124
+1689,apres_premier_ko_appel2,Après 1er KO · Appel 2,1,1239990
+1690,arret_accompagnement,Arrêt · Famille pose problème / Inscrite sans accord / Ne veut pas du programme / Pratiques très avancées,1,1239991
+1691,arret_barriere_langue,Arrêt · Pas assez francophone,1,1239992
+1692,arret_professionnel_sante,Arrêt · Professionnel·le de santé qui teste,1,1239995
+1693,bienvenue,Bienvenue (hors période d'été),1,1239996
+1694,bienvenue_ete,Bienvenue (période d'été),1,1239997
+1695,confirmation_rdv,Confirmation de RDV,1,1239998
+1696,verification_adresse_pnd,Demande de vérification d'adresse (PND),1,1239999
+1697,demarrage_tardif,Démarrage tardif,1,1240000
+1698,eval_fin_accompagnement,"Fin d'accompagnement, étude eval",1,1240001
+1699,fin_programme,Fin du programme,1,1240002
+1700,fin_programme_trois_ans,Fin du programme (l'enfant a 3 ans),1,1240003
+1701,instagram_fin_programme,Garder le lien sur Instagram,1,1239510
+1702,inscription_confirmee_eval25,Inscription confirmée (eval25),1,1239555
+1703,invitation_choix_theme,Invitation à choisir le prochain thème,1,1240126
+1704,invitation_questionnaire,Invitation à remplir le questionnaire,1,1240004
+1705,invitation_instagram,Invitation à suivre Instagram,1,1240005
+1706,invitation_instagram_caf,Invitation à suivre Instagram (CAF),1,1240006
+1707,non_accompagnement,Message de non-accompagnement,1,1240007
+1708,bilingues_j0,Messages aux familles bilingues (J0),1,1240008
+1709,bilingues_j7,Messages aux familles bilingues (J+7),1,1240009
+1710,bilingues_j14,Messages aux familles bilingues (J+14),1,1240010
+1711,numero_sans_sms,Numéro qui ne reçoit pas de SMS,1,1240011
+1712,rappel_mission_deux_semaines,Rappel de petite mission — 2 semaines,1,1240012
+1713,rappel_mission_appel0,Rappel de petite mission — appel 0,1,1240013
+1714,rappel_mission_appel3,Rappel de petite mission — appel 3,1,1240014
+1715,rappel_rdv_jour_j,Rappel de RDV — jour J (~2h avant),1,1240127
+1716,rappel_rdv_veille,Rappel de RDV — la veille (J-1),1,1240015
+1717,relance_derniere_chance,Relance de dernière chance,1,1240016
+1718,relance_choix_theme,Relance du choix de thème,1,1240017
+1719,repechage_annulation_rdv,Repêchage après annulation de RDV,1,1240018
+1720,verification_adresse,Vérification de l'adresse,1,1240019
+1721,verification_adresse_livre_partenaire,Vérification de l'adresse pour le livre offert par un partenaire,1,1240020

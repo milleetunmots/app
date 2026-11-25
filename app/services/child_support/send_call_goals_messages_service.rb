@@ -108,8 +108,7 @@ class ChildSupport::SendCallGoalsMessagesService
 
   # Un trio par semaine, dans l'ordre de la liste : un trio introuvable laisse sa semaine vide.
   def call3_bundles
-    @call3_bundles ||= ENV.fetch('CALL3_TEXT_MESSAGES_BUNDLES', '').dup.force_encoding(Encoding::UTF_8).split(',').map(&:strip).compact_blank
-                          .index_with { |name| Media::TextMessagesBundle.kept.find_by(name: name) }
+    @call3_bundles ||= Media::TextMessagesBundle.call3_names.index_with { |name| Media::TextMessagesBundle.kept.find_by(name: name) }
   end
 
   def report_missing_call3_bundles

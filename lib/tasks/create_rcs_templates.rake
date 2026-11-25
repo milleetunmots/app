@@ -1,5 +1,5 @@
 namespace :rcs do
-  desc "Create RCS templates (text without image, card with image) for TextMessagesBundle messages that have none"
+  desc 'Create missing RCS templates (text without image, card with image) for V2 module, automatic and call 3 text bundles'
   task create_templates: :environment do
     if ENV['SPOT_HIT_SAFEGUARD'].present?
       puts 'Aborted: SPOT_HIT_SAFEGUARD active. Refusing to sync RCS templates to SpotHit.'
@@ -8,7 +8,8 @@ namespace :rcs do
 
     puts "Starting RCS template creation..."
 
-    bundles = Media::TextMessagesBundle.kept.all
+    puts 'Scope: text bundles of V2 modules, automatic messages and call 3 messages'
+    bundles = Media::TextMessagesBundle.covered_by_rcs_templates
     total = bundles.count
     success_count = 0
     error_count = 0

@@ -56,7 +56,7 @@ RSpec.describe Media::SyncRcsModelsService do
 
       create_from_admin(body1: "Découvrez\nla comptine de la semaine.", link1: video, body2: nil, body3: nil)
 
-      expect(created_models.last).to eq(
+      expect(created_models.last.except('name')).to eq(
         'type' => 'text',
         'content' => {
           'text' => { 'text' => 'Découvrez<br>la comptine de la semaine. {URL}', 'suggestions' => [] },

@@ -12,7 +12,7 @@ RSpec.describe 'rcs:create_templates' do
   before { task.reenable }
 
   def existing_bundle(body1:, body2: nil, rcs_media1_id: nil, image1_id: nil, rcs_text_template1: false)
-    bundle = FactoryBot.create(:media_text_messages_bundle, body1: body1, body2: body2, body3: nil)
+    bundle = FactoryBot.create(:media_text_messages_bundle, body1: body1, body2: body2, body3: nil, key: "cle_#{SecureRandom.hex(4)}")
     bundle.update_columns(rcs_media1_id: rcs_media1_id, rcs_media2_id: nil, image1_id: image1_id, rcs_text_template1: rcs_text_template1)
     WebMock::RequestRegistry.instance.reset!
     bundle.reload
@@ -36,6 +36,48 @@ RSpec.describe 'rcs:create_templates' do
         expect(created_model_texts.first).to include('"type":"text"')
         expect(bundle.reload).to have_attributes(rcs_media1_id: 4521, rcs_text_template1: true)
       end
+    end
+  end
+
+  context 'périmètre des trios' do
+    it 'crée les modèles des trios de modules V2, nommés par thème, niveau, âges, semaine et message' do
+      stub_request(:post, SpotHit::CreateRcsModelService::URL).to_return(status: 200, body: { success: true, id: 4521 }.to_json)
+      bundle = FactoryBot.create(:media_text_messages_bundle, body1: 'Chantez une comptine ce soir.', body2: nil, body3: nil)
+      support_module = FactoryBot.create(:support_module, theme: SupportModule::SONGS, level: 1, age_ranges: [SupportModule::FOUR_TO_ELEVEN])
+      FactoryBot.create(:support_module_week, support_module: support_module, position: 1, medium: bundle)
+      WebMock::RequestRegistry.instance.reset!
+
+      task.invoke
+
+      expect(created_model_texts.first).to include("Chansons N1 4-11 S1M1 ##{bundle.id}")
+      expect(bundle.reload.rcs_media1_id).to eq(4521)
+    end
+
+    it "crée les modèles des trios envoyés après l'appel 3" do
+      stub_request(:post, SpotHit::CreateRcsModelService::URL).to_return(status: 200, body: { success: true, id: 4521 }.to_json)
+      bundle = FactoryBot.create(:media_text_messages_bundle, name: 'ParcoursPostAppel3_S26', body1: 'Bravo pour la petite mission.', body2: nil, body3: nil)
+      WebMock::RequestRegistry.instance.reset!
+      previous = ENV.fetch('CALL3_TEXT_MESSAGES_BUNDLES', nil)
+      ENV['CALL3_TEXT_MESSAGES_BUNDLES'] = 'ParcoursPostAppel3_S26'
+
+      task.invoke
+
+      expect(bundle.reload.rcs_media1_id).to eq(4521)
+    ensure
+      ENV['CALL3_TEXT_MESSAGES_BUNDLES'] = previous
+    end
+
+    it 'ignore les trios hors modules V2, hors messages automatiques et hors appel 3' do
+      bundle = FactoryBot.create(:media_text_messages_bundle, name: 'Rattrapage S28', body1: 'Ancien message.', body2: nil, body3: nil)
+      legacy_module = FactoryBot.create(:support_module, name: 'V1 / 0-12 / S1-S3')
+      legacy_module.update_columns(theme: nil)
+      FactoryBot.create(:support_module_week, support_module: legacy_module, medium: bundle)
+      WebMock::RequestRegistry.instance.reset!
+
+      task.invoke
+
+      expect(WebMock).not_to have_requested(:post, SpotHit::CreateRcsModelService::URL)
+      expect(bundle.reload.rcs_media1_id).to be_nil
     end
   end
 

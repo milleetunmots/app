@@ -192,6 +192,26 @@ RSpec.describe SpotHit::CreateRcsModelService do
       end
     end
 
+    context 'nom du modèle' do
+      it 'le nomme avec les tags du trio, son nom, le numéro du message et son id' do
+        bundle = FactoryBot.create(:media_text_messages_bundle, name: 'Fin du programme', tag_list: ['message automatique', 'fin'])
+
+        described_class.new(text_messages_bundle: bundle, message_index: 2).call
+
+        expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
+          .with { |req| JSON.parse(Rack::Utils.parse_nested_query(req.body)['model'])['name'] == "[message automatique] [fin] Fin du programme M2 ##{bundle.id}" })
+      end
+
+      it "se passe des crochets quand le trio n'a pas de tag" do
+        bundle = FactoryBot.create(:media_text_messages_bundle, name: 'Popi 3 S2')
+
+        described_class.new(text_messages_bundle: bundle, message_index: 1).call
+
+        expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
+          .with { |req| JSON.parse(Rack::Utils.parse_nested_query(req.body)['model'])['name'] == "Popi 3 S2 M1 ##{bundle.id}" })
+      end
+    end
+
     context 'when SpotHit API returns an error' do
       before do
         stub_request(:post, "https://www.spot-hit.fr/api/rcs/model/create")

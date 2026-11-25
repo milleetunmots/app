@@ -26,12 +26,12 @@ RSpec.describe 'text_messages_bundles:create_automatic_messages' do
     end_of_support_page
     bilingual_video
 
-    expect { task.invoke }.to output(/40 trio\(s\) créé\(s\)/).to_stdout
+    expect { task.invoke }.to output(/37 trio\(s\) créé\(s\)/).to_stdout
 
     bundles = Media::TextMessagesBundle.tagged_with('message automatique')
-    expect(bundles.count).to eq(40)
+    expect(bundles.count).to eq(37)
     expect(bundles.pluck(:key)).to all(be_present)
-    expect(bundles.pluck(:key).uniq.size).to eq(40)
+    expect(bundles.pluck(:key).uniq.size).to eq(37)
     expect(Media::TextMessagesBundle.find_by(name: 'Message de continuation')).to be_nil
   end
 

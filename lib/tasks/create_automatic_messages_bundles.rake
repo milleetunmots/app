@@ -104,8 +104,6 @@ namespace :text_messages_bundles do
       'Numéro qui ne reçoit pas de SMS' =>
         "1001mots: Ce numéro ne peut pas recevoir de SMS. Pour nous contacter, merci d'envoyer vos messages directement à " \
         '{PRENOM_ACCOMPAGNANTE} au {NUMERO_AIRCALL_ACCOMPAGNANTE}. Merci!',
-      "Rappel d'inscription CAF (v1)" => Parent::ProgramCafSubscriptionReminderService::MESSAGE_V1,
-      "Rappel d'inscription CAF (v2)" => Parent::ProgramCafSubscriptionReminderService::MESSAGE_V2,
       'Rappel de petite mission — 2 semaines' => format(call_goals_reminder, closing: 'À bientôt :)'),
       'Rappel de petite mission — appel 0' =>
         "1001mots: Je n'ai pas réussi à vous joindre cette fois-ci, tant pis! Voici un rappel de votre petite mission de la dernière " \
@@ -122,7 +120,6 @@ namespace :text_messages_bundles do
       'Repêchage après annulation de RDV' =>
         "1001mots : Bonjour, vous venez d’annuler votre RDV avec {PRENOM_ACCOMPAGNANTE}.\nVous pouvez choisir un autre créneau pour lui " \
         "parler ici : {CALENDLY_LINK}\nA bientôt !",
-      "Suggestion d'un lieu d'accueil enfants-parents" => Place::SendMessageToParentsNearLaepService::MESSAGE,
       "Vérification de l'adresse" =>
         "1001mots : Bonjour, nous allons bientôt envoyer un livre pour {PRENOM_ENFANT}. Nous allons l'envoyer à l'adresse suivante : " \
         "\n{PARENT_ADDRESS}\nSi l'adresse postale ou le nom sur la boîte aux lettres ne sont pas bons, merci de les modifier ici : " \
@@ -162,8 +159,6 @@ namespace :text_messages_bundles do
       'Messages aux familles bilingues (J+7)' => 'bilingues_j7',
       'Messages aux familles bilingues (J+14)' => 'bilingues_j14',
       'Numéro qui ne reçoit pas de SMS' => 'numero_sans_sms',
-      "Rappel d'inscription CAF (v1)" => 'rappel_inscription_caf_v1',
-      "Rappel d'inscription CAF (v2)" => 'rappel_inscription_caf_v2',
       'Rappel de petite mission — 2 semaines' => 'rappel_mission_deux_semaines',
       'Rappel de petite mission — appel 0' => 'rappel_mission_appel0',
       'Rappel de petite mission — appel 3' => 'rappel_mission_appel3',
@@ -172,7 +167,6 @@ namespace :text_messages_bundles do
       'Relance de dernière chance' => 'relance_derniere_chance',
       'Relance du choix de thème' => 'relance_choix_theme',
       'Repêchage après annulation de RDV' => 'repechage_annulation_rdv',
-      "Suggestion d'un lieu d'accueil enfants-parents" => 'suggestion_laep',
       "Vérification de l'adresse" => 'verification_adresse',
       "Vérification de l'adresse pour le livre offert par un partenaire" => 'verification_adresse_livre_partenaire'
     }

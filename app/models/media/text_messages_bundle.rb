@@ -96,6 +96,17 @@ class Media::TextMessagesBundle < Medium
     kept.find_by(key: key)
   end
 
+  def self.call3_names
+    ENV.fetch('CALL3_TEXT_MESSAGES_BUNDLES', '').dup.force_encoding(Encoding::UTF_8).split(',').map(&:strip).compact_blank
+  end
+
+  # Trios qui ont un modèle Spot-Hit : modules V2, messages automatiques et trios d'après l'appel 3.
+  def self.covered_by_rcs_templates
+    module_bundle_ids = SupportModuleWeek.joins(:support_module).merge(SupportModule.with_theme_level_and_age_range)
+                                         .pluck(:medium_id, :additional_medium_id).flatten.compact
+    kept.where(id: module_bundle_ids).or(kept.where.not(key: nil)).or(kept.where(name: call3_names))
+  end
+
   def self.rcs_single_text_enabled?
     ENV['RCS_SINGLE_TEXT_ENABLED'].present?
   end
