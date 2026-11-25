@@ -138,8 +138,12 @@ module Calendly
       end
     end
 
+    # lien régénéré en cours de session : les jours écoulés ne sont plus réservables
     def call_start_date
-      date_override&.start_date || @group.send("call#{@call_session}_start_date")
+      start_date = date_override&.start_date || @group.send("call#{@call_session}_start_date")
+      return start_date unless start_date
+
+      [start_date, Time.zone.today].max
     end
 
     def call_end_date

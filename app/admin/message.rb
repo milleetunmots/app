@@ -195,9 +195,11 @@ ActiveAdmin.register_page 'Message' do
       end
       if params[:call_goals_sms] == 'scheduled_call_reminder'
         parent = Parent.find_by(id: params['recipients'].first.gsub('parent.', '').to_i)
-        if parent
+        # même fenêtre que le bouton « Relancer » (2 jours avant la session) ;
+        # sans session proche, l'envoi ne se rattache à aucune
+        call_index = parent && parent.current_child&.child_support&.active_call_index(days_before: 2)
+        if call_index
           parent.calendly_last_booking_dates ||= {}
-          call_index = parent.current_child&.child_support&.active_call_index
           parent.calendly_last_booking_dates["call#{call_index}"] = Time.zone.today.to_s
           parent.save!
         end
