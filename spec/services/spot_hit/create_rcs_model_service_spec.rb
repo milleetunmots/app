@@ -178,6 +178,26 @@ RSpec.describe SpotHit::CreateRcsModelService do
       end
     end
 
+    context 'quand le message contient un lien Typeform à jeton' do
+      it 'met la variable du jeton du parent dans le modèle texte, que Spot-Hit remplit à l\'envoi' do
+        bundle = FactoryBot.create(:media_text_messages_bundle, body1: 'Racontez-nous : https://form.typeform.com/to/hTGg3duy#st=xxxxx', body2: nil, body3: nil)
+
+        described_class.new(text_messages_bundle: bundle, message_index: 1).call
+
+        expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
+          .with { |req| JSON.parse(Rack::Utils.parse_nested_query(req.body)['model']).dig('content', 'text', 'text') == 'Racontez-nous : https://form.typeform.com/to/hTGg3duy#st={PARENT_SECURITY_TOKEN}' })
+      end
+
+      it 'fait de même dans le texte du modèle carte' do
+        text_messages_bundle.update_columns(body1: 'Racontez-nous : https://form.typeform.com/to/hTGg3duy#st=xxxxx')
+
+        service
+
+        expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/rcs/model/create')
+          .with { |req| CGI.unescape(req.body.b).force_encoding('UTF-8').include?('hTGg3duy#st={PARENT_SECURITY_TOKEN}') })
+      end
+    end
+
     context 'quand le message n\'a pas d\'image' do
       before do
         text_messages_bundle.update_columns(image1_id: nil)

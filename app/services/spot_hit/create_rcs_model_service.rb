@@ -58,7 +58,7 @@ class SpotHit::CreateRcsModelService
   def body
     @body ||= begin
       raw_body = @text_messages_bundle.send("body#{@message_index}")
-      cleaned = clean_body(raw_body)
+      cleaned = with_parent_token(clean_body(raw_body))
       link.present? ? strip_url_placeholder(cleaned) : cleaned
     end
   end
@@ -128,7 +128,7 @@ class SpotHit::CreateRcsModelService
   end
 
   def text_model_body
-    text = clean_body(@text_messages_bundle.send("body#{@message_index}"))
+    text = with_parent_token(clean_body(@text_messages_bundle.send("body#{@message_index}")))
     text += ' {URL}' if link.present? && text.exclude?('{URL}')
     text.gsub(/\r?\n/, '<br>')
   end
@@ -166,6 +166,13 @@ class SpotHit::CreateRcsModelService
     column_name = "rcs_media#{@message_index}_id"
     @text_messages_bundle.update_columns(column_name => @rcs_media_id, "rcs_text_template#{@message_index}" => text_template?)
     Rails.logger.info "Saved RCS media ID #{@rcs_media_id} to #{column_name} for TextMessagesBundle ##{@text_messages_bundle.id}"
+  end
+
+  # Comme ProgramMessageService#find_form_url : Spot-Hit remplit le jeton de chaque parent à l'envoi.
+  def with_parent_token(text)
+    return text unless [ProgramMessageService::TYPEFORM_URL_REGEX, ProgramMessageService::VIDEOASK_URL_REGEX].any? { |regex| text.to_s.match?(regex) }
+
+    text.gsub(/#st=[^\s]+/, '#st={PARENT_SECURITY_TOKEN}')
   end
 
   def strip_url_placeholder(text)

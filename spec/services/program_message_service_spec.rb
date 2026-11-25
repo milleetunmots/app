@@ -203,6 +203,21 @@ RSpec.describe ProgramMessageService do
     end
   end
 
+  context 'quand un message à lien Typeform part avec un modèle RCS' do
+    it 'envoie le jeton du parent, que Spot-Hit place dans le lien du modèle' do
+      service = ProgramMessageService.new(
+        Time.zone.today, Time.zone.now.strftime('%H:%M'), ["parent.#{parent_2.id}"],
+        'Racontez-nous : https://form.typeform.com/to/hTGg3duy#st=xxxxx', 4521
+      ).call
+
+      expect(service.errors).to be_empty
+      expect(WebMock).to(have_requested(:post, 'https://www.spot-hit.fr/api/envoyer/rcs').with do |request|
+        form = Rack::Utils.parse_nested_query(request.body)
+        form['media_id'] == '4521' && form.dig('custom_list_with_data', parent_2.phone_number, 'PARENT_SECURITY_TOKEN') == parent_2.security_token
+      end)
+    end
+  end
+
   context 'when parent and url are given' do
     before do
       allow_any_instance_of(RedirectionUrlDecorator).to(
