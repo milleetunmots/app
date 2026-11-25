@@ -176,7 +176,7 @@ RSpec.describe Calendly::ProcessInviteeCanceledService do
         it 'recreates a one-off event type and sends the rebooking message' do
           subject.call
           expect(Calendly::CreateOneOffEventTypeService).to have_received(:new)
-          expect(ProgramMessageService).to have_received(:new)
+          expect(ProgramAutomaticMessageService).to have_received(:new)
         end
       end
 
